@@ -263,7 +263,7 @@ export default function FinanziamentiAgevolati() {
                 </div>
                 <div>
                   <span className="text-slate-400">Cofinanziamento:</span>
-                  <span className={selectedGrant.requires_cofinancing ? 'text-yellow-400' : 'text-green-400'} ml-2">
+                  <span className={`${selectedGrant.requires_cofinancing ? 'text-yellow-400' : 'text-green-400'} ml-2`}>
                     {selectedGrant.requires_cofinancing ? 'Richiesto' : 'Non richiesto'}
                   </span>
                 </div>
