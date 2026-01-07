@@ -26,6 +26,8 @@ export default function VideoInterviste() {
   const [showContactModal, setShowContactModal] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [contactMessage, setContactMessage] = useState('');
+  const [showRequestModal, setShowRequestModal] = useState(false);
+  const [requestMessage, setRequestMessage] = useState('');
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -123,6 +125,36 @@ export default function VideoInterviste() {
     }
   });
 
+  const requestInterviewMutation = useMutation({
+    mutationFn: async () => {
+      if (!requestMessage.trim()) return;
+      
+      await base44.integrations.Core.SendEmail({
+        from_name: 'Piattaforma Consorzio',
+        to: 'info@consorzioimprenditori.com',
+        subject: `Richiesta Video Intervista - ${user.company_name || user.full_name}`,
+        body: `
+Nuova richiesta di video intervista dalla piattaforma:
+
+AZIENDA: ${user.company_name || 'N/A'}
+REFERENTE: ${user.full_name || 'N/A'}
+EMAIL: ${user.email}
+TELEFONO: ${user.phone || 'N/A'}
+
+MESSAGGIO:
+${requestMessage}
+
+---
+Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
+        `
+      });
+    },
+    onSuccess: () => {
+      setShowRequestModal(false);
+      setRequestMessage('');
+    }
+  });
+
   const hasUserLiked = (video) => {
     return video.likes?.includes(user?.email);
   };
@@ -192,7 +224,10 @@ export default function VideoInterviste() {
         </div>
 
         {/* Banner richiesta video */}
-        <div className="bg-lime-400 rounded-xl p-4 mb-6 flex items-center justify-between">
+        <div 
+          className="bg-lime-400 rounded-xl p-4 mb-6 flex items-center justify-between cursor-pointer hover:bg-lime-500 transition-colors"
+          onClick={() => setShowRequestModal(true)}
+        >
           <div>
             <p className="text-slate-900 text-sm font-medium">richiedi la tua video intervista</p>
             <p className="text-slate-700 text-xs">annuale compresa nel prezzo d'iscrizione</p>
@@ -300,6 +335,48 @@ export default function VideoInterviste() {
               className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900"
             >
               {sendContactMessageMutation.isPending ? 'Invio...' : 'Invia Messaggio'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Request Interview Modal */}
+      <Dialog open={showRequestModal} onOpenChange={setShowRequestModal}>
+        <DialogContent className="bg-slate-800 border-slate-700">
+          <DialogHeader>
+            <DialogTitle className="text-white">Richiedi la tua Video Intervista</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            <div className="bg-lime-400/20 rounded-lg p-4 border border-lime-400/30">
+              <p className="text-lime-400 text-sm font-medium mb-2">✓ Servizio Incluso</p>
+              <p className="text-slate-300 text-xs">
+                La video intervista annuale è compresa nel prezzo di iscrizione. 
+                Ti contatteremo per organizzare le riprese.
+              </p>
+            </div>
+            
+            <div className="space-y-2">
+              <p className="text-slate-300 text-sm font-medium">I tuoi dati:</p>
+              <div className="bg-slate-900 rounded-lg p-3 space-y-1">
+                <p className="text-white text-sm">{user?.company_name || user?.full_name}</p>
+                <p className="text-slate-400 text-xs">{user?.email}</p>
+                {user?.phone && <p className="text-slate-400 text-xs">{user.phone}</p>}
+              </div>
+            </div>
+
+            <Textarea
+              placeholder="Aggiungi eventuali note o preferenze per la tua video intervista..."
+              value={requestMessage}
+              onChange={(e) => setRequestMessage(e.target.value)}
+              className="bg-slate-900 border-slate-700 text-white min-h-[120px]"
+            />
+            
+            <Button 
+              onClick={() => requestInterviewMutation.mutate()}
+              disabled={requestInterviewMutation.isPending || !requestMessage.trim()}
+              className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900"
+            >
+              {requestInterviewMutation.isPending ? 'Invio...' : 'Invia Richiesta'}
             </Button>
           </div>
         </DialogContent>
