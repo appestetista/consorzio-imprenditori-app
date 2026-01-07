@@ -99,6 +99,21 @@ export default function FinanziamentiAgevolati() {
       
       await Promise.all(notificationPromises);
       
+      // Invia email di notifica
+      await base44.integrations.Core.SendEmail({
+        to: 'consorzioimprenditori@gmail.com',
+        subject: '🔔 Nuova Richiesta Consulenza Bando',
+        body: `
+          <h2>Nuova Richiesta di Consulenza</h2>
+          <p><strong>Azienda:</strong> ${user.company_name || user.full_name}</p>
+          <p><strong>Email:</strong> ${user.email}</p>
+          <p><strong>Bando richiesto:</strong> ${grantTitle}</p>
+          <p><strong>Data richiesta:</strong> ${new Date().toLocaleDateString('it-IT')}</p>
+          <br>
+          <p>Accedi al pannello amministratore per visualizzare i dettagli completi.</p>
+        `
+      });
+      
       if (existing) {
         return base44.entities.GrantInterest.update(existing.id, {
           requested_consultation: true,

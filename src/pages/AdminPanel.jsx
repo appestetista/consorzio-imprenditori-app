@@ -77,6 +77,26 @@ export default function AdminPanel() {
     queryFn: () => base44.entities.Consultant.list(),
   });
 
+  const { data: consultationRequests = [] } = useQuery({
+    queryKey: ['consultation-requests'],
+    queryFn: async () => {
+      const requests = await base44.entities.GrantInterest.filter({ 
+        requested_consultation: true 
+      });
+      
+      const users = await base44.entities.User.list();
+      const grants = await base44.entities.FinancialGrant.list();
+      
+      return requests.map(req => ({
+        ...req,
+        user: users.find(u => u.email === req.user_email),
+        grant: grants.find(g => g.id === req.grant_id)
+      }));
+    }
+  });
+
+  const pendingRequests = consultationRequests.filter(r => r.consultation_status === 'pending');
+
   const { data: messages = [] } = useQuery({
     queryKey: ['unread-messages', user?.email],
     queryFn: () => base44.entities.Message.filter({ to_email: user?.email, is_read: false }),
@@ -106,6 +126,15 @@ export default function AdminPanel() {
       setShowInvite(false);
       setInviteEmail('');
       setInviteRole('user');
+    }
+  });
+
+  const updateConsultationStatusMutation = useMutation({
+    mutationFn: async ({ requestId, status }) => {
+      return base44.entities.GrantInterest.update(requestId, { consultation_status: status });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['consultation-requests'] });
     }
   });
 
@@ -158,6 +187,68 @@ export default function AdminPanel() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Richieste Consulenza Pendenti */}
+        {pendingRequests.length > 0 && (
+          <Card className="bg-slate-800 border-red-500/50 mb-6">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center gap-2">
+                <Bell className="w-5 h-5 text-red-500 animate-pulse" />
+                Richieste Consulenza Bandi ({pendingRequests.length})
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {pendingRequests.map((request) => (
+                <div key={request.id} className="bg-slate-700/50 rounded-lg p-4 border border-slate-600">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex-1">
+                      <p className="text-white font-semibold">{request.user?.company_name || request.user?.full_name}</p>
+                      <p className="text-slate-400 text-sm">{request.user?.email}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="border-green-500 text-green-500 hover:bg-green-500 hover:text-white"
+                        onClick={() => updateConsultationStatusMutation.mutate({ requestId: request.id, status: 'accepted' })}
+                      >
+                        <CheckCircle className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+                        onClick={() => updateConsultationStatusMutation.mutate({ requestId: request.id, status: 'rejected' })}
+                      >
+                        <XCircle className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="bg-slate-900 rounded p-3">
+                    <p className="text-lime-400 font-medium text-sm">{request.grant?.title}</p>
+                    <div className="grid grid-cols-2 gap-2 mt-2 text-xs">
+                      {request.grant?.grant_type && (
+                        <div>
+                          <span className="text-slate-500">Tipo:</span>
+                          <span className="text-slate-300 ml-1">{request.grant.grant_type}</span>
+                        </div>
+                      )}
+                      {request.grant?.funding_type && (
+                        <div>
+                          <span className="text-slate-500">Forma:</span>
+                          <span className="text-slate-300 ml-1">{request.grant.funding_type}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <p className="text-slate-500 text-xs mt-2">
+                    Richiesta il {new Date(request.created_date).toLocaleDateString('it-IT')}
+                  </p>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
 
         {/* Quick Actions */}
         <div className="space-y-3 mb-6">
