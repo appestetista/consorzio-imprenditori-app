@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Sparkles, AlertCircle, Info } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import GrantCard from '../components/grants/GrantCard';
@@ -17,6 +18,8 @@ export default function FinanziamentiAgevolati() {
   const [user, setUser] = useState(null);
   const [selectedGrant, setSelectedGrant] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
+  const [showConsultationDialog, setShowConsultationDialog] = useState(false);
+  const [selectedGrantForConsultation, setSelectedGrantForConsultation] = useState(null);
   const [filters, setFilters] = useState({
     easyAccess: false,
     grantType: 'all',
@@ -25,6 +28,7 @@ export default function FinanziamentiAgevolati() {
     accessMode: 'all',
     noCofinancing: false
   });
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const loadUser = async () => {
@@ -47,6 +51,70 @@ export default function FinanziamentiAgevolati() {
     queryKey: ['unread-messages', user?.email],
     queryFn: () => base44.entities.Message.filter({ to_email: user?.email, is_read: false }),
     enabled: !!user?.email,
+  });
+
+  const { data: userInterests = [] } = useQuery({
+    queryKey: ['user-grant-interests', user?.email],
+    queryFn: () => base44.entities.GrantInterest.filter({ user_email: user?.email }),
+    enabled: !!user?.email,
+  });
+
+  const toggleAlertsMutation = useMutation({
+    mutationFn: async ({ grantId, currentState }) => {
+      const existing = userInterests.find(i => i.grant_id === grantId);
+      if (existing) {
+        return base44.entities.GrantInterest.update(existing.id, {
+          wants_alerts: !currentState
+        });
+      } else {
+        return base44.entities.GrantInterest.create({
+          grant_id: grantId,
+          user_email: user.email,
+          wants_alerts: true
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-grant-interests'] });
+    }
+  });
+
+  const requestConsultationMutation = useMutation({
+    mutationFn: async ({ grantId, grantTitle }) => {
+      const existing = userInterests.find(i => i.grant_id === grantId);
+      
+      const adminUsers = await base44.entities.User.filter({ role: 'admin' });
+      
+      const notificationPromises = adminUsers.map(admin =>
+        base44.entities.Notification.create({
+          user_email: admin.email,
+          type: 'consultation',
+          title: 'Richiesta consulenza bando',
+          content: `${user.company_name || user.full_name} ha richiesto assistenza per il bando: ${grantTitle}`,
+          reference_id: grantId
+        })
+      );
+      
+      await Promise.all(notificationPromises);
+      
+      if (existing) {
+        return base44.entities.GrantInterest.update(existing.id, {
+          requested_consultation: true,
+          consultation_status: 'pending'
+        });
+      } else {
+        return base44.entities.GrantInterest.create({
+          grant_id: grantId,
+          user_email: user.email,
+          requested_consultation: true,
+          consultation_status: 'pending'
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-grant-interests'] });
+      setShowConsultationDialog(false);
+    }
   });
 
   // Automatic matching based on company profile
@@ -127,6 +195,26 @@ export default function FinanziamentiAgevolati() {
     setShowDetails(true);
   };
 
+  const handleToggleAlerts = (grant) => {
+    const interest = userInterests.find(i => i.grant_id === grant.id);
+    toggleAlertsMutation.mutate({
+      grantId: grant.id,
+      currentState: interest?.wants_alerts || false
+    });
+  };
+
+  const handleRequestConsultation = (grant) => {
+    setSelectedGrantForConsultation(grant);
+    setShowConsultationDialog(true);
+  };
+
+  const confirmConsultationRequest = () => {
+    requestConsultationMutation.mutate({
+      grantId: selectedGrantForConsultation.id,
+      grantTitle: selectedGrantForConsultation.title
+    });
+  };
+
   const hasIncompleteProfile = !user?.company_size || !user?.region;
 
   return (
@@ -202,13 +290,19 @@ export default function FinanziamentiAgevolati() {
           </div>
         ) : (
           <div className="space-y-4">
-            {filteredGrants.map((grant) => (
-              <GrantCard
-                key={grant.id}
-                grant={grant}
-                onDetails={handleShowDetails}
-              />
-            ))}
+            {filteredGrants.map((grant) => {
+              const interest = userInterests.find(i => i.grant_id === grant.id);
+              return (
+                <GrantCard
+                  key={grant.id}
+                  grant={grant}
+                  userInterest={interest}
+                  onDetails={handleShowDetails}
+                  onToggleAlerts={() => handleToggleAlerts(grant)}
+                  onRequestConsultation={() => handleRequestConsultation(grant)}
+                />
+              );
+            })}
           </div>
         )}
       </main>
@@ -292,6 +386,64 @@ export default function FinanziamentiAgevolati() {
               )}
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Consultation Request Dialog */}
+      <Dialog open={showConsultationDialog} onOpenChange={setShowConsultationDialog}>
+        <DialogContent className="bg-slate-800 border-slate-700">
+          <DialogHeader>
+            <DialogTitle className="text-white">Richiedi Assistenza Consulenza</DialogTitle>
+          </DialogHeader>
+          
+          {selectedGrantForConsultation && (
+            <div className="space-y-4 mt-4">
+              <Alert className="bg-blue-500/10 border-blue-500/30">
+                <AlertDescription className="text-slate-300 text-sm">
+                  Stai richiedendo assistenza per il bando: <span className="font-bold text-white">{selectedGrantForConsultation.title}</span>
+                </AlertDescription>
+              </Alert>
+
+              {selectedGrantForConsultation.prezzo_istruttoria && (
+                <div className="bg-slate-900 rounded-lg p-4">
+                  <Label className="text-slate-400 text-sm">Costi servizio:</Label>
+                  <div className="mt-2 space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-white">Prezzo istruttoria:</span>
+                      <span className="text-lime-400 font-bold">{selectedGrantForConsultation.prezzo_istruttoria.toLocaleString('it-IT')} €</span>
+                    </div>
+                    {selectedGrantForConsultation.percentuale_erogazione && (
+                      <div className="flex justify-between">
+                        <span className="text-white">% su erogazione:</span>
+                        <span className="text-lime-400 font-bold">{selectedGrantForConsultation.percentuale_erogazione}%</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              <p className="text-slate-400 text-sm">
+                Un consulente del consorzio ti contatterà per valutare la tua candidatura e fornirti assistenza completa nella preparazione della domanda.
+              </p>
+            </div>
+          )}
+
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setShowConsultationDialog(false)}
+              className="border-slate-600 text-slate-300"
+            >
+              Annulla
+            </Button>
+            <Button
+              onClick={confirmConsultationRequest}
+              disabled={requestConsultationMutation.isPending}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              {requestConsultationMutation.isPending ? 'Invio...' : 'Conferma richiesta'}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

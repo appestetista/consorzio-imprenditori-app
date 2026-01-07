@@ -44,7 +44,9 @@ export default function BandoForm({ bando, onSubmit, onCancel, isSubmitting }) {
     eligible_regions: [],
     eligible_ateco_codes: [],
     eligible_legal_forms: [],
-    website_url: ''
+    website_url: '',
+    prezzo_istruttoria: '',
+    percentuale_erogazione: ''
   });
 
   const [errors, setErrors] = useState([]);
@@ -461,6 +463,34 @@ export default function BandoForm({ bando, onSubmit, onCancel, isSubmitting }) {
               checked={formData.easy_access}
               onCheckedChange={(checked) => updateField('easy_access', checked)}
             />
+          </div>
+
+          <div className="bg-slate-900 rounded-lg p-4 space-y-3">
+            <Label className="text-slate-300">Costi Assistenza Consulenza</Label>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label className="text-slate-400 text-sm">Prezzo Istruttoria (€)</Label>
+                <Input
+                  type="number"
+                  value={formData.prezzo_istruttoria}
+                  onChange={(e) => updateField('prezzo_istruttoria', e.target.value)}
+                  className="bg-slate-800 border-slate-700 text-white mt-1"
+                  placeholder="3000"
+                />
+              </div>
+              <div>
+                <Label className="text-slate-400 text-sm">% su Erogazione</Label>
+                <Input
+                  type="number"
+                  value={formData.percentuale_erogazione}
+                  onChange={(e) => updateField('percentuale_erogazione', e.target.value)}
+                  className="bg-slate-800 border-slate-700 text-white mt-1"
+                  placeholder="5"
+                  min="0"
+                  max="100"
+                />
+              </div>
+            </div>
           </div>
         </TabsContent>
       </Tabs>

@@ -61,11 +61,27 @@ export default function GestioneBandi() {
 
   const createBandoMutation = useMutation({
     mutationFn: async (data) => {
-      return base44.entities.FinancialGrant.create({
+      const newGrant = await base44.entities.FinancialGrant.create({
         ...data,
         created_by_email: user.email,
         last_modified_by_email: user.email
       });
+      
+      // Invia notifica a tutti gli utenti per il nuovo bando
+      const allUsers = await base44.entities.User.list();
+      const notificationPromises = allUsers.map(u =>
+        base44.entities.Notification.create({
+          user_email: u.email,
+          type: 'event',
+          title: 'Nuovo bando disponibile',
+          content: `È stato pubblicato un nuovo bando: ${data.title}`,
+          reference_id: newGrant.id
+        })
+      );
+      
+      await Promise.all(notificationPromises);
+      
+      return newGrant;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-grants'] });

@@ -2,11 +2,11 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Calendar, Euro, TrendingUp, ExternalLink, Zap, CheckCircle2 } from 'lucide-react';
+import { Calendar, Euro, TrendingUp, ExternalLink, Zap, CheckCircle2, Bell, BellOff, Briefcase } from 'lucide-react';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 
-export default function GrantCard({ grant, onDetails }) {
+export default function GrantCard({ grant, onDetails, userInterest, onToggleAlerts, onRequestConsultation }) {
   const getStatusColor = (status) => {
     switch (status) {
       case 'Aperto': return 'bg-green-500';
@@ -94,24 +94,48 @@ export default function GrantCard({ grant, onDetails }) {
           )}
         </div>
 
-        <div className="flex gap-2 pt-2">
-          <Button
-            size="sm"
-            className="flex-1 bg-lime-400 hover:bg-lime-500 text-slate-900"
-            onClick={() => onDetails(grant)}
-          >
-            Dettagli
-          </Button>
-          {grant.website_url && (
+        <div className="space-y-2 pt-2">
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              className="flex-1 bg-lime-400 hover:bg-lime-500 text-slate-900"
+              onClick={() => onDetails(grant)}
+            >
+              Dettagli
+            </Button>
+            {grant.website_url && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-slate-600 text-slate-300"
+                onClick={() => window.open(grant.website_url, '_blank')}
+              >
+                <ExternalLink className="w-4 h-4" />
+              </Button>
+            )}
+          </div>
+          
+          <div className="flex gap-2">
             <Button
               size="sm"
               variant="outline"
-              className="border-slate-600 text-slate-300"
-              onClick={() => window.open(grant.website_url, '_blank')}
+              className={`flex-1 ${userInterest?.wants_alerts ? 'border-lime-400 text-lime-400' : 'border-slate-600 text-slate-300'}`}
+              onClick={onToggleAlerts}
             >
-              <ExternalLink className="w-4 h-4" />
+              {userInterest?.wants_alerts ? <Bell className="w-4 h-4 mr-1" /> : <BellOff className="w-4 h-4 mr-1" />}
+              {userInterest?.wants_alerts ? 'Avvisi attivi' : 'Attiva avvisi'}
             </Button>
-          )}
+            
+            <Button
+              size="sm"
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+              onClick={onRequestConsultation}
+              disabled={userInterest?.requested_consultation}
+            >
+              <Briefcase className="w-4 h-4 mr-1" />
+              {userInterest?.requested_consultation ? 'Richiesta inviata' : 'Richiedi consulenza'}
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>
