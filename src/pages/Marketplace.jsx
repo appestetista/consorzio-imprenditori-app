@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Plus, ShoppingBag, Tag, User, X } from 'lucide-react';
+import { ArrowLeft, Plus, ShoppingBag, Tag, User, X, Upload } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Label } from '@/components/ui/label';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 
@@ -30,7 +30,8 @@ export default function Marketplace() {
   const [user, setUser] = useState(null);
   const [showAddAd, setShowAddAd] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [newAd, setNewAd] = useState({ title: '', description: '', category: '', price: '', contact_phone: '' });
+  const [newAd, setNewAd] = useState({ title: '', description: '', category: '', price: '', contact_phone: '', image_url: '' });
+  const [uploadingImage, setUploadingImage] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -56,6 +57,21 @@ export default function Marketplace() {
     enabled: !!user?.email,
   });
 
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    setUploadingImage(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setNewAd({ ...newAd, image_url: file_url });
+    } catch (error) {
+      console.error('Errore upload immagine:', error);
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   const createAdMutation = useMutation({
     mutationFn: async (adData) => {
       return base44.entities.MarketplaceAd.create({
@@ -67,7 +83,7 @@ export default function Marketplace() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['marketplace-ads'] });
       setShowAddAd(false);
-      setNewAd({ title: '', description: '', category: '', price: '', contact_phone: '' });
+      setNewAd({ title: '', description: '', category: '', price: '', contact_phone: '', image_url: '' });
     }
   });
 
@@ -95,7 +111,7 @@ export default function Marketplace() {
                 Inserisci
               </Button>
             </DialogTrigger>
-            <DialogContent className="bg-slate-800 border-slate-700">
+            <DialogContent className="bg-slate-800 border-slate-700 max-h-[85vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle className="text-white">Nuovo Annuncio</DialogTitle>
               </DialogHeader>
@@ -108,7 +124,7 @@ export default function Marketplace() {
                 />
                 <Select
                   value={newAd.category}
-                  onValueChange={(value) => setNewAd({...newAd, category: value})}
+                  onValueChange={(value) => setNewAd({...newAd, category: value, image_url: value === 'Ricerca Personale' ? '' : newAd.image_url})}
                 >
                   <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
                     <SelectValue placeholder="Seleziona categoria" />
@@ -125,6 +141,59 @@ export default function Marketplace() {
                   onChange={(e) => setNewAd({...newAd, description: e.target.value})}
                   className="bg-slate-900 border-slate-700 text-white"
                 />
+                
+                {/* Image Upload - Only if not "Ricerca Personale" */}
+                {newAd.category && newAd.category !== 'Ricerca Personale' && (
+                  <div className="space-y-2">
+                    <Label className="text-slate-300">Foto prodotto (opzionale)</Label>
+                    <div className="flex flex-col gap-3">
+                      {newAd.image_url ? (
+                        <div className="relative rounded-lg overflow-hidden border border-slate-700">
+                          <img 
+                            src={newAd.image_url} 
+                            alt="Prodotto" 
+                            className="w-full h-48 object-cover"
+                          />
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            className="absolute top-2 right-2"
+                            onClick={() => setNewAd({...newAd, image_url: ''})}
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <Label 
+                          htmlFor="ad-image" 
+                          className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-700 rounded-lg cursor-pointer hover:bg-slate-700/50 transition-colors"
+                        >
+                          {uploadingImage ? (
+                            <div className="text-center">
+                              <div className="animate-spin w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full mx-auto mb-2"></div>
+                              <p className="text-sm text-slate-400">Caricamento...</p>
+                            </div>
+                          ) : (
+                            <>
+                              <Upload className="w-8 h-8 text-slate-400 mb-2" />
+                              <p className="text-sm text-slate-300">Carica foto</p>
+                              <p className="text-xs text-slate-500">PNG, JPG (max 5MB)</p>
+                            </>
+                          )}
+                          <Input
+                            id="ad-image"
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={handleImageUpload}
+                            disabled={uploadingImage}
+                          />
+                        </Label>
+                      )}
+                    </div>
+                  </div>
+                )}
+                
                 <Input
                   placeholder="Prezzo (opzionale)"
                   type="number"
@@ -140,7 +209,7 @@ export default function Marketplace() {
                 />
                 <Button 
                   onClick={() => createAdMutation.mutate(newAd)}
-                  disabled={createAdMutation.isPending || !newAd.title || !newAd.category}
+                  disabled={createAdMutation.isPending || uploadingImage || !newAd.title || !newAd.category}
                   className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900"
                 >
                   {createAdMutation.isPending ? 'Pubblicazione...' : 'Pubblica Annuncio'}
@@ -191,7 +260,16 @@ export default function Marketplace() {
         ) : (
           <div className="space-y-4">
             {filteredAds.map((ad) => (
-              <Card key={ad.id} className="bg-slate-800 border-slate-700">
+              <Card key={ad.id} className="bg-slate-800 border-slate-700 overflow-hidden">
+                {ad.image_url && (
+                  <div className="w-full h-48 overflow-hidden">
+                    <img 
+                      src={ad.image_url} 
+                      alt={ad.title}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
                 <CardHeader className="pb-2">
                   <div className="flex items-start justify-between">
                     <CardTitle className="text-white text-lg">{ad.title}</CardTitle>
