@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Calendar, Video, Briefcase, Users, Zap, ShoppingBag } from 'lucide-react';
+import { Calendar, Video, Briefcase, Users, Zap, ShoppingBag, Sparkles } from 'lucide-react';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import FeatureCard from '../components/home/FeatureCard';
@@ -65,6 +65,7 @@ export default function Home() {
     { title: 'Calendario\nincontri', icon: Calendar, page: 'CalendarioIncontri', notifications: eventNotifications, permission: 'calendario' },
     { title: 'Video\ninterviste', icon: Video, page: 'VideoInterviste', notifications: videoNotifications, permission: 'video_interviste' },
     { title: 'Consulenze\npreventivi', icon: Briefcase, page: 'Consulenze', notifications: consultationNotifications, permission: 'consulenze' },
+    { title: 'Finanziamenti\nagevolati', icon: Sparkles, page: 'FinanziamentiAgevolati', notifications: 0, permission: 'finanziamenti' },
     { title: 'Contatta\nmembri', icon: Users, page: 'ContattaMembri', notifications: 0, permission: 'contatta_membri' },
     { title: 'Risparmio\nenergetico', icon: Zap, page: 'RisparmioEnergetico', notifications: 0, permission: 'risparmio_energetico' },
     { title: 'market place', icon: ShoppingBag, page: 'Marketplace', notifications: 0, permission: 'marketplace' },
@@ -86,7 +87,7 @@ export default function Home() {
         </div>
 
         {/* Feature Grid */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4 mb-4">
           {features.map((feature) => (
             <FeatureCard
               key={feature.page}

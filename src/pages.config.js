@@ -9,6 +9,7 @@ import Marketplace from './pages/Marketplace';
 import Messaggi from './pages/Messaggi';
 import RisparmioEnergetico from './pages/RisparmioEnergetico';
 import VideoInterviste from './pages/VideoInterviste';
+import FinanziamentiAgevolati from './pages/FinanziamentiAgevolati';
 
 
 export const PAGES = {
@@ -23,6 +24,7 @@ export const PAGES = {
     "Messaggi": Messaggi,
     "RisparmioEnergetico": RisparmioEnergetico,
     "VideoInterviste": VideoInterviste,
+    "FinanziamentiAgevolati": FinanziamentiAgevolati,
 }
 
 export const pagesConfig = {
