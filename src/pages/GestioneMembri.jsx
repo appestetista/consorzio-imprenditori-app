@@ -245,6 +245,228 @@ export default function GestioneMembri() {
         )}
       </main>
 
+      {/* Member Form Dialog */}
+      <Dialog open={showMemberForm} onOpenChange={(open) => {
+        setShowMemberForm(open);
+        if (!open) {
+          setEditingMember(null);
+          setFormData(null);
+        }
+      }}>
+        <DialogContent className="bg-slate-800 border-slate-700 max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-white">Modifica Dati Azienda</DialogTitle>
+          </DialogHeader>
+          <button
+            onClick={() => setShowMemberForm(false)}
+            className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
+          >
+            <X className="h-4 w-4 text-slate-400" />
+          </button>
+          
+          {formData && (
+            <div className="space-y-6 mt-4">
+              {/* Dati Aziendali */}
+              <div className="space-y-4">
+                <h3 className="text-lime-400 font-semibold text-sm">Dati Aziendali</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="col-span-2">
+                    <Label className="text-slate-300 text-sm">Ragione Sociale *</Label>
+                    <Input
+                      value={formData.company_name}
+                      onChange={(e) => setFormData({...formData, company_name: e.target.value})}
+                      className="bg-slate-900 border-slate-700 text-white mt-1"
+                      placeholder="Es: Acme S.r.l."
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-slate-300 text-sm">Email Aziendale *</Label>
+                    <Input
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({...formData, email: e.target.value})}
+                      className="bg-slate-900 border-slate-700 text-white mt-1"
+                      placeholder="info@azienda.it"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-slate-300 text-sm">Telefono Aziendale</Label>
+                    <Input
+                      value={formData.phone}
+                      onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                      className="bg-slate-900 border-slate-700 text-white mt-1"
+                      placeholder="+39 02 1234567"
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <Label className="text-slate-300 text-sm">Sito Web</Label>
+                    <Input
+                      value={formData.website}
+                      onChange={(e) => setFormData({...formData, website: e.target.value})}
+                      className="bg-slate-900 border-slate-700 text-white mt-1"
+                      placeholder="https://www.azienda.it"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Referente Aziendale */}
+              <div className="space-y-4">
+                <h3 className="text-lime-400 font-semibold text-sm">Referente Aziendale</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="col-span-2">
+                    <Label className="text-slate-300 text-sm">Nome e Cognome Referente *</Label>
+                    <Input
+                      value={formData.full_name}
+                      onChange={(e) => setFormData({...formData, full_name: e.target.value})}
+                      className="bg-slate-900 border-slate-700 text-white mt-1"
+                      placeholder="Mario Rossi"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-slate-300 text-sm">Cellulare Referente</Label>
+                    <Input
+                      value={formData.referente_cellulare}
+                      onChange={(e) => setFormData({...formData, referente_cellulare: e.target.value})}
+                      className="bg-slate-900 border-slate-700 text-white mt-1"
+                      placeholder="+39 333 1234567"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-slate-300 text-sm">Email Referente</Label>
+                    <Input
+                      type="email"
+                      value={formData.referente_email}
+                      onChange={(e) => setFormData({...formData, referente_email: e.target.value})}
+                      className="bg-slate-900 border-slate-700 text-white mt-1"
+                      placeholder="mario.rossi@azienda.it"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Dati Fatturazione */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-blue-400 font-semibold text-sm">Dati di Fatturazione (Facoltativi)</h3>
+                  <span className="text-slate-500 text-xs">Tutti i campi sono opzionali</span>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="col-span-2">
+                    <Label className="text-slate-300 text-sm">Ragione Sociale Fatturazione</Label>
+                    <Input
+                      value={formData.ragione_sociale_fatturazione}
+                      onChange={(e) => setFormData({...formData, ragione_sociale_fatturazione: e.target.value})}
+                      className="bg-slate-900 border-slate-700 text-white mt-1"
+                      placeholder="Se diversa dalla ragione sociale"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-slate-300 text-sm">Partita IVA</Label>
+                    <Input
+                      value={formData.partita_iva}
+                      onChange={(e) => setFormData({...formData, partita_iva: e.target.value})}
+                      className="bg-slate-900 border-slate-700 text-white mt-1"
+                      placeholder="IT12345678901"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-slate-300 text-sm">Codice Fiscale</Label>
+                    <Input
+                      value={formData.codice_fiscale}
+                      onChange={(e) => setFormData({...formData, codice_fiscale: e.target.value})}
+                      className="bg-slate-900 border-slate-700 text-white mt-1"
+                      placeholder="12345678901"
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <Label className="text-slate-300 text-sm">Codice SDI</Label>
+                    <Input
+                      value={formData.codice_sdi}
+                      onChange={(e) => setFormData({...formData, codice_sdi: e.target.value})}
+                      className="bg-slate-900 border-slate-700 text-white mt-1"
+                      placeholder="Sistema di Interscambio - es: ABCDEFG"
+                    />
+                    <p className="text-xs text-slate-500 mt-1">Codice per fatturazione elettronica</p>
+                  </div>
+                  <div className="col-span-2">
+                    <Label className="text-slate-300 text-sm">Indirizzo</Label>
+                    <Input
+                      value={formData.indirizzo}
+                      onChange={(e) => setFormData({...formData, indirizzo: e.target.value})}
+                      className="bg-slate-900 border-slate-700 text-white mt-1"
+                      placeholder="Via Roma, 123"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-slate-300 text-sm">Città</Label>
+                    <Input
+                      value={formData.citta}
+                      onChange={(e) => setFormData({...formData, citta: e.target.value})}
+                      className="bg-slate-900 border-slate-700 text-white mt-1"
+                      placeholder="Milano"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-slate-300 text-sm">Provincia</Label>
+                    <Input
+                      value={formData.provincia}
+                      onChange={(e) => setFormData({...formData, provincia: e.target.value})}
+                      className="bg-slate-900 border-slate-700 text-white mt-1"
+                      placeholder="MI"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-slate-300 text-sm">Regione</Label>
+                    <Input
+                      value={formData.regione}
+                      onChange={(e) => setFormData({...formData, regione: e.target.value})}
+                      className="bg-slate-900 border-slate-700 text-white mt-1"
+                      placeholder="Lombardia"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-slate-300 text-sm">CAP</Label>
+                    <Input
+                      value={formData.cap}
+                      onChange={(e) => setFormData({...formData, cap: e.target.value})}
+                      className="bg-slate-900 border-slate-700 text-white mt-1"
+                      placeholder="20100"
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <Label className="text-slate-300 text-sm">Paese</Label>
+                    <Input
+                      value={formData.paese}
+                      onChange={(e) => setFormData({...formData, paese: e.target.value})}
+                      className="bg-slate-900 border-slate-700 text-white mt-1"
+                      placeholder="Italia"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-4 border-t border-slate-700">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowMemberForm(false)}
+                  className="flex-1 border-slate-600 text-slate-300"
+                >
+                  Annulla
+                </Button>
+                <Button
+                  onClick={handleSaveMember}
+                  disabled={updateMemberMutation.isPending || !formData.company_name || !formData.email || !formData.full_name}
+                  className="flex-1 bg-lime-400 hover:bg-lime-500 text-slate-900"
+                >
+                  {updateMemberMutation.isPending ? 'Salvataggio...' : 'Salva Modifiche'}
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* Permissions Dialog */}
       <Dialog open={showPermissions} onOpenChange={setShowPermissions}>
         <DialogContent className="bg-slate-800 border-slate-700">
