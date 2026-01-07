@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, User, Lock, Unlock, Trash2, Settings, Search, Shield, ShieldOff } from 'lucide-react';
+import { ArrowLeft, User, Lock, Unlock, Trash2, Settings, Search, Shield, ShieldOff, Edit, X } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -30,6 +30,8 @@ export default function GestioneMembri() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedMember, setSelectedMember] = useState(null);
   const [showPermissions, setShowPermissions] = useState(false);
+  const [showMemberForm, setShowMemberForm] = useState(false);
+  const [formData, setFormData] = useState(null);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -69,6 +71,17 @@ export default function GestioneMembri() {
     }
   });
 
+  const updateMemberMutation = useMutation({
+    mutationFn: async ({ memberId, data }) => {
+      return base44.entities.User.update(memberId, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['all-members'] });
+      setShowMemberForm(false);
+      setFormData(null);
+    }
+  });
+
   const updatePermissionsMutation = useMutation({
     mutationFn: async ({ memberId, permissions }) => {
       return base44.entities.User.update(memberId, { permissions });
@@ -97,6 +110,38 @@ export default function GestioneMembri() {
       member.email?.toLowerCase().includes(searchLower)
     );
   });
+
+  const handleEditMember = (member) => {
+    setFormData({
+      company_name: member.company_name || '',
+      email: member.email || '',
+      phone: member.phone || '',
+      website: member.website || '',
+      full_name: member.full_name || '',
+      referente_cellulare: member.referente_cellulare || '',
+      referente_email: member.referente_email || '',
+      ragione_sociale_fatturazione: member.ragione_sociale_fatturazione || '',
+      partita_iva: member.partita_iva || '',
+      codice_fiscale: member.codice_fiscale || '',
+      codice_sdi: member.codice_sdi || '',
+      indirizzo: member.indirizzo || '',
+      citta: member.citta || '',
+      provincia: member.provincia || '',
+      regione: member.regione || '',
+      cap: member.cap || '',
+      paese: member.paese || ''
+    });
+    setSelectedMember(member);
+    setShowMemberForm(true);
+  };
+
+  const handleSaveMember = () => {
+    if (!selectedMember || !formData) return;
+    updateMemberMutation.mutate({
+      memberId: selectedMember.id,
+      data: formData
+    });
+  };
 
   const handlePermissionChange = (key, value) => {
     if (!selectedMember) return;
@@ -178,23 +223,11 @@ export default function GestioneMembri() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className={member.is_blocked 
-                        ? 'flex-1 border-green-600 text-green-400 hover:bg-green-600/20'
-                        : 'flex-1 border-red-600 text-red-400 hover:bg-red-600/20'}
-                      onClick={() => toggleBlockMutation.mutate({ memberId: member.id, isBlocked: member.is_blocked })}
-                      disabled={toggleBlockMutation.isPending}
+                      className="flex-1 border-lime-400 text-lime-400 hover:bg-lime-400/20"
+                      onClick={() => handleEditMember(member)}
                     >
-                      {member.is_blocked ? (
-                        <>
-                          <Unlock className="w-4 h-4 mr-1" />
-                          Sblocca
-                        </>
-                      ) : (
-                        <>
-                          <Lock className="w-4 h-4 mr-1" />
-                          Blocca
-                        </>
-                      )}
+                      <Edit className="w-4 h-4 mr-1" />
+                      Modifica
                     </Button>
                     
                     <Button
@@ -207,6 +240,22 @@ export default function GestioneMembri() {
                       }}
                     >
                       <Settings className="w-4 h-4" />
+                    </Button>
+                    
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className={member.is_blocked 
+                        ? 'border-green-600 text-green-400 hover:bg-green-600/20'
+                        : 'border-red-600 text-red-400 hover:bg-red-600/20'}
+                      onClick={() => toggleBlockMutation.mutate({ memberId: member.id, isBlocked: member.is_blocked })}
+                      disabled={toggleBlockMutation.isPending}
+                    >
+                      {member.is_blocked ? (
+                        <Unlock className="w-4 h-4" />
+                      ) : (
+                        <Lock className="w-4 h-4" />
+                      )}
                     </Button>
                     
                     <AlertDialog>
@@ -473,6 +522,12 @@ export default function GestioneMembri() {
           <DialogHeader>
             <DialogTitle className="text-white">Permessi - {selectedMember?.company_name || selectedMember?.full_name}</DialogTitle>
           </DialogHeader>
+          <button
+            onClick={() => setShowPermissions(false)}
+            className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
+          >
+            <X className="h-4 w-4 text-slate-400" />
+          </button>
           <div className="space-y-4 mt-4">
             {PERMISSIONS_LIST.map((perm) => {
               const isEnabled = selectedMember?.permissions?.[perm.key] !== false;
