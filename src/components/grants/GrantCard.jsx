@@ -2,11 +2,11 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Calendar, Euro, TrendingUp, ExternalLink, Zap, CheckCircle2, Bell, BellOff, Briefcase } from 'lucide-react';
+import { Calendar, Euro, TrendingUp, ExternalLink, Zap, CheckCircle2, Bell, BellOff, Briefcase, Sparkles } from 'lucide-react';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 
-export default function GrantCard({ grant, onDetails, userInterest, onToggleAlerts, onRequestConsultation }) {
+export default function GrantCard({ grant, onDetails, userInterest, onToggleAlerts, onRequestConsultation, aiRecommendation, isTopRecommended }) {
   const getStatusColor = (status) => {
     switch (status) {
       case 'Aperto': return 'bg-green-500';
@@ -29,7 +29,9 @@ export default function GrantCard({ grant, onDetails, userInterest, onToggleAler
   };
 
   return (
-    <Card className="bg-slate-800 border-slate-700 hover:border-lime-400/50 transition-colors">
+    <Card className={`bg-slate-800 border-slate-700 hover:border-lime-400/50 transition-colors ${
+      isTopRecommended ? 'ring-2 ring-purple-500/50 shadow-lg shadow-purple-500/20' : ''
+    }`}>
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1">
@@ -43,6 +45,12 @@ export default function GrantCard({ grant, onDetails, userInterest, onToggleAler
               )}
             </div>
             <CardTitle className="text-white text-lg">{grant.title}</CardTitle>
+            {aiRecommendation && aiRecommendation.score >= 75 && !isTopRecommended && (
+              <Badge className="bg-purple-600 text-white border-0 text-xs mt-1">
+                <Sparkles className="w-3 h-3 mr-1" />
+                {aiRecommendation.score}% match
+              </Badge>
+            )}
           </div>
           <Badge className={`${getStatusColor(grant.status)} text-white`}>
             {grant.status}
@@ -52,6 +60,14 @@ export default function GrantCard({ grant, onDetails, userInterest, onToggleAler
       
       <CardContent className="space-y-3">
         <p className="text-slate-400 text-sm line-clamp-2">{grant.description}</p>
+        {aiRecommendation && aiRecommendation.reason && (
+          <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg px-3 py-2">
+            <p className="text-purple-300 text-xs flex items-start gap-2">
+              <Sparkles className="w-3 h-3 mt-0.5 flex-shrink-0" />
+              <span>{aiRecommendation.reason}</span>
+            </p>
+          </div>
+        )}
         
         <div className="flex flex-wrap gap-2">
           <Badge variant="outline" className="border-lime-400/30 text-lime-400">
