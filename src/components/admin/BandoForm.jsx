@@ -61,6 +61,8 @@ export default function BandoForm({ bando, onSubmit, onCancel, isSubmitting }) {
     if (!formData.grant_type) newErrors.push("Tipologia investimento obbligatoria");
     if (!formData.funding_type) newErrors.push("Forma agevolazione obbligatoria");
     if (!formData.access_mode) newErrors.push("Modalità accesso obbligatoria");
+    if (!formData.prezzo_istruttoria || Number(formData.prezzo_istruttoria) < 0) newErrors.push("Costo istruttoria obbligatorio");
+    if (!formData.percentuale_erogazione || Number(formData.percentuale_erogazione) < 0 || Number(formData.percentuale_erogazione) > 100) newErrors.push("Percentuale consulente (0-100) obbligatoria");
     
     if (formData.opening_date && formData.deadline) {
       if (new Date(formData.deadline) < new Date(formData.opening_date)) {
@@ -465,21 +467,28 @@ export default function BandoForm({ bando, onSubmit, onCancel, isSubmitting }) {
             />
           </div>
 
-          <div className="bg-slate-900 rounded-lg p-4 space-y-3">
-            <Label className="text-slate-300">Costi Assistenza Consulenza</Label>
+          <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <Label className="text-blue-400 font-semibold">Condizioni Economiche del Bando *</Label>
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label className="text-slate-400 text-sm">Prezzo Istruttoria (€)</Label>
+                <Label className="text-slate-300 text-sm">Costo Istruttoria (€) *</Label>
                 <Input
                   type="number"
                   value={formData.prezzo_istruttoria}
                   onChange={(e) => updateField('prezzo_istruttoria', e.target.value)}
                   className="bg-slate-800 border-slate-700 text-white mt-1"
                   placeholder="3000"
+                  min="0"
+                  required
                 />
+                <p className="text-xs text-slate-500 mt-1">
+                  Costo per analisi e gestione pratica
+                </p>
               </div>
               <div>
-                <Label className="text-slate-400 text-sm">% su Erogazione</Label>
+                <Label className="text-slate-300 text-sm">Percentuale a Successo (%) *</Label>
                 <Input
                   type="number"
                   value={formData.percentuale_erogazione}
@@ -488,7 +497,11 @@ export default function BandoForm({ bando, onSubmit, onCancel, isSubmitting }) {
                   placeholder="5"
                   min="0"
                   max="100"
+                  required
                 />
+                <p className="text-xs text-slate-500 mt-1">
+                  Percentuale su importo erogato (success fee)
+                </p>
               </div>
             </div>
           </div>
