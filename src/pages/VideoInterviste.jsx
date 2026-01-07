@@ -131,7 +131,7 @@ export default function VideoInterviste() {
       
       await base44.integrations.Core.SendEmail({
         from_name: 'Piattaforma Consorzio',
-        to: 'info@consorzioimprenditori.com',
+        to: 'consorzioimprenditori@gmail.com',
         subject: `Richiesta Video Intervista - ${user.company_name || user.full_name}`,
         body: `
 Nuova richiesta di video intervista dalla piattaforma:
