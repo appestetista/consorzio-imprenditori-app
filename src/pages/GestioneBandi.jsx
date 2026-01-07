@@ -288,6 +288,20 @@ export default function GestioneBandi() {
                           <span className="text-slate-500">•</span>
                           <span className="text-lime-400">{matchingUsers.length} aziende compatibili</span>
                         </div>
+                        {(grant.prezzo_istruttoria || grant.percentuale_erogazione) && (
+                          <div className="flex flex-wrap gap-3 text-xs mt-2">
+                            {grant.prezzo_istruttoria && (
+                              <span className="text-blue-400">
+                                Istruttoria: {grant.prezzo_istruttoria.toLocaleString('it-IT')} €
+                              </span>
+                            )}
+                            {grant.percentuale_erogazione && (
+                              <span className="text-blue-400">
+                                Success fee: {grant.percentuale_erogazione}%
+                              </span>
+                            )}
+                          </div>
+                        )}
                         {daysUntilDeadline !== null && daysUntilDeadline > 0 && daysUntilDeadline <= 30 && (
                           <Alert className="mt-2 bg-orange-500/20 border-orange-500/30 py-2">
                             <AlertDescription className="text-orange-400 text-xs">
