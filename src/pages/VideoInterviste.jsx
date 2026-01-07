@@ -23,9 +23,6 @@ export default function VideoInterviste() {
   const [user, setUser] = useState(null);
   const [showAddVideo, setShowAddVideo] = useState(false);
   const [newVideo, setNewVideo] = useState({ title: '', company_name: '', youtube_url: '', company_email: '' });
-  const [showContactModal, setShowContactModal] = useState(false);
-  const [selectedVideo, setSelectedVideo] = useState(null);
-  const [contactMessage, setContactMessage] = useState('');
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [requestMessage, setRequestMessage] = useState('');
   const queryClient = useQueryClient();
@@ -115,22 +112,46 @@ export default function VideoInterviste() {
   });
 
   const sendContactMessageMutation = useMutation({
-    mutationFn: async () => {
-      if (!selectedVideo || !contactMessage.trim()) return;
+    mutationFn: async (video) => {
+      if (!video.company_email) {
+        throw new Error('Email azienda non disponibile');
+      }
       
-      const conversationId = [user.email, selectedVideo.company_email].sort().join('-');
+      const emailBody = `Gentile Azienda,
+
+l'utente ${user.company_name || user.full_name} desidera essere contattato dalla vostra azienda.
+
+Siete pregati di ricontattarlo al più presto al seguente numero:
+${user.phone || 'Non disponibile'}
+
+Referente aziendale:
+${user.full_name || 'Non disponibile'}
+
+Cordiali saluti,
+Consorzio Imprenditori`;
+
+      // Invio email
+      await base44.integrations.Core.SendEmail({
+        from_name: 'Consorzio Imprenditori',
+        to: video.company_email,
+        subject: `${user.company_name || user.full_name} ti vuole contattare`,
+        body: emailBody
+      });
       
+      // Invio messaggio in-app
+      const conversationId = [user.email, video.company_email].sort().join('-');
       await base44.entities.Message.create({
         from_email: user.email,
-        to_email: selectedVideo.company_email,
-        content: `[Riguardo video: ${selectedVideo.company_name}]\n\n${contactMessage}`,
+        to_email: video.company_email,
+        content: `Richiesta di contatto da ${user.company_name || user.full_name}\n\nHo visto la vostra video intervista e vorrei essere contattato.\n\nAzienda: ${user.company_name || 'N/A'}\nReferente: ${user.full_name || 'N/A'}\nTelefono: ${user.phone || 'N/A'}`,
         conversation_id: conversationId
       });
     },
     onSuccess: () => {
-      setShowContactModal(false);
-      setContactMessage('');
-      setSelectedVideo(null);
+      alert('Richiesta inviata! L\'azienda ti contatterà al più presto.');
+    },
+    onError: (error) => {
+      alert(error.message || 'Errore durante l\'invio della richiesta');
     }
   });
 
@@ -317,13 +338,11 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
                         variant="outline"
                         size="sm"
                         className="bg-lime-400 hover:bg-lime-500 text-slate-900 border-0"
-                        onClick={() => {
-                          setSelectedVideo(video);
-                          setShowContactModal(true);
-                        }}
+                        onClick={() => sendContactMessageMutation.mutate(video)}
+                        disabled={sendContactMessageMutation.isPending}
                       >
                         <MessageCircle className="w-4 h-4 mr-2" />
-                        contatta l'azienda
+                        {sendContactMessageMutation.isPending ? 'Invio...' : 'contatta l\'azienda'}
                       </Button>
                       <div className="flex items-center gap-2">
                         <button
@@ -357,36 +376,6 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
           </div>
         )}
       </main>
-
-      {/* Contact Modal */}
-      <Dialog open={showContactModal} onOpenChange={setShowContactModal}>
-        <DialogContent className="bg-slate-800 border-slate-700">
-          <DialogHeader>
-            <DialogTitle className="text-white">Contatta {selectedVideo?.company_name}</DialogTitle>
-          </DialogHeader>
-          <button
-            onClick={() => setShowContactModal(false)}
-            className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
-          >
-            <X className="h-4 w-4 text-slate-400" />
-          </button>
-          <div className="space-y-4 mt-4">
-            <Textarea
-              placeholder="Scrivi il tuo messaggio..."
-              value={contactMessage}
-              onChange={(e) => setContactMessage(e.target.value)}
-              className="bg-slate-900 border-slate-700 text-white min-h-[120px]"
-            />
-            <Button 
-              onClick={() => sendContactMessageMutation.mutate()}
-              disabled={sendContactMessageMutation.isPending || !contactMessage.trim()}
-              className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900"
-            >
-              {sendContactMessageMutation.isPending ? 'Invio...' : 'Invia Messaggio'}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
 
       {/* Request Interview Modal */}
       <Dialog open={showRequestModal} onOpenChange={setShowRequestModal}>
