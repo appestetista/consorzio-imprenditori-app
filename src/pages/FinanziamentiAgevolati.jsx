@@ -411,40 +411,78 @@ export default function FinanziamentiAgevolati() {
 
       {/* Consultation Request Dialog */}
       <Dialog open={showConsultationDialog} onOpenChange={setShowConsultationDialog}>
-        <DialogContent className="bg-slate-800 border-slate-700">
+        <DialogContent className="bg-slate-800 border-slate-700 max-w-lg">
           <DialogHeader>
-            <DialogTitle className="text-white">Richiedi Assistenza Consulenza</DialogTitle>
+            <DialogTitle className="text-white text-lg">Richiedi Assistenza Consulenza</DialogTitle>
           </DialogHeader>
           
           {selectedGrantForConsultation && (
-            <div className="space-y-4 mt-4">
+            <div className="space-y-5 mt-4">
               <Alert className="bg-blue-500/10 border-blue-500/30">
                 <AlertDescription className="text-slate-300 text-sm">
-                  Stai richiedendo assistenza per il bando: <span className="font-bold text-white">{selectedGrantForConsultation.title}</span>
+                  Bando selezionato: <span className="font-bold text-white">{selectedGrantForConsultation.title}</span>
                 </AlertDescription>
               </Alert>
 
-              {selectedGrantForConsultation.prezzo_istruttoria && (
-                <div className="bg-slate-900 rounded-lg p-4">
-                  <Label className="text-slate-400 text-sm">Costi servizio:</Label>
-                  <div className="mt-2 space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-white">Prezzo istruttoria:</span>
-                      <span className="text-lime-400 font-bold">{selectedGrantForConsultation.prezzo_istruttoria.toLocaleString('it-IT')} €</span>
-                    </div>
-                    {selectedGrantForConsultation.percentuale_erogazione && (
-                      <div className="flex justify-between">
-                        <span className="text-white">% su erogazione:</span>
-                        <span className="text-lime-400 font-bold">{selectedGrantForConsultation.percentuale_erogazione}%</span>
+              {/* Costi e Condizioni */}
+              <div className="bg-slate-900 rounded-lg p-5 border border-slate-700">
+                <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+                  <Briefcase className="w-5 h-5 text-lime-400" />
+                  Costi e Condizioni
+                </h3>
+                
+                <div className="space-y-4">
+                  {/* Costo Istruttoria */}
+                  {selectedGrantForConsultation.prezzo_istruttoria && (
+                    <div className="bg-slate-800 rounded-lg p-4 border border-slate-600">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <p className="text-white font-medium">Costo Istruttoria</p>
+                          <p className="text-slate-400 text-xs mt-1">
+                            Per analisi di fattibilità e gestione completa della pratica
+                          </p>
+                        </div>
+                        <span className="text-lime-400 font-bold text-xl">
+                          {selectedGrantForConsultation.prezzo_istruttoria.toLocaleString('it-IT')} €
+                        </span>
                       </div>
-                    )}
-                  </div>
-                </div>
-              )}
+                      <div className="bg-yellow-500/10 border border-yellow-500/30 rounded px-3 py-2 mt-3">
+                        <p className="text-yellow-400 text-xs">
+                          ⚠️ Importo fisso da corrispondere per l'avvio della pratica
+                        </p>
+                      </div>
+                    </div>
+                  )}
 
-              <p className="text-slate-400 text-sm">
-                Un consulente del consorzio ti contatterà per valutare la tua candidatura e fornirti assistenza completa nella preparazione della domanda.
-              </p>
+                  {/* Compenso a Successo */}
+                  {selectedGrantForConsultation.percentuale_erogazione && (
+                    <div className="bg-slate-800 rounded-lg p-4 border border-slate-600">
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <p className="text-white font-medium">Compenso Consulente</p>
+                          <p className="text-slate-400 text-xs mt-1">
+                            Success fee - calcolato sull'importo erogato
+                          </p>
+                        </div>
+                        <span className="text-lime-400 font-bold text-xl">
+                          {selectedGrantForConsultation.percentuale_erogazione}%
+                        </span>
+                      </div>
+                      <div className="bg-green-500/10 border border-green-500/30 rounded px-3 py-2 mt-3">
+                        <p className="text-green-400 text-xs">
+                          ✓ Pagamento SOLO in caso di esito positivo e ottenimento del contributo
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
+                <p className="text-slate-300 text-sm">
+                  Un consulente specializzato ti contatterà entro 48 ore per valutare la tua candidatura e fornirti assistenza completa nella preparazione e presentazione della domanda.
+                </p>
+              </div>
             </div>
           )}
 
