@@ -130,8 +130,27 @@ export default function AdminPanel() {
   });
 
   const updateConsultationStatusMutation = useMutation({
-    mutationFn: async ({ requestId, status }) => {
-      return base44.entities.GrantInterest.update(requestId, { consultation_status: status });
+    mutationFn: async ({ requestId, status, userEmail, grantTitle }) => {
+      await base44.entities.GrantInterest.update(requestId, { consultation_status: status });
+      
+      if (status === 'accepted') {
+        // Crea messaggio per l'utente
+        await base44.entities.Message.create({
+          from_email: user.email,
+          to_email: userEmail,
+          content: `La tua richiesta di consulenza per il bando "${grantTitle}" è stata presa in carico. Verrai contattato a breve da un nostro consulente.`,
+          conversation_id: `admin_${user.email}_${userEmail}`
+        });
+        
+        // Crea notifica
+        await base44.entities.Notification.create({
+          user_email: userEmail,
+          type: 'consultation',
+          title: 'Richiesta accettata',
+          content: `La tua richiesta di consulenza per "${grantTitle}" è stata accettata`,
+          reference_id: requestId
+        });
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['consultation-requests'] });
@@ -210,7 +229,12 @@ export default function AdminPanel() {
                         size="sm"
                         variant="outline"
                         className="border-green-500 text-green-500 hover:bg-green-500 hover:text-white"
-                        onClick={() => updateConsultationStatusMutation.mutate({ requestId: request.id, status: 'accepted' })}
+                        onClick={() => updateConsultationStatusMutation.mutate({ 
+                          requestId: request.id, 
+                          status: 'accepted',
+                          userEmail: request.user?.email,
+                          grantTitle: request.grant?.title
+                        })}
                       >
                         <CheckCircle className="w-4 h-4" />
                       </Button>
@@ -218,7 +242,12 @@ export default function AdminPanel() {
                         size="sm"
                         variant="outline"
                         className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
-                        onClick={() => updateConsultationStatusMutation.mutate({ requestId: request.id, status: 'rejected' })}
+                        onClick={() => updateConsultationStatusMutation.mutate({ 
+                          requestId: request.id, 
+                          status: 'rejected',
+                          userEmail: request.user?.email,
+                          grantTitle: request.grant?.title
+                        })}
                       >
                         <XCircle className="w-4 h-4" />
                       </Button>
