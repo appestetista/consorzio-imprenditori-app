@@ -376,6 +376,26 @@ export default function FinanziamentiAgevolati() {
                 <p className="text-slate-300 text-sm">{selectedGrant.description}</p>
               </div>
 
+              {(selectedGrant.prezzo_istruttoria || selectedGrant.percentuale_erogazione) && (
+                <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
+                  <h4 className="text-blue-400 font-medium mb-3">💼 Costi Assistenza Consulenza</h4>
+                  <div className="space-y-2 text-sm">
+                    {selectedGrant.prezzo_istruttoria && (
+                      <div className="flex justify-between">
+                        <span className="text-slate-300">Prezzo istruttoria:</span>
+                        <span className="text-white font-bold">{selectedGrant.prezzo_istruttoria.toLocaleString('it-IT')} €</span>
+                      </div>
+                    )}
+                    {selectedGrant.percentuale_erogazione && (
+                      <div className="flex justify-between">
+                        <span className="text-slate-300">% su erogazione fondi:</span>
+                        <span className="text-white font-bold">{selectedGrant.percentuale_erogazione}%</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {selectedGrant.website_url && (
                 <Button
                   className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900"
