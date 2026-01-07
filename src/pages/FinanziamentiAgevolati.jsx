@@ -20,6 +20,8 @@ export default function FinanziamentiAgevolati() {
   const [showDetails, setShowDetails] = useState(false);
   const [showConsultationDialog, setShowConsultationDialog] = useState(false);
   const [selectedGrantForConsultation, setSelectedGrantForConsultation] = useState(null);
+  const [aiRecommendations, setAiRecommendations] = useState({});
+  const [loadingRecommendations, setLoadingRecommendations] = useState(false);
   const [filters, setFilters] = useState({
     easyAccess: false,
     grantType: 'all',
@@ -186,6 +188,104 @@ export default function FinanziamentiAgevolati() {
     .filter(matchesCompanyProfile)
     .filter(applyFilters);
 
+  // Get AI recommendations when grants and user are loaded
+  useEffect(() => {
+    const getAIRecommendations = async () => {
+      if (!user || !filteredGrants.length || loadingRecommendations || Object.keys(aiRecommendations).length > 0) return;
+      
+      setLoadingRecommendations(true);
+      
+      try {
+        const userProfile = {
+          company_name: user.company_name || 'N/A',
+          company_size: user.company_size || 'N/A',
+          region: user.region || 'N/A',
+          ateco_code: user.ateco_code || 'N/A',
+          legal_form: user.legal_form || 'N/A',
+          sector: user.sector || 'N/A'
+        };
+
+        const grantsForAnalysis = filteredGrants.slice(0, 10).map(g => ({
+          id: g.id,
+          title: g.title,
+          description: g.description,
+          grant_type: g.grant_type,
+          funding_type: g.funding_type,
+          coverage_percentage: g.coverage_percentage,
+          min_amount: g.min_amount,
+          max_amount: g.max_amount,
+          easy_access: g.easy_access,
+          requires_cofinancing: g.requires_cofinancing
+        }));
+
+        const prompt = `Sei un consulente esperto di bandi e finanziamenti agevolati per PMI italiane.
+
+Analizza il profilo aziendale e assegna un punteggio di rilevanza (da 0 a 100) a ciascun bando, considerando:
+- Compatibilità con il settore e dimensione aziendale
+- Facilità di accesso e requisiti
+- Importo e copertura del finanziamento
+- Coerenza con le esigenze tipiche del settore
+
+PROFILO AZIENDALE:
+${JSON.stringify(userProfile, null, 2)}
+
+BANDI DISPONIBILI:
+${JSON.stringify(grantsForAnalysis, null, 2)}
+
+Per ogni bando, fornisci:
+- relevance_score: punteggio 0-100
+- reason: breve spiegazione (max 100 caratteri) del perché è rilevante`;
+
+        const response = await base44.integrations.Core.InvokeLLM({
+          prompt: prompt,
+          response_json_schema: {
+            type: "object",
+            properties: {
+              recommendations: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    grant_id: { type: "string" },
+                    relevance_score: { type: "number" },
+                    reason: { type: "string" }
+                  }
+                }
+              }
+            }
+          }
+        });
+
+        const recommendationsMap = {};
+        response.recommendations.forEach(rec => {
+          recommendationsMap[rec.grant_id] = {
+            score: rec.relevance_score,
+            reason: rec.reason
+          };
+        });
+        
+        setAiRecommendations(recommendationsMap);
+      } catch (error) {
+        console.error('Error getting AI recommendations:', error);
+      } finally {
+        setLoadingRecommendations(false);
+      }
+    };
+
+    getAIRecommendations();
+  }, [user, filteredGrants.length]);
+
+  // Sort grants by AI recommendation score
+  const sortedGrants = [...filteredGrants].sort((a, b) => {
+    const scoreA = aiRecommendations[a.id]?.score || 0;
+    const scoreB = aiRecommendations[b.id]?.score || 0;
+    return scoreB - scoreA;
+  });
+
+  const topRecommendedGrants = sortedGrants.filter(g => 
+    aiRecommendations[g.id]?.score >= 75
+  ).slice(0, 3);
+
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
@@ -275,6 +375,51 @@ export default function FinanziamentiAgevolati() {
           </AlertDescription>
         </Alert>
 
+        {/* AI Recommendations Loading */}
+        {loadingRecommendations && (
+          <Alert className="mb-6 bg-purple-500/10 border-purple-500/30">
+            <Sparkles className="h-4 w-4 text-purple-400 animate-pulse" />
+            <AlertDescription className="text-purple-300 text-sm">
+              🤖 Sto analizzando i bandi più adatti al tuo profilo...
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Top Recommended Grants */}
+        {topRecommendedGrants.length > 0 && (
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Sparkles className="w-5 h-5 text-purple-400" />
+              <h2 className="text-white font-bold">Consigliati per te</h2>
+            </div>
+            <div className="space-y-3">
+              {topRecommendedGrants.map((grant) => {
+                const interest = userInterests.find(i => i.grant_id === grant.id);
+                const recommendation = aiRecommendations[grant.id];
+                return (
+                  <div key={grant.id} className="relative">
+                    <div className="absolute -top-2 -right-2 z-10 bg-purple-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                      🎯 {recommendation.score}% match
+                    </div>
+                    <GrantCard
+                      grant={grant}
+                      userInterest={interest}
+                      onDetails={handleShowDetails}
+                      onToggleAlerts={() => handleToggleAlerts(grant)}
+                      onRequestConsultation={() => handleRequestConsultation(grant)}
+                      aiRecommendation={recommendation}
+                      isTopRecommended={true}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+            <div className="mt-4 border-t border-slate-700 pt-4">
+              <h3 className="text-slate-400 font-medium mb-3">Altri bandi compatibili</h3>
+            </div>
+          </div>
+        )}
+
         {/* Grants List */}
         {isLoading ? (
           <div className="text-center py-12">
@@ -290,8 +435,11 @@ export default function FinanziamentiAgevolati() {
           </div>
         ) : (
           <div className="space-y-4">
-            {filteredGrants.map((grant) => {
+            {sortedGrants.map((grant) => {
+              if (topRecommendedGrants.find(g => g.id === grant.id)) return null;
+              
               const interest = userInterests.find(i => i.grant_id === grant.id);
+              const recommendation = aiRecommendations[grant.id];
               return (
                 <GrantCard
                   key={grant.id}
@@ -300,6 +448,7 @@ export default function FinanziamentiAgevolati() {
                   onDetails={handleShowDetails}
                   onToggleAlerts={() => handleToggleAlerts(grant)}
                   onRequestConsultation={() => handleRequestConsultation(grant)}
+                  aiRecommendation={recommendation}
                 />
               );
             })}
