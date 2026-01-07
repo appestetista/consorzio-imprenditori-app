@@ -94,6 +94,29 @@ export default function GrantCard({ grant, onDetails, userInterest, onToggleAler
           )}
         </div>
 
+        {(grant.prezzo_istruttoria || grant.percentuale_erogazione) && (
+          <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3">
+            <div className="flex items-center gap-2 mb-2">
+              <Briefcase className="w-4 h-4 text-blue-400" />
+              <span className="text-blue-400 font-medium text-sm">Costi assistenza consulenza</span>
+            </div>
+            <div className="space-y-1 text-xs">
+              {grant.prezzo_istruttoria && (
+                <div className="flex justify-between">
+                  <span className="text-slate-400">Prezzo istruttoria:</span>
+                  <span className="text-white font-bold">{grant.prezzo_istruttoria.toLocaleString('it-IT')} €</span>
+                </div>
+              )}
+              {grant.percentuale_erogazione && (
+                <div className="flex justify-between">
+                  <span className="text-slate-400">% su erogazione:</span>
+                  <span className="text-white font-bold">{grant.percentuale_erogazione}%</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         <div className="space-y-2 pt-2">
           <div className="flex gap-2">
             <Button
