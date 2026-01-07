@@ -18,6 +18,7 @@ import BottomNav from '../components/layout/BottomNav';
 const PERMISSIONS_LIST = [
   { key: 'calendario', label: 'Calendario Incontri' },
   { key: 'video_interviste', label: 'Video Interviste' },
+  { key: 'cultura_aziendale', label: 'Cultura Aziendale' },
   { key: 'consulenze', label: 'Consulenze' },
   { key: 'finanziamenti', label: 'Finanziamenti Agevolati' },
   { key: 'contatta_membri', label: 'Contatta Membri' },

@@ -11,6 +11,7 @@ import Marketplace from './pages/Marketplace';
 import Messaggi from './pages/Messaggi';
 import RisparmioEnergetico from './pages/RisparmioEnergetico';
 import VideoInterviste from './pages/VideoInterviste';
+import CulturaAziendale from './pages/CulturaAziendale';
 
 
 export const PAGES = {
@@ -27,6 +28,7 @@ export const PAGES = {
     "Messaggi": Messaggi,
     "RisparmioEnergetico": RisparmioEnergetico,
     "VideoInterviste": VideoInterviste,
+    "CulturaAziendale": CulturaAziendale,
 }
 
 export const pagesConfig = {

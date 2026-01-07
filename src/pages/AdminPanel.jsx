@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
+import CulturaAziendaleAdmin from '../components/admin/CulturaAziendaleAdmin';
 
 const CONSULTANT_CATEGORIES = [
   "Stampa Digitale e Cataloghi",
@@ -290,6 +291,9 @@ export default function AdminPanel() {
           
 
         </div>
+
+        {/* Cultura Aziendale Management */}
+        <CulturaAziendaleAdmin />
 
         {/* Consultants Management */}
         <Card className="bg-slate-800 border-slate-700">
