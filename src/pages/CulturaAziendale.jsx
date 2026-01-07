@@ -8,6 +8,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 const CATEGORIE = [
   "Psicologia aziendale",
@@ -135,34 +137,52 @@ export default function CulturaAziendale() {
 
             {/* Filtro Competenze */}
             <div>
-              <label className="text-slate-300 text-sm font-medium mb-2 block">
-                Competenze {selectedCompetenze.length > 0 && `(${selectedCompetenze.length})`}
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {COMPETENZE.map(comp => (
-                  <Badge
-                    key={comp}
-                    className={`cursor-pointer transition-all ${
-                      selectedCompetenze.includes(comp)
-                        ? 'bg-lime-400 text-slate-900'
-                        : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
-                    }`}
-                    onClick={() => toggleCompetenza(comp)}
+              <label className="text-slate-300 text-sm font-medium mb-2 block">Competenze</label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-between bg-slate-900 border-slate-700 text-white hover:bg-slate-800"
                   >
-                    {comp}
-                  </Badge>
-                ))}
-              </div>
-              {selectedCompetenze.length > 0 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSelectedCompetenze([])}
-                  className="text-slate-400 hover:text-white mt-2"
-                >
-                  Rimuovi tutti i filtri competenze
-                </Button>
-              )}
+                    <span>
+                      {selectedCompetenze.length === 0
+                        ? 'Tutte le competenze'
+                        : `${selectedCompetenze.length} selezionate`}
+                    </span>
+                    <Filter className="w-4 h-4 ml-2 text-slate-400" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80 bg-slate-900 border-slate-700 max-h-96 overflow-y-auto">
+                  <div className="space-y-2">
+                    {selectedCompetenze.length > 0 && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedCompetenze([])}
+                        className="w-full text-slate-400 hover:text-white"
+                      >
+                        Rimuovi tutti i filtri
+                      </Button>
+                    )}
+                    {COMPETENZE.map((comp) => (
+                      <div key={comp} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={comp}
+                          checked={selectedCompetenze.includes(comp)}
+                          onCheckedChange={() => toggleCompetenza(comp)}
+                          className="border-slate-600"
+                        />
+                        <label
+                          htmlFor={comp}
+                          className="text-sm text-slate-300 cursor-pointer flex-1"
+                        >
+                          {comp}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
           </CardContent>
         </Card>
