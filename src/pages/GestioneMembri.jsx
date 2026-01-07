@@ -19,6 +19,7 @@ const PERMISSIONS_LIST = [
   { key: 'calendario', label: 'Calendario Incontri' },
   { key: 'video_interviste', label: 'Video Interviste' },
   { key: 'consulenze', label: 'Consulenze' },
+  { key: 'finanziamenti', label: 'Finanziamenti Agevolati' },
   { key: 'contatta_membri', label: 'Contatta Membri' },
   { key: 'marketplace', label: 'Marketplace' },
   { key: 'risparmio_energetico', label: 'Risparmio Energetico' }
