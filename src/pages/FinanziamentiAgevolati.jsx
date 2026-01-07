@@ -573,57 +573,46 @@ Per ogni bando, fornisci:
                 </AlertDescription>
               </Alert>
 
-              {/* Costi e Condizioni */}
-              <div className="bg-slate-900 rounded-lg p-5 border border-slate-700">
-                <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
-                  <Briefcase className="w-5 h-5 text-lime-400" />
-                  Costi e Condizioni
+              {/* Costi e condizioni del bando */}
+              <div className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 border-2 border-amber-500/40 rounded-xl p-6 shadow-lg">
+                <h3 className="text-amber-400 font-bold text-lg mb-5 flex items-center gap-2">
+                  <Briefcase className="w-6 h-6" />
+                  Costi e condizioni del bando
                 </h3>
                 
                 <div className="space-y-4">
                   {/* Costo Istruttoria */}
-                  {selectedGrantForConsultation.prezzo_istruttoria && (
-                    <div className="bg-slate-800 rounded-lg p-4 border border-slate-600">
-                      <div className="flex justify-between items-start mb-2">
-                        <div>
-                          <p className="text-white font-medium">Costo Istruttoria</p>
-                          <p className="text-slate-400 text-xs mt-1">
-                            Per analisi di fattibilità e gestione completa della pratica
-                          </p>
-                        </div>
-                        <span className="text-lime-400 font-bold text-xl">
-                          {selectedGrantForConsultation.prezzo_istruttoria.toLocaleString('it-IT')} €
+                  <div className="bg-slate-900/80 rounded-lg p-4 border border-slate-700">
+                    <div className="flex justify-between items-center">
+                      <div className="flex-1">
+                        <p className="text-white font-semibold text-base">Costo istruttoria:</p>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-lime-400 font-bold text-2xl">
+                          € {selectedGrantForConsultation.prezzo_istruttoria?.toLocaleString('it-IT') || '0'}
                         </span>
                       </div>
-                      <div className="bg-yellow-500/10 border border-yellow-500/30 rounded px-3 py-2 mt-3">
-                        <p className="text-yellow-400 text-xs">
-                          ⚠️ Importo fisso da corrispondere per l'avvio della pratica
-                        </p>
-                      </div>
                     </div>
-                  )}
+                  </div>
 
                   {/* Compenso a Successo */}
-                  {selectedGrantForConsultation.percentuale_erogazione && (
-                    <div className="bg-slate-800 rounded-lg p-4 border border-slate-600">
-                      <div className="flex justify-between items-start mb-2">
-                        <div>
-                          <p className="text-white font-medium">Compenso Consulente</p>
-                          <p className="text-slate-400 text-xs mt-1">
-                            Success fee - calcolato sull'importo erogato
-                          </p>
-                        </div>
-                        <span className="text-lime-400 font-bold text-xl">
-                          {selectedGrantForConsultation.percentuale_erogazione}%
+                  <div className="bg-slate-900/80 rounded-lg p-4 border border-slate-700">
+                    <div className="flex justify-between items-center mb-2">
+                      <div className="flex-1">
+                        <p className="text-white font-semibold text-base">Compenso consulente a successo:</p>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-lime-400 font-bold text-2xl">
+                          {selectedGrantForConsultation.percentuale_erogazione || '0'}%
                         </span>
                       </div>
-                      <div className="bg-green-500/10 border border-green-500/30 rounded px-3 py-2 mt-3">
-                        <p className="text-green-400 text-xs">
-                          ✓ Pagamento SOLO in caso di esito positivo e ottenimento del contributo
-                        </p>
-                      </div>
                     </div>
-                  )}
+                    <div className="bg-green-500/10 border border-green-500/30 rounded px-3 py-2 mt-3">
+                      <p className="text-green-300 text-sm">
+                        ✓ Applicata solo in caso di ottenimento del contributo
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
