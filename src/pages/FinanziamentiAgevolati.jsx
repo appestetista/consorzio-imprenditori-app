@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Sparkles, AlertCircle, Info, Briefcase } from 'lucide-react';
+import { ArrowLeft, Sparkles, AlertCircle, Info, Briefcase, XCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -477,6 +477,12 @@ Per ogni bando, fornisci:
           <DialogHeader>
             <DialogTitle className="text-white">{selectedGrant?.title}</DialogTitle>
           </DialogHeader>
+          <button
+            onClick={() => setShowDetails(false)}
+            className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity z-10"
+          >
+            <XCircle className="h-4 w-4 text-slate-400" />
+          </button>
           
           {selectedGrant && (
             <div className="space-y-4 mt-4">
@@ -579,6 +585,12 @@ Per ogni bando, fornisci:
           <DialogHeader>
             <DialogTitle className="text-white text-lg">Richiedi Assistenza Consulenza</DialogTitle>
           </DialogHeader>
+          <button
+            onClick={() => setShowConsultationDialog(false)}
+            className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity z-10"
+          >
+            <XCircle className="h-4 w-4 text-slate-400" />
+          </button>
           
           {selectedGrantForConsultation && (
             <div className="space-y-5 mt-4">
