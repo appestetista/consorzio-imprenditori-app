@@ -10,6 +10,7 @@ import Messaggi from './pages/Messaggi';
 import RisparmioEnergetico from './pages/RisparmioEnergetico';
 import VideoInterviste from './pages/VideoInterviste';
 import FinanziamentiAgevolati from './pages/FinanziamentiAgevolati';
+import GestioneBandi from './pages/GestioneBandi';
 
 
 export const PAGES = {
@@ -25,6 +26,7 @@ export const PAGES = {
     "RisparmioEnergetico": RisparmioEnergetico,
     "VideoInterviste": VideoInterviste,
     "FinanziamentiAgevolati": FinanziamentiAgevolati,
+    "GestioneBandi": GestioneBandi,
 }
 
 export const pagesConfig = {
