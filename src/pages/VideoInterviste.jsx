@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Video, ThumbsUp, MessageCircle, Plus, ArrowLeft, Play } from 'lucide-react';
+import { Video, ThumbsUp, MessageCircle, Plus, ArrowLeft, Play, Trash2, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -105,6 +105,15 @@ export default function VideoInterviste() {
     }
   });
 
+  const deleteVideoMutation = useMutation({
+    mutationFn: async (videoId) => {
+      return base44.entities.Video.delete(videoId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['videos'] });
+    }
+  });
+
   const sendContactMessageMutation = useMutation({
     mutationFn: async () => {
       if (!selectedVideo || !contactMessage.trim()) return;
@@ -159,6 +168,12 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
     return video.likes?.includes(user?.email);
   };
 
+  const handleDeleteVideo = (video) => {
+    if (window.confirm(`Sei sicuro di voler eliminare il video "${video.title}"?\n\nQuesta azione è irreversibile.`)) {
+      deleteVideoMutation.mutate(video.id);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-900 pb-24">
       <Header user={user} />
@@ -184,24 +199,33 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
                 <DialogHeader>
                   <DialogTitle className="text-white">Nuovo Video</DialogTitle>
                 </DialogHeader>
+                <button
+                  onClick={() => setShowAddVideo(false)}
+                  className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
+                >
+                  <X className="h-4 w-4 text-slate-400" />
+                </button>
                 <div className="space-y-4 mt-4">
                   <Input
-                    placeholder="Nome Azienda"
-                    value={newVideo.company_name}
-                    onChange={(e) => setNewVideo({...newVideo, company_name: e.target.value})}
-                    className="bg-slate-900 border-slate-700 text-white"
-                  />
-                  <Input
-                    placeholder="Titolo Video"
+                    placeholder="Titolo Video *"
                     value={newVideo.title}
                     onChange={(e) => setNewVideo({...newVideo, title: e.target.value})}
                     className="bg-slate-900 border-slate-700 text-white"
+                    required
                   />
                   <Input
-                    placeholder="Link YouTube"
+                    placeholder="Nome Azienda *"
+                    value={newVideo.company_name}
+                    onChange={(e) => setNewVideo({...newVideo, company_name: e.target.value})}
+                    className="bg-slate-900 border-slate-700 text-white"
+                    required
+                  />
+                  <Input
+                    placeholder="Link YouTube *"
                     value={newVideo.youtube_url}
                     onChange={(e) => setNewVideo({...newVideo, youtube_url: e.target.value})}
                     className="bg-slate-900 border-slate-700 text-white"
+                    required
                   />
                   <Input
                     placeholder="Email Azienda (per contatti)"
@@ -212,7 +236,7 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
                   />
                   <Button 
                     onClick={() => createVideoMutation.mutate(newVideo)}
-                    disabled={createVideoMutation.isPending}
+                    disabled={createVideoMutation.isPending || !newVideo.title || !newVideo.company_name || !newVideo.youtube_url}
                     className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900"
                   >
                     {createVideoMutation.isPending ? 'Caricamento...' : 'Aggiungi Video'}
@@ -263,6 +287,13 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
                     <div className="bg-lime-400 text-slate-900 text-sm font-bold px-3 py-1">
                       AZIENDA {video.company_name?.toUpperCase()}
                     </div>
+                    
+                    {video.title && (
+                      <div className="bg-slate-900 px-3 py-2 border-b border-slate-700">
+                        <h3 className="text-white font-semibold text-base">{video.title}</h3>
+                      </div>
+                    )}
+                    
                     {youtubeId ? (
                       <div className="relative aspect-video">
                         <iframe
@@ -281,7 +312,7 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
                     )}
                   </div>
                   <CardContent className="p-3">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between gap-2">
                       <Button
                         variant="outline"
                         size="sm"
@@ -294,19 +325,30 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
                         <MessageCircle className="w-4 h-4 mr-2" />
                         contatta l'azienda
                       </Button>
-                      <button
-                        onClick={() => toggleLikeMutation.mutate({ videoId: video.id, video })}
-                        className="flex items-center gap-1"
-                      >
-                        <ThumbsUp 
-                          className={`w-5 h-5 ${hasUserLiked(video) ? 'text-lime-400 fill-lime-400' : 'text-slate-400'}`} 
-                        />
-                        {likesCount > 0 && (
-                          <span className="bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
-                            {likesCount}
-                          </span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => toggleLikeMutation.mutate({ videoId: video.id, video })}
+                          className="flex items-center gap-1"
+                        >
+                          <ThumbsUp 
+                            className={`w-5 h-5 ${hasUserLiked(video) ? 'text-lime-400 fill-lime-400' : 'text-slate-400'}`} 
+                          />
+                          {likesCount > 0 && (
+                            <span className="bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
+                              {likesCount}
+                            </span>
+                          )}
+                        </button>
+                        {isAdmin && (
+                          <button
+                            onClick={() => handleDeleteVideo(video)}
+                            className="p-2 hover:bg-red-500/20 rounded-lg transition-colors"
+                            title="Elimina video"
+                          >
+                            <Trash2 className="w-4 h-4 text-red-400" />
+                          </button>
                         )}
-                      </button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -322,6 +364,12 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
           <DialogHeader>
             <DialogTitle className="text-white">Contatta {selectedVideo?.company_name}</DialogTitle>
           </DialogHeader>
+          <button
+            onClick={() => setShowContactModal(false)}
+            className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
+          >
+            <X className="h-4 w-4 text-slate-400" />
+          </button>
           <div className="space-y-4 mt-4">
             <Textarea
               placeholder="Scrivi il tuo messaggio..."
@@ -346,6 +394,12 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
           <DialogHeader>
             <DialogTitle className="text-white">Richiedi la tua Video Intervista</DialogTitle>
           </DialogHeader>
+          <button
+            onClick={() => setShowRequestModal(false)}
+            className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
+          >
+            <X className="h-4 w-4 text-slate-400" />
+          </button>
           <div className="space-y-4 mt-4">
             <div className="bg-lime-400/20 rounded-lg p-4 border border-lime-400/30">
               <p className="text-lime-400 text-sm font-medium mb-2">✓ Servizio Incluso</p>
