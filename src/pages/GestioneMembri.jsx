@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, User, Lock, Unlock, Trash2, Settings, Search, Shield, ShieldOff, Edit, X } from 'lucide-react';
+import { ArrowLeft, User, Lock, Unlock, Trash2, Settings, Search, Shield, ShieldOff, Edit, X, Plus, Upload, Image } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -32,6 +32,7 @@ export default function GestioneMembri() {
   const [showPermissions, setShowPermissions] = useState(false);
   const [showMemberForm, setShowMemberForm] = useState(false);
   const [formData, setFormData] = useState(null);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -117,6 +118,7 @@ export default function GestioneMembri() {
       email: member.email || '',
       phone: member.phone || '',
       website: member.website || '',
+      logo_url: member.logo_url || '',
       full_name: member.full_name || '',
       referente_cellulare: member.referente_cellulare || '',
       referente_email: member.referente_email || '',
@@ -135,12 +137,55 @@ export default function GestioneMembri() {
     setShowMemberForm(true);
   };
 
-  const handleSaveMember = () => {
-    if (!selectedMember || !formData) return;
-    updateMemberMutation.mutate({
-      memberId: selectedMember.id,
-      data: formData
-    });
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    setUploadingLogo(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setFormData({ ...formData, logo_url: file_url });
+    } catch (error) {
+      alert('Errore durante il caricamento del logo');
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
+
+  const handleSaveMember = async () => {
+    if (!formData || !formData.email || !formData.company_name || !formData.full_name) return;
+    
+    if (selectedMember) {
+      // Modifica membro esistente
+      updateMemberMutation.mutate({
+        memberId: selectedMember.id,
+        data: formData
+      });
+    } else {
+      // Creazione nuovo membro
+      try {
+        // 1. Invia invito
+        await base44.users.inviteUser(formData.email, 'user');
+        
+        // 2. Attendi un attimo per permettere la creazione
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // 3. Trova l'utente appena creato
+        const users = await base44.entities.User.filter({ email: formData.email });
+        const newUser = users[0];
+        
+        if (newUser) {
+          // 4. Aggiorna con tutti i dati
+          await base44.entities.User.update(newUser.id, formData);
+        }
+        
+        queryClient.invalidateQueries({ queryKey: ['all-members'] });
+        setShowMemberForm(false);
+        setFormData(null);
+      } catch (error) {
+        alert('Errore durante la creazione del membro');
+      }
+    }
   };
 
   const handlePermissionChange = (key, value) => {
@@ -164,11 +209,43 @@ export default function GestioneMembri() {
       <Header user={user} />
       
       <main className="px-4 py-6 max-w-md mx-auto">
-        <div className="flex items-center gap-3 mb-6">
-          <Link to={createPageUrl('AdminPanel')} className="text-lime-400">
-            <ArrowLeft className="w-6 h-6" />
-          </Link>
-          <h1 className="text-white text-xl font-bold">Gestione Membri</h1>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <Link to={createPageUrl('AdminPanel')} className="text-lime-400">
+              <ArrowLeft className="w-6 h-6" />
+            </Link>
+            <h1 className="text-white text-xl font-bold">Gestione Membri</h1>
+          </div>
+          <Button
+            onClick={() => {
+              setFormData({
+                company_name: '',
+                email: '',
+                phone: '',
+                website: '',
+                logo_url: '',
+                full_name: '',
+                referente_cellulare: '',
+                referente_email: '',
+                ragione_sociale_fatturazione: '',
+                partita_iva: '',
+                codice_fiscale: '',
+                codice_sdi: '',
+                indirizzo: '',
+                citta: '',
+                provincia: '',
+                regione: '',
+                cap: '',
+                paese: ''
+              });
+              setSelectedMember(null);
+              setShowMemberForm(true);
+            }}
+            className="bg-lime-400 hover:bg-lime-500 text-slate-900"
+          >
+            <Plus className="w-5 h-5 mr-2" />
+            Nuovo Membro
+          </Button>
         </div>
 
         {/* Search */}
@@ -304,7 +381,9 @@ export default function GestioneMembri() {
       }}>
         <DialogContent className="bg-slate-800 border-slate-700 max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-white">Modifica Dati Azienda</DialogTitle>
+            <DialogTitle className="text-white">
+              {selectedMember ? 'Modifica Dati Azienda' : 'Nuovo Membro Azienda'}
+            </DialogTitle>
           </DialogHeader>
           <button
             onClick={() => setShowMemberForm(false)}
@@ -328,15 +407,63 @@ export default function GestioneMembri() {
                       placeholder="Es: Acme S.r.l."
                     />
                   </div>
+                  <div className="col-span-2">
+                    <Label className="text-slate-300 text-sm">Logo Aziendale</Label>
+                    <div className="mt-2 space-y-3">
+                      {formData.logo_url && (
+                        <div className="flex items-center gap-3 bg-slate-900 rounded-lg p-3">
+                          <img 
+                            src={formData.logo_url} 
+                            alt="Logo" 
+                            className="w-16 h-16 object-contain rounded"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setFormData({...formData, logo_url: ''})}
+                            className="border-red-600 text-red-400"
+                          >
+                            <X className="w-4 h-4 mr-1" />
+                            Rimuovi
+                          </Button>
+                        </div>
+                      )}
+                      <label className="flex items-center justify-center gap-2 bg-slate-900 border-2 border-dashed border-slate-700 rounded-lg p-4 cursor-pointer hover:border-lime-400 transition-colors">
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/png,image/jpg"
+                          onChange={handleLogoUpload}
+                          className="hidden"
+                          disabled={uploadingLogo}
+                        />
+                        {uploadingLogo ? (
+                          <>
+                            <div className="animate-spin w-5 h-5 border-2 border-lime-400 border-t-transparent rounded-full"></div>
+                            <span className="text-slate-400">Caricamento...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="w-5 h-5 text-lime-400" />
+                            <span className="text-slate-300">Carica logo (JPG, PNG)</span>
+                          </>
+                        )}
+                      </label>
+                    </div>
+                  </div>
                   <div>
-                    <Label className="text-slate-300 text-sm">Email Aziendale *</Label>
+                    <Label className="text-slate-300 text-sm">Email Aziendale * {!selectedMember && <span className="text-xs text-slate-500">(usata per login)</span>}</Label>
                     <Input
                       type="email"
                       value={formData.email}
                       onChange={(e) => setFormData({...formData, email: e.target.value})}
                       className="bg-slate-900 border-slate-700 text-white mt-1"
                       placeholder="info@azienda.it"
+                      disabled={!!selectedMember}
                     />
+                    {!selectedMember && (
+                      <p className="text-xs text-slate-500 mt-1">L'azienda riceverà una mail per impostare la password</p>
+                    )}
                   </div>
                   <div>
                     <Label className="text-slate-300 text-sm">Telefono Aziendale</Label>
@@ -508,7 +635,11 @@ export default function GestioneMembri() {
                   disabled={updateMemberMutation.isPending || !formData.company_name || !formData.email || !formData.full_name}
                   className="flex-1 bg-lime-400 hover:bg-lime-500 text-slate-900"
                 >
-                  {updateMemberMutation.isPending ? 'Salvataggio...' : 'Salva Modifiche'}
+                  {updateMemberMutation.isPending 
+                    ? 'Salvataggio...' 
+                    : selectedMember 
+                      ? 'Salva Modifiche' 
+                      : 'Crea Membro e Invia Invito'}
                 </Button>
               </div>
             </div>

@@ -31,9 +31,7 @@ export default function AdminPanel() {
   const [user, setUser] = useState(null);
   const [showAddConsultant, setShowAddConsultant] = useState(false);
   const [newConsultant, setNewConsultant] = useState({ name: '', category: '', phone: '', email: '' });
-  const [showInvite, setShowInvite] = useState(false);
-  const [inviteEmail, setInviteEmail] = useState('');
-  const [inviteRole, setInviteRole] = useState('user');
+
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
@@ -118,16 +116,7 @@ export default function AdminPanel() {
     }
   });
 
-  const inviteUserMutation = useMutation({
-    mutationFn: async () => {
-      await base44.users.inviteUser(inviteEmail, inviteRole);
-    },
-    onSuccess: () => {
-      setShowInvite(false);
-      setInviteEmail('');
-      setInviteRole('user');
-    }
-  });
+
 
   const updateConsultationStatusMutation = useMutation({
     mutationFn: async ({ requestId, status, userEmail, grantTitle }) => {
@@ -299,52 +288,7 @@ export default function AdminPanel() {
             </Card>
           </Link>
           
-          <Dialog open={showInvite} onOpenChange={setShowInvite}>
-            <DialogTrigger asChild>
-              <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 transition-colors cursor-pointer">
-                <CardContent className="p-4 flex items-center gap-4">
-                  <Plus className="w-6 h-6 text-lime-400" />
-                  <span className="text-white font-medium">Invita Nuovo Membro</span>
-                </CardContent>
-              </Card>
-            </DialogTrigger>
-            <DialogContent className="bg-slate-800 border-slate-700">
-              <DialogHeader>
-                <DialogTitle className="text-white">Invita Nuovo Membro</DialogTitle>
-              </DialogHeader>
-              <button
-                onClick={() => setShowInvite(false)}
-                className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
-              >
-                <XCircle className="h-4 w-4 text-slate-400" />
-              </button>
-              <div className="space-y-4 mt-4">
-                <Input
-                  placeholder="Email"
-                  type="email"
-                  value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
-                  className="bg-slate-900 border-slate-700 text-white"
-                />
-                <Select value={inviteRole} onValueChange={setInviteRole}>
-                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="user">Membro</SelectItem>
-                    <SelectItem value="admin">Amministratore</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button 
-                  onClick={() => inviteUserMutation.mutate()}
-                  disabled={inviteUserMutation.isPending || !inviteEmail}
-                  className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900"
-                >
-                  {inviteUserMutation.isPending ? 'Invio...' : 'Invia Invito'}
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+
         </div>
 
         {/* Consultants Management */}
