@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { Calendar, MapPin, Clock, Users, Check, X, Plus, ArrowLeft } from 'lucide-react';
+import { Calendar, MapPin, Clock, Users, Check, X, Plus, ArrowLeft, Image, Upload } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -11,13 +11,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 
 export default function CalendarioIncontri() {
   const [user, setUser] = useState(null);
   const [showAddEvent, setShowAddEvent] = useState(false);
-  const [newEvent, setNewEvent] = useState({ title: '', description: '', date: '', time: '', location: '' });
+  const [newEvent, setNewEvent] = useState({ title: '', description: '', date: '', time: '', location: '', image_url: '' });
+  const [uploadingImage, setUploadingImage] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -51,6 +53,21 @@ export default function CalendarioIncontri() {
     enabled: isAdmin,
   });
 
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    setUploadingImage(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setNewEvent({ ...newEvent, image_url: file_url });
+    } catch (error) {
+      console.error('Errore upload immagine:', error);
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   const createEventMutation = useMutation({
     mutationFn: async (eventData) => {
       const event = await base44.entities.Event.create({
@@ -76,7 +93,7 @@ export default function CalendarioIncontri() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['events'] });
       setShowAddEvent(false);
-      setNewEvent({ title: '', description: '', date: '', time: '', location: '' });
+      setNewEvent({ title: '', description: '', date: '', time: '', location: '', image_url: '' });
     }
   });
 
@@ -132,7 +149,7 @@ export default function CalendarioIncontri() {
                   Nuovo
                 </Button>
               </DialogTrigger>
-              <DialogContent className="bg-slate-800 border-slate-700">
+              <DialogContent className="bg-slate-800 border-slate-700 max-h-[85vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle className="text-white">Nuovo Incontro</DialogTitle>
                 </DialogHeader>
@@ -167,9 +184,60 @@ export default function CalendarioIncontri() {
                     onChange={(e) => setNewEvent({...newEvent, location: e.target.value})}
                     className="bg-slate-900 border-slate-700 text-white"
                   />
+                  
+                  {/* Image Upload */}
+                  <div className="space-y-2">
+                    <Label className="text-slate-300">Locandina Evento</Label>
+                    <div className="flex flex-col gap-3">
+                      {newEvent.image_url ? (
+                        <div className="relative rounded-lg overflow-hidden border border-slate-700">
+                          <img 
+                            src={newEvent.image_url} 
+                            alt="Locandina" 
+                            className="w-full h-48 object-cover"
+                          />
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            className="absolute top-2 right-2"
+                            onClick={() => setNewEvent({...newEvent, image_url: ''})}
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <Label 
+                          htmlFor="event-image" 
+                          className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-700 rounded-lg cursor-pointer hover:bg-slate-700/50 transition-colors"
+                        >
+                          {uploadingImage ? (
+                            <div className="text-center">
+                              <div className="animate-spin w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full mx-auto mb-2"></div>
+                              <p className="text-sm text-slate-400">Caricamento...</p>
+                            </div>
+                          ) : (
+                            <>
+                              <Upload className="w-8 h-8 text-slate-400 mb-2" />
+                              <p className="text-sm text-slate-300">Carica locandina</p>
+                              <p className="text-xs text-slate-500">PNG, JPG (max 5MB)</p>
+                            </>
+                          )}
+                          <Input
+                            id="event-image"
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={handleImageUpload}
+                            disabled={uploadingImage}
+                          />
+                        </Label>
+                      )}
+                    </div>
+                  </div>
+                  
                   <Button 
                     onClick={() => createEventMutation.mutate(newEvent)}
-                    disabled={createEventMutation.isPending}
+                    disabled={createEventMutation.isPending || uploadingImage}
                     className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900"
                   >
                     {createEventMutation.isPending ? 'Creazione...' : 'Crea Incontro'}
@@ -196,7 +264,16 @@ export default function CalendarioIncontri() {
               const participantCount = event.participants?.length || 0;
               
               return (
-                <Card key={event.id} className="bg-slate-800 border-slate-700">
+                <Card key={event.id} className="bg-slate-800 border-slate-700 overflow-hidden">
+                  {event.image_url && (
+                    <div className="w-full h-48 overflow-hidden">
+                      <img 
+                        src={event.image_url} 
+                        alt={event.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
                   <CardHeader className="pb-3">
                     <CardTitle className="text-white text-lg">{event.title}</CardTitle>
                   </CardHeader>
