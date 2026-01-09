@@ -4,15 +4,18 @@ Deno.serve(async (req) => {
     try {
         const base44 = createClientFromRequest(req);
         
-        console.log('[Promemoria Eventi] Job avviato:', new Date().toISOString());
+        console.log('[Reminder Eventi] Job avviato:', new Date().toISOString());
         
-        // Calcola data limite: oggi + 48 ore
+        // 1. Recupera data e ora attuali
         const now = new Date();
         const bloccoLimite = new Date(now.getTime() + 48 * 60 * 60 * 1000);
+        const treGiorniFa = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000);
         
-        console.log('[Promemoria Eventi] Cerca eventi dopo:', bloccoLimite.toISOString());
+        console.log('[Reminder Eventi] Now:', now.toISOString());
+        console.log('[Reminder Eventi] Blocco limite (now + 48h):', bloccoLimite.toISOString());
+        console.log('[Reminder Eventi] Tre giorni fa:', treGiorniFa.toISOString());
         
-        // 1. Recupera tutti gli eventi futuri (dopo le 48 ore)
+        // 2. Recupera tutti gli eventi futuri
         const tuttiEventi = await base44.asServiceRole.entities.Event.list('-date');
         
         const eventiFuturi = tuttiEventi.filter(evento => {
@@ -20,115 +23,123 @@ Deno.serve(async (req) => {
             return dataEvento > bloccoLimite;
         });
         
-        console.log(`[Promemoria Eventi] Eventi futuri trovati: ${eventiFuturi.length}`);
+        console.log(`[Reminder Eventi] Eventi futuri (oltre 48h): ${eventiFuturi.length}`);
         
         if (eventiFuturi.length === 0) {
             return Response.json({ 
                 success: true, 
-                message: 'Nessun evento futuro da processare',
+                message: 'Nessun evento futuro oltre le 48 ore',
                 eventi_processati: 0,
-                notifiche_inviate: 0
+                reminder_inviati: 0
             });
         }
         
-        let notificheInviate = 0;
-        let emailInviate = 0;
+        let reminderInviati = 0;
         
-        // 2. Per ogni evento, trova utenti senza risposta
+        // 3. Per ogni evento futuro, trova partecipazioni pending
         for (const evento of eventiFuturi) {
-            console.log(`[Promemoria Eventi] Processo evento: ${evento.title} (${evento.date})`);
+            console.log(`[Reminder Eventi] Elaboro evento: ${evento.title} (${evento.date} ${evento.time})`);
             
-            // Trova tutte le partecipazioni per questo evento
-            const partecipazioni = await base44.asServiceRole.entities.PartecipazioniEvento.filter({
+            // Trova partecipazioni con stato "nessuna_risposta" (pending)
+            const partecipazioniPending = await base44.asServiceRole.entities.PartecipazioniEvento.filter({
                 evento_id: evento.id,
                 stato: 'nessuna_risposta'
             });
             
-            console.log(`[Promemoria Eventi] Utenti senza risposta: ${partecipazioni.length}`);
+            console.log(`[Reminder Eventi] Partecipazioni pending: ${partecipazioniPending.length}`);
             
-            // 3. Per ogni utente senza risposta, invia notifica ed email
-            for (const partecipazione of partecipazioni) {
+            for (const partecipazione of partecipazioniPending) {
                 try {
-                    const userEmail = partecipazione.user_email;
+                    // 3. Controlla se deve inviare reminder
+                    const lastReminder = partecipazione.last_reminder_sent_at 
+                        ? new Date(partecipazione.last_reminder_sent_at) 
+                        : null;
                     
-                    // Recupera informazioni utente per email personalizzata
-                    const users = await base44.asServiceRole.entities.User.filter({ email: userEmail });
-                    const user = users[0];
+                    // Se last_reminder_sent_at è NULL OPPURE last_reminder_sent_at <= now - 3 giorni
+                    const deveInviare = !lastReminder || lastReminder <= treGiorniFa;
                     
-                    if (!user) {
-                        console.log(`[Promemoria Eventi] Utente non trovato: ${userEmail}`);
+                    if (!deveInviare) {
+                        console.log(`[Reminder Eventi] Skip ${partecipazione.user_email}: ultimo reminder troppo recente`);
                         continue;
                     }
                     
-                    const nomeUtente = user.company_name || user.full_name || userEmail;
-                    const dataEventoFormattata = new Date(evento.date).toLocaleDateString('it-IT', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric'
+                    // Recupera dati utente
+                    const users = await base44.asServiceRole.entities.User.filter({ 
+                        email: partecipazione.user_email 
                     });
+                    const user = users[0];
                     
-                    // Crea notifica in-app
+                    if (!user) {
+                        console.log(`[Reminder Eventi] Utente non trovato: ${partecipazione.user_email}`);
+                        continue;
+                    }
+                    
+                    const nomeUtente = user.company_name || user.full_name || partecipazione.user_email;
+                    
+                    // 4. CREA notifica in-app con sound
                     await base44.asServiceRole.entities.Notification.create({
-                        user_email: userEmail,
-                        type: 'event',
-                        title: 'Promemoria: Conferma presenza',
-                        content: `Non hai ancora risposto all'evento "${evento.title}" del ${dataEventoFormattata} alle ore ${evento.time}. Ti ricordiamo di confermare la tua partecipazione.`,
+                        user_email: partecipazione.user_email,
+                        type: 'event_reminder',
+                        title: 'Conferma partecipazione evento',
+                        content: `Conferma o meno la tua partecipazione all'evento "${evento.title}" del ${new Date(evento.date).toLocaleDateString('it-IT')} alle ore ${evento.time}.`,
                         reference_id: evento.id,
                         is_read: false
                     });
                     
-                    notificheInviate++;
-                    
-                    // Invia email
+                    // 5. INVIA email automatica
                     await base44.asServiceRole.integrations.Core.SendEmail({
-                        to: userEmail,
+                        to: partecipazione.user_email,
                         from_name: 'Consorzio Imprenditori',
-                        subject: `Promemoria: Conferma presenza evento "${evento.title}"`,
+                        subject: 'Conferma partecipazione evento Consorzio',
                         body: `
 Gentile ${nomeUtente},
 
-Non hai ancora confermato la tua presenza all'evento:
+Ti ricordiamo di confermare o meno la tua partecipazione al prossimo evento del Consorzio.
 
-📅 **${evento.title}**
-📍 ${evento.location}
-🕐 ${dataEventoFormattata} alle ore ${evento.time}
+📅 Evento: ${evento.title}
+📍 Luogo: ${evento.location}
+🕐 Data: ${new Date(evento.date).toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' })} alle ore ${evento.time}
 
-Ti ricordiamo che potrai confermare o rifiutare la partecipazione fino a 48 ore prima dell'evento.
-
-Accedi all'app per confermare la tua presenza.
+Accedi all'app per confermare la presenza.
 
 Cordiali saluti,
 Consorzio Imprenditori
                         `.trim()
                     });
                     
-                    emailInviate++;
+                    // 6. AGGIORNA la partecipazione
+                    await base44.asServiceRole.entities.PartecipazioniEvento.update(partecipazione.id, {
+                        last_reminder_sent_at: now.toISOString(),
+                        reminder_count: (partecipazione.reminder_count || 0) + 1
+                    });
                     
-                    console.log(`[Promemoria Eventi] Notifica inviata a: ${userEmail}`);
+                    reminderInviati++;
+                    
+                    console.log(`[Reminder Eventi] ✅ Reminder inviato a: ${partecipazione.user_email} (count: ${(partecipazione.reminder_count || 0) + 1})`);
                     
                 } catch (error) {
-                    console.error(`[Promemoria Eventi] Errore invio a ${partecipazione.user_email}:`, error.message);
+                    console.error(`[Reminder Eventi] ❌ Errore per ${partecipazione.user_email}:`, error.message);
                 }
             }
         }
         
         const risultato = {
             success: true,
-            timestamp: new Date().toISOString(),
+            timestamp: now.toISOString(),
             eventi_processati: eventiFuturi.length,
-            notifiche_inviate: notificheInviate,
-            email_inviate: emailInviate
+            reminder_inviati: reminderInviati
         };
         
-        console.log('[Promemoria Eventi] Completato:', risultato);
+        console.log('[Reminder Eventi] ✅ Job completato:', risultato);
         
         return Response.json(risultato);
         
     } catch (error) {
-        console.error('[Promemoria Eventi] Errore generale:', error);
+        console.error('[Reminder Eventi] ❌ Errore generale:', error);
         return Response.json({ 
             success: false, 
-            error: error.message 
+            error: error.message,
+            stack: error.stack
         }, { status: 500 });
     }
 });
