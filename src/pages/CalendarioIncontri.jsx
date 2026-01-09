@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { Calendar, MapPin, Clock, Users, Check, X, Plus, ArrowLeft, Image, Upload } from 'lucide-react';
+import { Calendar, MapPin, Clock, Users, Check, X, Plus, ArrowLeft, Image, Upload, Edit } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,8 @@ export default function CalendarioIncontri() {
   const [showAddEvent, setShowAddEvent] = useState(false);
   const [newEvent, setNewEvent] = useState({ title: '', description: '', date: '', time: '', location: '', image_url: '' });
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [editingEvent, setEditingEvent] = useState(null);
+  const [showEditEvent, setShowEditEvent] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -107,6 +109,32 @@ export default function CalendarioIncontri() {
       queryClient.invalidateQueries({ queryKey: ['events'] });
       setShowAddEvent(false);
       setNewEvent({ title: '', description: '', date: '', time: '', location: '', image_url: '' });
+    }
+  });
+
+  const updateEventMutation = useMutation({
+    mutationFn: async (eventData) => {
+      // Calcola nuova data_blocco_partecipazione (48 ore prima del nuovo orario evento)
+      let dataBlocco = null;
+      if (eventData.date && eventData.time) {
+        const eventDateTime = new Date(`${eventData.date}T${eventData.time}`);
+        dataBlocco = new Date(eventDateTime.getTime() - (48 * 60 * 60 * 1000));
+      }
+
+      return base44.entities.Event.update(editingEvent.id, {
+        title: eventData.title,
+        description: eventData.description,
+        date: eventData.date,
+        time: eventData.time,
+        location: eventData.location,
+        image_url: eventData.image_url,
+        data_blocco_partecipazione: dataBlocco?.toISOString()
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+      setShowEditEvent(false);
+      setEditingEvent(null);
     }
   });
 
@@ -344,10 +372,27 @@ export default function CalendarioIncontri() {
                     </div>
                     
                     <div className="flex items-center gap-2 text-slate-300 text-sm">
-                      <Users className="w-4 h-4 text-lime-400" />
-                      <span>{participantCount} partecipanti confermati</span>
+                     <Users className="w-4 h-4 text-lime-400" />
+                     <span>{participantCount} partecipanti confermati</span>
                     </div>
-                    
+
+                    {isAdmin && (
+                     <div className="pt-3 border-t border-slate-700">
+                       <Button
+                         variant="outline"
+                         size="sm"
+                         className="w-full border-lime-400 text-lime-400 hover:bg-lime-400/20"
+                         onClick={() => {
+                           setEditingEvent(event);
+                           setShowEditEvent(true);
+                         }}
+                       >
+                         <Edit className="w-4 h-4 mr-2" />
+                         Modifica evento
+                       </Button>
+                     </div>
+                    )}
+
                     <div className="flex gap-3 pt-3 border-t border-slate-700">
                       <Button
                         variant={userResponse === 'accepted' ? 'default' : 'outline'}
@@ -383,6 +428,57 @@ export default function CalendarioIncontri() {
           </div>
         )}
       </main>
+
+      {/* Edit Event Dialog */}
+      {editingEvent && (
+        <Dialog open={showEditEvent} onOpenChange={setShowEditEvent}>
+          <DialogContent className="bg-slate-800 border-slate-700 max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-white">Modifica Incontro</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 mt-4">
+              <Input
+                placeholder="Titolo"
+                value={editingEvent.title}
+                onChange={(e) => setEditingEvent({...editingEvent, title: e.target.value})}
+                className="bg-slate-900 border-slate-700 text-white"
+              />
+              <Textarea
+                placeholder="Descrizione"
+                value={editingEvent.description}
+                onChange={(e) => setEditingEvent({...editingEvent, description: e.target.value})}
+                className="bg-slate-900 border-slate-700 text-white"
+              />
+              <Input
+                type="date"
+                value={editingEvent.date}
+                onChange={(e) => setEditingEvent({...editingEvent, date: e.target.value})}
+                className="bg-slate-900 border-slate-700 text-white"
+              />
+              <Input
+                type="time"
+                value={editingEvent.time}
+                onChange={(e) => setEditingEvent({...editingEvent, time: e.target.value})}
+                className="bg-slate-900 border-slate-700 text-white"
+              />
+              <Input
+                placeholder="Luogo"
+                value={editingEvent.location}
+                onChange={(e) => setEditingEvent({...editingEvent, location: e.target.value})}
+                className="bg-slate-900 border-slate-700 text-white"
+              />
+              
+              <Button 
+                onClick={() => updateEventMutation.mutate(editingEvent)}
+                disabled={updateEventMutation.isPending}
+                className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900"
+              >
+                {updateEventMutation.isPending ? 'Salvataggio...' : 'Salva Modifiche'}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
 
       <BottomNav currentPage="CalendarioIncontri" unreadMessages={messages.length} />
     </div>
