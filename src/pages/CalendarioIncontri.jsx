@@ -333,7 +333,7 @@ export default function CalendarioIncontri() {
                           disabled={respondToEventMutation.isPending}
                         >
                           <Check className="w-4 h-4 mr-2" />
-                          Partecipo
+                          Parteciperò
                         </Button>
                         <Button
                           variant={userResponse === 'declined' ? 'default' : 'outline'}
@@ -344,7 +344,7 @@ export default function CalendarioIncontri() {
                           disabled={respondToEventMutation.isPending}
                         >
                           <X className="w-4 h-4 mr-2" />
-                          Non partecipo
+                          Non parteciperò
                         </Button>
                       </div>
                     )}
