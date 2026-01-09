@@ -113,45 +113,21 @@ export default function VideoInterviste() {
 
   const sendContactMessageMutation = useMutation({
     mutationFn: async (video) => {
-      if (!video.company_email) {
-        throw new Error('Email azienda non disponibile');
-      }
-      
-      const emailBody = `Gentile Azienda,
-
-l'utente ${user.company_name || user.full_name} desidera essere contattato dalla vostra azienda.
-
-Siete pregati di ricontattarlo al più presto al seguente numero:
-${user.phone || 'Non disponibile'}
-
-Referente aziendale:
-${user.full_name || 'Non disponibile'}
-
-Cordiali saluti,
-Consorzio Imprenditori`;
-
-      // Invio email
-      await base44.integrations.Core.SendEmail({
-        from_name: 'Consorzio Imprenditori',
-        to: video.company_email,
-        subject: `${user.company_name || user.full_name} ti vuole contattare`,
-        body: emailBody
+      const response = await base44.functions.invoke('contactCompany', {
+        videoId: video.id,
+        companyEmail: video.company_email
       });
-      
-      // Invio messaggio in-app
-      const conversationId = [user.email, video.company_email].sort().join('-');
-      await base44.entities.Message.create({
-        from_email: user.email,
-        to_email: video.company_email,
-        content: `Richiesta di contatto da ${user.company_name || user.full_name}\n\nHo visto la vostra video intervista e vorrei essere contattato.\n\nAzienda: ${user.company_name || 'N/A'}\nReferente: ${user.full_name || 'N/A'}\nTelefono: ${user.phone || 'N/A'}`,
-        conversation_id: conversationId
-      });
+      return response.data;
     },
-    onSuccess: () => {
-      alert('Richiesta inviata! L\'azienda ti contatterà al più presto.');
+    onSuccess: (data) => {
+      if (data.alreadyExists) {
+        alert('Hai già inviato una richiesta di contatto a questa azienda');
+      } else {
+        alert(data.message);
+      }
     },
     onError: (error) => {
-      alert(error.message || 'Errore durante l\'invio della richiesta');
+      alert(error.response?.data?.error || 'Errore durante l\'invio della richiesta');
     }
   });
 
