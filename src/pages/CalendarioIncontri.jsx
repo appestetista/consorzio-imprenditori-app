@@ -421,6 +421,13 @@ export default function CalendarioIncontri() {
                         Non parteciperò
                       </Button>
                     </div>
+                    {isBlocked && (
+                      <div className="mt-3 p-3 bg-slate-700/50 rounded-lg">
+                        <p className="text-slate-300 text-xs leading-relaxed">
+                          La conferma di partecipazione non è più modificabile. Siamo a ridosso dell'evento e non è più possibile confermare o annullare la presenza online. Per necessità urgenti, contatta direttamente il Consorzio.
+                        </p>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               );
