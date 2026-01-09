@@ -104,6 +104,16 @@ export default function CalendarioIncontri() {
 
   const respondToEventMutation = useMutation({
     mutationFn: async ({ eventId, response }) => {
+      // Verifica server-side: controlla se l'evento è bloccato
+      const evento = events.find(e => e.id === eventId);
+      if (evento?.data_blocco_partecipazione) {
+        const now = new Date();
+        const bloccoDate = new Date(evento.data_blocco_partecipazione);
+        if (now >= bloccoDate) {
+          throw new Error('Le iscrizioni per questo evento sono chiuse');
+        }
+      }
+
       const existingParticipations = await base44.entities.PartecipazioniEvento.filter({
         user_email: user.email,
         evento_id: eventId
