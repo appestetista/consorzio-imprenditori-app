@@ -75,8 +75,16 @@ export default function CalendarioIncontri() {
 
   const createEventMutation = useMutation({
     mutationFn: async (eventData) => {
+      // Calcola data_blocco_partecipazione (48 ore prima dell'evento)
+      let dataBlocco = null;
+      if (eventData.date && eventData.time) {
+        const eventDateTime = new Date(`${eventData.date}T${eventData.time}`);
+        dataBlocco = new Date(eventDateTime.getTime() - (48 * 60 * 60 * 1000));
+      }
+
       const event = await base44.entities.Event.create({
         ...eventData,
+        data_blocco_partecipazione: dataBlocco?.toISOString(),
         participants: [],
         declined: []
       });
@@ -341,37 +349,32 @@ export default function CalendarioIncontri() {
                     </div>
                     
                     <div className="flex gap-3 pt-3 border-t border-slate-700">
-                      {isBlocked && (
-                        <p className="text-slate-500 text-sm w-full text-center py-2">
-                          Iscrizioni chiuse
-                        </p>
-                      )}
-                      {!isBlocked && (
-                        <>
-                          <Button
-                            variant={userResponse === 'accepted' ? 'default' : 'outline'}
-                            className={userResponse === 'accepted' 
-                              ? 'flex-1 bg-green-600 hover:bg-green-700' 
-                              : 'flex-1 border-green-600 text-green-400 hover:bg-green-600/20'}
-                            onClick={() => respondToEventMutation.mutate({ eventId: event.id, response: 'accept' })}
-                            disabled={respondToEventMutation.isPending}
-                          >
-                            <Check className="w-4 h-4 mr-2" />
-                            Parteciperò
-                          </Button>
-                          <Button
-                            variant={userResponse === 'declined' ? 'default' : 'outline'}
-                            className={userResponse === 'declined' 
-                              ? 'flex-1 bg-red-600 hover:bg-red-700' 
-                              : 'flex-1 border-red-600 text-red-400 hover:bg-red-600/20'}
-                            onClick={() => respondToEventMutation.mutate({ eventId: event.id, response: 'decline' })}
-                            disabled={respondToEventMutation.isPending}
-                          >
-                            <X className="w-4 h-4 mr-2" />
-                            Non parteciperò
-                          </Button>
-                        </>
-                      )}
+                      <Button
+                        variant={userResponse === 'accepted' ? 'default' : 'outline'}
+                        className={isBlocked 
+                          ? 'flex-1 bg-slate-700 text-slate-500 cursor-not-allowed'
+                          : userResponse === 'accepted' 
+                            ? 'flex-1 bg-green-600 hover:bg-green-700' 
+                            : 'flex-1 border-green-600 text-green-400 hover:bg-green-600/20'}
+                        onClick={() => !isBlocked && respondToEventMutation.mutate({ eventId: event.id, response: 'accept' })}
+                        disabled={isBlocked || respondToEventMutation.isPending}
+                      >
+                        <Check className="w-4 h-4 mr-2" />
+                        Parteciperò
+                      </Button>
+                      <Button
+                        variant={userResponse === 'declined' ? 'default' : 'outline'}
+                        className={isBlocked 
+                          ? 'flex-1 bg-slate-700 text-slate-500 cursor-not-allowed'
+                          : userResponse === 'declined' 
+                            ? 'flex-1 bg-red-600 hover:bg-red-700' 
+                            : 'flex-1 border-red-600 text-red-400 hover:bg-red-600/20'}
+                        onClick={() => !isBlocked && respondToEventMutation.mutate({ eventId: event.id, response: 'decline' })}
+                        disabled={isBlocked || respondToEventMutation.isPending}
+                      >
+                        <X className="w-4 h-4 mr-2" />
+                        Non parteciperò
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
