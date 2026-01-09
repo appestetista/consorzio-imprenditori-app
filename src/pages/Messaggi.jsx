@@ -3,13 +3,15 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { ArrowLeft, Send, User } from 'lucide-react';
+import { ArrowLeft, Send, User, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { toast } from 'sonner';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 
@@ -17,6 +19,7 @@ export default function Messaggi() {
   const [user, setUser] = useState(null);
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [newMessage, setNewMessage] = useState('');
+  const [messageToDelete, setMessageToDelete] = useState(null);
   const messagesEndRef = useRef(null);
   const queryClient = useQueryClient();
 
@@ -93,6 +96,25 @@ export default function Messaggi() {
     }
   });
 
+  const deleteMessageMutation = useMutation({
+    mutationFn: async (messageId) => {
+      await base44.entities.Message.delete(messageId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['all-messages'] });
+      queryClient.invalidateQueries({ queryKey: ['unread-messages'] });
+      setMessageToDelete(null);
+      toast.success('Messaggio eliminato');
+    },
+    onError: () => {
+      toast.error('Errore durante l\'eliminazione del messaggio');
+    }
+  });
+
+  const canDeleteMessage = (msg) => {
+    return msg.from_email === user?.email || user?.role === 'admin';
+  };
+
   useEffect(() => {
     if (selectedConversation && conversations[selectedConversation]) {
       const unreadIds = conversations[selectedConversation]
@@ -138,19 +160,29 @@ export default function Messaggi() {
                 key={msg.id}
                 className={`flex ${msg.from_email === user?.email ? 'justify-end' : 'justify-start'}`}
               >
-                <div
-                  className={`max-w-[80%] rounded-2xl px-4 py-2 ${
-                    msg.from_email === user?.email
-                      ? 'bg-lime-400 text-slate-900'
-                      : 'bg-slate-700 text-white'
-                  }`}
-                >
-                  <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                  <p className={`text-xs mt-1 ${
-                    msg.from_email === user?.email ? 'text-slate-700' : 'text-slate-400'
-                  }`}>
-                    {format(new Date(msg.created_date), 'HH:mm', { locale: it })}
-                  </p>
+                <div className={`flex items-start gap-2 ${msg.from_email === user?.email ? 'flex-row-reverse' : 'flex-row'}`}>
+                  <div
+                    className={`max-w-[80%] rounded-2xl px-4 py-2 ${
+                      msg.from_email === user?.email
+                        ? 'bg-lime-400 text-slate-900'
+                        : 'bg-slate-700 text-white'
+                    }`}
+                  >
+                    <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                    <p className={`text-xs mt-1 ${
+                      msg.from_email === user?.email ? 'text-slate-700' : 'text-slate-400'
+                    }`}>
+                      {format(new Date(msg.created_date), 'HH:mm', { locale: it })}
+                    </p>
+                  </div>
+                  {canDeleteMessage(msg) && (
+                    <button
+                      onClick={() => setMessageToDelete(msg)}
+                      className="text-slate-500 hover:text-red-500 transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
@@ -182,6 +214,30 @@ export default function Messaggi() {
             </Button>
           </div>
         </div>
+
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={!!messageToDelete} onOpenChange={() => setMessageToDelete(null)}>
+          <AlertDialogContent className="bg-slate-800 border-slate-700">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-white">Vuoi eliminare questo messaggio?</AlertDialogTitle>
+              <AlertDialogDescription className="text-slate-400">
+                Questa azione è permanente e non può essere annullata.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel className="bg-slate-700 text-white border-slate-600 hover:bg-slate-600">
+                Annulla
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => deleteMessageMutation.mutate(messageToDelete.id)}
+                disabled={deleteMessageMutation.isPending}
+                className="bg-red-500 hover:bg-red-600 text-white"
+              >
+                {deleteMessageMutation.isPending ? 'Eliminazione...' : 'Conferma'}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     );
   }
