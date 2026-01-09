@@ -41,6 +41,11 @@ export default function CalendarioIncontri() {
     queryFn: () => base44.entities.Event.list('-date'),
   });
 
+  const { data: partecipazioni = [] } = useQuery({
+    queryKey: ['partecipazioni-eventi'],
+    queryFn: () => base44.entities.PartecipazioniEvento.list(),
+  });
+
   const { data: messages = [] } = useQuery({
     queryKey: ['unread-messages', user?.email],
     queryFn: () => base44.entities.Message.filter({ to_email: user?.email, is_read: false }),
@@ -98,34 +103,48 @@ export default function CalendarioIncontri() {
   });
 
   const respondToEventMutation = useMutation({
-    mutationFn: async ({ eventId, response, event }) => {
-      const participants = event.participants || [];
-      const declined = event.declined || [];
-      
-      let updatedParticipants = participants.filter(e => e !== user.email);
-      let updatedDeclined = declined.filter(e => e !== user.email);
-      
-      if (response === 'accept') {
-        updatedParticipants.push(user.email);
-      } else {
-        updatedDeclined.push(user.email);
-      }
-      
-      return base44.entities.Event.update(eventId, {
-        participants: updatedParticipants,
-        declined: updatedDeclined
+    mutationFn: async ({ eventId, response }) => {
+      const existingParticipations = await base44.entities.PartecipazioniEvento.filter({
+        user_email: user.email,
+        evento_id: eventId
       });
+
+      const newStato = response === 'accept' ? 'confermato' : 'non_confermato';
+
+      if (existingParticipations.length > 0) {
+        // Aggiorna esistente
+        return base44.entities.PartecipazioniEvento.update(existingParticipations[0].id, {
+          stato: newStato
+        });
+      } else {
+        // Crea nuova partecipazione
+        return base44.entities.PartecipazioniEvento.create({
+          user_email: user.email,
+          evento_id: eventId,
+          stato: newStato
+        });
+      }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['events'] });
+      queryClient.invalidateQueries({ queryKey: ['partecipazioni-eventi'] });
     }
   });
 
-  const getUserResponse = (event) => {
+  const getUserResponse = (eventoId) => {
     if (!user?.email) return null;
-    if (event.participants?.includes(user.email)) return 'accepted';
-    if (event.declined?.includes(user.email)) return 'declined';
+    const partecipazione = partecipazioni.find(
+      p => p.user_email === user.email && p.evento_id === eventoId
+    );
+    if (!partecipazione) return null;
+    if (partecipazione.stato === 'confermato') return 'accepted';
+    if (partecipazione.stato === 'non_confermato') return 'declined';
     return null;
+  };
+
+  const getParticipantCount = (eventoId) => {
+    return partecipazioni.filter(
+      p => p.evento_id === eventoId && p.stato === 'confermato'
+    ).length;
   };
 
   return (
@@ -260,8 +279,8 @@ export default function CalendarioIncontri() {
         ) : (
           <div className="space-y-4">
             {events.map((event) => {
-              const userResponse = getUserResponse(event);
-              const participantCount = event.participants?.length || 0;
+              const userResponse = getUserResponse(event.id);
+              const participantCount = getParticipantCount(event.id);
               
               return (
                 <Card key={event.id} className="bg-slate-800 border-slate-700 overflow-hidden">
@@ -310,7 +329,7 @@ export default function CalendarioIncontri() {
                           className={userResponse === 'accepted' 
                             ? 'flex-1 bg-green-600 hover:bg-green-700' 
                             : 'flex-1 border-green-600 text-green-400 hover:bg-green-600/20'}
-                          onClick={() => respondToEventMutation.mutate({ eventId: event.id, response: 'accept', event })}
+                          onClick={() => respondToEventMutation.mutate({ eventId: event.id, response: 'accept' })}
                           disabled={respondToEventMutation.isPending}
                         >
                           <Check className="w-4 h-4 mr-2" />
@@ -321,7 +340,7 @@ export default function CalendarioIncontri() {
                           className={userResponse === 'declined' 
                             ? 'flex-1 bg-red-600 hover:bg-red-700' 
                             : 'flex-1 border-red-600 text-red-400 hover:bg-red-600/20'}
-                          onClick={() => respondToEventMutation.mutate({ eventId: event.id, response: 'decline', event })}
+                          onClick={() => respondToEventMutation.mutate({ eventId: event.id, response: 'decline' })}
                           disabled={respondToEventMutation.isPending}
                         >
                           <X className="w-4 h-4 mr-2" />

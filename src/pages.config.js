@@ -3,6 +3,7 @@ import CalendarioIncontri from './pages/CalendarioIncontri';
 import Consulenze from './pages/Consulenze';
 import ContattaConsorzio from './pages/ContattaConsorzio';
 import ContattaMembri from './pages/ContattaMembri';
+import CulturaAziendale from './pages/CulturaAziendale';
 import FinanziamentiAgevolati from './pages/FinanziamentiAgevolati';
 import GestioneBandi from './pages/GestioneBandi';
 import GestioneMembri from './pages/GestioneMembri';
@@ -11,7 +12,6 @@ import Marketplace from './pages/Marketplace';
 import Messaggi from './pages/Messaggi';
 import RisparmioEnergetico from './pages/RisparmioEnergetico';
 import VideoInterviste from './pages/VideoInterviste';
-import CulturaAziendale from './pages/CulturaAziendale';
 
 
 export const PAGES = {
@@ -20,6 +20,7 @@ export const PAGES = {
     "Consulenze": Consulenze,
     "ContattaConsorzio": ContattaConsorzio,
     "ContattaMembri": ContattaMembri,
+    "CulturaAziendale": CulturaAziendale,
     "FinanziamentiAgevolati": FinanziamentiAgevolati,
     "GestioneBandi": GestioneBandi,
     "GestioneMembri": GestioneMembri,
@@ -28,7 +29,6 @@ export const PAGES = {
     "Messaggi": Messaggi,
     "RisparmioEnergetico": RisparmioEnergetico,
     "VideoInterviste": VideoInterviste,
-    "CulturaAziendale": CulturaAziendale,
 }
 
 export const pagesConfig = {
