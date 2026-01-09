@@ -147,6 +147,13 @@ export default function CalendarioIncontri() {
     ).length;
   };
 
+  const isEventBlocked = (event) => {
+    if (!event.data_blocco_partecipazione) return false;
+    const now = new Date();
+    const bloccoDate = new Date(event.data_blocco_partecipazione);
+    return now >= bloccoDate;
+  };
+
   return (
     <div className="min-h-screen bg-slate-900 pb-24">
       <Header user={user} />
@@ -281,6 +288,7 @@ export default function CalendarioIncontri() {
             {events.map((event) => {
               const userResponse = getUserResponse(event.id);
               const participantCount = getParticipantCount(event.id);
+              const isBlocked = isEventBlocked(event);
               
               return (
                 <Card key={event.id} className="bg-slate-800 border-slate-700 overflow-hidden">
@@ -324,28 +332,37 @@ export default function CalendarioIncontri() {
                     
                     {!isAdmin && (
                       <div className="flex gap-3 pt-3 border-t border-slate-700">
-                        <Button
-                          variant={userResponse === 'accepted' ? 'default' : 'outline'}
-                          className={userResponse === 'accepted' 
-                            ? 'flex-1 bg-green-600 hover:bg-green-700' 
-                            : 'flex-1 border-green-600 text-green-400 hover:bg-green-600/20'}
-                          onClick={() => respondToEventMutation.mutate({ eventId: event.id, response: 'accept' })}
-                          disabled={respondToEventMutation.isPending}
-                        >
-                          <Check className="w-4 h-4 mr-2" />
-                          Parteciperò
-                        </Button>
-                        <Button
-                          variant={userResponse === 'declined' ? 'default' : 'outline'}
-                          className={userResponse === 'declined' 
-                            ? 'flex-1 bg-red-600 hover:bg-red-700' 
-                            : 'flex-1 border-red-600 text-red-400 hover:bg-red-600/20'}
-                          onClick={() => respondToEventMutation.mutate({ eventId: event.id, response: 'decline' })}
-                          disabled={respondToEventMutation.isPending}
-                        >
-                          <X className="w-4 h-4 mr-2" />
-                          Non parteciperò
-                        </Button>
+                        {isBlocked && (
+                          <p className="text-slate-500 text-sm w-full text-center py-2">
+                            Iscrizioni chiuse
+                          </p>
+                        )}
+                        {!isBlocked && (
+                          <>
+                            <Button
+                              variant={userResponse === 'accepted' ? 'default' : 'outline'}
+                              className={userResponse === 'accepted' 
+                                ? 'flex-1 bg-green-600 hover:bg-green-700' 
+                                : 'flex-1 border-green-600 text-green-400 hover:bg-green-600/20'}
+                              onClick={() => respondToEventMutation.mutate({ eventId: event.id, response: 'accept' })}
+                              disabled={respondToEventMutation.isPending}
+                            >
+                              <Check className="w-4 h-4 mr-2" />
+                              Parteciperò
+                            </Button>
+                            <Button
+                              variant={userResponse === 'declined' ? 'default' : 'outline'}
+                              className={userResponse === 'declined' 
+                                ? 'flex-1 bg-red-600 hover:bg-red-700' 
+                                : 'flex-1 border-red-600 text-red-400 hover:bg-red-600/20'}
+                              onClick={() => respondToEventMutation.mutate({ eventId: event.id, response: 'decline' })}
+                              disabled={respondToEventMutation.isPending}
+                            >
+                              <X className="w-4 h-4 mr-2" />
+                              Non parteciperò
+                            </Button>
+                          </>
+                        )}
                       </div>
                     )}
                   </CardContent>
