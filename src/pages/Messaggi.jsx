@@ -98,7 +98,7 @@ export default function Messaggi() {
 
   const deleteMessageMutation = useMutation({
     mutationFn: async (messageId) => {
-      await base44.entities.Message.delete(messageId);
+      await base44.functions.invoke('deleteMessage', { messageId });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['all-messages'] });
@@ -106,7 +106,8 @@ export default function Messaggi() {
       setMessageToDelete(null);
       toast.success('Messaggio eliminato');
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Errore eliminazione:', error);
       toast.error('Errore durante l\'eliminazione del messaggio');
     }
   });
