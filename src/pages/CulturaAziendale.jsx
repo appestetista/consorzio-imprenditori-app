@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Filter, BookOpen, Tag } from 'lucide-react';
+import { Filter, BookOpen, Tag, ArrowLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import { Card, CardContent } from '@/components/ui/card';
