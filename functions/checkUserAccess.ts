@@ -1,41 +1,49 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { createClientFromRequest } from "npm:@base44/sdk@0.8.6";
 
 Deno.serve(async (req) => {
-    try {
-        const base44 = createClientFromRequest(req);
-        
-        // ACTION 1: Get current user
-        const user = await base44.auth.me();
-        
-        // ACTION 2: Check if user exists
-        if (!user) {
-            return Response.json({ 
-                error: 'ACCESS_DENIED_NO_PROFILE',
-                message: 'Nessun profilo utente trovato' 
-            }, { status: 403 });
-        }
-        
-        // ACTION 3: Check if user is active (not blocked)
-        if (user.is_blocked) {
-            return Response.json({ 
-                error: 'ACCESS_DENIED_INACTIVE_USER',
-                message: 'Utente non attivo o bloccato' 
-            }, { status: 403 });
-        }
-        
-        // ACTION 4: Return user data
-        return Response.json({ 
-            success: true,
-            role: user.role,
-            userProfileId: user.id,
-            email: user.email
-        });
+  try {
+    const base44 = createClientFromRequest(req);
 
-    } catch (error) {
-        console.error('Errore checkUserAccess:', error);
-        return Response.json({ 
-            error: 'INTERNAL_ERROR',
-            message: error.message 
-        }, { status: 500 });
+    const user = await base44.auth.me();
+
+    if (!user) {
+      return Response.json(
+        { error: "ACCESS_DENIED_NO_PROFILE" },
+        { status: 403 }
+      );
     }
+
+    const profiles = await base44.db.UserProfiles.findMany({
+      where: { email: user.email },
+      limit: 1,
+    });
+
+    if (!profiles || profiles.length === 0) {
+      return Response.json(
+        { error: "ACCESS_DENIED_NO_PROFILE" },
+        { status: 403 }
+      );
+    }
+
+    const profile = profiles[0];
+
+    if (profile.is_active === false) {
+      return Response.json(
+        { error: "ACCESS_DENIED_INACTIVE_USER" },
+        { status: 403 }
+      );
+    }
+
+    return Response.json({
+      role: profile.role,
+      userProfileId: profile.id,
+      email: profile.email,
+    });
+  } catch (err) {
+    console.error("checkUserAccess error:", err);
+    return Response.json(
+      { error: "INTERNAL_ERROR" },
+      { status: 500 }
+    );
+  }
 });
