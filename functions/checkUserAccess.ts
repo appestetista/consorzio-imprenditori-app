@@ -4,20 +4,18 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
 
-    // 1. Recupero utente autenticato
+    // 1. Utente autenticato
     const user = await base44.auth.me();
-
-    if (!user) {
+    if (!user || !user.email) {
       return Response.json(
-        { error: "ACCESS_DENIED_NO_PROFILE" },
-        { status: 403 }
+        { error: "UNAUTHORIZED" },
+        { status: 401 }
       );
     }
 
-    // 2. Recupero profilo utente dalla tabella custom (CORRETTO)
-    const profiles = await base44.entities.UserProfiles.findMany({
-      where: { email: user.email },
-      limit: 1,
+    // 2. Lettura entity UserProfiles (METODO CORRETTO)
+    const profiles = await base44.asServiceRole.entities.UserProfiles.filter({
+      user_email: user.email
     });
 
     if (!profiles || profiles.length === 0) {
@@ -29,20 +27,19 @@ Deno.serve(async (req) => {
 
     const profile = profiles[0];
 
-    // 3. Verifica utente attivo
-    if (profile.is_active === false) {
+    if (profile.is_active !== true) {
       return Response.json(
         { error: "ACCESS_DENIED_INACTIVE_USER" },
         { status: 403 }
       );
     }
 
-    // 4. Ritorno dati minimi di autorizzazione
     return Response.json({
       role: profile.role,
       userProfileId: profile.id,
-      email: profile.email,
+      email: profile.user_email
     });
+
   } catch (err) {
     console.error("checkUserAccess error:", err);
     return Response.json(
