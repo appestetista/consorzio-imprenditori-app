@@ -3,27 +3,32 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 Deno.serve(async (req) => {
     try {
         const base44 = createClientFromRequest(req);
+        
+        // 1. Autentica l'utente (funziona per TUTTI gli utenti loggati, non solo admin)
         const user = await base44.auth.me();
-
-        if (!user) {
+        if (!user || !user.email) {
             return Response.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
+        // 2. Leggi i parametri
         const { videoId, companyEmail } = await req.json();
 
         if (!companyEmail) {
-            return Response.json({ error: 'Email azienda non disponibile' }, { status: 400 });
+            return Response.json({ 
+                success: false, 
+                error: 'Email azienda non disponibile' 
+            }, { status: 400 });
         }
 
-        // Verifica se esiste già un messaggio di contatto per questo video
+        // 3. Verifica se esiste già una richiesta di contatto
         const conversationId = [user.email, companyEmail].sort().join('-');
+        
         const existingMessages = await base44.asServiceRole.entities.Message.filter({
             from_email: user.email,
             to_email: companyEmail,
             conversation_id: conversationId
         });
 
-        // Controlla se esiste già un messaggio iniziale di richiesta contatto per questo video
         const hasContactRequest = existingMessages.some(msg => 
             msg.content.includes('Ho visto la vostra video intervista') ||
             msg.content.includes('Richiesta di contatto')
@@ -37,7 +42,7 @@ Deno.serve(async (req) => {
             });
         }
 
-        // Invia email all'azienda
+        // 4. Invia email all'azienda (service role = permessi admin)
         const emailBody = `Gentile Azienda,
 
 l'utente ${user.company_name || user.full_name} desidera essere contattato dalla vostra azienda.
@@ -58,7 +63,7 @@ Consorzio Imprenditori`;
             body: emailBody
         });
 
-        // Crea messaggio in-app (UNA SOLA VOLTA)
+        // 5. Crea messaggio in-app (service role = permessi admin)
         await base44.asServiceRole.entities.Message.create({
             from_email: user.email,
             to_email: companyEmail,
