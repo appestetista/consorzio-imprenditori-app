@@ -2,12 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Calendar, Video, Briefcase, Users, Zap, ShoppingBag, Sparkles, BookOpen } from 'lucide-react';
+import { createPageUrl } from '@/utils';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import FeatureCard from '../components/home/FeatureCard';
+import { useImpersonation } from '../components/admin/ImpersonationContext';
 
 export default function Home() {
   const [user, setUser] = useState(null);
+  const [effectiveUser, setEffectiveUser] = useState(null);
+  const { impersonation } = useImpersonation();
 
   useEffect(() => {
     const loadUser = async () => {
@@ -15,8 +19,20 @@ export default function Home() {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
         
-        // Redirect a CompleteProfile se profilo incompleto
-        if (!currentUser.profile_completed) {
+        // Se impersonation attiva, carica dati utente impersonato
+        if (impersonation.active && impersonation.role === 'user') {
+          const impersonatedUser = await base44.entities.User.filter({ id: impersonation.targetId });
+          if (impersonatedUser.length > 0) {
+            setEffectiveUser(impersonatedUser[0]);
+          } else {
+            setEffectiveUser(currentUser);
+          }
+        } else {
+          setEffectiveUser(currentUser);
+        }
+        
+        // Redirect a CompleteProfile se profilo incompleto (solo se NON in impersonation)
+        if (!impersonation.active && !currentUser.profile_completed) {
           window.location.href = createPageUrl('CompleteProfile');
         }
       } catch (e) {
@@ -24,18 +40,18 @@ export default function Home() {
       }
     };
     loadUser();
-  }, []);
+  }, [impersonation.active, impersonation.targetId]);
 
   const { data: notifications = [] } = useQuery({
-    queryKey: ['notifications', user?.email],
-    queryFn: () => base44.entities.Notification.filter({ user_email: user?.email, is_read: false }),
-    enabled: !!user?.email,
+    queryKey: ['notifications', effectiveUser?.email],
+    queryFn: () => base44.entities.Notification.filter({ user_email: effectiveUser?.email, is_read: false }),
+    enabled: !!effectiveUser?.email,
   });
 
   const { data: messages = [] } = useQuery({
-    queryKey: ['unread-messages', user?.email],
-    queryFn: () => base44.entities.Message.filter({ to_email: user?.email, is_read: false }),
-    enabled: !!user?.email,
+    queryKey: ['unread-messages', effectiveUser?.email],
+    queryFn: () => base44.entities.Message.filter({ to_email: effectiveUser?.email, is_read: false }),
+    enabled: !!effectiveUser?.email,
   });
 
   const { data: events = [] } = useQuery({
@@ -49,8 +65,9 @@ export default function Home() {
   const consultationNotifications = notifications.filter(n => n.type === 'consultation').length;
 
   const nextEvent = events[0];
-  const permissions = user?.permissions || {};
-  const isBlocked = user?.is_blocked;
+  const permissions = effectiveUser?.permissions || {};
+  const isBlocked = effectiveUser?.is_blocked;
+  const isAdmin = user?.role === 'admin' && !impersonation.active;
 
   if (isBlocked) {
     return (
@@ -81,7 +98,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-slate-900 pb-24">
-      <Header user={user} totalNotifications={notifications.length} />
+      <Header user={effectiveUser || user} totalNotifications={notifications.length} />
       
       <main className="px-4 py-6 max-w-md mx-auto">
         {/* Welcome Banner */}
