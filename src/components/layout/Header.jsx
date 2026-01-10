@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
-import { Menu, X, LogOut, Settings, Users, User } from 'lucide-react';
+import { Menu, X, LogOut, Settings, Users, User, Eye, XCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { cn } from '@/lib/utils';
+import { useImpersonation } from '../admin/ImpersonationContext';
+import ImpersonationDialog from '../admin/ImpersonationDialog';
 
 export default function Header({ user, totalNotifications = 0 }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [impersonationDialogOpen, setImpersonationDialogOpen] = useState(false);
+  const { impersonation, startImpersonation, stopImpersonation } = useImpersonation();
   const isAdmin = user?.role === 'admin';
 
   const handleLogout = () => {
@@ -27,6 +31,14 @@ export default function Header({ user, totalNotifications = 0 }) {
         </div>
         
         <div className="flex items-center gap-3">
+          {/* Banner Impersonation - Visibile solo quando attiva */}
+          {impersonation.active && (
+            <div className="bg-orange-500 text-white px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-2">
+              <Eye className="w-3 h-3" />
+              Vista: {impersonation.targetName}
+            </div>
+          )}
+          
           {totalNotifications > 0 && (
             <span className="bg-red-500 text-white text-sm rounded-full w-6 h-6 flex items-center justify-center font-bold">
               {totalNotifications > 99 ? '99+' : totalNotifications}
@@ -68,6 +80,20 @@ export default function Header({ user, totalNotifications = 0 }) {
               {user?.company_name || user?.full_name || 'Utente'}
             </p>
             
+            {/* Pulsante Torna ad Admin - Solo se impersonation attiva */}
+            {impersonation.active && isAdmin && (
+              <button
+                onClick={() => {
+                  stopImpersonation();
+                  setMenuOpen(false);
+                }}
+                className="flex items-center gap-3 text-white py-3 px-4 rounded-lg bg-orange-600 hover:bg-orange-700 transition-colors w-full mb-3"
+              >
+                <XCircle className="w-5 h-5" />
+                <span>Torna ad Admin</span>
+              </button>
+            )}
+            
             {/* Voci menu solo per Admin */}
             {isAdmin && (
               <>
@@ -88,6 +114,18 @@ export default function Header({ user, totalNotifications = 0 }) {
                   <Users className="w-5 h-5 text-lime-400" />
                   <span>Gestione Membri</span>
                 </Link>
+
+                {/* Pulsante Visualizza Come - Solo per Admin */}
+                <button
+                  onClick={() => {
+                    setImpersonationDialogOpen(true);
+                    setMenuOpen(false);
+                  }}
+                  className="flex items-center gap-3 text-white py-3 px-4 rounded-lg hover:bg-slate-800 transition-colors w-full"
+                >
+                  <Eye className="w-5 h-5 text-lime-400" />
+                  <span>Visualizza come...</span>
+                </button>
               </>
             )}
 
@@ -111,6 +149,13 @@ export default function Header({ user, totalNotifications = 0 }) {
           </div>
         </div>
       </div>
+
+      {/* Dialog Impersonation */}
+      <ImpersonationDialog
+        open={impersonationDialogOpen}
+        onClose={() => setImpersonationDialogOpen(false)}
+        onStart={startImpersonation}
+      />
     </>
   );
 }
