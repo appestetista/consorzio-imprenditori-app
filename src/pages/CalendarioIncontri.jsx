@@ -225,6 +225,12 @@ export default function CalendarioIncontri() {
                 <DialogHeader>
                   <DialogTitle className="text-white">Nuovo Incontro</DialogTitle>
                 </DialogHeader>
+                <button
+                  onClick={() => setShowAddEvent(false)}
+                  className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
+                >
+                  <X className="h-4 w-4 text-slate-400" />
+                </button>
                 <div className="space-y-4 mt-4">
                   <Input
                     placeholder="Titolo"
@@ -443,6 +449,12 @@ export default function CalendarioIncontri() {
             <DialogHeader>
               <DialogTitle className="text-white">Modifica Incontro</DialogTitle>
             </DialogHeader>
+            <button
+              onClick={() => setShowEditEvent(false)}
+              className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
+            >
+              <X className="h-4 w-4 text-slate-400" />
+            </button>
             <div className="space-y-4 mt-4">
               <Input
                 placeholder="Titolo"

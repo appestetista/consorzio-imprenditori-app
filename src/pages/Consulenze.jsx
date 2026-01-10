@@ -220,6 +220,12 @@ export default function Consulenze() {
           <DialogHeader>
             <DialogTitle className="text-white">Richiedi Consulenza</DialogTitle>
           </DialogHeader>
+          <button
+            onClick={() => setShowBookingModal(false)}
+            className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
+          >
+            <X className="h-4 w-4 text-slate-400" />
+          </button>
           <div className="space-y-4 mt-4">
             <div className="bg-lime-400/20 p-3 rounded-lg">
               <p className="text-lime-400 font-medium">{selectedConsultant?.category}</p>
