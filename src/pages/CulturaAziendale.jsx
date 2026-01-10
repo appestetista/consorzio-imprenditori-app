@@ -102,12 +102,17 @@ export default function CulturaAziendale() {
       
       <main className="px-4 py-6 max-w-4xl mx-auto">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-12 h-12 bg-lime-400 rounded-full flex items-center justify-center">
-            <BookOpen className="w-6 h-6 text-slate-900" />
-          </div>
-          <div>
-            <h1 className="text-white text-2xl font-bold">Cultura Aziendale</h1>
-            <p className="text-slate-400 text-sm">Contenuti formativi per il tuo team</p>
+          <Link to={createPageUrl('Home')} className="text-lime-400">
+            <ArrowLeft className="w-6 h-6" />
+          </Link>
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-lime-400 rounded-full flex items-center justify-center">
+              <BookOpen className="w-6 h-6 text-slate-900" />
+            </div>
+            <div>
+              <h1 className="text-white text-2xl font-bold">Cultura Aziendale</h1>
+              <p className="text-slate-400 text-sm">Contenuti formativi per il tuo team</p>
+            </div>
           </div>
         </div>
 
