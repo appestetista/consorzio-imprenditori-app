@@ -25,6 +25,8 @@ export default function MyProfile() {
           full_name: currentUser.full_name || '',
           company_name: currentUser.company_name || '',
           phone: currentUser.phone || '',
+          referente: currentUser.referente || '',
+          cellulare_referente: currentUser.cellulare_referente || '',
           vat_number: currentUser.vat_number || '',
           address: currentUser.address || '',
           city: currentUser.city || '',
@@ -161,11 +163,23 @@ export default function MyProfile() {
               Contatti
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-3">
             <Input
               placeholder="Telefono"
               value={formData.phone}
               onChange={(e) => setFormData({...formData, phone: e.target.value})}
+              className="bg-slate-900 border-slate-700 text-white"
+            />
+            <Input
+              placeholder="Nome Referente"
+              value={formData.referente}
+              onChange={(e) => setFormData({...formData, referente: e.target.value})}
+              className="bg-slate-900 border-slate-700 text-white"
+            />
+            <Input
+              placeholder="Cellulare Referente"
+              value={formData.cellulare_referente}
+              onChange={(e) => setFormData({...formData, cellulare_referente: e.target.value})}
               className="bg-slate-900 border-slate-700 text-white"
             />
           </CardContent>

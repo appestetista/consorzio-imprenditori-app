@@ -32,7 +32,7 @@ const CONSULTANT_CATEGORIES = [
 export default function AdminPanel() {
   const [user, setUser] = useState(null);
   const [showAddConsultant, setShowAddConsultant] = useState(false);
-  const [newConsultant, setNewConsultant] = useState({ name: '', category: '', phone: '', email: '' });
+  const [newConsultant, setNewConsultant] = useState({ name: '', category: '', phone: '', email: '', referente: '', cellulare_referente: '' });
   const { impersonation } = useImpersonation();
 
   const queryClient = useQueryClient();
@@ -122,7 +122,7 @@ export default function AdminPanel() {
       queryClient.invalidateQueries({ queryKey: ['consultants'] });
       queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
       setShowAddConsultant(false);
-      setNewConsultant({ name: '', category: '', phone: '', email: '' });
+      setNewConsultant({ name: '', category: '', phone: '', email: '', referente: '', cellulare_referente: '' });
     }
   });
 
@@ -356,6 +356,18 @@ export default function AdminPanel() {
                     type="email"
                     value={newConsultant.email}
                     onChange={(e) => setNewConsultant({...newConsultant, email: e.target.value})}
+                    className="bg-slate-900 border-slate-700 text-white"
+                  />
+                  <Input
+                    placeholder="Nome Referente"
+                    value={newConsultant.referente}
+                    onChange={(e) => setNewConsultant({...newConsultant, referente: e.target.value})}
+                    className="bg-slate-900 border-slate-700 text-white"
+                  />
+                  <Input
+                    placeholder="Cellulare Referente"
+                    value={newConsultant.cellulare_referente}
+                    onChange={(e) => setNewConsultant({...newConsultant, cellulare_referente: e.target.value})}
                     className="bg-slate-900 border-slate-700 text-white"
                   />
                   <Button 
