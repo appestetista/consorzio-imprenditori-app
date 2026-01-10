@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu, X, LogOut, Settings, Users } from 'lucide-react';
+import { Menu, X, LogOut, Settings, Users, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
@@ -89,7 +89,16 @@ export default function Header({ user, totalNotifications = 0 }) {
                 <span>Gestione Membri</span>
               </Link>
             )}
-            
+
+            <Link
+              to={createPageUrl('MyProfile')}
+              onClick={() => setMenuOpen(false)}
+              className="flex items-center gap-3 text-white py-3 px-4 rounded-lg hover:bg-slate-800 transition-colors"
+            >
+              <User className="w-5 h-5 text-lime-400" />
+              <span>Il Mio Profilo</span>
+            </Link>
+
             <button
               onClick={handleLogout}
               className="flex items-center gap-3 text-white py-3 px-4 rounded-lg hover:bg-slate-800 transition-colors w-full"
