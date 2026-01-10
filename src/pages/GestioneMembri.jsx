@@ -380,7 +380,7 @@ export default function GestioneMembri() {
       <Dialog open={showMemberForm} onOpenChange={(open) => {
         setShowMemberForm(open);
         if (!open) {
-          setEditingMember(null);
+          setSelectedMember(null);
           setFormData(null);
         }
       }}>
