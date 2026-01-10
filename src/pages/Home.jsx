@@ -14,6 +14,11 @@ export default function Home() {
       try {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
+        
+        // Redirect a CompleteProfile se profilo incompleto
+        if (!currentUser.profile_completed) {
+          window.location.href = createPageUrl('CompleteProfile');
+        }
       } catch (e) {
         console.error(e);
       }
