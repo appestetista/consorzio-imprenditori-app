@@ -1,5 +1,6 @@
 import AdminPanel from './pages/AdminPanel';
 import CalendarioIncontri from './pages/CalendarioIncontri';
+import CompleteProfile from './pages/CompleteProfile';
 import Consulenze from './pages/Consulenze';
 import ContattaConsorzio from './pages/ContattaConsorzio';
 import ContattaMembri from './pages/ContattaMembri';
@@ -10,15 +11,16 @@ import GestioneMembri from './pages/GestioneMembri';
 import Home from './pages/Home';
 import Marketplace from './pages/Marketplace';
 import Messaggi from './pages/Messaggi';
+import MyProfile from './pages/MyProfile';
 import RisparmioEnergetico from './pages/RisparmioEnergetico';
 import VideoInterviste from './pages/VideoInterviste';
-import CompleteProfile from './pages/CompleteProfile';
-import MyProfile from './pages/MyProfile';
+import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "AdminPanel": AdminPanel,
     "CalendarioIncontri": CalendarioIncontri,
+    "CompleteProfile": CompleteProfile,
     "Consulenze": Consulenze,
     "ContattaConsorzio": ContattaConsorzio,
     "ContattaMembri": ContattaMembri,
@@ -29,13 +31,13 @@ export const PAGES = {
     "Home": Home,
     "Marketplace": Marketplace,
     "Messaggi": Messaggi,
+    "MyProfile": MyProfile,
     "RisparmioEnergetico": RisparmioEnergetico,
     "VideoInterviste": VideoInterviste,
-    "CompleteProfile": CompleteProfile,
-    "MyProfile": MyProfile,
 }
 
 export const pagesConfig = {
     mainPage: "Home",
     Pages: PAGES,
+    Layout: __Layout,
 };
