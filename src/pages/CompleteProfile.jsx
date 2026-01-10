@@ -21,6 +21,7 @@ export default function CompleteProfile() {
     codice_sdi: '',
     referente: '',
     cellulare_referente: '',
+    whatsapp_referente: '',
     address: '',
     city: '',
     province: '',
@@ -43,6 +44,7 @@ export default function CompleteProfile() {
           codice_sdi: currentUser.codice_sdi || '',
           referente: currentUser.referente || '',
           cellulare_referente: currentUser.cellulare_referente || '',
+          whatsapp_referente: currentUser.whatsapp_referente || '',
           address: currentUser.address || '',
           city: currentUser.city || '',
           province: currentUser.province || '',
@@ -185,6 +187,14 @@ export default function CompleteProfile() {
                     placeholder="Cellulare Referente *"
                     value={formData.cellulare_referente}
                     onChange={(e) => setFormData({...formData, cellulare_referente: e.target.value})}
+                    className="bg-slate-900 border-slate-700 text-white"
+                    required
+                  />
+                  
+                  <Input
+                    placeholder="WhatsApp Referente *"
+                    value={formData.whatsapp_referente}
+                    onChange={(e) => setFormData({...formData, whatsapp_referente: e.target.value})}
                     className="bg-slate-900 border-slate-700 text-white"
                     required
                   />
