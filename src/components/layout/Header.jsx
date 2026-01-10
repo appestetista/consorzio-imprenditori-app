@@ -68,28 +68,30 @@ export default function Header({ user, totalNotifications = 0 }) {
               {user?.company_name || user?.full_name || 'Utente'}
             </p>
             
+            {/* Voci menu solo per Admin */}
             {isAdmin && (
-              <Link
-                to={createPageUrl('AdminPanel')}
-                onClick={() => setMenuOpen(false)}
-                className="flex items-center gap-3 text-white py-3 px-4 rounded-lg hover:bg-slate-800 transition-colors"
-              >
-                <Settings className="w-5 h-5 text-lime-400" />
-                <span>Pannello Admin</span>
-              </Link>
-            )}
-            
-            {isAdmin && (
-              <Link
-                to={createPageUrl('GestioneMembri')}
-                onClick={() => setMenuOpen(false)}
-                className="flex items-center gap-3 text-white py-3 px-4 rounded-lg hover:bg-slate-800 transition-colors"
-              >
-                <Users className="w-5 h-5 text-lime-400" />
-                <span>Gestione Membri</span>
-              </Link>
+              <>
+                <Link
+                  to={createPageUrl('AdminPanel')}
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-3 text-white py-3 px-4 rounded-lg hover:bg-slate-800 transition-colors"
+                >
+                  <Settings className="w-5 h-5 text-lime-400" />
+                  <span>Pannello Admin</span>
+                </Link>
+                
+                <Link
+                  to={createPageUrl('GestioneMembri')}
+                  onClick={() => setMenuOpen(false)}
+                  className="flex items-center gap-3 text-white py-3 px-4 rounded-lg hover:bg-slate-800 transition-colors"
+                >
+                  <Users className="w-5 h-5 text-lime-400" />
+                  <span>Gestione Membri</span>
+                </Link>
+              </>
             )}
 
+            {/* Voce menu per TUTTI gli utenti (admin e user) */}
             <Link
               to={createPageUrl('MyProfile')}
               onClick={() => setMenuOpen(false)}
@@ -101,7 +103,7 @@ export default function Header({ user, totalNotifications = 0 }) {
 
             <button
               onClick={handleLogout}
-              className="flex items-center gap-3 text-white py-3 px-4 rounded-lg hover:bg-slate-800 transition-colors w-full"
+              className="flex items-center gap-3 text-white py-3 px-4 rounded-lg hover:bg-slate-800 transition-colors w-full text-left"
             >
               <LogOut className="w-5 h-5 text-red-400" />
               <span>Esci</span>
