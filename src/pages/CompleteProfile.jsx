@@ -16,12 +16,15 @@ export default function CompleteProfile() {
   const [formData, setFormData] = useState({
     company_name: '',
     phone: '',
+    email: '',
     vat_number: '',
+    codice_sdi: '',
+    referente: '',
+    cellulare_referente: '',
     address: '',
     city: '',
     province: '',
     postal_code: '',
-    ateco_code: '',
     company_size: 'Piccola'
   });
 
@@ -35,12 +38,15 @@ export default function CompleteProfile() {
         setFormData({
           company_name: currentUser.company_name || '',
           phone: currentUser.phone || '',
+          email: currentUser.email || '',
           vat_number: currentUser.vat_number || '',
+          codice_sdi: currentUser.codice_sdi || '',
+          referente: currentUser.referente || '',
+          cellulare_referente: currentUser.cellulare_referente || '',
           address: currentUser.address || '',
           city: currentUser.city || '',
           province: currentUser.province || '',
           postal_code: currentUser.postal_code || '',
-          ateco_code: currentUser.ateco_code || '',
           company_size: currentUser.company_size || 'Piccola'
         });
         
@@ -119,9 +125,9 @@ export default function CompleteProfile() {
                   />
                   
                   <Input
-                    placeholder="Codice ATECO"
-                    value={formData.ateco_code}
-                    onChange={(e) => setFormData({...formData, ateco_code: e.target.value})}
+                    placeholder="Codice SDI"
+                    value={formData.codice_sdi}
+                    onChange={(e) => setFormData({...formData, codice_sdi: e.target.value})}
                     className="bg-slate-900 border-slate-700 text-white"
                   />
                   
@@ -149,13 +155,40 @@ export default function CompleteProfile() {
                   Contatti
                 </h3>
                 
-                <Input
-                  placeholder="Telefono *"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                  className="bg-slate-900 border-slate-700 text-white"
-                  required
-                />
+                <div className="space-y-3">
+                  <Input
+                    placeholder="Telefono Aziendale *"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                    className="bg-slate-900 border-slate-700 text-white"
+                    required
+                  />
+                  
+                  <Input
+                    placeholder="Email Aziendale *"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    className="bg-slate-900 border-slate-700 text-white"
+                    required
+                  />
+                  
+                  <Input
+                    placeholder="Nome Referente *"
+                    value={formData.referente}
+                    onChange={(e) => setFormData({...formData, referente: e.target.value})}
+                    className="bg-slate-900 border-slate-700 text-white"
+                    required
+                  />
+                  
+                  <Input
+                    placeholder="Cellulare Referente *"
+                    value={formData.cellulare_referente}
+                    onChange={(e) => setFormData({...formData, cellulare_referente: e.target.value})}
+                    className="bg-slate-900 border-slate-700 text-white"
+                    required
+                  />
+                </div>
               </div>
 
               {/* Sede */}
