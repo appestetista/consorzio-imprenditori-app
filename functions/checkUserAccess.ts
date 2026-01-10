@@ -4,6 +4,7 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
 
+    // 1. Recupero utente autenticato
     const user = await base44.auth.me();
 
     if (!user) {
@@ -13,7 +14,8 @@ Deno.serve(async (req) => {
       );
     }
 
-    const profiles = await base44.db.UserProfiles.findMany({
+    // 2. Recupero profilo utente dalla tabella custom (CORRETTO)
+    const profiles = await base44.entities.UserProfiles.findMany({
       where: { email: user.email },
       limit: 1,
     });
@@ -27,6 +29,7 @@ Deno.serve(async (req) => {
 
     const profile = profiles[0];
 
+    // 3. Verifica utente attivo
     if (profile.is_active === false) {
       return Response.json(
         { error: "ACCESS_DENIED_INACTIVE_USER" },
@@ -34,6 +37,7 @@ Deno.serve(async (req) => {
       );
     }
 
+    // 4. Ritorno dati minimi di autorizzazione
     return Response.json({
       role: profile.role,
       userProfileId: profile.id,
