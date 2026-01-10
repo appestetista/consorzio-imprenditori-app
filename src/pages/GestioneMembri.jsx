@@ -121,6 +121,8 @@ export default function GestioneMembri() {
       website: member.website || '',
       logo_url: member.logo_url || '',
       full_name: member.full_name || '',
+      referente: member.referente || '',
+      cellulare_referente: member.cellulare_referente || '',
       referente_cellulare: member.referente_cellulare || '',
       referente_email: member.referente_email || '',
       ragione_sociale_fatturazione: member.ragione_sociale_fatturazione || '',
@@ -226,6 +228,8 @@ export default function GestioneMembri() {
                 website: '',
                 logo_url: '',
                 full_name: '',
+                referente: '',
+                cellulare_referente: '',
                 referente_cellulare: '',
                 referente_email: '',
                 ragione_sociale_fatturazione: '',
@@ -500,11 +504,20 @@ export default function GestioneMembri() {
                       placeholder="Mario Rossi"
                     />
                   </div>
+                  <div className="col-span-2">
+                    <Label className="text-slate-300 text-sm">Referente (se diverso)</Label>
+                    <Input
+                      value={formData.referente}
+                      onChange={(e) => setFormData({...formData, referente: e.target.value})}
+                      className="bg-slate-900 border-slate-700 text-white mt-1"
+                      placeholder="Nome referente aggiuntivo"
+                    />
+                  </div>
                   <div>
                     <Label className="text-slate-300 text-sm">Cellulare Referente</Label>
                     <Input
-                      value={formData.referente_cellulare}
-                      onChange={(e) => setFormData({...formData, referente_cellulare: e.target.value})}
+                      value={formData.cellulare_referente || formData.referente_cellulare}
+                      onChange={(e) => setFormData({...formData, cellulare_referente: e.target.value, referente_cellulare: e.target.value})}
                       className="bg-slate-900 border-slate-700 text-white mt-1"
                       placeholder="+39 333 1234567"
                     />
