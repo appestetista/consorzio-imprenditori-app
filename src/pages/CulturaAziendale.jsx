@@ -6,6 +6,8 @@ import { Link } from 'react-router-dom';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import { Card, CardContent } from '@/components/ui/card';
+import { useImpersonation } from '../components/admin/ImpersonationContext';
+import { createPageUrl } from '@/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -41,20 +43,34 @@ const getYouTubeId = (url) => {
 
 export default function CulturaAziendale() {
   const [user, setUser] = useState(null);
+  const [effectiveUser, setEffectiveUser] = useState(null);
   const [selectedCategoria, setSelectedCategoria] = useState('all');
   const [selectedCompetenze, setSelectedCompetenze] = useState([]);
+  const { impersonation } = useImpersonation();
 
   useEffect(() => {
     const loadUser = async () => {
       try {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
+        
+        // Se impersonation attiva, carica dati utente impersonato
+        if (impersonation.active && impersonation.role === 'user') {
+          const impersonatedUser = await base44.entities.User.filter({ id: impersonation.targetId });
+          if (impersonatedUser.length > 0) {
+            setEffectiveUser(impersonatedUser[0]);
+          } else {
+            setEffectiveUser(currentUser);
+          }
+        } else {
+          setEffectiveUser(currentUser);
+        }
       } catch (e) {
         console.error(e);
       }
     };
     loadUser();
-  }, []);
+  }, [impersonation.active, impersonation.targetId]);
 
   const { data: videos = [] } = useQuery({
     queryKey: ['cultura-aziendale-videos'],
@@ -62,9 +78,9 @@ export default function CulturaAziendale() {
   });
 
   const { data: messages = [] } = useQuery({
-    queryKey: ['unread-messages', user?.email],
-    queryFn: () => base44.entities.Message.filter({ to_email: user?.email, is_read: false }),
-    enabled: !!user?.email,
+    queryKey: ['unread-messages', effectiveUser?.email],
+    queryFn: () => base44.entities.Message.filter({ to_email: effectiveUser?.email, is_read: false }),
+    enabled: !!effectiveUser?.email,
   });
 
   const toggleCompetenza = (competenza) => {
@@ -82,7 +98,7 @@ export default function CulturaAziendale() {
     return categoriaMatch && competenzeMatch;
   });
 
-  const permissions = user?.permissions || {};
+  const permissions = effectiveUser?.permissions || {};
   if (permissions.cultura_aziendale === false) {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
@@ -99,7 +115,7 @@ export default function CulturaAziendale() {
 
   return (
     <div className="min-h-screen bg-slate-900 pb-24">
-      <Header user={user} />
+      <Header user={effectiveUser || user} />
       
       <main className="px-4 py-6 max-w-4xl mx-auto">
         <div className="flex items-center gap-3 mb-6">
