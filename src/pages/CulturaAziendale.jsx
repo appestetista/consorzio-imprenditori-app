@@ -68,6 +68,48 @@ export default function CulturaAziendale() {
     enabled: !!effectiveUser?.email,
   });
 
+  const createVideoMutation = useMutation({
+    mutationFn: async (videoData) => {
+      const newVideo = await base44.entities.CulturaAziendaleVideo.create(videoData);
+      
+      const users = await base44.entities.User.list();
+      const activeUsers = users.filter(u => !u.is_blocked && u.role !== 'admin');
+      
+      const notifications = activeUsers.map(user => ({
+        user_email: user.email,
+        type: 'cultura_aziendale',
+        title: 'Nuovo video in Academy',
+        content: `"${videoData.title}" - Categoria: ${videoData.categoria}`,
+        reference_id: newVideo.id
+      }));
+      
+      await base44.entities.Notification.bulkCreate(notifications);
+      
+      return newVideo;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cultura-aziendale-videos'] });
+      setShowAddVideo(false);
+      setFormData({ title: '', youtube_url: '', categoria: '' });
+      setErrors([]);
+    }
+  });
+
+  const validate = () => {
+    const newErrors = [];
+    if (!formData.title) newErrors.push('Titolo obbligatorio');
+    if (!formData.youtube_url) newErrors.push('Link YouTube obbligatorio');
+    if (!formData.categoria) newErrors.push('Categoria obbligatoria');
+    
+    setErrors(newErrors);
+    return newErrors.length === 0;
+  };
+
+  const handleSubmit = () => {
+    if (!validate()) return;
+    createVideoMutation.mutate(formData);
+  };
+
   const filteredVideos = videos.filter(video => {
     return selectedCategoria === 'all' || video.categoria === selectedCategoria;
   });
@@ -187,6 +229,79 @@ export default function CulturaAziendale() {
       </main>
 
       <BottomNav currentPage="CulturaAziendale" unreadMessages={messages.length} />
+
+      {/* Dialog Carica Video */}
+      <Dialog open={showAddVideo} onOpenChange={(open) => {
+        setShowAddVideo(open);
+        if (!open) {
+          setFormData({ title: '', youtube_url: '', categoria: '' });
+          setErrors([]);
+        }
+      }}>
+        <DialogContent className="bg-slate-800 border-slate-700">
+          <DialogHeader>
+            <DialogTitle className="text-white">Carica Video Academy</DialogTitle>
+          </DialogHeader>
+          <button
+            onClick={() => setShowAddVideo(false)}
+            className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
+          >
+            <X className="h-4 w-4 text-white" />
+          </button>
+
+          <div className="space-y-4 mt-4">
+            {errors.length > 0 && (
+              <div className="bg-red-500/20 border border-red-500/30 rounded p-3">
+                {errors.map((error, idx) => (
+                  <p key={idx} className="text-red-400 text-sm">• {error}</p>
+                ))}
+              </div>
+            )}
+
+            <div>
+              <Label className="text-slate-300">Titolo Video *</Label>
+              <Input
+                value={formData.title}
+                onChange={(e) => setFormData({...formData, title: e.target.value})}
+                className="bg-slate-900 border-slate-700 text-white mt-1"
+                placeholder="Titolo del video"
+              />
+            </div>
+
+            <div>
+              <Label className="text-slate-300">Link YouTube *</Label>
+              <Input
+                value={formData.youtube_url}
+                onChange={(e) => setFormData({...formData, youtube_url: e.target.value})}
+                className="bg-slate-900 border-slate-700 text-white mt-1"
+                placeholder="https://www.youtube.com/watch?v=..."
+              />
+            </div>
+
+            <div>
+              <Label className="text-slate-300">Categoria *</Label>
+              <Select value={formData.categoria} onValueChange={(v) => setFormData({...formData, categoria: v})}>
+                <SelectTrigger className="bg-slate-900 border-slate-700 text-white mt-1">
+                  <SelectValue placeholder="Seleziona categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  {CATEGORIE.map(cat => (
+                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Button
+              onClick={handleSubmit}
+              disabled={createVideoMutation.isPending}
+              className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900"
+            >
+              {createVideoMutation.isPending ? 'Salvataggio...' : 'Carica Video'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
