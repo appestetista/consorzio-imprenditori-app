@@ -26,7 +26,6 @@ export default function CulturaAziendaleAdmin() {
   const [formData, setFormData] = useState({
     title: '',
     youtube_url: '',
-    description: '',
     categoria: ''
   });
   const [errors, setErrors] = useState([]);
@@ -75,7 +74,6 @@ export default function CulturaAziendaleAdmin() {
     setFormData({
       title: '',
       youtube_url: '',
-      description: '',
       categoria: ''
     });
     setErrors([]);
@@ -101,7 +99,7 @@ export default function CulturaAziendaleAdmin() {
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-white flex items-center gap-2">
           <BookOpen className="w-5 h-5 text-lime-400" />
-          Cultura Aziendale
+          Academy
         </CardTitle>
         <Button
           onClick={() => setShowAddVideo(true)}
@@ -174,7 +172,7 @@ export default function CulturaAziendaleAdmin() {
       }}>
         <DialogContent className="bg-slate-800 border-slate-700 max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-white">Nuovo Video - Cultura Aziendale</DialogTitle>
+            <DialogTitle className="text-white">Nuovo Video Academy</DialogTitle>
           </DialogHeader>
           <button
             onClick={() => setShowAddVideo(false)}
@@ -209,16 +207,6 @@ export default function CulturaAziendaleAdmin() {
                 onChange={(e) => setFormData({...formData, youtube_url: e.target.value})}
                 className="bg-slate-900 border-slate-700 text-white mt-1"
                 placeholder="https://www.youtube.com/watch?v=..."
-              />
-            </div>
-
-            <div>
-              <Label className="text-slate-300">Descrizione (facoltativo)</Label>
-              <Textarea
-                value={formData.description}
-                onChange={(e) => setFormData({...formData, description: e.target.value})}
-                className="bg-slate-900 border-slate-700 text-white mt-1 h-20"
-                placeholder="Breve descrizione del contenuto..."
               />
             </div>
 
