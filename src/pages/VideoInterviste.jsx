@@ -24,6 +24,8 @@ export default function VideoInterviste() {
   const [user, setUser] = useState(null);
   const [showAddVideo, setShowAddVideo] = useState(false);
   const [newVideo, setNewVideo] = useState({ title: '', company_name: '', youtube_url: '', company_email: '' });
+  const [editingVideo, setEditingVideo] = useState(null);
+  const [showEditVideo, setShowEditVideo] = useState(false);
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [requestMessage, setRequestMessage] = useState('');
   const queryClient = useQueryClient();
@@ -337,13 +339,22 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
                           )}
                         </button>
                         {isAdmin && (
-                          <button
-                            onClick={() => handleDeleteVideo(video)}
-                            className="p-2 hover:bg-red-500/20 rounded-lg transition-colors"
-                            title="Elimina video"
-                          >
-                            <Trash2 className="w-4 h-4 text-red-400" />
-                          </button>
+                          <>
+                            <button
+                              onClick={() => handleEditVideo(video)}
+                              className="p-2 hover:bg-blue-500/20 rounded-lg transition-colors"
+                              title="Modifica video"
+                            >
+                              <Edit className="w-4 h-4 text-blue-400" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteVideo(video)}
+                              className="p-2 hover:bg-red-500/20 rounded-lg transition-colors"
+                              title="Elimina video"
+                            >
+                              <Trash2 className="w-4 h-4 text-red-400" />
+                            </button>
+                          </>
                         )}
                       </div>
                     </div>
@@ -404,6 +415,60 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
       </Dialog>
 
       <BottomNav currentPage="VideoInterviste" unreadMessages={messages.length} />
+
+      {/* Dialog Modifica Video */}
+      <Dialog open={showEditVideo} onOpenChange={setShowEditVideo}>
+        <DialogContent className="bg-slate-800 border-slate-700">
+          <DialogHeader>
+            <DialogTitle className="text-white">Modifica Video</DialogTitle>
+          </DialogHeader>
+          <button
+            onClick={() => setShowEditVideo(false)}
+            className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
+          >
+            <X className="h-4 w-4 text-slate-400" />
+          </button>
+          {editingVideo && (
+            <div className="space-y-4 mt-4">
+              <Input
+                placeholder="Titolo Video *"
+                value={editingVideo.title}
+                onChange={(e) => setEditingVideo({...editingVideo, title: e.target.value})}
+                className="bg-slate-900 border-slate-700 text-white"
+                required
+              />
+              <Input
+                placeholder="Nome Azienda *"
+                value={editingVideo.company_name}
+                onChange={(e) => setEditingVideo({...editingVideo, company_name: e.target.value})}
+                className="bg-slate-900 border-slate-700 text-white"
+                required
+              />
+              <Input
+                placeholder="Link YouTube *"
+                value={editingVideo.youtube_url}
+                onChange={(e) => setEditingVideo({...editingVideo, youtube_url: e.target.value})}
+                className="bg-slate-900 border-slate-700 text-white"
+                required
+              />
+              <Input
+                placeholder="Email Azienda (per contatti)"
+                type="email"
+                value={editingVideo.company_email || ''}
+                onChange={(e) => setEditingVideo({...editingVideo, company_email: e.target.value})}
+                className="bg-slate-900 border-slate-700 text-white"
+              />
+              <Button 
+                onClick={handleUpdateVideo}
+                disabled={updateVideoMutation.isPending || !editingVideo.title || !editingVideo.company_name || !editingVideo.youtube_url}
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+              >
+                {updateVideoMutation.isPending ? 'Aggiornamento...' : 'Aggiorna Video'}
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
