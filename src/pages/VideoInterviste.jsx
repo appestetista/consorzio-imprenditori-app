@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Video, ThumbsUp, MessageCircle, Plus, ArrowLeft, Play, Trash2, X } from 'lucide-react';
+import { Video, ThumbsUp, MessageCircle, Plus, ArrowLeft, Play, Trash2, X, Edit } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -106,6 +106,15 @@ export default function VideoInterviste() {
     }
   });
 
+  const updateVideoMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.Video.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['videos'] });
+      setShowEditVideo(false);
+      setEditingVideo(null);
+    },
+  });
+
   const deleteVideoMutation = useMutation({
     mutationFn: async (videoId) => {
       return base44.entities.Video.delete(videoId);
@@ -167,6 +176,23 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
 
   const hasUserLiked = (video) => {
     return video.likes?.includes(user?.email);
+  };
+
+  const handleEditVideo = (video) => {
+    setEditingVideo(video);
+    setShowEditVideo(true);
+  };
+
+  const handleUpdateVideo = () => {
+    updateVideoMutation.mutate({
+      id: editingVideo.id,
+      data: {
+        title: editingVideo.title,
+        company_name: editingVideo.company_name,
+        youtube_url: editingVideo.youtube_url,
+        company_email: editingVideo.company_email
+      }
+    });
   };
 
   const handleDeleteVideo = (video) => {
