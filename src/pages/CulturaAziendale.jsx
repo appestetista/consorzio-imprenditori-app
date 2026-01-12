@@ -135,51 +135,50 @@ export default function CulturaAziendale() {
 
         {/* Lista Video */}
         {filteredVideos.length === 0 ? (
-          <Card className="bg-slate-800 border-slate-700">
-            <CardContent className="p-8 text-center">
-              <BookOpen className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-              <p className="text-slate-400">Nessun video disponibile con questi filtri</p>
-            </CardContent>
-          </Card>
+          <div className="text-center py-12">
+            <BookOpen className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+            <p className="text-slate-400">Nessun video disponibile con questi filtri</p>
+          </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-4">
             {filteredVideos.map((video) => {
-              const videoId = getYouTubeId(video.youtube_url);
+              const youtubeId = getYouTubeId(video.youtube_url);
+              
               return (
                 <Card key={video.id} className="bg-slate-800 border-slate-700 overflow-hidden">
-                  <CardContent className="p-0">
-                    {/* Video Player */}
-                    {videoId && (
-                      <div className="aspect-video bg-black">
+                  <div className="relative">
+                    <div className="bg-lime-400 text-slate-900 text-sm font-bold px-3 py-1">
+                      CATEGORIA: {video.categoria?.toUpperCase()}
+                    </div>
+                    
+                    {video.title && (
+                      <div className="bg-slate-900 px-3 py-2 border-b border-slate-700">
+                        <h3 className="text-white font-semibold text-base">{video.title}</h3>
+                      </div>
+                    )}
+                    
+                    {youtubeId ? (
+                      <div className="relative aspect-video">
                         <iframe
-                          width="100%"
-                          height="100%"
-                          src={`https://www.youtube.com/embed/${videoId}`}
+                          src={`https://www.youtube.com/embed/${youtubeId}`}
                           title={video.title}
+                          className="absolute inset-0 w-full h-full"
                           frameBorder="0"
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                           allowFullScreen
                         />
                       </div>
-                    )}
-                    
-                    {/* Info Video */}
-                    <div className="p-4 space-y-3">
-                      <h3 className="text-white text-lg font-semibold">{video.title}</h3>
-                      
-                      {video.description && (
-                        <p className="text-slate-400 text-sm">{video.description}</p>
-                      )}
-
-                      {/* Categoria */}
-                      <div className="flex items-center gap-2">
-                        <Tag className="w-4 h-4 text-lime-400" />
-                        <Badge className="bg-lime-400/20 text-lime-400 border-0">
-                          {video.categoria}
-                        </Badge>
+                    ) : (
+                      <div className="aspect-video bg-slate-700 flex items-center justify-center">
+                        <BookOpen className="w-16 h-16 text-slate-500" />
                       </div>
-                    </div>
-                  </CardContent>
+                    )}
+                  </div>
+                  {video.description && (
+                    <CardContent className="p-3">
+                      <p className="text-slate-400 text-sm">{video.description}</p>
+                    </CardContent>
+                  )}
                 </Card>
               );
             })}
