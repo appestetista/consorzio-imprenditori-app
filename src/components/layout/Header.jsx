@@ -17,16 +17,51 @@ export default function Header({ user, totalNotifications = 0 }) {
     base44.auth.logout();
   };
 
+  // Determina il titolo e sottotitolo in base allo stato
+  const getHeaderInfo = () => {
+    let title = '';
+    let subtitle = '';
+
+    if (impersonation.active) {
+      // Impersonificazione attiva: mostra nome azienda dell'utente impersonificato
+      title = impersonation.targetName || 'Utente';
+      // Il sottotitolo dipende dal ruolo dell'utente impersonificato
+      if (impersonation.role === 'user') {
+        subtitle = 'Membro del Consorzio';
+      } else if (impersonation.role === 'consulente') {
+        subtitle = 'Consulente del Consorzio';
+      }
+    } else {
+      // Nessuna impersonificazione
+      if (isAdmin) {
+        title = 'Admin Consorzio';
+        subtitle = 'Amministratore';
+      } else if (user?.role === 'consulente') {
+        title = user?.company_name || 'Consulente';
+        subtitle = 'Consulente del Consorzio';
+      } else {
+        title = user?.company_name || 'Membro';
+        subtitle = 'Membro del Consorzio';
+      }
+    }
+
+    return { title, subtitle };
+  };
+
+  const { title, subtitle } = getHeaderInfo();
+
   return (
     <>
       <header className="bg-slate-900 py-4 px-4 flex items-center justify-between sticky top-0 z-40 border-b border-lime-400/30">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-lime-400 rounded-full flex items-center justify-center">
-            <span className="text-slate-900 font-bold text-lg">C</span>
-          </div>
+          <img 
+            src="https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=100&h=100&fit=crop" 
+            alt="Logo Consorzio" 
+            className="w-10 h-10 rounded-full object-cover"
+          />
           <div>
-            <h1 className="text-lime-400 font-bold text-lg leading-tight">Consorzio</h1>
-            <p className="text-lime-400 text-sm">Imprenditori</p>
+            <h1 className="text-lime-400 font-bold text-lg leading-tight">{title}</h1>
+            <p className="text-lime-400 text-sm">{subtitle}</p>
           </div>
         </div>
         
