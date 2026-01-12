@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
-import { Filter, BookOpen, Tag, ArrowLeft } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Filter, BookOpen, Tag, ArrowLeft, Plus, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
@@ -11,6 +11,9 @@ import { createPageUrl } from '@/utils';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const CATEGORIE = [
   "Psicologia aziendale",
@@ -31,7 +34,11 @@ export default function CulturaAziendale() {
   const [user, setUser] = useState(null);
   const [effectiveUser, setEffectiveUser] = useState(null);
   const [selectedCategoria, setSelectedCategoria] = useState('all');
+  const [showAddVideo, setShowAddVideo] = useState(false);
+  const [formData, setFormData] = useState({ title: '', youtube_url: '', categoria: '' });
+  const [errors, setErrors] = useState([]);
   const { impersonation } = useImpersonation();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const loadUser = async () => {
@@ -115,6 +122,7 @@ export default function CulturaAziendale() {
   });
 
   const permissions = effectiveUser?.permissions || {};
+  const isAdmin = user?.role === 'admin' && !impersonation.active;
   if (permissions.cultura_aziendale === false) {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
@@ -134,19 +142,31 @@ export default function CulturaAziendale() {
       <Header user={effectiveUser || user} />
       
       <main className="px-4 py-6 max-w-4xl mx-auto">
-        <div className="flex items-center gap-3 mb-6">
-          <Link to={createPageUrl('Home')} className="text-lime-400">
-            <ArrowLeft className="w-6 h-6" />
-          </Link>
+        <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-lime-400 rounded-full flex items-center justify-center">
-              <BookOpen className="w-6 h-6 text-slate-900" />
-            </div>
-            <div>
-              <h1 className="text-white text-2xl font-bold">Academy</h1>
-              <p className="text-slate-400 text-sm">Contenuti formativi per il tuo team</p>
+            <Link to={createPageUrl('Home')} className="text-lime-400">
+              <ArrowLeft className="w-6 h-6" />
+            </Link>
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-lime-400 rounded-full flex items-center justify-center">
+                <BookOpen className="w-6 h-6 text-slate-900" />
+              </div>
+              <div>
+                <h1 className="text-white text-2xl font-bold">Academy</h1>
+                <p className="text-slate-400 text-sm">Contenuti formativi per il tuo team</p>
+              </div>
             </div>
           </div>
+          {isAdmin && (
+            <Button
+              onClick={() => setShowAddVideo(true)}
+              className="bg-lime-400 hover:bg-lime-500 text-slate-900"
+              size="sm"
+            >
+              <Plus className="w-4 h-4 mr-1" />
+              Carica Video
+            </Button>
+          )}
         </div>
 
         {/* Filtri */}
