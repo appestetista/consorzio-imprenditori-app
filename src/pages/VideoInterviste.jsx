@@ -176,72 +176,11 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
       <Header user={user} />
       
       <main className="px-4 py-6 max-w-md mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <Link to={createPageUrl('Home')} className="text-lime-400">
-              <ArrowLeft className="w-6 h-6" />
-            </Link>
-            <h1 className="text-white text-xl font-bold">Video Interviste</h1>
-          </div>
-          
-          {isAdmin && (
-            <Dialog open={showAddVideo} onOpenChange={setShowAddVideo}>
-              <DialogTrigger asChild>
-                <Button className="bg-lime-400 hover:bg-lime-500 text-slate-900">
-                  <Plus className="w-5 h-5 mr-1" />
-                  Nuovo
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="bg-slate-800 border-slate-700">
-                <DialogHeader>
-                  <DialogTitle className="text-white">Nuovo Video</DialogTitle>
-                </DialogHeader>
-                <button
-                  onClick={() => setShowAddVideo(false)}
-                  className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
-                >
-                  <X className="h-4 w-4 text-slate-400" />
-                </button>
-                <div className="space-y-4 mt-4">
-                  <Input
-                    placeholder="Titolo Video *"
-                    value={newVideo.title}
-                    onChange={(e) => setNewVideo({...newVideo, title: e.target.value})}
-                    className="bg-slate-900 border-slate-700 text-white"
-                    required
-                  />
-                  <Input
-                    placeholder="Nome Azienda *"
-                    value={newVideo.company_name}
-                    onChange={(e) => setNewVideo({...newVideo, company_name: e.target.value})}
-                    className="bg-slate-900 border-slate-700 text-white"
-                    required
-                  />
-                  <Input
-                    placeholder="Link YouTube *"
-                    value={newVideo.youtube_url}
-                    onChange={(e) => setNewVideo({...newVideo, youtube_url: e.target.value})}
-                    className="bg-slate-900 border-slate-700 text-white"
-                    required
-                  />
-                  <Input
-                    placeholder="Email Azienda (per contatti)"
-                    type="email"
-                    value={newVideo.company_email}
-                    onChange={(e) => setNewVideo({...newVideo, company_email: e.target.value})}
-                    className="bg-slate-900 border-slate-700 text-white"
-                  />
-                  <Button 
-                    onClick={() => createVideoMutation.mutate(newVideo)}
-                    disabled={createVideoMutation.isPending || !newVideo.title || !newVideo.company_name || !newVideo.youtube_url}
-                    className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900"
-                  >
-                    {createVideoMutation.isPending ? 'Caricamento...' : 'Aggiungi Video'}
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
-          )}
+        <div className="flex items-center gap-3 mb-6">
+          <Link to={createPageUrl('Home')} className="text-lime-400">
+            <ArrowLeft className="w-6 h-6" />
+          </Link>
+          <h1 className="text-white text-xl font-bold">Video Interviste</h1>
         </div>
 
         {/* Banner richiesta video */}
@@ -334,15 +273,6 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
                             </span>
                           )}
                         </button>
-                        {isAdmin && (
-                          <button
-                            onClick={() => handleDeleteVideo(video)}
-                            className="p-2 hover:bg-red-500/20 rounded-lg transition-colors"
-                            title="Elimina video"
-                          >
-                            <Trash2 className="w-4 h-4 text-red-400" />
-                          </button>
-                        )}
                       </div>
                     </div>
                   </CardContent>
