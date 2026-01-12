@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Textarea } from '@/components/ui/textarea';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
+import { useImpersonation } from '../components/admin/ImpersonationContext';
 
 function getYouTubeId(url) {
   if (!url) return null;
@@ -26,6 +27,7 @@ export default function VideoInterviste() {
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [requestMessage, setRequestMessage] = useState('');
   const queryClient = useQueryClient();
+  const { impersonation } = useImpersonation();
 
   useEffect(() => {
     const loadUser = async () => {
@@ -39,7 +41,7 @@ export default function VideoInterviste() {
     loadUser();
   }, []);
 
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = user?.role === 'admin' && !impersonation.active;
 
   const { data: videos = [], isLoading } = useQuery({
     queryKey: ['videos'],
