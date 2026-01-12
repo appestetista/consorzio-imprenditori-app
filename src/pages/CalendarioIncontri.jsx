@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
+import { useImpersonation } from '../components/admin/ImpersonationContext';
 
 export default function CalendarioIncontri() {
   const [user, setUser] = useState(null);
@@ -23,6 +24,7 @@ export default function CalendarioIncontri() {
   const [editingEvent, setEditingEvent] = useState(null);
   const [showEditEvent, setShowEditEvent] = useState(false);
   const queryClient = useQueryClient();
+  const { impersonation } = useImpersonation();
 
   useEffect(() => {
     const loadUser = async () => {
@@ -36,7 +38,7 @@ export default function CalendarioIncontri() {
     loadUser();
   }, []);
 
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = user?.role === 'admin' && !impersonation.active;
 
   const { data: events = [], isLoading } = useQuery({
     queryKey: ['events'],
