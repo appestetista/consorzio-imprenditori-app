@@ -323,7 +323,7 @@ export default function AdminPanel() {
                   onClick={() => setShowAddConsultant(false)}
                   className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
                 >
-                  <XCircle className="h-4 w-4 text-slate-400" />
+                  <XCircle className="h-4 w-4 text-white" />
                 </button>
                 <div className="space-y-4 mt-4">
                   <Input

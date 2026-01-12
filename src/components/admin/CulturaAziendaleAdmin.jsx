@@ -214,7 +214,7 @@ export default function CulturaAziendaleAdmin() {
             onClick={() => setShowAddVideo(false)}
             className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
           >
-            <X className="h-4 w-4 text-slate-400" />
+            <X className="h-4 w-4 text-white" />
           </button>
 
           <div className="space-y-4 mt-4">
