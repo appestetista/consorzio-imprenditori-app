@@ -127,7 +127,7 @@ export default function CulturaAziendale() {
               <BookOpen className="w-6 h-6 text-slate-900" />
             </div>
             <div>
-              <h1 className="text-white text-2xl font-bold">Cultura Aziendale</h1>
+              <h1 className="text-white text-2xl font-bold">Academy</h1>
               <p className="text-slate-400 text-sm">Contenuti formativi per il tuo team</p>
             </div>
           </div>
