@@ -17,20 +17,8 @@ const CATEGORIE = [
   "Finanza",
   "Strumenti digitali",
   "Fiscalità",
-  "Intelligenza Artificiale (AI)"
-];
-
-const COMPETENZE = [
-  "Leadership",
-  "Gestione del tempo",
-  "Controllo di gestione",
-  "Marketing e vendite",
-  "Analisi finanziaria",
-  "Automazione dei processi",
-  "Uso pratico dell'AI",
-  "Organizzazione aziendale",
-  "Compliance e normativa",
-  "Pianificazione strategica"
+  "Intelligenza Artificiale (AI)",
+  "Competenze"
 ];
 
 export default function CulturaAziendaleAdmin() {
@@ -39,8 +27,7 @@ export default function CulturaAziendaleAdmin() {
     title: '',
     youtube_url: '',
     description: '',
-    categoria: '',
-    competenze: []
+    categoria: ''
   });
   const [errors, setErrors] = useState([]);
   const queryClient = useQueryClient();
@@ -61,8 +48,8 @@ export default function CulturaAziendaleAdmin() {
       const notifications = activeUsers.map(user => ({
         user_email: user.email,
         type: 'cultura_aziendale',
-        title: 'Nuovo video in Cultura Aziendale',
-        content: `"${videoData.title}" - Categoria: ${videoData.categoria} | Competenze: ${videoData.competenze.slice(0, 3).join(', ')}${videoData.competenze.length > 3 ? '...' : ''}`,
+        title: 'Nuovo video in Academy',
+        content: `"${videoData.title}" - Categoria: ${videoData.categoria}`,
         reference_id: newVideo.id
       }));
       
@@ -89,19 +76,9 @@ export default function CulturaAziendaleAdmin() {
       title: '',
       youtube_url: '',
       description: '',
-      categoria: '',
-      competenze: []
+      categoria: ''
     });
     setErrors([]);
-  };
-
-  const toggleCompetenza = (competenza) => {
-    setFormData(prev => ({
-      ...prev,
-      competenze: prev.competenze.includes(competenza)
-        ? prev.competenze.filter(c => c !== competenza)
-        : [...prev.competenze, competenza]
-    }));
   };
 
   const validate = () => {
@@ -109,7 +86,6 @@ export default function CulturaAziendaleAdmin() {
     if (!formData.title) newErrors.push('Titolo obbligatorio');
     if (!formData.youtube_url) newErrors.push('Link YouTube obbligatorio');
     if (!formData.categoria) newErrors.push('Categoria obbligatoria');
-    if (formData.competenze.length === 0) newErrors.push('Seleziona almeno una competenza');
     
     setErrors(newErrors);
     return newErrors.length === 0;
@@ -149,16 +125,6 @@ export default function CulturaAziendaleAdmin() {
                       <Badge className="bg-lime-400/20 text-lime-400 border-0 text-xs">
                         {video.categoria}
                       </Badge>
-                      {video.competenze?.slice(0, 3).map(comp => (
-                        <Badge key={comp} className="bg-blue-500/20 text-blue-400 border-0 text-xs">
-                          {comp}
-                        </Badge>
-                      ))}
-                      {video.competenze?.length > 3 && (
-                        <Badge className="bg-slate-600 text-slate-300 border-0 text-xs">
-                          +{video.competenze.length - 3}
-                        </Badge>
-                      )}
                     </div>
                     <p className="text-slate-400 text-xs">
                       {new Date(video.created_date).toLocaleDateString('it-IT')}
@@ -268,28 +234,6 @@ export default function CulturaAziendaleAdmin() {
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-
-            <div>
-              <Label className="text-slate-300">
-                Competenze * {formData.competenze.length > 0 && `(${formData.competenze.length} selezionate)`}
-              </Label>
-              <p className="text-slate-500 text-xs mb-2">Seleziona almeno una competenza</p>
-              <div className="flex flex-wrap gap-2 bg-slate-900 rounded-lg p-3 border border-slate-700">
-                {COMPETENZE.map(comp => (
-                  <Badge
-                    key={comp}
-                    className={`cursor-pointer transition-all ${
-                      formData.competenze.includes(comp)
-                        ? 'bg-lime-400 text-slate-900'
-                        : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
-                    }`}
-                    onClick={() => toggleCompetenza(comp)}
-                  >
-                    {comp}
-                  </Badge>
-                ))}
-              </div>
             </div>
 
             <Button
