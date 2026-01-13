@@ -126,13 +126,19 @@ export default function GestioneMembri() {
       cellulare_referente: member.cellulare_referente || '',
       referente_cellulare: member.referente_cellulare || '',
       referente_email: member.referente_email || '',
+      vat_number: member.vat_number || '',
+      ateco_code: member.ateco_code || '',
+      company_size: member.company_size || 'Piccola',
+      address: member.address || '',
+      city: member.city || '',
+      province: member.province || '',
+      postal_code: member.postal_code || '',
       ragione_sociale_fatturazione: member.ragione_sociale_fatturazione || '',
       partita_iva: member.partita_iva || '',
       codice_fiscale: member.codice_fiscale || '',
       codice_sdi: member.codice_sdi || '',
       indirizzo: member.indirizzo || '',
       citta: member.citta || '',
-      provincia: member.provincia || '',
       regione: member.regione || '',
       cap: member.cap || '',
       paese: member.paese || ''
@@ -235,13 +241,19 @@ export default function GestioneMembri() {
                 cellulare_referente: '',
                 referente_cellulare: '',
                 referente_email: '',
+                vat_number: '',
+                ateco_code: '',
+                company_size: 'Piccola',
+                address: '',
+                city: '',
+                province: '',
+                postal_code: '',
                 ragione_sociale_fatturazione: '',
                 partita_iva: '',
                 codice_fiscale: '',
                 codice_sdi: '',
                 indirizzo: '',
                 citta: '',
-                provincia: '',
                 regione: '',
                 cap: '',
                 paese: ''
@@ -490,6 +502,78 @@ export default function GestioneMembri() {
                       onChange={(e) => setFormData({...formData, website: e.target.value})}
                       className="bg-slate-900 border-slate-700 text-white mt-1"
                       placeholder="https://www.azienda.it"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-slate-300 text-sm">Partita IVA</Label>
+                    <Input
+                      value={formData.vat_number}
+                      onChange={(e) => setFormData({...formData, vat_number: e.target.value})}
+                      className="bg-slate-900 border-slate-700 text-white mt-1"
+                      placeholder="IT12345678901"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-slate-300 text-sm">Codice ATECO</Label>
+                    <Input
+                      value={formData.ateco_code}
+                      onChange={(e) => setFormData({...formData, ateco_code: e.target.value})}
+                      className="bg-slate-900 border-slate-700 text-white mt-1"
+                      placeholder="47.91.10"
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <Label className="text-slate-300 text-sm">Dimensione Azienda</Label>
+                    <Select
+                      value={formData.company_size || 'Piccola'}
+                      onValueChange={(value) => setFormData({...formData, company_size: value})}
+                    >
+                      <SelectTrigger className="bg-slate-900 border-slate-700 text-white mt-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Micro">Micro</SelectItem>
+                        <SelectItem value="Piccola">Piccola</SelectItem>
+                        <SelectItem value="Media">Media</SelectItem>
+                        <SelectItem value="Grande">Grande</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="col-span-2">
+                    <Label className="text-slate-300 text-sm">Indirizzo</Label>
+                    <Input
+                      value={formData.address}
+                      onChange={(e) => setFormData({...formData, address: e.target.value})}
+                      className="bg-slate-900 border-slate-700 text-white mt-1"
+                      placeholder="Via Roma, 123"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-slate-300 text-sm">Città</Label>
+                    <Input
+                      value={formData.city}
+                      onChange={(e) => setFormData({...formData, city: e.target.value})}
+                      className="bg-slate-900 border-slate-700 text-white mt-1"
+                      placeholder="Milano"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-slate-300 text-sm">Provincia</Label>
+                    <Input
+                      value={formData.province}
+                      onChange={(e) => setFormData({...formData, province: e.target.value})}
+                      className="bg-slate-900 border-slate-700 text-white mt-1"
+                      placeholder="MI"
+                      maxLength={2}
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <Label className="text-slate-300 text-sm">CAP</Label>
+                    <Input
+                      value={formData.postal_code}
+                      onChange={(e) => setFormData({...formData, postal_code: e.target.value})}
+                      className="bg-slate-900 border-slate-700 text-white mt-1"
+                      placeholder="20100"
                     />
                   </div>
                 </div>
