@@ -98,9 +98,6 @@ export default function MemberView({ user, consultants, isLoading }) {
                 <p className="text-lime-400 font-bold">{usedCount}/{totalConsultants}</p>
               </div>
             </div>
-            <Badge variant="outline" className="bg-lime-400/20 text-lime-400 border-lime-400/30">
-              {availableCount} crediti attivi
-            </Badge>
           </div>
         </CardContent>
       </Card>
