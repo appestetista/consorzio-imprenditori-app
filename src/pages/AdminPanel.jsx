@@ -400,7 +400,7 @@ export default function AdminPanel() {
                       className="bg-slate-800 hover:bg-slate-600 text-lime-400 border-lime-400/30"
                       onClick={() => {
                         startImpersonation('consulente', consultant.id, consultant.email, consultant.name);
-                        navigate(createPageUrl('Home'));
+                        navigate(createPageUrl('Consulenze'));
                       }}
                     >
                       Visualizza
