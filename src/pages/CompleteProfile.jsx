@@ -35,11 +35,12 @@ export default function CompleteProfile() {
     const loadUser = async () => {
       try {
         const currentUser = await base44.auth.me();
+        setCurrentUserRole(currentUser.role);
         let effectiveUser = currentUser;
 
-        // Se impersonation attiva, carica l'utente impersonato
-        if (impersonation.active && impersonation.targetId) {
-          const users = await base44.entities.User.filter({ id: impersonation.targetId });
+        // Se appMode === 'user-preview', carica l'utente impersonato via previewUserId
+        if (impersonation.active && impersonation.previewUserId && impersonation.role === 'user') {
+          const users = await base44.entities.User.filter({ id: impersonation.previewUserId });
           if (users.length > 0) {
             effectiveUser = users[0];
           }
