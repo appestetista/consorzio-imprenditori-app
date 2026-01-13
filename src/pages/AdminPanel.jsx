@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Users, Video, Calendar, Briefcase, Plus, Settings, Bell, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { ArrowLeft, Users, Video, Calendar, Briefcase, Plus, Settings, Bell, CheckCircle, XCircle, Clock, Trash2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -153,6 +153,15 @@ export default function AdminPanel() {
     }
   });
 
+  const deleteConsultationRequestMutation = useMutation({
+    mutationFn: async (requestId) => {
+      await base44.entities.GrantInterest.delete(requestId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['consultation-requests'] });
+    }
+  });
+
   if (!user || user.role !== 'admin') {
     return null;
   }
@@ -232,9 +241,21 @@ export default function AdminPanel() {
                       <Bell className="w-8 h-8 text-slate-900" />
                     </div>
                     <div className="flex-1">
-                      <div className="mb-3">
-                        <h3 className="text-white font-bold text-lg">{request.user?.company_name || request.user?.full_name}</h3>
-                        <p className="text-lime-400 text-sm">{request.user?.email}</p>
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex-1">
+                          <h3 className="text-white font-bold text-lg">{request.user?.company_name || request.user?.full_name}</h3>
+                          <p className="text-lime-400 text-sm">{request.user?.email}</p>
+                        </div>
+                        <button
+                          onClick={() => {
+                            if (confirm('Vuoi eliminare questa richiesta?')) {
+                              deleteConsultationRequestMutation.mutate(request.id);
+                            }
+                          }}
+                          className="text-red-400 hover:text-red-500 transition-colors"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
                       </div>
                       <div className="bg-slate-900/50 rounded-lg p-3 mb-3">
                         <p className="text-white font-medium text-sm mb-2">{request.grant?.title}</p>
