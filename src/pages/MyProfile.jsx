@@ -17,7 +17,7 @@ export default function MyProfile() {
   const [saving, setSaving] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [formData, setFormData] = useState({});
-  const { impersonation } = useImpersonation();
+  const { impersonation, setCurrentUserRole } = useImpersonation();
 
   useEffect(() => {
     const loadUser = async () => {
