@@ -211,7 +211,14 @@ export default function AdminPanel() {
         {/* Richieste Consulenza Pendenti */}
         <div className="mb-6 space-y-4">
           <h2 className="text-white text-lg font-bold flex items-center gap-2">
-            <Bell className="w-5 h-5 text-red-500 animate-pulse" />
+            <div className="relative">
+              <Bell className={`w-5 h-5 ${pendingRequests.length > 0 ? 'text-red-500 animate-pulse' : 'text-slate-400'}`} />
+              {pendingRequests.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold">
+                  {pendingRequests.length}
+                </span>
+              )}
+            </div>
             Richieste Consulenza Bandi ({pendingRequests.length})
           </h2>
           {pendingRequests.length === 0 ? (
@@ -323,9 +330,12 @@ export default function AdminPanel() {
         <CulturaAziendaleAdmin />
 
         {/* Consultants Management */}
-        <Card className="bg-slate-800 border-slate-700">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-white">Gestione Consulenti</CardTitle>
+        <div className="mb-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-white text-lg font-bold flex items-center gap-2">
+              <Briefcase className="w-5 h-5 text-lime-400" />
+              Gestione Consulenti ({consultants.length})
+            </h2>
             <Dialog open={showAddConsultant} onOpenChange={setShowAddConsultant}>
               <DialogTrigger asChild>
                 <Button size="sm" className="bg-lime-400 hover:bg-lime-500 text-slate-900">
@@ -398,35 +408,43 @@ export default function AdminPanel() {
                 </div>
               </DialogContent>
             </Dialog>
-          </CardHeader>
-          <CardContent>
+          </div>
+          
+          {consultants.length === 0 ? (
+            <Card className="bg-slate-800 border-slate-700">
+              <CardContent className="p-6 text-center">
+                <Briefcase className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+                <p className="text-slate-400">Nessun consulente registrato</p>
+              </CardContent>
+            </Card>
+          ) : (
             <div className="space-y-2">
-              {consultants.length === 0 ? (
-                <p className="text-slate-400 text-sm text-center py-4">Nessun consulente</p>
-              ) : (
-                consultants.map((consultant) => (
-                  <div key={consultant.id} className="bg-slate-700/50 rounded-lg p-3 flex items-center justify-between">
-                    <div>
-                      <p className="text-white font-medium">{consultant.name}</p>
-                      <p className="text-lime-400 text-sm">{consultant.category}</p>
+              {consultants.map((consultant) => (
+                <Card key={consultant.id} className="bg-slate-800 border-slate-700">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-white font-medium">{consultant.name}</p>
+                        <p className="text-lime-400 text-sm">{consultant.category}</p>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="bg-slate-900 hover:bg-slate-700 text-lime-400 border-lime-400/30"
+                        onClick={() => {
+                          startImpersonation('consulente', consultant.id, consultant.email, consultant.name);
+                          navigate(createPageUrl('Consulenze'));
+                        }}
+                      >
+                        Visualizza
+                      </Button>
                     </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="bg-slate-800 hover:bg-slate-600 text-lime-400 border-lime-400/30"
-                      onClick={() => {
-                        startImpersonation('consulente', consultant.id, consultant.email, consultant.name);
-                        navigate(createPageUrl('Consulenze'));
-                      }}
-                    >
-                      Visualizza
-                    </Button>
-                  </div>
-                ))
-              )}
+                  </CardContent>
+                </Card>
+              ))}
             </div>
-          </CardContent>
-        </Card>
+          )}
+        </div>
       </main>
 
       <BottomNav currentPage="AdminPanel" unreadMessages={messages.length} />
