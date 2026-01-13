@@ -16,11 +16,24 @@ export default function Consulenze() {
   const [effectiveUser, setEffectiveUser] = useState(null);
   const { impersonation } = useImpersonation();
 
+  // Carica l'user corrente
   useEffect(() => {
     const loadUser = async () => {
       try {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    loadUser();
+  }, []);
+
+  // Carica l'effective user (con impersonation)
+  useEffect(() => {
+    const loadEffectiveUser = async () => {
+      try {
+        const currentUser = await base44.auth.me();
         
         if (impersonation.active) {
           if (impersonation.role === 'user') {
@@ -31,7 +44,6 @@ export default function Consulenze() {
               setEffectiveUser(currentUser);
             }
           } else if (impersonation.role === 'consulente') {
-            // Per i consulenti, creiamo un oggetto user fittizio con l'email del consulente
             setEffectiveUser({ 
               ...currentUser, 
               email: impersonation.targetEmail,
@@ -45,7 +57,7 @@ export default function Consulenze() {
         console.error(e);
       }
     };
-    loadUser();
+    loadEffectiveUser();
   }, [impersonation.active, impersonation.targetId, impersonation.role, impersonation.targetEmail]);
 
   const { data: consultants = [], isLoading } = useQuery({
