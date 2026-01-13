@@ -103,13 +103,25 @@ export default function ConsultantView({ user }) {
     <>
       <Card className="bg-gradient-to-br from-slate-800 to-slate-900 border-lime-400/30 mb-6">
         <CardContent className="p-6">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-12 h-12 bg-lime-400 rounded-full flex items-center justify-center">
-              <User className="w-6 h-6 text-slate-900" />
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-lime-400 rounded-full flex items-center justify-center">
+                <User className="w-6 h-6 text-slate-900" />
+              </div>
+              <div>
+                <h2 className="text-white text-xl font-bold">{myConsultantProfile?.name || 'Consulente'}</h2>
+                <p className="text-lime-400 text-sm">{myConsultantProfile?.category}</p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-white text-xl font-bold">{myConsultantProfile?.name || 'Consulente'}</h2>
-              <p className="text-lime-400 text-sm">{myConsultantProfile?.category}</p>
+            <div className="relative">
+              <div className="w-10 h-10 bg-slate-700 rounded-full flex items-center justify-center">
+                <Bell className="w-5 h-5 text-lime-400" />
+              </div>
+              {bookings.filter(b => b.status === 'pending').length > 0 && (
+                <div className="absolute -top-1 -right-1 bg-red-500 rounded-full w-5 h-5 flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">{bookings.filter(b => b.status === 'pending').length}</span>
+                </div>
+              )}
             </div>
           </div>
           <div className="flex gap-4 mt-4">
@@ -188,45 +200,47 @@ export default function ConsultantView({ user }) {
         </CardContent>
       </Card>
 
-      <h3 className="text-white text-lg font-bold mb-4">Richieste di Consulenza</h3>
-
-      {isLoading ? (
-        <div className="text-center py-12">
-          <div className="animate-spin w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full mx-auto"></div>
-        </div>
-      ) : bookings.length === 0 ? (
-        <Card className="bg-slate-800 border-slate-700">
-          <CardContent className="p-6 text-center">
-            <Mail className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-            <p className="text-slate-400">Nessuna richiesta ricevuta</p>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-4">
-          {bookings.map((booking) => (
-            <Card key={booking.id} className="bg-gradient-to-br from-orange-500/20 to-lime-400/20 border-lime-400/30">
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  <div className="bg-lime-400 rounded-full p-4 flex-shrink-0">
-                    <Bell className="w-8 h-8 text-slate-900" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-white font-bold text-lg">{booking.user_email}</h3>
+      <Card className="bg-slate-800 border-lime-400/30">
+        <CardHeader>
+          <CardTitle className="text-white">Richieste di Consulenza</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="text-center py-12">
+              <div className="animate-spin w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full mx-auto"></div>
+            </div>
+          ) : bookings.length === 0 ? (
+            <div className="text-center py-8">
+              <Mail className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+              <p className="text-slate-400">Nessuna richiesta ricevuta</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {bookings.map((booking) => {
+                const member = allMembers.find(m => m.email === booking.user_email);
+                return (
+                  <div key={booking.id} className="bg-slate-700/50 rounded-lg p-4">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-10 h-10 bg-lime-400 rounded-full flex items-center justify-center flex-shrink-0">
+                          <span className="text-slate-900 font-bold text-sm">
+                            {(member?.company_name || booking.user_email)[0].toUpperCase()}
+                          </span>
+                        </div>
+                        <div>
+                          <h3 className="text-white font-bold">{member?.company_name || booking.user_email}</h3>
+                          <div className="flex items-center gap-2 text-xs text-slate-400">
+                            <Clock className="w-3 h-3" />
+                            <span>{new Date(booking.created_date).toLocaleDateString('it-IT')}</span>
+                          </div>
+                        </div>
+                      </div>
                       <Badge className={statusColors[booking.status]}>
                         {statusLabels[booking.status]}
                       </Badge>
                     </div>
                     <div className="bg-slate-900/50 rounded-lg p-3 mb-3">
                       <p className="text-white text-sm">{booking.subject}</p>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-lime-400 mb-4">
-                      <Clock className="w-4 h-4" />
-                      <span className="font-semibold">{new Date(booking.created_date).toLocaleDateString('it-IT', { 
-                        day: 'numeric', 
-                        month: 'long', 
-                        year: 'numeric'
-                      })}</span>
                     </div>
                     {booking.status !== 'completed' && (
                       <Button
@@ -242,12 +256,12 @@ export default function ConsultantView({ user }) {
                       </Button>
                     )}
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+                );
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </>
   );
 }
