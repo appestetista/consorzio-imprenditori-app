@@ -115,7 +115,7 @@ export default function GestioneMembri() {
   });
 
   const handleEditMember = (member) => {
-    setFormData({
+    const data = {
       company_name: member.company_name || '',
       email: member.email || '',
       phone: member.phone || '',
@@ -136,7 +136,9 @@ export default function GestioneMembri() {
       regione: member.regione || '',
       cap: member.cap || '',
       paese: member.paese || ''
-    });
+    };
+    setFormData(data);
+    setInitialFormData(data);
     setSelectedMember(member);
     setShowMemberForm(true);
   };
