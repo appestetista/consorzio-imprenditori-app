@@ -18,7 +18,8 @@ export function ImpersonationProvider({ children }) {
       role,
       targetId,
       targetEmail,
-      targetName
+      targetName,
+      previewUserId: targetId
     });
   };
 
