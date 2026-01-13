@@ -1,13 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Mail, User, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { Mail, User, Clock, CheckCircle, XCircle, Users, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 
 export default function ConsultantView({ user }) {
   const queryClient = useQueryClient();
+  const [creditsInput, setCreditsInput] = useState({});
 
   const { data: myConsultantProfile } = useQuery({
     queryKey: ['my-consultant-profile', user?.email],
@@ -24,12 +26,34 @@ export default function ConsultantView({ user }) {
     enabled: !!myConsultantProfile?.id,
   });
 
+  const { data: allMembers = [] } = useQuery({
+    queryKey: ['all-members-consultant'],
+    queryFn: async () => {
+      const users = await base44.entities.User.list();
+      return users.filter(u => u.role !== 'admin');
+    },
+  });
+
   const updateStatusMutation = useMutation({
     mutationFn: async ({ bookingId, status }) => {
       await base44.entities.ConsultationBooking.update(bookingId, { status });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['consultant-bookings'] });
+    }
+  });
+
+  const incrementCreditsMutation = useMutation({
+    mutationFn: async ({ userId, additionalCredits }) => {
+      const member = allMembers.find(m => m.id === userId);
+      const currentCredits = member?.consulenze_disponibili || 0;
+      await base44.entities.User.update(userId, { 
+        consulenze_disponibili: currentCredits + additionalCredits 
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['all-members-consultant'] });
+      setCreditsInput({});
     }
   });
 
@@ -69,6 +93,67 @@ export default function ConsultantView({ user }) {
               <p className="text-2xl font-bold text-green-400">{bookings.filter(b => b.status === 'completed').length}</p>
               <p className="text-xs text-slate-400">Completate</p>
             </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="bg-slate-800 border-lime-400/30 mb-6">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center gap-2">
+            <Users className="w-5 h-5 text-lime-400" />
+            Lista Membri ({allMembers.length})
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            {allMembers.map((member) => {
+              const availableCredits = member.consulenze_disponibili || 0;
+              const usedCredits = member.consulenze_usate?.length || 0;
+
+              return (
+                <div key={member.id} className="bg-slate-700/50 rounded-lg p-3 flex items-center justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-white font-medium truncate">{member.company_name || member.full_name}</p>
+                    <p className="text-slate-400 text-xs truncate">{member.email}</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 text-sm">
+                      <div className="text-center">
+                        <p className="text-lime-400 font-bold text-lg">{availableCredits}</p>
+                        <p className="text-slate-500 text-xs">gratuite</p>
+                      </div>
+                      <span className="text-slate-600">/</span>
+                      <div className="text-center">
+                        <p className="text-slate-400 font-bold text-lg">{usedCredits}</p>
+                        <p className="text-slate-500 text-xs">usate</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Input
+                        type="number"
+                        min="1"
+                        placeholder="+"
+                        value={creditsInput[member.id] || ''}
+                        onChange={(e) => setCreditsInput({ ...creditsInput, [member.id]: parseInt(e.target.value) || '' })}
+                        className="w-16 h-8 bg-slate-900 border-slate-700 text-white text-center"
+                      />
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-8 w-8 p-0 bg-lime-400/20 text-lime-400 border-lime-400/30 hover:bg-lime-400 hover:text-slate-900"
+                        disabled={!creditsInput[member.id] || incrementCreditsMutation.isPending}
+                        onClick={() => incrementCreditsMutation.mutate({ 
+                          userId: member.id, 
+                          additionalCredits: creditsInput[member.id] 
+                        })}
+                      >
+                        <Plus className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </CardContent>
       </Card>
