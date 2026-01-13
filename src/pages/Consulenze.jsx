@@ -73,9 +73,22 @@ export default function Consulenze() {
           <Link to={createPageUrl('Home')} className="text-lime-400">
             <ArrowLeft className="w-6 h-6" />
           </Link>
-          <h1 className="text-white text-xl font-bold">
+          <h1 className="text-white text-xl font-bold flex-1">
             {isAdmin ? 'GESTIONE CONSULENZE' : isConsultant ? 'LE MIE RICHIESTE' : 'CONSULENZE e PREVENTIVI'}
           </h1>
+          {user?.role === 'admin' && impersonation.active && (
+            <Button
+              onClick={() => {
+                stopImpersonation();
+                window.location.href = createPageUrl('AdminPanel');
+              }}
+              className="bg-orange-600 hover:bg-orange-700 text-white"
+              size="sm"
+            >
+              <XCircle className="w-4 h-4 mr-2" />
+              Torna ad Admin
+            </Button>
+          )}
         </div>
 
         {isAdmin && <AdminView consultants={consultants} />}
