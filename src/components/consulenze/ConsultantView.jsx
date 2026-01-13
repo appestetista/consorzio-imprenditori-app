@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Mail, User, Clock, CheckCircle, XCircle, Users, Plus } from 'lucide-react';
+import { Mail, User, Clock, CheckCircle, XCircle, Users, Plus, ChevronUp, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -43,19 +43,26 @@ export default function ConsultantView({ user }) {
     }
   });
 
-  const incrementCreditsMutation = useMutation({
-    mutationFn: async ({ userId, additionalCredits }) => {
-      const member = allMembers.find(m => m.id === userId);
-      const currentCredits = member?.consulenze_disponibili || 0;
+  const updateCreditsMutation = useMutation({
+    mutationFn: async ({ userId, newCredits }) => {
       await base44.entities.User.update(userId, { 
-        consulenze_disponibili: currentCredits + additionalCredits 
+        consulenze_disponibili: newCredits 
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['all-members-consultant'] });
-      setCreditsInput({});
     }
   });
+
+  const handleIncrement = (userId, currentCredits) => {
+    updateCreditsMutation.mutate({ userId, newCredits: currentCredits + 1 });
+  };
+
+  const handleDecrement = (userId, currentCredits) => {
+    if (currentCredits > 1) {
+      updateCreditsMutation.mutate({ userId, newCredits: currentCredits - 1 });
+    }
+  };
 
   const statusColors = {
     pending: 'bg-yellow-500',
@@ -112,47 +119,45 @@ export default function ConsultantView({ user }) {
 
               return (
                 <div key={member.id} className="bg-slate-700/50 rounded-lg p-3">
-                  <div className="flex items-center justify-between gap-3 mb-2">
-                    <div className="flex-1">
-                      <p className="text-white font-medium">{member.company_name || member.full_name}</p>
-                      {member.referente && (
-                        <p className="text-slate-400 text-xs">{member.referente}</p>
-                      )}
-                    </div>
+                  <div className="mb-3">
+                    <p className="text-white font-medium">{member.company_name || member.full_name}</p>
+                    {member.referente && (
+                      <p className="text-slate-400 text-xs">{member.referente}</p>
+                    )}
                   </div>
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="text-center">
-                        <p className="text-lime-400 font-bold text-lg">{availableCredits}</p>
-                        <p className="text-slate-500 text-xs">gratuite</p>
+                      <div className="flex items-center gap-2">
+                        <div className="text-center">
+                          <p className="text-lime-400 font-bold text-lg">{availableCredits}</p>
+                          <p className="text-slate-500 text-xs">gratuite</p>
+                        </div>
+                        <div className="flex flex-col gap-0.5">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-5 w-5 p-0 bg-lime-400/20 text-lime-400 border-lime-400/30 hover:bg-lime-400 hover:text-slate-900"
+                            disabled={updateCreditsMutation.isPending}
+                            onClick={() => handleIncrement(member.id, availableCredits)}
+                          >
+                            <ChevronUp className="w-3 h-3" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-5 w-5 p-0 bg-slate-600/50 text-slate-400 border-slate-600 hover:bg-slate-600 hover:text-white disabled:opacity-30"
+                            disabled={availableCredits <= 1 || updateCreditsMutation.isPending}
+                            onClick={() => handleDecrement(member.id, availableCredits)}
+                          >
+                            <ChevronDown className="w-3 h-3" />
+                          </Button>
+                        </div>
                       </div>
                       <span className="text-slate-600">/</span>
                       <div className="text-center">
                         <p className="text-slate-400 font-bold text-lg">{usedCredits}</p>
                         <p className="text-slate-500 text-xs">usate</p>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Input
-                        type="number"
-                        min="1"
-                        placeholder="+"
-                        value={creditsInput[member.id] || ''}
-                        onChange={(e) => setCreditsInput({ ...creditsInput, [member.id]: parseInt(e.target.value) || '' })}
-                        className="w-16 h-8 bg-slate-900 border-slate-700 text-white text-center"
-                      />
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="h-8 w-8 p-0 bg-lime-400/20 text-lime-400 border-lime-400/30 hover:bg-lime-400 hover:text-slate-900"
-                        disabled={!creditsInput[member.id] || incrementCreditsMutation.isPending}
-                        onClick={() => incrementCreditsMutation.mutate({ 
-                          userId: member.id, 
-                          additionalCredits: creditsInput[member.id] 
-                        })}
-                      >
-                        <Plus className="w-4 h-4" />
-                      </Button>
                     </div>
                   </div>
                 </div>
