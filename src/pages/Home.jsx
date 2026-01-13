@@ -67,6 +67,20 @@ export default function Home() {
     enabled: !!effectiveUser?.email,
   });
 
+  // Subscribe real-time alle notifiche
+  useEffect(() => {
+    if (!effectiveUser?.email) return;
+    
+    const unsubscribe = base44.entities.Notification.subscribe((event) => {
+      if (event.data?.user_email === effectiveUser.email) {
+        // Invalida la cache per aggiornare le notifiche
+        queryClient.invalidateQueries({ queryKey: ['notifications', effectiveUser.email] });
+      }
+    });
+
+    return unsubscribe;
+  }, [effectiveUser?.email, queryClient]);
+
   const { data: messages = [] } = useQuery({
     queryKey: ['unread-messages', effectiveUser?.email],
     queryFn: () => base44.entities.Message.filter({ to_email: effectiveUser?.email, is_read: false }),
