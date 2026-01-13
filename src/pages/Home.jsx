@@ -11,10 +11,12 @@ import { useImpersonation } from '../components/admin/ImpersonationContext';
 export default function Home() {
   const [user, setUser] = useState(null);
   const [effectiveUser, setEffectiveUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const { impersonation } = useImpersonation();
 
   useEffect(() => {
     const loadUser = async () => {
+      setLoading(true);
       try {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
@@ -38,6 +40,9 @@ export default function Home() {
         }
       } catch (e) {
         console.error(e);
+        setEffectiveUser(null);
+      } finally {
+        setLoading(false);
       }
     };
     loadUser();
