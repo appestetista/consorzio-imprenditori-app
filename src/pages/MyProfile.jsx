@@ -25,39 +25,35 @@ export default function MyProfile() {
         const currentUser = await base44.auth.me();
         let effectiveUser = currentUser;
 
-        // Se impersonation attiva, carica l'utente impersonato
-        if (impersonation.active && impersonation.targetEmail) {
-          const users = await base44.entities.User.filter({ email: impersonation.targetEmail });
+        // Se impersonation attiva, carica l'utente impersonato via ID
+        if (impersonation.active && impersonation.targetId) {
+          const users = await base44.entities.User.filter({ id: impersonation.targetId });
           if (users.length > 0) {
             effectiveUser = users[0];
           }
         }
 
         setUser(effectiveUser);
+        // Usa SOLO i campi reali dell'entity User
         setFormData({
           full_name: effectiveUser.full_name || '',
           company_name: effectiveUser.company_name || '',
           phone: effectiveUser.phone || '',
           website: effectiveUser.website || '',
           logo_url: effectiveUser.logo_url || '',
+          vat_number: effectiveUser.vat_number || '',
+          codice_sdi: effectiveUser.codice_sdi || '',
+          company_size: effectiveUser.company_size || 'Piccola',
           referente: effectiveUser.referente || '',
           cellulare_referente: effectiveUser.cellulare_referente || '',
           referente_email: effectiveUser.referente_email || '',
-          vat_number: effectiveUser.vat_number || '',
           address: effectiveUser.address || '',
           city: effectiveUser.city || '',
           province: effectiveUser.province || '',
           postal_code: effectiveUser.postal_code || '',
-          ateco_code: effectiveUser.ateco_code || '',
-          company_size: effectiveUser.company_size || 'Piccola',
           ragione_sociale_fatturazione: effectiveUser.ragione_sociale_fatturazione || '',
-          partita_iva: effectiveUser.partita_iva || '',
           codice_fiscale: effectiveUser.codice_fiscale || '',
-          codice_sdi: effectiveUser.codice_sdi || '',
-          indirizzo: effectiveUser.indirizzo || '',
-          citta: effectiveUser.citta || '',
           regione: effectiveUser.regione || '',
-          cap: effectiveUser.cap || '',
           paese: effectiveUser.paese || ''
         });
         setLoading(false);
@@ -67,7 +63,7 @@ export default function MyProfile() {
       }
     };
     loadUser();
-  }, [impersonation.active, impersonation.targetEmail]);
+  }, [impersonation.active, impersonation.targetId]);
 
   const handleLogoUpload = async (e) => {
     const file = e.target.files?.[0];
@@ -87,9 +83,19 @@ export default function MyProfile() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await base44.auth.updateMe(formData);
-      const updatedUser = await base44.auth.me();
-      setUser(updatedUser);
+      // Se impersonation, aggiorna l'utente impersonato
+      if (impersonation.active && impersonation.targetId) {
+        await base44.entities.User.update(impersonation.targetId, formData);
+        const users = await base44.entities.User.filter({ id: impersonation.targetId });
+        if (users.length > 0) {
+          setUser(users[0]);
+        }
+      } else {
+        // Altrimenti aggiorna l'utente corrente
+        await base44.auth.updateMe(formData);
+        const updatedUser = await base44.auth.me();
+        setUser(updatedUser);
+      }
       alert('Profilo aggiornato con successo!');
     } catch (error) {
       alert('Errore durante il salvataggio');
