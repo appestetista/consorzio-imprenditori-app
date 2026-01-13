@@ -33,11 +33,6 @@ export default function Home() {
         } else {
           setUser(currentUser);
           setEffectiveUser(currentUser);
-          
-          // Redirect a CompleteProfile se profilo incompleto
-          if (!currentUser.profile_completed) {
-            window.location.href = createPageUrl('CompleteProfile');
-          }
         }
       } catch (e) {
         console.error(e);
