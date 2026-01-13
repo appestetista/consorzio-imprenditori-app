@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Briefcase, Phone, MessageCircle, ArrowLeft, Check, Gift } from 'lucide-react';
+import { Briefcase, Phone, MessageCircle, ArrowLeft, Check, Gift, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -28,6 +28,7 @@ const CONSULTANT_CATEGORIES = [
 
 export default function Consulenze() {
   const [user, setUser] = useState(null);
+  const [effectiveUser, setEffectiveUser] = useState(null);
   const [selectedConsultant, setSelectedConsultant] = useState(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [bookingSubject, setBookingSubject] = useState('');
@@ -38,6 +39,7 @@ export default function Consulenze() {
       try {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
+        setEffectiveUser(currentUser);
       } catch (e) {
         console.error(e);
       }
@@ -51,15 +53,15 @@ export default function Consulenze() {
   });
 
   const { data: myBookings = [] } = useQuery({
-    queryKey: ['my-bookings', user?.email],
-    queryFn: () => base44.entities.ConsultationBooking.filter({ user_email: user?.email }),
-    enabled: !!user?.email,
+    queryKey: ['my-bookings', effectiveUser?.email],
+    queryFn: () => base44.entities.ConsultationBooking.filter({ user_email: effectiveUser?.email }),
+    enabled: !!effectiveUser?.email,
   });
 
   const { data: messages = [] } = useQuery({
-    queryKey: ['unread-messages', user?.email],
-    queryFn: () => base44.entities.Message.filter({ to_email: user?.email, is_read: false }),
-    enabled: !!user?.email,
+    queryKey: ['unread-messages', effectiveUser?.email],
+    queryFn: () => base44.entities.Message.filter({ to_email: effectiveUser?.email, is_read: false }),
+    enabled: !!effectiveUser?.email,
   });
 
   const bookConsultationMutation = useMutation({
@@ -67,7 +69,7 @@ export default function Consulenze() {
       // Create booking
       await base44.entities.ConsultationBooking.create({
         consultant_id: selectedConsultant.id,
-        user_email: user.email,
+        user_email: effectiveUser.email,
         subject: bookingSubject,
         status: 'pending'
       });
@@ -78,7 +80,7 @@ export default function Consulenze() {
       });
       
       // Update user's used consultations
-      const usedConsultations = user.consulenze_usate || [];
+      const usedConsultations = effectiveUser.consulenze_usate || [];
       await base44.auth.updateMe({
         consulenze_usate: [...usedConsultations, selectedConsultant.id]
       });
@@ -90,20 +92,23 @@ export default function Consulenze() {
       setBookingSubject('');
       setSelectedConsultant(null);
       // Reload user data
-      base44.auth.me().then(setUser);
+      base44.auth.me().then((updatedUser) => {
+        setUser(updatedUser);
+        setEffectiveUser(updatedUser);
+      });
     }
   });
 
   const hasUsedConsultant = (consultantId) => {
-    return user?.consulenze_usate?.includes(consultantId) || false;
+    return effectiveUser?.consulenze_usate?.includes(consultantId) || false;
   };
 
-  const usedCount = user?.consulenze_usate?.length || 0;
+  const usedCount = effectiveUser?.consulenze_usate?.length || 0;
   const totalConsultants = CONSULTANT_CATEGORIES.length;
 
   return (
     <div className="min-h-screen bg-slate-900 pb-24">
-      <Header user={user} />
+      <Header user={effectiveUser || user} />
       
       <main className="px-4 py-6 max-w-md mx-auto">
         <div className="flex items-center gap-3 mb-6">
