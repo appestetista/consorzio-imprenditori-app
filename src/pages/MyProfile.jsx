@@ -212,15 +212,15 @@ export default function MyProfile() {
               </div>
             </div>
             <Input
-              placeholder="Nome Azienda"
+              placeholder="Nome Azienda *"
               value={formData.company_name}
               onChange={(e) => setFormData({...formData, company_name: e.target.value})}
               className="bg-slate-900 border-slate-700 text-white"
             />
             <Input
-              placeholder="Sito Web"
-              value={formData.website}
-              onChange={(e) => setFormData({...formData, website: e.target.value})}
+              placeholder="Ragione Sociale Fatturazione"
+              value={formData.ragione_sociale_fatturazione}
+              onChange={(e) => setFormData({...formData, ragione_sociale_fatturazione: e.target.value})}
               className="bg-slate-900 border-slate-700 text-white"
             />
             <Input
@@ -230,9 +230,21 @@ export default function MyProfile() {
               className="bg-slate-900 border-slate-700 text-white"
             />
             <Input
-              placeholder="Codice ATECO"
-              value={formData.ateco_code}
-              onChange={(e) => setFormData({...formData, ateco_code: e.target.value})}
+              placeholder="Codice Fiscale"
+              value={formData.codice_fiscale}
+              onChange={(e) => setFormData({...formData, codice_fiscale: e.target.value})}
+              className="bg-slate-900 border-slate-700 text-white"
+            />
+            <Input
+              placeholder="Codice SDI"
+              value={formData.codice_sdi}
+              onChange={(e) => setFormData({...formData, codice_sdi: e.target.value})}
+              className="bg-slate-900 border-slate-700 text-white"
+            />
+            <Input
+              placeholder="Sito Web"
+              value={formData.website}
+              onChange={(e) => setFormData({...formData, website: e.target.value})}
               className="bg-slate-900 border-slate-700 text-white"
             />
             <Select
@@ -243,10 +255,10 @@ export default function MyProfile() {
                 <SelectValue placeholder="Dimensione Azienda" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Micro">Micro</SelectItem>
-                <SelectItem value="Piccola">Piccola</SelectItem>
-                <SelectItem value="Media">Media</SelectItem>
-                <SelectItem value="Grande">Grande</SelectItem>
+                <SelectItem value="Micro">Micro (0-9 dipendenti)</SelectItem>
+                <SelectItem value="Piccola">Piccola (10-49 dipendenti)</SelectItem>
+                <SelectItem value="Media">Media (50-249 dipendenti)</SelectItem>
+                <SelectItem value="Grande">Grande (250+ dipendenti)</SelectItem>
               </SelectContent>
             </Select>
           </CardContent>
