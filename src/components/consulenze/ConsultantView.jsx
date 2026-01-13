@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Mail, User, Clock, CheckCircle, XCircle, Users, Plus, ChevronUp, ChevronDown } from 'lucide-react';
+import { Mail, User, Clock, CheckCircle, XCircle, Users, Plus, ChevronUp, ChevronDown, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -40,6 +40,27 @@ export default function ConsultantView({ user }) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['consultant-bookings'] });
+    }
+  });
+
+  const completeConsultationMutation = useMutation({
+    mutationFn: async ({ bookingId, userEmail }) => {
+      // Trova l'utente
+      const users = await base44.entities.User.filter({ email: userEmail });
+      if (users.length > 0) {
+        const user = users[0];
+        const currentUsed = user.consulenze_usate || [];
+        // Aggiungi l'ID della consulenza completata
+        await base44.entities.User.update(user.id, {
+          consulenze_usate: [...currentUsed, bookingId]
+        });
+      }
+      // Aggiorna lo stato della prenotazione
+      await base44.entities.ConsultationBooking.update(bookingId, { status: 'completed' });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['consultant-bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['all-members-consultant'] });
     }
   });
 
@@ -183,59 +204,45 @@ export default function ConsultantView({ user }) {
       ) : (
         <div className="space-y-4">
           {bookings.map((booking) => (
-            <Card key={booking.id} className="bg-slate-800 border-slate-700">
-              <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-white text-base">{booking.user_email}</CardTitle>
-                  <Badge className={statusColors[booking.status]}>
-                    {statusLabels[booking.status]}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="bg-slate-900 rounded-lg p-3 mb-3">
-                  <p className="text-slate-300 text-sm">{booking.subject}</p>
-                </div>
-                <div className="flex items-center gap-2 text-xs text-slate-400 mb-3">
-                  <Clock className="w-3 h-3" />
-                  <span>{new Date(booking.created_date).toLocaleDateString('it-IT', { 
-                    day: 'numeric', 
-                    month: 'long', 
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })}</span>
-                </div>
-                {booking.status === 'pending' && (
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      className="bg-green-600 hover:bg-green-700 text-white flex-1"
-                      onClick={() => updateStatusMutation.mutate({ bookingId: booking.id, status: 'confirmed' })}
-                    >
-                      <CheckCircle className="w-4 h-4 mr-1" />
-                      Conferma
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="bg-slate-700 hover:bg-slate-600 text-white border-slate-600 flex-1"
-                      onClick={() => updateStatusMutation.mutate({ bookingId: booking.id, status: 'completed' })}
-                    >
-                      Completa
-                    </Button>
+            <Card key={booking.id} className="bg-gradient-to-br from-orange-500/20 to-lime-400/20 border-lime-400/30">
+              <CardContent className="p-6">
+                <div className="flex items-start gap-4">
+                  <div className="bg-lime-400 rounded-full p-4 flex-shrink-0">
+                    <Bell className="w-8 h-8 text-slate-900" />
                   </div>
-                )}
-                {booking.status === 'confirmed' && (
-                  <Button
-                    size="sm"
-                    className="bg-green-600 hover:bg-green-700 text-white w-full"
-                    onClick={() => updateStatusMutation.mutate({ bookingId: booking.id, status: 'completed' })}
-                  >
-                    <CheckCircle className="w-4 h-4 mr-1" />
-                    Segna come Completata
-                  </Button>
-                )}
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-white font-bold text-lg">{booking.user_email}</h3>
+                      <Badge className={statusColors[booking.status]}>
+                        {statusLabels[booking.status]}
+                      </Badge>
+                    </div>
+                    <div className="bg-slate-900/50 rounded-lg p-3 mb-3">
+                      <p className="text-white text-sm">{booking.subject}</p>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-lime-400 mb-4">
+                      <Clock className="w-4 h-4" />
+                      <span className="font-semibold">{new Date(booking.created_date).toLocaleDateString('it-IT', { 
+                        day: 'numeric', 
+                        month: 'long', 
+                        year: 'numeric'
+                      })}</span>
+                    </div>
+                    {booking.status !== 'completed' && (
+                      <Button
+                        className="bg-lime-400 hover:bg-lime-500 text-slate-900 w-full font-bold"
+                        onClick={() => completeConsultationMutation.mutate({ 
+                          bookingId: booking.id, 
+                          userEmail: booking.user_email 
+                        })}
+                        disabled={completeConsultationMutation.isPending}
+                      >
+                        <CheckCircle className="w-5 h-5 mr-2" />
+                        Segna come Completata
+                      </Button>
+                    )}
+                  </div>
+                </div>
               </CardContent>
             </Card>
           ))}
