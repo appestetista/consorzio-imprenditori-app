@@ -64,7 +64,7 @@ export default function MyProfile() {
       }
     };
     loadUser();
-  }, [impersonation.active, impersonation.targetId]);
+  }, [impersonation.active, impersonation.previewUserId, impersonation.role]);
 
   const handleLogoUpload = async (e) => {
     const file = e.target.files?.[0];
