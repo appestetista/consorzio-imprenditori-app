@@ -230,17 +230,18 @@ export default function ConsultantView({ user }) {
             <div className="space-y-3">
               {bookings.map((booking) => {
                 const member = allMembers.find(m => m.email === booking.user_email);
+                const displayName = member?.company_name || member?.full_name || booking.user_email;
                 return (
                   <div key={booking.id} className="bg-slate-700/50 rounded-lg p-4">
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-lime-400 rounded-full flex items-center justify-center flex-shrink-0">
                           <span className="text-slate-900 font-bold text-sm">
-                            {(member?.company_name || booking.user_email)[0].toUpperCase()}
+                            {displayName[0].toUpperCase()}
                           </span>
                         </div>
                         <div>
-                          <h3 className="text-white font-bold">{member?.company_name || booking.user_email}</h3>
+                          <h3 className="text-white font-bold">{displayName}</h3>
                           {member?.referente && (
                             <p className="text-slate-300 text-sm">{member.referente}</p>
                           )}
