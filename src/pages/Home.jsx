@@ -12,7 +12,7 @@ export default function Home() {
   const [user, setUser] = useState(null);
   const [effectiveUser, setEffectiveUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const { impersonation, setCurrentUserRole } = useImpersonation();
+  const { impersonation, setCurrentUserRole, appMode } = useImpersonation();
 
   useEffect(() => {
     const loadUser = async () => {
@@ -23,7 +23,7 @@ export default function Home() {
         setCurrentUserRole(currentUser.role);
         
         // Se appMode === 'user-preview', carica l'utente impersonato via previewUserId
-        if (impersonation.active && impersonation.previewUserId && impersonation.role === 'user') {
+        if (appMode === 'user-preview' && impersonation.previewUserId) {
           const users = await base44.entities.User.filter({ id: impersonation.previewUserId });
           if (users.length > 0) {
             setEffectiveUser(users[0]);
@@ -40,7 +40,7 @@ export default function Home() {
       }
     };
     loadUser();
-  }, [impersonation.active, impersonation.previewUserId, impersonation.role]);
+  }, [appMode, impersonation.previewUserId]);
 
   const { data: notifications = [] } = useQuery({
     queryKey: ['notifications', effectiveUser?.email],
