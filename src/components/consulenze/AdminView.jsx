@@ -84,14 +84,7 @@ export default function AdminView({ consultants }) {
 
   const updateUserConsultationsMutation = useMutation({
     mutationFn: async ({ userId, credits }) => {
-      const currentUsed = allUsers.find(u => u.id === userId)?.consulenze_usate?.length || 0;
-      const totalCategories = CONSULTANT_CATEGORIES.length;
-      
-      // Calcola quante consulenze devono rimanere "usate"
-      const remainingUsed = Math.max(0, totalCategories - credits);
-      const newConsulenzeUsate = Array(remainingUsed).fill('dummy');
-      
-      await base44.entities.User.update(userId, { consulenze_usate: newConsulenzeUsate });
+      await base44.entities.User.update(userId, { consulenze_disponibili: credits });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['all-users-admin'] });
@@ -191,8 +184,7 @@ export default function AdminView({ consultants }) {
           <h2 className="text-white text-xl font-bold mb-4">Gestione Membri</h2>
           <div className="space-y-3">
             {members.map((member) => {
-              const usedCount = member.consulenze_usate?.length || 0;
-              const availableCount = CONSULTANT_CATEGORIES.length - usedCount;
+              const availableCount = member.consulenze_disponibili || 0;
               return (
                 <Card key={member.id} className="bg-slate-800 border-slate-700">
                   <CardContent className="p-4">

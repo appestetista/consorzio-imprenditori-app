@@ -41,8 +41,10 @@ export default function MemberView({ user, consultants, isLoading }) {
       });
       
       const usedConsultations = user.consulenze_usate || [];
+      const currentAvailable = user.consulenze_disponibili || 0;
       await base44.auth.updateMe({
-        consulenze_usate: [...usedConsultations, consultantId]
+        consulenze_usate: [...usedConsultations, consultantId],
+        consulenze_disponibili: Math.max(0, currentAvailable - 1)
       });
     },
     onSuccess: (_, variables) => {
@@ -62,8 +64,9 @@ export default function MemberView({ user, consultants, isLoading }) {
     return user?.consulenze_usate?.includes(consultantId) || false;
   };
 
-  const usedCount = user?.consulenze_usate?.length || 0;
+  const availableCount = user?.consulenze_disponibili || 0;
   const totalConsultants = CONSULTANT_CATEGORIES.length;
+  const usedCount = totalConsultants - availableCount;
 
   return (
     <>
@@ -80,7 +83,7 @@ export default function MemberView({ user, consultants, isLoading }) {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="bg-lime-400/20 rounded-xl p-4 text-center">
-                <span className="text-3xl font-bold text-lime-400">{totalConsultants - usedCount}</span>
+                <span className="text-3xl font-bold text-lime-400">{availableCount}</span>
                 <p className="text-xs text-slate-400">disponibili</p>
               </div>
               <div>
@@ -89,7 +92,7 @@ export default function MemberView({ user, consultants, isLoading }) {
               </div>
             </div>
             <Badge variant="outline" className="bg-lime-400/20 text-lime-400 border-lime-400/30">
-              {totalConsultants - usedCount} crediti attivi
+              {availableCount} crediti attivi
             </Badge>
           </div>
         </CardContent>
