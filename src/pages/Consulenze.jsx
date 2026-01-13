@@ -44,65 +44,15 @@ export default function Consulenze() {
     queryFn: () => base44.entities.Consultant.list(),
   });
 
-  const { data: myBookings = [] } = useQuery({
-    queryKey: ['my-bookings', effectiveUser?.email],
-    queryFn: () => base44.entities.ConsultationBooking.filter({ user_email: effectiveUser?.email }),
-    enabled: !!effectiveUser?.email,
-  });
-
   const { data: messages = [] } = useQuery({
     queryKey: ['unread-messages', effectiveUser?.email],
     queryFn: () => base44.entities.Message.filter({ to_email: effectiveUser?.email, is_read: false }),
     enabled: !!effectiveUser?.email,
   });
 
-  const bookConsultationMutation = useMutation({
-    mutationFn: async ({ consultantId, message }) => {
-      const consultant = consultants.find(c => c.id === consultantId);
-      
-      // Create booking
-      await base44.entities.ConsultationBooking.create({
-        consultant_id: consultantId,
-        user_email: effectiveUser.email,
-        subject: message,
-        status: 'pending'
-      });
-      
-      // Decrement available slots
-      await base44.entities.Consultant.update(consultantId, {
-        available_slots: (consultant.available_slots || 100) - 1
-      });
-      
-      // Update user's used consultations
-      const usedConsultations = effectiveUser.consulenze_usate || [];
-      await base44.auth.updateMe({
-        consulenze_usate: [...usedConsultations, consultantId]
-      });
-    },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['consultants'] });
-      queryClient.invalidateQueries({ queryKey: ['my-bookings'] });
-      
-      // Clear the message field
-      setConsultationMessages(prev => ({
-        ...prev,
-        [variables.consultantId]: ''
-      }));
-      
-      // Reload user data
-      base44.auth.me().then((updatedUser) => {
-        setUser(updatedUser);
-        setEffectiveUser(updatedUser);
-      });
-    }
-  });
-
-  const hasUsedConsultant = (consultantId) => {
-    return effectiveUser?.consulenze_usate?.includes(consultantId) || false;
-  };
-
-  const usedCount = effectiveUser?.consulenze_usate?.length || 0;
-  const totalConsultants = CONSULTANT_CATEGORIES.length;
+  const isAdmin = user?.role === 'admin' && !impersonation.active;
+  const isConsultant = effectiveUser?.role === 'consulente';
+  const isMember = effectiveUser?.role === 'user' || (impersonation.active && impersonation.role === 'user');
 
   return (
     <div className="min-h-screen bg-slate-900 pb-24">
