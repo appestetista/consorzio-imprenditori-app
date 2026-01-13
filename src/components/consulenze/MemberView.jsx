@@ -69,8 +69,9 @@ export default function MemberView({ user, consultants, isLoading }) {
     return requestedConsultants.includes(consultantId);
   };
 
-  // Calcola consulenze usate basandosi sulle richieste inviate
-  const usedCount = (user?.consultation_requests || []).length;
+  // Calcola consulenze usate basandosi sulle richieste inviate + quelle richieste in questa sessione
+  const uniqueUsedIds = new Set([...(user?.consultation_requests || []), ...requestedConsultants]);
+  const usedCount = uniqueUsedIds.size;
   const totalConsultants = CONSULTANT_CATEGORIES.length;
   const availableCount = totalConsultants - usedCount;
 
