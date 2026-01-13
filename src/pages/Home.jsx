@@ -28,23 +28,31 @@ export default function Home() {
   useEffect(() => {
     const loadUser = async () => {
       setLoading(true);
+      console.log('[HOME] loadUser - appMode:', appMode, 'previewUserId:', impersonation.previewUserId);
       try {
         const currentUser = await base44.auth.me();
+        console.log('[HOME] currentUser loaded:', { id: currentUser.id, role: currentUser.role });
         setUser(currentUser);
         setCurrentUserRole(currentUser.role);
         
         // Se appMode === 'user-preview', carica l'utente impersonato via previewUserId
         if (appMode === 'user-preview' && impersonation.previewUserId) {
+          console.log('[HOME] Loading impersonated user with ID:', impersonation.previewUserId);
           const users = await base44.entities.User.filter({ id: impersonation.previewUserId });
+          console.log('[HOME] Impersonated user filter result:', { count: users.length, users });
           if (users.length > 0) {
+            console.log('[HOME] Setting effectiveUser to impersonated user');
             setEffectiveUser(users[0]);
+          } else {
+            console.error('[HOME] No user found with ID:', impersonation.previewUserId);
+            setEffectiveUser(null);
           }
         } else {
-          // Altrimenti usa l'utente autenticato
+          console.log('[HOME] Using currentUser as effectiveUser');
           setEffectiveUser(currentUser);
         }
       } catch (e) {
-        console.error(e);
+        console.error('[HOME] Error loading user:', e);
         setEffectiveUser(null);
       } finally {
         setLoading(false);
