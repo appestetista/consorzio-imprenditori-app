@@ -40,11 +40,21 @@ export default function MemberView({ user, consultants, isLoading }) {
       await base44.entities.Consultant.update(consultantId, {
         available_slots: Math.max(0, (consultant.available_slots || 100) - 1)
       });
+
+      // Salva il consulente usato nell'user
+      const usedConsultants = user.consultation_requests || [];
+      if (!usedConsultants.includes(consultantId)) {
+        await base44.auth.updateMe({
+          consultation_requests: [...usedConsultants, consultantId]
+        });
+      }
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['consultants'] });
       queryClient.invalidateQueries({ queryKey: ['consultation-bookings'] });
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      // Ricarica l'utente per aggiornare il contatore
+      queryClient.invalidateQueries({ queryKey: ['current-user'] });
       
       setConsultationMessages(prev => ({
         ...prev,
