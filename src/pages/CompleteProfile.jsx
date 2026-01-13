@@ -35,23 +35,33 @@ export default function CompleteProfile() {
     const loadUser = async () => {
       try {
         const currentUser = await base44.auth.me();
-        setUser(currentUser);
+        let effectiveUser = currentUser;
+
+        // Se impersonation attiva, carica l'utente impersonato
+        if (impersonation.active && impersonation.targetId) {
+          const users = await base44.entities.User.filter({ id: impersonation.targetId });
+          if (users.length > 0) {
+            effectiveUser = users[0];
+          }
+        }
+
+        setUser(effectiveUser);
         
         // Pre-compila con dati esistenti
         setFormData({
-          company_name: currentUser.company_name || '',
-          phone: currentUser.phone || '',
-          email: currentUser.email || '',
-          vat_number: currentUser.vat_number || '',
-          codice_sdi: currentUser.codice_sdi || '',
-          referente: currentUser.referente || '',
-          cellulare_referente: currentUser.cellulare_referente || '',
-          whatsapp_referente: currentUser.whatsapp_referente || '',
-          address: currentUser.address || '',
-          city: currentUser.city || '',
-          province: currentUser.province || '',
-          postal_code: currentUser.postal_code || '',
-          company_size: currentUser.company_size || 'Piccola'
+          company_name: effectiveUser.company_name || '',
+          phone: effectiveUser.phone || '',
+          email: effectiveUser.email || '',
+          vat_number: effectiveUser.vat_number || '',
+          codice_sdi: effectiveUser.codice_sdi || '',
+          referente: effectiveUser.referente || '',
+          cellulare_referente: effectiveUser.cellulare_referente || '',
+          whatsapp_referente: effectiveUser.whatsapp_referente || '',
+          address: effectiveUser.address || '',
+          city: effectiveUser.city || '',
+          province: effectiveUser.province || '',
+          postal_code: effectiveUser.postal_code || '',
+          company_size: effectiveUser.company_size || 'Piccola'
         });
         
         setLoading(false);
@@ -61,7 +71,7 @@ export default function CompleteProfile() {
       }
     };
     loadUser();
-  }, []);
+  }, [impersonation.active, impersonation.targetId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
