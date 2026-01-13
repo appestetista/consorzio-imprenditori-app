@@ -29,7 +29,8 @@ export function ImpersonationProvider({ children }) {
       role: null,
       targetId: null,
       targetEmail: null,
-      targetName: null
+      targetName: null,
+      previewUserId: null
     });
   };
 
