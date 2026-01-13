@@ -72,10 +72,10 @@ export default function Header({ user, totalNotifications = 0 }) {
                 stopImpersonation();
                 window.location.href = createPageUrl('AdminPanel');
               }}
-              className="bg-orange-600 hover:bg-orange-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors"
+              className="bg-orange-600 hover:bg-orange-700 text-white px-2 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors"
             >
-              <XCircle className="w-4 h-4" />
-              Torna ad Admin
+              <XCircle className="w-3.5 h-3.5" />
+              Admin
             </button>
           )}
 
