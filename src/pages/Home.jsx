@@ -33,6 +33,7 @@ export default function Home() {
         } else {
           setUser(currentUser);
           setEffectiveUser(currentUser);
+          setCurrentUserRole(currentUser.role);
         }
       } catch (e) {
         console.error(e);
