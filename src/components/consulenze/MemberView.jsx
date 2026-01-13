@@ -36,37 +36,32 @@ export default function MemberView({ user, consultants, isLoading }) {
         status: 'pending'
       });
       
+      // Diminuisci gli slot disponibili del consulente
       await base44.entities.Consultant.update(consultantId, {
-        available_slots: (consultant.available_slots || 100) - 1
-      });
-      
-      const usedConsultations = user.consulenze_usate || [];
-      const currentAvailable = user.consulenze_disponibili || 0;
-      await base44.auth.updateMe({
-        consulenze_usate: [...usedConsultations, consultantId],
-        consulenze_disponibili: Math.max(0, currentAvailable - 1)
+        available_slots: Math.max(0, (consultant.available_slots || 100) - 1)
       });
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['consultants'] });
-      queryClient.invalidateQueries({ queryKey: ['my-bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['consultation-bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
       
       setConsultationMessages(prev => ({
         ...prev,
         [variables.consultantId]: ''
       }));
-      
-      window.location.reload();
     }
   });
 
   const hasUsedConsultant = (consultantId) => {
-    return user?.consulenze_usate?.includes(consultantId) || false;
+    // Controlla se l'utente ha già inviato una richiesta a questo consulente
+    return user?.consultation_requests?.includes(consultantId) || false;
   };
 
-  const availableCount = user?.consulenze_disponibili || 0;
+  // Calcola consulenze usate basandosi sulle richieste inviate
+  const usedCount = (user?.consultation_requests || []).length;
   const totalConsultants = CONSULTANT_CATEGORIES.length;
-  const usedCount = totalConsultants - availableCount;
+  const availableCount = totalConsultants - usedCount;
 
   return (
     <>
