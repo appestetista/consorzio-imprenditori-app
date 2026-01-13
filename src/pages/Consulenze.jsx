@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 export default function Consulenze() {
   const [user, setUser] = useState(null);
   const [effectiveUser, setEffectiveUser] = useState(null);
-  const { impersonation } = useImpersonation();
+  const { impersonation, stopImpersonation } = useImpersonation();
 
   useEffect(() => {
     const loadUser = async () => {
