@@ -23,6 +23,7 @@ const CONSULTANT_CATEGORIES = [
 
 export default function MemberView({ user, consultants, isLoading }) {
   const [consultationMessages, setConsultationMessages] = useState({});
+  const [requestedConsultants, setRequestedConsultants] = useState([]);
   const queryClient = useQueryClient();
 
   const bookConsultationMutation = useMutation({
