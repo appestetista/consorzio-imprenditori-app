@@ -111,12 +111,14 @@ export default function ConsultantView({ user }) {
               const usedCredits = member.consulenze_usate?.length || 0;
 
               return (
-                <div key={member.id} className="bg-slate-700/50 rounded-lg p-3 flex items-center justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-white font-medium truncate">{member.company_name || member.full_name}</p>
-                    <p className="text-slate-400 text-xs truncate">{member.email}</p>
+                <div key={member.id} className="bg-slate-700/50 rounded-lg p-3 flex items-start justify-between gap-3">
+                  <div className="flex-1">
+                    <p className="text-white font-medium">{member.company_name || member.full_name}</p>
+                    {member.referente && (
+                      <p className="text-slate-400 text-xs">{member.referente}</p>
+                    )}
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 flex-shrink-0">
                     <div className="flex items-center gap-2 text-sm">
                       <div className="text-center">
                         <p className="text-lime-400 font-bold text-lg">{availableCredits}</p>
