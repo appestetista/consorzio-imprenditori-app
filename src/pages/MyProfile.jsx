@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowLeft, User, Building2, Phone, MapPin, Save, Upload, X, Image as ImageIcon } from 'lucide-react';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
+import { useImpersonation } from '../components/admin/ImpersonationContext';
 
 export default function MyProfile() {
   const [user, setUser] = useState(null);
@@ -16,12 +17,23 @@ export default function MyProfile() {
   const [saving, setSaving] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [formData, setFormData] = useState({});
+  const { impersonation } = useImpersonation();
 
   useEffect(() => {
     const loadUser = async () => {
       try {
         const currentUser = await base44.auth.me();
-        setUser(currentUser);
+        let effectiveUser = currentUser;
+
+        // Se impersonation attiva, carica l'utente impersonato
+        if (impersonation.active && impersonation.targetEmail) {
+          const users = await base44.entities.User.filter({ email: impersonation.targetEmail });
+          if (users.length > 0) {
+            effectiveUser = users[0];
+          }
+        }
+
+        setUser(effectiveUser);
         setFormData({
           full_name: currentUser.full_name || '',
           company_name: currentUser.company_name || '',
