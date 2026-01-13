@@ -11,7 +11,7 @@ import { useImpersonation } from '../components/admin/ImpersonationContext';
 
 export default function CompleteProfile() {
   const navigate = useNavigate();
-  const { impersonation } = useImpersonation();
+  const { impersonation, setCurrentUserRole } = useImpersonation();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
