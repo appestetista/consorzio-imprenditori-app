@@ -1,16 +1,38 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const ImpersonationContext = createContext();
 
 export function ImpersonationProvider({ children }) {
-  const [impersonation, setImpersonation] = useState({
-    active: false,
-    role: null, // 'user' | 'consulente'
-    targetId: null,
-    targetEmail: null,
-    targetName: null
+  const [impersonation, setImpersonation] = useState(() => {
+    // Carica dallo sessionStorage se esiste
+    const saved = sessionStorage.getItem('impersonation_state');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return {
+          active: false,
+          role: null,
+          targetId: null,
+          targetEmail: null,
+          targetName: null
+        };
+      }
+    }
+    return {
+      active: false,
+      role: null,
+      targetId: null,
+      targetEmail: null,
+      targetName: null
+    };
   });
   const [userRole, setUserRole] = useState(null);
+
+  // Salva impersonation in sessionStorage quando cambia
+  useEffect(() => {
+    sessionStorage.setItem('impersonation_state', JSON.stringify(impersonation));
+  }, [impersonation]);
 
   const startImpersonation = (role, targetId, targetEmail, targetName) => {
     console.log('[ImpersonationContext] startImpersonation called with:', {
@@ -20,25 +42,29 @@ export function ImpersonationProvider({ children }) {
       targetName
     });
 
-    setImpersonation({
+    const newState = {
       active: true,
       role,
       targetId,
       targetEmail,
       targetName,
       previewUserId: targetId
-    });
+    };
+    setImpersonation(newState);
+    sessionStorage.setItem('impersonation_state', JSON.stringify(newState));
   };
 
   const stopImpersonation = () => {
-    setImpersonation({
+    const newState = {
       active: false,
       role: null,
       targetId: null,
       targetEmail: null,
       targetName: null,
       previewUserId: null
-    });
+    };
+    setImpersonation(newState);
+    sessionStorage.setItem('impersonation_state', JSON.stringify(newState));
   };
 
   const setCurrentUserRole = (role) => {
