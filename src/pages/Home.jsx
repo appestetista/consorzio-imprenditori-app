@@ -12,7 +12,7 @@ export default function Home() {
   const [user, setUser] = useState(null);
   const [effectiveUser, setEffectiveUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const { impersonation } = useImpersonation();
+  const { impersonation, setCurrentUserRole } = useImpersonation();
 
   useEffect(() => {
     const loadUser = async () => {
