@@ -10,6 +10,7 @@ export function ImpersonationProvider({ children }) {
     targetEmail: null,
     targetName: null
   });
+  const [userRole, setUserRole] = useState(null);
 
   const startImpersonation = (role, targetId, targetEmail, targetName) => {
     setImpersonation({
