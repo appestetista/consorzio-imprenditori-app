@@ -19,24 +19,25 @@ export default function Home() {
       setLoading(true);
       try {
         const currentUser = await base44.auth.me();
-        setUser(currentUser);
         
-        // Se impersonation attiva, carica dati utente impersonato
+        // Se impersonation attiva, usa direttamente i dati dal context
         if (impersonation.active && impersonation.role === 'user') {
-          const allUsers = await base44.entities.User.list();
-          const impersonatedUser = allUsers.find(u => u.id === impersonation.targetId);
-          if (impersonatedUser) {
-            setEffectiveUser(impersonatedUser);
-          } else {
-            setEffectiveUser(currentUser);
-          }
+          setUser(currentUser);
+          // Usa i dati dal context di impersonazione
+          setEffectiveUser({
+            ...currentUser,
+            id: impersonation.targetId,
+            email: impersonation.targetEmail,
+            company_name: impersonation.targetName
+          });
         } else {
+          setUser(currentUser);
           setEffectiveUser(currentUser);
-        }
-        
-        // Redirect a CompleteProfile se profilo incompleto (solo se NON in impersonation)
-        if (!impersonation.active && !currentUser.profile_completed) {
-          window.location.href = createPageUrl('CompleteProfile');
+          
+          // Redirect a CompleteProfile se profilo incompleto
+          if (!currentUser.profile_completed) {
+            window.location.href = createPageUrl('CompleteProfile');
+          }
         }
       } catch (e) {
         console.error(e);
@@ -46,7 +47,7 @@ export default function Home() {
       }
     };
     loadUser();
-  }, [impersonation.active, impersonation.targetId]);
+  }, [impersonation.active, impersonation.targetId, impersonation.targetEmail, impersonation.targetName]);
 
   const { data: notifications = [] } = useQuery({
     queryKey: ['notifications', effectiveUser?.email],
