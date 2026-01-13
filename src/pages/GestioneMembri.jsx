@@ -385,6 +385,7 @@ export default function GestioneMembri() {
         if (!open) {
           setSelectedMember(null);
           setFormData(null);
+          setInitialFormData(null);
         }
       }}>
         <DialogContent className="bg-slate-800 border-slate-700 max-w-3xl max-h-[90vh] overflow-y-auto">
