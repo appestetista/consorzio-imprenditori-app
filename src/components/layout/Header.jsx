@@ -117,7 +117,8 @@ export default function Header({ user, totalNotifications = 0 }) {
             
             {/* Pulsante Torna ad Admin - Solo se impersonation attiva */}
             {impersonation.active && isAdmin && (
-              <button
+              <Link
+                to={createPageUrl('AdminPanel')}
                 onClick={() => {
                   stopImpersonation();
                   setMenuOpen(false);
@@ -126,7 +127,7 @@ export default function Header({ user, totalNotifications = 0 }) {
               >
                 <XCircle className="w-5 h-5" />
                 <span>Torna ad Admin</span>
-              </button>
+              </Link>
             )}
             
             {/* Voci menu solo per Admin */}

@@ -56,12 +56,7 @@ export default function AdminPanel() {
     loadUser();
   }, [navigate]);
 
-  // Se l'admin sta impersonando qualcuno, redirect a Home (l'admin non può vedere AdminPanel in modalità impersonation)
-  useEffect(() => {
-    if (impersonation.active) {
-      navigate(createPageUrl('Home'));
-    }
-  }, [impersonation.active, navigate]);
+
 
   const { data: stats } = useQuery({
     queryKey: ['admin-stats'],
