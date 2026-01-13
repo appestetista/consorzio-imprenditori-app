@@ -78,10 +78,19 @@ export default function CompleteProfile() {
     setSaving(true);
 
     try {
-      await base44.auth.updateMe({
-        ...formData,
-        profile_completed: true
-      });
+      // Se impersonation, aggiorna l'utente impersonato
+      if (impersonation.active && impersonation.targetId) {
+        await base44.entities.User.update(impersonation.targetId, {
+          ...formData,
+          profile_completed: true
+        });
+      } else {
+        // Altrimenti aggiorna l'utente corrente
+        await base44.auth.updateMe({
+          ...formData,
+          profile_completed: true
+        });
+      }
       
       navigate(createPageUrl('Home'));
     } catch (error) {
