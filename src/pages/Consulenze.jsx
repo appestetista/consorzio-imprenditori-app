@@ -14,7 +14,7 @@ import { useImpersonation } from '../components/admin/ImpersonationContext';
 export default function Consulenze() {
   const [user, setUser] = useState(null);
   const [effectiveUser, setEffectiveUser] = useState(null);
-  const { impersonation, stopImpersonation } = useImpersonation();
+  const { impersonation } = useImpersonation();
 
   useEffect(() => {
     const loadUser = async () => {
