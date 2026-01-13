@@ -196,7 +196,10 @@ export default function Header({ user, totalNotifications = 0 }) {
       <ImpersonationDialog
         open={impersonationDialogOpen}
         onClose={() => setImpersonationDialogOpen(false)}
-        onStart={startImpersonation}
+        onStart={(role, targetId, targetEmail, targetName) => {
+          startImpersonation(role, targetId, targetEmail, targetName);
+          window.location.href = createPageUrl('Home');
+        }}
       />
     </>
   );
