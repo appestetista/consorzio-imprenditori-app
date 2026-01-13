@@ -112,7 +112,7 @@ export default function MemberView({ user, consultants, isLoading }) {
         <div className="space-y-4">
           {CONSULTANT_CATEGORIES.map((category, index) => {
             const consultant = consultants.find(c => c.category === category);
-            const isUsed = consultant ? hasUsedConsultant(consultant.id) : false;
+            const isRequested = consultant ? hasRequestedThisSession(consultant.id) : false;
             
             return (
               <Card key={index} className="bg-slate-800 border-slate-700">
