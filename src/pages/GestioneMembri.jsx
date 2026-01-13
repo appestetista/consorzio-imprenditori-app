@@ -650,7 +650,13 @@ export default function GestioneMembri() {
                 </Button>
                 <Button
                   onClick={handleSaveMember}
-                  disabled={updateMemberMutation.isPending || !formData.company_name || !formData.email || !formData.full_name}
+                  disabled={
+                    updateMemberMutation.isPending || 
+                    !formData.company_name || 
+                    !formData.email || 
+                    !formData.full_name ||
+                    (selectedMember && JSON.stringify(formData) === JSON.stringify(initialFormData))
+                  }
                   className="flex-1 bg-lime-400 hover:bg-lime-500 text-slate-900"
                 >
                   {updateMemberMutation.isPending 
