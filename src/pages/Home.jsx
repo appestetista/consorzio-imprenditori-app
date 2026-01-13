@@ -19,21 +19,18 @@ export default function Home() {
       setLoading(true);
       try {
         const currentUser = await base44.auth.me();
+        setUser(currentUser);
+        setCurrentUserRole(currentUser.role);
         
-        // Se impersonation attiva, usa direttamente i dati dal context
-        if (impersonation.active && impersonation.role === 'user') {
-          setUser(currentUser);
-          // Usa i dati dal context di impersonazione
-          setEffectiveUser({
-            ...currentUser,
-            id: impersonation.targetId,
-            email: impersonation.targetEmail,
-            company_name: impersonation.targetName
-          });
+        // Se appMode === 'user-preview', carica l'utente impersonato via previewUserId
+        if (impersonation.active && impersonation.previewUserId && impersonation.role === 'user') {
+          const users = await base44.entities.User.filter({ id: impersonation.previewUserId });
+          if (users.length > 0) {
+            setEffectiveUser(users[0]);
+          }
         } else {
-          setUser(currentUser);
+          // Altrimenti usa l'utente autenticato
           setEffectiveUser(currentUser);
-          setCurrentUserRole(currentUser.role);
         }
       } catch (e) {
         console.error(e);
@@ -43,7 +40,7 @@ export default function Home() {
       }
     };
     loadUser();
-  }, [impersonation.active, impersonation.targetId, impersonation.targetEmail, impersonation.targetName]);
+  }, [impersonation.active, impersonation.previewUserId, impersonation.role]);
 
   const { data: notifications = [] } = useQuery({
     queryKey: ['notifications', effectiveUser?.email],
