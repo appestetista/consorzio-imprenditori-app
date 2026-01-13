@@ -33,6 +33,7 @@ export default function GestioneMembri() {
   const [showPermissions, setShowPermissions] = useState(false);
   const [showMemberForm, setShowMemberForm] = useState(false);
   const [formData, setFormData] = useState(null);
+  const [initialFormData, setInitialFormData] = useState(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
