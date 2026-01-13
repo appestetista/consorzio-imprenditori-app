@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Users, Video, Calendar, Briefcase, Plus, Settings, Bell, CheckCircle, XCircle } from 'lucide-react';
+import { ArrowLeft, Users, Video, Calendar, Briefcase, Plus, Settings, Bell, CheckCircle, XCircle, Clock } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -210,74 +210,83 @@ export default function AdminPanel() {
 
         {/* Richieste Consulenza Pendenti */}
         {pendingRequests.length > 0 && (
-          <Card className="bg-slate-800 border-red-500/50 mb-6">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Bell className="w-5 h-5 text-red-500 animate-pulse" />
-                Richieste Consulenza Bandi ({pendingRequests.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {pendingRequests.map((request) => (
-                <div key={request.id} className="bg-slate-700/50 rounded-lg p-4 border border-slate-600">
-                  <div className="flex items-start justify-between mb-3">
+          <div className="mb-6 space-y-4">
+            <h2 className="text-white text-lg font-bold flex items-center gap-2">
+              <Bell className="w-5 h-5 text-red-500 animate-pulse" />
+              Richieste Consulenza Bandi ({pendingRequests.length})
+            </h2>
+            {pendingRequests.map((request) => (
+              <Card key={request.id} className="bg-gradient-to-br from-orange-500/20 to-lime-400/20 border-lime-400/30">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-4">
+                    <div className="bg-lime-400 rounded-full p-4 flex-shrink-0">
+                      <Bell className="w-8 h-8 text-slate-900" />
+                    </div>
                     <div className="flex-1">
-                      <p className="text-white font-semibold">{request.user?.company_name || request.user?.full_name}</p>
-                      <p className="text-slate-400 text-sm">{request.user?.email}</p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="border-green-500 text-green-500 hover:bg-green-500 hover:text-white"
-                        onClick={() => updateConsultationStatusMutation.mutate({ 
-                          requestId: request.id, 
-                          status: 'accepted',
-                          userEmail: request.user?.email,
-                          grantTitle: request.grant?.title
-                        })}
-                      >
-                        <CheckCircle className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
-                        onClick={() => updateConsultationStatusMutation.mutate({ 
-                          requestId: request.id, 
-                          status: 'rejected',
-                          userEmail: request.user?.email,
-                          grantTitle: request.grant?.title
-                        })}
-                      >
-                        <XCircle className="w-4 h-4" />
-                      </Button>
+                      <div className="mb-3">
+                        <h3 className="text-white font-bold text-lg">{request.user?.company_name || request.user?.full_name}</h3>
+                        <p className="text-lime-400 text-sm">{request.user?.email}</p>
+                      </div>
+                      <div className="bg-slate-900/50 rounded-lg p-3 mb-3">
+                        <p className="text-white font-medium text-sm mb-2">{request.grant?.title}</p>
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          {request.grant?.grant_type && (
+                            <div>
+                              <span className="text-slate-400">Tipo:</span>
+                              <span className="text-lime-400 ml-1">{request.grant.grant_type}</span>
+                            </div>
+                          )}
+                          {request.grant?.funding_type && (
+                            <div>
+                              <span className="text-slate-400">Forma:</span>
+                              <span className="text-lime-400 ml-1">{request.grant.funding_type}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-lime-400 mb-4">
+                        <Clock className="w-4 h-4" />
+                        <span className="font-semibold">{new Date(request.created_date).toLocaleDateString('it-IT', { 
+                          day: 'numeric', 
+                          month: 'long', 
+                          year: 'numeric'
+                        })}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          className="bg-lime-400 hover:bg-lime-500 text-slate-900 flex-1 font-bold"
+                          onClick={() => updateConsultationStatusMutation.mutate({ 
+                            requestId: request.id, 
+                            status: 'accepted',
+                            userEmail: request.user?.email,
+                            grantTitle: request.grant?.title
+                          })}
+                          disabled={updateConsultationStatusMutation.isPending}
+                        >
+                          <CheckCircle className="w-5 h-5 mr-2" />
+                          Accetta
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="bg-red-600 hover:bg-red-700 text-white border-red-600 flex-1 font-bold"
+                          onClick={() => updateConsultationStatusMutation.mutate({ 
+                            requestId: request.id, 
+                            status: 'rejected',
+                            userEmail: request.user?.email,
+                            grantTitle: request.grant?.title
+                          })}
+                          disabled={updateConsultationStatusMutation.isPending}
+                        >
+                          <XCircle className="w-5 h-5 mr-2" />
+                          Rifiuta
+                        </Button>
+                      </div>
                     </div>
                   </div>
-                  <div className="bg-slate-900 rounded p-3">
-                    <p className="text-lime-400 font-medium text-sm">{request.grant?.title}</p>
-                    <div className="grid grid-cols-2 gap-2 mt-2 text-xs">
-                      {request.grant?.grant_type && (
-                        <div>
-                          <span className="text-slate-500">Tipo:</span>
-                          <span className="text-slate-300 ml-1">{request.grant.grant_type}</span>
-                        </div>
-                      )}
-                      {request.grant?.funding_type && (
-                        <div>
-                          <span className="text-slate-500">Forma:</span>
-                          <span className="text-slate-300 ml-1">{request.grant.funding_type}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <p className="text-slate-500 text-xs mt-2">
-                    Richiesta il {new Date(request.created_date).toLocaleDateString('it-IT')}
-                  </p>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         )}
 
         {/* Quick Actions */}
