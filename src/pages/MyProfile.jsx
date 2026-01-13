@@ -337,81 +337,25 @@ export default function MyProfile() {
           </CardContent>
         </Card>
 
-        <Card className="bg-slate-800 border-slate-700 mb-6">
+        <Card className="bg-slate-800 border-slate-700 mb-4">
           <CardHeader>
             <CardTitle className="text-white text-sm flex items-center justify-between">
-              <span>Dati di Fatturazione (Opzionali)</span>
-              <span className="text-slate-500 text-xs font-normal">Tutti i campi opzionali</span>
+              <span>Dati Aggiuntivi</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <Input
-              placeholder="Ragione Sociale Fatturazione (se diversa)"
-              value={formData.ragione_sociale_fatturazione}
-              onChange={(e) => setFormData({...formData, ragione_sociale_fatturazione: e.target.value})}
-              className="bg-slate-900 border-slate-700 text-white"
-            />
-            <div className="grid grid-cols-2 gap-3">
-              <Input
-                placeholder="Partita IVA"
-                value={formData.partita_iva}
-                onChange={(e) => setFormData({...formData, partita_iva: e.target.value})}
-                className="bg-slate-900 border-slate-700 text-white"
-              />
-              <Input
-                placeholder="Codice Fiscale"
-                value={formData.codice_fiscale}
-                onChange={(e) => setFormData({...formData, codice_fiscale: e.target.value})}
-                className="bg-slate-900 border-slate-700 text-white"
-              />
-            </div>
-            <Input
-              placeholder="Codice SDI (Sistema Interscambio)"
-              value={formData.codice_sdi}
-              onChange={(e) => setFormData({...formData, codice_sdi: e.target.value})}
+              placeholder="Regione"
+              value={formData.regione}
+              onChange={(e) => setFormData({...formData, regione: e.target.value})}
               className="bg-slate-900 border-slate-700 text-white"
             />
             <Input
-              placeholder="Indirizzo Fatturazione"
-              value={formData.indirizzo}
-              onChange={(e) => setFormData({...formData, indirizzo: e.target.value})}
+              placeholder="Paese"
+              value={formData.paese}
+              onChange={(e) => setFormData({...formData, paese: e.target.value})}
               className="bg-slate-900 border-slate-700 text-white"
             />
-            <div className="grid grid-cols-3 gap-3">
-              <Input
-                placeholder="Città"
-                value={formData.citta}
-                onChange={(e) => setFormData({...formData, citta: e.target.value})}
-                className="bg-slate-900 border-slate-700 text-white"
-              />
-              <Input
-                placeholder="Provincia"
-                value={formData.provincia}
-                onChange={(e) => setFormData({...formData, provincia: e.target.value})}
-                className="bg-slate-900 border-slate-700 text-white"
-                maxLength={2}
-              />
-              <Input
-                placeholder="CAP"
-                value={formData.cap}
-                onChange={(e) => setFormData({...formData, cap: e.target.value})}
-                className="bg-slate-900 border-slate-700 text-white"
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <Input
-                placeholder="Regione"
-                value={formData.regione}
-                onChange={(e) => setFormData({...formData, regione: e.target.value})}
-                className="bg-slate-900 border-slate-700 text-white"
-              />
-              <Input
-                placeholder="Paese"
-                value={formData.paese}
-                onChange={(e) => setFormData({...formData, paese: e.target.value})}
-                className="bg-slate-900 border-slate-700 text-white"
-              />
-            </div>
           </CardContent>
         </Card>
 
