@@ -92,6 +92,13 @@ export default function AdminView({ consultants }) {
     }
   });
 
+  const deleteBookingMutation = useMutation({
+    mutationFn: (bookingId) => base44.entities.ConsultationBooking.delete(bookingId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['all-bookings-admin'] });
+    }
+  });
+
   const members = allUsers.filter(u => u.role === 'user');
 
   const handleEditConsultant = (consultant) => {
@@ -251,14 +258,26 @@ export default function AdminView({ consultants }) {
                 <Card key={booking.id} className="bg-slate-800 border-slate-700">
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between mb-2">
-                      <div>
+                      <div className="flex items-center gap-2">
                         <Badge className={statusColors[booking.status]}>
                           {booking.status}
                         </Badge>
                       </div>
-                      <span className="text-xs text-slate-400">
-                        {new Date(booking.created_date).toLocaleDateString('it-IT')}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-slate-400">
+                          {new Date(booking.created_date).toLocaleDateString('it-IT')}
+                        </span>
+                        <button
+                          onClick={() => {
+                            if (confirm('Vuoi eliminare questa richiesta?')) {
+                              deleteBookingMutation.mutate(booking.id);
+                            }
+                          }}
+                          className="text-red-400 hover:text-red-500 transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                     <p className="text-lime-400 font-bold text-sm">{consultant?.category || 'N/D'}</p>
                     <p className="text-white text-sm mt-1">Membro: {booking.user_email}</p>
