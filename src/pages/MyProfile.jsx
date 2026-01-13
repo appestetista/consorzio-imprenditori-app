@@ -1,23 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, User, Building2, Phone, MapPin, Save, Upload, X, Image as ImageIcon } from 'lucide-react';
+import { ArrowLeft, User, Building2, Phone, MapPin, Save, Upload, X, Image as ImageIcon, LogOut } from 'lucide-react';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 
 export default function MyProfile() {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [formData, setFormData] = useState({});
-  const { impersonation, setCurrentUserRole } = useImpersonation();
+  const { impersonation, setCurrentUserRole, appMode, stopImpersonation } = useImpersonation();
 
   useEffect(() => {
     const loadUser = async () => {
@@ -118,11 +119,25 @@ export default function MyProfile() {
      <Header user={user} />
       
       <main className="px-4 py-6 max-w-2xl mx-auto">
-        <div className="flex items-center gap-3 mb-6">
-          <Link to={createPageUrl('Home')} className="text-lime-400">
-            <ArrowLeft className="w-6 h-6" />
-          </Link>
-          <h1 className="text-white text-xl font-bold">Il Mio Profilo</h1>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <Link to={createPageUrl('Home')} className="text-lime-400">
+              <ArrowLeft className="w-6 h-6" />
+            </Link>
+            <h1 className="text-white text-xl font-bold">Il Mio Profilo</h1>
+          </div>
+          {appMode === 'user-preview' && (
+            <Button
+              onClick={() => {
+                stopImpersonation();
+                navigate(createPageUrl('AdminPanel'));
+              }}
+              className="bg-orange-600 hover:bg-orange-700 text-white text-sm flex items-center gap-2"
+            >
+              <LogOut className="w-4 h-4" />
+              Torna in Admin
+            </Button>
+          )}
         </div>
 
         <Card className="bg-slate-800 border-slate-700 mb-4">

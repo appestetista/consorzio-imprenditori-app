@@ -45,18 +45,21 @@ export function ImpersonationProvider({ children }) {
     return userRole === 'admin' ? 'admin' : 'user';
   };
 
+  const appMode = getAppMode();
+
   return (
-    <ImpersonationContext.Provider value={{ 
-      impersonation, 
-      startImpersonation, 
-      stopImpersonation,
-      setCurrentUserRole,
-      appMode: getAppMode()
-    }}>
-      {children}
-    </ImpersonationContext.Provider>
-  );
-}
+      <ImpersonationContext.Provider value={{ 
+        impersonation, 
+        startImpersonation, 
+        stopImpersonation,
+        setCurrentUserRole,
+        appMode,
+        getAppMode
+      }}>
+        {children}
+      </ImpersonationContext.Provider>
+    );
+  }
 
 export function useImpersonation() {
   const context = useContext(ImpersonationContext);
