@@ -149,14 +149,26 @@ export default function ConsultantView({ user }) {
             {allMembers.map((member) => {
               const availableCredits = member.consulenze_disponibili || 1;
               const usedCredits = member.consulenze_usate?.length || 0;
+              const hasPendingRequest = bookings.some(b => b.user_email === member.email && b.status === 'pending');
+              const pendingCount = bookings.filter(b => b.user_email === member.email && b.status === 'pending').length;
 
               return (
                 <div key={member.id} className="bg-slate-700/50 rounded-lg p-3">
-                  <div className="mb-3">
-                    <p className="text-white font-medium">{member.company_name || member.full_name}</p>
-                    {member.referente && (
-                      <p className="text-slate-400 text-xs">{member.referente}</p>
-                    )}
+                  <div className="mb-3 flex items-start justify-between">
+                    <div className="flex-1">
+                      <p className="text-white font-medium">{member.company_name || member.full_name}</p>
+                      {member.referente && (
+                        <p className="text-slate-400 text-xs">{member.referente}</p>
+                      )}
+                    </div>
+                    <div className="relative ml-2">
+                      <Bell className={`w-5 h-5 ${hasPendingRequest ? 'text-red-500' : 'text-green-500'}`} />
+                      {hasPendingRequest && pendingCount > 0 && (
+                        <div className="absolute -top-1 -right-1 bg-red-500 rounded-full w-4 h-4 flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">{pendingCount}</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
