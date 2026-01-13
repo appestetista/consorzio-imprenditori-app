@@ -159,11 +159,11 @@ export default function AdminPanel() {
   });
 
   // Admin protection: solo se appMode === "user" e ruolo !== admin
+  const { appMode } = useImpersonation();
+  
   if (!user) {
     return null;
   }
-
-  const { appMode } = useImpersonation ? { appMode: impersonation.active && impersonation.role === 'user' ? 'user-preview' : 'user' } : { appMode: 'user' };
   
   if (appMode === 'user' && user.role !== 'admin') {
     return null;
