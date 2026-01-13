@@ -66,12 +66,18 @@ export default function Header({ user, totalNotifications = 0 }) {
         </div>
         
         <div className="flex items-center gap-3">
-          {/* Banner Impersonation - Visibile solo quando attiva */}
-          {impersonation.active && (
-            <div className="bg-orange-500 text-white px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-2">
-              <Eye className="w-3 h-3" />
-              Vista: {impersonation.targetName}
-            </div>
+          {/* Pulsante Torna ad Admin - Visibile quando impersonation è attiva */}
+          {impersonation.active && isAdmin && (
+            <button
+              onClick={() => {
+                stopImpersonation();
+                window.location.href = createPageUrl('AdminPanel');
+              }}
+              className="bg-orange-600 hover:bg-orange-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors"
+            >
+              <XCircle className="w-3.5 h-3.5" />
+              Admin
+            </button>
           )}
           
           {totalNotifications > 0 && (
