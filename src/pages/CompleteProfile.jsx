@@ -72,7 +72,7 @@ export default function CompleteProfile() {
       }
     };
     loadUser();
-  }, [impersonation.active, impersonation.targetId]);
+  }, [impersonation.active, impersonation.previewUserId, impersonation.role]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
