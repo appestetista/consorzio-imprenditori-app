@@ -34,6 +34,7 @@ export default function MyProfile() {
         }
 
         setUser(effectiveUser);
+        setCurrentUserRole(currentUser.role);
         // Usa SOLO i campi reali dell'entity User
         setFormData({
           full_name: effectiveUser.full_name || '',
