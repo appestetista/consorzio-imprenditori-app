@@ -7,9 +7,11 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { User, Building2, Phone, FileText, MapPin } from 'lucide-react';
+import { useImpersonation } from '../components/admin/ImpersonationContext';
 
 export default function CompleteProfile() {
   const navigate = useNavigate();
+  const { impersonation } = useImpersonation();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
