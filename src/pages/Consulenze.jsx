@@ -29,9 +29,7 @@ const CONSULTANT_CATEGORIES = [
 export default function Consulenze() {
   const [user, setUser] = useState(null);
   const [effectiveUser, setEffectiveUser] = useState(null);
-  const [selectedConsultant, setSelectedConsultant] = useState(null);
-  const [showBookingModal, setShowBookingModal] = useState(false);
-  const [bookingSubject, setBookingSubject] = useState('');
+  const [consultationMessages, setConsultationMessages] = useState({});
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -65,32 +63,38 @@ export default function Consulenze() {
   });
 
   const bookConsultationMutation = useMutation({
-    mutationFn: async () => {
+    mutationFn: async ({ consultantId, message }) => {
+      const consultant = consultants.find(c => c.id === consultantId);
+      
       // Create booking
       await base44.entities.ConsultationBooking.create({
-        consultant_id: selectedConsultant.id,
+        consultant_id: consultantId,
         user_email: effectiveUser.email,
-        subject: bookingSubject,
+        subject: message,
         status: 'pending'
       });
       
       // Decrement available slots
-      await base44.entities.Consultant.update(selectedConsultant.id, {
-        available_slots: (selectedConsultant.available_slots || 100) - 1
+      await base44.entities.Consultant.update(consultantId, {
+        available_slots: (consultant.available_slots || 100) - 1
       });
       
       // Update user's used consultations
       const usedConsultations = effectiveUser.consulenze_usate || [];
       await base44.auth.updateMe({
-        consulenze_usate: [...usedConsultations, selectedConsultant.id]
+        consulenze_usate: [...usedConsultations, consultantId]
       });
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['consultants'] });
       queryClient.invalidateQueries({ queryKey: ['my-bookings'] });
-      setShowBookingModal(false);
-      setBookingSubject('');
-      setSelectedConsultant(null);
+      
+      // Clear the message field
+      setConsultationMessages(prev => ({
+        ...prev,
+        [variables.consultantId]: ''
+      }));
+      
       // Reload user data
       base44.auth.me().then((updatedUser) => {
         setUser(updatedUser);
@@ -177,32 +181,39 @@ export default function Consulenze() {
                   <CardContent>
                     {consultant ? (
                       <>
-                        <p className="text-white text-sm mb-1">referente: {consultant.name}</p>
-                        <div className="bg-lime-400 rounded-lg p-3 mt-3">
-                          <p className="text-slate-900 text-xs mb-2">SCRIVI QUI BREVEMENTE L'OGGETTO DELLA CONSULENZA</p>
-                        </div>
-                        <div className="flex gap-2 mt-3">
+                        <p className="text-white text-sm mb-3">referente: {consultant.name}</p>
+                        
+                        <Textarea
+                          placeholder="Scrivi qui brevemente l'oggetto della consulenza..."
+                          value={consultationMessages[consultant.id] || ''}
+                          onChange={(e) => setConsultationMessages(prev => ({
+                            ...prev,
+                            [consultant.id]: e.target.value
+                          }))}
+                          disabled={isUsed}
+                          className="bg-slate-900 border-lime-400/30 text-white min-h-[80px] mb-3"
+                        />
+                        
+                        <div className="flex gap-2">
                           <Button
-                            variant="outline"
                             size="sm"
-                            className="flex-1 bg-lime-400 hover:bg-lime-500 text-slate-900 border-0"
-                            onClick={() => {
-                              setSelectedConsultant(consultant);
-                              setShowBookingModal(true);
-                            }}
-                            disabled={isUsed}
+                            className="bg-lime-400 hover:bg-lime-500 text-slate-900 border-0"
+                            onClick={() => bookConsultationMutation.mutate({ 
+                              consultantId: consultant.id, 
+                              message: consultationMessages[consultant.id] || '' 
+                            })}
+                            disabled={isUsed || !consultationMessages[consultant.id]?.trim() || bookConsultationMutation.isPending}
                           >
-                            <MessageCircle className="w-4 h-4 mr-2" />
-                            invia messaggio
+                            invia
                           </Button>
                           {consultant.phone && (
                             <Button
                               variant="outline"
                               size="sm"
-                              className="bg-lime-400 hover:bg-lime-500 text-slate-900 border-0"
+                              className="bg-slate-700 hover:bg-slate-600 text-white border-slate-600"
                               onClick={() => window.open(`tel:${consultant.phone}`)}
                             >
-                              <Phone className="w-4 h-4 mr-2" />
+                              <Phone className="w-4 h-4 mr-1" />
                               chiama
                             </Button>
                           )}
@@ -218,40 +229,6 @@ export default function Consulenze() {
           </div>
         )}
       </main>
-
-      {/* Booking Modal */}
-      <Dialog open={showBookingModal} onOpenChange={setShowBookingModal}>
-        <DialogContent className="bg-slate-800 border-slate-700">
-          <DialogHeader>
-            <DialogTitle className="text-white">Richiedi Consulenza</DialogTitle>
-          </DialogHeader>
-          <button
-            onClick={() => setShowBookingModal(false)}
-            className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
-          >
-            <X className="h-4 w-4 text-slate-400" />
-          </button>
-          <div className="space-y-4 mt-4">
-            <div className="bg-lime-400/20 p-3 rounded-lg">
-              <p className="text-lime-400 font-medium">{selectedConsultant?.category}</p>
-              <p className="text-slate-400 text-sm">Referente: {selectedConsultant?.name}</p>
-            </div>
-            <Textarea
-              placeholder="Scrivi brevemente l'oggetto della consulenza..."
-              value={bookingSubject}
-              onChange={(e) => setBookingSubject(e.target.value)}
-              className="bg-slate-900 border-slate-700 text-white min-h-[120px]"
-            />
-            <Button 
-              onClick={() => bookConsultationMutation.mutate()}
-              disabled={bookConsultationMutation.isPending || !bookingSubject.trim()}
-              className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900"
-            >
-              {bookConsultationMutation.isPending ? 'Invio...' : 'Richiedi Consulenza Gratuita'}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
 
       <BottomNav currentPage="Consulenze" unreadMessages={messages.length} />
     </div>
