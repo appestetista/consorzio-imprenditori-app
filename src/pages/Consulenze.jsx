@@ -22,12 +22,21 @@ export default function Consulenze() {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
         
-        if (impersonation.active && impersonation.role === 'user') {
-          const impersonatedUser = await base44.entities.User.filter({ id: impersonation.targetId });
-          if (impersonatedUser.length > 0) {
-            setEffectiveUser(impersonatedUser[0]);
-          } else {
-            setEffectiveUser(currentUser);
+        if (impersonation.active) {
+          if (impersonation.role === 'user') {
+            const impersonatedUser = await base44.entities.User.filter({ id: impersonation.targetId });
+            if (impersonatedUser.length > 0) {
+              setEffectiveUser(impersonatedUser[0]);
+            } else {
+              setEffectiveUser(currentUser);
+            }
+          } else if (impersonation.role === 'consulente') {
+            // Per i consulenti, creiamo un oggetto user fittizio con l'email del consulente
+            setEffectiveUser({ 
+              ...currentUser, 
+              email: impersonation.targetEmail,
+              role: 'consulente' 
+            });
           }
         } else {
           setEffectiveUser(currentUser);
@@ -37,7 +46,7 @@ export default function Consulenze() {
       }
     };
     loadUser();
-  }, [impersonation.active, impersonation.targetId]);
+  }, [impersonation.active, impersonation.targetId, impersonation.role, impersonation.targetEmail]);
 
   const { data: consultants = [], isLoading } = useQuery({
     queryKey: ['consultants'],
@@ -51,7 +60,7 @@ export default function Consulenze() {
   });
 
   const isAdmin = user?.role === 'admin' && !impersonation.active;
-  const isConsultant = effectiveUser?.role === 'consulente';
+  const isConsultant = effectiveUser?.role === 'consulente' || (impersonation.active && impersonation.role === 'consulente');
   const isMember = effectiveUser?.role === 'user' || (impersonation.active && impersonation.role === 'user');
 
   return (
