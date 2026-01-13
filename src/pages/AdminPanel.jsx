@@ -14,6 +14,7 @@ import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import CulturaAziendaleAdmin from '../components/admin/CulturaAziendaleAdmin';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
+import ImpersonationDialog from '../components/admin/ImpersonationDialog';
 
 const CONSULTANT_CATEGORIES = [
   "Stampa Digitale e Cataloghi",
@@ -33,7 +34,8 @@ export default function AdminPanel() {
   const [user, setUser] = useState(null);
   const [showAddConsultant, setShowAddConsultant] = useState(false);
   const [newConsultant, setNewConsultant] = useState({ name: '', category: '', phone: '', email: '', referente: '', cellulare_referente: '' });
-  const { impersonation } = useImpersonation();
+  const [showImpersonationDialog, setShowImpersonationDialog] = useState(false);
+  const { impersonation, startImpersonation } = useImpersonation();
 
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -387,9 +389,22 @@ export default function AdminPanel() {
                 <p className="text-slate-400 text-sm text-center py-4">Nessun consulente</p>
               ) : (
                 consultants.map((consultant) => (
-                  <div key={consultant.id} className="bg-slate-700/50 rounded-lg p-3">
-                    <p className="text-white font-medium">{consultant.name}</p>
-                    <p className="text-lime-400 text-sm">{consultant.category}</p>
+                  <div key={consultant.id} className="bg-slate-700/50 rounded-lg p-3 flex items-center justify-between">
+                    <div>
+                      <p className="text-white font-medium">{consultant.name}</p>
+                      <p className="text-lime-400 text-sm">{consultant.category}</p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="bg-slate-800 hover:bg-slate-600 text-lime-400 border-lime-400/30"
+                      onClick={() => {
+                        startImpersonation('consulente', consultant.id, consultant.email, consultant.name);
+                        navigate(createPageUrl('Home'));
+                      }}
+                    >
+                      Visualizza
+                    </Button>
                   </div>
                 ))
               )}
@@ -399,6 +414,15 @@ export default function AdminPanel() {
       </main>
 
       <BottomNav currentPage="AdminPanel" unreadMessages={messages.length} />
+      
+      <ImpersonationDialog
+        open={showImpersonationDialog}
+        onClose={() => setShowImpersonationDialog(false)}
+        onStart={(role, id, email, name) => {
+          startImpersonation(role, id, email, name);
+          navigate(createPageUrl('Home'));
+        }}
+      />
     </div>
   );
 }
