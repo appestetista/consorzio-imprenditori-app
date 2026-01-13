@@ -66,8 +66,8 @@ export default function Home() {
 
   const nextEvent = events[0];
   const permissions = effectiveUser?.permissions || {};
-  const isBlocked = effectiveUser?.is_blocked;
-  const isAdmin = user?.role === 'admin' && !impersonation.active;
+  const isBlocked = effectiveUser?.is_blocked && appMode !== 'user-preview';
+  const isAdmin = appMode === 'admin';
 
   if (loading || !effectiveUser) {
     return (
