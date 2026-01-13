@@ -84,10 +84,10 @@ export default function MyProfile() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      // Se impersonation, aggiorna l'utente impersonato
-      if (impersonation.active && impersonation.targetId) {
-        await base44.entities.User.update(impersonation.targetId, formData);
-        const users = await base44.entities.User.filter({ id: impersonation.targetId });
+      // Se appMode === 'user-preview', aggiorna l'utente impersonato
+      if (impersonation.active && impersonation.previewUserId && impersonation.role === 'user') {
+        await base44.entities.User.update(impersonation.previewUserId, formData);
+        const users = await base44.entities.User.filter({ id: impersonation.previewUserId });
         if (users.length > 0) {
           setUser(users[0]);
         }
