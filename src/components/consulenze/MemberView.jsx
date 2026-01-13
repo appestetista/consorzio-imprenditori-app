@@ -54,8 +54,9 @@ export default function MemberView({ user, consultants, isLoading }) {
       queryClient.invalidateQueries({ queryKey: ['consultants'] });
       queryClient.invalidateQueries({ queryKey: ['consultation-bookings'] });
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
-      // Ricarica l'utente per aggiornare il contatore
       queryClient.invalidateQueries({ queryKey: ['current-user'] });
+      
+      setRequestedConsultants(prev => [...prev, variables.consultantId]);
       
       setConsultationMessages(prev => ({
         ...prev,
