@@ -44,17 +44,13 @@ export default function AdminPanel() {
     const loadUser = async () => {
       try {
         const currentUser = await base44.auth.me();
-        if (currentUser.role !== 'admin') {
-          navigate(createPageUrl('Home'));
-          return;
-        }
         setUser(currentUser);
       } catch (e) {
         console.error(e);
       }
     };
     loadUser();
-  }, [navigate]);
+  }, []);
 
 
 
