@@ -21,9 +21,10 @@ export default function Home() {
         
         // Se impersonation attiva, carica dati utente impersonato
         if (impersonation.active && impersonation.role === 'user') {
-          const impersonatedUser = await base44.entities.User.filter({ id: impersonation.targetId });
-          if (impersonatedUser.length > 0) {
-            setEffectiveUser(impersonatedUser[0]);
+          const allUsers = await base44.entities.User.list();
+          const impersonatedUser = allUsers.find(u => u.id === impersonation.targetId);
+          if (impersonatedUser) {
+            setEffectiveUser(impersonatedUser);
           } else {
             setEffectiveUser(currentUser);
           }
