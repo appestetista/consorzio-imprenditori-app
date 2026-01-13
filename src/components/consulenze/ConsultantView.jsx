@@ -229,6 +229,9 @@ export default function ConsultantView({ user }) {
                         </div>
                         <div>
                           <h3 className="text-white font-bold">{member?.company_name || booking.user_email}</h3>
+                          {member?.referente && (
+                            <p className="text-slate-300 text-sm">{member.referente}</p>
+                          )}
                           <div className="flex items-center gap-2 text-xs text-slate-400">
                             <Clock className="w-3 h-3" />
                             <span>{new Date(booking.created_date).toLocaleDateString('it-IT')}</span>
