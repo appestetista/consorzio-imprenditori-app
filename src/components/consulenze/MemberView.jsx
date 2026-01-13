@@ -65,9 +65,8 @@ export default function MemberView({ user, consultants, isLoading }) {
     }
   });
 
-  const hasUsedConsultant = (consultantId) => {
-    // Controlla se l'utente ha già inviato una richiesta a questo consulente
-    return user?.consultation_requests?.includes(consultantId) || false;
+  const hasRequestedThisSession = (consultantId) => {
+    return requestedConsultants.includes(consultantId);
   };
 
   // Calcola consulenze usate basandosi sulle richieste inviate
