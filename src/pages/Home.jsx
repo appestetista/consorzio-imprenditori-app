@@ -14,6 +14,17 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const { impersonation, setCurrentUserRole, appMode } = useImpersonation();
 
+  // DEBUG LOG TEMPORANEO
+  useEffect(() => {
+    console.log('[HOME] DEBUG INFO:', {
+      'auth.user.id': user?.id,
+      'auth.user.role': user?.role,
+      appMode,
+      previewUserId: impersonation.previewUserId,
+      impersonationActive: impersonation.active
+    });
+  }, [user, appMode, impersonation]);
+
   useEffect(() => {
     const loadUser = async () => {
       setLoading(true);
