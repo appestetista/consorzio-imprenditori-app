@@ -30,7 +30,7 @@ export default function ConsultantView({ user }) {
     queryKey: ['all-members-consultant'],
     queryFn: async () => {
       const users = await base44.entities.User.list();
-      return users.filter(u => u.role !== 'admin');
+      return users;
     },
   });
 
