@@ -139,7 +139,7 @@ export default function MemberView({ user, consultants, isLoading }) {
                           ...prev,
                           [consultant.id]: e.target.value
                         }))}
-                        disabled={isUsed}
+                        disabled={isRequested}
                         className="bg-slate-900 border-lime-400/30 text-white min-h-[80px] mb-3"
                       />
                       
