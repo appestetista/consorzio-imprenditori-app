@@ -65,21 +65,20 @@ export default function Header({ user, totalNotifications = 0 }) {
           </div>
         </div>
         
-        <div className="flex items-center gap-3">
-          {/* Pulsante Torna ad Admin - Visibile quando impersonation è attiva */}
-          {impersonation.active && isAdmin && (
+        <div className="flex items-center gap-2">
+          {impersonation.active && (
             <button
               onClick={() => {
                 stopImpersonation();
                 window.location.href = createPageUrl('AdminPanel');
               }}
-              className="bg-orange-600 hover:bg-orange-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors"
+              className="bg-orange-600 hover:bg-orange-700 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors"
             >
-              <XCircle className="w-3.5 h-3.5" />
-              Admin
+              <XCircle className="w-4 h-4" />
+              Torna ad Admin
             </button>
           )}
-          
+
           {totalNotifications > 0 && (
             <span className="bg-red-500 text-white text-sm rounded-full w-6 h-6 flex items-center justify-center font-bold">
               {totalNotifications > 99 ? '99+' : totalNotifications}
