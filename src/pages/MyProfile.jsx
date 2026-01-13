@@ -35,39 +35,39 @@ export default function MyProfile() {
 
         setUser(effectiveUser);
         setFormData({
-          full_name: currentUser.full_name || '',
-          company_name: currentUser.company_name || '',
-          phone: currentUser.phone || '',
-          website: currentUser.website || '',
-          logo_url: currentUser.logo_url || '',
-          referente: currentUser.referente || '',
-          cellulare_referente: currentUser.cellulare_referente || '',
-          referente_email: currentUser.referente_email || '',
-          vat_number: currentUser.vat_number || '',
-          address: currentUser.address || '',
-          city: currentUser.city || '',
-          province: currentUser.province || '',
-          postal_code: currentUser.postal_code || '',
-          ateco_code: currentUser.ateco_code || '',
-          company_size: currentUser.company_size || 'Piccola',
-          ragione_sociale_fatturazione: currentUser.ragione_sociale_fatturazione || '',
-          partita_iva: currentUser.partita_iva || '',
-          codice_fiscale: currentUser.codice_fiscale || '',
-          codice_sdi: currentUser.codice_sdi || '',
-          indirizzo: currentUser.indirizzo || '',
-          citta: currentUser.citta || '',
-          regione: currentUser.regione || '',
-          cap: currentUser.cap || '',
-          paese: currentUser.paese || ''
+          full_name: effectiveUser.full_name || '',
+          company_name: effectiveUser.company_name || '',
+          phone: effectiveUser.phone || '',
+          website: effectiveUser.website || '',
+          logo_url: effectiveUser.logo_url || '',
+          referente: effectiveUser.referente || '',
+          cellulare_referente: effectiveUser.cellulare_referente || '',
+          referente_email: effectiveUser.referente_email || '',
+          vat_number: effectiveUser.vat_number || '',
+          address: effectiveUser.address || '',
+          city: effectiveUser.city || '',
+          province: effectiveUser.province || '',
+          postal_code: effectiveUser.postal_code || '',
+          ateco_code: effectiveUser.ateco_code || '',
+          company_size: effectiveUser.company_size || 'Piccola',
+          ragione_sociale_fatturazione: effectiveUser.ragione_sociale_fatturazione || '',
+          partita_iva: effectiveUser.partita_iva || '',
+          codice_fiscale: effectiveUser.codice_fiscale || '',
+          codice_sdi: effectiveUser.codice_sdi || '',
+          indirizzo: effectiveUser.indirizzo || '',
+          citta: effectiveUser.citta || '',
+          regione: effectiveUser.regione || '',
+          cap: effectiveUser.cap || '',
+          paese: effectiveUser.paese || ''
         });
         setLoading(false);
       } catch (e) {
         console.error(e);
-        base44.auth.redirectToLogin();
+        setLoading(false);
       }
     };
     loadUser();
-  }, []);
+  }, [impersonation.active, impersonation.targetEmail]);
 
   const handleLogoUpload = async (e) => {
     const file = e.target.files?.[0];
