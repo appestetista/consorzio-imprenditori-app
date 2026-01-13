@@ -119,10 +119,10 @@ export default function MemberView({ user, consultants, isLoading }) {
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-lime-400 text-base">{category}</CardTitle>
-                    {isUsed && (
+                    {isRequested && (
                       <Badge className="bg-green-600">
                         <Check className="w-3 h-3 mr-1" />
-                        Utilizzata
+                        Richiesta inviata
                       </Badge>
                     )}
                   </div>
