@@ -209,13 +209,20 @@ export default function AdminPanel() {
         </div>
 
         {/* Richieste Consulenza Pendenti */}
-        {pendingRequests.length > 0 && (
-          <div className="mb-6 space-y-4">
-            <h2 className="text-white text-lg font-bold flex items-center gap-2">
-              <Bell className="w-5 h-5 text-red-500 animate-pulse" />
-              Richieste Consulenza Bandi ({pendingRequests.length})
-            </h2>
-            {pendingRequests.map((request) => (
+        <div className="mb-6 space-y-4">
+          <h2 className="text-white text-lg font-bold flex items-center gap-2">
+            <Bell className="w-5 h-5 text-red-500 animate-pulse" />
+            Richieste Consulenza Bandi ({pendingRequests.length})
+          </h2>
+          {pendingRequests.length === 0 ? (
+            <Card className="bg-slate-800 border-slate-700">
+              <CardContent className="p-6 text-center">
+                <Bell className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+                <p className="text-slate-400">Nessuna richiesta di consulenza pendente</p>
+              </CardContent>
+            </Card>
+          ) : (
+            pendingRequests.map((request) => (
               <Card key={request.id} className="bg-gradient-to-br from-orange-500/20 to-lime-400/20 border-lime-400/30">
                 <CardContent className="p-6">
                   <div className="flex items-start gap-4">
@@ -285,9 +292,9 @@ export default function AdminPanel() {
                   </div>
                 </CardContent>
               </Card>
-            ))}
-          </div>
-        )}
+            ))
+          )}
+        </div>
 
         {/* Quick Actions */}
         <div className="space-y-3 mb-6">
