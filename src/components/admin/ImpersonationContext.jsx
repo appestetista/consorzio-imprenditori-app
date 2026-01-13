@@ -32,8 +32,25 @@ export function ImpersonationProvider({ children }) {
     });
   };
 
+  const setCurrentUserRole = (role) => {
+    setUserRole(role);
+  };
+
+  const getAppMode = () => {
+    if (impersonation.active && impersonation.role === 'user') {
+      return 'user-preview';
+    }
+    return userRole === 'admin' ? 'admin' : 'user';
+  };
+
   return (
-    <ImpersonationContext.Provider value={{ impersonation, startImpersonation, stopImpersonation }}>
+    <ImpersonationContext.Provider value={{ 
+      impersonation, 
+      startImpersonation, 
+      stopImpersonation,
+      setCurrentUserRole,
+      appMode: getAppMode()
+    }}>
       {children}
     </ImpersonationContext.Provider>
   );
