@@ -104,17 +104,17 @@ export default function MyProfile() {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full"></div>
-      </div>
-    );
+  if (loading || !user) {
+   return (
+     <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+       <div className="animate-spin w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full"></div>
+     </div>
+   );
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 pb-24">
-      <Header user={user} />
+   <div className="min-h-screen bg-slate-900 pb-24">
+     <Header user={user} />
       
       <main className="px-4 py-6 max-w-2xl mx-auto">
         <div className="flex items-center gap-3 mb-6">
