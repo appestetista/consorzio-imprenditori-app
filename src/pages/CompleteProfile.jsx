@@ -79,9 +79,9 @@ export default function CompleteProfile() {
     setSaving(true);
 
     try {
-      // Se impersonation, aggiorna l'utente impersonato
-      if (impersonation.active && impersonation.targetId) {
-        await base44.entities.User.update(impersonation.targetId, {
+      // Se appMode === 'user-preview', aggiorna l'utente impersonato
+      if (impersonation.active && impersonation.previewUserId && impersonation.role === 'user') {
+        await base44.entities.User.update(impersonation.previewUserId, {
           ...formData,
           profile_completed: true
         });
