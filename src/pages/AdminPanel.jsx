@@ -158,7 +158,14 @@ export default function AdminPanel() {
     }
   });
 
-  if (!user || user.role !== 'admin') {
+  // Admin protection: solo se appMode === "user" e ruolo !== admin
+  if (!user) {
+    return null;
+  }
+
+  const { appMode } = useImpersonation ? { appMode: impersonation.active && impersonation.role === 'user' ? 'user-preview' : 'user' } : { appMode: 'user' };
+  
+  if (appMode === 'user' && user.role !== 'admin') {
     return null;
   }
 
