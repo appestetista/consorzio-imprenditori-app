@@ -55,8 +55,11 @@ export default function ConsultantView({ user }) {
           consulenze_usate: [...currentUsed, bookingId]
         });
       }
-      // Aggiorna lo stato della prenotazione
-      await base44.entities.ConsultationBooking.update(bookingId, { status: 'completed' });
+      // Aggiorna lo stato della prenotazione con data di completamento
+      await base44.entities.ConsultationBooking.update(bookingId, { 
+        status: 'completed',
+        completed_date: new Date().toISOString()
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['consultant-bookings'] });
@@ -231,6 +234,7 @@ export default function ConsultantView({ user }) {
               {bookings.map((booking) => {
                 const member = allMembers.find(m => m.email === booking.user_email);
                 const displayName = member?.company_name || member?.full_name || booking.user_email;
+                const isCompleted = booking.status === 'completed';
                 return (
                   <div key={booking.id} className="bg-slate-700/50 rounded-lg p-4">
                     <div className="flex items-start justify-between mb-3">
@@ -240,25 +244,35 @@ export default function ConsultantView({ user }) {
                             {displayName[0].toUpperCase()}
                           </span>
                         </div>
-                        <div>
+                        <div className="flex-1">
                           <h3 className="text-white font-bold">{displayName}</h3>
                           {member?.referente && (
                             <p className="text-slate-300 text-sm">{member.referente}</p>
                           )}
-                          <div className="flex items-center gap-1.5 text-xs text-slate-400 mt-1">
-                            <Clock className="w-3 h-3" />
-                            <span>{new Date(booking.created_date).toLocaleDateString('it-IT')}</span>
+                          <div className="flex flex-col gap-0.5 mt-1">
+                            <div className="flex items-center gap-1.5 text-xs text-slate-400">
+                              <Clock className="w-3 h-3" />
+                              <span>Richiesta: {new Date(booking.created_date).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' })}</span>
+                            </div>
+                            {isCompleted && booking.completed_date && (
+                              <div className="flex items-center gap-1.5 text-xs text-green-400">
+                                <CheckCircle className="w-3 h-3" />
+                                <span>Completata: {new Date(booking.completed_date).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' })}</span>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
-                      <Badge className={statusColors[booking.status]}>
-                        {statusLabels[booking.status]}
+                    </div>
+                    <div className="mb-2">
+                      <Badge className={isCompleted ? 'bg-green-600 text-white' : 'bg-orange-500 text-white'}>
+                        {isCompleted ? 'Completata' : 'In Attesa'}
                       </Badge>
                     </div>
                     <div className="bg-slate-900/50 rounded-lg p-3 mb-3">
                       <p className="text-white text-sm">{booking.subject}</p>
                     </div>
-                    {booking.status !== 'completed' && (
+                    {!isCompleted && (
                       <Button
                         className="bg-lime-400 hover:bg-lime-500 text-slate-900 w-full font-bold"
                         onClick={() => completeConsultationMutation.mutate({ 
