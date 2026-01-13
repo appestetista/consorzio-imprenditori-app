@@ -13,6 +13,13 @@ export function ImpersonationProvider({ children }) {
   const [userRole, setUserRole] = useState(null);
 
   const startImpersonation = (role, targetId, targetEmail, targetName) => {
+    console.log('[ImpersonationContext] startImpersonation called with:', {
+      role,
+      targetId,
+      targetEmail,
+      targetName
+    });
+
     setImpersonation({
       active: true,
       role,
