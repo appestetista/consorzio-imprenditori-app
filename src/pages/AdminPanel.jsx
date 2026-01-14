@@ -183,7 +183,16 @@ export default function AdminPanel() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 gap-4 mb-6">
-          <Link to={createPageUrl('CalendarioIncontri')}>
+         <Link to={createPageUrl('GestioneMembri')}>
+           <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 transition-colors cursor-pointer">
+             <CardContent className="p-4 text-center">
+               <Users className="w-8 h-8 text-lime-400 mx-auto mb-2" />
+               <p className="text-2xl font-bold text-white">{stats?.activeUsers || 0}</p>
+               <p className="text-slate-400 text-sm">Utenti</p>
+             </CardContent>
+           </Card>
+         </Link>
+         <Link to={createPageUrl('CalendarioIncontri')}>
             <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 transition-colors cursor-pointer">
               <CardContent className="p-4 text-center">
                 <Calendar className="w-8 h-8 text-lime-400 mx-auto mb-2" />
