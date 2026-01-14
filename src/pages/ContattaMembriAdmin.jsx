@@ -17,7 +17,7 @@ import ContattaMembri from '../pages/ContattaMembri';
 
 export default function ContattaMembriAdmin() {
   const [user, setUser] = useState(null);
-  const [activeTab, setActiveTab] = useState('contatta');
+  const [activeTab, setActiveTab] = useState('gestione');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [roleFilter, setRoleFilter] = useState('all');
