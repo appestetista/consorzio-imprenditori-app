@@ -129,11 +129,11 @@ export default function ConsultantView({ user }) {
           </div>
           <div className="flex gap-4 mt-4">
             <div className="bg-lime-400/20 rounded-lg p-3 flex-1 text-center">
-              <p className="text-2xl font-bold text-lime-400">{bookings.filter(b => b.status === 'pending').length}</p>
+              <p className="text-2xl font-bold text-lime-400">0</p>
               <p className="text-xs text-slate-400">Richieste in attesa</p>
             </div>
             <div className="bg-green-500/20 rounded-lg p-3 flex-1 text-center">
-              <p className="text-2xl font-bold text-green-400">{bookings.filter(b => b.status === 'completed').length}</p>
+              <p className="text-2xl font-bold text-green-400">0</p>
               <p className="text-xs text-slate-400">Completate</p>
             </div>
           </div>
@@ -150,8 +150,8 @@ export default function ConsultantView({ user }) {
         <CardContent>
           <div className="space-y-2">
             {allMembers.map((member) => {
-              const availableCredits = member.consulenze_disponibili || 1;
-              const usedCredits = member.consulenze_usate?.length || 0;
+              const availableCredits = 0;
+              const usedCredits = 0;
               const hasPendingRequest = bookings.some(b => b.user_email === member.email && b.status === 'pending');
               const pendingCount = bookings.filter(b => b.user_email === member.email && b.status === 'pending').length;
 
