@@ -95,8 +95,8 @@ export default function MemberView({ user, consultants, isLoading }) {
   // Calcola consulenze usate basandosi sulle richieste inviate + quelle richieste in questa sessione
   const uniqueUsedIds = new Set([...(user?.consultation_requests || []), ...requestedConsultants]);
   const usedCount = uniqueUsedIds.size;
-  const totalConsultants = CONSULTANT_CATEGORIES.length;
-  const availableCount = totalConsultants - usedCount;
+  const totalConsultations = user?.consulenze_gratuite_totali || CONSULTANT_CATEGORIES.length;
+  const availableCount = totalConsultations - usedCount;
 
   return (
     <>
@@ -107,7 +107,7 @@ export default function MemberView({ user, consultants, isLoading }) {
             <span className="font-bold">Consulenze Gratuite Partner del Consorzio</span>
           </div>
           <p className="text-slate-400 text-sm mb-4">
-            Accedi a {totalConsultants} professionisti qualificati con {totalConsultants} consulenze gratuite incluse
+            Hai {totalConsultations} consulenze gratuite assegnate dai consulenti del consorzio
           </p>
           
           <div className="flex items-center justify-between">
@@ -118,7 +118,7 @@ export default function MemberView({ user, consultants, isLoading }) {
               </div>
               <div>
                 <p className="text-slate-300 text-sm">Consulenze Utilizzate</p>
-                <p className="text-lime-400 font-bold">{usedCount}/{totalConsultants}</p>
+                <p className="text-lime-400 font-bold">{usedCount}/{totalConsultations}</p>
               </div>
             </div>
           </div>

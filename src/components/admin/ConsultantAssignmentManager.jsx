@@ -31,14 +31,35 @@ export default function ConsultantAssignmentManager() {
   });
 
   const createAssignmentMutation = useMutation({
-    mutationFn: (data) => base44.entities.ConsultantAssignment.create(data),
+    mutationFn: async (data) => {
+      await base44.entities.ConsultantAssignment.create(data);
+      await recalculateTotalConsultations(data.user_email);
+    },
     onSuccess: () => {
       refetchAssignments();
     }
   });
 
+  const recalculateTotalConsultations = async (userEmail) => {
+    const allAssignments = await base44.entities.ConsultantAssignment.filter({ 
+      user_email: userEmail,
+      is_assigned: true 
+    });
+    const total = allAssignments.reduce((sum, a) => sum + (a.available_consultations || 0), 0);
+    
+    const users = await base44.entities.User.filter({ email: userEmail });
+    if (users.length > 0) {
+      await base44.entities.User.update(users[0].id, {
+        consulenze_gratuite_totali: total
+      });
+    }
+  };
+
   const updateAssignmentMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.ConsultantAssignment.update(id, data),
+    mutationFn: async ({ id, data, userEmail }) => {
+      await base44.entities.ConsultantAssignment.update(id, data);
+      await recalculateTotalConsultations(userEmail);
+    },
     onSuccess: () => {
       refetchAssignments();
       setEditingAssignments({});
@@ -76,7 +97,8 @@ export default function ConsultantAssignmentManager() {
     if (assignment) {
       await updateAssignmentMutation.mutateAsync({
         id: assignment.id,
-        data: { is_assigned: !assignment.is_assigned }
+        data: { is_assigned: !assignment.is_assigned },
+        userEmail: selectedUser.email
       });
     } else {
       await createAssignmentMutation.mutateAsync({
@@ -91,7 +113,8 @@ export default function ConsultantAssignmentManager() {
   const handleUpdateConsultations = async (assignmentId, value) => {
     await updateAssignmentMutation.mutateAsync({
       id: assignmentId,
-      data: { available_consultations: parseInt(value) || 0 }
+      data: { available_consultations: parseInt(value) || 0 },
+      userEmail: selectedUser.email
     });
   };
 
