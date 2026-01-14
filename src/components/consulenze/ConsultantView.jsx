@@ -298,7 +298,7 @@ export default function ConsultantView({ user }) {
                       </div>
                       <span className="text-slate-600">/</span>
                       <div className="text-center">
-                        <p className="text-slate-400 font-bold text-lg">{completedBookings}</p>
+                        <p className="text-slate-400 font-bold text-lg">0</p>
                         <p className="text-slate-500 text-xs">completate</p>
                       </div>
                     </div>
