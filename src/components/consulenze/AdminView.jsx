@@ -127,7 +127,7 @@ export default function AdminView({ consultants }) {
           </TabsTrigger>
           <TabsTrigger value="members" className="data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
             <Users className="w-4 h-4 mr-2" />
-            Membri
+            Utenti
           </TabsTrigger>
           <TabsTrigger value="bookings" className="data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
             Richieste
