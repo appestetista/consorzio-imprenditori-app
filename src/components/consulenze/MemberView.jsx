@@ -181,8 +181,8 @@ export default function MemberView({ user, consultants, isLoading }) {
                 <p className="text-xs text-slate-400">disponibili</p>
               </div>
               <div>
-                <p className="text-slate-300 text-sm">Consulenze Utilizzate</p>
-                <p className="text-lime-400 font-bold">0/{totalConsultations}</p>
+                <p className="text-slate-300 text-sm">Consulenze Completate</p>
+                <p className="text-lime-400 font-bold">{completedCount}</p>
               </div>
             </div>
           </div>
