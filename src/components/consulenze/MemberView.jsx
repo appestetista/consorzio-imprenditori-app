@@ -24,12 +24,26 @@ const CONSULTANT_CATEGORIES = [
 export default function MemberView({ user, consultants, isLoading }) {
   const [consultationMessages, setConsultationMessages] = useState({});
   const [requestedConsultants, setRequestedConsultants] = useState([]);
+  const [assignments, setAssignments] = useState([]);
   const queryClient = useQueryClient();
+
+  // Carica le assegnazioni dei consulenti per questo utente
+  React.useEffect(() => {
+    if (!user?.email) return;
+    
+    const loadAssignments = async () => {
+      const userAssignments = await base44.entities.ConsultantAssignment.filter({ 
+        user_email: user.email, 
+        is_assigned: true 
+      });
+      setAssignments(userAssignments);
+    };
+    
+    loadAssignments();
+  }, [user?.email]);
 
   const bookConsultationMutation = useMutation({
     mutationFn: async ({ consultantId, message }) => {
-      const consultant = consultants.find(c => c.id === consultantId);
-      
       await base44.entities.ConsultationBooking.create({
         consultant_id: consultantId,
         user_email: user.email,
@@ -37,10 +51,13 @@ export default function MemberView({ user, consultants, isLoading }) {
         status: 'pending'
       });
       
-      // Diminuisci gli slot disponibili del consulente
-      await base44.entities.Consultant.update(consultantId, {
-        available_slots: Math.max(0, (consultant.available_slots || 100) - 1)
-      });
+      // Diminuisci le consulenze disponibili per questo specifico consulente-utente
+      const assignment = assignments.find(a => a.consultant_id === consultantId);
+      if (assignment) {
+        await base44.entities.ConsultantAssignment.update(assignment.id, {
+          available_consultations: Math.max(0, assignment.available_consultations - 1)
+        });
+      }
 
       // Salva il consulente usato nell'user
       const usedConsultants = user.consultation_requests || [];
@@ -50,11 +67,18 @@ export default function MemberView({ user, consultants, isLoading }) {
         });
       }
     },
-    onSuccess: (_, variables) => {
+    onSuccess: async (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['consultants'] });
       queryClient.invalidateQueries({ queryKey: ['consultation-bookings'] });
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
       queryClient.invalidateQueries({ queryKey: ['current-user'] });
+      
+      // Ricarica le assegnazioni aggiornate
+      const userAssignments = await base44.entities.ConsultantAssignment.filter({ 
+        user_email: user.email, 
+        is_assigned: true 
+      });
+      setAssignments(userAssignments);
       
       setRequestedConsultants(prev => [...prev, variables.consultantId]);
       
@@ -69,11 +93,9 @@ export default function MemberView({ user, consultants, isLoading }) {
     return requestedConsultants.includes(consultantId);
   };
 
-  // Calcola consulenze usate basandosi sulle richieste inviate + quelle richieste in questa sessione
-  const uniqueUsedIds = new Set([...(user?.consultation_requests || []), ...requestedConsultants]);
-  const usedCount = uniqueUsedIds.size;
-  const totalConsultants = CONSULTANT_CATEGORIES.length;
-  const availableCount = totalConsultants - usedCount;
+  // Calcola consulenze usate e disponibili basandosi sulle assegnazioni
+  const totalConsultations = assignments.reduce((sum, a) => sum + a.available_consultations, 0);
+  const assignedConsultants = assignments.length;
 
   return (
     <>
@@ -84,18 +106,18 @@ export default function MemberView({ user, consultants, isLoading }) {
             <span className="font-bold">Consulenze Gratuite Partner del Consorzio</span>
           </div>
           <p className="text-slate-400 text-sm mb-4">
-            Accedi a {totalConsultants} professionisti qualificati con {totalConsultants} consulenze gratuite incluse
+            Hai accesso a {assignedConsultants} professionisti qualificati con {totalConsultations} consulenze gratuite
           </p>
           
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="bg-lime-400/20 rounded-xl p-4 text-center">
-                <span className="text-3xl font-bold text-lime-400">{availableCount}</span>
-                <p className="text-xs text-slate-400">disponibili</p>
+                <span className="text-3xl font-bold text-lime-400">{totalConsultations}</span>
+                <p className="text-xs text-slate-400">consulenze totali</p>
               </div>
               <div>
-                <p className="text-slate-300 text-sm">Consulenze Utilizzate</p>
-                <p className="text-lime-400 font-bold">{usedCount}/{totalConsultants}</p>
+                <p className="text-slate-300 text-sm">Consulenti Assegnati</p>
+                <p className="text-lime-400 font-bold">{assignedConsultants}</p>
               </div>
             </div>
           </div>
@@ -110,7 +132,13 @@ export default function MemberView({ user, consultants, isLoading }) {
         <div className="space-y-4">
           {CONSULTANT_CATEGORIES.map((category, index) => {
             const consultant = consultants.find(c => c.category === category);
+            const assignment = consultant ? assignments.find(a => a.consultant_id === consultant.id) : null;
+            
+            // Mostra solo i consulenti assegnati
+            if (!assignment) return null;
+            
             const isRequested = consultant ? hasRequestedThisSession(consultant.id) : false;
+            const availableConsultations = assignment.available_consultations;
             
             return (
               <Card key={index} className="bg-slate-800 border-slate-700">
@@ -136,8 +164,8 @@ export default function MemberView({ user, consultants, isLoading }) {
                           <p className="text-lime-400 text-sm">{consultant.referente || 'N/A'}</p>
                         </div>
                         <div className="flex-shrink-0 text-right">
-                          <p className="text-lime-400 text-xl font-bold">{consultant.available_slots || 1}</p>
-                          <p className="text-slate-400 text-xs">crediti</p>
+                          <p className="text-lime-400 text-xl font-bold">{availableConsultations}</p>
+                          <p className="text-slate-400 text-xs">consulenze</p>
                         </div>
                       </div>
                       
@@ -160,9 +188,9 @@ export default function MemberView({ user, consultants, isLoading }) {
                             consultantId: consultant.id, 
                             message: consultationMessages[consultant.id] || '' 
                           })}
-                          disabled={isRequested || bookConsultationMutation.isPending}
+                          disabled={isRequested || bookConsultationMutation.isPending || availableConsultations <= 0}
                         >
-                          invia
+                          {availableConsultations <= 0 ? 'Esaurite' : 'invia'}
                         </Button>
                         {consultant.phone && (
                           <Button
