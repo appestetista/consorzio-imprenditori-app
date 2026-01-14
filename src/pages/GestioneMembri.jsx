@@ -55,6 +55,19 @@ export default function GestioneMembri() {
     loadUser();
   }, [navigate]);
 
+  // Apri automaticamente il dialog se c'è memberId nell'URL
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const memberId = urlParams.get('memberId');
+    
+    if (memberId && members.length > 0) {
+      const memberToEdit = members.find(m => m.id === memberId);
+      if (memberToEdit) {
+        handleEditMember(memberToEdit);
+      }
+    }
+  }, [members]);
+
   const { data: members = [], isLoading } = useQuery({
     queryKey: ['all-members'],
     queryFn: () => base44.entities.User.list(),
