@@ -4,6 +4,7 @@ import CompleteProfile from './pages/CompleteProfile';
 import Consulenze from './pages/Consulenze';
 import ContattaConsorzio from './pages/ContattaConsorzio';
 import ContattaMembri from './pages/ContattaMembri';
+import ContattaMembriAdmin from './pages/ContattaMembriAdmin';
 import CulturaAziendale from './pages/CulturaAziendale';
 import FinanziamentiAgevolati from './pages/FinanziamentiAgevolati';
 import GestioneBandi from './pages/GestioneBandi';
@@ -14,7 +15,6 @@ import Messaggi from './pages/Messaggi';
 import MyProfile from './pages/MyProfile';
 import RisparmioEnergetico from './pages/RisparmioEnergetico';
 import VideoInterviste from './pages/VideoInterviste';
-import ContattaMembriAdmin from './pages/ContattaMembriAdmin';
 import __Layout from './Layout.jsx';
 
 
@@ -25,6 +25,7 @@ export const PAGES = {
     "Consulenze": Consulenze,
     "ContattaConsorzio": ContattaConsorzio,
     "ContattaMembri": ContattaMembri,
+    "ContattaMembriAdmin": ContattaMembriAdmin,
     "CulturaAziendale": CulturaAziendale,
     "FinanziamentiAgevolati": FinanziamentiAgevolati,
     "GestioneBandi": GestioneBandi,
@@ -35,7 +36,6 @@ export const PAGES = {
     "MyProfile": MyProfile,
     "RisparmioEnergetico": RisparmioEnergetico,
     "VideoInterviste": VideoInterviste,
-    "ContattaMembriAdmin": ContattaMembriAdmin,
 }
 
 export const pagesConfig = {

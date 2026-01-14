@@ -835,7 +835,7 @@ export default function GestioneMembri() {
       <Dialog open={showPermissions} onOpenChange={setShowPermissions}>
         <DialogContent className="bg-slate-800 border-slate-700">
           <DialogHeader>
-            <DialogTitle className="text-white">Permessi - {selectedMember?.company_name || selectedMember?.full_name}</DialogTitle>
+            <DialogTitle className="text-white">Permessi - {selectedMember?.company_name || selectedMember?.full_name || 'Utente'}</DialogTitle>
           </DialogHeader>
           <button
             onClick={() => setShowPermissions(false)}
