@@ -14,6 +14,7 @@ import Messaggi from './pages/Messaggi';
 import MyProfile from './pages/MyProfile';
 import RisparmioEnergetico from './pages/RisparmioEnergetico';
 import VideoInterviste from './pages/VideoInterviste';
+import ContattaMembriAdmin from './pages/ContattaMembriAdmin';
 import __Layout from './Layout.jsx';
 
 
@@ -34,6 +35,7 @@ export const PAGES = {
     "MyProfile": MyProfile,
     "RisparmioEnergetico": RisparmioEnergetico,
     "VideoInterviste": VideoInterviste,
+    "ContattaMembriAdmin": ContattaMembriAdmin,
 }
 
 export const pagesConfig = {
