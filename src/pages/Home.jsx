@@ -100,13 +100,27 @@ export default function Home() {
 
   const nextEvent = events[0];
   const permissions = effectiveUser?.permissions || {};
-  const isBlocked = effectiveUser?.is_blocked && appMode !== 'user-preview';
+  const isBlocked = effectiveUser?.is_blocked && appMode !== 'user-preview' && effectiveUser?.role !== 'admin';
   const isAdmin = appMode === 'admin';
 
   if (loading || !effectiveUser) {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-lime-400"></div>
+      </div>
+    );
+  }
+
+  if (isBlocked) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+        <div className="text-center">
+          <div className="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-4xl">🚫</span>
+          </div>
+          <h1 className="text-white text-xl font-bold mb-2">Accesso Bloccato</h1>
+          <p className="text-slate-400">Il tuo account è stato sospeso. Contatta la direzione per maggiori informazioni.</p>
+        </div>
       </div>
     );
   }
