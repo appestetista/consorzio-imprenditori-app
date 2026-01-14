@@ -177,7 +177,7 @@ export default function AdminPanel() {
             <Link to={createPageUrl('Home')} className="text-lime-400">
               <ArrowLeft className="w-6 h-6" />
             </Link>
-            <h1 className="text-white text-xl font-bold">Pannello Admin</h1>
+            <h1 className="text-white text-xl font-bold">Gestione Utenti</h1>
           </div>
         </div>
 
