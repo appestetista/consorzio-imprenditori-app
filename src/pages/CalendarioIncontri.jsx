@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { Calendar, MapPin, Clock, Users, Check, X, Plus, ArrowLeft, Image, Upload, Edit } from 'lucide-react';
+import { Calendar, MapPin, Clock, Users, Check, X, Plus, ArrowLeft, Image, Upload, Edit, Briefcase } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
+import InviteEventDialog from '../components/calendario/InviteEventDialog';
 
 export default function CalendarioIncontri() {
   const [user, setUser] = useState(null);
@@ -23,6 +24,8 @@ export default function CalendarioIncontri() {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
   const [showEditEvent, setShowEditEvent] = useState(false);
+  const [inviteDialogEvent, setInviteDialogEvent] = useState(null);
+  const [inviteDialogType, setInviteDialogType] = useState(null);
   const queryClient = useQueryClient();
   const { impersonation } = useImpersonation();
 
@@ -192,6 +195,12 @@ export default function CalendarioIncontri() {
   const getParticipantCount = (eventoId) => {
     return partecipazioni.filter(
       p => p.evento_id === eventoId && p.stato === 'confermato'
+    ).length;
+  };
+
+  const getInvitedCount = (eventoId) => {
+    return partecipazioni.filter(
+      p => p.evento_id === eventoId
     ).length;
   };
 
@@ -384,12 +393,43 @@ export default function CalendarioIncontri() {
                      <span>{participantCount} partecipanti confermati</span>
                     </div>
 
+                    <div className="flex items-center gap-2 text-slate-400 text-sm">
+                     <Users className="w-4 h-4 text-slate-500" />
+                     <span>{getInvitedCount(event.id)} invitati totali</span>
+                    </div>
+
                     {isAdmin && (
-                     <div className="pt-3 border-t border-slate-700">
+                     <div className="pt-3 border-t border-slate-700 space-y-2">
+                       <div className="grid grid-cols-2 gap-2">
+                         <Button
+                           variant="outline"
+                           size="sm"
+                           className="border-lime-400 text-lime-400 hover:bg-lime-400/20"
+                           onClick={() => {
+                             setInviteDialogEvent(event);
+                             setInviteDialogType('users');
+                           }}
+                         >
+                           <Users className="w-4 h-4 mr-1" />
+                           Invita Utenti
+                         </Button>
+                         <Button
+                           variant="outline"
+                           size="sm"
+                           className="border-lime-400 text-lime-400 hover:bg-lime-400/20"
+                           onClick={() => {
+                             setInviteDialogEvent(event);
+                             setInviteDialogType('consultants');
+                           }}
+                         >
+                           <Briefcase className="w-4 h-4 mr-1" />
+                           Invita Consulenti
+                         </Button>
+                       </div>
                        <Button
                          variant="outline"
                          size="sm"
-                         className="w-full border-lime-400 text-lime-400 hover:bg-lime-400/20"
+                         className="w-full border-slate-600 text-slate-300 hover:bg-slate-700"
                          onClick={() => {
                            setEditingEvent(event);
                            setShowEditEvent(true);
@@ -502,6 +542,17 @@ export default function CalendarioIncontri() {
       )}
 
       <BottomNav currentPage="CalendarioIncontri" unreadMessages={messages.length} />
+
+      {/* Invite Dialog */}
+      <InviteEventDialog
+        open={!!inviteDialogEvent && !!inviteDialogType}
+        onClose={() => {
+          setInviteDialogEvent(null);
+          setInviteDialogType(null);
+        }}
+        event={inviteDialogEvent}
+        type={inviteDialogType}
+      />
     </div>
   );
 }
