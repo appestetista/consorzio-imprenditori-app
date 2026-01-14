@@ -15,6 +15,7 @@ import BottomNav from '../components/layout/BottomNav';
 import CulturaAziendaleAdmin from '../components/admin/CulturaAziendaleAdmin';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import ImpersonationDialog from '../components/admin/ImpersonationDialog';
+import ConsultantAssignmentManager from '../components/admin/ConsultantAssignmentManager';
 
 const CONSULTANT_CATEGORIES = [
   "Stampa Digitale e Cataloghi",
@@ -348,8 +349,11 @@ export default function AdminPanel() {
         {/* Cultura Aziendale Management */}
         <CulturaAziendaleAdmin />
 
+        {/* Consultant Assignment Manager */}
+        <ConsultantAssignmentManager />
+
         {/* Consultants Management */}
-        <div className="mb-6 space-y-4">
+        <div className="mb-6 space-y-4 mt-6">
           <div className="flex items-center justify-between">
             <h2 className="text-white text-lg font-bold flex items-center gap-2">
               <Briefcase className="w-5 h-5 text-lime-400" />
