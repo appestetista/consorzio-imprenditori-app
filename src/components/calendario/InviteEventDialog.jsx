@@ -108,6 +108,43 @@ export default function InviteEventDialog({ open, onClose, event, type }) {
             content: `Sei stato invitato all'incontro: ${event.title}`,
             reference_id: event.id
           });
+
+          // Invia email di invito
+          const appUrl = window.location.origin;
+          const eventDate = new Date(event.date).toLocaleDateString('it-IT', {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+          });
+
+          const emailBody = `
+Gentile Membro del Consorzio,
+
+Sei stato invitato a partecipare al seguente incontro:
+
+📌 TITOLO: ${event.title}
+
+📅 DATA: ${eventDate}
+🕐 ORA: ${event.time}
+📍 LUOGO: ${event.location}
+
+${event.description ? `📝 DESCRIZIONE:\n${event.description}\n` : ''}
+
+Per confermare o declinare la tua partecipazione, accedi alla tua area riservata:
+${appUrl}
+
+Ti aspettiamo!
+
+Cordiali saluti,
+Il Consorzio
+          `.trim();
+
+          await base44.integrations.Core.SendEmail({
+            to: email,
+            subject: `Invito del Consorzio Ad ${event.title}`,
+            body: emailBody
+          });
         }
       }
 
