@@ -467,8 +467,8 @@ export default function CalendarioIncontri() {
                      </div>
                     )}
 
-                    {/* Stato partecipazione utente */}
-                    {userResponse && (
+                    {/* Stato partecipazione utente - solo per non-admin */}
+                    {userResponse && !isAdmin && (
                       <div className="pt-3 border-t border-slate-700">
                         <div className={`p-3 rounded-lg ${
                           userResponse === 'accepted' ? 'bg-green-600/20' : 'bg-red-600/20'
