@@ -183,34 +183,42 @@ export default function AdminPanel() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 gap-4 mb-6">
-          <Card className="bg-slate-800 border-slate-700">
-            <CardContent className="p-4 text-center">
-              <Users className="w-8 h-8 text-lime-400 mx-auto mb-2" />
-              <p className="text-2xl font-bold text-white">{stats?.activeUsers || 0}</p>
-              <p className="text-slate-400 text-sm">Membri Attivi</p>
-            </CardContent>
-          </Card>
-          <Card className="bg-slate-800 border-slate-700">
-            <CardContent className="p-4 text-center">
-              <Calendar className="w-8 h-8 text-lime-400 mx-auto mb-2" />
-              <p className="text-2xl font-bold text-white">{stats?.totalEvents || 0}</p>
-              <p className="text-slate-400 text-sm">Eventi</p>
-            </CardContent>
-          </Card>
-          <Card className="bg-slate-800 border-slate-700">
-            <CardContent className="p-4 text-center">
-              <Video className="w-8 h-8 text-lime-400 mx-auto mb-2" />
-              <p className="text-2xl font-bold text-white">{stats?.totalVideos || 0}</p>
-              <p className="text-slate-400 text-sm">Video</p>
-            </CardContent>
-          </Card>
-          <Card className="bg-slate-800 border-slate-700">
-            <CardContent className="p-4 text-center">
-              <Briefcase className="w-8 h-8 text-lime-400 mx-auto mb-2" />
-              <p className="text-2xl font-bold text-white">{stats?.totalConsultants || 0}</p>
-              <p className="text-slate-400 text-sm">Consulenti</p>
-            </CardContent>
-          </Card>
+          <Link to={createPageUrl('GestioneMembri')}>
+            <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 transition-colors cursor-pointer">
+              <CardContent className="p-4 text-center">
+                <Users className="w-8 h-8 text-lime-400 mx-auto mb-2" />
+                <p className="text-2xl font-bold text-white">{stats?.activeUsers || 0}</p>
+                <p className="text-slate-400 text-sm">Utenti</p>
+              </CardContent>
+            </Card>
+          </Link>
+          <Link to={createPageUrl('CalendarioIncontri')}>
+            <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 transition-colors cursor-pointer">
+              <CardContent className="p-4 text-center">
+                <Calendar className="w-8 h-8 text-lime-400 mx-auto mb-2" />
+                <p className="text-2xl font-bold text-white">{stats?.totalEvents || 0}</p>
+                <p className="text-slate-400 text-sm">Eventi</p>
+              </CardContent>
+            </Card>
+          </Link>
+          <Link to={createPageUrl('VideoInterviste')}>
+            <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 transition-colors cursor-pointer">
+              <CardContent className="p-4 text-center">
+                <Video className="w-8 h-8 text-lime-400 mx-auto mb-2" />
+                <p className="text-2xl font-bold text-white">{stats?.totalVideos || 0}</p>
+                <p className="text-slate-400 text-sm">Video Interviste</p>
+              </CardContent>
+            </Card>
+          </Link>
+          <Link to={createPageUrl('Consulenze')}>
+            <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 transition-colors cursor-pointer">
+              <CardContent className="p-4 text-center">
+                <Briefcase className="w-8 h-8 text-lime-400 mx-auto mb-2" />
+                <p className="text-2xl font-bold text-white">{stats?.totalConsultants || 0}</p>
+                <p className="text-slate-400 text-sm">Consulenti</p>
+              </CardContent>
+            </Card>
+          </Link>
         </div>
 
         {/* Richieste Consulenza Pendenti */}
