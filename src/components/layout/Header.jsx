@@ -147,15 +147,6 @@ export default function Header({ user, totalNotifications = 0 }) {
                   <span>Pannello Admin</span>
                 </Link>
                 
-                <Link
-                  to={createPageUrl('GestioneMembri')}
-                  onClick={() => setMenuOpen(false)}
-                  className="flex items-center gap-3 text-white py-3 px-4 rounded-lg hover:bg-slate-800 transition-colors"
-                >
-                  <Users className="w-5 h-5 text-lime-400" />
-                  <span>Gestione Membri</span>
-                </Link>
-
                 {/* Pulsante Visualizza Come - Solo per Admin */}
                 <button
                   onClick={() => {
