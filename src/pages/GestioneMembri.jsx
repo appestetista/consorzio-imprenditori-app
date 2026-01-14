@@ -353,10 +353,12 @@ export default function GestioneMembri() {
                             Admin
                           </Badge>
                         )}
+                        {member.is_blocked && (
+                          <Badge className="bg-red-500/20 text-red-400 border-0">
+                            Bloccato
+                          </Badge>
+                        )}
                       </div>
-                      <p className={`text-sm font-medium ${member.is_blocked ? 'text-red-400' : 'text-green-400'}`}>
-                        {member.is_blocked ? 'Bloccato' : 'Sbloccato'}
-                      </p>
                       <p className="text-slate-400 text-sm truncate">{member.email}</p>
                     </div>
                   </div>
