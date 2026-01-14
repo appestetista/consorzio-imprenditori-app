@@ -85,7 +85,7 @@ export default function Consulenze() {
             <ArrowLeft className="w-6 h-6" />
           </Link>
           <h1 className="text-white text-xl font-bold">
-            {isAdmin ? 'GESTIONE CONSULENZE' : isConsultant ? 'LE MIE RICHIESTE' : 'CONSULENZE'}
+            {isAdmin ? 'GESTIONE CONSULENZE' : isConsultant ? 'RICHIESTE DI CONSULENZA' : 'CONSULENZE'}
           </h1>
         </div>
 

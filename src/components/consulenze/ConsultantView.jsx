@@ -288,7 +288,7 @@ export default function ConsultantView({ user }) {
 
       <Card className="bg-slate-800 border-lime-400/30">
         <CardHeader>
-          <CardTitle className="text-white">Richieste</CardTitle>
+          <CardTitle className="text-white">Richieste di Consulenza</CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
