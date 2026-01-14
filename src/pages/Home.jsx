@@ -127,14 +127,7 @@ export default function Home() {
 
   const culturaAziendaleNotifications = notifications.filter(n => n.type === 'cultura_aziendale').length;
 
-  // Verifica se l'utente è un consulente controllando se esiste nella tabella Consultant
-  const { data: consultantCheck = [] } = useQuery({
-    queryKey: ['consultant-check', effectiveUser?.email],
-    queryFn: () => base44.entities.Consultant.filter({ email: effectiveUser.email }),
-    enabled: !!effectiveUser?.email,
-  });
-
-  const isConsultant = consultantCheck.length > 0;
+  const isConsultant = effectiveUser?.role === 'consulente';
 
   const features = [
     { title: 'Calendario\nincontri', icon: Calendar, page: 'CalendarioIncontri', notifications: eventNotifications, permission: 'calendario' },
