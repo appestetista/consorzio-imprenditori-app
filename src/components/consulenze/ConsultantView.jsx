@@ -404,7 +404,11 @@ export default function ConsultantView({ user }) {
       </Card>
       )}
 
-      <AlertDialog open={confirmDialog.open} onOpenChange={(open) => !open && setConfirmDialog({ open: false, bookingId: null, userEmail: null })}>
+      <AlertDialog open={confirmDialog.open} onOpenChange={(open) => {
+        if (!open) {
+          setConfirmDialog({ open: false, bookingId: null, userEmail: null });
+        }
+      }}>
         <AlertDialogContent className="bg-slate-800 border-lime-400/30">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-white flex items-center gap-2">
