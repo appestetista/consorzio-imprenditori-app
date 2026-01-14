@@ -38,6 +38,25 @@ export default function ConsultantView({ user }) {
     queryKey: ['consultant-assignments', myConsultantProfile?.id],
     queryFn: async () => {
       if (!myConsultantProfile?.id) return [];
+      const existingAssignments = await base44.entities.ConsultantAssignment.filter({ 
+        consultant_id: myConsultantProfile.id 
+      });
+      
+      // Crea automaticamente assignment per membri che non ne hanno
+      const users = await base44.entities.User.list();
+      for (const user of users) {
+        const hasAssignment = existingAssignments.some(a => a.user_email === user.email);
+        if (!hasAssignment) {
+          await base44.entities.ConsultantAssignment.create({
+            user_email: user.email,
+            consultant_id: myConsultantProfile.id,
+            available_consultations: 1,
+            is_assigned: true
+          });
+        }
+      }
+      
+      // Ricarica tutti gli assignment dopo la creazione
       return await base44.entities.ConsultantAssignment.filter({ 
         consultant_id: myConsultantProfile.id 
       });

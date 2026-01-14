@@ -37,8 +37,28 @@ export default function MemberView({ user, consultants, isLoading }) {
         user_email: user.email,
         is_assigned: true
       });
-      console.log('[MemberView] Loaded assignments for', user.email, ':', userAssignments);
-      setAssignments(userAssignments);
+      
+      // Crea automaticamente assignment per consulenti che non ne hanno
+      const allConsultants = await base44.entities.Consultant.list();
+      for (const consultant of allConsultants) {
+        const hasAssignment = userAssignments.some(a => a.consultant_id === consultant.id);
+        if (!hasAssignment) {
+          await base44.entities.ConsultantAssignment.create({
+            user_email: user.email,
+            consultant_id: consultant.id,
+            available_consultations: 1,
+            is_assigned: true
+          });
+        }
+      }
+      
+      // Ricarica gli assignment aggiornati
+      const updatedAssignments = await base44.entities.ConsultantAssignment.filter({ 
+        user_email: user.email,
+        is_assigned: true
+      });
+      console.log('[MemberView] Loaded assignments for', user.email, ':', updatedAssignments);
+      setAssignments(updatedAssignments);
 
       const userBookings = await base44.entities.ConsultationBooking.filter({ 
         user_email: user.email,
@@ -164,7 +184,7 @@ export default function MemberView({ user, consultants, isLoading }) {
             const consultant = consultants.find(c => c.category === category);
             const assignment = consultant ? assignments.find(a => a.consultant_id === consultant.id && a.is_assigned) : null;
             const isRequested = consultant ? hasRequestedThisSession(consultant.id) : false;
-            const availableConsultations = assignment ? assignment.available_consultations : 0;
+            const availableConsultations = assignment ? assignment.available_consultations : (consultant ? 1 : 0);
             const completedBookings = consultant ? bookings.filter(b => b.consultant_id === consultant.id).length : 0;
             
             return (
