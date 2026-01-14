@@ -188,7 +188,7 @@ export default function AdminPanel() {
               <CardContent className="p-4 text-center">
                 <Users className="w-8 h-8 text-lime-400 mx-auto mb-2" />
                 <p className="text-2xl font-bold text-white">{stats?.activeUsers || 0}</p>
-                <p className="text-slate-400 text-sm">Contatta membri</p>
+                <p className="text-slate-400 text-sm">Utenti</p>
               </CardContent>
             </Card>
           </Link>
