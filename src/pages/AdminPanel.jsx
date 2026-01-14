@@ -441,15 +441,28 @@ export default function AdminPanel() {
               {consultants.map((consultant) => (
                 <Card key={consultant.id} className="bg-slate-800 border-slate-700">
                   <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-white font-medium">{consultant.name}</p>
-                        <p className="text-lime-400 text-sm">{consultant.category}</p>
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2 mb-1">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-slate-400 text-xs mb-0.5">Consulente:</p>
+                            <p className="text-white font-medium truncate">{consultant.name}</p>
+                          </div>
+                          <div className="flex-shrink-0 text-right">
+                            <p className="text-lime-400 text-lg font-bold">{consultant.available_slots || 1}</p>
+                            <p className="text-slate-400 text-xs">consulenze</p>
+                          </div>
+                        </div>
+                        <div className="mt-2">
+                          <p className="text-slate-400 text-xs">Referente:</p>
+                          <p className="text-lime-400 text-sm">{consultant.referente || 'N/A'}</p>
+                        </div>
+                        <p className="text-slate-500 text-xs mt-1">{consultant.category}</p>
                       </div>
                       <Button
                         size="sm"
                         variant="outline"
-                        className="bg-slate-900 hover:bg-slate-700 text-lime-400 border-lime-400/30"
+                        className="bg-slate-900 hover:bg-slate-700 text-lime-400 border-lime-400/30 flex-shrink-0"
                         onClick={() => {
                           startImpersonation('consulente', consultant.id, consultant.email, consultant.name);
                           navigate(createPageUrl('Consulenze'));
