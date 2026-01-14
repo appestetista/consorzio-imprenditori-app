@@ -469,19 +469,21 @@ export default function CalendarioIncontri() {
 
                     {/* Stato partecipazione utente */}
                     {userResponse && (
-                      <div className={`pt-3 border-t border-slate-700 flex items-center justify-between ${
-                        userResponse === 'accepted' ? 'text-green-400' : 'text-red-400'
-                      }`}>
-                        <div className="flex items-center gap-2">
-                          {userResponse === 'accepted' ? (
-                            <><Check className="w-4 h-4" /><span className="text-sm font-medium">Parteciperai</span></>
-                          ) : (
-                            <><X className="w-4 h-4" /><span className="text-sm font-medium">Non parteciperai</span></>
-                          )}
+                      <div className="pt-3 border-t border-slate-700">
+                        <div className={`p-3 rounded-lg ${
+                          userResponse === 'accepted' ? 'bg-green-600/20' : 'bg-red-600/20'
+                        }`}>
+                          <p className={`text-sm font-medium ${
+                            userResponse === 'accepted' ? 'text-green-400' : 'text-red-400'
+                          }`}>
+                            {userResponse === 'accepted' 
+                              ? "✓ Hai scelto di partecipare all'incontro" 
+                              : "✗ Hai scelto di non partecipare all'incontro"}
+                          </p>
                         </div>
                         {!isBlocked && (
                           <button
-                            className="text-xs text-slate-400 hover:text-lime-400 underline"
+                            className="w-full mt-3 text-base text-lime-400 hover:text-lime-300 font-medium underline"
                             onClick={() => setChangeResponseEvent(event)}
                           >
                             Hai cambiato idea?
