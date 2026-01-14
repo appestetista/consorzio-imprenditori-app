@@ -330,15 +330,6 @@ export default function AdminPanel() {
 
         {/* Quick Actions */}
         <div className="space-y-3 mb-6">
-          <Link to={createPageUrl('GestioneMembri')}>
-            <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 transition-colors cursor-pointer">
-              <CardContent className="p-4 flex items-center gap-4">
-                <Users className="w-6 h-6 text-lime-400" />
-                <span className="text-white font-medium">Gestione Utenti</span>
-              </CardContent>
-            </Card>
-          </Link>
-
           <Link to={createPageUrl('GestioneBandi')}>
             <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 transition-colors cursor-pointer">
               <CardContent className="p-4 flex items-center gap-4">
