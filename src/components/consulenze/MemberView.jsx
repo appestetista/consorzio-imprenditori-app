@@ -25,22 +25,29 @@ export default function MemberView({ user, consultants, isLoading }) {
   const [consultationMessages, setConsultationMessages] = useState({});
   const [requestedConsultants, setRequestedConsultants] = useState([]);
   const [assignments, setAssignments] = useState([]);
+  const [bookings, setBookings] = useState([]);
   const queryClient = useQueryClient();
 
   // Carica le assegnazioni dei consulenti per questo utente
   React.useEffect(() => {
     if (!user?.email) return;
     
-    const loadAssignments = async () => {
+    const loadData = async () => {
       const userAssignments = await base44.entities.ConsultantAssignment.filter({ 
         user_email: user.email,
         is_assigned: true
       });
       console.log('[MemberView] Loaded assignments for', user.email, ':', userAssignments);
       setAssignments(userAssignments);
+
+      const userBookings = await base44.entities.ConsultationBooking.filter({ 
+        user_email: user.email,
+        status: 'completed'
+      });
+      setBookings(userBookings);
     };
     
-    loadAssignments();
+    loadData();
   }, [user?.email]);
 
   // Subscribe to real-time updates
@@ -158,6 +165,7 @@ export default function MemberView({ user, consultants, isLoading }) {
             const assignment = consultant ? assignments.find(a => a.consultant_id === consultant.id && a.is_assigned) : null;
             const isRequested = consultant ? hasRequestedThisSession(consultant.id) : false;
             const availableConsultations = assignment ? assignment.available_consultations : 0;
+            const completedBookings = consultant ? bookings.filter(b => b.consultant_id === consultant.id).length : 0;
             
             return (
               <Card key={index} className="bg-slate-800 border-slate-700">
@@ -184,7 +192,8 @@ export default function MemberView({ user, consultants, isLoading }) {
                         </div>
                         <div className="flex-shrink-0 text-right">
                           <p className="text-lime-400 text-xl font-bold">{availableConsultations}</p>
-                          <p className="text-slate-400 text-xs">consulenze</p>
+                          <p className="text-slate-400 text-xs">disponibili</p>
+                          <p className="text-slate-500 text-sm mt-1">{completedBookings} consumate</p>
                         </div>
                       </div>
                       
