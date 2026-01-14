@@ -128,7 +128,18 @@ export default function MemberView({ user, consultants, isLoading }) {
                 <CardContent>
                   {consultant ? (
                     <>
-                      <p className="text-white text-sm mb-3">referente: {consultant.name}</p>
+                      <div className="flex items-start justify-between gap-3 mb-3">
+                        <div className="flex-1">
+                          <p className="text-slate-400 text-xs mb-0.5">Consulente:</p>
+                          <p className="text-white font-medium text-base mb-2">{consultant.name}</p>
+                          <p className="text-slate-400 text-xs mb-0.5">Referente:</p>
+                          <p className="text-lime-400 text-sm">{consultant.referente || 'N/A'}</p>
+                        </div>
+                        <div className="flex-shrink-0 text-right">
+                          <p className="text-lime-400 text-xl font-bold">{consultant.available_slots || 1}</p>
+                          <p className="text-slate-400 text-xs">crediti</p>
+                        </div>
+                      </div>
                       
                       <Textarea
                         placeholder="Scrivi qui brevemente l'oggetto della consulenza..."
