@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Mail, User, Clock, CheckCircle, XCircle, Users, Plus, ChevronUp, ChevronDown, Bell } from 'lucide-react';
+import { Mail, User, Clock, CheckCircle, XCircle, Users, Plus, ChevronUp, ChevronDown, Bell, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
 export default function ConsultantView({ user }) {
   const queryClient = useQueryClient();
   const [creditsInput, setCreditsInput] = useState({});
   const [activeTab, setActiveTab] = useState('members'); // 'members' o 'requests'
+  const [confirmDialog, setConfirmDialog] = useState({ open: false, bookingId: null, userEmail: null });
 
   const { data: myConsultantProfile } = useQuery({
     queryKey: ['my-consultant-profile', user?.email],
@@ -372,7 +374,8 @@ export default function ConsultantView({ user }) {
                     {!isCompleted && (
                       <Button
                         className="bg-lime-400 hover:bg-lime-500 text-slate-900 w-full font-bold"
-                        onClick={() => completeConsultationMutation.mutate({ 
+                        onClick={() => setConfirmDialog({ 
+                          open: true, 
                           bookingId: booking.id, 
                           userEmail: booking.user_email 
                         })}
@@ -390,6 +393,39 @@ export default function ConsultantView({ user }) {
         </CardContent>
       </Card>
       )}
+
+      <AlertDialog open={confirmDialog.open} onOpenChange={(open) => !open && setConfirmDialog({ open: false, bookingId: null, userEmail: null })}>
+        <AlertDialogContent className="bg-slate-800 border-lime-400/30">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-yellow-500" />
+              Conferma Completamento
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-300">
+              Sei sicuro che questa consulenza è stata completata? 
+              <br /><br />
+              <span className="text-lime-400 font-semibold">Attenzione:</span> Questa azione azzererà la possibilità del cliente di richiederne un'altra gratuitamente, a meno che tu non decida di assegnargli manualmente nuove consulenze.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-slate-700 text-white hover:bg-slate-600 border-slate-600">
+              Annulla
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-lime-400 text-slate-900 hover:bg-lime-500"
+              onClick={() => {
+                completeConsultationMutation.mutate({ 
+                  bookingId: confirmDialog.bookingId, 
+                  userEmail: confirmDialog.userEmail 
+                });
+                setConfirmDialog({ open: false, bookingId: null, userEmail: null });
+              }}
+            >
+              Conferma Completamento
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
