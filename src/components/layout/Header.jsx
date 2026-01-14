@@ -135,8 +135,8 @@ export default function Header({ user, totalNotifications = 0 }) {
               </Link>
             )}
             
-            {/* Voci menu solo per Admin */}
-            {isAdmin && (
+            {/* Voci menu solo per Admin (non consulenti, non in impersonation) */}
+            {isAdmin && user?.role === 'admin' && !impersonation.active && (
               <>
                 <Link
                   to={createPageUrl('AdminPanel')}
@@ -146,7 +146,7 @@ export default function Header({ user, totalNotifications = 0 }) {
                   <Settings className="w-5 h-5 text-lime-400" />
                   <span>Pannello Admin</span>
                 </Link>
-                
+
                 {/* Pulsante Visualizza Come - Solo per Admin */}
                 <button
                   onClick={() => {
@@ -161,8 +161,8 @@ export default function Header({ user, totalNotifications = 0 }) {
               </>
             )}
 
-            {/* Voce menu - visibile solo se non sei admin, oppure se sei in impersonation */}
-            {(!isAdmin || impersonation.active) && (
+            {/* Voce menu Il Mio Profilo - visibile per utenti, consulenti e quando in impersonation */}
+            {(user?.role === 'user' || user?.role === 'consulente' || impersonation.active) && (
               <Link
                 to={createPageUrl('MyProfile')}
                 onClick={() => setMenuOpen(false)}
