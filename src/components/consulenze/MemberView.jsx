@@ -155,10 +155,12 @@ export default function MemberView({ user, consultants, isLoading }) {
     return requestedConsultants.includes(consultantId);
   };
 
-  // Calcola il totale delle consulenze disponibili dalla somma degli assignment
+  // Calcola il totale delle consulenze disponibili e completate
   const totalConsultations = assignments.reduce((sum, assignment) => {
     return sum + (assignment.available_consultations || 0);
   }, 0);
+  
+  const completedCount = bookings.length;
 
   return (
     <>
