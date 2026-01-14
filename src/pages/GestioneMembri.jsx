@@ -419,15 +419,15 @@ export default function GestioneMembri() {
                       variant="outline"
                       size="sm"
                       className={member.is_blocked 
-                        ? 'border-green-600 text-green-400 hover:bg-green-600/20'
-                        : 'border-red-600 text-red-400 hover:bg-red-600/20'}
+                        ? 'border-red-600 text-red-400 hover:bg-red-600/20'
+                        : 'border-green-600 text-green-400 hover:bg-green-600/20'}
                       onClick={() => toggleBlockMutation.mutate({ memberId: member.id, isBlocked: member.is_blocked })}
                       disabled={toggleBlockMutation.isPending}
                     >
                       {member.is_blocked ? (
-                        <Unlock className="w-4 h-4" />
-                      ) : (
                         <Lock className="w-4 h-4" />
+                      ) : (
+                        <Unlock className="w-4 h-4" />
                       )}
                     </Button>
                     
