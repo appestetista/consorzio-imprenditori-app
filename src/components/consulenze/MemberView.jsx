@@ -155,10 +155,16 @@ export default function MemberView({ user, consultants, isLoading }) {
     return requestedConsultants.includes(consultantId);
   };
 
-  // Calcola il totale delle consulenze disponibili e completate
-  const totalConsultations = assignments.reduce((sum, assignment) => {
-    return sum + (assignment.available_consultations || 0);
-  }, 0);
+  // Calcola il totale delle consulenze disponibili solo dai consulenti mostrati
+  const visibleConsultantIds = CONSULTANT_CATEGORIES
+    .map(category => consultants.find(c => c.category === category)?.id)
+    .filter(Boolean);
+  
+  const totalConsultations = assignments
+    .filter(a => visibleConsultantIds.includes(a.consultant_id))
+    .reduce((sum, assignment) => {
+      return sum + (assignment.available_consultations || 0);
+    }, 0);
   
   const completedCount = bookings.length;
 
