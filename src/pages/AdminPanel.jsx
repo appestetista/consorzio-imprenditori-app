@@ -64,9 +64,14 @@ export default function AdminPanel() {
         base44.entities.Video.list(),
         base44.entities.Consultant.list()
       ]);
+      // Filtra utente "pinko pallino" dai conteggi
+      const filteredUsers = users.filter(u => 
+        !u.full_name?.toLowerCase().includes('pinko pallino') && 
+        !u.company_name?.toLowerCase().includes('pinko pallino')
+      );
       return {
-        totalUsers: users.length,
-        activeUsers: users.filter(u => !u.is_blocked).length,
+        totalUsers: filteredUsers.length,
+        activeUsers: filteredUsers.filter(u => !u.is_blocked).length,
         totalEvents: events.length,
         totalVideos: videos.length,
         totalConsultants: consultants.length
