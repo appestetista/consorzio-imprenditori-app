@@ -128,9 +128,9 @@ export default function Home() {
   const culturaAziendaleNotifications = notifications.filter(n => n.type === 'cultura_aziendale').length;
 
   // Verifica se l'utente è un consulente controllando se esiste nella tabella Consultant
-  const [isConsultant, setIsConsultant] = React.useState(false);
+  const [isConsultant, setIsConsultant] = useState(false);
   
-  React.useEffect(() => {
+  useEffect(() => {
     const checkConsultant = async () => {
       if (!effectiveUser?.email) return;
       const consultants = await base44.entities.Consultant.filter({ email: effectiveUser.email });
