@@ -205,19 +205,15 @@ export default function CalendarioIncontri() {
   };
 
   const getParticipantCount = (eventoId) => {
-    // Reset temporaneo - mostra sempre 0
-    return 0;
-    // return partecipazioni.filter(
-    //   p => p.evento_id === eventoId && p.stato === 'confermato' && !isHiddenUser(p.user_email)
-    // ).length;
+    return partecipazioni.filter(
+      p => p.evento_id === eventoId && p.stato === 'confermato' && !isHiddenUser(p.user_email)
+    ).length;
   };
 
   const getInvitedCount = (eventoId) => {
-    // Reset temporaneo - mostra sempre 0
-    return 0;
-    // return partecipazioni.filter(
-    //   p => p.evento_id === eventoId && !isHiddenUser(p.user_email)
-    // ).length;
+    return partecipazioni.filter(
+      p => p.evento_id === eventoId && !isHiddenUser(p.user_email)
+    ).length;
   };
 
   const getConfirmedParticipants = (eventoId) => {
