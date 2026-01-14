@@ -27,6 +27,7 @@ export default function CalendarioIncontri() {
   const [inviteDialogEvent, setInviteDialogEvent] = useState(null);
   const [inviteDialogType, setInviteDialogType] = useState(null);
   const [showParticipantsEvent, setShowParticipantsEvent] = useState(null);
+  const [changeResponseEvent, setChangeResponseEvent] = useState(null);
   const queryClient = useQueryClient();
   const { impersonation } = useImpersonation();
 
@@ -466,36 +467,28 @@ export default function CalendarioIncontri() {
                      </div>
                     )}
 
-                    <div className="grid grid-cols-2 gap-2 pt-3 border-t border-slate-700">
-                      <Button
-                        variant={userResponse === 'accepted' ? 'default' : 'outline'}
-                        size="sm"
-                        className={isBlocked 
-                          ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
-                          : userResponse === 'accepted' 
-                            ? 'bg-green-600 hover:bg-green-700' 
-                            : 'border-green-600 text-green-400 hover:bg-green-600/20'}
-                        onClick={() => !isBlocked && respondToEventMutation.mutate({ eventId: event.id, response: 'accept' })}
-                        disabled={isBlocked || respondToEventMutation.isPending}
-                      >
-                        <Check className="w-4 h-4 mr-1" />
-                        Parteciperò
-                      </Button>
-                      <Button
-                        variant={userResponse === 'declined' ? 'default' : 'outline'}
-                        size="sm"
-                        className={isBlocked 
-                          ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
-                          : userResponse === 'declined' 
-                            ? 'bg-red-600 hover:bg-red-700' 
-                            : 'border-red-600 text-red-400 hover:bg-red-600/20'}
-                        onClick={() => !isBlocked && respondToEventMutation.mutate({ eventId: event.id, response: 'decline' })}
-                        disabled={isBlocked || respondToEventMutation.isPending}
-                      >
-                        <X className="w-4 h-4 mr-1" />
-                        Non parteciperò
-                      </Button>
-                    </div>
+                    {/* Stato partecipazione utente */}
+                    {userResponse && (
+                      <div className={`pt-3 border-t border-slate-700 flex items-center justify-between ${
+                        userResponse === 'accepted' ? 'text-green-400' : 'text-red-400'
+                      }`}>
+                        <div className="flex items-center gap-2">
+                          {userResponse === 'accepted' ? (
+                            <><Check className="w-4 h-4" /><span className="text-sm font-medium">Parteciperai</span></>
+                          ) : (
+                            <><X className="w-4 h-4" /><span className="text-sm font-medium">Non parteciperai</span></>
+                          )}
+                        </div>
+                        {!isBlocked && (
+                          <button
+                            className="text-xs text-slate-400 hover:text-lime-400 underline"
+                            onClick={() => setChangeResponseEvent(event)}
+                          >
+                            Hai cambiato idea?
+                          </button>
+                        )}
+                      </div>
+                    )}
                     {isBlocked && (
                       <div className="mt-3 p-3 bg-slate-700/50 rounded-lg">
                         <p className="text-slate-300 text-xs leading-relaxed">
@@ -580,6 +573,50 @@ export default function CalendarioIncontri() {
         event={inviteDialogEvent}
         type={inviteDialogType}
       />
+
+      {/* Change Response Dialog */}
+      {changeResponseEvent && (
+        <Dialog open={!!changeResponseEvent} onOpenChange={() => setChangeResponseEvent(null)}>
+          <DialogContent className="bg-slate-800 border-slate-700">
+            <DialogHeader>
+              <DialogTitle className="text-white">Modifica partecipazione</DialogTitle>
+            </DialogHeader>
+            <button
+              onClick={() => setChangeResponseEvent(null)}
+              className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
+            >
+              <X className="h-4 w-4 text-slate-400" />
+            </button>
+            <div className="mt-4 space-y-4">
+              <p className="text-slate-400 text-sm">
+                Evento: <span className="text-lime-400">{changeResponseEvent.title}</span>
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  className="bg-green-600 hover:bg-green-700 text-white"
+                  onClick={() => {
+                    respondToEventMutation.mutate({ eventId: changeResponseEvent.id, response: 'accept' });
+                    setChangeResponseEvent(null);
+                  }}
+                >
+                  <Check className="w-4 h-4 mr-2" />
+                  Parteciperò
+                </Button>
+                <Button
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                  onClick={() => {
+                    respondToEventMutation.mutate({ eventId: changeResponseEvent.id, response: 'decline' });
+                    setChangeResponseEvent(null);
+                  }}
+                >
+                  <X className="w-4 h-4 mr-2" />
+                  Non parteciperò
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
 
       {/* Participants List Dialog (Admin only) */}
       {showParticipantsEvent && (
