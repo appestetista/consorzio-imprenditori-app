@@ -319,8 +319,8 @@ export default function GestioneMembri() {
         <div className="relative mb-6">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
           <Input
-            placeholder="Cerca membri..."
-            value={searchTerm}
+          placeholder="Cerca utenti..."
+          value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="bg-slate-800 border-slate-700 text-white pl-10"
           />
