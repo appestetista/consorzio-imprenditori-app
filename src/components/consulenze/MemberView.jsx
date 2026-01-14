@@ -43,12 +43,17 @@ export default function MemberView({ user, consultants, isLoading }) {
       for (const consultant of allConsultants) {
         const hasAssignment = userAssignments.some(a => a.consultant_id === consultant.id);
         if (!hasAssignment) {
-          await base44.entities.ConsultantAssignment.create({
-            user_email: user.email,
-            consultant_id: consultant.id,
-            available_consultations: 1,
-            is_assigned: true
-          });
+          try {
+            await base44.entities.ConsultantAssignment.create({
+              user_email: user.email,
+              consultant_id: consultant.id,
+              available_consultations: 1,
+              is_assigned: true
+            });
+          } catch (error) {
+            // Assignment potrebbe esistere già da un'altra richiesta, ignora
+            console.log('[MemberView] Assignment already exists for', consultant.id);
+          }
         }
       }
       
