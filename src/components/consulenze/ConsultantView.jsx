@@ -206,16 +206,7 @@ export default function ConsultantView({ user }) {
               )}
             </div>
           </div>
-          <div className="flex gap-4 mt-4">
-            <div className="bg-lime-400/20 rounded-lg p-3 flex-1 text-center">
-              <p className="text-2xl font-bold text-lime-400">{bookings.filter(b => b.status === 'pending').length}</p>
-              <p className="text-xs text-slate-400">Richieste in attesa</p>
-            </div>
-            <div className="bg-green-500/20 rounded-lg p-3 flex-1 text-center">
-              <p className="text-2xl font-bold text-green-400">{bookings.filter(b => b.status === 'completed').length}</p>
-              <p className="text-xs text-slate-400">Completate</p>
-            </div>
-          </div>
+
         </CardContent>
       </Card>
 
