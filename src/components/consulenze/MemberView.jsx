@@ -150,15 +150,23 @@ export default function MemberView({ user, consultants, isLoading }) {
     <>
       <Card className="bg-gradient-to-br from-slate-800 to-slate-900 border-lime-400/30 mb-6">
         <CardContent className="p-6">
-          <div className="flex items-center justify-center">
-            <div className="text-center">
-              <div className="flex items-center gap-2 text-lime-400 mb-2 justify-center">
-                <Gift className="w-5 h-5" />
-                <span className="font-bold">Consulenze Gratuite Partner del Consorzio</span>
+          <div className="flex items-center gap-2 text-lime-400 mb-3">
+            <Gift className="w-5 h-5" />
+            <span className="font-bold">Consulenze Gratuite Partner del Consorzio</span>
+          </div>
+          <p className="text-slate-400 text-sm mb-4">
+            Hai {totalConsultations} consulenze gratuite assegnate dai consulenti del consorzio
+          </p>
+          
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="bg-lime-400/20 rounded-xl p-4 text-center">
+                <span className="text-3xl font-bold text-lime-400">{totalConsultations}</span>
+                <p className="text-xs text-slate-400">disponibili</p>
               </div>
-              <div className="bg-lime-400/20 rounded-xl p-4 mt-3">
-                <span className="text-5xl font-bold text-lime-400">{totalConsultations}</span>
-                <p className="text-xs text-slate-400 mt-2">consulenze gratuite totali</p>
+              <div>
+                <p className="text-slate-300 text-sm">Consulenze Utilizzate</p>
+                <p className="text-lime-400 font-bold">0/{totalConsultations}</p>
               </div>
             </div>
           </div>
@@ -204,6 +212,7 @@ export default function MemberView({ user, consultants, isLoading }) {
                         <div className="flex-shrink-0 text-right">
                           <p className="text-lime-400 text-xl font-bold">{availableConsultations}</p>
                           <p className="text-slate-400 text-xs">disponibili</p>
+                          <p className="text-slate-500 text-sm mt-1">0 consumate</p>
                         </div>
                       </div>
                       
