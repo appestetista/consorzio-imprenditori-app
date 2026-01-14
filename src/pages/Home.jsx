@@ -128,6 +128,21 @@ export default function Home() {
   const culturaAziendaleNotifications = notifications.filter(n => n.type === 'cultura_aziendale').length;
 
   const isConsultant = effectiveUser?.role === 'consulente';
+  const isBlocked = effectiveUser?.is_blocked && appMode !== 'user-preview' && effectiveUser?.role !== 'admin';
+
+  if (isBlocked) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+        <div className="text-center">
+          <div className="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-4xl">🚫</span>
+          </div>
+          <h1 className="text-white text-xl font-bold mb-2">Accesso Bloccato</h1>
+          <p className="text-slate-400">Il tuo account è stato sospeso. Contatta la direzione per maggiori informazioni.</p>
+        </div>
+      </div>
+    );
+  }
 
   const features = [
     { title: 'Calendario\nincontri', icon: Calendar, page: 'CalendarioIncontri', notifications: eventNotifications, permission: 'calendario' },
