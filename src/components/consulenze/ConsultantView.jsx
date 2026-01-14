@@ -88,6 +88,15 @@ export default function ConsultantView({ user }) {
           consulenze_usate: [...currentUsed, bookingId]
         });
       }
+      
+      // Decrementa le consultazioni assegnate
+      const assignment = assignments.find(a => a.user_email === userEmail && a.is_assigned);
+      if (assignment && assignment.available_consultations > 0) {
+        await base44.entities.ConsultantAssignment.update(assignment.id, {
+          available_consultations: assignment.available_consultations - 1
+        });
+      }
+      
       // Aggiorna lo stato della prenotazione con data di completamento
       await base44.entities.ConsultationBooking.update(bookingId, { 
         status: 'completed',
@@ -96,6 +105,7 @@ export default function ConsultantView({ user }) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['consultant-bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['consultant-assignments'] });
       queryClient.invalidateQueries({ queryKey: ['all-members-consultant'] });
     }
   });
