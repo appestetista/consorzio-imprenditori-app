@@ -259,7 +259,7 @@ export default function MemberView({ user, consultants, isLoading }) {
                          consultantId: consultant.id, 
                          message: consultationMessages[consultant.id] || '' 
                        })}
-                       disabled={isRequested || bookConsultationMutation.isPending}
+                       disabled={isRequested || bookConsultationMutation.isPending || availableConsultations <= 0}
                      >
                        invia
                      </Button>
