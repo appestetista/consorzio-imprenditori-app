@@ -34,6 +34,17 @@ export default function ConsultantView({ user }) {
     },
   });
 
+  const { data: assignments = [] } = useQuery({
+    queryKey: ['consultant-assignments', myConsultantProfile?.id],
+    queryFn: async () => {
+      if (!myConsultantProfile?.id) return [];
+      return await base44.entities.ConsultantAssignment.filter({ 
+        consultant_id: myConsultantProfile.id 
+      });
+    },
+    enabled: !!myConsultantProfile?.id,
+  });
+
   const updateStatusMutation = useMutation({
     mutationFn: async ({ bookingId, status }) => {
       await base44.entities.ConsultationBooking.update(bookingId, { status });
@@ -67,24 +78,73 @@ export default function ConsultantView({ user }) {
     }
   });
 
-  const updateCreditsMutation = useMutation({
-    mutationFn: async ({ userId, newCredits }) => {
-      await base44.entities.User.update(userId, { 
-        consulenze_disponibili: newCredits 
+  const recalculateTotalConsultations = async (userEmail) => {
+    const allAssignments = await base44.entities.ConsultantAssignment.filter({ 
+      user_email: userEmail,
+      is_assigned: true 
+    });
+    const total = allAssignments.reduce((sum, a) => sum + (a.available_consultations || 0), 0);
+    
+    const users = await base44.entities.User.filter({ email: userEmail });
+    if (users.length > 0) {
+      await base44.entities.User.update(users[0].id, {
+        consulenze_gratuite_totali: total
       });
+    }
+  };
+
+  const updateAssignmentMutation = useMutation({
+    mutationFn: async ({ assignmentId, userEmail, newValue }) => {
+      await base44.entities.ConsultantAssignment.update(assignmentId, { 
+        available_consultations: newValue 
+      });
+      await recalculateTotalConsultations(userEmail);
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['consultant-assignments'] });
       queryClient.invalidateQueries({ queryKey: ['all-members-consultant'] });
     }
   });
 
-  const handleIncrement = (userId, currentCredits) => {
-    updateCreditsMutation.mutate({ userId, newCredits: currentCredits + 1 });
+  const createAssignmentMutation = useMutation({
+    mutationFn: async ({ userEmail, consultantId, value }) => {
+      await base44.entities.ConsultantAssignment.create({
+        user_email: userEmail,
+        consultant_id: consultantId,
+        available_consultations: value,
+        is_assigned: true
+      });
+      await recalculateTotalConsultations(userEmail);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['consultant-assignments'] });
+      queryClient.invalidateQueries({ queryKey: ['all-members-consultant'] });
+    }
+  });
+
+  const handleIncrement = (userEmail, currentCredits, assignment) => {
+    if (assignment) {
+      updateAssignmentMutation.mutate({ 
+        assignmentId: assignment.id, 
+        userEmail, 
+        newValue: currentCredits + 1 
+      });
+    } else {
+      createAssignmentMutation.mutate({ 
+        userEmail, 
+        consultantId: myConsultantProfile.id, 
+        value: 1 
+      });
+    }
   };
 
-  const handleDecrement = (userId, currentCredits) => {
-    if (currentCredits > 1) {
-      updateCreditsMutation.mutate({ userId, newCredits: currentCredits - 1 });
+  const handleDecrement = (userEmail, currentCredits, assignment) => {
+    if (currentCredits > 0 && assignment) {
+      updateAssignmentMutation.mutate({ 
+        assignmentId: assignment.id, 
+        userEmail, 
+        newValue: currentCredits - 1 
+      });
     }
   };
 
@@ -129,11 +189,11 @@ export default function ConsultantView({ user }) {
           </div>
           <div className="flex gap-4 mt-4">
             <div className="bg-lime-400/20 rounded-lg p-3 flex-1 text-center">
-              <p className="text-2xl font-bold text-lime-400">0</p>
+              <p className="text-2xl font-bold text-lime-400">{bookings.filter(b => b.status === 'pending').length}</p>
               <p className="text-xs text-slate-400">Richieste in attesa</p>
             </div>
             <div className="bg-green-500/20 rounded-lg p-3 flex-1 text-center">
-              <p className="text-2xl font-bold text-green-400">0</p>
+              <p className="text-2xl font-bold text-green-400">{bookings.filter(b => b.status === 'completed').length}</p>
               <p className="text-xs text-slate-400">Completate</p>
             </div>
           </div>
@@ -150,8 +210,9 @@ export default function ConsultantView({ user }) {
         <CardContent>
           <div className="space-y-2">
             {allMembers.map((member) => {
-              const availableCredits = 0;
-              const usedCredits = 0;
+              const assignment = assignments.find(a => a.user_email === member.email && a.is_assigned);
+              const availableCredits = assignment?.available_consultations || 0;
+              const completedBookings = bookings.filter(b => b.user_email === member.email && b.status === 'completed').length;
               const hasPendingRequest = bookings.some(b => b.user_email === member.email && b.status === 'pending');
               const pendingCount = bookings.filter(b => b.user_email === member.email && b.status === 'pending').length;
 
@@ -178,15 +239,15 @@ export default function ConsultantView({ user }) {
                       <div className="flex items-center gap-2">
                         <div className="text-center">
                           <p className="text-lime-400 font-bold text-lg">{availableCredits}</p>
-                          <p className="text-slate-500 text-xs">gratuite</p>
+                          <p className="text-slate-500 text-xs">assegnate</p>
                         </div>
                         <div className="flex flex-col gap-0.5">
                           <Button
                             size="sm"
                             variant="outline"
                             className="h-5 w-5 p-0 bg-lime-400/20 text-lime-400 border-lime-400/30 hover:bg-lime-400 hover:text-slate-900"
-                            disabled={updateCreditsMutation.isPending}
-                            onClick={() => handleIncrement(member.id, availableCredits)}
+                            disabled={updateAssignmentMutation.isPending || createAssignmentMutation.isPending}
+                            onClick={() => handleIncrement(member.email, availableCredits, assignment)}
                           >
                             <ChevronUp className="w-3 h-3" />
                           </Button>
@@ -194,8 +255,8 @@ export default function ConsultantView({ user }) {
                             size="sm"
                             variant="outline"
                             className="h-5 w-5 p-0 bg-slate-600/50 text-slate-400 border-slate-600 hover:bg-slate-600 hover:text-white disabled:opacity-30"
-                            disabled={availableCredits <= 1 || updateCreditsMutation.isPending}
-                            onClick={() => handleDecrement(member.id, availableCredits)}
+                            disabled={availableCredits <= 0 || updateAssignmentMutation.isPending}
+                            onClick={() => handleDecrement(member.email, availableCredits, assignment)}
                           >
                             <ChevronDown className="w-3 h-3" />
                           </Button>
@@ -203,8 +264,8 @@ export default function ConsultantView({ user }) {
                       </div>
                       <span className="text-slate-600">/</span>
                       <div className="text-center">
-                        <p className="text-slate-400 font-bold text-lg">{usedCredits}</p>
-                        <p className="text-slate-500 text-xs">usate</p>
+                        <p className="text-slate-400 font-bold text-lg">{completedBookings}</p>
+                        <p className="text-slate-500 text-xs">completate</p>
                       </div>
                     </div>
                   </div>
