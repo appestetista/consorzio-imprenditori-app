@@ -187,7 +187,7 @@ export default function AdminView({ consultants }) {
         </TabsContent>
 
         <TabsContent value="members">
-          <h2 className="text-white text-xl font-bold mb-4">Gestione Membri</h2>
+          <h2 className="text-white text-xl font-bold mb-4">Gestione Utenti</h2>
           <div className="space-y-3">
             {members.map((member) => {
               return (
@@ -201,6 +201,16 @@ export default function AdminView({ consultants }) {
                           <Badge className="bg-red-600 mt-2">Bloccato</Badge>
                         )}
                       </div>
+                      <Link to={createPageUrl('GestioneMembri')}>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="bg-slate-700 hover:bg-slate-600 text-lime-400 border-slate-600"
+                        >
+                          <Edit className="w-4 h-4 mr-1" />
+                          Modifica
+                        </Button>
+                      </Link>
                     </div>
                   </CardContent>
                 </Card>
