@@ -441,31 +441,33 @@ export default function CalendarioIncontri() {
                      </div>
                     )}
 
-                    <div className="flex gap-3 pt-3 border-t border-slate-700">
+                    <div className="grid grid-cols-2 gap-2 pt-3 border-t border-slate-700">
                       <Button
                         variant={userResponse === 'accepted' ? 'default' : 'outline'}
+                        size="sm"
                         className={isBlocked 
-                          ? 'flex-1 bg-slate-700 text-slate-500 cursor-not-allowed'
+                          ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
                           : userResponse === 'accepted' 
-                            ? 'flex-1 bg-green-600 hover:bg-green-700' 
-                            : 'flex-1 border-green-600 text-green-400 hover:bg-green-600/20'}
+                            ? 'bg-green-600 hover:bg-green-700' 
+                            : 'border-green-600 text-green-400 hover:bg-green-600/20'}
                         onClick={() => !isBlocked && respondToEventMutation.mutate({ eventId: event.id, response: 'accept' })}
                         disabled={isBlocked || respondToEventMutation.isPending}
                       >
-                        <Check className="w-4 h-4 mr-2" />
+                        <Check className="w-4 h-4 mr-1" />
                         Parteciperò
                       </Button>
                       <Button
                         variant={userResponse === 'declined' ? 'default' : 'outline'}
+                        size="sm"
                         className={isBlocked 
-                          ? 'flex-1 bg-slate-700 text-slate-500 cursor-not-allowed'
+                          ? 'bg-slate-700 text-slate-500 cursor-not-allowed'
                           : userResponse === 'declined' 
-                            ? 'flex-1 bg-red-600 hover:bg-red-700' 
-                            : 'flex-1 border-red-600 text-red-400 hover:bg-red-600/20'}
+                            ? 'bg-red-600 hover:bg-red-700' 
+                            : 'border-red-600 text-red-400 hover:bg-red-600/20'}
                         onClick={() => !isBlocked && respondToEventMutation.mutate({ eventId: event.id, response: 'decline' })}
                         disabled={isBlocked || respondToEventMutation.isPending}
                       >
-                        <X className="w-4 h-4 mr-2" />
+                        <X className="w-4 h-4 mr-1" />
                         Non parteciperò
                       </Button>
                     </div>
