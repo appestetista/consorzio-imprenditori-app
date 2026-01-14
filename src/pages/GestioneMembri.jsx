@@ -149,6 +149,10 @@ export default function GestioneMembri() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['all-members'] });
+    },
+    onError: (error) => {
+      console.error('Errore eliminazione:', error);
+      alert('Impossibile eliminare questo utente. Gli utenti devono essere eliminati dalla dashboard Base44.');
     }
   });
 
