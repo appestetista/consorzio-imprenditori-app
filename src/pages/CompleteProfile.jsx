@@ -141,11 +141,10 @@ export default function CompleteProfile() {
                   />
                   
                   <Input
-                    placeholder="Partita IVA *"
+                    placeholder="Partita IVA"
                     value={formData.vat_number}
                     onChange={(e) => setFormData({...formData, vat_number: e.target.value})}
                     className="bg-slate-900 border-slate-700 text-white"
-                    required
                   />
                   
                   <Input
@@ -181,20 +180,18 @@ export default function CompleteProfile() {
                 
                 <div className="space-y-3">
                   <Input
-                    placeholder="Telefono Aziendale *"
+                    placeholder="Telefono Aziendale"
                     value={formData.phone}
                     onChange={(e) => setFormData({...formData, phone: e.target.value})}
                     className="bg-slate-900 border-slate-700 text-white"
-                    required
                   />
                   
                   <Input
-                    placeholder="Email Aziendale *"
+                    placeholder="Email Aziendale"
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData({...formData, email: e.target.value})}
                     className="bg-slate-900 border-slate-700 text-white"
-                    required
                   />
                   
                   <Input
@@ -214,11 +211,10 @@ export default function CompleteProfile() {
                   />
                   
                   <Input
-                    placeholder="WhatsApp Referente *"
+                    placeholder="WhatsApp Referente"
                     value={formData.whatsapp_referente}
                     onChange={(e) => setFormData({...formData, whatsapp_referente: e.target.value})}
                     className="bg-slate-900 border-slate-700 text-white"
-                    required
                   />
                 </div>
               </div>
@@ -240,11 +236,10 @@ export default function CompleteProfile() {
                   
                   <div className="grid grid-cols-2 gap-3">
                     <Input
-                      placeholder="Città *"
+                      placeholder="Città"
                       value={formData.city}
                       onChange={(e) => setFormData({...formData, city: e.target.value})}
                       className="bg-slate-900 border-slate-700 text-white"
-                      required
                     />
                     
                     <Input
