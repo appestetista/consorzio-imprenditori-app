@@ -197,10 +197,14 @@ export default function MemberView({ user, consultants, isLoading }) {
         <div className="space-y-4">
           {CONSULTANT_CATEGORIES.map((category, index) => {
             const consultant = consultants.find(c => c.category === category);
-            const assignment = consultant ? assignments.find(a => a.consultant_id === consultant.id && a.is_assigned) : null;
-            const isRequested = consultant ? hasRequestedThisSession(consultant.id) : false;
-            const availableConsultations = assignment ? assignment.available_consultations : (consultant ? 1 : 0);
-            const completedBookings = consultant ? bookings.filter(b => b.consultant_id === consultant.id).length : 0;
+            
+            // Non mostrare la categoria se non c'è un consulente disponibile
+            if (!consultant) return null;
+            
+            const assignment = assignments.find(a => a.consultant_id === consultant.id && a.is_assigned);
+            const isRequested = hasRequestedThisSession(consultant.id);
+            const availableConsultations = assignment ? assignment.available_consultations : 1;
+            const completedBookings = bookings.filter(b => b.consultant_id === consultant.id).length;
             
             return (
               <Card key={index} className="bg-slate-800 border-slate-700">
