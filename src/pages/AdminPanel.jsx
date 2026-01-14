@@ -198,7 +198,7 @@ export default function AdminPanel() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 gap-4 mb-6">
-         <Link to={createPageUrl('CalendarioIncontri')}>
+          <Link to={createPageUrl('CalendarioIncontri')}>
             <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 transition-colors cursor-pointer">
               <CardContent className="p-4 text-center">
                 <Calendar className="w-8 h-8 text-lime-400 mx-auto mb-2" />
