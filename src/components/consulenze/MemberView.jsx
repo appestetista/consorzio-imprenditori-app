@@ -36,10 +36,31 @@ export default function MemberView({ user, consultants, isLoading }) {
         user_email: user.email,
         is_assigned: true
       });
+      console.log('[MemberView] Loaded assignments for', user.email, ':', userAssignments);
       setAssignments(userAssignments);
     };
     
     loadAssignments();
+  }, [user?.email]);
+
+  // Subscribe to real-time updates
+  React.useEffect(() => {
+    if (!user?.email) return;
+
+    const unsubscribe = base44.entities.ConsultantAssignment.subscribe((event) => {
+      if (event.data?.user_email === user.email) {
+        // Ricarica le assegnazioni quando cambiano
+        base44.entities.ConsultantAssignment.filter({ 
+          user_email: user.email,
+          is_assigned: true
+        }).then(userAssignments => {
+          console.log('[MemberView] Assignments updated:', userAssignments);
+          setAssignments(userAssignments);
+        });
+      }
+    });
+
+    return unsubscribe;
   }, [user?.email]);
 
   const bookConsultationMutation = useMutation({
