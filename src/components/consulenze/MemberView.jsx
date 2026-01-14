@@ -33,8 +33,7 @@ export default function MemberView({ user, consultants, isLoading }) {
     
     const loadAssignments = async () => {
       const userAssignments = await base44.entities.ConsultantAssignment.filter({ 
-        user_email: user.email, 
-        is_assigned: true 
+        user_email: user.email
       });
       setAssignments(userAssignments);
     };
@@ -93,9 +92,11 @@ export default function MemberView({ user, consultants, isLoading }) {
     return requestedConsultants.includes(consultantId);
   };
 
-  // Calcola consulenze usate e disponibili basandosi sulle assegnazioni
-  const totalConsultations = assignments.reduce((sum, a) => sum + a.available_consultations, 0);
-  const assignedConsultants = assignments.length;
+  // Calcola consulenze usate basandosi sulle richieste inviate + quelle richieste in questa sessione
+  const uniqueUsedIds = new Set([...(user?.consultation_requests || []), ...requestedConsultants]);
+  const usedCount = uniqueUsedIds.size;
+  const totalConsultants = CONSULTANT_CATEGORIES.length;
+  const availableCount = totalConsultants - usedCount;
 
   return (
     <>
@@ -106,18 +107,18 @@ export default function MemberView({ user, consultants, isLoading }) {
             <span className="font-bold">Consulenze Gratuite Partner del Consorzio</span>
           </div>
           <p className="text-slate-400 text-sm mb-4">
-            Hai accesso a {assignedConsultants} professionisti qualificati con {totalConsultations} consulenze gratuite
+            Accedi a {totalConsultants} professionisti qualificati con {totalConsultants} consulenze gratuite incluse
           </p>
           
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="bg-lime-400/20 rounded-xl p-4 text-center">
-                <span className="text-3xl font-bold text-lime-400">{totalConsultations}</span>
-                <p className="text-xs text-slate-400">consulenze totali</p>
+                <span className="text-3xl font-bold text-lime-400">{availableCount}</span>
+                <p className="text-xs text-slate-400">disponibili</p>
               </div>
               <div>
-                <p className="text-slate-300 text-sm">Consulenti Assegnati</p>
-                <p className="text-lime-400 font-bold">{assignedConsultants}</p>
+                <p className="text-slate-300 text-sm">Consulenze Utilizzate</p>
+                <p className="text-lime-400 font-bold">{usedCount}/{totalConsultants}</p>
               </div>
             </div>
           </div>
@@ -133,12 +134,8 @@ export default function MemberView({ user, consultants, isLoading }) {
           {CONSULTANT_CATEGORIES.map((category, index) => {
             const consultant = consultants.find(c => c.category === category);
             const assignment = consultant ? assignments.find(a => a.consultant_id === consultant.id) : null;
-            
-            // Mostra solo i consulenti assegnati
-            if (!assignment) return null;
-            
             const isRequested = consultant ? hasRequestedThisSession(consultant.id) : false;
-            const availableConsultations = assignment.available_consultations;
+            const availableConsultations = assignment?.available_consultations || 1;
             
             return (
               <Card key={index} className="bg-slate-800 border-slate-700">
@@ -188,9 +185,9 @@ export default function MemberView({ user, consultants, isLoading }) {
                             consultantId: consultant.id, 
                             message: consultationMessages[consultant.id] || '' 
                           })}
-                          disabled={isRequested || bookConsultationMutation.isPending || availableConsultations <= 0}
+                          disabled={isRequested || bookConsultationMutation.isPending}
                         >
-                          {availableConsultations <= 0 ? 'Esaurite' : 'invia'}
+                          invia
                         </Button>
                         {consultant.phone && (
                           <Button
