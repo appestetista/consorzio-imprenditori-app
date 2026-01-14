@@ -189,8 +189,10 @@ export default function CalendarioIncontri() {
       p => p.user_email === user.email && p.evento_id === eventoId
     );
     if (!partecipazione) return null;
+    // Solo se ha effettivamente risposto (non "nessuna_risposta")
     if (partecipazione.stato === 'confermato') return 'accepted';
     if (partecipazione.stato === 'non_confermato') return 'declined';
+    // Se stato è 'nessuna_risposta' o altro, ritorna null (non ha ancora scelto)
     return null;
   };
 
