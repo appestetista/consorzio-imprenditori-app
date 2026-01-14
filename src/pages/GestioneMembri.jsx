@@ -848,10 +848,14 @@ export default function GestioneMembri() {
               const isEnabled = selectedMember?.permissions?.[perm.key] !== false;
               return (
                 <div key={perm.key} className="flex items-center justify-between">
-                  <Label className="text-slate-300">{perm.label}</Label>
+                  <Label className={isEnabled ? "text-slate-300" : "text-red-400"}>{perm.label}</Label>
                   <Switch
                     checked={isEnabled}
                     onCheckedChange={(checked) => handlePermissionChange(perm.key, checked)}
+                    className={isEnabled 
+                      ? "data-[state=checked]:bg-green-500" 
+                      : "data-[state=unchecked]:bg-red-500"
+                    }
                   />
                 </div>
               );
