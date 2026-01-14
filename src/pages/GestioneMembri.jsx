@@ -273,7 +273,7 @@ export default function GestioneMembri() {
             <Link to={createPageUrl('AdminPanel')} className="text-lime-400">
               <ArrowLeft className="w-6 h-6" />
             </Link>
-            <h1 className="text-white text-xl font-bold">Gestione Membri</h1>
+            <h1 className="text-white text-xl font-bold">Gestione Utenti</h1>
           </div>
           <Button
             onClick={() => {
