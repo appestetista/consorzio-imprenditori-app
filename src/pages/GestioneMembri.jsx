@@ -169,6 +169,12 @@ export default function GestioneMembri() {
   });
 
   const filteredMembers = members.filter(member => {
+    // Nascondi utente "pinko pallino"
+    if (member.full_name?.toLowerCase().includes('pinko pallino') || 
+        member.company_name?.toLowerCase().includes('pinko pallino')) {
+      return false;
+    }
+    
     const searchLower = searchTerm.toLowerCase();
     return (
       member.company_name?.toLowerCase().includes(searchLower) ||
