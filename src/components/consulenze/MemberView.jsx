@@ -33,7 +33,8 @@ export default function MemberView({ user, consultants, isLoading }) {
     
     const loadAssignments = async () => {
       const userAssignments = await base44.entities.ConsultantAssignment.filter({ 
-        user_email: user.email
+        user_email: user.email,
+        is_assigned: true
       });
       setAssignments(userAssignments);
     };
@@ -133,9 +134,9 @@ export default function MemberView({ user, consultants, isLoading }) {
         <div className="space-y-4">
           {CONSULTANT_CATEGORIES.map((category, index) => {
             const consultant = consultants.find(c => c.category === category);
-            const assignment = consultant ? assignments.find(a => a.consultant_id === consultant.id) : null;
+            const assignment = consultant ? assignments.find(a => a.consultant_id === consultant.id && a.is_assigned) : null;
             const isRequested = consultant ? hasRequestedThisSession(consultant.id) : false;
-            const availableConsultations = assignment?.available_consultations ?? 0;
+            const availableConsultations = assignment ? assignment.available_consultations : 0;
             
             return (
               <Card key={index} className="bg-slate-800 border-slate-700">
