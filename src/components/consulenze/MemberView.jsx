@@ -70,13 +70,12 @@ export default function MemberView({ user, consultants, isLoading }) {
     loadData();
   }, [user?.email]);
 
-  // Subscribe to real-time updates
+  // Subscribe to real-time updates for assignments
   React.useEffect(() => {
     if (!user?.email) return;
 
-    const unsubscribe = base44.entities.ConsultantAssignment.subscribe((event) => {
+    const unsubAssignments = base44.entities.ConsultantAssignment.subscribe((event) => {
       if (event.data?.user_email === user.email) {
-        // Ricarica le assegnazioni quando cambiano
         base44.entities.ConsultantAssignment.filter({ 
           user_email: user.email,
           is_assigned: true
@@ -87,7 +86,22 @@ export default function MemberView({ user, consultants, isLoading }) {
       }
     });
 
-    return unsubscribe;
+    const unsubBookings = base44.entities.ConsultationBooking.subscribe((event) => {
+      if (event.data?.user_email === user.email && event.data?.status === 'completed') {
+        base44.entities.ConsultationBooking.filter({ 
+          user_email: user.email,
+          status: 'completed'
+        }).then(completedBookings => {
+          console.log('[MemberView] Bookings updated:', completedBookings);
+          setBookings(completedBookings);
+        });
+      }
+    });
+
+    return () => {
+      unsubAssignments();
+      unsubBookings();
+    };
   }, [user?.email]);
 
   const bookConsultationMutation = useMutation({
