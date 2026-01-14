@@ -26,6 +26,7 @@ export default function CalendarioIncontri() {
   const [showEditEvent, setShowEditEvent] = useState(false);
   const [inviteDialogEvent, setInviteDialogEvent] = useState(null);
   const [inviteDialogType, setInviteDialogType] = useState(null);
+  const [showParticipantsEvent, setShowParticipantsEvent] = useState(null);
   const queryClient = useQueryClient();
   const { impersonation } = useImpersonation();
 
@@ -192,16 +193,36 @@ export default function CalendarioIncontri() {
     return null;
   };
 
+  // Filtro per escludere pinko pallino
+  const isHiddenUser = (email) => {
+    const user = allUsers.find(u => u.email === email);
+    if (!user) return false;
+    return user.full_name?.toLowerCase().includes('pinko pallino') || 
+           user.company_name?.toLowerCase().includes('pinko pallino');
+  };
+
   const getParticipantCount = (eventoId) => {
     return partecipazioni.filter(
-      p => p.evento_id === eventoId && p.stato === 'confermato'
+      p => p.evento_id === eventoId && p.stato === 'confermato' && !isHiddenUser(p.user_email)
     ).length;
   };
 
   const getInvitedCount = (eventoId) => {
     return partecipazioni.filter(
-      p => p.evento_id === eventoId
+      p => p.evento_id === eventoId && !isHiddenUser(p.user_email)
     ).length;
+  };
+
+  const getConfirmedParticipants = (eventoId) => {
+    return partecipazioni
+      .filter(p => p.evento_id === eventoId && p.stato === 'confermato' && !isHiddenUser(p.user_email))
+      .map(p => {
+        const user = allUsers.find(u => u.email === p.user_email);
+        return {
+          email: p.user_email,
+          name: user?.company_name || user?.full_name || p.user_email
+        };
+      });
   };
 
   const isEventBlocked = (event) => {
@@ -388,9 +409,13 @@ export default function CalendarioIncontri() {
                       <span>{event.location}</span>
                     </div>
                     
-                    <div className="flex items-center gap-2 text-slate-300 text-sm">
+                    <div 
+                      className={`flex items-center gap-2 text-slate-300 text-sm ${isAdmin ? 'cursor-pointer hover:text-lime-400' : ''}`}
+                      onClick={() => isAdmin && setShowParticipantsEvent(event)}
+                    >
                      <Users className="w-4 h-4 text-lime-400" />
                      <span>{participantCount} partecipanti confermati</span>
+                     {isAdmin && <span className="text-xs text-slate-500">(clicca per lista)</span>}
                     </div>
 
                     <div className="flex items-center gap-2 text-slate-400 text-sm">
@@ -555,6 +580,43 @@ export default function CalendarioIncontri() {
         event={inviteDialogEvent}
         type={inviteDialogType}
       />
+
+      {/* Participants List Dialog (Admin only) */}
+      {showParticipantsEvent && (
+        <Dialog open={!!showParticipantsEvent} onOpenChange={() => setShowParticipantsEvent(null)}>
+          <DialogContent className="bg-slate-800 border-slate-700 max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-white">Partecipanti Confermati</DialogTitle>
+            </DialogHeader>
+            <button
+              onClick={() => setShowParticipantsEvent(null)}
+              className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
+            >
+              <X className="h-4 w-4 text-slate-400" />
+            </button>
+            <div className="mt-4">
+              <p className="text-slate-400 text-sm mb-4">Evento: <span className="text-lime-400">{showParticipantsEvent.title}</span></p>
+              <div className="space-y-2">
+                {getConfirmedParticipants(showParticipantsEvent.id).length === 0 ? (
+                  <p className="text-slate-500 text-center py-4">Nessun partecipante confermato</p>
+                ) : (
+                  getConfirmedParticipants(showParticipantsEvent.id).map((p, idx) => (
+                    <div key={idx} className="flex items-center gap-3 p-3 bg-slate-900 rounded-lg">
+                      <div className="w-8 h-8 bg-green-600/20 rounded-full flex items-center justify-center">
+                        <Check className="w-4 h-4 text-green-400" />
+                      </div>
+                      <div>
+                        <p className="text-white text-sm font-medium">{p.name}</p>
+                        <p className="text-slate-500 text-xs">{p.email}</p>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
