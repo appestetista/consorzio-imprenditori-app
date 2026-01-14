@@ -7,6 +7,7 @@ import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import FeatureCard from '../components/home/FeatureCard';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
+import EventInvitePopup from '../components/calendario/EventInvitePopup';
 
 export default function Home() {
   const [user, setUser] = useState(null);
@@ -171,6 +172,9 @@ export default function Home() {
       </main>
 
       <BottomNav currentPage="Home" unreadMessages={messages.length} />
+
+      {/* Popup invito evento - si mostra solo se ci sono inviti in attesa */}
+      <EventInvitePopup user={effectiveUser} />
     </div>
   );
 }
