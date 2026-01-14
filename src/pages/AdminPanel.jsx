@@ -36,7 +36,7 @@ export default function AdminPanel() {
   const [showAddConsultant, setShowAddConsultant] = useState(false);
   const [newConsultant, setNewConsultant] = useState({ name: '', category: '', phone: '', email: '', referente: '', cellulare_referente: '' });
   const [showImpersonationDialog, setShowImpersonationDialog] = useState(false);
-  const { impersonation, startImpersonation } = useImpersonation();
+  const { impersonation, startImpersonation, appMode } = useImpersonation();
 
   const queryClient = useQueryClient();
   const navigate = useNavigate();
