@@ -152,6 +152,18 @@ export default function GestioneMembri() {
     }
   });
 
+  const unblockAllMutation = useMutation({
+    mutationFn: async () => {
+      const blockedUsers = members.filter(m => m.is_blocked);
+      for (const member of blockedUsers) {
+        await base44.entities.User.update(member.id, { is_blocked: false });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['all-members'] });
+    }
+  });
+
   const filteredMembers = members.filter(member => {
     const searchLower = searchTerm.toLowerCase();
     return (
