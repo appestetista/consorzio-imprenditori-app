@@ -57,47 +57,18 @@ export default function GestioneMembri() {
 
   // Apri automaticamente il dialog se c'è memberId nell'URL
   useEffect(() => {
+    if (isLoading || !members || members.length === 0) return;
+    
     const urlParams = new URLSearchParams(window.location.search);
     const memberId = urlParams.get('memberId');
     
-    if (memberId && members.length > 0 && !showMemberForm) {
+    if (memberId && !formData) {
       const memberToEdit = members.find(m => m.id === memberId);
       if (memberToEdit) {
-        const data = {
-          company_name: memberToEdit.company_name || '',
-          email: memberToEdit.email || '',
-          phone: memberToEdit.phone || '',
-          website: memberToEdit.website || '',
-          logo_url: memberToEdit.logo_url || '',
-          full_name: memberToEdit.full_name || '',
-          referente: memberToEdit.referente || '',
-          cellulare_referente: memberToEdit.cellulare_referente || '',
-          referente_cellulare: memberToEdit.referente_cellulare || '',
-          referente_email: memberToEdit.referente_email || '',
-          vat_number: memberToEdit.vat_number || '',
-          ateco_code: memberToEdit.ateco_code || '',
-          company_size: memberToEdit.company_size || 'Piccola',
-          address: memberToEdit.address || '',
-          city: memberToEdit.city || '',
-          province: memberToEdit.province || '',
-          postal_code: memberToEdit.postal_code || '',
-          ragione_sociale_fatturazione: memberToEdit.ragione_sociale_fatturazione || '',
-          partita_iva: memberToEdit.partita_iva || '',
-          codice_fiscale: memberToEdit.codice_fiscale || '',
-          codice_sdi: memberToEdit.codice_sdi || '',
-          indirizzo: memberToEdit.indirizzo || '',
-          citta: memberToEdit.citta || '',
-          regione: memberToEdit.regione || '',
-          cap: memberToEdit.cap || '',
-          paese: memberToEdit.paese || ''
-        };
-        setFormData(data);
-        setInitialFormData(data);
-        setSelectedMember(memberToEdit);
-        setShowMemberForm(true);
+        handleEditMember(memberToEdit);
       }
     }
-  }, [members, showMemberForm]);
+  }, [members, isLoading]);
 
   const { data: members = [], isLoading } = useQuery({
     queryKey: ['all-members'],
