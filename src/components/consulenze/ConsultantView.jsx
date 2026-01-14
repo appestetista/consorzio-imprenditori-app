@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 export default function ConsultantView({ user }) {
   const queryClient = useQueryClient();
   const [creditsInput, setCreditsInput] = useState({});
+  const [activeTab, setActiveTab] = useState('members'); // 'members' o 'requests'
 
   const { data: myConsultantProfile } = useQuery({
     queryKey: ['my-consultant-profile', user?.email],
@@ -210,7 +211,30 @@ export default function ConsultantView({ user }) {
         </CardContent>
       </Card>
 
-      <Card className="bg-slate-800 border-lime-400/30 mb-6">
+      <div className="flex gap-2 mb-6">
+        <Button
+          className={`flex-1 ${activeTab === 'members' ? 'bg-lime-400 text-slate-900 hover:bg-lime-500' : 'bg-slate-700 text-white hover:bg-slate-600'}`}
+          onClick={() => setActiveTab('members')}
+        >
+          <Users className="w-4 h-4 mr-2" />
+          Lista Membri
+        </Button>
+        <Button
+          className={`flex-1 ${activeTab === 'requests' ? 'bg-lime-400 text-slate-900 hover:bg-lime-500' : 'bg-slate-700 text-white hover:bg-slate-600'}`}
+          onClick={() => setActiveTab('requests')}
+        >
+          <Bell className="w-4 h-4 mr-2" />
+          Richieste
+          {bookings.filter(b => b.status === 'pending').length > 0 && (
+            <span className="ml-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+              {bookings.filter(b => b.status === 'pending').length}
+            </span>
+          )}
+        </Button>
+      </div>
+
+      {activeTab === 'members' && (
+        <Card className="bg-slate-800 border-lime-400/30 mb-6">
         <CardHeader>
           <CardTitle className="text-white flex items-center gap-2">
             <Users className="w-5 h-5 text-lime-400" />
@@ -285,8 +309,10 @@ export default function ConsultantView({ user }) {
           </div>
         </CardContent>
       </Card>
+      )}
 
-      <Card className="bg-slate-800 border-lime-400/30">
+      {activeTab === 'requests' && (
+        <Card className="bg-slate-800 border-lime-400/30">
         <CardHeader>
           <CardTitle className="text-white">Richieste di Consulenza</CardTitle>
         </CardHeader>
@@ -363,6 +389,7 @@ export default function ConsultantView({ user }) {
           )}
         </CardContent>
       </Card>
+      )}
     </>
   );
 }
