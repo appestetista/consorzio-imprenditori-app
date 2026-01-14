@@ -287,61 +287,62 @@ export default function GestioneMembri() {
             </Link>
             <h1 className="text-white text-xl font-bold">Gestione Utenti</h1>
           </div>
-          <div className="flex gap-2">
-            {members.some(m => m.is_blocked) && (
-              <Button
-                onClick={() => {
-                  if (confirm('Sbloccare tutti gli utenti bloccati?')) {
-                    unblockAllMutation.mutate();
-                  }
-                }}
-                disabled={unblockAllMutation.isPending}
-                className="bg-green-600 hover:bg-green-700 text-white text-sm"
-              >
-                <Unlock className="w-4 h-4 mr-1" />
-                Sblocca Tutti
-              </Button>
-            )}
+          <Button
+            onClick={() => {
+              setFormData({
+                company_name: '',
+                email: '',
+                phone: '',
+                website: '',
+                logo_url: '',
+                full_name: '',
+                referente: '',
+                cellulare_referente: '',
+                referente_cellulare: '',
+                referente_email: '',
+                vat_number: '',
+                ateco_code: '',
+                company_size: 'Piccola',
+                address: '',
+                city: '',
+                province: '',
+                postal_code: '',
+                ragione_sociale_fatturazione: '',
+                partita_iva: '',
+                codice_fiscale: '',
+                codice_sdi: '',
+                indirizzo: '',
+                citta: '',
+                regione: '',
+                cap: '',
+                paese: ''
+              });
+              setSelectedMember(null);
+              setShowMemberForm(true);
+            }}
+            className="bg-lime-400 hover:bg-lime-500 text-slate-900"
+          >
+            <Plus className="w-5 h-5 mr-2" />
+            Nuovo
+          </Button>
+        </div>
+
+        {members.some(m => m.is_blocked) && (
+          <div className="mb-4">
             <Button
               onClick={() => {
-                setFormData({
-                  company_name: '',
-                  email: '',
-                  phone: '',
-                  website: '',
-                  logo_url: '',
-                  full_name: '',
-                  referente: '',
-                  cellulare_referente: '',
-                  referente_cellulare: '',
-                  referente_email: '',
-                  vat_number: '',
-                  ateco_code: '',
-                  company_size: 'Piccola',
-                  address: '',
-                  city: '',
-                  province: '',
-                  postal_code: '',
-                  ragione_sociale_fatturazione: '',
-                  partita_iva: '',
-                  codice_fiscale: '',
-                  codice_sdi: '',
-                  indirizzo: '',
-                  citta: '',
-                  regione: '',
-                  cap: '',
-                  paese: ''
-                });
-                setSelectedMember(null);
-                setShowMemberForm(true);
+                if (confirm('Sbloccare tutti gli utenti bloccati?')) {
+                  unblockAllMutation.mutate();
+                }
               }}
-              className="bg-lime-400 hover:bg-lime-500 text-slate-900"
+              disabled={unblockAllMutation.isPending}
+              className="w-full bg-green-600 hover:bg-green-700 text-white"
             >
-              <Plus className="w-5 h-5 mr-2" />
-              Nuovo Utente
+              <Unlock className="w-4 h-4 mr-2" />
+              Sblocca Tutti gli Utenti
             </Button>
           </div>
-        </div>
+        )}
 
         {/* Search */}
         <div className="relative mb-6">
