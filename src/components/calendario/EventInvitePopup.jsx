@@ -107,28 +107,28 @@ export default function EventInvitePopup({ user }) {
           </p>
 
           {/* Pulsanti risposta */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2">
             <Button
-              className="bg-green-600 hover:bg-green-700 text-white py-6 text-lg"
+              className="bg-green-600 hover:bg-green-700 text-white py-4 text-xs px-2"
               onClick={() => respondMutation.mutate({ 
                 partecipazioneId: partecipazione.id, 
                 response: 'accept' 
               })}
               disabled={respondMutation.isPending}
             >
-              <Check className="w-5 h-5 mr-2" />
-              Parteciperò
+              <Check className="w-4 h-4 mr-1 flex-shrink-0" />
+              <span className="truncate">Parteciperò</span>
             </Button>
             <Button
-              className="bg-red-600 hover:bg-red-700 text-white py-6 text-lg"
+              className="bg-red-600 hover:bg-red-700 text-white py-4 text-xs px-2"
               onClick={() => respondMutation.mutate({ 
                 partecipazioneId: partecipazione.id, 
                 response: 'decline' 
               })}
               disabled={respondMutation.isPending}
             >
-              <X className="w-5 h-5 mr-2" />
-              Non parteciperò
+              <X className="w-4 h-4 mr-1 flex-shrink-0" />
+              <span className="truncate">Non parteciperò</span>
             </Button>
           </div>
         </div>
