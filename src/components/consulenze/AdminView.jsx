@@ -154,9 +154,6 @@ export default function AdminView({ consultants }) {
                       <p className="text-white text-sm mt-1">{consultant.name}</p>
                       <p className="text-slate-400 text-xs mt-1">Email: {consultant.email || 'N/D'}</p>
                       <p className="text-slate-400 text-xs">Tel: {consultant.phone || 'N/D'}</p>
-                      <Badge variant="outline" className="mt-2 bg-lime-400/20 text-lime-400 border-lime-400/30">
-                        {consultant.available_slots || 0} slot disponibili
-                      </Badge>
                     </div>
                     <div className="flex gap-2">
                       <Button
@@ -191,7 +188,6 @@ export default function AdminView({ consultants }) {
           <h2 className="text-white text-xl font-bold mb-4">Gestione Membri</h2>
           <div className="space-y-3">
             {members.map((member) => {
-              const availableCount = member.consulenze_disponibili || 0;
               return (
                 <Card key={member.id} className="bg-slate-800 border-slate-700">
                   <CardContent className="p-4">
@@ -199,41 +195,9 @@ export default function AdminView({ consultants }) {
                       <div className="flex-1">
                         <h3 className="text-white font-bold">{member.company_name || member.full_name}</h3>
                         <p className="text-slate-400 text-sm">{member.email}</p>
-                        <div className="flex gap-2 mt-2">
-                          <Badge variant="outline" className="bg-lime-400/20 text-lime-400 border-lime-400/30">
-                            {availableCount} disponibili
-                          </Badge>
-                          {member.is_blocked && (
-                            <Badge className="bg-red-600">Bloccato</Badge>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex gap-2 items-center">
-                        <Input
-                          type="number"
-                          min="0"
-                          max={CONSULTANT_CATEGORIES.length}
-                          placeholder={availableCount.toString()}
-                          value={consultationCredits[member.id] || ''}
-                          onChange={(e) => setConsultationCredits({
-                            ...consultationCredits,
-                            [member.id]: e.target.value
-                          })}
-                          className="w-16 h-9 bg-slate-900 border-slate-700 text-white text-center"
-                        />
-                        <Button
-                          size="sm"
-                          className="bg-lime-400 hover:bg-lime-500 text-slate-900"
-                          onClick={() => {
-                            const credits = parseInt(consultationCredits[member.id]) || 0;
-                            if (credits > 0) {
-                              updateUserConsultationsMutation.mutate({ userId: member.id, credits });
-                            }
-                          }}
-                          disabled={!consultationCredits[member.id] || updateUserConsultationsMutation.isPending}
-                        >
-                          <CheckCircle className="w-4 h-4" />
-                        </Button>
+                        {member.is_blocked && (
+                          <Badge className="bg-red-600 mt-2">Bloccato</Badge>
+                        )}
                       </div>
                     </div>
                   </CardContent>
