@@ -135,7 +135,7 @@ export default function MemberView({ user, consultants, isLoading }) {
             const consultant = consultants.find(c => c.category === category);
             const assignment = consultant ? assignments.find(a => a.consultant_id === consultant.id) : null;
             const isRequested = consultant ? hasRequestedThisSession(consultant.id) : false;
-            const availableConsultations = assignment?.available_consultations || 1;
+            const availableConsultations = assignment?.available_consultations ?? 0;
             
             return (
               <Card key={index} className="bg-slate-800 border-slate-700">
