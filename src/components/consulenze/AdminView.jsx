@@ -201,7 +201,7 @@ export default function AdminView({ consultants }) {
                           <Badge className="bg-red-600 mt-2">Bloccato</Badge>
                         )}
                       </div>
-                      <Link to={createPageUrl('GestioneMembri')}>
+                      <Link to={`${createPageUrl('GestioneMembri')}?memberId=${member.id}`}>
                         <Button
                           size="sm"
                           variant="outline"
