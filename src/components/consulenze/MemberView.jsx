@@ -228,7 +228,7 @@ export default function MemberView({ user, consultants, isLoading }) {
                         <div className="flex-shrink-0 text-right">
                           <p className="text-lime-400 text-xl font-bold">{availableConsultations}</p>
                           <p className="text-slate-400 text-xs">disponibili</p>
-                          <p className="text-slate-500 text-sm mt-1">0 consumate</p>
+                          <p className="text-green-400 text-sm mt-1">{completedBookings} completate</p>
                         </div>
                       </div>
                       
