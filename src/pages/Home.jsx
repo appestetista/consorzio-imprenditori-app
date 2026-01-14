@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Calendar, Video, Briefcase, Users, Zap, ShoppingBag, Sparkles, BookOpen } from 'lucide-react';
 import { createPageUrl } from '@/utils';
 import Header from '../components/layout/Header';
@@ -13,6 +13,7 @@ export default function Home() {
   const [effectiveUser, setEffectiveUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const { impersonation, setCurrentUserRole, appMode } = useImpersonation();
+  const queryClient = useQueryClient();
 
   // DEBUG LOG TEMPORANEO
   useEffect(() => {
