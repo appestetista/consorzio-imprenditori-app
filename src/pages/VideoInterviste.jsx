@@ -72,10 +72,10 @@ export default function VideoInterviste() {
   // Marca come lette tutte le notifiche video quando l'utente apre la sezione
   useEffect(() => {
     const markVideoNotificationsAsRead = async () => {
-      if (!user?.email) return;
+      if (!effectiveUser?.email) return;
       
       const videoNotifications = await base44.entities.Notification.filter({
-        user_email: user.email,
+        user_email: effectiveUser.email,
         type: 'video',
         is_read: false
       });
@@ -86,7 +86,7 @@ export default function VideoInterviste() {
     };
     
     markVideoNotificationsAsRead();
-  }, [user?.email]);
+  }, [effectiveUser?.email]);
 
   const { data: allUsers = [] } = useQuery({
     queryKey: ['all-users'],
