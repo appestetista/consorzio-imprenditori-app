@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { Calendar, MapPin, Clock, Users, Check, X, Plus, ArrowLeft, Image, Upload, Edit, Briefcase } from 'lucide-react';
+import { Calendar, MapPin, Clock, Users, Check, X, Plus, ArrowLeft, Image, Upload, Edit, Briefcase, Bell } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
@@ -135,7 +136,8 @@ export default function CalendarioIncontri() {
         time: eventData.time,
         location: eventData.location,
         image_url: eventData.image_url,
-        data_blocco_partecipazione: dataBlocco?.toISOString()
+        data_blocco_partecipazione: dataBlocco?.toISOString(),
+        reminder_enabled: eventData.reminder_enabled
       });
     },
     onSuccess: () => {
@@ -346,6 +348,21 @@ export default function CalendarioIncontri() {
                         </Label>
                       )}
                     </div>
+                  </div>
+                  
+                  {/* Reminder Switch */}
+                  <div className="flex items-center justify-between p-3 bg-slate-900 rounded-lg border border-slate-700">
+                    <div className="flex items-center gap-3">
+                      <Bell className="w-5 h-5 text-lime-400" />
+                      <div>
+                        <Label className="text-white text-sm">Promemoria automatici</Label>
+                        <p className="text-slate-500 text-xs">Invia notifiche ogni 48h a chi non risponde</p>
+                      </div>
+                    </div>
+                    <Switch
+                      checked={newEvent.reminder_enabled}
+                      onCheckedChange={(checked) => setNewEvent({...newEvent, reminder_enabled: checked})}
+                    />
                   </div>
                   
                   <Button 
@@ -559,6 +576,21 @@ export default function CalendarioIncontri() {
                 onChange={(e) => setEditingEvent({...editingEvent, location: e.target.value})}
                 className="bg-slate-900 border-slate-700 text-white"
               />
+              
+              {/* Reminder Switch */}
+              <div className="flex items-center justify-between p-3 bg-slate-900 rounded-lg border border-slate-700">
+                <div className="flex items-center gap-3">
+                  <Bell className="w-5 h-5 text-lime-400" />
+                  <div>
+                    <Label className="text-white text-sm">Promemoria automatici</Label>
+                    <p className="text-slate-500 text-xs">Invia notifiche ogni 48h a chi non risponde</p>
+                  </div>
+                </div>
+                <Switch
+                  checked={editingEvent.reminder_enabled || false}
+                  onCheckedChange={(checked) => setEditingEvent({...editingEvent, reminder_enabled: checked})}
+                />
+              </div>
               
               <Button 
                 onClick={() => updateEventMutation.mutate(editingEvent)}
