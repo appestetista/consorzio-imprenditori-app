@@ -70,7 +70,7 @@ export default function Header({ user, totalNotifications = 0 }) {
             <button
               onClick={() => {
                 stopImpersonation();
-                window.location.href = createPageUrl('AdminPanel');
+                window.location.href = createPageUrl('Home');
               }}
               className="bg-orange-600 hover:bg-orange-700 text-white px-2 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 transition-colors"
             >
@@ -123,7 +123,7 @@ export default function Header({ user, totalNotifications = 0 }) {
             {/* Pulsante Torna ad Admin - Solo se impersonation attiva */}
             {impersonation.active && isAdmin && (
               <Link
-                to={createPageUrl('AdminPanel')}
+                to={createPageUrl('Home')}
                 onClick={() => {
                   stopImpersonation();
                   setMenuOpen(false);
