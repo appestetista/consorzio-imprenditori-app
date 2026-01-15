@@ -9,6 +9,7 @@ import BottomNav from '../components/layout/BottomNav';
 import FeatureCard from '../components/home/FeatureCard';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import EventInvitePopup from '../components/calendario/EventInvitePopup';
+import useNotificationSound from '../components/hooks/useNotificationSound';
 
 export default function Home() {
   const [user, setUser] = useState(null);
@@ -16,6 +17,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const { impersonation, setCurrentUserRole, appMode } = useImpersonation();
   const queryClient = useQueryClient();
+  const { playSound } = useNotificationSound();
 
   // DEBUG LOG TEMPORANEO
   useEffect(() => {
@@ -71,18 +73,22 @@ export default function Home() {
   });
 
   // Subscribe real-time alle notifiche
-  useEffect(() => {
-    if (!effectiveUser?.email) return;
-    
-    const unsubscribe = base44.entities.Notification.subscribe((event) => {
-      if (event.data?.user_email === effectiveUser.email) {
-        // Invalida la cache per aggiornare le notifiche
-        queryClient.invalidateQueries({ queryKey: ['notifications', effectiveUser.email] });
-      }
-    });
+      useEffect(() => {
+        if (!effectiveUser?.email) return;
 
-    return unsubscribe;
-  }, [effectiveUser?.email, queryClient]);
+        const unsubscribe = base44.entities.Notification.subscribe((event) => {
+          if (event.data?.user_email === effectiveUser.email) {
+            // Suona notifica per nuove notifiche
+            if (event.type === 'create') {
+              playSound();
+            }
+            // Invalida la cache per aggiornare le notifiche
+            queryClient.invalidateQueries({ queryKey: ['notifications', effectiveUser.email] });
+          }
+        });
+
+        return unsubscribe;
+      }, [effectiveUser?.email, queryClient, playSound]);
 
   const { data: messages = [] } = useQuery({
     queryKey: ['unread-messages', effectiveUser?.email],
