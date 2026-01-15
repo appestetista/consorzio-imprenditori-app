@@ -159,9 +159,9 @@ export default function AdminView({ consultants, adminEmail }) {
           </TabsTrigger>
           <TabsTrigger value="bookings" className="data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900 relative">
             Richieste
-            {pendingBookingsCount > 0 && !hasViewedBookings && (
+            {unreadConsultationCount > 0 && (
               <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold animate-pulse">
-                {pendingBookingsCount}
+                {unreadConsultationCount}
               </span>
             )}
           </TabsTrigger>
