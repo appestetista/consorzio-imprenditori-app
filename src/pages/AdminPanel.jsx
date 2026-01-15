@@ -84,6 +84,13 @@ export default function AdminPanel() {
     queryFn: () => base44.entities.Consultant.list(),
   });
 
+  const { data: consultationBookings = [] } = useQuery({
+    queryKey: ['consultation-bookings-admin'],
+    queryFn: () => base44.entities.ConsultationBooking.filter({ status: 'pending' }),
+  });
+
+  const pendingConsultationBookings = consultationBookings.length;
+
   const { data: consultationRequests = [] } = useQuery({
     queryKey: ['consultation-requests'],
     queryFn: async () => {
