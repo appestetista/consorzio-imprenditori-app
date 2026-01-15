@@ -22,6 +22,7 @@ function getYouTubeId(url) {
 
 export default function VideoInterviste() {
   const [user, setUser] = useState(null);
+  const [effectiveUser, setEffectiveUser] = useState(null);
   const [showAddVideo, setShowAddVideo] = useState(false);
   const [newVideo, setNewVideo] = useState({ title: '', company_name: '', youtube_url: '', company_email: '' });
   const [editingVideo, setEditingVideo] = useState(null);
@@ -29,19 +30,31 @@ export default function VideoInterviste() {
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [requestMessage, setRequestMessage] = useState('');
   const queryClient = useQueryClient();
-  const { impersonation } = useImpersonation();
+  const { impersonation, appMode } = useImpersonation();
 
   useEffect(() => {
     const loadUser = async () => {
       try {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
+        
+        // Se in modalità preview utente, carica l'utente impersonato
+        if (appMode === 'user-preview' && impersonation.previewUserId) {
+          const users = await base44.entities.User.filter({ id: impersonation.previewUserId });
+          if (users.length > 0) {
+            setEffectiveUser(users[0]);
+          } else {
+            setEffectiveUser(currentUser);
+          }
+        } else {
+          setEffectiveUser(currentUser);
+        }
       } catch (e) {
         console.error(e);
       }
     };
     loadUser();
-  }, []);
+  }, [appMode, impersonation.previewUserId]);
 
   const isAdmin = user?.role === 'admin' && !impersonation.active;
 
