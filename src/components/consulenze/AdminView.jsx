@@ -56,10 +56,11 @@ export default function AdminView({ consultants, adminEmail }) {
   // Conta le richieste pending (nuove)
   const pendingBookingsCount = allBookings.filter(b => b.status === 'pending').length;
 
-  // Segna le notifiche come lette quando si apre il tab Richieste
+  // Segna le notifiche come lette e marca come visualizzate quando si apre il tab Richieste
   React.useEffect(() => {
     const markNotificationsAsRead = async () => {
       if (activeTab === 'bookings' && adminEmail) {
+        setHasViewedBookings(true);
         const notifications = await base44.entities.Notification.filter({
           user_email: adminEmail,
           type: 'consultation',
