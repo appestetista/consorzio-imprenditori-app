@@ -141,7 +141,7 @@ export default function AdminView({ consultants, adminEmail }) {
 
   return (
     <>
-      <Tabs defaultValue="consultants" className="w-full">
+      <Tabs defaultValue="consultants" value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-3 bg-slate-800 mb-6">
           <TabsTrigger value="consultants" className="data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
             <UserCog className="w-4 h-4 mr-2" />
