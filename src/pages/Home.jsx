@@ -107,6 +107,17 @@ export default function Home() {
 
   const nextEvent = events[0];
   const permissions = effectiveUser?.permissions || {};
+
+  // Verifica stato partecipazione all'evento
+  const getUserEventResponse = () => {
+    if (!nextEvent || !effectiveUser?.email) return null;
+    const partecipazione = partecipazioni.find(p => p.evento_id === nextEvent.id);
+    if (!partecipazione) return null;
+    if (partecipazione.stato === 'confermato') return 'accepted';
+    if (partecipazione.stato === 'non_confermato') return 'declined';
+    return null;
+  };
+  const eventResponse = getUserEventResponse();
   const isBlocked = effectiveUser?.is_blocked && appMode !== 'user-preview' && effectiveUser?.role !== 'admin';
   const isAdmin = appMode === 'admin';
 
