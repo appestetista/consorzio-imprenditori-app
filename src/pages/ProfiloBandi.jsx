@@ -179,6 +179,8 @@ export default function ProfiloBandi() {
           has_durc_regolare: currentUser.has_durc_regolare !== false,
           has_antimafia_clean: currentUser.has_antimafia_clean !== false,
           has_fiscal_regularity: currentUser.has_fiscal_regularity !== false,
+          has_safety_compliance: currentUser.has_safety_compliance !== false,
+          can_comply_dnsh: currentUser.can_comply_dnsh !== false,
           interested_in_digital: currentUser.interested_in_digital || false,
           interested_in_innovation: currentUser.interested_in_innovation || false,
           interested_in_sustainability: currentUser.interested_in_sustainability || false,
