@@ -153,6 +153,22 @@ export default function MyProfile() {
           )}
         </div>
 
+        <Tabs defaultValue="profilo" className="w-full">
+          <TabsList className="w-full bg-slate-800 border border-slate-700 mb-4">
+            <TabsTrigger value="profilo" className="flex-1 data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
+              <User className="w-4 h-4 mr-2" />
+              Profilo
+            </TabsTrigger>
+            {user?.role !== 'consulente' && (
+              <TabsTrigger value="bandi" className="flex-1 data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
+                <FileText className="w-4 h-4 mr-2" />
+                Profilo Bandi
+              </TabsTrigger>
+            )}
+          </TabsList>
+
+          <TabsContent value="profilo">
+
         <Card className="bg-slate-800 border-slate-700 mb-4">
           <CardHeader>
             <CardTitle className="text-white flex items-center gap-2">
