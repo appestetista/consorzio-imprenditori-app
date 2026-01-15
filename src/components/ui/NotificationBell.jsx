@@ -20,17 +20,17 @@ export default function NotificationBell({ count = 0, className }) {
           80% { transform: rotate(-5deg) scale(0.95); }
           90% { transform: rotate(5deg) scale(1.1); }
         }
-        @keyframes dotPulse {
-          0%, 100% { transform: scale(1); }
-          10% { transform: scale(1.3); }
-          20% { transform: scale(0.85); }
-          30% { transform: scale(1.3); }
-          40% { transform: scale(0.85); }
-          50% { transform: scale(1.15); }
-          60% { transform: scale(1); }
-          70% { transform: scale(1.2); }
-          80% { transform: scale(0.9); }
-          90% { transform: scale(1.15); }
+        @keyframes dotShake {
+          0%, 100% { transform: rotate(0deg); }
+          10% { transform: rotate(-15deg); }
+          20% { transform: rotate(15deg); }
+          30% { transform: rotate(-15deg); }
+          40% { transform: rotate(15deg); }
+          50% { transform: rotate(0deg); }
+          60% { transform: rotate(-10deg); }
+          70% { transform: rotate(10deg); }
+          80% { transform: rotate(-5deg); }
+          90% { transform: rotate(5deg); }
         }
       `}</style>
       <Bell 
@@ -40,7 +40,7 @@ export default function NotificationBell({ count = 0, className }) {
       {hasNotifications && (
         <span 
           className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold"
-          style={{ animation: 'dotPulse 1.5s ease-in-out infinite' }}
+          style={{ animation: 'dotShake 1.5s ease-in-out infinite' }}
         >
           {count > 99 ? '99+' : count}
         </span>
