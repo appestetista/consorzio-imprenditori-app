@@ -166,19 +166,38 @@ export default function CalendarioIncontri() {
 
       const newStato = response === 'accept' ? 'confermato' : 'non_confermato';
 
+      let result;
       if (existingParticipations.length > 0) {
         // Aggiorna esistente
-        return base44.entities.PartecipazioniEvento.update(existingParticipations[0].id, {
+        result = await base44.entities.PartecipazioniEvento.update(existingParticipations[0].id, {
           stato: newStato
         });
       } else {
         // Crea nuova partecipazione
-        return base44.entities.PartecipazioniEvento.create({
+        result = await base44.entities.PartecipazioniEvento.create({
           user_email: user.email,
           evento_id: eventId,
           stato: newStato
         });
       }
+
+      // Invia notifica agli admin
+      const admins = await base44.entities.User.filter({ role: 'admin' });
+      const userName = user.company_name || user.full_name || user.email;
+      const responseText = response === 'accept' ? 'parteciperà' : 'non parteciperà';
+      
+      for (const admin of admins) {
+        await base44.entities.Notification.create({
+          user_email: admin.email,
+          type: 'event_response',
+          title: 'Risposta evento',
+          content: `${userName} ${responseText} a "${evento.title}"`,
+          reference_id: eventId,
+          is_read: false
+        });
+      }
+
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['partecipazioni-eventi'] });
@@ -436,7 +455,21 @@ export default function CalendarioIncontri() {
                                                 <>
                                                   <div 
                                                     className="flex items-center gap-2 text-slate-300 text-sm cursor-pointer hover:text-lime-400"
-                                                    onClick={() => setShowParticipantsEvent(event)}
+                                                    onClick={async () => {
+                                                      setShowParticipantsEvent(event);
+                                                      // Segna come lette le notifiche di risposta per questo evento
+                                                      if (user?.email) {
+                                                        const notifs = await base44.entities.Notification.filter({
+                                                          user_email: user.email,
+                                                          type: 'event_response',
+                                                          reference_id: event.id
+                                                        });
+                                                        for (const n of notifs) {
+                                                          await base44.entities.Notification.delete(n.id);
+                                                        }
+                                                        queryClient.invalidateQueries({ queryKey: ['notifications'] });
+                                                      }
+                                                    }}
                                                   >
                                                     <Users className="w-4 h-4 text-lime-400" />
                                                     <span>{participantCount} partecipanti confermati</span>
