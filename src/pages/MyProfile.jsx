@@ -6,11 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, User, Building2, Phone, MapPin, Save, Upload, X, Image as ImageIcon, LogOut, FileText, ChevronRight } from 'lucide-react';
+import { ArrowLeft, User, Building2, Phone, MapPin, Save, Upload, X, Image as ImageIcon, LogOut, FileText } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
+import ProfiloBandiForm from '../components/profile/ProfiloBandiForm';
 
 export default function MyProfile() {
   const navigate = useNavigate();
