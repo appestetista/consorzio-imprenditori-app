@@ -415,19 +415,23 @@ export default function CalendarioIncontri() {
                       <span>{event.location}</span>
                     </div>
                     
-                    <div 
-                      className={`flex items-center gap-2 text-slate-300 text-sm ${isAdmin ? 'cursor-pointer hover:text-lime-400' : ''}`}
-                      onClick={() => isAdmin && setShowParticipantsEvent(event)}
-                    >
-                     <Users className="w-4 h-4 text-lime-400" />
-                     <span>{participantCount} partecipanti confermati</span>
-                     {isAdmin && <span className="text-xs text-slate-500">(clicca per lista)</span>}
-                    </div>
+                    {isAdmin && (
+                                                <>
+                                                  <div 
+                                                    className="flex items-center gap-2 text-slate-300 text-sm cursor-pointer hover:text-lime-400"
+                                                    onClick={() => setShowParticipantsEvent(event)}
+                                                  >
+                                                    <Users className="w-4 h-4 text-lime-400" />
+                                                    <span>{participantCount} partecipanti confermati</span>
+                                                    <span className="text-xs text-slate-500">(clicca per lista)</span>
+                                                  </div>
 
-                    <div className="flex items-center gap-2 text-slate-400 text-sm">
-                     <Users className="w-4 h-4 text-slate-500" />
-                     <span>{getInvitedCount(event.id)} invitati totali</span>
-                    </div>
+                                                  <div className="flex items-center gap-2 text-slate-400 text-sm">
+                                                    <Users className="w-4 h-4 text-slate-500" />
+                                                    <span>{getInvitedCount(event.id)} invitati totali</span>
+                                                  </div>
+                                                </>
+                                              )}
 
                     {isAdmin && (
                      <div className="pt-3 border-t border-slate-700 space-y-2">
