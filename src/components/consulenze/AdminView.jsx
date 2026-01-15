@@ -51,6 +51,9 @@ export default function AdminView({ consultants }) {
     queryFn: () => base44.entities.ConsultationBooking.list('-created_date'),
   });
 
+  // Conta le richieste pending (nuove)
+  const pendingBookingsCount = allBookings.filter(b => b.status === 'pending').length;
+
   const saveConsultantMutation = useMutation({
     mutationFn: async (data) => {
       if (editingConsultant) {
@@ -129,8 +132,13 @@ export default function AdminView({ consultants }) {
             <Users className="w-4 h-4 mr-2" />
             Utenti
           </TabsTrigger>
-          <TabsTrigger value="bookings" className="data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
+          <TabsTrigger value="bookings" className="data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900 relative">
             Richieste
+            {pendingBookingsCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold animate-pulse">
+                {pendingBookingsCount}
+              </span>
+            )}
           </TabsTrigger>
         </TabsList>
 
