@@ -121,37 +121,23 @@ export default function MyProfile() {
      <Header user={user} />
       
       <main className="px-4 py-6 max-w-2xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            {appMode === 'user-preview' ? (
-              <button
-                onClick={() => {
-                  stopImpersonation();
-                  navigate(createPageUrl('AdminPanel'));
-                }}
-                className="text-lime-400 hover:text-lime-500 transition-colors"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            ) : (
-              <Link to={createPageUrl('Home')} className="text-lime-400">
-                <ArrowLeft className="w-6 h-6" />
-              </Link>
-            )}
-            <h1 className="text-white text-xl font-bold">Il Mio Profilo</h1>
-          </div>
-          {appMode === 'user-preview' && (
-            <Button
+        <div className="flex items-center gap-3 mb-6">
+          {appMode === 'user-preview' ? (
+            <button
               onClick={() => {
                 stopImpersonation();
                 navigate(createPageUrl('AdminPanel'));
               }}
-              className="bg-orange-600 hover:bg-orange-700 text-white text-sm flex items-center gap-2"
+              className="text-lime-400 hover:text-lime-500 transition-colors"
             >
-              <LogOut className="w-4 h-4" />
-              Torna in Admin
-            </Button>
+              <X className="w-6 h-6" />
+            </button>
+          ) : (
+            <Link to={createPageUrl('Home')} className="text-lime-400">
+              <ArrowLeft className="w-6 h-6" />
+            </Link>
           )}
+          <h1 className="text-white text-xl font-bold">Il Mio Profilo</h1>
         </div>
 
         <Tabs defaultValue="profilo" className="w-full">
