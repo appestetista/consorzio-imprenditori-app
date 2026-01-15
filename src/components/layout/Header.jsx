@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu, X, LogOut, Settings, Users, User, Eye, XCircle } from 'lucide-react';
+import { Menu, X, LogOut, Settings, Users, User, Eye, XCircle, Bell } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
@@ -80,9 +80,12 @@ export default function Header({ user, totalNotifications = 0 }) {
           )}
 
           {totalNotifications > 0 && (
-            <span className="bg-red-500 text-white text-sm rounded-full w-6 h-6 flex items-center justify-center font-bold">
-              {totalNotifications > 99 ? '99+' : totalNotifications}
-            </span>
+            <div className="relative">
+              <Bell className="w-6 h-6 text-lime-400 animate-[shake_0.5s_ease-in-out_infinite]" />
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold">
+                {totalNotifications > 99 ? '99+' : totalNotifications}
+              </span>
+            </div>
           )}
           <button 
             onClick={() => setMenuOpen(!menuOpen)}
