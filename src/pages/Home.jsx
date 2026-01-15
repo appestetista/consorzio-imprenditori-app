@@ -166,7 +166,7 @@ export default function Home() {
       <main className="px-4 py-6 max-w-md mx-auto">
         {/* Welcome Banner */}
         {eventResponse === 'accepted' ? (
-          <div className="bg-green-500 rounded-xl p-4 mb-6">
+          <div className="bg-green-700 rounded-xl p-4 mb-6">
             <h2 className="text-white font-bold text-lg mb-1">✓ Hai scelto di partecipare</h2>
             {nextEvent && (
               <p className="text-green-100 text-sm">
