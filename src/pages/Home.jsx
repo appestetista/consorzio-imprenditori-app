@@ -94,6 +94,12 @@ export default function Home() {
     queryFn: () => base44.entities.Event.list('-date', 1),
   });
 
+  const { data: partecipazioni = [] } = useQuery({
+    queryKey: ['partecipazioni-home', effectiveUser?.email],
+    queryFn: () => base44.entities.PartecipazioniEvento.filter({ user_email: effectiveUser?.email }),
+    enabled: !!effectiveUser?.email,
+  });
+
   // Count notifications by type
   const eventNotifications = notifications.filter(n => n.type === 'event').length;
   const videoNotifications = notifications.filter(n => n.type === 'video').length;
