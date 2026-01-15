@@ -753,6 +753,9 @@ export default function ProfiloBandi() {
 
               <div className="pt-3">
                 <p className="text-slate-400 text-sm mb-2">Certificazioni opzionali (danno punteggi extra):</p>
+                <p className="text-green-400 text-xs bg-green-500/10 border border-green-500/30 rounded-lg p-2 mb-3">
+                  ✓ <strong>Queste certificazioni non sono obbligatorie</strong>, ma danno punteggi premiali in graduatoria. Spunta se le hai già: devono essere valide al momento della domanda. Se non le hai, puoi comunque partecipare ai bandi (salvo casi specifici).
+                </p>
               </div>
 
               <label className="flex items-center gap-3 p-3 bg-slate-900 rounded-lg cursor-pointer hover:bg-slate-900/70">
