@@ -19,6 +19,7 @@ export default function Home() {
   const { impersonation, setCurrentUserRole, appMode } = useImpersonation();
   const queryClient = useQueryClient();
   const { playSound } = useNotificationSound();
+  const [showChangeResponse, setShowChangeResponse] = useState(false);
 
   // DEBUG LOG TEMPORANEO
   useEffect(() => {
@@ -154,7 +155,6 @@ export default function Home() {
   const culturaAziendaleNotifications = notifications.filter(n => n.type === 'cultura_aziendale').length;
 
   const isConsultant = effectiveUser?.role === 'consulente';
-  const [showChangeResponse, setShowChangeResponse] = useState(false);
 
   const features = [
     { title: 'Calendario\nincontri', icon: Calendar, page: 'CalendarioIncontri', notifications: eventNotifications, permission: 'calendario' },
