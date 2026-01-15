@@ -164,14 +164,40 @@ export default function Home() {
       
       <main className="px-4 py-6 max-w-md mx-auto">
         {/* Welcome Banner */}
-        <div className="bg-lime-400 rounded-xl p-4 mb-6">
-          <h2 className="text-slate-900 font-bold text-lg mb-1">Benvenuto nel Consorzio</h2>
-          {nextEvent && (
-            <p className="text-slate-800 text-sm">
-              Prossimo incontro: {new Date(nextEvent.date).toLocaleDateString('it-IT', { day: 'numeric', month: 'long' })} ore {nextEvent.time} - {nextEvent.location}
-            </p>
-          )}
-        </div>
+        {eventResponse === 'accepted' ? (
+          <div className="bg-green-500 rounded-xl p-4 mb-6">
+            <h2 className="text-white font-bold text-lg mb-1">✓ Hai scelto di partecipare</h2>
+            {nextEvent && (
+              <p className="text-green-100 text-sm">
+                Incontro "{nextEvent.title}" del {new Date(nextEvent.date).toLocaleDateString('it-IT', { day: 'numeric', month: 'long' })} ore {nextEvent.time} - {nextEvent.location}
+              </p>
+            )}
+            <Link to={createPageUrl('CalendarioIncontri')} className="text-white text-sm underline mt-2 inline-block hover:text-green-200">
+              Hai cambiato idea?
+            </Link>
+          </div>
+        ) : eventResponse === 'declined' ? (
+          <div className="bg-red-500 rounded-xl p-4 mb-6">
+            <h2 className="text-white font-bold text-lg mb-1">✗ Hai scelto di non partecipare</h2>
+            {nextEvent && (
+              <p className="text-red-100 text-sm">
+                Incontro "{nextEvent.title}" del {new Date(nextEvent.date).toLocaleDateString('it-IT', { day: 'numeric', month: 'long' })} ore {nextEvent.time} - {nextEvent.location}
+              </p>
+            )}
+            <Link to={createPageUrl('CalendarioIncontri')} className="text-white text-sm underline mt-2 inline-block hover:text-red-200">
+              Hai cambiato idea?
+            </Link>
+          </div>
+        ) : (
+          <div className="bg-lime-400 rounded-xl p-4 mb-6">
+            <h2 className="text-slate-900 font-bold text-lg mb-1">Benvenuto nel Consorzio</h2>
+            {nextEvent && (
+              <p className="text-slate-800 text-sm">
+                Prossimo incontro: {new Date(nextEvent.date).toLocaleDateString('it-IT', { day: 'numeric', month: 'long' })} ore {nextEvent.time} - {nextEvent.location}
+              </p>
+            )}
+          </div>
+        )}
 
         {/* Feature Grid */}
         <div className="grid grid-cols-2 gap-4 mb-4">
