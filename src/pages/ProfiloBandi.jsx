@@ -637,7 +637,7 @@ export default function ProfiloBandi() {
                   className="w-5 h-5 rounded border-slate-600 text-lime-400 focus:ring-lime-400"
                 />
                 <div className="flex-1">
-                  <span className="text-white flex items-center">Start-up Innovativa <HelpTooltip text="Società di capitali con requisiti specifici (es. spese R&S >15%, personale qualificato, brevetti). Iscritta alla sezione speciale del Registro Imprese. Ha accesso a incentivi fiscali e bandi dedicati." /></span>
+                  <span className="text-white flex items-center">Start-up Innovativa <HelpTooltip text="Società di capitali con requisiti specifici (es. spese R&S >15%, personale qualificato, brevetti). Iscritta alla sezione speciale del Registro Imprese. Ha accesso a incentivi fiscali e bandi dedicati. R&S = Ricerca e Sviluppo: attività sistematiche volte a creare nuova conoscenza (ricerca) e applicarla per sviluppare prodotti, servizi o processi innovativi (sviluppo)." /></span>
                   <p className="text-slate-500 text-xs">Iscritta alla sezione speciale del Registro Imprese</p>
                 </div>
               </label>
@@ -650,7 +650,7 @@ export default function ProfiloBandi() {
                   className="w-5 h-5 rounded border-slate-600 text-lime-400 focus:ring-lime-400"
                 />
                 <div className="flex-1">
-                  <span className="text-white flex items-center">PMI Innovativa <HelpTooltip text="PMI con almeno 2 su 3 requisiti: spese R&S ≥3% del maggiore tra costo e valore produzione, personale qualificato ≥1/5, titolare di brevetto/software. Ha benefici simili alle start-up innovative." /></span>
+                  <span className="text-white flex items-center">PMI Innovativa <HelpTooltip text="PMI con almeno 2 su 3 requisiti: spese R&S ≥3% del maggiore tra costo e valore produzione, personale qualificato ≥1/5, titolare di brevetto/software. Ha benefici simili alle start-up innovative. R&S = Ricerca e Sviluppo: investimenti in attività per creare innovazione, come sviluppo di nuovi prodotti, tecnologie, processi produttivi o miglioramento di quelli esistenti." /></span>
                   <p className="text-slate-500 text-xs">Iscritta alla sezione speciale PMI innovative</p>
                 </div>
               </label>
