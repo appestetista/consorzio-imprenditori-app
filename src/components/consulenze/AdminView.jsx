@@ -27,9 +27,10 @@ const CONSULTANT_CATEGORIES = [
   "Efficientamento Energetico/Centralini"
 ];
 
-export default function AdminView({ consultants }) {
+export default function AdminView({ consultants, adminEmail }) {
   const [showConsultantDialog, setShowConsultantDialog] = useState(false);
   const [editingConsultant, setEditingConsultant] = useState(null);
+  const [activeTab, setActiveTab] = useState('consultants');
   const [consultantForm, setConsultantForm] = useState({
     name: '',
     category: '',
