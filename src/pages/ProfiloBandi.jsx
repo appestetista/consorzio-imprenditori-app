@@ -717,7 +717,7 @@ export default function ProfiloBandi() {
                   className="w-5 h-5 rounded border-green-600 text-green-400 focus:ring-green-400"
                 />
                 <div className="flex-1">
-                  <span className="text-white flex items-center">DURC Regolare <HelpTooltip text="Documento che attesta la regolarità nei pagamenti dei contributi INPS, INAIL e Cassa Edile. È OBBLIGATORIO per tutti i bandi pubblici. Richiedilo tramite il portale INPS." /></span>
+                  <span className="text-white flex items-center">DURC Regolare <HelpTooltip text="Documento che attesta la regolarità nei pagamenti dei contributi INPS, INAIL e Cassa Edile. È OBBLIGATORIO per TUTTE le tipologie di impresa (società di capitali, società di persone, ditte individuali, cooperative, ecc.) che partecipano a bandi pubblici. Anche le ditte individuali senza dipendenti devono avere il DURC regolare per i contributi previdenziali del titolare. Richiedilo tramite il portale INPS." /></span>
                   <p className="text-slate-500 text-xs">Documento Unico Regolarità Contributiva</p>
                 </div>
               </label>
