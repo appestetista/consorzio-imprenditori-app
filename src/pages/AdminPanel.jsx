@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Users, Video, Calendar, Briefcase, Plus, Settings, Bell, CheckCircle, XCircle, Clock, Trash2 } from 'lucide-react';
+import { ArrowLeft, Users, Video, Calendar, Briefcase, Plus, Settings, Bell, CheckCircle, XCircle, Clock, Trash2, Mail, Eye } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -99,6 +99,33 @@ export default function AdminPanel() {
         user: users.find(u => u.email === req.user_email),
         grant: grants.find(g => g.id === req.grant_id)
       }));
+    }
+  });
+
+  const { data: videoInterviewRequests = [] } = useQuery({
+    queryKey: ['video-interview-requests'],
+    queryFn: () => base44.entities.VideoInterviewRequest.list('-created_date'),
+  });
+
+  const pendingVideoRequests = videoInterviewRequests.filter(r => r.status === 'pending');
+
+  const [showVideoRequests, setShowVideoRequests] = useState(false);
+
+  const markVideoRequestReadMutation = useMutation({
+    mutationFn: async (requestId) => {
+      await base44.entities.VideoInterviewRequest.update(requestId, { status: 'read' });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['video-interview-requests'] });
+    }
+  });
+
+  const deleteVideoRequestMutation = useMutation({
+    mutationFn: async (requestId) => {
+      await base44.entities.VideoInterviewRequest.delete(requestId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['video-interview-requests'] });
     }
   });
 
@@ -207,11 +234,16 @@ export default function AdminPanel() {
             </Card>
           </Link>
           <Link to={createPageUrl('VideoInterviste')}>
-            <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 transition-colors cursor-pointer">
+            <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 transition-colors cursor-pointer relative">
               <CardContent className="p-4 text-center">
                 <Video className="w-8 h-8 text-lime-400 mx-auto mb-2" />
                 <p className="text-2xl font-bold text-white">{stats?.totalVideos || 0}</p>
                 <p className="text-slate-400 text-sm">Video Interviste</p>
+                {pendingVideoRequests.length > 0 && (
+                  <span className="absolute top-2 right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold animate-pulse">
+                    {pendingVideoRequests.length}
+                  </span>
+                )}
               </CardContent>
             </Card>
           </Link>
@@ -330,6 +362,49 @@ export default function AdminPanel() {
                 </CardContent>
               </Card>
             ))
+          )}
+        </div>
+
+        {/* Richieste Video Interviste */}
+        <div className="mb-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-white text-lg font-bold flex items-center gap-2">
+              <div className="relative">
+                <Video className={`w-5 h-5 ${pendingVideoRequests.length > 0 ? 'text-red-500 animate-pulse' : 'text-slate-400'}`} />
+                {pendingVideoRequests.length > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold">
+                    {pendingVideoRequests.length}
+                  </span>
+                )}
+              </div>
+              Richieste Video Interviste ({pendingVideoRequests.length})
+            </h2>
+            <Button
+              size="sm"
+              variant="outline"
+              className="border-lime-400 text-lime-400 hover:bg-lime-400/20"
+              onClick={() => setShowVideoRequests(true)}
+            >
+              <Mail className="w-4 h-4 mr-1" />
+              Leggi Messaggi
+            </Button>
+          </div>
+          
+          {pendingVideoRequests.length === 0 ? (
+            <Card className="bg-slate-800 border-slate-700">
+              <CardContent className="p-6 text-center">
+                <Video className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+                <p className="text-slate-400">Nessuna richiesta di video intervista pendente</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="bg-gradient-to-br from-lime-500/20 to-lime-400/10 border-lime-400/30">
+              <CardContent className="p-4">
+                <p className="text-lime-400 text-sm">
+                  Hai {pendingVideoRequests.length} nuov{pendingVideoRequests.length === 1 ? 'a' : 'e'} richiest{pendingVideoRequests.length === 1 ? 'a' : 'e'} di video intervista
+                </p>
+              </CardContent>
+            </Card>
           )}
         </div>
 
@@ -494,6 +569,82 @@ export default function AdminPanel() {
           navigate(createPageUrl('Home'));
         }}
       />
+
+      {/* Dialog Richieste Video Interviste */}
+      <Dialog open={showVideoRequests} onOpenChange={setShowVideoRequests}>
+        <DialogContent className="bg-slate-800 border-slate-700 max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-white">Richieste Video Interviste</DialogTitle>
+          </DialogHeader>
+          <button
+            onClick={() => setShowVideoRequests(false)}
+            className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
+          >
+            <XCircle className="h-4 w-4 text-white" />
+          </button>
+          <div className="space-y-4 mt-4">
+            {videoInterviewRequests.length === 0 ? (
+              <p className="text-slate-400 text-center py-8">Nessuna richiesta ricevuta</p>
+            ) : (
+              videoInterviewRequests.map((request) => (
+                <Card key={request.id} className={`border ${request.status === 'pending' ? 'bg-lime-400/10 border-lime-400/30' : 'bg-slate-900 border-slate-700'}`}>
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <div>
+                        <h3 className="text-white font-bold">{request.requester_name}</h3>
+                        <p className="text-slate-400 text-xs">{request.requester_email}</p>
+                        {request.requester_phone && (
+                          <p className="text-slate-400 text-xs">{request.requester_phone}</p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {request.status === 'pending' && (
+                          <span className="bg-lime-400 text-slate-900 text-xs font-bold px-2 py-1 rounded">NUOVO</span>
+                        )}
+                        <button
+                          onClick={() => {
+                            if (confirm('Eliminare questa richiesta?')) {
+                              deleteVideoRequestMutation.mutate(request.id);
+                            }
+                          }}
+                          className="text-red-400 hover:text-red-500"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="bg-slate-800 rounded-lg p-3 mb-3">
+                      <p className="text-white text-sm whitespace-pre-wrap">{request.message}</p>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <p className="text-slate-500 text-xs">
+                        {new Date(request.created_date).toLocaleDateString('it-IT', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </p>
+                      {request.status === 'pending' && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-lime-400 text-lime-400 hover:bg-lime-400/20"
+                          onClick={() => markVideoRequestReadMutation.mutate(request.id)}
+                        >
+                          <Eye className="w-4 h-4 mr-1" />
+                          Segna come letto
+                        </Button>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

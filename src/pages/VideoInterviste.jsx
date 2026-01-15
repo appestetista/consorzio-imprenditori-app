@@ -180,6 +180,29 @@ export default function VideoInterviste() {
     mutationFn: async () => {
       if (!requestMessage.trim()) return;
       
+      // Salva la richiesta nel database
+      const request = await base44.entities.VideoInterviewRequest.create({
+        requester_email: effectiveUser.email,
+        requester_name: effectiveUser.company_name || effectiveUser.full_name,
+        requester_phone: effectiveUser.phone || '',
+        message: requestMessage,
+        status: 'pending'
+      });
+      
+      // Crea notifica per tutti gli admin
+      const admins = await base44.entities.User.filter({ role: 'admin' });
+      for (const admin of admins) {
+        await base44.entities.Notification.create({
+          user_email: admin.email,
+          type: 'video',
+          title: 'Nuova Richiesta Video Intervista',
+          content: `${effectiveUser.company_name || effectiveUser.full_name} ha richiesto una video intervista`,
+          reference_id: request.id,
+          is_read: false
+        });
+      }
+      
+      // Invia anche email
       await base44.integrations.Core.SendEmail({
         from_name: 'Piattaforma Consorzio',
         to: 'consorzioimprenditori@gmail.com',
@@ -203,6 +226,7 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
     onSuccess: () => {
       setShowRequestModal(false);
       setRequestMessage('');
+      alert('Richiesta inviata con successo!');
     }
   });
 
