@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
@@ -375,189 +376,274 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
           </div>
         )}
 
-        {/* Sezione Richieste Video - Solo Admin */}
-        {isAdmin && (
-          <div className="mb-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-white text-lg font-bold flex items-center gap-2">
-                <div className="relative">
-                  <Mail className={`w-5 h-5 ${pendingVideoRequests.length > 0 ? 'text-red-500 animate-pulse' : 'text-lime-400'}`} />
-                  {pendingVideoRequests.length > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold">
-                      {pendingVideoRequests.length}
-                    </span>
-                  )}
+        {/* Vista Admin con Tabs */}
+        {isAdmin ? (
+          <Tabs defaultValue="videos" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 bg-slate-800 mb-4">
+              <TabsTrigger value="videos" className="data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
+                <Video className="w-4 h-4 mr-2" />
+                Video ({videos.length})
+              </TabsTrigger>
+              <TabsTrigger value="requests" className="data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900 relative">
+                <Mail className="w-4 h-4 mr-2" />
+                Richieste
+                {pendingVideoRequests.length > 0 && (
+                  <span className="ml-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                    {pendingVideoRequests.length}
+                  </span>
+                )}
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="videos">
+              {isLoading ? (
+                <div className="text-center py-12">
+                  <div className="animate-spin w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full mx-auto"></div>
                 </div>
-                Richieste Video ({videoInterviewRequests.length})
-              </h2>
-            </div>
-            
-            {videoInterviewRequests.length === 0 ? (
-              <Card className="bg-slate-800 border-slate-700">
-                <CardContent className="p-4 text-center">
-                  <Mail className="w-10 h-10 text-slate-600 mx-auto mb-2" />
-                  <p className="text-slate-400 text-sm">Nessuna richiesta ricevuta</p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="space-y-3">
-                {videoInterviewRequests.map((request) => (
-                  <Card key={request.id} className={`border ${request.status === 'pending' ? 'bg-lime-400/10 border-lime-400/30' : 'bg-slate-800 border-slate-700'}`}>
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between gap-3 mb-2">
-                        <div>
-                          <h3 className="text-white font-bold text-sm">{request.requester_name}</h3>
-                          <p className="text-slate-400 text-xs">{request.requester_email}</p>
-                          {request.requester_phone && (
-                            <p className="text-slate-400 text-xs">{request.requester_phone}</p>
+              ) : videos.length === 0 ? (
+                <div className="text-center py-12">
+                  <Video className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+                  <p className="text-slate-400">Nessun video disponibile</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {videos.map((video) => {
+                    const youtubeId = getYouTubeId(video.youtube_url);
+                    const likesCount = video.likes?.length || 0;
+                    
+                    return (
+                      <Card key={video.id} className="bg-slate-800 border-slate-700 overflow-hidden">
+                        <div className="relative">
+                          <div className="bg-lime-400 text-slate-900 text-sm font-bold px-3 py-1">
+                            AZIENDA {video.company_name?.toUpperCase()}
+                          </div>
+                          
+                          {video.title && (
+                            <div className="bg-slate-900 px-3 py-2 border-b border-slate-700">
+                              <h3 className="text-white font-semibold text-base">{video.title}</h3>
+                            </div>
+                          )}
+                          
+                          {youtubeId ? (
+                            <div className="relative aspect-video">
+                              <iframe
+                                src={`https://www.youtube.com/embed/${youtubeId}`}
+                                title={video.title}
+                                className="absolute inset-0 w-full h-full"
+                                frameBorder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                              />
+                            </div>
+                          ) : (
+                            <div className="aspect-video bg-slate-700 flex items-center justify-center">
+                              <Play className="w-16 h-16 text-slate-500" />
+                            </div>
                           )}
                         </div>
-                        <div className="flex items-center gap-2">
-                          {request.status === 'pending' && (
-                            <span className="bg-lime-400 text-slate-900 text-xs font-bold px-2 py-0.5 rounded">NUOVO</span>
-                          )}
-                          <button
-                            onClick={() => {
-                              if (confirm('Eliminare questa richiesta?')) {
-                                deleteVideoRequestMutation.mutate(request.id);
-                              }
-                            }}
-                            className="text-red-400 hover:text-red-500"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                      <div className="bg-slate-900 rounded-lg p-3 mb-2">
-                        <p className="text-white text-sm whitespace-pre-wrap">{request.message}</p>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <p className="text-slate-500 text-xs flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {new Date(request.created_date).toLocaleDateString('it-IT', {
-                            day: 'numeric',
-                            month: 'short',
-                            year: 'numeric'
-                          })}
-                        </p>
-                        {request.status === 'pending' && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="border-lime-400 text-lime-400 hover:bg-lime-400/20 h-7 text-xs"
-                            onClick={() => markVideoRequestReadMutation.mutate(request.id)}
-                          >
-                            <Eye className="w-3 h-3 mr-1" />
-                            Letto
-                          </Button>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        <h2 className="text-white text-lg font-bold mb-4 text-center">VIDEO INTERVISTE</h2>
-
-        {isLoading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full mx-auto"></div>
-          </div>
-        ) : videos.length === 0 ? (
-          <div className="text-center py-12">
-            <Video className="w-16 h-16 text-slate-600 mx-auto mb-4" />
-            <p className="text-slate-400">Nessun video disponibile</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {videos.map((video) => {
-              const youtubeId = getYouTubeId(video.youtube_url);
-              const likesCount = video.likes?.length || 0;
-              
-              return (
-                <Card key={video.id} className="bg-slate-800 border-slate-700 overflow-hidden">
-                  <div className="relative">
-                    <div className="bg-lime-400 text-slate-900 text-sm font-bold px-3 py-1">
-                      AZIENDA {video.company_name?.toUpperCase()}
-                    </div>
-                    
-                    {video.title && (
-                      <div className="bg-slate-900 px-3 py-2 border-b border-slate-700">
-                        <h3 className="text-white font-semibold text-base">{video.title}</h3>
-                      </div>
-                    )}
-                    
-                    {youtubeId ? (
-                      <div className="relative aspect-video">
-                        <iframe
-                          src={`https://www.youtube.com/embed/${youtubeId}`}
-                          title={video.title}
-                          className="absolute inset-0 w-full h-full"
-                          frameBorder="0"
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                          allowFullScreen
-                        />
-                      </div>
-                    ) : (
-                      <div className="aspect-video bg-slate-700 flex items-center justify-center">
-                        <Play className="w-16 h-16 text-slate-500" />
-                      </div>
-                    )}
-                  </div>
-                  <CardContent className="p-3">
-                    <div className="flex items-center justify-between gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="bg-lime-400 hover:bg-lime-500 text-slate-900 border-0"
-                        onClick={() => sendContactMessageMutation.mutate(video)}
-                        disabled={sendContactMessageMutation.isPending}
-                      >
-                        <MessageCircle className="w-4 h-4 mr-2" />
-                        {sendContactMessageMutation.isPending ? 'Invio...' : 'contatta l\'azienda'}
-                      </Button>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => toggleLikeMutation.mutate({ videoId: video.id, video })}
-                          className="flex items-center gap-1"
-                        >
-                          <ThumbsUp 
-                            className={`w-5 h-5 ${hasUserLiked(video) ? 'text-lime-400 fill-lime-400' : 'text-slate-400'}`} 
-                          />
-                          {likesCount > 0 && (
-                            <span className="bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
-                              {likesCount}
-                            </span>
-                          )}
-                        </button>
-                        {isAdmin && (
-                          <>
-                            <button
-                              onClick={() => handleEditVideo(video)}
-                              className="p-2 hover:bg-blue-500/20 rounded-lg transition-colors"
-                              title="Modifica video"
+                        <CardContent className="p-3">
+                          <div className="flex items-center justify-between gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="bg-lime-400 hover:bg-lime-500 text-slate-900 border-0"
+                              onClick={() => sendContactMessageMutation.mutate(video)}
+                              disabled={sendContactMessageMutation.isPending}
                             >
-                              <Edit className="w-4 h-4 text-blue-400" />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteVideo(video)}
-                              className="p-2 hover:bg-red-500/20 rounded-lg transition-colors"
-                              title="Elimina video"
-                            >
-                              <Trash2 className="w-4 h-4 text-red-400" />
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    </div>
+                              <MessageCircle className="w-4 h-4 mr-2" />
+                              {sendContactMessageMutation.isPending ? 'Invio...' : 'contatta l\'azienda'}
+                            </Button>
+                            <div className="flex items-center gap-2">
+                              <button
+                                onClick={() => toggleLikeMutation.mutate({ videoId: video.id, video })}
+                                className="flex items-center gap-1"
+                              >
+                                <ThumbsUp 
+                                  className={`w-5 h-5 ${hasUserLiked(video) ? 'text-lime-400 fill-lime-400' : 'text-slate-400'}`} 
+                                />
+                                {likesCount > 0 && (
+                                  <span className="bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
+                                    {likesCount}
+                                  </span>
+                                )}
+                              </button>
+                              <button
+                                onClick={() => handleEditVideo(video)}
+                                className="p-2 hover:bg-blue-500/20 rounded-lg transition-colors"
+                                title="Modifica video"
+                              >
+                                <Edit className="w-4 h-4 text-blue-400" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteVideo(video)}
+                                className="p-2 hover:bg-red-500/20 rounded-lg transition-colors"
+                                title="Elimina video"
+                              >
+                                <Trash2 className="w-4 h-4 text-red-400" />
+                              </button>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="requests">
+              {videoInterviewRequests.length === 0 ? (
+                <Card className="bg-slate-800 border-slate-700">
+                  <CardContent className="p-8 text-center">
+                    <Mail className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+                    <p className="text-slate-400">Nessuna richiesta ricevuta</p>
                   </CardContent>
                 </Card>
-              );
-            })}
-          </div>
+              ) : (
+                <div className="space-y-3">
+                  {videoInterviewRequests.map((request) => (
+                    <Card key={request.id} className={`border ${request.status === 'pending' ? 'bg-lime-400/10 border-lime-400/30' : 'bg-slate-800 border-slate-700'}`}>
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between gap-3 mb-2">
+                          <div>
+                            <h3 className="text-white font-bold text-sm">{request.requester_name}</h3>
+                            <p className="text-slate-400 text-xs">{request.requester_email}</p>
+                            {request.requester_phone && (
+                              <p className="text-slate-400 text-xs">{request.requester_phone}</p>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {request.status === 'pending' && (
+                              <span className="bg-lime-400 text-slate-900 text-xs font-bold px-2 py-0.5 rounded">NUOVO</span>
+                            )}
+                            <button
+                              onClick={() => {
+                                if (confirm('Eliminare questa richiesta?')) {
+                                  deleteVideoRequestMutation.mutate(request.id);
+                                }
+                              }}
+                              className="text-red-400 hover:text-red-500"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                        <div className="bg-slate-900 rounded-lg p-3 mb-2">
+                          <p className="text-white text-sm whitespace-pre-wrap">{request.message}</p>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <p className="text-slate-500 text-xs flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {new Date(request.created_date).toLocaleDateString('it-IT', {
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric'
+                            })}
+                          </p>
+                          {request.status === 'pending' && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-lime-400 text-lime-400 hover:bg-lime-400/20 h-7 text-xs"
+                              onClick={() => markVideoRequestReadMutation.mutate(request.id)}
+                            >
+                              <Eye className="w-3 h-3 mr-1" />
+                              Letto
+                            </Button>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
+        ) : (
+          /* Vista Utente normale */
+          <>
+            <h2 className="text-white text-lg font-bold mb-4 text-center">VIDEO INTERVISTE</h2>
+
+            {isLoading ? (
+              <div className="text-center py-12">
+                <div className="animate-spin w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full mx-auto"></div>
+              </div>
+            ) : videos.length === 0 ? (
+              <div className="text-center py-12">
+                <Video className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+                <p className="text-slate-400">Nessun video disponibile</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {videos.map((video) => {
+                  const youtubeId = getYouTubeId(video.youtube_url);
+                  const likesCount = video.likes?.length || 0;
+                  
+                  return (
+                    <Card key={video.id} className="bg-slate-800 border-slate-700 overflow-hidden">
+                      <div className="relative">
+                        <div className="bg-lime-400 text-slate-900 text-sm font-bold px-3 py-1">
+                          AZIENDA {video.company_name?.toUpperCase()}
+                        </div>
+                        
+                        {video.title && (
+                          <div className="bg-slate-900 px-3 py-2 border-b border-slate-700">
+                            <h3 className="text-white font-semibold text-base">{video.title}</h3>
+                          </div>
+                        )}
+                        
+                        {youtubeId ? (
+                          <div className="relative aspect-video">
+                            <iframe
+                              src={`https://www.youtube.com/embed/${youtubeId}`}
+                              title={video.title}
+                              className="absolute inset-0 w-full h-full"
+                              frameBorder="0"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                            />
+                          </div>
+                        ) : (
+                          <div className="aspect-video bg-slate-700 flex items-center justify-center">
+                            <Play className="w-16 h-16 text-slate-500" />
+                          </div>
+                        )}
+                      </div>
+                      <CardContent className="p-3">
+                        <div className="flex items-center justify-between gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="bg-lime-400 hover:bg-lime-500 text-slate-900 border-0"
+                            onClick={() => sendContactMessageMutation.mutate(video)}
+                            disabled={sendContactMessageMutation.isPending}
+                          >
+                            <MessageCircle className="w-4 h-4 mr-2" />
+                            {sendContactMessageMutation.isPending ? 'Invio...' : 'contatta l\'azienda'}
+                          </Button>
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => toggleLikeMutation.mutate({ videoId: video.id, video })}
+                              className="flex items-center gap-1"
+                            >
+                              <ThumbsUp 
+                                className={`w-5 h-5 ${hasUserLiked(video) ? 'text-lime-400 fill-lime-400' : 'text-slate-400'}`} 
+                              />
+                              {likesCount > 0 && (
+                                <span className="bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
+                                  {likesCount}
+                                </span>
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
+          </>
         )}
       </main>
 
