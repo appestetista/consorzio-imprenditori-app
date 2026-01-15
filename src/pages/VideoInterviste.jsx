@@ -330,22 +330,24 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
           )}
         </div>
 
-        {/* Banner richiesta video */}
-        <div 
-          className="bg-lime-400 rounded-xl p-4 mb-6 flex items-center justify-between cursor-pointer hover:bg-lime-500 transition-colors"
-          onClick={() => setShowRequestModal(true)}
-        >
-          <div>
-            <p className="text-slate-900 text-sm font-medium">richiedi la tua video intervista</p>
-            <p className="text-slate-700 text-xs">annuale compresa nel prezzo d'iscrizione</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-slate-900 text-xs">clicca qui</span>
-            <div className="bg-slate-900 rounded-lg p-2">
-              <Video className="w-6 h-6 text-lime-400" />
+        {/* Banner richiesta video - solo per utenti non admin */}
+        {!isAdmin && (
+          <div 
+            className="bg-lime-400 rounded-xl p-4 mb-6 flex items-center justify-between cursor-pointer hover:bg-lime-500 transition-colors"
+            onClick={() => setShowRequestModal(true)}
+          >
+            <div>
+              <p className="text-slate-900 text-sm font-medium">richiedi la tua video intervista</p>
+              <p className="text-slate-700 text-xs">annuale compresa nel prezzo d'iscrizione</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-slate-900 text-xs">clicca qui</span>
+              <div className="bg-slate-900 rounded-lg p-2">
+                <Video className="w-6 h-6 text-lime-400" />
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         <h2 className="text-white text-lg font-bold mb-4 text-center">VIDEO INTERVISTE</h2>
 
