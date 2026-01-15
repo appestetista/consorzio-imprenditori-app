@@ -53,8 +53,18 @@ export default function AdminView({ consultants, adminEmail }) {
     queryFn: () => base44.entities.ConsultationBooking.list('-created_date'),
   });
 
-  // Conta le richieste pending (nuove)
-  const pendingBookingsCount = allBookings.filter(b => b.status === 'pending').length;
+  // Conta le notifiche di consulenza non lette per l'admin
+  const { data: unreadConsultationNotifications = [] } = useQuery({
+    queryKey: ['unread-consultation-notifications', adminEmail],
+    queryFn: () => base44.entities.Notification.filter({
+      user_email: adminEmail,
+      type: 'consultation',
+      is_read: false
+    }),
+    enabled: !!adminEmail,
+  });
+
+  const unreadConsultationCount = unreadConsultationNotifications.length;
 
   // Segna le notifiche come lette e marca come visualizzate quando si apre il tab Richieste
   React.useEffect(() => {
