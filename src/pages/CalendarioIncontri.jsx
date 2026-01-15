@@ -129,7 +129,7 @@ export default function CalendarioIncontri() {
         dataBlocco = new Date(eventDateTime.getTime() - (48 * 60 * 60 * 1000));
       }
 
-      return base44.entities.Event.update(editingEvent.id, {
+      const updatedEvent = await base44.entities.Event.update(editingEvent.id, {
         title: eventData.title,
         description: eventData.description,
         date: eventData.date,
@@ -139,6 +139,21 @@ export default function CalendarioIncontri() {
         data_blocco_partecipazione: dataBlocco?.toISOString(),
         reminder_enabled: eventData.reminder_enabled
       });
+
+      // Invia notifica a tutti gli utenti invitati
+      const partecipazioniEvento = partecipazioni.filter(p => p.evento_id === editingEvent.id);
+      for (const p of partecipazioniEvento) {
+        await base44.entities.Notification.create({
+          user_email: p.user_email,
+          type: 'event',
+          title: 'Evento modificato',
+          content: `L'evento "${eventData.title}" è stato modificato. Controlla i dettagli aggiornati.`,
+          reference_id: editingEvent.id,
+          is_read: false
+        });
+      }
+
+      return updatedEvent;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['events'] });
