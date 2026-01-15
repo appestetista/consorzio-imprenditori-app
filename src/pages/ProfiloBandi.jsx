@@ -126,6 +126,8 @@ export default function ProfiloBandi() {
     has_durc_regolare: true, // DURC regolare
     has_antimafia_clean: true, // Certificazione antimafia
     has_fiscal_regularity: true, // Regolarità fiscale
+    has_safety_compliance: true, // Regolarità sicurezza lavoro D.Lgs 81/08
+    can_comply_dnsh: true, // Rispetto principio DNSH (Do No Significant Harm)
     
     // Aree di Interesse per Investimenti
     interested_in_digital: false,
