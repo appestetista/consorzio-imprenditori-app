@@ -20,7 +20,7 @@ import InviteEventDialog from '../components/calendario/InviteEventDialog';
 export default function CalendarioIncontri() {
   const [user, setUser] = useState(null);
   const [showAddEvent, setShowAddEvent] = useState(false);
-  const [newEvent, setNewEvent] = useState({ title: '', description: '', date: '', time: '', location: '', image_url: '' });
+  const [newEvent, setNewEvent] = useState({ title: '', description: '', date: '', time: '', location: '', image_url: '', reminder_enabled: false });
   const [uploadingImage, setUploadingImage] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
   const [showEditEvent, setShowEditEvent] = useState(false);
@@ -115,7 +115,7 @@ export default function CalendarioIncontri() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['events'] });
       setShowAddEvent(false);
-      setNewEvent({ title: '', description: '', date: '', time: '', location: '', image_url: '' });
+      setNewEvent({ title: '', description: '', date: '', time: '', location: '', image_url: '', reminder_enabled: false });
     }
   });
 
