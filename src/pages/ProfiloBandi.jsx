@@ -612,6 +612,9 @@ export default function ProfiloBandi() {
               <p className="text-slate-400 text-sm mb-2">
                 Seleziona se applicabili (danno accesso a bandi dedicati):
               </p>
+              <p className="text-blue-400 text-xs bg-blue-500/10 border border-blue-500/30 rounded-lg p-2 mb-3">
+                ℹ️ <strong>Importante:</strong> Le caratteristiche "Start-up Innovativa", "PMI Innovativa" e "Impresa Sociale" devono risultare dalla <strong>Visura Camerale</strong> (iscrizione alla sezione speciale del Registro Imprese). Per "Impresa Femminile" e "Impresa Giovanile" verifica che la composizione societaria rispetti i requisiti indicati.
+              </p>
               
               <label className="flex items-center gap-3 p-3 bg-slate-900 rounded-lg cursor-pointer hover:bg-slate-900/70">
                 <input
