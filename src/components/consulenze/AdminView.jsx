@@ -65,24 +65,19 @@ export default function AdminView({ consultants, adminEmail }) {
 
   const unreadConsultationCount = unreadConsultationNotifications.length;
 
-  // Segna le notifiche come lette e marca come visualizzate quando si apre il tab Richieste
+  // Segna le notifiche come lette quando si apre il tab Richieste
   React.useEffect(() => {
     const markNotificationsAsRead = async () => {
-      if (activeTab === 'bookings' && adminEmail) {
-        setHasViewedBookings(true);
-        const notifications = await base44.entities.Notification.filter({
-          user_email: adminEmail,
-          type: 'consultation',
-          is_read: false
-        });
-        for (const notif of notifications) {
+      if (activeTab === 'bookings' && adminEmail && unreadConsultationNotifications.length > 0) {
+        for (const notif of unreadConsultationNotifications) {
           await base44.entities.Notification.update(notif.id, { is_read: true });
         }
         queryClient.invalidateQueries({ queryKey: ['notifications'] });
+        queryClient.invalidateQueries({ queryKey: ['unread-consultation-notifications', adminEmail] });
       }
     };
     markNotificationsAsRead();
-  }, [activeTab, adminEmail, queryClient]);
+  }, [activeTab, adminEmail, queryClient, unreadConsultationNotifications]);
 
   const saveConsultantMutation = useMutation({
     mutationFn: async (data) => {
