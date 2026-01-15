@@ -292,9 +292,9 @@ export default function GestioneMembri() {
       <main className="px-4 py-6 max-w-md mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate(createPageUrl('AdminPanel'))} className="text-lime-400">
+            <Link to={createPageUrl('AdminPanel')} className="text-lime-400">
               <ArrowLeft className="w-6 h-6" />
-            </button>
+            </Link>
             <h1 className="text-white text-xl font-bold">Gestione Utenti</h1>
           </div>
           <Button
