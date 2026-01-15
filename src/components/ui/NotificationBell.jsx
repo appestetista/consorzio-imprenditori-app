@@ -7,41 +7,9 @@ export default function NotificationBell({ count = 0, className }) {
 
   return (
     <div className={cn("relative", className)}>
-      <style>{`
-        @keyframes bellShake {
-          0%, 100% { transform: rotate(0deg) scale(1); }
-          10% { transform: rotate(-15deg) scale(1.2); }
-          20% { transform: rotate(15deg) scale(0.9); }
-          30% { transform: rotate(-15deg) scale(1.2); }
-          40% { transform: rotate(15deg) scale(0.9); }
-          50% { transform: rotate(0deg) scale(1.1); }
-          60% { transform: rotate(-10deg) scale(1); }
-          70% { transform: rotate(10deg) scale(1.15); }
-          80% { transform: rotate(-5deg) scale(0.95); }
-          90% { transform: rotate(5deg) scale(1.1); }
-        }
-        @keyframes dotPulse {
-          0%, 100% { transform: scale(1); }
-          10% { transform: scale(1.3); }
-          20% { transform: scale(0.85); }
-          30% { transform: scale(1.3); }
-          40% { transform: scale(0.85); }
-          50% { transform: scale(1.15); }
-          60% { transform: scale(1); }
-          70% { transform: scale(1.2); }
-          80% { transform: scale(0.9); }
-          90% { transform: scale(1.15); }
-        }
-      `}</style>
-      <Bell 
-        className="w-5 h-5 text-lime-400" 
-        style={hasNotifications ? { animation: 'bellShake 1.5s ease-in-out infinite' } : {}}
-      />
+      <Bell className="w-5 h-5 text-lime-400" />
       {hasNotifications && (
-        <span 
-          className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold"
-          style={{ animation: 'dotPulse 1.5s ease-in-out infinite' }}
-        >
+        <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
           {count > 99 ? '99+' : count}
         </span>
       )}
