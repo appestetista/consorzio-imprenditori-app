@@ -178,7 +178,7 @@ export default function Home() {
             </Link>
           </div>
         ) : eventResponse === 'declined' ? (
-          <div className="bg-red-500 rounded-xl p-4 mb-6">
+          <div className="bg-red-700 rounded-xl p-4 mb-6">
             <h2 className="text-white font-bold text-lg mb-1">✗ Hai scelto di non partecipare</h2>
             {nextEvent && (
               <p className="text-red-100 text-sm">
