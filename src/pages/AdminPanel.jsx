@@ -458,12 +458,6 @@ export default function AdminPanel() {
                 <DialogHeader>
                   <DialogTitle className="text-white">Nuovo Consulente</DialogTitle>
                 </DialogHeader>
-                <button
-                  onClick={() => setShowAddConsultant(false)}
-                  className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
-                >
-                  <XCircle className="h-4 w-4 text-white" />
-                </button>
                 <div className="space-y-4 mt-4">
                   <Input
                     placeholder="Nome/Studio"
@@ -588,12 +582,6 @@ export default function AdminPanel() {
           <DialogHeader>
             <DialogTitle className="text-white">Richieste Video Interviste</DialogTitle>
           </DialogHeader>
-          <button
-            onClick={() => setShowVideoRequests(false)}
-            className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
-          >
-            <XCircle className="h-4 w-4 text-white" />
-          </button>
           <div className="space-y-4 mt-4">
             {videoInterviewRequests.length === 0 ? (
               <p className="text-slate-400 text-center py-8">Nessuna richiesta ricevuta</p>
