@@ -80,24 +80,9 @@ export default function Header({ user, totalNotifications = 0 }) {
           )}
 
           {totalNotifications > 0 && (
-            <div className="relative">
-              <Bell 
-                className="w-6 h-6 text-lime-400" 
-                style={{
-                  animation: 'shake 0.5s ease-in-out infinite'
-                }}
-              />
-              <style>{`
-                @keyframes shake {
-                  0%, 100% { transform: rotate(0deg); }
-                  25% { transform: rotate(-15deg); }
-                  75% { transform: rotate(15deg); }
-                }
-              `}</style>
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold">
-                {totalNotifications > 99 ? '99+' : totalNotifications}
-              </span>
-            </div>
+            <span className="bg-red-500 text-white text-sm rounded-full w-6 h-6 flex items-center justify-center font-bold">
+              {totalNotifications > 99 ? '99+' : totalNotifications}
+            </span>
           )}
           <button 
             onClick={() => setMenuOpen(!menuOpen)}
