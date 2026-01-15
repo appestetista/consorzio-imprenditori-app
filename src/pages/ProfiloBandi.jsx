@@ -708,6 +708,9 @@ export default function ProfiloBandi() {
               <p className="text-slate-400 text-sm mb-2">
                 Requisiti obbligatori per partecipare ai bandi:
               </p>
+              <p className="text-blue-400 text-xs bg-blue-500/10 border border-blue-500/30 rounded-lg p-2 mb-3">
+                ℹ️ <strong>Quando servono questi documenti?</strong> Spunta se li hai già O se intendi procurarteli prima della domanda. Il DURC e la regolarità fiscale sono richiesti al momento della presentazione della domanda. La certificazione antimafia viene acquisita d'ufficio per importi &gt;€150.000, ma devi comunque essere in regola.
+              </p>
               
               <label className="flex items-center gap-3 p-3 bg-green-900/20 border border-green-800/30 rounded-lg cursor-pointer">
                 <input
