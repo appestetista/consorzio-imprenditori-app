@@ -412,6 +412,46 @@ export default function MyProfile() {
           <Save className="w-5 h-5 mr-2" />
           {saving ? 'Salvataggio...' : 'Salva Modifiche'}
         </Button>
+
+          </TabsContent>
+
+          {user?.role !== 'consulente' && (
+            <TabsContent value="bandi">
+              <Card className="bg-slate-800 border-slate-700">
+                <CardHeader>
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-lime-400" />
+                    Profilo per i Bandi
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-slate-400 text-sm">
+                    Completa il tuo profilo per i bandi per ricevere suggerimenti personalizzati sui finanziamenti disponibili per la tua azienda.
+                  </p>
+                  
+                  <div className="bg-slate-900 rounded-lg p-4 border border-slate-700">
+                    <h4 className="text-white font-medium mb-2">Cosa include:</h4>
+                    <ul className="text-slate-400 text-sm space-y-1">
+                      <li>• Dati aziendali e dimensione impresa</li>
+                      <li>• Localizzazione e zone speciali (ZES, aree di crisi)</li>
+                      <li>• Settore di attività e codice ATECO</li>
+                      <li>• Certificazioni e requisiti obbligatori</li>
+                      <li>• Aree di interesse per investimenti</li>
+                    </ul>
+                  </div>
+
+                  <Button
+                    onClick={() => navigate(createPageUrl('ProfiloBandi'))}
+                    className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 py-6"
+                  >
+                    Vai al Profilo Bandi
+                    <ChevronRight className="w-5 h-5 ml-2" />
+                  </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
+        </Tabs>
       </main>
 
       <BottomNav currentPage="MyProfile" />
