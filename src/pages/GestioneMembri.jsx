@@ -492,12 +492,6 @@ export default function GestioneMembri() {
               {selectedMember ? 'Modifica Dati Azienda' : 'Nuovo Membro Azienda'}
             </DialogTitle>
           </DialogHeader>
-          <button
-            onClick={() => setShowMemberForm(false)}
-            className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
-          >
-            <X className="h-4 w-4 text-slate-400" />
-          </button>
           
           {formData && (
             <div className="space-y-6 mt-4">
