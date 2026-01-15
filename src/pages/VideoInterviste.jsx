@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Video, ThumbsUp, MessageCircle, Plus, ArrowLeft, Play, Trash2, X, Edit } from 'lucide-react';
+import { Video, ThumbsUp, MessageCircle, Plus, ArrowLeft, Play, Trash2, X, Edit, Mail, Eye, Clock, Bell } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -92,6 +92,32 @@ export default function VideoInterviste() {
     queryKey: ['all-users'],
     queryFn: () => base44.entities.User.list(),
     enabled: isAdmin,
+  });
+
+  const { data: videoInterviewRequests = [] } = useQuery({
+    queryKey: ['video-interview-requests'],
+    queryFn: () => base44.entities.VideoInterviewRequest.list('-created_date'),
+    enabled: isAdmin,
+  });
+
+  const pendingVideoRequests = videoInterviewRequests.filter(r => r.status === 'pending');
+
+  const markVideoRequestReadMutation = useMutation({
+    mutationFn: async (requestId) => {
+      await base44.entities.VideoInterviewRequest.update(requestId, { status: 'read' });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['video-interview-requests'] });
+    }
+  });
+
+  const deleteVideoRequestMutation = useMutation({
+    mutationFn: async (requestId) => {
+      await base44.entities.VideoInterviewRequest.delete(requestId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['video-interview-requests'] });
+    }
   });
 
   const createVideoMutation = useMutation({
@@ -346,6 +372,91 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
                 <Video className="w-6 h-6 text-lime-400" />
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Sezione Richieste Video - Solo Admin */}
+        {isAdmin && (
+          <div className="mb-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-white text-lg font-bold flex items-center gap-2">
+                <div className="relative">
+                  <Mail className={`w-5 h-5 ${pendingVideoRequests.length > 0 ? 'text-red-500 animate-pulse' : 'text-lime-400'}`} />
+                  {pendingVideoRequests.length > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold">
+                      {pendingVideoRequests.length}
+                    </span>
+                  )}
+                </div>
+                Richieste Video ({videoInterviewRequests.length})
+              </h2>
+            </div>
+            
+            {videoInterviewRequests.length === 0 ? (
+              <Card className="bg-slate-800 border-slate-700">
+                <CardContent className="p-4 text-center">
+                  <Mail className="w-10 h-10 text-slate-600 mx-auto mb-2" />
+                  <p className="text-slate-400 text-sm">Nessuna richiesta ricevuta</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-3">
+                {videoInterviewRequests.map((request) => (
+                  <Card key={request.id} className={`border ${request.status === 'pending' ? 'bg-lime-400/10 border-lime-400/30' : 'bg-slate-800 border-slate-700'}`}>
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between gap-3 mb-2">
+                        <div>
+                          <h3 className="text-white font-bold text-sm">{request.requester_name}</h3>
+                          <p className="text-slate-400 text-xs">{request.requester_email}</p>
+                          {request.requester_phone && (
+                            <p className="text-slate-400 text-xs">{request.requester_phone}</p>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {request.status === 'pending' && (
+                            <span className="bg-lime-400 text-slate-900 text-xs font-bold px-2 py-0.5 rounded">NUOVO</span>
+                          )}
+                          <button
+                            onClick={() => {
+                              if (confirm('Eliminare questa richiesta?')) {
+                                deleteVideoRequestMutation.mutate(request.id);
+                              }
+                            }}
+                            className="text-red-400 hover:text-red-500"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                      <div className="bg-slate-900 rounded-lg p-3 mb-2">
+                        <p className="text-white text-sm whitespace-pre-wrap">{request.message}</p>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <p className="text-slate-500 text-xs flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {new Date(request.created_date).toLocaleDateString('it-IT', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric'
+                          })}
+                        </p>
+                        {request.status === 'pending' && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-lime-400 text-lime-400 hover:bg-lime-400/20 h-7 text-xs"
+                            onClick={() => markVideoRequestReadMutation.mutate(request.id)}
+                          >
+                            <Eye className="w-3 h-3 mr-1" />
+                            Letto
+                          </Button>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
