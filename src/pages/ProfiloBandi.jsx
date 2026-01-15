@@ -567,6 +567,9 @@ export default function ProfiloBandi() {
                   ⚠️ Condizioni di Esclusione
                   <HelpTooltip text="ATTENZIONE: queste condizioni escludono l'accesso alla maggior parte dei bandi europei e nazionali. Rispondi con attenzione." />
                 </Label>
+                <p className="text-yellow-400 text-xs bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-2">
+                  ⚠️ <strong>NON spuntare</strong> queste caselle se la tua azienda NON si trova in queste condizioni. Spunta solo se sei effettivamente in difficoltà o hai aiuti da recuperare.
+                </p>
                 
                 <label className="flex items-center gap-3 p-3 bg-red-900/20 border border-red-800/30 rounded-lg cursor-pointer">
                   <input
