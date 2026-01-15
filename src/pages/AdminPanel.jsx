@@ -255,11 +255,16 @@ export default function AdminPanel() {
             </Card>
           </Link>
           <Link to={createPageUrl('Consulenze')}>
-            <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 transition-colors cursor-pointer">
+            <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 transition-colors cursor-pointer relative">
               <CardContent className="p-4 text-center">
                 <Briefcase className="w-8 h-8 text-lime-400 mx-auto mb-2" />
                 <p className="text-2xl font-bold text-white">{stats?.totalConsultants || 0}</p>
                 <p className="text-slate-400 text-sm">Consulenti</p>
+                {pendingConsultationBookings > 0 && (
+                  <span className="absolute top-2 right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold animate-pulse">
+                    {pendingConsultationBookings}
+                  </span>
+                )}
               </CardContent>
             </Card>
           </Link>
