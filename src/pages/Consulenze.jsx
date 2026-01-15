@@ -89,7 +89,7 @@ export default function Consulenze() {
           </h1>
         </div>
 
-        {isAdmin && <AdminView consultants={consultants} />}
+        {isAdmin && <AdminView consultants={consultants} adminEmail={user?.email} />}
         {isConsultant && <ConsultantView user={effectiveUser} />}
         {isMember && <MemberView user={effectiveUser} consultants={consultants} isLoading={isLoading} />}
       </main>
