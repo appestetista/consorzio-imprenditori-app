@@ -10,6 +10,7 @@ import FeatureCard from '../components/home/FeatureCard';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import EventInvitePopup from '../components/calendario/EventInvitePopup';
 import useNotificationSound from '../components/hooks/useNotificationSound';
+import ChangeResponsePopup from '../components/calendario/ChangeResponsePopup';
 
 export default function Home() {
   const [user, setUser] = useState(null);
@@ -153,6 +154,7 @@ export default function Home() {
   const culturaAziendaleNotifications = notifications.filter(n => n.type === 'cultura_aziendale').length;
 
   const isConsultant = effectiveUser?.role === 'consulente';
+  const [showChangeResponse, setShowChangeResponse] = useState(false);
 
   const features = [
     { title: 'Calendario\nincontri', icon: Calendar, page: 'CalendarioIncontri', notifications: eventNotifications, permission: 'calendario' },
@@ -171,31 +173,37 @@ export default function Home() {
       
       <main className="px-4 py-6 max-w-md mx-auto">
         {/* Welcome Banner */}
-        {eventResponse === 'accepted' ? (
-          <div className="bg-green-700 rounded-xl p-4 mb-6">
-            <h2 className="text-white font-bold text-lg mb-1">✓ Hai scelto di partecipare</h2>
-            {nextEvent && (
-              <p className="text-green-100 text-sm">
-                Incontro "{nextEvent.title}" del {new Date(nextEvent.date).toLocaleDateString('it-IT', { day: 'numeric', month: 'long' })} ore {nextEvent.time} - {nextEvent.location}
-              </p>
-            )}
-            <Link to={createPageUrl('CalendarioIncontri')} className="text-white text-sm underline mt-2 inline-block hover:text-green-200">
-              Hai cambiato idea?
-            </Link>
-          </div>
-        ) : eventResponse === 'declined' ? (
-          <div className="bg-red-700 rounded-xl p-4 mb-6">
-            <h2 className="text-white font-bold text-lg mb-1">✗ Hai scelto di non partecipare</h2>
-            {nextEvent && (
-              <p className="text-red-100 text-sm">
-                Incontro "{nextEvent.title}" del {new Date(nextEvent.date).toLocaleDateString('it-IT', { day: 'numeric', month: 'long' })} ore {nextEvent.time} - {nextEvent.location}
-              </p>
-            )}
-            <Link to={createPageUrl('CalendarioIncontri')} className="text-white text-sm underline mt-2 inline-block hover:text-red-200">
-              Hai cambiato idea?
-            </Link>
-          </div>
-        ) : (
+                  {eventResponse === 'accepted' ? (
+                    <div className="bg-green-700 rounded-xl p-4 mb-6">
+                      <h2 className="text-white font-bold text-lg mb-1">✓ Hai scelto di partecipare</h2>
+                      {nextEvent && (
+                        <p className="text-green-100 text-sm">
+                          Incontro "{nextEvent.title}" del {new Date(nextEvent.date).toLocaleDateString('it-IT', { day: 'numeric', month: 'long' })} ore {nextEvent.time} - {nextEvent.location}
+                        </p>
+                      )}
+                      <button 
+                        onClick={() => setShowChangeResponse(true)}
+                        className="text-white text-sm underline mt-2 inline-block hover:text-green-200"
+                      >
+                        Hai cambiato idea?
+                      </button>
+                    </div>
+                  ) : eventResponse === 'declined' ? (
+                    <div className="bg-red-700 rounded-xl p-4 mb-6">
+                      <h2 className="text-white font-bold text-lg mb-1">✗ Hai scelto di non partecipare</h2>
+                      {nextEvent && (
+                        <p className="text-red-100 text-sm">
+                          Incontro "{nextEvent.title}" del {new Date(nextEvent.date).toLocaleDateString('it-IT', { day: 'numeric', month: 'long' })} ore {nextEvent.time} - {nextEvent.location}
+                        </p>
+                      )}
+                      <button 
+                        onClick={() => setShowChangeResponse(true)}
+                        className="text-white text-sm underline mt-2 inline-block hover:text-red-200"
+                      >
+                        Hai cambiato idea?
+                      </button>
+                    </div>
+                  ) : (
           <div className="bg-lime-400 rounded-xl p-4 mb-6">
             <h2 className="text-slate-900 font-bold text-lg mb-1">Benvenuto nel Consorzio</h2>
             {nextEvent && (
@@ -224,7 +232,16 @@ export default function Home() {
       <BottomNav currentPage="Home" unreadMessages={messages.length} />
 
       {/* Popup invito evento - si mostra solo se ci sono inviti in attesa */}
-      <EventInvitePopup user={effectiveUser} />
+              <EventInvitePopup user={effectiveUser} />
+
+              {/* Popup cambio risposta */}
+              {showChangeResponse && nextEvent && (
+                <ChangeResponsePopup 
+                  event={nextEvent}
+                  user={effectiveUser}
+                  onClose={() => setShowChangeResponse(false)}
+                />
+              )}
     </div>
   );
 }
