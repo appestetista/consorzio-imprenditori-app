@@ -841,12 +841,6 @@ export default function GestioneMembri() {
           <DialogHeader>
             <DialogTitle className="text-white">Permessi - {selectedMember?.company_name || selectedMember?.full_name}</DialogTitle>
           </DialogHeader>
-          <button
-            onClick={() => setShowPermissions(false)}
-            className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
-          >
-            <X className="h-4 w-4 text-slate-400" />
-          </button>
           <div className="space-y-4 mt-4">
             {PERMISSIONS_LIST.map((perm) => {
               const isEnabled = selectedMember?.permissions?.[perm.key] !== false;
