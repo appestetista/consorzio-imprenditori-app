@@ -751,6 +751,42 @@ export default function ProfiloBandi() {
                 </div>
               </label>
 
+              <label className="flex items-center gap-3 p-3 bg-green-900/20 border border-green-800/30 rounded-lg cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.has_safety_compliance}
+                  onChange={(e) => setFormData({...formData, has_safety_compliance: e.target.checked})}
+                  className="w-5 h-5 rounded border-green-600 text-green-400 focus:ring-green-400"
+                />
+                <div className="flex-1">
+                  <span className="text-white flex items-center">Regolarità Sicurezza Lavoro <HelpTooltip text="Rispetto del D.Lgs. 81/2008 (Testo Unico Sicurezza): DVR aggiornato, formazione lavoratori, sorveglianza sanitaria. OBBLIGATORIO per Transizione 5.0 e tutti i bandi PNRR. Le imprese con violazioni gravi sono escluse." /></span>
+                  <p className="text-slate-500 text-xs">DVR, formazione, D.Lgs. 81/08 - Richiesto per Transizione 5.0</p>
+                </div>
+              </label>
+
+              <div className="pt-3 border-t border-slate-700 mt-3">
+                <p className="text-orange-400 text-sm mb-2 flex items-center">
+                  🔋 Requisiti specifici per Transizione 5.0 e bandi PNRR
+                  <HelpTooltip text="Questi requisiti sono richiesti specificamente per accedere alla Transizione 5.0 e ad altri bandi finanziati dal PNRR. Le certificazioni tecniche (ex ante, ex post, perizia 4.0) verranno richieste dal consulente al momento della domanda." />
+                </p>
+                <p className="text-slate-400 text-xs bg-slate-700/50 rounded-lg p-2 mb-3">
+                  Per la Transizione 5.0 servono anche certificazioni TECNICHE legate al singolo progetto (certificazione energetica ex ante/ex post, perizia 4.0, certificazione contabile). Queste verranno preparate dal consulente quando presenti domanda per un bando specifico.
+                </p>
+              </div>
+
+              <label className="flex items-center gap-3 p-3 bg-orange-900/20 border border-orange-800/30 rounded-lg cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.can_comply_dnsh}
+                  onChange={(e) => setFormData({...formData, can_comply_dnsh: e.target.checked})}
+                  className="w-5 h-5 rounded border-orange-600 text-orange-400 focus:ring-orange-400"
+                />
+                <div className="flex-1">
+                  <span className="text-white flex items-center">Rispetto principio DNSH <HelpTooltip text="DNSH = 'Do No Significant Harm' (Non arrecare danno significativo). Principio UE obbligatorio per tutti i bandi PNRR. L'impresa NON deve operare in: combustibili fossili, discariche, inceneritori, attività ad alte emissioni. Se la tua attività è 'normale' (manifattura, servizi, commercio, ecc.) puoi spuntare questa casella." /></span>
+                  <p className="text-slate-500 text-xs">L'azienda non opera in settori esclusi dal PNRR</p>
+                </div>
+              </label>
+
               <div className="pt-3">
                 <p className="text-slate-400 text-sm mb-2">Certificazioni opzionali (danno punteggi extra):</p>
                 <p className="text-green-400 text-xs bg-green-500/10 border border-green-500/30 rounded-lg p-2 mb-3">
