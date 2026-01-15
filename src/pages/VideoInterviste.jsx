@@ -56,7 +56,7 @@ export default function VideoInterviste() {
     loadUser();
   }, [appMode, impersonation.previewUserId]);
 
-  const isAdmin = user?.role === 'admin' && !impersonation.active;
+  const isAdmin = user?.role === 'admin' && !impersonation.active && appMode === 'admin';
 
   const { data: videos = [], isLoading } = useQuery({
     queryKey: ['videos'],
@@ -64,9 +64,9 @@ export default function VideoInterviste() {
   });
 
   const { data: messages = [] } = useQuery({
-    queryKey: ['unread-messages', user?.email],
-    queryFn: () => base44.entities.Message.filter({ to_email: user?.email, is_read: false }),
-    enabled: !!user?.email,
+    queryKey: ['unread-messages', effectiveUser?.email],
+    queryFn: () => base44.entities.Message.filter({ to_email: effectiveUser?.email, is_read: false }),
+    enabled: !!effectiveUser?.email,
   });
 
   // Marca come lette tutte le notifiche video quando l'utente apre la sezione
@@ -183,14 +183,14 @@ export default function VideoInterviste() {
       await base44.integrations.Core.SendEmail({
         from_name: 'Piattaforma Consorzio',
         to: 'consorzioimprenditori@gmail.com',
-        subject: `Richiesta Video Intervista - ${user.company_name || user.full_name}`,
+        subject: `Richiesta Video Intervista - ${effectiveUser.company_name || effectiveUser.full_name}`,
         body: `
 Nuova richiesta di video intervista dalla piattaforma:
 
-AZIENDA: ${user.company_name || 'N/A'}
-REFERENTE: ${user.full_name || 'N/A'}
-EMAIL: ${user.email}
-TELEFONO: ${user.phone || 'N/A'}
+AZIENDA: ${effectiveUser.company_name || 'N/A'}
+REFERENTE: ${effectiveUser.full_name || 'N/A'}
+EMAIL: ${effectiveUser.email}
+TELEFONO: ${effectiveUser.phone || 'N/A'}
 
 MESSAGGIO:
 ${requestMessage}
@@ -207,7 +207,7 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
   });
 
   const hasUserLiked = (video) => {
-    return video.likes?.includes(user?.email);
+    return video.likes?.includes(effectiveUser?.email);
   };
 
   const handleEditVideo = (video) => {
@@ -235,7 +235,7 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
 
   return (
     <div className="min-h-screen bg-slate-900 pb-24">
-      <Header user={user} />
+      <Header user={effectiveUser} />
       
       <main className="px-4 py-6 max-w-md mx-auto">
         <div className="flex items-center justify-between mb-6">
@@ -448,9 +448,9 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
             <div className="space-y-2">
               <p className="text-slate-300 text-sm font-medium">I tuoi dati:</p>
               <div className="bg-slate-900 rounded-lg p-3 space-y-1">
-                <p className="text-white text-sm">{user?.company_name || user?.full_name}</p>
-                <p className="text-slate-400 text-xs">{user?.email}</p>
-                {user?.phone && <p className="text-slate-400 text-xs">{user.phone}</p>}
+                <p className="text-white text-sm">{effectiveUser?.company_name || effectiveUser?.full_name}</p>
+                <p className="text-slate-400 text-xs">{effectiveUser?.email}</p>
+                {effectiveUser?.phone && <p className="text-slate-400 text-xs">{effectiveUser.phone}</p>}
               </div>
             </div>
 
