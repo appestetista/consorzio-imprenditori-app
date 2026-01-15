@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { Calendar, MapPin, Clock, Check, X, Bell } from 'lucide-react';
+import { Calendar, MapPin, Clock, Check, X as XIcon, Bell, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function EventInvitePopup({ user }) {
@@ -53,15 +53,25 @@ export default function EventInvitePopup({ user }) {
     }
   });
 
-  if (!pendingInvite) return null;
+  const [dismissed, setDismissed] = useState(false);
+
+  if (!pendingInvite || dismissed) return null;
 
   const { evento, partecipazione } = pendingInvite;
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-300">
-        {/* Header con campanella */}
-        <div className="bg-lime-400 p-4 flex items-center justify-center gap-3">
+      <div className="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-300 relative">
+                    {/* Pulsante X per chiudere */}
+                    <button
+                      onClick={() => setDismissed(true)}
+                      className="absolute top-3 right-3 z-10 bg-slate-700 hover:bg-slate-600 rounded-full p-1.5 transition-colors"
+                    >
+                      <X className="w-5 h-5 text-white" />
+                    </button>
+
+                    {/* Header con campanella */}
+                    <div className="bg-lime-400 p-4 flex items-center justify-center gap-3">
           <Bell className="w-8 h-8 text-slate-900 animate-bounce" />
           <h2 className="text-slate-900 font-bold text-xl">Nuovo Invito!</h2>
         </div>
