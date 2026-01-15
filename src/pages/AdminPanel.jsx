@@ -216,7 +216,7 @@ export default function AdminPanel() {
             <button onClick={() => navigate(createPageUrl('Home'))} className="text-lime-400">
               <ArrowLeft className="w-6 h-6" />
             </button>
-            <h1 className="text-white text-xl font-bold">Gestione Utenti</h1>
+            <h1 className="text-white text-xl font-bold">Pannello di Amministrazione</h1>
           </div>
         </div>
 
