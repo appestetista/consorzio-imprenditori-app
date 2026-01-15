@@ -352,9 +352,9 @@ Per ogni bando, fornisci:
           <Alert className="mb-6 bg-yellow-500/20 border-yellow-500/30">
             <AlertCircle className="h-4 w-4 text-yellow-500" />
             <AlertDescription className="text-yellow-400 text-sm">
-              Completa il profilo aziendale per vedere bandi più pertinenti. 
-              <Link to={createPageUrl('AdminPanel')} className="underline ml-1">
-                Vai al profilo
+              Integra le informazioni della tua azienda per ricevere i bandi più appropriati.
+              <Link to={createPageUrl('ProfiloBandi')} className="underline ml-1 font-semibold">
+                Configura profilo bandi
               </Link>
             </AlertDescription>
           </Alert>
