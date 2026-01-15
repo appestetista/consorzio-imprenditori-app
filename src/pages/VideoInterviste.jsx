@@ -56,6 +56,25 @@ export default function VideoInterviste() {
     enabled: !!user?.email,
   });
 
+  // Marca come lette tutte le notifiche video quando l'utente apre la sezione
+  useEffect(() => {
+    const markVideoNotificationsAsRead = async () => {
+      if (!user?.email) return;
+      
+      const videoNotifications = await base44.entities.Notification.filter({
+        user_email: user.email,
+        type: 'video',
+        is_read: false
+      });
+      
+      for (const notif of videoNotifications) {
+        await base44.entities.Notification.update(notif.id, { is_read: true });
+      }
+    };
+    
+    markVideoNotificationsAsRead();
+  }, [user?.email]);
+
   const { data: allUsers = [] } = useQuery({
     queryKey: ['all-users'],
     queryFn: () => base44.entities.User.list(),
