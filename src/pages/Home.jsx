@@ -10,7 +10,7 @@ import FeatureCard from '../components/home/FeatureCard';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import EventInvitePopup from '../components/calendario/EventInvitePopup';
 import useNotificationSound from '../components/hooks/useNotificationSound';
-import ChangeResponsePopup from '../components/calendario/ChangeResponsePopup';
+import ChangeResponsePopup from '@/components/calendario/ChangeResponsePopup';
 
 export default function Home() {
   const [user, setUser] = useState(null);
