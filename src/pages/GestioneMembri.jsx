@@ -484,6 +484,12 @@ export default function GestioneMembri() {
           setSelectedMember(null);
           setFormData(null);
           setInitialFormData(null);
+          // Rimuovi memberId dall'URL per evitare che il dialog si riapra
+          const url = new URL(window.location.href);
+          if (url.searchParams.has('memberId')) {
+            url.searchParams.delete('memberId');
+            window.history.replaceState({}, '', url.pathname);
+          }
         }
       }}>
         <DialogContent className="bg-slate-800 border-slate-700 max-w-3xl max-h-[90vh] overflow-y-auto">
