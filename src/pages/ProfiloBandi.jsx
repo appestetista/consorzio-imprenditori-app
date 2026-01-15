@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation } from '@tanstack/react-query';
-import { ArrowLeft, Building2, MapPin, FileText, Scale, Save, CheckCircle, Euro, Users, Briefcase, Globe } from 'lucide-react';
+import { ArrowLeft, Building2, MapPin, FileText, Scale, Save, CheckCircle, Euro, Users, Briefcase, Globe, HelpCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,20 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+
+const HelpTooltip = ({ text }) => (
+  <Popover>
+    <PopoverTrigger asChild>
+      <button type="button" className="ml-1 inline-flex items-center justify-center w-5 h-5 rounded-full bg-slate-700 hover:bg-slate-600 transition-colors">
+        <HelpCircle className="w-3.5 h-3.5 text-slate-300" />
+      </button>
+    </PopoverTrigger>
+    <PopoverContent className="bg-slate-800 border-slate-700 text-slate-200 text-sm max-w-xs p-3">
+      {text}
+    </PopoverContent>
+  </Popover>
+);
 
 const REGIONI_ITALIA = [
   'Abruzzo', 'Basilicata', 'Calabria', 'Campania', 'Emilia-Romagna',
@@ -246,7 +260,10 @@ export default function ProfiloBandi() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label className="text-slate-300 text-sm">Dimensione Azienda *</Label>
+                <Label className="text-slate-300 text-sm flex items-center">
+                  Dimensione Azienda *
+                  <HelpTooltip text="La classificazione UE distingue: Micro (meno di 10 dipendenti e fatturato/attivo ≤2M€), Piccola (meno di 50 dip. e fatturato/attivo ≤10M€), Media (meno di 250 dip. e fatturato ≤50M€ o attivo ≤43M€), Grande (oltre questi limiti). Molti bandi sono riservati alle PMI." />
+                </Label>
                 <Select
                   value={formData.company_size}
                   onValueChange={(value) => setFormData({...formData, company_size: value})}
@@ -264,7 +281,10 @@ export default function ProfiloBandi() {
               </div>
 
               <div>
-                <Label className="text-slate-300 text-sm">Forma Giuridica *</Label>
+                <Label className="text-slate-300 text-sm flex items-center">
+                  Forma Giuridica *
+                  <HelpTooltip text="La forma societaria della tua azienda come risulta dalla visura camerale. Alcuni bandi sono riservati a specifiche forme giuridiche (es. solo società di capitali, o solo cooperative)." />
+                </Label>
                 <Select
                   value={formData.legal_form}
                   onValueChange={(value) => setFormData({...formData, legal_form: value})}
@@ -282,7 +302,10 @@ export default function ProfiloBandi() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label className="text-slate-300 text-sm">Data Costituzione</Label>
+                  <Label className="text-slate-300 text-sm flex items-center">
+                    Data Costituzione
+                    <HelpTooltip text="Data di iscrizione al Registro Imprese. Importante per bandi che richiedono un'anzianità minima (es. almeno 2 anni di attività) o massima (es. start-up entro 5 anni)." />
+                  </Label>
                   <Input
                     type="date"
                     value={formData.founding_date}
@@ -291,7 +314,10 @@ export default function ProfiloBandi() {
                   />
                 </div>
                 <div>
-                  <Label className="text-slate-300 text-sm">Anni di Attività</Label>
+                  <Label className="text-slate-300 text-sm flex items-center">
+                    Anni di Attività
+                    <HelpTooltip text="Numero di anni dall'inizio dell'attività. Alcuni bandi richiedono un minimo di anni operativi (es. 2 bilanci depositati), altri premiano le nuove imprese." />
+                  </Label>
                   <Input
                     type="number"
                     min="0"
@@ -315,7 +341,10 @@ export default function ProfiloBandi() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label className="text-slate-300 text-sm">Regione Sede Legale *</Label>
+                <Label className="text-slate-300 text-sm flex items-center">
+                  Regione Sede Legale *
+                  <HelpTooltip text="La regione dove ha sede legale l'azienda. I bandi regionali sono accessibili solo alle imprese con sede nella regione. Alcuni bandi nazionali danno priorità a specifiche aree geografiche." />
+                </Label>
                 <Select
                   value={formData.region}
                   onValueChange={(value) => setFormData({...formData, region: value})}
@@ -332,7 +361,10 @@ export default function ProfiloBandi() {
               </div>
 
               <div>
-                <Label className="text-slate-300 text-sm">Provincia</Label>
+                <Label className="text-slate-300 text-sm flex items-center">
+                  Provincia
+                  <HelpTooltip text="Sigla provincia della sede legale (es. MI per Milano). Utile per bandi provinciali o camerali e per verificare l'appartenenza a zone speciali." />
+                </Label>
                 <Input
                   value={formData.province}
                   onChange={(e) => setFormData({...formData, province: e.target.value})}
@@ -343,7 +375,10 @@ export default function ProfiloBandi() {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-slate-400 text-sm">Zone Speciali (se applicabile)</Label>
+                <Label className="text-slate-400 text-sm flex items-center">
+                  Zone Speciali (se applicabile)
+                  <HelpTooltip text="Alcune aree geografiche hanno accesso a bandi dedicati con agevolazioni maggiorate. Verifica se la tua sede rientra in una di queste zone." />
+                </Label>
                 
                 <label className="flex items-center gap-3 p-3 bg-slate-900 rounded-lg cursor-pointer hover:bg-slate-900/70">
                   <input
@@ -352,8 +387,8 @@ export default function ProfiloBandi() {
                     onChange={(e) => setFormData({...formData, is_in_southern_italy: e.target.checked})}
                     className="w-5 h-5 rounded border-slate-600 text-lime-400 focus:ring-lime-400"
                   />
-                  <div>
-                    <span className="text-white">Mezzogiorno / ZES</span>
+                  <div className="flex-1">
+                    <span className="text-white flex items-center">Mezzogiorno / ZES <HelpTooltip text="Zone Economiche Speciali: aree del Sud Italia (Abruzzo, Molise, Campania, Basilicata, Puglia, Calabria, Sicilia, Sardegna) con agevolazioni fiscali e contributive potenziate. Includono anche le ZES portuali." /></span>
                     <p className="text-slate-500 text-xs">Zone Economiche Speciali Sud Italia</p>
                   </div>
                 </label>
@@ -365,8 +400,8 @@ export default function ProfiloBandi() {
                     onChange={(e) => setFormData({...formData, is_in_crisis_area: e.target.checked})}
                     className="w-5 h-5 rounded border-slate-600 text-lime-400 focus:ring-lime-400"
                   />
-                  <div>
-                    <span className="text-white">Area di Crisi</span>
+                  <div className="flex-1">
+                    <span className="text-white flex items-center">Area di Crisi <HelpTooltip text="Zone di crisi industriale complessa: territori colpiti da crisi di grandi imprese con impatto sull'occupazione locale. Hanno accesso a bandi specifici per rilancio e reindustrializzazione." /></span>
                     <p className="text-slate-500 text-xs">Zone di crisi industriale complessa</p>
                   </div>
                 </label>
@@ -378,8 +413,8 @@ export default function ProfiloBandi() {
                     onChange={(e) => setFormData({...formData, is_in_inner_area: e.target.checked})}
                     className="w-5 h-5 rounded border-slate-600 text-lime-400 focus:ring-lime-400"
                   />
-                  <div>
-                    <span className="text-white">Area Interna</span>
+                  <div className="flex-1">
+                    <span className="text-white flex items-center">Area Interna <HelpTooltip text="Aree Interne SNAI: territori distanti dai centri di offerta dei servizi essenziali (sanità, istruzione, mobilità). Beneficiano di bandi dedicati per contrastare lo spopolamento." /></span>
                     <p className="text-slate-500 text-xs">Aree marginali SNAI</p>
                   </div>
                 </label>
@@ -397,7 +432,10 @@ export default function ProfiloBandi() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label className="text-slate-300 text-sm">Settore Principale *</Label>
+                <Label className="text-slate-300 text-sm flex items-center">
+                  Settore Principale *
+                  <HelpTooltip text="Il macro-settore in cui opera prevalentemente l'azienda. Molti bandi sono settoriali (es. solo manifatturiero, solo turismo) o escludono specifici settori." />
+                </Label>
                 <Select
                   value={formData.sector}
                   onValueChange={(value) => setFormData({...formData, sector: value})}
@@ -414,7 +452,10 @@ export default function ProfiloBandi() {
               </div>
 
               <div>
-                <Label className="text-slate-300 text-sm">Codice ATECO Principale *</Label>
+                <Label className="text-slate-300 text-sm flex items-center">
+                  Codice ATECO Principale *
+                  <HelpTooltip text="Codice a 6 cifre che identifica l'attività economica (es. 62.01.00 = sviluppo software). Lo trovi sulla visura camerale. È il criterio principale per verificare l'ammissibilità ai bandi." />
+                </Label>
                 <Input
                   value={formData.ateco_code}
                   onChange={(e) => setFormData({...formData, ateco_code: e.target.value})}
@@ -427,7 +468,10 @@ export default function ProfiloBandi() {
               </div>
 
               <div>
-                <Label className="text-slate-300 text-sm">Codici ATECO Secondari</Label>
+                <Label className="text-slate-300 text-sm flex items-center">
+                  Codici ATECO Secondari
+                  <HelpTooltip text="Altri codici ATECO registrati per attività secondarie. Possono ampliare l'accesso a bandi di settori diversi dal principale." />
+                </Label>
                 <Input
                   value={formData.secondary_ateco_codes}
                   onChange={(e) => setFormData({...formData, secondary_ateco_codes: e.target.value})}
@@ -451,7 +495,10 @@ export default function ProfiloBandi() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label className="text-slate-300 text-sm">Fatturato Annuo (€)</Label>
+                <Label className="text-slate-300 text-sm flex items-center">
+                  Fatturato Annuo (€)
+                  <HelpTooltip text="Ricavi delle vendite e prestazioni dell'ultimo bilancio approvato. È uno dei parametri per la classificazione dimensionale PMI e per alcuni requisiti di accesso ai bandi." />
+                </Label>
                 <Input
                   type="number"
                   min="0"
@@ -463,7 +510,10 @@ export default function ProfiloBandi() {
               </div>
 
               <div>
-                <Label className="text-slate-300 text-sm">Totale Attivo di Bilancio (€)</Label>
+                <Label className="text-slate-300 text-sm flex items-center">
+                  Totale Attivo di Bilancio (€)
+                  <HelpTooltip text="Totale delle attività dello Stato Patrimoniale (ultimo bilancio). Insieme al fatturato, determina la dimensione aziendale secondo i criteri UE." />
+                </Label>
                 <Input
                   type="number"
                   min="0"
@@ -475,7 +525,10 @@ export default function ProfiloBandi() {
               </div>
 
               <div>
-                <Label className="text-slate-300 text-sm">Numero Dipendenti (ULA)</Label>
+                <Label className="text-slate-300 text-sm flex items-center">
+                  Numero Dipendenti (ULA)
+                  <HelpTooltip text="ULA = Unità Lavorative Anno. È la media annua dei dipendenti a tempo pieno. I part-time e stagionali si calcolano in proporzione. Fondamentale per la classificazione PMI." />
+                </Label>
                 <Input
                   type="number"
                   min="0"
@@ -490,7 +543,10 @@ export default function ProfiloBandi() {
               </div>
 
               <div>
-                <Label className="text-slate-300 text-sm">Classe di Rating</Label>
+                <Label className="text-slate-300 text-sm flex items-center">
+                  Classe di Rating
+                  <HelpTooltip text="Valutazione del merito creditizio assegnata da banche o agenzie. Alcuni finanziamenti agevolati richiedono un rating minimo. Se non lo conosci, seleziona 'Non classificato'." />
+                </Label>
                 <Select
                   value={formData.rating_class}
                   onValueChange={(value) => setFormData({...formData, rating_class: value})}
@@ -507,7 +563,10 @@ export default function ProfiloBandi() {
               </div>
 
               <div className="space-y-2 pt-2">
-                <Label className="text-red-400 text-sm">⚠️ Condizioni di Esclusione</Label>
+                <Label className="text-red-400 text-sm flex items-center">
+                  ⚠️ Condizioni di Esclusione
+                  <HelpTooltip text="ATTENZIONE: queste condizioni escludono l'accesso alla maggior parte dei bandi europei e nazionali. Rispondi con attenzione." />
+                </Label>
                 
                 <label className="flex items-center gap-3 p-3 bg-red-900/20 border border-red-800/30 rounded-lg cursor-pointer">
                   <input
@@ -516,8 +575,8 @@ export default function ProfiloBandi() {
                     onChange={(e) => setFormData({...formData, is_in_difficulty: e.target.checked})}
                     className="w-5 h-5 rounded border-red-600 text-red-400 focus:ring-red-400"
                   />
-                  <div>
-                    <span className="text-white">Impresa in difficoltà</span>
+                  <div className="flex-1">
+                    <span className="text-white flex items-center">Impresa in difficoltà <HelpTooltip text="Definizione UE: patrimonio netto negativo, o perdite superiori al 50% del capitale, o in procedura concorsuale. Le imprese in difficoltà sono escluse da quasi tutti i bandi UE." /></span>
                     <p className="text-slate-500 text-xs">Secondo definizione UE (esclude molti bandi)</p>
                   </div>
                 </label>
@@ -529,8 +588,8 @@ export default function ProfiloBandi() {
                     onChange={(e) => setFormData({...formData, has_pending_recovery: e.target.checked})}
                     className="w-5 h-5 rounded border-red-600 text-red-400 focus:ring-red-400"
                   />
-                  <div>
-                    <span className="text-white">Aiuti da recuperare (Deggendorf)</span>
+                  <div className="flex-1">
+                    <span className="text-white flex items-center">Aiuti da recuperare (Deggendorf) <HelpTooltip text="Clausola Deggendorf: se l'impresa ha ricevuto aiuti di Stato dichiarati illegali dalla Commissione UE e non li ha restituiti, non può ricevere nuovi aiuti fino al recupero completo." /></span>
                     <p className="text-slate-500 text-xs">Ordine di recupero aiuti di Stato pendente</p>
                   </div>
                 </label>
@@ -558,8 +617,8 @@ export default function ProfiloBandi() {
                   onChange={(e) => setFormData({...formData, is_startup: e.target.checked})}
                   className="w-5 h-5 rounded border-slate-600 text-lime-400 focus:ring-lime-400"
                 />
-                <div>
-                  <span className="text-white">Start-up</span>
+                <div className="flex-1">
+                  <span className="text-white flex items-center">Start-up <HelpTooltip text="Impresa di nuova costituzione, generalmente entro 5 anni dalla fondazione. Molti bandi dedicati offrono agevolazioni specifiche per le nuove imprese." /></span>
                   <p className="text-slate-500 text-xs">Impresa costituita da meno di 5 anni</p>
                 </div>
               </label>
@@ -571,8 +630,8 @@ export default function ProfiloBandi() {
                   onChange={(e) => setFormData({...formData, is_innovative_startup: e.target.checked})}
                   className="w-5 h-5 rounded border-slate-600 text-lime-400 focus:ring-lime-400"
                 />
-                <div>
-                  <span className="text-white">Start-up Innovativa</span>
+                <div className="flex-1">
+                  <span className="text-white flex items-center">Start-up Innovativa <HelpTooltip text="Società di capitali con requisiti specifici (es. spese R&S >15%, personale qualificato, brevetti). Iscritta alla sezione speciale del Registro Imprese. Ha accesso a incentivi fiscali e bandi dedicati." /></span>
                   <p className="text-slate-500 text-xs">Iscritta alla sezione speciale del Registro Imprese</p>
                 </div>
               </label>
@@ -584,8 +643,8 @@ export default function ProfiloBandi() {
                   onChange={(e) => setFormData({...formData, is_innovative_pmi: e.target.checked})}
                   className="w-5 h-5 rounded border-slate-600 text-lime-400 focus:ring-lime-400"
                 />
-                <div>
-                  <span className="text-white">PMI Innovativa</span>
+                <div className="flex-1">
+                  <span className="text-white flex items-center">PMI Innovativa <HelpTooltip text="PMI con almeno 2 su 3 requisiti: spese R&S ≥3% del maggiore tra costo e valore produzione, personale qualificato ≥1/5, titolare di brevetto/software. Ha benefici simili alle start-up innovative." /></span>
                   <p className="text-slate-500 text-xs">Iscritta alla sezione speciale PMI innovative</p>
                 </div>
               </label>
@@ -597,8 +656,8 @@ export default function ProfiloBandi() {
                   onChange={(e) => setFormData({...formData, is_female_owned: e.target.checked})}
                   className="w-5 h-5 rounded border-slate-600 text-lime-400 focus:ring-lime-400"
                 />
-                <div>
-                  <span className="text-white">Impresa Femminile</span>
+                <div className="flex-1">
+                  <span className="text-white flex items-center">Impresa Femminile <HelpTooltip text="Impresa con: partecipazione femminile ≥50% del capitale, oppure ≥2/3 dell'organo amministrativo composto da donne. Ha accesso a bandi dedicati (es. Fondo Impresa Donna) e punteggi premiali." /></span>
                   <p className="text-slate-500 text-xs">Partecipazione femminile &gt;50% o amministratore donna</p>
                 </div>
               </label>
@@ -610,8 +669,8 @@ export default function ProfiloBandi() {
                   onChange={(e) => setFormData({...formData, is_youth_owned: e.target.checked})}
                   className="w-5 h-5 rounded border-slate-600 text-lime-400 focus:ring-lime-400"
                 />
-                <div>
-                  <span className="text-white">Impresa Giovanile</span>
+                <div className="flex-1">
+                  <span className="text-white flex items-center">Impresa Giovanile <HelpTooltip text="Impresa con partecipazione maggioritaria (>50%) di soci under 35 anni, oppure con titolare/amministratore unico under 35. Accede a bandi specifici come Resto al Sud, ON - Oltre Nuove Imprese." /></span>
                   <p className="text-slate-500 text-xs">Partecipazione &gt;50% di under 35 anni</p>
                 </div>
               </label>
@@ -623,8 +682,8 @@ export default function ProfiloBandi() {
                   onChange={(e) => setFormData({...formData, is_social_enterprise: e.target.checked})}
                   className="w-5 h-5 rounded border-slate-600 text-lime-400 focus:ring-lime-400"
                 />
-                <div>
-                  <span className="text-white">Impresa Sociale / Terzo Settore</span>
+                <div className="flex-1">
+                  <span className="text-white flex items-center">Impresa Sociale / Terzo Settore <HelpTooltip text="Enti iscritti al RUNTS (Registro Unico Nazionale Terzo Settore) o con qualifica di impresa sociale. Accedono a bandi dedicati e hanno regime fiscale agevolato." /></span>
                   <p className="text-slate-500 text-xs">Iscritta al RUNTS o qualifica impresa sociale</p>
                 </div>
               </label>
@@ -651,8 +710,8 @@ export default function ProfiloBandi() {
                   onChange={(e) => setFormData({...formData, has_durc_regolare: e.target.checked})}
                   className="w-5 h-5 rounded border-green-600 text-green-400 focus:ring-green-400"
                 />
-                <div>
-                  <span className="text-white">DURC Regolare</span>
+                <div className="flex-1">
+                  <span className="text-white flex items-center">DURC Regolare <HelpTooltip text="Documento che attesta la regolarità nei pagamenti dei contributi INPS, INAIL e Cassa Edile. È OBBLIGATORIO per tutti i bandi pubblici. Richiedilo tramite il portale INPS." /></span>
                   <p className="text-slate-500 text-xs">Documento Unico Regolarità Contributiva</p>
                 </div>
               </label>
@@ -664,8 +723,8 @@ export default function ProfiloBandi() {
                   onChange={(e) => setFormData({...formData, has_antimafia_clean: e.target.checked})}
                   className="w-5 h-5 rounded border-green-600 text-green-400 focus:ring-green-400"
                 />
-                <div>
-                  <span className="text-white">Certificazione Antimafia</span>
+                <div className="flex-1">
+                  <span className="text-white flex items-center">Certificazione Antimafia <HelpTooltip text="Documentazione antimafia (comunicazione o informazione) che attesta l'assenza di tentativi di infiltrazione mafiosa. Richiesta per contributi superiori a €150.000." /></span>
                   <p className="text-slate-500 text-xs">Assenza cause interdittive antimafia</p>
                 </div>
               </label>
@@ -677,8 +736,8 @@ export default function ProfiloBandi() {
                   onChange={(e) => setFormData({...formData, has_fiscal_regularity: e.target.checked})}
                   className="w-5 h-5 rounded border-green-600 text-green-400 focus:ring-green-400"
                 />
-                <div>
-                  <span className="text-white">Regolarità Fiscale</span>
+                <div className="flex-1">
+                  <span className="text-white flex items-center">Regolarità Fiscale <HelpTooltip text="Assenza di debiti tributari definitivamente accertati superiori a €5.000. Puoi verificare la tua posizione tramite il Cassetto Fiscale dell'Agenzia delle Entrate." /></span>
                   <p className="text-slate-500 text-xs">Nessun debito tributario rilevante</p>
                 </div>
               </label>
@@ -694,8 +753,8 @@ export default function ProfiloBandi() {
                   onChange={(e) => setFormData({...formData, has_iso_certification: e.target.checked})}
                   className="w-5 h-5 rounded border-slate-600 text-lime-400 focus:ring-lime-400"
                 />
-                <div>
-                  <span className="text-white">Certificazione ISO</span>
+                <div className="flex-1">
+                  <span className="text-white flex items-center">Certificazione ISO <HelpTooltip text="Certificazioni di sistema di gestione: ISO 9001 (qualità), ISO 14001 (ambiente), ISO 45001 (sicurezza). Danno punteggi premiali in molti bandi e sono talvolta requisiti obbligatori." /></span>
                   <p className="text-slate-500 text-xs">ISO 9001, 14001, 45001 o altre</p>
                 </div>
               </label>
@@ -707,8 +766,8 @@ export default function ProfiloBandi() {
                   onChange={(e) => setFormData({...formData, has_environmental_certification: e.target.checked})}
                   className="w-5 h-5 rounded border-slate-600 text-lime-400 focus:ring-lime-400"
                 />
-                <div>
-                  <span className="text-white">Certificazione Ambientale</span>
+                <div className="flex-1">
+                  <span className="text-white flex items-center">Certificazione Ambientale <HelpTooltip text="EMAS (gestione ambientale UE), Ecolabel (marchio ecologico), EPD (dichiarazione ambientale prodotto). Sempre più richieste per bandi green e transizione ecologica." /></span>
                   <p className="text-slate-500 text-xs">EMAS, Ecolabel, EPD o similari</p>
                 </div>
               </label>
@@ -735,7 +794,7 @@ export default function ProfiloBandi() {
                   onChange={(e) => setFormData({...formData, interested_in_digital: e.target.checked})}
                   className="w-5 h-5 rounded border-slate-600 text-lime-400 focus:ring-lime-400"
                 />
-                <span className="text-white">Digitalizzazione e Industria 4.0</span>
+                <span className="text-white flex items-center">Digitalizzazione e Industria 4.0 <HelpTooltip text="Investimenti in software, cloud, e-commerce, cybersecurity, macchinari interconnessi 4.0. Bandi: Transizione 4.0, voucher digitalizzazione, PNRR digitale." /></span>
               </label>
 
               <label className="flex items-center gap-3 p-3 bg-slate-900 rounded-lg cursor-pointer hover:bg-slate-900/70">
@@ -745,7 +804,7 @@ export default function ProfiloBandi() {
                   onChange={(e) => setFormData({...formData, interested_in_innovation: e.target.checked})}
                   className="w-5 h-5 rounded border-slate-600 text-lime-400 focus:ring-lime-400"
                 />
-                <span className="text-white">Innovazione Tecnologica</span>
+                <span className="text-white flex items-center">Innovazione Tecnologica <HelpTooltip text="Sviluppo di nuovi prodotti, processi o servizi innovativi. Include brevetti, design industriale, prototipi. Bandi: Nuova Sabatini, Smart&Start, Horizon Europe." /></span>
               </label>
 
               <label className="flex items-center gap-3 p-3 bg-slate-900 rounded-lg cursor-pointer hover:bg-slate-900/70">
@@ -755,7 +814,7 @@ export default function ProfiloBandi() {
                   onChange={(e) => setFormData({...formData, interested_in_rd: e.target.checked})}
                   className="w-5 h-5 rounded border-slate-600 text-lime-400 focus:ring-lime-400"
                 />
-                <span className="text-white">Ricerca e Sviluppo</span>
+                <span className="text-white flex items-center">Ricerca e Sviluppo <HelpTooltip text="Attività di ricerca fondamentale, industriale e sviluppo sperimentale. Credito d'imposta R&S, bandi MISE, progetti europei Horizon. Spesso richiedono collaborazione con università/enti di ricerca." /></span>
               </label>
 
               <label className="flex items-center gap-3 p-3 bg-slate-900 rounded-lg cursor-pointer hover:bg-slate-900/70">
@@ -765,7 +824,7 @@ export default function ProfiloBandi() {
                   onChange={(e) => setFormData({...formData, interested_in_sustainability: e.target.checked})}
                   className="w-5 h-5 rounded border-slate-600 text-lime-400 focus:ring-lime-400"
                 />
-                <span className="text-white">Sostenibilità Ambientale</span>
+                <span className="text-white flex items-center">Sostenibilità Ambientale <HelpTooltip text="Investimenti per ridurre l'impatto ambientale: economia circolare, riduzione emissioni, gestione rifiuti. Forte spinta dal PNRR e Green Deal europeo." /></span>
               </label>
 
               <label className="flex items-center gap-3 p-3 bg-slate-900 rounded-lg cursor-pointer hover:bg-slate-900/70">
@@ -775,7 +834,7 @@ export default function ProfiloBandi() {
                   onChange={(e) => setFormData({...formData, interested_in_energy: e.target.checked})}
                   className="w-5 h-5 rounded border-slate-600 text-lime-400 focus:ring-lime-400"
                 />
-                <span className="text-white">Efficienza Energetica</span>
+                <span className="text-white flex items-center">Efficienza Energetica <HelpTooltip text="Interventi per ridurre i consumi: fotovoltaico, LED, coibentazione, cogenerazione. Bandi regionali, conto termico, certificati bianchi, comunità energetiche." /></span>
               </label>
 
               <label className="flex items-center gap-3 p-3 bg-slate-900 rounded-lg cursor-pointer hover:bg-slate-900/70">
@@ -785,7 +844,7 @@ export default function ProfiloBandi() {
                   onChange={(e) => setFormData({...formData, has_export: e.target.checked})}
                   className="w-5 h-5 rounded border-slate-600 text-lime-400 focus:ring-lime-400"
                 />
-                <span className="text-white">Export e Internazionalizzazione</span>
+                <span className="text-white flex items-center">Export e Internazionalizzazione <HelpTooltip text="Supporto per espansione sui mercati esteri: fiere, certificazioni export, temporary export manager. Bandi SIMEST, SACE, ICE, voucher internazionalizzazione." /></span>
               </label>
 
               <label className="flex items-center gap-3 p-3 bg-slate-900 rounded-lg cursor-pointer hover:bg-slate-900/70">
@@ -795,7 +854,7 @@ export default function ProfiloBandi() {
                   onChange={(e) => setFormData({...formData, interested_in_training: e.target.checked})}
                   className="w-5 h-5 rounded border-slate-600 text-lime-400 focus:ring-lime-400"
                 />
-                <span className="text-white">Formazione del Personale</span>
+                <span className="text-white flex items-center">Formazione del Personale <HelpTooltip text="Corsi di aggiornamento e riqualificazione dipendenti. Credito d'imposta formazione 4.0, Fondo Nuove Competenze, fondi interprofessionali (Fondimpresa, Fondirigenti, ecc.)." /></span>
               </label>
 
               <label className="flex items-center gap-3 p-3 bg-slate-900 rounded-lg cursor-pointer hover:bg-slate-900/70">
@@ -805,7 +864,7 @@ export default function ProfiloBandi() {
                   onChange={(e) => setFormData({...formData, interested_in_hiring: e.target.checked})}
                   className="w-5 h-5 rounded border-slate-600 text-lime-400 focus:ring-lime-400"
                 />
-                <span className="text-white">Assunzioni e Occupazione</span>
+                <span className="text-white flex items-center">Assunzioni e Occupazione <HelpTooltip text="Incentivi per nuove assunzioni: bonus giovani, donne, over 50, decontribuzione Sud, apprendistato. Verificare requisiti specifici per ogni tipologia di incentivo." /></span>
               </label>
             </CardContent>
           </Card>
@@ -826,27 +885,30 @@ export default function ProfiloBandi() {
                   onChange={(e) => setFormData({...formData, has_previous_grants: e.target.checked})}
                   className="w-5 h-5 rounded border-slate-600 text-lime-400 focus:ring-lime-400"
                 />
-                <div>
-                  <span className="text-white">Ho già ottenuto finanziamenti agevolati</span>
+                <div className="flex-1">
+                  <span className="text-white flex items-center">Ho già ottenuto finanziamenti agevolati <HelpTooltip text="Indica se hai già ricevuto contributi pubblici. È importante per il calcolo del regime de minimis e per evitare il cumulo non consentito di aiuti." /></span>
                   <p className="text-slate-500 text-xs">Bandi UE, nazionali o regionali</p>
                 </div>
               </label>
 
               {formData.has_previous_grants && (
                 <div>
-                  <Label className="text-slate-300 text-sm">Importo totale ricevuto (€)</Label>
-                  <Input
-                    type="number"
-                    min="0"
-                    value={formData.previous_grants_amount}
-                    onChange={(e) => setFormData({...formData, previous_grants_amount: e.target.value})}
-                    className="bg-slate-900 border-slate-700 text-white mt-1"
-                    placeholder="Es: 50000"
-                  />
-                  <p className="text-slate-500 text-xs mt-1">
-                    Importante per il calcolo del de minimis (200.000€ in 3 anni)
-                  </p>
-                </div>
+                                <Label className="text-slate-300 text-sm flex items-center">
+                                  Importo totale ricevuto (€)
+                                  <HelpTooltip text="Somma degli aiuti de minimis ricevuti negli ultimi 3 esercizi fiscali. Il limite è €200.000 (€100.000 per trasporto merci). Superato il limite, puoi accedere solo a bandi non de minimis." />
+                                </Label>
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  value={formData.previous_grants_amount}
+                                  onChange={(e) => setFormData({...formData, previous_grants_amount: e.target.value})}
+                                  className="bg-slate-900 border-slate-700 text-white mt-1"
+                                  placeholder="Es: 50000"
+                                />
+                                <p className="text-slate-500 text-xs mt-1">
+                                  Importante per il calcolo del de minimis (200.000€ in 3 anni)
+                                </p>
+                              </div>
               )}
 
               <label className="flex items-center gap-3 p-3 bg-slate-900 rounded-lg cursor-pointer hover:bg-slate-900/70">
@@ -856,8 +918,8 @@ export default function ProfiloBandi() {
                   onChange={(e) => setFormData({...formData, can_cofinance: e.target.checked})}
                   className="w-5 h-5 rounded border-slate-600 text-lime-400 focus:ring-lime-400"
                 />
-                <div>
-                  <span className="text-white">Capacità di cofinanziamento</span>
+                <div className="flex-1">
+                  <span className="text-white flex items-center">Capacità di cofinanziamento <HelpTooltip text="Molti bandi coprono solo una percentuale dell'investimento (es. 50%). Devi dimostrare di poter coprire la quota restante con mezzi propri o finanziamento bancario." /></span>
                   <p className="text-slate-500 text-xs">Disponibilità mezzi propri o accesso al credito</p>
                 </div>
               </label>
