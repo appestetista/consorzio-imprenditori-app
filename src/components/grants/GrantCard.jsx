@@ -125,35 +125,37 @@ export default function GrantCard({ grant, onDetails, userInterest, onToggleAler
         </div>
 
         <div className="space-y-2 text-sm bg-slate-900/50 rounded-lg p-3">
-          {/* IMPORTO - sempre visibile */}
-          <div className="flex items-center gap-2 text-slate-300">
-            <Euro className="w-4 h-4 text-lime-400" />
-            <span>
-              <strong>Importo:</strong> {grant.min_amount && grant.max_amount 
-                ? `${grant.min_amount.toLocaleString('it-IT')} - ${grant.max_amount.toLocaleString('it-IT')} €`
-                : grant.max_amount 
-                  ? `Fino a ${grant.max_amount.toLocaleString('it-IT')} €`
-                  : 'Da definire'}
-            </span>
-            <InfoTooltip 
-              title="Importo del contributo" 
-              description="È l'ammontare minimo e massimo del finanziamento che puoi richiedere. L'importo effettivo dipende dal tuo progetto e dai requisiti del bando."
-            />
-          </div>
+          {/* IMPORTO - visibile solo se disponibile */}
+          {(grant.min_amount || grant.max_amount) && (
+            <div className="flex items-center gap-2 text-slate-300">
+              <Euro className="w-4 h-4 text-lime-400" />
+              <span>
+                <strong>Importo:</strong> {grant.min_amount && grant.max_amount 
+                  ? `${grant.min_amount.toLocaleString('it-IT')} - ${grant.max_amount.toLocaleString('it-IT')} €`
+                  : grant.max_amount 
+                    ? `Fino a ${grant.max_amount.toLocaleString('it-IT')} €`
+                    : `Da ${grant.min_amount.toLocaleString('it-IT')} €`}
+              </span>
+              <InfoTooltip 
+                title="Importo del contributo" 
+                description="È l'ammontare minimo e massimo del finanziamento che puoi richiedere. L'importo effettivo dipende dal tuo progetto e dai requisiti del bando."
+              />
+            </div>
+          )}
 
-          {/* COPERTURA - sempre visibile */}
-          <div className="flex items-center gap-2 text-slate-300">
-            <TrendingUp className="w-4 h-4 text-lime-400" />
-            <span>
-              <strong>Copertura:</strong> {grant.coverage_percentage 
-                ? `${grant.coverage_percentage}%` 
-                : 'Da definire'}
-            </span>
-            <InfoTooltip 
-              title="Percentuale di copertura" 
-              description="È la percentuale delle spese ammissibili che viene coperta dal contributo. Ad esempio, se la copertura è 50% e investi 100.000€, riceverai 50.000€ di contributo."
-            />
-          </div>
+          {/* COPERTURA - visibile solo se disponibile */}
+          {grant.coverage_percentage && (
+            <div className="flex items-center gap-2 text-slate-300">
+              <TrendingUp className="w-4 h-4 text-lime-400" />
+              <span>
+                <strong>Copertura:</strong> {grant.coverage_percentage}%
+              </span>
+              <InfoTooltip 
+                title="Percentuale di copertura" 
+                description="È la percentuale delle spese ammissibili che viene coperta dal contributo. Ad esempio, se la copertura è 50% e investi 100.000€, riceverai 50.000€ di contributo."
+              />
+            </div>
+          )}
           
           {/* SCADENZA - sempre visibile */}
           <div className="flex items-center gap-2 text-slate-300">
