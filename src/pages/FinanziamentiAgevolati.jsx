@@ -15,6 +15,7 @@ import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import GrantCard from '../components/grants/GrantCard';
 import GrantFilters from '../components/grants/GrantFilters';
+import { useImpersonation } from '../components/admin/ImpersonationContext';
 
 export default function FinanziamentiAgevolati() {
   const [user, setUser] = useState(null);
@@ -34,6 +35,10 @@ export default function FinanziamentiAgevolati() {
   });
   const [showConsultationMessages, setShowConsultationMessages] = useState(false);
   const queryClient = useQueryClient();
+  const { impersonation } = useImpersonation();
+  
+  // L'admin vede la sezione richieste solo se NON sta impersonificando
+  const isRealAdmin = user?.role === 'admin' && !impersonation.active;
 
   useEffect(() => {
     const loadUser = async () => {
@@ -134,7 +139,7 @@ export default function FinanziamentiAgevolati() {
         grant: grants.find(g => g.id === req.grant_id)
       }));
     },
-    enabled: user?.role === 'admin',
+    enabled: isRealAdmin,
   });
 
   const markConsultationReadMutation = useMutation({
@@ -470,8 +475,8 @@ Per ogni bando, fornisci:
           </div>
         </div>
 
-        {/* Sezione Messaggi Richieste Consulenza - Solo Admin */}
-        {user?.role === 'admin' && (
+        {/* Sezione Messaggi Richieste Consulenza - Solo Admin (non in impersonificazione) */}
+        {isRealAdmin && (
           <div className="bg-slate-800 rounded-lg p-4 border border-slate-700 mb-6">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
