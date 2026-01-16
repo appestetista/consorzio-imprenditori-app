@@ -169,7 +169,7 @@ export default function GrantFilters({ filters, onFilterChange }) {
             </Select>
           </div>
         </CollapsibleContent>
-      </div>
-    </Collapsible>
+      </Collapsible>
+    </div>
   );
 }
