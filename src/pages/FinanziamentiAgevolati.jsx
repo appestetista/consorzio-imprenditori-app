@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Sparkles, AlertCircle, Info, Briefcase, XCircle, Building2, CalendarDays } from 'lucide-react';
+import { ArrowLeft, Sparkles, AlertCircle, Info, Briefcase, XCircle, Building2, CalendarDays, MessageSquare, Mail, Eye, Trash2, User, Phone } from 'lucide-react';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { Link } from 'react-router-dom';
@@ -32,6 +32,7 @@ export default function FinanziamentiAgevolati() {
     accessMode: 'all',
     noCofinancing: false
   });
+  const [showConsultationMessages, setShowConsultationMessages] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -113,6 +114,45 @@ export default function FinanziamentiAgevolati() {
     queryKey: ['user-grant-interests', user?.email],
     queryFn: () => base44.entities.GrantInterest.filter({ user_email: user?.email }),
     enabled: !!user?.email,
+  });
+
+  // Richieste consulenza per admin (con info utente e bando)
+  const { data: consultationRequests = [] } = useQuery({
+    queryKey: ['admin-consultation-requests'],
+    queryFn: async () => {
+      const requests = await base44.entities.GrantInterest.filter({ 
+        requested_consultation: true,
+        consultation_status: 'pending'
+      });
+      
+      const users = await base44.entities.User.list();
+      const grants = await base44.entities.FinancialGrant.list();
+      
+      return requests.map(req => ({
+        ...req,
+        user: users.find(u => u.email === req.user_email),
+        grant: grants.find(g => g.id === req.grant_id)
+      }));
+    },
+    enabled: user?.role === 'admin',
+  });
+
+  const markConsultationReadMutation = useMutation({
+    mutationFn: async (requestId) => {
+      await base44.entities.GrantInterest.update(requestId, { consultation_status: 'accepted' });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-consultation-requests'] });
+    }
+  });
+
+  const deleteConsultationRequestMutation = useMutation({
+    mutationFn: async (requestId) => {
+      await base44.entities.GrantInterest.delete(requestId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-consultation-requests'] });
+    }
   });
 
   const toggleAlertsMutation = useMutation({
@@ -420,7 +460,7 @@ Per ogni bando, fornisci:
 
         {/* Profile Warning - solo per utenti non admin */}
         {/* Data odierna */}
-        <div className="bg-slate-800 rounded-lg p-4 border border-slate-700 mb-6 flex items-center gap-3">
+        <div className="bg-slate-800 rounded-lg p-4 border border-slate-700 mb-4 flex items-center gap-3">
           <CalendarDays className="w-6 h-6 text-lime-400" />
           <div>
             <p className="text-slate-400 text-xs">Data odierna</p>
@@ -429,6 +469,55 @@ Per ogni bando, fornisci:
             </p>
           </div>
         </div>
+
+        {/* Sezione Messaggi Richieste Consulenza - Solo Admin */}
+        {user?.role === 'admin' && (
+          <div className="bg-slate-800 rounded-lg p-4 border border-slate-700 mb-6">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <div className="relative">
+                  <MessageSquare className={`w-5 h-5 ${consultationRequests.length > 0 ? 'text-lime-400' : 'text-slate-400'}`} />
+                  {consultationRequests.length > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold animate-pulse">
+                      {consultationRequests.length}
+                    </span>
+                  )}
+                </div>
+                <span className="text-white font-medium">Richieste Consulenza</span>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-lime-400 text-lime-400 hover:bg-lime-400/20"
+                onClick={() => setShowConsultationMessages(true)}
+              >
+                <Mail className="w-4 h-4 mr-1" />
+                Vedi tutte ({consultationRequests.length})
+              </Button>
+            </div>
+            {consultationRequests.length === 0 ? (
+              <p className="text-slate-400 text-sm">Nessuna nuova richiesta di consulenza</p>
+            ) : (
+              <div className="space-y-2">
+                {consultationRequests.slice(0, 3).map((req) => (
+                  <div key={req.id} className="bg-lime-400/10 border border-lime-400/30 rounded-lg p-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-white font-medium text-sm truncate">{req.user?.company_name || 'N/A'}</p>
+                        <p className="text-slate-400 text-xs">👤 {req.user?.referente || req.user?.full_name || 'N/A'}</p>
+                        <p className="text-lime-400 text-xs mt-1 truncate">📋 {req.grant?.title || 'Bando non trovato'}</p>
+                      </div>
+                      <span className="bg-lime-400 text-slate-900 text-xs font-bold px-2 py-0.5 rounded flex-shrink-0">NUOVO</span>
+                    </div>
+                  </div>
+                ))}
+                {consultationRequests.length > 3 && (
+                  <p className="text-lime-400 text-xs text-center">+ altre {consultationRequests.length - 3} richieste</p>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {hasIncompleteProfile && user?.role !== 'admin' && (
             <Alert className="mb-6 bg-yellow-500/20 border-yellow-500/30">
@@ -807,6 +896,95 @@ Per ogni bando, fornisci:
               {requestConsultationMutation.isPending ? 'Invio...' : 'Conferma richiesta'}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog Richieste Consulenza - Solo Admin */}
+      <Dialog open={showConsultationMessages} onOpenChange={setShowConsultationMessages}>
+        <DialogContent className="bg-slate-800 border-slate-700 max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-white">Richieste Consulenza Bandi</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            {consultationRequests.length === 0 ? (
+              <p className="text-slate-400 text-center py-8">Nessuna richiesta di consulenza pendente</p>
+            ) : (
+              consultationRequests.map((req) => (
+                <div key={req.id} className="bg-lime-400/10 border border-lime-400/30 rounded-lg p-4">
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div>
+                      <h3 className="text-white font-bold text-lg">{req.user?.company_name || 'Azienda N/A'}</h3>
+                      <div className="flex items-center gap-2 text-slate-400 text-sm mt-1">
+                        <User className="w-4 h-4" />
+                        <span>{req.user?.referente || req.user?.full_name || 'N/A'}</span>
+                      </div>
+                      {req.user?.telefono_referente && (
+                        <div className="flex items-center gap-2 text-slate-400 text-sm">
+                          <Phone className="w-4 h-4" />
+                          <span>{req.user.telefono_referente}</span>
+                        </div>
+                      )}
+                      <p className="text-lime-400 text-xs mt-1">{req.user?.email}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="bg-lime-400 text-slate-900 text-xs font-bold px-2 py-1 rounded">NUOVO</span>
+                      <button
+                        onClick={() => {
+                          if (confirm('Eliminare questa richiesta?')) {
+                            deleteConsultationRequestMutation.mutate(req.id);
+                          }
+                        }}
+                        className="text-red-400 hover:text-red-500"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* Info Bando */}
+                  <div className="bg-slate-900 rounded-lg p-3 mb-3">
+                    <p className="text-slate-400 text-xs mb-1">Bando richiesto:</p>
+                    <p className="text-white font-medium">{req.grant?.title || 'Bando non trovato'}</p>
+                    {req.grant && (
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        <Badge variant="outline" className="text-xs border-slate-600 text-slate-300">
+                          {req.grant.grant_type}
+                        </Badge>
+                        <Badge variant="outline" className="text-xs border-slate-600 text-slate-300">
+                          {req.grant.funding_type}
+                        </Badge>
+                        {req.grant.max_amount && (
+                          <Badge variant="outline" className="text-xs border-lime-400/50 text-lime-400">
+                            Max €{req.grant.max_amount.toLocaleString('it-IT')}
+                          </Badge>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <p className="text-slate-500 text-xs">
+                      {req.created_date ? new Date(req.created_date).toLocaleDateString('it-IT', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      }) : 'N/A'}
+                    </p>
+                    <Button
+                      size="sm"
+                      className="bg-lime-400 hover:bg-lime-500 text-slate-900"
+                      onClick={() => markConsultationReadMutation.mutate(req.id)}
+                    >
+                      <Eye className="w-4 h-4 mr-1" />
+                      Presa in carico
+                    </Button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </DialogContent>
       </Dialog>
 
