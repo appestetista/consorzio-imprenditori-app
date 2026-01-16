@@ -1,10 +1,35 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Calendar, Euro, TrendingUp, ExternalLink, Zap, CheckCircle2, Bell, BellOff, Briefcase, Sparkles, Building2 } from 'lucide-react';
+import { Calendar, Euro, TrendingUp, ExternalLink, Zap, CheckCircle2, Bell, BellOff, Briefcase, Sparkles, Building2, HelpCircle, Users, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+
+// Componente Tooltip con popup
+function InfoTooltip({ title, description }) {
+  const [open, setOpen] = useState(false);
+  
+  return (
+    <>
+      <button 
+        onClick={(e) => { e.stopPropagation(); setOpen(true); }}
+        className="ml-1 text-slate-400 hover:text-lime-400 transition-colors"
+      >
+        <HelpCircle className="w-3.5 h-3.5" />
+      </button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="bg-slate-800 border-slate-700 max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="text-lime-400 text-base">{title}</DialogTitle>
+          </DialogHeader>
+          <p className="text-slate-300 text-sm">{description}</p>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
 
 export default function GrantCard({ grant, onDetails, userInterest, onToggleAlerts, onRequestConsultation, aiRecommendation, isTopRecommended }) {
   const getStatusColor = (status) => {
@@ -45,16 +70,20 @@ export default function GrantCard({ grant, onDetails, userInterest, onToggleAler
               )}
             </div>
             <CardTitle className="text-white text-lg">{grant.title}</CardTitle>
-            {/* Ente erogatore in evidenza */}
-            {grant.ente_erogatore && (
-              <div className="bg-orange-500/20 border border-orange-500/50 rounded-md px-2.5 py-1.5 mt-2 inline-flex items-center gap-2">
-                <Building2 className="w-4 h-4 text-orange-400" />
-                <span className="text-orange-300 text-sm font-bold">{grant.ente_erogatore}</span>
-                {grant.livello && (
-                  <Badge className="bg-orange-500 text-white text-xs px-1.5 py-0">{grant.livello}</Badge>
-                )}
-              </div>
-            )}
+            {/* Ente erogatore in evidenza - SEMPRE VISIBILE */}
+            <div className="bg-orange-500/20 border border-orange-500/50 rounded-md px-2.5 py-1.5 mt-2 inline-flex items-center gap-2">
+              <Building2 className="w-4 h-4 text-orange-400" />
+              <span className="text-orange-300 text-sm font-bold">
+                Ente Erogatore: {grant.ente_erogatore || 'Non specificato'}
+              </span>
+              {grant.livello && (
+                <Badge className="bg-orange-500 text-white text-xs px-1.5 py-0">{grant.livello}</Badge>
+              )}
+              <InfoTooltip 
+                title="Ente Erogatore" 
+                description="È l'ente pubblico che gestisce e finanzia il bando. Può essere l'Unione Europea (UE), lo Stato italiano, una Regione o un altro ente pubblico."
+              />
+            </div>
             {aiRecommendation && aiRecommendation.score >= 75 && !isTopRecommended && (
               <Badge className="bg-purple-600 text-white border-0 text-xs mt-1">
                 <Sparkles className="w-3 h-3 mr-1" />
@@ -88,36 +117,82 @@ export default function GrantCard({ grant, onDetails, userInterest, onToggleAler
           </Badge>
         </div>
 
-        <div className="space-y-2 text-sm">
-          {grant.coverage_percentage && (
-            <div className="flex items-center gap-2 text-slate-300">
-              <TrendingUp className="w-4 h-4 text-lime-400" />
-              <span>Copertura: {grant.coverage_percentage}%</span>
-            </div>
-          )}
-          
-          {grant.min_amount && grant.max_amount && (
-            <div className="flex items-center gap-2 text-slate-300">
-              <Euro className="w-4 h-4 text-lime-400" />
-              <span>
-                {grant.min_amount.toLocaleString('it-IT')} - {grant.max_amount.toLocaleString('it-IT')} €
-              </span>
-            </div>
-          )}
-          
-          {grant.deadline && (
-            <div className="flex items-center gap-2 text-slate-300">
-              <Calendar className="w-4 h-4 text-lime-400" />
-              <span>Scadenza: {format(new Date(grant.deadline), 'd MMMM yyyy', { locale: it })}</span>
-            </div>
-          )}
+        <div className="space-y-2 text-sm bg-slate-900/50 rounded-lg p-3">
+          {/* IMPORTO - sempre visibile */}
+          <div className="flex items-center gap-2 text-slate-300">
+            <Euro className="w-4 h-4 text-lime-400" />
+            <span>
+              <strong>Importo:</strong> {grant.min_amount && grant.max_amount 
+                ? `${grant.min_amount.toLocaleString('it-IT')} - ${grant.max_amount.toLocaleString('it-IT')} €`
+                : grant.max_amount 
+                  ? `Fino a ${grant.max_amount.toLocaleString('it-IT')} €`
+                  : 'Da definire'}
+            </span>
+            <InfoTooltip 
+              title="Importo del contributo" 
+              description="È l'ammontare minimo e massimo del finanziamento che puoi richiedere. L'importo effettivo dipende dal tuo progetto e dai requisiti del bando."
+            />
+          </div>
 
-          {!grant.requires_cofinancing && (
-            <div className="flex items-center gap-2 text-green-400">
-              <CheckCircle2 className="w-4 h-4" />
-              <span>Nessun cofinanziamento richiesto</span>
+          {/* COPERTURA - sempre visibile */}
+          <div className="flex items-center gap-2 text-slate-300">
+            <TrendingUp className="w-4 h-4 text-lime-400" />
+            <span>
+              <strong>Copertura:</strong> {grant.coverage_percentage 
+                ? `${grant.coverage_percentage}%` 
+                : 'Da definire'}
+            </span>
+            <InfoTooltip 
+              title="Percentuale di copertura" 
+              description="È la percentuale delle spese ammissibili che viene coperta dal contributo. Ad esempio, se la copertura è 50% e investi 100.000€, riceverai 50.000€ di contributo."
+            />
+          </div>
+          
+          {/* SCADENZA - sempre visibile */}
+          <div className="flex items-center gap-2 text-slate-300">
+            <Calendar className="w-4 h-4 text-lime-400" />
+            <span>
+              <strong>Scadenza:</strong> {grant.deadline 
+                ? format(new Date(grant.deadline), 'd MMMM yyyy', { locale: it })
+                : 'A esaurimento fondi'}
+            </span>
+            <InfoTooltip 
+              title="Scadenza del bando" 
+              description="È la data entro cui devi presentare la domanda. 'A esaurimento fondi' significa che il bando rimane aperto finché ci sono risorse disponibili."
+            />
+          </div>
+
+          {/* REQUISITI DI ACCESSO - sempre visibile */}
+          <div className="flex items-start gap-2 text-slate-300">
+            <Users className="w-4 h-4 text-lime-400 mt-0.5" />
+            <div className="flex-1">
+              <span><strong>Requisiti base:</strong></span>
+              <div className="text-xs text-slate-400 mt-1">
+                {grant.eligible_company_sizes?.length > 0 
+                  ? `Dimensione: ${grant.eligible_company_sizes.join(', ')}`
+                  : 'Tutte le dimensioni'}
+                {grant.eligible_regions?.length > 0 && (
+                  <span> • Regioni: {grant.eligible_regions.slice(0, 3).join(', ')}{grant.eligible_regions.length > 3 ? '...' : ''}</span>
+                )}
+              </div>
             </div>
-          )}
+            <InfoTooltip 
+              title="Requisiti di accesso" 
+              description="Sono i requisiti minimi che la tua azienda deve avere per poter partecipare al bando: dimensione aziendale (Micro, Piccola, Media, Grande), sede legale in determinate regioni, codici ATECO ammessi, ecc."
+            />
+          </div>
+
+          {/* COFINANZIAMENTO */}
+          <div className={`flex items-center gap-2 ${grant.requires_cofinancing ? 'text-yellow-400' : 'text-green-400'}`}>
+            <CheckCircle2 className="w-4 h-4" />
+            <span>
+              <strong>Cofinanziamento:</strong> {grant.requires_cofinancing ? 'Richiesto' : 'Non richiesto'}
+            </span>
+            <InfoTooltip 
+              title="Cofinanziamento" 
+              description="Se richiesto, significa che devi contribuire con fondi propri a una parte dell'investimento. Se non richiesto, il contributo può coprire l'intero importo ammissibile."
+            />
+          </div>
         </div>
 
         {(grant.prezzo_istruttoria || grant.percentuale_erogazione) && (
