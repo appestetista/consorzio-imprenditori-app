@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Sparkles, AlertCircle, Info, Briefcase, XCircle, Building2 } from 'lucide-react';
+import { ArrowLeft, Sparkles, AlertCircle, Info, Briefcase, XCircle, Building2, CalendarDays } from 'lucide-react';
+import { format } from 'date-fns';
+import { it } from 'date-fns/locale';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -44,12 +46,39 @@ export default function FinanziamentiAgevolati() {
     loadUser();
   }, []);
 
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
   const { data: allGrants = [], isLoading } = useQuery({
     queryKey: ['financial-grants'],
     queryFn: async () => {
       const grants = await base44.entities.FinancialGrant.list('-created_date');
+      
+      // Filtra bandi scaduti e eliminali dal database
+      const validGrants = [];
+      const expiredGrantIds = [];
+      
+      for (const grant of grants) {
+        if (grant.deadline) {
+          const deadlineDate = new Date(grant.deadline);
+          deadlineDate.setHours(0, 0, 0, 0);
+          if (deadlineDate < today) {
+            expiredGrantIds.push(grant.id);
+            continue;
+          }
+        }
+        validGrants.push(grant);
+      }
+      
+      // Elimina bandi scaduti in background
+      if (expiredGrantIds.length > 0) {
+        Promise.all(expiredGrantIds.map(id => 
+          base44.entities.FinancialGrant.delete(id).catch(e => console.error('Error deleting expired grant:', e))
+        ));
+      }
+      
       // Deduplica nel frontend per sicurezza
-      return deduplicateGrants(grants);
+      return deduplicateGrants(validGrants);
     },
   });
 
@@ -373,17 +402,28 @@ Per ogni bando, fornisci:
         </div>
 
         {/* Profile Warning - solo per utenti non admin */}
+        {/* Data odierna */}
+        <div className="bg-slate-800 rounded-lg p-4 border border-slate-700 mb-6 flex items-center gap-3">
+          <CalendarDays className="w-6 h-6 text-lime-400" />
+          <div>
+            <p className="text-slate-400 text-xs">Data odierna</p>
+            <p className="text-white font-bold text-lg">
+              {format(new Date(), "EEEE d MMMM yyyy", { locale: it })}
+            </p>
+          </div>
+        </div>
+
         {hasIncompleteProfile && user?.role !== 'admin' && (
-          <Alert className="mb-6 bg-yellow-500/20 border-yellow-500/30">
-            <AlertCircle className="h-4 w-4 text-yellow-500" />
-            <AlertDescription className="text-yellow-400 text-sm">
-              Integra le informazioni della tua azienda per ricevere i bandi più appropriati.
-              <Link to={createPageUrl('ProfiloBandi')} className="underline ml-1 font-semibold">
-                Configura profilo bandi
-              </Link>
-            </AlertDescription>
-          </Alert>
-        )}
+            <Alert className="mb-6 bg-yellow-500/20 border-yellow-500/30">
+              <AlertCircle className="h-4 w-4 text-yellow-500" />
+              <AlertDescription className="text-yellow-400 text-sm">
+                Integra le informazioni della tua azienda per ricevere i bandi più appropriati.
+                <Link to={createPageUrl('ProfiloBandi')} className="underline ml-1 font-semibold">
+                  Configura profilo bandi
+                </Link>
+              </AlertDescription>
+            </Alert>
+          )}
 
         {/* Stats */}
         {user?.role === 'admin' ? (
