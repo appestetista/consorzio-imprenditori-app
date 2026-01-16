@@ -19,8 +19,8 @@ export default function GrantFilters({ filters, onFilterChange }) {
   ].filter(Boolean).length;
 
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <div className="bg-slate-800 border border-slate-700 rounded-lg p-3">
+    <div className="bg-slate-800 border border-slate-700 rounded-lg p-3">
+      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         {/* Header con toggle */}
         <CollapsibleTrigger className="w-full">
           <div className="flex items-center justify-between">
