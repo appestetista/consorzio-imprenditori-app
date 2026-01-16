@@ -151,7 +151,17 @@ export default function FinanziamentiAgevolati() {
         })
       );
       
-      await Promise.all(notificationPromises);
+      // Crea anche un messaggio diretto all'admin per il pannello messaggi
+      const messagePromises = adminUsers.map(admin =>
+        base44.entities.Message.create({
+          from_email: user.email,
+          to_email: admin.email,
+          content: `🔔 RICHIESTA CONSULENZA BANDO\n\nHo richiesto assistenza per il bando:\n"${grantTitle}"\n\nContattami per procedere con la consulenza.`,
+          conversation_id: `consultation_${user.email}_${grantId}`
+        })
+      );
+      
+      await Promise.all([...notificationPromises, ...messagePromises]);
       
       // Invia email di notifica
       await base44.integrations.Core.SendEmail({
