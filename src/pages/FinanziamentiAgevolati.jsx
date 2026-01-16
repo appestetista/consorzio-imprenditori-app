@@ -449,6 +449,7 @@ Per ogni bando, fornisci:
                       onRequestConsultation={() => handleRequestConsultation(grant)}
                       aiRecommendation={recommendation}
                       isTopRecommended={true}
+                      userProfile={user}
                     />
                   </div>
                 );
