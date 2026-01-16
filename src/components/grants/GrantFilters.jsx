@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Zap, Filter } from 'lucide-react';
+import { Zap, Filter, ArrowUpDown } from 'lucide-react';
 
 export default function GrantFilters({ filters, onFilterChange }) {
   return (
@@ -15,6 +15,31 @@ export default function GrantFilters({ filters, onFilterChange }) {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* Ordinamento */}
+        <div className="space-y-2">
+          <Label className="text-slate-300 text-sm flex items-center gap-2">
+            <ArrowUpDown className="w-4 h-4" />
+            Ordina per
+          </Label>
+          <Select
+            value={filters.sortBy || 'created_date_desc'}
+            onValueChange={(value) => onFilterChange('sortBy', value)}
+          >
+            <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+              <SelectValue placeholder="Ordina per..." />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="created_date_desc">Più recenti</SelectItem>
+              <SelectItem value="created_date_asc">Meno recenti</SelectItem>
+              <SelectItem value="deadline_asc">Scadenza (prima i più urgenti)</SelectItem>
+              <SelectItem value="deadline_desc">Scadenza (prima i più lontani)</SelectItem>
+              <SelectItem value="max_amount_desc">Importo (dal più alto)</SelectItem>
+              <SelectItem value="max_amount_asc">Importo (dal più basso)</SelectItem>
+              <SelectItem value="coverage_desc">Copertura % (dal più alto)</SelectItem>
+              <SelectItem value="coverage_asc">Copertura % (dal più basso)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
         {/* Easy Access Filter */}
         <div className="flex items-center justify-between p-3 bg-lime-400/10 rounded-lg border border-lime-400/30">
           <div className="flex items-center gap-2">
