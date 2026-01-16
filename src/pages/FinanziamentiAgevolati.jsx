@@ -586,41 +586,41 @@ Per ogni bando, fornisci:
           )}
 
         {/* Stats */}
-        {user?.role === 'admin' ? (
-          <div className="bg-slate-800 rounded-lg p-4 border border-slate-700 mb-6">
-            <div className="text-2xl font-bold text-lime-400 mb-2">{allGrants.length}</div>
-            <div className="text-slate-400 text-sm mb-3">Totale bandi trovati dai siti</div>
-            <div className="border-t border-slate-700 pt-3">
-              <p className="text-slate-500 text-xs mb-2">Siti scansionati:</p>
-              <div className="flex flex-wrap gap-2">
-                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">incentivi.gov.it</Badge>
-                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">simest.it</Badge>
-                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">invitalia.it</Badge>
-                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.lombardia.it</Badge>
-                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.veneto.it</Badge>
-                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.emilia-romagna.it</Badge>
-                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.piemonte.it</Badge>
-                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.toscana.it</Badge>
-                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.lazio.it</Badge>
-                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.campania.it</Badge>
-                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.sicilia.it</Badge>
-                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.puglia.it</Badge>
-                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.marche.it</Badge>
-                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.liguria.it</Badge>
-                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.fvg.it</Badge>
-                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.abruzzo.it</Badge>
-                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.umbria.it</Badge>
-                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.calabria.it</Badge>
-                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.sardegna.it</Badge>
-                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.basilicata.it</Badge>
-                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.molise.it</Badge>
-                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.vda.it</Badge>
-                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">provincia.tn.it</Badge>
-                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">provincia.bz.it</Badge>
-              </div>
-            </div>
-          </div>
-        ) : (
+        {isRealAdmin ? (
+                        <div className="bg-slate-800 rounded-lg p-4 border border-slate-700 mb-6">
+                          <div className="text-2xl font-bold text-lime-400 mb-2">{allGrants.length}</div>
+                          <div className="text-slate-400 text-sm mb-3">Totale bandi trovati dai siti</div>
+                          <div className="border-t border-slate-700 pt-3">
+                            <p className="text-slate-500 text-xs mb-2">Siti scansionati:</p>
+                            <div className="flex flex-wrap gap-2">
+                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">incentivi.gov.it</Badge>
+                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">simest.it</Badge>
+                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">invitalia.it</Badge>
+                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.lombardia.it</Badge>
+                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.veneto.it</Badge>
+                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.emilia-romagna.it</Badge>
+                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.piemonte.it</Badge>
+                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.toscana.it</Badge>
+                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.lazio.it</Badge>
+                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.campania.it</Badge>
+                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.sicilia.it</Badge>
+                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.puglia.it</Badge>
+                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.marche.it</Badge>
+                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.liguria.it</Badge>
+                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.fvg.it</Badge>
+                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.abruzzo.it</Badge>
+                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.umbria.it</Badge>
+                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.calabria.it</Badge>
+                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.sardegna.it</Badge>
+                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.basilicata.it</Badge>
+                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.molise.it</Badge>
+                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.vda.it</Badge>
+                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">provincia.tn.it</Badge>
+                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">provincia.bz.it</Badge>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
           <div className="grid grid-cols-2 gap-3 mb-6">
             <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
               <div className="text-2xl font-bold text-lime-400 mb-1">{filteredGrants.length}</div>
