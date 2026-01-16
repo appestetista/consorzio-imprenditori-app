@@ -21,7 +21,6 @@ export default function GestioneBandi() {
   const [showForm, setShowForm] = useState(false);
   const [editingBando, setEditingBando] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
   const [showMatchingPreview, setShowMatchingPreview] = useState(false);
   const [selectedBandoForPreview, setSelectedBandoForPreview] = useState(null);
   const queryClient = useQueryClient();
@@ -175,7 +174,6 @@ export default function GestioneBandi() {
 
   const filteredGrants = allGrants
     .filter(g => {
-      if (statusFilter !== 'all' && g.status !== statusFilter) return false;
       const searchLower = searchTerm.toLowerCase();
       return g.title?.toLowerCase().includes(searchLower) || 
              g.description?.toLowerCase().includes(searchLower);
@@ -217,30 +215,17 @@ export default function GestioneBandi() {
           <BandoStats grants={allGrants} />
         </div>
 
-        {/* Search and Filters */}
+        {/* Search */}
         <Card className="bg-slate-800 border-slate-700 mb-6">
           <CardContent className="p-4">
-            <div className="flex gap-3">
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <Input
-                  placeholder="Cerca bandi..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="bg-slate-900 border-slate-700 text-white pl-10"
-                />
-              </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-40 bg-slate-900 border-slate-700 text-white">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tutti gli stati</SelectItem>
-                  <SelectItem value="Aperto">Aperti</SelectItem>
-                  <SelectItem value="In apertura">In apertura</SelectItem>
-                  <SelectItem value="Chiuso">Chiusi</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Input
+                placeholder="Cerca bandi..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="bg-slate-900 border-slate-700 text-white pl-10"
+              />
             </div>
           </CardContent>
         </Card>
