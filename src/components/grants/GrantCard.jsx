@@ -96,8 +96,8 @@ export default function GrantCard({ grant, onDetails, userInterest, onToggleAler
               {grant.status}
             </Badge>
             {grant.created_date && (
-              <p className="text-slate-500 text-xs mt-1">
-                Inserito il {format(new Date(grant.created_date), 'd MMM yyyy', { locale: it })}
+              <p className="text-lime-400/80 text-xs mt-1 font-medium">
+                📅 Inserito il {format(new Date(grant.created_date), 'd MMM yyyy', { locale: it })}
               </p>
             )}
           </div>
