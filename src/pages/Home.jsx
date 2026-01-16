@@ -126,13 +126,47 @@ export default function Home() {
   const { data: newGrantsCount = 0 } = useQuery({
     queryKey: ['new-grants-count', effectiveUser?.email, userGrantView?.last_viewed_at],
     queryFn: async () => {
+      // Recupera tutti i bandi non scaduti
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
       const allGrants = await base44.entities.FinancialGrant.list('-created_date');
+      const validGrants = allGrants.filter(grant => {
+        if (grant.deadline) {
+          const deadlineDate = new Date(grant.deadline);
+          deadlineDate.setHours(0, 0, 0, 0);
+          return deadlineDate >= today;
+        }
+        return true;
+      });
+
+      // Filtra per profilo utente
+      const matchesProfile = (grant) => {
+        if (grant.eligible_company_sizes?.length > 0 && effectiveUser?.company_size) {
+          if (!grant.eligible_company_sizes.includes(effectiveUser.company_size)) return false;
+        }
+        if (grant.eligible_regions?.length > 0) {
+          const userRegions = effectiveUser?.interested_regions || (effectiveUser?.region ? [effectiveUser.region] : []);
+          if (userRegions.length > 0 && !grant.eligible_regions.some(r => userRegions.includes(r))) return false;
+        }
+        if (grant.eligible_ateco_codes?.length > 0 && effectiveUser?.ateco_code) {
+          if (!grant.eligible_ateco_codes.some(code => 
+            effectiveUser.ateco_code.startsWith(code) || code.startsWith(effectiveUser.ateco_code.substring(0, 2))
+          )) return false;
+        }
+        if (grant.eligible_legal_forms?.length > 0 && effectiveUser?.legal_form) {
+          if (!grant.eligible_legal_forms.includes(effectiveUser.legal_form)) return false;
+        }
+        return true;
+      };
+
+      const compatibleGrants = validGrants.filter(matchesProfile);
+
       if (!userGrantView?.last_viewed_at) {
-        // Prima visita - mostra tutti i bandi come nuovi
-        return allGrants.length;
+        // Prima visita - mostra tutti i bandi compatibili come nuovi
+        return compatibleGrants.length;
       }
       const lastViewed = new Date(userGrantView.last_viewed_at);
-      return allGrants.filter(g => new Date(g.created_date) > lastViewed).length;
+      return compatibleGrants.filter(g => new Date(g.created_date) > lastViewed).length;
     },
     enabled: !!effectiveUser?.email && isNotAdmin,
   });
