@@ -386,21 +386,36 @@ Per ogni bando, fornisci:
         )}
 
         {/* Stats */}
-        <div className="grid grid-cols-2 gap-3 mb-6">
-          <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
-            <div className="text-2xl font-bold text-lime-400 mb-1">{filteredGrants.length}</div>
-            <div className="text-slate-400 text-sm">Bandi compatibili</div>
-          </div>
-          <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
-            <div className="text-2xl font-bold text-lime-400 mb-1">
-              {filteredGrants.filter(g => g.easy_access).length}
+        {user?.role === 'admin' ? (
+          <div className="bg-slate-800 rounded-lg p-4 border border-slate-700 mb-6">
+            <div className="text-2xl font-bold text-lime-400 mb-2">{allGrants.length}</div>
+            <div className="text-slate-400 text-sm mb-3">Totale bandi trovati dai siti</div>
+            <div className="border-t border-slate-700 pt-3">
+              <p className="text-slate-500 text-xs mb-2">Siti scansionati:</p>
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">incentivi.gov.it</Badge>
+                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">simest.it</Badge>
+                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">invitalia.it</Badge>
+              </div>
             </div>
-            <div className="text-slate-400 text-sm flex items-center gap-1">
-              <Sparkles className="w-3 h-3" />
-              Attivabili subito
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
+              <div className="text-2xl font-bold text-lime-400 mb-1">{filteredGrants.length}</div>
+              <div className="text-slate-400 text-sm">Bandi compatibili</div>
+            </div>
+            <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
+              <div className="text-2xl font-bold text-lime-400 mb-1">
+                {filteredGrants.filter(g => g.easy_access).length}
+              </div>
+              <div className="text-slate-400 text-sm flex items-center gap-1">
+                <Sparkles className="w-3 h-3" />
+                Attivabili subito
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Filters - solo per utenti non admin */}
         {user?.role !== 'admin' && (
