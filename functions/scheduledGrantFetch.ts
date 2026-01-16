@@ -49,70 +49,72 @@ Deno.serve(async (req) => {
         ];
 
         const allGrants = [];
-
-        for (const url of sources) {
-            console.log(`Fetching from: ${url}`);
+        
+        // Processa in batch paralleli di 5 siti alla volta per velocizzare
+        const batchSize = 5;
+        for (let i = 0; i < sources.length; i += batchSize) {
+            const batch = sources.slice(i, i + batchSize);
+            console.log(`Processing batch ${Math.floor(i/batchSize) + 1}/${Math.ceil(sources.length/batchSize)}: ${batch.length} sources`);
             
-            try {
-                const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
-                    prompt: `Analizza il sito ${url} e estrai TUTTI i bandi e incentivi attualmente disponibili per le imprese italiane.
+            const batchPromises = batch.map(async (url) => {
+                console.log(`Fetching from: ${url}`);
+                try {
+                    const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
+                        prompt: `Analizza il sito ${url} e estrai i bandi/incentivi APERTI per imprese italiane. Max 10 bandi principali.
 
-Per ogni bando trovato, estrai:
-- title: Titolo completo
-- description: Descrizione dettagliata
-- ente_erogatore: UE, Stato, Regione o Altro
-- livello: Europeo, Nazionale o Regionale
-- grant_type: Digitalizzazione, Innovazione, Ricerca e Sviluppo, Energia/Sostenibilità, Internazionalizzazione o Altro
-- funding_type: Contributo a fondo perduto, Finanziamento agevolato, Credito d'imposta o Misto
-- coverage_percentage: Percentuale copertura (0-100)
-- min_amount: Importo minimo euro
-- max_amount: Importo massimo euro
-- status: Aperto, In apertura o Chiuso
-- opening_date: Data apertura YYYY-MM-DD
-- deadline: Scadenza YYYY-MM-DD
-- eligible_company_sizes: Array ["Micro", "Piccola", "Media", "Grande"]
-- eligible_regions: Array regioni (vuoto se nazionale)
-- access_mode: Sportello o Graduatoria
-- requires_cofinancing: true/false
+Per ogni bando estrai (usa null se non disponibile):
+- title: Titolo
+- description: Descrizione breve (max 200 caratteri)  
+- ente_erogatore: UE/Stato/Regione/Altro
+- livello: Europeo/Nazionale/Regionale
+- grant_type: Digitalizzazione/Innovazione/Ricerca e Sviluppo/Energia/Sostenibilità/Internazionalizzazione/Altro
+- funding_type: Contributo a fondo perduto/Finanziamento agevolato/Credito d'imposta/Misto
+- coverage_percentage: numero 0-100
+- min_amount, max_amount: importi euro
+- status: Aperto/In apertura/Chiuso
+- deadline: YYYY-MM-DD
+- eligible_company_sizes: ["Micro","Piccola","Media","Grande"]
+- eligible_regions: array regioni (vuoto se nazionale)
 
-Estrai SOLO bandi reali. Se un dato non è disponibile, usa null.`,
-                    add_context_from_internet: true,
-                    response_json_schema: {
-                        type: "object",
-                        properties: {
-                            grants: {
-                                type: "array",
-                                items: {
-                                    type: "object",
-                                    properties: {
-                                        title: { type: "string" },
-                                        description: { type: "string" },
-                                        ente_erogatore: { type: "string" },
-                                        livello: { type: "string" },
-                                        grant_type: { type: "string" },
-                                        funding_type: { type: "string" },
-                                        coverage_percentage: { type: "number" },
-                                        min_amount: { type: "number" },
-                                        max_amount: { type: "number" },
-                                        status: { type: "string" },
-                                        opening_date: { type: "string" },
-                                        deadline: { type: "string" },
-                                        eligible_company_sizes: { type: "array", items: { type: "string" } },
-                                        eligible_regions: { type: "array", items: { type: "string" } },
-                                        access_mode: { type: "string" },
-                                        requires_cofinancing: { type: "boolean" }
+Solo bandi REALI e ATTUALI.`,
+                        add_context_from_internet: true,
+                        response_json_schema: {
+                            type: "object",
+                            properties: {
+                                grants: {
+                                    type: "array",
+                                    items: {
+                                        type: "object",
+                                        properties: {
+                                            title: { type: "string" },
+                                            description: { type: "string" },
+                                            ente_erogatore: { type: "string" },
+                                            livello: { type: "string" },
+                                            grant_type: { type: "string" },
+                                            funding_type: { type: "string" },
+                                            coverage_percentage: { type: "number" },
+                                            min_amount: { type: "number" },
+                                            max_amount: { type: "number" },
+                                            status: { type: "string" },
+                                            deadline: { type: "string" },
+                                            eligible_company_sizes: { type: "array", items: { type: "string" } },
+                                            eligible_regions: { type: "array", items: { type: "string" } }
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                });
-
-                if (result?.grants) {
-                    allGrants.push(...result.grants);
+                    });
+                    return result?.grants || [];
+                } catch (err) {
+                    console.error(`Error fetching ${url}:`, err.message);
+                    return [];
                 }
-            } catch (err) {
-                console.error(`Error fetching ${url}:`, err.message);
+            });
+            
+            const batchResults = await Promise.all(batchPromises);
+            for (const grants of batchResults) {
+                allGrants.push(...grants);
             }
         }
 
