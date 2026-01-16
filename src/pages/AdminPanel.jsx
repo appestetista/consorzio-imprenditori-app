@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Users, Video, Calendar, Briefcase, Plus, Settings, Bell, CheckCircle, XCircle, Clock, Trash2, Mail, Eye } from 'lucide-react';
+import { ArrowLeft, Users, Video, Calendar, Briefcase, Plus, Settings, Bell, CheckCircle, XCircle, Clock, Trash2, Mail, Eye, MessageSquare, CalendarDays } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -117,6 +117,7 @@ export default function AdminPanel() {
   const pendingVideoRequests = videoInterviewRequests.filter(r => r.status === 'pending');
 
   const [showVideoRequests, setShowVideoRequests] = useState(false);
+  const [showAllMessages, setShowAllMessages] = useState(false);
 
   const markVideoRequestReadMutation = useMutation({
     mutationFn: async (requestId) => {
@@ -142,6 +143,42 @@ export default function AdminPanel() {
     queryKey: ['unread-messages', user?.email],
     queryFn: () => base44.entities.Message.filter({ to_email: user?.email, is_read: false }),
     enabled: !!user?.email,
+  });
+
+  // Tutti i messaggi ricevuti dagli utenti e consulenti per l'admin
+  const { data: allAdminMessages = [] } = useQuery({
+    queryKey: ['all-admin-messages'],
+    queryFn: async () => {
+      const allMessages = await base44.entities.Message.list('-created_date');
+      const users = await base44.entities.User.list();
+      const consultants = await base44.entities.Consultant.list();
+      
+      // Filtra messaggi inviati all'admin
+      const adminMessages = allMessages.filter(m => m.to_email === user?.email);
+      
+      return adminMessages.map(msg => {
+        const sender = users.find(u => u.email === msg.from_email);
+        const consultant = consultants.find(c => c.email === msg.from_email);
+        return {
+          ...msg,
+          sender_name: sender?.company_name || sender?.full_name || consultant?.name || msg.from_email,
+          sender_type: consultant ? 'consulente' : 'utente'
+        };
+      });
+    },
+    enabled: !!user?.email,
+  });
+
+  const unreadAdminMessages = allAdminMessages.filter(m => !m.is_read);
+
+  const markMessageReadMutation = useMutation({
+    mutationFn: async (messageId) => {
+      await base44.entities.Message.update(messageId, { is_read: true });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['all-admin-messages'] });
+      queryClient.invalidateQueries({ queryKey: ['unread-messages'] });
+    }
   });
 
   const createConsultantMutation = useMutation({
@@ -219,6 +256,68 @@ export default function AdminPanel() {
             <h1 className="text-white text-xl font-bold">Pannello di Amministrazione</h1>
           </div>
         </div>
+
+        {/* Data odierna */}
+        <Card className="bg-slate-800 border-slate-700 mb-4">
+          <CardContent className="p-4 flex items-center gap-3">
+            <CalendarDays className="w-6 h-6 text-lime-400" />
+            <div>
+              <p className="text-slate-400 text-xs">Data odierna</p>
+              <p className="text-white font-bold">
+                {new Date().toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Messaggi da utenti e consulenti */}
+        <Card className="bg-slate-800 border-slate-700 mb-6">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <div className="relative">
+                  <MessageSquare className={`w-5 h-5 ${unreadAdminMessages.length > 0 ? 'text-lime-400' : 'text-slate-400'}`} />
+                  {unreadAdminMessages.length > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold animate-pulse">
+                      {unreadAdminMessages.length}
+                    </span>
+                  )}
+                </div>
+                <span className="text-white font-medium">Messaggi Ricevuti</span>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                className="border-lime-400 text-lime-400 hover:bg-lime-400/20"
+                onClick={() => setShowAllMessages(true)}
+              >
+                <Mail className="w-4 h-4 mr-1" />
+                Vedi tutti ({allAdminMessages.length})
+              </Button>
+            </div>
+            {unreadAdminMessages.length === 0 ? (
+              <p className="text-slate-400 text-sm">Nessun nuovo messaggio</p>
+            ) : (
+              <div className="space-y-2">
+                {unreadAdminMessages.slice(0, 3).map((msg) => (
+                  <div key={msg.id} className="bg-lime-400/10 border border-lime-400/30 rounded-lg p-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-white font-medium text-sm truncate">{msg.sender_name}</p>
+                        <p className="text-slate-400 text-xs">{msg.sender_type === 'consulente' ? '👔 Consulente' : '👤 Utente'}</p>
+                        <p className="text-slate-300 text-sm mt-1 line-clamp-2">{msg.content}</p>
+                      </div>
+                      <span className="bg-lime-400 text-slate-900 text-xs font-bold px-2 py-0.5 rounded flex-shrink-0">NUOVO</span>
+                    </div>
+                  </div>
+                ))}
+                {unreadAdminMessages.length > 3 && (
+                  <p className="text-lime-400 text-xs text-center">+ altri {unreadAdminMessages.length - 3} messaggi non letti</p>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 gap-4 mb-6">
@@ -575,6 +674,75 @@ export default function AdminPanel() {
           navigate(createPageUrl('Home'));
         }}
       />
+
+      {/* Dialog Messaggi Ricevuti */}
+      <Dialog open={showAllMessages} onOpenChange={setShowAllMessages}>
+        <DialogContent className="bg-slate-800 border-slate-700 max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-white">Messaggi da Utenti e Consulenti</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            {allAdminMessages.length === 0 ? (
+              <p className="text-slate-400 text-center py-8">Nessun messaggio ricevuto</p>
+            ) : (
+              allAdminMessages.map((msg) => (
+                <Card key={msg.id} className={`border ${!msg.is_read ? 'bg-lime-400/10 border-lime-400/30' : 'bg-slate-900 border-slate-700'}`}>
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <div>
+                        <h3 className="text-white font-bold">{msg.sender_name}</h3>
+                        <p className="text-slate-400 text-xs">{msg.from_email}</p>
+                        <p className="text-lime-400 text-xs">{msg.sender_type === 'consulente' ? '👔 Consulente' : '👤 Utente'}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {!msg.is_read && (
+                          <span className="bg-lime-400 text-slate-900 text-xs font-bold px-2 py-1 rounded">NUOVO</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="bg-slate-800 rounded-lg p-3 mb-3">
+                      <p className="text-white text-sm whitespace-pre-wrap">{msg.content}</p>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <p className="text-slate-500 text-xs">
+                        {msg.created_date ? new Date(msg.created_date).toLocaleDateString('it-IT', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        }) : 'N/A'}
+                      </p>
+                      <div className="flex gap-2">
+                        {!msg.is_read && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-lime-400 text-lime-400 hover:bg-lime-400/20"
+                            onClick={() => markMessageReadMutation.mutate(msg.id)}
+                          >
+                            <Eye className="w-4 h-4 mr-1" />
+                            Segna letto
+                          </Button>
+                        )}
+                        <Link to={createPageUrl('Messaggi')}>
+                          <Button
+                            size="sm"
+                            className="bg-lime-400 hover:bg-lime-500 text-slate-900"
+                          >
+                            <Mail className="w-4 h-4 mr-1" />
+                            Rispondi
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Dialog Richieste Video Interviste */}
       <Dialog open={showVideoRequests} onOpenChange={setShowVideoRequests}>
