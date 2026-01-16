@@ -402,10 +402,12 @@ Per ogni bando, fornisci:
           </div>
         </div>
 
-        {/* Filters */}
-        <div className="mb-6">
-          <GrantFilters filters={filters} onFilterChange={handleFilterChange} />
-        </div>
+        {/* Filters - solo per utenti non admin */}
+        {user?.role !== 'admin' && (
+          <div className="mb-6">
+            <GrantFilters filters={filters} onFilterChange={handleFilterChange} />
+          </div>
+        )}
 
         {/* Info Box */}
         <Alert className="mb-6 bg-lime-400/10 border-lime-400/30">
