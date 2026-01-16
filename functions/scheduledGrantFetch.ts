@@ -21,7 +21,31 @@ Deno.serve(async (req) => {
             'https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/programmes',
             'https://www.horizon-europe.it/bandi',
             // Camere di Commercio
-            'https://www.unioncamere.gov.it/bandi-e-finanziamenti'
+            'https://www.unioncamere.gov.it/bandi-e-finanziamenti',
+            // Regioni - Nord
+            'https://www.regione.lombardia.it/wps/portal/istituzionale/HP/servizi-e-informazioni/imprese/Imprese-incentivi-agevolazioni-contributi',
+            'https://www.regione.veneto.it/web/economia-e-sviluppo-montano/contributi-e-finanziamenti',
+            'https://imprese.regione.emilia-romagna.it/finanziamenti',
+            'https://www.regione.piemonte.it/web/temi/fondi-progetti-europei/fondo-europeo-sviluppo-regionale-fesr/bandi-finanziamenti-imprese',
+            'https://www.regione.liguria.it/homepage/economia/bandi-e-contributi.html',
+            'https://www.regione.fvg.it/rafvg/cms/RAFVG/economia-imprese/imprese/',
+            'https://www.provincia.tn.it/Servizi/Incentivi-e-finanziamenti-per-imprese',
+            'https://www.provincia.bz.it/economia-finanze/economia/contributi-agevolazioni-imprese.asp',
+            // Regioni - Centro
+            'https://www.regione.toscana.it/bandi',
+            'https://www.regione.lazio.it/cittadini/attivita-produttive-e-imprese',
+            'https://www.regione.marche.it/Regione-Utile/Attivit%C3%A0-Produttive/Bandi-e-Contributi',
+            'https://www.regione.umbria.it/imprese/incentivi-e-agevolazioni',
+            'https://www.regione.abruzzo.it/content/bandi-imprese',
+            // Regioni - Sud e Isole
+            'https://www.regione.campania.it/regione/it/tematiche/bandi-gare-contratti',
+            'https://www.regione.puglia.it/web/economia-e-sviluppo/-bandi',
+            'https://www.regione.calabria.it/website/organizzazione/dipartimento6/bandi/',
+            'https://pti.regione.sicilia.it/portal/page/portal/PIR_PORTALE/PIR_ArchivioLaRegioneInforma/PIR_BandiAvvisi',
+            'https://www.regione.sardegna.it/argomenti/incentivi/',
+            'https://www.regione.basilicata.it/giunta/site/giunta/department.jsp?dep=100066&area=109501',
+            'https://www.regione.molise.it/web/bandi/',
+            'https://www.regione.vda.it/economia/aiuti_stato/default_i.aspx'
         ];
 
         const allGrants = [];
