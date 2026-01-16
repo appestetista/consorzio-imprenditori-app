@@ -423,11 +423,43 @@ Per ogni bando, fornisci:
     getAIRecommendations();
   }, [user, filteredGrants.length]);
 
-  // Sort grants by AI recommendation score
+  // Sort grants based on selected sorting option
   const sortedGrants = [...filteredGrants].sort((a, b) => {
-    const scoreA = aiRecommendations[a.id]?.score || 0;
-    const scoreB = aiRecommendations[b.id]?.score || 0;
-    return scoreB - scoreA;
+    // Se ci sono raccomandazioni AI e nessun ordinamento specifico, usa quelle
+    if (filters.sortBy === 'created_date_desc' && Object.keys(aiRecommendations).length > 0) {
+      const scoreA = aiRecommendations[a.id]?.score || 0;
+      const scoreB = aiRecommendations[b.id]?.score || 0;
+      if (scoreA !== scoreB) return scoreB - scoreA;
+    }
+
+    switch (filters.sortBy) {
+      case 'created_date_desc':
+        return new Date(b.created_date || 0) - new Date(a.created_date || 0);
+      case 'created_date_asc':
+        return new Date(a.created_date || 0) - new Date(b.created_date || 0);
+      case 'deadline_asc':
+        if (!a.deadline) return 1;
+        if (!b.deadline) return -1;
+        return new Date(a.deadline) - new Date(b.deadline);
+      case 'deadline_desc':
+        if (!a.deadline) return 1;
+        if (!b.deadline) return -1;
+        return new Date(b.deadline) - new Date(a.deadline);
+      case 'max_amount_desc':
+        return (b.max_amount || 0) - (a.max_amount || 0);
+      case 'max_amount_asc':
+        if (!a.max_amount) return 1;
+        if (!b.max_amount) return -1;
+        return (a.max_amount || 0) - (b.max_amount || 0);
+      case 'coverage_desc':
+        return (b.coverage_percentage || 0) - (a.coverage_percentage || 0);
+      case 'coverage_asc':
+        if (!a.coverage_percentage) return 1;
+        if (!b.coverage_percentage) return -1;
+        return (a.coverage_percentage || 0) - (b.coverage_percentage || 0);
+      default:
+        return 0;
+    }
   });
 
   const topRecommendedGrants = sortedGrants.filter(g => 
