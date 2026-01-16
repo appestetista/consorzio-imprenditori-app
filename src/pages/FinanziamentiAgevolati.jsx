@@ -372,8 +372,8 @@ Per ogni bando, fornisci:
           </div>
         </div>
 
-        {/* Profile Warning */}
-        {hasIncompleteProfile && (
+        {/* Profile Warning - solo per utenti non admin */}
+        {hasIncompleteProfile && user?.role !== 'admin' && (
           <Alert className="mb-6 bg-yellow-500/20 border-yellow-500/30">
             <AlertCircle className="h-4 w-4 text-yellow-500" />
             <AlertDescription className="text-yellow-400 text-sm">
