@@ -91,9 +91,16 @@ export default function GrantCard({ grant, onDetails, userInterest, onToggleAler
               </Badge>
             )}
           </div>
-          <Badge className={`${getStatusColor(grant.status)} text-white`}>
-            {grant.status}
-          </Badge>
+          <div className="text-right">
+            <Badge className={`${getStatusColor(grant.status)} text-white`}>
+              {grant.status}
+            </Badge>
+            {grant.created_date && (
+              <p className="text-slate-500 text-xs mt-1">
+                Inserito il {format(new Date(grant.created_date), 'd MMM yyyy', { locale: it })}
+              </p>
+            )}
+          </div>
         </div>
       </CardHeader>
       
