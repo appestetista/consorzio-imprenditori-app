@@ -127,23 +127,67 @@ Restituisci un array di oggetti JSON.`,
             g.title?.toLowerCase().trim() === titleLower
         );
 
+        // Se mancano dati importanti (importo, copertura), cerca su altre fonti
+        let enrichedGrant = { ...grant };
+        if (!grant.min_amount && !grant.max_amount && !grant.coverage_percentage) {
+            console.log(`Enriching data for: ${grant.title}`);
+            try {
+                const enrichResult = await base44.integrations.Core.InvokeLLM({
+                    prompt: `Cerca informazioni dettagliate sul bando/incentivo italiano: "${grant.title}"
+
+Cerca su più fonti possibili (siti istituzionali, camere di commercio, portali regionali, articoli specializzati) per trovare:
+1. Importo minimo finanziabile (in euro, solo numero)
+2. Importo massimo finanziabile (in euro, solo numero)  
+3. Percentuale di copertura/contributo (numero 0-100)
+4. Se richiede cofinanziamento (true/false)
+5. URL del bando ufficiale
+
+IMPORTANTE: Restituisci SOLO dati verificati da fonti ufficiali. Se non trovi un dato con certezza, usa null. NON INVENTARE.`,
+                    add_context_from_internet: true,
+                    response_json_schema: {
+                        type: "object",
+                        properties: {
+                            min_amount: { type: "number" },
+                            max_amount: { type: "number" },
+                            coverage_percentage: { type: "number" },
+                            requires_cofinancing: { type: "boolean" },
+                            website_url: { type: "string" },
+                            source_verified: { type: "boolean" }
+                        }
+                    }
+                });
+
+                if (enrichResult?.source_verified) {
+                    enrichedGrant.min_amount = enrichResult.min_amount || grant.min_amount;
+                    enrichedGrant.max_amount = enrichResult.max_amount || grant.max_amount;
+                    enrichedGrant.coverage_percentage = enrichResult.coverage_percentage || grant.coverage_percentage;
+                    enrichedGrant.requires_cofinancing = enrichResult.requires_cofinancing ?? grant.requires_cofinancing;
+                    enrichedGrant.website_url = enrichResult.website_url || grant.website_url;
+                    console.log(`Enriched ${grant.title} with verified data`);
+                }
+            } catch (enrichError) {
+                console.error(`Error enriching ${grant.title}:`, enrichError.message);
+            }
+        }
+
         const grantData = {
-            title: grant.title,
-            description: grant.description || '',
-            ente_erogatore: grant.ente_erogatore || 'Stato',
-            livello: grant.livello || 'Nazionale',
-            grant_type: mapGrantType(grant.grant_type),
-            funding_type: mapFundingType(grant.funding_type),
-            coverage_percentage: grant.coverage_percentage || null,
-            min_amount: grant.min_amount || null,
-            max_amount: grant.max_amount || null,
-            status: grant.status || 'Aperto',
-            opening_date: grant.opening_date || null,
-            deadline: grant.deadline || null,
-            eligible_company_sizes: grant.eligible_company_sizes || ['Micro', 'Piccola', 'Media', 'Grande'],
-            eligible_regions: grant.eligible_regions || [],
-            access_mode: grant.access_mode || 'Sportello',
-            requires_cofinancing: grant.requires_cofinancing || false,
+            title: enrichedGrant.title,
+            description: enrichedGrant.description || '',
+            ente_erogatore: enrichedGrant.ente_erogatore || 'Stato',
+            livello: enrichedGrant.livello || 'Nazionale',
+            grant_type: mapGrantType(enrichedGrant.grant_type),
+            funding_type: mapFundingType(enrichedGrant.funding_type),
+            coverage_percentage: enrichedGrant.coverage_percentage || null,
+            min_amount: enrichedGrant.min_amount || null,
+            max_amount: enrichedGrant.max_amount || null,
+            status: enrichedGrant.status || 'Aperto',
+            opening_date: enrichedGrant.opening_date || null,
+            deadline: enrichedGrant.deadline || null,
+            eligible_company_sizes: enrichedGrant.eligible_company_sizes || ['Micro', 'Piccola', 'Media', 'Grande'],
+            eligible_regions: enrichedGrant.eligible_regions || [],
+            access_mode: enrichedGrant.access_mode || 'Sportello',
+            requires_cofinancing: enrichedGrant.requires_cofinancing || false,
+            website_url: enrichedGrant.website_url || null,
             is_archived: false,
             created_by_email: 'system@auto-import'
         };
