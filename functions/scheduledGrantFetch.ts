@@ -9,10 +9,19 @@ Deno.serve(async (req) => {
         
         console.log('Scheduled grant fetch started at:', new Date().toISOString());
 
-        // Fonti da monitorare
+        // Fonti ufficiali da monitorare
         const sources = [
+            // Nazionali
             'https://www.incentivi.gov.it/it/incentivi',
-            'https://www.invitalia.it/cosa-facciamo/creiamo-nuove-aziende'
+            'https://www.invitalia.it/cosa-facciamo/creiamo-nuove-aziende',
+            'https://www.mise.gov.it/it/incentivi',
+            'https://www.simest.it/prodotti-e-servizi',
+            'https://www.sace.it/soluzioni',
+            // Europei
+            'https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/programmes',
+            'https://www.horizon-europe.it/bandi',
+            // Camere di Commercio
+            'https://www.unioncamere.gov.it/bandi-e-finanziamenti'
         ];
 
         const allGrants = [];
@@ -85,18 +94,36 @@ Estrai SOLO bandi reali. Se un dato non è disponibile, usa null.`,
 
         console.log(`Total grants extracted: ${allGrants.length}`);
 
+        // Deduplica i bandi estratti PRIMA di salvare
+        const uniqueGrants = deduplicateGrants(allGrants);
+        console.log(`After deduplication: ${uniqueGrants.length} unique grants`);
+
         // Salva i bandi
         const existingGrants = await base44.asServiceRole.entities.FinancialGrant.list();
-        const existingTitles = new Map(existingGrants.map(g => [g.title?.toLowerCase().trim(), g]));
+        
+        // Crea indice per matching più robusto (titolo normalizzato + ente)
+        const existingIndex = new Map();
+        for (const g of existingGrants) {
+            const key = normalizeTitle(g.title);
+            existingIndex.set(key, g);
+        }
 
         let created = 0;
         let updated = 0;
+        let skipped = 0;
 
-        for (const grant of allGrants) {
+        for (const grant of uniqueGrants) {
             if (!grant.title) continue;
 
-            const titleKey = grant.title.toLowerCase().trim();
-            const existing = existingTitles.get(titleKey);
+            const titleKey = normalizeTitle(grant.title);
+            const existing = existingIndex.get(titleKey);
+            
+            // Verifica duplicato anche con similarità
+            const isDuplicate = checkSimilarExists(grant.title, existingGrants);
+            if (isDuplicate && !existing) {
+                skipped++;
+                continue;
+            }
 
             const grantData = {
                 title: grant.title,
@@ -139,8 +166,10 @@ Estrai SOLO bandi reali. Se un dato non è disponibile, usa null.`,
         const result = {
             success: true,
             extracted: allGrants.length,
+            afterDedup: uniqueGrants.length,
             created,
             updated,
+            skipped,
             timestamp: new Date().toISOString()
         };
 
@@ -165,4 +194,72 @@ function validateEnum(value, allowed, defaultValue) {
         }
     }
     return defaultValue;
+}
+
+// Normalizza titolo per confronto
+function normalizeTitle(title) {
+    if (!title) return '';
+    return title
+        .toLowerCase()
+        .replace(/[^a-z0-9àèéìòù]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+// Deduplica array di bandi estratti
+function deduplicateGrants(grants) {
+    const seen = new Map();
+    
+    for (const grant of grants) {
+        if (!grant.title) continue;
+        
+        const key = normalizeTitle(grant.title);
+        
+        // Se già visto, tieni quello con più dati
+        if (seen.has(key)) {
+            const existing = seen.get(key);
+            const existingScore = countFields(existing);
+            const newScore = countFields(grant);
+            if (newScore > existingScore) {
+                seen.set(key, grant);
+            }
+        } else {
+            seen.set(key, grant);
+        }
+    }
+    
+    return Array.from(seen.values());
+}
+
+// Conta campi compilati per determinare quale record è più completo
+function countFields(obj) {
+    let count = 0;
+    for (const value of Object.values(obj)) {
+        if (value !== null && value !== undefined && value !== '') {
+            count++;
+        }
+    }
+    return count;
+}
+
+// Verifica se esiste un bando simile (> 80% similarità)
+function checkSimilarExists(newTitle, existingGrants) {
+    const normalizedNew = normalizeTitle(newTitle);
+    const newWords = new Set(normalizedNew.split(' ').filter(w => w.length > 2));
+    
+    for (const existing of existingGrants) {
+        const normalizedExisting = normalizeTitle(existing.title);
+        const existingWords = new Set(normalizedExisting.split(' ').filter(w => w.length > 2));
+        
+        // Calcola overlap
+        let matches = 0;
+        for (const word of newWords) {
+            if (existingWords.has(word)) matches++;
+        }
+        
+        const similarity = matches / Math.max(newWords.size, existingWords.size);
+        if (similarity > 0.8) return true;
+    }
+    
+    return false;
 }
