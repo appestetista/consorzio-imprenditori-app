@@ -26,13 +26,14 @@ export default function FinanziamentiAgevolati() {
   const [aiRecommendations, setAiRecommendations] = useState({});
   const [loadingRecommendations, setLoadingRecommendations] = useState(false);
   const [filters, setFilters] = useState({
-    easyAccess: false,
-    grantType: 'all',
-    fundingType: 'all',
-    status: 'all',
-    accessMode: 'all',
-    noCofinancing: false
-  });
+        easyAccess: false,
+        grantType: 'all',
+        fundingType: 'all',
+        status: 'all',
+        accessMode: 'all',
+        noCofinancing: false,
+        sortBy: 'created_date_desc'
+      });
   const [showConsultationMessages, setShowConsultationMessages] = useState(false);
   const queryClient = useQueryClient();
   const { impersonation } = useImpersonation();
