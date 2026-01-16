@@ -638,12 +638,10 @@ Per ogni bando, fornisci:
           </div>
         )}
 
-        {/* Filters - solo per utenti non admin */}
-        {user?.role !== 'admin' && (
-          <div className="mb-6">
-            <GrantFilters filters={filters} onFilterChange={handleFilterChange} />
-          </div>
-        )}
+        {/* Filters */}
+        <div className="mb-6">
+          <GrantFilters filters={filters} onFilterChange={handleFilterChange} />
+        </div>
 
         {/* Info Box - solo per utenti non admin */}
         {user?.role !== 'admin' && (
