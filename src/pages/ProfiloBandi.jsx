@@ -142,7 +142,10 @@ export default function ProfiloBandi() {
     // Esperienza con Bandi
     has_previous_grants: false,
     previous_grants_amount: '',
-    can_cofinance: true // Capacità di cofinanziamento
+    can_cofinance: true, // Capacità di cofinanziamento
+    
+    // Regioni di interesse per bandi
+    interested_regions: [] // Array di regioni per cui l'utente vuole ricevere bandi
   });
 
   useEffect(() => {
@@ -193,7 +196,8 @@ export default function ProfiloBandi() {
           interested_in_rd: currentUser.interested_in_rd || false,
           has_previous_grants: currentUser.has_previous_grants || false,
           previous_grants_amount: currentUser.previous_grants_amount || '',
-          can_cofinance: currentUser.can_cofinance !== false
+          can_cofinance: currentUser.can_cofinance !== false,
+          interested_regions: currentUser.interested_regions || (currentUser.region ? [currentUser.region] : [])
         }));
       } catch (e) {
         console.error(e);
@@ -351,7 +355,14 @@ export default function ProfiloBandi() {
                 </Label>
                 <Select
                   value={formData.region}
-                  onValueChange={(value) => setFormData({...formData, region: value})}
+                  onValueChange={(value) => {
+                    // Auto-aggiungi la regione sede alle regioni di interesse
+                    const currentInterested = formData.interested_regions || [];
+                    const newInterested = currentInterested.includes(value) 
+                      ? currentInterested 
+                      : [...currentInterested, value];
+                    setFormData({...formData, region: value, interested_regions: newInterested});
+                  }}
                 >
                   <SelectTrigger className="bg-slate-900 border-slate-700 text-white mt-1">
                     <SelectValue placeholder="Seleziona regione" />
@@ -376,6 +387,53 @@ export default function ProfiloBandi() {
                   placeholder="Es: MI, RM, NA..."
                   maxLength={2}
                 />
+              </div>
+
+              {/* Regioni di interesse per bandi */}
+              <div className="pt-4 border-t border-slate-700 mt-4">
+                <Label className="text-slate-300 text-sm flex items-center mb-3">
+                  <MapPin className="w-4 h-4 mr-2 text-lime-400" />
+                  Regioni di interesse per bandi *
+                  <HelpTooltip text="Seleziona le regioni per cui vuoi ricevere notifiche sui bandi. La regione della tua sede legale è selezionata automaticamente. Puoi aggiungere altre regioni se hai sedi operative o interessi in altre zone." />
+                </Label>
+                <p className="text-slate-400 text-xs mb-3">
+                  Seleziona tutte le regioni per cui vuoi essere avvisato sui bandi disponibili:
+                </p>
+                <div className="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto pr-2">
+                  {REGIONI_ITALIA.map((regione) => {
+                    const isSelected = formData.interested_regions?.includes(regione);
+                    const isHomeRegion = formData.region === regione;
+                    return (
+                      <label 
+                        key={regione} 
+                        className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors ${
+                          isSelected 
+                            ? 'bg-lime-400/20 border border-lime-400/50' 
+                            : 'bg-slate-900 hover:bg-slate-900/70 border border-transparent'
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={(e) => {
+                            const newRegions = e.target.checked
+                              ? [...(formData.interested_regions || []), regione]
+                              : (formData.interested_regions || []).filter(r => r !== regione);
+                            setFormData({...formData, interested_regions: newRegions});
+                          }}
+                          className="w-4 h-4 rounded border-slate-600 text-lime-400 focus:ring-lime-400"
+                        />
+                        <span className={`text-sm ${isSelected ? 'text-lime-400 font-medium' : 'text-white'}`}>
+                          {regione}
+                          {isHomeRegion && <span className="text-xs text-slate-400 ml-1">(sede)</span>}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+                <p className="text-slate-500 text-xs mt-2">
+                  {formData.interested_regions?.length || 0} regioni selezionate
+                </p>
               </div>
 
               <div className="space-y-2">
