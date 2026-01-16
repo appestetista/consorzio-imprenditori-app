@@ -57,6 +57,9 @@ export default function FinanziamentiAgevolati() {
           } else {
             await base44.entities.UserGrantView.create({ user_email: effectiveEmail, last_viewed_at: new Date().toISOString() });
           }
+          // Invalida la cache per aggiornare il contatore nella Home
+          queryClient.invalidateQueries({ queryKey: ['user-grant-view', effectiveEmail] });
+          queryClient.invalidateQueries({ queryKey: ['new-grants-count'] });
         }
       } catch (e) {
         console.error(e);
