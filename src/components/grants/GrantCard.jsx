@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Calendar, Euro, TrendingUp, ExternalLink, Zap, CheckCircle2, Bell, BellOff, Briefcase, Sparkles } from 'lucide-react';
+import { Calendar, Euro, TrendingUp, ExternalLink, Zap, CheckCircle2, Bell, BellOff, Briefcase, Sparkles, Building2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 
@@ -45,6 +45,16 @@ export default function GrantCard({ grant, onDetails, userInterest, onToggleAler
               )}
             </div>
             <CardTitle className="text-white text-lg">{grant.title}</CardTitle>
+            {/* Ente erogatore in evidenza */}
+            {grant.ente_erogatore && (
+              <div className="flex items-center gap-1.5 mt-1">
+                <Building2 className="w-3.5 h-3.5 text-amber-400" />
+                <span className="text-amber-400 text-sm font-semibold">{grant.ente_erogatore}</span>
+                {grant.livello && (
+                  <span className="text-slate-400 text-xs">• {grant.livello}</span>
+                )}
+              </div>
+            )}
             {aiRecommendation && aiRecommendation.score >= 75 && !isTopRecommended && (
               <Badge className="bg-purple-600 text-white border-0 text-xs mt-1">
                 <Sparkles className="w-3 h-3 mr-1" />
