@@ -45,6 +45,16 @@ export default function FinanziamentiAgevolati() {
       try {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
+        
+        // Aggiorna timestamp ultima visita per utenti non admin
+        if (currentUser?.role !== 'admin') {
+          const views = await base44.entities.UserGrantView.filter({ user_email: currentUser.email });
+          if (views.length > 0) {
+            await base44.entities.UserGrantView.update(views[0].id, { last_viewed_at: new Date().toISOString() });
+          } else {
+            await base44.entities.UserGrantView.create({ user_email: currentUser.email, last_viewed_at: new Date().toISOString() });
+          }
+        }
       } catch (e) {
         console.error(e);
       }

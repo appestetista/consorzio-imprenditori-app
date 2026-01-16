@@ -109,6 +109,30 @@ export default function Home() {
     enabled: !!effectiveUser?.email,
   });
 
+  // Per utenti/consulenti: conta nuovi bandi dalla loro ultima visita
+  const { data: userGrantView } = useQuery({
+    queryKey: ['user-grant-view', effectiveUser?.email],
+    queryFn: async () => {
+      const views = await base44.entities.UserGrantView.filter({ user_email: effectiveUser?.email });
+      return views[0] || null;
+    },
+    enabled: !!effectiveUser?.email && effectiveUser?.role !== 'admin',
+  });
+
+  const { data: newGrantsCount = 0 } = useQuery({
+    queryKey: ['new-grants-count', effectiveUser?.email, userGrantView?.last_viewed_at],
+    queryFn: async () => {
+      const allGrants = await base44.entities.FinancialGrant.list('-created_date');
+      if (!userGrantView?.last_viewed_at) {
+        // Prima visita - mostra tutti i bandi come nuovi
+        return allGrants.length;
+      }
+      const lastViewed = new Date(userGrantView.last_viewed_at);
+      return allGrants.filter(g => new Date(g.created_date) > lastViewed).length;
+    },
+    enabled: !!effectiveUser?.email && effectiveUser?.role !== 'admin',
+  });
+
   // Count notifications by type - per eventi, mostra solo se non ha ancora risposto
       const eventNotifications = notifications.filter(n => {
         if (n.type !== 'event') return false;
@@ -169,7 +193,7 @@ export default function Home() {
     { title: 'Video\ninterviste', icon: Video, page: 'VideoInterviste', notifications: videoNotifications, permission: 'video_interviste' },
     { title: 'Academy', icon: BookOpen, page: 'CulturaAziendale', notifications: culturaAziendaleNotifications, permission: 'cultura_aziendale' },
     { title: isConsultant ? 'Richieste di\nConsulenza' : 'Consulenze', icon: Briefcase, page: 'Consulenze', notifications: consultationNotifications, permission: 'consulenze' },
-    { title: 'Finanziamenti\nagevolati', icon: Sparkles, page: 'FinanziamentiAgevolati', notifications: 0, permission: 'finanziamenti' },
+    { title: 'Finanziamenti\nagevolati', icon: Sparkles, page: 'FinanziamentiAgevolati', notifications: isAdmin ? 0 : newGrantsCount, permission: 'finanziamenti' },
     { title: 'Utenti', icon: Users, page: 'GestioneMembri', notifications: 0, permission: 'contatta_membri' },
     { title: 'Risparmio\nenergetico', icon: Zap, page: 'RisparmioEnergetico', notifications: 0, permission: 'risparmio_energetico' },
     { title: 'market place', icon: ShoppingBag, page: 'Marketplace', notifications: 0, permission: 'marketplace' },
