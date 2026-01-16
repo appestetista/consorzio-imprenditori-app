@@ -489,6 +489,7 @@ Per ogni bando, fornisci:
                   onToggleAlerts={() => handleToggleAlerts(grant)}
                   onRequestConsultation={() => handleRequestConsultation(grant)}
                   aiRecommendation={recommendation}
+                  userProfile={user}
                 />
               );
             })}
