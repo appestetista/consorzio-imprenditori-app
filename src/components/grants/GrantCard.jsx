@@ -31,7 +31,7 @@ function InfoTooltip({ title, description }) {
   );
 }
 
-export default function GrantCard({ grant, onDetails, userInterest, onToggleAlerts, onRequestConsultation, aiRecommendation, isTopRecommended }) {
+export default function GrantCard({ grant, onDetails, userInterest, onToggleAlerts, onRequestConsultation, aiRecommendation, isTopRecommended, userProfile }) {
   const getStatusColor = (status) => {
     switch (status) {
       case 'Aperto': return 'bg-green-500';
@@ -162,23 +162,83 @@ export default function GrantCard({ grant, onDetails, userInterest, onToggleAler
             />
           </div>
 
-          {/* REQUISITI DI ACCESSO - sempre visibile */}
+          {/* REQUISITI DI ACCESSO - con verifica profilo utente */}
           <div className="flex items-start gap-2 text-slate-300">
             <Users className="w-4 h-4 text-lime-400 mt-0.5" />
             <div className="flex-1">
               <span><strong>Requisiti base:</strong></span>
-              <div className="text-xs text-slate-400 mt-1">
-                {grant.eligible_company_sizes?.length > 0 
-                  ? `Dimensione: ${grant.eligible_company_sizes.join(', ')}`
-                  : 'Tutte le dimensioni'}
-                {grant.eligible_regions?.length > 0 && (
-                  <span> • Regioni: {grant.eligible_regions.slice(0, 3).join(', ')}{grant.eligible_regions.length > 3 ? '...' : ''}</span>
+              <div className="text-xs mt-1 space-y-1">
+                {/* Dimensione aziendale */}
+                <div className="flex items-center gap-1">
+                  <span className="text-slate-400">Dimensione:</span>
+                  <span className={
+                    grant.eligible_company_sizes?.length > 0 
+                      ? (userProfile?.company_size && grant.eligible_company_sizes.includes(userProfile.company_size) 
+                          ? 'text-green-400' 
+                          : userProfile?.company_size ? 'text-red-400' : 'text-slate-300')
+                      : 'text-slate-300'
+                  }>
+                    {grant.eligible_company_sizes?.length > 0 
+                      ? grant.eligible_company_sizes.join(', ')
+                      : 'Tutte'}
+                  </span>
+                  {userProfile?.company_size && grant.eligible_company_sizes?.length > 0 && (
+                    grant.eligible_company_sizes.includes(userProfile.company_size) 
+                      ? <CheckCircle2 className="w-3 h-3 text-green-400" />
+                      : <X className="w-3 h-3 text-red-400" />
+                  )}
+                </div>
+                
+                {/* Regione */}
+                <div className="flex items-center gap-1">
+                  <span className="text-slate-400">Regioni:</span>
+                  <span className={
+                    grant.eligible_regions?.length > 0 
+                      ? (userProfile?.region && grant.eligible_regions.includes(userProfile.region) 
+                          ? 'text-green-400' 
+                          : userProfile?.region ? 'text-red-400' : 'text-slate-300')
+                      : 'text-slate-300'
+                  }>
+                    {grant.eligible_regions?.length > 0 
+                      ? (grant.eligible_regions.length > 3 
+                          ? `${grant.eligible_regions.slice(0, 3).join(', ')}...` 
+                          : grant.eligible_regions.join(', '))
+                      : 'Tutte'}
+                  </span>
+                  {userProfile?.region && grant.eligible_regions?.length > 0 && (
+                    grant.eligible_regions.includes(userProfile.region) 
+                      ? <CheckCircle2 className="w-3 h-3 text-green-400" />
+                      : <X className="w-3 h-3 text-red-400" />
+                  )}
+                </div>
+
+                {/* Codice ATECO se presente */}
+                {grant.eligible_ateco_codes?.length > 0 && (
+                  <div className="flex items-center gap-1">
+                    <span className="text-slate-400">ATECO:</span>
+                    <span className={
+                      userProfile?.ateco_code 
+                        ? (grant.eligible_ateco_codes.some(code => 
+                            userProfile.ateco_code.startsWith(code) || code.startsWith(userProfile.ateco_code?.substring(0, 2))
+                          ) ? 'text-green-400' : 'text-red-400')
+                        : 'text-slate-300'
+                    }>
+                      {grant.eligible_ateco_codes.slice(0, 3).join(', ')}{grant.eligible_ateco_codes.length > 3 ? '...' : ''}
+                    </span>
+                    {userProfile?.ateco_code && (
+                      grant.eligible_ateco_codes.some(code => 
+                        userProfile.ateco_code.startsWith(code) || code.startsWith(userProfile.ateco_code?.substring(0, 2))
+                      ) 
+                        ? <CheckCircle2 className="w-3 h-3 text-green-400" />
+                        : <X className="w-3 h-3 text-red-400" />
+                    )}
+                  </div>
                 )}
               </div>
             </div>
             <InfoTooltip 
               title="Requisiti di accesso" 
-              description="Sono i requisiti minimi che la tua azienda deve avere per poter partecipare al bando: dimensione aziendale (Micro, Piccola, Media, Grande), sede legale in determinate regioni, codici ATECO ammessi, ecc."
+              description="Sono i requisiti minimi che la tua azienda deve avere per poter partecipare al bando. Verde = compatibile con il tuo profilo. Rosso = non compatibile. Completa il tuo 'Profilo Bandi' per una verifica accurata."
             />
           </div>
 
