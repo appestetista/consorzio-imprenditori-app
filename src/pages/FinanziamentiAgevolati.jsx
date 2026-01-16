@@ -197,10 +197,17 @@ export default function FinanziamentiAgevolati() {
       }
     }
 
-    // Check region
-    if (grant.eligible_regions?.length > 0 && user?.region) {
-      if (!grant.eligible_regions.includes(user.region)) {
-        return false;
+    // Check region - usa le regioni di interesse dell'utente
+    if (grant.eligible_regions?.length > 0) {
+      const userInterestedRegions = user?.interested_regions || (user?.region ? [user.region] : []);
+      if (userInterestedRegions.length > 0) {
+        // Verifica se almeno una regione del bando è nelle regioni di interesse
+        const hasRegionMatch = grant.eligible_regions.some(region => 
+          userInterestedRegions.includes(region)
+        );
+        if (!hasRegionMatch) {
+          return false;
+        }
       }
     }
 
