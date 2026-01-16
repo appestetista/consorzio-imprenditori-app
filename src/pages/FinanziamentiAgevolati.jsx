@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Sparkles, AlertCircle, Info, Briefcase, XCircle } from 'lucide-react';
+import { ArrowLeft, Sparkles, AlertCircle, Info, Briefcase, XCircle, Building2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -522,6 +522,22 @@ Per ogni bando, fornisci:
                   </Badge>
                 )}
               </div>
+
+              {/* Ente Erogatore in evidenza */}
+              {selectedGrant.ente_erogatore && (
+                <div className="bg-amber-500/20 border border-amber-500/40 rounded-lg p-4 mb-4">
+                  <div className="flex items-center gap-2">
+                    <Building2 className="w-5 h-5 text-amber-400" />
+                    <div>
+                      <p className="text-amber-400 text-sm font-medium">Ente Erogatore</p>
+                      <p className="text-white font-bold text-lg">{selectedGrant.ente_erogatore}</p>
+                      {selectedGrant.livello && (
+                        <p className="text-slate-400 text-xs">Livello: {selectedGrant.livello}</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div className="bg-slate-900 rounded-lg p-4 space-y-3 text-sm">
                 <div>
