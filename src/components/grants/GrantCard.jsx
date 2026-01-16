@@ -152,7 +152,7 @@ export default function GrantCard({ grant, onDetails, userInterest, onToggleAler
           <div className="flex items-center gap-2 text-slate-300">
             <Calendar className="w-4 h-4 text-lime-400" />
             <span>
-              <strong>Scadenza:</strong> {grant.deadline 
+              <strong>Scadenza:</strong> {grant.deadline && !isNaN(new Date(grant.deadline).getTime())
                 ? format(new Date(grant.deadline), 'd MMMM yyyy', { locale: it })
                 : 'A esaurimento fondi'}
             </span>
