@@ -396,6 +396,15 @@ Per ogni bando, fornisci:
                 <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">incentivi.gov.it</Badge>
                 <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">simest.it</Badge>
                 <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">invitalia.it</Badge>
+                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.lombardia.it</Badge>
+                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.veneto.it</Badge>
+                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.emilia-romagna.it</Badge>
+                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.piemonte.it</Badge>
+                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.toscana.it</Badge>
+                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.lazio.it</Badge>
+                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.campania.it</Badge>
+                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.sicilia.it</Badge>
+                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.puglia.it</Badge>
               </div>
             </div>
           </div>
