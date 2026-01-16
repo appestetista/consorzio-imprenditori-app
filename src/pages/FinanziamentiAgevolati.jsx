@@ -405,6 +405,18 @@ Per ogni bando, fornisci:
                 <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.campania.it</Badge>
                 <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.sicilia.it</Badge>
                 <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.puglia.it</Badge>
+                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.marche.it</Badge>
+                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.liguria.it</Badge>
+                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.fvg.it</Badge>
+                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.abruzzo.it</Badge>
+                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.umbria.it</Badge>
+                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.calabria.it</Badge>
+                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.sardegna.it</Badge>
+                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.basilicata.it</Badge>
+                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.molise.it</Badge>
+                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.vda.it</Badge>
+                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">provincia.tn.it</Badge>
+                <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">provincia.bz.it</Badge>
               </div>
             </div>
           </div>
