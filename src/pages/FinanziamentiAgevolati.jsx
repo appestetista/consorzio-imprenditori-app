@@ -409,13 +409,15 @@ Per ogni bando, fornisci:
           </div>
         )}
 
-        {/* Info Box */}
-        <Alert className="mb-6 bg-lime-400/10 border-lime-400/30">
-          <Info className="h-4 w-4 text-lime-400" />
-          <AlertDescription className="text-slate-300 text-sm">
-            I bandi mostrati sono già filtrati in base al tuo profilo aziendale (dimensione, regione, settore).
-          </AlertDescription>
-        </Alert>
+        {/* Info Box - solo per utenti non admin */}
+        {user?.role !== 'admin' && (
+          <Alert className="mb-6 bg-lime-400/10 border-lime-400/30">
+            <Info className="h-4 w-4 text-lime-400" />
+            <AlertDescription className="text-slate-300 text-sm">
+              I bandi mostrati sono già filtrati in base al tuo profilo aziendale (dimensione, regione, settore).
+            </AlertDescription>
+          </Alert>
+        )}
 
         {/* AI Recommendations Loading */}
         {loadingRecommendations && (
