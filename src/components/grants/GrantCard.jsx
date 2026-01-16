@@ -47,11 +47,11 @@ export default function GrantCard({ grant, onDetails, userInterest, onToggleAler
             <CardTitle className="text-white text-lg">{grant.title}</CardTitle>
             {/* Ente erogatore in evidenza */}
             {grant.ente_erogatore && (
-              <div className="flex items-center gap-1.5 mt-1">
-                <Building2 className="w-3.5 h-3.5 text-amber-400" />
-                <span className="text-amber-400 text-sm font-semibold">{grant.ente_erogatore}</span>
+              <div className="bg-orange-500/20 border border-orange-500/50 rounded-md px-2.5 py-1.5 mt-2 inline-flex items-center gap-2">
+                <Building2 className="w-4 h-4 text-orange-400" />
+                <span className="text-orange-300 text-sm font-bold">{grant.ente_erogatore}</span>
                 {grant.livello && (
-                  <span className="text-slate-400 text-xs">• {grant.livello}</span>
+                  <Badge className="bg-orange-500 text-white text-xs px-1.5 py-0">{grant.livello}</Badge>
                 )}
               </div>
             )}
