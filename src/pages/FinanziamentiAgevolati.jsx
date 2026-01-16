@@ -46,8 +46,33 @@ export default function FinanziamentiAgevolati() {
 
   const { data: allGrants = [], isLoading } = useQuery({
     queryKey: ['financial-grants'],
-    queryFn: () => base44.entities.FinancialGrant.list('-created_date'),
+    queryFn: async () => {
+      const grants = await base44.entities.FinancialGrant.list('-created_date');
+      // Deduplica nel frontend per sicurezza
+      return deduplicateGrants(grants);
+    },
   });
+
+  // Funzione per deduplicare bandi (titoli simili)
+  const deduplicateGrants = (grants) => {
+    const seen = new Map();
+    
+    for (const grant of grants) {
+      const normalizedTitle = grant.title?.toLowerCase()
+        .replace(/[^a-z0-9àèéìòù]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+      
+      if (!normalizedTitle) continue;
+      
+      // Se già visto, tieni quello più recente o completo
+      if (!seen.has(normalizedTitle)) {
+        seen.set(normalizedTitle, grant);
+      }
+    }
+    
+    return Array.from(seen.values());
+  };
 
   const { data: messages = [] } = useQuery({
     queryKey: ['unread-messages', user?.email],
