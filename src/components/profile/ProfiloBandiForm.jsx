@@ -56,6 +56,7 @@ export default function ProfiloBandiForm({ user, onSaved }) {
   const [formData, setFormData] = useState({
     company_size: '', legal_form: '', years_activity: '', founding_date: '',
     region: '', province: '', is_in_southern_italy: false, is_in_crisis_area: false, is_in_inner_area: false,
+    interested_regions: [],
     sector: '', ateco_code: '', secondary_ateco_codes: '',
     annual_revenue: '', total_assets: '', employees_count: '', rating_class: '',
     is_in_difficulty: false, has_pending_recovery: false,
@@ -115,7 +116,8 @@ export default function ProfiloBandiForm({ user, onSaved }) {
         interested_in_rd: user.interested_in_rd || false,
         has_previous_grants: user.has_previous_grants || false,
         previous_grants_amount: user.previous_grants_amount || '',
-        can_cofinance: user.can_cofinance !== false
+        can_cofinance: user.can_cofinance !== false,
+        interested_regions: user.interested_regions || (user.region ? [user.region] : [])
       }));
     }
   }, [user]);
@@ -209,7 +211,13 @@ export default function ProfiloBandiForm({ user, onSaved }) {
         <CardContent className="space-y-4">
           <div>
             <Label className="text-slate-300 text-sm flex items-center">Regione Sede Legale *</Label>
-            <Select value={formData.region} onValueChange={(value) => setFormData({...formData, region: value})}>
+            <Select value={formData.region} onValueChange={(value) => {
+              const currentInterested = formData.interested_regions || [];
+              const newInterested = currentInterested.includes(value) 
+                ? currentInterested 
+                : [...currentInterested, value];
+              setFormData({...formData, region: value, interested_regions: newInterested});
+            }}>
               <SelectTrigger className="bg-slate-900 border-slate-700 text-white mt-1">
                 <SelectValue placeholder="Seleziona regione" />
               </SelectTrigger>
@@ -224,6 +232,53 @@ export default function ProfiloBandiForm({ user, onSaved }) {
           <div>
             <Label className="text-slate-300 text-sm">Provincia</Label>
             <Input value={formData.province} onChange={(e) => setFormData({...formData, province: e.target.value})} className="bg-slate-900 border-slate-700 text-white mt-1" placeholder="Es: MI, RM, NA..." maxLength={2} />
+          </div>
+
+          {/* Regioni di interesse per bandi */}
+          <div className="pt-4 border-t border-slate-700 mt-4">
+            <Label className="text-slate-300 text-sm flex items-center mb-3">
+              <MapPin className="w-4 h-4 mr-2 text-lime-400" />
+              Regioni di interesse per bandi *
+              <HelpTooltip text="Seleziona le regioni per cui vuoi ricevere notifiche sui bandi. La regione della tua sede legale è selezionata automaticamente." />
+            </Label>
+            <p className="text-slate-400 text-xs mb-3">
+              Seleziona tutte le regioni per cui vuoi essere avvisato sui bandi disponibili:
+            </p>
+            <div className="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto pr-2">
+              {REGIONI_ITALIA.map((regione) => {
+                const isSelected = formData.interested_regions?.includes(regione);
+                const isHomeRegion = formData.region === regione;
+                return (
+                  <label 
+                    key={regione} 
+                    className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors ${
+                      isSelected 
+                        ? 'bg-lime-400/20 border border-lime-400/50' 
+                        : 'bg-slate-900 hover:bg-slate-900/70 border border-transparent'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={(e) => {
+                        const newRegions = e.target.checked
+                          ? [...(formData.interested_regions || []), regione]
+                          : (formData.interested_regions || []).filter(r => r !== regione);
+                        setFormData({...formData, interested_regions: newRegions});
+                      }}
+                      className="w-4 h-4 rounded border-slate-600 text-lime-400 focus:ring-lime-400"
+                    />
+                    <span className={`text-sm ${isSelected ? 'text-lime-400 font-medium' : 'text-white'}`}>
+                      {regione}
+                      {isHomeRegion && <span className="text-xs text-slate-400 ml-1">(sede)</span>}
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+            <p className={`text-xs mt-2 ${formData.interested_regions?.length ? 'text-slate-500' : 'text-red-400'}`}>
+              {formData.interested_regions?.length || 0} regioni selezionate {!formData.interested_regions?.length && '(seleziona almeno una regione)'}
+            </p>
           </div>
 
           <div className="space-y-2">
@@ -463,7 +518,7 @@ export default function ProfiloBandiForm({ user, onSaved }) {
 
       <Button
         type="submit"
-        disabled={saveMutation.isPending || !formData.company_size || !formData.region || !formData.sector || !formData.ateco_code}
+        disabled={saveMutation.isPending || !formData.company_size || !formData.region || !formData.sector || !formData.ateco_code || !formData.interested_regions?.length}
         className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 py-6 text-lg font-bold"
       >
         {saveMutation.isPending ? (
