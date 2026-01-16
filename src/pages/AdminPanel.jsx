@@ -334,11 +334,11 @@ export default function AdminPanel() {
                       </div>
                       <div className="flex items-center gap-2 text-sm text-lime-400 mb-4">
                         <Clock className="w-4 h-4" />
-                        <span className="font-semibold">{new Date(request.created_date).toLocaleDateString('it-IT', { 
+                        <span className="font-semibold">{request.created_date ? new Date(request.created_date).toLocaleDateString('it-IT', { 
                           day: 'numeric', 
                           month: 'long', 
                           year: 'numeric'
-                        })}</span>
+                        }) : 'N/A'}</span>
                       </div>
                       <div className="flex gap-2">
                         <Button
@@ -618,13 +618,13 @@ export default function AdminPanel() {
                     </div>
                     <div className="flex items-center justify-between">
                       <p className="text-slate-500 text-xs">
-                        {new Date(request.created_date).toLocaleDateString('it-IT', {
+                        {request.created_date ? new Date(request.created_date).toLocaleDateString('it-IT', {
                           day: 'numeric',
                           month: 'long',
                           year: 'numeric',
                           hour: '2-digit',
                           minute: '2-digit'
-                        })}
+                        }) : 'N/A'}
                       </p>
                       {request.status === 'pending' && (
                         <Button
