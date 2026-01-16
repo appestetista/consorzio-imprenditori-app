@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
 import { ArrowLeft, User, Building2, Phone, MapPin, Save, Upload, X, Image as ImageIcon, LogOut, FileText } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Header from '../components/layout/Header';
@@ -58,7 +59,8 @@ export default function MyProfile() {
           ragione_sociale_fatturazione: effectiveUser.ragione_sociale_fatturazione || '',
           codice_fiscale: effectiveUser.codice_fiscale || '',
           regione: effectiveUser.regione || '',
-          paese: effectiveUser.paese || ''
+          paese: effectiveUser.paese || '',
+          region: effectiveUser.region || ''
         });
         setLoading(false);
       } catch (e) {
@@ -359,6 +361,25 @@ export default function MyProfile() {
                 className="bg-slate-900 border-slate-700 text-white"
                 maxLength={2}
               />
+            </div>
+            <div>
+              <label className="text-slate-400 text-sm">Regione *</label>
+              <Select
+                value={formData.region}
+                onValueChange={(value) => setFormData({...formData, region: value})}
+              >
+                <SelectTrigger className="bg-slate-900 border-slate-700 text-white mt-1">
+                  <SelectValue placeholder="Seleziona regione" />
+                </SelectTrigger>
+                <SelectContent>
+                  {['Abruzzo', 'Basilicata', 'Calabria', 'Campania', 'Emilia-Romagna',
+                    'Friuli Venezia Giulia', 'Lazio', 'Liguria', 'Lombardia', 'Marche',
+                    'Molise', 'Piemonte', 'Puglia', 'Sardegna', 'Sicilia', 'Toscana',
+                    'Trentino-Alto Adige', 'Umbria', "Valle d'Aosta", 'Veneto'].map((regione) => (
+                    <SelectItem key={regione} value={regione}>{regione}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <Input
               placeholder="CAP"
