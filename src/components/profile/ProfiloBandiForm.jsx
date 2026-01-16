@@ -117,10 +117,22 @@ export default function ProfiloBandiForm({ user, onSaved }) {
         has_previous_grants: user.has_previous_grants || false,
         previous_grants_amount: user.previous_grants_amount || '',
         can_cofinance: user.can_cofinance !== false,
-        interested_regions: user.interested_regions || (user.region ? [user.region] : [])
+        interested_regions: user.interested_regions?.length 
+          ? user.interested_regions 
+          : (user.region ? [user.region] : [])
       }));
     }
   }, [user]);
+
+  // Quando cambia la regione sede, aggiungila automaticamente alle regioni di interesse
+  useEffect(() => {
+    if (formData.region && !formData.interested_regions?.includes(formData.region)) {
+      setFormData(prev => ({
+        ...prev,
+        interested_regions: [...(prev.interested_regions || []), prev.region]
+      }));
+    }
+  }, [formData.region]);
 
   const saveMutation = useMutation({
     mutationFn: async (data) => base44.auth.updateMe(data),
