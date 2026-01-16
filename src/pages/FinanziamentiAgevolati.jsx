@@ -46,13 +46,16 @@ export default function FinanziamentiAgevolati() {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
         
-        // Aggiorna timestamp ultima visita per utenti non admin
-        if (currentUser?.role !== 'admin') {
-          const views = await base44.entities.UserGrantView.filter({ user_email: currentUser.email });
+        // Aggiorna timestamp ultima visita per utenti non admin (anche in impersonation)
+        const effectiveRole = impersonation.active ? impersonation.role : currentUser?.role;
+        const effectiveEmail = impersonation.active ? impersonation.targetEmail : currentUser?.email;
+        
+        if (effectiveRole !== 'admin' && effectiveEmail) {
+          const views = await base44.entities.UserGrantView.filter({ user_email: effectiveEmail });
           if (views.length > 0) {
             await base44.entities.UserGrantView.update(views[0].id, { last_viewed_at: new Date().toISOString() });
           } else {
-            await base44.entities.UserGrantView.create({ user_email: currentUser.email, last_viewed_at: new Date().toISOString() });
+            await base44.entities.UserGrantView.create({ user_email: effectiveEmail, last_viewed_at: new Date().toISOString() });
           }
         }
       } catch (e) {
@@ -60,7 +63,7 @@ export default function FinanziamentiAgevolati() {
       }
     };
     loadUser();
-  }, []);
+  }, [impersonation.active, impersonation.role, impersonation.targetEmail]);
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);

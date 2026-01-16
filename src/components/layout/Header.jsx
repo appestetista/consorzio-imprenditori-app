@@ -80,8 +80,8 @@ export default function Header({ user, totalNotifications = 0 }) {
           )}
 
           {totalNotifications > 0 && (
-            <span className="bg-red-500 text-white text-sm rounded-full w-6 h-6 flex items-center justify-center font-bold">
-              {totalNotifications > 99 ? '99+' : totalNotifications}
+            <span className="bg-red-500 text-white text-xs rounded-full min-w-6 h-6 px-1.5 flex items-center justify-center font-bold">
+              {totalNotifications}
             </span>
           )}
           <button 
