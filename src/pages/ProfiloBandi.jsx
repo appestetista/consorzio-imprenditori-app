@@ -431,8 +431,8 @@ export default function ProfiloBandi() {
                     );
                   })}
                 </div>
-                <p className="text-slate-500 text-xs mt-2">
-                  {formData.interested_regions?.length || 0} regioni selezionate
+                <p className={`text-xs mt-2 ${formData.interested_regions?.length ? 'text-slate-500' : 'text-red-400'}`}>
+                  {formData.interested_regions?.length || 0} regioni selezionate {!formData.interested_regions?.length && '(seleziona almeno una regione)'}
                 </p>
               </div>
 
@@ -1038,7 +1038,7 @@ export default function ProfiloBandi() {
 
           <Button
             type="submit"
-            disabled={saveMutation.isPending || !formData.company_size || !formData.region || !formData.sector || !formData.ateco_code}
+            disabled={saveMutation.isPending || !formData.company_size || !formData.region || !formData.sector || !formData.ateco_code || !formData.interested_regions?.length}
             className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 py-6 text-lg font-bold"
           >
             {saveMutation.isPending ? (
