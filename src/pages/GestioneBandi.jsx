@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Plus, Search, Edit, Copy, Archive, Eye, Filter } from 'lucide-react';
+import { ArrowLeft, Plus, Search, Edit, Share2, Archive, Eye, Filter } from 'lucide-react';
+import { toast } from 'sonner';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -141,8 +142,25 @@ export default function GestioneBandi() {
     setShowForm(true);
   };
 
-  const handleDuplicate = (bando) => {
-    duplicateBandoMutation.mutate(bando);
+  const handleShare = async (bando) => {
+    const shareText = `📢 Bando: ${bando.title}\n\n${bando.description || ''}\n\n💰 ${bando.funding_type || 'Agevolazione'}\n📍 ${bando.livello || ''} - ${bando.ente_erogatore || ''}\n\n${bando.website_url || ''}`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: bando.title,
+          text: shareText,
+        });
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          await navigator.clipboard.writeText(shareText);
+          toast.success('Testo copiato negli appunti');
+        }
+      }
+    } else {
+      await navigator.clipboard.writeText(shareText);
+      toast.success('Testo copiato negli appunti');
+    }
   };
 
   const handleArchive = (id) => {
@@ -297,46 +315,45 @@ export default function GestioneBandi() {
                       </div>
                     </div>
 
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       <Button
                         size="sm"
                         variant="outline"
-                        className="border-slate-600 text-slate-300"
+                        className="border-slate-600 text-slate-300 h-8 px-2 text-xs"
                         onClick={() => handleEdit(grant)}
                       >
-                        <Edit className="w-4 h-4 mr-1" />
+                        <Edit className="w-3.5 h-3.5 mr-1" />
                         Modifica
                       </Button>
                       <Button
                         size="sm"
                         variant="outline"
-                        className="border-slate-600 text-slate-300"
+                        className="border-slate-600 text-slate-300 h-8 px-2 text-xs"
                         onClick={() => {
                           setSelectedBandoForPreview(grant);
                           setShowMatchingPreview(true);
                         }}
                       >
-                        <Eye className="w-4 h-4 mr-1" />
+                        <Eye className="w-3.5 h-3.5 mr-1" />
                         Anteprima ({matchingUsers.length})
                       </Button>
                       <Button
                         size="sm"
                         variant="outline"
-                        className="border-slate-600 text-slate-300"
-                        onClick={() => handleDuplicate(grant)}
-                        disabled={duplicateBandoMutation.isPending}
+                        className="border-lime-400 text-lime-400 h-8 px-2 text-xs"
+                        onClick={() => handleShare(grant)}
                       >
-                        <Copy className="w-4 h-4 mr-1" />
-                        Duplica
+                        <Share2 className="w-3.5 h-3.5 mr-1" />
+                        Condividi
                       </Button>
                       <Button
                         size="sm"
                         variant="outline"
-                        className="border-red-600 text-red-400"
+                        className="border-red-600 text-red-400 h-8 px-2 text-xs"
                         onClick={() => handleArchive(grant.id)}
                         disabled={archiveBandoMutation.isPending}
                       >
-                        <Archive className="w-4 h-4 mr-1" />
+                        <Archive className="w-3.5 h-3.5 mr-1" />
                         Archivia
                       </Button>
                     </div>
