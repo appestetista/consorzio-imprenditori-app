@@ -272,11 +272,17 @@ export default function ProfiloBandiForm({ user, onSaved }) {
                     <input
                       type="checkbox"
                       checked={isSelected}
-                      onChange={(e) => {
+                      onChange={async (e) => {
                         const newRegions = e.target.checked
                           ? [...(formData.interested_regions || []), regione]
                           : (formData.interested_regions || []).filter(r => r !== regione);
                         setFormData({...formData, interested_regions: newRegions});
+                        // Salvataggio automatico delle regioni di interesse
+                        try {
+                          await base44.auth.updateMe({ interested_regions: newRegions });
+                        } catch (err) {
+                          console.error('Errore salvataggio regioni:', err);
+                        }
                       }}
                       className="w-4 h-4 rounded border-slate-600 text-lime-400 focus:ring-lime-400"
                     />
