@@ -332,8 +332,9 @@ export default function FinanziamentiAgevolati() {
     return true;
   };
 
+  // Admin vede tutti i bandi senza filtro profilo
   const filteredGrants = allGrants
-    .filter(matchesCompanyProfile)
+    .filter(g => isRealAdmin ? true : matchesCompanyProfile(g))
     .filter(applyFilters);
 
   // Get AI recommendations when grants and user are loaded
