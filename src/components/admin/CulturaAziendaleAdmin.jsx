@@ -229,23 +229,22 @@ export default function CulturaAziendaleAdmin() {
         )}
       </CardContent>
 
-      {/* Dialog Nuovo Video */}
-      <Dialog open={showAddVideo} onOpenChange={(open) => {
-        setShowAddVideo(open);
-        if (!open) resetForm();
+      {/* Dialog Nuovo/Modifica Video */}
+      <Dialog open={showAddVideo || !!editingVideo} onOpenChange={(open) => {
+        if (!open) {
+          setShowAddVideo(false);
+          setEditingVideo(null);
+          resetForm();
+        }
       }}>
-        <DialogContent className="bg-slate-800 border-slate-700 max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-slate-800 border-slate-700 max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-white">Nuovo Video Academy</DialogTitle>
+            <DialogTitle className="text-white">
+              {editingVideo ? 'Modifica Video' : 'Nuovo Video Academy'}
+            </DialogTitle>
           </DialogHeader>
-          <button
-            onClick={() => setShowAddVideo(false)}
-            className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
-          >
-            <X className="h-4 w-4 text-white" />
-          </button>
 
-          <div className="space-y-4 mt-4">
+          <div className="space-y-4 mt-2">
             {errors.length > 0 && (
               <div className="bg-red-500/20 border border-red-500/30 rounded p-3">
                 {errors.map((error, idx) => (
@@ -254,18 +253,29 @@ export default function CulturaAziendaleAdmin() {
               </div>
             )}
 
+            {/* Anteprima video se URL valido */}
+            {formData.youtube_url && getYoutubeId(formData.youtube_url) && (
+              <div className="rounded-lg overflow-hidden">
+                <img 
+                  src={`https://img.youtube.com/vi/${getYoutubeId(formData.youtube_url)}/mqdefault.jpg`}
+                  alt="Anteprima"
+                  className="w-full h-32 object-cover"
+                />
+              </div>
+            )}
+
             <div>
-              <Label className="text-slate-300">Titolo Video *</Label>
+              <Label className="text-slate-300 text-sm">Titolo Video *</Label>
               <Input
                 value={formData.title}
                 onChange={(e) => setFormData({...formData, title: e.target.value})}
                 className="bg-slate-900 border-slate-700 text-white mt-1"
-                placeholder="Es: Come migliorare la leadership in azienda"
+                placeholder="Es: Come migliorare la leadership"
               />
             </div>
 
             <div>
-              <Label className="text-slate-300">Link YouTube *</Label>
+              <Label className="text-slate-300 text-sm">Link YouTube *</Label>
               <Input
                 value={formData.youtube_url}
                 onChange={(e) => setFormData({...formData, youtube_url: e.target.value})}
@@ -275,7 +285,7 @@ export default function CulturaAziendaleAdmin() {
             </div>
 
             <div>
-              <Label className="text-slate-300">Categoria *</Label>
+              <Label className="text-slate-300 text-sm">Categoria *</Label>
               <Select value={formData.categoria} onValueChange={(v) => setFormData({...formData, categoria: v})}>
                 <SelectTrigger className="bg-slate-900 border-slate-700 text-white mt-1">
                   <SelectValue placeholder="Seleziona categoria" />
@@ -289,11 +299,15 @@ export default function CulturaAziendaleAdmin() {
             </div>
 
             <Button
-              onClick={handleSubmit}
-              disabled={createVideoMutation.isPending}
+              onClick={handleSave}
+              disabled={createVideoMutation.isPending || updateVideoMutation.isPending}
               className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900"
             >
-              {createVideoMutation.isPending ? 'Salvataggio...' : 'Carica Video e Notifica Membri'}
+              {(createVideoMutation.isPending || updateVideoMutation.isPending) 
+                ? 'Salvataggio...' 
+                : editingVideo 
+                  ? 'Salva Modifiche' 
+                  : 'Carica Video e Notifica Membri'}
             </Button>
           </div>
         </DialogContent>
