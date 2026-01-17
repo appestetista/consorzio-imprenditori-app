@@ -252,7 +252,7 @@ export default function ProfiloBandiForm({ user, onSaved }) {
                 : [...currentInterested, value];
               setFormData({...formData, region: value, interested_regions: newInterested});
               try {
-                await base44.auth.updateMe({ region: value, interested_regions: newInterested });
+                await saveData({ region: value, interested_regions: newInterested });
               } catch (err) {
                 console.error('Errore salvataggio regione:', err);
               }
