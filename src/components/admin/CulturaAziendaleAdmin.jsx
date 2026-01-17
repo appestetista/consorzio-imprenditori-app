@@ -149,53 +149,82 @@ export default function CulturaAziendaleAdmin() {
           <p className="text-slate-400 text-sm text-center py-4">Nessun video caricato</p>
         ) : (
           <div className="space-y-3">
-            {videos.map(video => (
-              <div key={video.id} className="bg-slate-700/50 rounded-lg p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1">
-                    <p className="text-white font-medium mb-1">{video.title}</p>
-                    <div className="flex flex-wrap gap-2 mb-2">
-                      <Badge className="bg-lime-400/20 text-lime-400 border-0 text-xs">
+            {videos.map(video => {
+              const videoId = getYoutubeId(video.youtube_url);
+              return (
+                <div key={video.id} className="bg-slate-700/50 rounded-lg p-3">
+                  <div className="flex gap-3">
+                    {/* Thumbnail Video */}
+                    <div className="relative flex-shrink-0 w-28 h-20 rounded overflow-hidden bg-slate-900">
+                      {videoId ? (
+                        <>
+                          <img 
+                            src={`https://img.youtube.com/vi/${videoId}/mqdefault.jpg`}
+                            alt={video.title}
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                            <Play className="w-6 h-6 text-white fill-white" />
+                          </div>
+                        </>
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Play className="w-6 h-6 text-slate-500" />
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Info */}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-white font-medium text-sm truncate">{video.title}</p>
+                      <Badge className="bg-lime-400/20 text-lime-400 border-0 text-xs mt-1">
                         {video.categoria}
                       </Badge>
+                      <p className="text-slate-500 text-xs mt-1">
+                        {new Date(video.created_date).toLocaleDateString('it-IT')}
+                      </p>
                     </div>
-                    <p className="text-slate-400 text-xs">
-                      {new Date(video.created_date).toLocaleDateString('it-IT')}
-                    </p>
-                  </div>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
+                    
+                    {/* Azioni */}
+                    <div className="flex flex-col gap-1">
                       <Button
                         variant="outline"
                         size="sm"
-                        className="border-red-600 text-red-400 hover:bg-red-600/20"
+                        className="border-lime-400 text-lime-400 hover:bg-lime-400/20 h-8 w-8 p-0"
+                        onClick={() => openEditDialog(video)}
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Pencil className="w-3.5 h-3.5" />
                       </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent className="bg-slate-800 border-slate-700">
-                      <AlertDialogHeader>
-                        <AlertDialogTitle className="text-white">Eliminare questo video?</AlertDialogTitle>
-                        <AlertDialogDescription className="text-slate-400">
-                          Il video verrà rimosso definitivamente.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel className="bg-slate-700 text-white border-slate-600">
-                          Annulla
-                        </AlertDialogCancel>
-                        <AlertDialogAction
-                          className="bg-red-600 hover:bg-red-700"
-                          onClick={() => deleteVideoMutation.mutate(video.id)}
-                        >
-                          Elimina
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="border-red-600 text-red-400 hover:bg-red-600/20 h-8 w-8 p-0"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent className="bg-slate-800 border-slate-700">
+                          <AlertDialogHeader>
+                            <AlertDialogTitle className="text-white">Eliminare questo video?</AlertDialogTitle>
+                            <AlertDialogDescription className="text-slate-400">
+                              Il video verrà rimosso definitivamente.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel className="bg-slate-700 text-white border-slate-600">Annulla</AlertDialogCancel>
+                            <AlertDialogAction className="bg-red-600 hover:bg-red-700" onClick={() => deleteVideoMutation.mutate(video.id)}>
+                              Elimina
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </CardContent>
