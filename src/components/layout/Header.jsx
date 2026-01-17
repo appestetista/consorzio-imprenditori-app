@@ -188,14 +188,15 @@ export default function Header({ user, totalNotifications = 0 }) {
       <ImpersonationDialog
         open={impersonationDialogOpen}
         onClose={() => setImpersonationDialogOpen(false)}
-        onStart={(role, targetId, targetEmail, targetName) => {
+        onStart={(role, targetId, targetEmail, targetName, targetUserData) => {
                     console.log('[Header] onStart callback triggered:', {
                       role,
                       targetId,
                       targetEmail,
-                      targetName
+                      targetName,
+                      targetUserData
                     });
-                    startImpersonation(role, targetId, targetEmail, targetName);
+                    startImpersonation(role, targetId, targetEmail, targetName, targetUserData);
                     console.log('[Header] About to redirect to Home');
                     setTimeout(() => {
                       window.location.href = createPageUrl('Home');
