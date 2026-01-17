@@ -143,6 +143,17 @@ export default function ProfiloBandiForm({ user, onSaved }) {
     }
   });
 
+  // Funzione per aggiornare un campo e salvarlo automaticamente
+  const updateAndSave = async (field, value) => {
+    const newData = { ...formData, [field]: value };
+    setFormData(newData);
+    try {
+      await base44.auth.updateMe({ [field]: value });
+    } catch (err) {
+      console.error('Errore salvataggio:', err);
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     saveMutation.mutate(formData);
