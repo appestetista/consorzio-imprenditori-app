@@ -9,11 +9,13 @@ import { Button } from '@/components/ui/button';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
-export default function MembersDirectory() {
-  const [expandedGroups, setExpandedGroups] = useState({});
+export default function MembersDirectory({ currentUserEmail }) {
   const [searchTerm, setSearchTerm] = useState('');
+  const [activeTab, setActiveTab] = useState('aziende'); // 'aziende' o 'consulenti'
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  const { data: allUsers = [], isLoading } = useQuery({
+  const { data: allUsers = [], isLoading: loadingUsers } = useQuery({
     queryKey: ['members-directory'],
     queryFn: async () => {
       const users = await base44.entities.User.list();
@@ -25,6 +27,13 @@ export default function MembersDirectory() {
       );
     }
   });
+
+  const { data: consultants = [], isLoading: loadingConsultants } = useQuery({
+    queryKey: ['consultants-directory'],
+    queryFn: () => base44.entities.Consultant.list()
+  });
+
+  const isLoading = loadingUsers || loadingConsultants;
 
   // Raggruppa utenti per città/provincia
   const groupedMembers = useMemo(() => {
