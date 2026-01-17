@@ -295,17 +295,19 @@ export default function FinanziamentiAgevolati() {
       }
     }
 
-    // FILTRO REGIONE - LOGICA SEMPLIFICATA:
-    // 1. Se il bando è nazionale (is_national=true o livello=Nazionale/Europeo), lo mostra a tutti
-    // 2. Se il bando ha regioni specifiche, verifica match con le regioni utente
-    // 3. Se il bando non ha né is_national né regioni, lo mostra a tutti (bando generico)
+    // FILTRO REGIONE:
+    // 1. Se is_national=true O livello Nazionale/Europeo → visibile a TUTTI (ignora eligible_regions)
+    // 2. Altrimenti se ha regioni specifiche → verifica match con regioni utente
+    // 3. Se non ha regioni e non è nazionale → visibile a tutti
     
-    const isNationalGrant = grant.is_national || 
+    const isNationalGrant = grant.is_national === true || 
                            grant.livello === 'Nazionale' || 
-                           grant.livello === 'Europeo' ||
-                           (!grant.eligible_regions?.length && grant.livello !== 'Regionale');
+                           grant.livello === 'Europeo';
     
-    if (!isNationalGrant && grant.eligible_regions?.length > 0) {
+    // Se è nazionale, passa sempre (non controllare regioni)
+    if (isNationalGrant) {
+      // Nessun filtro regionale per bandi nazionali
+    } else if (grant.eligible_regions?.length > 0) {
       // Bando regionale con regioni specifiche - deve matchare
       const userInterestedRegions = effectiveUser?.interested_regions || 
                                     (effectiveUser?.region ? [effectiveUser.region] : []);
@@ -318,7 +320,6 @@ export default function FinanziamentiAgevolati() {
           return false;
         }
       }
-      // Se l'utente non ha regioni impostate, mostra comunque il bando
     }
 
     // Check ATECO code
