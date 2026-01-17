@@ -1,22 +1,18 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { 
-  Search, ChevronDown, ChevronUp, Plus, X, Users, Building2, 
-  CheckCircle, Minus, UserPlus 
+  Search, ChevronRight, Building2, Check, X, UserCheck
 } from 'lucide-react';
 
 export default function ConsultantAssignmentManager() {
-  const [expandedConsultant, setExpandedConsultant] = useState(null);
+  const [selectedCompany, setSelectedCompany] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [showAssignDialog, setShowAssignDialog] = useState(false);
-  const [selectedConsultant, setSelectedConsultant] = useState(null);
-  const [assignSearchTerm, setAssignSearchTerm] = useState('');
   const queryClient = useQueryClient();
 
   // Fetch utenti (solo ruolo 'user')
@@ -37,287 +33,205 @@ export default function ConsultantAssignmentManager() {
     queryFn: () => base44.entities.ConsultantAssignment.list()
   });
 
-  // Crea assegnazione
-  const createAssignmentMutation = useMutation({
-    mutationFn: async ({ consultant_id, user_email }) => {
-      await base44.entities.ConsultantAssignment.create({
-        consultant_id,
-        user_email,
-        available_consultations: 1,
-        is_assigned: true
-      });
+  // Toggle assegnazione
+  const toggleAssignmentMutation = useMutation({
+    mutationFn: async ({ consultantId, userEmail, isCurrentlyAssigned, assignmentId }) => {
+      if (isCurrentlyAssigned && assignmentId) {
+        // Rimuovi
+        await base44.entities.ConsultantAssignment.update(assignmentId, { is_assigned: false });
+      } else if (assignmentId) {
+        // Riattiva
+        await base44.entities.ConsultantAssignment.update(assignmentId, { is_assigned: true });
+      } else {
+        // Crea nuovo
+        await base44.entities.ConsultantAssignment.create({
+          consultant_id: consultantId,
+          user_email: userEmail,
+          available_consultations: 1,
+          is_assigned: true
+        });
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['all-assignments'] });
     }
   });
 
-  // Rimuovi assegnazione
-  const removeAssignmentMutation = useMutation({
-    mutationFn: async (assignmentId) => {
-      await base44.entities.ConsultantAssignment.delete(assignmentId);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['all-assignments'] });
-    }
-  });
+  // Filtra utenti escludendo pinko pallino
+  const filteredUsers = users
+    .filter(u => 
+      !u.full_name?.toLowerCase().includes('pinko pallino') && 
+      !u.company_name?.toLowerCase().includes('pinko pallino')
+    )
+    .filter(u =>
+      u.company_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      u.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      u.city?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
-  // Ottieni aziende assegnate a un consulente
-  const getAssignedCompanies = (consultantId) => {
-    const assignments = allAssignments.filter(a => a.consultant_id === consultantId && a.is_assigned);
-    return assignments.map(a => {
-      const user = users.find(u => u.email === a.user_email);
-      return { ...a, user };
-    }).filter(a => a.user);
+  // Conta consulenti assegnati per azienda
+  const getAssignedCount = (userEmail) => {
+    return allAssignments.filter(a => a.user_email === userEmail && a.is_assigned).length;
   };
 
-  // Ottieni aziende NON assegnate a un consulente
-  const getUnassignedCompanies = (consultantId) => {
-    const assignedEmails = allAssignments
-      .filter(a => a.consultant_id === consultantId && a.is_assigned)
-      .map(a => a.user_email);
-    
-    return users.filter(u => !assignedEmails.includes(u.email));
+  // Ottieni assegnazione per consulente/utente
+  const getAssignment = (consultantId, userEmail) => {
+    return allAssignments.find(a => a.consultant_id === consultantId && a.user_email === userEmail);
   };
 
-  // Filtra consulenti
-  const filteredConsultants = consultants.filter(c =>
-    c.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.category?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Raggruppa consulenti per categoria
+  const consultantsByCategory = consultants.reduce((acc, c) => {
+    if (!acc[c.category]) acc[c.category] = [];
+    acc[c.category].push(c);
+    return acc;
+  }, {});
 
-  // Apri dialog per assegnare aziende
-  const openAssignDialog = (consultant) => {
-    setSelectedConsultant(consultant);
-    setAssignSearchTerm('');
-    setShowAssignDialog(true);
-  };
-
-  // Assegna azienda
-  const handleAssign = async (userEmail) => {
-    await createAssignmentMutation.mutateAsync({
-      consultant_id: selectedConsultant.id,
-      user_email: userEmail
-    });
-  };
-
-  // Rimuovi assegnazione
-  const handleRemove = async (assignmentId) => {
-    await removeAssignmentMutation.mutateAsync(assignmentId);
-  };
-
-  // Aziende filtrate per dialog
-  const unassignedForDialog = selectedConsultant 
-    ? getUnassignedCompanies(selectedConsultant.id).filter(u =>
-        u.company_name?.toLowerCase().includes(assignSearchTerm.toLowerCase()) ||
-        u.full_name?.toLowerCase().includes(assignSearchTerm.toLowerCase()) ||
-        u.email?.toLowerCase().includes(assignSearchTerm.toLowerCase())
-      )
-    : [];
-
-  return (
-    <>
+  // Vista lista aziende
+  if (!selectedCompany) {
+    return (
       <Card className="bg-slate-800 border-slate-700">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-lime-400 text-base flex items-center gap-2">
-            <Users className="w-4 h-4" />
-            Assegnazione Consulenti
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-2">
-          {/* Ricerca consulenti */}
+        <CardContent className="p-3">
+          <div className="flex items-center gap-2 mb-3">
+            <UserCheck className="w-4 h-4 text-lime-400" />
+            <h3 className="text-white font-medium text-sm">Assegna Consulenti</h3>
+          </div>
+
+          {/* Ricerca */}
           <div className="relative mb-3">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
             <Input
-              placeholder="Cerca consulente..."
+              placeholder="Cerca azienda o città..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-slate-900 border-slate-700 text-white h-9 text-sm"
+              className="pl-10 bg-slate-900 border-slate-700 text-white h-10 text-sm"
             />
           </div>
 
-          {/* Lista consulenti */}
-          <div className="space-y-2 max-h-[400px] overflow-y-auto">
-            {filteredConsultants.map((consultant) => {
-              const assignedCompanies = getAssignedCompanies(consultant.id);
-              const isExpanded = expandedConsultant === consultant.id;
-
+          {/* Lista aziende */}
+          <div className="space-y-2 max-h-[350px] overflow-y-auto">
+            {filteredUsers.map((user) => {
+              const assignedCount = getAssignedCount(user.email);
               return (
-                <div key={consultant.id} className="bg-slate-900 rounded-lg overflow-hidden">
-                  {/* Header consulente */}
-                  <div 
-                    className="p-3 flex items-center justify-between cursor-pointer hover:bg-slate-800/50"
-                    onClick={() => setExpandedConsultant(isExpanded ? null : consultant.id)}
-                  >
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <p className="text-white font-medium text-sm truncate">{consultant.name}</p>
-                        <Badge className="bg-slate-700 text-slate-300 text-[10px] border-0">
-                          {assignedCompanies.length}
-                        </Badge>
-                      </div>
-                      <p className="text-slate-500 text-xs truncate">{consultant.category}</p>
+                <div
+                  key={user.id}
+                  onClick={() => setSelectedCompany(user)}
+                  className="flex items-center justify-between bg-slate-900 rounded-xl p-3 active:bg-slate-700 cursor-pointer"
+                >
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <div className="w-10 h-10 rounded-full bg-lime-400/20 flex items-center justify-center flex-shrink-0">
+                      <Building2 className="w-5 h-5 text-lime-400" />
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-7 w-7 p-0 text-lime-400 hover:bg-lime-400/20"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          openAssignDialog(consultant);
-                        }}
-                      >
-                        <UserPlus className="w-4 h-4" />
-                      </Button>
-                      {isExpanded ? (
-                        <ChevronUp className="w-4 h-4 text-slate-400" />
-                      ) : (
-                        <ChevronDown className="w-4 h-4 text-slate-400" />
-                      )}
+                    <div className="min-w-0">
+                      <p className="text-white font-medium text-sm truncate">
+                        {user.company_name || user.full_name}
+                      </p>
+                      <p className="text-slate-500 text-xs truncate">
+                        {user.city || 'Città non specificata'}
+                      </p>
                     </div>
                   </div>
-
-                  {/* Lista aziende assegnate (espandibile) */}
-                  {isExpanded && (
-                    <div className="border-t border-slate-700 p-2 bg-slate-800/30">
-                      {assignedCompanies.length === 0 ? (
-                        <p className="text-slate-500 text-xs text-center py-2">
-                          Nessuna azienda assegnata
-                        </p>
-                      ) : (
-                        <div className="space-y-1">
-                          {assignedCompanies.map((assignment) => (
-                            <div 
-                              key={assignment.id} 
-                              className="flex items-center justify-between bg-slate-900 rounded px-2 py-1.5"
-                            >
-                              <div className="flex items-center gap-2 min-w-0 flex-1">
-                                <Building2 className="w-3.5 h-3.5 text-lime-400 flex-shrink-0" />
-                                <div className="min-w-0">
-                                  <p className="text-white text-xs truncate">
-                                    {assignment.user?.company_name || assignment.user?.full_name}
-                                  </p>
-                                  <p className="text-slate-500 text-[10px] truncate">
-                                    {assignment.user?.city || assignment.user?.email}
-                                  </p>
-                                </div>
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <Badge className="bg-lime-400/20 text-lime-400 text-[10px] border-0">
-                                  {assignment.available_consultations} cons.
-                                </Badge>
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  className="h-6 w-6 p-0 text-red-400 hover:bg-red-400/20"
-                                  onClick={() => handleRemove(assignment.id)}
-                                >
-                                  <X className="w-3.5 h-3.5" />
-                                </Button>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                      
-                      {/* Pulsante aggiungi rapido */}
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="w-full mt-2 h-7 text-xs text-lime-400 hover:bg-lime-400/20 border border-dashed border-lime-400/30"
-                        onClick={() => openAssignDialog(consultant)}
-                      >
-                        <Plus className="w-3 h-3 mr-1" />
-                        Aggiungi azienda
-                      </Button>
-                    </div>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {assignedCount > 0 ? (
+                      <Badge className="bg-lime-400 text-slate-900 text-xs font-bold">
+                        {assignedCount}
+                      </Badge>
+                    ) : (
+                      <Badge className="bg-slate-700 text-slate-400 text-xs">
+                        0
+                      </Badge>
+                    )}
+                    <ChevronRight className="w-5 h-5 text-slate-500" />
+                  </div>
                 </div>
               );
             })}
           </div>
         </CardContent>
       </Card>
+    );
+  }
 
-      {/* Dialog Assegna Aziende */}
-      <Dialog open={showAssignDialog} onOpenChange={setShowAssignDialog}>
-        <DialogContent className="bg-slate-900 border-slate-700 max-w-md max-h-[80vh]">
-          <DialogHeader>
-            <DialogTitle className="text-lime-400 text-base">
-              Assegna a {selectedConsultant?.name}
-            </DialogTitle>
-            <p className="text-slate-400 text-xs">{selectedConsultant?.category}</p>
-          </DialogHeader>
-
-          {/* Ricerca aziende */}
-          <div className="relative mt-2">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
-            <Input
-              placeholder="Cerca azienda..."
-              value={assignSearchTerm}
-              onChange={(e) => setAssignSearchTerm(e.target.value)}
-              className="pl-10 bg-slate-800 border-slate-700 text-white h-9 text-sm"
-              autoFocus
-            />
+  // Vista dettaglio azienda con switch consulenti
+  return (
+    <Card className="bg-slate-800 border-slate-700">
+      <CardContent className="p-3">
+        {/* Header con back */}
+        <div className="flex items-center gap-3 mb-4">
+          <button
+            onClick={() => setSelectedCompany(null)}
+            className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center"
+          >
+            <X className="w-4 h-4 text-white" />
+          </button>
+          <div className="min-w-0 flex-1">
+            <p className="text-white font-bold text-sm truncate">
+              {selectedCompany.company_name || selectedCompany.full_name}
+            </p>
+            <p className="text-slate-500 text-xs">
+              {selectedCompany.city || selectedCompany.email}
+            </p>
           </div>
+        </div>
 
-          {/* Lista aziende da assegnare */}
-          <div className="space-y-1 max-h-[300px] overflow-y-auto mt-2">
-            {unassignedForDialog.length === 0 ? (
-              <p className="text-slate-500 text-xs text-center py-4">
-                {assignSearchTerm ? 'Nessun risultato' : 'Tutte le aziende sono già assegnate'}
+        {/* Lista consulenti per categoria */}
+        <div className="space-y-4 max-h-[400px] overflow-y-auto">
+          {Object.entries(consultantsByCategory).map(([category, categoryConsultants]) => (
+            <div key={category}>
+              <p className="text-slate-400 text-xs font-medium mb-2 uppercase tracking-wider">
+                {category}
               </p>
-            ) : (
-              unassignedForDialog.map((user) => (
-                <div 
-                  key={user.id} 
-                  className="flex items-center justify-between bg-slate-800 rounded-lg p-2 hover:bg-slate-700 transition-colors"
-                >
-                  <div className="min-w-0 flex-1">
-                    <p className="text-white text-sm font-medium truncate">
-                      {user.company_name || user.full_name}
-                    </p>
-                    <p className="text-slate-500 text-xs truncate">
-                      {user.city ? `${user.city} • ` : ''}{user.email}
-                    </p>
-                  </div>
-                  <Button
-                    size="sm"
-                    className="bg-lime-400 hover:bg-lime-500 text-slate-900 h-7 text-xs ml-2"
-                    onClick={() => handleAssign(user.email)}
-                    disabled={createAssignmentMutation.isPending}
-                  >
-                    <Plus className="w-3 h-3 mr-1" />
-                    Assegna
-                  </Button>
-                </div>
-              ))
-            )}
-          </div>
+              <div className="space-y-2">
+                {categoryConsultants.map((consultant) => {
+                  const assignment = getAssignment(consultant.id, selectedCompany.email);
+                  const isAssigned = assignment?.is_assigned ?? false;
 
-          {/* Riepilogo aziende già assegnate */}
-          {selectedConsultant && (
-            <div className="border-t border-slate-700 pt-3 mt-3">
-              <p className="text-slate-400 text-xs mb-2">
-                Già assegnate: {getAssignedCompanies(selectedConsultant.id).length}
-              </p>
-              <div className="flex flex-wrap gap-1">
-                {getAssignedCompanies(selectedConsultant.id).slice(0, 5).map((a) => (
-                  <Badge key={a.id} className="bg-slate-800 text-slate-300 text-[10px] border-0">
-                    {a.user?.company_name || a.user?.full_name}
-                  </Badge>
-                ))}
-                {getAssignedCompanies(selectedConsultant.id).length > 5 && (
-                  <Badge className="bg-slate-700 text-slate-400 text-[10px] border-0">
-                    +{getAssignedCompanies(selectedConsultant.id).length - 5} altre
-                  </Badge>
-                )}
+                  return (
+                    <div
+                      key={consultant.id}
+                      className={`flex items-center justify-between rounded-xl p-3 transition-colors ${
+                        isAssigned ? 'bg-lime-400/10 border border-lime-400/30' : 'bg-slate-900'
+                      }`}
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className={`font-medium text-sm ${isAssigned ? 'text-lime-400' : 'text-white'}`}>
+                          {consultant.name}
+                        </p>
+                        {consultant.referente && (
+                          <p className="text-slate-500 text-xs truncate">
+                            Ref: {consultant.referente}
+                          </p>
+                        )}
+                      </div>
+                      <Switch
+                        checked={isAssigned}
+                        onCheckedChange={() => {
+                          toggleAssignmentMutation.mutate({
+                            consultantId: consultant.id,
+                            userEmail: selectedCompany.email,
+                            isCurrentlyAssigned: isAssigned,
+                            assignmentId: assignment?.id
+                          });
+                        }}
+                        className="data-[state=checked]:bg-lime-400"
+                      />
+                    </div>
+                  );
+                })}
               </div>
             </div>
-          )}
-        </DialogContent>
-      </Dialog>
-    </>
+          ))}
+        </div>
+
+        {/* Riepilogo */}
+        <div className="mt-4 pt-3 border-t border-slate-700">
+          <div className="flex items-center justify-between">
+            <p className="text-slate-400 text-sm">Consulenti assegnati</p>
+            <p className="text-lime-400 font-bold text-lg">
+              {getAssignedCount(selectedCompany.email)} / {consultants.length}
+            </p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
