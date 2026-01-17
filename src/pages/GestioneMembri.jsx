@@ -16,6 +16,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import MembersDirectory from '../components/members/MembersDirectory';
+import { useImpersonation } from '../components/admin/ImpersonationContext';
 
 const PERMISSIONS_LIST = [
   { key: 'calendario', label: 'Calendario Incontri' },
@@ -39,6 +40,7 @@ export default function GestioneMembri() {
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { impersonation } = useImpersonation();
 
   const { data: members = [], isLoading } = useQuery({
     queryKey: ['all-members'],
@@ -278,7 +280,8 @@ export default function GestioneMembri() {
     });
   };
 
-  const isAdmin = user?.role === 'admin';
+  // Se impersonation è attiva con ruolo 'user', mostra la vista utente
+  const isAdmin = user?.role === 'admin' && !impersonation.active;
 
   if (!user) {
     return null;
