@@ -10,12 +10,21 @@ export default function ImpersonationDialog({ open, onClose, onStart }) {
   const [selectedRole, setSelectedRole] = useState('user');
   const [selectedTarget, setSelectedTarget] = useState(null);
 
-  // Fetch utenti
-  const { data: users = [] } = useQuery({
+  // Fetch utenti - sempre fresco quando si apre il dialog
+  const { data: users = [], refetch: refetchUsers } = useQuery({
     queryKey: ['all-users-impersonation'],
     queryFn: () => base44.entities.User.list(),
     enabled: open && selectedRole === 'user',
+    staleTime: 0, // Sempre considerato stale
+    refetchOnMount: 'always',
   });
+
+  // Forza refetch quando si apre il dialog
+  React.useEffect(() => {
+    if (open && selectedRole === 'user') {
+      refetchUsers();
+    }
+  }, [open, selectedRole]);
 
   // Fetch consulenti
   const { data: consultants = [] } = useQuery({
