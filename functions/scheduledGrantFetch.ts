@@ -60,50 +60,52 @@ Deno.serve(async (req) => {
                 console.log(`Fetching from: ${url}`);
                 try {
                     const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
-                        prompt: `Analizza il sito ${url} e estrai i bandi/incentivi APERTI per imprese italiane. Max 10 bandi principali.
+                    prompt: `Analizza il sito ${url} e estrai i bandi/incentivi APERTI per imprese italiane. Max 10 bandi principali.
 
-Per ogni bando estrai (usa null se non disponibile):
-- title: Titolo
-- description: Descrizione breve (max 200 caratteri)  
-- ente_erogatore: UE/Stato/Regione/Altro
-- livello: Europeo/Nazionale/Regionale
-- grant_type: Digitalizzazione/Innovazione/Ricerca e Sviluppo/Energia/Sostenibilità/Internazionalizzazione/Altro
-- funding_type: Contributo a fondo perduto/Finanziamento agevolato/Credito d'imposta/Misto
-- coverage_percentage: numero 0-100
-- min_amount, max_amount: importi euro
-- status: Aperto/In apertura/Chiuso
-- deadline: YYYY-MM-DD
-- eligible_company_sizes: ["Micro","Piccola","Media","Grande"]
-- eligible_regions: array regioni (vuoto se nazionale)
+                    Per ogni bando estrai (usa null se non disponibile):
+                    - title: Titolo
+                    - description: Descrizione breve (max 200 caratteri)  
+                    - ente_erogatore: UE/Stato/Regione/Altro
+                    - livello: Europeo/Nazionale/Regionale
+                    - grant_type: Digitalizzazione/Innovazione/Ricerca e Sviluppo/Energia/Sostenibilità/Internazionalizzazione/Altro
+                    - funding_type: Contributo a fondo perduto/Finanziamento agevolato/Credito d'imposta/Misto
+                    - coverage_percentage: numero 0-100
+                    - min_amount, max_amount: importi euro
+                    - status: Aperto/In apertura/Chiuso
+                    - deadline: YYYY-MM-DD
+                    - eligible_company_sizes: ["Micro","Piccola","Media","Grande"]
+                    - eligible_regions: array regioni (vuoto se nazionale)
+                    - website_url: URL DIRETTO alla pagina ufficiale del bando (IMPORTANTE: deve essere il link specifico al bando, non generico)
 
-Solo bandi REALI e ATTUALI.`,
-                        add_context_from_internet: true,
-                        response_json_schema: {
-                            type: "object",
-                            properties: {
-                                grants: {
-                                    type: "array",
-                                    items: {
-                                        type: "object",
-                                        properties: {
-                                            title: { type: "string" },
-                                            description: { type: "string" },
-                                            ente_erogatore: { type: "string" },
-                                            livello: { type: "string" },
-                                            grant_type: { type: "string" },
-                                            funding_type: { type: "string" },
-                                            coverage_percentage: { type: "number" },
-                                            min_amount: { type: "number" },
-                                            max_amount: { type: "number" },
-                                            status: { type: "string" },
-                                            deadline: { type: "string" },
-                                            eligible_company_sizes: { type: "array", items: { type: "string" } },
-                                            eligible_regions: { type: "array", items: { type: "string" } }
-                                        }
+                    Solo bandi REALI e ATTUALI. IMPORTANTE: includi SEMPRE il website_url con il link diretto al bando ufficiale.`,
+                    add_context_from_internet: true,
+                    response_json_schema: {
+                        type: "object",
+                        properties: {
+                            grants: {
+                                type: "array",
+                                items: {
+                                    type: "object",
+                                    properties: {
+                                        title: { type: "string" },
+                                        description: { type: "string" },
+                                        ente_erogatore: { type: "string" },
+                                        livello: { type: "string" },
+                                        grant_type: { type: "string" },
+                                        funding_type: { type: "string" },
+                                        coverage_percentage: { type: "number" },
+                                        min_amount: { type: "number" },
+                                        max_amount: { type: "number" },
+                                        status: { type: "string" },
+                                        deadline: { type: "string" },
+                                        eligible_company_sizes: { type: "array", items: { type: "string" } },
+                                        eligible_regions: { type: "array", items: { type: "string" } },
+                                        website_url: { type: "string" }
                                     }
                                 }
                             }
                         }
+                    }
                     });
                     return result?.grants || [];
                 } catch (err) {
@@ -168,6 +170,7 @@ Solo bandi REALI e ATTUALI.`,
                 eligible_regions: grant.eligible_regions || [],
                 access_mode: validateEnum(grant.access_mode, ['Sportello', 'Graduatoria'], 'Sportello'),
                 requires_cofinancing: grant.requires_cofinancing || false,
+                website_url: grant.website_url || null,
                 is_archived: false
             };
 
