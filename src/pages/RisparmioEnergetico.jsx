@@ -95,34 +95,30 @@ export default function RisparmioEnergetico() {
         </Card>
 
         {/* Services */}
-        <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-3">
           {services.map((service, index) => (
-            <Card key={index} className="bg-slate-800 border-slate-700">
-              <CardContent className="p-4">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-lime-400/20 rounded-xl flex items-center justify-center flex-shrink-0">
-                    <service.icon className="w-6 h-6 text-lime-400" />
+            <Link 
+              key={index} 
+              to={createPageUrl('RisparmioDettaglio') + `?categoria=${encodeURIComponent(service.title)}`}
+            >
+              <Card className="bg-slate-800 border-slate-700 hover:border-lime-400/50 transition-colors h-full">
+                <CardContent className="p-4 flex flex-col items-center text-center">
+                  <div className="w-14 h-14 bg-lime-400/20 rounded-xl flex items-center justify-center mb-3">
+                    <service.icon className="w-7 h-7 text-lime-400" />
                   </div>
-                  <div>
-                    <h3 className="text-white font-semibold mb-1">{service.title}</h3>
-                    <p className="text-slate-400 text-sm">{service.description}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                  <h3 className="text-white font-semibold text-sm">{service.title}</h3>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
 
-        {/* CTA */}
-        <Card className="bg-slate-800 border-lime-400/30 mt-6">
-          <CardContent className="p-6 text-center">
-            <p className="text-slate-400 mb-4">Per maggiori informazioni contatta il Consorzio</p>
-            <Link 
-              to={createPageUrl('ContattaConsorzio')}
-              className="inline-block bg-lime-400 hover:bg-lime-500 text-slate-900 font-semibold px-6 py-3 rounded-lg transition-colors"
-            >
-              Richiedi Informazioni
-            </Link>
+        {/* Info */}
+        <Card className="bg-slate-800/50 border-slate-700 mt-6">
+          <CardContent className="p-4 text-center">
+            <p className="text-slate-400 text-sm">
+              Seleziona un servizio per caricare la tua bolletta e ricevere un'analisi gratuita con proposte di risparmio.
+            </p>
           </CardContent>
         </Card>
       </main>

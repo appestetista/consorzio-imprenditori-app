@@ -16,6 +16,7 @@ import MyProfile from './pages/MyProfile';
 import ProfiloBandi from './pages/ProfiloBandi';
 import RisparmioEnergetico from './pages/RisparmioEnergetico';
 import VideoInterviste from './pages/VideoInterviste';
+import RisparmioDettaglio from './pages/RisparmioDettaglio';
 import __Layout from './Layout.jsx';
 
 
@@ -38,6 +39,7 @@ export const PAGES = {
     "ProfiloBandi": ProfiloBandi,
     "RisparmioEnergetico": RisparmioEnergetico,
     "VideoInterviste": VideoInterviste,
+    "RisparmioDettaglio": RisparmioDettaglio,
 }
 
 export const pagesConfig = {
