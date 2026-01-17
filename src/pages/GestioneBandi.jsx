@@ -45,7 +45,11 @@ export default function GestioneBandi() {
 
   const { data: allGrants = [], isLoading } = useQuery({
     queryKey: ['admin-grants'],
-    queryFn: () => base44.entities.FinancialGrant.filter({ is_archived: false }, '-created_date'),
+    queryFn: async () => {
+      const grants = await base44.entities.FinancialGrant.filter({ is_archived: false }, '-created_date');
+      // Escludi bandi con status "Chiuso"
+      return grants.filter(g => g.status !== 'Chiuso');
+    },
   });
 
   const { data: allUsers = [] } = useQuery({

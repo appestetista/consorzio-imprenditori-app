@@ -21,7 +21,6 @@ export default function BandoStats({ grants }) {
     { label: 'In apertura', value: inApertura, icon: Clock, color: 'text-yellow-400' },
     { label: 'In scadenza', value: inScadenza, icon: AlertCircle, color: 'text-orange-400' },
     { label: 'Attivabili subito', value: attivabiliSubito, icon: Zap, color: 'text-lime-400' },
-    { label: 'Chiusi', value: chiusi, icon: FileText, color: 'text-red-400' },
   ];
 
   return (
