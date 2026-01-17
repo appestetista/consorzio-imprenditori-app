@@ -296,22 +296,19 @@ export default function FinanziamentiAgevolati() {
     }
 
     // FILTRO REGIONE:
-    // 1. Se is_national=true O livello Nazionale/Europeo → visibile a TUTTI (ignora eligible_regions)
+    // 1. Se is_national=true O livello Nazionale/Europeo → visibile a TUTTI
     // 2. Altrimenti se ha regioni specifiche → verifica match con regioni utente
-    // 3. Se non ha regioni e non è nazionale → visibile a tutti
     
     const isNationalGrant = grant.is_national === true || 
                            grant.livello === 'Nazionale' || 
                            grant.livello === 'Europeo';
     
-    // Se è nazionale, passa sempre (non controllare regioni)
-    if (isNationalGrant) {
-      // Nessun filtro regionale per bandi nazionali
-    } else if (grant.eligible_regions?.length > 0) {
+    if (!isNationalGrant && grant.eligible_regions?.length > 0) {
       // Bando regionale con regioni specifiche - deve matchare
       const userInterestedRegions = effectiveUser?.interested_regions || 
                                     (effectiveUser?.region ? [effectiveUser.region] : []);
       
+      // Se l'utente ha regioni specificate, filtra
       if (userInterestedRegions.length > 0) {
         const hasRegionMatch = grant.eligible_regions.some(region => 
           userInterestedRegions.includes(region)
