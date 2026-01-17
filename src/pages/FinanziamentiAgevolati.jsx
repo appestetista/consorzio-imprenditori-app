@@ -260,24 +260,46 @@ export default function FinanziamentiAgevolati() {
     }
   });
 
+  // Fetch fresh user data when impersonating to get latest profile changes
+  const { data: impersonatedUserData } = useQuery({
+    queryKey: ['impersonated-user-fresh', impersonation.targetEmail],
+    queryFn: async () => {
+      const users = await base44.entities.User.filter({ email: impersonation.targetEmail });
+      return users[0] || null;
+    },
+    enabled: impersonation.active && !!impersonation.targetEmail,
+    staleTime: 0, // Always refetch
+  });
+
   // Automatic matching based on company profile
   // Usa il profilo dell'utente impersonificato se in impersonation mode
   const getEffectiveUserProfile = () => {
     console.log('[FinanziamentiAgevolati] getEffectiveUserProfile called:', {
       impersonationActive: impersonation.active,
-      hasTargetUserData: !!impersonation.targetUserData,
-      targetUserData: impersonation.targetUserData,
-      impersonationFull: impersonation
+      hasImpersonatedUserData: !!impersonatedUserData,
+      impersonatedUserData: impersonatedUserData
     });
     
+    // Usa i dati freschi dell'utente impersonificato
+    if (impersonation.active && impersonatedUserData) {
+      console.log('[FinanziamentiAgevolati] Using FRESH impersonated user profile:', {
+        interested_regions: impersonatedUserData.interested_regions,
+        region: impersonatedUserData.region,
+        company_size: impersonatedUserData.company_size
+      });
+      return impersonatedUserData;
+    }
+    
+    // Fallback ai dati dell'impersonation context (potrebbero essere stale)
     if (impersonation.active && impersonation.targetUserData) {
-      console.log('[FinanziamentiAgevolati] Using impersonated user profile:', {
+      console.log('[FinanziamentiAgevolati] Using CACHED impersonated user profile:', {
         interested_regions: impersonation.targetUserData.interested_regions,
         region: impersonation.targetUserData.region,
         company_size: impersonation.targetUserData.company_size
       });
       return impersonation.targetUserData;
     }
+    
     console.log('[FinanziamentiAgevolati] Using REAL user profile:', {
       interested_regions: user?.interested_regions,
       region: user?.region
