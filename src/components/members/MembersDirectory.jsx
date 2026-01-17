@@ -35,93 +35,32 @@ export default function MembersDirectory({ currentUserEmail }) {
 
   const isLoading = loadingUsers || loadingConsultants;
 
-  // Raggruppa utenti per città/provincia
-  const groupedMembers = useMemo(() => {
-    const filtered = allUsers.filter(user => {
-      if (!searchTerm) return true;
-      const search = searchTerm.toLowerCase();
-      return (
-        user.company_name?.toLowerCase().includes(search) ||
-        user.full_name?.toLowerCase().includes(search) ||
-        user.city?.toLowerCase().includes(search) ||
-        user.province?.toLowerCase().includes(search)
-      );
-    });
-
-    // Prima raggruppa per città
-    const byCity = {};
-    const byProvince = {};
-
-    filtered.forEach(user => {
-      const city = user.city?.trim() || 'Non specificata';
-      const province = user.province?.trim()?.toUpperCase() || 'N/A';
-
-      if (!byCity[city]) {
-        byCity[city] = { users: [], province };
-      }
-      byCity[city].users.push(user);
-
-      if (!byProvince[province]) {
-        byProvince[province] = { users: [], cities: {} };
-      }
-      byProvince[province].users.push(user);
-      if (!byProvince[province].cities[city]) {
-        byProvince[province].cities[city] = [];
-      }
-      byProvince[province].cities[city].push(user);
-    });
-
-    // Determina quali mostrare per città (>=10) e quali per provincia (<10)
-    const result = {
-      byCities: {}, // Città con 10+ membri
-      byProvinces: {} // Province che raggruppano città con <10 membri
-    };
-
-    // Controlla ogni città
-    Object.entries(byCity).forEach(([city, data]) => {
-      if (data.users.length >= 10) {
-        // Mostra per città
-        result.byCities[city] = data;
-      }
-    });
-
-    // Per le città con meno di 10, raggruppa per provincia
-    Object.entries(byProvince).forEach(([province, data]) => {
-      // Filtra solo utenti di città con meno di 10 membri
-      const usersInSmallCities = data.users.filter(user => {
-        const city = user.city?.trim() || 'Non specificata';
-        return !result.byCities[city]; // Non è già mostrata come città grande
-      });
-
-      if (usersInSmallCities.length > 0) {
-        result.byProvinces[province] = {
-          users: usersInSmallCities,
-          cities: {}
-        };
-        // Organizza per sotto-città
-        usersInSmallCities.forEach(user => {
-          const city = user.city?.trim() || 'Non specificata';
-          if (!result.byProvinces[province].cities[city]) {
-            result.byProvinces[province].cities[city] = [];
-          }
-          result.byProvinces[province].cities[city].push(user);
-        });
-      }
-    });
-
-    return result;
+  // Filtra utenti in base alla ricerca
+  const filteredUsers = useMemo(() => {
+    if (!searchTerm) return allUsers;
+    const search = searchTerm.toLowerCase();
+    return allUsers.filter(user => 
+      user.company_name?.toLowerCase().includes(search) ||
+      user.full_name?.toLowerCase().includes(search) ||
+      user.city?.toLowerCase().includes(search)
+    );
   }, [allUsers, searchTerm]);
 
-  const toggleGroup = (groupKey) => {
-    setExpandedGroups(prev => ({
-      ...prev,
-      [groupKey]: !prev[groupKey]
-    }));
-  };
+  // Filtra consulenti in base alla ricerca
+  const filteredConsultants = useMemo(() => {
+    if (!searchTerm) return consultants;
+    const search = searchTerm.toLowerCase();
+    return consultants.filter(c => 
+      c.name?.toLowerCase().includes(search) ||
+      c.referente?.toLowerCase().includes(search) ||
+      c.category?.toLowerCase().includes(search)
+    );
+  }, [consultants, searchTerm]);
 
-  const totalMembers = allUsers.length;
-  const totalCities = Object.keys(groupedMembers.byCities).length;
-  const totalProvinces = Object.keys(groupedMembers.byProvinces).length;
+  const handleChat = (email) => {
+    // Naviga alla pagina messaggi con l'email preselezionata
+    navigate(createPageUrl('Messaggi') + `?contact=${encodeURIComponent(email)}`);
+  };
 
   if (isLoading) {
     return (
