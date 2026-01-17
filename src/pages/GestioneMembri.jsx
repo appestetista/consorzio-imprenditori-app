@@ -278,10 +278,35 @@ export default function GestioneMembri() {
     });
   };
 
-  if (!user || user.role !== 'admin') {
+  const isAdmin = user?.role === 'admin';
+
+  if (!user) {
     return null;
   }
 
+  // Vista per utenti normali (non admin)
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen bg-slate-900 pb-24">
+        <Header user={user} />
+        
+        <main className="px-4 py-6 max-w-md mx-auto">
+          <div className="flex items-center gap-3 mb-6">
+            <Link to={createPageUrl('Home')} className="text-lime-400">
+              <ArrowLeft className="w-6 h-6" />
+            </Link>
+            <h1 className="text-white text-xl font-bold">Utenti del Consorzio</h1>
+          </div>
+
+          <MembersDirectory />
+        </main>
+
+        <BottomNav currentPage="GestioneMembri" unreadMessages={messages.length} />
+      </div>
+    );
+  }
+
+  // Vista Admin
   return (
     <div className="min-h-screen bg-slate-900 pb-24">
       <Header user={user} />
