@@ -136,8 +136,17 @@ export default function ProfiloBandiForm({ user, onSaved }) {
     }
   }, [formData.region]);
 
+  // Funzione per salvare: usa User.update se impersonificazione attiva, altrimenti updateMe
+  const saveData = async (data) => {
+    if (impersonation.active && impersonation.previewUserId && impersonation.role === 'user') {
+      return base44.entities.User.update(impersonation.previewUserId, data);
+    } else {
+      return base44.auth.updateMe(data);
+    }
+  };
+
   const saveMutation = useMutation({
-    mutationFn: async (data) => base44.auth.updateMe(data),
+    mutationFn: saveData,
     onSuccess: () => {
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
@@ -150,7 +159,7 @@ export default function ProfiloBandiForm({ user, onSaved }) {
     const newData = { ...formData, [field]: value };
     setFormData(newData);
     try {
-      await base44.auth.updateMe({ [field]: value });
+      await saveData({ [field]: value });
     } catch (err) {
       console.error('Errore salvataggio:', err);
     }
