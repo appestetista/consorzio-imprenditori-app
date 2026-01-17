@@ -316,6 +316,7 @@ export default function GestioneBandi() {
                             {grant.status}
                           </Badge>
                         </div>
+                        <p className="text-slate-400 text-sm line-clamp-2 mb-1">{grant.description}</p>
                         <div className="flex flex-wrap gap-2 text-xs">
                           <span className="text-slate-400">{grant.ente_erogatore}</span>
                           <span className="text-slate-500">•</span>
@@ -325,6 +326,18 @@ export default function GestioneBandi() {
                           <span className="text-slate-500">•</span>
                           <span className="text-lime-400">{matchingUsers.length} aziende compatibili</span>
                         </div>
+                        {grant.website_url && (
+                          <a 
+                            href={grant.website_url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-blue-400 hover:text-blue-300 text-xs underline mt-1 inline-flex items-center gap-1"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <ExternalLink className="w-3 h-3" />
+                            {grant.website_url}
+                          </a>
+                        )}
                         <div className="flex items-center gap-2 text-xs mt-1">
                           <Calendar className="w-3.5 h-3.5 text-orange-400" />
                           <span className="text-orange-400 font-medium">

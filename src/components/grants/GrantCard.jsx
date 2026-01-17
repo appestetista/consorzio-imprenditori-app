@@ -106,6 +106,18 @@ export default function GrantCard({ grant, onDetails, userInterest, onToggleAler
       
       <CardContent className="space-y-3">
         <p className="text-slate-400 text-sm line-clamp-2">{grant.description}</p>
+        {grant.website_url && (
+          <a 
+            href={grant.website_url} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-blue-400 hover:text-blue-300 text-xs underline inline-flex items-center gap-1 mt-1"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <ExternalLink className="w-3 h-3" />
+            {grant.website_url}
+          </a>
+        )}
         {aiRecommendation && aiRecommendation.reason && (
           <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg px-3 py-2">
             <p className="text-purple-300 text-xs flex items-start gap-2">
