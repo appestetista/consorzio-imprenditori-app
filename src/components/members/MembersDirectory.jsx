@@ -173,12 +173,12 @@ function MemberCard({ user, onChat, currentUserEmail }) {
               {user.city}{user.province ? ` (${user.province})` : ''}
             </p>
           )}
-          {user.full_name && (
+          {(user.referente || user.full_name) && (
             <div className="text-slate-400 text-sm mt-1 flex items-start gap-1">
               <User className="w-3 h-3 mt-0.5 flex-shrink-0" />
               <div>
                 <span className="text-slate-500 text-xs">Responsabile:</span>
-                <p className="text-slate-300 truncate">{user.full_name}</p>
+                <p className="text-slate-300 truncate">{user.referente || user.full_name}</p>
               </div>
             </div>
           )}
