@@ -306,7 +306,7 @@ export default function ProfiloBandiForm({ user, onSaved }) {
                         setFormData({...formData, interested_regions: newRegions});
                         // Salvataggio automatico delle regioni di interesse
                         try {
-                          await base44.auth.updateMe({ interested_regions: newRegions });
+                          await saveData({ interested_regions: newRegions });
                         } catch (err) {
                           console.error('Errore salvataggio regioni:', err);
                         }
