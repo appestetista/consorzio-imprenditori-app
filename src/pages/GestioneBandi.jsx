@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Plus, Search, Edit, Share2, Archive, Eye, Filter } from 'lucide-react';
+import { ArrowLeft, Plus, Search, Edit, Share2, Archive, Eye, Filter, Calendar, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -12,6 +12,8 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { format } from 'date-fns';
+import { it } from 'date-fns/locale';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import BandoStats from '../components/admin/BandoStats';
@@ -302,6 +304,12 @@ export default function GestioneBandi() {
                           <span className="text-slate-500">•</span>
                           <span className="text-lime-400">{matchingUsers.length} aziende compatibili</span>
                         </div>
+                        <div className="flex items-center gap-2 text-xs mt-1">
+                          <Calendar className="w-3.5 h-3.5 text-orange-400" />
+                          <span className="text-orange-400 font-medium">
+                            Scadenza: {grant.deadline ? format(new Date(grant.deadline), 'd MMM yyyy', { locale: it }) : 'A esaurimento fondi'}
+                          </span>
+                        </div>
                         {(grant.prezzo_istruttoria || grant.percentuale_erogazione) && (
                           <div className="flex flex-wrap gap-3 text-xs mt-2">
                             {grant.prezzo_istruttoria && (
@@ -367,6 +375,17 @@ export default function GestioneBandi() {
                         <Archive className="w-3.5 h-3.5 mr-1" />
                         Archivia
                       </Button>
+                      {grant.website_url && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-blue-500 text-blue-400 h-8 px-2 text-xs"
+                          onClick={() => window.open(grant.website_url, '_blank')}
+                        >
+                          <ExternalLink className="w-3.5 h-3.5 mr-1" />
+                          Link ufficiale
+                        </Button>
+                      )}
                     </div>
                   </CardContent>
                 </Card>

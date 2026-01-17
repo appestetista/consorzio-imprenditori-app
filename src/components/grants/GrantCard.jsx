@@ -296,17 +296,18 @@ export default function GrantCard({ grant, onDetails, userInterest, onToggleAler
             >
               Dettagli
             </Button>
-            {grant.website_url && (
-              <Button
-                size="sm"
-                variant="outline"
-                className="border-slate-600 text-slate-300"
-                onClick={() => window.open(grant.website_url, '_blank')}
-              >
-                <ExternalLink className="w-4 h-4" />
-              </Button>
-            )}
           </div>
+          {grant.website_url && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="w-full border-blue-500 text-blue-400"
+              onClick={() => window.open(grant.website_url, '_blank')}
+            >
+              <ExternalLink className="w-4 h-4 mr-2" />
+              Link ufficiale bando
+            </Button>
+          )}
           
           <div className="flex gap-2">
             <Button
