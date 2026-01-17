@@ -566,12 +566,12 @@ Per ogni bando, fornisci:
   };
 
   // Verifica profilo incompleto - usa i dati dell'utente impersonificato se attivo
-    const effectiveUserForProfile = getEffectiveUserProfile();
-    const hasIncompleteProfile = !effectiveUserForProfile?.company_size || 
-                                  !effectiveUserForProfile?.region || 
-                                  !effectiveUserForProfile?.sector || 
-                                  !effectiveUserForProfile?.ateco_code ||
-                                  !effectiveUserForProfile?.interested_regions?.length;
+  const effectiveUserForProfile = getEffectiveUserProfile();
+  const hasIncompleteProfile = !effectiveUserForProfile?.company_size || 
+                                !effectiveUserForProfile?.region || 
+                                !effectiveUserForProfile?.sector || 
+                                !effectiveUserForProfile?.ateco_code ||
+                                !effectiveUserForProfile?.interested_regions?.length;
 
   return (
     <div className="min-h-screen bg-slate-900 pb-24">
