@@ -78,6 +78,33 @@ export default function CulturaAziendaleAdmin() {
     }
   });
 
+  const updateVideoMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.CulturaAziendaleVideo.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cultura-aziendale-videos'] });
+      setEditingVideo(null);
+      resetForm();
+    }
+  });
+
+  const openEditDialog = (video) => {
+    setEditingVideo(video);
+    setFormData({
+      title: video.title,
+      youtube_url: video.youtube_url,
+      categoria: video.categoria
+    });
+  };
+
+  const handleSave = () => {
+    if (!validate()) return;
+    if (editingVideo) {
+      updateVideoMutation.mutate({ id: editingVideo.id, data: formData });
+    } else {
+      createVideoMutation.mutate(formData);
+    }
+  };
+
   const resetForm = () => {
     setFormData({
       title: '',
