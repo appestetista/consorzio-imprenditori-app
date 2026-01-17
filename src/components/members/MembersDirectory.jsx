@@ -162,10 +162,15 @@ function MemberCard({ user, onChat, currentUserEmail }) {
           <p className="text-white font-semibold truncate">
             {user.company_name || 'Azienda'}
           </p>
+          {user.business_sector && (
+            <p className="text-lime-400 text-xs truncate">
+              {user.business_sector}
+            </p>
+          )}
           {user.full_name && (
             <p className="text-slate-400 text-sm truncate flex items-center gap-1">
               <User className="w-3 h-3" />
-              {user.full_name}
+              <span>Responsabile: {user.full_name}</span>
             </p>
           )}
           {user.city && (
