@@ -249,105 +249,46 @@ export default function AdminPanel() {
       <Header user={user} />
       
       <main className="px-4 py-6 max-w-md mx-auto">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <button onClick={() => navigate(createPageUrl('Home'))} className="text-lime-400">
               <ArrowLeft className="w-6 h-6" />
             </button>
-            <h1 className="text-white text-xl font-bold">Pannello di Amministrazione</h1>
+            <h1 className="text-white text-xl font-bold">Pannello Admin</h1>
           </div>
+          <p className="text-slate-400 text-xs">
+            {new Date().toLocaleDateString('it-IT', { day: 'numeric', month: 'short' })}
+          </p>
         </div>
 
-        {/* Data odierna */}
-        <Card className="bg-slate-800 border-slate-700 mb-4">
-          <CardContent className="p-4 flex items-center gap-3">
-            <CalendarDays className="w-6 h-6 text-lime-400" />
-            <div>
-              <p className="text-slate-400 text-xs">Data odierna</p>
-              <p className="text-white font-bold">
-                {new Date().toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Messaggi da utenti e consulenti */}
-        <Card className="bg-slate-800 border-slate-700 mb-6">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <div className="relative">
-                  <MessageSquare className={`w-5 h-5 ${unreadAdminMessages.length > 0 ? 'text-lime-400' : 'text-slate-400'}`} />
-                  {unreadAdminMessages.length > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold animate-pulse">
-                      {unreadAdminMessages.length}
-                    </span>
-                  )}
-                </div>
-                <span className="text-white font-medium">Messaggi Ricevuti</span>
-              </div>
-              <Button
-                size="sm"
-                variant="outline"
-                className="border-lime-400 text-lime-400 hover:bg-lime-400/20"
-                onClick={() => setShowAllMessages(true)}
-              >
-                <Mail className="w-4 h-4 mr-1" />
-                Vedi tutti ({allAdminMessages.length})
-              </Button>
-            </div>
-            {unreadAdminMessages.length === 0 ? (
-              <p className="text-slate-400 text-sm">Nessun nuovo messaggio</p>
-            ) : (
-              <div className="space-y-2">
-                {unreadAdminMessages.slice(0, 3).map((msg) => (
-                  <div key={msg.id} className="bg-lime-400/10 border border-lime-400/30 rounded-lg p-3">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-white font-medium text-sm truncate">{msg.sender_name}</p>
-                        <p className="text-slate-400 text-xs">{msg.sender_type === 'consulente' ? '👔 Consulente' : '👤 Utente'}</p>
-                        <p className="text-slate-300 text-sm mt-1 line-clamp-2">{msg.content}</p>
-                      </div>
-                      <span className="bg-lime-400 text-slate-900 text-xs font-bold px-2 py-0.5 rounded flex-shrink-0">NUOVO</span>
-                    </div>
-                  </div>
-                ))}
-                {unreadAdminMessages.length > 3 && (
-                  <p className="text-lime-400 text-xs text-center">+ altri {unreadAdminMessages.length - 3} messaggi non letti</p>
-                )}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
+        {/* Stats Grid compatto */}
+        <div className="grid grid-cols-4 gap-2 mb-4">
           <Link to={createPageUrl('GestioneMembri')}>
-            <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 transition-colors cursor-pointer">
-              <CardContent className="p-4 text-center">
-                <Users className="w-8 h-8 text-lime-400 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-white">{stats?.activeUsers || 0}</p>
-                <p className="text-slate-400 text-sm">Utenti</p>
+            <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700">
+              <CardContent className="p-2 text-center">
+                <Users className="w-5 h-5 text-lime-400 mx-auto mb-1" />
+                <p className="text-lg font-bold text-white">{stats?.activeUsers || 0}</p>
+                <p className="text-slate-400 text-[10px]">Utenti</p>
               </CardContent>
             </Card>
           </Link>
           <Link to={createPageUrl('CalendarioIncontri')}>
-            <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 transition-colors cursor-pointer">
-              <CardContent className="p-4 text-center">
-                <Calendar className="w-8 h-8 text-lime-400 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-white">{stats?.totalEvents || 0}</p>
-                <p className="text-slate-400 text-sm">Eventi</p>
+            <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700">
+              <CardContent className="p-2 text-center">
+                <Calendar className="w-5 h-5 text-lime-400 mx-auto mb-1" />
+                <p className="text-lg font-bold text-white">{stats?.totalEvents || 0}</p>
+                <p className="text-slate-400 text-[10px]">Eventi</p>
               </CardContent>
             </Card>
           </Link>
           <Link to={createPageUrl('VideoInterviste')}>
-            <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 transition-colors cursor-pointer relative">
-              <CardContent className="p-4 text-center">
-                <Video className="w-8 h-8 text-lime-400 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-white">{stats?.totalVideos || 0}</p>
-                <p className="text-slate-400 text-sm">Video Interviste</p>
+            <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 relative">
+              <CardContent className="p-2 text-center">
+                <Video className="w-5 h-5 text-lime-400 mx-auto mb-1" />
+                <p className="text-lg font-bold text-white">{stats?.totalVideos || 0}</p>
+                <p className="text-slate-400 text-[10px]">Video</p>
                 {pendingVideoRequests.length > 0 && (
-                  <span className="absolute top-2 right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold animate-pulse">
+                  <span className="absolute top-1 right-1 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
                     {pendingVideoRequests.length}
                   </span>
                 )}
@@ -355,13 +296,13 @@ export default function AdminPanel() {
             </Card>
           </Link>
           <Link to={createPageUrl('Consulenze')}>
-            <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 transition-colors cursor-pointer relative">
-              <CardContent className="p-4 text-center">
-                <Briefcase className="w-8 h-8 text-lime-400 mx-auto mb-2" />
-                <p className="text-2xl font-bold text-white">{stats?.totalConsultants || 0}</p>
-                <p className="text-slate-400 text-sm">Consulenti</p>
+            <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 relative">
+              <CardContent className="p-2 text-center">
+                <Briefcase className="w-5 h-5 text-lime-400 mx-auto mb-1" />
+                <p className="text-lg font-bold text-white">{stats?.totalConsultants || 0}</p>
+                <p className="text-slate-400 text-[10px]">Consulenti</p>
                 {pendingConsultationBookings > 0 && (
-                  <span className="absolute top-2 right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold animate-pulse">
+                  <span className="absolute top-1 right-1 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
                     {pendingConsultationBookings}
                   </span>
                 )}
@@ -370,302 +311,209 @@ export default function AdminPanel() {
           </Link>
         </div>
 
-        {/* Richieste Consulenza Pendenti */}
-        <div className="mb-6 space-y-4">
-          <h2 className="text-white text-lg font-bold flex items-center gap-2">
-            <div className="relative">
-              <Bell className={`w-5 h-5 ${pendingRequests.length > 0 ? 'text-red-500 animate-pulse' : 'text-slate-400'}`} />
-              {pendingRequests.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold">
-                  {pendingRequests.length}
-                </span>
-              )}
-            </div>
-            Richieste Consulenza Bandi ({pendingRequests.length})
-          </h2>
-          {pendingRequests.length === 0 ? (
-            <Card className="bg-slate-800 border-slate-700">
-              <CardContent className="p-6 text-center">
-                <Bell className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-                <p className="text-slate-400">Nessuna richiesta di consulenza pendente</p>
-              </CardContent>
-            </Card>
-          ) : (
-            pendingRequests.map((request) => (
-              <Card key={request.id} className="bg-gradient-to-br from-orange-500/20 to-lime-400/20 border-lime-400/30">
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4">
-                    <div className="bg-lime-400 rounded-full p-4 flex-shrink-0">
-                      <Bell className="w-8 h-8 text-slate-900" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex-1">
-                          <h3 className="text-white font-bold text-lg">{request.user?.company_name || request.user?.full_name}</h3>
-                          <p className="text-lime-400 text-sm">{request.user?.email}</p>
-                        </div>
-                        <button
-                          onClick={() => {
-                            if (confirm('Vuoi eliminare questa richiesta?')) {
-                              deleteConsultationRequestMutation.mutate(request.id);
-                            }
-                          }}
-                          className="text-red-400 hover:text-red-500 transition-colors"
-                        >
-                          <Trash2 className="w-5 h-5" />
-                        </button>
-                      </div>
-                      <div className="bg-slate-900/50 rounded-lg p-3 mb-3">
-                        <p className="text-white font-medium text-sm mb-2">{request.grant?.title}</p>
-                        <div className="grid grid-cols-2 gap-2 text-xs">
-                          {request.grant?.grant_type && (
-                            <div>
-                              <span className="text-slate-400">Tipo:</span>
-                              <span className="text-lime-400 ml-1">{request.grant.grant_type}</span>
-                            </div>
-                          )}
-                          {request.grant?.funding_type && (
-                            <div>
-                              <span className="text-slate-400">Forma:</span>
-                              <span className="text-lime-400 ml-1">{request.grant.funding_type}</span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-lime-400 mb-4">
-                        <Clock className="w-4 h-4" />
-                        <span className="font-semibold">{request.created_date ? new Date(request.created_date).toLocaleDateString('it-IT', { 
-                          day: 'numeric', 
-                          month: 'long', 
-                          year: 'numeric'
-                        }) : 'N/A'}</span>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button
-                          className="bg-lime-400 hover:bg-lime-500 text-slate-900 flex-1 font-bold"
-                          onClick={() => updateConsultationStatusMutation.mutate({ 
-                            requestId: request.id, 
-                            status: 'accepted',
-                            userEmail: request.user?.email,
-                            grantTitle: request.grant?.title
-                          })}
-                          disabled={updateConsultationStatusMutation.isPending}
-                        >
-                          <CheckCircle className="w-5 h-5 mr-2" />
-                          Accetta
-                        </Button>
-                        <Button
-                          variant="outline"
-                          className="bg-red-600 hover:bg-red-700 text-white border-red-600 flex-1 font-bold"
-                          onClick={() => updateConsultationStatusMutation.mutate({ 
-                            requestId: request.id, 
-                            status: 'rejected',
-                            userEmail: request.user?.email,
-                            grantTitle: request.grant?.title
-                          })}
-                          disabled={updateConsultationStatusMutation.isPending}
-                        >
-                          <XCircle className="w-5 h-5 mr-2" />
-                          Rifiuta
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </div>
-
-        {/* Richieste Video Interviste */}
-        <div className="mb-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-white text-lg font-bold flex items-center gap-2">
-              <div className="relative">
-                <Video className={`w-5 h-5 ${pendingVideoRequests.length > 0 ? 'text-red-500 animate-pulse' : 'text-slate-400'}`} />
-                {pendingVideoRequests.length > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold">
-                    {pendingVideoRequests.length}
+        {/* Tabs per organizzare le sezioni */}
+        <Tabs defaultValue="richieste" className="w-full">
+          <TabsList className="w-full bg-slate-800 border border-slate-700 mb-4">
+            <TabsTrigger value="richieste" className="flex-1 text-xs data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
+              <div className="relative flex items-center gap-1">
+                <Bell className="w-3.5 h-3.5" />
+                Richieste
+                {(pendingRequests.length + pendingVideoRequests.length + unreadAdminMessages.length) > 0 && (
+                  <span className="bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
+                    {pendingRequests.length + pendingVideoRequests.length + unreadAdminMessages.length}
                   </span>
                 )}
               </div>
-              Richieste Video Interviste ({pendingVideoRequests.length})
-            </h2>
-            <Button
-              size="sm"
-              variant="outline"
-              className="border-lime-400 text-lime-400 hover:bg-lime-400/20"
-              onClick={() => setShowVideoRequests(true)}
-            >
-              <Mail className="w-4 h-4 mr-1" />
-              Leggi Messaggi
-            </Button>
-          </div>
-          
-          {pendingVideoRequests.length === 0 ? (
+            </TabsTrigger>
+            <TabsTrigger value="risparmio" className="flex-1 text-xs data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
+              <div className="flex items-center gap-1">
+                <Settings className="w-3.5 h-3.5" />
+                Risparmio
+              </div>
+            </TabsTrigger>
+            <TabsTrigger value="gestione" className="flex-1 text-xs data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
+              <div className="flex items-center gap-1">
+                <Users className="w-3.5 h-3.5" />
+                Gestione
+              </div>
+            </TabsTrigger>
+          </TabsList>
+
+          {/* TAB RICHIESTE */}
+          <TabsContent value="richieste" className="space-y-4">
+            {/* Messaggi */}
             <Card className="bg-slate-800 border-slate-700">
-              <CardContent className="p-6 text-center">
-                <Video className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-                <p className="text-slate-400">Nessuna richiesta di video intervista pendente</p>
-              </CardContent>
-            </Card>
-          ) : (
-            <Card className="bg-gradient-to-br from-lime-500/20 to-lime-400/10 border-lime-400/30">
-              <CardContent className="p-4">
-                <p className="text-lime-400 text-sm">
-                  Hai {pendingVideoRequests.length} nuov{pendingVideoRequests.length === 1 ? 'a' : 'e'} richiest{pendingVideoRequests.length === 1 ? 'a' : 'e'} di video intervista
-                </p>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-
-        {/* Quick Actions */}
-        <div className="space-y-3 mb-6">
-          <Link to={createPageUrl('GestioneBandi')}>
-            <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 transition-colors cursor-pointer">
-              <CardContent className="p-4 flex items-center gap-4">
-                <Briefcase className="w-6 h-6 text-lime-400" />
-                <span className="text-white font-medium">Gestione Bandi</span>
-              </CardContent>
-            </Card>
-          </Link>
-          
-
-        </div>
-
-        {/* Richieste Risparmio */}
-        <RisparmioRequestsAdmin />
-
-        {/* Cultura Aziendale Management */}
-        <CulturaAziendaleAdmin />
-
-        {/* Consultant Assignment Manager */}
-        <ConsultantAssignmentManager />
-
-        {/* Consultants Management */}
-        <div className="mb-6 space-y-4 mt-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-white text-lg font-bold flex items-center gap-2">
-              <Briefcase className="w-5 h-5 text-lime-400" />
-              Gestione Consulenti ({consultants.length})
-            </h2>
-            <Dialog open={showAddConsultant} onOpenChange={setShowAddConsultant}>
-              <DialogTrigger asChild>
-                <Button size="sm" className="bg-lime-400 hover:bg-lime-500 text-slate-900">
-                  <Plus className="w-4 h-4 mr-1" />
-                  Aggiungi
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="bg-slate-800 border-slate-700">
-                <DialogHeader>
-                  <DialogTitle className="text-white">Nuovo Consulente</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4 mt-4">
-                  <Input
-                    placeholder="Nome/Studio"
-                    value={newConsultant.name}
-                    onChange={(e) => setNewConsultant({...newConsultant, name: e.target.value})}
-                    className="bg-slate-900 border-slate-700 text-white"
-                  />
-                  <Select
-                    value={newConsultant.category}
-                    onValueChange={(value) => setNewConsultant({...newConsultant, category: value})}
-                  >
-                    <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
-                      <SelectValue placeholder="Seleziona categoria" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {CONSULTANT_CATEGORIES.map((cat) => (
-                        <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Input
-                    placeholder="Telefono"
-                    value={newConsultant.phone}
-                    onChange={(e) => setNewConsultant({...newConsultant, phone: e.target.value})}
-                    className="bg-slate-900 border-slate-700 text-white"
-                  />
-                  <Input
-                    placeholder="Email"
-                    type="email"
-                    value={newConsultant.email}
-                    onChange={(e) => setNewConsultant({...newConsultant, email: e.target.value})}
-                    className="bg-slate-900 border-slate-700 text-white"
-                  />
-                  <Input
-                    placeholder="Nome Referente"
-                    value={newConsultant.referente}
-                    onChange={(e) => setNewConsultant({...newConsultant, referente: e.target.value})}
-                    className="bg-slate-900 border-slate-700 text-white"
-                  />
-                  <Input
-                    placeholder="Cellulare Referente"
-                    value={newConsultant.cellulare_referente}
-                    onChange={(e) => setNewConsultant({...newConsultant, cellulare_referente: e.target.value})}
-                    className="bg-slate-900 border-slate-700 text-white"
-                  />
-                  <Button 
-                    onClick={() => createConsultantMutation.mutate(newConsultant)}
-                    disabled={createConsultantMutation.isPending || !newConsultant.name || !newConsultant.category}
-                    className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900"
-                  >
-                    {createConsultantMutation.isPending ? 'Creazione...' : 'Aggiungi Consulente'}
+              <CardContent className="p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <MessageSquare className={`w-4 h-4 ${unreadAdminMessages.length > 0 ? 'text-lime-400' : 'text-slate-400'}`} />
+                    <span className="text-white font-medium text-sm">Messaggi ({unreadAdminMessages.length} nuovi)</span>
+                  </div>
+                  <Button size="sm" variant="ghost" className="text-lime-400 h-7 text-xs" onClick={() => setShowAllMessages(true)}>
+                    Vedi tutti
                   </Button>
                 </div>
-              </DialogContent>
-            </Dialog>
-          </div>
-          
-          {consultants.length === 0 ? (
-            <Card className="bg-slate-800 border-slate-700">
-              <CardContent className="p-6 text-center">
-                <Briefcase className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-                <p className="text-slate-400">Nessun consulente registrato</p>
+                {unreadAdminMessages.length > 0 && (
+                  <div className="space-y-1">
+                    {unreadAdminMessages.slice(0, 2).map((msg) => (
+                      <div key={msg.id} className="bg-slate-900 rounded p-2 text-xs">
+                        <p className="text-white font-medium truncate">{msg.sender_name}</p>
+                        <p className="text-slate-400 truncate">{msg.content}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
-          ) : (
-            <div className="space-y-2">
-              {consultants.map((consultant) => (
-                <Card key={consultant.id} className="bg-slate-800 border-slate-700">
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2 mb-1">
-                          <div className="flex-1 min-w-0">
-                            <p className="text-slate-400 text-xs mb-0.5">Consulente:</p>
-                            <p className="text-white font-medium truncate">{consultant.name}</p>
+
+            {/* Richieste Consulenza Bandi */}
+            <Card className="bg-slate-800 border-slate-700">
+              <CardContent className="p-3">
+                <h3 className="text-white font-medium text-sm mb-2 flex items-center gap-2">
+                  <Bell className={`w-4 h-4 ${pendingRequests.length > 0 ? 'text-red-500' : 'text-slate-400'}`} />
+                  Consulenza Bandi ({pendingRequests.length})
+                </h3>
+                {pendingRequests.length === 0 ? (
+                  <p className="text-slate-400 text-xs">Nessuna richiesta pendente</p>
+                ) : (
+                  <div className="space-y-2">
+                    {pendingRequests.slice(0, 3).map((request) => (
+                      <div key={request.id} className="bg-lime-400/10 border border-lime-400/30 rounded-lg p-3">
+                        <div className="flex items-start justify-between mb-2">
+                          <div>
+                            <p className="text-white font-medium text-sm">{request.user?.company_name || request.user?.full_name}</p>
+                            <p className="text-slate-400 text-xs">{request.grant?.title}</p>
                           </div>
-                          <div className="flex-shrink-0 text-right">
-                            <p className="text-lime-400 text-lg font-bold">{consultant.available_slots || 1}</p>
-                            <p className="text-slate-400 text-xs">consulenze</p>
-                          </div>
+                          <button onClick={() => deleteConsultationRequestMutation.mutate(request.id)} className="text-red-400">
+                            <Trash2 className="w-4 h-4" />
+                          </button>
                         </div>
-                        <div className="mt-2">
-                          <p className="text-slate-400 text-xs">Referente:</p>
-                          <p className="text-lime-400 text-sm">{consultant.referente || 'N/A'}</p>
+                        <div className="flex gap-2">
+                          <Button size="sm" className="flex-1 bg-lime-400 text-slate-900 h-7 text-xs"
+                            onClick={() => updateConsultationStatusMutation.mutate({ requestId: request.id, status: 'accepted', userEmail: request.user?.email, grantTitle: request.grant?.title })}>
+                            <CheckCircle className="w-3 h-3 mr-1" /> Accetta
+                          </Button>
+                          <Button size="sm" variant="destructive" className="flex-1 h-7 text-xs"
+                            onClick={() => updateConsultationStatusMutation.mutate({ requestId: request.id, status: 'rejected', userEmail: request.user?.email, grantTitle: request.grant?.title })}>
+                            <XCircle className="w-3 h-3 mr-1" /> Rifiuta
+                          </Button>
                         </div>
-                        <p className="text-slate-500 text-xs mt-1">{consultant.category}</p>
                       </div>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="bg-slate-900 hover:bg-slate-700 text-lime-400 border-lime-400/30 flex-shrink-0"
-                        onClick={() => {
-                          startImpersonation('consulente', consultant.id, consultant.email, consultant.name);
-                          navigate(createPageUrl('Consulenze'));
-                        }}
-                      >
-                        Visualizza
-                      </Button>
-                    </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Richieste Video */}
+            <Card className="bg-slate-800 border-slate-700">
+              <CardContent className="p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-white font-medium text-sm flex items-center gap-2">
+                    <Video className={`w-4 h-4 ${pendingVideoRequests.length > 0 ? 'text-red-500' : 'text-slate-400'}`} />
+                    Video Interviste ({pendingVideoRequests.length})
+                  </h3>
+                  {pendingVideoRequests.length > 0 && (
+                    <Button size="sm" variant="ghost" className="text-lime-400 h-7 text-xs" onClick={() => setShowVideoRequests(true)}>
+                      Vedi
+                    </Button>
+                  )}
+                </div>
+                {pendingVideoRequests.length === 0 ? (
+                  <p className="text-slate-400 text-xs">Nessuna richiesta pendente</p>
+                ) : (
+                  <p className="text-lime-400 text-xs">{pendingVideoRequests.length} nuove richieste</p>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* TAB RISPARMIO */}
+          <TabsContent value="risparmio">
+            <RisparmioRequestsAdmin />
+          </TabsContent>
+
+          {/* TAB GESTIONE */}
+          <TabsContent value="gestione" className="space-y-4">
+            {/* Link rapidi */}
+            <div className="grid grid-cols-2 gap-2">
+              <Link to={createPageUrl('GestioneBandi')}>
+                <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700">
+                  <CardContent className="p-3 text-center">
+                    <Briefcase className="w-5 h-5 text-lime-400 mx-auto mb-1" />
+                    <p className="text-white text-xs">Gestione Bandi</p>
                   </CardContent>
                 </Card>
-              ))}
+              </Link>
+              <Link to={createPageUrl('GestioneMembri')}>
+                <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700">
+                  <CardContent className="p-3 text-center">
+                    <Users className="w-5 h-5 text-lime-400 mx-auto mb-1" />
+                    <p className="text-white text-xs">Gestione Membri</p>
+                  </CardContent>
+                </Card>
+              </Link>
             </div>
-          )}
-        </div>
+
+            {/* Cultura Aziendale */}
+            <CulturaAziendaleAdmin />
+
+            {/* Assegnazione Consulenti */}
+            <ConsultantAssignmentManager />
+
+            {/* Gestione Consulenti */}
+            <Card className="bg-slate-800 border-slate-700">
+              <CardContent className="p-3">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-white font-medium text-sm">Consulenti ({consultants.length})</h3>
+                  <Dialog open={showAddConsultant} onOpenChange={setShowAddConsultant}>
+                    <DialogTrigger asChild>
+                      <Button size="sm" className="bg-lime-400 text-slate-900 h-7 text-xs">
+                        <Plus className="w-3 h-3 mr-1" /> Aggiungi
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="bg-slate-800 border-slate-700">
+                      <DialogHeader>
+                        <DialogTitle className="text-white">Nuovo Consulente</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-3 mt-4">
+                        <Input placeholder="Nome/Studio" value={newConsultant.name} onChange={(e) => setNewConsultant({...newConsultant, name: e.target.value})} className="bg-slate-900 border-slate-700 text-white" />
+                        <Select value={newConsultant.category} onValueChange={(value) => setNewConsultant({...newConsultant, category: value})}>
+                          <SelectTrigger className="bg-slate-900 border-slate-700 text-white"><SelectValue placeholder="Categoria" /></SelectTrigger>
+                          <SelectContent>{CONSULTANT_CATEGORIES.map((cat) => (<SelectItem key={cat} value={cat}>{cat}</SelectItem>))}</SelectContent>
+                        </Select>
+                        <Input placeholder="Email" type="email" value={newConsultant.email} onChange={(e) => setNewConsultant({...newConsultant, email: e.target.value})} className="bg-slate-900 border-slate-700 text-white" />
+                        <Input placeholder="Telefono" value={newConsultant.phone} onChange={(e) => setNewConsultant({...newConsultant, phone: e.target.value})} className="bg-slate-900 border-slate-700 text-white" />
+                        <Input placeholder="Referente" value={newConsultant.referente} onChange={(e) => setNewConsultant({...newConsultant, referente: e.target.value})} className="bg-slate-900 border-slate-700 text-white" />
+                        <Button onClick={() => createConsultantMutation.mutate(newConsultant)} disabled={createConsultantMutation.isPending || !newConsultant.name || !newConsultant.category} className="w-full bg-lime-400 text-slate-900">
+                          {createConsultantMutation.isPending ? 'Creazione...' : 'Aggiungi'}
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+                {consultants.length === 0 ? (
+                  <p className="text-slate-400 text-xs">Nessun consulente</p>
+                ) : (
+                  <div className="space-y-2 max-h-60 overflow-y-auto">
+                    {consultants.map((consultant) => (
+                      <div key={consultant.id} className="bg-slate-900 rounded-lg p-2 flex items-center justify-between">
+                        <div className="min-w-0 flex-1">
+                          <p className="text-white text-sm font-medium truncate">{consultant.name}</p>
+                          <p className="text-slate-400 text-xs truncate">{consultant.category}</p>
+                        </div>
+                        <Button size="sm" variant="ghost" className="text-lime-400 h-7 text-xs"
+                          onClick={() => { startImpersonation('consulente', consultant.id, consultant.email, consultant.name); navigate(createPageUrl('Consulenze')); }}>
+                          Visualizza
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </main>
 
       <BottomNav currentPage="AdminPanel" unreadMessages={messages.length} />
