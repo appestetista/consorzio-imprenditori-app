@@ -23,6 +23,7 @@ const CATEGORIE = [
 
 export default function CulturaAziendaleAdmin() {
   const [showAddVideo, setShowAddVideo] = useState(false);
+  const [editingVideo, setEditingVideo] = useState(null);
   const [formData, setFormData] = useState({
     title: '',
     youtube_url: '',
@@ -30,6 +31,13 @@ export default function CulturaAziendaleAdmin() {
   });
   const [errors, setErrors] = useState([]);
   const queryClient = useQueryClient();
+
+  // Estrae ID video YouTube per thumbnail
+  const getYoutubeId = (url) => {
+    if (!url) return null;
+    const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&?\s]+)/);
+    return match ? match[1] : null;
+  };
 
   const { data: videos = [] } = useQuery({
     queryKey: ['cultura-aziendale-videos'],
