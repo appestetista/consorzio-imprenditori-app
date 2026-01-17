@@ -91,7 +91,9 @@ export default function MyProfile() {
     try {
       // Se appMode === 'user-preview', aggiorna l'utente impersonato
       if (impersonation.active && impersonation.previewUserId && impersonation.role === 'user') {
-        await base44.entities.User.update(impersonation.previewUserId, formData);
+        // Escludi full_name perché è un attributo built-in non modificabile via entities.User.update
+        const { full_name, ...dataToSave } = formData;
+        await base44.entities.User.update(impersonation.previewUserId, dataToSave);
         const users = await base44.entities.User.filter({ id: impersonation.previewUserId });
         if (users.length > 0) {
           setUser(users[0]);
