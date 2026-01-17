@@ -456,6 +456,9 @@ export default function AdminPanel() {
               </Link>
             </div>
 
+            {/* Directory Membri */}
+            <MembersDirectory />
+
             {/* Cultura Aziendale */}
             <CulturaAziendaleAdmin />
 
