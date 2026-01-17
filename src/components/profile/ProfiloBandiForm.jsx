@@ -181,7 +181,7 @@ export default function ProfiloBandiForm({ user, onSaved }) {
               Dimensione Azienda *
               <HelpTooltip text="Micro (<10 dip., <2M€), Piccola (<50 dip., <10M€), Media (<250 dip., <50M€), Grande (oltre)" />
             </Label>
-            <Select value={formData.company_size} onValueChange={(value) => setFormData({...formData, company_size: value})}>
+            <Select value={formData.company_size} onValueChange={(value) => updateAndSave('company_size', value)}>
               <SelectTrigger className="bg-slate-900 border-slate-700 text-white mt-1">
                 <SelectValue placeholder="Seleziona dimensione" />
               </SelectTrigger>
@@ -199,7 +199,7 @@ export default function ProfiloBandiForm({ user, onSaved }) {
               Forma Giuridica *
               <HelpTooltip text="La forma societaria come risulta dalla visura camerale." />
             </Label>
-            <Select value={formData.legal_form} onValueChange={(value) => setFormData({...formData, legal_form: value})}>
+            <Select value={formData.legal_form} onValueChange={(value) => updateAndSave('legal_form', value)}>
               <SelectTrigger className="bg-slate-900 border-slate-700 text-white mt-1">
                 <SelectValue placeholder="Seleziona forma giuridica" />
               </SelectTrigger>
@@ -214,11 +214,11 @@ export default function ProfiloBandiForm({ user, onSaved }) {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label className="text-slate-300 text-sm">Data Costituzione</Label>
-              <Input type="date" value={formData.founding_date} onChange={(e) => setFormData({...formData, founding_date: e.target.value})} className="bg-slate-900 border-slate-700 text-white mt-1" />
+              <Input type="date" value={formData.founding_date} onChange={(e) => updateAndSave('founding_date', e.target.value)} className="bg-slate-900 border-slate-700 text-white mt-1" />
             </div>
             <div>
               <Label className="text-slate-300 text-sm">Anni di Attività</Label>
-              <Input type="number" min="0" value={formData.years_activity} onChange={(e) => setFormData({...formData, years_activity: e.target.value})} className="bg-slate-900 border-slate-700 text-white mt-1" placeholder="Es: 5" />
+              <Input type="number" min="0" value={formData.years_activity} onBlur={(e) => updateAndSave('years_activity', e.target.value)} onChange={(e) => setFormData({...formData, years_activity: e.target.value})} className="bg-slate-900 border-slate-700 text-white mt-1" placeholder="Es: 5" />
             </div>
           </div>
         </CardContent>
@@ -234,12 +234,17 @@ export default function ProfiloBandiForm({ user, onSaved }) {
         <CardContent className="space-y-4">
           <div>
             <Label className="text-slate-300 text-sm flex items-center">Regione Sede Legale *</Label>
-            <Select value={formData.region} onValueChange={(value) => {
+            <Select value={formData.region} onValueChange={async (value) => {
               const currentInterested = formData.interested_regions || [];
               const newInterested = currentInterested.includes(value) 
                 ? currentInterested 
                 : [...currentInterested, value];
               setFormData({...formData, region: value, interested_regions: newInterested});
+              try {
+                await base44.auth.updateMe({ region: value, interested_regions: newInterested });
+              } catch (err) {
+                console.error('Errore salvataggio regione:', err);
+              }
             }}>
               <SelectTrigger className="bg-slate-900 border-slate-700 text-white mt-1">
                 <SelectValue placeholder="Seleziona regione" />
@@ -254,7 +259,7 @@ export default function ProfiloBandiForm({ user, onSaved }) {
 
           <div>
             <Label className="text-slate-300 text-sm">Provincia</Label>
-            <Input value={formData.province} onChange={(e) => setFormData({...formData, province: e.target.value})} className="bg-slate-900 border-slate-700 text-white mt-1" placeholder="Es: MI, RM, NA..." maxLength={2} />
+            <Input value={formData.province} onBlur={(e) => updateAndSave('province', e.target.value)} onChange={(e) => setFormData({...formData, province: e.target.value})} className="bg-slate-900 border-slate-700 text-white mt-1" placeholder="Es: MI, RM, NA..." maxLength={2} />
           </div>
 
           {/* Regioni di interesse per bandi */}
@@ -318,7 +323,7 @@ export default function ProfiloBandiForm({ user, onSaved }) {
               { key: 'is_in_inner_area', label: 'Area Interna', desc: 'Aree marginali SNAI' }
             ].map(({ key, label, desc }) => (
               <label key={key} className="flex items-center gap-3 p-3 bg-slate-900 rounded-lg cursor-pointer hover:bg-slate-900/70">
-                <input type="checkbox" checked={formData[key]} onChange={(e) => setFormData({...formData, [key]: e.target.checked})} className="w-5 h-5 rounded border-slate-600 text-lime-400 focus:ring-lime-400" />
+                <input type="checkbox" checked={formData[key]} onChange={(e) => updateAndSave(key, e.target.checked)} className="w-5 h-5 rounded border-slate-600 text-lime-400 focus:ring-lime-400" />
                 <div className="flex-1">
                   <span className="text-white">{label}</span>
                   <p className="text-slate-500 text-xs">{desc}</p>
@@ -339,7 +344,7 @@ export default function ProfiloBandiForm({ user, onSaved }) {
         <CardContent className="space-y-4">
           <div>
             <Label className="text-slate-300 text-sm">Settore Principale *</Label>
-            <Select value={formData.sector} onValueChange={(value) => setFormData({...formData, sector: value})}>
+            <Select value={formData.sector} onValueChange={(value) => updateAndSave('sector', value)}>
               <SelectTrigger className="bg-slate-900 border-slate-700 text-white mt-1">
                 <SelectValue placeholder="Seleziona settore" />
               </SelectTrigger>
@@ -353,12 +358,12 @@ export default function ProfiloBandiForm({ user, onSaved }) {
 
           <div>
             <Label className="text-slate-300 text-sm">Codice ATECO Principale *</Label>
-            <Input value={formData.ateco_code} onChange={(e) => setFormData({...formData, ateco_code: e.target.value})} className="bg-slate-900 border-slate-700 text-white mt-1" placeholder="Es: 62.01.00" />
+            <Input value={formData.ateco_code} onBlur={(e) => updateAndSave('ateco_code', e.target.value)} onChange={(e) => setFormData({...formData, ateco_code: e.target.value})} className="bg-slate-900 border-slate-700 text-white mt-1" placeholder="Es: 62.01.00" />
           </div>
 
           <div>
             <Label className="text-slate-300 text-sm">Codici ATECO Secondari</Label>
-            <Input value={formData.secondary_ateco_codes} onChange={(e) => setFormData({...formData, secondary_ateco_codes: e.target.value})} className="bg-slate-900 border-slate-700 text-white mt-1" placeholder="Es: 47.91.10, 82.99.99" />
+            <Input value={formData.secondary_ateco_codes} onBlur={(e) => updateAndSave('secondary_ateco_codes', e.target.value)} onChange={(e) => setFormData({...formData, secondary_ateco_codes: e.target.value})} className="bg-slate-900 border-slate-700 text-white mt-1" placeholder="Es: 47.91.10, 82.99.99" />
           </div>
         </CardContent>
       </Card>
@@ -373,22 +378,22 @@ export default function ProfiloBandiForm({ user, onSaved }) {
         <CardContent className="space-y-4">
           <div>
             <Label className="text-slate-300 text-sm">Fatturato Annuo (€)</Label>
-            <Input type="number" min="0" value={formData.annual_revenue} onChange={(e) => setFormData({...formData, annual_revenue: e.target.value})} className="bg-slate-900 border-slate-700 text-white mt-1" placeholder="Es: 500000" />
+            <Input type="number" min="0" value={formData.annual_revenue} onBlur={(e) => updateAndSave('annual_revenue', e.target.value)} onChange={(e) => setFormData({...formData, annual_revenue: e.target.value})} className="bg-slate-900 border-slate-700 text-white mt-1" placeholder="Es: 500000" />
           </div>
 
           <div>
             <Label className="text-slate-300 text-sm">Totale Attivo di Bilancio (€)</Label>
-            <Input type="number" min="0" value={formData.total_assets} onChange={(e) => setFormData({...formData, total_assets: e.target.value})} className="bg-slate-900 border-slate-700 text-white mt-1" placeholder="Es: 1000000" />
+            <Input type="number" min="0" value={formData.total_assets} onBlur={(e) => updateAndSave('total_assets', e.target.value)} onChange={(e) => setFormData({...formData, total_assets: e.target.value})} className="bg-slate-900 border-slate-700 text-white mt-1" placeholder="Es: 1000000" />
           </div>
 
           <div>
             <Label className="text-slate-300 text-sm">Numero Dipendenti (ULA)</Label>
-            <Input type="number" min="0" value={formData.employees_count} onChange={(e) => setFormData({...formData, employees_count: e.target.value})} className="bg-slate-900 border-slate-700 text-white mt-1" placeholder="Es: 15" />
+            <Input type="number" min="0" value={formData.employees_count} onBlur={(e) => updateAndSave('employees_count', e.target.value)} onChange={(e) => setFormData({...formData, employees_count: e.target.value})} className="bg-slate-900 border-slate-700 text-white mt-1" placeholder="Es: 15" />
           </div>
 
           <div>
             <Label className="text-slate-300 text-sm">Classe di Rating</Label>
-            <Select value={formData.rating_class} onValueChange={(value) => setFormData({...formData, rating_class: value})}>
+            <Select value={formData.rating_class} onValueChange={(value) => updateAndSave('rating_class', value)}>
               <SelectTrigger className="bg-slate-900 border-slate-700 text-white mt-1">
                 <SelectValue placeholder="Seleziona rating (se noto)" />
               </SelectTrigger>
@@ -435,7 +440,7 @@ export default function ProfiloBandiForm({ user, onSaved }) {
             { key: 'is_social_enterprise', label: 'Impresa Sociale / Terzo Settore', desc: 'Iscritta al RUNTS' }
           ].map(({ key, label, desc }) => (
             <label key={key} className="flex items-center gap-3 p-3 bg-slate-900 rounded-lg cursor-pointer hover:bg-slate-900/70">
-              <input type="checkbox" checked={formData[key]} onChange={(e) => setFormData({...formData, [key]: e.target.checked})} className="w-5 h-5 rounded border-slate-600 text-lime-400 focus:ring-lime-400" />
+              <input type="checkbox" checked={formData[key]} onChange={(e) => updateAndSave(key, e.target.checked)} className="w-5 h-5 rounded border-slate-600 text-lime-400 focus:ring-lime-400" />
               <div className="flex-1">
                 <span className="text-white">{label}</span>
                 <p className="text-slate-500 text-xs">{desc}</p>
@@ -476,7 +481,7 @@ export default function ProfiloBandiForm({ user, onSaved }) {
             { key: 'has_environmental_certification', label: 'Certificazione Ambientale', desc: 'EMAS, Ecolabel, EPD' }
           ].map(({ key, label, desc }) => (
             <label key={key} className="flex items-center gap-3 p-3 bg-slate-900 rounded-lg cursor-pointer hover:bg-slate-900/70">
-              <input type="checkbox" checked={formData[key]} onChange={(e) => setFormData({...formData, [key]: e.target.checked})} className="w-5 h-5 rounded border-slate-600 text-lime-400 focus:ring-lime-400" />
+              <input type="checkbox" checked={formData[key]} onChange={(e) => updateAndSave(key, e.target.checked)} className="w-5 h-5 rounded border-slate-600 text-lime-400 focus:ring-lime-400" />
               <div className="flex-1">
                 <span className="text-white">{label}</span>
                 <p className="text-slate-500 text-xs">{desc}</p>
@@ -505,7 +510,7 @@ export default function ProfiloBandiForm({ user, onSaved }) {
             { key: 'interested_in_hiring', label: 'Assunzioni e Occupazione' }
           ].map(({ key, label }) => (
             <label key={key} className="flex items-center gap-3 p-3 bg-slate-900 rounded-lg cursor-pointer hover:bg-slate-900/70">
-              <input type="checkbox" checked={formData[key]} onChange={(e) => setFormData({...formData, [key]: e.target.checked})} className="w-5 h-5 rounded border-slate-600 text-lime-400 focus:ring-lime-400" />
+              <input type="checkbox" checked={formData[key]} onChange={(e) => updateAndSave(key, e.target.checked)} className="w-5 h-5 rounded border-slate-600 text-lime-400 focus:ring-lime-400" />
               <span className="text-white">{label}</span>
             </label>
           ))}
@@ -531,7 +536,7 @@ export default function ProfiloBandiForm({ user, onSaved }) {
           {formData.has_previous_grants && (
             <div>
               <Label className="text-slate-300 text-sm">Importo totale ricevuto (€)</Label>
-              <Input type="number" min="0" value={formData.previous_grants_amount} onChange={(e) => setFormData({...formData, previous_grants_amount: e.target.value})} className="bg-slate-900 border-slate-700 text-white mt-1" placeholder="Es: 50000" />
+              <Input type="number" min="0" value={formData.previous_grants_amount} onBlur={(e) => updateAndSave('previous_grants_amount', e.target.value)} onChange={(e) => setFormData({...formData, previous_grants_amount: e.target.value})} className="bg-slate-900 border-slate-700 text-white mt-1" placeholder="Es: 50000" />
             </div>
           )}
 
