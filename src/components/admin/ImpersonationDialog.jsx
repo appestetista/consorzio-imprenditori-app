@@ -26,12 +26,21 @@ export default function ImpersonationDialog({ open, onClose, onStart }) {
     }
   }, [open, selectedRole]);
 
-  // Fetch consulenti
-  const { data: consultants = [] } = useQuery({
+  // Fetch consulenti - sempre fresco quando si apre il dialog
+  const { data: consultants = [], refetch: refetchConsultants } = useQuery({
     queryKey: ['all-consultants-impersonation'],
     queryFn: () => base44.entities.Consultant.list(),
     enabled: open && selectedRole === 'consulente',
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
+
+  // Forza refetch quando si apre il dialog per consulenti
+  React.useEffect(() => {
+    if (open && selectedRole === 'consulente') {
+      refetchConsultants();
+    }
+  }, [open, selectedRole]);
 
   const handleStart = () => {
     if (!selectedTarget) {
