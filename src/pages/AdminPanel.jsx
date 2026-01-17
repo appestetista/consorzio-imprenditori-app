@@ -16,6 +16,7 @@ import CulturaAziendaleAdmin from '../components/admin/CulturaAziendaleAdmin';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import ImpersonationDialog from '../components/admin/ImpersonationDialog';
 import ConsultantAssignmentManager from '../components/admin/ConsultantAssignmentManager';
+import RisparmioRequestsAdmin from '../components/admin/RisparmioRequestsAdmin';
 
 const CONSULTANT_CATEGORIES = [
   "Stampa Digitale e Cataloghi",
@@ -532,6 +533,9 @@ export default function AdminPanel() {
           
 
         </div>
+
+        {/* Richieste Risparmio */}
+        <RisparmioRequestsAdmin />
 
         {/* Cultura Aziendale Management */}
         <CulturaAziendaleAdmin />

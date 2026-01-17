@@ -380,7 +380,7 @@ export default function RisparmioDettaglio() {
           </CardContent>
         </Card>
 
-        {/* Richieste precedenti */}
+        {/* Richieste precedenti con risultati */}
         {mieRichieste.length > 0 && (
           <Card className="bg-slate-800 border-slate-700">
             <CardContent className="p-4">
@@ -388,10 +388,10 @@ export default function RisparmioDettaglio() {
                 <Clock className="w-5 h-5 text-slate-400" />
                 Le tue richieste
               </h3>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {mieRichieste.map((richiesta) => (
-                  <div key={richiesta.id} className="bg-slate-900 rounded-lg p-3 flex items-center justify-between">
-                    <div>
+                  <div key={richiesta.id} className="bg-slate-900 rounded-lg p-3">
+                    <div className="flex items-center justify-between mb-2">
                       <p className="text-slate-300 text-sm">
                         {new Date(richiesta.created_date).toLocaleDateString('it-IT', {
                           day: 'numeric',
@@ -399,18 +399,65 @@ export default function RisparmioDettaglio() {
                           year: 'numeric'
                         })}
                       </p>
-                      {richiesta.note && (
-                        <p className="text-slate-500 text-xs truncate max-w-[200px]">{richiesta.note}</p>
-                      )}
+                      <span className={`text-xs px-2 py-1 rounded-full ${
+                        richiesta.status === 'completed' ? 'bg-green-500/20 text-green-400' :
+                        richiesta.status === 'in_review' ? 'bg-yellow-500/20 text-yellow-400' :
+                        'bg-slate-700 text-slate-400'
+                      }`}>
+                        {richiesta.status === 'completed' ? 'Completata' :
+                         richiesta.status === 'in_review' ? 'In revisione' : 'In attesa'}
+                      </span>
                     </div>
-                    <span className={`text-xs px-2 py-1 rounded-full ${
-                      richiesta.status === 'completed' ? 'bg-green-500/20 text-green-400' :
-                      richiesta.status === 'in_review' ? 'bg-yellow-500/20 text-yellow-400' :
-                      'bg-slate-700 text-slate-400'
-                    }`}>
-                      {richiesta.status === 'completed' ? 'Completata' :
-                       richiesta.status === 'in_review' ? 'In revisione' : 'In attesa'}
-                    </span>
+                    
+                    {/* Mostra risparmio se completato */}
+                    {richiesta.status === 'completed' && richiesta.costo_precedente && richiesta.nuovo_costo && (
+                      <div className="bg-green-500/20 border border-green-500/30 rounded-lg p-3 mt-2">
+                        <div className="flex items-center gap-3 mb-2">
+                          <TrendingDown className="w-6 h-6 text-green-400" />
+                          <div>
+                            <p className="text-green-400 font-bold text-lg">
+                              €{((richiesta.costo_precedente - richiesta.nuovo_costo) * 12).toFixed(0)}/anno
+                            </p>
+                            <p className="text-green-400/70 text-xs">Risparmio ottenuto</p>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 text-sm mt-3 pt-2 border-t border-green-500/20">
+                          <div>
+                            <p className="text-slate-400 text-xs">Prima</p>
+                            <p className="text-red-400 font-semibold">€{richiesta.costo_precedente}/mese</p>
+                          </div>
+                          <div>
+                            <p className="text-slate-400 text-xs">Dopo</p>
+                            <p className="text-green-400 font-semibold">€{richiesta.nuovo_costo}/mese</p>
+                          </div>
+                        </div>
+                        {richiesta.note_admin && (
+                          <p className="text-slate-300 text-sm mt-2 pt-2 border-t border-green-500/20">
+                            {richiesta.note_admin}
+                          </p>
+                        )}
+                        {/* Documenti allegati */}
+                        {richiesta.documenti_allegati?.length > 0 && (
+                          <div className="mt-2 pt-2 border-t border-green-500/20">
+                            <p className="text-slate-400 text-xs mb-1">Documenti:</p>
+                            <div className="flex flex-wrap gap-2">
+                              {richiesta.documenti_allegati.map((url, idx) => (
+                                <a
+                                  key={idx}
+                                  href={url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-1 bg-slate-800 text-lime-400 text-xs px-2 py-1 rounded hover:bg-slate-700"
+                                >
+                                  <FileText className="w-3 h-3" />
+                                  Doc {idx + 1}
+                                </a>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
