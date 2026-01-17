@@ -49,17 +49,13 @@ export default function GestioneMembri() {
     const loadUser = async () => {
       try {
         const currentUser = await base44.auth.me();
-        if (currentUser.role !== 'admin') {
-          navigate(createPageUrl('Home'));
-          return;
-        }
         setUser(currentUser);
       } catch (e) {
         console.error(e);
       }
     };
     loadUser();
-  }, [navigate]);
+  }, []);
 
   // Apri automaticamente il dialog se c'è memberId nell'URL
   useEffect(() => {
