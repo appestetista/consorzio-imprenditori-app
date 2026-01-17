@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Zap, Lightbulb, Leaf, TrendingDown } from 'lucide-react';
+import { ArrowLeft, Zap, Lightbulb, Leaf, Shield, Flame, Sun, Phone, Wifi } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -31,24 +31,39 @@ export default function RisparmioEnergetico() {
 
   const services = [
     {
-      icon: Lightbulb,
-      title: 'Audit Energetico',
-      description: 'Analisi completa dei consumi energetici della tua azienda'
+      icon: Shield,
+      title: 'Assicurazioni',
+      description: 'Polizze aziendali a condizioni vantaggiose per i membri'
     },
     {
-      icon: TrendingDown,
-      title: 'Ottimizzazione Tariffe',
-      description: 'Consulenza per la scelta delle migliori tariffe energetiche'
+      icon: Lightbulb,
+      title: 'Luce',
+      description: 'Tariffe energia elettrica competitive per la tua azienda'
+    },
+    {
+      icon: Flame,
+      title: 'Gas',
+      description: 'Forniture gas metano a prezzi agevolati'
     },
     {
       icon: Leaf,
-      title: 'Energie Rinnovabili',
+      title: 'Efficientamento Energetico',
+      description: 'Interventi per ridurre i consumi e migliorare l\'efficienza'
+    },
+    {
+      icon: Sun,
+      title: 'Fotovoltaico',
       description: 'Soluzioni per l\'installazione di impianti fotovoltaici'
     },
     {
-      icon: Zap,
-      title: 'Efficientamento',
-      description: 'Interventi per ridurre i consumi e migliorare l\'efficienza'
+      icon: Phone,
+      title: 'Spesa Telefonica',
+      description: 'Piani tariffari telefonia mobile e fissa convenzionati'
+    },
+    {
+      icon: Wifi,
+      title: 'Internet',
+      description: 'Connettività fibra e ADSL a tariffe dedicate'
     }
   ];
 
@@ -61,7 +76,7 @@ export default function RisparmioEnergetico() {
           <Link to={createPageUrl('Home')} className="text-lime-400">
             <ArrowLeft className="w-6 h-6" />
           </Link>
-          <h1 className="text-white text-xl font-bold">Risparmio Energetico</h1>
+          <h1 className="text-white text-xl font-bold">Risparmio</h1>
         </div>
 
         {/* Hero Card */}
@@ -72,7 +87,7 @@ export default function RisparmioEnergetico() {
                 <Zap className="w-8 h-8 text-white" />
               </div>
               <div>
-                <h2 className="text-slate-900 text-xl font-bold">Risparmia sulla bolletta</h2>
+                <h2 className="text-slate-900 text-xl font-bold">Risparmia con il Consorzio</h2>
                 <p className="text-slate-800">Servizi esclusivi per i membri del Consorzio</p>
               </div>
             </div>
