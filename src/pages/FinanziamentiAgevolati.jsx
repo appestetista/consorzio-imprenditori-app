@@ -261,17 +261,27 @@ export default function FinanziamentiAgevolati() {
   });
 
   // Automatic matching based on company profile
+  // Usa il profilo dell'utente impersonificato se in impersonation mode
+  const getEffectiveUserProfile = () => {
+    if (impersonation.active && impersonation.targetUserData) {
+      return impersonation.targetUserData;
+    }
+    return user;
+  };
+
   const matchesCompanyProfile = (grant) => {
+    const effectiveUser = getEffectiveUserProfile();
+    
     // Check company size
-    if (grant.eligible_company_sizes?.length > 0 && user?.company_size) {
-      if (!grant.eligible_company_sizes.includes(user.company_size)) {
+    if (grant.eligible_company_sizes?.length > 0 && effectiveUser?.company_size) {
+      if (!grant.eligible_company_sizes.includes(effectiveUser.company_size)) {
         return false;
       }
     }
 
     // Check region - usa le regioni di interesse dell'utente
     if (grant.eligible_regions?.length > 0) {
-      const userInterestedRegions = user?.interested_regions || (user?.region ? [user.region] : []);
+      const userInterestedRegions = effectiveUser?.interested_regions || (effectiveUser?.region ? [effectiveUser.region] : []);
       if (userInterestedRegions.length > 0) {
         // Verifica se almeno una regione del bando è nelle regioni di interesse
         const hasRegionMatch = grant.eligible_regions.some(region => 
@@ -284,9 +294,9 @@ export default function FinanziamentiAgevolati() {
     }
 
     // Check ATECO code
-    if (grant.eligible_ateco_codes?.length > 0 && user?.ateco_code) {
+    if (grant.eligible_ateco_codes?.length > 0 && effectiveUser?.ateco_code) {
       const hasMatch = grant.eligible_ateco_codes.some(code => 
-        user.ateco_code.startsWith(code) || code.startsWith(user.ateco_code.substring(0, 2))
+        effectiveUser.ateco_code.startsWith(code) || code.startsWith(effectiveUser.ateco_code.substring(0, 2))
       );
       if (!hasMatch) {
         return false;
@@ -294,8 +304,8 @@ export default function FinanziamentiAgevolati() {
     }
 
     // Check legal form
-    if (grant.eligible_legal_forms?.length > 0 && user?.legal_form) {
-      if (!grant.eligible_legal_forms.includes(user.legal_form)) {
+    if (grant.eligible_legal_forms?.length > 0 && effectiveUser?.legal_form) {
+      if (!grant.eligible_legal_forms.includes(effectiveUser.legal_form)) {
         return false;
       }
     }
