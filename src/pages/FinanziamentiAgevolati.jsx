@@ -263,10 +263,25 @@ export default function FinanziamentiAgevolati() {
   // Automatic matching based on company profile
   // Usa il profilo dell'utente impersonificato se in impersonation mode
   const getEffectiveUserProfile = () => {
+    console.log('[FinanziamentiAgevolati] getEffectiveUserProfile called:', {
+      impersonationActive: impersonation.active,
+      hasTargetUserData: !!impersonation.targetUserData,
+      targetUserData: impersonation.targetUserData,
+      impersonationFull: impersonation
+    });
+    
     if (impersonation.active && impersonation.targetUserData) {
-      console.log('[FinanziamentiAgevolati] Using impersonated user profile:', impersonation.targetUserData);
+      console.log('[FinanziamentiAgevolati] Using impersonated user profile:', {
+        interested_regions: impersonation.targetUserData.interested_regions,
+        region: impersonation.targetUserData.region,
+        company_size: impersonation.targetUserData.company_size
+      });
       return impersonation.targetUserData;
     }
+    console.log('[FinanziamentiAgevolati] Using REAL user profile:', {
+      interested_regions: user?.interested_regions,
+      region: user?.region
+    });
     return user;
   };
 
