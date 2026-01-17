@@ -307,7 +307,9 @@ export default function GestioneBandi() {
                         <div className="flex items-center gap-2 text-xs mt-1">
                           <Calendar className="w-3.5 h-3.5 text-orange-400" />
                           <span className="text-orange-400 font-medium">
-                            Scadenza: {grant.deadline ? format(new Date(grant.deadline), 'd MMM yyyy', { locale: it }) : 'A esaurimento fondi'}
+                            Scadenza: {grant.deadline && !isNaN(new Date(grant.deadline).getTime()) 
+                              ? format(new Date(grant.deadline), 'd MMM yyyy', { locale: it }) 
+                              : 'A esaurimento fondi'}
                           </span>
                         </div>
                         {(grant.prezzo_istruttoria || grant.percentuale_erogazione) && (
