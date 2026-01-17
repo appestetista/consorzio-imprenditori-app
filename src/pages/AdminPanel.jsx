@@ -449,7 +449,7 @@ export default function AdminPanel() {
                 <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700">
                   <CardContent className="p-3 text-center">
                     <Users className="w-5 h-5 text-lime-400 mx-auto mb-1" />
-                    <p className="text-white text-xs">Gestione Membri</p>
+                    <p className="text-white text-xs">Gestione Utenti</p>
                   </CardContent>
                 </Card>
               </Link>

@@ -14,9 +14,9 @@ import Marketplace from './pages/Marketplace';
 import Messaggi from './pages/Messaggi';
 import MyProfile from './pages/MyProfile';
 import ProfiloBandi from './pages/ProfiloBandi';
+import RisparmioDettaglio from './pages/RisparmioDettaglio';
 import RisparmioEnergetico from './pages/RisparmioEnergetico';
 import VideoInterviste from './pages/VideoInterviste';
-import RisparmioDettaglio from './pages/RisparmioDettaglio';
 import __Layout from './Layout.jsx';
 
 
@@ -37,9 +37,9 @@ export const PAGES = {
     "Messaggi": Messaggi,
     "MyProfile": MyProfile,
     "ProfiloBandi": ProfiloBandi,
+    "RisparmioDettaglio": RisparmioDettaglio,
     "RisparmioEnergetico": RisparmioEnergetico,
     "VideoInterviste": VideoInterviste,
-    "RisparmioDettaglio": RisparmioDettaglio,
 }
 
 export const pagesConfig = {
