@@ -167,12 +167,6 @@ function MemberCard({ user, onChat, currentUserEmail }) {
               {user.business_sector}
             </p>
           )}
-          {user.full_name && (
-            <p className="text-slate-400 text-sm truncate flex items-center gap-1">
-              <User className="w-3 h-3" />
-              <span>Responsabile: {user.full_name}</span>
-            </p>
-          )}
           {user.city && (
             <p className="text-slate-500 text-xs truncate flex items-center gap-1">
               <MapPin className="w-3 h-3" />
