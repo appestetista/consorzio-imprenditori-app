@@ -32,7 +32,7 @@ export default function FinanziamentiAgevolati() {
         status: 'all',
         accessMode: 'all',
         noCofinancing: false,
-        sortBy: 'created_date_desc'
+        sortBy: 'deadline_asc'
       });
   const [showConsultationMessages, setShowConsultationMessages] = useState(false);
   const queryClient = useQueryClient();

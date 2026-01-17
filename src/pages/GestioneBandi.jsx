@@ -199,6 +199,13 @@ export default function GestioneBandi() {
       const searchLower = searchTerm.toLowerCase();
       return g.title?.toLowerCase().includes(searchLower) || 
              g.description?.toLowerCase().includes(searchLower);
+    })
+    .sort((a, b) => {
+      // Prima quelli con scadenza più vicina, poi quelli senza scadenza
+      if (!a.deadline && !b.deadline) return 0;
+      if (!a.deadline) return 1;
+      if (!b.deadline) return -1;
+      return new Date(a.deadline) - new Date(b.deadline);
     });
 
   if (!user || user.role !== 'admin') {
