@@ -45,12 +45,33 @@ export default function GestioneBandi() {
     loadUser();
   }, [navigate]);
 
+  // Funzione per deduplicare bandi (titoli simili)
+  const deduplicateGrants = (grants) => {
+    const seen = new Map();
+    
+    for (const grant of grants) {
+      const normalizedTitle = grant.title?.toLowerCase()
+        .replace(/[^a-z0-9àèéìòù]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+      
+      if (!normalizedTitle) continue;
+      
+      if (!seen.has(normalizedTitle)) {
+        seen.set(normalizedTitle, grant);
+      }
+    }
+    
+    return Array.from(seen.values());
+  };
+
   const { data: allGrants = [], isLoading } = useQuery({
     queryKey: ['admin-grants'],
     queryFn: async () => {
       const grants = await base44.entities.FinancialGrant.filter({ is_archived: false }, '-created_date');
-      // Escludi bandi con status "Chiuso"
-      return grants.filter(g => g.status !== 'Chiuso');
+      // Escludi bandi con status "Chiuso" e deduplica
+      const filtered = grants.filter(g => g.status !== 'Chiuso');
+      return deduplicateGrants(filtered);
     },
   });
 
