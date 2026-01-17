@@ -49,10 +49,12 @@ export default function ImpersonationDialog({ open, onClose, onStart }) {
         role: selectedRole,
         id: target.id,
         email: target.email,
-        name: targetName
+        name: targetName,
+        fullUserData: target
       });
 
-      onStart(selectedRole, target.id, target.email || null, targetName);
+      // Passa anche l'intero oggetto utente per avere accesso al profilo completo (region, company_size, etc.)
+      onStart(selectedRole, target.id, target.email || null, targetName, target);
       onClose();
       setSelectedTarget(null);
     } else {
