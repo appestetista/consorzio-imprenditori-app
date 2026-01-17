@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
+import MembersDirectory from '../components/members/MembersDirectory';
 
 const PERMISSIONS_LIST = [
   { key: 'calendario', label: 'Calendario Incontri' },
