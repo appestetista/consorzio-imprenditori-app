@@ -17,6 +17,7 @@ import { useImpersonation } from '../components/admin/ImpersonationContext';
 import ImpersonationDialog from '../components/admin/ImpersonationDialog';
 import ConsultantAssignmentManager from '../components/admin/ConsultantAssignmentManager';
 import RisparmioRequestsAdmin from '../components/admin/RisparmioRequestsAdmin';
+import MembersDirectory from '../components/members/MembersDirectory';
 
 const CONSULTANT_CATEGORIES = [
   "Stampa Digitale e Cataloghi",
