@@ -264,6 +264,7 @@ export default function FinanziamentiAgevolati() {
   // Usa il profilo dell'utente impersonificato se in impersonation mode
   const getEffectiveUserProfile = () => {
     if (impersonation.active && impersonation.targetUserData) {
+      console.log('[FinanziamentiAgevolati] Using impersonated user profile:', impersonation.targetUserData);
       return impersonation.targetUserData;
     }
     return user;
@@ -280,17 +281,30 @@ export default function FinanziamentiAgevolati() {
     }
 
     // Check region - usa le regioni di interesse dell'utente
+    // Se il bando è regionale (ha regioni specifiche), l'utente DEVE avere almeno una regione compatibile
     if (grant.eligible_regions?.length > 0) {
       const userInterestedRegions = effectiveUser?.interested_regions || (effectiveUser?.region ? [effectiveUser.region] : []);
+      
+      // DEBUG: log region matching
+      console.log('[matchesCompanyProfile]', {
+        grantTitle: grant.title,
+        grantRegions: grant.eligible_regions,
+        userInterestedRegions: userInterestedRegions,
+        effectiveUserEmail: effectiveUser?.email
+      });
+      
+      // Se l'utente ha specificato regioni di interesse, filtra
       if (userInterestedRegions.length > 0) {
-        // Verifica se almeno una regione del bando è nelle regioni di interesse
         const hasRegionMatch = grant.eligible_regions.some(region => 
           userInterestedRegions.includes(region)
         );
         if (!hasRegionMatch) {
+          console.log('[matchesCompanyProfile] EXCLUDED - no region match for:', grant.title);
           return false;
         }
       }
+      // Se l'utente NON ha specificato nessuna regione, il bando regionale passa
+      // (potrebbe voler vedere tutti i bandi)
     }
 
     // Check ATECO code
