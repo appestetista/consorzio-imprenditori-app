@@ -141,28 +141,89 @@ export default function MembersDirectory({ currentUserEmail }) {
   );
 }
 
-function MemberCard({ user, compact = false }) {
+function MemberCard({ user, onChat, currentUserEmail }) {
+  const isCurrentUser = user.email === currentUserEmail;
+  
   return (
-    <div className={`bg-slate-800 rounded-lg ${compact ? 'p-2' : 'p-3'} flex items-center gap-3`}>
-      {user.logo_url ? (
-        <img 
-          src={user.logo_url} 
-          alt={user.company_name} 
-          className={`${compact ? 'w-8 h-8' : 'w-10 h-10'} rounded object-cover flex-shrink-0`}
-        />
-      ) : (
-        <div className={`${compact ? 'w-8 h-8' : 'w-10 h-10'} rounded bg-slate-700 flex items-center justify-center flex-shrink-0`}>
-          <Building2 className={`${compact ? 'w-4 h-4' : 'w-5 h-5'} text-slate-500`} />
+    <Card className="bg-slate-800 border-slate-700 p-4">
+      <div className="flex items-center gap-3">
+        {user.logo_url ? (
+          <img 
+            src={user.logo_url} 
+            alt={user.company_name} 
+            className="w-14 h-14 rounded-lg object-cover flex-shrink-0"
+          />
+        ) : (
+          <div className="w-14 h-14 rounded-lg bg-slate-700 flex items-center justify-center flex-shrink-0">
+            <Building2 className="w-7 h-7 text-slate-500" />
+          </div>
+        )}
+        <div className="min-w-0 flex-1">
+          <p className="text-white font-semibold truncate">
+            {user.company_name || 'Azienda'}
+          </p>
+          {user.full_name && (
+            <p className="text-slate-400 text-sm truncate flex items-center gap-1">
+              <User className="w-3 h-3" />
+              {user.full_name}
+            </p>
+          )}
+          {user.city && (
+            <p className="text-slate-500 text-xs truncate flex items-center gap-1">
+              <MapPin className="w-3 h-3" />
+              {user.city}{user.province ? ` (${user.province})` : ''}
+            </p>
+          )}
         </div>
-      )}
-      <div className="min-w-0 flex-1">
-        <p className={`text-white font-medium ${compact ? 'text-xs' : 'text-sm'} truncate`}>
-          {user.company_name || user.full_name || 'N/A'}
-        </p>
-        {!compact && user.full_name && user.company_name && (
-          <p className="text-slate-400 text-xs truncate">{user.full_name}</p>
+        {!isCurrentUser && (
+          <Button
+            onClick={onChat}
+            size="sm"
+            className="bg-lime-400 hover:bg-lime-500 text-slate-900 flex-shrink-0"
+          >
+            <MessageCircle className="w-4 h-4 mr-1" />
+            Chatta
+          </Button>
         )}
       </div>
-    </div>
+    </Card>
+  );
+}
+
+function ConsultantCard({ consultant, onChat, currentUserEmail }) {
+  const isCurrentUser = consultant.email === currentUserEmail;
+  
+  return (
+    <Card className="bg-slate-800 border-slate-700 p-4">
+      <div className="flex items-center gap-3">
+        <div className="w-14 h-14 rounded-lg bg-amber-400/20 flex items-center justify-center flex-shrink-0">
+          <Briefcase className="w-7 h-7 text-amber-400" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-white font-semibold truncate">
+            {consultant.name || 'Consulente'}
+          </p>
+          {consultant.referente && (
+            <p className="text-slate-400 text-sm truncate flex items-center gap-1">
+              <User className="w-3 h-3" />
+              {consultant.referente}
+            </p>
+          )}
+          <Badge className="bg-amber-400/20 text-amber-400 text-xs mt-1">
+            {consultant.category || 'Consulente'}
+          </Badge>
+        </div>
+        {!isCurrentUser && consultant.email && (
+          <Button
+            onClick={onChat}
+            size="sm"
+            className="bg-lime-400 hover:bg-lime-500 text-slate-900 flex-shrink-0"
+          >
+            <MessageCircle className="w-4 h-4 mr-1" />
+            Chatta
+          </Button>
+        )}
+      </div>
+    </Card>
   );
 }
