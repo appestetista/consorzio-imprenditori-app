@@ -34,12 +34,13 @@ export function ImpersonationProvider({ children }) {
     sessionStorage.setItem('impersonation_state', JSON.stringify(impersonation));
   }, [impersonation]);
 
-  const startImpersonation = (role, targetId, targetEmail, targetName) => {
+  const startImpersonation = (role, targetId, targetEmail, targetName, targetUserData = null) => {
     console.log('[ImpersonationContext] startImpersonation called with:', {
       role,
       targetId,
       targetEmail,
-      targetName
+      targetName,
+      targetUserData
     });
 
     const newState = {
@@ -48,7 +49,8 @@ export function ImpersonationProvider({ children }) {
       targetId,
       targetEmail,
       targetName,
-      previewUserId: targetId
+      previewUserId: targetId,
+      targetUserData // include full user profile data
     };
     setImpersonation(newState);
     sessionStorage.setItem('impersonation_state', JSON.stringify(newState));
