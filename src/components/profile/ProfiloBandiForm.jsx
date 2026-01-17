@@ -53,6 +53,7 @@ const CLASSIFICAZIONE_RATING = [
 
 export default function ProfiloBandiForm({ user, onSaved }) {
   const [saved, setSaved] = useState(false);
+  const { impersonation } = useImpersonation();
   
   const [formData, setFormData] = useState({
     company_size: '', legal_form: '', years_activity: '', founding_date: '',
