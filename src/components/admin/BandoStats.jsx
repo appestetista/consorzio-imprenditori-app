@@ -1,12 +1,11 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { FileText, CheckCircle, Clock, AlertCircle, Zap } from 'lucide-react';
+import { FileText, CheckCircle, Clock, AlertCircle, Zap, Info } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 export default function BandoStats({ grants }) {
-  const total = grants.length;
   const aperti = grants.filter(g => g.status === 'Aperto').length;
   const inApertura = grants.filter(g => g.status === 'In apertura').length;
-  const chiusi = grants.filter(g => g.status === 'Chiuso').length;
   const attivabiliSubito = grants.filter(g => g.easy_access).length;
   
   const inScadenza = grants.filter(g => {
@@ -16,26 +15,37 @@ export default function BandoStats({ grants }) {
   }).length;
 
   const stats = [
-    { label: 'Totali', value: total, icon: FileText, color: 'text-slate-400' },
-    { label: 'Aperti', value: aperti, icon: CheckCircle, color: 'text-green-400' },
-    { label: 'In apertura', value: inApertura, icon: Clock, color: 'text-yellow-400' },
+    { label: 'Disponibili', value: aperti, icon: CheckCircle, color: 'text-green-400' },
+    { label: 'In apertura', value: inApertura, icon: Clock, color: 'text-yellow-400', tooltip: 'Bandi annunciati ma non ancora aperti alle domande' },
     { label: 'In scadenza', value: inScadenza, icon: AlertCircle, color: 'text-orange-400' },
     { label: 'Attivabili subito', value: attivabiliSubito, icon: Zap, color: 'text-lime-400' },
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-3">
-      {stats.map((stat) => (
-        <Card key={stat.label} className="bg-slate-800 border-slate-700">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <stat.icon className={`w-4 h-4 ${stat.color}`} />
-              <span className="text-slate-400 text-xs">{stat.label}</span>
-            </div>
-            <p className="text-2xl font-bold text-white">{stat.value}</p>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
+    <TooltipProvider>
+      <div className="grid grid-cols-2 gap-3">
+        {stats.map((stat) => (
+          <Card key={stat.label} className="bg-slate-800 border-slate-700">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <stat.icon className={`w-4 h-4 ${stat.color}`} />
+                <span className="text-slate-400 text-xs">{stat.label}</span>
+                {stat.tooltip && (
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Info className="w-3 h-3 text-slate-500" />
+                    </TooltipTrigger>
+                    <TooltipContent className="bg-slate-700 text-white border-slate-600 max-w-[200px]">
+                      <p className="text-xs">{stat.tooltip}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
+              </div>
+              <p className="text-2xl font-bold text-white">{stat.value}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </TooltipProvider>
   );
 }
