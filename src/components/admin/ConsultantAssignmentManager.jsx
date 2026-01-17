@@ -79,6 +79,17 @@ export default function ConsultantAssignmentManager() {
     return allAssignments.find(a => a.consultant_id === consultantId && a.user_email === userEmail);
   };
 
+  // Ordina consulenti: prima quelli della stessa città, poi gli altri
+  const getSortedConsultants = (userCity) => {
+    const sameCity = consultants.filter(c => 
+      c.city && userCity && c.city.toLowerCase() === userCity.toLowerCase()
+    );
+    const otherCity = consultants.filter(c => 
+      !c.city || !userCity || c.city.toLowerCase() !== userCity.toLowerCase()
+    );
+    return { sameCity, otherCity };
+  };
+
   // Raggruppa consulenti per categoria
   const consultantsByCategory = consultants.reduce((acc, c) => {
     if (!acc[c.category]) acc[c.category] = [];
@@ -173,53 +184,82 @@ export default function ConsultantAssignmentManager() {
           </div>
         </div>
 
-        {/* Lista consulenti per categoria */}
+        {/* Lista consulenti: prima stessa città, poi altri */}
         <div className="space-y-4 max-h-[400px] overflow-y-auto">
-          {Object.entries(consultantsByCategory).map(([category, categoryConsultants]) => (
-            <div key={category}>
-              <p className="text-slate-400 text-xs font-medium mb-2 uppercase tracking-wider">
-                {category}
-              </p>
-              <div className="space-y-2">
-                {categoryConsultants.map((consultant) => {
-                  const assignment = getAssignment(consultant.id, selectedCompany.email);
-                  const isAssigned = assignment?.is_assigned ?? false;
+          {(() => {
+            const { sameCity, otherCity } = getSortedConsultants(selectedCompany.city);
+            
+            const renderConsultant = (consultant) => {
+              const assignment = getAssignment(consultant.id, selectedCompany.email);
+              const isAssigned = assignment?.is_assigned ?? false;
+              const isSameCity = consultant.city && selectedCompany.city && 
+                consultant.city.toLowerCase() === selectedCompany.city.toLowerCase();
 
-                  return (
-                    <div
-                      key={consultant.id}
-                      className={`flex items-center justify-between rounded-xl p-3 transition-colors ${
-                        isAssigned ? 'bg-lime-400/10 border border-lime-400/30' : 'bg-slate-900'
-                      }`}
-                    >
-                      <div className="min-w-0 flex-1">
-                        <p className={`font-medium text-sm ${isAssigned ? 'text-lime-400' : 'text-white'}`}>
-                          {consultant.name}
-                        </p>
-                        {consultant.referente && (
-                          <p className="text-slate-500 text-xs truncate">
-                            Ref: {consultant.referente}
-                          </p>
-                        )}
-                      </div>
-                      <Switch
-                        checked={isAssigned}
-                        onCheckedChange={() => {
-                          toggleAssignmentMutation.mutate({
-                            consultantId: consultant.id,
-                            userEmail: selectedCompany.email,
-                            isCurrentlyAssigned: isAssigned,
-                            assignmentId: assignment?.id
-                          });
-                        }}
-                        className="data-[state=checked]:bg-lime-400"
-                      />
+              return (
+                <div
+                  key={consultant.id}
+                  className={`flex items-center justify-between rounded-xl p-3 transition-colors ${
+                    isAssigned ? 'bg-lime-400/10 border border-lime-400/30' : 'bg-slate-900'
+                  }`}
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className={`font-medium text-sm ${isAssigned ? 'text-lime-400' : 'text-white'}`}>
+                        {consultant.name}
+                      </p>
+                      {isSameCity && (
+                        <Badge className="bg-blue-500/20 text-blue-400 text-[10px] border-0">
+                          Locale
+                        </Badge>
+                      )}
                     </div>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
+                    <p className="text-slate-500 text-xs truncate">
+                      {consultant.category}
+                      {consultant.city && ` • ${consultant.city}`}
+                    </p>
+                  </div>
+                  <Switch
+                    checked={isAssigned}
+                    onCheckedChange={() => {
+                      toggleAssignmentMutation.mutate({
+                        consultantId: consultant.id,
+                        userEmail: selectedCompany.email,
+                        isCurrentlyAssigned: isAssigned,
+                        assignmentId: assignment?.id
+                      });
+                    }}
+                    className="data-[state=checked]:bg-lime-400"
+                  />
+                </div>
+              );
+            };
+
+            return (
+              <>
+                {sameCity.length > 0 && (
+                  <div>
+                    <p className="text-lime-400 text-xs font-medium mb-2 flex items-center gap-1">
+                      📍 Consulenti di {selectedCompany.city}
+                    </p>
+                    <div className="space-y-2">
+                      {sameCity.map(renderConsultant)}
+                    </div>
+                  </div>
+                )}
+                
+                {otherCity.length > 0 && (
+                  <div>
+                    <p className="text-slate-400 text-xs font-medium mb-2">
+                      {sameCity.length > 0 ? 'Altri consulenti' : 'Tutti i consulenti'}
+                    </p>
+                    <div className="space-y-2">
+                      {otherCity.map(renderConsultant)}
+                    </div>
+                  </div>
+                )}
+              </>
+            );
+          })()}
         </div>
 
         {/* Riepilogo */}
