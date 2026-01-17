@@ -11,9 +11,9 @@ Deno.serve(async (req) => {
 
         const allGrants = await base44.asServiceRole.entities.FinancialGrant.list();
         
-        // Filtra bandi senza importo o copertura
+        // Filtra bandi senza importo, copertura O senza website_url
         const grantsToEnrich = allGrants.filter(g => 
-            (!g.min_amount && !g.max_amount) || !g.coverage_percentage
+            (!g.min_amount && !g.max_amount) || !g.coverage_percentage || !g.website_url
         );
 
         console.log(`Found ${grantsToEnrich.length} grants to enrich`);
@@ -79,6 +79,7 @@ Restituisci SOLO dati che puoi citare con fonte precisa.`,
                     }
                     if (searchResult.website_url && !grant.website_url) {
                         updateData.website_url = searchResult.website_url;
+                        hasUpdates = true;
                     }
 
                     if (hasUpdates) {
