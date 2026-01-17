@@ -148,7 +148,7 @@ export default function CulturaAziendaleAdmin() {
         {videos.length === 0 ? (
           <p className="text-slate-400 text-sm text-center py-4">Nessun video caricato</p>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-3 max-h-[280px] overflow-y-auto pr-1">
             {videos.map(video => {
               const videoId = getYoutubeId(video.youtube_url);
               return (
