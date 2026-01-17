@@ -532,7 +532,13 @@ Per ogni bando, fornisci:
     });
   };
 
-  const hasIncompleteProfile = !user?.company_size || !user?.region;
+  // Verifica profilo incompleto - usa i dati dell'utente impersonificato se attivo
+    const effectiveUserForProfile = getEffectiveUserProfile();
+    const hasIncompleteProfile = !effectiveUserForProfile?.company_size || 
+                                  !effectiveUserForProfile?.region || 
+                                  !effectiveUserForProfile?.sector || 
+                                  !effectiveUserForProfile?.ateco_code ||
+                                  !effectiveUserForProfile?.interested_regions?.length;
 
   return (
     <div className="min-h-screen bg-slate-900 pb-24">
@@ -610,17 +616,17 @@ Per ogni bando, fornisci:
           </div>
         )}
 
-        {hasIncompleteProfile && user?.role !== 'admin' && (
-            <Alert className="mb-6 bg-yellow-500/20 border-yellow-500/30">
-              <AlertCircle className="h-4 w-4 text-yellow-500" />
-              <AlertDescription className="text-yellow-400 text-sm">
-                Integra le informazioni della tua azienda per ricevere i bandi più appropriati.
-                <Link to={createPageUrl('ProfiloBandi')} className="underline ml-1 font-semibold">
-                  Configura profilo bandi
-                </Link>
-              </AlertDescription>
-            </Alert>
-          )}
+        {hasIncompleteProfile && (
+                        <Alert className="mb-6 bg-yellow-500/20 border-yellow-500/30">
+                          <AlertCircle className="h-4 w-4 text-yellow-500" />
+                          <AlertDescription className="text-yellow-400 text-sm">
+                            ⚠️ Per una ricerca ottimale dei bandi, completa il profilo con: dimensione azienda, regione, settore e codice ATECO.
+                            <Link to={createPageUrl('ProfiloBandi')} className="underline ml-1 font-semibold">
+                              Configura profilo bandi
+                            </Link>
+                          </AlertDescription>
+                        </Alert>
+                      )}
 
         {/* Stats */}
         {isRealAdmin ? (

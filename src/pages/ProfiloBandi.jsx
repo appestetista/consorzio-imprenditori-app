@@ -1038,7 +1038,7 @@ export default function ProfiloBandi() {
 
           <Button
             type="submit"
-            disabled={saveMutation.isPending || !formData.company_size || !formData.region || !formData.sector || !formData.ateco_code || !formData.interested_regions?.length}
+            disabled={saveMutation.isPending}
             className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 py-6 text-lg font-bold"
           >
             {saveMutation.isPending ? (
