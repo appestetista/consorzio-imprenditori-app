@@ -174,10 +174,13 @@ function MemberCard({ user, onChat, currentUserEmail }) {
             </p>
           )}
           {user.full_name && (
-            <p className="text-slate-400 text-sm truncate flex items-center gap-1 mt-1">
-              <User className="w-3 h-3" />
-              <span>{user.full_name}</span>
-            </p>
+            <div className="text-slate-400 text-sm mt-1 flex items-start gap-1">
+              <User className="w-3 h-3 mt-0.5 flex-shrink-0" />
+              <div>
+                <span className="text-slate-500 text-xs">Responsabile:</span>
+                <p className="text-slate-300 truncate">{user.full_name}</p>
+              </div>
+            </div>
           )}
         </div>
         {!isCurrentUser && (
