@@ -460,8 +460,19 @@ Per ogni bando, fornisci:
     getAIRecommendations();
   }, [user, filteredGrants.length]);
 
+  // Funzione per determinare se un bando è regionale
+  const isRegionalGrant = (grant) => {
+    return grant.livello === 'Regionale' && !grant.is_national;
+  };
+
   // Sort grants based on selected sorting option
   const sortedGrants = [...filteredGrants].sort((a, b) => {
+    // PRIMA: Ordina per regionale vs nazionale (regionali prima)
+    const aIsRegional = isRegionalGrant(a);
+    const bIsRegional = isRegionalGrant(b);
+    if (aIsRegional && !bIsRegional) return -1;
+    if (!aIsRegional && bIsRegional) return 1;
+
     // Se ci sono raccomandazioni AI e nessun ordinamento specifico, usa quelle
     if (filters.sortBy === 'created_date_desc' && Object.keys(aiRecommendations).length > 0) {
       const scoreA = aiRecommendations[a.id]?.score || 0;
