@@ -75,12 +75,7 @@ export default function Home() {
               isProfileIncomplete
             });
             
-            if (isProfileIncomplete) {
-              console.log('[HOME] Profilo incompleto, redirect a MyProfile');
-              setRedirecting(true);
-              window.location.href = createPageUrl('MyProfile');
-              return;
-            }
+            // Il modal ProfileCompletionModal gestirà i profili incompleti
           }
           
           setEffectiveUser(currentUser);
@@ -333,12 +328,18 @@ export default function Home() {
 
               {/* Popup cambio risposta */}
               {showChangeResponse && nextEvent && (
-                <ChangeResponsePopup 
-                  event={nextEvent}
-                  user={effectiveUser}
-                  onClose={() => setShowChangeResponse(false)}
-                />
-              )}
-    </div>
-  );
-}
+                            <ChangeResponsePopup 
+                              event={nextEvent}
+                              user={effectiveUser}
+                              onClose={() => setShowChangeResponse(false)}
+                            />
+                          )}
+
+                  {/* Modal obbligatorio per completare il profilo */}
+                  <ProfileCompletionModal 
+                    user={effectiveUser} 
+                    onProfileComplete={() => window.location.reload()}
+                  />
+                </div>
+              );
+              }
