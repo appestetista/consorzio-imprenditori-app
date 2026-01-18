@@ -88,6 +88,8 @@ export default function MyProfile() {
     }
   };
 
+  const REQUIRED_FIELDS = ['company_name', 'company_email', 'referente', 'cellulare_referente', 'referente_email', 'region'];
+
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -105,6 +107,16 @@ export default function MyProfile() {
         await base44.auth.updateMe(formData);
         const updatedUser = await base44.auth.me();
         setUser(updatedUser);
+        
+        // Se tutti i campi obbligatori sono compilati, vai alla Home
+        const allFieldsComplete = REQUIRED_FIELDS.every(field => {
+          const value = formData[field];
+          return value && value.trim() !== '';
+        });
+        if (allFieldsComplete) {
+          navigate(createPageUrl('Home'));
+          return;
+        }
       }
       alert('Profilo aggiornato con successo!');
     } catch (error) {
