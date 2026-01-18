@@ -76,8 +76,8 @@ export default function Home() {
             
             if (isProfileIncomplete) {
               console.log('[HOME] Profilo incompleto, redirect a MyProfile');
-              setLoading(false);
-              navigate(createPageUrl('MyProfile'), { replace: true });
+              setRedirecting(true);
+              window.location.href = createPageUrl('MyProfile');
               return;
             }
           }
