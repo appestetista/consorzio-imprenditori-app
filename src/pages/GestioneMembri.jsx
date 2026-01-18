@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, User, Lock, Unlock, Trash2, Settings, Search, Shield, ShieldOff, Edit, X, Plus, Upload, Image } from 'lucide-react';
+import { ArrowLeft, User, Lock, Unlock, Trash2, Settings, Search, Shield, ShieldOff, Edit, X, Plus, Upload, Image, Save, FileText } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,8 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import ProfiloBandiForm from '../components/profile/ProfiloBandiForm';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
@@ -525,17 +527,32 @@ export default function GestioneMembri() {
           </DialogHeader>
           
           {formData && (
-            <div className="space-y-6 mt-4">
+            <Tabs defaultValue="profilo" className="w-full mt-4">
+              <TabsList className="w-full bg-slate-900 border border-slate-700 mb-4">
+                <TabsTrigger value="profilo" className="flex-1 data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
+                  <User className="w-4 h-4 mr-2" />
+                  Profilo
+                </TabsTrigger>
+                {selectedMember?.role !== 'consulente' && (
+                  <TabsTrigger value="bandi" className="flex-1 data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
+                    <FileText className="w-4 h-4 mr-2" />
+                    Profilo Bandi
+                  </TabsTrigger>
+                )}
+              </TabsList>
+
+              <TabsContent value="profilo">
+            <div className="space-y-6">
               {/* Dati Aziendali */}
               <div className="space-y-4">
                 <h3 className="text-lime-400 font-semibold text-sm">Dati Aziendali</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="col-span-2">
-                    <Label className="text-slate-300 text-sm">Ragione Sociale *</Label>
+                    <Label className="text-lime-400 text-sm font-medium">Nome Azienda (obbligatorio)</Label>
                     <Input
                       value={formData.company_name}
                       onChange={(e) => setFormData({...formData, company_name: e.target.value})}
-                      className="bg-slate-900 border-slate-700 text-white mt-1"
+                      className="bg-lime-400/10 border-lime-400 text-white mt-1 placeholder:text-lime-400/50"
                       placeholder="Es: Acme S.r.l."
                     />
                   </div>
@@ -584,14 +601,14 @@ export default function GestioneMembri() {
                     </div>
                   </div>
                   <div>
-                    <Label className="text-slate-300 text-sm">Email Aziendale * {!selectedMember && <span className="text-xs text-slate-500">(usata per login)</span>}</Label>
+                    <Label className="text-lime-400 text-sm font-medium">Email Aziendale (obbligatorio) {!selectedMember && <span className="text-xs text-slate-500">(usata per login)</span>}</Label>
                     <Input
                       type="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData({...formData, email: e.target.value})}
-                      className="bg-slate-900 border-slate-700 text-white mt-1"
+                      value={formData.company_email || formData.email}
+                      onChange={(e) => setFormData({...formData, company_email: e.target.value, email: selectedMember ? formData.email : e.target.value})}
+                      className="bg-lime-400/10 border-lime-400 text-white mt-1 placeholder:text-lime-400/50"
                       placeholder="info@azienda.it"
-                      disabled={!!selectedMember}
+                      disabled={!!selectedMember && !formData.company_email}
                     />
                     {!selectedMember && (
                       <p className="text-xs text-slate-500 mt-1">L'azienda riceverà una mail per impostare la password</p>
@@ -695,39 +712,30 @@ export default function GestioneMembri() {
                 <h3 className="text-lime-400 font-semibold text-sm">Referente Aziendale</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="col-span-2">
-                    <Label className="text-slate-300 text-sm">Nome e Cognome Referente *</Label>
+                    <Label className="text-lime-400 text-sm font-medium">Nome Referente (obbligatorio)</Label>
                     <Input
-                      value={formData.full_name}
-                      onChange={(e) => setFormData({...formData, full_name: e.target.value})}
-                      className="bg-slate-900 border-slate-700 text-white mt-1"
+                      value={formData.referente || formData.full_name}
+                      onChange={(e) => setFormData({...formData, referente: e.target.value, full_name: selectedMember ? formData.full_name : e.target.value})}
+                      className="bg-lime-400/10 border-lime-400 text-white mt-1 placeholder:text-lime-400/50"
                       placeholder="Mario Rossi"
                     />
                   </div>
-                  <div className="col-span-2">
-                    <Label className="text-slate-300 text-sm">Referente (se diverso)</Label>
-                    <Input
-                      value={formData.referente}
-                      onChange={(e) => setFormData({...formData, referente: e.target.value})}
-                      className="bg-slate-900 border-slate-700 text-white mt-1"
-                      placeholder="Nome referente aggiuntivo"
-                    />
-                  </div>
                   <div>
-                    <Label className="text-slate-300 text-sm">Cellulare Referente</Label>
+                    <Label className="text-lime-400 text-sm font-medium">Cellulare Referente (obbligatorio)</Label>
                     <Input
                       value={formData.cellulare_referente || formData.referente_cellulare}
                       onChange={(e) => setFormData({...formData, cellulare_referente: e.target.value, referente_cellulare: e.target.value})}
-                      className="bg-slate-900 border-slate-700 text-white mt-1"
+                      className="bg-lime-400/10 border-lime-400 text-white mt-1 placeholder:text-lime-400/50"
                       placeholder="+39 333 1234567"
                     />
                   </div>
                   <div>
-                    <Label className="text-slate-300 text-sm">Email Referente</Label>
+                    <Label className="text-lime-400 text-sm font-medium">Email Referente (obbligatorio)</Label>
                     <Input
                       type="email"
                       value={formData.referente_email}
                       onChange={(e) => setFormData({...formData, referente_email: e.target.value})}
-                      className="bg-slate-900 border-slate-700 text-white mt-1"
+                      className="bg-lime-400/10 border-lime-400 text-white mt-1 placeholder:text-lime-400/50"
                       placeholder="mario.rossi@azienda.it"
                     />
                   </div>
@@ -806,13 +814,23 @@ export default function GestioneMembri() {
                     />
                   </div>
                   <div>
-                    <Label className="text-slate-300 text-sm">Regione</Label>
-                    <Input
-                      value={formData.regione}
-                      onChange={(e) => setFormData({...formData, regione: e.target.value})}
-                      className="bg-slate-900 border-slate-700 text-white mt-1"
-                      placeholder="Lombardia"
-                    />
+                    <Label className="text-lime-400 text-sm font-medium">Regione (obbligatorio)</Label>
+                    <Select
+                      value={formData.region || formData.regione || ''}
+                      onValueChange={(value) => setFormData({...formData, region: value, regione: value})}
+                    >
+                      <SelectTrigger className="bg-lime-400/10 border-lime-400 text-white mt-1">
+                        <SelectValue placeholder="Seleziona regione" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {['Abruzzo', 'Basilicata', 'Calabria', 'Campania', 'Emilia-Romagna',
+                          'Friuli Venezia Giulia', 'Lazio', 'Liguria', 'Lombardia', 'Marche',
+                          'Molise', 'Piemonte', 'Puglia', 'Sardegna', 'Sicilia', 'Toscana',
+                          'Trentino-Alto Adige', 'Umbria', "Valle d'Aosta", 'Veneto'].map((regione) => (
+                          <SelectItem key={regione} value={regione}>{regione}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
                     <Label className="text-slate-300 text-sm">CAP</Label>
@@ -854,6 +872,7 @@ export default function GestioneMembri() {
                   }
                   className="flex-1 bg-lime-400 hover:bg-lime-500 text-slate-900"
                 >
+                  <Save className="w-4 h-4 mr-2" />
                   {updateMemberMutation.isPending 
                     ? 'Salvataggio...' 
                     : selectedMember 
@@ -862,6 +881,14 @@ export default function GestioneMembri() {
                 </Button>
               </div>
             </div>
+              </TabsContent>
+
+              {selectedMember?.role !== 'consulente' && (
+                <TabsContent value="bandi">
+                  <ProfiloBandiForm user={selectedMember} />
+                </TabsContent>
+              )}
+            </Tabs>
           )}
         </DialogContent>
       </Dialog>
