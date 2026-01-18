@@ -45,14 +45,17 @@ export default function Messaggi() {
     enabled: !!user?.email,
   });
 
-  // Real-time subscription per messaggi
+  // Real-time subscription per messaggi - aggiorna solo se il messaggio riguarda l'utente corrente
   useEffect(() => {
     if (!user?.email) return;
     
     const unsubscribe = base44.entities.Message.subscribe((event) => {
-      // Invalida la cache per aggiornare i messaggi in tempo reale
-      queryClient.invalidateQueries({ queryKey: ['all-messages'] });
-      queryClient.invalidateQueries({ queryKey: ['unread-messages'] });
+      const messageData = event.data;
+      // Aggiorna solo se l'utente è mittente o destinatario del messaggio
+      if (messageData?.to_email === user.email || messageData?.from_email === user.email) {
+        queryClient.invalidateQueries({ queryKey: ['all-messages'] });
+        queryClient.invalidateQueries({ queryKey: ['unread-messages'] });
+      }
     });
 
     return () => unsubscribe();
