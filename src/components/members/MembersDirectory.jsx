@@ -17,7 +17,11 @@ export default function MembersDirectory({ currentUserEmail }) {
 
   const { data: allUsers = [], isLoading: loadingUsers } = useQuery({
     queryKey: ['members-directory'],
-    queryFn: () => base44.entities.User.list()
+    queryFn: async () => {
+      // Prova a listare tutti gli utenti - funziona solo per admin
+      const users = await base44.entities.User.list();
+      return users;
+    }
   });
 
   const { data: consultants = [], isLoading: loadingConsultants } = useQuery({
