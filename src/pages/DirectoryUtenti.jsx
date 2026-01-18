@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Search, User, Building2, MapPin, Mail, Phone, Shield, ShieldOff, Eye, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Search, User, Building2, MapPin, Mail, Phone, Shield, ShieldOff, Eye, ChevronRight, Save, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Input } from '@/components/ui/input';
@@ -9,6 +9,9 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import ProfiloBandiForm from '../components/profile/ProfiloBandiForm';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 import Header from '../components/layout/Header';
@@ -19,6 +22,8 @@ export default function DirectoryUtenti() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUser, setSelectedUser] = useState(null);
   const [userToToggle, setUserToToggle] = useState(null);
+  const [editFormData, setEditFormData] = useState({});
+  const [savingUser, setSavingUser] = useState(false);
   const queryClient = useQueryClient();
 
   // Carica utente corrente
@@ -171,9 +176,9 @@ export default function DirectoryUtenti() {
 
       <BottomNav currentPage="DirectoryUtenti" />
 
-      {/* Dialog dettagli utente */}
+      {/* Dialog modifica utente */}
       <Dialog open={!!selectedUser} onOpenChange={() => setSelectedUser(null)}>
-        <DialogContent className="bg-slate-800 border-slate-700 max-w-lg">
+        <DialogContent className="bg-slate-800 border-slate-700 max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-white flex items-center gap-3">
               {selectedUser?.logo_url ? (
@@ -185,69 +190,230 @@ export default function DirectoryUtenti() {
               )}
               <div>
                 <p>{selectedUser?.company_name || selectedUser?.full_name || 'Utente'}</p>
-                {selectedUser?.role === 'admin' && (
-                  <Badge className="bg-amber-400/20 text-amber-400 text-xs">Admin</Badge>
-                )}
-                {selectedUser?.is_blocked && (
-                  <Badge className="bg-red-500/20 text-red-400 text-xs ml-1">Bloccato</Badge>
-                )}
+                <div className="flex gap-1">
+                  {selectedUser?.role === 'admin' && (
+                    <Badge className="bg-amber-400/20 text-amber-400 text-xs">Admin</Badge>
+                  )}
+                  {selectedUser?.is_blocked && (
+                    <Badge className="bg-red-500/20 text-red-400 text-xs">Bloccato</Badge>
+                  )}
+                </div>
               </div>
             </DialogTitle>
           </DialogHeader>
 
           {selectedUser && (
-            <div className="space-y-4 mt-4">
-              {/* Dati Azienda */}
-              <div>
-                <h4 className="text-lime-400 text-xs font-medium mb-2">Dati Azienda</h4>
-                <div className="grid grid-cols-2 gap-3">
-                  <InfoItem icon={Building2} label="Nome Azienda" value={selectedUser.company_name} />
-                  <InfoItem label="Partita IVA" value={selectedUser.partita_iva} />
-                  <InfoItem label="Settore" value={selectedUser.business_sector} />
-                  <InfoItem label="Dimensione" value={selectedUser.company_size} />
-                  <InfoItem icon={Mail} label="Email Aziendale" value={selectedUser.company_email} />
-                  <InfoItem icon={Phone} label="Telefono Aziendale" value={selectedUser.phone} />
-                </div>
-              </div>
+            <Tabs defaultValue="profilo" className="w-full mt-4">
+              <TabsList className="w-full bg-slate-900 border border-slate-700 mb-4">
+                <TabsTrigger value="profilo" className="flex-1 data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
+                  <User className="w-4 h-4 mr-2" />
+                  Profilo
+                </TabsTrigger>
+                {selectedUser?.role !== 'consulente' && (
+                  <TabsTrigger value="bandi" className="flex-1 data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
+                    <FileText className="w-4 h-4 mr-2" />
+                    Profilo Bandi
+                  </TabsTrigger>
+                )}
+              </TabsList>
 
-              {/* Referente */}
-              <div className="pt-4 border-t border-slate-700">
-                <h4 className="text-lime-400 text-xs font-medium mb-2">Referente</h4>
-                <div className="grid grid-cols-2 gap-3">
-                  <InfoItem icon={User} label="Nome Referente" value={selectedUser.referente} />
-                  <InfoItem label="Ruolo" value={selectedUser.role_in_company} />
-                  <InfoItem icon={Phone} label="Cellulare Referente" value={selectedUser.referente_phone} />
-                  <InfoItem icon={Mail} label="Email Referente" value={selectedUser.referente_email} />
+              <TabsContent value="profilo" className="space-y-4">
+                {/* Dati Azienda */}
+                <div className="space-y-3">
+                  <h4 className="text-white font-semibold flex items-center gap-2">
+                    <Building2 className="w-4 h-4 text-lime-400" />
+                    Dati Azienda
+                  </h4>
+                  <div>
+                    <label className="text-lime-400 text-sm font-medium mb-1 block">Nome Azienda (obbligatorio)</label>
+                    <Input
+                      placeholder="Nome Azienda"
+                      value={editFormData.company_name ?? selectedUser.company_name ?? ''}
+                      onChange={(e) => setEditFormData({...editFormData, company_name: e.target.value})}
+                      className="bg-lime-400/10 border-lime-400 text-white placeholder:text-lime-400/50"
+                    />
+                  </div>
+                  <Input
+                    placeholder="Ragione Sociale Fatturazione"
+                    value={editFormData.ragione_sociale_fatturazione ?? selectedUser.ragione_sociale_fatturazione ?? ''}
+                    onChange={(e) => setEditFormData({...editFormData, ragione_sociale_fatturazione: e.target.value})}
+                    className="bg-slate-900 border-slate-700 text-white"
+                  />
+                  <Input
+                    placeholder="Partita IVA"
+                    value={editFormData.vat_number ?? selectedUser.vat_number ?? ''}
+                    onChange={(e) => setEditFormData({...editFormData, vat_number: e.target.value})}
+                    className="bg-slate-900 border-slate-700 text-white"
+                  />
+                  <Input
+                    placeholder="Codice Fiscale"
+                    value={editFormData.codice_fiscale ?? selectedUser.codice_fiscale ?? ''}
+                    onChange={(e) => setEditFormData({...editFormData, codice_fiscale: e.target.value})}
+                    className="bg-slate-900 border-slate-700 text-white"
+                  />
+                  <Input
+                    placeholder="Codice SDI"
+                    value={editFormData.codice_sdi ?? selectedUser.codice_sdi ?? ''}
+                    onChange={(e) => setEditFormData({...editFormData, codice_sdi: e.target.value})}
+                    className="bg-slate-900 border-slate-700 text-white"
+                  />
+                  <Select
+                    value={editFormData.company_size ?? selectedUser.company_size ?? 'Piccola'}
+                    onValueChange={(value) => setEditFormData({...editFormData, company_size: value})}
+                  >
+                    <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                      <SelectValue placeholder="Dimensione Azienda" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Micro">Micro (0-9 dipendenti)</SelectItem>
+                      <SelectItem value="Piccola">Piccola (10-49 dipendenti)</SelectItem>
+                      <SelectItem value="Media">Media (50-249 dipendenti)</SelectItem>
+                      <SelectItem value="Grande">Grande (250+ dipendenti)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <div>
+                    <label className="text-lime-400 text-sm font-medium mb-1 block">Email Aziendale (obbligatorio)</label>
+                    <Input
+                      placeholder="Email Aziendale"
+                      type="email"
+                      value={editFormData.company_email ?? selectedUser.company_email ?? ''}
+                      onChange={(e) => setEditFormData({...editFormData, company_email: e.target.value})}
+                      className="bg-lime-400/10 border-lime-400 text-white placeholder:text-lime-400/50"
+                    />
+                  </div>
                 </div>
-              </div>
 
-              {/* Sede Legale */}
-              <div className="pt-4 border-t border-slate-700">
-                <h4 className="text-lime-400 text-xs font-medium mb-2">Sede Legale</h4>
-                <div className="grid grid-cols-2 gap-3">
-                  <InfoItem label="Indirizzo" value={selectedUser.address} />
-                  <InfoItem icon={MapPin} label="Città" value={selectedUser.city} />
-                  <InfoItem label="CAP" value={selectedUser.cap} />
-                  <InfoItem label="Provincia" value={selectedUser.province} />
-                  <InfoItem label="Regione" value={selectedUser.region} />
+                {/* Contatti / Referente */}
+                <div className="space-y-3 pt-4 border-t border-slate-700">
+                  <h4 className="text-white font-semibold flex items-center gap-2">
+                    <Phone className="w-4 h-4 text-lime-400" />
+                    Contatti
+                  </h4>
+                  <Input
+                    placeholder="Telefono Aziendale"
+                    value={editFormData.phone ?? selectedUser.phone ?? ''}
+                    onChange={(e) => setEditFormData({...editFormData, phone: e.target.value})}
+                    className="bg-slate-900 border-slate-700 text-white"
+                  />
+                  <div>
+                    <label className="text-lime-400 text-sm font-medium mb-1 block">Nome Referente (obbligatorio)</label>
+                    <Input
+                      placeholder="Nome Referente"
+                      value={editFormData.referente ?? selectedUser.referente ?? ''}
+                      onChange={(e) => setEditFormData({...editFormData, referente: e.target.value})}
+                      className="bg-lime-400/10 border-lime-400 text-white placeholder:text-lime-400/50"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-lime-400 text-sm font-medium mb-1 block">Cellulare Referente (obbligatorio)</label>
+                    <Input
+                      placeholder="Cellulare Referente"
+                      value={editFormData.cellulare_referente ?? selectedUser.cellulare_referente ?? ''}
+                      onChange={(e) => setEditFormData({...editFormData, cellulare_referente: e.target.value})}
+                      className="bg-lime-400/10 border-lime-400 text-white placeholder:text-lime-400/50"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-lime-400 text-sm font-medium mb-1 block">Email Referente (obbligatorio)</label>
+                    <Input
+                      placeholder="Email Referente"
+                      value={editFormData.referente_email ?? selectedUser.referente_email ?? ''}
+                      onChange={(e) => setEditFormData({...editFormData, referente_email: e.target.value})}
+                      className="bg-lime-400/10 border-lime-400 text-white placeholder:text-lime-400/50"
+                    />
+                  </div>
                 </div>
-              </div>
 
-              {/* Account */}
-              <div className="pt-4 border-t border-slate-700">
-                <h4 className="text-slate-400 text-xs font-medium mb-2">Account</h4>
-                <div className="grid grid-cols-2 gap-3">
-                  <InfoItem icon={Mail} label="Email Account" value={selectedUser.email} />
-                  <InfoItem icon={User} label="Nome Completo" value={selectedUser.full_name} />
+                {/* Sede */}
+                <div className="space-y-3 pt-4 border-t border-slate-700">
+                  <h4 className="text-white font-semibold flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-lime-400" />
+                    Sede
+                  </h4>
+                  <Input
+                    placeholder="Indirizzo"
+                    value={editFormData.address ?? selectedUser.address ?? ''}
+                    onChange={(e) => setEditFormData({...editFormData, address: e.target.value})}
+                    className="bg-slate-900 border-slate-700 text-white"
+                  />
+                  <div className="grid grid-cols-2 gap-3">
+                    <Input
+                      placeholder="Città"
+                      value={editFormData.city ?? selectedUser.city ?? ''}
+                      onChange={(e) => setEditFormData({...editFormData, city: e.target.value})}
+                      className="bg-slate-900 border-slate-700 text-white"
+                    />
+                    <Input
+                      placeholder="Provincia"
+                      value={editFormData.province ?? selectedUser.province ?? ''}
+                      onChange={(e) => setEditFormData({...editFormData, province: e.target.value})}
+                      className="bg-slate-900 border-slate-700 text-white"
+                      maxLength={2}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-lime-400 text-sm font-medium mb-1 block">Regione (obbligatorio)</label>
+                    <Select
+                      value={editFormData.region ?? selectedUser.region ?? ''}
+                      onValueChange={(value) => setEditFormData({...editFormData, region: value})}
+                    >
+                      <SelectTrigger className="bg-lime-400/10 border-lime-400 text-white">
+                        <SelectValue placeholder="Seleziona regione" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {['Abruzzo', 'Basilicata', 'Calabria', 'Campania', 'Emilia-Romagna',
+                          'Friuli Venezia Giulia', 'Lazio', 'Liguria', 'Lombardia', 'Marche',
+                          'Molise', 'Piemonte', 'Puglia', 'Sardegna', 'Sicilia', 'Toscana',
+                          'Trentino-Alto Adige', 'Umbria', "Valle d'Aosta", 'Veneto'].map((regione) => (
+                          <SelectItem key={regione} value={regione}>{regione}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Input
+                    placeholder="CAP"
+                    value={editFormData.postal_code ?? selectedUser.postal_code ?? ''}
+                    onChange={(e) => setEditFormData({...editFormData, postal_code: e.target.value})}
+                    className="bg-slate-900 border-slate-700 text-white"
+                  />
                 </div>
-              </div>
-            </div>
+
+                {/* Pulsante Salva */}
+                <Button
+                  onClick={async () => {
+                    setSavingUser(true);
+                    try {
+                      await base44.entities.User.update(selectedUser.id, editFormData);
+                      queryClient.invalidateQueries({ queryKey: ['admin-users-list'] });
+                      toast.success('Profilo aggiornato');
+                      setSelectedUser(null);
+                      setEditFormData({});
+                    } catch (e) {
+                      toast.error('Errore durante il salvataggio');
+                    } finally {
+                      setSavingUser(false);
+                    }
+                  }}
+                  disabled={savingUser}
+                  className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900"
+                >
+                  <Save className="w-4 h-4 mr-2" />
+                  {savingUser ? 'Salvataggio...' : 'Salva Modifiche'}
+                </Button>
+              </TabsContent>
+
+              {selectedUser?.role !== 'consulente' && (
+                <TabsContent value="bandi">
+                  <ProfiloBandiForm user={selectedUser} />
+                </TabsContent>
+              )}
+            </Tabs>
           )}
 
-          <DialogFooter className="mt-6">
+          <DialogFooter className="mt-4">
             <Button
               variant="outline"
-              onClick={() => setSelectedUser(null)}
+              onClick={() => { setSelectedUser(null); setEditFormData({}); }}
               className="border-slate-600 text-slate-300"
             >
               Chiudi
