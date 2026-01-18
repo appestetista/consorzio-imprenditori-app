@@ -19,9 +19,9 @@ export default function MembersDirectory({ currentUserEmail }) {
     queryKey: ['members-directory'],
     queryFn: async () => {
       const users = await base44.entities.User.list();
-      // Filtra admin e utenti di test
+      console.log('[MembersDirectory] Users loaded:', users.length, users.map(u => ({ email: u.email, role: u.role, company_name: u.company_name })));
+      // Filtra solo utenti di test "pinko pallino"
       return users.filter(u => 
-        u.role !== 'admin' && 
         !u.full_name?.toLowerCase().includes('pinko pallino') &&
         !u.company_name?.toLowerCase().includes('pinko pallino')
       );
