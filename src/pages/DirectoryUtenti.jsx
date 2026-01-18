@@ -37,8 +37,14 @@ export default function DirectoryUtenti() {
   // Carica tutti gli utenti
   const { data: users = [], isLoading } = useQuery({
     queryKey: ['admin-users-list'],
-    queryFn: () => base44.entities.User.list(),
-    enabled: currentUser?.role === 'admin'
+    queryFn: async () => {
+      const allUsers = await base44.entities.User.list();
+      console.log('[DirectoryUtenti] Utenti caricati:', allUsers.length, allUsers.map(u => ({ id: u.id, email: u.email, company_name: u.company_name })));
+      return allUsers;
+    },
+    enabled: currentUser?.role === 'admin',
+    staleTime: 0,
+    refetchOnMount: 'always'
   });
 
   // Mutation per bloccare/sbloccare utente
