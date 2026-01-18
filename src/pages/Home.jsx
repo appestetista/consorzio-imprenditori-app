@@ -60,24 +60,6 @@ export default function Home() {
         } else {
           console.log('[HOME] Using currentUser as effectiveUser');
           
-          // Verifica se il profilo è completo (solo per utenti normali, non admin)
-          // Campi obbligatori: company_name, company_email, referente, cellulare_referente, referente_email, region
-          if (currentUser.role !== 'admin') {
-            const requiredFields = ['company_name', 'company_email', 'referente', 'cellulare_referente', 'referente_email', 'region'];
-            const isProfileIncomplete = requiredFields.some(field => {
-              const value = currentUser[field];
-              return !value || (typeof value === 'string' && value.trim() === '');
-            });
-            
-            console.log('[HOME] Checking profile completeness:', {
-              requiredFields,
-              userValues: requiredFields.map(f => ({ field: f, value: currentUser[f] })),
-              isProfileIncomplete
-            });
-            
-            // Il modal ProfileCompletionModal gestirà i profili incompleti
-          }
-          
           // Verifica se il profilo è completo - se no, redirect a MyProfile
           if (currentUser.role !== 'admin') {
             const requiredFields = ['company_name', 'company_email', 'referente', 'cellulare_referente', 'referente_email', 'region'];
@@ -86,10 +68,13 @@ export default function Home() {
               return !value || (typeof value === 'string' && value.trim() === '');
             });
             
+            console.log('[HOME] Profile check:', { isProfileIncomplete, values: requiredFields.map(f => ({ [f]: currentUser[f] })) });
+            
             if (isProfileIncomplete) {
-              console.log('[HOME] Profile incomplete, redirecting to MyProfile');
-              window.location.href = createPageUrl('MyProfile');
-              return;
+              console.log('[HOME] Redirecting to MyProfile...');
+              setLoading(true); // Mantieni loading attivo durante redirect
+              window.location.replace(createPageUrl('MyProfile'));
+              return; // Stop execution
             }
           }
           
