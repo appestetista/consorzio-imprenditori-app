@@ -58,6 +58,19 @@ export default function Home() {
         } else {
           console.log('[HOME] Using currentUser as effectiveUser');
           setEffectiveUser(currentUser);
+          
+          // Verifica se il profilo è completo (solo per utenti normali, non admin)
+          // Campi obbligatori: company_name, company_email, referente, cellulare_referente, referente_email, region
+          if (currentUser.role !== 'admin') {
+            const requiredFields = ['company_name', 'company_email', 'referente', 'cellulare_referente', 'referente_email', 'region'];
+            const isProfileIncomplete = requiredFields.some(field => !currentUser[field] || currentUser[field].trim() === '');
+            
+            if (isProfileIncomplete) {
+              console.log('[HOME] Profilo incompleto, redirect a MyProfile');
+              navigate(createPageUrl('MyProfile'));
+              return;
+            }
+          }
         }
       } catch (e) {
         console.error('[HOME] Error loading user:', e);
@@ -67,7 +80,7 @@ export default function Home() {
       }
     };
     loadUser();
-  }, [appMode, impersonation.previewUserId]);
+  }, [appMode, impersonation.previewUserId, navigate]);
 
   const { data: notifications = [] } = useQuery({
     queryKey: ['notifications', effectiveUser?.email],
