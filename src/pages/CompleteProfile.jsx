@@ -23,6 +23,7 @@ export default function CompleteProfile() {
     codice_sdi: '',
     website: '',
     company_size: 'Piccola',
+    company_email: '',
     ragione_sociale_fatturazione: '',
     referente: '',
     cellulare_referente: '',
@@ -60,6 +61,7 @@ export default function CompleteProfile() {
           codice_sdi: effectiveUser.codice_sdi || '',
           website: effectiveUser.website || '',
           company_size: effectiveUser.company_size || 'Piccola',
+          company_email: effectiveUser.company_email || '',
           ragione_sociale_fatturazione: effectiveUser.ragione_sociale_fatturazione || '',
           referente: effectiveUser.referente || '',
           cellulare_referente: effectiveUser.cellulare_referente || '',
@@ -198,6 +200,18 @@ export default function CompleteProfile() {
                       <SelectItem value="Grande">Grande (250+ dipendenti)</SelectItem>
                     </SelectContent>
                   </Select>
+                  
+                  <div>
+                    <label className="text-lime-400 text-sm font-medium mb-1 block">Email Aziendale *</label>
+                    <Input
+                      placeholder="Inserisci l'email aziendale"
+                      type="email"
+                      value={formData.company_email}
+                      onChange={(e) => setFormData({...formData, company_email: e.target.value})}
+                      className="bg-lime-400/10 border-lime-400 text-white placeholder:text-lime-400/50"
+                      required
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -238,12 +252,16 @@ export default function CompleteProfile() {
                     />
                   </div>
                   
-                  <Input
-                    placeholder="Email Referente"
-                    value={formData.referente_email}
-                    onChange={(e) => setFormData({...formData, referente_email: e.target.value})}
-                    className="bg-slate-900 border-slate-700 text-white"
-                  />
+                  <div>
+                    <label className="text-lime-400 text-sm font-medium mb-1 block">Email Referente *</label>
+                    <Input
+                      placeholder="Inserisci l'email del referente"
+                      value={formData.referente_email}
+                      onChange={(e) => setFormData({...formData, referente_email: e.target.value})}
+                      className="bg-lime-400/10 border-lime-400 text-white placeholder:text-lime-400/50"
+                      required
+                    />
+                  </div>
                 </div>
               </div>
 
