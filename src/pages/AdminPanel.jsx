@@ -66,6 +66,7 @@ export default function AdminPanel() {
         base44.entities.Video.list(),
         base44.entities.Consultant.list()
       ]);
+      console.log('[AdminPanel] Tutti gli utenti dal database:', users);
       const filteredUsers = users;
       return {
         totalUsers: filteredUsers.length,
