@@ -161,6 +161,44 @@ export default function MyProfile() {
 
           <TabsContent value="profilo">
 
+        {/* Card Dati Personali - solo per admin */}
+        {user?.role === 'admin' && (
+          <Card className="bg-slate-800 border-slate-700 mb-4">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center gap-2">
+                <User className="w-5 h-5 text-lime-400" />
+                Dati Personali
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div>
+                <label className="text-slate-400 text-sm">E-mail</label>
+                <Input
+                  value={user?.email || ''}
+                  disabled
+                  className="bg-slate-900 border-slate-700 text-slate-500"
+                />
+              </div>
+              <div>
+                <label className="text-slate-400 text-sm">Nome Completo</label>
+                <Input
+                  value={formData.full_name}
+                  onChange={(e) => setFormData({...formData, full_name: e.target.value})}
+                  className="bg-slate-900 border-slate-700 text-white"
+                />
+              </div>
+              <div>
+                <label className="text-slate-400 text-sm">Ruolo</label>
+                <Input
+                  value="Amministratore"
+                  disabled
+                  className="bg-slate-900 border-slate-700 text-slate-500"
+                />
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         <Card className="bg-slate-800 border-slate-700 mb-4">
           <CardHeader>
             <CardTitle className="text-white flex items-center gap-2">
