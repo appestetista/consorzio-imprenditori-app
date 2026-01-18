@@ -358,14 +358,6 @@ export default function MyProfile() {
                 className="bg-lime-400/10 border-lime-400 text-white placeholder:text-lime-400/50"
               />
             </div>
-            <div>
-              <label className="text-slate-400 text-sm">Ruolo</label>
-              <Input
-                value={user?.role === 'admin' ? 'Amministratore' : 'Utente'}
-                disabled
-                className="bg-slate-900 border-slate-700 text-slate-500"
-              />
-            </div>
           </CardContent>
         </Card>
 
