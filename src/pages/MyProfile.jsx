@@ -214,7 +214,7 @@ export default function MyProfile() {
               </div>
             </div>
             <div>
-              <label className="text-lime-400 text-sm font-medium mb-1 block">Nome Azienda *</label>
+              <label className="text-lime-400 text-sm font-medium mb-1 block">Nome Azienda (obbligatorio)</label>
               <Input
                 placeholder="Inserisci il nome dell'azienda"
                 value={formData.company_name}
@@ -267,7 +267,7 @@ export default function MyProfile() {
               </SelectContent>
             </Select>
             <div>
-              <label className="text-lime-400 text-sm font-medium mb-1 block">Email Aziendale *</label>
+              <label className="text-lime-400 text-sm font-medium mb-1 block">Email Aziendale (obbligatorio)</label>
               <Input
                 placeholder="Inserisci l'email aziendale"
                 type="email"
@@ -294,7 +294,7 @@ export default function MyProfile() {
               className="bg-slate-900 border-slate-700 text-white"
             />
             <div>
-              <label className="text-lime-400 text-sm font-medium mb-1 block">Nome Referente *</label>
+              <label className="text-lime-400 text-sm font-medium mb-1 block">Nome Referente (obbligatorio)</label>
               <Input
                 placeholder="Inserisci il nome del referente"
                 value={formData.referente}
@@ -303,7 +303,7 @@ export default function MyProfile() {
               />
             </div>
             <div>
-              <label className="text-lime-400 text-sm font-medium mb-1 block">Cellulare Referente *</label>
+              <label className="text-lime-400 text-sm font-medium mb-1 block">Cellulare Referente (obbligatorio)</label>
               <Input
                 placeholder="Inserisci il cellulare del referente"
                 value={formData.cellulare_referente}
@@ -312,7 +312,7 @@ export default function MyProfile() {
               />
             </div>
             <div>
-              <label className="text-lime-400 text-sm font-medium mb-1 block">Email Referente *</label>
+              <label className="text-lime-400 text-sm font-medium mb-1 block">Email Referente (obbligatorio)</label>
               <Input
                 placeholder="Inserisci l'email del referente"
                 value={formData.referente_email}
@@ -361,7 +361,7 @@ export default function MyProfile() {
               />
             </div>
             <div>
-              <label className="text-lime-400 text-sm font-medium mb-1 block">Regione *</label>
+              <label className="text-lime-400 text-sm font-medium mb-1 block">Regione (obbligatorio)</label>
               <Select
                 value={formData.region}
                 onValueChange={(value) => setFormData({...formData, region: value})}
