@@ -101,7 +101,12 @@ export default function ProfileCompletionModal({ user, onProfileComplete }) {
     }
   };
 
-  if (!open) return null;
+  console.log('[ProfileCompletionModal] Render - open:', open, 'user:', user?.email);
+  
+  if (!open) {
+    console.log('[ProfileCompletionModal] Not open, returning null');
+    return null;
+  }
 
   return (
     <Dialog open={open} onOpenChange={() => {}}>
