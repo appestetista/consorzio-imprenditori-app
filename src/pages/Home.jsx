@@ -11,6 +11,7 @@ import { useImpersonation } from '../components/admin/ImpersonationContext';
 import EventInvitePopup from '../components/calendario/EventInvitePopup';
 import useNotificationSound from '../components/hooks/useNotificationSound';
 import ChangeResponsePopup from '@/components/calendario/ChangeResponsePopup';
+import ProfileCompletionModal from '@/components/profile/ProfileCompletionModal';
 
 export default function Home() {
   const [user, setUser] = useState(null);
