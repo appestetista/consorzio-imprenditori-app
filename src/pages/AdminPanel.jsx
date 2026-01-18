@@ -66,12 +66,7 @@ export default function AdminPanel() {
         base44.entities.Video.list(),
         base44.entities.Consultant.list()
       ]);
-      console.log('[AdminPanel] All users loaded:', users.length, users.map(u => ({ email: u.email, role: u.role, company_name: u.company_name })));
-      // Filtra utente "pinko pallino" dai conteggi
-      const filteredUsers = users.filter(u => 
-        !u.full_name?.toLowerCase().includes('pinko pallino') && 
-        !u.company_name?.toLowerCase().includes('pinko pallino')
-      );
+      const filteredUsers = users;
       return {
         totalUsers: filteredUsers.length,
         activeUsers: filteredUsers.filter(u => !u.is_blocked).length,

@@ -17,15 +17,7 @@ export default function MembersDirectory({ currentUserEmail }) {
 
   const { data: allUsers = [], isLoading: loadingUsers } = useQuery({
     queryKey: ['members-directory'],
-    queryFn: async () => {
-      const users = await base44.entities.User.list();
-      console.log('[MembersDirectory] Users loaded:', users.length, users.map(u => ({ email: u.email, role: u.role, company_name: u.company_name })));
-      // Filtra solo utenti di test "pinko pallino"
-      return users.filter(u => 
-        !u.full_name?.toLowerCase().includes('pinko pallino') &&
-        !u.company_name?.toLowerCase().includes('pinko pallino')
-      );
-    }
+    queryFn: () => base44.entities.User.list()
   });
 
   const { data: consultants = [], isLoading: loadingConsultants } = useQuery({
