@@ -197,23 +197,50 @@ export default function DirectoryUtenti() {
 
           {selectedUser && (
             <div className="space-y-4 mt-4">
-              <div className="grid grid-cols-2 gap-4">
-                <InfoItem icon={User} label="Nome" value={selectedUser.full_name} />
-                <InfoItem icon={Building2} label="Azienda" value={selectedUser.company_name} />
-                <InfoItem icon={Mail} label="Email" value={selectedUser.email} />
-                <InfoItem icon={Phone} label="Telefono" value={selectedUser.phone} />
-                <InfoItem icon={MapPin} label="Città" value={selectedUser.city} />
-                <InfoItem label="Provincia" value={selectedUser.province} />
-                <InfoItem label="Settore" value={selectedUser.business_sector} />
-                <InfoItem label="Referente" value={selectedUser.referente} />
+              {/* Dati Azienda */}
+              <div>
+                <h4 className="text-lime-400 text-xs font-medium mb-2">Dati Azienda</h4>
+                <div className="grid grid-cols-2 gap-3">
+                  <InfoItem icon={Building2} label="Nome Azienda" value={selectedUser.company_name} />
+                  <InfoItem label="Partita IVA" value={selectedUser.partita_iva} />
+                  <InfoItem label="Settore" value={selectedUser.business_sector} />
+                  <InfoItem label="Dimensione" value={selectedUser.company_size} />
+                  <InfoItem icon={Mail} label="Email Aziendale" value={selectedUser.company_email} />
+                  <InfoItem icon={Phone} label="Telefono Aziendale" value={selectedUser.phone} />
+                </div>
               </div>
 
-              {selectedUser.partita_iva && (
-                <div className="pt-4 border-t border-slate-700">
-                  <p className="text-slate-400 text-xs">Partita IVA</p>
-                  <p className="text-white">{selectedUser.partita_iva}</p>
+              {/* Referente */}
+              <div className="pt-4 border-t border-slate-700">
+                <h4 className="text-lime-400 text-xs font-medium mb-2">Referente</h4>
+                <div className="grid grid-cols-2 gap-3">
+                  <InfoItem icon={User} label="Nome Referente" value={selectedUser.referente} />
+                  <InfoItem label="Ruolo" value={selectedUser.role_in_company} />
+                  <InfoItem icon={Phone} label="Cellulare Referente" value={selectedUser.referente_phone} />
+                  <InfoItem icon={Mail} label="Email Referente" value={selectedUser.referente_email} />
                 </div>
-              )}
+              </div>
+
+              {/* Sede Legale */}
+              <div className="pt-4 border-t border-slate-700">
+                <h4 className="text-lime-400 text-xs font-medium mb-2">Sede Legale</h4>
+                <div className="grid grid-cols-2 gap-3">
+                  <InfoItem label="Indirizzo" value={selectedUser.address} />
+                  <InfoItem icon={MapPin} label="Città" value={selectedUser.city} />
+                  <InfoItem label="CAP" value={selectedUser.cap} />
+                  <InfoItem label="Provincia" value={selectedUser.province} />
+                  <InfoItem label="Regione" value={selectedUser.region} />
+                </div>
+              </div>
+
+              {/* Account */}
+              <div className="pt-4 border-t border-slate-700">
+                <h4 className="text-slate-400 text-xs font-medium mb-2">Account</h4>
+                <div className="grid grid-cols-2 gap-3">
+                  <InfoItem icon={Mail} label="Email Account" value={selectedUser.email} />
+                  <InfoItem icon={User} label="Nome Completo" value={selectedUser.full_name} />
+                </div>
+              </div>
             </div>
           )}
 
