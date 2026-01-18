@@ -20,6 +20,7 @@ export default function Home() {
   const queryClient = useQueryClient();
   const { playSound } = useNotificationSound();
   const [showChangeResponse, setShowChangeResponse] = useState(false);
+  const navigate = useNavigate();
 
   // DEBUG LOG TEMPORANEO
   useEffect(() => {
