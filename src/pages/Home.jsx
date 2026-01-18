@@ -59,25 +59,6 @@ export default function Home() {
           }
         } else {
           console.log('[HOME] Using currentUser as effectiveUser');
-          
-          // Verifica se il profilo è completo - se no, redirect a MyProfile
-          if (currentUser.role !== 'admin') {
-            const requiredFields = ['company_name', 'company_email', 'referente', 'cellulare_referente', 'referente_email', 'region'];
-            const isProfileIncomplete = requiredFields.some(field => {
-              const value = currentUser[field];
-              return !value || (typeof value === 'string' && value.trim() === '');
-            });
-            
-            console.log('[HOME] Profile check:', { isProfileIncomplete, values: requiredFields.map(f => ({ [f]: currentUser[f] })) });
-            
-            if (isProfileIncomplete) {
-              console.log('[HOME] Redirecting to MyProfile...');
-              setLoading(true); // Mantieni loading attivo durante redirect
-              window.location.replace(createPageUrl('MyProfile'));
-              return; // Stop execution
-            }
-          }
-          
           setEffectiveUser(currentUser);
         }
       } catch (e) {

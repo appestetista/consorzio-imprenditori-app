@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 import { AlertTriangle } from 'lucide-react';
+import { createPageUrl } from '@/utils';
 
 const REGIONS = [
   "Abruzzo", "Basilicata", "Calabria", "Campania", "Emilia-Romagna",
@@ -56,9 +57,15 @@ export default function ProfileCompletionModal({ user, onProfileComplete }) {
     setMissingFields(missing);
     
     if (missing.length > 0) {
-      console.log('[ProfileCompletionModal] Opening modal - missing fields found');
+      console.log('[ProfileCompletionModal] Missing fields found - redirecting to MyProfile');
+      // Redirect a MyProfile se non siamo già lì
+      const currentPath = window.location.pathname;
+      if (!currentPath.includes('MyProfile')) {
+        window.location.href = createPageUrl('MyProfile');
+        return;
+      }
+      // Siamo su MyProfile, apri il modal
       setOpen(true);
-      // Inizializza form con dati esistenti
       const initialData = {};
       REQUIRED_FIELDS.forEach(field => {
         initialData[field.key] = user[field.key] || '';
