@@ -13,7 +13,7 @@ import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import ProfiloBandiForm from '../components/profile/ProfiloBandiForm';
-import ProfileCompletionModal from '@/components/profile/ProfileCompletionModal';
+
 
 export default function MyProfile() {
   const navigate = useNavigate();
@@ -439,12 +439,6 @@ export default function MyProfile() {
       </main>
 
       <BottomNav currentPage="MyProfile" />
-
-      {/* Modal obbligatorio per completare il profilo */}
-      <ProfileCompletionModal 
-        user={user} 
-        onProfileComplete={() => window.location.reload()}
-      />
     </div>
   );
 }
