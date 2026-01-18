@@ -78,6 +78,21 @@ export default function Home() {
             // Il modal ProfileCompletionModal gestirà i profili incompleti
           }
           
+          // Verifica se il profilo è completo - se no, redirect a MyProfile
+          if (currentUser.role !== 'admin') {
+            const requiredFields = ['company_name', 'company_email', 'referente', 'cellulare_referente', 'referente_email', 'region'];
+            const isProfileIncomplete = requiredFields.some(field => {
+              const value = currentUser[field];
+              return !value || (typeof value === 'string' && value.trim() === '');
+            });
+            
+            if (isProfileIncomplete) {
+              console.log('[HOME] Profile incomplete, redirecting to MyProfile');
+              window.location.href = createPageUrl('MyProfile');
+              return;
+            }
+          }
+          
           setEffectiveUser(currentUser);
         }
       } catch (e) {
