@@ -16,6 +16,7 @@ export default function Home() {
   const [user, setUser] = useState(null);
   const [effectiveUser, setEffectiveUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [redirecting, setRedirecting] = useState(false);
   const { impersonation, setCurrentUserRole, appMode } = useImpersonation();
   const queryClient = useQueryClient();
   const { playSound } = useNotificationSound();
