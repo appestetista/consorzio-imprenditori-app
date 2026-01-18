@@ -31,17 +31,32 @@ export default function ProfileCompletionModal({ user, onProfileComplete }) {
   const [missingFields, setMissingFields] = useState([]);
 
   useEffect(() => {
-    if (!user || user.role === 'admin') return;
+    console.log('[ProfileCompletionModal] useEffect triggered with user:', user);
+    console.log('[ProfileCompletionModal] user.role:', user?.role);
+    
+    if (!user) {
+      console.log('[ProfileCompletionModal] No user, returning');
+      return;
+    }
+    
+    if (user.role === 'admin') {
+      console.log('[ProfileCompletionModal] User is admin, returning');
+      return;
+    }
 
     // Verifica campi mancanti
     const missing = REQUIRED_FIELDS.filter(field => {
       const value = user[field.key];
-      return !value || (typeof value === 'string' && value.trim() === '');
+      const isMissing = !value || (typeof value === 'string' && value.trim() === '');
+      console.log(`[ProfileCompletionModal] Field ${field.key}: value="${value}", isMissing=${isMissing}`);
+      return isMissing;
     });
 
+    console.log('[ProfileCompletionModal] Missing fields:', missing.map(f => f.key));
     setMissingFields(missing);
     
     if (missing.length > 0) {
+      console.log('[ProfileCompletionModal] Opening modal - missing fields found');
       setOpen(true);
       // Inizializza form con dati esistenti
       const initialData = {};
@@ -49,6 +64,9 @@ export default function ProfileCompletionModal({ user, onProfileComplete }) {
         initialData[field.key] = user[field.key] || '';
       });
       setFormData(initialData);
+    } else {
+      console.log('[ProfileCompletionModal] All fields complete, not opening modal');
+      setOpen(false);
     }
   }, [user]);
 
