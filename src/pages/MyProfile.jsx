@@ -247,12 +247,15 @@ export default function MyProfile() {
                 </label>
               </div>
             </div>
-            <Input
-              placeholder="Nome Azienda *"
-              value={formData.company_name}
-              onChange={(e) => setFormData({...formData, company_name: e.target.value})}
-              className="bg-slate-900 border-slate-700 text-white"
-            />
+            <div>
+              <label className="text-lime-400 text-sm font-medium mb-1 block">Nome Azienda *</label>
+              <Input
+                placeholder="Inserisci il nome dell'azienda"
+                value={formData.company_name}
+                onChange={(e) => setFormData({...formData, company_name: e.target.value})}
+                className="bg-lime-400/10 border-lime-400 text-white placeholder:text-lime-400/50"
+              />
+            </div>
             <Input
               placeholder="Ragione Sociale Fatturazione"
               value={formData.ragione_sociale_fatturazione}
@@ -314,18 +317,24 @@ export default function MyProfile() {
               onChange={(e) => setFormData({...formData, phone: e.target.value})}
               className="bg-slate-900 border-slate-700 text-white"
             />
-            <Input
-              placeholder="Nome Referente (se diverso)"
-              value={formData.referente}
-              onChange={(e) => setFormData({...formData, referente: e.target.value})}
-              className="bg-slate-900 border-slate-700 text-white"
-            />
-            <Input
-              placeholder="Cellulare Referente"
-              value={formData.cellulare_referente}
-              onChange={(e) => setFormData({...formData, cellulare_referente: e.target.value})}
-              className="bg-slate-900 border-slate-700 text-white"
-            />
+            <div>
+              <label className="text-lime-400 text-sm font-medium mb-1 block">Nome Referente *</label>
+              <Input
+                placeholder="Inserisci il nome del referente"
+                value={formData.referente}
+                onChange={(e) => setFormData({...formData, referente: e.target.value})}
+                className="bg-lime-400/10 border-lime-400 text-white placeholder:text-lime-400/50"
+              />
+            </div>
+            <div>
+              <label className="text-lime-400 text-sm font-medium mb-1 block">Cellulare Referente *</label>
+              <Input
+                placeholder="Inserisci il cellulare del referente"
+                value={formData.cellulare_referente}
+                onChange={(e) => setFormData({...formData, cellulare_referente: e.target.value})}
+                className="bg-lime-400/10 border-lime-400 text-white placeholder:text-lime-400/50"
+              />
+            </div>
             <Input
               placeholder="Email Referente"
               value={formData.referente_email}
@@ -365,12 +374,12 @@ export default function MyProfile() {
               />
             </div>
             <div>
-              <label className="text-slate-400 text-sm">Regione *</label>
+              <label className="text-lime-400 text-sm font-medium mb-1 block">Regione *</label>
               <Select
                 value={formData.region}
                 onValueChange={(value) => setFormData({...formData, region: value})}
               >
-                <SelectTrigger className="bg-slate-900 border-slate-700 text-white mt-1">
+                <SelectTrigger className="bg-lime-400/10 border-lime-400 text-white">
                   <SelectValue placeholder="Seleziona regione" />
                 </SelectTrigger>
                 <SelectContent>
