@@ -374,28 +374,6 @@ export default function MyProfile() {
           </CardContent>
         </Card>
 
-        <Card className="bg-slate-800 border-slate-700 mb-4">
-          <CardHeader>
-            <CardTitle className="text-white text-sm flex items-center justify-between">
-              <span>Dati Aggiuntivi</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Input
-              placeholder="Regione"
-              value={formData.regione}
-              onChange={(e) => setFormData({...formData, regione: e.target.value})}
-              className="bg-slate-900 border-slate-700 text-white"
-            />
-            <Input
-              placeholder="Paese"
-              value={formData.paese}
-              onChange={(e) => setFormData({...formData, paese: e.target.value})}
-              className="bg-slate-900 border-slate-700 text-white"
-            />
-          </CardContent>
-        </Card>
-
         <Button
           onClick={handleSave}
           disabled={saving}
