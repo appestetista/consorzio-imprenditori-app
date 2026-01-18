@@ -18,17 +18,20 @@ export default function CompleteProfile() {
   const [formData, setFormData] = useState({
     company_name: '',
     phone: '',
-    email: '',
     vat_number: '',
+    codice_fiscale: '',
     codice_sdi: '',
+    website: '',
+    company_size: 'Piccola',
+    ragione_sociale_fatturazione: '',
     referente: '',
     cellulare_referente: '',
-    whatsapp_referente: '',
+    referente_email: '',
     address: '',
     city: '',
     province: '',
-    postal_code: '',
-    company_size: 'Piccola'
+    region: '',
+    postal_code: ''
   });
 
   useEffect(() => {
@@ -52,17 +55,20 @@ export default function CompleteProfile() {
         setFormData({
           company_name: effectiveUser.company_name || '',
           phone: effectiveUser.phone || '',
-          email: effectiveUser.email || '',
           vat_number: effectiveUser.vat_number || '',
+          codice_fiscale: effectiveUser.codice_fiscale || '',
           codice_sdi: effectiveUser.codice_sdi || '',
+          website: effectiveUser.website || '',
+          company_size: effectiveUser.company_size || 'Piccola',
+          ragione_sociale_fatturazione: effectiveUser.ragione_sociale_fatturazione || '',
           referente: effectiveUser.referente || '',
           cellulare_referente: effectiveUser.cellulare_referente || '',
-          whatsapp_referente: effectiveUser.whatsapp_referente || '',
+          referente_email: effectiveUser.referente_email || '',
           address: effectiveUser.address || '',
           city: effectiveUser.city || '',
           province: effectiveUser.province || '',
-          postal_code: effectiveUser.postal_code || '',
-          company_size: effectiveUser.company_size || 'Piccola'
+          region: effectiveUser.region || '',
+          postal_code: effectiveUser.postal_code || ''
         });
         
         setLoading(false);
@@ -144,6 +150,13 @@ export default function CompleteProfile() {
                   </div>
                   
                   <Input
+                    placeholder="Ragione Sociale Fatturazione"
+                    value={formData.ragione_sociale_fatturazione}
+                    onChange={(e) => setFormData({...formData, ragione_sociale_fatturazione: e.target.value})}
+                    className="bg-slate-900 border-slate-700 text-white"
+                  />
+                  
+                  <Input
                     placeholder="Partita IVA"
                     value={formData.vat_number}
                     onChange={(e) => setFormData({...formData, vat_number: e.target.value})}
@@ -151,9 +164,23 @@ export default function CompleteProfile() {
                   />
                   
                   <Input
+                    placeholder="Codice Fiscale"
+                    value={formData.codice_fiscale}
+                    onChange={(e) => setFormData({...formData, codice_fiscale: e.target.value})}
+                    className="bg-slate-900 border-slate-700 text-white"
+                  />
+                  
+                  <Input
                     placeholder="Codice SDI"
                     value={formData.codice_sdi}
                     onChange={(e) => setFormData({...formData, codice_sdi: e.target.value})}
+                    className="bg-slate-900 border-slate-700 text-white"
+                  />
+                  
+                  <Input
+                    placeholder="Sito Web"
+                    value={formData.website}
+                    onChange={(e) => setFormData({...formData, website: e.target.value})}
                     className="bg-slate-900 border-slate-700 text-white"
                   />
                   
@@ -189,14 +216,6 @@ export default function CompleteProfile() {
                     className="bg-slate-900 border-slate-700 text-white"
                   />
                   
-                  <Input
-                    placeholder="Email Aziendale"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    className="bg-slate-900 border-slate-700 text-white"
-                  />
-                  
                   <div>
                     <label className="text-lime-400 text-sm font-medium mb-1 block">Nome Referente *</label>
                     <Input
@@ -220,9 +239,9 @@ export default function CompleteProfile() {
                   </div>
                   
                   <Input
-                    placeholder="WhatsApp Referente"
-                    value={formData.whatsapp_referente}
-                    onChange={(e) => setFormData({...formData, whatsapp_referente: e.target.value})}
+                    placeholder="Email Referente"
+                    value={formData.referente_email}
+                    onChange={(e) => setFormData({...formData, referente_email: e.target.value})}
                     className="bg-slate-900 border-slate-700 text-white"
                   />
                 </div>
@@ -258,6 +277,27 @@ export default function CompleteProfile() {
                       className="bg-slate-900 border-slate-700 text-white"
                       maxLength={2}
                     />
+                  </div>
+                  
+                  <div>
+                    <label className="text-lime-400 text-sm font-medium mb-1 block">Regione *</label>
+                    <Select
+                      value={formData.region}
+                      onValueChange={(value) => setFormData({...formData, region: value})}
+                      required
+                    >
+                      <SelectTrigger className="bg-lime-400/10 border-lime-400 text-white">
+                        <SelectValue placeholder="Seleziona regione" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {['Abruzzo', 'Basilicata', 'Calabria', 'Campania', 'Emilia-Romagna',
+                          'Friuli Venezia Giulia', 'Lazio', 'Liguria', 'Lombardia', 'Marche',
+                          'Molise', 'Piemonte', 'Puglia', 'Sardegna', 'Sicilia', 'Toscana',
+                          'Trentino-Alto Adige', 'Umbria', "Valle d'Aosta", 'Veneto'].map((regione) => (
+                          <SelectItem key={regione} value={regione}>{regione}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   
                   <Input
