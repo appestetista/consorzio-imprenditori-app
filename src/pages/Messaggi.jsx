@@ -43,8 +43,20 @@ export default function Messaggi() {
       return [...sent, ...received].sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
     },
     enabled: !!user?.email,
-    refetchInterval: 5000,
   });
+
+  // Real-time subscription per messaggi
+  useEffect(() => {
+    if (!user?.email) return;
+    
+    const unsubscribe = base44.entities.Message.subscribe((event) => {
+      // Invalida la cache per aggiornare i messaggi in tempo reale
+      queryClient.invalidateQueries({ queryKey: ['all-messages'] });
+      queryClient.invalidateQueries({ queryKey: ['unread-messages'] });
+    });
+
+    return () => unsubscribe();
+  }, [user?.email, queryClient]);
 
   const { data: users = [] } = useQuery({
     queryKey: ['users-list'],
