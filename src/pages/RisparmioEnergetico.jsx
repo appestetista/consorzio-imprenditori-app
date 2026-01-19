@@ -31,6 +31,12 @@ export default function RisparmioEnergetico() {
 
   const services = [
     {
+      icon: Heart,
+      title: 'Welfare Aziendale',
+      description: 'Soluzioni di welfare e benefit per i dipendenti',
+      color: 'pink'
+    },
+    {
       icon: Shield,
       title: 'Assicurazioni',
       description: 'Polizze aziendali a condizioni vantaggiose per i membri'
@@ -64,12 +70,6 @@ export default function RisparmioEnergetico() {
       icon: Wifi,
       title: 'Internet',
       description: 'Connettività fibra e ADSL a tariffe dedicate'
-    },
-    {
-      icon: Heart,
-      title: 'Welfare Aziendale',
-      description: 'Soluzioni di welfare e benefit per i dipendenti',
-      color: 'pink'
     }
   ];
 
