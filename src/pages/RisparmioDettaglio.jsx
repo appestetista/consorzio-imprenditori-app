@@ -140,6 +140,7 @@ export default function RisparmioDettaglio() {
     operatore_attuale: '',
     num_linee: '',
     num_interni: '',
+    num_mobile: '',
     spesa_mensile: '',
     servizi_utilizzati: [],
     problemi_attuali: '',
@@ -244,6 +245,7 @@ RICHIESTA ANALISI SPESA TELEFONICA
 - Operatore attuale: ${telefonicaForm.operatore_attuale || 'Non specificato'}
 - Numero linee fisse: ${telefonicaForm.num_linee || 'Non specificato'}
 - Numero interni: ${telefonicaForm.num_interni || 'Non specificato'}
+- Numero linee mobili aziendali: ${telefonicaForm.num_mobile || 'Non specificato'}
 - Spesa mensile attuale: ${telefonicaForm.spesa_mensile || 'Non specificato'}
 
 📋 SERVIZI UTILIZZATI:
@@ -841,6 +843,24 @@ ${note || 'Nessuna'}
                 >
                   <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
                     <SelectValue placeholder="Seleziona numero interni" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Array.from({length: 20}, (_, i) => i + 1).map(num => (
+                      <SelectItem key={num} value={String(num)}>{num}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Numero linee mobili aziendali */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Numero di linee mobili aziendali (cellulari)</Label>
+                <Select 
+                  value={telefonicaForm.num_mobile} 
+                  onValueChange={(v) => setTelefonicaForm({...telefonicaForm, num_mobile: v})}
+                >
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                    <SelectValue placeholder="Seleziona numero cellulari" />
                   </SelectTrigger>
                   <SelectContent>
                     {Array.from({length: 20}, (_, i) => i + 1).map(num => (
