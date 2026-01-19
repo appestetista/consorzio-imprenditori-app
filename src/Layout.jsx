@@ -1,14 +1,5 @@
-import React, { useEffect } from 'react';
-import { ImpersonationProvider } from '@/components/admin/ImpersonationContext';
+import React from 'react';
 
-export default function Layout({ children, currentPageName }) {
-  useEffect(() => {
-    console.log('[LAYOUT] Current page:', currentPageName);
-  }, [currentPageName]);
-
-  return (
-    <ImpersonationProvider>
-      {children}
-    </ImpersonationProvider>
-  );
+export default function Layout({ children }) {
+  return <>{children}</>;
 }
