@@ -299,26 +299,89 @@ export default function Messaggi() {
         </div>
 
         {/* Input - sempre fisso in basso */}
-        <div className="bg-slate-800 p-4 border-t border-slate-700 flex-shrink-0">
-          <div className="flex gap-2">
+        <div className="bg-slate-800 border-t border-slate-700 flex-shrink-0">
+          {/* Anteprima allegati */}
+          {attachments.length > 0 && (
+            <div className="px-4 pt-3 flex gap-2 flex-wrap">
+              {attachments.map((att, idx) => (
+                <div key={idx} className="relative">
+                  {att.type?.startsWith('image/') ? (
+                    <img src={att.url} alt={att.name} className="w-16 h-16 object-cover rounded-lg" />
+                  ) : (
+                    <div className="w-16 h-16 bg-slate-700 rounded-lg flex items-center justify-center">
+                      <FileText className="w-6 h-6 text-lime-400" />
+                    </div>
+                  )}
+                  <button
+                    onClick={() => removeAttachment(idx)}
+                    className="absolute -top-1 -right-1 bg-red-500 rounded-full p-0.5"
+                  >
+                    <X className="w-3 h-3 text-white" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          
+          <div className="p-4 flex gap-2 items-center">
+            {/* Input nascosti */}
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileUpload}
+              accept=".pdf,.png,.jpg,.jpeg"
+              className="hidden"
+              multiple
+            />
+            <input
+              type="file"
+              ref={cameraInputRef}
+              onChange={handleCameraCapture}
+              accept="image/*"
+              capture="environment"
+              className="hidden"
+            />
+            
+            {/* Pulsante allega */}
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+              className="text-slate-400 hover:text-lime-400 transition-colors p-2"
+            >
+              <Paperclip className="w-6 h-6" />
+            </button>
+            
+            {/* Pulsante fotocamera */}
+            <button
+              onClick={() => cameraInputRef.current?.click()}
+              disabled={uploading}
+              className="text-slate-400 hover:text-lime-400 transition-colors p-2"
+            >
+              <Camera className="w-6 h-6" />
+            </button>
+            
             <Input
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               placeholder="Scrivi un messaggio..."
-              className="bg-slate-900 border-slate-700 text-white h-14 text-base"
+              className="bg-slate-900 border-slate-700 text-white h-14 text-base flex-1"
               onKeyPress={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault();
-                  if (newMessage.trim()) sendMessageMutation.mutate();
+                  if (newMessage.trim() || attachments.length > 0) sendMessageMutation.mutate();
                 }
               }}
             />
             <Button
               onClick={() => sendMessageMutation.mutate()}
-              disabled={!newMessage.trim() || sendMessageMutation.isPending}
-              className="bg-lime-400 hover:bg-lime-500 text-slate-900"
+              disabled={(!newMessage.trim() && attachments.length === 0) || sendMessageMutation.isPending || uploading}
+              className="bg-lime-400 hover:bg-lime-500 text-slate-900 h-14 w-14"
             >
-              <Send className="w-5 h-5" />
+              {uploading ? (
+                <div className="animate-spin w-5 h-5 border-2 border-slate-900 border-t-transparent rounded-full" />
+              ) : (
+                <Send className="w-5 h-5" />
+              )}
             </Button>
           </div>
         </div>
