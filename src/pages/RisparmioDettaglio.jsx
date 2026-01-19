@@ -134,6 +134,18 @@ export default function RisparmioDettaglio() {
     indirizzo_installazione: ''
   });
 
+  // Form spesa telefonica
+  const [telefonicaForm, setTelefonicaForm] = useState({
+    tipo_utenza: '',
+    operatore_attuale: '',
+    num_linee: '',
+    spesa_mensile: '',
+    servizi_utilizzati: [],
+    problemi_attuali: '',
+    interesse_fibra: '',
+    interesse_mobile: ''
+  });
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     setCategoria(params.get('categoria') || '');
@@ -218,6 +230,29 @@ RICHIESTA PREVENTIVO FOTOVOLTAICO
 💰 BUDGET E TEMPISTICHE:
 - Budget indicativo: ${fotovoltaicoForm.budget_indicativo || 'Non specificato'}
 - Tempistiche desiderate: ${fotovoltaicoForm.tempistiche || 'Non specificato'}
+
+📝 NOTE AGGIUNTIVE:
+${note || 'Nessuna'}
+        `.trim();
+      } else if (categoria === 'Spesa Telefonica') {
+        noteFinali = `
+RICHIESTA ANALISI SPESA TELEFONICA
+
+📞 SITUAZIONE ATTUALE:
+- Tipo utenza: ${telefonicaForm.tipo_utenza || 'Non specificato'}
+- Operatore attuale: ${telefonicaForm.operatore_attuale || 'Non specificato'}
+- Numero linee/SIM: ${telefonicaForm.num_linee || 'Non specificato'}
+- Spesa mensile attuale: ${telefonicaForm.spesa_mensile || 'Non specificato'}
+
+📋 SERVIZI UTILIZZATI:
+${telefonicaForm.servizi_utilizzati.length > 0 ? telefonicaForm.servizi_utilizzati.join(', ') : 'Non specificato'}
+
+❌ PROBLEMI RISCONTRATI:
+${telefonicaForm.problemi_attuali || 'Nessuno specificato'}
+
+🔍 INTERESSI:
+- Interesse fibra/internet: ${telefonicaForm.interesse_fibra || 'Non specificato'}
+- Interesse mobile aziendale: ${telefonicaForm.interesse_mobile || 'Non specificato'}
 
 📝 NOTE AGGIUNTIVE:
 ${note || 'Nessuna'}
