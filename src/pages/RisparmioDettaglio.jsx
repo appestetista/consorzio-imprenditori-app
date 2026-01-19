@@ -166,6 +166,18 @@ export default function RisparmioDettaglio() {
     budget_indicativo: ''
   });
 
+  // Form internet
+  const [internetForm, setInternetForm] = useState({
+    tipo_utenza: '',
+    operatore_attuale: '',
+    tipo_connessione: '',
+    velocita_attuale: '',
+    spesa_mensile: '',
+    esigenze: [],
+    problemi_attuali: '',
+    indirizzo: ''
+  });
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     setCategoria(params.get('categoria') || '');
