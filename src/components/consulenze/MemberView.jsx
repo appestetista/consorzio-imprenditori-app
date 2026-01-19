@@ -300,6 +300,11 @@ export default function MemberView({ user, consultants, isLoading }) {
           })}
         </div>
       )}
-    </>
+      </TabsContent>
+
+      <TabsContent value="consulenti">
+        <ConsultantsList currentUserEmail={user?.email} />
+      </TabsContent>
+    </Tabs>
   );
 }
