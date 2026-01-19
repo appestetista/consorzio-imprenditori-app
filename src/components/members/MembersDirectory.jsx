@@ -15,6 +15,7 @@ export default function MembersDirectory({ currentUserEmail }) {
   const [activeTab, setActiveTab] = useState('aziende'); // 'aziende' o 'consulenti'
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { playSound } = useNotificationSound();
 
   // Debug log
   console.log('[MembersDirectory] currentUserEmail:', currentUserEmail);
