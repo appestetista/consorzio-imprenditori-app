@@ -119,6 +119,7 @@ export default function RisparmioDettaglio() {
     superficie_tetto: '',
     orientamento_tetto: '',
     consumo_mensile: '',
+    consumo_annuo_kwh: '',
     tipo_copertura: '',
     presenza_ombreggiature: '',
     interesse_batterie: '',
