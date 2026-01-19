@@ -464,6 +464,19 @@ ${note || 'Nessuna'}
                 </Select>
               </div>
 
+              {/* Consumo annuo kWh */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Consumo annuo di energia elettrica (kWh)</Label>
+                <Input
+                  type="number"
+                  placeholder="Es. 3500"
+                  value={fotovoltaicoForm.consumo_annuo_kwh}
+                  onChange={(e) => setFotovoltaicoForm({...fotovoltaicoForm, consumo_annuo_kwh: e.target.value})}
+                  className="bg-slate-900 border-slate-700 text-white"
+                />
+                <p className="text-slate-500 text-xs">Lo trovi in bolletta – voce "Consumo annuo"</p>
+              </div>
+
               {/* Batterie accumulo */}
               <div className="space-y-2">
                 <Label className="text-slate-300">Interesse per batterie di accumulo</Label>
