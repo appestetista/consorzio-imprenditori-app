@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { ImpersonationProvider } from './components/admin/ImpersonationContext';
+import { ImpersonationProvider } from '@/components/admin/ImpersonationContext';
 
 export default function Layout({ children, currentPageName }) {
   useEffect(() => {
