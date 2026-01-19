@@ -176,7 +176,19 @@ export default function MemberView({ user, consultants, isLoading }) {
   const completedCount = bookings.length;
 
   return (
-    <>
+    <Tabs defaultValue="consulenze" className="w-full">
+      <TabsList className="w-full bg-slate-800 border border-slate-700 mb-4">
+        <TabsTrigger value="consulenze" className="flex-1 data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
+          <Gift className="w-4 h-4 mr-2" />
+          Consulenze
+        </TabsTrigger>
+        <TabsTrigger value="consulenti" className="flex-1 data-[state=active]:bg-amber-500 data-[state=active]:text-white">
+          <Users className="w-4 h-4 mr-2" />
+          Consulenti
+        </TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="consulenze">
       <Card className="bg-gradient-to-br from-slate-800 to-slate-900 border-lime-400/30 mb-6">
         <CardContent className="p-6">
           <div className="flex items-center gap-2 text-lime-400 mb-3">
