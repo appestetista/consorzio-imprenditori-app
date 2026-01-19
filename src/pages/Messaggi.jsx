@@ -20,7 +20,11 @@ export default function Messaggi() {
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [newMessage, setNewMessage] = useState('');
   const [messageToDelete, setMessageToDelete] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [attachments, setAttachments] = useState([]);
   const messagesEndRef = useRef(null);
+  const fileInputRef = useRef(null);
+  const cameraInputRef = useRef(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
