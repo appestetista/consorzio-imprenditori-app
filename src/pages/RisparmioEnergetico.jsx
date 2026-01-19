@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Zap, Lightbulb, Leaf, Shield, Flame, Sun, Phone, Wifi } from 'lucide-react';
+import { ArrowLeft, Zap, Lightbulb, Leaf, Shield, Flame, Sun, Phone, Wifi, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -64,6 +64,11 @@ export default function RisparmioEnergetico() {
       icon: Wifi,
       title: 'Internet',
       description: 'Connettività fibra e ADSL a tariffe dedicate'
+    },
+    {
+      icon: Heart,
+      title: 'Welfare Aziendale',
+      description: 'Soluzioni di welfare e benefit per i dipendenti'
     }
   ];
 
