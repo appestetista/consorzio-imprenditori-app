@@ -238,7 +238,7 @@ export default function Messaggi() {
           <div className="flex-1 min-w-0">
             <p className="text-white font-medium truncate">{otherUser?.company_name || otherUser?.full_name || selectedConversation}</p>
             {otherUser?.specializzazione && (
-              <p className="text-lime-400 text-xs truncate">{otherUser.specializzazione}</p>
+              <p className="text-lime-400 text-xs truncate">💼 {otherUser.specializzazione}</p>
             )}
             <div className="text-slate-400 text-xs space-y-0.5">
               {(otherUser?.city || otherUser?.region) && (
