@@ -107,17 +107,19 @@ export default function MyProfile() {
         await base44.auth.updateMe(formData);
         const updatedUser = await base44.auth.me();
         setUser(updatedUser);
-        
-        // Se tutti i campi obbligatori sono compilati, vai alla Home
-        const allFieldsComplete = REQUIRED_FIELDS.every(field => {
-          const value = formData[field];
-          return value && value.trim() !== '';
-        });
-        if (allFieldsComplete) {
-          navigate(createPageUrl('Home'));
-          return;
-        }
       }
+      
+      // Se tutti i campi obbligatori sono compilati, vai alla Home
+      const allFieldsComplete = REQUIRED_FIELDS.every(field => {
+        const value = formData[field];
+        return value && typeof value === 'string' && value.trim() !== '';
+      });
+      
+      if (allFieldsComplete) {
+        navigate(createPageUrl('Home'));
+        return;
+      }
+      
       alert('Profilo aggiornato con successo!');
     } catch (error) {
       alert('Errore durante il salvataggio');
