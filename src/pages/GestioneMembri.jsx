@@ -73,6 +73,7 @@ export default function GestioneMembri() {
       if (memberToEdit) {
         const data = {
           company_name: memberToEdit.company_name || '',
+          specializzazione: memberToEdit.specializzazione || '',
           email: memberToEdit.email || '',
           phone: memberToEdit.phone || '',
           website: memberToEdit.website || '',
@@ -97,7 +98,8 @@ export default function GestioneMembri() {
           citta: memberToEdit.citta || '',
           regione: memberToEdit.regione || '',
           cap: memberToEdit.cap || '',
-          paese: memberToEdit.paese || ''
+          paese: memberToEdit.paese || '',
+          region: memberToEdit.region || ''
         };
         setFormData(data);
         setInitialFormData(data);
@@ -181,6 +183,7 @@ export default function GestioneMembri() {
   const handleEditMember = (member) => {
     const data = {
       company_name: member.company_name || '',
+      specializzazione: member.specializzazione || '',
       email: member.email || '',
       phone: member.phone || '',
       website: member.website || '',
@@ -205,7 +208,8 @@ export default function GestioneMembri() {
       citta: member.citta || '',
       regione: member.regione || '',
       cap: member.cap || '',
-      paese: member.paese || ''
+      paese: member.paese || '',
+      region: member.region || ''
     };
     setFormData(data);
     setInitialFormData(data);
@@ -322,6 +326,7 @@ export default function GestioneMembri() {
             onClick={() => {
               setFormData({
                 company_name: '',
+                specializzazione: '',
                 email: '',
                 phone: '',
                 website: '',
@@ -346,7 +351,8 @@ export default function GestioneMembri() {
                 citta: '',
                 regione: '',
                 cap: '',
-                paese: ''
+                paese: '',
+                region: ''
               });
               setSelectedMember(null);
               setShowMemberForm(true);
@@ -548,6 +554,15 @@ export default function GestioneMembri() {
                       onChange={(e) => setFormData({...formData, company_name: e.target.value})}
                       className="bg-lime-400/10 border-lime-400 text-white mt-1 placeholder:text-lime-400/50"
                       placeholder="Es: Acme S.r.l."
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <Label className="text-lime-400 text-sm font-medium">Specializzazione (obbligatorio)</Label>
+                    <Input
+                      value={formData.specializzazione || ''}
+                      onChange={(e) => setFormData({...formData, specializzazione: e.target.value})}
+                      className="bg-lime-400/10 border-lime-400 text-white mt-1 placeholder:text-lime-400/50"
+                      placeholder="Es: Produzione industriale, Servizi IT, Consulenza..."
                     />
                   </div>
                   <div className="col-span-2">
