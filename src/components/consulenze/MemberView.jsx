@@ -215,11 +215,11 @@ export default function MemberView({ user, consultants, isLoading }) {
         </Card>
 
         {isLoading ? (
-        <div className="text-center py-12">
-          <div className="animate-spin w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full mx-auto"></div>
-        </div>
-      ) : (
-        <div className="space-y-4">
+          <div className="text-center py-12">
+            <div className="animate-spin w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full mx-auto"></div>
+          </div>
+        ) : (
+          <div className="space-y-4">
           {CONSULTANT_CATEGORIES.map((category, index) => {
             const consultant = consultants.find(c => c.category === category);
             
