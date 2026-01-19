@@ -95,8 +95,8 @@ export default function MembersDirectory({ currentUserEmail }) {
           variant={activeTab === 'consulenti' ? 'default' : 'outline'}
           onClick={() => setActiveTab('consulenti')}
           className={activeTab === 'consulenti' 
-            ? 'bg-lime-400 text-slate-900 hover:bg-lime-500' 
-            : 'border-slate-700 text-slate-300 hover:bg-slate-800'}
+            ? 'bg-amber-500 text-white hover:bg-amber-600 border-b-4 border-amber-600' 
+            : 'border-2 border-amber-500 text-amber-500 hover:bg-amber-500/10'}
         >
           <Briefcase className="w-4 h-4 mr-2" />
           Consulenti ({filteredConsultants.length})
