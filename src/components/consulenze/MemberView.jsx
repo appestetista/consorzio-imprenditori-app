@@ -190,7 +190,7 @@ export default function MemberView({ user, consultants, isLoading }) {
 
       <TabsContent value="consulenze">
         <Card className="bg-gradient-to-br from-slate-800 to-slate-900 border-lime-400/30 mb-6">
-        <CardContent className="p-6">
+          <CardContent className="p-6">
           <div className="flex items-center gap-2 text-lime-400 mb-3">
             <Gift className="w-5 h-5" />
             <span className="font-bold">Consulenze Gratuite Partner del Consorzio</span>
