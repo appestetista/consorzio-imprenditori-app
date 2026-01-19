@@ -516,6 +516,37 @@ ${note || 'Nessuna'}
                 </div>
               </div>
 
+              {/* Potenza contatore */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Potenza del contatore (kW)</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { value: '3kw', label: '3 kW' },
+                    { value: '4.5kw', label: '4,5 kW' },
+                    { value: '6kw', label: '6 kW' },
+                    { value: 'oltre_6kw', label: '> 6 kW' }
+                  ].map((potenza) => (
+                    <label 
+                      key={potenza.value}
+                      className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-colors ${
+                        fotovoltaicoForm.potenza_contatore === potenza.value
+                          ? 'bg-lime-400/20 border-lime-400 text-lime-400'
+                          : 'bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="potenza_contatore"
+                        checked={fotovoltaicoForm.potenza_contatore === potenza.value}
+                        onChange={() => setFotovoltaicoForm({...fotovoltaicoForm, potenza_contatore: potenza.value})}
+                        className="sr-only"
+                      />
+                      <span>{potenza.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
               {/* Batterie accumulo */}
               <div className="space-y-2">
                 <Label className="text-slate-300">Interesse per batterie di accumulo</Label>
