@@ -123,6 +123,7 @@ export default function RisparmioDettaglio() {
     fasce_orarie_consumo: [],
     potenza_contatore: '',
     anno_impianto_elettrico: '',
+    interesse_incentivi: [],
     tipo_copertura: '',
     presenza_ombreggiature: '',
     interesse_batterie: '',
@@ -209,6 +210,7 @@ RICHIESTA PREVENTIVO FOTOVOLTAICO
 - Fasce orarie consumo: ${fotovoltaicoForm.fasce_orarie_consumo.length > 0 ? fotovoltaicoForm.fasce_orarie_consumo.join(', ') : 'Non specificato'}
 - Potenza contatore: ${fotovoltaicoForm.potenza_contatore || 'Non specificato'}
 - Anno impianto elettrico: ${fotovoltaicoForm.anno_impianto_elettrico || 'Non specificato'}
+- Interesse incentivi fiscali: ${fotovoltaicoForm.interesse_incentivi.length > 0 ? fotovoltaicoForm.interesse_incentivi.join(', ') : 'Non specificato'}
 - Interesse batterie accumulo: ${fotovoltaicoForm.interesse_batterie || 'Non specificato'}
 - Interesse colonnina ricarica: ${fotovoltaicoForm.interesse_colonnina || 'Non specificato'}
 
@@ -568,6 +570,41 @@ ${note || 'Nessuna'}
                     <SelectItem value="non_so">Non so</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+
+              {/* Interesse incentivi fiscali */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Interesse per incentivi fiscali</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { value: 'detrazione_fiscale', label: 'Detrazione fiscale' },
+                    { value: 'comunita_energetica', label: 'Comunità energetica' },
+                    { value: 'nessun_incentivo', label: 'Nessun incentivo' },
+                    { value: 'non_so', label: 'Non so' }
+                  ].map((incentivo) => (
+                    <label 
+                      key={incentivo.value}
+                      className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-colors ${
+                        fotovoltaicoForm.interesse_incentivi.includes(incentivo.value)
+                          ? 'bg-lime-400/20 border-lime-400 text-lime-400'
+                          : 'bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500'
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={fotovoltaicoForm.interesse_incentivi.includes(incentivo.value)}
+                        onChange={(e) => {
+                          const newIncentivi = e.target.checked
+                            ? [...fotovoltaicoForm.interesse_incentivi, incentivo.value]
+                            : fotovoltaicoForm.interesse_incentivi.filter(i => i !== incentivo.value);
+                          setFotovoltaicoForm({...fotovoltaicoForm, interesse_incentivi: newIncentivi});
+                        }}
+                        className="sr-only"
+                      />
+                      <span>{incentivo.label}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
 
               {/* Batterie accumulo */}
