@@ -28,11 +28,18 @@ export default function Messaggi() {
   const cameraInputRef = useRef(null);
   const queryClient = useQueryClient();
   
-  const { isImpersonating, impersonatedUser } = useImpersonation();
+  const { impersonation, appMode } = useImpersonation();
   
   // L'utente effettivo è quello impersonato se attivo, altrimenti l'utente loggato
-  const effectiveUser = isImpersonating && impersonatedUser ? impersonatedUser : user;
-  const effectiveEmail = effectiveUser?.email;
+  const isImpersonating = impersonation?.active && appMode === 'user-preview';
+  const impersonatedUser = impersonation?.targetUserData || { 
+    email: impersonation?.targetEmail, 
+    full_name: impersonation?.targetName,
+    logo_url: impersonation?.targetUserData?.logo_url
+  };
+  
+  const effectiveUser = isImpersonating ? impersonatedUser : user;
+  const effectiveEmail = isImpersonating ? impersonation?.targetEmail : user?.email;
 
   useEffect(() => {
     const loadUser = async () => {
