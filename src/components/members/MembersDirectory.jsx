@@ -28,11 +28,6 @@ export default function MembersDirectory({ currentUserEmail }) {
     }
   });
 
-  const { data: consultants = [], isLoading: loadingConsultants } = useQuery({
-    queryKey: ['consultants-directory'],
-    queryFn: () => base44.entities.Consultant.list()
-  });
-
   // Carica messaggi non letti per mostrare notifiche
   const { data: unreadMessages = [] } = useQuery({
     queryKey: ['unread-messages-directory', currentUserEmail],
