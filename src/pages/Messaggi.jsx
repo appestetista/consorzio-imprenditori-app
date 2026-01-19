@@ -267,6 +267,9 @@ export default function Messaggi() {
         <div className="flex-1 overflow-y-auto p-4">
           <div className="space-y-3">
             {conversationMessages.map((msg) => {
+                  // Debug: log per verificare
+                  console.log('effectiveEmail:', effectiveEmail, 'msg.from_email:', msg.from_email, 'isMyMessage:', msg.from_email === effectiveEmail);
+                  
                   const isMyMessage = msg.from_email === effectiveEmail;
                   const senderUser = isMyMessage ? effectiveUser : otherUser;
 
