@@ -145,6 +145,7 @@ export default function MembersDirectory({ currentUserEmail }) {
                 consultant={consultant} 
                 onChat={() => handleChat(consultant.email)}
                 currentUserEmail={currentUserEmail}
+                unreadCount={unreadCountByEmail[consultant.email] || 0}
               />
             ))
           )
