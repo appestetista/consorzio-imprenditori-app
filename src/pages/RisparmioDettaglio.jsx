@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Camera, Upload, FileText, CheckCircle, Info, TrendingDown, Users, Clock, Send, Loader2, Shield, Lightbulb, Flame, Leaf, Sun, Phone, Wifi, Building2, Home, Factory, MapPin } from 'lucide-react';
+import { ArrowLeft, Camera, Upload, FileText, CheckCircle, Info, TrendingDown, Users, Clock, Send, Loader2, Shield, Lightbulb, Flame, Leaf, Sun, Phone, Wifi, Building2, Home, Factory, MapPin, HelpCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Card, CardContent } from '@/components/ui/card';
@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 
@@ -575,36 +576,58 @@ ${note || 'Nessuna'}
               {/* Interesse incentivi fiscali */}
               <div className="space-y-2">
                 <Label className="text-slate-300">Interesse per incentivi fiscali</Label>
-                <div className="grid grid-cols-2 gap-2">
-                  {[
-                    { value: 'detrazione_fiscale', label: 'Detrazione fiscale' },
-                    { value: 'comunita_energetica', label: 'Comunità energetica' },
-                    { value: 'nessun_incentivo', label: 'Nessun incentivo' },
-                    { value: 'non_so', label: 'Non so' }
-                  ].map((incentivo) => (
-                    <label 
-                      key={incentivo.value}
-                      className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-colors ${
-                        fotovoltaicoForm.interesse_incentivi.includes(incentivo.value)
-                          ? 'bg-lime-400/20 border-lime-400 text-lime-400'
-                          : 'bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500'
-                      }`}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={fotovoltaicoForm.interesse_incentivi.includes(incentivo.value)}
-                        onChange={(e) => {
-                          const newIncentivi = e.target.checked
-                            ? [...fotovoltaicoForm.interesse_incentivi, incentivo.value]
-                            : fotovoltaicoForm.interesse_incentivi.filter(i => i !== incentivo.value);
-                          setFotovoltaicoForm({...fotovoltaicoForm, interesse_incentivi: newIncentivi});
-                        }}
-                        className="sr-only"
-                      />
-                      <span>{incentivo.label}</span>
-                    </label>
-                  ))}
-                </div>
+                <TooltipProvider>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { 
+                        value: 'detrazione_fiscale', 
+                        label: 'Detrazione fiscale',
+                        tooltip: 'La detrazione fiscale ti permette di recuperare il 50% del costo dell\'impianto in 10 anni tramite la dichiarazione dei redditi. Esempio: se spendi €10.000, recuperi €5.000 (€500/anno per 10 anni).'
+                      },
+                      { 
+                        value: 'comunita_energetica', 
+                        label: 'Comunità energetica',
+                        tooltip: 'Una Comunità Energetica Rinnovabile (CER) è un gruppo di cittadini, imprese o enti che condividono l\'energia prodotta da fonti rinnovabili. Permette di ottenere incentivi aggiuntivi (fino a 110€/MWh) e risparmiare condividendo l\'energia con i vicini.'
+                      },
+                      { value: 'nessun_incentivo', label: 'Nessun incentivo', tooltip: null },
+                      { value: 'non_so', label: 'Non so', tooltip: null }
+                    ].map((incentivo) => (
+                      <label 
+                        key={incentivo.value}
+                        className={`flex items-center justify-between gap-2 p-3 rounded-lg border cursor-pointer transition-colors ${
+                          fotovoltaicoForm.interesse_incentivi.includes(incentivo.value)
+                            ? 'bg-lime-400/20 border-lime-400 text-lime-400'
+                            : 'bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={fotovoltaicoForm.interesse_incentivi.includes(incentivo.value)}
+                            onChange={(e) => {
+                              const newIncentivi = e.target.checked
+                                ? [...fotovoltaicoForm.interesse_incentivi, incentivo.value]
+                                : fotovoltaicoForm.interesse_incentivi.filter(i => i !== incentivo.value);
+                              setFotovoltaicoForm({...fotovoltaicoForm, interesse_incentivi: newIncentivi});
+                            }}
+                            className="sr-only"
+                          />
+                          <span className="text-sm">{incentivo.label}</span>
+                        </div>
+                        {incentivo.tooltip && (
+                          <Tooltip>
+                            <TooltipTrigger asChild onClick={(e) => e.preventDefault()}>
+                              <HelpCircle className="w-4 h-4 text-slate-400 hover:text-lime-400 flex-shrink-0" />
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-[280px] bg-slate-800 border-slate-600 text-slate-200 p-3">
+                              <p className="text-xs leading-relaxed">{incentivo.tooltip}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
+                      </label>
+                    ))}
+                  </div>
+                </TooltipProvider>
               </div>
 
               {/* Batterie accumulo */}
