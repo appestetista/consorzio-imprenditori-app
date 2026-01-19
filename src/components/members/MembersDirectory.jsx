@@ -35,7 +35,11 @@ export default function MembersDirectory({ currentUserEmail }) {
   // Carica messaggi non letti per mostrare notifiche
   const { data: unreadMessages = [] } = useQuery({
     queryKey: ['unread-messages-directory', currentUserEmail],
-    queryFn: () => base44.entities.Message.filter({ to_email: currentUserEmail, is_read: false }),
+    queryFn: async () => {
+      const messages = await base44.entities.Message.filter({ to_email: currentUserEmail, is_read: false });
+      console.log('[MembersDirectory] Unread messages for', currentUserEmail, ':', messages);
+      return messages;
+    },
     enabled: !!currentUserEmail
   });
 
