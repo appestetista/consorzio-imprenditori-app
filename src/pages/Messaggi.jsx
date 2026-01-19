@@ -259,19 +259,42 @@ export default function Messaggi() {
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4">
           <div className="space-y-3">
-            {conversationMessages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`flex ${msg.from_email === user?.email ? 'justify-end' : 'justify-start'}`}
-              >
-                <div className={`flex items-start gap-2 ${msg.from_email === user?.email ? 'flex-row-reverse' : 'flex-row'}`}>
+            {conversationMessages.map((msg) => {
+                  const isMyMessage = msg.from_email === user?.email;
+                  const senderUser = isMyMessage ? user : otherUser;
+
+                  return (
                   <div
-                    className={`max-w-[80%] rounded-2xl px-4 py-2 ${
-                      msg.from_email === user?.email
-                        ? 'bg-lime-400 text-slate-900'
-                        : 'bg-blue-500 text-white'
-                    }`}
+                    key={msg.id}
+                    className={`flex ${isMyMessage ? 'justify-end' : 'justify-start'}`}
                   >
+                    <div className={`flex items-end gap-2 ${isMyMessage ? 'flex-row-reverse' : 'flex-row'}`}>
+                      {/* Avatar */}
+                      {isMyMessage && (
+                        user?.logo_url ? (
+                          <img src={user.logo_url} alt="" className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
+                        ) : (
+                          <div className="w-8 h-8 rounded-full bg-lime-400/30 flex items-center justify-center flex-shrink-0">
+                            <User className="w-4 h-4 text-lime-400" />
+                          </div>
+                        )
+                      )}
+                      {!isMyMessage && (
+                        otherUser?.logo_url ? (
+                          <img src={otherUser.logo_url} alt="" className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
+                        ) : (
+                          <div className="w-8 h-8 rounded-full bg-slate-600 flex items-center justify-center flex-shrink-0">
+                            <User className="w-4 h-4 text-slate-400" />
+                          </div>
+                        )
+                      )}
+                      <div
+                        className={`max-w-[75%] rounded-2xl px-4 py-2 ${
+                          isMyMessage
+                            ? 'bg-lime-400 text-slate-900'
+                            : 'bg-slate-700 text-white'
+                        }`}
+                      >
                     {/* Allegati */}
                     {msg.attachments && msg.attachments.length > 0 && (
                       <div className="space-y-2 mb-2">
@@ -291,8 +314,8 @@ export default function Messaggi() {
                               />
                             ) : (
                               <div className={`flex items-center gap-2 p-2 rounded-lg ${
-                                msg.from_email === user?.email ? 'bg-lime-500/30' : 'bg-blue-600'
-                              }`}>
+                                      isMyMessage ? 'bg-lime-500/30' : 'bg-slate-600'
+                                    }`}>
                                 <FileText className="w-5 h-5" />
                                 <span className="text-sm truncate">{att.name}</span>
                               </div>
@@ -303,7 +326,7 @@ export default function Messaggi() {
                     )}
                     {msg.content && <p className="text-sm whitespace-pre-wrap">{msg.content}</p>}
                     <p className={`text-xs mt-1 ${
-                      msg.from_email === user?.email ? 'text-slate-700' : 'text-blue-200'
+                      isMyMessage ? 'text-slate-700' : 'text-slate-400'
                     }`}>
                       {format(new Date(msg.created_date), 'HH:mm', { locale: it })}
                       {new Date(msg.created_date).toDateString() !== new Date().toDateString() && (
@@ -312,18 +335,19 @@ export default function Messaggi() {
                         </span>
                       )}
                     </p>
-                  </div>
-                  {canDeleteMessage(msg) && (
+                    </div>
+                    {canDeleteMessage(msg) && (
                     <button
                       onClick={() => setMessageToDelete(msg)}
                       className="text-slate-500 hover:text-red-500 transition-colors"
                     >
                       <X className="w-4 h-4" />
                     </button>
-                  )}
-                </div>
-              </div>
-            ))}
+                    )}
+                    </div>
+                    </div>
+                    );
+                    })}
             <div ref={messagesEndRef} />
           </div>
         </div>
