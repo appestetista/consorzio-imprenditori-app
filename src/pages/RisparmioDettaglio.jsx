@@ -122,6 +122,7 @@ export default function RisparmioDettaglio() {
     consumo_annuo_kwh: '',
     fasce_orarie_consumo: [],
     potenza_contatore: '',
+    anno_impianto_elettrico: '',
     tipo_copertura: '',
     presenza_ombreggiature: '',
     interesse_batterie: '',
@@ -207,6 +208,7 @@ RICHIESTA PREVENTIVO FOTOVOLTAICO
 - Consumo annuo energia (kWh): ${fotovoltaicoForm.consumo_annuo_kwh || 'Non specificato'}
 - Fasce orarie consumo: ${fotovoltaicoForm.fasce_orarie_consumo.length > 0 ? fotovoltaicoForm.fasce_orarie_consumo.join(', ') : 'Non specificato'}
 - Potenza contatore: ${fotovoltaicoForm.potenza_contatore || 'Non specificato'}
+- Anno impianto elettrico: ${fotovoltaicoForm.anno_impianto_elettrico || 'Non specificato'}
 - Interesse batterie accumulo: ${fotovoltaicoForm.interesse_batterie || 'Non specificato'}
 - Interesse colonnina ricarica: ${fotovoltaicoForm.interesse_colonnina || 'Non specificato'}
 
@@ -546,6 +548,26 @@ ${note || 'Nessuna'}
                     </label>
                   ))}
                 </div>
+              </div>
+
+              {/* Anno impianto elettrico */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Anno dell'impianto elettrico</Label>
+                <Select
+                  value={fotovoltaicoForm.anno_impianto_elettrico}
+                  onValueChange={(value) => setFotovoltaicoForm({...fotovoltaicoForm, anno_impianto_elettrico: value})}
+                >
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                    <SelectValue placeholder="Seleziona anno" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Array.from({ length: 50 }, (_, i) => new Date().getFullYear() - i).map((year) => (
+                      <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                    ))}
+                    <SelectItem value="prima_1975">Prima del 1975</SelectItem>
+                    <SelectItem value="non_so">Non so</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Batterie accumulo */}
