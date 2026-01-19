@@ -14,7 +14,7 @@ import { useQuery } from '@tanstack/react-query';
 export default function Consulenze() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const { impersonation, appMode } = useImpersonation();
+  const { impersonation } = useImpersonation();
 
   useEffect(() => {
     const loadUser = async () => {
@@ -34,6 +34,11 @@ export default function Consulenze() {
     queryKey: ['unread-messages', user?.email],
     queryFn: () => base44.entities.Message.filter({ to_email: user?.email, is_read: false }),
     enabled: !!user?.email,
+  });
+
+  const { data: consultants = [], isLoading: consultantsLoading } = useQuery({
+    queryKey: ['consultants'],
+    queryFn: () => base44.entities.Consultant.list(),
   });
 
   const isAdmin = user?.role === 'admin' && !impersonation.active;
@@ -62,9 +67,9 @@ export default function Consulenze() {
           </h1>
         </div>
 
-        {isAdmin && <AdminView />}
-        {isConsultant && <ConsultantView consultantId={impersonation.targetId} />}
-        {isMember && <MemberView user={user} />}
+        {isAdmin && <AdminView consultants={consultants} adminEmail={user?.email} />}
+        {isConsultant && <ConsultantView user={user} />}
+        {isMember && <MemberView user={user} consultants={consultants} isLoading={consultantsLoading} />}
       </main>
 
       <BottomNav currentPage="Consulenze" unreadMessages={messages.length} />
