@@ -773,6 +773,272 @@ ${note || 'Nessuna'}
               </Button>
             </CardContent>
           </Card>
+        ) : categoria === 'Spesa Telefonica' ? (
+          /* Form Spesa Telefonica */
+          <Card className="bg-slate-800 border-slate-700 mb-6">
+            <CardContent className="p-4 space-y-4">
+              <h3 className="text-white font-semibold mb-2 flex items-center gap-2">
+                <Phone className="w-5 h-5 text-purple-400" />
+                Richiedi un'analisi gratuita
+              </h3>
+              <p className="text-slate-400 text-sm mb-4">Compila il form per ricevere una proposta personalizzata per ridurre la tua spesa telefonica.</p>
+
+              {/* Tipo utenza */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Tipo di utenza *</Label>
+                <Select 
+                  value={telefonicaForm.tipo_utenza} 
+                  onValueChange={(v) => setTelefonicaForm({...telefonicaForm, tipo_utenza: v})}
+                >
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                    <SelectValue placeholder="Seleziona tipo utenza" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="aziendale">🏢 Aziendale</SelectItem>
+                    <SelectItem value="partita_iva">💼 Partita IVA / Professionista</SelectItem>
+                    <SelectItem value="privato">🏠 Privato</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Operatore attuale */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Operatore attuale</Label>
+                <Select 
+                  value={telefonicaForm.operatore_attuale} 
+                  onValueChange={(v) => setTelefonicaForm({...telefonicaForm, operatore_attuale: v})}
+                >
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                    <SelectValue placeholder="Seleziona operatore" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="tim">TIM</SelectItem>
+                    <SelectItem value="vodafone">Vodafone</SelectItem>
+                    <SelectItem value="wind_tre">WindTre</SelectItem>
+                    <SelectItem value="fastweb">Fastweb</SelectItem>
+                    <SelectItem value="iliad">Iliad</SelectItem>
+                    <SelectItem value="altro">Altro</SelectItem>
+                    <SelectItem value="multipli">Più operatori</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Numero linee */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Numero di linee/SIM</Label>
+                <Select 
+                  value={telefonicaForm.num_linee} 
+                  onValueChange={(v) => setTelefonicaForm({...telefonicaForm, num_linee: v})}
+                >
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                    <SelectValue placeholder="Seleziona numero linee" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">1 linea</SelectItem>
+                    <SelectItem value="2_5">2-5 linee</SelectItem>
+                    <SelectItem value="6_10">6-10 linee</SelectItem>
+                    <SelectItem value="11_20">11-20 linee</SelectItem>
+                    <SelectItem value="oltre_20">Oltre 20 linee</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Spesa mensile */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Spesa mensile attuale (€)</Label>
+                <Select 
+                  value={telefonicaForm.spesa_mensile} 
+                  onValueChange={(v) => setTelefonicaForm({...telefonicaForm, spesa_mensile: v})}
+                >
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                    <SelectValue placeholder="Seleziona spesa" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="meno_50">Meno di €50/mese</SelectItem>
+                    <SelectItem value="50_100">€50 - €100/mese</SelectItem>
+                    <SelectItem value="100_200">€100 - €200/mese</SelectItem>
+                    <SelectItem value="200_500">€200 - €500/mese</SelectItem>
+                    <SelectItem value="oltre_500">Oltre €500/mese</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Servizi utilizzati */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Servizi attualmente utilizzati</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { value: 'fisso', label: '📞 Linea fissa' },
+                    { value: 'mobile', label: '📱 Mobile' },
+                    { value: 'internet', label: '🌐 Internet/Fibra' },
+                    { value: 'centralino', label: '🔄 Centralino' }
+                  ].map((servizio) => (
+                    <label 
+                      key={servizio.value}
+                      className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-colors ${
+                        telefonicaForm.servizi_utilizzati.includes(servizio.value)
+                          ? 'bg-purple-400/20 border-purple-400 text-purple-400'
+                          : 'bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500'
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={telefonicaForm.servizi_utilizzati.includes(servizio.value)}
+                        onChange={(e) => {
+                          const newServizi = e.target.checked
+                            ? [...telefonicaForm.servizi_utilizzati, servizio.value]
+                            : telefonicaForm.servizi_utilizzati.filter(s => s !== servizio.value);
+                          setTelefonicaForm({...telefonicaForm, servizi_utilizzati: newServizi});
+                        }}
+                        className="sr-only"
+                      />
+                      <span>{servizio.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Problemi attuali */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Problemi riscontrati con l'operatore attuale</Label>
+                <Textarea
+                  placeholder="Es. costi troppo alti, scarsa copertura, assistenza lenta..."
+                  value={telefonicaForm.problemi_attuali}
+                  onChange={(e) => setTelefonicaForm({...telefonicaForm, problemi_attuali: e.target.value})}
+                  className="bg-slate-900 border-slate-700 text-white"
+                  rows={2}
+                />
+              </div>
+
+              {/* Interesse fibra */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Interesse per fibra/internet aziendale</Label>
+                <Select 
+                  value={telefonicaForm.interesse_fibra} 
+                  onValueChange={(v) => setTelefonicaForm({...telefonicaForm, interesse_fibra: v})}
+                >
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                    <SelectValue placeholder="Seleziona" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="si">Sì, sono interessato</SelectItem>
+                    <SelectItem value="ho_gia">Ho già la fibra</SelectItem>
+                    <SelectItem value="no">No, non mi interessa</SelectItem>
+                    <SelectItem value="valutare">Da valutare</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Interesse mobile */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Interesse per piani mobile aziendali</Label>
+                <Select 
+                  value={telefonicaForm.interesse_mobile} 
+                  onValueChange={(v) => setTelefonicaForm({...telefonicaForm, interesse_mobile: v})}
+                >
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                    <SelectValue placeholder="Seleziona" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="si">Sì, sono interessato</SelectItem>
+                    <SelectItem value="ho_gia">Ho già piani aziendali</SelectItem>
+                    <SelectItem value="no">No, non mi interessa</SelectItem>
+                    <SelectItem value="valutare">Da valutare</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Upload bolletta (opzionale) */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Allega bolletta (opzionale)</Label>
+                <p className="text-slate-500 text-xs mb-2">Carica la tua bolletta per un'analisi più precisa</p>
+                
+                {previewUrl && (
+                  <div className="mb-3 relative">
+                    <img 
+                      src={previewUrl} 
+                      alt="Preview documento" 
+                      className="w-full rounded-lg max-h-32 object-cover"
+                    />
+                    <button 
+                      onClick={() => { setUploadedFile(null); setPreviewUrl(null); }}
+                      className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 text-xs"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-2 gap-2">
+                  <input 
+                    type="file" 
+                    ref={cameraInputRef}
+                    accept="image/*"
+                    capture="environment"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="border-slate-600 text-slate-300 hover:bg-slate-700 h-12 text-xs"
+                    onClick={() => cameraInputRef.current?.click()}
+                  >
+                    <Camera className="w-4 h-4 mr-1" />
+                    Scatta foto
+                  </Button>
+
+                  <input 
+                    type="file" 
+                    ref={fileInputRef}
+                    accept="image/*,application/pdf"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="border-slate-600 text-slate-300 hover:bg-slate-700 h-12 text-xs"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <Upload className="w-4 h-4 mr-1" />
+                    Carica file
+                  </Button>
+                </div>
+              </div>
+
+              {/* Note aggiuntive */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Note aggiuntive</Label>
+                <Textarea
+                  placeholder="Altre informazioni utili..."
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  className="bg-slate-900 border-slate-700 text-white"
+                  rows={2}
+                />
+              </div>
+
+              {/* Submit */}
+              <Button
+                className="w-full bg-purple-500 hover:bg-purple-600 text-white font-semibold"
+                onClick={() => submitMutation.mutate()}
+                disabled={isUploading || submitMutation.isPending || !telefonicaForm.tipo_utenza}
+              >
+                {isUploading || submitMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Invio in corso...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4 mr-2" />
+                    Richiedi Analisi Gratuita
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
         ) : (
           /* Upload Section per altre categorie */
           <Card className="bg-slate-800 border-slate-700 mb-6">
