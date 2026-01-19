@@ -14,6 +14,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { toast } from 'sonner';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
+import { useImpersonation } from '../components/admin/ImpersonationContext';
 
 export default function Messaggi() {
   const [user, setUser] = useState(null);
@@ -26,6 +27,12 @@ export default function Messaggi() {
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
   const queryClient = useQueryClient();
+  
+  const { isImpersonating, impersonatedUser } = useImpersonation();
+  
+  // L'utente effettivo è quello impersonato se attivo, altrimenti l'utente loggato
+  const effectiveUser = isImpersonating && impersonatedUser ? impersonatedUser : user;
+  const effectiveEmail = effectiveUser?.email;
 
   useEffect(() => {
     const loadUser = async () => {
@@ -49,30 +56,30 @@ export default function Messaggi() {
   }, []);
 
   const { data: allMessages = [], isLoading } = useQuery({
-    queryKey: ['all-messages', user?.email],
+    queryKey: ['all-messages', effectiveEmail],
     queryFn: async () => {
-      const sent = await base44.entities.Message.filter({ from_email: user?.email });
-      const received = await base44.entities.Message.filter({ to_email: user?.email });
+      const sent = await base44.entities.Message.filter({ from_email: effectiveEmail });
+      const received = await base44.entities.Message.filter({ to_email: effectiveEmail });
       return [...sent, ...received].sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
     },
-    enabled: !!user?.email,
+    enabled: !!effectiveEmail,
   });
 
   // Real-time subscription per messaggi - aggiorna solo se il messaggio riguarda l'utente corrente
   useEffect(() => {
-    if (!user?.email) return;
+    if (!effectiveEmail) return;
     
     const unsubscribe = base44.entities.Message.subscribe((event) => {
       const messageData = event.data;
       // Aggiorna solo se l'utente è mittente o destinatario del messaggio
-      if (messageData?.to_email === user.email || messageData?.from_email === user.email) {
+      if (messageData?.to_email === effectiveEmail || messageData?.from_email === effectiveEmail) {
         queryClient.invalidateQueries({ queryKey: ['all-messages'] });
         queryClient.invalidateQueries({ queryKey: ['unread-messages'] });
       }
     });
 
     return () => unsubscribe();
-  }, [user?.email, queryClient]);
+  }, [effectiveEmail, queryClient]);
 
   const { data: users = [] } = useQuery({
     queryKey: ['users-list'],
@@ -83,14 +90,14 @@ export default function Messaggi() {
   const conversations = React.useMemo(() => {
     const convMap = {};
     allMessages.forEach(msg => {
-      const otherEmail = msg.from_email === user?.email ? msg.to_email : msg.from_email;
+      const otherEmail = msg.from_email === effectiveEmail ? msg.to_email : msg.from_email;
       if (!convMap[otherEmail]) {
         convMap[otherEmail] = [];
       }
       convMap[otherEmail].push(msg);
     });
     return convMap;
-  }, [allMessages, user?.email]);
+  }, [allMessages, effectiveEmail]);
 
   const getOtherUser = (email) => {
     return users.find(u => u.email === email);
@@ -148,9 +155,9 @@ export default function Messaggi() {
 
   const sendMessageMutation = useMutation({
     mutationFn: async () => {
-      const conversationId = [user.email, selectedConversation].sort().join('-');
+      const conversationId = [effectiveEmail, selectedConversation].sort().join('-');
       await base44.entities.Message.create({
-        from_email: user.email,
+        from_email: effectiveEmail,
         to_email: selectedConversation,
         content: newMessage,
         conversation_id: conversationId,
@@ -193,25 +200,25 @@ export default function Messaggi() {
   });
 
   const canDeleteMessage = (msg) => {
-    return msg.from_email === user?.email || user?.role === 'admin';
+    return msg.from_email === effectiveEmail || user?.role === 'admin';
   };
 
   useEffect(() => {
     if (selectedConversation && conversations[selectedConversation]) {
       const unreadIds = conversations[selectedConversation]
-        .filter(m => m.to_email === user?.email && !m.is_read)
+        .filter(m => m.to_email === effectiveEmail && !m.is_read)
         .map(m => m.id);
       if (unreadIds.length > 0) {
         markAsReadMutation.mutate(unreadIds);
       }
     }
-  }, [selectedConversation, conversations, user?.email]);
+  }, [selectedConversation, conversations, effectiveEmail]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [conversations, selectedConversation]);
 
-  const unreadMessages = allMessages.filter(m => m.to_email === user?.email && !m.is_read);
+  const unreadMessages = allMessages.filter(m => m.to_email === effectiveEmail && !m.is_read);
 
   if (selectedConversation) {
     const conversationMessages = conversations[selectedConversation] || [];
@@ -260,8 +267,8 @@ export default function Messaggi() {
         <div className="flex-1 overflow-y-auto p-4">
           <div className="space-y-3">
             {conversationMessages.map((msg) => {
-                  const isMyMessage = msg.from_email === user?.email;
-                  const senderUser = isMyMessage ? user : otherUser;
+                  const isMyMessage = msg.from_email === effectiveEmail;
+                  const senderUser = isMyMessage ? effectiveUser : otherUser;
 
                   return (
                   <div
@@ -271,8 +278,8 @@ export default function Messaggi() {
                     <div className={`flex items-end gap-2 ${isMyMessage ? 'flex-row-reverse' : 'flex-row'}`}>
                       {/* Avatar */}
                       {isMyMessage && (
-                        user?.logo_url ? (
-                          <img src={user.logo_url} alt="" className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
+                        effectiveUser?.logo_url ? (
+                          <img src={effectiveUser.logo_url} alt="" className="w-8 h-8 rounded-full object-cover flex-shrink-0" />
                         ) : (
                           <div className="w-8 h-8 rounded-full bg-lime-400/30 flex items-center justify-center flex-shrink-0">
                             <User className="w-4 h-4 text-lime-400" />
@@ -493,7 +500,7 @@ export default function Messaggi() {
             {Object.entries(conversations).map(([email, msgs]) => {
               const otherUser = getOtherUser(email);
               const lastMessage = msgs[msgs.length - 1];
-              const unreadCount = msgs.filter(m => m.to_email === user?.email && !m.is_read).length;
+              const unreadCount = msgs.filter(m => m.to_email === effectiveEmail && !m.is_read).length;
               
               return (
                 <Card
