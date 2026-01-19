@@ -1,4 +1,3 @@
-import AdminPanel from './pages/AdminPanel';
 import CalendarioIncontri from './pages/CalendarioIncontri';
 import CompleteProfile from './pages/CompleteProfile';
 import Consulenze from './pages/Consulenze';
@@ -22,7 +21,6 @@ import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "AdminPanel": AdminPanel,
     "CalendarioIncontri": CalendarioIncontri,
     "CompleteProfile": CompleteProfile,
     "Consulenze": Consulenze,
