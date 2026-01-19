@@ -275,7 +275,7 @@ export default function RisparmioDettaglio() {
           <CardContent className="p-4">
             <h3 className="text-lime-400 font-semibold mb-3 flex items-center gap-2">
               <TrendingDown className="w-5 h-5" />
-              I tuoi vantaggi
+              Vantaggi
             </h3>
             <ul className="space-y-2">
               {info.vantaggi.map((vantaggio, index) => (
