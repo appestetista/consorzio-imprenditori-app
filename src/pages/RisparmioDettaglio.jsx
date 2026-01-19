@@ -1241,6 +1241,199 @@ ${note || 'Nessuna'}
               </Button>
             </CardContent>
           </Card>
+        ) : categoria === 'Internet' ? (
+          /* Form Internet */
+          <Card className="bg-slate-800 border-slate-700 mb-6">
+            <CardContent className="p-4 space-y-4">
+              <h3 className="text-white font-semibold mb-2 flex items-center gap-2">
+                <Wifi className="w-5 h-5 text-cyan-400" />
+                Richiedi un'analisi gratuita
+              </h3>
+              <p className="text-slate-400 text-sm mb-4">Compila il form per ricevere una proposta personalizzata per la tua connessione internet.</p>
+
+              {/* Tipo utenza */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Tipo di utenza *</Label>
+                <Select 
+                  value={internetForm.tipo_utenza} 
+                  onValueChange={(v) => setInternetForm({...internetForm, tipo_utenza: v})}
+                >
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                    <SelectValue placeholder="Seleziona tipo utenza" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="aziendale">🏢 Aziendale</SelectItem>
+                    <SelectItem value="partita_iva">💼 Partita IVA / Professionista</SelectItem>
+                    <SelectItem value="privato">🏠 Privato</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Indirizzo */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Indirizzo di installazione</Label>
+                <Input
+                  placeholder="Via, Città, CAP"
+                  value={internetForm.indirizzo}
+                  onChange={(e) => setInternetForm({...internetForm, indirizzo: e.target.value})}
+                  className="bg-slate-900 border-slate-700 text-white"
+                />
+              </div>
+
+              {/* Operatore attuale */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Operatore attuale</Label>
+                <Input
+                  placeholder="Es. TIM, Vodafone, Fastweb..."
+                  value={internetForm.operatore_attuale}
+                  onChange={(e) => setInternetForm({...internetForm, operatore_attuale: e.target.value})}
+                  className="bg-slate-900 border-slate-700 text-white"
+                />
+              </div>
+
+              {/* Tipo connessione */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Tipo di connessione attuale</Label>
+                <Select 
+                  value={internetForm.tipo_connessione} 
+                  onValueChange={(v) => setInternetForm({...internetForm, tipo_connessione: v})}
+                >
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                    <SelectValue placeholder="Seleziona tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="fibra_ftth">Fibra FTTH (fino a casa)</SelectItem>
+                    <SelectItem value="fibra_fttc">Fibra FTTC (misto rame)</SelectItem>
+                    <SelectItem value="adsl">ADSL</SelectItem>
+                    <SelectItem value="fwa">FWA (wireless)</SelectItem>
+                    <SelectItem value="nessuna">Non ho connessione fissa</SelectItem>
+                    <SelectItem value="non_so">Non so</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Velocità attuale */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Velocità attuale (download)</Label>
+                <Select 
+                  value={internetForm.velocita_attuale} 
+                  onValueChange={(v) => setInternetForm({...internetForm, velocita_attuale: v})}
+                >
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                    <SelectValue placeholder="Seleziona velocità" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="fino_30">Fino a 30 Mbps</SelectItem>
+                    <SelectItem value="30_100">30 - 100 Mbps</SelectItem>
+                    <SelectItem value="100_300">100 - 300 Mbps</SelectItem>
+                    <SelectItem value="300_1000">300 Mbps - 1 Gbps</SelectItem>
+                    <SelectItem value="oltre_1000">Oltre 1 Gbps</SelectItem>
+                    <SelectItem value="non_so">Non so</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Spesa mensile */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Spesa mensile attuale (€)</Label>
+                <Select 
+                  value={internetForm.spesa_mensile} 
+                  onValueChange={(v) => setInternetForm({...internetForm, spesa_mensile: v})}
+                >
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                    <SelectValue placeholder="Seleziona spesa" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="meno_30">Meno di €30/mese</SelectItem>
+                    <SelectItem value="30_50">€30 - €50/mese</SelectItem>
+                    <SelectItem value="50_80">€50 - €80/mese</SelectItem>
+                    <SelectItem value="80_150">€80 - €150/mese</SelectItem>
+                    <SelectItem value="oltre_150">Oltre €150/mese</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Esigenze */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Esigenze principali</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { value: 'velocita', label: '⚡ Più velocità' },
+                    { value: 'stabilita', label: '🔒 Più stabilità' },
+                    { value: 'risparmio', label: '💰 Risparmio' },
+                    { value: 'ip_statico', label: '🌐 IP statico' },
+                    { value: 'backup', label: '📡 Backup 4G/5G' },
+                    { value: 'sla', label: '📋 SLA garantito' }
+                  ].map((esigenza) => (
+                    <label 
+                      key={esigenza.value}
+                      className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-colors ${
+                        internetForm.esigenze.includes(esigenza.value)
+                          ? 'bg-cyan-400/20 border-cyan-400 text-cyan-400'
+                          : 'bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500'
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={internetForm.esigenze.includes(esigenza.value)}
+                        onChange={(e) => {
+                          const newEsigenze = e.target.checked
+                            ? [...internetForm.esigenze, esigenza.value]
+                            : internetForm.esigenze.filter(s => s !== esigenza.value);
+                          setInternetForm({...internetForm, esigenze: newEsigenze});
+                        }}
+                        className="sr-only"
+                      />
+                      <span className="text-sm">{esigenza.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Problemi attuali */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Problemi riscontrati</Label>
+                <Textarea
+                  placeholder="Es. connessione lenta, disconnessioni frequenti, costi troppo alti..."
+                  value={internetForm.problemi_attuali}
+                  onChange={(e) => setInternetForm({...internetForm, problemi_attuali: e.target.value})}
+                  className="bg-slate-900 border-slate-700 text-white"
+                  rows={2}
+                />
+              </div>
+
+              {/* Note aggiuntive */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Note aggiuntive</Label>
+                <Textarea
+                  placeholder="Altre informazioni utili..."
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  className="bg-slate-900 border-slate-700 text-white"
+                  rows={2}
+                />
+              </div>
+
+              {/* Submit */}
+              <Button
+                className="w-full bg-cyan-500 hover:bg-cyan-600 text-white font-semibold"
+                onClick={() => submitMutation.mutate()}
+                disabled={isUploading || submitMutation.isPending || !internetForm.tipo_utenza}
+              >
+                {isUploading || submitMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Invio in corso...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4 mr-2" />
+                    Richiedi Analisi Gratuita
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
         ) : categoria === 'Spesa Telefonica' ? (
           /* Form Spesa Telefonica */
           <Card className="bg-slate-800 border-slate-700 mb-6">
