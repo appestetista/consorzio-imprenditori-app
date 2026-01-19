@@ -668,7 +668,7 @@ ${note || 'Nessuna'}
 
               {/* Budget */}
               <div className="space-y-2">
-                <Label className="text-slate-300">Budget indicativo</Label>
+                <Label className="text-slate-300">Budget indicativo (€)</Label>
                 <Select 
                   value={fotovoltaicoForm.budget_indicativo} 
                   onValueChange={(v) => setFotovoltaicoForm({...fotovoltaicoForm, budget_indicativo: v})}
@@ -677,11 +677,10 @@ ${note || 'Nessuna'}
                     <SelectValue placeholder="Seleziona budget" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="meno_10k">Meno di €10.000</SelectItem>
+                    <SelectItem value="fino_5k">Fino a €5.000</SelectItem>
+                    <SelectItem value="5_10k">€5.000 - €10.000</SelectItem>
                     <SelectItem value="10_20k">€10.000 - €20.000</SelectItem>
-                    <SelectItem value="20_50k">€20.000 - €50.000</SelectItem>
-                    <SelectItem value="50_100k">€50.000 - €100.000</SelectItem>
-                    <SelectItem value="oltre_100k">Oltre €100.000</SelectItem>
+                    <SelectItem value="oltre_20k">Oltre €20.000</SelectItem>
                     <SelectItem value="da_valutare">Da valutare con finanziamento</SelectItem>
                   </SelectContent>
                 </Select>
