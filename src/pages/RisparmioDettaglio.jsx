@@ -1481,6 +1481,24 @@ ${note || 'Nessuna'}
               </CardContent>
             </Card>
 
+            {/* Pulsante Richiedi Analisi */}
+            <Card className="bg-slate-800 border-pink-500/30 cursor-pointer hover:border-pink-500/50 transition-colors"
+              onClick={() => window.location.href = createPageUrl('RichiestaWelfare')}
+            >
+              <CardContent className="p-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-pink-400/20 rounded-full flex items-center justify-center">
+                    <Calculator className="w-6 h-6 text-pink-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-white font-semibold">Vuoi vedere quanto risparmi?</h3>
+                    <p className="text-slate-400 text-sm">Richiedi un'analisi gratuita</p>
+                  </div>
+                </div>
+                <ArrowRight className="w-6 h-6 text-pink-400" />
+              </CardContent>
+            </Card>
+
             {/* SEZIONE 1 - Impatto Immediato */}
             <Card className="bg-slate-800 border-slate-700">
               <CardContent className="p-4">
