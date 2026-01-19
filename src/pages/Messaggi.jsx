@@ -220,7 +220,7 @@ export default function Messaggi() {
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               placeholder="Scrivi un messaggio..."
-              className="bg-slate-900 border-slate-700 text-white"
+              className="bg-slate-900 border-slate-700 text-white h-12"
               onKeyPress={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault();
