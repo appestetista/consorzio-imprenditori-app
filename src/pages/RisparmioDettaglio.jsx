@@ -274,7 +274,7 @@ export default function RisparmioDettaglio() {
         <Card className="bg-slate-800 border-slate-700 mb-6">
           <CardContent className="p-4">
             <h3 className="text-lime-400 font-semibold mb-3 flex items-center gap-2">
-              <TrendingDown className="w-5 h-5" />
+              <CheckCircle className="w-5 h-5" />
               Vantaggi
             </h3>
             <ul className="space-y-2">
