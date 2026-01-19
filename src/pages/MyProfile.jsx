@@ -44,6 +44,7 @@ export default function MyProfile() {
         setFormData({
           full_name: effectiveUser.full_name || '',
           company_name: effectiveUser.company_name || '',
+          specializzazione: effectiveUser.specializzazione || '',
           phone: effectiveUser.phone || '',
           website: effectiveUser.website || '',
           logo_url: effectiveUser.logo_url || '',
@@ -88,7 +89,7 @@ export default function MyProfile() {
     }
   };
 
-  const REQUIRED_FIELDS = ['company_name', 'company_email', 'referente', 'cellulare_referente', 'referente_email', 'region'];
+  const REQUIRED_FIELDS = ['company_name', 'company_email', 'referente', 'cellulare_referente', 'referente_email', 'region', 'specializzazione'];
 
   const handleSave = async () => {
     setSaving(true);
@@ -279,6 +280,15 @@ export default function MyProfile() {
                 placeholder="Inserisci il nome dell'azienda"
                 value={formData.company_name}
                 onChange={(e) => setFormData({...formData, company_name: e.target.value})}
+                className="bg-lime-400/10 border-lime-400 text-white placeholder:text-lime-400/50"
+              />
+            </div>
+            <div>
+              <label className="text-lime-400 text-sm font-medium mb-1 block">Specializzazione (obbligatorio)</label>
+              <Input
+                placeholder="Es: Produzione industriale, Servizi IT, Consulenza..."
+                value={formData.specializzazione}
+                onChange={(e) => setFormData({...formData, specializzazione: e.target.value})}
                 className="bg-lime-400/10 border-lime-400 text-white placeholder:text-lime-400/50"
               />
             </div>

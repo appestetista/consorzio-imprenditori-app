@@ -21,6 +21,7 @@ Deno.serve(async (req) => {
       city: u.city,
       province: u.province,
       business_sector: u.business_sector,
+      specializzazione: u.specializzazione,
       logo_url: u.logo_url,
       referente: u.referente,
       role: u.role

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { createPageUrl } from '@/utils';
 
-const REQUIRED_FIELDS = ['company_name', 'company_email', 'referente', 'cellulare_referente', 'referente_email', 'region'];
+const REQUIRED_FIELDS = ['company_name', 'company_email', 'referente', 'cellulare_referente', 'referente_email', 'region', 'specializzazione'];
 
 export default function ProfileCompletionModal({ user }) {
   useEffect(() => {
