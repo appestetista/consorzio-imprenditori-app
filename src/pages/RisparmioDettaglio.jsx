@@ -254,6 +254,37 @@ RICHIESTA PREVENTIVO FOTOVOLTAICO
 📝 NOTE AGGIUNTIVE:
 ${note || 'Nessuna'}
         `.trim();
+      } else if (categoria === 'Efficientamento Energetico') {
+        noteFinali = `
+RICHIESTA ANALISI EFFICIENTAMENTO ENERGETICO
+
+🏢 IMMOBILE:
+- Tipo immobile: ${efficientamentoForm.tipo_immobile || 'Non specificato'}
+- Anno costruzione: ${efficientamentoForm.anno_costruzione || 'Non specificato'}
+- Superficie (mq): ${efficientamentoForm.superficie_mq || 'Non specificato'}
+- Classe energetica attuale: ${efficientamentoForm.classe_energetica_attuale || 'Non specificato'}
+
+🔥 IMPIANTI ATTUALI:
+- Tipo riscaldamento: ${efficientamentoForm.tipo_riscaldamento || 'Non specificato'}
+- Tipo raffrescamento: ${efficientamentoForm.tipo_raffrescamento || 'Non specificato'}
+- Tipo infissi: ${efficientamentoForm.tipo_infissi || 'Non specificato'}
+- Isolamento pareti: ${efficientamentoForm.isolamento_pareti || 'Non specificato'}
+- Isolamento tetto: ${efficientamentoForm.isolamento_tetto || 'Non specificato'}
+
+💰 CONSUMI E BUDGET:
+- Spesa annua energia: ${efficientamentoForm.spesa_annua_energia || 'Non specificato'}
+- Budget indicativo: ${efficientamentoForm.budget_indicativo || 'Non specificato'}
+
+🔧 INTERVENTI DI INTERESSE:
+${efficientamentoForm.interventi_interesse.length > 0 ? efficientamentoForm.interventi_interesse.join(', ') : 'Non specificato'}
+
+📋 ALTRE INFO:
+- Ha già preventivi: ${efficientamentoForm.ha_gia_preventivi || 'Non specificato'}
+- Tempistiche: ${efficientamentoForm.tempistiche || 'Non specificato'}
+
+📝 NOTE AGGIUNTIVE:
+${note || 'Nessuna'}
+        `.trim();
       } else if (categoria === 'Spesa Telefonica') {
         noteFinali = `
 RICHIESTA ANALISI SPESA TELEFONICA
