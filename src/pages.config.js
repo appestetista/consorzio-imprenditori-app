@@ -1,6 +1,5 @@
 import CalendarioIncontri from './pages/CalendarioIncontri';
 import CompleteProfile from './pages/CompleteProfile';
-import Consulenze from './pages/Consulenze';
 import ContattaConsorzio from './pages/ContattaConsorzio';
 import ContattaMembri from './pages/ContattaMembri';
 import ContattaMembriAdmin from './pages/ContattaMembriAdmin';
@@ -9,7 +8,6 @@ import DirectoryUtenti from './pages/DirectoryUtenti';
 import FinanziamentiAgevolati from './pages/FinanziamentiAgevolati';
 import GestioneBandi from './pages/GestioneBandi';
 import GestioneMembri from './pages/GestioneMembri';
-import Home from './pages/Home';
 import Marketplace from './pages/Marketplace';
 import Messaggi from './pages/Messaggi';
 import MyProfile from './pages/MyProfile';
@@ -23,7 +21,6 @@ import __Layout from './Layout.jsx';
 export const PAGES = {
     "CalendarioIncontri": CalendarioIncontri,
     "CompleteProfile": CompleteProfile,
-    "Consulenze": Consulenze,
     "ContattaConsorzio": ContattaConsorzio,
     "ContattaMembri": ContattaMembri,
     "ContattaMembriAdmin": ContattaMembriAdmin,
@@ -32,7 +29,6 @@ export const PAGES = {
     "FinanziamentiAgevolati": FinanziamentiAgevolati,
     "GestioneBandi": GestioneBandi,
     "GestioneMembri": GestioneMembri,
-    "Home": Home,
     "Marketplace": Marketplace,
     "Messaggi": Messaggi,
     "MyProfile": MyProfile,
@@ -43,7 +39,7 @@ export const PAGES = {
 }
 
 export const pagesConfig = {
-    mainPage: "Home",
+    mainPage: "CalendarioIncontri",
     Pages: PAGES,
     Layout: __Layout,
 };
