@@ -220,85 +220,85 @@ export default function MemberView({ user, consultants, isLoading }) {
           </div>
         ) : (
           <div className="space-y-4">
-          {CONSULTANT_CATEGORIES.map((category, index) => {
-            const consultant = consultants.find(c => c.category === category);
-            
-            // Non mostrare la categoria se non c'è un consulente disponibile
-            if (!consultant) return null;
-            
-            const assignment = assignments.find(a => a.consultant_id === consultant.id && a.is_assigned);
-            const isRequested = hasRequestedThisSession(consultant.id);
-            const availableConsultations = assignment ? assignment.available_consultations : 1;
-            const completedBookings = bookings.filter(b => b.consultant_id === consultant.id).length;
-            
-            return (
-              <Card key={index} className="bg-slate-800 border-slate-700">
-                <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lime-400 text-base">{category}</CardTitle>
-                    {isRequested && (
-                      <Badge className="bg-green-600">
-                        <Check className="w-3 h-3 mr-1" />
-                        Richiesta inviata
-                      </Badge>
-                    )}
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-start justify-between gap-3 mb-3">
-                     <div className="flex-1">
-                       <p className="text-slate-400 text-xs mb-0.5">Consulente:</p>
-                       <p className="text-white font-medium text-base mb-2">{consultant.name}</p>
-                       <p className="text-slate-400 text-xs mb-0.5">Referente:</p>
-                       <p className="text-lime-400 text-sm">{consultant.referente || 'N/A'}</p>
-                     </div>
-                    <div className="flex-shrink-0 text-right">
-                       <p className="text-lime-400 text-xl font-bold">{availableConsultations}</p>
-                       <p className="text-slate-400 text-xs">disponibili</p>
-                       <p className="text-green-400 text-sm mt-1">{completedBookings} completate</p>
-                     </div>
-                   </div>
+            {CONSULTANT_CATEGORIES.map((category, index) => {
+              const consultant = consultants.find(c => c.category === category);
+              
+              // Non mostrare la categoria se non c'è un consulente disponibile
+              if (!consultant) return null;
+              
+              const assignment = assignments.find(a => a.consultant_id === consultant.id && a.is_assigned);
+              const isRequested = hasRequestedThisSession(consultant.id);
+              const availableConsultations = assignment ? assignment.available_consultations : 1;
+              const completedBookings = bookings.filter(b => b.consultant_id === consultant.id).length;
+              
+              return (
+                <Card key={index} className="bg-slate-800 border-slate-700">
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-lime-400 text-base">{category}</CardTitle>
+                      {isRequested && (
+                        <Badge className="bg-green-600">
+                          <Check className="w-3 h-3 mr-1" />
+                          Richiesta inviata
+                        </Badge>
+                      )}
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <div className="flex-1">
+                        <p className="text-slate-400 text-xs mb-0.5">Consulente:</p>
+                        <p className="text-white font-medium text-base mb-2">{consultant.name}</p>
+                        <p className="text-slate-400 text-xs mb-0.5">Referente:</p>
+                        <p className="text-lime-400 text-sm">{consultant.referente || 'N/A'}</p>
+                      </div>
+                      <div className="flex-shrink-0 text-right">
+                        <p className="text-lime-400 text-xl font-bold">{availableConsultations}</p>
+                        <p className="text-slate-400 text-xs">disponibili</p>
+                        <p className="text-green-400 text-sm mt-1">{completedBookings} completate</p>
+                      </div>
+                    </div>
 
-                   <Textarea
-                     placeholder="Scrivi qui brevemente l'oggetto della consulenza..."
-                     value={consultationMessages[consultant.id] || ''}
-                     onChange={(e) => setConsultationMessages(prev => ({
-                       ...prev,
-                       [consultant.id]: e.target.value
-                     }))}
-                     disabled={isRequested}
-                     className="bg-slate-900 border-lime-400/30 text-white min-h-[80px] mb-3"
-                   />
+                    <Textarea
+                      placeholder="Scrivi qui brevemente l'oggetto della consulenza..."
+                      value={consultationMessages[consultant.id] || ''}
+                      onChange={(e) => setConsultationMessages(prev => ({
+                        ...prev,
+                        [consultant.id]: e.target.value
+                      }))}
+                      disabled={isRequested}
+                      className="bg-slate-900 border-lime-400/30 text-white min-h-[80px] mb-3"
+                    />
 
-                   <div className="flex gap-2">
-                     <Button
-                       size="sm"
-                       className="bg-lime-400 hover:bg-lime-500 text-slate-900 border-0"
-                       onClick={() => bookConsultationMutation.mutate({ 
-                         consultantId: consultant.id, 
-                         message: consultationMessages[consultant.id] || '' 
-                       })}
-                       disabled={isRequested || bookConsultationMutation.isPending || !consultationMessages[consultant.id]?.trim()}
-                     >
-                       invia
-                     </Button>
-                     {consultant.phone && (
-                       <Button
-                         variant="outline"
-                         size="sm"
-                         className="bg-slate-700 hover:bg-slate-600 text-white border-slate-600"
-                         onClick={() => window.open(`tel:${consultant.phone}`)}
-                       >
-                         <Phone className="w-4 h-4 mr-1" />
-                         chiama
-                       </Button>
-                     )}
-                   </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        className="bg-lime-400 hover:bg-lime-500 text-slate-900 border-0"
+                        onClick={() => bookConsultationMutation.mutate({ 
+                          consultantId: consultant.id, 
+                          message: consultationMessages[consultant.id] || '' 
+                        })}
+                        disabled={isRequested || bookConsultationMutation.isPending || !consultationMessages[consultant.id]?.trim()}
+                      >
+                        invia
+                      </Button>
+                      {consultant.phone && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="bg-slate-700 hover:bg-slate-600 text-white border-slate-600"
+                          onClick={() => window.open(`tel:${consultant.phone}`)}
+                        >
+                          <Phone className="w-4 h-4 mr-1" />
+                          chiama
+                        </Button>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
         )}
       </TabsContent>
 
