@@ -29,6 +29,22 @@ export default function MembersDirectory({ currentUserEmail }) {
     queryFn: () => base44.entities.Consultant.list()
   });
 
+  // Carica messaggi non letti per mostrare notifiche
+  const { data: unreadMessages = [] } = useQuery({
+    queryKey: ['unread-messages-directory', currentUserEmail],
+    queryFn: () => base44.entities.Message.filter({ to_email: currentUserEmail, is_read: false }),
+    enabled: !!currentUserEmail
+  });
+
+  // Conta messaggi non letti per ogni mittente
+  const unreadCountByEmail = useMemo(() => {
+    const counts = {};
+    unreadMessages.forEach(msg => {
+      counts[msg.from_email] = (counts[msg.from_email] || 0) + 1;
+    });
+    return counts;
+  }, [unreadMessages]);
+
   const isLoading = loadingUsers || loadingConsultants;
 
   // Filtra utenti in base alla ricerca
