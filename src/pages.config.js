@@ -1,5 +1,4 @@
 import CalendarioIncontri from './pages/CalendarioIncontri';
-import CompleteProfile from './pages/CompleteProfile';
 import ContattaConsorzio from './pages/ContattaConsorzio';
 import ContattaMembri from './pages/ContattaMembri';
 import ContattaMembriAdmin from './pages/ContattaMembriAdmin';
@@ -10,7 +9,6 @@ import GestioneBandi from './pages/GestioneBandi';
 import GestioneMembri from './pages/GestioneMembri';
 import Marketplace from './pages/Marketplace';
 import Messaggi from './pages/Messaggi';
-import MyProfile from './pages/MyProfile';
 import ProfiloBandi from './pages/ProfiloBandi';
 import RisparmioDettaglio from './pages/RisparmioDettaglio';
 import RisparmioEnergetico from './pages/RisparmioEnergetico';
@@ -20,7 +18,6 @@ import __Layout from './Layout.jsx';
 
 export const PAGES = {
     "CalendarioIncontri": CalendarioIncontri,
-    "CompleteProfile": CompleteProfile,
     "ContattaConsorzio": ContattaConsorzio,
     "ContattaMembri": ContattaMembri,
     "ContattaMembriAdmin": ContattaMembriAdmin,
@@ -31,7 +28,6 @@ export const PAGES = {
     "GestioneMembri": GestioneMembri,
     "Marketplace": Marketplace,
     "Messaggi": Messaggi,
-    "MyProfile": MyProfile,
     "ProfiloBandi": ProfiloBandi,
     "RisparmioDettaglio": RisparmioDettaglio,
     "RisparmioEnergetico": RisparmioEnergetico,
