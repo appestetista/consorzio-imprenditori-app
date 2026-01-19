@@ -155,7 +155,7 @@ export default function MembersDirectory({ currentUserEmail }) {
   );
 }
 
-function MemberCard({ user, onChat, currentUserEmail }) {
+function MemberCard({ user, onChat, currentUserEmail, unreadCount }) {
   const isCurrentUser = user.email === currentUserEmail;
   
   return (
@@ -196,14 +196,21 @@ function MemberCard({ user, onChat, currentUserEmail }) {
           )}
         </div>
         {!isCurrentUser && (
-          <Button
-            onClick={onChat}
-            size="sm"
-            className="bg-lime-400 hover:bg-lime-500 text-slate-900 flex-shrink-0"
-          >
-            <MessageCircle className="w-4 h-4 mr-1" />
-            Chatta
-          </Button>
+          <div className="relative flex-shrink-0">
+            {unreadCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center z-10">
+                {unreadCount}
+              </span>
+            )}
+            <Button
+              onClick={onChat}
+              size="sm"
+              className="bg-lime-400 hover:bg-lime-500 text-slate-900"
+            >
+              <MessageCircle className="w-4 h-4 mr-1" />
+              Chatta
+            </Button>
+          </div>
         )}
       </div>
     </Card>
