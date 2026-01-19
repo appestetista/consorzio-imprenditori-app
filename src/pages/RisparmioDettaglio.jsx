@@ -317,97 +317,354 @@ ${note || 'Nessuna'}
           </Alert>
         )}
 
-        {/* Upload Section */}
-        <Card className="bg-slate-800 border-slate-700 mb-6">
-          <CardContent className="p-4">
-            <h3 className="text-white font-semibold mb-2 flex items-center gap-2">
-              <FileText className="w-5 h-5 text-lime-400" />
-              Invia la tua {info.tipoDocumento}
-            </h3>
-            <p className="text-slate-400 text-sm mb-4">{info.descrizione}</p>
+        {/* Form Fotovoltaico */}
+        {categoria === 'Fotovoltaico' ? (
+          <Card className="bg-slate-800 border-slate-700 mb-6">
+            <CardContent className="p-4 space-y-4">
+              <h3 className="text-white font-semibold mb-2 flex items-center gap-2">
+                <Sun className="w-5 h-5 text-amber-400" />
+                Richiedi un preventivo gratuito
+              </h3>
+              <p className="text-slate-400 text-sm mb-4">Compila il form per ricevere un preventivo personalizzato per il tuo impianto fotovoltaico.</p>
 
-            {/* Preview */}
-            {previewUrl && (
-              <div className="mb-4 relative">
-                <img 
-                  src={previewUrl} 
-                  alt="Preview documento" 
-                  className="w-full rounded-lg max-h-48 object-cover"
-                />
-                <button 
-                  onClick={() => { setUploadedFile(null); setPreviewUrl(null); }}
-                  className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1"
+              {/* Tipo immobile */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Tipo di immobile *</Label>
+                <Select 
+                  value={fotovoltaicoForm.tipo_immobile} 
+                  onValueChange={(v) => setFotovoltaicoForm({...fotovoltaicoForm, tipo_immobile: v})}
                 >
-                  ✕
-                </button>
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                    <SelectValue placeholder="Seleziona tipo immobile" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="abitazione_privata">🏠 Abitazione privata</SelectItem>
+                    <SelectItem value="condominio">🏢 Condominio</SelectItem>
+                    <SelectItem value="capannone_industriale">🏭 Capannone industriale</SelectItem>
+                    <SelectItem value="ufficio_negozio">🏪 Ufficio / Negozio</SelectItem>
+                    <SelectItem value="azienda_agricola">🌾 Azienda agricola</SelectItem>
+                    <SelectItem value="altro">📦 Altro</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-            )}
 
-            {/* Buttons */}
-            <div className="grid grid-cols-2 gap-3 mb-4">
-              <input 
-                type="file" 
-                ref={cameraInputRef}
-                accept="image/*"
-                capture="environment"
-                onChange={handleFileChange}
-                className="hidden"
-              />
+              {/* Indirizzo */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Indirizzo installazione</Label>
+                <Input
+                  placeholder="Via, Città, CAP"
+                  value={fotovoltaicoForm.indirizzo_installazione}
+                  onChange={(e) => setFotovoltaicoForm({...fotovoltaicoForm, indirizzo_installazione: e.target.value})}
+                  className="bg-slate-900 border-slate-700 text-white"
+                />
+              </div>
+
+              {/* Superficie tetto */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Superficie tetto disponibile (stimata)</Label>
+                <Select 
+                  value={fotovoltaicoForm.superficie_tetto} 
+                  onValueChange={(v) => setFotovoltaicoForm({...fotovoltaicoForm, superficie_tetto: v})}
+                >
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                    <SelectValue placeholder="Seleziona superficie" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="meno_30mq">Meno di 30 m²</SelectItem>
+                    <SelectItem value="30_50mq">30 - 50 m²</SelectItem>
+                    <SelectItem value="50_100mq">50 - 100 m²</SelectItem>
+                    <SelectItem value="100_200mq">100 - 200 m²</SelectItem>
+                    <SelectItem value="200_500mq">200 - 500 m²</SelectItem>
+                    <SelectItem value="oltre_500mq">Oltre 500 m²</SelectItem>
+                    <SelectItem value="non_so">Non so</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Tipo copertura */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Tipo di copertura</Label>
+                <Select 
+                  value={fotovoltaicoForm.tipo_copertura} 
+                  onValueChange={(v) => setFotovoltaicoForm({...fotovoltaicoForm, tipo_copertura: v})}
+                >
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                    <SelectValue placeholder="Seleziona tipo copertura" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="tetto_spiovente_tegole">Tetto spiovente con tegole</SelectItem>
+                    <SelectItem value="tetto_spiovente_lamiera">Tetto spiovente con lamiera</SelectItem>
+                    <SelectItem value="tetto_piano">Tetto piano / terrazzo</SelectItem>
+                    <SelectItem value="capannone_lamiera">Capannone con lamiera grecata</SelectItem>
+                    <SelectItem value="altro">Altro</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Orientamento */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Orientamento prevalente del tetto</Label>
+                <Select 
+                  value={fotovoltaicoForm.orientamento_tetto} 
+                  onValueChange={(v) => setFotovoltaicoForm({...fotovoltaicoForm, orientamento_tetto: v})}
+                >
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                    <SelectValue placeholder="Seleziona orientamento" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="sud">Sud (ottimale)</SelectItem>
+                    <SelectItem value="sud_est">Sud-Est</SelectItem>
+                    <SelectItem value="sud_ovest">Sud-Ovest</SelectItem>
+                    <SelectItem value="est">Est</SelectItem>
+                    <SelectItem value="ovest">Ovest</SelectItem>
+                    <SelectItem value="nord">Nord</SelectItem>
+                    <SelectItem value="non_so">Non so</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Ombreggiature */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Presenza di ombreggiature</Label>
+                <Select 
+                  value={fotovoltaicoForm.presenza_ombreggiature} 
+                  onValueChange={(v) => setFotovoltaicoForm({...fotovoltaicoForm, presenza_ombreggiature: v})}
+                >
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                    <SelectValue placeholder="Seleziona" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="nessuna">Nessuna ombreggiatura</SelectItem>
+                    <SelectItem value="parziale">Ombreggiatura parziale (alberi, edifici vicini)</SelectItem>
+                    <SelectItem value="significativa">Ombreggiatura significativa</SelectItem>
+                    <SelectItem value="non_so">Non so</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Consumo mensile */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Consumo medio mensile in bolletta</Label>
+                <Select 
+                  value={fotovoltaicoForm.consumo_mensile} 
+                  onValueChange={(v) => setFotovoltaicoForm({...fotovoltaicoForm, consumo_mensile: v})}
+                >
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                    <SelectValue placeholder="Seleziona consumo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="meno_100">Meno di €100/mese</SelectItem>
+                    <SelectItem value="100_200">€100 - €200/mese</SelectItem>
+                    <SelectItem value="200_500">€200 - €500/mese</SelectItem>
+                    <SelectItem value="500_1000">€500 - €1.000/mese</SelectItem>
+                    <SelectItem value="1000_2000">€1.000 - €2.000/mese</SelectItem>
+                    <SelectItem value="oltre_2000">Oltre €2.000/mese</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Batterie accumulo */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Interesse per batterie di accumulo</Label>
+                <Select 
+                  value={fotovoltaicoForm.interesse_batterie} 
+                  onValueChange={(v) => setFotovoltaicoForm({...fotovoltaicoForm, interesse_batterie: v})}
+                >
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                    <SelectValue placeholder="Seleziona" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="si">Sì, sono interessato</SelectItem>
+                    <SelectItem value="no">No, solo pannelli</SelectItem>
+                    <SelectItem value="valutare">Da valutare in base al preventivo</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Colonnina ricarica */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Interesse per colonnina ricarica auto elettrica</Label>
+                <Select 
+                  value={fotovoltaicoForm.interesse_colonnina} 
+                  onValueChange={(v) => setFotovoltaicoForm({...fotovoltaicoForm, interesse_colonnina: v})}
+                >
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                    <SelectValue placeholder="Seleziona" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="si">Sì, sono interessato</SelectItem>
+                    <SelectItem value="no">No</SelectItem>
+                    <SelectItem value="futuro">Forse in futuro</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Budget */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Budget indicativo</Label>
+                <Select 
+                  value={fotovoltaicoForm.budget_indicativo} 
+                  onValueChange={(v) => setFotovoltaicoForm({...fotovoltaicoForm, budget_indicativo: v})}
+                >
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                    <SelectValue placeholder="Seleziona budget" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="meno_10k">Meno di €10.000</SelectItem>
+                    <SelectItem value="10_20k">€10.000 - €20.000</SelectItem>
+                    <SelectItem value="20_50k">€20.000 - €50.000</SelectItem>
+                    <SelectItem value="50_100k">€50.000 - €100.000</SelectItem>
+                    <SelectItem value="oltre_100k">Oltre €100.000</SelectItem>
+                    <SelectItem value="da_valutare">Da valutare con finanziamento</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Tempistiche */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Tempistiche desiderate</Label>
+                <Select 
+                  value={fotovoltaicoForm.tempistiche} 
+                  onValueChange={(v) => setFotovoltaicoForm({...fotovoltaicoForm, tempistiche: v})}
+                >
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                    <SelectValue placeholder="Seleziona tempistiche" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="urgente">Il prima possibile</SelectItem>
+                    <SelectItem value="3_mesi">Entro 3 mesi</SelectItem>
+                    <SelectItem value="6_mesi">Entro 6 mesi</SelectItem>
+                    <SelectItem value="1_anno">Entro 1 anno</SelectItem>
+                    <SelectItem value="valutazione">Solo valutazione per ora</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Note aggiuntive */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Note aggiuntive</Label>
+                <Textarea
+                  placeholder="Altre informazioni utili (es. vincoli paesaggistici, esigenze particolari...)"
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  className="bg-slate-900 border-slate-700 text-white"
+                  rows={3}
+                />
+              </div>
+
+              {/* Submit */}
               <Button
-                variant="outline"
-                className="border-lime-400 text-lime-400 hover:bg-lime-400/20 h-20 flex-col gap-2"
-                onClick={() => cameraInputRef.current?.click()}
+                className="w-full bg-amber-400 hover:bg-amber-500 text-slate-900 font-semibold"
+                onClick={() => submitMutation.mutate()}
+                disabled={isUploading || submitMutation.isPending || !fotovoltaicoForm.tipo_immobile}
               >
-                <Camera className="w-6 h-6" />
-                <span className="text-xs">Scatta foto</span>
+                {isUploading || submitMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Invio in corso...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4 mr-2" />
+                    Richiedi Preventivo Gratuito
+                  </>
+                )}
               </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          /* Upload Section per altre categorie */
+          <Card className="bg-slate-800 border-slate-700 mb-6">
+            <CardContent className="p-4">
+              <h3 className="text-white font-semibold mb-2 flex items-center gap-2">
+                <FileText className="w-5 h-5 text-lime-400" />
+                Invia la tua {info.tipoDocumento}
+              </h3>
+              <p className="text-slate-400 text-sm mb-4">{info.descrizione}</p>
 
-              <input 
-                type="file" 
-                ref={fileInputRef}
-                accept="image/*,application/pdf"
-                onChange={handleFileChange}
-                className="hidden"
-              />
-              <Button
-                variant="outline"
-                className="border-slate-500 text-slate-300 hover:bg-slate-700 h-20 flex-col gap-2"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <Upload className="w-6 h-6" />
-                <span className="text-xs">Carica file</span>
-              </Button>
-            </div>
-
-            {/* Note */}
-            <Textarea
-              placeholder="Aggiungi note o richieste specifiche (opzionale)"
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              className="bg-slate-900 border-slate-700 text-white mb-4"
-              rows={3}
-            />
-
-            {/* Submit */}
-            <Button
-              className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 font-semibold"
-              onClick={() => submitMutation.mutate()}
-              disabled={isUploading || submitMutation.isPending}
-            >
-              {isUploading || submitMutation.isPending ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Invio in corso...
-                </>
-              ) : (
-                <>
-                  <Send className="w-4 h-4 mr-2" />
-                  Invia Richiesta
-                </>
+              {/* Preview */}
+              {previewUrl && (
+                <div className="mb-4 relative">
+                  <img 
+                    src={previewUrl} 
+                    alt="Preview documento" 
+                    className="w-full rounded-lg max-h-48 object-cover"
+                  />
+                  <button 
+                    onClick={() => { setUploadedFile(null); setPreviewUrl(null); }}
+                    className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1"
+                  >
+                    ✕
+                  </button>
+                </div>
               )}
-            </Button>
-          </CardContent>
-        </Card>
+
+              {/* Buttons */}
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <input 
+                  type="file" 
+                  ref={cameraInputRef}
+                  accept="image/*"
+                  capture="environment"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+                <Button
+                  variant="outline"
+                  className="border-lime-400 text-lime-400 hover:bg-lime-400/20 h-20 flex-col gap-2"
+                  onClick={() => cameraInputRef.current?.click()}
+                >
+                  <Camera className="w-6 h-6" />
+                  <span className="text-xs">Scatta foto</span>
+                </Button>
+
+                <input 
+                  type="file" 
+                  ref={fileInputRef}
+                  accept="image/*,application/pdf"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+                <Button
+                  variant="outline"
+                  className="border-slate-500 text-slate-300 hover:bg-slate-700 h-20 flex-col gap-2"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Upload className="w-6 h-6" />
+                  <span className="text-xs">Carica file</span>
+                </Button>
+              </div>
+
+              {/* Note */}
+              <Textarea
+                placeholder="Aggiungi note o richieste specifiche (opzionale)"
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                className="bg-slate-900 border-slate-700 text-white mb-4"
+                rows={3}
+              />
+
+              {/* Submit */}
+              <Button
+                className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 font-semibold"
+                onClick={() => submitMutation.mutate()}
+                disabled={isUploading || submitMutation.isPending}
+              >
+                {isUploading || submitMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Invio in corso...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4 mr-2" />
+                    Invia Richiesta
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Richieste precedenti con risultati */}
         {mieRichieste.length > 0 && (
