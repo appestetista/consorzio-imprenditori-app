@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Camera, Upload, FileText, CheckCircle, Info, TrendingDown, Users, Clock, Send, Loader2, Shield, Lightbulb, Flame, Leaf, Sun, Phone, Wifi, Building2, Home, Factory, MapPin, HelpCircle } from 'lucide-react';
+import { ArrowLeft, Camera, Upload, FileText, CheckCircle, Info, TrendingDown, Users, Clock, Send, Loader2, Shield, Lightbulb, Flame, Leaf, Sun, Phone, Wifi, Building2, Home, Factory, MapPin, HelpCircle, Heart, Calculator, TrendingUp, Gift, Banknote, UserCheck, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Card, CardContent } from '@/components/ui/card';
@@ -99,6 +99,18 @@ const CATEGORIE_INFO = {
     ],
     descrizione: 'Carica la tua bolletta internet e scopri le offerte dedicate.',
     tipoDocumento: 'bolletta internet'
+  },
+  'Welfare Aziendale': {
+    icon: Heart,
+    color: 'from-pink-500 to-rose-500',
+    vantaggi: [
+      'Riduzione del carico fiscale',
+      'Maggiore valore netto per i dipendenti',
+      'Aumento della produttività',
+      'Fidelizzazione del personale'
+    ],
+    descrizione: 'Scopri come trasformare un costo lordo in valore netto per i tuoi dipendenti.',
+    tipoDocumento: null
   }
 };
 
@@ -1448,6 +1460,207 @@ ${note || 'Nessuna'}
               </Button>
             </CardContent>
           </Card>
+        ) : categoria === 'Welfare Aziendale' ? (
+          /* Sezione Welfare Aziendale */
+          <div className="space-y-6">
+            {/* SEZIONE 1 - Impatto Immediato */}
+            <Card className="bg-slate-800 border-slate-700">
+              <CardContent className="p-4">
+                <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+                  <Calculator className="w-5 h-5 text-pink-400" />
+                  Il confronto che conta
+                </h3>
+                <p className="text-slate-400 text-sm mb-4">
+                  Se spendi <span className="text-white font-semibold">1.000 €</span> per un dipendente, ecco cosa cambia:
+                </p>
+
+                {/* Confronto A vs B */}
+                <div className="grid grid-cols-1 gap-4">
+                  {/* Premio in busta paga */}
+                  <div className="bg-slate-900 rounded-lg p-4 border border-red-500/30">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Banknote className="w-5 h-5 text-red-400" />
+                      <h4 className="text-red-400 font-semibold">Premio in busta paga</h4>
+                    </div>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Costo azienda:</span>
+                        <span className="text-white font-medium">1.000 €</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Valore netto al dipendente:</span>
+                        <span className="text-red-400 font-medium">~600 €</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Tassazione e contributi:</span>
+                        <span className="text-red-400 font-medium">~400 €</span>
+                      </div>
+                    </div>
+                    <p className="text-slate-500 text-xs mt-3 pt-2 border-t border-slate-700">
+                      Il 40% circa viene assorbito da tasse e contributi.
+                    </p>
+                  </div>
+
+                  {/* Welfare Aziendale */}
+                  <div className="bg-slate-900 rounded-lg p-4 border border-pink-500/30">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Gift className="w-5 h-5 text-pink-400" />
+                      <h4 className="text-pink-400 font-semibold">Welfare Aziendale</h4>
+                    </div>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Costo azienda:</span>
+                        <span className="text-white font-medium">1.000 €</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Valore per il dipendente:</span>
+                        <span className="text-pink-400 font-medium">fino a 1.000 €</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Tassazione:</span>
+                        <span className="text-green-400 font-medium">Agevolata o nulla*</span>
+                      </div>
+                    </div>
+                    <p className="text-slate-500 text-xs mt-3 pt-2 border-t border-slate-700">
+                      *Nei limiti previsti dalla normativa vigente (art. 51 TUIR).
+                    </p>
+                  </div>
+                </div>
+
+                {/* Spiegazione */}
+                <Alert className="mt-4 bg-pink-500/10 border-pink-500/30">
+                  <Info className="h-4 w-4 text-pink-400" />
+                  <AlertDescription className="text-slate-300 text-sm">
+                    Il welfare aziendale è fiscalmente efficiente perché sostituisce parte della retribuzione monetaria con benefit defiscalizzati. 
+                    A parità di costo per l'azienda, il dipendente percepisce un valore maggiore.
+                  </AlertDescription>
+                </Alert>
+              </CardContent>
+            </Card>
+
+            {/* SEZIONE 2 - Effetto Produttività */}
+            <Card className="bg-slate-800 border-slate-700">
+              <CardContent className="p-4">
+                <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-pink-400" />
+                  Effetto sulla produttività
+                </h3>
+                <p className="text-slate-400 text-sm mb-4">
+                  Il welfare non è un costo aggiuntivo: è una <span className="text-white font-semibold">riallocazione intelligente della spesa</span>.
+                </p>
+
+                <div className="space-y-3">
+                  {[
+                    { icon: UserCheck, text: 'Minore assenteismo', desc: 'Dipendenti con benefit utili tendono ad assentarsi meno' },
+                    { icon: Heart, text: 'Maggiore fidelizzazione', desc: 'Riduce il turnover e i costi di ricerca personale' },
+                    { icon: Banknote, text: 'Minori richieste di aumenti', desc: 'Il valore percepito riduce la pressione sugli stipendi' }
+                  ].map((item, idx) => (
+                    <div key={idx} className="flex items-start gap-3 bg-slate-900 rounded-lg p-3">
+                      <div className="w-8 h-8 bg-pink-400/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <item.icon className="w-4 h-4 text-pink-400" />
+                      </div>
+                      <div>
+                        <p className="text-white font-medium text-sm">{item.text}</p>
+                        <p className="text-slate-400 text-xs">{item.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <p className="text-slate-500 text-xs mt-4 italic">
+                  Buoni pasto, buoni spesa, servizi sanitari integrativi e convenzioni sono tra i benefit più apprezzati.
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* SEZIONE 3 - Simulazione Precompilata */}
+            <Card className="bg-gradient-to-br from-pink-500/20 to-rose-500/20 border-pink-500/30">
+              <CardContent className="p-4">
+                <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+                  <Calculator className="w-5 h-5 text-pink-400" />
+                  Esempio pratico: azienda con 5 dipendenti
+                </h3>
+
+                <div className="bg-slate-900/80 rounded-lg p-4 mb-4">
+                  <div className="grid grid-cols-2 gap-3 text-sm mb-4">
+                    <div>
+                      <p className="text-slate-400 text-xs">Dipendenti</p>
+                      <p className="text-white font-semibold">5</p>
+                    </div>
+                    <div>
+                      <p className="text-slate-400 text-xs">Welfare mensile/dip.</p>
+                      <p className="text-white font-semibold">100 €</p>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-slate-700 pt-4 space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-400">Spesa annua azienda:</span>
+                      <span className="text-white font-semibold">6.000 €</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-400">Valore netto percepito:</span>
+                      <span className="text-pink-400 font-semibold">fino a 6.000 €</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-400">Equivalente in busta paga:</span>
+                      <span className="text-slate-300">~3.600 €</span>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 pt-4 border-t border-slate-700">
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-300 font-medium">Valore recuperato:</span>
+                      <span className="text-green-400 font-bold text-lg">+2.400 €/anno</span>
+                    </div>
+                  </div>
+                </div>
+
+                <p className="text-slate-400 text-xs">
+                  ⚠️ I numeri sono stime prudenziali basate sulla normativa 2025 e possono variare in base alla situazione specifica dell'azienda.
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* SEZIONE 4 - Call to Action */}
+            <Card className="bg-slate-800 border-slate-700">
+              <CardContent className="p-4">
+                <h3 className="text-white font-semibold mb-2">
+                  Vuoi vedere quanto puoi risparmiare?
+                </h3>
+                <p className="text-slate-400 text-sm mb-4">
+                  Richiedi un'analisi gratuita personalizzata sulla tua azienda. Ti contatteremo per raccogliere le informazioni necessarie e proporti una soluzione su misura.
+                </p>
+
+                {/* Note */}
+                <Textarea
+                  placeholder="Descrivi brevemente la tua azienda: numero dipendenti, settore, eventuali benefit già attivi..."
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  className="bg-slate-900 border-slate-700 text-white mb-4"
+                  rows={3}
+                />
+
+                <Button
+                  className="w-full bg-pink-500 hover:bg-pink-600 text-white font-semibold"
+                  onClick={() => submitMutation.mutate()}
+                  disabled={isUploading || submitMutation.isPending}
+                >
+                  {isUploading || submitMutation.isPending ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Invio in corso...
+                    </>
+                  ) : (
+                    <>
+                      <ArrowRight className="w-4 h-4 mr-2" />
+                      Richiedi Analisi Gratuita
+                    </>
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
         ) : categoria === 'Spesa Telefonica' ? (
           /* Form Spesa Telefonica */
           <Card className="bg-slate-800 border-slate-700 mb-6">
