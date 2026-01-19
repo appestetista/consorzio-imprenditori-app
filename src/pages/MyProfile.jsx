@@ -116,12 +116,19 @@ export default function MyProfile() {
       });
       
       if (allFieldsComplete) {
-        navigate(createPageUrl('Home'));
+        // In impersonation torna all'AdminPanel, altrimenti alla Home
+        if (impersonation.active) {
+          alert('Profilo aggiornato con successo!');
+          navigate(createPageUrl('Home'));
+        } else {
+          navigate(createPageUrl('Home'));
+        }
         return;
       }
       
       alert('Profilo aggiornato con successo!');
     } catch (error) {
+      console.error('Errore salvataggio:', error);
       alert('Errore durante il salvataggio');
     } finally {
       setSaving(false);
