@@ -301,7 +301,7 @@ export default function GestioneMembri() {
             <h1 className="text-white text-xl font-bold">Utenti del Consorzio</h1>
           </div>
 
-          <MembersDirectory currentUserEmail={user?.email} />
+          <MembersDirectory currentUserEmail={impersonation.active ? impersonation.targetEmail : user?.email} />
         </main>
 
         <BottomNav currentPage="GestioneMembri" unreadMessages={messages.length} />
