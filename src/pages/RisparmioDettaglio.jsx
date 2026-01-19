@@ -204,6 +204,7 @@ RICHIESTA PREVENTIVO FOTOVOLTAICO
 ⚡ CONSUMI E ESIGENZE:
 - Spesa media mensile bolletta: ${fotovoltaicoForm.consumo_mensile || 'Non specificato'}
 - Consumo annuo energia (kWh): ${fotovoltaicoForm.consumo_annuo_kwh || 'Non specificato'}
+- Fasce orarie consumo: ${fotovoltaicoForm.fasce_orarie_consumo.length > 0 ? fotovoltaicoForm.fasce_orarie_consumo.join(', ') : 'Non specificato'}
 - Interesse batterie accumulo: ${fotovoltaicoForm.interesse_batterie || 'Non specificato'}
 - Interesse colonnina ricarica: ${fotovoltaicoForm.interesse_colonnina || 'Non specificato'}
 
