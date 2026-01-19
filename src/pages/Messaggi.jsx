@@ -153,9 +153,9 @@ export default function Messaggi() {
     const otherUser = getOtherUser(selectedConversation);
 
     return (
-      <div className="min-h-screen bg-slate-900 flex flex-col">
+      <div className="h-screen bg-slate-900 flex flex-col overflow-hidden">
         {/* Chat Header */}
-        <div className="bg-slate-800 py-4 px-4 flex items-center gap-3 border-b border-slate-700">
+        <div className="bg-slate-800 py-4 px-4 flex items-center gap-3 border-b border-slate-700 flex-shrink-0">
           <button onClick={() => setSelectedConversation(null)} className="text-lime-400">
             <ArrowLeft className="w-6 h-6" />
           </button>
@@ -169,7 +169,7 @@ export default function Messaggi() {
         </div>
 
         {/* Messages */}
-        <ScrollArea className="flex-1 p-4">
+        <div className="flex-1 overflow-y-auto p-4">
           <div className="space-y-3">
             {conversationMessages.map((msg) => (
               <div
@@ -204,10 +204,10 @@ export default function Messaggi() {
             ))}
             <div ref={messagesEndRef} />
           </div>
-        </ScrollArea>
+        </div>
 
-        {/* Input */}
-        <div className="bg-slate-800 p-4 border-t border-slate-700">
+        {/* Input - sempre fisso in basso */}
+        <div className="bg-slate-800 p-4 border-t border-slate-700 flex-shrink-0">
           <div className="flex gap-2">
             <Input
               value={newMessage}
