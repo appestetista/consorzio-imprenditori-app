@@ -12,7 +12,6 @@ import { createPageUrl } from '@/utils';
 
 export default function MembersDirectory({ currentUserEmail }) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeTab, setActiveTab] = useState('aziende'); // 'aziende' o 'consulenti'
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { playSound } = useNotificationSound();
