@@ -863,7 +863,7 @@ ${note || 'Nessuna'}
                     <SelectValue placeholder="Seleziona numero cellulari" />
                   </SelectTrigger>
                   <SelectContent>
-                    {Array.from({length: 20}, (_, i) => i + 1).map(num => (
+                    {Array.from({length: 21}, (_, i) => i).map(num => (
                       <SelectItem key={num} value={String(num)}>{num}</SelectItem>
                     ))}
                   </SelectContent>
