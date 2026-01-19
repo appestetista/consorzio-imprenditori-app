@@ -1,4 +1,5 @@
 import CalendarioIncontri from './pages/CalendarioIncontri';
+import Consulenze from './pages/Consulenze';
 import ContattaConsorzio from './pages/ContattaConsorzio';
 import ContattaMembri from './pages/ContattaMembri';
 import ContattaMembriAdmin from './pages/ContattaMembriAdmin';
@@ -13,13 +14,12 @@ import ProfiloBandi from './pages/ProfiloBandi';
 import RisparmioDettaglio from './pages/RisparmioDettaglio';
 import RisparmioEnergetico from './pages/RisparmioEnergetico';
 import VideoInterviste from './pages/VideoInterviste';
-import Consulenze from './pages/Consulenze';
-import Home from './pages/Home';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "CalendarioIncontri": CalendarioIncontri,
+    "Consulenze": Consulenze,
     "ContattaConsorzio": ContattaConsorzio,
     "ContattaMembri": ContattaMembri,
     "ContattaMembriAdmin": ContattaMembriAdmin,
@@ -34,8 +34,6 @@ export const PAGES = {
     "RisparmioDettaglio": RisparmioDettaglio,
     "RisparmioEnergetico": RisparmioEnergetico,
     "VideoInterviste": VideoInterviste,
-    "Consulenze": Consulenze,
-    "Home": Home,
 }
 
 export const pagesConfig = {
