@@ -1113,7 +1113,6 @@ ${note || 'Nessuna'}
                     </label>
                   ))}
                 </div>
-                </div>
                 </TooltipProvider>
                 <p className="text-slate-500 text-xs mt-1">* Le percentuali di risparmio sono indicative e variano in base all'immobile</p>
               </div>
