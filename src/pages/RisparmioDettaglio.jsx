@@ -270,24 +270,6 @@ export default function RisparmioDettaglio() {
           </Alert>
         )}
 
-        {/* Vantaggi */}
-        <Card className="bg-slate-800 border-slate-700 mb-6">
-          <CardContent className="p-4">
-            <h3 className="text-lime-400 font-semibold mb-3 flex items-center gap-2">
-              <CheckCircle className="w-5 h-5" />
-              Vantaggi
-            </h3>
-            <ul className="space-y-2">
-              {info.vantaggi.map((vantaggio, index) => (
-                <li key={index} className="flex items-start gap-2 text-slate-300 text-sm">
-                  <CheckCircle className="w-4 h-4 text-lime-400 flex-shrink-0 mt-0.5" />
-                  {vantaggio}
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-
         {/* Upload Section */}
         <Card className="bg-slate-800 border-slate-700 mb-6">
           <CardContent className="p-4">
