@@ -1054,6 +1054,7 @@ ${note || 'Nessuna'}
               {/* Interventi di interesse */}
               <div className="space-y-2">
                 <Label className="text-slate-300">Interventi per cui sarei interessato</Label>
+                <TooltipProvider>
                 <div className="grid grid-cols-1 gap-2">
                   {[
                     { value: 'cappotto', label: '🧱 Cappotto termico', risparmio: '25-40%' },
