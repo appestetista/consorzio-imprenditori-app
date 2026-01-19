@@ -141,17 +141,77 @@ export default function Marketplace() {
                     {newAd.category === 'Ricerca Personale' && (
                       <>
                         <Input
-                          placeholder="Figura ricercata (es. Magazziniere, Segretaria...)"
+                          placeholder="Figura ricercata (es. Magazziniere, Segretaria...) *"
                           value={newAd.title}
                           onChange={(e) => setNewAd({...newAd, title: e.target.value})}
                           className="bg-slate-900 border-slate-700 text-white"
                         />
+                        <Select
+                          value={newAd.tipo_contratto || ''}
+                          onValueChange={(value) => setNewAd({...newAd, tipo_contratto: value})}
+                        >
+                          <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                            <SelectValue placeholder="Tipo di contratto *" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="tempo_indeterminato">Tempo indeterminato</SelectItem>
+                            <SelectItem value="tempo_determinato">Tempo determinato</SelectItem>
+                            <SelectItem value="apprendistato">Apprendistato</SelectItem>
+                            <SelectItem value="stage">Stage / Tirocinio</SelectItem>
+                            <SelectItem value="partita_iva">Partita IVA</SelectItem>
+                            <SelectItem value="collaborazione">Collaborazione occasionale</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <Select
+                          value={newAd.orario_lavoro || ''}
+                          onValueChange={(value) => setNewAd({...newAd, orario_lavoro: value})}
+                        >
+                          <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                            <SelectValue placeholder="Orario di lavoro *" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="full_time">Full-time</SelectItem>
+                            <SelectItem value="part_time_mattina">Part-time mattina</SelectItem>
+                            <SelectItem value="part_time_pomeriggio">Part-time pomeriggio</SelectItem>
+                            <SelectItem value="turni">Su turni</SelectItem>
+                            <SelectItem value="flessibile">Orario flessibile</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <Input
+                          placeholder="Sede di lavoro (città/zona) *"
+                          value={newAd.sede_lavoro || ''}
+                          onChange={(e) => setNewAd({...newAd, sede_lavoro: e.target.value})}
+                          className="bg-slate-900 border-slate-700 text-white"
+                        />
                         <Textarea
-                          placeholder="Descrizione del ruolo, requisiti, orari..."
+                          placeholder="Descrizione del ruolo e mansioni principali *"
                           value={newAd.description}
                           onChange={(e) => setNewAd({...newAd, description: e.target.value})}
                           className="bg-slate-900 border-slate-700 text-white"
-                          rows={4}
+                          rows={3}
+                        />
+                        <Textarea
+                          placeholder="Requisiti richiesti (es. esperienza, titolo di studio...)"
+                          value={newAd.requisiti || ''}
+                          onChange={(e) => setNewAd({...newAd, requisiti: e.target.value})}
+                          className="bg-slate-900 border-slate-700 text-white"
+                          rows={2}
+                        />
+                        <div className="border-t border-slate-700 pt-3 mt-2">
+                          <p className="text-slate-400 text-xs mb-2">Campi opzionali (riservati)</p>
+                          <Input
+                            placeholder="RAL offerta (€) - opzionale"
+                            type="number"
+                            value={newAd.ral || ''}
+                            onChange={(e) => setNewAd({...newAd, ral: e.target.value})}
+                            className="bg-slate-900 border-slate-700 text-white"
+                          />
+                        </div>
+                        <Input
+                          placeholder="Benefit offerti (es. auto, buoni pasto...) - opzionale"
+                          value={newAd.benefit || ''}
+                          onChange={(e) => setNewAd({...newAd, benefit: e.target.value})}
+                          className="bg-slate-900 border-slate-700 text-white"
                         />
                       </>
                     )}
