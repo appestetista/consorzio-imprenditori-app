@@ -804,23 +804,12 @@ ${note || 'Nessuna'}
               {/* Operatore attuale */}
               <div className="space-y-2">
                 <Label className="text-slate-300">Operatore attuale</Label>
-                <Select 
-                  value={telefonicaForm.operatore_attuale} 
-                  onValueChange={(v) => setTelefonicaForm({...telefonicaForm, operatore_attuale: v})}
-                >
-                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
-                    <SelectValue placeholder="Seleziona operatore" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="tim">TIM</SelectItem>
-                    <SelectItem value="vodafone">Vodafone</SelectItem>
-                    <SelectItem value="wind_tre">WindTre</SelectItem>
-                    <SelectItem value="fastweb">Fastweb</SelectItem>
-                    <SelectItem value="iliad">Iliad</SelectItem>
-                    <SelectItem value="altro">Altro</SelectItem>
-                    <SelectItem value="multipli">Più operatori</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Input
+                  placeholder="Es. TIM, Vodafone, WindTre..."
+                  value={telefonicaForm.operatore_attuale}
+                  onChange={(e) => setTelefonicaForm({...telefonicaForm, operatore_attuale: e.target.value})}
+                  className="bg-slate-900 border-slate-700 text-white"
+                />
               </div>
 
               {/* Numero linee */}
