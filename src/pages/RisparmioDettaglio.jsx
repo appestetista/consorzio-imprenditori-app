@@ -1064,7 +1064,7 @@ ${note || 'Nessuna'}
                     { value: 'solare_termico', label: '🌡️ Solare termico', risparmio: '50-80%' },
                     { value: 'led', label: '💡 Illuminazione LED', risparmio: '50-75%' },
                     { value: 'domotica', label: '🏠 Domotica/termostati smart', risparmio: '10-25%' },
-                    { value: 'audit', label: '📊 Solo audit energetico', risparmio: null }
+                    { value: 'audit', label: '📊 Solo audit energetico', risparmio: null, tooltip: "L'audit energetico è un'analisi dettagliata dei consumi del tuo immobile. Un tecnico specializzato valuta lo stato dell'edificio e degli impianti, identifica le inefficienze e propone gli interventi più convenienti con il relativo risparmio atteso." }
                   ].map((intervento) => (
                     <label 
                       key={intervento.value}
@@ -1088,15 +1088,27 @@ ${note || 'Nessuna'}
                         />
                         <span>{intervento.label}</span>
                       </div>
-                      {intervento.risparmio && (
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${
-                          efficientamentoForm.interventi_interesse.includes(intervento.value)
-                            ? 'bg-green-500/30 text-green-300'
-                            : 'bg-slate-700 text-slate-400'
-                        }`}>
-                          -{intervento.risparmio}
-                        </span>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {intervento.risparmio && (
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${
+                            efficientamentoForm.interventi_interesse.includes(intervento.value)
+                              ? 'bg-green-500/30 text-green-300'
+                              : 'bg-slate-700 text-slate-400'
+                          }`}>
+                            -{intervento.risparmio}
+                          </span>
+                        )}
+                        {intervento.tooltip && (
+                          <Tooltip>
+                            <TooltipTrigger asChild onClick={(e) => e.preventDefault()}>
+                              <HelpCircle className="w-4 h-4 text-slate-400 hover:text-green-400 flex-shrink-0" />
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="max-w-[280px] bg-slate-800 border-slate-600 text-slate-200 p-3">
+                              <p className="text-xs leading-relaxed">{intervento.tooltip}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
+                      </div>
                     </label>
                   ))}
                 </div>
