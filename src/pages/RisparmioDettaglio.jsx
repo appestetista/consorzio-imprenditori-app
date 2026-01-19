@@ -185,6 +185,34 @@ export default function RisparmioDettaglio() {
         fileUrl = uploadResult.file_url;
       }
 
+      // Per fotovoltaico, costruisci le note dal form
+      let noteFinali = note;
+      if (categoria === 'Fotovoltaico') {
+        noteFinali = `
+RICHIESTA PREVENTIVO FOTOVOLTAICO
+
+📍 UBICAZIONE E IMMOBILE:
+- Tipo immobile: ${fotovoltaicoForm.tipo_immobile || 'Non specificato'}
+- Indirizzo installazione: ${fotovoltaicoForm.indirizzo_installazione || 'Non specificato'}
+- Superficie tetto stimata: ${fotovoltaicoForm.superficie_tetto || 'Non specificato'}
+- Tipo copertura: ${fotovoltaicoForm.tipo_copertura || 'Non specificato'}
+- Orientamento tetto: ${fotovoltaicoForm.orientamento_tetto || 'Non specificato'}
+- Presenza ombreggiature: ${fotovoltaicoForm.presenza_ombreggiature || 'Non specificato'}
+
+⚡ CONSUMI E ESIGENZE:
+- Consumo mensile bolletta: ${fotovoltaicoForm.consumo_mensile || 'Non specificato'}
+- Interesse batterie accumulo: ${fotovoltaicoForm.interesse_batterie || 'Non specificato'}
+- Interesse colonnina ricarica: ${fotovoltaicoForm.interesse_colonnina || 'Non specificato'}
+
+💰 BUDGET E TEMPISTICHE:
+- Budget indicativo: ${fotovoltaicoForm.budget_indicativo || 'Non specificato'}
+- Tempistiche desiderate: ${fotovoltaicoForm.tempistiche || 'Non specificato'}
+
+📝 NOTE AGGIUNTIVE:
+${note || 'Nessuna'}
+        `.trim();
+      }
+
       // Crea la richiesta
       await base44.entities.RichiestaRisparmio.create({
         user_email: user.email,
@@ -192,7 +220,7 @@ export default function RisparmioDettaglio() {
         user_phone: user.telefono_referente || '',
         categoria: categoria,
         foto_bolletta_url: fileUrl,
-        note: note,
+        note: noteFinali,
         status: 'pending'
       });
 
@@ -218,8 +246,9 @@ export default function RisparmioDettaglio() {
           <p><strong>Email:</strong> ${user.email}</p>
           <p><strong>Telefono:</strong> ${user.telefono_referente || 'Non specificato'}</p>
           <p><strong>Categoria:</strong> ${categoria}</p>
-          <p><strong>Note:</strong> ${note || 'Nessuna nota'}</p>
-          ${fileUrl ? `<p><strong>Documento allegato:</strong> <a href="${fileUrl}">Visualizza</a></p>` : '<p><em>Nessun documento allegato</em></p>'}
+          <hr/>
+          <pre style="white-space: pre-wrap; font-family: inherit;">${noteFinali}</pre>
+          ${fileUrl ? `<p><strong>Documento allegato:</strong> <a href="${fileUrl}">Visualizza</a></p>` : ''}
         `
       });
     },
