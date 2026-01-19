@@ -244,7 +244,7 @@ export default function Messaggi() {
                     className={`max-w-[80%] rounded-2xl px-4 py-2 ${
                       msg.from_email === user?.email
                         ? 'bg-lime-400 text-slate-900'
-                        : 'bg-slate-700 text-white'
+                        : 'bg-blue-500 text-white'
                     }`}
                   >
                     {/* Allegati */}
@@ -266,7 +266,7 @@ export default function Messaggi() {
                               />
                             ) : (
                               <div className={`flex items-center gap-2 p-2 rounded-lg ${
-                                msg.from_email === user?.email ? 'bg-lime-500/30' : 'bg-slate-600'
+                                msg.from_email === user?.email ? 'bg-lime-500/30' : 'bg-blue-600'
                               }`}>
                                 <FileText className="w-5 h-5" />
                                 <span className="text-sm truncate">{att.name}</span>
@@ -278,7 +278,7 @@ export default function Messaggi() {
                     )}
                     {msg.content && <p className="text-sm whitespace-pre-wrap">{msg.content}</p>}
                     <p className={`text-xs mt-1 ${
-                      msg.from_email === user?.email ? 'text-slate-700' : 'text-slate-400'
+                      msg.from_email === user?.email ? 'text-slate-700' : 'text-blue-200'
                     }`}>
                       {format(new Date(msg.created_date), 'HH:mm', { locale: it })}
                     </p>
