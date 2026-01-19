@@ -1463,23 +1463,41 @@ ${note || 'Nessuna'}
         ) : categoria === 'Welfare Aziendale' ? (
           /* Sezione Welfare Aziendale */
           <div className="space-y-6">
-            {/* Pulsante Catalogo Buoni Pasto */}
-            <Card className="bg-gradient-to-r from-pink-500 to-rose-500 border-0 cursor-pointer hover:opacity-90 transition-opacity"
-              onClick={() => window.location.href = createPageUrl('CatalogoBuoniPasto')}
-            >
-              <CardContent className="p-4 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                    <Gift className="w-6 h-6 text-white" />
+            {/* 3 Pulsanti affiancati */}
+            <div className="grid grid-cols-3 gap-2">
+              <Card className="bg-slate-800 border-pink-500/30 cursor-pointer hover:border-pink-500/50 transition-colors"
+                onClick={() => window.location.href = createPageUrl('WelfareNormativa')}
+              >
+                <CardContent className="p-3 text-center">
+                  <div className="w-10 h-10 bg-pink-400/20 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <FileText className="w-5 h-5 text-pink-400" />
                   </div>
-                  <div>
-                    <h3 className="text-white font-semibold">Cosa puoi acquistare?</h3>
-                    <p className="text-white/80 text-sm">Scopri dove usare i buoni pasto</p>
+                  <h3 className="text-white font-semibold text-xs">Normativa</h3>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-slate-800 border-pink-500/30 cursor-pointer hover:border-pink-500/50 transition-colors"
+                onClick={() => window.location.href = createPageUrl('WelfareTipologie')}
+              >
+                <CardContent className="p-3 text-center">
+                  <div className="w-10 h-10 bg-pink-400/20 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <Gift className="w-5 h-5 text-pink-400" />
                   </div>
-                </div>
-                <ArrowRight className="w-6 h-6 text-white" />
-              </CardContent>
-            </Card>
+                  <h3 className="text-white font-semibold text-xs">Di che tipo sono</h3>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-slate-800 border-pink-500/30 cursor-pointer hover:border-pink-500/50 transition-colors"
+                onClick={() => window.location.href = createPageUrl('WelfareOrdina')}
+              >
+                <CardContent className="p-3 text-center">
+                  <div className="w-10 h-10 bg-pink-400/20 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <Banknote className="w-5 h-5 text-pink-400" />
+                  </div>
+                  <h3 className="text-white font-semibold text-xs">Scegli e ordina</h3>
+                </CardContent>
+              </Card>
+            </div>
 
             {/* Pulsante Richiedi Analisi */}
             <Card className="bg-slate-800 border-pink-500/30 cursor-pointer hover:border-pink-500/50 transition-colors"
