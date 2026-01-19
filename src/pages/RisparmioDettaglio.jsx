@@ -201,7 +201,8 @@ RICHIESTA PREVENTIVO FOTOVOLTAICO
 - Presenza ombreggiature: ${fotovoltaicoForm.presenza_ombreggiature || 'Non specificato'}
 
 ⚡ CONSUMI E ESIGENZE:
-- Consumo mensile bolletta: ${fotovoltaicoForm.consumo_mensile || 'Non specificato'}
+- Spesa media mensile bolletta: ${fotovoltaicoForm.consumo_mensile || 'Non specificato'}
+- Consumo annuo energia (kWh): ${fotovoltaicoForm.consumo_annuo_kwh || 'Non specificato'}
 - Interesse batterie accumulo: ${fotovoltaicoForm.interesse_batterie || 'Non specificato'}
 - Interesse colonnina ricarica: ${fotovoltaicoForm.interesse_colonnina || 'Non specificato'}
 
