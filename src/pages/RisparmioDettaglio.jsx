@@ -121,6 +121,7 @@ export default function RisparmioDettaglio() {
     consumo_mensile: '',
     consumo_annuo_kwh: '',
     fasce_orarie_consumo: [],
+    potenza_contatore: '',
     tipo_copertura: '',
     presenza_ombreggiature: '',
     interesse_batterie: '',
