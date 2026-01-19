@@ -297,6 +297,27 @@ ${efficientamentoForm.interventi_interesse.length > 0 ? efficientamentoForm.inte
 📝 NOTE AGGIUNTIVE:
 ${note || 'Nessuna'}
         `.trim();
+      } else if (categoria === 'Internet') {
+        noteFinali = `
+RICHIESTA ANALISI CONNESSIONE INTERNET
+
+🌐 SITUAZIONE ATTUALE:
+- Tipo utenza: ${internetForm.tipo_utenza || 'Non specificato'}
+- Operatore attuale: ${internetForm.operatore_attuale || 'Non specificato'}
+- Tipo connessione attuale: ${internetForm.tipo_connessione || 'Non specificato'}
+- Velocità attuale: ${internetForm.velocita_attuale || 'Non specificato'}
+- Spesa mensile attuale: ${internetForm.spesa_mensile || 'Non specificato'}
+- Indirizzo: ${internetForm.indirizzo || 'Non specificato'}
+
+📋 ESIGENZE:
+${internetForm.esigenze.length > 0 ? internetForm.esigenze.join(', ') : 'Non specificato'}
+
+❌ PROBLEMI RISCONTRATI:
+${internetForm.problemi_attuali || 'Nessuno specificato'}
+
+📝 NOTE AGGIUNTIVE:
+${note || 'Nessuna'}
+        `.trim();
       } else if (categoria === 'Spesa Telefonica') {
         noteFinali = `
 RICHIESTA ANALISI SPESA TELEFONICA
