@@ -479,6 +479,41 @@ ${note || 'Nessuna'}
                 <p className="text-slate-500 text-xs">Lo trovi in bolletta – voce "Consumo annuo"</p>
               </div>
 
+              {/* Fasce orarie consumo */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Fasce orarie di consumo principali</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { value: 'giorno', label: '☀️ Giorno' },
+                    { value: 'sera', label: '🌆 Sera' },
+                    { value: 'notte', label: '🌙 Notte' },
+                    { value: 'uniforme', label: '⚖️ Uniforme' }
+                  ].map((fascia) => (
+                    <label 
+                      key={fascia.value}
+                      className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-colors ${
+                        fotovoltaicoForm.fasce_orarie_consumo.includes(fascia.value)
+                          ? 'bg-lime-400/20 border-lime-400 text-lime-400'
+                          : 'bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500'
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={fotovoltaicoForm.fasce_orarie_consumo.includes(fascia.value)}
+                        onChange={(e) => {
+                          const newFasce = e.target.checked
+                            ? [...fotovoltaicoForm.fasce_orarie_consumo, fascia.value]
+                            : fotovoltaicoForm.fasce_orarie_consumo.filter(f => f !== fascia.value);
+                          setFotovoltaicoForm({...fotovoltaicoForm, fasce_orarie_consumo: newFasce});
+                        }}
+                        className="sr-only"
+                      />
+                      <span>{fascia.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
               {/* Batterie accumulo */}
               <div className="space-y-2">
                 <Label className="text-slate-300">Interesse per batterie di accumulo</Label>
