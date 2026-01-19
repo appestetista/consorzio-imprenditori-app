@@ -9,9 +9,9 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
-import Header from '../components/layout/Header';
-import BottomNav from '../components/layout/BottomNav';
-import { useImpersonation } from '../components/admin/ImpersonationContext';
+import Header from '@/components/layout/Header';
+import BottomNav from '@/components/layout/BottomNav';
+import { useImpersonation } from '@/components/admin/ImpersonationContext';
 
 const MENU_ITEMS = [
   { name: 'Calendario Incontri', page: 'CalendarioIncontri', icon: Calendar, color: 'lime' },
