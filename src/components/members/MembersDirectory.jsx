@@ -54,7 +54,7 @@ export default function MembersDirectory({ currentUserEmail }) {
   }, [consultants, searchTerm]);
 
   const handleChat = (email) => {
-    // Naviga alla pagina messaggi con l'email preselezionata
+    // Naviga direttamente alla pagina messaggi con la chat aperta
     navigate(createPageUrl('Messaggi') + `?contact=${encodeURIComponent(email)}`);
   };
 
