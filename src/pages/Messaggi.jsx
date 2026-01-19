@@ -32,18 +32,20 @@ export default function Messaggi() {
       try {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
-        
-        // Controlla se c'è un contact nell'URL per aprire direttamente la chat
-        const urlParams = new URLSearchParams(window.location.search);
-        const contactEmail = urlParams.get('contact');
-        if (contactEmail) {
-          setSelectedConversation(contactEmail);
-        }
       } catch (e) {
         console.error(e);
       }
     };
     loadUser();
+  }, []);
+
+  // Controlla se c'è un contact nell'URL per aprire direttamente la chat
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const contactEmail = urlParams.get('contact');
+    if (contactEmail) {
+      setSelectedConversation(decodeURIComponent(contactEmail));
+    }
   }, []);
 
   const { data: allMessages = [], isLoading } = useQuery({
