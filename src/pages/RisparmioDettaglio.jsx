@@ -519,7 +519,7 @@ ${note || 'Nessuna'}
 
               {/* Potenza contatore */}
               <div className="space-y-2">
-                <Label className="text-slate-300">Potenza del contatore (kW)</Label>
+                <Label className="text-slate-300">Potenza del contatore attuale (kW)</Label>
                 <div className="grid grid-cols-2 gap-2">
                   {[
                     { value: '3kw', label: '3 kW' },
