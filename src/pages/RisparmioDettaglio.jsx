@@ -1356,38 +1356,52 @@ ${note || 'Nessuna'}
               {/* Esigenze */}
               <div className="space-y-2">
                 <Label className="text-slate-300">Esigenze principali</Label>
+                <TooltipProvider>
                 <div className="grid grid-cols-2 gap-2">
                   {[
-                    { value: 'velocita', label: '⚡ Più velocità' },
-                    { value: 'stabilita', label: '🔒 Più stabilità' },
-                    { value: 'risparmio', label: '💰 Risparmio' },
-                    { value: 'ip_statico', label: '🌐 IP statico' },
-                    { value: 'backup', label: '📡 Backup 4G/5G' },
-                    { value: 'sla', label: '📋 SLA garantito' }
+                    { value: 'velocita', label: '⚡ Più velocità', tooltip: null },
+                    { value: 'stabilita', label: '🔒 Più stabilità', tooltip: null },
+                    { value: 'risparmio', label: '💰 Risparmio', tooltip: null },
+                    { value: 'ip_statico', label: '🌐 IP statico', tooltip: null },
+                    { value: 'backup', label: '📡 Backup 4G/5G', tooltip: 'Una connessione di backup 4G/5G si attiva automaticamente quando la linea principale (fibra/ADSL) ha problemi, garantendo continuità di servizio. Ideale per aziende che non possono permettersi interruzioni.' },
+                    { value: 'sla', label: '📋 SLA garantito', tooltip: 'SLA (Service Level Agreement) è un accordo che garantisce tempi massimi di intervento in caso di guasti (es. 4-8 ore). Include penali per il provider se non rispetta i tempi. Consigliato per attività che dipendono dalla connessione.' }
                   ].map((esigenza) => (
                     <label 
                       key={esigenza.value}
-                      className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-colors ${
+                      className={`flex items-center justify-between gap-2 p-3 rounded-lg border cursor-pointer transition-colors ${
                         internetForm.esigenze.includes(esigenza.value)
                           ? 'bg-cyan-400/20 border-cyan-400 text-cyan-400'
                           : 'bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500'
                       }`}
                     >
-                      <input
-                        type="checkbox"
-                        checked={internetForm.esigenze.includes(esigenza.value)}
-                        onChange={(e) => {
-                          const newEsigenze = e.target.checked
-                            ? [...internetForm.esigenze, esigenza.value]
-                            : internetForm.esigenze.filter(s => s !== esigenza.value);
-                          setInternetForm({...internetForm, esigenze: newEsigenze});
-                        }}
-                        className="sr-only"
-                      />
-                      <span className="text-sm">{esigenza.label}</span>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={internetForm.esigenze.includes(esigenza.value)}
+                          onChange={(e) => {
+                            const newEsigenze = e.target.checked
+                              ? [...internetForm.esigenze, esigenza.value]
+                              : internetForm.esigenze.filter(s => s !== esigenza.value);
+                            setInternetForm({...internetForm, esigenze: newEsigenze});
+                          }}
+                          className="sr-only"
+                        />
+                        <span className="text-sm">{esigenza.label}</span>
+                      </div>
+                      {esigenza.tooltip && (
+                        <Tooltip>
+                          <TooltipTrigger asChild onClick={(e) => e.preventDefault()}>
+                            <HelpCircle className="w-4 h-4 text-slate-400 hover:text-cyan-400 flex-shrink-0" />
+                          </TooltipTrigger>
+                          <TooltipContent side="top" className="max-w-[280px] bg-slate-800 border-slate-600 text-slate-200 p-3">
+                            <p className="text-xs leading-relaxed">{esigenza.tooltip}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
                     </label>
                   ))}
                 </div>
+                </TooltipProvider>
               </div>
 
               {/* Problemi attuali */}
