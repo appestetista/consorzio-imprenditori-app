@@ -224,12 +224,31 @@ export default function Messaggi() {
           <Link to={createPageUrl('GestioneMembri')} className="text-lime-400">
             <ArrowLeft className="w-6 h-6" />
           </Link>
-          <div className="w-10 h-10 bg-lime-400/20 rounded-full flex items-center justify-center">
-            <User className="w-5 h-5 text-lime-400" />
-          </div>
-          <div>
-            <p className="text-white font-medium">{otherUser?.company_name || otherUser?.full_name || selectedConversation}</p>
-            <p className="text-slate-400 text-sm">{selectedConversation}</p>
+          {otherUser?.logo_url ? (
+            <img 
+              src={otherUser.logo_url} 
+              alt={otherUser.company_name} 
+              className="w-10 h-10 rounded-full object-cover"
+            />
+          ) : (
+            <div className="w-10 h-10 bg-lime-400/20 rounded-full flex items-center justify-center">
+              <User className="w-5 h-5 text-lime-400" />
+            </div>
+          )}
+          <div className="flex-1 min-w-0">
+            <p className="text-white font-medium truncate">{otherUser?.company_name || otherUser?.full_name || selectedConversation}</p>
+            {otherUser?.specializzazione && (
+              <p className="text-lime-400 text-xs truncate">{otherUser.specializzazione}</p>
+            )}
+            <div className="flex items-center gap-2 text-slate-400 text-xs">
+              {otherUser?.city && (
+                <span className="truncate">{otherUser.city}{otherUser.province ? ` (${otherUser.province})` : ''}</span>
+              )}
+              {otherUser?.city && (otherUser?.referente || otherUser?.full_name) && <span>•</span>}
+              {(otherUser?.referente || otherUser?.full_name) && (
+                <span className="truncate">{otherUser.referente || otherUser.full_name}</span>
+              )}
+            </div>
           </div>
         </div>
 
