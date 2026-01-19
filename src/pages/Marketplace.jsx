@@ -116,104 +116,290 @@ export default function Marketplace() {
                 <DialogTitle className="text-white">Nuovo Annuncio</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 mt-4">
-                <Input
-                  placeholder="Titolo annuncio"
-                  value={newAd.title}
-                  onChange={(e) => setNewAd({...newAd, title: e.target.value})}
-                  className="bg-slate-900 border-slate-700 text-white"
-                />
-                <Select
-                  value={newAd.category}
-                  onValueChange={(value) => setNewAd({...newAd, category: value, image_url: value === 'Ricerca Personale' ? '' : newAd.image_url})}
-                >
-                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
-                    <SelectValue placeholder="Seleziona categoria" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CATEGORIES.map((cat) => (
-                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Textarea
-                  placeholder="Descrizione"
-                  value={newAd.description}
-                  onChange={(e) => setNewAd({...newAd, description: e.target.value})}
-                  className="bg-slate-900 border-slate-700 text-white"
-                />
-                
-                {/* Image Upload - Only if not "Ricerca Personale" */}
-                {newAd.category && newAd.category !== 'Ricerca Personale' && (
-                  <div className="space-y-2">
-                    <Label className="text-slate-300">Foto prodotto (opzionale)</Label>
-                    <div className="flex flex-col gap-3">
-                      {newAd.image_url ? (
-                        <div className="relative rounded-lg overflow-hidden border border-slate-700">
-                          <img 
-                            src={newAd.image_url} 
-                            alt="Prodotto" 
-                            className="w-full h-48 object-cover"
-                          />
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            className="absolute top-2 right-2"
-                            onClick={() => setNewAd({...newAd, image_url: ''})}
-                          >
-                            <X className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      ) : (
-                        <Label 
-                          htmlFor="ad-image" 
-                          className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-700 rounded-lg cursor-pointer hover:bg-slate-700/50 transition-colors"
-                        >
-                          {uploadingImage ? (
-                            <div className="text-center">
-                              <div className="animate-spin w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full mx-auto mb-2"></div>
-                              <p className="text-sm text-slate-400">Caricamento...</p>
+                {/* Prima scegli la categoria */}
+                <div className="space-y-2">
+                  <Label className="text-slate-300">Tipo di annuncio *</Label>
+                  <Select
+                    value={newAd.category}
+                    onValueChange={(value) => setNewAd({...newAd, category: value, image_url: '', price: ''})}
+                  >
+                    <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                      <SelectValue placeholder="Seleziona categoria" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CATEGORIES.map((cat) => (
+                        <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Form dinamico in base alla categoria */}
+                {newAd.category && (
+                  <>
+                    {/* RICERCA PERSONALE */}
+                    {newAd.category === 'Ricerca Personale' && (
+                      <>
+                        <Input
+                          placeholder="Figura ricercata (es. Magazziniere, Segretaria...)"
+                          value={newAd.title}
+                          onChange={(e) => setNewAd({...newAd, title: e.target.value})}
+                          className="bg-slate-900 border-slate-700 text-white"
+                        />
+                        <Textarea
+                          placeholder="Descrizione del ruolo, requisiti, orari..."
+                          value={newAd.description}
+                          onChange={(e) => setNewAd({...newAd, description: e.target.value})}
+                          className="bg-slate-900 border-slate-700 text-white"
+                          rows={4}
+                        />
+                      </>
+                    )}
+
+                    {/* VENDO */}
+                    {newAd.category === 'Vendo' && (
+                      <>
+                        <Input
+                          placeholder="Cosa vendi? (es. Macchinario, Attrezzatura...)"
+                          value={newAd.title}
+                          onChange={(e) => setNewAd({...newAd, title: e.target.value})}
+                          className="bg-slate-900 border-slate-700 text-white"
+                        />
+                        <Textarea
+                          placeholder="Descrizione, condizioni, anno, caratteristiche..."
+                          value={newAd.description}
+                          onChange={(e) => setNewAd({...newAd, description: e.target.value})}
+                          className="bg-slate-900 border-slate-700 text-white"
+                          rows={3}
+                        />
+                        <Input
+                          placeholder="Prezzo di vendita (€)"
+                          type="number"
+                          value={newAd.price}
+                          onChange={(e) => setNewAd({...newAd, price: e.target.value})}
+                          className="bg-slate-900 border-slate-700 text-white"
+                        />
+                      </>
+                    )}
+
+                    {/* ACQUISTO */}
+                    {newAd.category === 'Acquisto' && (
+                      <>
+                        <Input
+                          placeholder="Cosa cerchi di acquistare?"
+                          value={newAd.title}
+                          onChange={(e) => setNewAd({...newAd, title: e.target.value})}
+                          className="bg-slate-900 border-slate-700 text-white"
+                        />
+                        <Textarea
+                          placeholder="Descrizione, caratteristiche richieste..."
+                          value={newAd.description}
+                          onChange={(e) => setNewAd({...newAd, description: e.target.value})}
+                          className="bg-slate-900 border-slate-700 text-white"
+                          rows={3}
+                        />
+                        <Input
+                          placeholder="Budget massimo (€) - opzionale"
+                          type="number"
+                          value={newAd.price}
+                          onChange={(e) => setNewAd({...newAd, price: e.target.value})}
+                          className="bg-slate-900 border-slate-700 text-white"
+                        />
+                      </>
+                    )}
+
+                    {/* AFFITTO */}
+                    {newAd.category === 'Affitto' && (
+                      <>
+                        <Input
+                          placeholder="Cosa offri in affitto? (es. Capannone, Ufficio...)"
+                          value={newAd.title}
+                          onChange={(e) => setNewAd({...newAd, title: e.target.value})}
+                          className="bg-slate-900 border-slate-700 text-white"
+                        />
+                        <Textarea
+                          placeholder="Descrizione, metratura, posizione, caratteristiche..."
+                          value={newAd.description}
+                          onChange={(e) => setNewAd({...newAd, description: e.target.value})}
+                          className="bg-slate-900 border-slate-700 text-white"
+                          rows={3}
+                        />
+                        <Input
+                          placeholder="Canone mensile (€)"
+                          type="number"
+                          value={newAd.price}
+                          onChange={(e) => setNewAd({...newAd, price: e.target.value})}
+                          className="bg-slate-900 border-slate-700 text-white"
+                        />
+                      </>
+                    )}
+
+                    {/* RICERCA IMMOBILE */}
+                    {newAd.category === 'Ricerca Immobile' && (
+                      <>
+                        <Input
+                          placeholder="Tipo di immobile cercato (es. Capannone, Ufficio...)"
+                          value={newAd.title}
+                          onChange={(e) => setNewAd({...newAd, title: e.target.value})}
+                          className="bg-slate-900 border-slate-700 text-white"
+                        />
+                        <Textarea
+                          placeholder="Descrizione, zona preferita, metratura richiesta..."
+                          value={newAd.description}
+                          onChange={(e) => setNewAd({...newAd, description: e.target.value})}
+                          className="bg-slate-900 border-slate-700 text-white"
+                          rows={3}
+                        />
+                        <Input
+                          placeholder="Budget massimo (€/mese) - opzionale"
+                          type="number"
+                          value={newAd.price}
+                          onChange={(e) => setNewAd({...newAd, price: e.target.value})}
+                          className="bg-slate-900 border-slate-700 text-white"
+                        />
+                      </>
+                    )}
+
+                    {/* RICERCA COLLABORAZIONE */}
+                    {newAd.category === 'Ricerca Collaborazione' && (
+                      <>
+                        <Input
+                          placeholder="Tipo di collaborazione cercata"
+                          value={newAd.title}
+                          onChange={(e) => setNewAd({...newAd, title: e.target.value})}
+                          className="bg-slate-900 border-slate-700 text-white"
+                        />
+                        <Textarea
+                          placeholder="Descrizione della collaborazione, settore, obiettivi..."
+                          value={newAd.description}
+                          onChange={(e) => setNewAd({...newAd, description: e.target.value})}
+                          className="bg-slate-900 border-slate-700 text-white"
+                          rows={4}
+                        />
+                      </>
+                    )}
+
+                    {/* RICERCA MATERIALE */}
+                    {newAd.category === 'Ricerca Materiale' && (
+                      <>
+                        <Input
+                          placeholder="Materiale ricercato"
+                          value={newAd.title}
+                          onChange={(e) => setNewAd({...newAd, title: e.target.value})}
+                          className="bg-slate-900 border-slate-700 text-white"
+                        />
+                        <Textarea
+                          placeholder="Descrizione, quantità, specifiche tecniche..."
+                          value={newAd.description}
+                          onChange={(e) => setNewAd({...newAd, description: e.target.value})}
+                          className="bg-slate-900 border-slate-700 text-white"
+                          rows={3}
+                        />
+                        <Input
+                          placeholder="Budget disponibile (€) - opzionale"
+                          type="number"
+                          value={newAd.price}
+                          onChange={(e) => setNewAd({...newAd, price: e.target.value})}
+                          className="bg-slate-900 border-slate-700 text-white"
+                        />
+                      </>
+                    )}
+
+                    {/* RICERCA MEZZO PER LOGISTICA */}
+                    {newAd.category === 'Ricerca Mezzo per Logistica' && (
+                      <>
+                        <Input
+                          placeholder="Tipo di mezzo cercato (es. Furgone, Camion...)"
+                          value={newAd.title}
+                          onChange={(e) => setNewAd({...newAd, title: e.target.value})}
+                          className="bg-slate-900 border-slate-700 text-white"
+                        />
+                        <Textarea
+                          placeholder="Descrizione, tratte, frequenza, capacità richiesta..."
+                          value={newAd.description}
+                          onChange={(e) => setNewAd({...newAd, description: e.target.value})}
+                          className="bg-slate-900 border-slate-700 text-white"
+                          rows={3}
+                        />
+                        <Input
+                          placeholder="Budget disponibile (€) - opzionale"
+                          type="number"
+                          value={newAd.price}
+                          onChange={(e) => setNewAd({...newAd, price: e.target.value})}
+                          className="bg-slate-900 border-slate-700 text-white"
+                        />
+                      </>
+                    )}
+
+                    {/* Image Upload - Per categorie con prodotti/immobili */}
+                    {['Vendo', 'Affitto', 'Ricerca Immobile'].includes(newAd.category) && (
+                      <div className="space-y-2">
+                        <Label className="text-slate-300">Foto (opzionale)</Label>
+                        <div className="flex flex-col gap-3">
+                          {newAd.image_url ? (
+                            <div className="relative rounded-lg overflow-hidden border border-slate-700">
+                              <img 
+                                src={newAd.image_url} 
+                                alt="Prodotto" 
+                                className="w-full h-48 object-cover"
+                              />
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                className="absolute top-2 right-2"
+                                onClick={() => setNewAd({...newAd, image_url: ''})}
+                              >
+                                <X className="w-4 h-4" />
+                              </Button>
                             </div>
                           ) : (
-                            <>
-                              <Upload className="w-8 h-8 text-slate-400 mb-2" />
-                              <p className="text-sm text-slate-300">Carica foto</p>
-                              <p className="text-xs text-slate-500">PNG, JPG (max 5MB)</p>
-                            </>
+                            <Label 
+                              htmlFor="ad-image" 
+                              className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-700 rounded-lg cursor-pointer hover:bg-slate-700/50 transition-colors"
+                            >
+                              {uploadingImage ? (
+                                <div className="text-center">
+                                  <div className="animate-spin w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full mx-auto mb-2"></div>
+                                  <p className="text-sm text-slate-400">Caricamento...</p>
+                                </div>
+                              ) : (
+                                <>
+                                  <Upload className="w-8 h-8 text-slate-400 mb-2" />
+                                  <p className="text-sm text-slate-300">Carica foto</p>
+                                  <p className="text-xs text-slate-500">PNG, JPG (max 5MB)</p>
+                                </>
+                              )}
+                              <Input
+                                id="ad-image"
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={handleImageUpload}
+                                disabled={uploadingImage}
+                              />
+                            </Label>
                           )}
-                          <Input
-                            id="ad-image"
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            onChange={handleImageUpload}
-                            disabled={uploadingImage}
-                          />
-                        </Label>
-                      )}
-                    </div>
-                  </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Telefono - Sempre visibile */}
+                    <Input
+                      placeholder="Telefono di contatto"
+                      value={newAd.contact_phone}
+                      onChange={(e) => setNewAd({...newAd, contact_phone: e.target.value})}
+                      className="bg-slate-900 border-slate-700 text-white"
+                    />
+
+                    <Button 
+                      onClick={() => createAdMutation.mutate(newAd)}
+                      disabled={createAdMutation.isPending || uploadingImage || !newAd.title || !newAd.category}
+                      className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900"
+                    >
+                      {createAdMutation.isPending ? 'Pubblicazione...' : 'Pubblica Annuncio'}
+                    </Button>
+                  </>
                 )}
-                
-                <Input
-                  placeholder="Prezzo (opzionale)"
-                  type="number"
-                  value={newAd.price}
-                  onChange={(e) => setNewAd({...newAd, price: e.target.value})}
-                  className="bg-slate-900 border-slate-700 text-white"
-                />
-                <Input
-                  placeholder="Telefono di contatto"
-                  value={newAd.contact_phone}
-                  onChange={(e) => setNewAd({...newAd, contact_phone: e.target.value})}
-                  className="bg-slate-900 border-slate-700 text-white"
-                />
-                <Button 
-                  onClick={() => createAdMutation.mutate(newAd)}
-                  disabled={createAdMutation.isPending || uploadingImage || !newAd.title || !newAd.category}
-                  className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900"
-                >
-                  {createAdMutation.isPending ? 'Pubblicazione...' : 'Pubblica Annuncio'}
-                </Button>
               </div>
             </DialogContent>
           </Dialog>

@@ -1,5 +1,6 @@
 import AdminPanel from './pages/AdminPanel';
 import CalendarioIncontri from './pages/CalendarioIncontri';
+import CatalogoBuoniPasto from './pages/CatalogoBuoniPasto';
 import CompleteProfile from './pages/CompleteProfile';
 import Consulenze from './pages/Consulenze';
 import ContattaConsorzio from './pages/ContattaConsorzio';
@@ -15,20 +16,20 @@ import Marketplace from './pages/Marketplace';
 import Messaggi from './pages/Messaggi';
 import MyProfile from './pages/MyProfile';
 import ProfiloBandi from './pages/ProfiloBandi';
+import RichiestaWelfare from './pages/RichiestaWelfare';
 import RisparmioDettaglio from './pages/RisparmioDettaglio';
 import RisparmioEnergetico from './pages/RisparmioEnergetico';
 import VideoInterviste from './pages/VideoInterviste';
-import CatalogoBuoniPasto from './pages/CatalogoBuoniPasto';
-import RichiestaWelfare from './pages/RichiestaWelfare';
 import WelfareNormativa from './pages/WelfareNormativa';
-import WelfareTipologie from './pages/WelfareTipologie';
 import WelfareOrdina from './pages/WelfareOrdina';
+import WelfareTipologie from './pages/WelfareTipologie';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "AdminPanel": AdminPanel,
     "CalendarioIncontri": CalendarioIncontri,
+    "CatalogoBuoniPasto": CatalogoBuoniPasto,
     "CompleteProfile": CompleteProfile,
     "Consulenze": Consulenze,
     "ContattaConsorzio": ContattaConsorzio,
@@ -44,14 +45,13 @@ export const PAGES = {
     "Messaggi": Messaggi,
     "MyProfile": MyProfile,
     "ProfiloBandi": ProfiloBandi,
+    "RichiestaWelfare": RichiestaWelfare,
     "RisparmioDettaglio": RisparmioDettaglio,
     "RisparmioEnergetico": RisparmioEnergetico,
     "VideoInterviste": VideoInterviste,
-    "CatalogoBuoniPasto": CatalogoBuoniPasto,
-    "RichiestaWelfare": RichiestaWelfare,
     "WelfareNormativa": WelfareNormativa,
-    "WelfareTipologie": WelfareTipologie,
     "WelfareOrdina": WelfareOrdina,
+    "WelfareTipologie": WelfareTipologie,
 }
 
 export const pagesConfig = {
