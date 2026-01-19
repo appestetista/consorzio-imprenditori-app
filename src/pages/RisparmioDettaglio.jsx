@@ -1463,6 +1463,24 @@ ${note || 'Nessuna'}
         ) : categoria === 'Welfare Aziendale' ? (
           /* Sezione Welfare Aziendale */
           <div className="space-y-6">
+            {/* Pulsante Catalogo Buoni Pasto */}
+            <Card className="bg-gradient-to-r from-pink-500 to-rose-500 border-0 cursor-pointer hover:opacity-90 transition-opacity"
+              onClick={() => window.location.href = createPageUrl('CatalogoBuoniPasto')}
+            >
+              <CardContent className="p-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                    <Gift className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-white font-semibold">Cosa puoi acquistare?</h3>
+                    <p className="text-white/80 text-sm">Scopri dove usare i buoni pasto</p>
+                  </div>
+                </div>
+                <ArrowRight className="w-6 h-6 text-white" />
+              </CardContent>
+            </Card>
+
             {/* SEZIONE 1 - Impatto Immediato */}
             <Card className="bg-slate-800 border-slate-700">
               <CardContent className="p-4">
