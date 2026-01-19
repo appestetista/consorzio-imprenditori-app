@@ -281,6 +281,11 @@ export default function Messaggi() {
                       msg.from_email === user?.email ? 'text-slate-700' : 'text-blue-200'
                     }`}>
                       {format(new Date(msg.created_date), 'HH:mm', { locale: it })}
+                      {new Date(msg.created_date).toDateString() !== new Date().toDateString() && (
+                        <span className="ml-1">
+                          · {format(new Date(msg.created_date), 'd MMM', { locale: it })}
+                        </span>
+                      )}
                     </p>
                   </div>
                   {canDeleteMessage(msg) && (
