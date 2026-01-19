@@ -184,8 +184,8 @@ export default function MyProfile() {
 
           <TabsContent value="profilo">
 
-        {/* Card Dati Personali - solo per admin */}
-        {user?.role === 'admin' && (
+        {/* Card Dati Personali - solo per admin non impersonato */}
+        {user?.role === 'admin' && !impersonation.active && (
           <Card className="bg-slate-800 border-slate-700 mb-4">
             <CardHeader>
               <CardTitle className="text-white flex items-center gap-2">
