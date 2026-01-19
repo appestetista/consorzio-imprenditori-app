@@ -240,13 +240,17 @@ export default function Messaggi() {
             {otherUser?.specializzazione && (
               <p className="text-lime-400 text-xs truncate">{otherUser.specializzazione}</p>
             )}
-            <div className="flex items-center gap-2 text-slate-400 text-xs">
-              {otherUser?.city && (
-                <span className="truncate">{otherUser.city}{otherUser.province ? ` (${otherUser.province})` : ''}</span>
+            <div className="text-slate-400 text-xs space-y-0.5">
+              {(otherUser?.city || otherUser?.region) && (
+                <p className="truncate">
+                  📍 {[otherUser.city, otherUser.province, otherUser.region].filter(Boolean).join(', ')}
+                </p>
               )}
-              {otherUser?.city && (otherUser?.referente || otherUser?.full_name) && <span>•</span>}
               {(otherUser?.referente || otherUser?.full_name) && (
-                <span className="truncate">{otherUser.referente || otherUser.full_name}</span>
+                <p className="truncate">👤 {otherUser.referente || otherUser.full_name}</p>
+              )}
+              {!otherUser?.city && !otherUser?.region && !otherUser?.referente && !otherUser?.full_name && (
+                <p className="truncate">{selectedConversation}</p>
               )}
             </div>
           </div>
