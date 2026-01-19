@@ -113,6 +113,21 @@ export default function RisparmioDettaglio() {
   const cameraInputRef = useRef(null);
   const queryClient = useQueryClient();
 
+  // Form fotovoltaico
+  const [fotovoltaicoForm, setFotovoltaicoForm] = useState({
+    tipo_immobile: '',
+    superficie_tetto: '',
+    orientamento_tetto: '',
+    consumo_mensile: '',
+    tipo_copertura: '',
+    presenza_ombreggiature: '',
+    interesse_batterie: '',
+    interesse_colonnina: '',
+    budget_indicativo: '',
+    tempistiche: '',
+    indirizzo_installazione: ''
+  });
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     setCategoria(params.get('categoria') || '');
