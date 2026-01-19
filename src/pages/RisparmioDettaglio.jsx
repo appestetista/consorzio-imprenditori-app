@@ -139,6 +139,7 @@ export default function RisparmioDettaglio() {
     tipo_utenza: '',
     operatore_attuale: '',
     num_linee: '',
+    num_interni: '',
     spesa_mensile: '',
     servizi_utilizzati: [],
     problemi_attuali: '',
@@ -241,7 +242,8 @@ RICHIESTA ANALISI SPESA TELEFONICA
 📞 SITUAZIONE ATTUALE:
 - Tipo utenza: ${telefonicaForm.tipo_utenza || 'Non specificato'}
 - Operatore attuale: ${telefonicaForm.operatore_attuale || 'Non specificato'}
-- Numero linee/SIM: ${telefonicaForm.num_linee || 'Non specificato'}
+- Numero linee fisse: ${telefonicaForm.num_linee || 'Non specificato'}
+- Numero interni: ${telefonicaForm.num_interni || 'Non specificato'}
 - Spesa mensile attuale: ${telefonicaForm.spesa_mensile || 'Non specificato'}
 
 📋 SERVIZI UTILIZZATI:
@@ -821,6 +823,24 @@ ${note || 'Nessuna'}
                 >
                   <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
                     <SelectValue placeholder="Seleziona numero linee" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Array.from({length: 20}, (_, i) => i + 1).map(num => (
+                      <SelectItem key={num} value={String(num)}>{num}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Numero interni */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Numero d'interni</Label>
+                <Select 
+                  value={telefonicaForm.num_interni} 
+                  onValueChange={(v) => setTelefonicaForm({...telefonicaForm, num_interni: v})}
+                >
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                    <SelectValue placeholder="Seleziona numero interni" />
                   </SelectTrigger>
                   <SelectContent>
                     {Array.from({length: 20}, (_, i) => i + 1).map(num => (
