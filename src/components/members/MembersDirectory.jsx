@@ -67,7 +67,7 @@ export default function MembersDirectory({ currentUserEmail }) {
     return () => unsubscribe();
   }, [currentUserEmail, queryClient, playSound]);
 
-  const isLoading = loadingUsers || loadingConsultants;
+  const isLoading = loadingUsers;
 
   // Filtra utenti in base alla ricerca
   const filteredUsers = useMemo(() => {
@@ -79,17 +79,6 @@ export default function MembersDirectory({ currentUserEmail }) {
       user.city?.toLowerCase().includes(search)
     );
   }, [allUsers, searchTerm]);
-
-  // Filtra consulenti in base alla ricerca
-  const filteredConsultants = useMemo(() => {
-    if (!searchTerm) return consultants;
-    const search = searchTerm.toLowerCase();
-    return consultants.filter(c => 
-      c.name?.toLowerCase().includes(search) ||
-      c.referente?.toLowerCase().includes(search) ||
-      c.category?.toLowerCase().includes(search)
-    );
-  }, [consultants, searchTerm]);
 
   const handleChat = (email) => {
     // Naviga direttamente alla pagina messaggi con la chat aperta
