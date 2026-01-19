@@ -444,7 +444,7 @@ ${note || 'Nessuna'}
 
               {/* Consumo mensile */}
               <div className="space-y-2">
-                <Label className="text-slate-300">Consumo medio mensile in bolletta</Label>
+                <Label className="text-slate-300">Spesa media mensile in bolletta</Label>
                 <Select 
                   value={fotovoltaicoForm.consumo_mensile} 
                   onValueChange={(v) => setFotovoltaicoForm({...fotovoltaicoForm, consumo_mensile: v})}
