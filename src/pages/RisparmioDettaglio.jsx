@@ -1053,42 +1053,54 @@ ${note || 'Nessuna'}
 
               {/* Interventi di interesse */}
               <div className="space-y-2">
-                <Label className="text-slate-300">Interventi di interesse</Label>
+                <Label className="text-slate-300">Interventi per cui sarei interessato</Label>
                 <div className="grid grid-cols-1 gap-2">
                   {[
-                    { value: 'cappotto', label: '🧱 Cappotto termico' },
-                    { value: 'infissi', label: '🪟 Sostituzione infissi' },
-                    { value: 'caldaia', label: '🔥 Caldaia a condensazione' },
-                    { value: 'pompa_calore', label: '❄️ Pompa di calore' },
-                    { value: 'fotovoltaico', label: '☀️ Impianto fotovoltaico' },
-                    { value: 'solare_termico', label: '🌡️ Solare termico' },
-                    { value: 'led', label: '💡 Illuminazione LED' },
-                    { value: 'domotica', label: '🏠 Domotica/termostati smart' },
-                    { value: 'audit', label: '📊 Solo audit energetico' }
+                    { value: 'cappotto', label: '🧱 Cappotto termico', risparmio: '25-40%' },
+                    { value: 'infissi', label: '🪟 Sostituzione infissi', risparmio: '10-20%' },
+                    { value: 'caldaia', label: '🔥 Caldaia a condensazione', risparmio: '15-30%' },
+                    { value: 'pompa_calore', label: '❄️ Pompa di calore', risparmio: '30-50%' },
+                    { value: 'fotovoltaico', label: '☀️ Impianto fotovoltaico', risparmio: '50-70%' },
+                    { value: 'solare_termico', label: '🌡️ Solare termico', risparmio: '50-80%' },
+                    { value: 'led', label: '💡 Illuminazione LED', risparmio: '50-75%' },
+                    { value: 'domotica', label: '🏠 Domotica/termostati smart', risparmio: '10-25%' },
+                    { value: 'audit', label: '📊 Solo audit energetico', risparmio: null }
                   ].map((intervento) => (
                     <label 
                       key={intervento.value}
-                      className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-colors ${
+                      className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-colors ${
                         efficientamentoForm.interventi_interesse.includes(intervento.value)
                           ? 'bg-green-400/20 border-green-400 text-green-400'
                           : 'bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500'
                       }`}
                     >
-                      <input
-                        type="checkbox"
-                        checked={efficientamentoForm.interventi_interesse.includes(intervento.value)}
-                        onChange={(e) => {
-                          const newInterventi = e.target.checked
-                            ? [...efficientamentoForm.interventi_interesse, intervento.value]
-                            : efficientamentoForm.interventi_interesse.filter(i => i !== intervento.value);
-                          setEfficientamentoForm({...efficientamentoForm, interventi_interesse: newInterventi});
-                        }}
-                        className="sr-only"
-                      />
-                      <span>{intervento.label}</span>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={efficientamentoForm.interventi_interesse.includes(intervento.value)}
+                          onChange={(e) => {
+                            const newInterventi = e.target.checked
+                              ? [...efficientamentoForm.interventi_interesse, intervento.value]
+                              : efficientamentoForm.interventi_interesse.filter(i => i !== intervento.value);
+                            setEfficientamentoForm({...efficientamentoForm, interventi_interesse: newInterventi});
+                          }}
+                          className="sr-only"
+                        />
+                        <span>{intervento.label}</span>
+                      </div>
+                      {intervento.risparmio && (
+                        <span className={`text-xs px-2 py-0.5 rounded-full ${
+                          efficientamentoForm.interventi_interesse.includes(intervento.value)
+                            ? 'bg-green-500/30 text-green-300'
+                            : 'bg-slate-700 text-slate-400'
+                        }`}>
+                          -{intervento.risparmio}
+                        </span>
+                      )}
                     </label>
                   ))}
                 </div>
+                <p className="text-slate-500 text-xs mt-1">* Le percentuali di risparmio sono indicative e variano in base all'immobile</p>
               </div>
 
               {/* Ha già preventivi */}
