@@ -15,6 +15,9 @@ export default function MembersDirectory({ currentUserEmail }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
+  // Debug log
+  console.log('[MembersDirectory] currentUserEmail:', currentUserEmail);
+
   const { data: allUsers = [], isLoading: loadingUsers } = useQuery({
     queryKey: ['members-directory'],
     queryFn: async () => {
