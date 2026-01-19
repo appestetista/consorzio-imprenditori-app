@@ -1658,44 +1658,6 @@ ${note || 'Nessuna'}
               </CardContent>
             </Card>
 
-            {/* SEZIONE 4 - Call to Action */}
-            <Card className="bg-slate-800 border-slate-700">
-              <CardContent className="p-4">
-                <h3 className="text-white font-semibold mb-2">
-                  Vuoi vedere quanto puoi risparmiare?
-                </h3>
-                <p className="text-slate-400 text-sm mb-4">
-                  Richiedi un'analisi gratuita personalizzata sulla tua azienda. Ti contatteremo per raccogliere le informazioni necessarie e proporti una soluzione su misura.
-                </p>
-
-                {/* Note */}
-                <Textarea
-                  placeholder="Descrivi brevemente la tua azienda: numero dipendenti, settore, eventuali benefit già attivi..."
-                  value={note}
-                  onChange={(e) => setNote(e.target.value)}
-                  className="bg-slate-900 border-slate-700 text-white mb-4"
-                  rows={3}
-                />
-
-                <Button
-                  className="w-full bg-pink-500 hover:bg-pink-600 text-white font-semibold"
-                  onClick={() => submitMutation.mutate()}
-                  disabled={isUploading || submitMutation.isPending}
-                >
-                  {isUploading || submitMutation.isPending ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Invio in corso...
-                    </>
-                  ) : (
-                    <>
-                      <ArrowRight className="w-4 h-4 mr-2" />
-                      Richiedi Analisi Gratuita
-                    </>
-                  )}
-                </Button>
-              </CardContent>
-            </Card>
           </div>
         ) : categoria === 'Spesa Telefonica' ? (
           /* Form Spesa Telefonica */
