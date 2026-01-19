@@ -14,6 +14,7 @@ import RisparmioDettaglio from './pages/RisparmioDettaglio';
 import RisparmioEnergetico from './pages/RisparmioEnergetico';
 import VideoInterviste from './pages/VideoInterviste';
 import Consulenze from './pages/Consulenze';
+import Home from './pages/Home';
 import __Layout from './Layout.jsx';
 
 
@@ -34,6 +35,7 @@ export const PAGES = {
     "RisparmioEnergetico": RisparmioEnergetico,
     "VideoInterviste": VideoInterviste,
     "Consulenze": Consulenze,
+    "Home": Home,
 }
 
 export const pagesConfig = {
