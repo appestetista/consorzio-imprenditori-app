@@ -120,6 +120,7 @@ export default function RisparmioDettaglio() {
     orientamento_tetto: '',
     consumo_mensile: '',
     consumo_annuo_kwh: '',
+    fasce_orarie_consumo: [],
     tipo_copertura: '',
     presenza_ombreggiature: '',
     interesse_batterie: '',
