@@ -826,6 +826,362 @@ ${note || 'Nessuna'}
               </Button>
             </CardContent>
           </Card>
+        ) : categoria === 'Efficientamento Energetico' ? (
+          /* Form Efficientamento Energetico */
+          <Card className="bg-slate-800 border-slate-700 mb-6">
+            <CardContent className="p-4 space-y-4">
+              <h3 className="text-white font-semibold mb-2 flex items-center gap-2">
+                <Leaf className="w-5 h-5 text-green-400" />
+                Richiedi un'analisi gratuita
+              </h3>
+              <p className="text-slate-400 text-sm mb-4">Compila il form per ricevere una valutazione del potenziale di risparmio energetico.</p>
+
+              {/* Tipo immobile */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Tipo di immobile *</Label>
+                <Select 
+                  value={efficientamentoForm.tipo_immobile} 
+                  onValueChange={(v) => setEfficientamentoForm({...efficientamentoForm, tipo_immobile: v})}
+                >
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                    <SelectValue placeholder="Seleziona tipo immobile" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="abitazione_privata">🏠 Abitazione privata</SelectItem>
+                    <SelectItem value="condominio">🏢 Condominio</SelectItem>
+                    <SelectItem value="capannone_industriale">🏭 Capannone industriale</SelectItem>
+                    <SelectItem value="ufficio">🏪 Ufficio</SelectItem>
+                    <SelectItem value="negozio">🛒 Negozio</SelectItem>
+                    <SelectItem value="hotel_ristorante">🏨 Hotel / Ristorante</SelectItem>
+                    <SelectItem value="altro">📦 Altro</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Anno costruzione */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Anno di costruzione</Label>
+                <Select
+                  value={efficientamentoForm.anno_costruzione}
+                  onValueChange={(v) => setEfficientamentoForm({...efficientamentoForm, anno_costruzione: v})}
+                >
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                    <SelectValue placeholder="Seleziona periodo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="prima_1970">Prima del 1970</SelectItem>
+                    <SelectItem value="1970_1990">1970 - 1990</SelectItem>
+                    <SelectItem value="1990_2005">1990 - 2005</SelectItem>
+                    <SelectItem value="2005_2015">2005 - 2015</SelectItem>
+                    <SelectItem value="dopo_2015">Dopo il 2015</SelectItem>
+                    <SelectItem value="non_so">Non so</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Superficie */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Superficie (mq)</Label>
+                <Select
+                  value={efficientamentoForm.superficie_mq}
+                  onValueChange={(v) => setEfficientamentoForm({...efficientamentoForm, superficie_mq: v})}
+                >
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                    <SelectValue placeholder="Seleziona superficie" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="meno_50">Meno di 50 mq</SelectItem>
+                    <SelectItem value="50_100">50 - 100 mq</SelectItem>
+                    <SelectItem value="100_200">100 - 200 mq</SelectItem>
+                    <SelectItem value="200_500">200 - 500 mq</SelectItem>
+                    <SelectItem value="500_1000">500 - 1.000 mq</SelectItem>
+                    <SelectItem value="oltre_1000">Oltre 1.000 mq</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Classe energetica */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Classe energetica attuale (se conosciuta)</Label>
+                <Select
+                  value={efficientamentoForm.classe_energetica_attuale}
+                  onValueChange={(v) => setEfficientamentoForm({...efficientamentoForm, classe_energetica_attuale: v})}
+                >
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                    <SelectValue placeholder="Seleziona classe" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="A4">A4 (massima efficienza)</SelectItem>
+                    <SelectItem value="A3">A3</SelectItem>
+                    <SelectItem value="A2">A2</SelectItem>
+                    <SelectItem value="A1">A1</SelectItem>
+                    <SelectItem value="B">B</SelectItem>
+                    <SelectItem value="C">C</SelectItem>
+                    <SelectItem value="D">D</SelectItem>
+                    <SelectItem value="E">E</SelectItem>
+                    <SelectItem value="F">F</SelectItem>
+                    <SelectItem value="G">G (minima efficienza)</SelectItem>
+                    <SelectItem value="non_so">Non so</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Tipo riscaldamento */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Tipo di riscaldamento</Label>
+                <Select
+                  value={efficientamentoForm.tipo_riscaldamento}
+                  onValueChange={(v) => setEfficientamentoForm({...efficientamentoForm, tipo_riscaldamento: v})}
+                >
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                    <SelectValue placeholder="Seleziona tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="caldaia_gas">Caldaia a gas</SelectItem>
+                    <SelectItem value="caldaia_condensazione">Caldaia a condensazione</SelectItem>
+                    <SelectItem value="pompa_calore">Pompa di calore</SelectItem>
+                    <SelectItem value="stufa_pellet">Stufa a pellet</SelectItem>
+                    <SelectItem value="radiatori_elettrici">Radiatori elettrici</SelectItem>
+                    <SelectItem value="teleriscaldamento">Teleriscaldamento</SelectItem>
+                    <SelectItem value="nessuno">Nessuno</SelectItem>
+                    <SelectItem value="altro">Altro</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Tipo raffrescamento */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Tipo di raffrescamento</Label>
+                <Select
+                  value={efficientamentoForm.tipo_raffrescamento}
+                  onValueChange={(v) => setEfficientamentoForm({...efficientamentoForm, tipo_raffrescamento: v})}
+                >
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                    <SelectValue placeholder="Seleziona tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="condizionatori_split">Condizionatori split</SelectItem>
+                    <SelectItem value="pompa_calore">Pompa di calore (caldo/freddo)</SelectItem>
+                    <SelectItem value="impianto_centralizzato">Impianto centralizzato</SelectItem>
+                    <SelectItem value="ventilatori">Solo ventilatori</SelectItem>
+                    <SelectItem value="nessuno">Nessuno</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Tipo infissi */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Tipo di infissi</Label>
+                <Select
+                  value={efficientamentoForm.tipo_infissi}
+                  onValueChange={(v) => setEfficientamentoForm({...efficientamentoForm, tipo_infissi: v})}
+                >
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                    <SelectValue placeholder="Seleziona tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="vetro_singolo">Vetro singolo</SelectItem>
+                    <SelectItem value="doppio_vetro_vecchio">Doppio vetro (prima del 2000)</SelectItem>
+                    <SelectItem value="doppio_vetro_recente">Doppio vetro (dopo il 2000)</SelectItem>
+                    <SelectItem value="triplo_vetro">Triplo vetro</SelectItem>
+                    <SelectItem value="misti">Misti</SelectItem>
+                    <SelectItem value="non_so">Non so</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Isolamento pareti */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Isolamento pareti</Label>
+                <Select
+                  value={efficientamentoForm.isolamento_pareti}
+                  onValueChange={(v) => setEfficientamentoForm({...efficientamentoForm, isolamento_pareti: v})}
+                >
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                    <SelectValue placeholder="Seleziona" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="nessuno">Nessun isolamento</SelectItem>
+                    <SelectItem value="cappotto_esterno">Cappotto esterno</SelectItem>
+                    <SelectItem value="isolamento_interno">Isolamento interno</SelectItem>
+                    <SelectItem value="insufflaggio">Insufflaggio intercapedine</SelectItem>
+                    <SelectItem value="non_so">Non so</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Isolamento tetto */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Isolamento tetto/sottotetto</Label>
+                <Select
+                  value={efficientamentoForm.isolamento_tetto}
+                  onValueChange={(v) => setEfficientamentoForm({...efficientamentoForm, isolamento_tetto: v})}
+                >
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                    <SelectValue placeholder="Seleziona" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="nessuno">Nessun isolamento</SelectItem>
+                    <SelectItem value="isolato">Isolato</SelectItem>
+                    <SelectItem value="parziale">Parzialmente isolato</SelectItem>
+                    <SelectItem value="non_applicabile">Non applicabile</SelectItem>
+                    <SelectItem value="non_so">Non so</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Spesa annua energia */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Spesa annua energia (luce + gas)</Label>
+                <Select
+                  value={efficientamentoForm.spesa_annua_energia}
+                  onValueChange={(v) => setEfficientamentoForm({...efficientamentoForm, spesa_annua_energia: v})}
+                >
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                    <SelectValue placeholder="Seleziona spesa" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="meno_1000">Meno di €1.000/anno</SelectItem>
+                    <SelectItem value="1000_2000">€1.000 - €2.000/anno</SelectItem>
+                    <SelectItem value="2000_5000">€2.000 - €5.000/anno</SelectItem>
+                    <SelectItem value="5000_10000">€5.000 - €10.000/anno</SelectItem>
+                    <SelectItem value="10000_20000">€10.000 - €20.000/anno</SelectItem>
+                    <SelectItem value="oltre_20000">Oltre €20.000/anno</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Interventi di interesse */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Interventi di interesse</Label>
+                <div className="grid grid-cols-1 gap-2">
+                  {[
+                    { value: 'cappotto', label: '🧱 Cappotto termico' },
+                    { value: 'infissi', label: '🪟 Sostituzione infissi' },
+                    { value: 'caldaia', label: '🔥 Caldaia a condensazione' },
+                    { value: 'pompa_calore', label: '❄️ Pompa di calore' },
+                    { value: 'fotovoltaico', label: '☀️ Impianto fotovoltaico' },
+                    { value: 'solare_termico', label: '🌡️ Solare termico' },
+                    { value: 'led', label: '💡 Illuminazione LED' },
+                    { value: 'domotica', label: '🏠 Domotica/termostati smart' },
+                    { value: 'audit', label: '📊 Solo audit energetico' }
+                  ].map((intervento) => (
+                    <label 
+                      key={intervento.value}
+                      className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-colors ${
+                        efficientamentoForm.interventi_interesse.includes(intervento.value)
+                          ? 'bg-green-400/20 border-green-400 text-green-400'
+                          : 'bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-500'
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={efficientamentoForm.interventi_interesse.includes(intervento.value)}
+                        onChange={(e) => {
+                          const newInterventi = e.target.checked
+                            ? [...efficientamentoForm.interventi_interesse, intervento.value]
+                            : efficientamentoForm.interventi_interesse.filter(i => i !== intervento.value);
+                          setEfficientamentoForm({...efficientamentoForm, interventi_interesse: newInterventi});
+                        }}
+                        className="sr-only"
+                      />
+                      <span>{intervento.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Ha già preventivi */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Hai già ricevuto preventivi?</Label>
+                <Select
+                  value={efficientamentoForm.ha_gia_preventivi}
+                  onValueChange={(v) => setEfficientamentoForm({...efficientamentoForm, ha_gia_preventivi: v})}
+                >
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                    <SelectValue placeholder="Seleziona" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="si">Sì, ho già preventivi</SelectItem>
+                    <SelectItem value="no">No, è la prima richiesta</SelectItem>
+                    <SelectItem value="in_corso">Sto raccogliendo preventivi</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Tempistiche */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Tempistiche desiderate</Label>
+                <Select 
+                  value={efficientamentoForm.tempistiche} 
+                  onValueChange={(v) => setEfficientamentoForm({...efficientamentoForm, tempistiche: v})}
+                >
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                    <SelectValue placeholder="Seleziona tempistiche" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="urgente">Il prima possibile</SelectItem>
+                    <SelectItem value="3_mesi">Entro 3 mesi</SelectItem>
+                    <SelectItem value="6_mesi">Entro 6 mesi</SelectItem>
+                    <SelectItem value="1_anno">Entro 1 anno</SelectItem>
+                    <SelectItem value="valutazione">Solo valutazione per ora</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Budget */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Budget indicativo</Label>
+                <Select 
+                  value={efficientamentoForm.budget_indicativo} 
+                  onValueChange={(v) => setEfficientamentoForm({...efficientamentoForm, budget_indicativo: v})}
+                >
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                    <SelectValue placeholder="Seleziona budget" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="fino_5k">Fino a €5.000</SelectItem>
+                    <SelectItem value="5_15k">€5.000 - €15.000</SelectItem>
+                    <SelectItem value="15_30k">€15.000 - €30.000</SelectItem>
+                    <SelectItem value="30_50k">€30.000 - €50.000</SelectItem>
+                    <SelectItem value="oltre_50k">Oltre €50.000</SelectItem>
+                    <SelectItem value="da_valutare">Da valutare con finanziamento</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Note aggiuntive */}
+              <div className="space-y-2">
+                <Label className="text-slate-300">Note aggiuntive</Label>
+                <Textarea
+                  placeholder="Altre informazioni utili (es. problemi specifici, vincoli, esigenze particolari...)"
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  className="bg-slate-900 border-slate-700 text-white"
+                  rows={3}
+                />
+              </div>
+
+              {/* Submit */}
+              <Button
+                className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold"
+                onClick={() => submitMutation.mutate()}
+                disabled={isUploading || submitMutation.isPending || !efficientamentoForm.tipo_immobile}
+              >
+                {isUploading || submitMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Invio in corso...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4 mr-2" />
+                    Richiedi Analisi Gratuita
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
         ) : categoria === 'Spesa Telefonica' ? (
           /* Form Spesa Telefonica */
           <Card className="bg-slate-800 border-slate-700 mb-6">
