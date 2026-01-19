@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, FileText } from 'lucide-react';
+import { ArrowLeft, FileText, Users, AlertTriangle, CheckCircle, XCircle, Euro, Building2, UserCheck, Baby, Info } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Card, CardContent } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 
@@ -49,21 +50,204 @@ export default function WelfareNormativa() {
                 <FileText className="w-8 h-8 text-white" />
               </div>
               <div>
-                <h2 className="text-white text-xl font-bold">Normativa</h2>
-                <p className="text-white/80 text-sm">Riferimenti normativi welfare aziendale</p>
+                <h2 className="text-white text-xl font-bold">Fringe Benefit</h2>
+                <p className="text-white/80 text-sm">Normativa applicabile</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Contenuto vuoto - da popolare */}
-        <Card className="bg-slate-800 border-slate-700">
-          <CardContent className="p-8 text-center">
-            <FileText className="w-16 h-16 text-slate-600 mx-auto mb-4" />
-            <h3 className="text-slate-400 font-medium mb-2">Sezione in costruzione</h3>
-            <p className="text-slate-500 text-sm">
-              Presto qui troverai tutti i riferimenti normativi sul welfare aziendale.
+        {/* Definizione */}
+        <Card className="bg-slate-800 border-slate-700 mb-4">
+          <CardContent className="p-4">
+            <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+              <Info className="w-5 h-5 text-pink-400" />
+              Cosa sono i Fringe Benefit?
+            </h3>
+            <p className="text-slate-300 text-sm leading-relaxed">
+              I <span className="text-pink-400 font-medium">fringe benefit</span> (benefici accessori non monetari) sono beni e servizi messi a disposizione dal datore di lavoro ai lavoratori, che <span className="text-green-400 font-medium">non concorrono alla formazione del reddito imponibile</span> entro specifici limiti annuali.
             </p>
+            <div className="mt-3 bg-slate-900 rounded-lg p-3">
+              <p className="text-slate-400 text-xs">
+                📜 <span className="text-slate-300">Riferimento normativo:</span> Art. 51, comma 3 del TUIR (Testo Unico delle Imposte sui Redditi)
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Ambito soggettivo */}
+        <Card className="bg-slate-800 border-slate-700 mb-4">
+          <CardContent className="p-4">
+            <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+              <Users className="w-5 h-5 text-pink-400" />
+              A chi si applicano?
+            </h3>
+            
+            <div className="space-y-3">
+              {/* Lavoratori dipendenti */}
+              <div className="flex items-start gap-3 bg-slate-900 rounded-lg p-3">
+                <div className="w-10 h-10 bg-green-400/20 rounded-full flex items-center justify-center flex-shrink-0">
+                  <UserCheck className="w-5 h-5 text-green-400" />
+                </div>
+                <div>
+                  <p className="text-white font-medium text-sm">Lavoratori dipendenti</p>
+                  <p className="text-slate-400 text-xs">Tutti i lavoratori subordinati</p>
+                </div>
+              </div>
+
+              {/* Amministratori */}
+              <div className="flex items-start gap-3 bg-slate-900 rounded-lg p-3">
+                <div className="w-10 h-10 bg-blue-400/20 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Building2 className="w-5 h-5 text-blue-400" />
+                </div>
+                <div>
+                  <p className="text-white font-medium text-sm">Amministratori SRL / SPA</p>
+                  <p className="text-slate-400 text-xs">Con compenso qualificato come reddito assimilato a lavoro dipendente (art. 50, comma 1, lett. c-bis TUIR)</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Warning */}
+            <Alert className="mt-4 bg-amber-500/10 border-amber-500/30">
+              <AlertTriangle className="h-4 w-4 text-amber-400" />
+              <AlertDescription className="text-slate-300 text-xs">
+                <strong className="text-amber-400">Attenzione:</strong> I fringe benefit non sono ammessi in assenza di compenso da amministratore o se il beneficio è riconducibile esclusivamente alla qualità di socio.
+              </AlertDescription>
+            </Alert>
+          </CardContent>
+        </Card>
+
+        {/* Soglie di esenzione - Grafico visuale */}
+        <Card className="bg-slate-800 border-slate-700 mb-4">
+          <CardContent className="p-4">
+            <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+              <Euro className="w-5 h-5 text-pink-400" />
+              Soglie di esenzione annuali
+            </h3>
+            
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              {/* Senza figli */}
+              <div className="bg-gradient-to-br from-slate-700 to-slate-800 rounded-xl p-4 text-center border border-slate-600">
+                <div className="w-12 h-12 bg-slate-600 rounded-full flex items-center justify-center mx-auto mb-2">
+                  <UserCheck className="w-6 h-6 text-slate-300" />
+                </div>
+                <p className="text-slate-400 text-xs mb-1">Senza figli a carico</p>
+                <p className="text-white text-2xl font-bold">€1.000</p>
+                <p className="text-slate-500 text-xs">annui</p>
+              </div>
+
+              {/* Con figli */}
+              <div className="bg-gradient-to-br from-pink-500/20 to-rose-500/20 rounded-xl p-4 text-center border border-pink-500/30">
+                <div className="w-12 h-12 bg-pink-400/20 rounded-full flex items-center justify-center mx-auto mb-2">
+                  <Baby className="w-6 h-6 text-pink-400" />
+                </div>
+                <p className="text-pink-300 text-xs mb-1">Con figli a carico</p>
+                <p className="text-pink-400 text-2xl font-bold">€2.000</p>
+                <p className="text-pink-300/70 text-xs">annui</p>
+              </div>
+            </div>
+
+            {/* Cosa significa */}
+            <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3">
+              <p className="text-green-400 text-xs font-medium mb-2">✓ Entro queste soglie:</p>
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-3 h-3 text-green-400 flex-shrink-0" />
+                  <span className="text-slate-300 text-xs">Valore totalmente esente</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-3 h-3 text-green-400 flex-shrink-0" />
+                  <span className="text-slate-300 text-xs">Nessuna imposizione fiscale</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-3 h-3 text-green-400 flex-shrink-0" />
+                  <span className="text-slate-300 text-xs">Nessuna contribuzione previdenziale</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Superamento limite */}
+        <Card className="bg-slate-800 border-slate-700 mb-4">
+          <CardContent className="p-4">
+            <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+              <XCircle className="w-5 h-5 text-red-400" />
+              Superamento del limite
+            </h3>
+            
+            {/* Grafico visuale */}
+            <div className="bg-slate-900 rounded-lg p-4 mb-3">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-slate-400 text-xs">€0</span>
+                <span className="text-slate-400 text-xs">Soglia</span>
+                <span className="text-slate-400 text-xs">Oltre</span>
+              </div>
+              <div className="h-8 rounded-full overflow-hidden flex">
+                <div className="bg-green-500 w-1/2 flex items-center justify-center">
+                  <span className="text-white text-xs font-medium">ESENTE</span>
+                </div>
+                <div className="bg-red-500 w-1/2 flex items-center justify-center">
+                  <span className="text-white text-xs font-medium">TUTTO TASSATO</span>
+                </div>
+              </div>
+            </div>
+
+            <Alert className="bg-red-500/10 border-red-500/30">
+              <AlertTriangle className="h-4 w-4 text-red-400" />
+              <AlertDescription className="text-slate-300 text-xs">
+                Se il valore complessivo <strong className="text-red-400">supera la soglia</strong>, l'<strong className="text-white">intero importo</strong> diventa imponibile (non solo la parte eccedente).
+              </AlertDescription>
+            </Alert>
+          </CardContent>
+        </Card>
+
+        {/* Condizioni per amministratori */}
+        <Card className="bg-slate-800 border-slate-700 mb-4">
+          <CardContent className="p-4">
+            <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+              <Building2 className="w-5 h-5 text-pink-400" />
+              Condizioni per Amministratori
+            </h3>
+            <p className="text-slate-400 text-sm mb-3">
+              Per gli amministratori di società di capitali, i fringe benefit sono ammessi solo se:
+            </p>
+            
+            <div className="space-y-2">
+              <div className="flex items-start gap-2 bg-slate-900 rounded-lg p-3">
+                <CheckCircle className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
+                <span className="text-slate-300 text-sm">Il compenso è <strong className="text-white">regolarmente deliberato</strong></span>
+              </div>
+              <div className="flex items-start gap-2 bg-slate-900 rounded-lg p-3">
+                <CheckCircle className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
+                <span className="text-slate-300 text-sm">Il benefit è <strong className="text-white">coerente con il ruolo</strong> di amministratore</span>
+              </div>
+              <div className="flex items-start gap-2 bg-slate-900 rounded-lg p-3">
+                <CheckCircle className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
+                <span className="text-slate-300 text-sm">Non costituisce <strong className="text-white">uso personale mascherato</strong> né distribuzione indiretta di utili</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Riepilogo visivo */}
+        <Card className="bg-gradient-to-br from-pink-500/20 to-rose-500/20 border-pink-500/30">
+          <CardContent className="p-4">
+            <h3 className="text-white font-semibold mb-3 text-center">📊 Riepilogo</h3>
+            <div className="grid grid-cols-2 gap-2 text-center">
+              <div className="bg-slate-900/50 rounded-lg p-3">
+                <p className="text-pink-400 text-lg font-bold">€1.000</p>
+                <p className="text-slate-400 text-xs">Senza figli</p>
+              </div>
+              <div className="bg-slate-900/50 rounded-lg p-3">
+                <p className="text-pink-400 text-lg font-bold">€2.000</p>
+                <p className="text-slate-400 text-xs">Con figli</p>
+              </div>
+              <div className="bg-slate-900/50 rounded-lg p-3 col-span-2">
+                <p className="text-green-400 text-sm font-medium">100% Esente</p>
+                <p className="text-slate-400 text-xs">Entro le soglie: zero tasse, zero contributi</p>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </main>
