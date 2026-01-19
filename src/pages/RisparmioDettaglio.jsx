@@ -1064,7 +1064,7 @@ ${note || 'Nessuna'}
                     { value: 'fotovoltaico', label: '☀️ Impianto fotovoltaico', risparmio: '50-70%' },
                     { value: 'solare_termico', label: '🌡️ Solare termico', risparmio: '50-80%' },
                     { value: 'led', label: '💡 Illuminazione LED', risparmio: '50-75%' },
-                    { value: 'domotica', label: '🏠 Domotica/termostati smart', risparmio: '10-25%' },
+                    { value: 'domotica', label: '🏠 Domotica / termostati smart', risparmio: '10-25%' },
                     { value: 'audit', label: '📊 Solo audit energetico', risparmio: null, tooltip: "L'audit energetico è un'analisi dettagliata dei consumi del tuo immobile. Un tecnico specializzato valuta lo stato dell'edificio e degli impianti, identifica le inefficienze e propone gli interventi più convenienti con il relativo risparmio atteso." }
                   ].map((intervento) => (
                     <label 
