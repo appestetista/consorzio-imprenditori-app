@@ -89,7 +89,7 @@ export default function MyProfile() {
     }
   };
 
-  const REQUIRED_FIELDS = ['company_name', 'company_email', 'referente', 'cellulare_referente', 'referente_email', 'region', 'specializzazione'];
+  const REQUIRED_FIELDS = ['company_name', 'company_email', 'referente', 'cellulare_referente', 'referente_email', 'region', 'specializzazione', 'city'];
 
   const handleSave = async () => {
     setSaving(true);
@@ -408,19 +408,25 @@ export default function MyProfile() {
               className="bg-slate-900 border-slate-700 text-white"
             />
             <div className="grid grid-cols-2 gap-3">
-              <Input
-                placeholder="Città"
-                value={formData.city}
-                onChange={(e) => setFormData({...formData, city: e.target.value})}
-                className="bg-slate-900 border-slate-700 text-white"
-              />
-              <Input
-                placeholder="Provincia"
-                value={formData.province}
-                onChange={(e) => setFormData({...formData, province: e.target.value})}
-                className="bg-slate-900 border-slate-700 text-white"
-                maxLength={2}
-              />
+              <div>
+                <label className="text-lime-400 text-sm font-medium mb-1 block">Città (obbligatorio)</label>
+                <Input
+                  placeholder="Inserisci la città"
+                  value={formData.city}
+                  onChange={(e) => setFormData({...formData, city: e.target.value})}
+                  className="bg-lime-400/10 border-lime-400 text-white placeholder:text-lime-400/50"
+                />
+              </div>
+              <div>
+                <label className="text-slate-400 text-sm mb-1 block">Provincia</label>
+                <Input
+                  placeholder="Provincia"
+                  value={formData.province}
+                  onChange={(e) => setFormData({...formData, province: e.target.value})}
+                  className="bg-slate-900 border-slate-700 text-white"
+                  maxLength={2}
+                />
+              </div>
             </div>
             <div>
               <label className="text-lime-400 text-sm font-medium mb-1 block">Regione (obbligatorio)</label>

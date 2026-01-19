@@ -686,11 +686,11 @@ export default function GestioneMembri() {
                     />
                   </div>
                   <div>
-                    <Label className="text-slate-300 text-sm">Città</Label>
+                    <Label className="text-lime-400 text-sm font-medium">Città (obbligatorio)</Label>
                     <Input
                       value={formData.city}
                       onChange={(e) => setFormData({...formData, city: e.target.value})}
-                      className="bg-slate-900 border-slate-700 text-white mt-1"
+                      className="bg-lime-400/10 border-lime-400 text-white mt-1 placeholder:text-lime-400/50"
                       placeholder="Milano"
                     />
                   </div>

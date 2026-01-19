@@ -163,12 +163,10 @@ function MemberCard({ user, onChat, currentUserEmail }) {
               {user.specializzazione}
             </p>
           )}
-          {user.city && (
-            <p className="text-slate-500 text-xs truncate flex items-center gap-1">
-              <MapPin className="w-3 h-3" />
-              {user.city}{user.province ? ` (${user.province})` : ''}
-            </p>
-          )}
+          <p className="text-slate-500 text-xs truncate flex items-center gap-1">
+            <MapPin className="w-3 h-3" />
+            {user.city ? `${user.city}${user.province ? ` (${user.province})` : ''}` : 'Località non specificata'}
+          </p>
           {(user.referente || user.full_name) && (
             <div className="text-slate-400 text-sm mt-1 flex items-start gap-1">
               <User className="w-3 h-3 mt-0.5 flex-shrink-0" />
