@@ -148,6 +148,24 @@ export default function RisparmioDettaglio() {
     interesse_mobile: ''
   });
 
+  // Form efficientamento energetico
+  const [efficientamentoForm, setEfficientamentoForm] = useState({
+    tipo_immobile: '',
+    anno_costruzione: '',
+    superficie_mq: '',
+    classe_energetica_attuale: '',
+    tipo_riscaldamento: '',
+    tipo_raffrescamento: '',
+    tipo_infissi: '',
+    isolamento_pareti: '',
+    isolamento_tetto: '',
+    spesa_annua_energia: '',
+    interventi_interesse: [],
+    ha_gia_preventivi: '',
+    tempistiche: '',
+    budget_indicativo: ''
+  });
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     setCategoria(params.get('categoria') || '');
