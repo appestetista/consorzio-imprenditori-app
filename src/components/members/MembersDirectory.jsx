@@ -106,60 +106,20 @@ export default function MembersDirectory({ currentUserEmail }) {
         />
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-2">
-        <Button
-          variant={activeTab === 'aziende' ? 'default' : 'outline'}
-          onClick={() => setActiveTab('aziende')}
-          className={activeTab === 'aziende' 
-            ? 'bg-lime-400 text-slate-900 hover:bg-lime-500' 
-            : 'border-slate-700 text-slate-300 hover:bg-slate-800'}
-        >
-          <Building2 className="w-4 h-4 mr-2" />
-          Aziende ({filteredUsers.length})
-        </Button>
-        <Button
-          variant={activeTab === 'consulenti' ? 'default' : 'outline'}
-          onClick={() => setActiveTab('consulenti')}
-          className={activeTab === 'consulenti' 
-            ? 'bg-amber-500 text-white hover:bg-amber-600 border-b-4 border-amber-600' 
-            : 'border-2 border-amber-500 text-amber-500 hover:bg-amber-500/10'}
-        >
-          <Briefcase className="w-4 h-4 mr-2" />
-          Consulenti ({filteredConsultants.length})
-        </Button>
-      </div>
-
-      {/* Lista */}
+      {/* Lista Aziende */}
       <div className="space-y-3">
-        {activeTab === 'aziende' ? (
-          filteredUsers.length === 0 ? (
-            <p className="text-slate-400 text-sm text-center py-8">Nessuna azienda trovata</p>
-          ) : (
-            filteredUsers.map(user => (
-              <MemberCard 
-                key={user.id} 
-                user={user} 
-                onChat={() => handleChat(user.email)}
-                currentUserEmail={currentUserEmail}
-                unreadCount={unreadCountByEmail[user.email] || 0}
-              />
-            ))
-          )
+        {filteredUsers.length === 0 ? (
+          <p className="text-slate-400 text-sm text-center py-8">Nessuna azienda trovata</p>
         ) : (
-          filteredConsultants.length === 0 ? (
-            <p className="text-slate-400 text-sm text-center py-8">Nessun consulente trovato</p>
-          ) : (
-            filteredConsultants.map(consultant => (
-              <ConsultantCard 
-                key={consultant.id} 
-                consultant={consultant} 
-                onChat={() => handleChat(consultant.email)}
-                currentUserEmail={currentUserEmail}
-                unreadCount={unreadCountByEmail[consultant.email] || 0}
-              />
-            ))
-          )
+          filteredUsers.map(user => (
+            <MemberCard 
+              key={user.id} 
+              user={user} 
+              onChat={() => handleChat(user.email)}
+              currentUserEmail={currentUserEmail}
+              unreadCount={unreadCountByEmail[user.email] || 0}
+            />
+          ))
         )}
       </div>
     </div>
