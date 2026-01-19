@@ -54,6 +54,20 @@ export default function MembersDirectory({ currentUserEmail }) {
     return counts;
   }, [unreadMessages]);
 
+  // Subscribe real-time ai messaggi - suono per nuovi messaggi
+  useEffect(() => {
+    if (!currentUserEmail) return;
+
+    const unsubscribe = base44.entities.Message.subscribe((event) => {
+      if (event.type === 'create' && event.data?.to_email === currentUserEmail) {
+        playSound();
+        queryClient.invalidateQueries({ queryKey: ['unread-messages-directory', currentUserEmail] });
+      }
+    });
+
+    return () => unsubscribe();
+  }, [currentUserEmail, queryClient, playSound]);
+
   const isLoading = loadingUsers || loadingConsultants;
 
   // Filtra utenti in base alla ricerca
