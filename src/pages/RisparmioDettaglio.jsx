@@ -812,9 +812,9 @@ ${note || 'Nessuna'}
                 />
               </div>
 
-              {/* Numero linee */}
+              {/* Numero linee fisse */}
               <div className="space-y-2">
-                <Label className="text-slate-300">Numero di linee/SIM</Label>
+                <Label className="text-slate-300">Numero di linee fisse</Label>
                 <Select 
                   value={telefonicaForm.num_linee} 
                   onValueChange={(v) => setTelefonicaForm({...telefonicaForm, num_linee: v})}
@@ -823,11 +823,9 @@ ${note || 'Nessuna'}
                     <SelectValue placeholder="Seleziona numero linee" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="1">1 linea</SelectItem>
-                    <SelectItem value="2_5">2-5 linee</SelectItem>
-                    <SelectItem value="6_10">6-10 linee</SelectItem>
-                    <SelectItem value="11_20">11-20 linee</SelectItem>
-                    <SelectItem value="oltre_20">Oltre 20 linee</SelectItem>
+                    {Array.from({length: 20}, (_, i) => i + 1).map(num => (
+                      <SelectItem key={num} value={String(num)}>{num}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
