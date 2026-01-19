@@ -126,6 +126,7 @@ export default function ProfiloBandiForm({ user, onSaved }) {
     }
   }, [user]);
 
+  // Quando cambia la regione sede, aggiungila automaticamente alle regioni di interesse
   useEffect(() => {
     if (formData.region && !formData.interested_regions?.includes(formData.region)) {
       setFormData(prev => ({
@@ -135,6 +136,7 @@ export default function ProfiloBandiForm({ user, onSaved }) {
     }
   }, [formData.region]);
 
+  // Funzione per salvare: usa User.update se impersonificazione attiva, altrimenti updateMe
   const saveData = async (data) => {
     if (impersonation.active && impersonation.previewUserId && impersonation.role === 'user') {
       return base44.entities.User.update(impersonation.previewUserId, data);
@@ -152,6 +154,7 @@ export default function ProfiloBandiForm({ user, onSaved }) {
     }
   });
 
+  // Funzione per aggiornare un campo e salvarlo automaticamente
   const updateAndSave = async (field, value) => {
     const newData = { ...formData, [field]: value };
     setFormData(newData);
@@ -176,6 +179,7 @@ export default function ProfiloBandiForm({ user, onSaved }) {
         </Alert>
       )}
 
+      {/* Dati Aziendali */}
       <Card className="bg-slate-800 border-slate-700">
         <CardHeader className="pb-3">
           <CardTitle className="text-lime-400 text-base flex items-center gap-2">
@@ -231,6 +235,7 @@ export default function ProfiloBandiForm({ user, onSaved }) {
         </CardContent>
       </Card>
 
+      {/* Localizzazione */}
       <Card className="bg-slate-800 border-slate-700">
         <CardHeader className="pb-3">
           <CardTitle className="text-lime-400 text-base flex items-center gap-2">
@@ -268,6 +273,7 @@ export default function ProfiloBandiForm({ user, onSaved }) {
             <Input value={formData.province} onBlur={(e) => updateAndSave('province', e.target.value)} onChange={(e) => setFormData({...formData, province: e.target.value})} className="bg-slate-900 border-slate-700 text-white mt-1" placeholder="Es: MI, RM, NA..." maxLength={2} />
           </div>
 
+          {/* Regioni di interesse per bandi */}
           <div className="pt-4 border-t border-slate-700 mt-4">
             <Label className="text-slate-300 text-sm flex items-center mb-3">
               <MapPin className="w-4 h-4 mr-2 text-lime-400" />
@@ -298,6 +304,7 @@ export default function ProfiloBandiForm({ user, onSaved }) {
                           ? [...(formData.interested_regions || []), regione]
                           : (formData.interested_regions || []).filter(r => r !== regione);
                         setFormData({...formData, interested_regions: newRegions});
+                        // Salvataggio automatico delle regioni di interesse
                         try {
                           await saveData({ interested_regions: newRegions });
                         } catch (err) {
@@ -338,6 +345,7 @@ export default function ProfiloBandiForm({ user, onSaved }) {
         </CardContent>
       </Card>
 
+      {/* Settore e Codice ATECO */}
       <Card className="bg-slate-800 border-slate-700">
         <CardHeader className="pb-3">
           <CardTitle className="text-lime-400 text-base flex items-center gap-2">
@@ -371,6 +379,7 @@ export default function ProfiloBandiForm({ user, onSaved }) {
         </CardContent>
       </Card>
 
+      {/* Dati Economici */}
       <Card className="bg-slate-800 border-slate-700">
         <CardHeader className="pb-3">
           <CardTitle className="text-lime-400 text-base flex items-center gap-2">
@@ -425,6 +434,7 @@ export default function ProfiloBandiForm({ user, onSaved }) {
         </CardContent>
       </Card>
 
+      {/* Caratteristiche Speciali */}
       <Card className="bg-slate-800 border-slate-700">
         <CardHeader className="pb-3">
           <CardTitle className="text-lime-400 text-base flex items-center gap-2">
@@ -451,6 +461,7 @@ export default function ProfiloBandiForm({ user, onSaved }) {
         </CardContent>
       </Card>
 
+      {/* Certificazioni e Requisiti */}
       <Card className="bg-slate-800 border-slate-700">
         <CardHeader className="pb-3">
           <CardTitle className="text-lime-400 text-base flex items-center gap-2">
@@ -491,6 +502,7 @@ export default function ProfiloBandiForm({ user, onSaved }) {
         </CardContent>
       </Card>
 
+      {/* Aree di Interesse */}
       <Card className="bg-slate-800 border-slate-700">
         <CardHeader className="pb-3">
           <CardTitle className="text-lime-400 text-base flex items-center gap-2">
@@ -516,6 +528,7 @@ export default function ProfiloBandiForm({ user, onSaved }) {
         </CardContent>
       </Card>
 
+      {/* Esperienza con Bandi */}
       <Card className="bg-slate-800 border-slate-700">
         <CardHeader className="pb-3">
           <CardTitle className="text-lime-400 text-base flex items-center gap-2">
