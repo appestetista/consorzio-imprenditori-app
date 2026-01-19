@@ -94,6 +94,56 @@ export default function Messaggi() {
     return users.find(u => u.email === email);
   };
 
+  const handleFileUpload = async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+    
+    setUploading(true);
+    try {
+      const uploadedFiles = [];
+      for (const file of files) {
+        const { file_url } = await base44.integrations.Core.UploadFile({ file });
+        uploadedFiles.push({
+          url: file_url,
+          name: file.name,
+          type: file.type
+        });
+      }
+      setAttachments(prev => [...prev, ...uploadedFiles]);
+      toast.success('File caricato');
+    } catch (error) {
+      toast.error('Errore durante il caricamento');
+    } finally {
+      setUploading(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleCameraCapture = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    setUploading(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setAttachments(prev => [...prev, {
+        url: file_url,
+        name: `Foto_${format(new Date(), 'dd-MM-yyyy_HH-mm')}`,
+        type: file.type
+      }]);
+      toast.success('Foto caricata');
+    } catch (error) {
+      toast.error('Errore durante il caricamento');
+    } finally {
+      setUploading(false);
+      e.target.value = '';
+    }
+  };
+
+  const removeAttachment = (index) => {
+    setAttachments(prev => prev.filter((_, i) => i !== index));
+  };
+
   const sendMessageMutation = useMutation({
     mutationFn: async () => {
       const conversationId = [user.email, selectedConversation].sort().join('-');
@@ -101,12 +151,14 @@ export default function Messaggi() {
         from_email: user.email,
         to_email: selectedConversation,
         content: newMessage,
-        conversation_id: conversationId
+        conversation_id: conversationId,
+        attachments: attachments.length > 0 ? attachments : undefined
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['all-messages'] });
       setNewMessage('');
+      setAttachments([]);
     }
   });
 
