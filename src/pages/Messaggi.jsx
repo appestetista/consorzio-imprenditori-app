@@ -247,7 +247,36 @@ export default function Messaggi() {
                         : 'bg-slate-700 text-white'
                     }`}
                   >
-                    <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                    {/* Allegati */}
+                    {msg.attachments && msg.attachments.length > 0 && (
+                      <div className="space-y-2 mb-2">
+                        {msg.attachments.map((att, idx) => (
+                          <a
+                            key={idx}
+                            href={att.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="block"
+                          >
+                            {att.type?.startsWith('image/') ? (
+                              <img 
+                                src={att.url} 
+                                alt={att.name} 
+                                className="max-w-full rounded-lg max-h-48 object-cover"
+                              />
+                            ) : (
+                              <div className={`flex items-center gap-2 p-2 rounded-lg ${
+                                msg.from_email === user?.email ? 'bg-lime-500/30' : 'bg-slate-600'
+                              }`}>
+                                <FileText className="w-5 h-5" />
+                                <span className="text-sm truncate">{att.name}</span>
+                              </div>
+                            )}
+                          </a>
+                        ))}
+                      </div>
+                    )}
+                    {msg.content && <p className="text-sm whitespace-pre-wrap">{msg.content}</p>}
                     <p className={`text-xs mt-1 ${
                       msg.from_email === user?.email ? 'text-slate-700' : 'text-slate-400'
                     }`}>
