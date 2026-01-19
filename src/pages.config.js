@@ -19,6 +19,7 @@ import RisparmioDettaglio from './pages/RisparmioDettaglio';
 import RisparmioEnergetico from './pages/RisparmioEnergetico';
 import VideoInterviste from './pages/VideoInterviste';
 import CatalogoBuoniPasto from './pages/CatalogoBuoniPasto';
+import RichiestaWelfare from './pages/RichiestaWelfare';
 import __Layout from './Layout.jsx';
 
 
@@ -44,6 +45,7 @@ export const PAGES = {
     "RisparmioEnergetico": RisparmioEnergetico,
     "VideoInterviste": VideoInterviste,
     "CatalogoBuoniPasto": CatalogoBuoniPasto,
+    "RichiestaWelfare": RichiestaWelfare,
 }
 
 export const pagesConfig = {
