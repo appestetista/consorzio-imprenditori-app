@@ -24,6 +24,7 @@ import VideoInterviste from './pages/VideoInterviste';
 import WelfareNormativa from './pages/WelfareNormativa';
 import WelfareOrdina from './pages/WelfareOrdina';
 import WelfareTipologie from './pages/WelfareTipologie';
+import Fornitori from './pages/Fornitori';
 import __Layout from './Layout.jsx';
 
 
@@ -54,6 +55,7 @@ export const PAGES = {
     "WelfareNormativa": WelfareNormativa,
     "WelfareOrdina": WelfareOrdina,
     "WelfareTipologie": WelfareTipologie,
+    "Fornitori": Fornitori,
 }
 
 export const pagesConfig = {
