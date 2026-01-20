@@ -311,7 +311,7 @@ export default function RequestDetailView({ request, user, onBack }) {
               <Button 
                 variant="outline" 
                 onClick={() => setShowUnlockConfirm(false)}
-                className="flex-1 border-slate-600 text-white hover:bg-slate-700"
+                className="flex-1 border-slate-600 text-slate-400 hover:bg-slate-700 hover:text-white"
               >
                 Annulla
               </Button>
@@ -358,7 +358,7 @@ export default function RequestDetailView({ request, user, onBack }) {
               <Button 
                 variant="outline" 
                 onClick={() => setShowDeleteConfirm(false)}
-                className="flex-1 border-slate-600 text-white hover:bg-slate-700"
+                className="flex-1 border-slate-600 text-slate-400 hover:bg-slate-700 hover:text-white"
               >
                 Annulla
               </Button>
@@ -511,7 +511,7 @@ function EditSupplierRequestForm({ request, onClose, onSuccess }) {
         <Button 
           variant="outline" 
           onClick={onClose}
-          className="flex-1 border-slate-600 text-white hover:bg-slate-700"
+          className="flex-1 border-slate-600 text-slate-400 hover:bg-slate-700 hover:text-white"
         >
           Annulla
         </Button>
