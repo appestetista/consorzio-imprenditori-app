@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Calendar, Video, Briefcase, Users, Euro, ShoppingBag, Sparkles, BookOpen, UsersRound } from 'lucide-react';
+import { Calendar, Video, Briefcase, Users, Euro, ShoppingBag, Sparkles, BookOpen, Handshake } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import Header from '../components/layout/Header';
@@ -239,7 +239,7 @@ export default function Home() {
     { title: 'Utenti', icon: Users, page: 'GestioneMembri', notifications: messages.length, permission: 'contatta_membri' },
     { title: 'Risparmio', icon: Euro, page: 'RisparmioEnergetico', notifications: 0, permission: 'risparmio_energetico' },
     { title: 'market place', icon: ShoppingBag, page: 'Marketplace', notifications: marketplaceNotifications, permission: 'marketplace' },
-    { title: 'Da imprenditore\na imprenditore', icon: UsersRound, page: 'VideoInterviste', notifications: 0, permission: 'video_interviste' },
+    { title: 'Da imprenditore\na imprenditore', icon: Handshake, page: 'VideoInterviste', notifications: 0, permission: 'video_interviste' },
   ];
 
   return (
