@@ -191,10 +191,14 @@ export default function WelfareNormativa() {
         {/* Soglie di esenzione - Grafico visuale */}
         <Card className="bg-slate-800 border-slate-700 mb-4">
           <CardContent className="p-4">
-            <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+            <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
               <Euro className="w-5 h-5 text-pink-400" />
               Soglie di esenzione annuali
             </h3>
+
+            <p className="text-slate-300 text-sm mb-4">
+              Puoi erogare ai tuoi dipendenti fringe benefit <strong className="text-green-400">senza pagare tasse né contributi</strong>, fino a questi limiti:
+            </p>
             
             <div className="grid grid-cols-2 gap-3 mb-4">
               {/* Senza figli */}
@@ -202,9 +206,9 @@ export default function WelfareNormativa() {
                 <div className="w-12 h-12 bg-slate-600 rounded-full flex items-center justify-center mx-auto mb-2">
                   <UserCheck className="w-6 h-6 text-slate-300" />
                 </div>
-                <p className="text-slate-400 text-xs mb-1">Senza figli a carico</p>
+                <p className="text-slate-400 text-xs mb-1">Dipendente senza figli</p>
                 <p className="text-white text-2xl font-bold">€1.000</p>
-                <p className="text-slate-500 text-xs">annui</p>
+                <p className="text-slate-500 text-xs">all'anno per dipendente</p>
               </div>
 
               {/* Con figli */}
@@ -212,27 +216,35 @@ export default function WelfareNormativa() {
                 <div className="w-12 h-12 bg-pink-400/20 rounded-full flex items-center justify-center mx-auto mb-2">
                   <Baby className="w-6 h-6 text-pink-400" />
                 </div>
-                <p className="text-pink-300 text-xs mb-1">Con figli a carico</p>
+                <p className="text-pink-300 text-xs mb-1">Dipendente con figli</p>
                 <p className="text-pink-400 text-2xl font-bold">€2.000</p>
-                <p className="text-pink-300/70 text-xs">annui</p>
+                <p className="text-pink-300/70 text-xs">all'anno per dipendente</p>
               </div>
+            </div>
+
+            {/* Esempio pratico */}
+            <div className="bg-slate-900 rounded-lg p-3 mb-4">
+              <p className="text-pink-400 text-xs font-semibold mb-2">💡 Esempio pratico:</p>
+              <p className="text-slate-300 text-xs leading-relaxed">
+                Hai 5 dipendenti senza figli? Puoi erogare fino a <strong className="text-white">€5.000 totali</strong> (€1.000 x 5) in buoni spesa, gift card o altri benefit, <strong className="text-green-400">senza versare un euro</strong> di tasse o contributi.
+              </p>
             </div>
 
             {/* Cosa significa */}
             <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3">
-              <p className="text-green-400 text-xs font-medium mb-2">✓ Entro queste soglie:</p>
+              <p className="text-green-400 text-xs font-medium mb-2">✓ Vantaggi per te (azienda):</p>
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-3 h-3 text-green-400 flex-shrink-0" />
-                  <span className="text-slate-300 text-xs">Valore totalmente esente</span>
+                  <span className="text-slate-300 text-xs">Costo 100% deducibile</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-3 h-3 text-green-400 flex-shrink-0" />
-                  <span className="text-slate-300 text-xs">Nessuna imposizione fiscale</span>
+                  <span className="text-slate-300 text-xs">Nessun contributo INPS da versare</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-3 h-3 text-green-400 flex-shrink-0" />
-                  <span className="text-slate-300 text-xs">Nessuna contribuzione previdenziale</span>
+                  <span className="text-slate-300 text-xs">Nessuna ritenuta fiscale da applicare</span>
                 </div>
               </div>
             </div>
@@ -244,32 +256,47 @@ export default function WelfareNormativa() {
           <CardContent className="p-4">
             <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
               <XCircle className="w-5 h-5 text-red-400" />
-              Superamento del limite
+              ⚠️ Attenzione: superamento del limite
             </h3>
+
+            <p className="text-slate-300 text-sm mb-4">
+              Questo è il punto più importante da capire: se superi anche di <strong className="text-red-400">1 solo euro</strong> la soglia, <strong className="text-white">perdi TUTTA l'esenzione</strong>.
+            </p>
             
-            {/* Grafico visuale */}
-            <div className="bg-slate-900 rounded-lg p-4 mb-3">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-slate-400 text-xs">€0</span>
-                <span className="text-slate-400 text-xs">Soglia</span>
-                <span className="text-slate-400 text-xs">Oltre</span>
-              </div>
-              <div className="h-8 rounded-full overflow-hidden flex">
-                <div className="bg-green-500 w-1/2 flex items-center justify-center">
-                  <span className="text-white text-xs font-medium">ESENTE</span>
+            {/* Esempio visuale */}
+            <div className="bg-slate-900 rounded-lg p-4 mb-4">
+              <p className="text-slate-400 text-xs mb-3 text-center">Dipendente senza figli (soglia €1.000)</p>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 bg-green-500/20 border border-green-500/40 rounded-lg p-2 text-center">
+                    <p className="text-green-400 text-sm font-bold">€1.000</p>
+                    <p className="text-green-300 text-xs">Esente al 100%</p>
+                  </div>
+                  <CheckCircle className="w-5 h-5 text-green-400" />
                 </div>
-                <div className="bg-red-500 w-1/2 flex items-center justify-center">
-                  <span className="text-white text-xs font-medium">TUTTO TASSATO</span>
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 bg-red-500/20 border border-red-500/40 rounded-lg p-2 text-center">
+                    <p className="text-red-400 text-sm font-bold">€1.001</p>
+                    <p className="text-red-300 text-xs">Tassato TUTTO (€1.001)</p>
+                  </div>
+                  <XCircle className="w-5 h-5 text-red-400" />
                 </div>
               </div>
             </div>
 
-            <Alert className="bg-red-500/10 border-red-500/30">
+            <Alert className="bg-red-500/10 border-red-500/30 mb-3">
               <AlertTriangle className="h-4 w-4 text-red-400" />
               <AlertDescription className="text-slate-300 text-xs">
-                Se il valore complessivo <strong className="text-red-400">supera la soglia</strong>, l'<strong className="text-white">intero importo</strong> diventa imponibile (non solo la parte eccedente).
+                <strong className="text-red-400">NON è come l'IRPEF!</strong> Non si tassa solo la parte eccedente. Se dai €1.001, paghi tasse e contributi su tutti i €1.001.
               </AlertDescription>
             </Alert>
+
+            <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3">
+              <p className="text-amber-400 text-xs font-semibold mb-1">💡 Consiglio pratico:</p>
+              <p className="text-slate-300 text-xs">
+                Resta sempre sotto la soglia con un margine di sicurezza. Meglio €950 che rischiare €1.001!
+              </p>
+            </div>
           </CardContent>
         </Card>
 
