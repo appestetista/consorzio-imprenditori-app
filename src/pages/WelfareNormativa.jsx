@@ -110,8 +110,8 @@ export default function WelfareNormativa() {
                   </div>
                   <div className="bg-gradient-to-br from-pink-500/20 to-rose-500/20 rounded-lg p-4 text-center border border-pink-500/30">
                     <p className="text-pink-300 text-xs mb-1">Elettronici</p>
-                    <p className="text-pink-400 text-2xl font-bold">€8,00</p>
-                    <p className="text-pink-300/70 text-xs">al giorno</p>
+                    <p className="text-pink-400 text-2xl font-bold">€10,00</p>
+                    <p className="text-pink-300/70 text-xs">al giorno (2026)</p>
                   </div>
                 </div>
               </CardContent>
