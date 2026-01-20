@@ -45,6 +45,7 @@ const BUDGET_RANGES = [
 
 const PAYMENT_FREQUENCY = [
   { value: 'una_tantum', label: 'Una tantum' },
+  { value: 'a_lavoro_finito', label: 'A lavoro finito' },
   { value: 'giornaliero', label: 'Giornaliero' },
   { value: 'mensile', label: 'Mensile' },
   { value: 'trimestrale', label: 'Trimestrale' },

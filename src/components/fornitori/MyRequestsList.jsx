@@ -48,6 +48,7 @@ const BUDGET_LABELS = {
 
 const PAYMENT_FREQUENCY_LABELS = {
   'una_tantum': 'Una tantum',
+  'a_lavoro_finito': 'A lavoro finito',
   'giornaliero': 'Giornaliero',
   'mensile': 'Mensile',
   'trimestrale': 'Trimestrale',
@@ -150,13 +151,9 @@ export default function MyRequestsList({ user }) {
                   <Building2 className="w-3.5 h-3.5 text-slate-500" />
                   <span>{COMPANY_CONTEXT_LABELS[request.company_context] || request.company_context}</span>
                 </div>
-                <div className="flex items-center gap-2 text-slate-400 text-xs">
+                <div className="flex items-center gap-2 text-slate-400 text-xs col-span-2">
                   <Euro className="w-3.5 h-3.5 text-slate-500" />
-                  <span>{BUDGET_LABELS[request.budget_range] || request.budget_range || '-'}</span>
-                </div>
-                <div className="flex items-center gap-2 text-slate-400 text-xs">
-                  <Repeat className="w-3.5 h-3.5 text-slate-500" />
-                  <span>{PAYMENT_FREQUENCY_LABELS[request.payment_frequency] || 'Una tantum'}</span>
+                  <span>{BUDGET_LABELS[request.budget_range] || request.budget_range || '-'} • {PAYMENT_FREQUENCY_LABELS[request.payment_frequency] || 'Una tantum'}</span>
                 </div>
                 <div className="flex items-center gap-2 text-slate-400 text-xs">
                   <Clock className="w-3.5 h-3.5 text-slate-500" />
@@ -265,6 +262,7 @@ function EditRequestForm({ request, onClose, onSuccess }) {
 
   const PAYMENT_FREQUENCIES = [
     { value: 'una_tantum', label: 'Una tantum' },
+    { value: 'a_lavoro_finito', label: 'A lavoro finito' },
     { value: 'giornaliero', label: 'Giornaliero' },
     { value: 'mensile', label: 'Mensile' },
     { value: 'trimestrale', label: 'Trimestrale' },
