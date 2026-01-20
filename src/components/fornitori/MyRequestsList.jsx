@@ -353,12 +353,12 @@ function EditRequestForm({ request, onClose, onSuccess }) {
 
       <div className="flex gap-3 pt-2">
         <Button 
-          variant="outline" 
-          onClick={onClose}
-          className="flex-1 border-slate-600 text-white hover:bg-slate-700"
-        >
-          Annulla
-        </Button>
+                      variant="outline" 
+                      onClick={onClose}
+                      className="flex-1 border-slate-600 text-slate-400 hover:bg-slate-700 hover:text-white"
+                    >
+                      Annulla
+                    </Button>
         <Button 
           onClick={() => updateMutation.mutate(formData)}
           disabled={updateMutation.isPending || !formData.service_type || !formData.company_context || !formData.problem_to_solve || !formData.budget_range || !formData.urgency}
