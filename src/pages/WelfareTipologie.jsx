@@ -172,91 +172,59 @@ export default function WelfareTipologie() {
           />
         </div>
 
-        {/* Tabs per categorie */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="w-full flex flex-wrap h-auto gap-1 bg-slate-800 p-2 rounded-xl mb-4">
-            <TabsTrigger 
-              value="tutti" 
-              className="flex-grow text-xs px-2 py-1.5 data-[state=active]:bg-pink-500 data-[state=active]:text-white"
-            >
-              Tutti
-            </TabsTrigger>
-            {categorie.map((cat) => (
-              <TabsTrigger 
-                key={cat} 
-                value={cat}
-                className="flex-grow text-xs px-2 py-1.5 data-[state=active]:bg-pink-500 data-[state=active]:text-white"
-              >
-                {cat.length > 10 ? cat.substring(0, 10) + '...' : cat}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+        {/* Select per categorie */}
+        <div className="mb-4">
+          <Select value={selectedCategoria} onValueChange={setSelectedCategoria}>
+            <SelectTrigger className="w-full bg-slate-800 border-slate-700 text-white">
+              <SelectValue placeholder="Seleziona categoria" />
+            </SelectTrigger>
+            <SelectContent className="bg-slate-800 border-slate-700">
+              {categorie.map((cat) => {
+                const Icon = categorieIcons[cat] || Gift;
+                return (
+                  <SelectItem key={cat} value={cat} className="text-white hover:bg-slate-700 focus:bg-slate-700">
+                    <span className="flex items-center gap-2">
+                      <Icon className="w-4 h-4 text-pink-400" />
+                      {cat}
+                    </span>
+                  </SelectItem>
+                );
+              })}
+            </SelectContent>
+          </Select>
+        </div>
 
-          {/* Tab Tutti */}
-          <TabsContent value="tutti" className="space-y-4">
-            {categorie.map((categoria) => {
-              const filteredBrands = getFilteredBrands(categoria);
-              if (searchTerm && filteredBrands.length === 0) return null;
-              const Icon = categorieIcons[categoria] || Gift;
-              
-              return (
-                <Card key={categoria} className="bg-slate-800 border-slate-700">
-                  <CardContent className="p-4">
-                    <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
-                      <Icon className="w-5 h-5 text-pink-400" />
-                      {categoria}
-                      <span className="text-slate-500 text-sm font-normal">({filteredBrands.length})</span>
-                    </h3>
-                    <div className="flex flex-wrap gap-2">
-                      {filteredBrands.map((brand) => (
-                        <span 
-                          key={brand}
-                          className="bg-slate-700/50 text-slate-300 text-xs px-2 py-1 rounded-lg"
-                        >
-                          {brand}
-                        </span>
-                      ))}
+        {/* Lista brand della categoria selezionata */}
+        {(() => {
+          const Icon = categorieIcons[selectedCategoria] || Gift;
+          const filteredBrands = getFilteredBrands(selectedCategoria);
+          
+          return (
+            <Card className="bg-slate-800 border-slate-700">
+              <CardContent className="p-4">
+                <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+                  <Icon className="w-5 h-5 text-pink-400" />
+                  {selectedCategoria}
+                  <span className="text-slate-500 text-sm font-normal">({filteredBrands.length} brand)</span>
+                </h3>
+                <div className="grid grid-cols-2 gap-2">
+                  {filteredBrands.map((brand) => (
+                    <div 
+                      key={brand}
+                      className="bg-slate-700/50 rounded-lg px-3 py-2 text-slate-300 text-sm flex items-center gap-2"
+                    >
+                      <Icon className="w-3 h-3 text-pink-400 flex-shrink-0" />
+                      <span className="truncate">{brand}</span>
                     </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </TabsContent>
-
-          {/* Tab per ogni categoria */}
-          {categorie.map((categoria) => {
-            const Icon = categorieIcons[categoria] || Gift;
-            const filteredBrands = getFilteredBrands(categoria);
-            
-            return (
-              <TabsContent key={categoria} value={categoria}>
-                <Card className="bg-slate-800 border-slate-700">
-                  <CardContent className="p-4">
-                    <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
-                      <Icon className="w-5 h-5 text-pink-400" />
-                      {categoria}
-                      <span className="text-slate-500 text-sm font-normal">({filteredBrands.length} brand)</span>
-                    </h3>
-                    <div className="grid grid-cols-2 gap-2">
-                      {filteredBrands.map((brand) => (
-                        <div 
-                          key={brand}
-                          className="bg-slate-700/50 rounded-lg px-3 py-2 text-slate-300 text-sm flex items-center gap-2"
-                        >
-                          <Icon className="w-3 h-3 text-pink-400 flex-shrink-0" />
-                          <span className="truncate">{brand}</span>
-                        </div>
-                      ))}
-                    </div>
-                    {filteredBrands.length === 0 && (
-                      <p className="text-slate-500 text-center py-4">Nessun brand trovato</p>
-                    )}
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            );
-          })}
-        </Tabs>
+                  ))}
+                </div>
+                {filteredBrands.length === 0 && (
+                  <p className="text-slate-500 text-center py-4">Nessun brand trovato</p>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })()}
       </main>
 
       <BottomNav currentPage="WelfareAziendale" unreadMessages={messages.length} />
