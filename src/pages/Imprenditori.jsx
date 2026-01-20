@@ -17,7 +17,8 @@ const CATEGORIES = [
   "Errori Fatti",
   "Programmi Affidabili",
   "Fornitori Top",
-  "Come lo rifarei oggi"
+  "Come lo rifarei oggi",
+  "Consigli di Vita"
 ];
 
 const getYoutubeId = (url) => {
