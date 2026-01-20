@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, FileText, Users, AlertTriangle, CheckCircle, XCircle, Euro, Building2, UserCheck, Baby, Info } from 'lucide-react';
+import { ArrowLeft, FileText, Users, AlertTriangle, CheckCircle, XCircle, Euro, Building2, UserCheck, Baby, Info, UtensilsCrossed, Gift } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 
 export default function WelfareNormativa() {
   const [user, setUser] = useState(null);
+  const [activeTab, setActiveTab] = useState('buoni-pasto');
 
   useEffect(() => {
     const loadUser = async () => {
@@ -50,12 +52,81 @@ export default function WelfareNormativa() {
                 <FileText className="w-8 h-8 text-white" />
               </div>
               <div>
-                <h2 className="text-white text-xl font-bold">Fringe Benefit</h2>
-                <p className="text-white/80 text-sm">Normativa applicabile</p>
+                <h2 className="text-white text-xl font-bold">Normativa</h2>
+                <p className="text-white/80 text-sm">Regole e limiti di esenzione</p>
               </div>
             </div>
           </CardContent>
         </Card>
+
+        {/* Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
+          <TabsList className="grid grid-cols-3 bg-slate-800 border border-slate-700 p-1 rounded-xl">
+            <TabsTrigger 
+              value="buoni-pasto" 
+              className="data-[state=active]:bg-pink-500 data-[state=active]:text-white text-slate-400 rounded-lg text-xs py-2"
+            >
+              Buoni Pasto
+            </TabsTrigger>
+            <TabsTrigger 
+              value="fringe-benefit" 
+              className="data-[state=active]:bg-pink-500 data-[state=active]:text-white text-slate-400 rounded-lg text-xs py-2"
+            >
+              Fringe Benefit
+            </TabsTrigger>
+            <TabsTrigger 
+              value="buoni-regalo" 
+              className="data-[state=active]:bg-pink-500 data-[state=active]:text-white text-slate-400 rounded-lg text-xs py-2"
+            >
+              Buoni Regalo
+            </TabsTrigger>
+          </TabsList>
+
+          {/* TAB BUONI PASTO */}
+          <TabsContent value="buoni-pasto" className="mt-4 space-y-4">
+            <Card className="bg-slate-800 border-slate-700">
+              <CardContent className="p-4">
+                <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+                  <UtensilsCrossed className="w-5 h-5 text-pink-400" />
+                  Cosa sono i Buoni Pasto?
+                </h3>
+                <p className="text-slate-300 text-sm leading-relaxed">
+                  I <span className="text-pink-400 font-medium">buoni pasto</span> sono titoli di pagamento utilizzabili per acquistare pasti o generi alimentari presso esercizi convenzionati.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-slate-800 border-slate-700">
+              <CardContent className="p-4">
+                <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+                  <Euro className="w-5 h-5 text-pink-400" />
+                  Limiti di esenzione giornalieri
+                </h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-slate-900 rounded-lg p-4 text-center">
+                    <p className="text-slate-400 text-xs mb-1">Cartacei</p>
+                    <p className="text-white text-2xl font-bold">€4,00</p>
+                    <p className="text-slate-500 text-xs">al giorno</p>
+                  </div>
+                  <div className="bg-gradient-to-br from-pink-500/20 to-rose-500/20 rounded-lg p-4 text-center border border-pink-500/30">
+                    <p className="text-pink-300 text-xs mb-1">Elettronici</p>
+                    <p className="text-pink-400 text-2xl font-bold">€8,00</p>
+                    <p className="text-pink-300/70 text-xs">al giorno</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Alert className="bg-green-500/10 border-green-500/30">
+              <CheckCircle className="h-4 w-4 text-green-400" />
+              <AlertDescription className="text-slate-300 text-xs">
+                Entro questi limiti i buoni pasto sono <strong className="text-green-400">totalmente esenti</strong> da tassazione e contributi.
+              </AlertDescription>
+            </Alert>
+          </TabsContent>
+
+          {/* TAB FRINGE BENEFIT */}
+          <TabsContent value="fringe-benefit" className="mt-4 space-y-4">
 
         {/* Definizione */}
         <Card className="bg-slate-800 border-slate-700 mb-4">
