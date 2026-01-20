@@ -598,45 +598,48 @@ export default function Imprenditori() {
                   {/* Opzioni di voto */}
                   <div className="space-y-2 mb-4">
                     {(post.options || []).map((option) => {
-                      const percentage = getOptionPercentage(post, option);
+                      const votesCount = (option.votes || []).length;
                       const isSelected = (option.votes || []).includes(effectiveUser?.email);
                       const canVote = !post.is_closed;
-                      
+                      const percentage = getOptionPercentage(post, option);
+
                       return (
                         <button
                           key={option.id}
                           onClick={() => canVote && voteMutation.mutate({ postId: post.id, optionId: option.id })}
                           disabled={!canVote}
-                          className={`w-full relative overflow-hidden rounded-xl border transition-all ${
-                            isSelected 
-                              ? 'border-lime-400 bg-lime-400/10' 
-                              : 'border-slate-600 bg-slate-700/50 hover:border-slate-500'
-                          } ${!canVote ? 'cursor-default' : 'cursor-pointer'}`}
+                          className={`w-full text-left ${!canVote ? 'cursor-default' : 'cursor-pointer'}`}
                         >
-                          {/* Barra progresso */}
-                          <div 
-                            className={`absolute inset-y-0 left-0 transition-all duration-500 ${
-                              isSelected ? 'bg-lime-400/20' : 'bg-slate-600/30'
-                            }`}
-                            style={{ width: `${percentage}%` }}
-                          />
-                          
-                          <div className="relative flex items-center justify-between p-3">
-                            <div className="flex items-center gap-3">
-                              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
-                                isSelected 
-                                  ? 'border-lime-400 bg-lime-400' 
-                                  : 'border-slate-500'
-                              }`}>
-                                {isSelected && <Check className="w-3 h-3 text-slate-900" />}
-                              </div>
-                              <span className={`text-sm ${isSelected ? 'text-lime-400 font-medium' : 'text-white'}`}>
-                                {option.text}
+                          <div className="flex items-center gap-2 mb-1">
+                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                              isSelected 
+                                ? 'border-lime-400 bg-lime-400' 
+                                : 'border-slate-500'
+                            }`}>
+                              {isSelected && <Check className="w-3 h-3 text-slate-900" />}
+                            </div>
+                            <span className={`text-sm flex-1 ${isSelected ? 'text-lime-400 font-medium' : 'text-white'}`}>
+                              {option.text}
+                            </span>
+                            <div className="flex items-center gap-1">
+                              {votesCount > 0 && (
+                                <div className="w-5 h-5 bg-slate-600 rounded-full flex items-center justify-center">
+                                  <User className="w-3 h-3 text-slate-300" />
+                                </div>
+                              )}
+                              <span className={`text-sm ${isSelected ? 'text-lime-400' : 'text-slate-400'}`}>
+                                {votesCount}
                               </span>
                             </div>
-                            <span className={`text-sm font-bold ${isSelected ? 'text-lime-400' : 'text-slate-400'}`}>
-                              {percentage}%
-                            </span>
+                          </div>
+                          {/* Barra progresso sotto */}
+                          <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden ml-7">
+                            <div 
+                              className={`h-full transition-all duration-500 rounded-full ${
+                                isSelected ? 'bg-lime-400' : 'bg-slate-500'
+                              }`}
+                              style={{ width: `${percentage}%` }}
+                            />
                           </div>
                         </button>
                       );
