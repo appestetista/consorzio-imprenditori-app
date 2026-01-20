@@ -685,6 +685,148 @@ export default function Imprenditori() {
               />
             </div>
 
+            {/* Sezione media */}
+            <div>
+              <label className="text-slate-400 text-sm mb-2 block">Aggiungi foto o video (opzionale)</label>
+              
+              {!newPoll.media_url && !recordedBlob && !isRecording ? (
+                <div className="grid grid-cols-3 gap-2">
+                  {/* Carica foto */}
+                  <label className="flex flex-col items-center justify-center gap-1 py-3 px-2 rounded-lg border border-slate-600 bg-slate-700 hover:bg-slate-600 cursor-pointer transition-all">
+                    <Image className="w-5 h-5 text-lime-400" />
+                    <span className="text-xs text-slate-300">Foto</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                  </label>
+                  
+                  {/* Carica video */}
+                  <label className="flex flex-col items-center justify-center gap-1 py-3 px-2 rounded-lg border border-slate-600 bg-slate-700 hover:bg-slate-600 cursor-pointer transition-all">
+                    <Upload className="w-5 h-5 text-blue-400" />
+                    <span className="text-xs text-slate-300">Video</span>
+                    <input
+                      type="file"
+                      accept="video/*"
+                      onChange={handleVideoUpload}
+                      className="hidden"
+                    />
+                  </label>
+                  
+                  {/* Registra video */}
+                  <button
+                    type="button"
+                    onClick={startRecording}
+                    className="flex flex-col items-center justify-center gap-1 py-3 px-2 rounded-lg border border-slate-600 bg-slate-700 hover:bg-slate-600 transition-all"
+                  >
+                    <Camera className="w-5 h-5 text-red-400" />
+                    <span className="text-xs text-slate-300">Registra</span>
+                  </button>
+                </div>
+              ) : isRecording ? (
+                <div className="border-2 border-red-500 rounded-xl overflow-hidden">
+                  <div className="relative">
+                    <video
+                      ref={videoRef}
+                      autoPlay
+                      muted
+                      playsInline
+                      className="w-full aspect-video object-cover"
+                    />
+                    <div className="absolute top-3 left-3 flex items-center gap-2 bg-red-600 px-3 py-1 rounded-full">
+                      <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                      <span className="text-white text-sm font-medium">{formatTime(recordingTime)} / 2:00</span>
+                    </div>
+                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2">
+                      <button
+                        type="button"
+                        onClick={stopRecording}
+                        className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-full font-medium flex items-center gap-2"
+                      >
+                        <div className="w-3 h-3 bg-white rounded-sm" />
+                        Stop
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : recordedBlob ? (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <p className="text-slate-400 text-xs">Anteprima registrazione:</p>
+                    <button
+                      type="button"
+                      onClick={() => setRecordedBlob(null)}
+                      className="text-red-400 text-xs hover:text-red-300 flex items-center gap-1"
+                    >
+                      <X className="w-3 h-3" /> Riprova
+                    </button>
+                  </div>
+                  <div className="aspect-video rounded-lg overflow-hidden bg-black">
+                    <video
+                      src={URL.createObjectURL(recordedBlob)}
+                      controls
+                      className="w-full h-full"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={uploadRecordedVideo}
+                    disabled={isUploading}
+                    className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 py-2 rounded-lg font-medium flex items-center justify-center gap-2"
+                  >
+                    {isUploading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Caricamento...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-4 h-4" />
+                        Conferma e carica
+                      </>
+                    )}
+                  </button>
+                </div>
+              ) : newPoll.media_url ? (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <p className="text-slate-400 text-xs">Media caricato:</p>
+                    <button
+                      type="button"
+                      onClick={removeMedia}
+                      className="text-red-400 text-xs hover:text-red-300 flex items-center gap-1"
+                    >
+                      <X className="w-3 h-3" /> Rimuovi
+                    </button>
+                  </div>
+                  <div className="aspect-video rounded-lg overflow-hidden bg-black">
+                    {newPoll.media_type === 'image' ? (
+                      <img src={newPoll.media_url} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <video src={newPoll.media_url} controls className="w-full h-full" />
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 text-lime-400 text-sm">
+                    <ShieldCheck className="w-4 h-4" />
+                    <span>Pronto per la pubblicazione</span>
+                  </div>
+                </div>
+              ) : null}
+              
+              {isUploading && !recordedBlob && (
+                <div className="flex items-center justify-center gap-2 py-4">
+                  <Loader2 className="w-5 h-5 text-lime-400 animate-spin" />
+                  <span className="text-slate-300 text-sm">Caricamento in corso...</span>
+                </div>
+              )}
+              
+              {uploadError && (
+                <p className="text-red-400 text-sm mt-2">{uploadError}</p>
+              )}
+            </div>
+
             <div>
               <label className="text-slate-400 text-sm mb-2 block">Opzioni di risposta</label>
               <div className="space-y-2">
