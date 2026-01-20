@@ -253,7 +253,7 @@ export default function Home() {
     { title: 'Risparmio', icon: Euro, page: 'RisparmioEnergetico', notifications: 0, permission: 'risparmio_energetico' },
     { title: 'market place', icon: ShoppingBag, page: 'Marketplace', notifications: marketplaceNotifications, permission: 'marketplace' },
     { title: 'Fatti\nconsigliare', icon: Handshake, page: 'Imprenditori', notifications: unviewedPollsCount, permission: 'imprenditori' },
-      { title: 'Fornitori', icon: Truck, page: 'Fornitori', notifications: 0, permission: 'fornitori' },
+      { title: 'Ricerca\nFornitori', icon: Truck, page: 'Fornitori', notifications: 0, permission: 'fornitori' },
   ];
 
   return (
