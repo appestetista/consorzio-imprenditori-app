@@ -226,6 +226,7 @@ export default function Home() {
   }
 
   const culturaAziendaleNotifications = notifications.filter(n => n.type === 'cultura_aziendale').length;
+  const marketplaceNotifications = notifications.filter(n => n.type === 'message' && n.title?.includes('Marketplace')).length;
 
   const isConsultant = effectiveUser?.role === 'consulente';
 
@@ -237,7 +238,7 @@ export default function Home() {
     { title: 'Finanziamenti\nagevolati', icon: Sparkles, page: 'FinanziamentiAgevolati', notifications: isNotAdmin ? newGrantsCount : 0, permission: 'finanziamenti' },
     { title: 'Utenti', icon: Users, page: 'GestioneMembri', notifications: messages.length, permission: 'contatta_membri' },
     { title: 'Risparmio', icon: Euro, page: 'RisparmioEnergetico', notifications: 0, permission: 'risparmio_energetico' },
-    { title: 'market place', icon: ShoppingBag, page: 'Marketplace', notifications: 0, permission: 'marketplace' },
+    { title: 'market place', icon: ShoppingBag, page: 'Marketplace', notifications: marketplaceNotifications, permission: 'marketplace' },
   ];
 
   return (
