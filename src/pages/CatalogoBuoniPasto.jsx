@@ -1,15 +1,56 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Gift } from 'lucide-react';
+import { ArrowLeft, Gift, Search, Store, ShoppingCart, Utensils } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 
+// Insegne con loghi (brand principali)
+const insegneConLogo = [
+  { name: "Esselunga", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Esselunga_logo.svg/200px-Esselunga_logo.svg.png", type: "supermercato" },
+  { name: "Conad", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Conad_logo.svg/200px-Conad_logo.svg.png", type: "supermercato" },
+  { name: "Coop", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Logo_Coop_Italia.svg/200px-Logo_Coop_Italia.svg.png", type: "supermercato" },
+  { name: "Carrefour", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Carrefour_logo.svg/200px-Carrefour_logo.svg.png", type: "supermercato" },
+  { name: "Eurospin", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Eurospin_logo.svg/200px-Eurospin_logo.svg.png", type: "supermercato" },
+  { name: "Penny Market", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Penny-Logo.svg/200px-Penny-Logo.svg.png", type: "supermercato" },
+  { name: "Pam Panorama", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Logo_Pam_Panorama.svg/200px-Logo_Pam_Panorama.svg.png", type: "supermercato" },
+  { name: "Bennet", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Bennet_logo.svg/200px-Bennet_logo.svg.png", type: "supermercato" },
+  { name: "Famila", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Famila.svg/200px-Famila.svg.png", type: "supermercato" },
+  { name: "Sigma", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Sigma_supermarkets_logo.svg/200px-Sigma_supermarkets_logo.svg.png", type: "supermercato" },
+  { name: "Despar", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Spar-logo.svg/200px-Spar-logo.svg.png", type: "supermercato" },
+  { name: "Todis", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/Todis_logo.svg/200px-Todis_logo.svg.png", type: "supermercato" },
+  { name: "Old Wild West", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Old_Wild_West_logo.svg/200px-Old_Wild_West_logo.svg.png", type: "ristorante" },
+  { name: "Roadhouse", logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Roadhouse_Restaurant_logo.svg/200px-Roadhouse_Restaurant_logo.svg.png", type: "ristorante" },
+  { name: "America Graffiti", logo: "https://www.americagraffiti.it/wp-content/uploads/2021/01/logo-america-graffiti.png", type: "ristorante" },
+];
+
+// Lista completa insegne dal PDF
+const tutteLeInsegne = [
+  "A Tavola Da Camst", "A&O", "AGLIETTI 1910 SRL", "Alì Supermercati", "America Graffiti", "Amort",
+  "Bar Atlantic", "Bar con sapore Conad", "Bar Denise - Politecnico Torino", "Bar LO ZIO D'AMERICA",
+  "Basko", "Basko Bistrot", "Bennet", "Billy Tacos", "BIOPHILIA STORE-L'ORTO BIOLOGICO", "Doro",
+  "Borello Supermercati", "Buongusto", "Calavera", "Carrefour Express", "Carrefour Market", "CC Amort",
+  "Chicken House", "Ciro Amodio", "Ciro Amodio Pane", "Coal", "Conad", "Coop", "Crai",
+  "Caffè Trombetta supermercati", "Decò", "DECO' GOURMET", "DESPAR", "Dodeca", "Dok Supermercati",
+  "Ekom", "Ekom Discount", "Emi Supermercato", "Emisfero", "Esselunga", "EUROSPAR", "Eurospin",
+  "Famila", "Gustavo", "Hurrà", "Il castoro supermercati", "Il Gigante Supermercati", "Il Supermercato",
+  "Iper Orvea", "Iper POLI", "Iper Tosano", "Iperal", "Ipercarni", "IPERCONVENIENTE", "Ipercoop",
+  "Iperfamila", "Iperstore Decò", "Ipertosano", "Ipertriscount", "IT'S Market", "Italmark",
+  "La Mimosa Supermercati", "La speseria", "Maxi Coal", "Mega", "Migross", "Mimosa", "NUMERI PRIMI",
+  "Oasi", "Oasi Ipermercato", "Old Wild West", "Pam Panorama", "Penny Market", "Pewex", "Pizzikotto",
+  "Roadhouse", "Rossotono", "Sapori & Dintorni Store", "Shi's", "Sigma", "Simply", "Smashie",
+  "sole 365", "SuperA&O", "Superconviente", "Poli", "Bosco", "Etè", "Orvea", "Spesì", "Stella",
+  "Eurospar", "Tavolamica", "Tigre", "Tigros", "TO.MARKET", "Todis", "Tosano", "Vendo Market",
+  "Wiener Haus", "Winner"
+];
+
 export default function CatalogoBuoniPasto() {
   const [user, setUser] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const loadUser = async () => {
@@ -28,6 +69,14 @@ export default function CatalogoBuoniPasto() {
     queryFn: () => base44.entities.Message.filter({ to_email: user?.email, is_read: false }),
     enabled: !!user?.email,
   });
+
+  const filteredInsegne = tutteLeInsegne.filter(insegna => 
+    insegna.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredLogos = insegneConLogo.filter(insegna =>
+    insegna.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen bg-slate-900 pb-24">
@@ -50,20 +99,81 @@ export default function CatalogoBuoniPasto() {
               </div>
               <div>
                 <h2 className="text-white text-xl font-bold">Dove usare i buoni</h2>
-                <p className="text-white/80 text-sm">Scopri tutti i partner convenzionati</p>
+                <p className="text-white/80 text-sm">{tutteLeInsegne.length}+ partner convenzionati</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Contenuto vuoto - da popolare */}
+        {/* Barra di ricerca */}
+        <div className="relative mb-6">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+          <Input
+            placeholder="Cerca insegna..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10 bg-slate-800 border-slate-700 text-white placeholder:text-slate-500"
+          />
+        </div>
+
+        {/* Brand principali con logo */}
+        {!searchTerm && (
+          <div className="mb-6">
+            <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+              <Store className="w-5 h-5 text-pink-400" />
+              Brand principali
+            </h3>
+            <div className="grid grid-cols-3 gap-3">
+              {insegneConLogo.map((insegna) => (
+                <div 
+                  key={insegna.name}
+                  className="bg-white rounded-xl p-3 flex flex-col items-center justify-center aspect-square"
+                >
+                  <img 
+                    src={insegna.logo} 
+                    alt={insegna.name}
+                    className="w-12 h-12 object-contain mb-2"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'flex';
+                    }}
+                  />
+                  <div className="hidden w-12 h-12 bg-slate-200 rounded-lg items-center justify-center mb-2">
+                    {insegna.type === 'ristorante' ? 
+                      <Utensils className="w-6 h-6 text-slate-400" /> : 
+                      <ShoppingCart className="w-6 h-6 text-slate-400" />
+                    }
+                  </div>
+                  <span className="text-slate-800 text-xs font-medium text-center leading-tight">
+                    {insegna.name}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Lista completa */}
         <Card className="bg-slate-800 border-slate-700">
-          <CardContent className="p-8 text-center">
-            <Gift className="w-16 h-16 text-slate-600 mx-auto mb-4" />
-            <h3 className="text-slate-400 font-medium mb-2">Sezione in costruzione</h3>
-            <p className="text-slate-500 text-sm">
-              Presto qui troverai l'elenco completo di supermercati, ristoranti e negozi dove potrai utilizzare i tuoi buoni pasto.
-            </p>
+          <CardContent className="p-4">
+            <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+              <ShoppingCart className="w-5 h-5 text-pink-400" />
+              {searchTerm ? `Risultati (${filteredInsegne.length})` : 'Elenco completo'}
+            </h3>
+            <div className="grid grid-cols-2 gap-2 max-h-96 overflow-y-auto">
+              {filteredInsegne.map((insegna) => (
+                <div 
+                  key={insegna}
+                  className="bg-slate-700/50 rounded-lg px-3 py-2 text-slate-300 text-sm flex items-center gap-2"
+                >
+                  <Store className="w-3 h-3 text-pink-400 flex-shrink-0" />
+                  <span className="truncate">{insegna}</span>
+                </div>
+              ))}
+            </div>
+            {filteredInsegne.length === 0 && (
+              <p className="text-slate-500 text-center py-4">Nessuna insegna trovata</p>
+            )}
           </CardContent>
         </Card>
       </main>
