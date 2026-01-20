@@ -348,6 +348,8 @@ export default function Imprenditori() {
       author_email: effectiveUser?.email,
       author_name: effectiveUser?.company_name || effectiveUser?.full_name,
       comments: [],
+      media_url: newPoll.media_url,
+      media_type: newPoll.media_type
     };
     
     createPostMutation.mutate(postData);
