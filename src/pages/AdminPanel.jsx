@@ -18,6 +18,7 @@ import ImpersonationDialog from '../components/admin/ImpersonationDialog';
 import ConsultantAssignmentManager from '../components/admin/ConsultantAssignmentManager';
 import RisparmioRequestsAdmin from '../components/admin/RisparmioRequestsAdmin';
 import MembersDirectory from '../components/members/MembersDirectory';
+import ZoneAssignmentManager from '../components/admin/ZoneAssignmentManager';
 
 const CONSULTANT_CATEGORIES = [
   "Stampa Digitale e Cataloghi",
