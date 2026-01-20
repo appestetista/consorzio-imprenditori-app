@@ -721,7 +721,7 @@ export default function Imprenditori() {
 
       {/* Dialog crea sondaggio */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent className="bg-slate-800 border-slate-700 max-w-md max-h-[90vh] overflow-y-auto [&>button]:hidden">
+        <DialogContent className="bg-slate-800 border-slate-700 max-w-md max-h-[85vh] overflow-y-auto [&>button]:hidden p-4">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lime-400 text-lg font-semibold">Crea sondaggio</h2>
             <button onClick={() => setShowAddDialog(false)} className="text-slate-400 hover:text-white">
