@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Clock, Users, CheckCircle, XCircle, ChevronRight, Shield, Eye, Euro, Building2, TrendingUp } from 'lucide-react';
+import { Clock, Users, CheckCircle, XCircle, Shield, Eye, Euro, Building2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import RequestDetailView from './RequestDetailView';
 
@@ -33,14 +33,7 @@ const COMPANY_CONTEXT_LABELS = {
   altro: 'Altro'
 };
 
-const REVENUE_LABELS = {
-  '0-100k': '0 - 100k €',
-  '100k-500k': '100k - 500k €',
-  '500k-1M': '500k - 1M €',
-  '1M-5M': '1 - 5M €',
-  '5M-10M': '5 - 10M €',
-  'oltre_10M': 'Oltre 10M €'
-};
+
 
 export default function MyRequestsList({ user }) {
   const [selectedRequest, setSelectedRequest] = useState(null);
@@ -109,12 +102,6 @@ export default function MyRequestsList({ user }) {
                 <Building2 className="w-3.5 h-3.5 text-slate-500" />
                 <span>{COMPANY_CONTEXT_LABELS[request.company_context] || request.company_context}</span>
               </div>
-              {request.revenue_range && (
-                <div className="flex items-center gap-2 text-slate-400 text-xs">
-                  <TrendingUp className="w-3.5 h-3.5 text-slate-500" />
-                  <span>{REVENUE_LABELS[request.revenue_range] || request.revenue_range}</span>
-                </div>
-              )}
               <div className="flex items-center gap-2 text-slate-400 text-xs">
                 <Euro className="w-3.5 h-3.5 text-slate-500" />
                 <span>{request.budget_amount ? `${Number(request.budget_amount).toLocaleString('it-IT')} €` : '-'}</span>
@@ -123,16 +110,9 @@ export default function MyRequestsList({ user }) {
                 <Clock className="w-3.5 h-3.5 text-slate-500" />
                 <span>{URGENCY_LABELS[request.urgency]}</span>
               </div>
-            </div>
-            
-            <div className="flex items-center justify-between pt-2 border-t border-slate-700">
-              <div className="flex items-center gap-1 text-slate-400 text-sm">
-                <Users className="w-4 h-4" />
+              <div className="flex items-center gap-2 text-slate-400 text-xs">
+                <Users className="w-3.5 h-3.5 text-slate-500" />
                 <span>{request.candidates_count || 0} candidature</span>
-              </div>
-              <div className="flex items-center gap-1 text-lime-400 text-sm">
-                <span>Vedi dettagli</span>
-                <ChevronRight className="w-4 h-4" />
               </div>
             </div>
           </button>
