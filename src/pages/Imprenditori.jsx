@@ -505,7 +505,22 @@ export default function Imprenditori() {
 
         {/* Lista sondaggi */}
         <div className="space-y-5">
-          {posts.map(post => {
+          {posts
+            .filter(post => {
+              // Se il sondaggio è per tutti, mostralo
+              if (post.target_type === 'all' || !post.target_type) return true;
+              
+              // Se è per utenti specifici, mostralo solo a:
+              // - L'autore del sondaggio
+              // - Gli utenti destinatari
+              // - Gli admin (non in impersonation)
+              const isAuthor = post.author_email === effectiveUser?.email;
+              const isTargetUser = post.target_users?.includes(effectiveUser?.email);
+              const isRealAdmin = user?.role === 'admin' && !impersonation.active;
+              
+              return isAuthor || isTargetUser || isRealAdmin;
+            })
+            .map(post => {
             const totalVotes = getTotalVotes(post);
             const userHasVoted = hasVoted(post);
             
