@@ -180,7 +180,7 @@ export default function MyRequestsList({ user }) {
               <Button 
                 variant="outline" 
                 onClick={() => setDeletingRequest(null)}
-                className="flex-1 border-slate-600 text-white hover:bg-slate-700"
+                className="flex-1 border-slate-600 text-slate-400 hover:bg-slate-700 hover:text-white"
               >
                 Annulla
               </Button>
