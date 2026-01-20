@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Clock, Users, CheckCircle, XCircle, ChevronRight, Shield, Eye } from 'lucide-react';
+import { Clock, Users, CheckCircle, XCircle, ChevronRight, Shield, Eye, Euro, Building2, TrendingUp } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import RequestDetailView from './RequestDetailView';
 
@@ -18,6 +18,28 @@ const URGENCY_LABELS = {
   entro_1_mese: 'Entro 1 mese',
   entro_3_mesi: 'Entro 3 mesi',
   nessuna_fretta: 'Nessuna fretta'
+};
+
+const COMPANY_CONTEXT_LABELS = {
+  ditta_individuale: 'Ditta individuale',
+  libero_professionista: 'Libero professionista',
+  snc: 'SNC',
+  sas: 'SAS',
+  srl: 'SRL',
+  srls: 'SRLS',
+  spa: 'SPA',
+  cooperativa: 'Cooperativa',
+  associazione: 'Associazione',
+  altro: 'Altro'
+};
+
+const REVENUE_LABELS = {
+  '0-100k': '0 - 100k €',
+  '100k-500k': '100k - 500k €',
+  '500k-1M': '500k - 1M €',
+  '1M-5M': '1 - 5M €',
+  '5M-10M': '5 - 10M €',
+  'oltre_10M': 'Oltre 10M €'
 };
 
 export default function MyRequestsList({ user }) {
@@ -71,27 +93,46 @@ export default function MyRequestsList({ user }) {
           >
             <div className="flex items-start justify-between mb-2">
               <div className="flex-1 min-w-0">
-                <h3 className="text-white font-medium truncate">{request.service_type}</h3>
-                <p className="text-slate-400 text-sm">{request.service_category}</p>
+                <h3 className="text-white font-medium">{request.service_type}</h3>
               </div>
-              <ChevronRight className="w-5 h-5 text-slate-500 flex-shrink-0" />
+              <Badge className={statusConfig.color}>
+                <StatusIcon className="w-3 h-3 mr-1" />
+                {statusConfig.label}
+              </Badge>
             </div>
             
-            <p className="text-slate-500 text-sm mb-3 line-clamp-2">{request.problem_to_solve}</p>
+            <p className="text-slate-400 text-sm mb-3">{request.problem_to_solve}</p>
             
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Badge className={statusConfig.color}>
-                  <StatusIcon className="w-3 h-3 mr-1" />
-                  {statusConfig.label}
-                </Badge>
-                <Badge className="bg-slate-700 text-slate-300">
-                  {URGENCY_LABELS[request.urgency]}
-                </Badge>
+            {/* Info dettagliate */}
+            <div className="grid grid-cols-2 gap-2 mb-3">
+              <div className="flex items-center gap-2 text-slate-400 text-xs">
+                <Building2 className="w-3.5 h-3.5 text-slate-500" />
+                <span>{COMPANY_CONTEXT_LABELS[request.company_context] || request.company_context}</span>
               </div>
+              {request.revenue_range && (
+                <div className="flex items-center gap-2 text-slate-400 text-xs">
+                  <TrendingUp className="w-3.5 h-3.5 text-slate-500" />
+                  <span>{REVENUE_LABELS[request.revenue_range] || request.revenue_range}</span>
+                </div>
+              )}
+              <div className="flex items-center gap-2 text-slate-400 text-xs">
+                <Euro className="w-3.5 h-3.5 text-slate-500" />
+                <span>{request.budget_amount ? `${Number(request.budget_amount).toLocaleString('it-IT')} €` : '-'}</span>
+              </div>
+              <div className="flex items-center gap-2 text-slate-400 text-xs">
+                <Clock className="w-3.5 h-3.5 text-slate-500" />
+                <span>{URGENCY_LABELS[request.urgency]}</span>
+              </div>
+            </div>
+            
+            <div className="flex items-center justify-between pt-2 border-t border-slate-700">
               <div className="flex items-center gap-1 text-slate-400 text-sm">
                 <Users className="w-4 h-4" />
-                <span>{request.candidates_count || 0}</span>
+                <span>{request.candidates_count || 0} candidature</span>
+              </div>
+              <div className="flex items-center gap-1 text-lime-400 text-sm">
+                <span>Vedi dettagli</span>
+                <ChevronRight className="w-4 h-4" />
               </div>
             </div>
           </button>
