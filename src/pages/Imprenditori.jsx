@@ -154,6 +154,11 @@ export default function Imprenditori() {
     ? posts 
     : posts.filter(p => p.category === selectedCategory);
 
+  const getCategoryColor = (categoryName) => {
+    const cat = CATEGORIES.find(c => c.name === categoryName);
+    return cat ? cat.color : 'bg-slate-700';
+  };
+
   if (loading || !effectiveUser) {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center">
