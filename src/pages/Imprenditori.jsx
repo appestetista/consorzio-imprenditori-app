@@ -228,7 +228,7 @@ export default function Imprenditori() {
                 ) : post.is_anonymous ? (
                   <div className="relative aspect-video bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 flex flex-col items-center justify-center">
                     <div className="w-20 h-20 bg-slate-600/50 rounded-full flex items-center justify-center mb-4 border-2 border-slate-500/30">
-                      <EyeOff className="w-10 h-10 text-slate-400" />
+                      <UserRoundX className="w-10 h-10 text-slate-400" />
                     </div>
                     <p className="text-white font-semibold text-lg mb-1">Contributo Anonimo</p>
                     <div className="flex items-center gap-2 text-lime-400">
