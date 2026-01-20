@@ -345,42 +345,40 @@ export default function MyRequestsList({ user }) {
 
       {/* Dialog visualizza candidature ricevute */}
       <Dialog open={!!viewingApplicationsRequest} onOpenChange={() => setViewingApplicationsRequest(null)}>
-        <DialogContent className="bg-slate-800 border-slate-700 w-[calc(100vw-2rem)] max-w-md max-h-[80vh] overflow-y-auto mx-auto">
+        <DialogContent className="bg-slate-800 border-slate-700 w-[calc(100vw-2rem)] max-w-md max-h-[80vh] overflow-hidden mx-auto">
           <DialogHeader>
-            <DialogTitle className="text-white">Candidature ricevute</DialogTitle>
+            <DialogTitle className="text-white text-base">Candidature ricevute</DialogTitle>
           </DialogHeader>
           {viewingApplicationsRequest && (
-            <div className="space-y-3 mt-4">
-              <div className="bg-slate-900 rounded-lg p-3 mb-4">
+            <div className="space-y-2 mt-2 overflow-y-auto max-h-[60vh] pr-1">
+              <div className="bg-slate-900 rounded-lg p-2 mb-2">
                 <p className="text-slate-400 text-xs">Richiesta:</p>
-                <p className="text-white font-medium">{viewingApplicationsRequest.service_type}</p>
+                <p className="text-white font-medium text-sm truncate">{viewingApplicationsRequest.service_type}</p>
               </div>
               
               {getApplicationsForRequest(viewingApplicationsRequest.id).length === 0 ? (
-                <div className="text-center py-8">
-                  <MessageCircle className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-                  <p className="text-slate-400">Nessuna candidatura ricevuta</p>
+                <div className="text-center py-6">
+                  <MessageCircle className="w-10 h-10 text-slate-600 mx-auto mb-2" />
+                  <p className="text-slate-400 text-sm">Nessuna candidatura ricevuta</p>
                 </div>
               ) : (
                 getApplicationsForRequest(viewingApplicationsRequest.id).map((app) => (
-                  <div key={app.id} className="bg-slate-900 rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-lime-400/20 rounded-full flex items-center justify-center">
-                          <Users className="w-4 h-4 text-lime-400" />
+                  <div key={app.id} className="bg-slate-900 rounded-lg p-3">
+                    <div className="flex items-center justify-between mb-2 gap-2">
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
+                        <div className="w-6 h-6 bg-lime-400/20 rounded-full flex items-center justify-center flex-shrink-0">
+                          <Users className="w-3 h-3 text-lime-400" />
                         </div>
-                        <span className="text-lime-400 text-sm font-medium">{app.from_email}</span>
+                        <span className="text-lime-400 text-xs font-medium truncate">{app.from_email}</span>
                       </div>
-                      <span className="text-slate-500 text-xs">
+                      <span className="text-slate-500 text-[10px] flex-shrink-0">
                         {new Date(app.created_date).toLocaleDateString('it-IT', {
                           day: 'numeric',
-                          month: 'short',
-                          hour: '2-digit',
-                          minute: '2-digit'
+                          month: 'short'
                         })}
                       </span>
                     </div>
-                    <p className="text-slate-300 text-sm whitespace-pre-wrap">
+                    <p className="text-slate-300 text-xs whitespace-pre-wrap break-words">
                       {app.content?.replace(/📋 CANDIDATURA per richiesta "[^"]+"\n\n/, '')}
                     </p>
                   </div>
