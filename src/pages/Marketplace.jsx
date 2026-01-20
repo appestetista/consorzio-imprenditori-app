@@ -98,16 +98,22 @@ export default function Marketplace() {
     return myApplications.find(m => m.source_reference === adTitle);
   };
 
-  // Conta messaggi non letti per ogni annuncio
+  // Conta messaggi non letti per ogni annuncio (include candidature)
   const getUnreadCountForAd = (adId, adTitle) => {
     return adMessages.filter(m => 
-      !m.is_read && m.content?.includes(`annuncio "${adTitle}"`)
+      !m.is_read && (
+        m.content?.includes(`annuncio "${adTitle}"`) ||
+        (m.source === 'marketplace_candidatura' && m.source_reference === adTitle)
+      )
     ).length;
   };
 
-  // Filtra messaggi per un annuncio specifico
+  // Filtra messaggi per un annuncio specifico (include anche candidature)
   const getMessagesForAd = (adTitle) => {
-    return adMessages.filter(m => m.content?.includes(`annuncio "${adTitle}"`));
+    return adMessages.filter(m => 
+      m.content?.includes(`annuncio "${adTitle}"`) || 
+      (m.source === 'marketplace_candidatura' && m.source_reference === adTitle)
+    );
   };
 
   const handleImageUpload = async (e, isEdit = false) => {
@@ -195,16 +201,20 @@ export default function Marketplace() {
     }
   });
 
-  // Segna messaggi come letti quando si apre la chat
+  // Segna messaggi come letti quando si apre la chat (include candidature)
   const markMessagesAsRead = async (adTitle) => {
     const messagesToMark = adMessages.filter(m => 
-      !m.is_read && m.content?.includes(`annuncio "${adTitle}"`)
+      !m.is_read && (
+        m.content?.includes(`annuncio "${adTitle}"`) ||
+        (m.source === 'marketplace_candidatura' && m.source_reference === adTitle)
+      )
     );
     await Promise.all(messagesToMark.map(m => 
       base44.entities.Message.update(m.id, { is_read: true })
     ));
     queryClient.invalidateQueries({ queryKey: ['ad-messages'] });
     queryClient.invalidateQueries({ queryKey: ['unread-messages'] });
+    queryClient.invalidateQueries({ queryKey: ['my-applications'] });
   };
 
   const filteredAds = selectedCategory === 'all' 
@@ -871,42 +881,53 @@ export default function Marketplace() {
                     <p className="text-slate-400">Nessun messaggio ricevuto</p>
                   </div>
                 ) : (
-                  getMessagesForAd(viewingMessagesAd.title).map((msg) => (
-                    <div key={msg.id} className="bg-slate-900 rounded-lg p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <User className="w-4 h-4 text-lime-400" />
-                          <span className="text-lime-400 text-sm font-medium">{msg.from_email}</span>
+                  getMessagesForAd(viewingMessagesAd.title).map((msg) => {
+                    const isCandidatura = msg.source === 'marketplace_candidatura';
+                    return (
+                      <div key={msg.id} className="bg-slate-900 rounded-lg p-4">
+                        {isCandidatura && (
+                          <div className="bg-lime-400/10 border border-lime-400/30 rounded-lg px-3 py-1.5 mb-3 inline-block">
+                            <span className="text-lime-400 text-xs font-medium flex items-center gap-1">
+                              <Briefcase className="w-3 h-3" />
+                              Candidatura
+                            </span>
+                          </div>
+                        )}
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <User className="w-4 h-4 text-lime-400" />
+                            <span className="text-lime-400 text-sm font-medium">{msg.from_email}</span>
+                          </div>
+                          <span className="text-slate-500 text-xs">
+                            {new Date(msg.created_date).toLocaleDateString('it-IT', {
+                              day: 'numeric',
+                              month: 'short',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </span>
                         </div>
-                        <span className="text-slate-500 text-xs">
-                          {new Date(msg.created_date).toLocaleDateString('it-IT', {
-                            day: 'numeric',
-                            month: 'short',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
-                        </span>
+                        <p className="text-slate-300 text-sm whitespace-pre-wrap">
+                          {msg.content?.replace(/📢 Messaggio relativo all'annuncio "[^"]+":[\n\s]*/, '').replace(/📋 CANDIDATURA per "[^"]+"\n\n/, '')}
+                        </p>
+                        <Button
+                          size="sm"
+                          className="mt-3 bg-lime-400 hover:bg-lime-500 text-slate-900"
+                          onClick={() => {
+                            setViewingMessagesAd(null);
+                            // Apri dialog per rispondere
+                            setContactingAd({
+                              ...viewingMessagesAd,
+                              contact_email: msg.from_email
+                            });
+                          }}
+                        >
+                          <Send className="w-3 h-3 mr-1" />
+                          Rispondi
+                        </Button>
                       </div>
-                      <p className="text-slate-300 text-sm whitespace-pre-wrap">
-                        {msg.content?.replace(/📢 Messaggio relativo all'annuncio "[^"]+":[\n\s]*/, '')}
-                      </p>
-                      <Button
-                        size="sm"
-                        className="mt-3 bg-lime-400 hover:bg-lime-500 text-slate-900"
-                        onClick={() => {
-                          setViewingMessagesAd(null);
-                          // Apri dialog per rispondere
-                          setContactingAd({
-                            ...viewingMessagesAd,
-                            contact_email: msg.from_email
-                          });
-                        }}
-                      >
-                        <Send className="w-3 h-3 mr-1" />
-                        Rispondi
-                      </Button>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
             )}
