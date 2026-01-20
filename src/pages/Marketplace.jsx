@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
+import { useImpersonation } from '../components/admin/ImpersonationContext';
 
 const CATEGORIES = [
   "Ricerca Personale",
@@ -36,6 +37,10 @@ export default function Marketplace() {
   const [editingAd, setEditingAd] = useState(null);
   const [deleteAdId, setDeleteAdId] = useState(null);
   const queryClient = useQueryClient();
+  const { impersonation } = useImpersonation();
+
+  // Email effettiva da usare per i controlli di proprietà
+  const effectiveEmail = impersonation.active ? impersonation.targetEmail : user?.email;
 
   useEffect(() => {
     const loadUser = async () => {
@@ -575,7 +580,7 @@ export default function Marketplace() {
                   )}
                   
                   {/* Azioni per il proprietario dell'annuncio */}
-                  {ad.contact_email === user?.email && (
+                  {ad.contact_email === effectiveEmail && (
                     <div className="flex gap-2 mt-3 pt-3 border-t border-slate-700">
                       <Button
                         variant="outline"
