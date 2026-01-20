@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Plus, ShoppingBag, Tag, User, X, Upload, Pencil, Trash2, MessageCircle, Send, Loader2 } from 'lucide-react';
+import { ArrowLeft, Plus, ShoppingBag, Tag, User, X, Upload, Pencil, Trash2, MessageCircle, Send, Loader2, Mail } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -38,6 +38,7 @@ export default function Marketplace() {
   const [deleteAdId, setDeleteAdId] = useState(null);
   const [contactingAd, setContactingAd] = useState(null);
   const [contactMessage, setContactMessage] = useState('');
+  const [viewingMessagesAd, setViewingMessagesAd] = useState(null);
   const queryClient = useQueryClient();
   const { impersonation } = useImpersonation();
 
@@ -66,6 +67,25 @@ export default function Marketplace() {
     queryFn: () => base44.entities.Message.filter({ to_email: user?.email, is_read: false }),
     enabled: !!user?.email,
   });
+
+  // Messaggi relativi agli annunci dell'utente (tutti, per poterli mostrare nella chat)
+  const { data: adMessages = [] } = useQuery({
+    queryKey: ['ad-messages', effectiveEmail],
+    queryFn: () => base44.entities.Message.filter({ to_email: effectiveEmail }, '-created_date'),
+    enabled: !!effectiveEmail,
+  });
+
+  // Conta messaggi non letti per ogni annuncio
+  const getUnreadCountForAd = (adId, adTitle) => {
+    return adMessages.filter(m => 
+      !m.is_read && m.content?.includes(`annuncio "${adTitle}"`)
+    ).length;
+  };
+
+  // Filtra messaggi per un annuncio specifico
+  const getMessagesForAd = (adTitle) => {
+    return adMessages.filter(m => m.content?.includes(`annuncio "${adTitle}"`));
+  };
 
   const handleImageUpload = async (e, isEdit = false) => {
     const file = e.target.files?.[0];
@@ -146,8 +166,21 @@ export default function Marketplace() {
     onSuccess: () => {
       setContactingAd(null);
       setContactMessage('');
+      queryClient.invalidateQueries({ queryKey: ['ad-messages'] });
     }
   });
+
+  // Segna messaggi come letti quando si apre la chat
+  const markMessagesAsRead = async (adTitle) => {
+    const messagesToMark = adMessages.filter(m => 
+      !m.is_read && m.content?.includes(`annuncio "${adTitle}"`)
+    );
+    await Promise.all(messagesToMark.map(m => 
+      base44.entities.Message.update(m.id, { is_read: true })
+    ));
+    queryClient.invalidateQueries({ queryKey: ['ad-messages'] });
+    queryClient.invalidateQueries({ queryKey: ['unread-messages'] });
+  };
 
   const filteredAds = selectedCategory === 'all' 
     ? ads 
@@ -624,26 +657,48 @@ export default function Marketplace() {
                   
                   {/* Azioni per il proprietario dell'annuncio */}
                   {ad.contact_email === effectiveEmail && (
-                    <div className="flex gap-2 mt-3 pt-3 border-t border-slate-700">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex-1 border-slate-600 text-slate-300 hover:bg-slate-700"
-                        onClick={() => setEditingAd(ad)}
-                      >
-                        <Pencil className="w-4 h-4 mr-1" />
-                        Modifica
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex-1 border-red-500/50 text-red-400 hover:bg-red-500/20"
-                        onClick={() => setDeleteAdId(ad.id)}
-                      >
-                        <Trash2 className="w-4 h-4 mr-1" />
-                        Elimina
-                      </Button>
-                    </div>
+                    <>
+                      {/* Pulsante messaggi ricevuti */}
+                      <div className="mt-3 pt-3 border-t border-slate-700">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full border-lime-400 text-lime-400 hover:bg-lime-400/20 relative"
+                          onClick={() => {
+                            setViewingMessagesAd(ad);
+                            markMessagesAsRead(ad.title);
+                          }}
+                        >
+                          <Mail className="w-4 h-4 mr-1" />
+                          Messaggi ricevuti
+                          {getUnreadCountForAd(ad.id, ad.title) > 0 && (
+                            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                              {getUnreadCountForAd(ad.id, ad.title)}
+                            </span>
+                          )}
+                        </Button>
+                      </div>
+                      <div className="flex gap-2 mt-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1 border-slate-600 text-slate-300 hover:bg-slate-700"
+                          onClick={() => setEditingAd(ad)}
+                        >
+                          <Pencil className="w-4 h-4 mr-1" />
+                          Modifica
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1 border-red-500/50 text-red-400 hover:bg-red-500/20"
+                          onClick={() => setDeleteAdId(ad.id)}
+                        >
+                          <Trash2 className="w-4 h-4 mr-1" />
+                          Elimina
+                        </Button>
+                      </div>
+                    </>
                   )}
                 </CardContent>
               </Card>
@@ -752,6 +807,62 @@ export default function Marketplace() {
                     {updateAdMutation.isPending ? 'Salvataggio...' : 'Salva Modifiche'}
                   </Button>
                 </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Dialog Messaggi Ricevuti */}
+        <Dialog open={!!viewingMessagesAd} onOpenChange={(open) => !open && setViewingMessagesAd(null)}>
+          <DialogContent className="bg-slate-800 border-slate-700 max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-white">Messaggi per "{viewingMessagesAd?.title}"</DialogTitle>
+            </DialogHeader>
+            {viewingMessagesAd && (
+              <div className="space-y-3 mt-4">
+                {getMessagesForAd(viewingMessagesAd.title).length === 0 ? (
+                  <div className="text-center py-8">
+                    <Mail className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+                    <p className="text-slate-400">Nessun messaggio ricevuto</p>
+                  </div>
+                ) : (
+                  getMessagesForAd(viewingMessagesAd.title).map((msg) => (
+                    <div key={msg.id} className="bg-slate-900 rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <User className="w-4 h-4 text-lime-400" />
+                          <span className="text-lime-400 text-sm font-medium">{msg.from_email}</span>
+                        </div>
+                        <span className="text-slate-500 text-xs">
+                          {new Date(msg.created_date).toLocaleDateString('it-IT', {
+                            day: 'numeric',
+                            month: 'short',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </span>
+                      </div>
+                      <p className="text-slate-300 text-sm whitespace-pre-wrap">
+                        {msg.content?.replace(/📢 Messaggio relativo all'annuncio "[^"]+":[\n\s]*/, '')}
+                      </p>
+                      <Button
+                        size="sm"
+                        className="mt-3 bg-lime-400 hover:bg-lime-500 text-slate-900"
+                        onClick={() => {
+                          setViewingMessagesAd(null);
+                          // Apri dialog per rispondere
+                          setContactingAd({
+                            ...viewingMessagesAd,
+                            contact_email: msg.from_email
+                          });
+                        }}
+                      >
+                        <Send className="w-3 h-3 mr-1" />
+                        Rispondi
+                      </Button>
+                    </div>
+                  ))
+                )}
               </div>
             )}
           </DialogContent>
