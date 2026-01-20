@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Video, FileText, Heart, X, Play, ArrowLeft, MessageCircle, Send, EyeOff, ShieldCheck } from 'lucide-react';
+import { Plus, Video, FileText, Heart, X, Play, ArrowLeft, MessageCircle, Send, EyeOff, ShieldCheck, Pencil, Trash2, MoreVertical } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
@@ -38,6 +40,8 @@ export default function Imprenditori() {
   const [newPost, setNewPost] = useState({ type: 'post', category: '', title: '', content: '', youtube_url: '', is_anonymous: false });
   const [openComments, setOpenComments] = useState(null);
   const [newComment, setNewComment] = useState('');
+  const [editingPost, setEditingPost] = useState(null);
+  const [deletePostId, setDeletePostId] = useState(null);
   const { impersonation, appMode } = useImpersonation();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -114,6 +118,26 @@ export default function Imprenditori() {
       setNewComment('');
     },
   });
+
+  const updatePostMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.ImprenditorePost.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['imprenditore-posts'] });
+      setEditingPost(null);
+    },
+  });
+
+  const deletePostMutation = useMutation({
+    mutationFn: (id) => base44.entities.ImprenditorePost.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['imprenditore-posts'] });
+      setDeletePostId(null);
+    },
+  });
+
+  const canEditPost = (post) => {
+    return post.author_email === effectiveUser?.email || user?.role === 'admin';
+  };
 
   const handleSubmit = () => {
     if (!newPost.title || !newPost.category) return;
@@ -210,6 +234,29 @@ export default function Imprenditori() {
                     <p className="text-slate-400 text-xs">{new Date(post.created_date).toLocaleDateString('it-IT')}</p>
                   </div>
                   <Badge className="bg-slate-700 text-lime-400">{post.category}</Badge>
+                  {canEditPost(post) && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button className="text-slate-400 hover:text-white p-1">
+                          <MoreVertical className="w-5 h-5" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="bg-slate-700 border-slate-600">
+                        <DropdownMenuItem 
+                          className="text-white hover:bg-slate-600 cursor-pointer"
+                          onClick={() => setEditingPost(post)}
+                        >
+                          <Pencil className="w-4 h-4 mr-2" /> Modifica
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          className="text-red-400 hover:bg-slate-600 cursor-pointer"
+                          onClick={() => setDeletePostId(post.id)}
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" /> Elimina
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
                 </div>
 
                 <h3 className="text-white font-bold mb-2">{post.title}</h3>
@@ -381,6 +428,113 @@ export default function Imprenditori() {
       </Dialog>
 
       <BottomNav currentPage="Imprenditori" unreadMessages={messages.length} />
+
+      {/* Dialog modifica post */}
+      <Dialog open={!!editingPost} onOpenChange={() => setEditingPost(null)}>
+        <DialogContent className="bg-slate-800 border-slate-700 max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-lime-400">Modifica post</DialogTitle>
+          </DialogHeader>
+          
+          {editingPost && (
+            <div className="space-y-4">
+              <Select 
+                value={editingPost.category} 
+                onValueChange={(v) => setEditingPost({...editingPost, category: v})}
+              >
+                <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
+                  <SelectValue placeholder="Seleziona categoria" />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-700 border-slate-600">
+                  {CATEGORIES.map(cat => (
+                    <SelectItem key={cat} value={cat} className="text-white">{cat}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Input 
+                placeholder="Titolo"
+                value={editingPost.title}
+                onChange={(e) => setEditingPost({...editingPost, title: e.target.value})}
+                className="bg-slate-700 border-slate-600 text-white"
+              />
+
+              {editingPost.type === 'video' && (
+                <Input 
+                  placeholder="URL video YouTube"
+                  value={editingPost.youtube_url || ''}
+                  onChange={(e) => setEditingPost({...editingPost, youtube_url: e.target.value})}
+                  className="bg-slate-700 border-slate-600 text-white"
+                />
+              )}
+
+              <Textarea 
+                placeholder="Scrivi il tuo consiglio..."
+                value={editingPost.content || ''}
+                onChange={(e) => setEditingPost({...editingPost, content: e.target.value})}
+                className="bg-slate-700 border-slate-600 text-white min-h-24"
+              />
+
+              {/* Toggle Anonimato */}
+              <div 
+                onClick={() => setEditingPost({...editingPost, is_anonymous: !editingPost.is_anonymous})}
+                className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer border ${editingPost.is_anonymous ? 'bg-slate-600 border-lime-400' : 'bg-slate-700 border-slate-600'}`}
+              >
+                <EyeOff className={`w-5 h-5 ${editingPost.is_anonymous ? 'text-lime-400' : 'text-slate-400'}`} />
+                <div className="flex-1">
+                  <p className={`font-medium ${editingPost.is_anonymous ? 'text-lime-400' : 'text-white'}`}>
+                    Pubblica in anonimo
+                  </p>
+                  <p className="text-slate-400 text-xs">Il tuo nome non sarà visibile</p>
+                </div>
+                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${editingPost.is_anonymous ? 'border-lime-400 bg-lime-400' : 'border-slate-500'}`}>
+                  {editingPost.is_anonymous && <span className="text-slate-900 text-xs">✓</span>}
+                </div>
+              </div>
+
+              <Button 
+                onClick={() => updatePostMutation.mutate({ 
+                  id: editingPost.id, 
+                  data: { 
+                    title: editingPost.title, 
+                    content: editingPost.content, 
+                    category: editingPost.category,
+                    youtube_url: editingPost.youtube_url,
+                    is_anonymous: editingPost.is_anonymous
+                  } 
+                })}
+                disabled={!editingPost.title || !editingPost.category || updatePostMutation.isPending}
+                className="w-full bg-lime-400 text-slate-900 hover:bg-lime-500"
+              >
+                Salva modifiche
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog conferma eliminazione */}
+      <AlertDialog open={!!deletePostId} onOpenChange={() => setDeletePostId(null)}>
+        <AlertDialogContent className="bg-slate-800 border-slate-700">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white">Elimina post</AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-400">
+              Sei sicuro di voler eliminare questo post? L'azione non può essere annullata.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-slate-700 text-white border-slate-600 hover:bg-slate-600">
+              Annulla
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => deletePostMutation.mutate(deletePostId)}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Elimina
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
