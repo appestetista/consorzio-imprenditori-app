@@ -445,6 +445,18 @@ export default function Imprenditori() {
             
             return (
               <div key={post.id} className="bg-gradient-to-br from-slate-800 to-slate-800/80 rounded-2xl overflow-hidden shadow-lg border border-slate-700/50">
+                {/* Media allegato */}
+                {post.media_url && post.media_type === 'image' && (
+                  <div className="aspect-video bg-slate-900">
+                    <img src={post.media_url} alt="" className="w-full h-full object-cover" />
+                  </div>
+                )}
+                {post.media_url && post.media_type === 'video' && (
+                  <div className="aspect-video bg-black">
+                    <video src={post.media_url} controls className="w-full h-full" />
+                  </div>
+                )}
+                
                 <div className="p-4">
                   {/* Header con autore */}
                   <div className="flex items-start gap-3 mb-4">
