@@ -7,25 +7,17 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-const SERVICE_CATEGORIES = [
-  'IT e Digital',
-  'Marketing e Comunicazione',
-  'Consulenza Fiscale/Legale',
-  'Logistica e Trasporti',
-  'Produzione e Manifattura',
-  'Risorse Umane',
-  'Formazione',
-  'Facility Management',
-  'Energia e Utilities',
-  'Altro'
-];
-
 const COMPANY_CONTEXTS = [
-  { value: 'micro', label: 'Micro impresa' },
-  { value: 'pmi', label: 'PMI' },
-  { value: 'srl_piccola', label: 'SRL piccola' },
-  { value: 'srl_media', label: 'SRL media' },
-  { value: 'srl_grande', label: 'SRL grande' }
+  { value: 'ditta_individuale', label: 'Ditta individuale' },
+  { value: 'libero_professionista', label: 'Libero professionista' },
+  { value: 'snc', label: 'SNC' },
+  { value: 'sas', label: 'SAS' },
+  { value: 'srl', label: 'SRL' },
+  { value: 'srls', label: 'SRLS' },
+  { value: 'spa', label: 'SPA' },
+  { value: 'cooperativa', label: 'Cooperativa' },
+  { value: 'associazione', label: 'Associazione' },
+  { value: 'altro', label: 'Altro' }
 ];
 
 const REVENUE_RANGES = [
@@ -37,14 +29,7 @@ const REVENUE_RANGES = [
   { value: 'oltre_10M', label: 'Oltre 10 milioni €' }
 ];
 
-const BUDGET_RANGES = [
-  { value: 'sotto_1k', label: 'Sotto 1.000 €' },
-  { value: '1k-5k', label: '1.000 - 5.000 €' },
-  { value: '5k-15k', label: '5.000 - 15.000 €' },
-  { value: '15k-50k', label: '15.000 - 50.000 €' },
-  { value: 'oltre_50k', label: 'Oltre 50.000 €' },
-  { value: 'da_definire', label: 'Da definire insieme' }
-];
+
 
 const URGENCY_OPTIONS = [
   { value: 'immediata', label: 'Immediata' },
@@ -53,23 +38,16 @@ const URGENCY_OPTIONS = [
   { value: 'nessuna_fretta', label: 'Nessuna fretta' }
 ];
 
-const BUSINESS_PHASES = [
-  { value: 'partenza', label: 'Partenza' },
-  { value: 'stabilizzazione', label: 'Stabilizzazione' },
-  { value: 'crescita', label: 'Crescita' },
-  { value: 'riduzione_costi', label: 'Riduzione costi' }
-];
+
 
 export default function NewSupplierRequestForm({ user, onClose, onSuccess }) {
   const [formData, setFormData] = useState({
     service_type: '',
-    service_category: '',
     company_context: '',
     revenue_range: '',
     problem_to_solve: '',
-    budget_range: '',
-    urgency: '',
-    business_phase: ''
+    budget_amount: '',
+    urgency: ''
   });
 
   const createMutation = useMutation({
@@ -85,8 +63,8 @@ export default function NewSupplierRequestForm({ user, onClose, onSuccess }) {
   });
 
   const handleSubmit = () => {
-    if (!formData.service_type || !formData.service_category || !formData.company_context || 
-        !formData.problem_to_solve || !formData.budget_range || !formData.urgency || !formData.business_phase) {
+    if (!formData.service_type || !formData.company_context || 
+        !formData.problem_to_solve || !formData.budget_amount || !formData.urgency) {
       return;
     }
     createMutation.mutate(formData);
@@ -124,21 +102,6 @@ export default function NewSupplierRequestForm({ user, onClose, onSuccess }) {
             onChange={(e) => updateField('service_type', e.target.value)}
             className="bg-slate-700 border-slate-600 text-white"
           />
-        </div>
-
-        {/* Categoria */}
-        <div>
-          <label className="text-slate-400 text-sm mb-1.5 block">Categoria *</label>
-          <Select value={formData.service_category} onValueChange={(v) => updateField('service_category', v)}>
-            <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
-              <SelectValue placeholder="Seleziona categoria" />
-            </SelectTrigger>
-            <SelectContent className="bg-slate-700 border-slate-600">
-              {SERVICE_CATEGORIES.map(cat => (
-                <SelectItem key={cat} value={cat} className="text-white hover:bg-slate-600">{cat}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
         </div>
 
         {/* Contesto aziendale */}
@@ -193,17 +156,14 @@ export default function NewSupplierRequestForm({ user, onClose, onSuccess }) {
 
         {/* Budget */}
         <div>
-          <label className="text-slate-400 text-sm mb-1.5 block">Budget indicativo *</label>
-          <Select value={formData.budget_range} onValueChange={(v) => updateField('budget_range', v)}>
-            <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
-              <SelectValue placeholder="Seleziona budget" />
-            </SelectTrigger>
-            <SelectContent className="bg-slate-700 border-slate-600">
-              {BUDGET_RANGES.map(b => (
-                <SelectItem key={b.value} value={b.value} className="text-white hover:bg-slate-600">{b.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <label className="text-slate-400 text-sm mb-1.5 block">Budget indicativo (€) *</label>
+          <Input
+            placeholder="Es: 5000"
+            value={formData.budget_amount}
+            onChange={(e) => updateField('budget_amount', e.target.value)}
+            className="bg-slate-700 border-slate-600 text-white"
+            type="number"
+          />
         </div>
 
         {/* Urgenza */}
@@ -221,26 +181,11 @@ export default function NewSupplierRequestForm({ user, onClose, onSuccess }) {
           </Select>
         </div>
 
-        {/* Fase aziendale */}
-        <div>
-          <label className="text-slate-400 text-sm mb-1.5 block">Fase aziendale *</label>
-          <Select value={formData.business_phase} onValueChange={(v) => updateField('business_phase', v)}>
-            <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
-              <SelectValue placeholder="Seleziona fase" />
-            </SelectTrigger>
-            <SelectContent className="bg-slate-700 border-slate-600">
-              {BUSINESS_PHASES.map(p => (
-                <SelectItem key={p.value} value={p.value} className="text-white hover:bg-slate-600">{p.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
         <Button 
           onClick={handleSubmit}
-          disabled={createMutation.isPending || !formData.service_type || !formData.service_category || 
-                   !formData.company_context || !formData.problem_to_solve || !formData.budget_range || 
-                   !formData.urgency || !formData.business_phase}
+          disabled={createMutation.isPending || !formData.service_type || 
+                   !formData.company_context || !formData.problem_to_solve || !formData.budget_amount || 
+                   !formData.urgency}
           className="w-full bg-lime-400 text-slate-900 hover:bg-lime-500"
         >
           {createMutation.isPending ? 'Pubblicazione...' : 'Pubblica richiesta anonima'}
