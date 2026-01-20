@@ -238,7 +238,7 @@ export default function Imprenditori() {
                     )}
                     <p className="text-slate-400 text-xs">{new Date(post.created_date).toLocaleDateString('it-IT')}</p>
                   </div>
-                  <Badge className="bg-slate-700 text-lime-400">{post.category}</Badge>
+                  <Badge className={`${getCategoryColor(post.category)} text-white`}>{post.category}</Badge>
                   {canEditPost(post) && (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
