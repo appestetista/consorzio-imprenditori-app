@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Plus, ShoppingBag, Tag, User, X, Upload } from 'lucide-react';
+import { ArrowLeft, Plus, ShoppingBag, Tag, User, X, Upload, Pencil, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import Header from '../components/layout/Header';
@@ -32,6 +33,8 @@ export default function Marketplace() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [newAd, setNewAd] = useState({ title: '', description: '', category: '', price: '', contact_phone: '', image_url: '' });
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [editingAd, setEditingAd] = useState(null);
+  const [deleteAdId, setDeleteAdId] = useState(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -57,14 +60,18 @@ export default function Marketplace() {
     enabled: !!user?.email,
   });
 
-  const handleImageUpload = async (e) => {
+  const handleImageUpload = async (e, isEdit = false) => {
     const file = e.target.files?.[0];
     if (!file) return;
     
     setUploadingImage(true);
     try {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      setNewAd({ ...newAd, image_url: file_url });
+      if (isEdit) {
+        setEditingAd({ ...editingAd, image_url: file_url });
+      } else {
+        setNewAd({ ...newAd, image_url: file_url });
+      }
     } catch (error) {
       console.error('Errore upload immagine:', error);
     } finally {
@@ -84,6 +91,26 @@ export default function Marketplace() {
       queryClient.invalidateQueries({ queryKey: ['marketplace-ads'] });
       setShowAddAd(false);
       setNewAd({ title: '', description: '', category: '', price: '', contact_phone: '', image_url: '' });
+    }
+  });
+
+  const updateAdMutation = useMutation({
+    mutationFn: async ({ id, data }) => {
+      return base44.entities.MarketplaceAd.update(id, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['marketplace-ads'] });
+      setEditingAd(null);
+    }
+  });
+
+  const deleteAdMutation = useMutation({
+    mutationFn: async (id) => {
+      return base44.entities.MarketplaceAd.delete(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['marketplace-ads'] });
+      setDeleteAdId(null);
     }
   });
 
@@ -391,57 +418,55 @@ export default function Marketplace() {
                       </>
                     )}
 
-                    {/* Image Upload - Per categorie con prodotti/immobili */}
-                    {['Vendo', 'Affitto', 'Ricerca Immobile'].includes(newAd.category) && (
-                      <div className="space-y-2">
-                        <Label className="text-slate-300">Foto (opzionale)</Label>
-                        <div className="flex flex-col gap-3">
-                          {newAd.image_url ? (
-                            <div className="relative rounded-lg overflow-hidden border border-slate-700">
-                              <img 
-                                src={newAd.image_url} 
-                                alt="Prodotto" 
-                                className="w-full h-48 object-cover"
-                              />
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                className="absolute top-2 right-2"
-                                onClick={() => setNewAd({...newAd, image_url: ''})}
-                              >
-                                <X className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          ) : (
-                            <Label 
-                              htmlFor="ad-image" 
-                              className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-700 rounded-lg cursor-pointer hover:bg-slate-700/50 transition-colors"
+                    {/* Image Upload - Per tutte le categorie */}
+                    <div className="space-y-2">
+                      <Label className="text-slate-300">Foto (opzionale)</Label>
+                      <div className="flex flex-col gap-3">
+                        {newAd.image_url ? (
+                          <div className="relative rounded-lg overflow-hidden border border-slate-700">
+                            <img 
+                              src={newAd.image_url} 
+                              alt="Prodotto" 
+                              className="w-full h-48 object-cover"
+                            />
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              className="absolute top-2 right-2"
+                              onClick={() => setNewAd({...newAd, image_url: ''})}
                             >
-                              {uploadingImage ? (
-                                <div className="text-center">
-                                  <div className="animate-spin w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full mx-auto mb-2"></div>
-                                  <p className="text-sm text-slate-400">Caricamento...</p>
-                                </div>
-                              ) : (
-                                <>
-                                  <Upload className="w-8 h-8 text-slate-400 mb-2" />
-                                  <p className="text-sm text-slate-300">Carica foto</p>
-                                  <p className="text-xs text-slate-500">PNG, JPG (max 5MB)</p>
-                                </>
-                              )}
-                              <Input
-                                id="ad-image"
-                                type="file"
-                                accept="image/*"
-                                className="hidden"
-                                onChange={handleImageUpload}
-                                disabled={uploadingImage}
-                              />
-                            </Label>
-                          )}
-                        </div>
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <Label 
+                            htmlFor="ad-image" 
+                            className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-700 rounded-lg cursor-pointer hover:bg-slate-700/50 transition-colors"
+                          >
+                            {uploadingImage ? (
+                              <div className="text-center">
+                                <div className="animate-spin w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full mx-auto mb-2"></div>
+                                <p className="text-sm text-slate-400">Caricamento...</p>
+                              </div>
+                            ) : (
+                              <>
+                                <Upload className="w-8 h-8 text-slate-400 mb-2" />
+                                <p className="text-sm text-slate-300">Carica foto</p>
+                                <p className="text-xs text-slate-500">PNG, JPG (max 5MB)</p>
+                              </>
+                            )}
+                            <Input
+                              id="ad-image"
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => handleImageUpload(e, false)}
+                              disabled={uploadingImage}
+                            />
+                          </Label>
+                        )}
                       </div>
-                    )}
+                    </div>
 
                     {/* Telefono - Sempre visibile */}
                     <Input
@@ -548,11 +573,164 @@ export default function Marketplace() {
                       Chiama: {ad.contact_phone}
                     </Button>
                   )}
+                  
+                  {/* Azioni per il proprietario dell'annuncio */}
+                  {ad.contact_email === user?.email && (
+                    <div className="flex gap-2 mt-3 pt-3 border-t border-slate-700">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 border-slate-600 text-slate-300 hover:bg-slate-700"
+                        onClick={() => setEditingAd(ad)}
+                      >
+                        <Pencil className="w-4 h-4 mr-1" />
+                        Modifica
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 border-red-500/50 text-red-400 hover:bg-red-500/20"
+                        onClick={() => setDeleteAdId(ad.id)}
+                      >
+                        <Trash2 className="w-4 h-4 mr-1" />
+                        Elimina
+                      </Button>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             ))}
           </div>
         )}
+
+        {/* Dialog Modifica Annuncio */}
+        <Dialog open={!!editingAd} onOpenChange={(open) => !open && setEditingAd(null)}>
+          <DialogContent className="bg-slate-800 border-slate-700 max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-white">Modifica Annuncio</DialogTitle>
+            </DialogHeader>
+            {editingAd && (
+              <div className="space-y-4 mt-4">
+                <Input
+                  placeholder="Titolo"
+                  value={editingAd.title}
+                  onChange={(e) => setEditingAd({...editingAd, title: e.target.value})}
+                  className="bg-slate-900 border-slate-700 text-white"
+                />
+                <Textarea
+                  placeholder="Descrizione"
+                  value={editingAd.description || ''}
+                  onChange={(e) => setEditingAd({...editingAd, description: e.target.value})}
+                  className="bg-slate-900 border-slate-700 text-white"
+                  rows={3}
+                />
+                <Input
+                  placeholder="Prezzo (€) - opzionale"
+                  type="number"
+                  value={editingAd.price || ''}
+                  onChange={(e) => setEditingAd({...editingAd, price: e.target.value})}
+                  className="bg-slate-900 border-slate-700 text-white"
+                />
+                <Input
+                  placeholder="Telefono di contatto"
+                  value={editingAd.contact_phone || ''}
+                  onChange={(e) => setEditingAd({...editingAd, contact_phone: e.target.value})}
+                  className="bg-slate-900 border-slate-700 text-white"
+                />
+                
+                {/* Foto */}
+                <div className="space-y-2">
+                  <Label className="text-slate-300">Foto (opzionale)</Label>
+                  <div className="flex flex-col gap-3">
+                    {editingAd.image_url ? (
+                      <div className="relative rounded-lg overflow-hidden border border-slate-700">
+                        <img 
+                          src={editingAd.image_url} 
+                          alt="Prodotto" 
+                          className="w-full h-48 object-cover"
+                        />
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          className="absolute top-2 right-2"
+                          onClick={() => setEditingAd({...editingAd, image_url: ''})}
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <Label 
+                        htmlFor="edit-ad-image" 
+                        className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-700 rounded-lg cursor-pointer hover:bg-slate-700/50 transition-colors"
+                      >
+                        {uploadingImage ? (
+                          <div className="text-center">
+                            <div className="animate-spin w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full mx-auto mb-2"></div>
+                            <p className="text-sm text-slate-400">Caricamento...</p>
+                          </div>
+                        ) : (
+                          <>
+                            <Upload className="w-8 h-8 text-slate-400 mb-2" />
+                            <p className="text-sm text-slate-300">Carica foto</p>
+                            <p className="text-xs text-slate-500">PNG, JPG (max 5MB)</p>
+                          </>
+                        )}
+                        <Input
+                          id="edit-ad-image"
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => handleImageUpload(e, true)}
+                          disabled={uploadingImage}
+                        />
+                      </Label>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    className="flex-1 border-slate-600 text-slate-300"
+                    onClick={() => setEditingAd(null)}
+                  >
+                    Annulla
+                  </Button>
+                  <Button 
+                    onClick={() => updateAdMutation.mutate({ id: editingAd.id, data: editingAd })}
+                    disabled={updateAdMutation.isPending || uploadingImage || !editingAd.title}
+                    className="flex-1 bg-lime-400 hover:bg-lime-500 text-slate-900"
+                  >
+                    {updateAdMutation.isPending ? 'Salvataggio...' : 'Salva Modifiche'}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Alert Dialog Elimina */}
+        <AlertDialog open={!!deleteAdId} onOpenChange={(open) => !open && setDeleteAdId(null)}>
+          <AlertDialogContent className="bg-slate-800 border-slate-700">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-white">Eliminare l'annuncio?</AlertDialogTitle>
+              <AlertDialogDescription className="text-slate-400">
+                Questa azione non può essere annullata. L'annuncio verrà rimosso definitivamente.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel className="border-slate-600 text-slate-300 hover:bg-slate-700">
+                Annulla
+              </AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-red-500 hover:bg-red-600 text-white"
+                onClick={() => deleteAdMutation.mutate(deleteAdId)}
+              >
+                {deleteAdMutation.isPending ? 'Eliminazione...' : 'Elimina'}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </main>
 
       <BottomNav currentPage="Marketplace" unreadMessages={messages.length} />
