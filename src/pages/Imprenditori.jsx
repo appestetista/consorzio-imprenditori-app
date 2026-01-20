@@ -122,6 +122,7 @@ export default function Imprenditori() {
       author_email: effectiveUser?.email,
       author_name: effectiveUser?.company_name || effectiveUser?.full_name,
       likes: [],
+      comments: [],
     });
   };
 
