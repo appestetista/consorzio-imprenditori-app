@@ -98,7 +98,7 @@ const categorieIcons = {
 export default function WelfareTipologie() {
   const [user, setUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeTab, setActiveTab] = useState('tutti');
+  const [selectedCategoria, setSelectedCategoria] = useState('Abbigliamento');
 
   useEffect(() => {
     const loadUser = async () => {
