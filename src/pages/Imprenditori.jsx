@@ -863,7 +863,7 @@ export default function Imprenditori() {
 
       {/* Dialog modifica post */}
       <Dialog open={!!editingPost} onOpenChange={() => setEditingPost(null)}>
-        <DialogContent className="bg-slate-800 border-slate-700 max-w-md">
+        <DialogContent className="bg-slate-800 border-slate-700 max-w-md [&>button]:hidden">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lime-400 text-lg font-semibold">Modifica post</h2>
             <button onClick={() => setEditingPost(null)} className="text-slate-400 hover:text-white">
