@@ -254,7 +254,7 @@ export default function Home() {
     { title: 'market place', icon: ShoppingBag, page: 'Marketplace', notifications: marketplaceNotifications, permission: 'marketplace' },
     { title: 'Fatti\nconsigliare', icon: Handshake, page: 'Imprenditori', notifications: unviewedPollsCount, permission: 'imprenditori' },
       { title: 'Ricerca\nFornitori', icon: Truck, page: 'Fornitori', notifications: 0, permission: 'fornitori' },
-    { title: 'Welfare\nAziendale', icon: Heart, page: 'WelfareAziendale', notifications: 0, permission: 'welfare_aziendale' },
+    { title: 'Welfare\nAziendale', icon: Heart, page: 'WelfareAziendale', notifications: 0, permission: 'welfare_aziendale', variant: 'pink' },
   ];
 
   return (
