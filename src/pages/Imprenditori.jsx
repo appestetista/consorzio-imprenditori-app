@@ -352,6 +352,23 @@ export default function Imprenditori() {
               className="bg-slate-700 border-slate-600 text-white min-h-24"
             />
 
+            {/* Toggle Anonimato */}
+            <div 
+              onClick={() => setNewPost({...newPost, is_anonymous: !newPost.is_anonymous})}
+              className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer border ${newPost.is_anonymous ? 'bg-slate-600 border-lime-400' : 'bg-slate-700 border-slate-600'}`}
+            >
+              <EyeOff className={`w-5 h-5 ${newPost.is_anonymous ? 'text-lime-400' : 'text-slate-400'}`} />
+              <div className="flex-1">
+                <p className={`font-medium ${newPost.is_anonymous ? 'text-lime-400' : 'text-white'}`}>
+                  Pubblica in anonimo
+                </p>
+                <p className="text-slate-400 text-xs">Il tuo nome non sarà visibile, ma il post sarà verificato dalla piattaforma</p>
+              </div>
+              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${newPost.is_anonymous ? 'border-lime-400 bg-lime-400' : 'border-slate-500'}`}>
+                {newPost.is_anonymous && <span className="text-slate-900 text-xs">✓</span>}
+              </div>
+            </div>
+
             <Button 
               onClick={handleSubmit}
               disabled={!newPost.title || !newPost.category || createPostMutation.isPending}
