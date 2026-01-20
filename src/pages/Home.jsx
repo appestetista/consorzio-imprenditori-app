@@ -308,13 +308,14 @@ export default function Home() {
         <div className="grid grid-cols-2 gap-4 mb-4">
           {features.map((feature) => (
             <FeatureCard
-              key={feature.page}
-              title={feature.title}
-              icon={feature.icon}
-              pageName={feature.page}
-              notificationCount={feature.notifications}
-              disabled={permissions[feature.permission] === false}
-            />
+                                key={feature.page}
+                                title={feature.title}
+                                icon={feature.icon}
+                                pageName={feature.page}
+                                notificationCount={feature.notifications}
+                                disabled={permissions[feature.permission] === false}
+                                variant={feature.variant}
+                              />
           ))}
         </div>
       </main>
