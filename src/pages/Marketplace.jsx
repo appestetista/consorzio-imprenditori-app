@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Plus, ShoppingBag, Tag, User, X, Upload, Pencil, Trash2 } from 'lucide-react';
+import { ArrowLeft, Plus, ShoppingBag, Tag, User, X, Upload, Pencil, Trash2, MessageCircle, Send, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -36,6 +36,8 @@ export default function Marketplace() {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [editingAd, setEditingAd] = useState(null);
   const [deleteAdId, setDeleteAdId] = useState(null);
+  const [contactingAd, setContactingAd] = useState(null);
+  const [contactMessage, setContactMessage] = useState('');
   const queryClient = useQueryClient();
   const { impersonation } = useImpersonation();
 
@@ -116,6 +118,34 @@ export default function Marketplace() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['marketplace-ads'] });
       setDeleteAdId(null);
+    }
+  });
+
+  const sendMessageMutation = useMutation({
+    mutationFn: async ({ ad, message }) => {
+      const conversationId = [effectiveEmail, ad.contact_email].sort().join('_');
+      
+      // Crea il messaggio
+      await base44.entities.Message.create({
+        from_email: effectiveEmail,
+        to_email: ad.contact_email,
+        content: `📢 Messaggio relativo all'annuncio "${ad.title}":\n\n${message}`,
+        conversation_id: conversationId,
+        is_read: false
+      });
+
+      // Crea notifica per il proprietario dell'annuncio
+      await base44.entities.Notification.create({
+        user_email: ad.contact_email,
+        type: 'message',
+        title: 'Nuovo messaggio Marketplace',
+        content: `Hai ricevuto un messaggio per il tuo annuncio "${ad.title}"`,
+        reference_id: ad.id
+      });
+    },
+    onSuccess: () => {
+      setContactingAd(null);
+      setContactMessage('');
     }
   });
 
@@ -568,16 +598,29 @@ export default function Marketplace() {
                     <User className="w-4 h-4 text-lime-400" />
                     <span>{ad.contact_email}</span>
                   </div>
-                  {ad.contact_phone && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="mt-3 bg-lime-400 hover:bg-lime-500 text-slate-900 border-0"
-                      onClick={() => window.open(`tel:${ad.contact_phone}`)}
-                    >
-                      Chiama: {ad.contact_phone}
-                    </Button>
-                  )}
+                  <div className="flex gap-2 mt-3">
+                    {ad.contact_phone && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 bg-lime-400 hover:bg-lime-500 text-slate-900 border-0"
+                        onClick={() => window.open(`tel:${ad.contact_phone}`)}
+                      >
+                        Chiama
+                      </Button>
+                    )}
+                    {ad.contact_email !== effectiveEmail && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 border-lime-400 text-lime-400 hover:bg-lime-400/20"
+                        onClick={() => setContactingAd(ad)}
+                      >
+                        <MessageCircle className="w-4 h-4 mr-1" />
+                        Messaggio
+                      </Button>
+                    )}
+                  </div>
                   
                   {/* Azioni per il proprietario dell'annuncio */}
                   {ad.contact_email === effectiveEmail && (
@@ -707,6 +750,56 @@ export default function Marketplace() {
                     className="flex-1 bg-lime-400 hover:bg-lime-500 text-slate-900"
                   >
                     {updateAdMutation.isPending ? 'Salvataggio...' : 'Salva Modifiche'}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Dialog Contatta */}
+        <Dialog open={!!contactingAd} onOpenChange={(open) => !open && setContactingAd(null)}>
+          <DialogContent className="bg-slate-800 border-slate-700">
+            <DialogHeader>
+              <DialogTitle className="text-white">Contatta l'inserzionista</DialogTitle>
+            </DialogHeader>
+            {contactingAd && (
+              <div className="space-y-4 mt-4">
+                <div className="bg-slate-900 rounded-lg p-3">
+                  <p className="text-slate-400 text-xs">Annuncio:</p>
+                  <p className="text-white font-medium">{contactingAd.title}</p>
+                </div>
+                <Textarea
+                  placeholder="Scrivi il tuo messaggio..."
+                  value={contactMessage}
+                  onChange={(e) => setContactMessage(e.target.value)}
+                  className="bg-slate-900 border-slate-700 text-white"
+                  rows={4}
+                />
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    className="flex-1 border-slate-600 text-slate-300"
+                    onClick={() => {
+                      setContactingAd(null);
+                      setContactMessage('');
+                    }}
+                  >
+                    Annulla
+                  </Button>
+                  <Button 
+                    onClick={() => sendMessageMutation.mutate({ ad: contactingAd, message: contactMessage })}
+                    disabled={sendMessageMutation.isPending || !contactMessage.trim()}
+                    className="flex-1 bg-lime-400 hover:bg-lime-500 text-slate-900"
+                  >
+                    {sendMessageMutation.isPending ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4 mr-1" />
+                        Invia
+                      </>
+                    )}
                   </Button>
                 </div>
               </div>
