@@ -48,6 +48,7 @@ const BUDGET_LABELS = {
 
 const PAYMENT_FREQUENCY_LABELS = {
   'una_tantum': 'Una tantum',
+  'giornaliero': 'Giornaliero',
   'mensile': 'Mensile',
   'trimestrale': 'Trimestrale',
   'annuale': 'Annuale'
@@ -264,6 +265,7 @@ function EditRequestForm({ request, onClose, onSuccess }) {
 
   const PAYMENT_FREQUENCIES = [
     { value: 'una_tantum', label: 'Una tantum' },
+    { value: 'giornaliero', label: 'Giornaliero' },
     { value: 'mensile', label: 'Mensile' },
     { value: 'trimestrale', label: 'Trimestrale' },
     { value: 'annuale', label: 'Annuale' }
