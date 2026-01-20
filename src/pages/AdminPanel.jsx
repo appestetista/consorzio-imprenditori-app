@@ -387,7 +387,7 @@ export default function AdminPanel() {
                           </button>
                         </div>
                         <div className="flex gap-2">
-                          <Button size="sm" className="flex-1 bg-lime-400 text-slate-900 h-7 text-xs"
+                          <Button size="sm" className="flex-1 bg-lime-400 text-slate-900 h-7 text-xs [&>svg]:text-slate-900"
                             onClick={() => updateConsultationStatusMutation.mutate({ requestId: request.id, status: 'accepted', userEmail: request.user?.email, grantTitle: request.grant?.title })}>
                             <CheckCircle className="w-3 h-3 mr-1" /> Accetta
                           </Button>
@@ -469,7 +469,7 @@ export default function AdminPanel() {
                   <h3 className="text-white font-medium text-sm">Consulenti ({consultants.length})</h3>
                   <Dialog open={showAddConsultant} onOpenChange={setShowAddConsultant}>
                     <DialogTrigger asChild>
-                      <Button size="sm" className="bg-lime-400 text-slate-900 h-7 text-xs">
+                      <Button size="sm" className="bg-lime-400 text-slate-900 h-7 text-xs [&>svg]:text-slate-900">
                         <Plus className="w-3 h-3 mr-1" /> Aggiungi
                       </Button>
                     </DialogTrigger>
@@ -486,7 +486,7 @@ export default function AdminPanel() {
                         <Input placeholder="Email" type="email" value={newConsultant.email} onChange={(e) => setNewConsultant({...newConsultant, email: e.target.value})} className="bg-slate-900 border-slate-700 text-white" />
                         <Input placeholder="Telefono" value={newConsultant.phone} onChange={(e) => setNewConsultant({...newConsultant, phone: e.target.value})} className="bg-slate-900 border-slate-700 text-white" />
                         <Input placeholder="Referente" value={newConsultant.referente} onChange={(e) => setNewConsultant({...newConsultant, referente: e.target.value})} className="bg-slate-900 border-slate-700 text-white" />
-                        <Button onClick={() => createConsultantMutation.mutate(newConsultant)} disabled={createConsultantMutation.isPending || !newConsultant.name || !newConsultant.category} className="w-full bg-lime-400 text-slate-900">
+                        <Button onClick={() => createConsultantMutation.mutate(newConsultant)} disabled={createConsultantMutation.isPending || !newConsultant.name || !newConsultant.category} className="w-full bg-lime-400 text-slate-900 [&>svg]:text-slate-900">
                           {createConsultantMutation.isPending ? 'Creazione...' : 'Aggiungi'}
                         </Button>
                       </div>
@@ -581,7 +581,7 @@ export default function AdminPanel() {
                         <Link to={createPageUrl('Messaggi')}>
                           <Button
                             size="sm"
-                            className="bg-lime-400 hover:bg-lime-500 text-slate-900"
+                            className="bg-lime-400 hover:bg-lime-500 text-slate-900 [&>svg]:text-slate-900"
                           >
                             <Mail className="w-4 h-4 mr-1" />
                             Rispondi
