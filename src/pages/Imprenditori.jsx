@@ -650,27 +650,21 @@ export default function Imprenditori() {
                       className={`flex items-center gap-2 ${totalVotes > 0 ? 'hover:text-lime-400 cursor-pointer' : ''}`}
                       disabled={totalVotes === 0}
                     >
-                      {/* Avatar dei votanti */}
+                      {/* Sagome dei votanti */}
                       {totalVotes > 0 && (
                         <div className="flex -space-x-2">
                           {(() => {
                             const allVoterEmails = new Set();
                             post.options?.forEach(opt => (opt.votes || []).forEach(v => allVoterEmails.add(v)));
-                            const votersList = Array.from(allVoterEmails).slice(0, 3);
-                            return votersList.map((email, idx) => {
-                              const voter = allUsers.find(u => u.email === email);
-                              return (
-                                <div 
-                                  key={idx}
-                                  className="w-6 h-6 bg-lime-400/30 rounded-full flex items-center justify-center border-2 border-slate-800"
-                                  title={voter?.company_name || voter?.full_name || email}
-                                >
-                                  <span className="text-lime-400 text-[10px] font-bold">
-                                    {(voter?.company_name || voter?.full_name || email)?.charAt(0)?.toUpperCase()}
-                                  </span>
-                                </div>
-                              );
-                            });
+                            const votersCount = Math.min(allVoterEmails.size, 3);
+                            return Array.from({ length: votersCount }).map((_, idx) => (
+                              <div 
+                                key={idx}
+                                className="w-6 h-6 bg-slate-600 rounded-full flex items-center justify-center border-2 border-slate-800"
+                              >
+                                <User className="w-3 h-3 text-slate-400" />
+                              </div>
+                            ));
                           })()}
                           {totalVotes > 3 && (
                             <div className="w-6 h-6 bg-slate-600 rounded-full flex items-center justify-center border-2 border-slate-800">
