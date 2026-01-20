@@ -595,25 +595,25 @@ export default function Imprenditori() {
                   <button
                     type="button"
                     onClick={() => { setVideoSource('youtube'); resetVideoUpload(); }}
-                    className={`flex flex-col items-center justify-center gap-1 py-2 px-2 rounded-lg border transition-all ${videoSource === 'youtube' ? 'bg-red-600 border-red-500 text-white' : 'bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600'}`}
+                    className={`flex flex-col items-center justify-center gap-1 py-2 px-2 rounded-lg border transition-all ${videoSource === 'youtube' ? 'bg-red-600 border-red-500 text-white' : 'bg-slate-700 border-slate-600 text-slate-400 hover:bg-slate-600 hover:text-slate-300'}`}
                   >
-                    <Link className="w-4 h-4" />
+                    <Link className={`w-4 h-4 ${videoSource === 'youtube' ? 'text-white' : 'text-slate-400'}`} />
                     <span className="text-xs">YouTube</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => { setVideoSource('upload'); setNewPost({...newPost, youtube_url: ''}); }}
-                    className={`flex flex-col items-center justify-center gap-1 py-2 px-2 rounded-lg border transition-all ${videoSource === 'upload' ? 'bg-lime-500 border-lime-400 text-slate-900' : 'bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600'}`}
+                    className={`flex flex-col items-center justify-center gap-1 py-2 px-2 rounded-lg border transition-all ${videoSource === 'upload' ? 'bg-lime-500 border-lime-400 text-slate-900' : 'bg-slate-700 border-slate-600 text-slate-400 hover:bg-slate-600 hover:text-slate-300'}`}
                   >
-                    <Upload className="w-4 h-4" />
+                    <Upload className={`w-4 h-4 ${videoSource === 'upload' ? 'text-slate-900' : 'text-slate-400'}`} />
                     <span className="text-xs">Carica</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => { setVideoSource('record'); resetVideoUpload(); setNewPost({...newPost, youtube_url: ''}); }}
-                    className={`flex flex-col items-center justify-center gap-1 py-2 px-2 rounded-lg border transition-all ${videoSource === 'record' ? 'bg-blue-500 border-blue-400 text-white' : 'bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600'}`}
+                    className={`flex flex-col items-center justify-center gap-1 py-2 px-2 rounded-lg border transition-all ${videoSource === 'record' ? 'bg-blue-500 border-blue-400 text-white' : 'bg-slate-700 border-slate-600 text-slate-400 hover:bg-slate-600 hover:text-slate-300'}`}
                   >
-                    <Video className="w-4 h-4" />
+                    <Video className={`w-4 h-4 ${videoSource === 'record' ? 'text-white' : 'text-slate-400'}`} />
                     <span className="text-xs">Registra</span>
                   </button>
                 </div>
