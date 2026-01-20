@@ -193,11 +193,11 @@ export default function Imprenditori() {
           </Badge>
           {CATEGORIES.map(cat => (
             <Badge 
-              key={cat}
-              className={`cursor-pointer whitespace-nowrap ${selectedCategory === cat ? 'bg-lime-400 text-slate-900' : 'bg-slate-700 text-white hover:bg-slate-600'}`}
-              onClick={() => setSelectedCategory(cat)}
+              key={cat.name}
+              className={`cursor-pointer whitespace-nowrap ${selectedCategory === cat.name ? `${cat.color} text-white` : 'bg-slate-700 text-white hover:bg-slate-600'}`}
+              onClick={() => setSelectedCategory(cat.name)}
             >
-              {cat}
+              {cat.name}
             </Badge>
           ))}
         </div>
