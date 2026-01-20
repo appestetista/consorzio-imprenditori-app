@@ -20,14 +20,7 @@ const COMPANY_CONTEXTS = [
   { value: 'altro', label: 'Altro' }
 ];
 
-const REVENUE_RANGES = [
-  { value: '0-100k', label: '0 - 100.000 €' },
-  { value: '100k-500k', label: '100.000 - 500.000 €' },
-  { value: '500k-1M', label: '500.000 - 1 milione €' },
-  { value: '1M-5M', label: '1 - 5 milioni €' },
-  { value: '5M-10M', label: '5 - 10 milioni €' },
-  { value: 'oltre_10M', label: 'Oltre 10 milioni €' }
-];
+
 
 
 
@@ -44,7 +37,6 @@ export default function NewSupplierRequestForm({ user, onClose, onSuccess }) {
   const [formData, setFormData] = useState({
     service_type: '',
     company_context: '',
-    revenue_range: '',
     problem_to_solve: '',
     budget_amount: '',
     urgency: ''
@@ -63,7 +55,6 @@ export default function NewSupplierRequestForm({ user, onClose, onSuccess }) {
       setFormData({
         service_type: '',
         company_context: '',
-        revenue_range: '',
         problem_to_solve: '',
         budget_amount: '',
         urgency: ''
@@ -123,21 +114,6 @@ export default function NewSupplierRequestForm({ user, onClose, onSuccess }) {
             <SelectContent className="bg-slate-700 border-slate-600">
               {COMPANY_CONTEXTS.map(ctx => (
                 <SelectItem key={ctx.value} value={ctx.value} className="text-white hover:bg-slate-600">{ctx.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Range fatturato */}
-        <div>
-          <label className="text-slate-400 text-sm mb-1.5 block">Range fatturato</label>
-          <Select value={formData.revenue_range} onValueChange={(v) => updateField('revenue_range', v)}>
-            <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
-              <SelectValue placeholder="Seleziona range" />
-            </SelectTrigger>
-            <SelectContent className="bg-slate-700 border-slate-600">
-              {REVENUE_RANGES.map(r => (
-                <SelectItem key={r.value} value={r.value} className="text-white hover:bg-slate-600">{r.label}</SelectItem>
               ))}
             </SelectContent>
           </Select>
