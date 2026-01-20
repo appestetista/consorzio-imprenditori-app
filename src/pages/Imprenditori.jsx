@@ -295,6 +295,14 @@ export default function Imprenditori() {
                       allowFullScreen
                     />
                   </div>
+                ) : post.type === 'video' && post.video_url ? (
+                  <div className="relative aspect-video bg-black">
+                    <video
+                      src={post.video_url}
+                      controls
+                      className="w-full h-full"
+                    />
+                  </div>
                 ) : post.is_anonymous ? (
                   <div className="relative aspect-video bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 flex flex-col items-center justify-center">
                     <div className="w-20 h-20 bg-slate-600/50 rounded-full flex items-center justify-center mb-4 border-2 border-slate-500/30">
