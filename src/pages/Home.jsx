@@ -288,6 +288,11 @@ export default function Home() {
           </div>
         )}
 
+        {/* Card Da Imprenditore a Imprenditore */}
+        <div className="bg-slate-800 border border-slate-700 rounded-xl p-4 mb-6 text-center">
+          <p className="text-lime-400 font-bold text-lg italic">"Da imprenditore a imprenditore"</p>
+        </div>
+
         {/* Feature Grid */}
         <div className="grid grid-cols-2 gap-4 mb-4">
           {features.map((feature) => (
