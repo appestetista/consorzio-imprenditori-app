@@ -548,11 +548,13 @@ export default function Imprenditori() {
       {/* Dialog aggiungi post */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent className="bg-slate-800 border-slate-700 max-w-md max-h-[90vh] overflow-y-auto">
-          <DialogHeader className="flex flex-row items-center justify-between sticky top-0 bg-slate-800 pb-2 z-10">
-            <DialogTitle className="text-lime-400">Condividi un consiglio</DialogTitle>
-            <button onClick={() => setShowAddDialog(false)} className="text-slate-400 hover:text-white">
-              <X className="w-5 h-5" />
-            </button>
+          <DialogHeader className="sticky top-0 bg-slate-800 pb-2 z-10">
+            <div className="flex items-center justify-between">
+              <DialogTitle className="text-lime-400">Condividi un consiglio</DialogTitle>
+              <button onClick={() => setShowAddDialog(false)} className="text-slate-400 hover:text-white -mt-1">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
           </DialogHeader>
           
           <div className="space-y-4">
@@ -864,11 +866,13 @@ export default function Imprenditori() {
       {/* Dialog modifica post */}
       <Dialog open={!!editingPost} onOpenChange={() => setEditingPost(null)}>
         <DialogContent className="bg-slate-800 border-slate-700 max-w-md">
-          <DialogHeader className="flex flex-row items-center justify-between">
-            <DialogTitle className="text-lime-400">Modifica post</DialogTitle>
-            <button onClick={() => setEditingPost(null)} className="text-slate-400 hover:text-white">
-              <X className="w-5 h-5" />
-            </button>
+          <DialogHeader>
+            <div className="flex items-center justify-between">
+              <DialogTitle className="text-lime-400">Modifica post</DialogTitle>
+              <button onClick={() => setEditingPost(null)} className="text-slate-400 hover:text-white -mt-1">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
           </DialogHeader>
           
           {editingPost && (
