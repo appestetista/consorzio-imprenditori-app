@@ -208,66 +208,17 @@ export default function Imprenditori() {
         </div>
 
         {/* Lista post */}
-        <div className="space-y-4">
+        <div className="space-y-5">
           {filteredPosts.map(post => {
             const youtubeId = getYoutubeId(post.youtube_url);
             const hasLiked = (post.likes || []).includes(effectiveUser?.email);
+            const categoryData = CATEGORIES.find(c => c.name === post.category);
             
             return (
-              <div key={post.id} className="bg-slate-800 rounded-xl p-4">
-                <div className="flex items-start gap-3 mb-3">
-                  {post.is_anonymous ? (
-                    <div className="w-10 h-10 bg-slate-600 rounded-full flex items-center justify-center">
-                      <EyeOff className="w-5 h-5 text-slate-400" />
-                    </div>
-                  ) : (
-                    <div className="w-10 h-10 bg-lime-400 rounded-full flex items-center justify-center">
-                      {post.type === 'video' ? <Video className="w-5 h-5 text-slate-900" /> : <FileText className="w-5 h-5 text-slate-900" />}
-                    </div>
-                  )}
-                  <div className="flex-1">
-                    {post.is_anonymous ? (
-                      <div className="flex flex-col">
-                        <span className="flex items-center gap-1 text-lime-400 text-xs">
-                          <ShieldCheck className="w-3 h-3" /> Verificato
-                        </span>
-                        <p className="text-white font-semibold">Anonimo</p>
-                      </div>
-                    ) : (
-                      <p className="text-white font-semibold">{post.author_name}</p>
-                    )}
-                    <p className="text-slate-400 text-xs">{new Date(post.created_date).toLocaleDateString('it-IT')}</p>
-                  </div>
-                  <Badge className={`${getCategoryColor(post.category)} text-white`}>{post.category}</Badge>
-                  {canEditPost(post) && (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button className="text-slate-400 hover:text-white p-1">
-                          <MoreVertical className="w-5 h-5" />
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent className="bg-slate-700 border-slate-600">
-                        <DropdownMenuItem 
-                          className="text-white hover:bg-slate-600 cursor-pointer"
-                          onClick={() => setEditingPost(post)}
-                        >
-                          <Pencil className="w-4 h-4 mr-2" /> Modifica
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          className="text-red-400 hover:bg-slate-600 cursor-pointer"
-                          onClick={() => setDeletePostId(post.id)}
-                        >
-                          <Trash2 className="w-4 h-4 mr-2" /> Elimina
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  )}
-                </div>
-
-                <h3 className="text-white font-bold mb-2">{post.title}</h3>
-                
+              <div key={post.id} className="bg-gradient-to-br from-slate-800 to-slate-800/80 rounded-2xl overflow-hidden shadow-lg border border-slate-700/50">
+                {/* Video in alto se presente */}
                 {post.type === 'video' && youtubeId && (
-                  <div className="relative aspect-video rounded-lg overflow-hidden mb-3">
+                  <div className="relative aspect-video">
                     <iframe
                       src={`https://www.youtube.com/embed/${youtubeId}`}
                       className="w-full h-full"
@@ -275,64 +226,130 @@ export default function Imprenditori() {
                     />
                   </div>
                 )}
-
-                {post.content && (
-                  <p className="text-slate-300 text-sm mb-3">{post.content}</p>
-                )}
-
-                <div className="flex items-center gap-4">
-                  <button 
-                    onClick={() => likeMutation.mutate(post)}
-                    className="flex items-center gap-2 text-slate-400 hover:text-lime-400 transition-colors"
-                  >
-                    <Heart className={`w-5 h-5 ${hasLiked ? 'fill-lime-400 text-lime-400' : ''}`} />
-                    <span className="text-sm">{(post.likes || []).length}</span>
-                  </button>
-                  <button 
-                    onClick={() => setOpenComments(openComments === post.id ? null : post.id)}
-                    className="flex items-center gap-2 text-slate-400 hover:text-lime-400 transition-colors"
-                  >
-                    <MessageCircle className="w-5 h-5" />
-                    <span className="text-sm">{(post.comments || []).length}</span>
-                  </button>
-                </div>
-
-                {/* Sezione commenti */}
-                {openComments === post.id && (
-                  <div className="mt-4 pt-4 border-t border-slate-700">
-                    {(post.comments || []).map((comment, idx) => (
-                      <div key={idx} className="bg-slate-700 rounded-lg p-3 mb-2">
-                        <div className="flex items-center gap-2 mb-1">
-                          <p className="text-lime-400 font-semibold text-sm">{comment.author_name}</p>
-                          <p className="text-slate-500 text-xs">
-                            {new Date(comment.created_at).toLocaleDateString('it-IT')}
-                          </p>
-                        </div>
-                        <p className="text-white text-sm">{comment.content}</p>
+                
+                <div className="p-4">
+                  {/* Header con autore e categoria */}
+                  <div className="flex items-start gap-3 mb-3">
+                    {post.is_anonymous ? (
+                      <div className="w-11 h-11 bg-gradient-to-br from-slate-600 to-slate-700 rounded-full flex items-center justify-center shadow-inner">
+                        <EyeOff className="w-5 h-5 text-slate-300" />
                       </div>
-                    ))}
-                    <div className="flex gap-2 mt-3">
-                      <Input
-                        placeholder="Scrivi un commento..."
-                        value={newComment}
-                        onChange={(e) => setNewComment(e.target.value)}
-                        className="bg-slate-700 border-slate-600 text-white flex-1"
-                      />
-                      <Button
-                        onClick={() => {
-                          if (newComment.trim()) {
-                            addCommentMutation.mutate({ postId: post.id, comment: newComment });
-                          }
-                        }}
-                        disabled={!newComment.trim() || addCommentMutation.isPending}
-                        className="bg-lime-400 text-slate-900 hover:bg-lime-500"
-                        size="icon"
-                      >
-                        <Send className="w-4 h-4" />
-                      </Button>
+                    ) : (
+                      <div className="w-11 h-11 bg-gradient-to-br from-lime-400 to-lime-500 rounded-full flex items-center justify-center shadow-md">
+                        {post.type === 'video' ? <Video className="w-5 h-5 text-slate-900" /> : <FileText className="w-5 h-5 text-slate-900" />}
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      {post.is_anonymous ? (
+                        <div>
+                          <div className="flex items-center gap-1.5 mb-0.5">
+                            <ShieldCheck className="w-3.5 h-3.5 text-lime-400" />
+                            <span className="text-lime-400 text-xs font-medium">Verificato</span>
+                          </div>
+                          <p className="text-white font-semibold">Anonimo</p>
+                        </div>
+                      ) : (
+                        <p className="text-white font-semibold">{post.author_name}</p>
+                      )}
+                      <p className="text-slate-500 text-xs">{new Date(post.created_date).toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge className={`${getCategoryColor(post.category)} text-white text-xs px-2.5 py-1 rounded-full shadow-sm`}>
+                        {post.category}
+                      </Badge>
+                      {canEditPost(post) && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button className="text-slate-500 hover:text-white p-1.5 rounded-lg hover:bg-slate-700/50 transition-colors">
+                              <MoreVertical className="w-4 h-4" />
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent className="bg-slate-700 border-slate-600 rounded-xl shadow-xl">
+                            <DropdownMenuItem 
+                              className="text-white hover:bg-slate-600 cursor-pointer rounded-lg"
+                              onClick={() => setEditingPost(post)}
+                            >
+                              <Pencil className="w-4 h-4 mr-2" /> Modifica
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              className="text-red-400 hover:bg-slate-600 cursor-pointer rounded-lg"
+                              onClick={() => setDeletePostId(post.id)}
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" /> Elimina
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
                     </div>
                   </div>
-                )}
+
+                  {/* Titolo */}
+                  <h3 className="text-white font-bold text-lg mb-2 leading-tight">{post.title}</h3>
+
+                  {/* Contenuto */}
+                  {post.content && (
+                    <p className="text-slate-300 text-sm mb-4 leading-relaxed">{post.content}</p>
+                  )}
+
+                  {/* Azioni */}
+                  <div className="flex items-center gap-1 pt-2 border-t border-slate-700/50">
+                    <button 
+                      onClick={() => likeMutation.mutate(post)}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-xl transition-all ${hasLiked ? 'bg-lime-400/10 text-lime-400' : 'text-slate-400 hover:bg-slate-700/50 hover:text-white'}`}
+                    >
+                      <Heart className={`w-5 h-5 ${hasLiked ? 'fill-lime-400' : ''}`} />
+                      <span className="text-sm font-medium">{(post.likes || []).length}</span>
+                    </button>
+                    <button 
+                      onClick={() => setOpenComments(openComments === post.id ? null : post.id)}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-xl transition-all ${openComments === post.id ? 'bg-slate-700/50 text-white' : 'text-slate-400 hover:bg-slate-700/50 hover:text-white'}`}
+                    >
+                      <MessageCircle className="w-5 h-5" />
+                      <span className="text-sm font-medium">{(post.comments || []).length}</span>
+                    </button>
+                  </div>
+
+                  {/* Sezione commenti */}
+                  {openComments === post.id && (
+                    <div className="mt-4 pt-4 border-t border-slate-700/50 space-y-3">
+                      {(post.comments || []).map((comment, idx) => (
+                        <div key={idx} className="bg-slate-700/40 backdrop-blur rounded-xl p-3">
+                          <div className="flex items-center gap-2 mb-1.5">
+                            <div className="w-6 h-6 bg-lime-400/20 rounded-full flex items-center justify-center">
+                              <span className="text-lime-400 text-xs font-bold">{comment.author_name?.charAt(0)?.toUpperCase()}</span>
+                            </div>
+                            <p className="text-lime-400 font-medium text-sm">{comment.author_name}</p>
+                            <span className="text-slate-600">•</span>
+                            <p className="text-slate-500 text-xs">
+                              {new Date(comment.created_at).toLocaleDateString('it-IT')}
+                            </p>
+                          </div>
+                          <p className="text-white text-sm pl-8">{comment.content}</p>
+                        </div>
+                      ))}
+                      <div className="flex gap-2 mt-3">
+                        <Input
+                          placeholder="Scrivi un commento..."
+                          value={newComment}
+                          onChange={(e) => setNewComment(e.target.value)}
+                          className="bg-slate-700/50 border-slate-600/50 text-white rounded-xl flex-1 focus:border-lime-400/50"
+                        />
+                        <Button
+                          onClick={() => {
+                            if (newComment.trim()) {
+                              addCommentMutation.mutate({ postId: post.id, comment: newComment });
+                            }
+                          }}
+                          disabled={!newComment.trim() || addCommentMutation.isPending}
+                          className="bg-lime-400 text-slate-900 hover:bg-lime-500 rounded-xl"
+                          size="icon"
+                        >
+                          <Send className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             );
           })}
