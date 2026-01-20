@@ -60,9 +60,14 @@ export default function NewSupplierRequestForm({ user, onClose, onSuccess }) {
     }),
     onSuccess: () => {
       setShowSuccess(true);
-      setTimeout(() => {
-        onSuccess();
-      }, 2000);
+      setFormData({
+        service_type: '',
+        company_context: '',
+        revenue_range: '',
+        problem_to_solve: '',
+        budget_amount: '',
+        urgency: ''
+      });
     }
   });
 
@@ -187,7 +192,7 @@ export default function NewSupplierRequestForm({ user, onClose, onSuccess }) {
 
         <Button 
           onClick={handleSubmit}
-          disabled={createMutation.isPending || !formData.service_type || 
+          disabled={createMutation.isPending || showSuccess || !formData.service_type || 
                    !formData.company_context || !formData.problem_to_solve || !formData.budget_amount || 
                    !formData.urgency}
           className="w-full bg-lime-400 text-slate-900 hover:bg-lime-500"
