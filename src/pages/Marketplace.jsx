@@ -618,16 +618,21 @@ export default function Marketplace() {
                           €{ad.price}
                         </Badge>
                       )}
-                      {ad.contact_email === effectiveEmail && getUnreadCountForAd(ad.id, ad.title) > 0 && (
+                      {ad.contact_email === effectiveEmail && (
                         <button
                           onClick={() => {
                             setViewingMessagesAd(ad);
                             markMessagesAsRead(ad.title);
                           }}
-                          className="flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white text-xs px-2 py-1 rounded-full transition-colors"
+                          className="flex items-center gap-1 bg-slate-700 hover:bg-slate-600 text-white text-xs px-2 py-1 rounded transition-colors relative"
                         >
                           <MessageCircle className="w-3 h-3" />
-                          {getUnreadCountForAd(ad.id, ad.title)}
+                          Messaggi
+                          {getUnreadCountForAd(ad.id, ad.title) > 0 && (
+                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold text-[10px]">
+                              {getUnreadCountForAd(ad.id, ad.title)}
+                            </span>
+                          )}
                         </button>
                       )}
                     </div>
