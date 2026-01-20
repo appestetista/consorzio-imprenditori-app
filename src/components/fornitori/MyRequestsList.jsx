@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Clock, Users, CheckCircle, XCircle, Shield, Eye, Euro, Building2, Pencil, Trash2, X, Repeat } from 'lucide-react';
+import { Clock, Users, CheckCircle, XCircle, Shield, Eye, Euro, Building2, Pencil, Trash2, X, Repeat, Send, MessageCircle, Check } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import SupplierApplicationForm from './SupplierApplicationForm';
+import ApplicationReadStatus from './ApplicationReadStatus';
 
 const STATUS_CONFIG = {
   aperta: { label: 'Aperta', color: 'bg-green-500/20 text-green-400', icon: Clock },
@@ -60,6 +62,8 @@ const PAYMENT_FREQUENCY_LABELS = {
 export default function MyRequestsList({ user }) {
   const [editingRequest, setEditingRequest] = useState(null);
   const [deletingRequest, setDeletingRequest] = useState(null);
+  const [applyingToRequest, setApplyingToRequest] = useState(null);
+  const [viewingApplicationsRequest, setViewingApplicationsRequest] = useState(null);
   const queryClient = useQueryClient();
 
   // Mostra tutte le richieste aperte a tutti gli utenti
@@ -67,6 +71,59 @@ export default function MyRequestsList({ user }) {
     queryKey: ['all-supplier-requests'],
     queryFn: () => base44.entities.SupplierRequest.filter({ status: 'aperta' }, '-created_date'),
   });
+
+  // Le mie candidature inviate
+  const { data: myApplications = [] } = useQuery({
+    queryKey: ['supplier-applications', user?.email],
+    queryFn: () => base44.entities.Message.filter({ 
+      from_email: user?.email, 
+      source: 'fornitori_candidatura' 
+    }),
+    enabled: !!user?.email,
+  });
+
+  // Candidature ricevute per le mie richieste
+  const { data: receivedApplications = [] } = useQuery({
+    queryKey: ['received-applications', user?.email],
+    queryFn: () => base44.entities.Message.filter({ 
+      to_email: user?.email, 
+      source: 'fornitori_candidatura' 
+    }),
+    enabled: !!user?.email,
+  });
+
+  // Controlla se ho già inviato candidatura per una richiesta
+  const hasAppliedTo = (requestId) => {
+    return myApplications.some(m => m.source_reference === requestId);
+  };
+
+  // Trova la mia candidatura per una richiesta
+  const getMyApplication = (requestId) => {
+    return myApplications.find(m => m.source_reference === requestId);
+  };
+
+  // Conta candidature ricevute per una richiesta
+  const getApplicationsCount = (requestId) => {
+    return receivedApplications.filter(m => m.source_reference === requestId).length;
+  };
+
+  // Conta candidature non lette per una richiesta
+  const getUnreadApplicationsCount = (requestId) => {
+    return receivedApplications.filter(m => m.source_reference === requestId && !m.is_read).length;
+  };
+
+  // Candidature per una richiesta specifica
+  const getApplicationsForRequest = (requestId) => {
+    return receivedApplications.filter(m => m.source_reference === requestId);
+  };
+
+  // Segna candidature come lette
+  const markApplicationsAsRead = async (requestId) => {
+    const toMark = receivedApplications.filter(m => m.source_reference === requestId && !m.is_read);
+    await Promise.all(toMark.map(m => base44.entities.Message.update(m.id, { is_read: true })));
+    queryClient.invalidateQueries({ queryKey: ['received-applications'] });
+    queryClient.invalidateQueries({ queryKey: ['supplier-applications'] });
+  };
 
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.SupplierRequest.delete(id),
@@ -123,6 +180,20 @@ export default function MyRequestsList({ user }) {
                   {isOwner(request) && (
                     <>
                       <button 
+                        onClick={() => {
+                          setViewingApplicationsRequest(request);
+                          markApplicationsAsRead(request.id);
+                        }}
+                        className="relative text-slate-400 hover:text-lime-400 transition-colors"
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                        {getUnreadApplicationsCount(request.id) > 0 && (
+                          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full w-3.5 h-3.5 flex items-center justify-center font-bold">
+                            {getUnreadApplicationsCount(request.id)}
+                          </span>
+                        )}
+                      </button>
+                      <button 
                         onClick={() => setEditingRequest(request)}
                         className="text-slate-400 hover:text-lime-400 transition-colors"
                       >
@@ -160,6 +231,48 @@ export default function MyRequestsList({ user }) {
                   <span>{URGENCY_LABELS[request.urgency]}</span>
                 </div>
               </div>
+
+              {/* Pulsante Candidati o stato candidatura */}
+              {!isOwner(request) && (
+                <div className="mt-3 pt-3 border-t border-slate-700">
+                  {hasAppliedTo(request.id) ? (
+                    <div className="flex items-center justify-between bg-slate-700/50 rounded-lg px-3 py-2">
+                      <span className="text-slate-300 text-sm">Candidatura inviata</span>
+                      <ApplicationReadStatus isRead={getMyApplication(request.id)?.is_read} />
+                    </div>
+                  ) : (
+                    <Button
+                      onClick={() => setApplyingToRequest(request)}
+                      className="w-full bg-lime-400 text-slate-900 hover:bg-lime-500"
+                    >
+                      <Send className="w-4 h-4 mr-2" />
+                      Candidati
+                    </Button>
+                  )}
+                </div>
+              )}
+
+              {/* Info candidature ricevute per il proprietario */}
+              {isOwner(request) && getApplicationsCount(request.id) > 0 && (
+                <div className="mt-3 pt-3 border-t border-slate-700">
+                  <button
+                    onClick={() => {
+                      setViewingApplicationsRequest(request);
+                      markApplicationsAsRead(request.id);
+                    }}
+                    className="w-full flex items-center justify-between bg-lime-400/10 rounded-lg px-3 py-2 hover:bg-lime-400/20 transition-colors"
+                  >
+                    <span className="text-lime-400 text-sm font-medium">
+                      {getApplicationsCount(request.id)} candidatur{getApplicationsCount(request.id) === 1 ? 'a' : 'e'} ricevut{getApplicationsCount(request.id) === 1 ? 'a' : 'e'}
+                    </span>
+                    {getUnreadApplicationsCount(request.id) > 0 && (
+                      <Badge className="bg-red-500 text-white text-xs">
+                        {getUnreadApplicationsCount(request.id)} nuov{getUnreadApplicationsCount(request.id) === 1 ? 'a' : 'e'}
+                      </Badge>
+                    )}
+                  </button>
+                </div>
+              )}
             </div>
           );
         })}
@@ -207,6 +320,74 @@ export default function MyRequestsList({ user }) {
               queryClient.invalidateQueries({ queryKey: ['all-supplier-requests'] });
             }}
           />
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog candidatura */}
+      <Dialog open={!!applyingToRequest} onOpenChange={() => setApplyingToRequest(null)}>
+        <DialogContent className="bg-slate-800 border-slate-700 max-w-md max-h-[90vh] overflow-y-auto [&>button]:hidden">
+          <DialogHeader>
+            <DialogTitle className="text-white">Candidati per questa richiesta</DialogTitle>
+          </DialogHeader>
+          {applyingToRequest && (
+            <SupplierApplicationForm
+              request={applyingToRequest}
+              user={user}
+              onClose={() => setApplyingToRequest(null)}
+              onSuccess={() => {
+                setApplyingToRequest(null);
+                queryClient.invalidateQueries({ queryKey: ['supplier-applications'] });
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog visualizza candidature ricevute */}
+      <Dialog open={!!viewingApplicationsRequest} onOpenChange={() => setViewingApplicationsRequest(null)}>
+        <DialogContent className="bg-slate-800 border-slate-700 max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-white">Candidature ricevute</DialogTitle>
+          </DialogHeader>
+          {viewingApplicationsRequest && (
+            <div className="space-y-3 mt-4">
+              <div className="bg-slate-900 rounded-lg p-3 mb-4">
+                <p className="text-slate-400 text-xs">Richiesta:</p>
+                <p className="text-white font-medium">{viewingApplicationsRequest.service_type}</p>
+              </div>
+              
+              {getApplicationsForRequest(viewingApplicationsRequest.id).length === 0 ? (
+                <div className="text-center py-8">
+                  <MessageCircle className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+                  <p className="text-slate-400">Nessuna candidatura ricevuta</p>
+                </div>
+              ) : (
+                getApplicationsForRequest(viewingApplicationsRequest.id).map((app) => (
+                  <div key={app.id} className="bg-slate-900 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-lime-400/20 rounded-full flex items-center justify-center">
+                          <Users className="w-4 h-4 text-lime-400" />
+                        </div>
+                        <span className="text-lime-400 text-sm font-medium">{app.from_email}</span>
+                      </div>
+                      <span className="text-slate-500 text-xs">
+                        {new Date(app.created_date).toLocaleDateString('it-IT', {
+                          day: 'numeric',
+                          month: 'short',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </span>
+                    </div>
+                    <p className="text-slate-300 text-sm whitespace-pre-wrap">
+                      {app.content?.replace(/📋 CANDIDATURA per richiesta "[^"]+"\n\n/, '')}
+                    </p>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </>
