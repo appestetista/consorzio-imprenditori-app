@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Clock, Users, CheckCircle, XCircle, Shield, Eye, Euro, Building2, Pencil, Trash2, X } from 'lucide-react';
+import { Clock, Users, CheckCircle, XCircle, Shield, Eye, Euro, Building2, Pencil, Trash2, X, Repeat } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -44,6 +44,13 @@ const BUDGET_LABELS = {
   '25000-50000': '25.000 - 50.000 €',
   '50000-100000': '50.000 - 100.000 €',
   'oltre_100000': 'Oltre 100.000 €'
+};
+
+const PAYMENT_FREQUENCY_LABELS = {
+  'una_tantum': 'Una tantum',
+  'mensile': 'Mensile',
+  'trimestrale': 'Trimestrale',
+  'annuale': 'Annuale'
 };
 
 
@@ -147,12 +154,12 @@ export default function MyRequestsList({ user }) {
                   <span>{BUDGET_LABELS[request.budget_range] || request.budget_range || '-'}</span>
                 </div>
                 <div className="flex items-center gap-2 text-slate-400 text-xs">
-                  <Clock className="w-3.5 h-3.5 text-slate-500" />
-                  <span>{URGENCY_LABELS[request.urgency]}</span>
+                  <Repeat className="w-3.5 h-3.5 text-slate-500" />
+                  <span>{PAYMENT_FREQUENCY_LABELS[request.payment_frequency] || 'Una tantum'}</span>
                 </div>
                 <div className="flex items-center gap-2 text-slate-400 text-xs">
-                  <Users className="w-3.5 h-3.5 text-slate-500" />
-                  <span>{request.candidates_count || 0} candidature</span>
+                  <Clock className="w-3.5 h-3.5 text-slate-500" />
+                  <span>{URGENCY_LABELS[request.urgency]}</span>
                 </div>
               </div>
             </div>
@@ -214,6 +221,7 @@ function EditRequestForm({ request, onClose, onSuccess }) {
     company_context: request?.company_context || '',
     problem_to_solve: request?.problem_to_solve || '',
     budget_range: request?.budget_range || '',
+    payment_frequency: request?.payment_frequency || 'una_tantum',
     urgency: request?.urgency || ''
   });
 
@@ -252,6 +260,13 @@ function EditRequestForm({ request, onClose, onSuccess }) {
     { value: 'entro_1_mese', label: 'Entro 1 mese' },
     { value: 'entro_3_mesi', label: 'Entro 3 mesi' },
     { value: 'nessuna_fretta', label: 'Nessuna fretta' }
+  ];
+
+  const PAYMENT_FREQUENCIES = [
+    { value: 'una_tantum', label: 'Una tantum' },
+    { value: 'mensile', label: 'Mensile' },
+    { value: 'trimestrale', label: 'Trimestrale' },
+    { value: 'annuale', label: 'Annuale' }
   ];
 
   return (
@@ -305,6 +320,19 @@ function EditRequestForm({ request, onClose, onSuccess }) {
           <option value="">Seleziona...</option>
           {BUDGET_RANGES.map(b => (
             <option key={b.value} value={b.value}>{b.label}</option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label className="text-slate-400 text-sm mb-1.5 block">Frequenza pagamento *</label>
+        <select
+          value={formData.payment_frequency}
+          onChange={(e) => setFormData(prev => ({ ...prev, payment_frequency: e.target.value }))}
+          className="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-white"
+        >
+          {PAYMENT_FREQUENCIES.map(p => (
+            <option key={p.value} value={p.value}>{p.label}</option>
           ))}
         </select>
       </div>

@@ -43,6 +43,13 @@ const BUDGET_RANGES = [
   { value: 'oltre_100000', label: 'Oltre 100.000 €' }
 ];
 
+const PAYMENT_FREQUENCY = [
+  { value: 'una_tantum', label: 'Una tantum' },
+  { value: 'mensile', label: 'Mensile' },
+  { value: 'trimestrale', label: 'Trimestrale' },
+  { value: 'annuale', label: 'Annuale' }
+];
+
 
 
 export default function NewSupplierRequestForm({ user, onClose, onSuccess }) {
@@ -51,6 +58,7 @@ export default function NewSupplierRequestForm({ user, onClose, onSuccess }) {
     company_context: '',
     problem_to_solve: '',
     budget_range: '',
+    payment_frequency: 'una_tantum',
     urgency: ''
   });
   const [showSuccess, setShowSuccess] = useState(false);
@@ -69,6 +77,7 @@ export default function NewSupplierRequestForm({ user, onClose, onSuccess }) {
         company_context: '',
         problem_to_solve: '',
         budget_range: '',
+        payment_frequency: 'una_tantum',
         urgency: ''
       });
     }
@@ -161,6 +170,21 @@ export default function NewSupplierRequestForm({ user, onClose, onSuccess }) {
             <SelectContent className="bg-slate-700 border-slate-600">
               {BUDGET_RANGES.map(b => (
                 <SelectItem key={b.value} value={b.value} className="text-white hover:bg-slate-600">{b.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Frequenza pagamento */}
+        <div>
+          <label className="text-slate-400 text-sm mb-1.5 block">Frequenza pagamento *</label>
+          <Select value={formData.payment_frequency} onValueChange={(v) => updateField('payment_frequency', v)}>
+            <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
+              <SelectValue placeholder="Seleziona frequenza" />
+            </SelectTrigger>
+            <SelectContent className="bg-slate-700 border-slate-600">
+              {PAYMENT_FREQUENCY.map(p => (
+                <SelectItem key={p.value} value={p.value} className="text-white hover:bg-slate-600">{p.label}</SelectItem>
               ))}
             </SelectContent>
           </Select>
