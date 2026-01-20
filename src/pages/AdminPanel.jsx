@@ -460,6 +460,9 @@ export default function AdminPanel() {
             {/* Cultura Aziendale */}
             <CulturaAziendaleAdmin />
 
+            {/* Gestione Zone per Sondaggi */}
+            <ZoneAssignmentManager />
+
             {/* Assegnazione Consulenti */}
             <ConsultantAssignmentManager />
 
