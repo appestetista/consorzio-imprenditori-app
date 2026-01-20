@@ -1026,13 +1026,26 @@ export default function Imprenditori() {
                     />
                     <div className="max-h-32 overflow-y-auto space-y-1">
                       {allUsers
-                        .filter(u => 
-                          u.email !== effectiveUser?.email &&
-                          !newPoll.target_users.includes(u.email) &&
-                          (u.company_name?.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
-                           u.full_name?.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
-                           u.email?.toLowerCase().includes(userSearchQuery.toLowerCase()))
-                        )
+                        .filter(u => {
+                          // Escludi te stesso e utenti già selezionati
+                          if (u.email === effectiveUser?.email) return false;
+                          if (newPoll.target_users.includes(u.email)) return false;
+                          
+                          // Escludi admin
+                          if (u.role === 'admin') return false;
+                          
+                          // Filtra per zona (se l'utente corrente ha una zona assegnata)
+                          // Mostra solo utenti della stessa zona o consulenti della stessa zona
+                          if (effectiveUser?.zona && u.zona && u.zona !== effectiveUser.zona) return false;
+                          
+                          // Filtra per ricerca
+                          const matchSearch = 
+                            u.company_name?.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+                            u.full_name?.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+                            u.email?.toLowerCase().includes(userSearchQuery.toLowerCase());
+                          
+                          return matchSearch;
+                        })
                         .slice(0, 10)
                         .map(u => (
                           <button
