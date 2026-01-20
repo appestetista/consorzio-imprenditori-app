@@ -25,9 +25,20 @@ export default function Imprenditori() {
     content: '', 
     options: [{ id: '1', text: '', votes: [] }, { id: '2', text: '', votes: [] }],
     is_anonymous: false,
-    is_multiple_choice: false
+    is_multiple_choice: false,
+    media_url: null,
+    media_type: null
   });
   const [openComments, setOpenComments] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordedBlob, setRecordedBlob] = useState(null);
+  const [mediaRecorder, setMediaRecorder] = useState(null);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const videoRef = React.useRef(null);
+  const streamRef = React.useRef(null);
+  const timerRef = React.useRef(null);
   const [newComment, setNewComment] = useState('');
   const [editingPost, setEditingPost] = useState(null);
   const [deletePostId, setDeletePostId] = useState(null);
