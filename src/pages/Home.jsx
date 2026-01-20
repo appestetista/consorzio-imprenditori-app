@@ -239,7 +239,7 @@ export default function Home() {
     { title: 'Utenti', icon: User, page: 'GestioneMembri', notifications: messages.length, permission: 'contatta_membri' },
     { title: 'Risparmio', icon: Euro, page: 'RisparmioEnergetico', notifications: 0, permission: 'risparmio_energetico' },
     { title: 'market place', icon: ShoppingBag, page: 'Marketplace', notifications: marketplaceNotifications, permission: 'marketplace' },
-    { title: 'Da imprenditore\na imprenditore', icon: Handshake, page: 'VideoInterviste', notifications: 0, permission: 'video_interviste' },
+    { title: 'Da imprenditore\na imprenditore', icon: Handshake, page: 'Imprenditori', notifications: 0, permission: 'imprenditori' },
       { title: 'Fornitori', icon: Truck, page: 'Fornitori', notifications: 0, permission: 'fornitori' },
   ];
 
