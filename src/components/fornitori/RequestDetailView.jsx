@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Users, Clock, Euro, Briefcase, Shield, Check, X, Unlock, MessageCircle } from 'lucide-react';
+import { ArrowLeft, Users, Clock, Euro, Building2, Shield, Check, X, Unlock, MessageCircle, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -9,12 +9,28 @@ import CandidateComparisonTable from './CandidateComparisonTable';
 import SupplierReviewForm from './SupplierReviewForm';
 
 const BUDGET_LABELS = {
-  'sotto_1k': 'Sotto 1.000 €',
-  '1k-5k': '1.000 - 5.000 €',
-  '5k-15k': '5.000 - 15.000 €',
-  '15k-50k': '15.000 - 50.000 €',
-  'oltre_50k': 'Oltre 50.000 €',
-  'da_definire': 'Da definire'
+  '0-500': '0 - 500 €',
+  '500-1000': '500 - 1.000 €',
+  '1000-2500': '1.000 - 2.500 €',
+  '2500-5000': '2.500 - 5.000 €',
+  '5000-10000': '5.000 - 10.000 €',
+  '10000-25000': '10.000 - 25.000 €',
+  '25000-50000': '25.000 - 50.000 €',
+  '50000-100000': '50.000 - 100.000 €',
+  'oltre_100000': 'Oltre 100.000 €'
+};
+
+const COMPANY_CONTEXT_LABELS = {
+  ditta_individuale: 'Ditta individuale',
+  libero_professionista: 'Libero professionista',
+  snc: 'SNC',
+  sas: 'SAS',
+  srl: 'SRL',
+  srls: 'SRLS',
+  spa: 'SPA',
+  cooperativa: 'Cooperativa',
+  associazione: 'Associazione',
+  altro: 'Altro'
 };
 
 const URGENCY_LABELS = {
@@ -24,18 +40,13 @@ const URGENCY_LABELS = {
   nessuna_fretta: 'Nessuna fretta'
 };
 
-const PHASE_LABELS = {
-  partenza: 'Partenza',
-  stabilizzazione: 'Stabilizzazione',
-  crescita: 'Crescita',
-  riduzione_costi: 'Riduzione costi'
-};
-
 export default function RequestDetailView({ request, user, onBack }) {
   const [showComparison, setShowComparison] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState(null);
   const [showUnlockConfirm, setShowUnlockConfirm] = useState(false);
   const [showReviewForm, setShowReviewForm] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: candidates = [], isLoading } = useQuery({
@@ -72,6 +83,14 @@ export default function RequestDetailView({ request, user, onBack }) {
     }
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: () => base44.entities.SupplierRequest.delete(request.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['my-supplier-requests'] });
+      onBack();
+    }
+  });
+
   const getSupplierProfile = (email) => supplierProfiles.find(p => p.user_email === email);
   const chosenCandidate = candidates.find(c => c.id === request.chosen_candidate_id);
 
@@ -87,21 +106,39 @@ export default function RequestDetailView({ request, user, onBack }) {
 
       {/* Info richiesta */}
       <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
-        <h3 className="text-lime-400 font-medium mb-2">{request.service_type}</h3>
+        <div className="flex items-start justify-between mb-2">
+          <h3 className="text-lime-400 font-medium">{request.service_type}</h3>
+          {request.status === 'aperta' && (
+            <div className="flex gap-2">
+              <button 
+                onClick={() => setShowEditForm(true)}
+                className="text-slate-400 hover:text-lime-400 transition-colors"
+              >
+                <Pencil className="w-4 h-4" />
+              </button>
+              <button 
+                onClick={() => setShowDeleteConfirm(true)}
+                className="text-slate-400 hover:text-red-400 transition-colors"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+        </div>
         <p className="text-slate-400 text-sm mb-4">{request.problem_to_solve}</p>
         
         <div className="grid grid-cols-2 gap-3">
           <div className="flex items-center gap-2 text-sm">
+            <Building2 className="w-4 h-4 text-slate-500" />
+            <span className="text-slate-300">{COMPANY_CONTEXT_LABELS[request.company_context] || request.company_context}</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm">
             <Euro className="w-4 h-4 text-slate-500" />
-            <span className="text-slate-300">{BUDGET_LABELS[request.budget_range]}</span>
+            <span className="text-slate-300">{BUDGET_LABELS[request.budget_range] || request.budget_range}</span>
           </div>
           <div className="flex items-center gap-2 text-sm">
             <Clock className="w-4 h-4 text-slate-500" />
             <span className="text-slate-300">{URGENCY_LABELS[request.urgency]}</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm">
-            <Briefcase className="w-4 h-4 text-slate-500" />
-            <span className="text-slate-300">{PHASE_LABELS[request.business_phase]}</span>
           </div>
           <div className="flex items-center gap-2 text-sm">
             <Users className="w-4 h-4 text-slate-500" />
@@ -305,6 +342,187 @@ export default function RequestDetailView({ request, user, onBack }) {
           />
         </DialogContent>
       </Dialog>
+
+      {/* Dialog conferma eliminazione */}
+      <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <DialogContent className="bg-slate-800 border-slate-700 max-w-sm [&>button]:hidden">
+          <div className="text-center py-4">
+            <div className="w-16 h-16 bg-red-400/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Trash2 className="w-8 h-8 text-red-400" />
+            </div>
+            <h3 className="text-white font-semibold text-lg mb-2">Elimina richiesta?</h3>
+            <p className="text-slate-400 text-sm mb-6">
+              Questa azione è irreversibile. Tutte le candidature ricevute verranno perse.
+            </p>
+            <div className="flex gap-3">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowDeleteConfirm(false)}
+                className="flex-1 border-slate-600 text-white hover:bg-slate-700"
+              >
+                Annulla
+              </Button>
+              <Button 
+                onClick={() => deleteMutation.mutate()}
+                disabled={deleteMutation.isPending}
+                className="flex-1 bg-red-500 text-white hover:bg-red-600"
+              >
+                {deleteMutation.isPending ? 'Eliminazione...' : 'Elimina'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog modifica richiesta */}
+      <Dialog open={showEditForm} onOpenChange={setShowEditForm}>
+        <DialogContent className="bg-slate-800 border-slate-700 max-w-md max-h-[90vh] overflow-y-auto [&>button]:hidden">
+          <EditSupplierRequestForm 
+            request={request}
+            onClose={() => setShowEditForm(false)}
+            onSuccess={() => {
+              setShowEditForm(false);
+              queryClient.invalidateQueries({ queryKey: ['my-supplier-requests'] });
+              onBack();
+            }}
+          />
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+function EditSupplierRequestForm({ request, onClose, onSuccess }) {
+  const [formData, setFormData] = useState({
+    service_type: request.service_type || '',
+    company_context: request.company_context || '',
+    problem_to_solve: request.problem_to_solve || '',
+    budget_range: request.budget_range || '',
+    urgency: request.urgency || ''
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: (data) => base44.entities.SupplierRequest.update(request.id, data),
+    onSuccess
+  });
+
+  const COMPANY_CONTEXTS = [
+    { value: 'ditta_individuale', label: 'Ditta individuale' },
+    { value: 'libero_professionista', label: 'Libero professionista' },
+    { value: 'snc', label: 'SNC' },
+    { value: 'sas', label: 'SAS' },
+    { value: 'srl', label: 'SRL' },
+    { value: 'srls', label: 'SRLS' },
+    { value: 'spa', label: 'SPA' },
+    { value: 'cooperativa', label: 'Cooperativa' },
+    { value: 'associazione', label: 'Associazione' },
+    { value: 'altro', label: 'Altro' }
+  ];
+
+  const BUDGET_RANGES = [
+    { value: '0-500', label: '0 - 500 €' },
+    { value: '500-1000', label: '500 - 1.000 €' },
+    { value: '1000-2500', label: '1.000 - 2.500 €' },
+    { value: '2500-5000', label: '2.500 - 5.000 €' },
+    { value: '5000-10000', label: '5.000 - 10.000 €' },
+    { value: '10000-25000', label: '10.000 - 25.000 €' },
+    { value: '25000-50000', label: '25.000 - 50.000 €' },
+    { value: '50000-100000', label: '50.000 - 100.000 €' },
+    { value: 'oltre_100000', label: 'Oltre 100.000 €' }
+  ];
+
+  const URGENCY_OPTIONS = [
+    { value: 'immediata', label: 'Immediata' },
+    { value: 'entro_1_mese', label: 'Entro 1 mese' },
+    { value: 'entro_3_mesi', label: 'Entro 3 mesi' },
+    { value: 'nessuna_fretta', label: 'Nessuna fretta' }
+  ];
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lime-400 font-semibold">Modifica richiesta</h2>
+        <button onClick={onClose} className="text-slate-400 hover:text-white">
+          <X className="w-5 h-5" />
+        </button>
+      </div>
+
+      <div>
+        <label className="text-slate-400 text-sm mb-1.5 block">Tipo di servizio *</label>
+        <input
+          value={formData.service_type}
+          onChange={(e) => setFormData(prev => ({ ...prev, service_type: e.target.value }))}
+          className="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-white"
+        />
+      </div>
+
+      <div>
+        <label className="text-slate-400 text-sm mb-1.5 block">Contesto aziendale *</label>
+        <select
+          value={formData.company_context}
+          onChange={(e) => setFormData(prev => ({ ...prev, company_context: e.target.value }))}
+          className="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-white"
+        >
+          <option value="">Seleziona...</option>
+          {COMPANY_CONTEXTS.map(c => (
+            <option key={c.value} value={c.value}>{c.label}</option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label className="text-slate-400 text-sm mb-1.5 block">Problema da risolvere *</label>
+        <textarea
+          value={formData.problem_to_solve}
+          onChange={(e) => setFormData(prev => ({ ...prev, problem_to_solve: e.target.value }))}
+          className="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-white min-h-24"
+        />
+      </div>
+
+      <div>
+        <label className="text-slate-400 text-sm mb-1.5 block">Budget *</label>
+        <select
+          value={formData.budget_range}
+          onChange={(e) => setFormData(prev => ({ ...prev, budget_range: e.target.value }))}
+          className="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-white"
+        >
+          <option value="">Seleziona...</option>
+          {BUDGET_RANGES.map(b => (
+            <option key={b.value} value={b.value}>{b.label}</option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label className="text-slate-400 text-sm mb-1.5 block">Urgenza *</label>
+        <select
+          value={formData.urgency}
+          onChange={(e) => setFormData(prev => ({ ...prev, urgency: e.target.value }))}
+          className="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-2 text-white"
+        >
+          <option value="">Seleziona...</option>
+          {URGENCY_OPTIONS.map(u => (
+            <option key={u.value} value={u.value}>{u.label}</option>
+          ))}
+        </select>
+      </div>
+
+      <div className="flex gap-3 pt-2">
+        <Button 
+          variant="outline" 
+          onClick={onClose}
+          className="flex-1 border-slate-600 text-white hover:bg-slate-700"
+        >
+          Annulla
+        </Button>
+        <Button 
+          onClick={() => updateMutation.mutate(formData)}
+          disabled={updateMutation.isPending || !formData.service_type || !formData.company_context || !formData.problem_to_solve || !formData.budget_range || !formData.urgency}
+          className="flex-1 bg-lime-400 text-slate-900 hover:bg-lime-500"
+        >
+          {updateMutation.isPending ? 'Salvataggio...' : 'Salva modifiche'}
+        </Button>
+      </div>
     </div>
   );
 }
