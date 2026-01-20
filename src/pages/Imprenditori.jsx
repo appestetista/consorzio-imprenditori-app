@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, X, ArrowLeft, MessageCircle, Send, EyeOff, ShieldCheck, Pencil, Trash2, MoreVertical, UserRoundX, BarChart3, Check, Users, Image, Video, Upload, Loader2, Camera } from 'lucide-react';
+import { Plus, X, ArrowLeft, MessageCircle, Send, EyeOff, ShieldCheck, Pencil, Trash2, MoreVertical, UserRoundX, BarChart3, Check, Users, Image, Video, Upload, Loader2, Camera, AtSign, Globe, Bell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
+import useNotificationSound from '../components/hooks/useNotificationSound';
 
 export default function Imprenditori() {
   const [user, setUser] = useState(null);
@@ -27,8 +28,12 @@ export default function Imprenditori() {
     is_anonymous: false,
     is_multiple_choice: false,
     media_url: null,
-    media_type: null
+    media_type: null,
+    target_type: 'all',
+    target_users: []
   });
+  const [showUserSelector, setShowUserSelector] = useState(false);
+  const [userSearchQuery, setUserSearchQuery] = useState('');
   const [openComments, setOpenComments] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
@@ -45,6 +50,7 @@ export default function Imprenditori() {
   const { impersonation, appMode } = useImpersonation();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { playSound } = useNotificationSound();
 
   useEffect(() => {
     const loadUser = async () => {
@@ -79,6 +85,58 @@ export default function Imprenditori() {
     enabled: !!effectiveUser?.email,
   });
 
+  const { data: allUsers = [] } = useQuery({
+    queryKey: ['all-users-for-polls'],
+    queryFn: () => base44.entities.User.list(),
+  });
+
+  // Conta sondaggi non visualizzati dall'utente corrente
+  const unviewedPollsCount = posts.filter(post => {
+    if (!post.viewed_by) return true;
+    return !post.viewed_by.includes(effectiveUser?.email);
+  }).length;
+
+  // Subscribe alle notifiche per sondaggi indirizzati specificamente
+  useEffect(() => {
+    if (!effectiveUser?.email) return;
+
+    const unsubscribe = base44.entities.ImprenditorePost.subscribe((event) => {
+      if (event.type === 'create' && event.data) {
+        // Se il post è indirizzato specificamente a questo utente, suona notifica
+        if (event.data.target_type === 'specific' && 
+            event.data.target_users?.includes(effectiveUser.email)) {
+          playSound();
+        }
+        queryClient.invalidateQueries({ queryKey: ['imprenditore-posts'] });
+      }
+    });
+
+    return unsubscribe;
+  }, [effectiveUser?.email, queryClient, playSound]);
+
+  // Segna post come visualizzati quando l'utente entra nella pagina
+  useEffect(() => {
+    const markAsViewed = async () => {
+      if (!effectiveUser?.email || posts.length === 0) return;
+      
+      const unviewedPosts = posts.filter(post => {
+        if (!post.viewed_by) return true;
+        return !post.viewed_by.includes(effectiveUser.email);
+      });
+
+      for (const post of unviewedPosts) {
+        const viewedBy = post.viewed_by || [];
+        if (!viewedBy.includes(effectiveUser.email)) {
+          await base44.entities.ImprenditorePost.update(post.id, {
+            viewed_by: [...viewedBy, effectiveUser.email]
+          });
+        }
+      }
+    };
+
+    markAsViewed();
+  }, [effectiveUser?.email, posts]);
+
   const createPostMutation = useMutation({
     mutationFn: (data) => base44.entities.ImprenditorePost.create(data),
     onSuccess: () => {
@@ -96,11 +154,15 @@ export default function Imprenditori() {
       is_anonymous: false,
       is_multiple_choice: false,
       media_url: null,
-      media_type: null
+      media_type: null,
+      target_type: 'all',
+      target_users: []
     });
     setUploadError(null);
     setRecordedBlob(null);
     stopRecording();
+    setShowUserSelector(false);
+    setUserSearchQuery('');
   };
 
   const handleImageUpload = async (e) => {
@@ -349,7 +411,10 @@ export default function Imprenditori() {
       author_name: effectiveUser?.company_name || effectiveUser?.full_name,
       comments: [],
       media_url: newPoll.media_url,
-      media_type: newPoll.media_type
+      media_type: newPoll.media_type,
+      target_type: newPoll.target_type,
+      target_users: newPoll.target_type === 'specific' ? newPoll.target_users : [],
+      viewed_by: [effectiveUser?.email]
     };
     
     createPostMutation.mutate(postData);
@@ -893,9 +958,116 @@ export default function Imprenditori() {
               </div>
             </div>
 
+            {/* Selezione destinatari */}
+            <div>
+              <label className="text-slate-400 text-sm mb-2 block">Destinatari</label>
+              <div className="grid grid-cols-2 gap-2 mb-3">
+                <button
+                  type="button"
+                  onClick={() => setNewPoll({...newPoll, target_type: 'all', target_users: []})}
+                  className={`flex items-center justify-center gap-2 p-3 rounded-lg border transition-all ${
+                    newPoll.target_type === 'all' 
+                      ? 'bg-lime-400/20 border-lime-400 text-lime-400' 
+                      : 'bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600'
+                  }`}
+                >
+                  <Globe className="w-4 h-4" />
+                  <span className="text-sm font-medium">Tutti</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setNewPoll({...newPoll, target_type: 'specific'});
+                    setShowUserSelector(true);
+                  }}
+                  className={`flex items-center justify-center gap-2 p-3 rounded-lg border transition-all ${
+                    newPoll.target_type === 'specific' 
+                      ? 'bg-lime-400/20 border-lime-400 text-lime-400' 
+                      : 'bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600'
+                  }`}
+                >
+                  <AtSign className="w-4 h-4" />
+                  <span className="text-sm font-medium">Specifici</span>
+                </button>
+              </div>
+
+              {newPoll.target_type === 'specific' && (
+                <div className="space-y-2">
+                  {newPoll.target_users.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {newPoll.target_users.map(email => {
+                        const targetUser = allUsers.find(u => u.email === email);
+                        return (
+                          <div key={email} className="flex items-center gap-1 bg-lime-400/20 text-lime-400 px-2 py-1 rounded-full text-xs">
+                            <Bell className="w-3 h-3" />
+                            <span>{targetUser?.company_name || targetUser?.full_name || email}</span>
+                            <button
+                              type="button"
+                              onClick={() => setNewPoll({
+                                ...newPoll,
+                                target_users: newPoll.target_users.filter(e => e !== email)
+                              })}
+                              className="hover:text-white"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                  
+                  <div className="bg-slate-700 rounded-lg border border-slate-600 p-2">
+                    <Input
+                      placeholder="Cerca utente..."
+                      value={userSearchQuery}
+                      onChange={(e) => setUserSearchQuery(e.target.value)}
+                      className="bg-slate-600 border-slate-500 text-white text-sm mb-2"
+                    />
+                    <div className="max-h-32 overflow-y-auto space-y-1">
+                      {allUsers
+                        .filter(u => 
+                          u.email !== effectiveUser?.email &&
+                          !newPoll.target_users.includes(u.email) &&
+                          (u.company_name?.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+                           u.full_name?.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+                           u.email?.toLowerCase().includes(userSearchQuery.toLowerCase()))
+                        )
+                        .slice(0, 10)
+                        .map(u => (
+                          <button
+                            key={u.id}
+                            type="button"
+                            onClick={() => setNewPoll({
+                              ...newPoll,
+                              target_users: [...newPoll.target_users, u.email]
+                            })}
+                            className="w-full flex items-center gap-2 p-2 rounded-lg hover:bg-slate-600 text-left transition-colors"
+                          >
+                            <div className="w-7 h-7 bg-lime-400/20 rounded-full flex items-center justify-center">
+                              <span className="text-lime-400 text-xs font-bold">
+                                {(u.company_name || u.full_name)?.charAt(0)?.toUpperCase()}
+                              </span>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-white text-sm truncate">{u.company_name || u.full_name}</p>
+                              <p className="text-slate-400 text-xs truncate">{u.email}</p>
+                            </div>
+                          </button>
+                        ))}
+                    </div>
+                  </div>
+                  <p className="text-slate-500 text-xs flex items-center gap-1">
+                    <Bell className="w-3 h-3" />
+                    Gli utenti selezionati riceveranno una notifica sonora
+                  </p>
+                </div>
+              )}
+            </div>
+
             <Button 
               onClick={handleSubmit}
-              disabled={!newPoll.title || newPoll.options.filter(o => o.text.trim()).length < 2 || createPostMutation.isPending}
+              disabled={!newPoll.title || newPoll.options.filter(o => o.text.trim()).length < 2 || (newPoll.target_type === 'specific' && newPoll.target_users.length === 0) || createPostMutation.isPending}
               className="w-full bg-lime-400 text-slate-900 hover:bg-lime-500"
             >
               {createPostMutation.isPending ? 'Pubblicazione...' : 'Pubblica sondaggio'}
