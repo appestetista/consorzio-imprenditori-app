@@ -61,30 +61,30 @@ export default function WelfareNormativa() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-          <TabsList className="grid grid-cols-4 bg-slate-800 border border-slate-700 p-1 rounded-xl">
+          <TabsList className="grid grid-cols-4 bg-slate-800 border border-slate-700 p-1 rounded-xl h-auto">
             <TabsTrigger 
               value="buoni-pasto" 
-              className="data-[state=active]:bg-pink-500 data-[state=active]:text-white text-slate-400 rounded-lg text-[10px] py-2 px-1"
+              className="data-[state=active]:bg-pink-500 data-[state=active]:text-white text-slate-400 rounded-lg text-xs py-2 px-1 leading-tight"
             >
-              Buoni Pasto
+              Buoni<br/>Pasto
             </TabsTrigger>
             <TabsTrigger 
               value="fringe-benefit" 
-              className="data-[state=active]:bg-pink-500 data-[state=active]:text-white text-slate-400 rounded-lg text-[10px] py-2 px-1"
+              className="data-[state=active]:bg-pink-500 data-[state=active]:text-white text-slate-400 rounded-lg text-xs py-2 px-1 leading-tight"
             >
-              Fringe Benefit
+              Fringe<br/>Benefit
             </TabsTrigger>
             <TabsTrigger 
               value="buoni-regalo" 
-              className="data-[state=active]:bg-pink-500 data-[state=active]:text-white text-slate-400 rounded-lg text-[10px] py-2 px-1"
+              className="data-[state=active]:bg-pink-500 data-[state=active]:text-white text-slate-400 rounded-lg text-xs py-2 px-1 leading-tight"
             >
-              Buoni Regalo
+              Buoni<br/>Regalo
             </TabsTrigger>
             <TabsTrigger 
               value="buoni-omaggio" 
-              className="data-[state=active]:bg-pink-500 data-[state=active]:text-white text-slate-400 rounded-lg text-[10px] py-2 px-1"
+              className="data-[state=active]:bg-pink-500 data-[state=active]:text-white text-slate-400 rounded-lg text-xs py-2 px-1 leading-tight"
             >
-              Buoni Omaggio
+              Buoni<br/>Omaggio
             </TabsTrigger>
           </TabsList>
 
