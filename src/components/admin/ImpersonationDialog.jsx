@@ -159,7 +159,7 @@ export default function ImpersonationDialog({ open, onClose, onStart }) {
             <Button
               onClick={onClose}
               variant="outline"
-              className="flex-1 border-slate-700 text-white hover:bg-slate-700"
+              className="flex-1 border-slate-700 text-slate-400 hover:bg-slate-700 hover:text-white"
             >
               Annulla
             </Button>
