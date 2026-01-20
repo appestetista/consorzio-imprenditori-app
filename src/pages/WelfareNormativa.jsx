@@ -391,7 +391,7 @@ export default function WelfareNormativa() {
         </Tabs>
       </main>
 
-      <BottomNav currentPage="RisparmioEnergetico" unreadMessages={messages.length} />
+      <BottomNav currentPage="WelfareAziendale" unreadMessages={messages.length} />
     </div>
   );
 }
