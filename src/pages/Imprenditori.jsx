@@ -187,11 +187,26 @@ export default function Imprenditori() {
             return (
               <div key={post.id} className="bg-slate-800 rounded-xl p-4">
                 <div className="flex items-start gap-3 mb-3">
-                  <div className="w-10 h-10 bg-lime-400 rounded-full flex items-center justify-center">
-                    {post.type === 'video' ? <Video className="w-5 h-5 text-slate-900" /> : <FileText className="w-5 h-5 text-slate-900" />}
-                  </div>
+                  {post.is_anonymous ? (
+                    <div className="w-10 h-10 bg-slate-600 rounded-full flex items-center justify-center">
+                      <EyeOff className="w-5 h-5 text-slate-400" />
+                    </div>
+                  ) : (
+                    <div className="w-10 h-10 bg-lime-400 rounded-full flex items-center justify-center">
+                      {post.type === 'video' ? <Video className="w-5 h-5 text-slate-900" /> : <FileText className="w-5 h-5 text-slate-900" />}
+                    </div>
+                  )}
                   <div className="flex-1">
-                    <p className="text-white font-semibold">{post.author_name}</p>
+                    {post.is_anonymous ? (
+                      <div className="flex items-center gap-2">
+                        <p className="text-white font-semibold">Anonimo</p>
+                        <span className="flex items-center gap-1 text-lime-400 text-xs">
+                          <ShieldCheck className="w-3 h-3" /> Verificato
+                        </span>
+                      </div>
+                    ) : (
+                      <p className="text-white font-semibold">{post.author_name}</p>
+                    )}
                     <p className="text-slate-400 text-xs">{new Date(post.created_date).toLocaleDateString('it-IT')}</p>
                   </div>
                   <Badge className="bg-slate-700 text-lime-400">{post.category}</Badge>
@@ -213,13 +228,59 @@ export default function Imprenditori() {
                   <p className="text-slate-300 text-sm mb-3">{post.content}</p>
                 )}
 
-                <button 
-                  onClick={() => likeMutation.mutate(post)}
-                  className="flex items-center gap-2 text-slate-400 hover:text-lime-400 transition-colors"
-                >
-                  <Heart className={`w-5 h-5 ${hasLiked ? 'fill-lime-400 text-lime-400' : ''}`} />
-                  <span className="text-sm">{(post.likes || []).length}</span>
-                </button>
+                <div className="flex items-center gap-4">
+                  <button 
+                    onClick={() => likeMutation.mutate(post)}
+                    className="flex items-center gap-2 text-slate-400 hover:text-lime-400 transition-colors"
+                  >
+                    <Heart className={`w-5 h-5 ${hasLiked ? 'fill-lime-400 text-lime-400' : ''}`} />
+                    <span className="text-sm">{(post.likes || []).length}</span>
+                  </button>
+                  <button 
+                    onClick={() => setOpenComments(openComments === post.id ? null : post.id)}
+                    className="flex items-center gap-2 text-slate-400 hover:text-lime-400 transition-colors"
+                  >
+                    <MessageCircle className="w-5 h-5" />
+                    <span className="text-sm">{(post.comments || []).length}</span>
+                  </button>
+                </div>
+
+                {/* Sezione commenti */}
+                {openComments === post.id && (
+                  <div className="mt-4 pt-4 border-t border-slate-700">
+                    {(post.comments || []).map((comment, idx) => (
+                      <div key={idx} className="bg-slate-700 rounded-lg p-3 mb-2">
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="text-lime-400 font-semibold text-sm">{comment.author_name}</p>
+                          <p className="text-slate-500 text-xs">
+                            {new Date(comment.created_at).toLocaleDateString('it-IT')}
+                          </p>
+                        </div>
+                        <p className="text-white text-sm">{comment.content}</p>
+                      </div>
+                    ))}
+                    <div className="flex gap-2 mt-3">
+                      <Input
+                        placeholder="Scrivi un commento..."
+                        value={newComment}
+                        onChange={(e) => setNewComment(e.target.value)}
+                        className="bg-slate-700 border-slate-600 text-white flex-1"
+                      />
+                      <Button
+                        onClick={() => {
+                          if (newComment.trim()) {
+                            addCommentMutation.mutate({ postId: post.id, comment: newComment });
+                          }
+                        }}
+                        disabled={!newComment.trim() || addCommentMutation.isPending}
+                        className="bg-lime-400 text-slate-900 hover:bg-lime-500"
+                        size="icon"
+                      >
+                        <Send className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })}
