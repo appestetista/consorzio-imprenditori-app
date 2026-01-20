@@ -84,15 +84,182 @@ export default function Imprenditori() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['imprenditore-posts'] });
       setShowAddDialog(false);
-      setNewPoll({ 
-        title: '', 
-        content: '', 
-        options: [{ id: '1', text: '', votes: [] }, { id: '2', text: '', votes: [] }],
-        is_anonymous: false,
-        is_multiple_choice: false
-      });
+      resetForm();
     },
   });
+
+  const resetForm = () => {
+    setNewPoll({ 
+      title: '', 
+      content: '', 
+      options: [{ id: '1', text: '', votes: [] }, { id: '2', text: '', votes: [] }],
+      is_anonymous: false,
+      is_multiple_choice: false,
+      media_url: null,
+      media_type: null
+    });
+    setUploadError(null);
+    setRecordedBlob(null);
+    stopRecording();
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setUploadError('Seleziona un file immagine valido');
+      return;
+    }
+
+    setIsUploading(true);
+    setUploadError(null);
+    
+    try {
+      const result = await base44.integrations.Core.UploadFile({ file });
+      setNewPoll({ ...newPoll, media_url: result.file_url, media_type: 'image' });
+    } catch (err) {
+      setUploadError('Errore durante il caricamento. Riprova.');
+      console.error(err);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleVideoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('video/')) {
+      setUploadError('Seleziona un file video valido');
+      return;
+    }
+
+    const maxSize = 100 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setUploadError('Il video è troppo grande. Massimo 100MB');
+      return;
+    }
+
+    const video = document.createElement('video');
+    video.preload = 'metadata';
+    
+    video.onloadedmetadata = async () => {
+      window.URL.revokeObjectURL(video.src);
+      
+      if (video.duration > 120) {
+        setUploadError('Il video deve durare massimo 2 minuti');
+        return;
+      }
+
+      setIsUploading(true);
+      setUploadError(null);
+      
+      try {
+        const result = await base44.integrations.Core.UploadFile({ file });
+        setNewPoll({ ...newPoll, media_url: result.file_url, media_type: 'video' });
+      } catch (err) {
+        setUploadError('Errore durante il caricamento. Riprova.');
+        console.error(err);
+      } finally {
+        setIsUploading(false);
+      }
+    };
+
+    video.src = URL.createObjectURL(file);
+  };
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: 'user' }, 
+        audio: true 
+      });
+      streamRef.current = stream;
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+
+      const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+      const chunks = [];
+
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunks.push(e.data);
+      };
+
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: 'video/webm' });
+        setRecordedBlob(blob);
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      recorder.start();
+      setMediaRecorder(recorder);
+      setIsRecording(true);
+      setRecordingTime(0);
+
+      timerRef.current = setInterval(() => {
+        setRecordingTime(prev => {
+          if (prev >= 120) {
+            clearInterval(timerRef.current);
+            recorder.stop();
+            setIsRecording(false);
+            return 120;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+
+    } catch (err) {
+      console.error('Errore accesso camera:', err);
+      setUploadError('Impossibile accedere alla fotocamera. Verifica i permessi.');
+    }
+  };
+
+  const stopRecording = () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+      mediaRecorder.stop();
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+    }
+    setIsRecording(false);
+  };
+
+  const uploadRecordedVideo = async () => {
+    if (!recordedBlob) return;
+    
+    setIsUploading(true);
+    setUploadError(null);
+    
+    try {
+      const file = new File([recordedBlob], 'video-registrato.webm', { type: 'video/webm' });
+      const result = await base44.integrations.Core.UploadFile({ file });
+      setNewPoll({ ...newPoll, media_url: result.file_url, media_type: 'video' });
+      setRecordedBlob(null);
+    } catch (err) {
+      setUploadError('Errore durante il caricamento. Riprova.');
+      console.error(err);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const removeMedia = () => {
+    setNewPoll({ ...newPoll, media_url: null, media_type: null });
+    setRecordedBlob(null);
+    setUploadError(null);
+  };
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
 
   const voteMutation = useMutation({
     mutationFn: async ({ postId, optionId }) => {
