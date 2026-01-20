@@ -96,6 +96,25 @@ export default function Imprenditori() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['imprenditore-posts'] }),
   });
 
+  const addCommentMutation = useMutation({
+    mutationFn: async ({ postId, comment }) => {
+      const post = posts.find(p => p.id === postId);
+      const comments = post.comments || [];
+      return base44.entities.ImprenditorePost.update(postId, {
+        comments: [...comments, {
+          author_email: effectiveUser?.email,
+          author_name: effectiveUser?.company_name || effectiveUser?.full_name,
+          content: comment,
+          created_at: new Date().toISOString()
+        }]
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['imprenditore-posts'] });
+      setNewComment('');
+    },
+  });
+
   const handleSubmit = () => {
     if (!newPost.title || !newPost.category) return;
     createPostMutation.mutate({
