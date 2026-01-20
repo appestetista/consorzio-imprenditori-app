@@ -556,14 +556,14 @@ export default function Imprenditori() {
             <div className="flex gap-2">
               <Button
                 variant={newPost.type === 'post' ? 'default' : 'outline'}
-                className={newPost.type === 'post' ? 'bg-lime-400 text-slate-900' : 'border-slate-600 text-white'}
+                className={newPost.type === 'post' ? 'bg-lime-400 text-slate-900 [&>svg]:text-slate-900' : 'border-slate-600 text-slate-400 [&>svg]:text-slate-400 hover:text-slate-300 hover:[&>svg]:text-slate-300'}
                 onClick={() => setNewPost({...newPost, type: 'post'})}
               >
                 <FileText className="w-4 h-4 mr-2" /> Post
               </Button>
               <Button
                 variant={newPost.type === 'video' ? 'default' : 'outline'}
-                className={newPost.type === 'video' ? 'bg-lime-400 text-slate-900' : 'border-slate-600 text-white'}
+                className={newPost.type === 'video' ? 'bg-lime-400 text-slate-900 [&>svg]:text-slate-900' : 'border-slate-600 text-slate-400 [&>svg]:text-slate-400 hover:text-slate-300 hover:[&>svg]:text-slate-300'}
                 onClick={() => setNewPost({...newPost, type: 'video'})}
               >
                 <Video className="w-4 h-4 mr-2" /> Video
