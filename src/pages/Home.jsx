@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Calendar, Video, Briefcase, User, Euro, ShoppingBag, Sparkles, BookOpen, Handshake } from 'lucide-react';
+import { Calendar, Video, Briefcase, User, Euro, ShoppingBag, Sparkles, BookOpen, Handshake, Truck } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import Header from '../components/layout/Header';
@@ -240,6 +240,7 @@ export default function Home() {
     { title: 'Risparmio', icon: Euro, page: 'RisparmioEnergetico', notifications: 0, permission: 'risparmio_energetico' },
     { title: 'market place', icon: ShoppingBag, page: 'Marketplace', notifications: marketplaceNotifications, permission: 'marketplace' },
     { title: 'Da imprenditore\na imprenditore', icon: Handshake, page: 'VideoInterviste', notifications: 0, permission: 'video_interviste' },
+      { title: 'Fornitori', icon: Truck, page: 'Fornitori', notifications: 0, permission: 'fornitori' },
   ];
 
   return (
