@@ -13,14 +13,8 @@ import BottomNav from '../components/layout/BottomNav';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 
 const CATEGORIES = [
-  "Gestione Aziendale",
-  "Marketing", 
-  "Finanza",
-  "Risorse Umane",
-  "Innovazione",
-  "Vendite",
-  "Produzione",
-  "Altro"
+  "Riduzione Costi",
+  "Errori Fatti"
 ];
 
 const getYoutubeId = (url) => {
