@@ -452,7 +452,7 @@ export default function Imprenditori() {
                 </SelectTrigger>
                 <SelectContent className="bg-slate-700 border-slate-600">
                   {CATEGORIES.map(cat => (
-                    <SelectItem key={cat} value={cat} className="text-white">{cat}</SelectItem>
+                    <SelectItem key={cat.name} value={cat.name} className="text-white">{cat.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
