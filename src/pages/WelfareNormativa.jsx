@@ -321,6 +321,74 @@ export default function WelfareNormativa() {
             </div>
           </CardContent>
         </Card>
+          </TabsContent>
+
+          {/* TAB BUONI REGALO */}
+          <TabsContent value="buoni-regalo" className="mt-4 space-y-4">
+            <Card className="bg-slate-800 border-slate-700">
+              <CardContent className="p-4">
+                <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+                  <Gift className="w-5 h-5 text-pink-400" />
+                  Cosa sono i Buoni Regalo?
+                </h3>
+                <p className="text-slate-300 text-sm leading-relaxed">
+                  I <span className="text-pink-400 font-medium">buoni regalo</span> (gift card) sono titoli di pagamento spendibili presso catene commerciali, negozi o piattaforme online per l'acquisto di beni e servizi.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-slate-800 border-slate-700">
+              <CardContent className="p-4">
+                <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+                  <Euro className="w-5 h-5 text-pink-400" />
+                  Limiti di esenzione
+                </h3>
+                <p className="text-slate-300 text-sm mb-3">
+                  I buoni regalo rientrano nella categoria dei <strong className="text-white">fringe benefit</strong> e seguono le stesse soglie:
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-slate-900 rounded-lg p-4 text-center">
+                    <p className="text-slate-400 text-xs mb-1">Senza figli</p>
+                    <p className="text-white text-2xl font-bold">€1.000</p>
+                    <p className="text-slate-500 text-xs">annui</p>
+                  </div>
+                  <div className="bg-gradient-to-br from-pink-500/20 to-rose-500/20 rounded-lg p-4 text-center border border-pink-500/30">
+                    <p className="text-pink-300 text-xs mb-1">Con figli</p>
+                    <p className="text-pink-400 text-2xl font-bold">€2.000</p>
+                    <p className="text-pink-300/70 text-xs">annui</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Alert className="bg-amber-500/10 border-amber-500/30">
+              <AlertTriangle className="h-4 w-4 text-amber-400" />
+              <AlertDescription className="text-slate-300 text-xs">
+                <strong className="text-amber-400">Importante:</strong> Il valore dei buoni regalo si cumula con gli altri fringe benefit per il calcolo della soglia annuale.
+              </AlertDescription>
+            </Alert>
+
+            <Card className="bg-slate-800 border-slate-700">
+              <CardContent className="p-4">
+                <h3 className="text-white font-semibold mb-3">Esempi di utilizzo</h3>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-slate-300 text-sm">
+                    <CheckCircle className="w-4 h-4 text-green-400" />
+                    <span>Gift card Amazon, Zalando, MediaWorld</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-slate-300 text-sm">
+                    <CheckCircle className="w-4 h-4 text-green-400" />
+                    <span>Buoni carburante</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-slate-300 text-sm">
+                    <CheckCircle className="w-4 h-4 text-green-400" />
+                    <span>Voucher per esperienze e viaggi</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </main>
 
       <BottomNav currentPage="RisparmioEnergetico" unreadMessages={messages.length} />
