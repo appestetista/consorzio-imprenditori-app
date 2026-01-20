@@ -101,6 +101,19 @@ export default function Home() {
     enabled: !!effectiveUser?.email,
   });
 
+  // Conta sondaggi non visualizzati
+  const { data: unviewedPollsCount = 0 } = useQuery({
+    queryKey: ['unviewed-polls-count', effectiveUser?.email],
+    queryFn: async () => {
+      const posts = await base44.entities.ImprenditorePost.list('-created_date');
+      return posts.filter(post => {
+        if (!post.viewed_by) return true;
+        return !post.viewed_by.includes(effectiveUser?.email);
+      }).length;
+    },
+    enabled: !!effectiveUser?.email,
+  });
+
   const { data: events = [] } = useQuery({
     queryKey: ['upcoming-events'],
     queryFn: () => base44.entities.Event.list('-date', 1),
@@ -239,7 +252,7 @@ export default function Home() {
     { title: 'Utenti', icon: User, page: 'GestioneMembri', notifications: messages.length, permission: 'contatta_membri' },
     { title: 'Risparmio', icon: Euro, page: 'RisparmioEnergetico', notifications: 0, permission: 'risparmio_energetico' },
     { title: 'market place', icon: ShoppingBag, page: 'Marketplace', notifications: marketplaceNotifications, permission: 'marketplace' },
-    { title: 'Da imprenditore\na imprenditore', icon: Handshake, page: 'Imprenditori', notifications: 0, permission: 'imprenditori' },
+    { title: 'Da imprenditore\na imprenditore', icon: Handshake, page: 'Imprenditori', notifications: unviewedPollsCount, permission: 'imprenditori' },
       { title: 'Fornitori', icon: Truck, page: 'Fornitori', notifications: 0, permission: 'fornitori' },
   ];
 
