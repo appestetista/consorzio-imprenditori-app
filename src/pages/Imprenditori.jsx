@@ -217,7 +217,7 @@ export default function Imprenditori() {
             return (
               <div key={post.id} className="bg-gradient-to-br from-slate-800 to-slate-800/80 rounded-2xl overflow-hidden shadow-lg border border-slate-700/50">
                 {/* Video in alto se presente */}
-                {post.type === 'video' && youtubeId && (
+                {post.type === 'video' && youtubeId ? (
                   <div className="relative aspect-video">
                     <iframe
                       src={`https://www.youtube.com/embed/${youtubeId}`}
@@ -225,7 +225,18 @@ export default function Imprenditori() {
                       allowFullScreen
                     />
                   </div>
-                )}
+                ) : post.is_anonymous ? (
+                  <div className="relative aspect-video bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 flex flex-col items-center justify-center">
+                    <div className="w-20 h-20 bg-slate-600/50 rounded-full flex items-center justify-center mb-4 border-2 border-slate-500/30">
+                      <EyeOff className="w-10 h-10 text-slate-400" />
+                    </div>
+                    <p className="text-white font-semibold text-lg mb-1">Contributo Anonimo</p>
+                    <div className="flex items-center gap-2 text-lime-400">
+                      <ShieldCheck className="w-4 h-4" />
+                      <span className="text-sm font-medium">Verificato dal Consorzio</span>
+                    </div>
+                  </div>
+                ) : null}
                 
                 <div className="p-4">
                   {/* Header con autore e categoria */}
