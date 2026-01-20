@@ -33,6 +33,18 @@ const COMPANY_CONTEXT_LABELS = {
   altro: 'Altro'
 };
 
+const BUDGET_LABELS = {
+  '0-500': '0 - 500 €',
+  '500-1000': '500 - 1.000 €',
+  '1000-2500': '1.000 - 2.500 €',
+  '2500-5000': '2.500 - 5.000 €',
+  '5000-10000': '5.000 - 10.000 €',
+  '10000-25000': '10.000 - 25.000 €',
+  '25000-50000': '25.000 - 50.000 €',
+  '50000-100000': '50.000 - 100.000 €',
+  'oltre_100000': 'Oltre 100.000 €'
+};
+
 
 
 export default function MyRequestsList({ user }) {
@@ -104,7 +116,7 @@ export default function MyRequestsList({ user }) {
               </div>
               <div className="flex items-center gap-2 text-slate-400 text-xs">
                 <Euro className="w-3.5 h-3.5 text-slate-500" />
-                <span>{request.budget_amount ? `${Number(request.budget_amount).toLocaleString('it-IT')} €` : '-'}</span>
+                <span>{BUDGET_LABELS[request.budget_range] || request.budget_range || '-'}</span>
               </div>
               <div className="flex items-center gap-2 text-slate-400 text-xs">
                 <Clock className="w-3.5 h-3.5 text-slate-500" />

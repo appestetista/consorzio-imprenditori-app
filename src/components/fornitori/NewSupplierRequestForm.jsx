@@ -31,6 +31,18 @@ const URGENCY_OPTIONS = [
   { value: 'nessuna_fretta', label: 'Nessuna fretta' }
 ];
 
+const BUDGET_RANGES = [
+  { value: '0-500', label: '0 - 500 €' },
+  { value: '500-1000', label: '500 - 1.000 €' },
+  { value: '1000-2500', label: '1.000 - 2.500 €' },
+  { value: '2500-5000', label: '2.500 - 5.000 €' },
+  { value: '5000-10000', label: '5.000 - 10.000 €' },
+  { value: '10000-25000', label: '10.000 - 25.000 €' },
+  { value: '25000-50000', label: '25.000 - 50.000 €' },
+  { value: '50000-100000', label: '50.000 - 100.000 €' },
+  { value: 'oltre_100000', label: 'Oltre 100.000 €' }
+];
+
 
 
 export default function NewSupplierRequestForm({ user, onClose, onSuccess }) {
@@ -38,7 +50,7 @@ export default function NewSupplierRequestForm({ user, onClose, onSuccess }) {
     service_type: '',
     company_context: '',
     problem_to_solve: '',
-    budget_amount: '',
+    budget_range: '',
     urgency: ''
   });
   const [showSuccess, setShowSuccess] = useState(false);
@@ -56,7 +68,7 @@ export default function NewSupplierRequestForm({ user, onClose, onSuccess }) {
         service_type: '',
         company_context: '',
         problem_to_solve: '',
-        budget_amount: '',
+        budget_range: '',
         urgency: ''
       });
     }
@@ -64,7 +76,7 @@ export default function NewSupplierRequestForm({ user, onClose, onSuccess }) {
 
   const handleSubmit = () => {
     if (!formData.service_type || !formData.company_context || 
-        !formData.problem_to_solve || !formData.budget_amount || !formData.urgency) {
+        !formData.problem_to_solve || !formData.budget_range || !formData.urgency) {
       return;
     }
     createMutation.mutate(formData);
@@ -141,14 +153,17 @@ export default function NewSupplierRequestForm({ user, onClose, onSuccess }) {
 
         {/* Budget */}
         <div>
-          <label className="text-slate-400 text-sm mb-1.5 block">Budget indicativo (€) *</label>
-          <Input
-            placeholder="Es: 5000"
-            value={formData.budget_amount}
-            onChange={(e) => updateField('budget_amount', e.target.value)}
-            className="bg-slate-700 border-slate-600 text-white"
-            type="number"
-          />
+          <label className="text-slate-400 text-sm mb-1.5 block">Budget *</label>
+          <Select value={formData.budget_range} onValueChange={(v) => updateField('budget_range', v)}>
+            <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
+              <SelectValue placeholder="Seleziona budget" />
+            </SelectTrigger>
+            <SelectContent className="bg-slate-700 border-slate-600">
+              {BUDGET_RANGES.map(b => (
+                <SelectItem key={b.value} value={b.value} className="text-white hover:bg-slate-600">{b.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Urgenza */}
@@ -169,7 +184,7 @@ export default function NewSupplierRequestForm({ user, onClose, onSuccess }) {
         <Button 
           onClick={handleSubmit}
           disabled={createMutation.isPending || showSuccess || !formData.service_type || 
-                   !formData.company_context || !formData.problem_to_solve || !formData.budget_amount || 
+                   !formData.company_context || !formData.problem_to_solve || !formData.budget_range || 
                    !formData.urgency}
           className="w-full bg-lime-400 text-slate-900 hover:bg-lime-500"
         >
