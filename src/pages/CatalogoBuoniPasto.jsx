@@ -35,7 +35,7 @@ export default function CatalogoBuoniPasto() {
       
       <main className="px-4 py-6 max-w-md mx-auto">
         <div className="flex items-center gap-3 mb-6">
-          <Link to={createPageUrl('RisparmioDettaglio') + '?categoria=Welfare%20Aziendale'} className="text-pink-400">
+          <Link to={createPageUrl('WelfareAziendale')} className="text-pink-400">
             <ArrowLeft className="w-6 h-6" />
           </Link>
           <h1 className="text-white text-xl font-bold">Catalogo Buoni Pasto</h1>
