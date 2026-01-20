@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Calendar, Video, Briefcase, Users, Euro, ShoppingBag, Sparkles, BookOpen } from 'lucide-react';
+import { Calendar, Video, Briefcase, Users, Euro, ShoppingBag, Sparkles, BookOpen, UsersRound } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import Header from '../components/layout/Header';
@@ -239,6 +239,7 @@ export default function Home() {
     { title: 'Utenti', icon: Users, page: 'GestioneMembri', notifications: messages.length, permission: 'contatta_membri' },
     { title: 'Risparmio', icon: Euro, page: 'RisparmioEnergetico', notifications: 0, permission: 'risparmio_energetico' },
     { title: 'market place', icon: ShoppingBag, page: 'Marketplace', notifications: marketplaceNotifications, permission: 'marketplace' },
+    { title: 'Da imprenditore\na imprenditore', icon: UsersRound, page: 'VideoInterviste', notifications: 0, permission: 'video_interviste' },
   ];
 
   return (
@@ -287,11 +288,6 @@ export default function Home() {
             )}
           </div>
         )}
-
-        {/* Card Da Imprenditore a Imprenditore */}
-        <div className="bg-slate-800 border border-slate-700 rounded-xl p-4 mb-6 text-center">
-          <p className="text-lime-400 font-bold text-lg italic">"Da imprenditore a imprenditore"</p>
-        </div>
 
         {/* Feature Grid */}
         <div className="grid grid-cols-2 gap-4 mb-4">
