@@ -17,12 +17,12 @@ import BottomNav from '../components/layout/BottomNav';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 
 const CATEGORIES = [
-  "Riduzione Costi",
-  "Errori Fatti",
-  "Programmi Affidabili",
-  "Fornitori Top",
-  "Come lo rifarei oggi",
-  "Consigli di Vita"
+  { name: "Riduzione Costi", color: "bg-emerald-500" },
+  { name: "Errori Fatti", color: "bg-red-500" },
+  { name: "Programmi Affidabili", color: "bg-blue-500" },
+  { name: "Fornitori Top", color: "bg-purple-500" },
+  { name: "Come lo rifarei oggi", color: "bg-amber-500" },
+  { name: "Consigli di Vita", color: "bg-pink-500" }
 ];
 
 const getYoutubeId = (url) => {
