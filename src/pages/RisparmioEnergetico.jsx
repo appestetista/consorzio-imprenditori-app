@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Zap, Lightbulb, Leaf, Shield, Flame, Sun, Phone, Wifi, Heart } from 'lucide-react';
+import { ArrowLeft, Zap, Lightbulb, Leaf, Shield, Flame, Sun, Phone, Wifi } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -30,12 +30,6 @@ export default function RisparmioEnergetico() {
   });
 
   const services = [
-    {
-      icon: Heart,
-      title: 'Welfare Aziendale',
-      description: 'Soluzioni di welfare e benefit per i dipendenti',
-      color: 'pink'
-    },
     {
       icon: Shield,
       title: 'Assicurazioni',
@@ -107,10 +101,10 @@ export default function RisparmioEnergetico() {
               key={index} 
               to={createPageUrl('RisparmioDettaglio') + `?categoria=${encodeURIComponent(service.title)}`}
             >
-              <Card className={`bg-slate-800 border-slate-700 hover:border-${service.color === 'pink' ? 'pink' : 'lime'}-400/50 transition-colors h-full`}>
+              <Card className="bg-slate-800 border-slate-700 hover:border-lime-400/50 transition-colors h-full">
               <CardContent className="p-4 flex flex-col items-center text-center">
-                <div className={`w-14 h-14 ${service.color === 'pink' ? 'bg-pink-400/20' : 'bg-lime-400/20'} rounded-xl flex items-center justify-center mb-3`}>
-                  <service.icon className={`w-7 h-7 ${service.color === 'pink' ? 'text-pink-400' : 'text-lime-400'}`} />
+                <div className="w-14 h-14 bg-lime-400/20 rounded-xl flex items-center justify-center mb-3">
+                  <service.icon className="w-7 h-7 text-lime-400" />
                 </div>
                 <h3 className="text-white font-semibold text-sm">{service.title}</h3>
               </CardContent>
