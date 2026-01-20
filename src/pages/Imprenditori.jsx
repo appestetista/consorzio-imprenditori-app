@@ -38,6 +38,7 @@ export default function Imprenditori() {
   const [newPost, setNewPost] = useState({ type: 'post', category: '', title: '', content: '', youtube_url: '' });
   const { impersonation, appMode } = useImpersonation();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadUser = async () => {
