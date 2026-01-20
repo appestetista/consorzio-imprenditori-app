@@ -547,8 +547,8 @@ export default function Imprenditori() {
 
       {/* Dialog aggiungi post */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent className="bg-slate-800 border-slate-700 max-w-md">
-          <DialogHeader className="flex flex-row items-center justify-between">
+        <DialogContent className="bg-slate-800 border-slate-700 max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader className="flex flex-row items-center justify-between sticky top-0 bg-slate-800 pb-2 z-10">
             <DialogTitle className="text-lime-400">Condividi un consiglio</DialogTitle>
             <button onClick={() => setShowAddDialog(false)} className="text-slate-400 hover:text-white">
               <X className="w-5 h-5" />
