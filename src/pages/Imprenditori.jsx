@@ -189,21 +189,21 @@ export default function Imprenditori() {
         </div>
 
         {/* Etichette categorie */}
-        <div className="flex gap-2 overflow-x-auto pb-3 mb-4 scrollbar-hide">
-          <Badge 
-            className={`cursor-pointer whitespace-nowrap ${selectedCategory === 'Tutti' ? 'bg-lime-400 text-slate-900' : 'bg-slate-700 text-white hover:bg-slate-600'}`}
+        <div className="flex gap-2 overflow-x-auto pb-4 mb-2 scrollbar-hide -mx-4 px-4">
+          <button 
+            className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${selectedCategory === 'Tutti' ? 'bg-lime-400 text-slate-900 shadow-lg shadow-lime-400/25' : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700 border border-slate-700/50'}`}
             onClick={() => setSelectedCategory('Tutti')}
           >
             Tutti
-          </Badge>
+          </button>
           {CATEGORIES.map(cat => (
-            <Badge 
+            <button 
               key={cat.name}
-              className={`cursor-pointer whitespace-nowrap ${selectedCategory === cat.name ? `${cat.color} text-white` : 'bg-slate-700 text-white hover:bg-slate-600'}`}
+              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${selectedCategory === cat.name ? `${cat.color} text-white shadow-lg` : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700 border border-slate-700/50'}`}
               onClick={() => setSelectedCategory(cat.name)}
             >
               {cat.name}
-            </Badge>
+            </button>
           ))}
         </div>
 
