@@ -222,11 +222,11 @@ export default function Imprenditori() {
                   )}
                   <div className="flex-1">
                     {post.is_anonymous ? (
-                      <div className="flex items-center gap-2">
-                        <p className="text-white font-semibold">Anonimo</p>
+                      <div className="flex flex-col">
                         <span className="flex items-center gap-1 text-lime-400 text-xs">
                           <ShieldCheck className="w-3 h-3" /> Verificato
                         </span>
+                        <p className="text-white font-semibold">Anonimo</p>
                       </div>
                     ) : (
                       <p className="text-white font-semibold">{post.author_name}</p>
