@@ -42,10 +42,16 @@ export default function Imprenditori() {
   const [newComment, setNewComment] = useState('');
   const [editingPost, setEditingPost] = useState(null);
   const [deletePostId, setDeletePostId] = useState(null);
-  const [videoSource, setVideoSource] = useState('youtube'); // 'youtube' o 'upload'
+  const [videoSource, setVideoSource] = useState('youtube'); // 'youtube', 'upload' o 'record'
   const [uploadedVideoUrl, setUploadedVideoUrl] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordedBlob, setRecordedBlob] = useState(null);
+  const [mediaRecorder, setMediaRecorder] = useState(null);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const videoRef = React.useRef(null);
+  const streamRef = React.useRef(null);
   const { impersonation, appMode } = useImpersonation();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -218,6 +224,94 @@ export default function Imprenditori() {
   const resetVideoUpload = () => {
     setUploadedVideoUrl(null);
     setUploadError(null);
+    setRecordedBlob(null);
+    stopRecording();
+  };
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: 'user' }, 
+        audio: true 
+      });
+      streamRef.current = stream;
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+
+      const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+      const chunks = [];
+
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunks.push(e.data);
+      };
+
+      recorder.onstop = () => {
+        const blob = new Blob(chunks, { type: 'video/webm' });
+        setRecordedBlob(blob);
+        
+        // Ferma lo stream
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      recorder.start();
+      setMediaRecorder(recorder);
+      setIsRecording(true);
+      setRecordingTime(0);
+
+      // Timer per durata massima 2 minuti
+      const interval = setInterval(() => {
+        setRecordingTime(prev => {
+          if (prev >= 120) {
+            clearInterval(interval);
+            recorder.stop();
+            setIsRecording(false);
+            return 120;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+
+    } catch (err) {
+      console.error('Errore accesso camera:', err);
+      setUploadError('Impossibile accedere alla fotocamera. Verifica i permessi.');
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+      mediaRecorder.stop();
+    }
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+    }
+    setIsRecording(false);
+  };
+
+  const uploadRecordedVideo = async () => {
+    if (!recordedBlob) return;
+    
+    setIsUploading(true);
+    setUploadError(null);
+    
+    try {
+      const file = new File([recordedBlob], 'video-registrato.webm', { type: 'video/webm' });
+      const result = await base44.integrations.Core.UploadFile({ file });
+      setUploadedVideoUrl(result.file_url);
+      setRecordedBlob(null);
+    } catch (err) {
+      setUploadError('Errore durante il caricamento. Riprova.');
+      console.error(err);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
   const filteredPosts = selectedCategory === 'Tutti' 
@@ -497,22 +591,30 @@ export default function Imprenditori() {
             {newPost.type === 'video' && (
               <div className="space-y-3">
                 {/* Toggle sorgente video */}
-                <div className="flex gap-2">
+                <div className="grid grid-cols-3 gap-2">
                   <button
                     type="button"
                     onClick={() => { setVideoSource('youtube'); resetVideoUpload(); }}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg border transition-all ${videoSource === 'youtube' ? 'bg-red-600 border-red-500 text-white' : 'bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600'}`}
+                    className={`flex flex-col items-center justify-center gap-1 py-2 px-2 rounded-lg border transition-all ${videoSource === 'youtube' ? 'bg-red-600 border-red-500 text-white' : 'bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600'}`}
                   >
                     <Link className="w-4 h-4" />
-                    <span className="text-sm">Link YouTube</span>
+                    <span className="text-xs">YouTube</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => { setVideoSource('upload'); setNewPost({...newPost, youtube_url: ''}); }}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg border transition-all ${videoSource === 'upload' ? 'bg-lime-500 border-lime-400 text-slate-900' : 'bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600'}`}
+                    className={`flex flex-col items-center justify-center gap-1 py-2 px-2 rounded-lg border transition-all ${videoSource === 'upload' ? 'bg-lime-500 border-lime-400 text-slate-900' : 'bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600'}`}
                   >
                     <Upload className="w-4 h-4" />
-                    <span className="text-sm">Carica Video</span>
+                    <span className="text-xs">Carica</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setVideoSource('record'); resetVideoUpload(); setNewPost({...newPost, youtube_url: ''}); }}
+                    className={`flex flex-col items-center justify-center gap-1 py-2 px-2 rounded-lg border transition-all ${videoSource === 'record' ? 'bg-blue-500 border-blue-400 text-white' : 'bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600'}`}
+                  >
+                    <Video className="w-4 h-4" />
+                    <span className="text-xs">Registra</span>
                   </button>
                 </div>
 
@@ -538,7 +640,7 @@ export default function Imprenditori() {
                       </div>
                     )}
                   </>
-                ) : (
+                ) : videoSource === 'upload' ? (
                   <div className="space-y-3">
                     {!uploadedVideoUrl ? (
                       <div className="border-2 border-dashed border-slate-600 rounded-xl p-6 text-center">
@@ -573,6 +675,120 @@ export default function Imprenditori() {
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
                           <p className="text-slate-400 text-xs">Anteprima video:</p>
+                          <button
+                            type="button"
+                            onClick={resetVideoUpload}
+                            className="text-red-400 text-xs hover:text-red-300 flex items-center gap-1"
+                          >
+                            <X className="w-3 h-3" /> Rimuovi
+                          </button>
+                        </div>
+                        <div className="aspect-video rounded-lg overflow-hidden bg-black">
+                          <video
+                            src={uploadedVideoUrl}
+                            controls
+                            className="w-full h-full"
+                          />
+                        </div>
+                        <div className="flex items-center gap-2 text-lime-400 text-sm">
+                          <ShieldCheck className="w-4 h-4" />
+                          <span>Video pronto per la pubblicazione</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  /* Registrazione video diretta */
+                  <div className="space-y-3">
+                    {!uploadedVideoUrl ? (
+                      !recordedBlob ? (
+                        <div className="border-2 border-dashed border-slate-600 rounded-xl overflow-hidden">
+                          {isRecording ? (
+                            <div className="relative">
+                              <video
+                                ref={videoRef}
+                                autoPlay
+                                muted
+                                playsInline
+                                className="w-full aspect-video object-cover"
+                              />
+                              <div className="absolute top-3 left-3 flex items-center gap-2 bg-red-600 px-3 py-1 rounded-full">
+                                <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                                <span className="text-white text-sm font-medium">{formatTime(recordingTime)} / 2:00</span>
+                              </div>
+                              <div className="absolute bottom-3 left-1/2 -translate-x-1/2">
+                                <button
+                                  type="button"
+                                  onClick={stopRecording}
+                                  className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-full font-medium flex items-center gap-2"
+                                >
+                                  <div className="w-3 h-3 bg-white rounded-sm" />
+                                  Stop
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="p-6 text-center">
+                              <Video className="w-10 h-10 text-slate-500 mx-auto mb-2" />
+                              <p className="text-slate-300 text-sm mb-1">Registra un video (max 2 minuti)</p>
+                              <p className="text-slate-500 text-xs mb-3">Usa la fotocamera del dispositivo</p>
+                              <button
+                                type="button"
+                                onClick={startRecording}
+                                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 mx-auto"
+                              >
+                                <div className="w-3 h-3 bg-white rounded-full" />
+                                Inizia registrazione
+                              </button>
+                              {uploadError && (
+                                <p className="text-red-400 text-sm mt-3">{uploadError}</p>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <p className="text-slate-400 text-xs">Anteprima registrazione:</p>
+                            <button
+                              type="button"
+                              onClick={() => setRecordedBlob(null)}
+                              className="text-red-400 text-xs hover:text-red-300 flex items-center gap-1"
+                            >
+                              <X className="w-3 h-3" /> Riprova
+                            </button>
+                          </div>
+                          <div className="aspect-video rounded-lg overflow-hidden bg-black">
+                            <video
+                              src={URL.createObjectURL(recordedBlob)}
+                              controls
+                              className="w-full h-full"
+                            />
+                          </div>
+                          <button
+                            type="button"
+                            onClick={uploadRecordedVideo}
+                            disabled={isUploading}
+                            className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 py-2 rounded-lg font-medium flex items-center justify-center gap-2"
+                          >
+                            {isUploading ? (
+                              <>
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                Caricamento...
+                              </>
+                            ) : (
+                              <>
+                                <Upload className="w-4 h-4" />
+                                Conferma e carica
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      )
+                    ) : (
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <p className="text-slate-400 text-xs">Video registrato:</p>
                           <button
                             type="button"
                             onClick={resetVideoUpload}
