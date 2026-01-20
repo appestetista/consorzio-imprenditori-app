@@ -136,7 +136,9 @@ export default function Imprenditori() {
   });
 
   const canEditPost = (post) => {
-    return post.author_email === effectiveUser?.email || user?.role === 'admin';
+    // Solo l'autore del post o un admin reale (non in impersonation) può modificare/eliminare
+    const isRealAdmin = user?.role === 'admin' && !impersonation.active;
+    return post.author_email === effectiveUser?.email || isRealAdmin;
   };
 
   const handleSubmit = () => {
