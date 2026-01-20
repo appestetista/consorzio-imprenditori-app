@@ -38,8 +38,8 @@ export default function WelfareAziendale() {
     },
     {
       icon: Gift,
-      title: 'Tipologie',
-      description: 'Le diverse tipologie di buoni welfare',
+      title: 'Catalogo Marchi',
+      description: 'I brand per i fringe benefit',
       page: 'WelfareTipologie'
     },
     {
