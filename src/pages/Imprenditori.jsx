@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Video, FileText, Heart, X, Play, ArrowLeft, MessageCircle, Send, EyeOff, ShieldCheck, Pencil, Trash2, MoreVertical, UserRoundX } from 'lucide-react';
+import { Plus, Video, FileText, Heart, X, Play, ArrowLeft, MessageCircle, Send, EyeOff, ShieldCheck, Pencil, Trash2, MoreVertical, UserRoundX, Upload, Link, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -42,6 +42,10 @@ export default function Imprenditori() {
   const [newComment, setNewComment] = useState('');
   const [editingPost, setEditingPost] = useState(null);
   const [deletePostId, setDeletePostId] = useState(null);
+  const [videoSource, setVideoSource] = useState('youtube'); // 'youtube' o 'upload'
+  const [uploadedVideoUrl, setUploadedVideoUrl] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
   const { impersonation, appMode } = useImpersonation();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -84,7 +88,10 @@ export default function Imprenditori() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['imprenditore-posts'] });
       setShowAddDialog(false);
-      setNewPost({ type: 'post', category: '', title: '', content: '', youtube_url: '' });
+      setNewPost({ type: 'post', category: '', title: '', content: '', youtube_url: '', is_anonymous: false });
+      setVideoSource('youtube');
+      setUploadedVideoUrl(null);
+      setUploadError(null);
     },
   });
 
@@ -143,13 +150,74 @@ export default function Imprenditori() {
 
   const handleSubmit = () => {
     if (!newPost.title || !newPost.category) return;
-    createPostMutation.mutate({
+    
+    const postData = {
       ...newPost,
       author_email: effectiveUser?.email,
       author_name: effectiveUser?.company_name || effectiveUser?.full_name,
       likes: [],
       comments: [],
-    });
+    };
+    
+    // Se è un video caricato, usa l'URL del video uploadato
+    if (newPost.type === 'video' && videoSource === 'upload' && uploadedVideoUrl) {
+      postData.video_url = uploadedVideoUrl;
+      postData.youtube_url = null;
+    }
+    
+    createPostMutation.mutate(postData);
+  };
+
+  const handleVideoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Verifica tipo file
+    if (!file.type.startsWith('video/')) {
+      setUploadError('Seleziona un file video valido');
+      return;
+    }
+
+    // Verifica dimensione (approssimativa per 2 minuti - circa 100MB max)
+    const maxSize = 100 * 1024 * 1024; // 100MB
+    if (file.size > maxSize) {
+      setUploadError('Il video è troppo grande. Massimo 100MB (circa 2 minuti)');
+      return;
+    }
+
+    // Verifica durata
+    const video = document.createElement('video');
+    video.preload = 'metadata';
+    
+    video.onloadedmetadata = async () => {
+      window.URL.revokeObjectURL(video.src);
+      
+      if (video.duration > 120) { // 2 minuti = 120 secondi
+        setUploadError('Il video deve durare massimo 2 minuti');
+        return;
+      }
+
+      // Upload del file
+      setIsUploading(true);
+      setUploadError(null);
+      
+      try {
+        const result = await base44.integrations.Core.UploadFile({ file });
+        setUploadedVideoUrl(result.file_url);
+      } catch (err) {
+        setUploadError('Errore durante il caricamento. Riprova.');
+        console.error(err);
+      } finally {
+        setIsUploading(false);
+      }
+    };
+
+    video.src = URL.createObjectURL(file);
+  };
+
+  const resetVideoUpload = () => {
+    setUploadedVideoUrl(null);
+    setUploadError(null);
   };
 
   const filteredPosts = selectedCategory === 'Tutti' 
@@ -419,12 +487,108 @@ export default function Imprenditori() {
             />
 
             {newPost.type === 'video' && (
-              <Input 
-                placeholder="URL video YouTube"
-                value={newPost.youtube_url}
-                onChange={(e) => setNewPost({...newPost, youtube_url: e.target.value})}
-                className="bg-slate-700 border-slate-600 text-white"
-              />
+              <div className="space-y-3">
+                {/* Toggle sorgente video */}
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => { setVideoSource('youtube'); resetVideoUpload(); }}
+                    className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg border transition-all ${videoSource === 'youtube' ? 'bg-red-600 border-red-500 text-white' : 'bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600'}`}
+                  >
+                    <Link className="w-4 h-4" />
+                    <span className="text-sm">Link YouTube</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setVideoSource('upload'); setNewPost({...newPost, youtube_url: ''}); }}
+                    className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg border transition-all ${videoSource === 'upload' ? 'bg-lime-500 border-lime-400 text-slate-900' : 'bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600'}`}
+                  >
+                    <Upload className="w-4 h-4" />
+                    <span className="text-sm">Carica Video</span>
+                  </button>
+                </div>
+
+                {videoSource === 'youtube' ? (
+                  <>
+                    <Input 
+                      placeholder="URL video YouTube"
+                      value={newPost.youtube_url}
+                      onChange={(e) => setNewPost({...newPost, youtube_url: e.target.value})}
+                      className="bg-slate-700 border-slate-600 text-white"
+                    />
+                    {/* Anteprima YouTube */}
+                    {getYoutubeId(newPost.youtube_url) && (
+                      <div className="rounded-lg overflow-hidden">
+                        <p className="text-slate-400 text-xs mb-2">Anteprima:</p>
+                        <div className="aspect-video">
+                          <iframe
+                            src={`https://www.youtube.com/embed/${getYoutubeId(newPost.youtube_url)}`}
+                            className="w-full h-full rounded-lg"
+                            allowFullScreen
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="space-y-3">
+                    {!uploadedVideoUrl ? (
+                      <div className="border-2 border-dashed border-slate-600 rounded-xl p-6 text-center">
+                        {isUploading ? (
+                          <div className="flex flex-col items-center gap-2">
+                            <Loader2 className="w-8 h-8 text-lime-400 animate-spin" />
+                            <p className="text-slate-300 text-sm">Caricamento in corso...</p>
+                          </div>
+                        ) : (
+                          <>
+                            <Upload className="w-10 h-10 text-slate-500 mx-auto mb-2" />
+                            <p className="text-slate-300 text-sm mb-1">Carica un video (max 2 minuti)</p>
+                            <p className="text-slate-500 text-xs mb-3">MP4, MOV, WebM - Max 100MB</p>
+                            <label className="cursor-pointer">
+                              <span className="bg-lime-400 text-slate-900 px-4 py-2 rounded-lg text-sm font-medium hover:bg-lime-500 transition-colors">
+                                Seleziona file
+                              </span>
+                              <input
+                                type="file"
+                                accept="video/*"
+                                onChange={handleVideoUpload}
+                                className="hidden"
+                              />
+                            </label>
+                          </>
+                        )}
+                        {uploadError && (
+                          <p className="text-red-400 text-sm mt-3">{uploadError}</p>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <p className="text-slate-400 text-xs">Anteprima video:</p>
+                          <button
+                            type="button"
+                            onClick={resetVideoUpload}
+                            className="text-red-400 text-xs hover:text-red-300 flex items-center gap-1"
+                          >
+                            <X className="w-3 h-3" /> Rimuovi
+                          </button>
+                        </div>
+                        <div className="aspect-video rounded-lg overflow-hidden bg-black">
+                          <video
+                            src={uploadedVideoUrl}
+                            controls
+                            className="w-full h-full"
+                          />
+                        </div>
+                        <div className="flex items-center gap-2 text-lime-400 text-sm">
+                          <ShieldCheck className="w-4 h-4" />
+                          <span>Video pronto per la pubblicazione</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             )}
 
             <Textarea 
@@ -453,10 +617,16 @@ export default function Imprenditori() {
 
             <Button 
               onClick={handleSubmit}
-              disabled={!newPost.title || !newPost.category || createPostMutation.isPending}
+              disabled={
+                !newPost.title || 
+                !newPost.category || 
+                createPostMutation.isPending ||
+                (newPost.type === 'video' && videoSource === 'upload' && !uploadedVideoUrl) ||
+                isUploading
+              }
               className="w-full bg-lime-400 text-slate-900 hover:bg-lime-500"
             >
-              Pubblica
+              {createPostMutation.isPending ? 'Pubblicazione...' : 'Pubblica'}
             </Button>
           </div>
         </DialogContent>
