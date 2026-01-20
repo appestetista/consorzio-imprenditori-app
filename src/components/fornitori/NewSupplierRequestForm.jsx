@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation } from '@tanstack/react-query';
-import { X, Shield, AlertTriangle } from 'lucide-react';
+import { X, Shield, AlertTriangle, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -49,6 +49,7 @@ export default function NewSupplierRequestForm({ user, onClose, onSuccess }) {
     budget_amount: '',
     urgency: ''
   });
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.SupplierRequest.create({
@@ -58,7 +59,10 @@ export default function NewSupplierRequestForm({ user, onClose, onSuccess }) {
       candidates_count: 0
     }),
     onSuccess: () => {
-      onSuccess();
+      setShowSuccess(true);
+      setTimeout(() => {
+        onSuccess();
+      }, 2000);
     }
   });
 
@@ -190,6 +194,13 @@ export default function NewSupplierRequestForm({ user, onClose, onSuccess }) {
         >
           {createMutation.isPending ? 'Pubblicazione...' : 'Pubblica richiesta anonima'}
         </Button>
+
+        {showSuccess && (
+          <div className="flex items-center gap-2 bg-green-500/20 border border-green-500/50 rounded-lg p-3 mt-3">
+            <CheckCircle className="w-5 h-5 text-green-400" />
+            <span className="text-green-400 font-medium">La tua richiesta è stata pubblicata</span>
+          </div>
+        )}
       </div>
     </div>
   );
