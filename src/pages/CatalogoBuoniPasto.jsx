@@ -167,7 +167,7 @@ export default function CatalogoBuoniPasto() {
                   className="bg-slate-700/50 rounded-lg px-2 py-1.5 text-slate-300 text-[11px] flex items-center gap-1.5"
                 >
                   <Store className="w-2.5 h-2.5 text-pink-400 flex-shrink-0" />
-                  <span className="break-words leading-tight">{insegna}</span>
+                  <span className="break-words leading-tight uppercase">{insegna}</span>
                 </div>
               ))}
             </div>
