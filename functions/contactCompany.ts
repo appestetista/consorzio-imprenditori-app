@@ -109,7 +109,9 @@ Consorzio Imprenditori`;
             from_email: user.email,
             to_email: companyEmail,
             content: `Richiesta di contatto da ${user.company_name || user.full_name}\n\nHo visto la vostra video intervista e vorrei essere contattato.\n\nAzienda: ${user.company_name || 'N/A'}\nReferente: ${user.full_name || 'N/A'}\nTelefono: ${user.phone || 'N/A'}`,
-            conversation_id: conversationId
+            conversation_id: conversationId,
+            source: 'video',
+            source_reference: targetUser.company_name || 'Video Intervista'
         });
 
         return Response.json({ 
