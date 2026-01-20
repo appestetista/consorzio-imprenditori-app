@@ -486,7 +486,7 @@ export default function GestioneMembri() {
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                          <AlertDialogCancel className="bg-slate-700 text-white border-slate-600">Annulla</AlertDialogCancel>
+                          <AlertDialogCancel className="bg-slate-700 text-slate-400 border-slate-600 hover:text-white">Annulla</AlertDialogCancel>
                           <AlertDialogAction 
                             className="bg-red-600 hover:bg-red-700"
                             onClick={() => deleteMemberMutation.mutate(member.id)}
@@ -866,7 +866,7 @@ export default function GestioneMembri() {
                 <Button
                   variant="outline"
                   onClick={() => setShowMemberForm(false)}
-                  className="flex-1 border-slate-600 text-slate-300"
+                  className="flex-1 border-slate-600 text-slate-400 hover:text-white"
                 >
                   Annulla
                 </Button>

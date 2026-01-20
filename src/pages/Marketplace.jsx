@@ -795,7 +795,7 @@ export default function Marketplace() {
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
-                    className="flex-1 border-slate-600 text-slate-300"
+                    className="flex-1 border-slate-600 text-slate-400 hover:text-white"
                     onClick={() => setEditingAd(null)}
                   >
                     Annulla
@@ -891,7 +891,7 @@ export default function Marketplace() {
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
-                    className="flex-1 border-slate-600 text-slate-300"
+                    className="flex-1 border-slate-600 text-slate-400 hover:text-white"
                     onClick={() => {
                       setContactingAd(null);
                       setContactMessage('');
@@ -929,7 +929,7 @@ export default function Marketplace() {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel className="border-slate-600 text-slate-300 hover:bg-slate-700">
+              <AlertDialogCancel className="border-slate-600 text-slate-400 hover:bg-slate-700 hover:text-white">
                 Annulla
               </AlertDialogCancel>
               <AlertDialogAction
