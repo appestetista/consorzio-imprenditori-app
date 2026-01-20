@@ -48,7 +48,7 @@ const BUDGET_LABELS = {
 
 const PAYMENT_FREQUENCY_LABELS = {
   'una_tantum': 'Una tantum',
-  'a_lavoro_finito': 'A lavoro finito',
+  'totale_budget': 'Totale budget',
   'giornaliero': 'Giornaliero',
   'mensile': 'Mensile',
   'trimestrale': 'Trimestrale',
@@ -262,7 +262,7 @@ function EditRequestForm({ request, onClose, onSuccess }) {
 
   const PAYMENT_FREQUENCIES = [
     { value: 'una_tantum', label: 'Una tantum' },
-    { value: 'a_lavoro_finito', label: 'A lavoro finito' },
+    { value: 'totale_budget', label: 'Totale budget' },
     { value: 'giornaliero', label: 'Giornaliero' },
     { value: 'mensile', label: 'Mensile' },
     { value: 'trimestrale', label: 'Trimestrale' },
