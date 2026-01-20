@@ -645,10 +645,43 @@ export default function Imprenditori() {
 
                   {/* Info voti */}
                   <div className="flex items-center justify-between text-sm text-slate-500 pt-2 border-t border-slate-700/50">
-                    <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4" />
+                    <button 
+                      onClick={() => totalVotes > 0 && setShowVotersDialog(post.id)}
+                      className={`flex items-center gap-2 ${totalVotes > 0 ? 'hover:text-lime-400 cursor-pointer' : ''}`}
+                      disabled={totalVotes === 0}
+                    >
+                      {/* Avatar dei votanti */}
+                      {totalVotes > 0 && (
+                        <div className="flex -space-x-2">
+                          {(() => {
+                            const allVoterEmails = new Set();
+                            post.options?.forEach(opt => (opt.votes || []).forEach(v => allVoterEmails.add(v)));
+                            const votersList = Array.from(allVoterEmails).slice(0, 3);
+                            return votersList.map((email, idx) => {
+                              const voter = allUsers.find(u => u.email === email);
+                              return (
+                                <div 
+                                  key={idx}
+                                  className="w-6 h-6 bg-lime-400/30 rounded-full flex items-center justify-center border-2 border-slate-800"
+                                  title={voter?.company_name || voter?.full_name || email}
+                                >
+                                  <span className="text-lime-400 text-[10px] font-bold">
+                                    {(voter?.company_name || voter?.full_name || email)?.charAt(0)?.toUpperCase()}
+                                  </span>
+                                </div>
+                              );
+                            });
+                          })()}
+                          {totalVotes > 3 && (
+                            <div className="w-6 h-6 bg-slate-600 rounded-full flex items-center justify-center border-2 border-slate-800">
+                              <span className="text-white text-[10px] font-bold">+{totalVotes - 3}</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      {totalVotes === 0 && <Users className="w-4 h-4" />}
                       <span>{totalVotes} {totalVotes === 1 ? 'voto' : 'voti'}</span>
-                    </div>
+                    </button>
                     {post.is_multiple_choice && (
                       <span className="text-xs bg-slate-700 px-2 py-1 rounded-full">Scelta multipla</span>
                     )}
