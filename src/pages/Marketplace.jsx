@@ -612,11 +612,25 @@ export default function Marketplace() {
                 <CardHeader className="pb-2">
                   <div className="flex items-start justify-between">
                     <CardTitle className="text-white text-lg">{ad.title}</CardTitle>
-                    {ad.price && (
-                      <Badge className="bg-lime-400 text-slate-900">
-                        €{ad.price}
-                      </Badge>
-                    )}
+                    <div className="flex flex-col items-end gap-1">
+                      {ad.price && (
+                        <Badge className="bg-lime-400 text-slate-900">
+                          €{ad.price}
+                        </Badge>
+                      )}
+                      {ad.contact_email === effectiveEmail && getUnreadCountForAd(ad.id, ad.title) > 0 && (
+                        <button
+                          onClick={() => {
+                            setViewingMessagesAd(ad);
+                            markMessagesAsRead(ad.title);
+                          }}
+                          className="flex items-center gap-1 bg-red-500 hover:bg-red-600 text-white text-xs px-2 py-1 rounded-full transition-colors"
+                        >
+                          <MessageCircle className="w-3 h-3" />
+                          {getUnreadCountForAd(ad.id, ad.title)}
+                        </button>
+                      )}
+                    </div>
                   </div>
                   <Badge variant="outline" className="w-fit border-lime-400/30 text-lime-400">
                     <Tag className="w-3 h-3 mr-1" />
@@ -658,27 +672,7 @@ export default function Marketplace() {
                   {/* Azioni per il proprietario dell'annuncio */}
                   {ad.contact_email === effectiveEmail && (
                     <>
-                      {/* Pulsante messaggi ricevuti */}
-                      <div className="mt-3 pt-3 border-t border-slate-700">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="w-full border-lime-400 text-lime-400 hover:bg-lime-400/20 relative"
-                          onClick={() => {
-                            setViewingMessagesAd(ad);
-                            markMessagesAsRead(ad.title);
-                          }}
-                        >
-                          <Mail className="w-4 h-4 mr-1" />
-                          Messaggi ricevuti
-                          {getUnreadCountForAd(ad.id, ad.title) > 0 && (
-                            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-                              {getUnreadCountForAd(ad.id, ad.title)}
-                            </span>
-                          )}
-                        </Button>
-                      </div>
-                      <div className="flex gap-2 mt-2">
+                      <div className="flex gap-2 mt-3 pt-3 border-t border-slate-700">
                         <Button
                           variant="outline"
                           size="sm"
