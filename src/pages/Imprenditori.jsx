@@ -47,6 +47,7 @@ export default function Imprenditori() {
   const [newComment, setNewComment] = useState('');
   const [editingPost, setEditingPost] = useState(null);
   const [deletePostId, setDeletePostId] = useState(null);
+  const [showVotersDialog, setShowVotersDialog] = useState(null);
   const { impersonation, appMode } = useImpersonation();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
