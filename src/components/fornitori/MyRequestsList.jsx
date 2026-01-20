@@ -345,7 +345,7 @@ export default function MyRequestsList({ user }) {
 
       {/* Dialog visualizza candidature ricevute */}
       <Dialog open={!!viewingApplicationsRequest} onOpenChange={() => setViewingApplicationsRequest(null)}>
-        <DialogContent className="bg-slate-800 border-slate-700 max-w-md max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-slate-800 border-slate-700 w-[calc(100vw-2rem)] max-w-md max-h-[80vh] overflow-y-auto mx-auto">
           <DialogHeader>
             <DialogTitle className="text-white">Candidature ricevute</DialogTitle>
           </DialogHeader>
