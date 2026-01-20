@@ -365,7 +365,6 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
           >
             <div>
               <p className="text-slate-900 text-sm font-medium">richiedi la tua video intervista</p>
-              <p className="text-slate-700 text-xs">annuale compresa nel prezzo d'iscrizione</p>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-slate-900 text-xs">clicca qui</span>
