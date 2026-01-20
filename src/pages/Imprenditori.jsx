@@ -122,7 +122,12 @@ export default function Imprenditori() {
       
       <main className="px-4 py-6 max-w-md mx-auto">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-lime-400 text-xl font-bold">Da Imprenditore a Imprenditore</h1>
+          <div className="flex items-center gap-3">
+            <button onClick={() => navigate(createPageUrl('Home'))} className="text-lime-400">
+              <ArrowLeft className="w-6 h-6" />
+            </button>
+            <h1 className="text-lime-400 text-xl font-bold">Da Imprenditore a Imprenditore</h1>
+          </div>
           <Button 
             onClick={() => setShowAddDialog(true)}
             className="bg-lime-400 text-slate-900 hover:bg-lime-500"
