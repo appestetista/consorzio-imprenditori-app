@@ -91,8 +91,16 @@ export default function Imprenditori() {
     queryFn: () => base44.entities.User.list(),
   });
 
-  // Conta sondaggi non visualizzati dall'utente corrente
+  // Conta sondaggi non visualizzati dall'utente corrente (solo quelli visibili a lui)
   const unviewedPollsCount = posts.filter(post => {
+    // Prima verifica se l'utente può vedere questo sondaggio
+    if (post.target_type === 'specific') {
+      const isAuthor = post.author_email === effectiveUser?.email;
+      const isTargetUser = post.target_users?.includes(effectiveUser?.email);
+      const isRealAdmin = user?.role === 'admin' && !impersonation?.active;
+      if (!isAuthor && !isTargetUser && !isRealAdmin) return false;
+    }
+    // Poi verifica se lo ha già visto
     if (!post.viewed_by) return true;
     return !post.viewed_by.includes(effectiveUser?.email);
   }).length;
