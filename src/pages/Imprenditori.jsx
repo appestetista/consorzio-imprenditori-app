@@ -123,12 +123,20 @@ export default function Imprenditori() {
     return unsubscribe;
   }, [effectiveUser?.email, queryClient, playSound]);
 
-  // Segna post come visualizzati quando l'utente entra nella pagina
+  // Segna post come visualizzati quando l'utente entra nella pagina (solo quelli visibili a lui)
   useEffect(() => {
     const markAsViewed = async () => {
       if (!effectiveUser?.email || posts.length === 0) return;
       
       const unviewedPosts = posts.filter(post => {
+        // Prima verifica se l'utente può vedere questo sondaggio
+        if (post.target_type === 'specific') {
+          const isAuthor = post.author_email === effectiveUser?.email;
+          const isTargetUser = post.target_users?.includes(effectiveUser?.email);
+          const isRealAdmin = user?.role === 'admin' && !impersonation?.active;
+          if (!isAuthor && !isTargetUser && !isRealAdmin) return false;
+        }
+        // Poi verifica se lo ha già visto
         if (!post.viewed_by) return true;
         return !post.viewed_by.includes(effectiveUser.email);
       });
@@ -144,7 +152,7 @@ export default function Imprenditori() {
     };
 
     markAsViewed();
-  }, [effectiveUser?.email, posts]);
+  }, [effectiveUser?.email, posts, user?.role, impersonation?.active]);
 
   const createPostMutation = useMutation({
     mutationFn: (data) => base44.entities.ImprenditorePost.create(data),
