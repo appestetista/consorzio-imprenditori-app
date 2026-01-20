@@ -50,10 +50,10 @@ const BUDGET_LABELS = {
 export default function MyRequestsList({ user }) {
   const [selectedRequest, setSelectedRequest] = useState(null);
 
+  // Mostra tutte le richieste aperte a tutti gli utenti
   const { data: requests = [], isLoading } = useQuery({
-    queryKey: ['my-supplier-requests', user?.email],
-    queryFn: () => base44.entities.SupplierRequest.filter({ author_email: user?.email }, '-created_date'),
-    enabled: !!user?.email,
+    queryKey: ['all-supplier-requests'],
+    queryFn: () => base44.entities.SupplierRequest.filter({ status: 'aperta' }, '-created_date'),
   });
 
   if (selectedRequest) {
@@ -94,11 +94,18 @@ export default function MyRequestsList({ user }) {
           <button
             key={request.id}
             onClick={() => setSelectedRequest(request)}
-            className="w-full bg-slate-800 rounded-xl p-4 border border-slate-700 hover:border-lime-400/50 transition-all text-left"
+            className={`w-full bg-slate-800 rounded-xl p-4 border transition-all text-left ${
+              request.author_email === user?.email 
+                ? 'border-lime-400/30 hover:border-lime-400/60' 
+                : 'border-slate-700 hover:border-lime-400/50'
+            }`}
           >
             <div className="flex items-start justify-between mb-2">
               <div className="flex-1 min-w-0">
                 <h3 className="text-white font-medium">{request.service_type}</h3>
+                {request.author_email === user?.email && (
+                  <span className="text-lime-400 text-xs">Il tuo annuncio</span>
+                )}
               </div>
               <Badge className={statusConfig.color}>
                 <StatusIcon className="w-3 h-3 mr-1" />

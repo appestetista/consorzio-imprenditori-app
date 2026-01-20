@@ -108,7 +108,7 @@ export default function RequestDetailView({ request, user, onBack }) {
       <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
         <div className="flex items-start justify-between mb-2">
           <h3 className="text-lime-400 font-medium">{request.service_type}</h3>
-          {request.status === 'aperta' && (
+          {request.status === 'aperta' && request.author_email === user?.email && (
             <div className="flex gap-2">
               <button 
                 onClick={() => setShowEditForm(true)}

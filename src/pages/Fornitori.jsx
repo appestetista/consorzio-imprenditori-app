@@ -103,11 +103,11 @@ export default function Fornitori() {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="w-full bg-slate-800 border border-slate-700 mb-4">
             <TabsTrigger 
-              value="my-requests" 
-              className="flex-1 data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900"
+            value="my-requests" 
+            className="flex-1 data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900"
             >
-              <Search className="w-4 h-4 mr-2" />
-              Le mie richieste
+            <Search className="w-4 h-4 mr-2" />
+            Richieste
             </TabsTrigger>
             {isSupplier && (
               <TabsTrigger 
