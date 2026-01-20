@@ -164,10 +164,10 @@ export default function CatalogoBuoniPasto() {
               {filteredInsegne.map((insegna) => (
                 <div 
                   key={insegna}
-                  className="bg-slate-700/50 rounded-lg px-3 py-2 text-slate-300 text-sm flex items-center gap-2"
+                  className="bg-slate-700/50 rounded-lg px-2 py-1.5 text-slate-300 text-[11px] flex items-center gap-1.5"
                 >
-                  <Store className="w-3 h-3 text-pink-400 flex-shrink-0" />
-                  <span className="truncate">{insegna}</span>
+                  <Store className="w-2.5 h-2.5 text-pink-400 flex-shrink-0" />
+                  <span className="break-words leading-tight">{insegna}</span>
                 </div>
               ))}
             </div>
