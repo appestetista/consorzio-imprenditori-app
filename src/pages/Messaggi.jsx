@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { ArrowLeft, Send, User, X, Paperclip, Camera, FileText, Image as ImageIcon } from 'lucide-react';
+import { ArrowLeft, Send, User, X, Paperclip, Camera, FileText, Image as ImageIcon, ShoppingBag, Video, Phone, Briefcase, MessageCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -108,6 +108,40 @@ export default function Messaggi() {
 
   const getOtherUser = (email) => {
     return users.find(u => u.email === email);
+  };
+
+  // Funzione per ottenere l'etichetta della sezione
+  const getSourceLabel = (msg) => {
+    const sourceConfig = {
+      marketplace: { label: 'Marketplace', icon: ShoppingBag, color: 'bg-purple-500' },
+      video: { label: 'Video Interviste', icon: Video, color: 'bg-blue-500' },
+      contatta_consorzio: { label: 'Contatta Consorzio', icon: Phone, color: 'bg-green-500' },
+      consulenze: { label: 'Consulenze', icon: Briefcase, color: 'bg-orange-500' },
+      diretto: { label: 'Messaggio Diretto', icon: MessageCircle, color: 'bg-slate-500' }
+    };
+    
+    // Prova prima con il campo source
+    if (msg.source && sourceConfig[msg.source]) {
+      return sourceConfig[msg.source];
+    }
+    
+    // Fallback: controlla il contenuto del messaggio per compatibilità
+    if (msg.content?.includes('annuncio "')) {
+      return sourceConfig.marketplace;
+    }
+    
+    return sourceConfig.diretto;
+  };
+
+  // Ottieni la source più recente per una conversazione
+  const getConversationSource = (msgs) => {
+    // Prendi l'ultimo messaggio con source definita
+    const lastWithSource = [...msgs].reverse().find(m => m.source);
+    if (lastWithSource) {
+      return getSourceLabel(lastWithSource);
+    }
+    // Fallback al primo messaggio
+    return getSourceLabel(msgs[0] || {});
   };
 
   const handleFileUpload = async (e) => {
@@ -508,6 +542,8 @@ export default function Messaggi() {
               const otherUser = getOtherUser(email);
               const lastMessage = msgs[msgs.length - 1];
               const unreadCount = msgs.filter(m => m.to_email === effectiveEmail && !m.is_read).length;
+              const sourceInfo = getConversationSource(msgs);
+              const SourceIcon = sourceInfo.icon;
               
               return (
                 <Card
@@ -515,6 +551,19 @@ export default function Messaggi() {
                   className="bg-slate-800 border-slate-700 p-4 cursor-pointer hover:bg-slate-700 transition-colors"
                   onClick={() => setSelectedConversation(email)}
                 >
+                  {/* Etichetta sezione */}
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <span className={`${sourceInfo.color} text-white text-[10px] font-semibold px-2 py-0.5 rounded-full flex items-center gap-1`}>
+                      <SourceIcon className="w-3 h-3" />
+                      {sourceInfo.label}
+                    </span>
+                    {lastMessage?.source_reference && (
+                      <span className="text-slate-500 text-[10px] truncate max-w-[150px]">
+                        • {lastMessage.source_reference}
+                      </span>
+                    )}
+                  </div>
+                  
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 bg-lime-400/20 rounded-full flex items-center justify-center flex-shrink-0">
                       <User className="w-6 h-6 text-lime-400" />

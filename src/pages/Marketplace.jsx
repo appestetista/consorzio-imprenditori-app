@@ -151,7 +151,9 @@ export default function Marketplace() {
         to_email: ad.contact_email,
         content: `📢 Messaggio relativo all'annuncio "${ad.title}":\n\n${message}`,
         conversation_id: conversationId,
-        is_read: false
+        is_read: false,
+        source: 'marketplace',
+        source_reference: ad.title
       });
 
       // Crea notifica per il proprietario dell'annuncio
