@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, FileText, Users, AlertTriangle, CheckCircle, XCircle, Euro, Building2, UserCheck, Baby, Info, UtensilsCrossed, Gift } from 'lucide-react';
+import { ArrowLeft, FileText, Users, AlertTriangle, CheckCircle, XCircle, Euro, Building2, UserCheck, Baby, Info, UtensilsCrossed, Gift, Package } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Card, CardContent } from '@/components/ui/card';
@@ -61,24 +61,30 @@ export default function WelfareNormativa() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-          <TabsList className="grid grid-cols-3 bg-slate-800 border border-slate-700 p-1 rounded-xl">
+          <TabsList className="grid grid-cols-4 bg-slate-800 border border-slate-700 p-1 rounded-xl">
             <TabsTrigger 
               value="buoni-pasto" 
-              className="data-[state=active]:bg-pink-500 data-[state=active]:text-white text-slate-400 rounded-lg text-xs py-2"
+              className="data-[state=active]:bg-pink-500 data-[state=active]:text-white text-slate-400 rounded-lg text-[10px] py-2 px-1"
             >
               Buoni Pasto
             </TabsTrigger>
             <TabsTrigger 
               value="fringe-benefit" 
-              className="data-[state=active]:bg-pink-500 data-[state=active]:text-white text-slate-400 rounded-lg text-xs py-2"
+              className="data-[state=active]:bg-pink-500 data-[state=active]:text-white text-slate-400 rounded-lg text-[10px] py-2 px-1"
             >
               Fringe Benefit
             </TabsTrigger>
             <TabsTrigger 
               value="buoni-regalo" 
-              className="data-[state=active]:bg-pink-500 data-[state=active]:text-white text-slate-400 rounded-lg text-xs py-2"
+              className="data-[state=active]:bg-pink-500 data-[state=active]:text-white text-slate-400 rounded-lg text-[10px] py-2 px-1"
             >
               Buoni Regalo
+            </TabsTrigger>
+            <TabsTrigger 
+              value="buoni-omaggio" 
+              className="data-[state=active]:bg-pink-500 data-[state=active]:text-white text-slate-400 rounded-lg text-[10px] py-2 px-1"
+            >
+              Buoni Omaggio
             </TabsTrigger>
           </TabsList>
 
@@ -414,6 +420,108 @@ export default function WelfareNormativa() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* TAB BUONI OMAGGIO */}
+          <TabsContent value="buoni-omaggio" className="mt-4 space-y-4">
+            <Card className="bg-slate-800 border-slate-700">
+              <CardContent className="p-4">
+                <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+                  <Package className="w-5 h-5 text-pink-400" />
+                  Cosa sono i Buoni Omaggio?
+                </h3>
+                <p className="text-slate-300 text-sm leading-relaxed">
+                  I <span className="text-pink-400 font-medium">buoni omaggio</span> sono omaggi in natura o buoni acquisto destinati a <strong className="text-white">clienti, fornitori o partner commerciali</strong>, non ai dipendenti.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-slate-800 border-slate-700">
+              <CardContent className="p-4">
+                <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+                  <Euro className="w-5 h-5 text-pink-400" />
+                  Limiti di deducibilità
+                </h3>
+                <p className="text-slate-300 text-sm mb-3">
+                  Gli omaggi a clienti/fornitori sono <strong className="text-white">spese di rappresentanza</strong> e seguono regole diverse:
+                </p>
+                <div className="bg-gradient-to-br from-pink-500/20 to-rose-500/20 rounded-lg p-4 text-center border border-pink-500/30 mb-3">
+                  <p className="text-pink-300 text-xs mb-1">Limite per singolo omaggio</p>
+                  <p className="text-pink-400 text-2xl font-bold">€50,00</p>
+                  <p className="text-pink-300/70 text-xs">IVA detraibile + costo deducibile</p>
+                </div>
+                <div className="bg-slate-900 rounded-lg p-3">
+                  <p className="text-slate-400 text-xs">
+                    📜 <span className="text-slate-300">Riferimento:</span> Art. 108, comma 2, TUIR e DM 19/11/2008
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-slate-800 border-slate-700">
+              <CardContent className="p-4">
+                <h3 className="text-white font-semibold mb-3">Regole fiscali</h3>
+                <div className="space-y-3">
+                  <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3">
+                    <p className="text-green-400 text-xs font-semibold mb-1">✓ Omaggio ≤ €50</p>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-3 h-3 text-green-400 flex-shrink-0" />
+                        <span className="text-slate-300 text-xs">IVA interamente detraibile</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-3 h-3 text-green-400 flex-shrink-0" />
+                        <span className="text-slate-300 text-xs">Costo interamente deducibile</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3">
+                    <p className="text-amber-400 text-xs font-semibold mb-1">⚠️ Omaggio > €50</p>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <XCircle className="w-3 h-3 text-amber-400 flex-shrink-0" />
+                        <span className="text-slate-300 text-xs">IVA indetraibile</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <AlertTriangle className="w-3 h-3 text-amber-400 flex-shrink-0" />
+                        <span className="text-slate-300 text-xs">Deducibilità limitata (in base ai ricavi)</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-slate-800 border-slate-700">
+              <CardContent className="p-4">
+                <h3 className="text-white font-semibold mb-3">Esempi di utilizzo</h3>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-slate-300 text-sm">
+                    <CheckCircle className="w-4 h-4 text-green-400" />
+                    <span>Cesti natalizi per clienti</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-slate-300 text-sm">
+                    <CheckCircle className="w-4 h-4 text-green-400" />
+                    <span>Bottiglie di vino per fornitori</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-slate-300 text-sm">
+                    <CheckCircle className="w-4 h-4 text-green-400" />
+                    <span>Gadget aziendali per eventi</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-slate-300 text-sm">
+                    <CheckCircle className="w-4 h-4 text-green-400" />
+                    <span>Buoni acquisto per partner</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Alert className="bg-blue-500/10 border-blue-500/30">
+              <Info className="h-4 w-4 text-blue-400" />
+              <AlertDescription className="text-slate-300 text-xs">
+                <strong className="text-blue-400">Differenza chiave:</strong> I buoni omaggio sono per terzi (clienti/fornitori), i fringe benefit sono per i dipendenti. Regole fiscali completamente diverse!
+              </AlertDescription>
+            </Alert>
           </TabsContent>
         </Tabs>
       </main>
