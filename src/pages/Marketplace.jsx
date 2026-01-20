@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Plus, ShoppingBag, Tag, User, X, Upload, Pencil, Trash2, MessageCircle, Send, Loader2, Mail } from 'lucide-react';
+import { ArrowLeft, Plus, ShoppingBag, Tag, User, X, Upload, Pencil, Trash2, MessageCircle, Send, Loader2, Mail, Briefcase, Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,8 @@ import { Label } from '@/components/ui/label';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
+import JobApplicationForm from '../components/marketplace/JobApplicationForm';
+import ApplicationReadStatus from '../components/marketplace/ApplicationReadStatus';
 
 const CATEGORIES = [
   "Ricerca Personale",
@@ -39,6 +41,7 @@ export default function Marketplace() {
   const [contactingAd, setContactingAd] = useState(null);
   const [contactMessage, setContactMessage] = useState('');
   const [viewingMessagesAd, setViewingMessagesAd] = useState(null);
+  const [applyingToAd, setApplyingToAd] = useState(null);
   const queryClient = useQueryClient();
   const { impersonation } = useImpersonation();
 
@@ -74,6 +77,26 @@ export default function Marketplace() {
     queryFn: () => base44.entities.Message.filter({ to_email: effectiveEmail }, '-created_date'),
     enabled: !!effectiveEmail,
   });
+
+  // Le mie candidature inviate
+  const { data: myApplications = [] } = useQuery({
+    queryKey: ['my-applications', effectiveEmail],
+    queryFn: () => base44.entities.Message.filter({ 
+      from_email: effectiveEmail, 
+      source: 'marketplace_candidatura' 
+    }),
+    enabled: !!effectiveEmail,
+  });
+
+  // Controlla se ho già inviato candidatura per un annuncio
+  const hasAppliedTo = (adTitle) => {
+    return myApplications.some(m => m.source_reference === adTitle);
+  };
+
+  // Trova la mia candidatura per un annuncio
+  const getMyApplication = (adTitle) => {
+    return myApplications.find(m => m.source_reference === adTitle);
+  };
 
   // Conta messaggi non letti per ogni annuncio
   const getUnreadCountForAd = (adId, adTitle) => {
@@ -664,15 +687,36 @@ export default function Marketplace() {
                       </Button>
                     )}
                     {ad.contact_email !== effectiveEmail && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex-1 border-lime-400 text-lime-400 hover:bg-lime-400/20"
-                        onClick={() => setContactingAd(ad)}
-                      >
-                        <MessageCircle className="w-4 h-4 mr-1" />
-                        Messaggio
-                      </Button>
+                      <>
+                        {ad.category === 'Ricerca Personale' ? (
+                          hasAppliedTo(ad.title) ? (
+                            <div className="flex-1 flex items-center justify-center gap-2 bg-slate-700 rounded-md py-2 px-3">
+                              <span className="text-slate-300 text-sm">Candidatura inviata</span>
+                              <ApplicationReadStatus isRead={getMyApplication(ad.title)?.is_read} />
+                            </div>
+                          ) : (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="flex-1 border-lime-400 text-lime-400 hover:bg-lime-400/20"
+                              onClick={() => setApplyingToAd(ad)}
+                            >
+                              <Briefcase className="w-4 h-4 mr-1" />
+                              Candidati
+                            </Button>
+                          )
+                        ) : (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1 border-lime-400 text-lime-400 hover:bg-lime-400/20"
+                            onClick={() => setContactingAd(ad)}
+                          >
+                            <MessageCircle className="w-4 h-4 mr-1" />
+                            Messaggio
+                          </Button>
+                        )}
+                      </>
                     )}
                   </div>
                   
@@ -915,6 +959,26 @@ export default function Marketplace() {
                   </Button>
                 </div>
               </div>
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Dialog Candidatura */}
+        <Dialog open={!!applyingToAd} onOpenChange={(open) => !open && setApplyingToAd(null)}>
+          <DialogContent className="bg-slate-800 border-slate-700">
+            <DialogHeader>
+              <DialogTitle className="text-white">Candidati per "{applyingToAd?.title}"</DialogTitle>
+            </DialogHeader>
+            {applyingToAd && (
+              <JobApplicationForm
+                ad={applyingToAd}
+                user={user}
+                onClose={() => setApplyingToAd(null)}
+                onSuccess={() => {
+                  setApplyingToAd(null);
+                  queryClient.invalidateQueries({ queryKey: ['my-applications'] });
+                }}
+              />
             )}
           </DialogContent>
         </Dialog>
