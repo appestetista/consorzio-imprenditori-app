@@ -51,7 +51,9 @@ export default function ContattaConsorzio() {
           from_email: user.email,
           to_email: admin.email,
           content: `[Messaggio al Consorzio]\n\n${message}`,
-          conversation_id: conversationId
+          conversation_id: conversationId,
+          source: 'contatta_consorzio',
+          source_reference: 'Contatta Consorzio'
         });
       }
     },
