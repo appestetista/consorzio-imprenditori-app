@@ -12,38 +12,43 @@ export default function BottomNav({ currentPage, unreadMessages = 0 }) {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-lime-400 py-3 px-4 z-50 shadow-lg">
-      <div className="max-w-md mx-auto flex justify-around items-center">
-        {navItems.map((item) => {
-          const isActive = currentPage === item.page;
-          return (
-            <Link
-              key={item.name}
-              to={createPageUrl(item.page)}
-              className={cn(
-                "flex flex-col items-center gap-1 transition-all px-4 py-1 rounded-xl",
-                isActive 
-                  ? "bg-slate-900 text-lime-400" 
-                  : "text-slate-800 hover:bg-slate-900/10"
-              )}
-            >
-              <div className="relative">
-                <item.icon className={cn("w-6 h-6", isActive && "stroke-[2.5px]")} />
-                {item.badge > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] rounded-full min-w-5 h-5 px-1 flex items-center justify-center font-bold animate-pulse">
-                    {item.badge > 99 ? '99+' : item.badge}
-                  </span>
+    <nav className="fixed bottom-0 left-0 right-0 bg-lime-400 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.15)]">
+      <div className="max-w-md mx-auto px-6 py-2">
+        <div className="flex justify-between items-center">
+          {navItems.map((item) => {
+            const isActive = currentPage === item.page;
+            return (
+              <Link
+                key={item.name}
+                to={createPageUrl(item.page)}
+                className={cn(
+                  "flex flex-col items-center justify-center min-w-[70px] py-2 px-3 rounded-2xl transition-all duration-200",
+                  isActive 
+                    ? "bg-slate-900" 
+                    : "hover:bg-slate-900/10"
                 )}
-              </div>
-              <span className={cn(
-                "text-xs font-semibold",
-                isActive && "text-lime-400"
-              )}>
-                {item.label}
-              </span>
-            </Link>
-          );
-        })}
+              >
+                <div className="relative">
+                  <item.icon className={cn(
+                    "w-5 h-5 mb-1",
+                    isActive ? "text-lime-400 stroke-[2.5px]" : "text-slate-800"
+                  )} />
+                  {item.badge > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] rounded-full min-w-4 h-4 px-1 flex items-center justify-center font-bold">
+                      {item.badge > 99 ? '99+' : item.badge}
+                    </span>
+                  )}
+                </div>
+                <span className={cn(
+                  "text-[11px] font-semibold",
+                  isActive ? "text-lime-400" : "text-slate-800"
+                )}>
+                  {item.label}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
       </div>
     </nav>
   );
