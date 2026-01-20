@@ -15,7 +15,8 @@ import { useImpersonation } from '../components/admin/ImpersonationContext';
 const CATEGORIES = [
   "Riduzione Costi",
   "Errori Fatti",
-  "Programmi Affidabili"
+  "Programmi Affidabili",
+  "Fornitori Top"
 ];
 
 const getYoutubeId = (url) => {
