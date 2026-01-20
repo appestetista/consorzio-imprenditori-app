@@ -27,7 +27,7 @@ const CATEGORIES = [
 
 const getYoutubeId = (url) => {
   if (!url) return null;
-  const match = url.match(/(?:youtu\.be\/|youtube\.com(?:\/embed\/|\/v\/|\/watch\?v=|\/watch\?.+&v=))([^"&?\/\s]{11})/);
+  const match = url.match(/(?:youtu\.be\/|youtube\.com(?:\/embed\/|\/v\/|\/shorts\/|\/watch\?v=|\/watch\?.+&v=))([^"&?\/\s]{11})/);
   return match ? match[1] : null;
 };
 
