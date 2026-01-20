@@ -1187,6 +1187,60 @@ export default function Imprenditori() {
         </DialogContent>
       </Dialog>
 
+      {/* Dialog lista votanti */}
+      <Dialog open={!!showVotersDialog} onOpenChange={() => setShowVotersDialog(null)}>
+        <DialogContent className="bg-slate-800 border-slate-700 max-w-sm [&>button]:hidden">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lime-400 text-lg font-semibold">Chi ha votato</h2>
+            <button onClick={() => setShowVotersDialog(null)} className="text-slate-400 hover:text-white">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          
+          {showVotersDialog && (() => {
+            const post = posts.find(p => p.id === showVotersDialog);
+            if (!post) return null;
+            
+            return (
+              <div className="space-y-3">
+                {(post.options || []).map((option) => {
+                  const voters = option.votes || [];
+                  if (voters.length === 0) return null;
+                  
+                  return (
+                    <div key={option.id} className="bg-slate-900 rounded-lg p-3">
+                      <p className="text-white font-medium text-sm mb-2">{option.text}</p>
+                      <div className="space-y-2">
+                        {voters.map((email, idx) => {
+                          const voter = allUsers.find(u => u.email === email);
+                          return (
+                            <div key={idx} className="flex items-center gap-2">
+                              <div className="w-8 h-8 bg-lime-400/20 rounded-full flex items-center justify-center">
+                                <span className="text-lime-400 text-xs font-bold">
+                                  {(voter?.company_name || voter?.full_name || email)?.charAt(0)?.toUpperCase()}
+                                </span>
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-white text-sm truncate">
+                                  {voter?.company_name || voter?.full_name || 'Utente'}
+                                </p>
+                                {voter?.role === 'consulente' && (
+                                  <Badge className="bg-blue-500/20 text-blue-400 text-[10px]">Consulente</Badge>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
+
       {/* Dialog conferma eliminazione */}
       <AlertDialog open={!!deletePostId} onOpenChange={() => setDeletePostId(null)}>
         <AlertDialogContent className="bg-slate-800 border-slate-700">
