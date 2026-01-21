@@ -1358,6 +1358,121 @@ IMPORTANTE: Usa SOLO fonti ufficiali (TARIC, Agenzia delle Dogane, WCO). NON INV
                 </Button>
               </div>
             )}
+
+            {/* Form Contatto Consulente Import - sempre visibile */}
+            <Card className="bg-slate-800 border-slate-700 mt-6">
+              <CardContent className="p-4">
+                <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+                  <Users className="w-5 h-5 text-lime-400" />
+                  Contatta un Consulente Import
+                </h3>
+                <p className="text-slate-400 text-sm mb-4">
+                  Hai bisogno di supporto per importare dalla Cina? Contatta il nostro team specializzato.
+                </p>
+                
+                {importContactSent ? (
+                  <div className="bg-green-500/20 border border-green-500/50 rounded-lg p-4 text-center">
+                    <CheckCircle className="w-8 h-8 text-green-400 mx-auto mb-2" />
+                    <p className="text-green-400 font-medium">Richiesta inviata!</p>
+                    <p className="text-green-200 text-sm mt-1">Il team Import ti contatterà al più presto.</p>
+                    <Button
+                      onClick={() => setImportContactSent(false)}
+                      variant="outline"
+                      className="mt-3 border-green-500/50 text-green-400 hover:bg-green-500/20"
+                    >
+                      Invia altra richiesta
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <Input
+                      placeholder="Oggetto (es. Richiesta preventivo import gadget)"
+                      value={importContactForm.subject}
+                      onChange={(e) => setImportContactForm({ ...importContactForm, subject: e.target.value })}
+                      className="bg-slate-900 border-slate-700 text-white"
+                    />
+                    <Textarea
+                      placeholder="Descrivi la tua richiesta: che prodotto vuoi importare, quantità, tempistiche desiderate..."
+                      value={importContactForm.message}
+                      onChange={(e) => setImportContactForm({ ...importContactForm, message: e.target.value })}
+                      className="bg-slate-900 border-slate-700 text-white min-h-[100px]"
+                    />
+                    
+                    {/* Allegati e Foto */}
+                    <div className="space-y-2">
+                      <div className="flex gap-2">
+                        <label className="flex-1 cursor-pointer">
+                          <div className="flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white py-2 px-3 rounded-lg transition-colors text-sm">
+                            <Paperclip className="w-4 h-4" />
+                            Allega documento
+                          </div>
+                          <input
+                            type="file"
+                            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.xls,.xlsx"
+                            onChange={handleImportAttachmentUpload}
+                            className="hidden"
+                            disabled={uploadingImportAttachment}
+                          />
+                        </label>
+                        <label className="flex-1 cursor-pointer">
+                          <div className="flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white py-2 px-3 rounded-lg transition-colors text-sm h-full">
+                            <Camera className="w-4 h-4" />
+                            Scatta foto
+                          </div>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            capture="environment"
+                            onChange={handleImportAttachmentUpload}
+                            className="hidden"
+                            disabled={uploadingImportAttachment}
+                          />
+                        </label>
+                      </div>
+                      
+                      {uploadingImportAttachment && (
+                        <div className="flex items-center gap-2 text-slate-400 text-sm">
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Caricamento in corso...
+                        </div>
+                      )}
+                      
+                      {importContactForm.attachments.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {importContactForm.attachments.map((att, idx) => (
+                            <div key={idx} className="bg-slate-700 rounded-lg px-3 py-1.5 flex items-center gap-2 text-sm">
+                              <FileText className="w-4 h-4 text-lime-400" />
+                              <span className="text-white truncate max-w-[120px]">{att.name}</span>
+                              <button onClick={() => removeImportAttachment(idx)} className="text-red-400 hover:text-red-300">
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    
+                    <Button
+                      onClick={() => sendImportContactMutation.mutate()}
+                      disabled={!importContactForm.subject || !importContactForm.message || sendImportContactMutation.isPending || uploadingImportAttachment}
+                      className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 font-semibold"
+                    >
+                      {sendImportContactMutation.isPending ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Invio in corso...
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-4 h-4 mr-2" />
+                          Invia Richiesta
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
         )}
       </main>
