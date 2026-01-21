@@ -497,7 +497,7 @@ IMPORTANTE: Usa SOLO fonti ufficiali (TARIC, Agenzia delle Dogane, WCO). NON INV
             onClick={() => setActiveTab('import')}
             className={`flex-1 ${activeTab === 'import' ? 'bg-lime-400 text-slate-900 hover:bg-lime-500' : 'bg-slate-800 text-white hover:bg-slate-700'}`}
           >
-            <span className="mr-2">🇨🇳</span>
+            <span className="mr-2 text-base">🇨🇳</span>
             Import
           </Button>
         </div>
