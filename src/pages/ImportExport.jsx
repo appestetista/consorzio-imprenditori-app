@@ -242,6 +242,7 @@ export default function ImportExport() {
     onSuccess: () => {
       setContactSent(true);
       setContactForm({ subject: '', message: '', exportManagerId: '', attachments: [] });
+      queryClient.invalidateQueries({ queryKey: ['import-unread-count'] });
     }
   });
 
