@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import ContractMessagesSection from '../components/analisi-contratti/ContractMessagesSection';
+import ContractMessagesSection from '@/components/analisi-contratti/ContractMessagesSection';
 
 export default function AnalisiContratti() {
   const [user, setUser] = useState(null);
