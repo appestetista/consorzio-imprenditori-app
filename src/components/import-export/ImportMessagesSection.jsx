@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Send, Loader2, FileText, Paperclip, Camera, X, Mail, Clock } from 'lucide-react';
+import { ArrowLeft, Send, Loader2, FileText, Paperclip, Camera, X, Mail, Clock, TrendingUp, Ship } from 'lucide-react';
 import moment from 'moment';
 
 export default function ImportMessagesSection({ user }) {
