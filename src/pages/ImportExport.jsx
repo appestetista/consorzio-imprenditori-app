@@ -97,6 +97,20 @@ export default function ImportExport() {
     queryFn: () => base44.entities.Consultant.filter({ category: 'Internazionalizzazione/Export' }),
   });
 
+  // Conta messaggi non letti per Import
+  const { data: importUnreadCount = 0 } = useQuery({
+    queryKey: ['import-unread-count', user?.email],
+    queryFn: async () => {
+      const msgs = await base44.entities.Message.filter({ 
+        to_email: user?.email, 
+        source: 'import_export',
+        is_read: false 
+      });
+      return msgs.length;
+    },
+    enabled: !!user?.email,
+  });
+
   // State per contatto consulente Import
   const [importContactForm, setImportContactForm] = useState({ subject: '', message: '', attachments: [] });
   const [uploadingImportAttachment, setUploadingImportAttachment] = useState(false);
