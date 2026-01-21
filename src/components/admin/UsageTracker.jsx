@@ -250,40 +250,82 @@ export default function UsageTracker() {
           </div>
           
           {/* Breakdown costi dettagliato */}
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <div className="bg-slate-900/50 rounded-lg p-2">
-              <div className="flex items-center gap-1 text-slate-400 mb-1">
-                <FileText className="w-3 h-3" />
-                Analisi Contratti
+          <TooltipProvider>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="bg-slate-900/50 rounded-lg p-2">
+                <div className="flex items-center gap-1 text-slate-400 mb-1">
+                  <FileText className="w-3 h-3" />
+                  Analisi Contratti
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <HelpCircle className="w-3 h-3 text-slate-500 hover:text-lime-400 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-[250px] bg-slate-800 border-slate-700 text-white">
+                      <p className="text-xs"><strong>GPT-4o Vision</strong></p>
+                      <p className="text-[10px] text-slate-300 mt-1">L'AI legge il PDF del contratto, lo analizza e genera un report strutturato con clausole, criticità e consigli.</p>
+                      <p className="text-[10px] text-lime-400 mt-1">~$0.028 per analisi</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                <span className="text-white font-semibold">€{userTotals.costEur.toFixed(2)}</span>
+                <p className="text-slate-500 text-[10px]">{userTotals.analyses} analisi × ~€0.026</p>
               </div>
-              <span className="text-white font-semibold">€{userTotals.costEur.toFixed(2)}</span>
-              <p className="text-slate-500 text-[10px]">{userTotals.analyses} analisi × ~€0.026</p>
-            </div>
-            <div className="bg-slate-900/50 rounded-lg p-2">
-              <div className="flex items-center gap-1 text-slate-400 mb-1">
-                <Calendar className="w-3 h-3" />
-                Ricerca Bandi
+              <div className="bg-slate-900/50 rounded-lg p-2">
+                <div className="flex items-center gap-1 text-slate-400 mb-1">
+                  <Calendar className="w-3 h-3" />
+                  Ricerca Bandi
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <HelpCircle className="w-3 h-3 text-slate-500 hover:text-lime-400 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-[250px] bg-slate-800 border-slate-700 text-white">
+                      <p className="text-xs"><strong>GPT-4o + Web Search</strong></p>
+                      <p className="text-[10px] text-slate-300 mt-1">Ogni lunedì l'AI scansiona ~28 siti istituzionali (Invitalia, Regioni, UE) per trovare nuovi bandi e agevolazioni.</p>
+                      <p className="text-[10px] text-lime-400 mt-1">~$0.05 per sito scansionato</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                <span className="text-white font-semibold">€{(systemCosts.grantSearch * EUR_USD_RATE).toFixed(2)}</span>
+                <p className="text-slate-500 text-[10px]">{systemCosts.grantSearchCalls || 0} chiamate ({systemCosts.weeksSinceStart || 0} sett)</p>
               </div>
-              <span className="text-white font-semibold">€{(systemCosts.grantSearch * EUR_USD_RATE).toFixed(2)}</span>
-              <p className="text-slate-500 text-[10px]">{systemCosts.grantSearchCalls || 0} chiamate ({systemCosts.weeksSinceStart || 0} sett)</p>
-            </div>
-            <div className="bg-slate-900/50 rounded-lg p-2">
-              <div className="flex items-center gap-1 text-slate-400 mb-1">
-                <Globe className="w-3 h-3" />
-                Arricchimento Bandi
+              <div className="bg-slate-900/50 rounded-lg p-2">
+                <div className="flex items-center gap-1 text-slate-400 mb-1">
+                  <Globe className="w-3 h-3" />
+                  Arricchimento Bandi
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <HelpCircle className="w-3 h-3 text-slate-500 hover:text-lime-400 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-[250px] bg-slate-800 border-slate-700 text-white">
+                      <p className="text-xs"><strong>GPT-4o + Web Search</strong></p>
+                      <p className="text-[10px] text-slate-300 mt-1">L'AI cerca su fonti ufficiali dati mancanti (importi, percentuali, scadenze) per i bandi incompleti e li aggiorna automaticamente.</p>
+                      <p className="text-[10px] text-lime-400 mt-1">~$0.05 per bando arricchito</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                <span className="text-white font-semibold">€{(systemCosts.grantEnrichment * EUR_USD_RATE).toFixed(2)}</span>
+                <p className="text-slate-500 text-[10px]">~{systemCosts.grantEnrichmentCalls || 0} bandi arricchiti</p>
               </div>
-              <span className="text-white font-semibold">€{(systemCosts.grantEnrichment * EUR_USD_RATE).toFixed(2)}</span>
-              <p className="text-slate-500 text-[10px]">~{systemCosts.grantEnrichmentCalls || 0} bandi arricchiti</p>
-            </div>
-            <div className="bg-slate-900/50 rounded-lg p-2">
-              <div className="flex items-center gap-1 text-slate-400 mb-1">
-                <Ship className="w-3 h-3" />
-                Import/Export AI
+              <div className="bg-slate-900/50 rounded-lg p-2">
+                <div className="flex items-center gap-1 text-slate-400 mb-1">
+                  <Ship className="w-3 h-3" />
+                  Import/Export AI
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <HelpCircle className="w-3 h-3 text-slate-500 hover:text-lime-400 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-[250px] bg-slate-800 border-slate-700 text-white">
+                      <p className="text-xs"><strong>GPT-4o + Web Search</strong></p>
+                      <p className="text-[10px] text-slate-300 mt-1">L'AI analizza fattibilità export/import cercando dati reali: flussi commerciali, dazi, certificazioni, costi spedizione da fonti ufficiali.</p>
+                      <p className="text-[10px] text-lime-400 mt-1">~$0.05 per analisi mercato</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                <span className="text-white font-semibold">€{(systemCosts.importExport * EUR_USD_RATE).toFixed(2)}</span>
+                <p className="text-slate-500 text-[10px]">~{systemCosts.importExportCalls || 0} analisi</p>
               </div>
-              <span className="text-white font-semibold">€{(systemCosts.importExport * EUR_USD_RATE).toFixed(2)}</span>
-              <p className="text-slate-500 text-[10px]">~{systemCosts.importExportCalls || 0} analisi</p>
             </div>
-          </div>
+          </TooltipProvider>
           
           {/* Nota metodologia */}
           <p className="text-slate-500 text-[9px] mt-2 leading-tight">
