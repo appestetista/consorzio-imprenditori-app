@@ -8,6 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -19,7 +20,7 @@ export default function AnalisiContratti() {
   const [analyzing, setAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState(null);
   const [error, setError] = useState(null);
-  const [contactForm, setContactForm] = useState({ subject: '', message: '' });
+  const [contactForm, setContactForm] = useState({ subject: '', message: '', avvocatoId: '' });
   const [contactSent, setContactSent] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [selectedHistory, setSelectedHistory] = useState(null);
@@ -47,6 +48,11 @@ export default function AnalisiContratti() {
     queryKey: ['contract-analyses', user?.email],
     queryFn: () => base44.entities.ContractAnalysis.filter({ user_email: user?.email }, '-created_date'),
     enabled: !!user?.email,
+  });
+
+  const { data: avvocati = [] } = useQuery({
+    queryKey: ['avvocati'],
+    queryFn: () => base44.entities.Consultant.filter({ category: 'Avvocato' }),
   });
 
   const handleFileChange = (e) => {
@@ -151,12 +157,10 @@ Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
 
   const sendContactMutation = useMutation({
     mutationFn: async () => {
-      // Trova il consulente avvocato
-      const consultants = await base44.entities.Consultant.filter({ category: 'Avvocato' });
-      const avvocato = consultants[0];
+      const avvocato = avvocati.find(a => a.id === contactForm.avvocatoId);
       
       if (!avvocato) {
-        throw new Error('Nessun avvocato disponibile');
+        throw new Error('Seleziona un avvocato');
       }
 
       // Crea messaggio
