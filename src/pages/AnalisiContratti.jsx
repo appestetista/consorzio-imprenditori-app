@@ -225,6 +225,14 @@ Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
         {/* Lista Storico */}
         {showHistory && (
           <div className="space-y-2 mb-4">
+            <Button
+              onClick={() => setShowHistory(false)}
+              variant="ghost"
+              className="text-lime-400 hover:bg-slate-800 mb-2 -ml-2"
+            >
+              <ArrowLeft className="w-5 h-5 mr-2" />
+              Torna ad Analisi AI
+            </Button>
             {historyAnalyses.map((item) => (
               <Card key={item.id} className="bg-slate-800 border-slate-700">
                 <CardContent className="p-3 flex items-center gap-3">
