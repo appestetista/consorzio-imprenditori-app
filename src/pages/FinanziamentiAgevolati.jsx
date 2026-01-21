@@ -44,6 +44,7 @@ export default function FinanziamentiAgevolati() {
   const isRealAdmin = user?.role === 'admin' && !impersonation.active;
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     const loadUser = async () => {
       try {
         const currentUser = await base44.auth.me();

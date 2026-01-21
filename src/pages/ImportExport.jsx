@@ -78,6 +78,7 @@ export default function ImportExport() {
   const queryClient = useQueryClient();
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     const loadUser = async () => {
       try {
         const currentUser = await base44.auth.me();
