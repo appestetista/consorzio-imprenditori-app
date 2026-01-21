@@ -228,7 +228,7 @@ Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
             <Button
               onClick={() => setShowHistory(false)}
               variant="ghost"
-              className="text-lime-400 hover:bg-slate-800 mb-2 -ml-2"
+              className="text-lime-400 hover:text-lime-300 hover:bg-transparent mb-2 -ml-2"
             >
               <ArrowLeft className="w-5 h-5 mr-2" />
               Torna ad Analisi AI
@@ -267,7 +267,7 @@ Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
             <Button
               onClick={() => setSelectedHistory(null)}
               variant="ghost"
-              className="text-lime-400 hover:bg-slate-800 mb-4 -ml-2"
+              className="text-lime-400 hover:text-lime-300 hover:bg-transparent mb-4 -ml-2"
             >
               <ArrowLeft className="w-5 h-5 mr-2" />
               Torna ad Analisi Contratti
