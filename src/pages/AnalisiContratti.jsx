@@ -524,8 +524,8 @@ Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
                     
                     {/* Allegati */}
                     <div className="space-y-2">
-                      <div className="flex flex-col gap-2">
-                        <label className="cursor-pointer">
+                      <div className="flex gap-2">
+                        <label className="flex-1 cursor-pointer">
                           <div className="flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white py-2 px-3 rounded-lg transition-colors text-sm">
                             <Paperclip className="w-4 h-4" />
                             Allega documento
@@ -538,7 +538,7 @@ Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
                             disabled={uploadingAttachment}
                           />
                         </label>
-                        <label className="cursor-pointer">
+                        <label className="flex-1 cursor-pointer">
                           <div className="flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white py-2 px-3 rounded-lg transition-colors text-sm">
                             <Camera className="w-4 h-4" />
                             Scatta foto
