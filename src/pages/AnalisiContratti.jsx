@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, FileSearch, Upload, FileText, Loader2, CheckCircle, AlertTriangle, Info, Scale, Send, X, History, ChevronRight, Trash2 } from 'lucide-react';
+import { ArrowLeft, FileSearch, Upload, FileText, Loader2, CheckCircle, AlertTriangle, Info, Scale, Send, X, History, ChevronRight, Trash2, Paperclip, Camera } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Card, CardContent } from '@/components/ui/card';
@@ -20,7 +20,8 @@ export default function AnalisiContratti() {
   const [analyzing, setAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState(null);
   const [error, setError] = useState(null);
-  const [contactForm, setContactForm] = useState({ subject: '', message: '', avvocatoId: '' });
+  const [contactForm, setContactForm] = useState({ subject: '', message: '', avvocatoId: '', attachments: [] });
+  const [uploadingAttachment, setUploadingAttachment] = useState(false);
   const [contactSent, setContactSent] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [selectedHistory, setSelectedHistory] = useState(null);
@@ -151,8 +152,34 @@ Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
     setFiles([]);
     setAnalysis(null);
     setError(null);
-    setContactForm({ subject: '', message: '', avvocatoId: '' });
+    setContactForm({ subject: '', message: '', avvocatoId: '', attachments: [] });
     setContactSent(false);
+  };
+
+  const handleAttachmentUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    setUploadingAttachment(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setContactForm(prev => ({
+        ...prev,
+        attachments: [...prev.attachments, { name: file.name, url: file_url }]
+      }));
+    } catch (err) {
+      console.error('Errore upload:', err);
+    } finally {
+      setUploadingAttachment(false);
+      e.target.value = '';
+    }
+  };
+
+  const removeAttachment = (index) => {
+    setContactForm(prev => ({
+      ...prev,
+      attachments: prev.attachments.filter((_, i) => i !== index)
+    }));
   };
 
   const sendContactMutation = useMutation({
@@ -169,7 +196,8 @@ Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
         to_email: avvocato.email,
         content: `**Richiesta verifica contratto**\n\nOggetto: ${contactForm.subject}\n\n${contactForm.message}\n\n---\nInviato da: ${user.company_name || user.full_name}\nEmail: ${user.email}`,
         source: 'consulenze',
-        source_reference: 'Analisi Contratti AI'
+        source_reference: 'Analisi Contratti AI',
+        attachments: contactForm.attachments.map(a => ({ url: a.url, name: a.name, type: 'document' }))
       });
 
       // Crea notifica per l'avvocato
@@ -182,7 +210,7 @@ Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
     },
     onSuccess: () => {
       setContactSent(true);
-      setContactForm({ subject: '', message: '', avvocatoId: '' });
+      setContactForm({ subject: '', message: '', avvocatoId: '', attachments: [] });
     }
   });
 
@@ -493,9 +521,64 @@ Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
                       onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
                       className="bg-slate-900 border-slate-700 text-white min-h-[100px]"
                     />
+                    
+                    {/* Allegati */}
+                    <div className="space-y-2">
+                      <div className="flex gap-2">
+                        <label className="flex-1 cursor-pointer">
+                          <div className="flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white py-2 px-3 rounded-lg transition-colors text-sm">
+                            <Paperclip className="w-4 h-4" />
+                            Allega documento
+                          </div>
+                          <input
+                            type="file"
+                            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                            onChange={handleAttachmentUpload}
+                            className="hidden"
+                            disabled={uploadingAttachment}
+                          />
+                        </label>
+                        <label className="flex-1 cursor-pointer">
+                          <div className="flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white py-2 px-3 rounded-lg transition-colors text-sm">
+                            <Camera className="w-4 h-4" />
+                            Scatta foto
+                          </div>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            capture="environment"
+                            onChange={handleAttachmentUpload}
+                            className="hidden"
+                            disabled={uploadingAttachment}
+                          />
+                        </label>
+                      </div>
+                      
+                      {uploadingAttachment && (
+                        <div className="flex items-center gap-2 text-slate-400 text-sm">
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Caricamento in corso...
+                        </div>
+                      )}
+                      
+                      {contactForm.attachments.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {contactForm.attachments.map((att, idx) => (
+                            <div key={idx} className="bg-slate-700 rounded-lg px-3 py-1.5 flex items-center gap-2 text-sm">
+                              <FileText className="w-4 h-4 text-lime-400" />
+                              <span className="text-white truncate max-w-[120px]">{att.name}</span>
+                              <button onClick={() => removeAttachment(idx)} className="text-red-400 hover:text-red-300">
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    
                     <Button
                       onClick={() => sendContactMutation.mutate()}
-                      disabled={!contactForm.avvocatoId || !contactForm.subject || !contactForm.message || sendContactMutation.isPending}
+                      disabled={!contactForm.avvocatoId || !contactForm.subject || !contactForm.message || sendContactMutation.isPending || uploadingAttachment}
                       className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 font-semibold"
                     >
                       {sendContactMutation.isPending ? (
@@ -674,9 +757,64 @@ Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
                         onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
                         className="bg-slate-900 border-slate-700 text-white min-h-[100px]"
                       />
+
+                      {/* Allegati */}
+                      <div className="space-y-2">
+                        <div className="flex gap-2">
+                          <label className="flex-1 cursor-pointer">
+                            <div className="flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white py-2 px-3 rounded-lg transition-colors text-sm">
+                              <Paperclip className="w-4 h-4" />
+                              Allega documento
+                            </div>
+                            <input
+                              type="file"
+                              accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                              onChange={handleAttachmentUpload}
+                              className="hidden"
+                              disabled={uploadingAttachment}
+                            />
+                          </label>
+                          <label className="flex-1 cursor-pointer">
+                            <div className="flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white py-2 px-3 rounded-lg transition-colors text-sm">
+                              <Camera className="w-4 h-4" />
+                              Scatta foto
+                            </div>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              capture="environment"
+                              onChange={handleAttachmentUpload}
+                              className="hidden"
+                              disabled={uploadingAttachment}
+                            />
+                          </label>
+                        </div>
+
+                        {uploadingAttachment && (
+                          <div className="flex items-center gap-2 text-slate-400 text-sm">
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Caricamento in corso...
+                          </div>
+                        )}
+
+                        {contactForm.attachments.length > 0 && (
+                          <div className="flex flex-wrap gap-2">
+                            {contactForm.attachments.map((att, idx) => (
+                              <div key={idx} className="bg-slate-700 rounded-lg px-3 py-1.5 flex items-center gap-2 text-sm">
+                                <FileText className="w-4 h-4 text-lime-400" />
+                                <span className="text-white truncate max-w-[120px]">{att.name}</span>
+                                <button onClick={() => removeAttachment(idx)} className="text-red-400 hover:text-red-300">
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
                       <Button
                         onClick={() => sendContactMutation.mutate()}
-                        disabled={!contactForm.avvocatoId || !contactForm.subject || !contactForm.message || sendContactMutation.isPending}
+                        disabled={!contactForm.avvocatoId || !contactForm.subject || !contactForm.message || sendContactMutation.isPending || uploadingAttachment}
                         className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 font-semibold"
                       >
                         {sendContactMutation.isPending ? (
@@ -691,13 +829,13 @@ Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
                           </>
                         )}
                       </Button>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+                      </div>
+                      )}
+                      </CardContent>
+                      </Card>
 
-              <Button
-                onClick={resetAnalysis}
+                      <Button
+                      onClick={resetAnalysis}
                 variant="outline"
                 className="w-full border-slate-600 text-slate-400 hover:bg-slate-800"
               >
