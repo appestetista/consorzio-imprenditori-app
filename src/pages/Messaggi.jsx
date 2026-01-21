@@ -285,7 +285,7 @@ export default function Messaggi() {
 
   useEffect(() => {
     if (selectedConversation && conversations[selectedConversation]) {
-      const unreadIds = conversations[selectedConversation]
+      const unreadIds = conversations[selectedConversation].messages
         .filter(m => m.to_email === effectiveEmail && !m.is_read)
         .map(m => m.id);
       if (unreadIds.length > 0) {
