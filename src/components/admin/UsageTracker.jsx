@@ -205,31 +205,78 @@ export default function UsageTracker() {
       <CardHeader className="pb-2">
         <CardTitle className="text-white text-sm flex items-center gap-2">
           <BarChart3 className="w-4 h-4 text-lime-400" />
-          Monitoraggio Utilizzo
+          Monitoraggio Utilizzo AI
         </CardTitle>
       </CardHeader>
       <CardContent className="p-3 space-y-3">
-        {/* Statistiche totali */}
+        {/* COSTO TOTALE PIATTAFORMA */}
+        <div className="bg-gradient-to-r from-green-900/50 to-emerald-900/30 rounded-xl p-4 border border-green-500/30">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Zap className="w-5 h-5 text-green-400" />
+              <span className="text-green-400 font-bold">COSTO TOTALE AI</span>
+            </div>
+            <span className="text-green-400 font-black text-2xl">€{totalPlatformCostEur.toFixed(2)}</span>
+          </div>
+          
+          {/* Breakdown costi */}
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="bg-slate-900/50 rounded-lg p-2">
+              <div className="flex items-center gap-1 text-slate-400 mb-1">
+                <FileText className="w-3 h-3" />
+                Analisi Contratti
+              </div>
+              <span className="text-white font-semibold">€{userTotals.costEur.toFixed(2)}</span>
+              <span className="text-slate-500 ml-1">({userTotals.analyses} analisi)</span>
+            </div>
+            <div className="bg-slate-900/50 rounded-lg p-2">
+              <div className="flex items-center gap-1 text-slate-400 mb-1">
+                <Calendar className="w-3 h-3" />
+                Ricerca Bandi
+              </div>
+              <span className="text-white font-semibold">€{(systemCosts.grantSearch * 0.92).toFixed(2)}</span>
+              <span className="text-slate-500 ml-1">(~{GRANT_SOURCES_COUNT} siti/sett)</span>
+            </div>
+            <div className="bg-slate-900/50 rounded-lg p-2">
+              <div className="flex items-center gap-1 text-slate-400 mb-1">
+                <Globe className="w-3 h-3" />
+                Arricchimento Bandi
+              </div>
+              <span className="text-white font-semibold">€{(systemCosts.grantEnrichment * 0.92).toFixed(2)}</span>
+              <span className="text-slate-500 ml-1">({stats.systemGrants} bandi)</span>
+            </div>
+            <div className="bg-slate-900/50 rounded-lg p-2">
+              <div className="flex items-center gap-1 text-slate-400 mb-1">
+                <Ship className="w-3 h-3" />
+                Import/Export AI
+              </div>
+              <span className="text-white font-semibold">€{(systemCosts.importExport * 0.92).toFixed(2)}</span>
+              <span className="text-slate-500 ml-1">({stats.importExportMessages} analisi)</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Statistiche attività utenti */}
         <div className="grid grid-cols-4 gap-2">
           <div className="bg-slate-900 rounded-lg p-2 text-center">
             <FileText className="w-4 h-4 text-lime-400 mx-auto mb-1" />
-            <p className="text-white font-bold text-lg">{totals.analyses}</p>
-            <p className="text-slate-400 text-[10px]">Analisi AI</p>
+            <p className="text-white font-bold text-lg">{userTotals.analyses}</p>
+            <p className="text-slate-400 text-[10px]">Analisi</p>
           </div>
           <div className="bg-slate-900 rounded-lg p-2 text-center">
             <MessageSquare className="w-4 h-4 text-lime-400 mx-auto mb-1" />
-            <p className="text-white font-bold text-lg">{totals.messages}</p>
+            <p className="text-white font-bold text-lg">{userTotals.messages}</p>
             <p className="text-slate-400 text-[10px]">Messaggi</p>
           </div>
           <div className="bg-slate-900 rounded-lg p-2 text-center">
             <Mail className="w-4 h-4 text-lime-400 mx-auto mb-1" />
-            <p className="text-white font-bold text-lg">{totals.consultations}</p>
+            <p className="text-white font-bold text-lg">{userTotals.consultations}</p>
             <p className="text-slate-400 text-[10px]">Consulenze</p>
           </div>
-          <div className="bg-green-900/50 rounded-lg p-2 text-center border border-green-500/30">
-            <DollarSign className="w-4 h-4 text-green-400 mx-auto mb-1" />
-            <p className="text-green-400 font-bold text-lg">€{totals.costEur.toFixed(2)}</p>
-            <p className="text-green-400/70 text-[10px]">Costo AI</p>
+          <div className="bg-slate-900 rounded-lg p-2 text-center">
+            <Globe className="w-4 h-4 text-lime-400 mx-auto mb-1" />
+            <p className="text-white font-bold text-lg">{stats.totalGrants}</p>
+            <p className="text-slate-400 text-[10px]">Bandi</p>
           </div>
         </div>
 
