@@ -113,16 +113,18 @@ MERCATI DI INTERESSE: ${mercatiNomi}
 
 Fornisci un'analisi dettagliata e professionale che includa:
 1. Valutazione generale della readiness all'export (punteggio 1-10)
-2. Per ogni mercato selezionato: opportunità, sfide, barriere tariffarie/non tariffarie, documenti necessari
-3. Raccomandazione sui mercati prioritari
+2. Per ogni mercato selezionato:
+   - FLUSSI COMMERCIALI: valore import del prodotto negli ultimi 12 mesi (in USD/EUR), trend YoY (crescita/decrescita %), principali paesi fornitori, quota di mercato Italia
+   - Opportunità, sfide, barriere tariffarie/non tariffarie
+   - Documenti necessari e certificazioni
+3. Raccomandazione sui mercati prioritari basata sui dati di flusso
 4. Stima dei costi di ingresso per mercato
 5. Timeline consigliata
-6. Certificazioni necessarie per ogni mercato
-7. Canali di distribuzione consigliati
-8. Rischi principali e come mitigarli
-9. Primi passi concreti da fare
+6. Canali di distribuzione consigliati
+7. Rischi principali e come mitigarli
+8. Primi passi concreti da fare
 
-Usa dati reali e aggiornati su dazi, normative e requisiti. Sii specifico e pratico.`,
+IMPORTANTE: Usa dati REALI e AGGIORNATI sui flussi commerciali internazionali (Trade Map, UN Comtrade, Eurostat). Indica sempre i valori in miliardi/milioni USD e le percentuali di crescita degli ultimi 12 mesi.`,
         add_context_from_internet: true,
         response_json_schema: {
           type: "object",
@@ -137,6 +139,17 @@ Usa dati reali e aggiornati su dazi, normative e requisiti. Sii specifico e prat
                 properties: {
                   mercato: { type: "string" },
                   punteggio_opportunita: { type: "number" },
+                  flussi_commerciali: {
+                    type: "object",
+                    properties: {
+                      valore_import_annuo: { type: "string" },
+                      trend_yoy_percentuale: { type: "string" },
+                      crescita_o_calo: { type: "string" },
+                      principali_fornitori: { type: "array", items: { type: "object", properties: { paese: { type: "string" }, quota_percentuale: { type: "string" } } } },
+                      quota_italia: { type: "string" },
+                      posizione_italia: { type: "string" }
+                    }
+                  },
                   opportunita: { type: "array", items: { type: "string" } },
                   sfide: { type: "array", items: { type: "string" } },
                   barriere_tariffarie: { type: "string" },
@@ -495,6 +508,45 @@ Usa fonti ufficiali come TARIC, Agenzia delle Dogane, WCO.`,
                           {mercato.punteggio_opportunita}/10
                         </span>
                       </div>
+
+                      {/* Flussi Commerciali */}
+                      {mercato.flussi_commerciali && (
+                        <div className="mb-3 bg-slate-700/50 rounded-lg p-3">
+                          <p className="text-lime-400 text-xs font-semibold mb-2">📊 Flussi Commerciali (ultimi 12 mesi):</p>
+                          <div className="grid grid-cols-2 gap-2 text-sm">
+                            <div>
+                              <p className="text-slate-400 text-xs">Import totale:</p>
+                              <p className="text-white font-semibold">{mercato.flussi_commerciali.valore_import_annuo}</p>
+                            </div>
+                            <div>
+                              <p className="text-slate-400 text-xs">Trend YoY:</p>
+                              <p className={`font-semibold ${mercato.flussi_commerciali.crescita_o_calo === 'crescita' ? 'text-green-400' : 'text-red-400'}`}>
+                                {mercato.flussi_commerciali.trend_yoy_percentuale}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-slate-400 text-xs">Quota Italia:</p>
+                              <p className="text-white">{mercato.flussi_commerciali.quota_italia}</p>
+                            </div>
+                            <div>
+                              <p className="text-slate-400 text-xs">Posizione Italia:</p>
+                              <p className="text-white">{mercato.flussi_commerciali.posizione_italia}</p>
+                            </div>
+                          </div>
+                          {mercato.flussi_commerciali.principali_fornitori?.length > 0 && (
+                            <div className="mt-2">
+                              <p className="text-slate-400 text-xs mb-1">Top fornitori:</p>
+                              <div className="flex flex-wrap gap-1">
+                                {mercato.flussi_commerciali.principali_fornitori.slice(0, 5).map((f, i) => (
+                                  <span key={i} className="bg-slate-600 text-slate-200 px-2 py-0.5 rounded text-xs">
+                                    {f.paese} ({f.quota_percentuale})
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
 
                       {mercato.opportunita?.length > 0 && (
                         <div className="mb-3">
