@@ -223,23 +223,11 @@ export default function UsageTracker() {
                     </span>
                   </div>
                   <div className="text-right">
-                    {item.costEur > 0 ? (
-                      <>
-                        <div className="flex items-center gap-1 text-green-400">
-                          <DollarSign className="w-3 h-3" />
-                          <span className="font-bold text-sm">€{item.costEur.toFixed(3)}</span>
-                        </div>
-                        <p className="text-slate-500 text-[10px]">costo AI</p>
-                      </>
-                    ) : (
-                      <>
-                        <div className="flex items-center gap-1 text-lime-400">
-                          <TrendingUp className="w-3 h-3" />
-                          <span className="font-bold text-sm">{item.total}</span>
-                        </div>
-                        <p className="text-slate-500 text-[10px]">attività</p>
-                      </>
-                    )}
+                    <div className="flex items-center gap-1 text-green-400">
+                      <DollarSign className="w-3 h-3" />
+                      <span className="font-bold text-sm">€{item.costEur.toFixed(3)}</span>
+                    </div>
+                    <p className="text-slate-500 text-[10px]">{item.analyses} analisi</p>
                   </div>
                 </div>
                 <div className="flex gap-3 text-[10px] mt-1 flex-wrap">
