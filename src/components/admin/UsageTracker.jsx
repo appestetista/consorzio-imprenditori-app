@@ -4,19 +4,30 @@ import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { BarChart3, Search, FileText, MessageSquare, Mail, TrendingUp, DollarSign } from 'lucide-react';
+import { BarChart3, Search, FileText, MessageSquare, Mail, TrendingUp, DollarSign, Globe, Ship, Zap, Calendar } from 'lucide-react';
 
-// Prezzi GPT-4o-mini (USD per 1M token)
-const OPENAI_PRICES = {
-  input: 0.15 / 1000000,  // $0.15 per 1M token
-  output: 0.60 / 1000000  // $0.60 per 1M token
+// Prezzi GPT-4o-mini (USD per 1M token) - usato per analisi contratti
+const GPT4O_MINI_PRICES = {
+  input: 0.15 / 1000000,  
+  output: 0.60 / 1000000  
 };
+
+// Prezzi GPT-4o con web search (USD per chiamata) - usato per import/export e bandi
+// Stima: ~$0.02-0.05 per chiamata con web search (più costoso)
+const GPT4O_WEB_SEARCH_COST = 0.035; // USD per chiamata media
 
 // Stima token per analisi contratto (media)
 const ESTIMATED_TOKENS_PER_ANALYSIS = {
-  input: 3500,  // PDF content + prompt
-  output: 1500  // Risposta strutturata
+  input: 3500,  
+  output: 1500  
 };
+
+// Costo stimato per chiamata AI (analisi contratti senza web)
+const CONTRACT_ANALYSIS_COST = (ESTIMATED_TOKENS_PER_ANALYSIS.input * GPT4O_MINI_PRICES.input) + 
+                                (ESTIMATED_TOKENS_PER_ANALYSIS.output * GPT4O_MINI_PRICES.output);
+
+// Numero di siti scansionati per ricerca bandi
+const GRANT_SOURCES_COUNT = 28;
 
 export default function UsageTracker() {
   const [searchTerm, setSearchTerm] = useState('');
