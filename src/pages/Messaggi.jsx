@@ -231,12 +231,16 @@ export default function Messaggi() {
 
   const sendMessageMutation = useMutation({
     mutationFn: async () => {
-      const conversationId = [effectiveEmail, selectedConversation].sort().join('-');
+      const conv = conversations[selectedConversation];
+      const toEmail = conv?.email || selectedConversation;
+      const source = conv?.source || 'diretto';
+      const conversationId = [effectiveEmail, toEmail].sort().join('-') + '_' + source;
       await base44.entities.Message.create({
         from_email: effectiveEmail,
-        to_email: selectedConversation,
+        to_email: toEmail,
         content: newMessage,
         conversation_id: conversationId,
+        source: source,
         attachments: attachments.length > 0 ? attachments : undefined
       });
     },
