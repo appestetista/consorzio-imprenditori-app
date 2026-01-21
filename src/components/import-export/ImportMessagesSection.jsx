@@ -116,6 +116,7 @@ export default function ImportMessagesSection({ user }) {
       setReplyMessage('');
       setReplyAttachments([]);
       queryClient.invalidateQueries({ queryKey: ['import-messages'] });
+      queryClient.invalidateQueries({ queryKey: ['import-unread-count'] });
     }
   });
 
