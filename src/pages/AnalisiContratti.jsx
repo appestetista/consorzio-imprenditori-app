@@ -647,6 +647,21 @@ Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
                     </div>
                   ) : (
                     <div className="space-y-3">
+                      <Select
+                        value={contactForm.avvocatoId}
+                        onValueChange={(value) => setContactForm({ ...contactForm, avvocatoId: value })}
+                      >
+                        <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                          <SelectValue placeholder="Seleziona un avvocato" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {avvocati.map((avv) => (
+                            <SelectItem key={avv.id} value={avv.id}>
+                              {avv.name} {avv.city ? `- ${avv.city}` : ''}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <Input
                         placeholder="Oggetto (es. Verifica contratto di fornitura)"
                         value={contactForm.subject}
@@ -661,7 +676,7 @@ Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
                       />
                       <Button
                         onClick={() => sendContactMutation.mutate()}
-                        disabled={!contactForm.subject || !contactForm.message || sendContactMutation.isPending}
+                        disabled={!contactForm.avvocatoId || !contactForm.subject || !contactForm.message || sendContactMutation.isPending}
                         className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 font-semibold"
                       >
                         {sendContactMutation.isPending ? (
