@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, FileSearch, Upload, FileText, Loader2, CheckCircle, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, FileSearch, Upload, FileText, Loader2, CheckCircle, AlertTriangle, Info, Scale, Send } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
+import { useMutation } from '@tanstack/react-query';
 
 export default function AnalisiContratti() {
   const [user, setUser] = useState(null);
@@ -16,6 +19,8 @@ export default function AnalisiContratti() {
   const [analyzing, setAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState(null);
   const [error, setError] = useState(null);
+  const [contactForm, setContactForm] = useState({ subject: '', message: '' });
+  const [contactSent, setContactSent] = useState(false);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -102,7 +107,42 @@ Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
     setFile(null);
     setAnalysis(null);
     setError(null);
+    setContactForm({ subject: '', message: '' });
+    setContactSent(false);
   };
+
+  const sendContactMutation = useMutation({
+    mutationFn: async () => {
+      // Trova il consulente avvocato
+      const consultants = await base44.entities.Consultant.filter({ category: 'Avvocato' });
+      const avvocato = consultants[0];
+      
+      if (!avvocato) {
+        throw new Error('Nessun avvocato disponibile');
+      }
+
+      // Crea messaggio
+      await base44.entities.Message.create({
+        from_email: user.email,
+        to_email: avvocato.email,
+        content: `**Richiesta verifica contratto**\n\nOggetto: ${contactForm.subject}\n\n${contactForm.message}\n\n---\nInviato da: ${user.company_name || user.full_name}\nEmail: ${user.email}`,
+        source: 'consulenze',
+        source_reference: 'Analisi Contratti AI'
+      });
+
+      // Crea notifica per l'avvocato
+      await base44.entities.Notification.create({
+        user_email: avvocato.email,
+        type: 'consultation',
+        title: 'Nuova richiesta verifica contratto',
+        content: `${user.company_name || user.full_name} richiede verifica contratto: ${contactForm.subject}`
+      });
+    },
+    onSuccess: () => {
+      setContactSent(true);
+      setContactForm({ subject: '', message: '' });
+    }
+  });
 
   return (
     <div className="min-h-screen bg-slate-900 pb-24">
@@ -293,6 +333,69 @@ Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
                   </CardContent>
                 </Card>
               )}
+
+              {/* Disclaimer AI */}
+              <Card className="bg-yellow-500/10 border-yellow-500/30">
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-3">
+                    <Info className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
+                    <p className="text-yellow-200 text-sm">
+                      <strong>Attenzione:</strong> L'analisi AI potrebbe contenere errori. Ti consigliamo di verificare le informazioni su più fonti. 
+                      Se hai bisogno di una consulenza approfondita, puoi far verificare il contratto dal nostro legale interno.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Form Contatto Avvocato */}
+              <Card className="bg-slate-800 border-slate-700">
+                <CardContent className="p-4">
+                  <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+                    <Scale className="w-5 h-5 text-lime-400" />
+                    Contatta l'Avvocato del Consorzio
+                  </h3>
+                  
+                  {contactSent ? (
+                    <div className="bg-green-500/20 border border-green-500/50 rounded-lg p-4 text-center">
+                      <CheckCircle className="w-8 h-8 text-green-400 mx-auto mb-2" />
+                      <p className="text-green-400 font-medium">Richiesta inviata!</p>
+                      <p className="text-green-200 text-sm mt-1">L'avvocato ti contatterà al più presto.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <Input
+                        placeholder="Oggetto (es. Verifica contratto di fornitura)"
+                        value={contactForm.subject}
+                        onChange={(e) => setContactForm({ ...contactForm, subject: e.target.value })}
+                        className="bg-slate-900 border-slate-700 text-white"
+                      />
+                      <Textarea
+                        placeholder="Descrivi brevemente cosa vorresti far verificare..."
+                        value={contactForm.message}
+                        onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
+                        className="bg-slate-900 border-slate-700 text-white min-h-[100px]"
+                      />
+                      <Button
+                        onClick={() => sendContactMutation.mutate()}
+                        disabled={!contactForm.subject || !contactForm.message || sendContactMutation.isPending}
+                        className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 font-semibold"
+                      >
+                        {sendContactMutation.isPending ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Invio in corso...
+                          </>
+                        ) : (
+                          <>
+                            <Send className="w-4 h-4 mr-2" />
+                            Invia Richiesta all'Avvocato
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
 
               <Button
                 onClick={resetAnalysis}
