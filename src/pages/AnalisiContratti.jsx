@@ -539,7 +539,7 @@ Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
                           />
                         </label>
                         <label className="flex-1 cursor-pointer">
-                          <div className="flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white py-2 px-3 rounded-lg transition-colors text-sm">
+                          <div className="flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white py-2 px-3 rounded-lg transition-colors text-sm h-full">
                             <Camera className="w-4 h-4" />
                             Scatta foto
                           </div>
