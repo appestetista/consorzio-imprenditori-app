@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Sparkles, AlertCircle, Info, Briefcase, XCircle, Building2, CalendarDays, MessageSquare, Mail, Eye, Trash2, User, Phone } from 'lucide-react';
+import { useAILimits } from '@/components/hooks/useAILimits';
+import UsageCounter from '@/components/common/UsageCounter';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { Link } from 'react-router-dom';
@@ -137,6 +139,14 @@ export default function FinanziamentiAgevolati() {
     queryFn: () => base44.entities.GrantInterest.filter({ user_email: user?.email }),
     enabled: !!user?.email,
   });
+
+  // Limiti AI Raccomandazioni
+  const { 
+    usageCount: grantRecsUsage, 
+    limit: grantRecsLimit, 
+    isLimitReached: grantRecsLimitReached, 
+    trackUsage: trackGrantRecsUsage 
+  } = useAILimits(user?.email, 'grant_recommendations');
 
   // Richieste consulenza per admin (con info utente e bando)
   const { data: consultationRequests = [] } = useQuery({
@@ -400,9 +410,17 @@ export default function FinanziamentiAgevolati() {
     const getAIRecommendations = async () => {
       if (!user || !filteredGrants.length || loadingRecommendations || Object.keys(aiRecommendations).length > 0) return;
       
+      // Skip se limite raggiunto
+      if (grantRecsLimitReached) {
+        console.log('Grant recommendations limit reached');
+        return;
+      }
+      
       setLoadingRecommendations(true);
       
       try {
+        // Traccia utilizzo
+        await trackGrantRecsUsage();
         const userProfile = {
           company_name: user.company_name || 'N/A',
           company_size: user.company_size || 'N/A',
@@ -480,7 +498,7 @@ Per ogni bando, fornisci:
     };
 
     getAIRecommendations();
-  }, [user, filteredGrants.length]);
+  }, [user, filteredGrants.length, grantRecsLimitReached]);
 
   // Funzione per determinare se un bando è regionale
   const isRegionalGrant = (grant) => {
@@ -729,12 +747,31 @@ Per ogni bando, fornisci:
           </Alert>
         )}
 
+        {/* Contatore Raccomandazioni AI */}
+        {user && !isRealAdmin && (
+          <UsageCounter 
+            usageCount={grantRecsUsage} 
+            limit={grantRecsLimit} 
+            label="Raccomandazioni AI disponibili questo mese" 
+          />
+        )}
+
         {/* AI Recommendations Loading */}
         {loadingRecommendations && (
           <Alert className="mb-6 bg-purple-500/10 border-purple-500/30">
             <Sparkles className="h-4 w-4 text-purple-400 animate-pulse" />
             <AlertDescription className="text-purple-300 text-sm">
               🤖 Sto analizzando i bandi più adatti al tuo profilo...
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Limite Raggiunto AI */}
+        {grantRecsLimitReached && !isRealAdmin && (
+          <Alert className="mb-6 bg-yellow-500/10 border-yellow-500/30">
+            <AlertCircle className="h-4 w-4 text-yellow-400" />
+            <AlertDescription className="text-yellow-300 text-sm">
+              Hai raggiunto il limite mensile di raccomandazioni AI. I bandi sono comunque visibili senza analisi personalizzata.
             </AlertDescription>
           </Alert>
         )}
