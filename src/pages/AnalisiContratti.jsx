@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, FileSearch, Upload, FileText, Loader2, CheckCircle, AlertTriangle, Info, Scale, Send, X, History, ChevronRight, Trash2, Paperclip, Camera } from 'lucide-react';
+import { ArrowLeft, FileSearch, Upload, FileText, Loader2, CheckCircle, AlertTriangle, Info, Scale, Send, X, History, ChevronRight, Trash2, Paperclip, Camera, Mail, MessageSquare } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Card, CardContent } from '@/components/ui/card';
@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import ContractMessagesSection from '../components/analisi-contratti/ContractMessagesSection';
 
 export default function AnalisiContratti() {
   const [user, setUser] = useState(null);
@@ -25,6 +26,7 @@ export default function AnalisiContratti() {
   const [contactSent, setContactSent] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [selectedHistory, setSelectedHistory] = useState(null);
+  const [activeTab, setActiveTab] = useState('analisi'); // 'analisi' | 'messaggi'
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -44,6 +46,25 @@ export default function AnalisiContratti() {
     queryFn: () => base44.entities.Message.filter({ to_email: user?.email, is_read: false }),
     enabled: !!user?.email,
   });
+
+  // Messaggi specifici per Analisi Contratti (ricevuti dall'utente)
+  const { data: contractMessages = [] } = useQuery({
+    queryKey: ['contract-messages', user?.email],
+    queryFn: async () => {
+      const received = await base44.entities.Message.filter({ 
+        to_email: user?.email, 
+        source: 'analisi_contratti' 
+      }, '-created_date');
+      const sent = await base44.entities.Message.filter({ 
+        from_email: user?.email, 
+        source: 'analisi_contratti' 
+      }, '-created_date');
+      return [...received, ...sent].sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+    },
+    enabled: !!user?.email,
+  });
+
+  const unreadContractMessages = contractMessages.filter(m => m.to_email === user?.email && !m.is_read).length;
 
   const { data: historyAnalyses = [] } = useQuery({
     queryKey: ['contract-analyses', user?.email],
@@ -195,9 +216,16 @@ Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
         from_email: user.email,
         to_email: avvocato.email,
         content: `**Richiesta verifica contratto**\n\nOggetto: ${contactForm.subject}\n\n${contactForm.message}\n\n---\nInviato da: ${user.company_name || user.full_name}\nEmail: ${user.email}`,
-        source: 'consulenze',
+        source: 'analisi_contratti',
         source_reference: 'Analisi Contratti AI',
         attachments: contactForm.attachments.map(a => ({ url: a.url, name: a.name, type: 'document' }))
+      });
+
+      // Invia email all'avvocato
+      await base44.integrations.Core.SendEmail({
+        to: avvocato.email,
+        subject: `Nuova richiesta verifica contratto: ${contactForm.subject}`,
+        body: `Hai ricevuto una nuova richiesta di verifica contratto.\n\nDa: ${user.company_name || user.full_name}\nEmail: ${user.email}\n\nOggetto: ${contactForm.subject}\n\n${contactForm.message}\n\nAccedi all'app per rispondere.`
       });
 
       // Crea notifica per l'avvocato
@@ -211,6 +239,7 @@ Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
     onSuccess: () => {
       setContactSent(true);
       setContactForm({ subject: '', message: '', avvocatoId: '', attachments: [] });
+      queryClient.invalidateQueries({ queryKey: ['contract-messages', user?.email] });
     }
   });
 
@@ -226,20 +255,47 @@ Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
           <h1 className="text-white text-xl font-bold">Analisi Contratti</h1>
         </div>
 
-        {/* Hero Card */}
-        <Card className="bg-gradient-to-br from-blue-500 to-indigo-600 border-0 mb-6">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
-                <FileSearch className="w-8 h-8 text-white" />
-              </div>
-              <div>
-                <h2 className="text-white text-xl font-bold">Analisi AI</h2>
-                <p className="text-white/80 text-sm">Carica un contratto PDF per analizzarlo</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Tab Switch */}
+        <div className="flex gap-2 mb-6">
+          <Button
+            onClick={() => setActiveTab('analisi')}
+            className={`flex-1 ${activeTab === 'analisi' ? 'bg-lime-400 text-slate-900' : 'bg-slate-800 text-white'}`}
+          >
+            <FileSearch className="w-4 h-4 mr-2" />
+            Analisi
+          </Button>
+          <Button
+            onClick={() => setActiveTab('messaggi')}
+            className={`flex-1 relative ${activeTab === 'messaggi' ? 'bg-lime-400 text-slate-900' : 'bg-slate-800 text-white'}`}
+          >
+            <MessageSquare className="w-4 h-4 mr-2" />
+            Messaggi
+            {unreadContractMessages > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                {unreadContractMessages}
+              </span>
+            )}
+          </Button>
+        </div>
+
+        {activeTab === 'messaggi' ? (
+          <ContractMessagesSection user={user} avvocati={avvocati} />
+        ) : (
+          <>
+            {/* Hero Card */}
+            <Card className="bg-gradient-to-br from-blue-500 to-indigo-600 border-0 mb-6">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
+                    <FileSearch className="w-8 h-8 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-white text-xl font-bold">Analisi AI</h2>
+                    <p className="text-white/80 text-sm">Carica un contratto PDF per analizzarlo</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
         {/* Pulsante Storico */}
         {historyAnalyses.length > 0 && !analysis && !selectedHistory && (
@@ -843,6 +899,8 @@ Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
               </Button>
             </div>
           </>
+        )}
+        </>
         )}
       </main>
 
