@@ -9,7 +9,7 @@ export default function BottomNav({ currentPage, unreadMessages = 0 }) {
     { name: 'home', label: 'Home', icon: Home, page: 'Home' },
     { name: 'messaggi', label: 'Messaggi', icon: Mail, page: 'Messaggi', badge: unreadMessages },
     { name: 'contatta', label: 'Consorzio', icon: Phone, page: 'ContattaConsorzio' },
-    { name: 'focus', label: 'Focus', icon: Target, page: 'Focus' },
+    { name: 'focus', label: 'Focus', icon: CalendarCheck, page: 'Focus' },
   ];
 
   return (
