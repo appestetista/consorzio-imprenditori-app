@@ -297,8 +297,10 @@ export default function Messaggi() {
   const unreadMessages = allMessages.filter(m => m.to_email === effectiveEmail && !m.is_read);
 
   if (selectedConversation) {
-    const conversationMessages = conversations[selectedConversation] || [];
-    const otherUser = getOtherUser(selectedConversation);
+    const conv = conversations[selectedConversation];
+    const conversationMessages = conv?.messages || [];
+    const otherEmail = conv?.email || selectedConversation;
+    const otherUser = getOtherUser(otherEmail);
 
     return (
       <div className="h-screen bg-slate-900 flex flex-col overflow-hidden">
