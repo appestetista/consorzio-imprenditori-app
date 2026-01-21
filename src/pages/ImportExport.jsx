@@ -1503,7 +1503,7 @@ IMPORTANTE: Usa SOLO fonti ufficiali (TARIC, Agenzia delle Dogane, WCO). NON INV
                     <div className="space-y-2">
                       <div className="flex gap-2">
                         <label className="flex-1 cursor-pointer">
-                          <div className="flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white py-2 px-3 rounded-lg transition-colors text-sm">
+                          <div className="flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white py-2 px-3 rounded-lg transition-colors text-sm">
                             <Paperclip className="w-4 h-4" />
                             Allega documento
                           </div>
@@ -1516,7 +1516,7 @@ IMPORTANTE: Usa SOLO fonti ufficiali (TARIC, Agenzia delle Dogane, WCO). NON INV
                           />
                         </label>
                         <label className="flex-1 cursor-pointer">
-                          <div className="flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white py-2 px-3 rounded-lg transition-colors text-sm h-full">
+                          <div className="flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white py-2 px-3 rounded-lg transition-colors text-sm h-full">
                             <Camera className="w-4 h-4" />
                             Scatta foto
                           </div>
@@ -1532,7 +1532,7 @@ IMPORTANTE: Usa SOLO fonti ufficiali (TARIC, Agenzia delle Dogane, WCO). NON INV
                       </div>
                       
                       {uploadingImportAttachment && (
-                        <div className="flex items-center gap-2 text-slate-400 text-sm">
+                        <div className="flex items-center gap-2 text-white/70 text-sm">
                           <Loader2 className="w-4 h-4 animate-spin" />
                           Caricamento in corso...
                         </div>
@@ -1541,10 +1541,10 @@ IMPORTANTE: Usa SOLO fonti ufficiali (TARIC, Agenzia delle Dogane, WCO). NON INV
                       {importContactForm.attachments.length > 0 && (
                         <div className="flex flex-wrap gap-2">
                           {importContactForm.attachments.map((att, idx) => (
-                            <div key={idx} className="bg-slate-700 rounded-lg px-3 py-1.5 flex items-center gap-2 text-sm">
-                              <FileText className="w-4 h-4 text-lime-400" />
+                            <div key={idx} className="bg-white/10 rounded-lg px-3 py-1.5 flex items-center gap-2 text-sm">
+                              <FileText className="w-4 h-4 text-white" />
                               <span className="text-white truncate max-w-[120px]">{att.name}</span>
-                              <button onClick={() => removeImportAttachment(idx)} className="text-red-400 hover:text-red-300">
+                              <button onClick={() => removeImportAttachment(idx)} className="text-white/70 hover:text-white">
                                 <X className="w-4 h-4" />
                               </button>
                             </div>
@@ -1556,17 +1556,17 @@ IMPORTANTE: Usa SOLO fonti ufficiali (TARIC, Agenzia delle Dogane, WCO). NON INV
                     <Button
                       onClick={() => sendImportContactMutation.mutate()}
                       disabled={!importContactForm.subject || !importContactForm.message || sendImportContactMutation.isPending || uploadingImportAttachment}
-                      className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 font-semibold"
+                      className="w-full bg-white hover:bg-white/90 text-red-600 font-bold h-12 text-base"
                     >
                       {sendImportContactMutation.isPending ? (
                         <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                           Invio in corso...
                         </>
                       ) : (
                         <>
-                          <Send className="w-4 h-4 mr-2" />
-                          Invia Richiesta
+                          <Send className="w-5 h-5 mr-2" />
+                          Richiedi Preventivo Gratuito
                         </>
                       )}
                     </Button>
