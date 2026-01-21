@@ -23,6 +23,7 @@ export default function Messaggi() {
   const [messageToDelete, setMessageToDelete] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [attachments, setAttachments] = useState([]);
+  const [activeFilter, setActiveFilter] = useState('all');
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
