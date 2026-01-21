@@ -488,16 +488,16 @@ IMPORTANTE: Usa SOLO fonti ufficiali (TARIC, Agenzia delle Dogane, WCO). NON INV
         <div className="flex gap-2 mb-6">
           <Button
             onClick={() => setActiveTab('export')}
-            className={`flex-1 ${activeTab === 'export' ? 'bg-lime-400 text-slate-900' : 'bg-slate-800 text-white'}`}
+            className={`flex-1 ${activeTab === 'export' ? 'bg-lime-400 text-slate-900 hover:bg-lime-500' : 'bg-slate-800 text-white hover:bg-slate-700'}`}
           >
             <TrendingUp className="w-4 h-4 mr-2" />
             Export
           </Button>
           <Button
             onClick={() => setActiveTab('import')}
-            className={`flex-1 ${activeTab === 'import' ? 'bg-lime-400 text-slate-900' : 'bg-slate-800 text-white'}`}
+            className={`flex-1 ${activeTab === 'import' ? 'bg-lime-400 text-slate-900 hover:bg-lime-500' : 'bg-slate-800 text-white hover:bg-slate-700'}`}
           >
-            <Ship className="w-4 h-4 mr-2" />
+            <span className="mr-2">🇨🇳</span>
             Import
           </Button>
         </div>
