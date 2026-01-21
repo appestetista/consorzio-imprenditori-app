@@ -1483,15 +1483,20 @@ IMPORTANTE: Usa SOLO fonti ufficiali (TARIC, Agenzia delle Dogane, WCO). NON INV
               </div>
             )}
 
-            {/* Form Contatto Consulente Import - sempre visibile */}
-            <Card className="bg-slate-800 border-slate-700 mt-6">
+            {/* Form Contatto Agenzia Import - sempre visibile */}
+            <Card id="import-contact-section" className="bg-gradient-to-br from-slate-800 to-slate-900 border-red-500/30 mt-6">
               <CardContent className="p-4">
-                <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
-                  <Users className="w-5 h-5 text-lime-400" />
-                  Contatta un Consulente Import
-                </h3>
-                <p className="text-slate-400 text-sm mb-4">
-                  Hai bisogno di supporto per importare dalla Cina? Contatta il nostro team specializzato.
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 bg-red-500/20 rounded-xl flex items-center justify-center">
+                    <span className="text-2xl">🇨🇳</span>
+                  </div>
+                  <div>
+                    <h3 className="text-white font-bold">Agenzia Import Consorzio</h3>
+                    <p className="text-red-400 text-xs font-medium">Servizio esclusivo per i membri</p>
+                  </div>
+                </div>
+                <p className="text-slate-300 text-sm mb-4">
+                  Affidati alla nostra agenzia per importare dalla Cina in modo sicuro e conveniente. Ti seguiamo dalla A alla Z.
                 </p>
                 
                 {importContactSent ? (
