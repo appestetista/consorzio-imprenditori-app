@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Globe, TrendingUp, Ship, FileText, Loader2, CheckCircle, AlertTriangle, Target, DollarSign, Package, MapPin, ArrowRight, Search, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Globe, TrendingUp, Ship, FileText, Loader2, CheckCircle, AlertTriangle, Target, DollarSign, Package, MapPin, ArrowRight, Search, ExternalLink, Send, Paperclip, Camera, X, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Card, CardContent } from '@/components/ui/card';
@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Header from '@/components/layout/Header';
 import BottomNav from '@/components/layout/BottomNav';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 const SETTORI = [
   'Alimentare e bevande',
@@ -58,6 +59,10 @@ export default function ImportExport() {
   const [hsCodeSearch, setHsCodeSearch] = useState('');
   const [hsCodeResult, setHsCodeResult] = useState(null);
   const [searchingHsCode, setSearchingHsCode] = useState(false);
+  const [contactForm, setContactForm] = useState({ subject: '', message: '', exportManagerId: '', attachments: [] });
+  const [uploadingAttachment, setUploadingAttachment] = useState(false);
+  const [contactSent, setContactSent] = useState(false);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const loadUser = async () => {
@@ -75,6 +80,76 @@ export default function ImportExport() {
     queryKey: ['unread-messages', user?.email],
     queryFn: () => base44.entities.Message.filter({ to_email: user?.email, is_read: false }),
     enabled: !!user?.email,
+  });
+
+  const { data: exportManagers = [] } = useQuery({
+    queryKey: ['export-managers'],
+    queryFn: () => base44.entities.Consultant.filter({ category: 'Internazionalizzazione/Export' }),
+  });
+
+  const handleAttachmentUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    setUploadingAttachment(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setContactForm(prev => ({
+        ...prev,
+        attachments: [...prev.attachments, { name: file.name, url: file_url }]
+      }));
+    } catch (err) {
+      console.error('Errore upload:', err);
+    } finally {
+      setUploadingAttachment(false);
+      e.target.value = '';
+    }
+  };
+
+  const removeAttachment = (index) => {
+    setContactForm(prev => ({
+      ...prev,
+      attachments: prev.attachments.filter((_, i) => i !== index)
+    }));
+  };
+
+  const sendContactMutation = useMutation({
+    mutationFn: async () => {
+      const exportManager = exportManagers.find(e => e.id === contactForm.exportManagerId);
+      
+      if (!exportManager) {
+        throw new Error('Seleziona un Export Manager');
+      }
+
+      // Crea messaggio
+      await base44.entities.Message.create({
+        from_email: user.email,
+        to_email: exportManager.email,
+        content: `**Richiesta consulenza Export**\n\nOggetto: ${contactForm.subject}\n\n${contactForm.message}\n\n---\nInviato da: ${user.company_name || user.full_name}\nEmail: ${user.email}`,
+        source: 'import_export',
+        source_reference: 'Import / Export',
+        attachments: contactForm.attachments.map(a => ({ url: a.url, name: a.name, type: 'document' }))
+      });
+
+      // Invia email all'export manager
+      await base44.integrations.Core.SendEmail({
+        to: exportManager.email,
+        subject: `Nuova richiesta consulenza Export: ${contactForm.subject}`,
+        body: `Hai ricevuto una nuova richiesta di consulenza export.\n\nDa: ${user.company_name || user.full_name}\nEmail: ${user.email}\n\nOggetto: ${contactForm.subject}\n\n${contactForm.message}\n\nAccedi all'app per rispondere.`
+      });
+
+      // Crea notifica per l'export manager
+      await base44.entities.Notification.create({
+        user_email: exportManager.email,
+        type: 'consultation',
+        title: 'Nuova richiesta consulenza Export',
+        content: `${user.company_name || user.full_name} richiede consulenza export: ${contactForm.subject}`
+      });
+    },
+    onSuccess: () => {
+      setContactSent(true);
+      setContactForm({ subject: '', message: '', exportManagerId: '', attachments: [] });
+    }
   });
 
   const toggleMercato = (code) => {
@@ -666,6 +741,133 @@ IMPORTANTE: Usa SOLO fonti ufficiali (TARIC, Agenzia delle Dogane, WCO). NON INV
                     </CardContent>
                   </Card>
                 )}
+
+                {/* Form Contatto Export Manager */}
+                <Card className="bg-slate-800 border-slate-700">
+                  <CardContent className="p-4">
+                    <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+                      <Users className="w-5 h-5 text-lime-400" />
+                      Contatta un Export Manager del Consorzio
+                    </h3>
+                    
+                    {contactSent ? (
+                      <div className="bg-green-500/20 border border-green-500/50 rounded-lg p-4 text-center">
+                        <CheckCircle className="w-8 h-8 text-green-400 mx-auto mb-2" />
+                        <p className="text-green-400 font-medium">Richiesta inviata!</p>
+                        <p className="text-green-200 text-sm mt-1">L'Export Manager ti contatterà al più presto.</p>
+                        <Button
+                          onClick={() => setContactSent(false)}
+                          variant="outline"
+                          className="mt-3 border-green-500/50 text-green-400 hover:bg-green-500/20"
+                        >
+                          Invia altra richiesta
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        <Select
+                          value={contactForm.exportManagerId}
+                          onValueChange={(value) => setContactForm({ ...contactForm, exportManagerId: value })}
+                        >
+                          <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                            <SelectValue placeholder="Seleziona un Export Manager" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {exportManagers.map((em) => (
+                              <SelectItem key={em.id} value={em.id}>
+                                {em.name} {em.city ? `- ${em.city}` : ''}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Input
+                          placeholder="Oggetto (es. Valutazione export USA)"
+                          value={contactForm.subject}
+                          onChange={(e) => setContactForm({ ...contactForm, subject: e.target.value })}
+                          className="bg-slate-900 border-slate-700 text-white"
+                        />
+                        <Textarea
+                          placeholder="Descrivi la tua richiesta, mercati di interesse, prodotti..."
+                          value={contactForm.message}
+                          onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
+                          className="bg-slate-900 border-slate-700 text-white min-h-[100px]"
+                        />
+                        
+                        {/* Allegati */}
+                        <div className="space-y-2">
+                          <div className="flex gap-2">
+                            <label className="flex-1 cursor-pointer">
+                              <div className="flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white py-2 px-3 rounded-lg transition-colors text-sm">
+                                <Paperclip className="w-4 h-4" />
+                                Allega documento
+                              </div>
+                              <input
+                                type="file"
+                                accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.xls,.xlsx"
+                                onChange={handleAttachmentUpload}
+                                className="hidden"
+                                disabled={uploadingAttachment}
+                              />
+                            </label>
+                            <label className="flex-1 cursor-pointer">
+                              <div className="flex items-center justify-center gap-2 bg-slate-700 hover:bg-slate-600 text-white py-2 px-3 rounded-lg transition-colors text-sm h-full">
+                                <Camera className="w-4 h-4" />
+                                Scatta foto
+                              </div>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                capture="environment"
+                                onChange={handleAttachmentUpload}
+                                className="hidden"
+                                disabled={uploadingAttachment}
+                              />
+                            </label>
+                          </div>
+                          
+                          {uploadingAttachment && (
+                            <div className="flex items-center gap-2 text-slate-400 text-sm">
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              Caricamento in corso...
+                            </div>
+                          )}
+                          
+                          {contactForm.attachments.length > 0 && (
+                            <div className="flex flex-wrap gap-2">
+                              {contactForm.attachments.map((att, idx) => (
+                                <div key={idx} className="bg-slate-700 rounded-lg px-3 py-1.5 flex items-center gap-2 text-sm">
+                                  <FileText className="w-4 h-4 text-lime-400" />
+                                  <span className="text-white truncate max-w-[120px]">{att.name}</span>
+                                  <button onClick={() => removeAttachment(idx)} className="text-red-400 hover:text-red-300">
+                                    <X className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        
+                        <Button
+                          onClick={() => sendContactMutation.mutate()}
+                          disabled={!contactForm.exportManagerId || !contactForm.subject || !contactForm.message || sendContactMutation.isPending || uploadingAttachment}
+                          className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 font-semibold"
+                        >
+                          {sendContactMutation.isPending ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Invio in corso...
+                            </>
+                          ) : (
+                            <>
+                              <Send className="w-4 h-4 mr-2" />
+                              Invia Richiesta
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
 
                 <Button
                   onClick={resetAnalysis}
