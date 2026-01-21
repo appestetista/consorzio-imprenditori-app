@@ -32,9 +32,15 @@ export default function FeatureCard({ title, icon: Icon, pageName, notificationC
     return content;
   }
 
+  const handleClick = (e) => {
+    e.preventDefault();
+    navigate(createPageUrl(pageName));
+    window.scrollTo(0, 0);
+  };
+
   return (
-    <Link to={createPageUrl(pageName)}>
+    <div onClick={handleClick} className="cursor-pointer">
       {content}
-    </Link>
+    </div>
   );
 }
