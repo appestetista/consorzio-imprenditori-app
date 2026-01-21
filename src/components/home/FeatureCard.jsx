@@ -1,11 +1,12 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import NotificationBell from '../ui/NotificationBell';
 import { Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function FeatureCard({ title, icon: Icon, pageName, notificationCount = 0, disabled = false, variant = 'default' }) {
+  const navigate = useNavigate();
   const isPink = variant === 'pink';
   const content = (
     <div className={cn(
