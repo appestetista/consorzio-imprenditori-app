@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, FileSearch, Upload, FileText, Loader2, CheckCircle, AlertTriangle, Info, Scale, Send } from 'lucide-react';
+import { ArrowLeft, FileSearch, Upload, FileText, Loader2, CheckCircle, AlertTriangle, Info, Scale, Send, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Card, CardContent } from '@/components/ui/card';
@@ -14,7 +14,7 @@ import { useMutation } from '@tanstack/react-query';
 
 export default function AnalisiContratti() {
   const [user, setUser] = useState(null);
-  const [file, setFile] = useState(null);
+  const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [analysis, setAnalysis] = useState(null);
@@ -43,30 +43,38 @@ export default function AnalisiContratti() {
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile && selectedFile.type === 'application/pdf') {
-      setFile(selectedFile);
+      setFiles(prev => [...prev, selectedFile]);
       setError(null);
-      setAnalysis(null);
+      e.target.value = ''; // Reset input per permettere di caricare lo stesso file
     } else {
       setError('Per favore carica un file PDF');
     }
   };
 
+  const removeFile = (index) => {
+    setFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
   const handleAnalyze = async () => {
-    if (!file) return;
+    if (files.length === 0) return;
 
     setUploading(true);
     setError(null);
 
     try {
-      // Upload del file
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      // Upload di tutti i file
+      const uploadedUrls = [];
+      for (const file of files) {
+        const { file_url } = await base44.integrations.Core.UploadFile({ file });
+        uploadedUrls.push(file_url);
+      }
 
       setUploading(false);
       setAnalyzing(true);
 
       // Analisi con LLM
       const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Sei un esperto legale italiano. Analizza questo contratto e fornisci:
+        prompt: `Sei un esperto legale italiano. Analizza ${files.length > 1 ? 'questi contratti' : 'questo contratto'} e fornisci:
 1. Tipo di contratto
 2. Parti coinvolte
 3. Oggetto del contratto
@@ -76,7 +84,7 @@ export default function AnalisiContratti() {
 7. Consigli per il cliente
 
 Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
-        file_urls: [file_url],
+        file_urls: uploadedUrls,
         response_json_schema: {
           type: "object",
           properties: {
@@ -104,7 +112,7 @@ Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
   };
 
   const resetAnalysis = () => {
-    setFile(null);
+    setFiles([]);
     setAnalysis(null);
     setError(null);
     setContactForm({ subject: '', message: '' });
@@ -177,20 +185,12 @@ Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
             <Card className="bg-slate-800 border-slate-700 mb-4">
               <CardContent className="p-6">
                 <label className="block cursor-pointer">
-                  <div className="border-2 border-dashed border-slate-600 rounded-xl p-8 text-center hover:border-lime-400 transition-colors">
-                    {file ? (
-                      <div className="space-y-2">
-                        <FileText className="w-12 h-12 text-lime-400 mx-auto" />
-                        <p className="text-white font-medium">{file.name}</p>
-                        <p className="text-slate-400 text-sm">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
-                      </div>
-                    ) : (
-                      <div className="space-y-2">
-                        <Upload className="w-12 h-12 text-slate-500 mx-auto" />
-                        <p className="text-slate-400">Clicca per caricare un PDF</p>
-                        <p className="text-slate-500 text-sm">Contratti, accordi, documenti legali</p>
-                      </div>
-                    )}
+                  <div className="border-2 border-dashed border-slate-600 rounded-xl p-6 text-center hover:border-lime-400 transition-colors">
+                    <div className="space-y-2">
+                      <Upload className="w-10 h-10 text-slate-500 mx-auto" />
+                      <p className="text-slate-400">Clicca per caricare un PDF</p>
+                      <p className="text-slate-500 text-sm">Contratti, accordi, documenti legali</p>
+                    </div>
                   </div>
                   <input
                     type="file"
@@ -202,6 +202,30 @@ Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
               </CardContent>
             </Card>
 
+            {/* File Thumbnails */}
+            {files.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-4">
+                {files.map((file, index) => (
+                  <div 
+                    key={index} 
+                    className="bg-slate-800 border border-slate-700 rounded-lg p-2 flex items-center gap-2 max-w-[180px]"
+                  >
+                    <FileText className="w-8 h-8 text-lime-400 flex-shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-white text-xs font-medium truncate">{file.name}</p>
+                      <p className="text-slate-400 text-[10px]">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                    </div>
+                    <button 
+                      onClick={() => removeFile(index)}
+                      className="text-red-400 hover:text-red-300 flex-shrink-0"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
             {error && (
               <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-3 mb-4">
                 <p className="text-red-400 text-sm">{error}</p>
@@ -210,7 +234,7 @@ Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
 
             <Button
               onClick={handleAnalyze}
-              disabled={!file || uploading || analyzing}
+              disabled={files.length === 0 || uploading || analyzing}
               className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 font-semibold py-6"
             >
               {uploading ? (
