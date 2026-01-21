@@ -124,7 +124,12 @@ Fornisci un'analisi dettagliata e professionale che includa:
 7. Rischi principali e come mitigarli
 8. Primi passi concreti da fare
 
-IMPORTANTE: Usa dati REALI e AGGIORNATI sui flussi commerciali internazionali (Trade Map, UN Comtrade, Eurostat). Indica sempre i valori in miliardi/milioni USD e le percentuali di crescita degli ultimi 12 mesi.`,
+IMPORTANTE: 
+- Usa SOLO dati REALI e VERIFICABILI dai database ufficiali (Trade Map, UN Comtrade, Eurostat, WTO, ICE).
+- NON INVENTARE MAI dati, numeri o statistiche. Se non hai dati certi per un mercato, scrivi "Dato non disponibile - verificare su Trade Map".
+- Indica sempre le FONTI dei dati che citi.
+- Se un'informazione è incerta, segnalalo esplicitamente.
+- Indica i valori in miliardi/milioni USD e le percentuali di crescita degli ultimi 12 mesi SOLO se hai dati verificati.`,
         add_context_from_internet: true,
         response_json_schema: {
           type: "object",
@@ -194,7 +199,7 @@ Fornisci:
 6. IVA applicabile
 7. Documentazione necessaria per import/export
 
-Usa fonti ufficiali come TARIC, Agenzia delle Dogane, WCO.`,
+IMPORTANTE: Usa SOLO fonti ufficiali (TARIC, Agenzia delle Dogane, WCO). NON INVENTARE MAI codici HS, dazi o percentuali. Se non sei sicuro di un dato, scrivi "Dato da verificare su TARIC". Indica sempre la fonte di ogni informazione.`,
         add_context_from_internet: true,
         response_json_schema: {
           type: "object",
