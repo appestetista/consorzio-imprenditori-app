@@ -70,22 +70,13 @@ export default function UsageTracker() {
         const userMessagesReceived = messages.filter(m => m.to_email === user.email);
         const userConsultations = consultationBookings.filter(b => b.user_email === user.email);
         
-        // Calcola costi da UsageLog se esistono, altrimenti stima
-        const userLogs = usageLogs.filter(l => l.user_email === user.email);
-        let totalCostUsd = 0;
-        let totalInputTokens = 0;
-        let totalOutputTokens = 0;
+        // Costo REALE basato sul numero di analisi contratti effettuate
+        // Ogni analisi contratto usa GPT-4o con vision (~$0.028)
+        const contractsCostUsd = userAnalyses.length * CONTRACT_ANALYSIS_COST_USD;
         
-        if (userLogs.length > 0) {
-          totalCostUsd = userLogs.reduce((sum, l) => sum + (l.cost_usd || 0), 0);
-          totalInputTokens = userLogs.reduce((sum, l) => sum + (l.input_tokens || 0), 0);
-          totalOutputTokens = userLogs.reduce((sum, l) => sum + (l.output_tokens || 0), 0);
-        } else {
-          // Stima basata sul numero di analisi contratti
-          totalInputTokens = userAnalyses.length * ESTIMATED_TOKENS_PER_ANALYSIS.input;
-          totalOutputTokens = userAnalyses.length * ESTIMATED_TOKENS_PER_ANALYSIS.output;
-          totalCostUsd = userAnalyses.length * CONTRACT_ANALYSIS_COST;
-        }
+        // Token stimati per riferimento
+        const totalInputTokens = userAnalyses.length * CONTRACT_ANALYSIS_TOKENS.input;
+        const totalOutputTokens = userAnalyses.length * CONTRACT_ANALYSIS_TOKENS.output;
 
         return {
           id: user.id,
@@ -99,8 +90,8 @@ export default function UsageTracker() {
           total: userAnalyses.length + userMessagesSent.length + userConsultations.length,
           inputTokens: totalInputTokens,
           outputTokens: totalOutputTokens,
-          costUsd: totalCostUsd,
-          costEur: totalCostUsd * 0.92
+          costUsd: contractsCostUsd,
+          costEur: contractsCostUsd * EUR_USD_RATE
         };
       });
 
