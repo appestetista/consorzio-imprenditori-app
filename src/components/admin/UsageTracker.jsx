@@ -217,7 +217,7 @@ export default function UsageTracker() {
   }), { analyses: 0, messages: 0, consultations: 0, costEur: 0, inputTokens: 0, outputTokens: 0 });
 
   // Costo totale piattaforma (utenti + sistema)
-  const totalPlatformCostEur = userTotals.costEur + (systemCosts.total * 0.92);
+  const totalPlatformCostEur = userTotals.costEur + (systemCosts.total * EUR_USD_RATE);
 
   if (isLoading) {
     return (
