@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Home, Mail, Phone } from 'lucide-react';
+import { Home, Mail, Phone, Target } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function BottomNav({ currentPage, unreadMessages = 0 }) {
@@ -9,6 +9,7 @@ export default function BottomNav({ currentPage, unreadMessages = 0 }) {
     { name: 'home', label: 'Home', icon: Home, page: 'Home' },
     { name: 'messaggi', label: 'Messaggi', icon: Mail, page: 'Messaggi', badge: unreadMessages },
     { name: 'contatta', label: 'Consorzio', icon: Phone, page: 'ContattaConsorzio' },
+    { name: 'focus', label: 'Focus', icon: Target, page: 'Focus' },
   ];
 
   return (
