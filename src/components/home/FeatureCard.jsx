@@ -1,12 +1,11 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import NotificationBell from '../ui/NotificationBell';
 import { Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function FeatureCard({ title, icon: Icon, pageName, notificationCount = 0, disabled = false, variant = 'default' }) {
-  const navigate = useNavigate();
   const isPink = variant === 'pink';
   const content = (
     <div className={cn(
@@ -32,15 +31,11 @@ export default function FeatureCard({ title, icon: Icon, pageName, notificationC
     return content;
   }
 
-  const handleClick = (e) => {
-    e.preventDefault();
-    navigate(createPageUrl(pageName));
-    window.scrollTo(0, 0);
-  };
+  const pageUrl = createPageUrl(pageName);
 
   return (
-    <div onClick={handleClick} className="cursor-pointer">
+    <Link to={pageUrl} className="cursor-pointer block">
       {content}
-    </div>
+    </Link>
   );
 }
