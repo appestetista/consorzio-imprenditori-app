@@ -37,14 +37,18 @@ export default function UsageTracker() {
   const { data: usageData, isLoading } = useQuery({
     queryKey: ['usage-tracker'],
     queryFn: async () => {
-      const [users, consultants, contractAnalyses, messages, consultationBookings, usageLogs] = await Promise.all([
+      const [users, consultants, contractAnalyses, messages, consultationBookings, usageLogs, grants] = await Promise.all([
         base44.entities.User.list(),
         base44.entities.Consultant.list(),
         base44.entities.ContractAnalysis.list(),
         base44.entities.Message.list(),
         base44.entities.ConsultationBooking.list(),
-        base44.entities.UsageLog.list()
+        base44.entities.UsageLog.list(),
+        base44.entities.FinancialGrant.list()
       ]);
+
+      // Conta messaggi import/export (usano AI con web search)
+      const importExportMessages = messages.filter(m => m.source === 'import_export');
 
       // Calcola utilizzo per utenti
       const userUsage = users.map(user => {
@@ -64,10 +68,10 @@ export default function UsageTracker() {
           totalInputTokens = userLogs.reduce((sum, l) => sum + (l.input_tokens || 0), 0);
           totalOutputTokens = userLogs.reduce((sum, l) => sum + (l.output_tokens || 0), 0);
         } else {
-          // Stima basata sul numero di analisi
+          // Stima basata sul numero di analisi contratti
           totalInputTokens = userAnalyses.length * ESTIMATED_TOKENS_PER_ANALYSIS.input;
           totalOutputTokens = userAnalyses.length * ESTIMATED_TOKENS_PER_ANALYSIS.output;
-          totalCostUsd = (totalInputTokens * OPENAI_PRICES.input) + (totalOutputTokens * OPENAI_PRICES.output);
+          totalCostUsd = userAnalyses.length * CONTRACT_ANALYSIS_COST;
         }
 
         return {
@@ -83,7 +87,7 @@ export default function UsageTracker() {
           inputTokens: totalInputTokens,
           outputTokens: totalOutputTokens,
           costUsd: totalCostUsd,
-          costEur: totalCostUsd * 0.92 // Conversione approssimativa
+          costEur: totalCostUsd * 0.92
         };
       });
 
@@ -111,7 +115,39 @@ export default function UsageTracker() {
         };
       });
 
-      return [...userUsage, ...consultantUsage];
+      // Calcola costi di sistema (non attribuiti a utenti)
+      // Bandi: ~28 chiamate AI con web search ogni lunedì
+      const grantsCreatedBySystem = grants.filter(g => 
+        g.created_by_email === 'system@scheduled' || g.created_by_email === 'system@auto-import'
+      ).length;
+      
+      // Stima esecuzioni settimanali (assumiamo ~4 settimane di dati visibili)
+      const estimatedWeeklyRuns = 4;
+      const grantSearchCost = estimatedWeeklyRuns * GRANT_SOURCES_COUNT * GPT4O_WEB_SEARCH_COST;
+      
+      // Enrichment bandi (stima: 30% dei bandi vengono arricchiti)
+      const estimatedEnrichments = Math.ceil(grantsCreatedBySystem * 0.3);
+      const grantEnrichmentCost = estimatedEnrichments * GPT4O_WEB_SEARCH_COST;
+
+      // Import/Export analisi (stima: ogni messaggio import_export ha generato 1 analisi AI)
+      const importExportAnalysisCost = importExportMessages.length * GPT4O_WEB_SEARCH_COST;
+
+      const systemCosts = {
+        grantSearch: grantSearchCost,
+        grantEnrichment: grantEnrichmentCost,
+        importExport: importExportAnalysisCost,
+        total: grantSearchCost + grantEnrichmentCost + importExportAnalysisCost
+      };
+
+      return { 
+        users: [...userUsage, ...consultantUsage],
+        systemCosts,
+        stats: {
+          totalGrants: grants.length,
+          systemGrants: grantsCreatedBySystem,
+          importExportMessages: importExportMessages.length
+        }
+      };
     }
   });
 
