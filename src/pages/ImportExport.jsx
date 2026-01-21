@@ -96,6 +96,62 @@ export default function ImportExport() {
     queryFn: () => base44.entities.Consultant.filter({ category: 'Internazionalizzazione/Export' }),
   });
 
+  // State per contatto consulente Import
+  const [importContactForm, setImportContactForm] = useState({ subject: '', message: '', attachments: [] });
+  const [uploadingImportAttachment, setUploadingImportAttachment] = useState(false);
+  const [importContactSent, setImportContactSent] = useState(false);
+
+  const handleImportAttachmentUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    setUploadingImportAttachment(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setImportContactForm(prev => ({
+        ...prev,
+        attachments: [...prev.attachments, { name: file.name, url: file_url }]
+      }));
+    } catch (err) {
+      console.error('Errore upload:', err);
+    } finally {
+      setUploadingImportAttachment(false);
+      e.target.value = '';
+    }
+  };
+
+  const removeImportAttachment = (index) => {
+    setImportContactForm(prev => ({
+      ...prev,
+      attachments: prev.attachments.filter((_, i) => i !== index)
+    }));
+  };
+
+  const sendImportContactMutation = useMutation({
+    mutationFn: async () => {
+      // Invia richiesta al consorzio per import dalla Cina
+      await base44.entities.Message.create({
+        from_email: user.email,
+        to_email: 'import@consorzio.it', // Email generica consorzio o admin
+        content: `**Richiesta Consulenza Import dalla Cina**\n\nOggetto: ${importContactForm.subject}\n\n${importContactForm.message}\n\n---\n**Dati analisi:**\n- Tipo richiesta: ${importForm.tipo_richiesta === 'produzione_custom' ? 'Produzione su misura' : 'Prodotto esistente'}\n- Prodotto: ${importForm.descrizione_prodotto}\n- Quantità: ${importForm.quantita}\n- Budget: ${importForm.budget || 'Non specificato'}\n- Tempo attesa: ${importForm.tempo_attesa || 'Non specificato'}\n\n---\nInviato da: ${user.company_name || user.full_name}\nEmail: ${user.email}`,
+        source: 'import_export',
+        source_reference: 'Import dalla Cina',
+        attachments: importContactForm.attachments.map(a => ({ url: a.url, name: a.name, type: 'document' }))
+      });
+
+      // Invia email notifica
+      await base44.integrations.Core.SendEmail({
+        to: 'import@consorzio.it',
+        subject: `Nuova richiesta consulenza Import Cina: ${importContactForm.subject}`,
+        body: `Hai ricevuto una nuova richiesta di consulenza per import dalla Cina.\n\nDa: ${user.company_name || user.full_name}\nEmail: ${user.email}\n\nOggetto: ${importContactForm.subject}\n\nProdotto: ${importForm.descrizione_prodotto}\nQuantità: ${importForm.quantita}\n\n${importContactForm.message}\n\nAccedi all'app per rispondere.`
+      });
+    },
+    onSuccess: () => {
+      setImportContactSent(true);
+      setImportContactForm({ subject: '', message: '', attachments: [] });
+    }
+  });
+
   const handleAttachmentUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
