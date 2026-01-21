@@ -365,7 +365,7 @@ Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
                     <Info className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
                     <p className="text-yellow-200 text-sm">
                       <strong>Attenzione:</strong> L'analisi AI potrebbe contenere errori. Ti consigliamo di verificare le informazioni su più fonti. 
-                      Se hai bisogno di una consulenza approfondita, puoi far verificare il contratto dal nostro legale interno.
+                      Se hai bisogno di una consulenza approfondita, puoi far verificare il contratto da un legale del Consorzio Imprenditori.
                     </p>
                   </div>
                 </CardContent>
