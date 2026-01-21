@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, FileSearch, Upload, FileText, Loader2, CheckCircle, AlertTriangle, Info, Scale, Send, X } from 'lucide-react';
+import { ArrowLeft, FileSearch, Upload, FileText, Loader2, CheckCircle, AlertTriangle, Info, Scale, Send, X, History, ChevronRight, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Card, CardContent } from '@/components/ui/card';
@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export default function AnalisiContratti() {
   const [user, setUser] = useState(null);
@@ -21,6 +21,9 @@ export default function AnalisiContratti() {
   const [error, setError] = useState(null);
   const [contactForm, setContactForm] = useState({ subject: '', message: '' });
   const [contactSent, setContactSent] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+  const [selectedHistory, setSelectedHistory] = useState(null);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const loadUser = async () => {
@@ -37,6 +40,12 @@ export default function AnalisiContratti() {
   const { data: messages = [] } = useQuery({
     queryKey: ['unread-messages', user?.email],
     queryFn: () => base44.entities.Message.filter({ to_email: user?.email, is_read: false }),
+    enabled: !!user?.email,
+  });
+
+  const { data: historyAnalyses = [] } = useQuery({
+    queryKey: ['contract-analyses', user?.email],
+    queryFn: () => base44.entities.ContractAnalysis.filter({ user_email: user?.email }, '-created_date'),
     enabled: !!user?.email,
   });
 
@@ -102,6 +111,14 @@ Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
       });
 
       setAnalysis(result);
+
+      // Salva nello storico
+      await base44.entities.ContractAnalysis.create({
+        user_email: user.email,
+        file_names: files.map(f => f.name),
+        ...result
+      });
+      queryClient.invalidateQueries({ queryKey: ['contract-analyses', user?.email] });
     } catch (e) {
       console.error(e);
       setError('Errore durante l\'analisi del contratto. Riprova.');
@@ -109,6 +126,19 @@ Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
       setUploading(false);
       setAnalyzing(false);
     }
+  };
+
+  const deleteHistoryItem = async (id) => {
+    await base44.entities.ContractAnalysis.delete(id);
+    queryClient.invalidateQueries({ queryKey: ['contract-analyses', user?.email] });
+    if (selectedHistory?.id === id) {
+      setSelectedHistory(null);
+    }
+  };
+
+  const viewHistoryItem = (item) => {
+    setSelectedHistory(item);
+    setShowHistory(false);
   };
 
   const resetAnalysis = () => {
@@ -179,7 +209,166 @@ Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
           </CardContent>
         </Card>
 
-        {!analysis ? (
+        {/* Pulsante Storico */}
+        {historyAnalyses.length > 0 && !analysis && !selectedHistory && (
+          <Button
+            onClick={() => setShowHistory(!showHistory)}
+            variant="outline"
+            className="w-full border-slate-700 text-slate-300 hover:bg-slate-800 mb-4"
+          >
+            <History className="w-4 h-4 mr-2" />
+            Storico Analisi ({historyAnalyses.length})
+            <ChevronRight className={`w-4 h-4 ml-auto transition-transform ${showHistory ? 'rotate-90' : ''}`} />
+          </Button>
+        )}
+
+        {/* Lista Storico */}
+        {showHistory && (
+          <div className="space-y-2 mb-4">
+            {historyAnalyses.map((item) => (
+              <Card key={item.id} className="bg-slate-800 border-slate-700">
+                <CardContent className="p-3 flex items-center gap-3">
+                  <FileText className="w-8 h-8 text-blue-400 flex-shrink-0" />
+                  <div className="flex-1 min-w-0" onClick={() => viewHistoryItem(item)} style={{ cursor: 'pointer' }}>
+                    <p className="text-white text-sm font-medium truncate">
+                      {item.tipo_contratto || 'Contratto'}
+                    </p>
+                    <p className="text-slate-400 text-xs">
+                      {new Date(item.created_date).toLocaleDateString('it-IT')} - {item.file_names?.join(', ') || 'File'}
+                    </p>
+                  </div>
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); deleteHistoryItem(item.id); }}
+                    className="text-red-400 hover:text-red-300 p-1"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                  <ChevronRight 
+                    className="w-4 h-4 text-slate-500 cursor-pointer" 
+                    onClick={() => viewHistoryItem(item)}
+                  />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+
+        {/* Vista dettaglio storico */}
+        {selectedHistory ? (
+          <>
+            <div className="space-y-4">
+              {/* Riepilogo */}
+              <Card className="bg-slate-800 border-slate-700">
+                <CardContent className="p-4">
+                  <h3 className="text-lime-400 font-semibold mb-2 flex items-center gap-2">
+                    <CheckCircle className="w-5 h-5" />
+                    Riepilogo
+                  </h3>
+                  <p className="text-slate-300 text-sm">{selectedHistory.riepilogo}</p>
+                  <p className="text-slate-500 text-xs mt-2">
+                    Analizzato il {new Date(selectedHistory.created_date).toLocaleDateString('it-IT')}
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* Tipo e Parti */}
+              <Card className="bg-slate-800 border-slate-700">
+                <CardContent className="p-4">
+                  <h3 className="text-white font-semibold mb-3">Informazioni Generali</h3>
+                  <div className="space-y-2">
+                    <div>
+                      <span className="text-slate-400 text-sm">Tipo:</span>
+                      <p className="text-white">{selectedHistory.tipo_contratto}</p>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 text-sm">Parti coinvolte:</span>
+                      <ul className="text-white text-sm">
+                        {selectedHistory.parti_coinvolte?.map((parte, i) => (
+                          <li key={i}>• {parte}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 text-sm">Oggetto:</span>
+                      <p className="text-white text-sm">{selectedHistory.oggetto}</p>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 text-sm">Durata:</span>
+                      <p className="text-white text-sm">{selectedHistory.durata}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Scadenze */}
+              {selectedHistory.scadenze?.length > 0 && (
+                <Card className="bg-slate-800 border-slate-700">
+                  <CardContent className="p-4">
+                    <h3 className="text-white font-semibold mb-2">📅 Scadenze Importanti</h3>
+                    <ul className="space-y-1">
+                      {selectedHistory.scadenze.map((scadenza, i) => (
+                        <li key={i} className="text-slate-300 text-sm">• {scadenza}</li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Clausole */}
+              {selectedHistory.clausole_principali?.length > 0 && (
+                <Card className="bg-slate-800 border-slate-700">
+                  <CardContent className="p-4">
+                    <h3 className="text-white font-semibold mb-2">📋 Clausole Principali</h3>
+                    <ul className="space-y-1">
+                      {selectedHistory.clausole_principali.map((clausola, i) => (
+                        <li key={i} className="text-slate-300 text-sm">• {clausola}</li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Criticità */}
+              {selectedHistory.criticita?.length > 0 && (
+                <Card className="bg-orange-500/20 border-orange-500/50">
+                  <CardContent className="p-4">
+                    <h3 className="text-orange-400 font-semibold mb-2 flex items-center gap-2">
+                      <AlertTriangle className="w-5 h-5" />
+                      Punti di Attenzione
+                    </h3>
+                    <ul className="space-y-1">
+                      {selectedHistory.criticita.map((critica, i) => (
+                        <li key={i} className="text-orange-200 text-sm">• {critica}</li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Consigli */}
+              {selectedHistory.consigli?.length > 0 && (
+                <Card className="bg-green-500/20 border-green-500/50">
+                  <CardContent className="p-4">
+                    <h3 className="text-green-400 font-semibold mb-2">💡 Consigli</h3>
+                    <ul className="space-y-1">
+                      {selectedHistory.consigli.map((consiglio, i) => (
+                        <li key={i} className="text-green-200 text-sm">• {consiglio}</li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              )}
+
+              <Button
+                onClick={() => setSelectedHistory(null)}
+                variant="outline"
+                className="w-full border-slate-600 text-slate-400 hover:bg-slate-800"
+              >
+                Torna indietro
+              </Button>
+            </div>
+          </>
+        ) : !analysis ? (
           <>
             {/* Upload Area */}
             <Card className="bg-slate-800 border-slate-700 mb-4">
