@@ -1443,20 +1443,33 @@ IMPORTANTE: Usa SOLO fonti ufficiali (TARIC, Agenzia delle Dogane, WCO). NON INV
             )}
 
             {/* Form Contatto Agenzia Import - sempre visibile */}
-            <Card id="import-contact-section" className="bg-gradient-to-br from-slate-800 to-slate-900 border-red-500/30 mt-6">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 bg-red-500/20 rounded-xl flex items-center justify-center">
-                    <span className="text-2xl">🇨🇳</span>
+            <Card id="import-contact-section" className="bg-gradient-to-br from-red-500 to-orange-600 border-0 shadow-xl shadow-red-500/20 mt-6">
+              <CardContent className="p-5">
+                <div className="text-center mb-4">
+                  <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <span className="text-4xl">🇨🇳</span>
                   </div>
-                  <div>
-                    <h3 className="text-white font-bold">Agenzia Import Consorzio</h3>
-                    <p className="text-red-400 text-xs font-medium">Servizio esclusivo per i membri</p>
+                  <h3 className="text-white font-bold text-xl mb-2">Vuoi procedere con l'import?</h3>
+                  <p className="text-white/90 text-sm mb-4">
+                    La nostra agenzia di import ti segue in ogni fase: fino alla consegna in Italia.
+                  </p>
+                </div>
+                <div className="bg-white/10 rounded-xl p-3 mb-4">
+                  <div className="grid grid-cols-2 gap-2 text-center">
+                    <div className="bg-white/10 rounded-lg p-2">
+                      <p className="text-white/80 text-xs">✓ Ricerca fornitori</p>
+                    </div>
+                    <div className="bg-white/10 rounded-lg p-2">
+                      <p className="text-white/80 text-xs">✓ Controllo qualità</p>
+                    </div>
+                    <div className="bg-white/10 rounded-lg p-2">
+                      <p className="text-white/80 text-xs">✓ Gestione dogana</p>
+                    </div>
+                    <div className="bg-white/10 rounded-lg p-2">
+                      <p className="text-white/80 text-xs">✓ Spedizione inclusa</p>
+                    </div>
                   </div>
                 </div>
-                <p className="text-slate-300 text-sm mb-4">
-                  Affidati alla nostra agenzia per importare dalla Cina in modo sicuro e conveniente. Ti seguiamo dalla A alla Z.
-                </p>
                 
                 {importContactSent ? (
                   <div className="bg-green-500/20 border border-green-500/50 rounded-lg p-4 text-center">
