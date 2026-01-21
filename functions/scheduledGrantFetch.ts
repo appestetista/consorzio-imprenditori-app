@@ -1,4 +1,9 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import OpenAI from 'npm:openai';
+
+const openai = new OpenAI({
+    apiKey: Deno.env.get("OPENAI_API_KEY"),
+});
 
 // Questa function viene chiamata dall'automazione schedulata
 // Non richiede autenticazione utente perché è un task di sistema
