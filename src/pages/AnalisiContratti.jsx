@@ -539,7 +539,7 @@ Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
               <CardContent className="p-4">
                 <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
                   <Scale className="w-5 h-5 text-lime-400" />
-                  Contatta l'Avvocato del Consorzio
+                  Contatta un Avvocato del Consorzio
                 </h3>
                 
                 {contactSent ? (
@@ -775,7 +775,7 @@ Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
                 <CardContent className="p-4">
                   <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
                     <Scale className="w-5 h-5 text-lime-400" />
-                    Contatta l'Avvocato del Consorzio
+                    Contatta un Avvocato del Consorzio
                   </h3>
                   
                   {contactSent ? (
