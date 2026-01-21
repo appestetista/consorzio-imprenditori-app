@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, FileSearch, Upload, FileText, Loader2, CheckCircle, AlertTriangle, Info, Scale, Send, X, History, ChevronRight, Trash2, Paperclip, Camera, Mail, MessageSquare } from 'lucide-react';
+import { useAILimits } from '@/components/hooks/useAILimits';
+import LimitReachedBanner from '@/components/common/LimitReachedBanner';
+import UsageCounter from '@/components/common/UsageCounter';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Card, CardContent } from '@/components/ui/card';
@@ -72,6 +75,9 @@ export default function AnalisiContratti() {
     enabled: !!user?.email,
   });
 
+  // Limiti AI
+  const { usageCount, limit, remaining, isLimitReached, trackUsage } = useAILimits(user?.email, 'contract_analysis');
+
   const { data: avvocati = [] } = useQuery({
     queryKey: ['avvocati'],
     queryFn: () => base44.entities.Consultant.filter({ category: 'Avvocato' }),
@@ -93,13 +99,22 @@ export default function AnalisiContratti() {
   };
 
   const handleAnalyze = async () => {
-    if (files.length === 0) return;
+        if (files.length === 0) return;
 
-    setUploading(true);
-    setError(null);
+        // Verifica limite
+        if (isLimitReached) {
+          setError('Hai raggiunto il limite mensile di analisi contratti.');
+          return;
+        }
 
-    try {
-      // Upload di tutti i file
+        setUploading(true);
+        setError(null);
+
+        try {
+          // Traccia utilizzo
+          await trackUsage();
+
+          // Upload di tutti i file
       const uploadedUrls = [];
       for (const file of files) {
         const { file_url } = await base44.integrations.Core.UploadFile({ file });
@@ -279,10 +294,28 @@ Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
         </div>
 
         {activeTab === 'messaggi' ? (
-          <ContractMessagesSection user={user} avvocati={avvocati} />
-        ) : (
-          <>
-            {/* Hero Card */}
+                        <ContractMessagesSection user={user} avvocati={avvocati} />
+                      ) : (
+                        <>
+                          {/* Limite Raggiunto Banner */}
+                          {isLimitReached && (
+                            <LimitReachedBanner 
+                              actionType="contract_analysis" 
+                              usageCount={usageCount} 
+                              limit={limit} 
+                            />
+                          )}
+
+                          {/* Contatore Utilizzo */}
+                          {!isLimitReached && user && (
+                            <UsageCounter 
+                              usageCount={usageCount} 
+                              limit={limit} 
+                              label="Analisi contratti disponibili questo mese" 
+                            />
+                          )}
+
+                          {/* Hero Card */}
             <Card className="bg-gradient-to-br from-blue-500 to-indigo-600 border-0 mb-6">
               <CardContent className="p-6">
                 <div className="flex items-center gap-4">
@@ -512,10 +545,10 @@ Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
             )}
 
             <Button
-              onClick={handleAnalyze}
-              disabled={files.length === 0 || uploading || analyzing}
-              className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 font-semibold h-12 animate-pulse"
-            >
+                                onClick={handleAnalyze}
+                                disabled={files.length === 0 || uploading || analyzing || isLimitReached}
+                                className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 font-semibold h-12 animate-pulse disabled:opacity-50 disabled:animate-none"
+                              >
               {uploading ? (
                 <>
                   <Loader2 className="w-5 h-5 mr-2 animate-spin" />
