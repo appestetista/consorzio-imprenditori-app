@@ -151,8 +151,12 @@ export default function UsageTracker() {
     }
   });
 
+  const userData = usageData?.users || [];
+  const systemCosts = usageData?.systemCosts || { grantSearch: 0, grantEnrichment: 0, importExport: 0, total: 0 };
+  const stats = usageData?.stats || { totalGrants: 0, systemGrants: 0, importExportMessages: 0 };
+
   // Filtra e ordina
-  const filteredData = (usageData || [])
+  const filteredData = userData
     .filter(item => 
       item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       item.email.toLowerCase().includes(searchTerm.toLowerCase())
@@ -173,8 +177,8 @@ export default function UsageTracker() {
       }
     });
 
-  // Statistiche totali
-  const totals = (usageData || []).reduce((acc, item) => ({
+  // Statistiche utenti
+  const userTotals = userData.reduce((acc, item) => ({
     analyses: acc.analyses + item.analyses,
     messages: acc.messages + item.messagesSent,
     consultations: acc.consultations + item.consultations,
@@ -182,6 +186,9 @@ export default function UsageTracker() {
     inputTokens: acc.inputTokens + (item.inputTokens || 0),
     outputTokens: acc.outputTokens + (item.outputTokens || 0)
   }), { analyses: 0, messages: 0, consultations: 0, costEur: 0, inputTokens: 0, outputTokens: 0 });
+
+  // Costo totale piattaforma (utenti + sistema)
+  const totalPlatformCostEur = userTotals.costEur + (systemCosts.total * 0.92);
 
   if (isLoading) {
     return (
