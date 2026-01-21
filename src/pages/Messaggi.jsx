@@ -691,7 +691,7 @@ export default function Messaggi() {
         )}
       </main>
 
-      <BottomNav currentPage="Messaggi" unreadMessages={unreadMessages.length} />
+      <BottomNav currentPage="Messaggi" unreadMessages={totalUnreadCount} />
     </div>
   );
 }
