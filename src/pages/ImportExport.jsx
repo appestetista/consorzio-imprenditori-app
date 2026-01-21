@@ -880,161 +880,352 @@ IMPORTANTE: Usa SOLO fonti ufficiali (TARIC, Agenzia delle Dogane, WCO). NON INV
             )}
           </>
         ) : (
-          /* Tab Import */
+          /* Tab Import dalla Cina */
           <div className="space-y-4">
-            <Card className="bg-slate-800 border-slate-700">
+            {/* Hero Import */}
+            <Card className="bg-gradient-to-br from-red-500 to-red-700 border-0">
               <CardContent className="p-4">
-                <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
-                  <Search className="w-5 h-5 text-lime-400" />
-                  Ricerca Codice Doganale (HS Code)
-                </h3>
-                <p className="text-slate-400 text-sm mb-4">
-                  Inserisci il nome del prodotto per trovare il codice HS, dazi e requisiti di importazione
-                </p>
-                
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Es. Componenti elettronici, tessuti in cotone..."
-                    value={hsCodeSearch}
-                    onChange={(e) => setHsCodeSearch(e.target.value)}
-                    className="bg-slate-900 border-slate-700 text-white flex-1"
-                    onKeyPress={(e) => e.key === 'Enter' && searchHsCode()}
-                  />
-                  <Button
-                    onClick={searchHsCode}
-                    disabled={!hsCodeSearch.trim() || searchingHsCode}
-                    className="bg-lime-400 hover:bg-lime-500 text-slate-900"
-                  >
-                    {searchingHsCode ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
-                  </Button>
+                <div className="flex items-center gap-3">
+                  <span className="text-4xl">🇨🇳</span>
+                  <div>
+                    <h3 className="text-white font-bold">Import dalla Cina</h3>
+                    <p className="text-white/80 text-sm">Produci su misura o trova prodotti esistenti</p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
 
-            {hsCodeResult && (
+            {!importResult ? (
               <div className="space-y-4">
+                {/* Tipo di Import */}
+                <Card className="bg-slate-800 border-slate-700">
+                  <CardContent className="p-4">
+                    <h3 className="text-white font-semibold mb-3">Cosa vuoi fare?</h3>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        onClick={() => setImportForm({ ...importForm, tipo_richiesta: 'produzione_custom' })}
+                        className={`p-4 rounded-lg text-center transition-all ${
+                          importForm.tipo_richiesta === 'produzione_custom'
+                            ? 'bg-lime-400 text-slate-900'
+                            : 'bg-slate-700 text-white hover:bg-slate-600'
+                        }`}
+                      >
+                        <Package className="w-8 h-8 mx-auto mb-2" />
+                        <p className="text-sm font-medium">Produzione su misura</p>
+                        <p className="text-xs opacity-70 mt-1">Da disegni/specifiche</p>
+                      </button>
+                      <button
+                        onClick={() => setImportForm({ ...importForm, tipo_richiesta: 'prodotto_esistente' })}
+                        className={`p-4 rounded-lg text-center transition-all ${
+                          importForm.tipo_richiesta === 'prodotto_esistente'
+                            ? 'bg-lime-400 text-slate-900'
+                            : 'bg-slate-700 text-white hover:bg-slate-600'
+                        }`}
+                      >
+                        <Search className="w-8 h-8 mx-auto mb-2" />
+                        <p className="text-sm font-medium">Prodotto esistente</p>
+                        <p className="text-xs opacity-70 mt-1">Già disponibile</p>
+                      </button>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Form Valutazione */}
+                <Card className="bg-slate-800 border-slate-700">
+                  <CardContent className="p-4">
+                    <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+                      <Target className="w-5 h-5 text-lime-400" />
+                      Valuta la fattibilità del tuo import
+                    </h3>
+                    
+                    <div className="space-y-4">
+                      <div>
+                        <label className="text-slate-400 text-sm mb-1 block">Descrizione prodotto *</label>
+                        <Textarea
+                          placeholder="Descrivi il prodotto che vuoi importare/produrre..."
+                          value={importForm.descrizione_prodotto}
+                          onChange={(e) => setImportForm({ ...importForm, descrizione_prodotto: e.target.value })}
+                          className="bg-slate-900 border-slate-700 text-white min-h-[80px]"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-slate-400 text-sm mb-1 block">Quantità richiesta *</label>
+                          <Select
+                            value={importForm.quantita}
+                            onValueChange={(value) => setImportForm({ ...importForm, quantita: value })}
+                          >
+                            <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                              <SelectValue placeholder="Pezzi" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="100-500">100 - 500 pz</SelectItem>
+                              <SelectItem value="500-1000">500 - 1.000 pz</SelectItem>
+                              <SelectItem value="1000-5000">1.000 - 5.000 pz</SelectItem>
+                              <SelectItem value="5000-10000">5.000 - 10.000 pz</SelectItem>
+                              <SelectItem value="10000-50000">10.000 - 50.000 pz</SelectItem>
+                              <SelectItem value="50000+">Oltre 50.000 pz</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div>
+                          <label className="text-slate-400 text-sm mb-1 block">Frequenza ordini</label>
+                          <Select
+                            value={importForm.frequenza}
+                            onValueChange={(value) => setImportForm({ ...importForm, frequenza: value })}
+                          >
+                            <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                              <SelectValue placeholder="Seleziona" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="una_tantum">Una tantum</SelectItem>
+                              <SelectItem value="trimestrale">Trimestrale</SelectItem>
+                              <SelectItem value="semestrale">Semestrale</SelectItem>
+                              <SelectItem value="annuale">Annuale</SelectItem>
+                              <SelectItem value="continuativo">Continuativo</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-slate-400 text-sm mb-1 block">Tempo massimo attesa</label>
+                          <Select
+                            value={importForm.tempo_attesa}
+                            onValueChange={(value) => setImportForm({ ...importForm, tempo_attesa: value })}
+                          >
+                            <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                              <SelectValue placeholder="Seleziona" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="2-4_settimane">2-4 settimane</SelectItem>
+                              <SelectItem value="1-2_mesi">1-2 mesi</SelectItem>
+                              <SelectItem value="2-3_mesi">2-3 mesi</SelectItem>
+                              <SelectItem value="3-6_mesi">3-6 mesi</SelectItem>
+                              <SelectItem value="flessibile">Flessibile</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div>
+                          <label className="text-slate-400 text-sm mb-1 block">Budget indicativo</label>
+                          <Select
+                            value={importForm.budget}
+                            onValueChange={(value) => setImportForm({ ...importForm, budget: value })}
+                          >
+                            <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                              <SelectValue placeholder="Seleziona" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="< 5000">{"< 5.000€"}</SelectItem>
+                              <SelectItem value="5000-15000">5.000 - 15.000€</SelectItem>
+                              <SelectItem value="15000-50000">15.000 - 50.000€</SelectItem>
+                              <SelectItem value="50000-100000">50.000 - 100.000€</SelectItem>
+                              <SelectItem value="> 100000">{"> 100.000€"}</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="text-slate-400 text-sm mb-1 block">Hai già esperienza di import?</label>
+                        <Select
+                          value={importForm.esperienza_import}
+                          onValueChange={(value) => setImportForm({ ...importForm, esperienza_import: value })}
+                        >
+                          <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                            <SelectValue placeholder="Seleziona" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="nessuna">Nessuna esperienza</SelectItem>
+                            <SelectItem value="poca">Poca (1-2 ordini)</SelectItem>
+                            <SelectItem value="media">Media (3-10 ordini)</SelectItem>
+                            <SelectItem value="consolidata">Consolidata (10+ ordini)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div>
+                        <label className="text-slate-400 text-sm mb-1 block">Requisiti specifici</label>
+                        <Textarea
+                          placeholder="Certificazioni richieste, materiali particolari, standard di qualità..."
+                          value={importForm.requisiti}
+                          onChange={(e) => setImportForm({ ...importForm, requisiti: e.target.value })}
+                          className="bg-slate-900 border-slate-700 text-white min-h-[60px]"
+                        />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Button
+                  onClick={analyzeImportFeasibility}
+                  disabled={!importForm.descrizione_prodotto || !importForm.quantita || !importForm.tipo_richiesta || analyzingImport}
+                  className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 font-semibold h-12"
+                >
+                  {analyzingImport ? (
+                    <>
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      Analisi in corso...
+                    </>
+                  ) : (
+                    <>
+                      <Ship className="w-5 h-5 mr-2" />
+                      Valuta Fattibilità Import
+                    </>
+                  )}
+                </Button>
+              </div>
+            ) : (
+              /* Risultati Analisi Import */
+              <div className="space-y-4">
+                {/* Punteggio Fattibilità */}
                 <Card className="bg-slate-800 border-slate-700">
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-white font-semibold">Codice HS</h3>
-                      <span className="bg-lime-400 text-slate-900 px-3 py-1 rounded font-mono font-bold">
-                        {hsCodeResult.hs_code}
-                      </span>
-                    </div>
-                    <p className="text-slate-300 text-sm">{hsCodeResult.descrizione_doganale}</p>
-                    <p className="text-slate-500 text-xs mt-2">Capitolo: {hsCodeResult.capitolo_hs}</p>
-                  </CardContent>
-                </Card>
-
-                {/* Dazi Import dalla Cina */}
-                <Card className="bg-red-500/20 border-red-500/50">
-                  <CardContent className="p-4">
-                    <h3 className="text-red-400 font-semibold mb-2 flex items-center gap-2">
-                      <Ship className="w-5 h-5" />
-                      Import dalla Cina → Italia
-                    </h3>
-                    <p className="text-white text-lg font-bold">{hsCodeResult.dazi_import_cina_italia}</p>
-                    <p className="text-red-200 text-sm mt-1">IVA Italia: {hsCodeResult.iva_italia}</p>
-                  </CardContent>
-                </Card>
-
-                {/* Dazi Export */}
-                {hsCodeResult.dazi_export?.length > 0 && (
-                  <Card className="bg-slate-800 border-slate-700">
-                    <CardContent className="p-4">
-                      <h3 className="text-white font-semibold mb-3">📤 Dazi Export dall'Italia</h3>
-                      <div className="space-y-2">
-                        {hsCodeResult.dazi_export.map((d, i) => (
-                          <div key={i} className="flex items-center justify-between bg-slate-700/50 rounded-lg p-2">
-                            <span className="text-white">{d.paese}</span>
-                            <div className="text-right">
-                              <span className="text-lime-400 font-semibold">{d.dazio_percentuale}</span>
-                              {d.note && <p className="text-slate-400 text-xs">{d.note}</p>}
-                            </div>
-                          </div>
-                        ))}
+                      <h3 className="text-white font-semibold">Fattibilità Import</h3>
+                      <div className={`text-2xl font-bold ${
+                        importResult.punteggio_fattibilita >= 7 ? 'text-green-400' :
+                        importResult.punteggio_fattibilita >= 5 ? 'text-yellow-400' : 'text-red-400'
+                      }`}>
+                        {importResult.punteggio_fattibilita}/10
                       </div>
-                    </CardContent>
-                  </Card>
-                )}
+                    </div>
+                    <p className="text-slate-300 text-sm">{importResult.valutazione_generale}</p>
+                  </CardContent>
+                </Card>
 
-                {/* Certificazioni Obbligatorie */}
-                {hsCodeResult.certificazioni_obbligatorie?.length > 0 && (
-                  <Card className="bg-yellow-500/20 border-yellow-500/50">
+                {/* Raccomandazione */}
+                <Card className={`${importResult.consigliato ? 'bg-green-500/20 border-green-500/50' : 'bg-orange-500/20 border-orange-500/50'}`}>
+                  <CardContent className="p-4">
+                    <h3 className={`font-semibold mb-2 flex items-center gap-2 ${importResult.consigliato ? 'text-green-400' : 'text-orange-400'}`}>
+                      {importResult.consigliato ? <CheckCircle className="w-5 h-5" /> : <AlertTriangle className="w-5 h-5" />}
+                      {importResult.consigliato ? 'Import Consigliato' : 'Valuta con attenzione'}
+                    </h3>
+                    <p className={`text-sm ${importResult.consigliato ? 'text-green-200' : 'text-orange-200'}`}>
+                      {importResult.raccomandazione}
+                    </p>
+                  </CardContent>
+                </Card>
+
+                {/* MOQ e Tempi */}
+                <Card className="bg-slate-800 border-slate-700">
+                  <CardContent className="p-4">
+                    <h3 className="text-white font-semibold mb-3">📦 Quantità e Tempi</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-slate-400 text-xs">MOQ tipico</p>
+                        <p className="text-white font-semibold">{importResult.moq_tipico}</p>
+                      </div>
+                      <div>
+                        <p className="text-slate-400 text-xs">Tempi produzione</p>
+                        <p className="text-white font-semibold">{importResult.tempi_produzione}</p>
+                      </div>
+                      <div>
+                        <p className="text-slate-400 text-xs">Tempi spedizione</p>
+                        <p className="text-white font-semibold">{importResult.tempi_spedizione}</p>
+                      </div>
+                      <div>
+                        <p className="text-slate-400 text-xs">Tempo totale stimato</p>
+                        <p className="text-lime-400 font-semibold">{importResult.tempo_totale}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Costi Stimati */}
+                <Card className="bg-slate-800 border-slate-700">
+                  <CardContent className="p-4">
+                    <h3 className="text-white font-semibold mb-3">💰 Stima Costi</h3>
+                    <div className="space-y-2">
+                      {importResult.costi_stimati?.costo_prodotto && (
+                        <div className="flex justify-between">
+                          <span className="text-slate-400 text-sm">Costo prodotto</span>
+                          <span className="text-white">{importResult.costi_stimati.costo_prodotto}</span>
+                        </div>
+                      )}
+                      {importResult.costi_stimati?.costo_spedizione && (
+                        <div className="flex justify-between">
+                          <span className="text-slate-400 text-sm">Spedizione</span>
+                          <span className="text-white">{importResult.costi_stimati.costo_spedizione}</span>
+                        </div>
+                      )}
+                      {importResult.costi_stimati?.dazi_doganali && (
+                        <div className="flex justify-between">
+                          <span className="text-slate-400 text-sm">Dazi doganali</span>
+                          <span className="text-white">{importResult.costi_stimati.dazi_doganali}</span>
+                        </div>
+                      )}
+                      {importResult.costi_stimati?.iva && (
+                        <div className="flex justify-between">
+                          <span className="text-slate-400 text-sm">IVA</span>
+                          <span className="text-white">{importResult.costi_stimati.iva}</span>
+                        </div>
+                      )}
+                      <div className="border-t border-slate-700 pt-2 mt-2 flex justify-between">
+                        <span className="text-white font-semibold">Costo totale stimato</span>
+                        <span className="text-lime-400 font-bold">{importResult.costi_stimati?.totale_stimato}</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Criticità */}
+                {importResult.criticita?.length > 0 && (
+                  <Card className="bg-red-500/20 border-red-500/50">
                     <CardContent className="p-4">
-                      <h3 className="text-yellow-400 font-semibold mb-2">📋 Certificazioni Obbligatorie</h3>
-                      <ul className="text-yellow-200 text-sm space-y-1">
-                        {hsCodeResult.certificazioni_obbligatorie.map((c, i) => <li key={i}>• {c}</li>)}
+                      <h3 className="text-red-400 font-semibold mb-2 flex items-center gap-2">
+                        <AlertTriangle className="w-5 h-5" />
+                        Criticità da considerare
+                      </h3>
+                      <ul className="text-red-200 text-sm space-y-1">
+                        {importResult.criticita.map((c, i) => <li key={i}>• {c}</li>)}
                       </ul>
                     </CardContent>
                   </Card>
                 )}
 
-                {/* Documenti */}
-                {hsCodeResult.documenti_necessari?.length > 0 && (
+                {/* Requisiti */}
+                {importResult.requisiti_necessari?.length > 0 && (
                   <Card className="bg-slate-800 border-slate-700">
                     <CardContent className="p-4">
-                      <h3 className="text-white font-semibold mb-2">📄 Documenti Necessari</h3>
+                      <h3 className="text-white font-semibold mb-2">📋 Requisiti necessari</h3>
                       <ul className="text-slate-300 text-sm space-y-1">
-                        {hsCodeResult.documenti_necessari.map((d, i) => <li key={i}>• {d}</li>)}
+                        {importResult.requisiti_necessari.map((r, i) => <li key={i}>• {r}</li>)}
                       </ul>
                     </CardContent>
                   </Card>
                 )}
 
-                {/* Restrizioni */}
-                {hsCodeResult.restrizioni?.length > 0 && (
-                  <Card className="bg-orange-500/20 border-orange-500/50">
+                {/* Passi successivi */}
+                {importResult.prossimi_passi?.length > 0 && (
+                  <Card className="bg-blue-500/20 border-blue-500/50">
                     <CardContent className="p-4">
-                      <h3 className="text-orange-400 font-semibold mb-2 flex items-center gap-2">
-                        <AlertTriangle className="w-5 h-5" />
-                        Restrizioni
-                      </h3>
-                      <ul className="text-orange-200 text-sm space-y-1">
-                        {hsCodeResult.restrizioni.map((r, i) => <li key={i}>• {r}</li>)}
-                      </ul>
+                      <h3 className="text-blue-400 font-semibold mb-2">🚀 Prossimi passi</h3>
+                      <ol className="text-blue-200 text-sm space-y-2">
+                        {importResult.prossimi_passi.map((p, i) => (
+                          <li key={i} className="flex gap-2">
+                            <span className="bg-blue-500/30 rounded-full w-5 h-5 flex items-center justify-center text-xs flex-shrink-0">{i + 1}</span>
+                            {p}
+                          </li>
+                        ))}
+                      </ol>
                     </CardContent>
                   </Card>
                 )}
 
                 <Button
-                  onClick={() => { setHsCodeResult(null); setHsCodeSearch(''); }}
+                  onClick={() => setImportResult(null)}
                   variant="outline"
                   className="w-full border-slate-600 text-slate-400 hover:bg-slate-800"
                 >
-                  Nuova Ricerca
+                  Nuova Valutazione
                 </Button>
               </div>
             )}
-
-            {/* Link Risorse Doganali */}
-            <Card className="bg-slate-800 border-slate-700">
-              <CardContent className="p-4">
-                <h3 className="text-white font-semibold mb-3">🔗 Database Doganali Ufficiali</h3>
-                <div className="space-y-2">
-                  <a href="https://ec.europa.eu/taxation_customs/dds2/taric/taric_consultation.jsp" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-lime-400 hover:text-lime-300 text-sm">
-                    <ExternalLink className="w-4 h-4" />
-                    TARIC - Tariffa Doganale UE
-                  </a>
-                  <a href="https://www.adm.gov.it/portale/taric" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-lime-400 hover:text-lime-300 text-sm">
-                    <ExternalLink className="w-4 h-4" />
-                    Agenzia Dogane e Monopoli Italia
-                  </a>
-                  <a href="https://www.trademap.org/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-lime-400 hover:text-lime-300 text-sm">
-                    <ExternalLink className="w-4 h-4" />
-                    Trade Map - Statistiche Commercio
-                  </a>
-                  <a href="https://madb.europa.eu/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-lime-400 hover:text-lime-300 text-sm">
-                    <ExternalLink className="w-4 h-4" />
-                    Market Access Database UE
-                  </a>
-                  <a href="https://www.ice.it/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-lime-400 hover:text-lime-300 text-sm">
-                    <ExternalLink className="w-4 h-4" />
-                    ICE - Agenzia Commercio Estero
-                  </a>
-                </div>
-              </CardContent>
-            </Card>
           </div>
         )}
       </main>

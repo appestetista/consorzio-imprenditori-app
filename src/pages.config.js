@@ -14,6 +14,7 @@ import Fornitori from './pages/Fornitori';
 import GestioneBandi from './pages/GestioneBandi';
 import GestioneMembri from './pages/GestioneMembri';
 import Home from './pages/Home';
+import ImportExport from './pages/ImportExport';
 import Imprenditori from './pages/Imprenditori';
 import Marketplace from './pages/Marketplace';
 import Messaggi from './pages/Messaggi';
@@ -27,7 +28,6 @@ import WelfareAziendale from './pages/WelfareAziendale';
 import WelfareNormativa from './pages/WelfareNormativa';
 import WelfareOrdina from './pages/WelfareOrdina';
 import WelfareTipologie from './pages/WelfareTipologie';
-import ImportExport from './pages/ImportExport';
 import __Layout from './Layout.jsx';
 
 
@@ -48,6 +48,7 @@ export const PAGES = {
     "GestioneBandi": GestioneBandi,
     "GestioneMembri": GestioneMembri,
     "Home": Home,
+    "ImportExport": ImportExport,
     "Imprenditori": Imprenditori,
     "Marketplace": Marketplace,
     "Messaggi": Messaggi,
@@ -61,7 +62,6 @@ export const PAGES = {
     "WelfareNormativa": WelfareNormativa,
     "WelfareOrdina": WelfareOrdina,
     "WelfareTipologie": WelfareTipologie,
-    "ImportExport": ImportExport,
 }
 
 export const pagesConfig = {
