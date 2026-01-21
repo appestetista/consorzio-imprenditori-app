@@ -305,8 +305,14 @@ export default function ImportMessagesSection({ user }) {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-red-500/20 rounded-full flex items-center justify-center relative">
-                    <Mail className="w-5 h-5 text-red-400" />
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center relative ${
+                    conv.type === 'export' ? 'bg-lime-500/20' : 'bg-red-500/20'
+                  }`}>
+                    {conv.type === 'export' ? (
+                      <TrendingUp className="w-5 h-5 text-lime-400" />
+                    ) : (
+                      <Ship className="w-5 h-5 text-red-400" />
+                    )}
                     {conv.unreadCount > 0 && (
                       <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
                         {conv.unreadCount}
@@ -314,7 +320,16 @@ export default function ImportMessagesSection({ user }) {
                     )}
                   </div>
                   <div>
-                    <p className="text-white font-medium">{conv.email}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-white font-medium">{conv.email}</p>
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${
+                        conv.type === 'export' 
+                          ? 'bg-lime-500/20 text-lime-400' 
+                          : 'bg-red-500/20 text-red-400'
+                      }`}>
+                        {conv.type === 'export' ? 'Export' : 'Import'}
+                      </span>
+                    </div>
                     <p className="text-slate-400 text-sm truncate max-w-[200px]">
                       {conv.lastMessage?.content?.substring(0, 50)}...
                     </p>
