@@ -144,26 +144,39 @@ export default function ImportExport() {
 
   const sendImportContactMutation = useMutation({
     mutationFn: async () => {
-      // Invia richiesta al consorzio per import dalla Cina
+      // Trova il consulente Import (Internazionalizzazione/Export)
+      const importConsultant = exportManagers[0]; // Usa il primo consulente disponibile
+      const targetEmail = importConsultant?.email || 'import@consorzio.it';
+
+      // Invia richiesta al consulente Import
       await base44.entities.Message.create({
         from_email: user.email,
-        to_email: 'import@consorzio.it', // Email generica consorzio o admin
-        content: `**Richiesta Consulenza Import dalla Cina**\n\nOggetto: ${importContactForm.subject}\n\n${importContactForm.message}\n\n---\n**Dati analisi:**\n- Tipo richiesta: ${importForm.tipo_richiesta === 'produzione_custom' ? 'Produzione su misura' : 'Prodotto esistente'}\n- Prodotto: ${importForm.descrizione_prodotto}\n- Quantità: ${importForm.quantita}\n- Budget: ${importForm.budget || 'Non specificato'}\n- Tempo attesa: ${importForm.tempo_attesa || 'Non specificato'}\n\n---\nInviato da: ${user.company_name || user.full_name}\nEmail: ${user.email}`,
+        to_email: targetEmail,
+        content: `**Richiesta Import dalla Cina**\n\nOggetto: ${importContactForm.subject}\n\n${importContactForm.message}\n\n---\n**Dati richiesta:**\n- Tipo: ${importForm.tipo_richiesta === 'produzione_custom' ? 'Produzione su misura' : 'Prodotto esistente'}\n- Prodotto: ${importForm.descrizione_prodotto}\n- Quantità: ${importForm.quantita}\n- Budget: ${importForm.budget || 'Non specificato'}\n- Tempo attesa: ${importForm.tempo_attesa || 'Non specificato'}\n\n---\nInviato da: ${user.company_name || user.full_name}\nEmail: ${user.email}`,
         source: 'import_export',
         source_reference: 'Import dalla Cina',
         attachments: importContactForm.attachments.map(a => ({ url: a.url, name: a.name, type: 'document' }))
       });
 
-      // Invia email notifica
+      // Crea notifica per il consulente
+      await base44.entities.Notification.create({
+        user_email: targetEmail,
+        type: 'consultation',
+        title: 'Nuova richiesta Import Cina',
+        content: `${user.company_name || user.full_name} richiede consulenza import: ${importContactForm.subject}`
+      });
+
+      // Invia email notifica al consulente
       await base44.integrations.Core.SendEmail({
-        to: 'import@consorzio.it',
-        subject: `Nuova richiesta consulenza Import Cina: ${importContactForm.subject}`,
+        to: targetEmail,
+        subject: `Nuova richiesta Import Cina: ${importContactForm.subject}`,
         body: `Hai ricevuto una nuova richiesta di consulenza per import dalla Cina.\n\nDa: ${user.company_name || user.full_name}\nEmail: ${user.email}\n\nOggetto: ${importContactForm.subject}\n\nProdotto: ${importForm.descrizione_prodotto}\nQuantità: ${importForm.quantita}\n\n${importContactForm.message}\n\nAccedi all'app per rispondere.`
       });
     },
     onSuccess: () => {
       setImportContactSent(true);
       setImportContactForm({ subject: '', message: '', attachments: [] });
+      queryClient.invalidateQueries({ queryKey: ['import-unread-count'] });
     }
   });
 
