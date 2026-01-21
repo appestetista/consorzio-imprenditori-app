@@ -497,7 +497,8 @@ IMPORTANTE: Usa SOLO fonti ufficiali (TARIC, Agenzia delle Dogane, WCO). NON INV
             onClick={() => setActiveTab('import')}
             className={`flex-1 ${activeTab === 'import' ? 'bg-lime-400 text-slate-900 hover:bg-lime-500' : 'bg-slate-800 text-white hover:bg-slate-700'}`}
           >
-            <img src="https://flagcdn.com/w20/cn.png" alt="China" className="w-5 h-3.5 mr-2 object-cover rounded-sm" />
+            <img src="https://flagcdn.com/w20/cn.png" alt="China" className="w-5 h-3.5 mr-1 object-cover rounded-sm" />
+            <span className="mr-1">CN</span>
             Import
           </Button>
         </div>
