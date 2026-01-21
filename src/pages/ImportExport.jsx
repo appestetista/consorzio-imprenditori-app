@@ -557,7 +557,9 @@ IMPORTANTE: Usa SOLO fonti ufficiali (TARIC, Agenzia delle Dogane, WCO). NON INV
           </Button>
         </div>
 
-        {activeTab === 'export' ? (
+        {activeTab === 'messages' ? (
+          <ImportMessagesSection user={user} />
+        ) : activeTab === 'export' ? (
           <>
             {!analysisResult ? (
               <div className="space-y-4">
