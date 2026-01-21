@@ -119,28 +119,53 @@ export default function UsageTracker() {
         };
       });
 
-      // Calcola costi di sistema (non attribuiti a utenti)
-      // Bandi: ~28 chiamate AI con web search ogni lunedì
+      // ============================================
+      // COSTI DI SISTEMA (operazioni automatiche/schedulate)
+      // ============================================
+      
+      // Conta bandi creati automaticamente dal sistema
       const grantsCreatedBySystem = grants.filter(g => 
-        g.created_by_email === 'system@scheduled' || g.created_by_email === 'system@auto-import'
+        !g.created_by_email || 
+        g.created_by_email === 'system@scheduled' || 
+        g.created_by_email === 'system@auto-import'
       ).length;
       
-      // Stima esecuzioni settimanali (assumiamo ~4 settimane di dati visibili)
-      const estimatedWeeklyRuns = 4;
-      const grantSearchCost = estimatedWeeklyRuns * GRANT_SOURCES_COUNT * GPT4O_WEB_SEARCH_COST;
+      // RICERCA BANDI SETTIMANALE (scheduledGrantFetch + fetchGrantsFromIncentivi)
+      // Ogni lunedì: ~28 siti scansionati, ogni sito = 1 chiamata AI con web search
+      // Calcola settimane trascorse dall'inizio (approssimativo)
+      const oldestGrant = grants.reduce((min, g) => {
+        const d = new Date(g.created_date);
+        return d < min ? d : min;
+      }, new Date());
+      const weeksSinceStart = Math.max(1, Math.ceil((new Date() - oldestGrant) / (7 * 24 * 60 * 60 * 1000)));
+      const grantSearchCallsTotal = weeksSinceStart * GRANT_SOURCES_COUNT;
+      const grantSearchCostUsd = grantSearchCallsTotal * GPT4O_WEB_SEARCH_COST_PER_CALL;
       
-      // Enrichment bandi (stima: 30% dei bandi vengono arricchiti)
-      const estimatedEnrichments = Math.ceil(grantsCreatedBySystem * 0.3);
-      const grantEnrichmentCost = estimatedEnrichments * GPT4O_WEB_SEARCH_COST;
+      // ARRICCHIMENTO BANDI (enrichExistingGrants)
+      // Ogni bando incompleto viene arricchito con 1 chiamata AI + web search
+      const grantsNeedingEnrichment = grants.filter(g => 
+        (!g.min_amount && !g.max_amount) || !g.coverage_percentage || !g.website_url
+      ).length;
+      // Stima: ~50% dei bandi sono stati arricchiti
+      const estimatedEnrichments = Math.ceil(grantsNeedingEnrichment * 0.5);
+      const grantEnrichmentCostUsd = estimatedEnrichments * GPT4O_WEB_SEARCH_COST_PER_CALL;
 
-      // Import/Export analisi (stima: ogni messaggio import_export ha generato 1 analisi AI)
-      const importExportAnalysisCost = importExportMessages.length * GPT4O_WEB_SEARCH_COST;
+      // IMPORT/EXPORT ANALISI
+      // Ogni analisi Import o Export = 1 chiamata AI con web search
+      // Non contiamo i messaggi, ma le analisi effettuate (stimate dal comportamento utente)
+      // Stima: 1 analisi ogni 2 messaggi import_export (alcuni messaggi sono follow-up)
+      const importExportAnalysisCount = Math.ceil(importExportMessages.length / 2);
+      const importExportCostUsd = importExportAnalysisCount * GPT4O_WEB_SEARCH_COST_PER_CALL;
 
       const systemCosts = {
-        grantSearch: grantSearchCost,
-        grantEnrichment: grantEnrichmentCost,
-        importExport: importExportAnalysisCost,
-        total: grantSearchCost + grantEnrichmentCost + importExportAnalysisCost
+        grantSearch: grantSearchCostUsd,
+        grantSearchCalls: grantSearchCallsTotal,
+        grantEnrichment: grantEnrichmentCostUsd,
+        grantEnrichmentCalls: estimatedEnrichments,
+        importExport: importExportCostUsd,
+        importExportCalls: importExportAnalysisCount,
+        total: grantSearchCostUsd + grantEnrichmentCostUsd + importExportCostUsd,
+        weeksSinceStart
       };
 
       return { 
