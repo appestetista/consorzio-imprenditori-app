@@ -1566,7 +1566,7 @@ IMPORTANTE: Usa SOLO fonti ufficiali (TARIC, Agenzia delle Dogane, WCO). NON INV
                       ) : (
                         <>
                           <Send className="w-5 h-5 mr-2" />
-                          Richiedi Import (Stima Fattibilità)
+                          Richiedi Import
                         </>
                       )}
                     </Button>
