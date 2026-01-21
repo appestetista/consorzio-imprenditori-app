@@ -1403,7 +1403,7 @@ IMPORTANTE: Usa SOLO fonti ufficiali (TARIC, Agenzia delle Dogane, WCO). NON INV
                       </div>
                       <h3 className="text-white font-bold text-xl mb-2">Vuoi procedere con l'import?</h3>
                       <p className="text-white/90 text-sm">
-                        La nostra agenzia di import ti segue in ogni fase: dalla ricerca fornitori alla consegna in Italia.
+                        La nostra agenzia di import ti segue in ogni fase: fino alla consegna in Italia.
                       </p>
                     </div>
                     <div className="bg-white/10 rounded-xl p-3 mb-4">
