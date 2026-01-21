@@ -28,25 +28,30 @@ export default function ImportMessagesSection({ user }) {
     enabled: !!user?.email,
   });
 
-  // Raggruppa messaggi per conversazione
+  // Raggruppa messaggi per conversazione, distinguendo Import vs Export
   const conversations = React.useMemo(() => {
     const convMap = {};
     allMessages.forEach(msg => {
       const otherEmail = msg.from_email === user?.email ? msg.to_email : msg.from_email;
-      if (!convMap[otherEmail]) {
-        convMap[otherEmail] = {
+      // Determina il tipo (import o export) dal source_reference
+      const type = msg.source_reference?.toLowerCase().includes('export') ? 'export' : 'import';
+      const key = `${otherEmail}_${type}`;
+      
+      if (!convMap[key]) {
+        convMap[key] = {
           email: otherEmail,
+          type: type,
           messages: [],
           lastMessage: null,
           unreadCount: 0
         };
       }
-      convMap[otherEmail].messages.push(msg);
-      if (!convMap[otherEmail].lastMessage || new Date(msg.created_date) > new Date(convMap[otherEmail].lastMessage.created_date)) {
-        convMap[otherEmail].lastMessage = msg;
+      convMap[key].messages.push(msg);
+      if (!convMap[key].lastMessage || new Date(msg.created_date) > new Date(convMap[key].lastMessage.created_date)) {
+        convMap[key].lastMessage = msg;
       }
       if (msg.to_email === user?.email && !msg.is_read) {
-        convMap[otherEmail].unreadCount++;
+        convMap[key].unreadCount++;
       }
     });
     return Object.values(convMap).sort((a, b) => 
