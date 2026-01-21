@@ -98,7 +98,7 @@ export default function ImportMessagesSection({ user }) {
         to_email: selectedConversation.email,
         content: replyMessage,
         source: 'import_export',
-        source_reference: 'Import dalla Cina',
+        source_reference: selectedConversation.type === 'export' ? 'Export' : 'Import dalla Cina',
         attachments: replyAttachments.map(a => ({ url: a.url, name: a.name, type: 'document' }))
       });
 
