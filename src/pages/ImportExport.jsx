@@ -1228,94 +1228,189 @@ IMPORTANTE: Usa SOLO fonti ufficiali (TARIC, Agenzia delle Dogane, WCO). NON INV
                 </Button>
               </div>
             ) : (
-              /* Risultati Analisi Import */
+              /* Risultati Analisi Import - Design Elegante */
               <div className="space-y-4">
-                {/* Punteggio Fattibilità */}
-                <Card className="bg-slate-800 border-slate-700">
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-white font-semibold">Fattibilità Import</h3>
-                      <div className={`text-2xl font-bold ${
-                        importResult.punteggio_fattibilita >= 7 ? 'text-green-400' :
-                        importResult.punteggio_fattibilita >= 5 ? 'text-yellow-400' : 'text-red-400'
-                      }`}>
-                        {importResult.punteggio_fattibilita}/10
+                {/* Header con Punteggio */}
+                <Card className="bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700 overflow-hidden">
+                  <CardContent className="p-0">
+                    <div className="bg-gradient-to-r from-red-500/20 to-orange-500/10 p-5">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center shadow-lg shadow-red-500/20">
+                            <Ship className="w-7 h-7 text-white" />
+                          </div>
+                          <div>
+                            <p className="text-slate-400 text-xs uppercase tracking-wider">Analisi Import</p>
+                            <h3 className="text-white font-bold text-lg">Fattibilità</h3>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className={`text-4xl font-black ${
+                            importResult.punteggio_fattibilita >= 7 ? 'text-green-400' :
+                            importResult.punteggio_fattibilita >= 5 ? 'text-yellow-400' : 'text-red-400'
+                          }`}>
+                            {importResult.punteggio_fattibilita}
+                            <span className="text-lg text-slate-500">/10</span>
+                          </div>
+                          <div className={`text-xs font-medium mt-1 px-2 py-0.5 rounded-full inline-block ${
+                            importResult.punteggio_fattibilita >= 7 ? 'bg-green-500/20 text-green-400' :
+                            importResult.punteggio_fattibilita >= 5 ? 'bg-yellow-500/20 text-yellow-400' : 'bg-red-500/20 text-red-400'
+                          }`}>
+                            {importResult.punteggio_fattibilita >= 7 ? 'Alta fattibilità' :
+                             importResult.punteggio_fattibilita >= 5 ? 'Media fattibilità' : 'Bassa fattibilità'}
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <p className="text-slate-300 text-sm">{importResult.valutazione_generale}</p>
+                    <div className="p-4">
+                      <p className="text-slate-300 text-sm leading-relaxed">{importResult.valutazione_generale}</p>
+                      {importResult.motivazione_punteggio && (
+                        <p className="text-slate-400 text-xs mt-2 italic">{importResult.motivazione_punteggio}</p>
+                      )}
+                    </div>
                   </CardContent>
                 </Card>
 
                 {/* Raccomandazione */}
-                <Card className={`${importResult.consigliato ? 'bg-green-500/20 border-green-500/50' : 'bg-orange-500/20 border-orange-500/50'}`}>
+                <Card className={`border-2 ${importResult.consigliato ? 'bg-gradient-to-br from-green-500/10 to-emerald-500/5 border-green-500/30' : 'bg-gradient-to-br from-orange-500/10 to-amber-500/5 border-orange-500/30'}`}>
                   <CardContent className="p-4">
-                    <h3 className={`font-semibold mb-2 flex items-center gap-2 ${importResult.consigliato ? 'text-green-400' : 'text-orange-400'}`}>
-                      {importResult.consigliato ? <CheckCircle className="w-5 h-5" /> : <AlertTriangle className="w-5 h-5" />}
-                      {importResult.consigliato ? 'Import Consigliato' : 'Valuta con attenzione'}
-                    </h3>
-                    <p className={`text-sm ${importResult.consigliato ? 'text-green-200' : 'text-orange-200'}`}>
-                      {importResult.raccomandazione}
-                    </p>
+                    <div className="flex items-start gap-3">
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${importResult.consigliato ? 'bg-green-500/20' : 'bg-orange-500/20'}`}>
+                        {importResult.consigliato ? <CheckCircle className="w-5 h-5 text-green-400" /> : <AlertTriangle className="w-5 h-5 text-orange-400" />}
+                      </div>
+                      <div>
+                        <h3 className={`font-bold text-base ${importResult.consigliato ? 'text-green-400' : 'text-orange-400'}`}>
+                          {importResult.consigliato ? '✓ Import Consigliato' : '⚠ Valuta con attenzione'}
+                        </h3>
+                        <p className={`text-sm mt-1 leading-relaxed ${importResult.consigliato ? 'text-green-200/80' : 'text-orange-200/80'}`}>
+                          {importResult.raccomandazione}
+                        </p>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
 
-                {/* MOQ e Tempi */}
-                <Card className="bg-slate-800 border-slate-700">
+                {/* Vantaggi */}
+                {importResult.vantaggi?.length > 0 && (
+                  <Card className="bg-gradient-to-br from-emerald-500/10 to-teal-500/5 border-emerald-500/30">
+                    <CardContent className="p-4">
+                      <h3 className="text-emerald-400 font-bold mb-3 flex items-center gap-2">
+                        <CheckCircle className="w-5 h-5" />
+                        Vantaggi
+                      </h3>
+                      <div className="space-y-2">
+                        {importResult.vantaggi.map((v, i) => (
+                          <div key={i} className="flex items-start gap-2">
+                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-2 flex-shrink-0" />
+                            <p className="text-emerald-100/90 text-sm">{v}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Tempi e Logistica */}
+                <Card className="bg-slate-800/80 border-slate-700">
                   <CardContent className="p-4">
-                    <h3 className="text-white font-semibold mb-3">📦 Quantità e Tempi</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-slate-400 text-xs">MOQ tipico</p>
-                        <p className="text-white font-semibold">{importResult.moq_tipico}</p>
+                    <h3 className="text-white font-bold mb-4 flex items-center gap-2">
+                      <Package className="w-5 h-5 text-blue-400" />
+                      Tempi e Logistica
+                    </h3>
+                    <div className="space-y-4">
+                      <div className="bg-slate-700/50 rounded-xl p-3">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-slate-400 text-xs uppercase tracking-wider">MOQ Tipico</span>
+                          <span className="text-white font-semibold">{importResult.moq_tipico}</span>
+                        </div>
+                        <div className="h-1 bg-slate-600 rounded-full overflow-hidden">
+                          <div className="h-full bg-gradient-to-r from-blue-500 to-cyan-400 rounded-full w-3/4" />
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-slate-400 text-xs">Tempi produzione</p>
-                        <p className="text-white font-semibold">{importResult.tempi_produzione}</p>
-                      </div>
-                      <div>
-                        <p className="text-slate-400 text-xs">Tempi spedizione</p>
-                        <p className="text-white font-semibold">{importResult.tempi_spedizione}</p>
-                      </div>
-                      <div>
-                        <p className="text-slate-400 text-xs">Tempo totale stimato</p>
-                        <p className="text-lime-400 font-semibold">{importResult.tempo_totale}</p>
+                      
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="bg-slate-700/50 rounded-xl p-3">
+                          <p className="text-slate-400 text-xs mb-1">⚙️ Produzione</p>
+                          <p className="text-white font-semibold text-sm">{importResult.tempi_produzione}</p>
+                        </div>
+                        <div className="bg-slate-700/50 rounded-xl p-3">
+                          <p className="text-slate-400 text-xs mb-1">🚢 Via mare</p>
+                          <p className="text-white font-semibold text-sm">{importResult.tempi_spedizione_mare || importResult.tempi_spedizione}</p>
+                        </div>
+                        {importResult.tempi_spedizione_aerea && (
+                          <div className="bg-slate-700/50 rounded-xl p-3">
+                            <p className="text-slate-400 text-xs mb-1">✈️ Via aerea</p>
+                            <p className="text-white font-semibold text-sm">{importResult.tempi_spedizione_aerea}</p>
+                          </div>
+                        )}
+                        <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/10 rounded-xl p-3 border border-blue-500/30">
+                          <p className="text-blue-300 text-xs mb-1">⏱ Tempo totale</p>
+                          <p className="text-blue-400 font-bold text-sm">{importResult.tempo_totale}</p>
+                        </div>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
 
                 {/* Costi Stimati */}
-                <Card className="bg-slate-800 border-slate-700">
+                <Card className="bg-slate-800/80 border-slate-700">
                   <CardContent className="p-4">
-                    <h3 className="text-white font-semibold mb-3">💰 Stima Costi</h3>
-                    <div className="space-y-2">
-                      {importResult.costi_stimati?.costo_prodotto && (
-                        <div className="flex justify-between">
-                          <span className="text-slate-400 text-sm">Costo prodotto</span>
-                          <span className="text-white">{importResult.costi_stimati.costo_prodotto}</span>
+                    <h3 className="text-white font-bold mb-4 flex items-center gap-2">
+                      <DollarSign className="w-5 h-5 text-lime-400" />
+                      Stima Costi
+                    </h3>
+                    <div className="space-y-3">
+                      {importResult.costi_stimati?.costo_prodotto_fob && (
+                        <div className="flex justify-between items-center py-2 border-b border-slate-700/50">
+                          <span className="text-slate-400 text-sm">Prodotto (FOB)</span>
+                          <span className="text-white font-medium">{importResult.costi_stimati.costo_prodotto_fob}</span>
                         </div>
                       )}
-                      {importResult.costi_stimati?.costo_spedizione && (
-                        <div className="flex justify-between">
-                          <span className="text-slate-400 text-sm">Spedizione</span>
-                          <span className="text-white">{importResult.costi_stimati.costo_spedizione}</span>
+                      {importResult.costi_stimati?.costo_spedizione_mare && (
+                        <div className="flex justify-between items-center py-2 border-b border-slate-700/50">
+                          <span className="text-slate-400 text-sm">🚢 Spedizione mare</span>
+                          <span className="text-white font-medium">{importResult.costi_stimati.costo_spedizione_mare}</span>
                         </div>
                       )}
-                      {importResult.costi_stimati?.dazi_doganali && (
-                        <div className="flex justify-between">
-                          <span className="text-slate-400 text-sm">Dazi doganali</span>
-                          <span className="text-white">{importResult.costi_stimati.dazi_doganali}</span>
+                      {importResult.costi_stimati?.costo_spedizione_aerea && (
+                        <div className="flex justify-between items-center py-2 border-b border-slate-700/50">
+                          <span className="text-slate-400 text-sm">✈️ Spedizione aerea</span>
+                          <span className="text-white font-medium">{importResult.costi_stimati.costo_spedizione_aerea}</span>
+                        </div>
+                      )}
+                      {importResult.costi_stimati?.dazi_doganali_percentuale && (
+                        <div className="flex justify-between items-center py-2 border-b border-slate-700/50">
+                          <span className="text-slate-400 text-sm">📋 Dazi doganali</span>
+                          <span className="text-white font-medium">{importResult.costi_stimati.dazi_doganali_percentuale}</span>
                         </div>
                       )}
                       {importResult.costi_stimati?.iva && (
-                        <div className="flex justify-between">
+                        <div className="flex justify-between items-center py-2 border-b border-slate-700/50">
                           <span className="text-slate-400 text-sm">IVA</span>
-                          <span className="text-white">{importResult.costi_stimati.iva}</span>
+                          <span className="text-white font-medium">{importResult.costi_stimati.iva}</span>
                         </div>
                       )}
-                      <div className="border-t border-slate-700 pt-2 mt-2 flex justify-between">
-                        <span className="text-white font-semibold">Costo totale stimato</span>
-                        <span className="text-lime-400 font-bold">{importResult.costi_stimati?.totale_stimato}</span>
+                      {importResult.costi_stimati?.costi_accessori && (
+                        <div className="flex justify-between items-center py-2 border-b border-slate-700/50">
+                          <span className="text-slate-400 text-sm">Altri costi</span>
+                          <span className="text-white font-medium">{importResult.costi_stimati.costi_accessori}</span>
+                        </div>
+                      )}
+                      <div className="bg-gradient-to-r from-lime-500/20 to-green-500/10 rounded-xl p-4 mt-2 border border-lime-500/30">
+                        <div className="flex justify-between items-center">
+                          <span className="text-white font-bold">Totale stimato</span>
+                          <div className="text-right">
+                            {importResult.costi_stimati?.totale_stimato_min && importResult.costi_stimati?.totale_stimato_max ? (
+                              <div>
+                                <span className="text-lime-400 font-bold text-lg">{importResult.costi_stimati.totale_stimato_min}</span>
+                                <span className="text-slate-400 mx-1">-</span>
+                                <span className="text-lime-400 font-bold text-lg">{importResult.costi_stimati.totale_stimato_max}</span>
+                              </div>
+                            ) : (
+                              <span className="text-lime-400 font-bold text-lg">{importResult.costi_stimati?.totale_stimato || 'Da calcolare'}</span>
+                            )}
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </CardContent>
@@ -1323,44 +1418,80 @@ IMPORTANTE: Usa SOLO fonti ufficiali (TARIC, Agenzia delle Dogane, WCO). NON INV
 
                 {/* Criticità */}
                 {importResult.criticita?.length > 0 && (
-                  <Card className="bg-red-500/20 border-red-500/50">
+                  <Card className="bg-gradient-to-br from-red-500/10 to-rose-500/5 border-red-500/30">
                     <CardContent className="p-4">
-                      <h3 className="text-red-400 font-semibold mb-2 flex items-center gap-2">
+                      <h3 className="text-red-400 font-bold mb-3 flex items-center gap-2">
                         <AlertTriangle className="w-5 h-5" />
                         Criticità da considerare
                       </h3>
-                      <ul className="text-red-200 text-sm space-y-1">
-                        {importResult.criticita.map((c, i) => <li key={i}>• {c}</li>)}
-                      </ul>
+                      <div className="space-y-2">
+                        {importResult.criticita.map((c, i) => (
+                          <div key={i} className="flex items-start gap-2 bg-red-500/10 rounded-lg p-2">
+                            <span className="text-red-400 text-xs font-bold mt-0.5">!</span>
+                            <p className="text-red-200/90 text-sm">{c}</p>
+                          </div>
+                        ))}
+                      </div>
                     </CardContent>
                   </Card>
                 )}
 
                 {/* Requisiti */}
                 {importResult.requisiti_necessari?.length > 0 && (
-                  <Card className="bg-slate-800 border-slate-700">
+                  <Card className="bg-slate-800/80 border-slate-700">
                     <CardContent className="p-4">
-                      <h3 className="text-white font-semibold mb-2">📋 Requisiti necessari</h3>
-                      <ul className="text-slate-300 text-sm space-y-1">
-                        {importResult.requisiti_necessari.map((r, i) => <li key={i}>• {r}</li>)}
-                      </ul>
+                      <h3 className="text-white font-bold mb-3 flex items-center gap-2">
+                        <FileText className="w-5 h-5 text-purple-400" />
+                        Requisiti necessari
+                      </h3>
+                      <div className="grid gap-2">
+                        {importResult.requisiti_necessari.map((r, i) => (
+                          <div key={i} className="flex items-center gap-2 bg-slate-700/50 rounded-lg px-3 py-2">
+                            <div className="w-6 h-6 rounded-lg bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                              <span className="text-purple-400 text-xs font-bold">{i + 1}</span>
+                            </div>
+                            <p className="text-slate-200 text-sm">{r}</p>
+                          </div>
+                        ))}
+                      </div>
                     </CardContent>
                   </Card>
                 )}
 
-                {/* Passi successivi */}
+                {/* Prossimi Passi */}
                 {importResult.prossimi_passi?.length > 0 && (
-                  <Card className="bg-blue-500/20 border-blue-500/50">
+                  <Card className="bg-gradient-to-br from-blue-500/10 to-indigo-500/5 border-blue-500/30">
                     <CardContent className="p-4">
-                      <h3 className="text-blue-400 font-semibold mb-2">🚀 Prossimi passi</h3>
-                      <ol className="text-blue-200 text-sm space-y-2">
+                      <h3 className="text-blue-400 font-bold mb-3 flex items-center gap-2">
+                        <ArrowRight className="w-5 h-5" />
+                        Prossimi passi
+                      </h3>
+                      <div className="space-y-3">
                         {importResult.prossimi_passi.map((p, i) => (
-                          <li key={i} className="flex gap-2">
-                            <span className="bg-blue-500/30 rounded-full w-5 h-5 flex items-center justify-center text-xs flex-shrink-0">{i + 1}</span>
-                            {p}
-                          </li>
+                          <div key={i} className="flex items-start gap-3">
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-500/20">
+                              <span className="text-white text-sm font-bold">{i + 1}</span>
+                            </div>
+                            <div className="flex-1 bg-blue-500/10 rounded-lg p-3 border-l-2 border-blue-500">
+                              <p className="text-blue-100 text-sm">{p}</p>
+                            </div>
+                          </div>
                         ))}
-                      </ol>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Fonti Dati */}
+                {importResult.fonti_dati?.length > 0 && (
+                  <Card className="bg-slate-800/50 border-slate-700">
+                    <CardContent className="p-3">
+                      <p className="text-slate-500 text-xs mb-2">📚 Fonti dati:</p>
+                      <div className="flex flex-wrap gap-1">
+                        {importResult.fonti_dati.map((f, i) => (
+                          <span key={i} className="bg-slate-700/50 text-slate-400 text-xs px-2 py-0.5 rounded">{f}</span>
+                        ))}
+                      </div>
                     </CardContent>
                   </Card>
                 )}
