@@ -1394,6 +1394,47 @@ IMPORTANTE: Usa SOLO fonti ufficiali (TARIC, Agenzia delle Dogane, WCO). NON INV
                   </Card>
                 )}
 
+                {/* CTA Agenzia Import - PRINCIPALE */}
+                <Card className="bg-gradient-to-br from-red-500 to-orange-600 border-0 shadow-xl shadow-red-500/20">
+                  <CardContent className="p-5">
+                    <div className="text-center mb-4">
+                      <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <span className="text-4xl">🇨🇳</span>
+                      </div>
+                      <h3 className="text-white font-bold text-xl mb-2">Vuoi procedere con l'import?</h3>
+                      <p className="text-white/90 text-sm">
+                        La nostra agenzia di import ti segue in ogni fase: dalla ricerca fornitori alla consegna in Italia.
+                      </p>
+                    </div>
+                    <div className="bg-white/10 rounded-xl p-3 mb-4">
+                      <div className="grid grid-cols-2 gap-2 text-center">
+                        <div className="bg-white/10 rounded-lg p-2">
+                          <p className="text-white/70 text-xs">✓ Ricerca fornitori</p>
+                        </div>
+                        <div className="bg-white/10 rounded-lg p-2">
+                          <p className="text-white/70 text-xs">✓ Controllo qualità</p>
+                        </div>
+                        <div className="bg-white/10 rounded-lg p-2">
+                          <p className="text-white/70 text-xs">✓ Gestione dogana</p>
+                        </div>
+                        <div className="bg-white/10 rounded-lg p-2">
+                          <p className="text-white/70 text-xs">✓ Spedizione inclusa</p>
+                        </div>
+                      </div>
+                    </div>
+                    <Button
+                      onClick={() => {
+                        setImportContactForm({ ...importContactForm, subject: `Richiesta import: ${importForm.descrizione_prodotto?.substring(0, 50)}` });
+                        document.getElementById('import-contact-section')?.scrollIntoView({ behavior: 'smooth' });
+                      }}
+                      className="w-full bg-white hover:bg-white/90 text-red-600 font-bold h-12 text-base"
+                    >
+                      <Send className="w-5 h-5 mr-2" />
+                      Richiedi Preventivo Gratuito
+                    </Button>
+                  </CardContent>
+                </Card>
+
                 {/* Prossimi Passi */}
                 {importResult.prossimi_passi?.length > 0 && (
                   <Card className="bg-gradient-to-br from-blue-500/10 to-indigo-500/5 border-blue-500/30">
