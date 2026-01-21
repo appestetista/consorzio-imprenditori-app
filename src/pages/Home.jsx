@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Calendar, Video, Briefcase, User, Euro, ShoppingBag, Sparkles, BookOpen, Handshake, Truck, Heart } from 'lucide-react';
+import { Calendar, Video, Briefcase, User, Euro, ShoppingBag, Sparkles, BookOpen, Handshake, Truck, Heart, FileSearch } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import Header from '../components/layout/Header';
