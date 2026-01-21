@@ -45,9 +45,17 @@ async function fetchAndSaveGrants(base44) {
         console.log(`Extracting from: ${source.name}`);
         
         try {
-            // Usa InvokeLLM con contesto internet per estrarre i bandi
-            const result = await base44.integrations.Core.InvokeLLM({
-                prompt: `Analizza il sito ${source.url} e estrai TUTTI i bandi e incentivi attualmente disponibili per le imprese italiane.
+            // Usa OpenAI direttamente
+            const response = await openai.chat.completions.create({
+                model: "gpt-4o-mini",
+                messages: [
+                    {
+                        role: "system",
+                        content: "Sei un esperto di bandi e finanziamenti per imprese italiane. Rispondi SOLO con JSON valido."
+                    },
+                    {
+                        role: "user",
+                        content: `Analizza il sito ${source.url} e estrai TUTTI i bandi e incentivi attualmente disponibili per le imprese italiane.
 
 Per ogni bando trovato, estrai:
 1. title: Titolo completo del bando
@@ -68,38 +76,16 @@ Per ogni bando trovato, estrai:
 16. requires_cofinancing: true/false se richiede cofinanziamento
 
 Estrai SOLO bandi reali e attuali. Non inventare dati. Se un campo non è disponibile, usa null.
-Restituisci un array di oggetti JSON.`,
-                add_context_from_internet: true,
-                response_json_schema: {
-                    type: "object",
-                    properties: {
-                        grants: {
-                            type: "array",
-                            items: {
-                                type: "object",
-                                properties: {
-                                    title: { type: "string" },
-                                    description: { type: "string" },
-                                    ente_erogatore: { type: "string", enum: ["UE", "Stato", "Regione", "Altro"] },
-                                    livello: { type: "string", enum: ["Europeo", "Nazionale", "Regionale"] },
-                                    grant_type: { type: "string" },
-                                    funding_type: { type: "string" },
-                                    coverage_percentage: { type: "number" },
-                                    min_amount: { type: "number" },
-                                    max_amount: { type: "number" },
-                                    status: { type: "string", enum: ["Aperto", "In apertura", "Chiuso"] },
-                                    opening_date: { type: "string" },
-                                    deadline: { type: "string" },
-                                    eligible_company_sizes: { type: "array", items: { type: "string" } },
-                                    eligible_regions: { type: "array", items: { type: "string" } },
-                                    access_mode: { type: "string" },
-                                    requires_cofinancing: { type: "boolean" }
-                                }
-                            }
-                        }
+Rispondi con: {"grants": [...]}`
                     }
-                }
+                ],
+                max_tokens: 4096,
+                temperature: 0.3
             });
+
+            const text = response.choices[0].message.content;
+            const jsonMatch = text.match(/\{[\s\S]*\}/);
+            const result = jsonMatch ? JSON.parse(jsonMatch[0]) : null;
 
             if (result?.grants && Array.isArray(result.grants)) {
                 allGrants.push(...result.grants.map(g => ({
