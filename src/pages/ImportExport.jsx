@@ -220,7 +220,7 @@ export default function ImportExport() {
         to_email: exportManager.email,
         content: `**Richiesta consulenza Export**\n\nOggetto: ${contactForm.subject}\n\n${contactForm.message}\n\n---\nInviato da: ${user.company_name || user.full_name}\nEmail: ${user.email}`,
         source: 'import_export',
-        source_reference: 'Import / Export',
+        source_reference: 'Export',
         attachments: contactForm.attachments.map(a => ({ url: a.url, name: a.name, type: 'document' }))
       });
 
