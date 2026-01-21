@@ -571,16 +571,22 @@ IMPORTANTE: Usa SOLO fonti ufficiali (TARIC, Agenzia delle Dogane, WCO). NON INV
                         </div>
                       )}
 
-                      <div className="grid grid-cols-2 gap-3 text-sm">
-                        <div>
-                          <p className="text-slate-400 text-xs">Barriere tariffarie:</p>
-                          <p className="text-white">{mercato.barriere_tariffarie}</p>
+                      {(mercato.barriere_tariffarie || mercato.costo_ingresso_stimato) && (
+                        <div className="grid grid-cols-2 gap-3 text-sm">
+                          {mercato.barriere_tariffarie && (
+                            <div>
+                              <p className="text-slate-400 text-xs">Barriere tariffarie:</p>
+                              <p className="text-white">{mercato.barriere_tariffarie}</p>
+                            </div>
+                          )}
+                          {mercato.costo_ingresso_stimato && (
+                            <div>
+                              <p className="text-slate-400 text-xs">Costo ingresso stimato:</p>
+                              <p className="text-white">{mercato.costo_ingresso_stimato}</p>
+                            </div>
+                          )}
                         </div>
-                        <div>
-                          <p className="text-slate-400 text-xs">Costo ingresso stimato:</p>
-                          <p className="text-white">{mercato.costo_ingresso_stimato}</p>
-                        </div>
-                      </div>
+                      )}
 
                       {mercato.certificazioni_richieste?.length > 0 && (
                         <div className="mt-3">
