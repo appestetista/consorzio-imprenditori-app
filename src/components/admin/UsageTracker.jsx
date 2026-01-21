@@ -4,7 +4,8 @@ import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { BarChart3, Search, FileText, MessageSquare, Mail, TrendingUp, DollarSign, Globe, Ship, Zap, Calendar } from 'lucide-react';
+import { BarChart3, Search, FileText, MessageSquare, Mail, TrendingUp, DollarSign, Globe, Ship, Zap, Calendar, HelpCircle } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 // ============================================
 // PREZZI REALI AI (basati su OpenAI pricing 2024)
