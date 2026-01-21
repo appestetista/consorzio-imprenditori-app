@@ -248,7 +248,7 @@ export default function UsageTracker() {
             <span className="text-green-400 font-black text-2xl">€{totalPlatformCostEur.toFixed(2)}</span>
           </div>
           
-          {/* Breakdown costi */}
+          {/* Breakdown costi dettagliato */}
           <div className="grid grid-cols-2 gap-2 text-xs">
             <div className="bg-slate-900/50 rounded-lg p-2">
               <div className="flex items-center gap-1 text-slate-400 mb-1">
@@ -256,33 +256,38 @@ export default function UsageTracker() {
                 Analisi Contratti
               </div>
               <span className="text-white font-semibold">€{userTotals.costEur.toFixed(2)}</span>
-              <span className="text-slate-500 ml-1">({userTotals.analyses} analisi)</span>
+              <p className="text-slate-500 text-[10px]">{userTotals.analyses} analisi × ~€0.026</p>
             </div>
             <div className="bg-slate-900/50 rounded-lg p-2">
               <div className="flex items-center gap-1 text-slate-400 mb-1">
                 <Calendar className="w-3 h-3" />
                 Ricerca Bandi
               </div>
-              <span className="text-white font-semibold">€{(systemCosts.grantSearch * 0.92).toFixed(2)}</span>
-              <span className="text-slate-500 ml-1">(~{GRANT_SOURCES_COUNT} siti/sett)</span>
+              <span className="text-white font-semibold">€{(systemCosts.grantSearch * EUR_USD_RATE).toFixed(2)}</span>
+              <p className="text-slate-500 text-[10px]">{systemCosts.grantSearchCalls || 0} chiamate ({systemCosts.weeksSinceStart || 0} sett)</p>
             </div>
             <div className="bg-slate-900/50 rounded-lg p-2">
               <div className="flex items-center gap-1 text-slate-400 mb-1">
                 <Globe className="w-3 h-3" />
                 Arricchimento Bandi
               </div>
-              <span className="text-white font-semibold">€{(systemCosts.grantEnrichment * 0.92).toFixed(2)}</span>
-              <span className="text-slate-500 ml-1">({stats.systemGrants} bandi)</span>
+              <span className="text-white font-semibold">€{(systemCosts.grantEnrichment * EUR_USD_RATE).toFixed(2)}</span>
+              <p className="text-slate-500 text-[10px]">~{systemCosts.grantEnrichmentCalls || 0} bandi arricchiti</p>
             </div>
             <div className="bg-slate-900/50 rounded-lg p-2">
               <div className="flex items-center gap-1 text-slate-400 mb-1">
                 <Ship className="w-3 h-3" />
                 Import/Export AI
               </div>
-              <span className="text-white font-semibold">€{(systemCosts.importExport * 0.92).toFixed(2)}</span>
-              <span className="text-slate-500 ml-1">({stats.importExportMessages} analisi)</span>
+              <span className="text-white font-semibold">€{(systemCosts.importExport * EUR_USD_RATE).toFixed(2)}</span>
+              <p className="text-slate-500 text-[10px]">~{systemCosts.importExportCalls || 0} analisi</p>
             </div>
           </div>
+          
+          {/* Nota metodologia */}
+          <p className="text-slate-500 text-[9px] mt-2 leading-tight">
+            💡 Costi stimati: Contratti = GPT-4o vision (~$0.028/analisi), Web search = GPT-4o + internet (~$0.05/chiamata)
+          </p>
         </div>
 
         {/* Statistiche attività utenti */}
