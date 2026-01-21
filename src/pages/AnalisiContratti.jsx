@@ -109,9 +109,34 @@ export default function AnalisiContratti() {
       setUploading(false);
       setAnalyzing(true);
 
-      // Analisi con OpenAI diretto
-      const response = await base44.functions.invoke('analyzeContract', { file_urls: uploadedUrls });
-      const result = response.data;
+      // Analisi con LLM
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `Sei un esperto legale italiano. Analizza ${files.length > 1 ? 'questi contratti' : 'questo contratto'} e fornisci:
+1. Tipo di contratto
+2. Parti coinvolte
+3. Oggetto del contratto
+4. Durata e scadenze importanti
+5. Clausole principali
+6. Eventuali criticità o punti di attenzione
+7. Consigli per il cliente
+
+Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
+        file_urls: uploadedUrls,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            tipo_contratto: { type: "string" },
+            parti_coinvolte: { type: "array", items: { type: "string" } },
+            oggetto: { type: "string" },
+            durata: { type: "string" },
+            scadenze: { type: "array", items: { type: "string" } },
+            clausole_principali: { type: "array", items: { type: "string" } },
+            criticita: { type: "array", items: { type: "string" } },
+            consigli: { type: "array", items: { type: "string" } },
+            riepilogo: { type: "string" }
+          }
+        }
+      });
 
       setAnalysis(result);
 
