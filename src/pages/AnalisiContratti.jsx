@@ -214,7 +214,7 @@ Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
           <Button
             onClick={() => setShowHistory(!showHistory)}
             variant="outline"
-            className="w-full border-slate-700 text-slate-300 hover:bg-slate-800 mb-4"
+            className="w-full bg-sky-200 hover:bg-sky-300 text-black border-0 mb-4"
           >
             <History className="w-4 h-4 mr-2" />
             Storico Analisi ({historyAnalyses.length})
