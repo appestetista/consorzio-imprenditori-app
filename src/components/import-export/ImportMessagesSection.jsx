@@ -143,12 +143,20 @@ export default function ImportMessagesSection({ user }) {
         <Card className="bg-slate-800 border-slate-700">
           <CardContent className="p-4">
             <div className="flex items-center gap-3 mb-4 pb-3 border-b border-slate-700">
-              <div className="w-10 h-10 bg-red-500/20 rounded-full flex items-center justify-center">
-                <Mail className="w-5 h-5 text-red-400" />
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                selectedConversation.type === 'export' ? 'bg-lime-500/20' : 'bg-red-500/20'
+              }`}>
+                {selectedConversation.type === 'export' ? (
+                  <TrendingUp className="w-5 h-5 text-lime-400" />
+                ) : (
+                  <Mail className="w-5 h-5 text-red-400" />
+                )}
               </div>
               <div>
                 <p className="text-white font-medium">{selectedConversation.email}</p>
-                <p className="text-slate-400 text-xs">Conversazione Import</p>
+                <p className="text-slate-400 text-xs">
+                  {selectedConversation.type === 'export' ? 'Consulenza Export' : 'Import dalla Cina'}
+                </p>
               </div>
             </div>
 
