@@ -298,7 +298,7 @@ export default function Messaggi() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [conversations, selectedConversation]);
 
-  const unreadMessages = allMessages.filter(m => m.to_email === effectiveEmail && !m.is_read);
+  const totalUnreadCount = allMessages.filter(m => m.to_email === effectiveEmail && !m.is_read).length;
 
   if (selectedConversation) {
     const conv = conversations[selectedConversation];
