@@ -409,6 +409,9 @@ export default function FinanziamentiAgevolati() {
   // Get AI recommendations when grants and user are loaded
   useEffect(() => {
     const getAIRecommendations = async () => {
+      // Non caricare raccomandazioni per admin
+      if (isRealAdmin) return;
+      
       if (!user || !filteredGrants.length || loadingRecommendations || Object.keys(aiRecommendations).length > 0) return;
       
       // Skip se limite raggiunto
