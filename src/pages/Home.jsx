@@ -255,6 +255,7 @@ export default function Home() {
     { title: 'Consigli da\nImprenditori', icon: Handshake, page: 'Imprenditori', notifications: unviewedPollsCount, permission: 'imprenditori' },
       { title: 'Ricerca\nFornitori', icon: Truck, page: 'Fornitori', notifications: 0, permission: 'fornitori' },
     { title: 'Welfare\nAziendale', icon: Heart, page: 'WelfareAziendale', notifications: 0, permission: 'welfare_aziendale', variant: 'pink' },
+    { title: 'Analisi\nContratti', icon: FileSearch, page: 'AnalisiContratti', notifications: 0, permission: 'analisi_contratti' },
   ];
 
   return (
