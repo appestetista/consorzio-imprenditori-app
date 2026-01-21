@@ -424,7 +424,7 @@ Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
               <Button
                 onClick={resetAnalysis}
                 variant="outline"
-                className="w-full border-slate-600 text-white hover:bg-slate-800"
+                className="w-full border-slate-600 text-slate-400 hover:bg-slate-800"
               >
                 Analizza un altro contratto
               </Button>
