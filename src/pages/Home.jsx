@@ -139,6 +139,20 @@ export default function Home() {
     enabled: !!effectiveUser?.email && isNotAdmin,
   });
 
+  // Messaggi non letti per Analisi Contratti
+  const { data: contractMessagesCount = 0 } = useQuery({
+    queryKey: ['contract-messages-unread', effectiveUser?.email],
+    queryFn: async () => {
+      const received = await base44.entities.Message.filter({ 
+        to_email: effectiveUser?.email, 
+        source: 'analisi_contratti',
+        is_read: false 
+      });
+      return received.length;
+    },
+    enabled: !!effectiveUser?.email,
+  });
+
   const { data: newGrantsCount = 0 } = useQuery({
     queryKey: ['new-grants-count', effectiveUser?.email, userGrantView?.last_viewed_at],
     queryFn: async () => {
@@ -255,7 +269,7 @@ export default function Home() {
     { title: 'Consigli da\nImprenditori', icon: Handshake, page: 'Imprenditori', notifications: unviewedPollsCount, permission: 'imprenditori' },
       { title: 'Ricerca\nFornitori', icon: Truck, page: 'Fornitori', notifications: 0, permission: 'fornitori' },
     { title: 'Welfare\nAziendale', icon: Heart, page: 'WelfareAziendale', notifications: 0, permission: 'welfare_aziendale', variant: 'pink' },
-    { title: 'Analisi\nContratti', icon: FileSearch, page: 'AnalisiContratti', notifications: 0, permission: 'analisi_contratti' },
+    { title: 'Analisi\nContratti', icon: FileSearch, page: 'AnalisiContratti', notifications: contractMessagesCount, permission: 'analisi_contratti' },
   ];
 
   return (
