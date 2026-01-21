@@ -1474,8 +1474,8 @@ IMPORTANTE: Usa SOLO fonti ufficiali (TARIC, Agenzia delle Dogane, WCO). NON INV
                 {importContactSent ? (
                   <div className="bg-white/20 rounded-xl p-4 text-center">
                     <CheckCircle className="w-10 h-10 text-white mx-auto mb-2" />
-                    <p className="text-white font-bold text-lg">Richiesta inviata!</p>
-                    <p className="text-white/80 text-sm mt-1">Il team Import ti contatterà al più presto.</p>
+                    <p className="text-white font-bold text-lg">Abbiamo preso in carico la vostra richiesta</p>
+                    <p className="text-white/80 text-sm mt-1">Nell'arco di 48 ore verrete ricontattati.</p>
                     <Button
                       onClick={() => setImportContactSent(false)}
                       variant="outline"
