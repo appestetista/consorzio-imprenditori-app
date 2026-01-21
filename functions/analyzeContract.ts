@@ -22,11 +22,43 @@ Deno.serve(async (req) => {
 
         console.log(`Analyzing ${file_urls.length} contract(s) for user: ${user.email}`);
 
-        // Prepara i messaggi con le immagini/PDF
+        // Scarica i file e convertili in base64
+        const fileContents = [];
+        for (const url of file_urls) {
+            try {
+                const fileResponse = await fetch(url);
+                const arrayBuffer = await fileResponse.arrayBuffer();
+                const uint8Array = new Uint8Array(arrayBuffer);
+                let binary = '';
+                for (let i = 0; i < uint8Array.length; i++) {
+                    binary += String.fromCharCode(uint8Array[i]);
+                }
+                const base64 = btoa(binary);
+                
+                // Determina il tipo di file
+                const isPdf = url.toLowerCase().includes('.pdf') || fileResponse.headers.get('content-type')?.includes('pdf');
+                const isImage = url.match(/\.(jpg|jpeg|png|gif|webp)$/i) || fileResponse.headers.get('content-type')?.includes('image');
+                
+                fileContents.push({
+                    base64,
+                    isPdf,
+                    isImage,
+                    contentType: fileResponse.headers.get('content-type') || (isPdf ? 'application/pdf' : 'image/jpeg')
+                });
+            } catch (fetchErr) {
+                console.error(`Error fetching file ${url}:`, fetchErr.message);
+            }
+        }
+
+        if (fileContents.length === 0) {
+            return Response.json({ error: 'Could not fetch any files' }, { status: 400 });
+        }
+
+        // Prepara i messaggi
         const content = [
             {
                 type: "text",
-                text: `Sei un esperto legale italiano. Analizza ${file_urls.length > 1 ? 'questi contratti' : 'questo contratto'} e fornisci:
+                text: `Sei un esperto legale italiano. Analizza ${fileContents.length > 1 ? 'questi contratti' : 'questo contratto'} e fornisci:
 1. Tipo di contratto
 2. Parti coinvolte
 3. Oggetto del contratto
@@ -52,15 +84,30 @@ Rispondi SOLO con un JSON valido nel seguente formato:
             }
         ];
 
-        // Aggiungi ogni file come URL
-        for (const url of file_urls) {
-            content.push({
-                type: "image_url",
-                image_url: {
-                    url: url,
-                    detail: "high"
-                }
-            });
+        // Aggiungi ogni file come base64
+        for (const file of fileContents) {
+            if (file.isPdf) {
+                // Per i PDF, usa il formato data URL con base64
+                content.push({
+                    type: "image_url",
+                    image_url: {
+                        url: `data:application/pdf;base64,${file.base64}`,
+                        detail: "high"
+                    }
+                });
+            } else {
+                // Per le immagini
+                const mimeType = file.contentType.includes('png') ? 'image/png' : 
+                                 file.contentType.includes('gif') ? 'image/gif' : 
+                                 file.contentType.includes('webp') ? 'image/webp' : 'image/jpeg';
+                content.push({
+                    type: "image_url",
+                    image_url: {
+                        url: `data:${mimeType};base64,${file.base64}`,
+                        detail: "high"
+                    }
+                });
+            }
         }
 
         const response = await openai.chat.completions.create({
