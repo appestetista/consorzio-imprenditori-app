@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowLeft, Globe, TrendingUp, Ship, FileText, Loader2, CheckCircle, AlertTriangle, Target, DollarSign, Package, MapPin, ArrowRight, Search, ExternalLink, Send, Paperclip, Camera, X, Users, Mail } from 'lucide-react';
+import { useAILimits } from '@/components/hooks/useAILimits';
+import LimitReachedBanner from '@/components/common/LimitReachedBanner';
+import UsageCounter from '@/components/common/UsageCounter';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Card, CardContent } from '@/components/ui/card';
@@ -96,6 +99,22 @@ export default function ImportExport() {
     queryKey: ['export-managers'],
     queryFn: () => base44.entities.Consultant.filter({ category: 'Internazionalizzazione/Export' }),
   });
+
+  // Limiti AI Export
+  const { 
+    usageCount: exportUsage, 
+    limit: exportLimit, 
+    isLimitReached: exportLimitReached, 
+    trackUsage: trackExportUsage 
+  } = useAILimits(user?.email, 'export_analysis');
+
+  // Limiti AI Import
+  const { 
+    usageCount: importUsage, 
+    limit: importLimit, 
+    isLimitReached: importLimitReached, 
+    trackUsage: trackImportUsage 
+  } = useAILimits(user?.email, 'import_analysis');
 
   // Conta messaggi non letti per Import
   const { data: importUnreadCount = 0 } = useQuery({
@@ -249,8 +268,11 @@ export default function ImportExport() {
   const analyzeImportFeasibility = async () => {
     if (!importForm.descrizione_prodotto || !importForm.quantita || !importForm.tipo_richiesta) return;
     
+    if (importLimitReached) return;
+    
     setAnalyzingImport(true);
     try {
+      await trackImportUsage();
       const currentYear = new Date().getFullYear();
       const result = await base44.integrations.Core.InvokeLLM({
         prompt: `Sei un esperto di import dalla Cina con 15 anni di esperienza nel sourcing e nella produzione in Asia. Siamo nel ${currentYear}.
@@ -340,8 +362,11 @@ Fornisci un'analisi completa che includa:
   const analyzeExportPotential = async () => {
     if (!exportForm.settore || !exportForm.prodotto || exportForm.mercati_interesse.length === 0) return;
     
+    if (exportLimitReached) return;
+    
     setAnalyzing(true);
     try {
+      await trackExportUsage();
       const mercatiNomi = exportForm.mercati_interesse.map(code => 
         MERCATI_TARGET.find(m => m.code === code)?.name
       ).join(', ');
@@ -562,6 +587,14 @@ IMPORTANTE: Usa SOLO fonti ufficiali (TARIC, Agenzia delle Dogane, WCO). NON INV
           <ImportMessagesSection user={user} />
         ) : activeTab === 'export' ? (
           <>
+            {/* Limite Export */}
+            {exportLimitReached && (
+              <LimitReachedBanner actionType="export_analysis" usageCount={exportUsage} limit={exportLimit} />
+            )}
+            {!exportLimitReached && user && (
+              <UsageCounter usageCount={exportUsage} limit={exportLimit} label="Analisi export disponibili questo mese" />
+            )}
+
             {!analysisResult ? (
               <div className="space-y-4">
                 {/* Form Export */}
@@ -703,8 +736,8 @@ IMPORTANTE: Usa SOLO fonti ufficiali (TARIC, Agenzia delle Dogane, WCO). NON INV
 
                 <Button
                   onClick={analyzeExportPotential}
-                  disabled={!exportForm.settore || !exportForm.prodotto || exportForm.mercati_interesse.length === 0 || analyzing}
-                  className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 font-semibold h-12"
+                  disabled={!exportForm.settore || !exportForm.prodotto || exportForm.mercati_interesse.length === 0 || analyzing || exportLimitReached}
+                  className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 font-semibold h-12 disabled:opacity-50"
                 >
                   {analyzing ? (
                     <>
@@ -1072,6 +1105,14 @@ IMPORTANTE: Usa SOLO fonti ufficiali (TARIC, Agenzia delle Dogane, WCO). NON INV
         ) : (
           /* Tab Import dalla Cina */
           <div className="space-y-4">
+            {/* Limite Import */}
+            {importLimitReached && (
+              <LimitReachedBanner actionType="import_analysis" usageCount={importUsage} limit={importLimit} />
+            )}
+            {!importLimitReached && user && (
+              <UsageCounter usageCount={importUsage} limit={importLimit} label="Analisi import disponibili questo mese" />
+            )}
+
             {/* Hero Import */}
             <Card className="bg-gradient-to-br from-red-500 to-red-700 border-0">
               <CardContent className="p-4">
@@ -1253,8 +1294,8 @@ IMPORTANTE: Usa SOLO fonti ufficiali (TARIC, Agenzia delle Dogane, WCO). NON INV
 
                 <Button
                   onClick={analyzeImportFeasibility}
-                  disabled={!importForm.descrizione_prodotto || !importForm.quantita || !importForm.tipo_richiesta || analyzingImport}
-                  className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 font-semibold h-12"
+                  disabled={!importForm.descrizione_prodotto || !importForm.quantita || !importForm.tipo_richiesta || analyzingImport || importLimitReached}
+                  className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 font-semibold h-12 disabled:opacity-50"
                 >
                   {analyzingImport ? (
                     <>
