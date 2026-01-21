@@ -54,6 +54,7 @@ export default function Imprenditori() {
   const { playSound } = useNotificationSound();
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     const loadUser = async () => {
       setLoading(true);
       try {

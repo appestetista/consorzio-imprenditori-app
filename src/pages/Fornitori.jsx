@@ -25,6 +25,7 @@ export default function Fornitori() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     const loadUser = async () => {
       setLoading(true);
       try {
