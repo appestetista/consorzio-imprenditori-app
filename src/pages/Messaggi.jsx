@@ -562,29 +562,87 @@ export default function Messaggi() {
           <h1 className="text-white text-xl font-bold">Messaggi</h1>
         </div>
 
+        {/* Filtri per sezione */}
+        <div className="mb-4 overflow-x-auto pb-2 -mx-4 px-4">
+          <div className="flex gap-2 min-w-max">
+            <button
+              onClick={() => setActiveFilter('all')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                activeFilter === 'all' 
+                  ? 'bg-lime-400 text-slate-900' 
+                  : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+              }`}
+            >
+              <Filter className="w-3 h-3" />
+              Tutti
+              {unreadBySource.all > 0 && (
+                <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] ${
+                  activeFilter === 'all' ? 'bg-slate-900 text-lime-400' : 'bg-red-500 text-white'
+                }`}>
+                  {unreadBySource.all}
+                </span>
+              )}
+            </button>
+            {Object.values(sourceConfig).map((source) => {
+              const SourceIcon = source.icon;
+              const count = unreadBySource[source.key] || 0;
+              return (
+                <button
+                  key={source.key}
+                  onClick={() => setActiveFilter(source.key)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors whitespace-nowrap ${
+                    activeFilter === source.key 
+                      ? `${source.color} text-white` 
+                      : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+                  }`}
+                >
+                  <SourceIcon className="w-3 h-3" />
+                  {source.label}
+                  {count > 0 && (
+                    <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] ${
+                      activeFilter === source.key ? 'bg-white/20 text-white' : 'bg-red-500 text-white'
+                    }`}>
+                      {count}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         {isLoading ? (
           <div className="text-center py-12">
             <div className="animate-spin w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full mx-auto"></div>
           </div>
-        ) : Object.keys(conversations).length === 0 ? (
+        ) : Object.keys(filteredConversations).length === 0 ? (
           <div className="text-center py-12">
             <User className="w-16 h-16 text-slate-600 mx-auto mb-4" />
-            <p className="text-slate-400">Nessuna conversazione</p>
+            <p className="text-slate-400">
+              {activeFilter === 'all' ? 'Nessuna conversazione' : 'Nessun messaggio in questa sezione'}
+            </p>
           </div>
         ) : (
           <div className="space-y-2">
-            {Object.entries(conversations).map(([email, msgs]) => {
-              const otherUser = getOtherUser(email);
+            {Object.entries(filteredConversations)
+              .sort((a, b) => {
+                const lastA = a[1].messages[a[1].messages.length - 1];
+                const lastB = b[1].messages[b[1].messages.length - 1];
+                return new Date(lastB?.created_date) - new Date(lastA?.created_date);
+              })
+              .map(([key, conv]) => {
+              const otherUser = getOtherUser(conv.email);
+              const msgs = conv.messages;
               const lastMessage = msgs[msgs.length - 1];
               const unreadCount = msgs.filter(m => m.to_email === effectiveEmail && !m.is_read).length;
-              const sourceInfo = getConversationSource(msgs);
+              const sourceInfo = sourceConfig[conv.source] || sourceConfig.diretto;
               const SourceIcon = sourceInfo.icon;
               
               return (
                 <Card
-                  key={email}
+                  key={key}
                   className="bg-slate-800 border-slate-700 p-4 cursor-pointer hover:bg-slate-700 transition-colors"
-                  onClick={() => setSelectedConversation(email)}
+                  onClick={() => setSelectedConversation(key)}
                 >
                   {/* Etichetta sezione */}
                   <div className="flex items-center gap-1.5 mb-2">
@@ -606,7 +664,7 @@ export default function Messaggi() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
                         <p className="text-white font-medium truncate">
-                          {otherUser?.company_name || otherUser?.full_name || email}
+                          {otherUser?.company_name || otherUser?.full_name || conv.email}
                         </p>
                         {unreadCount > 0 && (
                           <span className="bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
