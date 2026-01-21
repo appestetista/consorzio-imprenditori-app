@@ -94,17 +94,48 @@ export default function Messaggi() {
     queryFn: () => base44.entities.User.list(),
   });
 
-  // Group messages by conversation
+  // Group messages by conversation (con chiave che include source per separare conversazioni)
   const conversations = React.useMemo(() => {
     const convMap = {};
     allMessages.forEach(msg => {
       const otherEmail = msg.from_email === effectiveEmail ? msg.to_email : msg.from_email;
-      if (!convMap[otherEmail]) {
-        convMap[otherEmail] = [];
+      const source = msg.source || 'diretto';
+      const key = `${otherEmail}_${source}`;
+      if (!convMap[key]) {
+        convMap[key] = {
+          email: otherEmail,
+          source: source,
+          messages: []
+        };
       }
-      convMap[otherEmail].push(msg);
+      convMap[key].messages.push(msg);
     });
     return convMap;
+  }, [allMessages, effectiveEmail]);
+
+  // Filtra conversazioni in base al filtro attivo
+  const filteredConversations = React.useMemo(() => {
+    if (activeFilter === 'all') return conversations;
+    return Object.fromEntries(
+      Object.entries(conversations).filter(([_, conv]) => conv.source === activeFilter)
+    );
+  }, [conversations, activeFilter]);
+
+  // Conta messaggi non letti per ogni sezione
+  const unreadBySource = React.useMemo(() => {
+    const counts = { all: 0 };
+    Object.values(sourceConfig).forEach(s => { counts[s.key] = 0; });
+    
+    allMessages.forEach(msg => {
+      if (msg.to_email === effectiveEmail && !msg.is_read) {
+        counts.all++;
+        const source = msg.source || 'diretto';
+        if (counts[source] !== undefined) {
+          counts[source]++;
+        }
+      }
+    });
+    return counts;
   }, [allMessages, effectiveEmail]);
 
   const getOtherUser = (email) => {
