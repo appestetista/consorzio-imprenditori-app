@@ -19,6 +19,7 @@ import ConsultantAssignmentManager from '../components/admin/ConsultantAssignmen
 import RisparmioRequestsAdmin from '../components/admin/RisparmioRequestsAdmin';
 import MembersDirectory from '../components/members/MembersDirectory';
 import ZoneAssignmentManager from '../components/admin/ZoneAssignmentManager';
+import UsageTracker from '../components/admin/UsageTracker';
 
 const CONSULTANT_CATEGORIES = [
   "Stampa Digitale e Cataloghi",
@@ -434,6 +435,9 @@ export default function AdminPanel() {
 
           {/* TAB GESTIONE */}
           <TabsContent value="gestione" className="space-y-4">
+            {/* Monitoraggio Utilizzo */}
+            <UsageTracker />
+
             {/* Link rapidi */}
             <div className="grid grid-cols-2 gap-2">
               <Link to={createPageUrl('GestioneBandi')}>
