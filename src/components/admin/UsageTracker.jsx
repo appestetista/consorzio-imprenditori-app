@@ -6,28 +6,41 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BarChart3, Search, FileText, MessageSquare, Mail, TrendingUp, DollarSign, Globe, Ship, Zap, Calendar } from 'lucide-react';
 
-// Prezzi GPT-4o-mini (USD per 1M token) - usato per analisi contratti
-const GPT4O_MINI_PRICES = {
-  input: 0.15 / 1000000,  
-  output: 0.60 / 1000000  
+// ============================================
+// PREZZI REALI AI (basati su OpenAI pricing 2024)
+// ============================================
+
+// GPT-4o (usato per analisi contratti con file/vision)
+// Pricing: $2.50/1M input, $10.00/1M output
+const GPT4O_PRICES = {
+  input: 2.50 / 1000000,  
+  output: 10.00 / 1000000  
 };
 
-// Prezzi GPT-4o con web search (USD per chiamata) - usato per import/export e bandi
-// Stima: ~$0.02-0.05 per chiamata con web search (più costoso)
-const GPT4O_WEB_SEARCH_COST = 0.035; // USD per chiamata media
+// GPT-4o con web search (usato per import/export e ricerca bandi)
+// Costo stimato per chiamata con add_context_from_internet: ~$0.03-0.08
+// Include: token + ricerca web + elaborazione risultati
+const GPT4O_WEB_SEARCH_COST_PER_CALL = 0.05; // USD medio per chiamata
 
-// Stima token per analisi contratto (media)
-const ESTIMATED_TOKENS_PER_ANALYSIS = {
-  input: 3500,  
-  output: 1500  
+// Stima token per analisi contratto PDF (media)
+// Input: PDF ~3000-5000 token + prompt ~500 token
+// Output: analisi strutturata ~1500-2000 token
+const CONTRACT_ANALYSIS_TOKENS = {
+  input: 4000,  
+  output: 1800  
 };
 
-// Costo stimato per chiamata AI (analisi contratti senza web)
-const CONTRACT_ANALYSIS_COST = (ESTIMATED_TOKENS_PER_ANALYSIS.input * GPT4O_MINI_PRICES.input) + 
-                                (ESTIMATED_TOKENS_PER_ANALYSIS.output * GPT4O_MINI_PRICES.output);
+// Costo per singola analisi contratto (GPT-4o con vision)
+const CONTRACT_ANALYSIS_COST_USD = 
+  (CONTRACT_ANALYSIS_TOKENS.input * GPT4O_PRICES.input) + 
+  (CONTRACT_ANALYSIS_TOKENS.output * GPT4O_PRICES.output);
+// = (4000 * 0.0000025) + (1800 * 0.00001) = 0.01 + 0.018 = ~$0.028 per analisi
 
-// Numero di siti scansionati per ricerca bandi
+// Numero fonti scansionate per ricerca bandi settimanale
 const GRANT_SOURCES_COUNT = 28;
+
+// Tasso cambio EUR/USD approssimativo
+const EUR_USD_RATE = 0.92;
 
 export default function UsageTracker() {
   const [searchTerm, setSearchTerm] = useState('');
