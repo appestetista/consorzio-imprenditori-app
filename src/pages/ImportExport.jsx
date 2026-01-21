@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Header from '@/components/layout/Header';
 import BottomNav from '@/components/layout/BottomNav';
+import ImportMessagesSection from '@/components/import-export/ImportMessagesSection';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 const SETTORI = [
