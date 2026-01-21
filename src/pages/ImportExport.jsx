@@ -44,7 +44,7 @@ const MERCATI_TARGET = [
 
 export default function ImportExport() {
   const [user, setUser] = useState(null);
-  const [activeTab, setActiveTab] = useState('export'); // 'export' | 'import'
+  const [activeTab, setActiveTab] = useState('export'); // 'export' | 'import' | 'messages'
   const [exportForm, setExportForm] = useState({
     settore: '',
     prodotto: '',
