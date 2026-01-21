@@ -119,10 +119,10 @@ export default function UsageTracker() {
         case 'consultations':
           return b.consultations - a.consultations;
         case 'cost':
-          return b.costEur - a.costEur;
+          return b.costEur - a.costEur || b.analyses - a.analyses;
         case 'total':
         default:
-          return b.total - a.total;
+          return b.costEur - a.costEur || b.analyses - a.analyses || b.total - a.total;
       }
     });
 
