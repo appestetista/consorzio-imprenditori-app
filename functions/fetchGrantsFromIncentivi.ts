@@ -123,30 +123,35 @@ Rispondi con: {"grants": [...]}`
         if (!grant.min_amount && !grant.max_amount && !grant.coverage_percentage) {
             console.log(`Enriching data for: ${grant.title}`);
             try {
-                const enrichResult = await base44.integrations.Core.InvokeLLM({
-                    prompt: `Cerca informazioni dettagliate sul bando/incentivo italiano: "${grant.title}"
+                const enrichResponse = await openai.chat.completions.create({
+                    model: "gpt-4o-mini",
+                    messages: [
+                        {
+                            role: "system",
+                            content: "Sei un esperto di bandi italiani. Rispondi SOLO con JSON valido. NON INVENTARE dati."
+                        },
+                        {
+                            role: "user",
+                            content: `Cerca informazioni dettagliate sul bando/incentivo italiano: "${grant.title}"
 
-Cerca su più fonti possibili (siti istituzionali, camere di commercio, portali regionali, articoli specializzati) per trovare:
-1. Importo minimo finanziabile (in euro, solo numero)
-2. Importo massimo finanziabile (in euro, solo numero)  
-3. Percentuale di copertura/contributo (numero 0-100)
-4. Se richiede cofinanziamento (true/false)
-5. URL del bando ufficiale
+Trova:
+1. min_amount: Importo minimo finanziabile (euro, solo numero)
+2. max_amount: Importo massimo finanziabile (euro, solo numero)  
+3. coverage_percentage: Percentuale di copertura (0-100)
+4. requires_cofinancing: true/false
+5. website_url: URL del bando ufficiale
+6. source_verified: true se dati verificati, false se incerti
 
-IMPORTANTE: Restituisci SOLO dati verificati da fonti ufficiali. Se non trovi un dato con certezza, usa null. NON INVENTARE.`,
-                    add_context_from_internet: true,
-                    response_json_schema: {
-                        type: "object",
-                        properties: {
-                            min_amount: { type: "number" },
-                            max_amount: { type: "number" },
-                            coverage_percentage: { type: "number" },
-                            requires_cofinancing: { type: "boolean" },
-                            website_url: { type: "string" },
-                            source_verified: { type: "boolean" }
+Rispondi con JSON: {"min_amount": null, "max_amount": null, "coverage_percentage": null, "requires_cofinancing": false, "website_url": null, "source_verified": false}`
                         }
-                    }
+                    ],
+                    max_tokens: 500,
+                    temperature: 0.2
                 });
+
+                const enrichText = enrichResponse.choices[0].message.content;
+                const enrichMatch = enrichText.match(/\{[\s\S]*\}/);
+                const enrichResult = enrichMatch ? JSON.parse(enrichMatch[0]) : null;
 
                 if (enrichResult?.source_verified) {
                     enrichedGrant.min_amount = enrichResult.min_amount || grant.min_amount;
