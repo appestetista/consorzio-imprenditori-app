@@ -56,9 +56,18 @@ export default function ImportExport() {
   });
   const [analyzing, setAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState(null);
-  const [hsCodeSearch, setHsCodeSearch] = useState('');
-  const [hsCodeResult, setHsCodeResult] = useState(null);
-  const [searchingHsCode, setSearchingHsCode] = useState(false);
+  const [importForm, setImportForm] = useState({
+    tipo_richiesta: '',
+    descrizione_prodotto: '',
+    quantita: '',
+    frequenza: '',
+    tempo_attesa: '',
+    budget: '',
+    esperienza_import: '',
+    requisiti: ''
+  });
+  const [analyzingImport, setAnalyzingImport] = useState(false);
+  const [importResult, setImportResult] = useState(null);
   const [contactForm, setContactForm] = useState({ subject: '', message: '', exportManagerId: '', attachments: [] });
   const [uploadingAttachment, setUploadingAttachment] = useState(false);
   const [contactSent, setContactSent] = useState(false);
