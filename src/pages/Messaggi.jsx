@@ -310,9 +310,9 @@ export default function Messaggi() {
       <div className="h-screen bg-slate-900 flex flex-col overflow-hidden">
         {/* Chat Header */}
         <div className="bg-slate-800 py-4 px-4 flex items-center gap-3 border-b border-slate-700 flex-shrink-0">
-          <Link to={createPageUrl('GestioneMembri')} className="text-lime-400">
+          <button onClick={() => setSelectedConversation(null)} className="text-lime-400">
             <ArrowLeft className="w-6 h-6" />
-          </Link>
+          </button>
           {otherUser?.logo_url ? (
             <img 
               src={otherUser.logo_url} 
