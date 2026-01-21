@@ -1,0 +1,780 @@
+import React, { useState, useEffect } from 'react';
+import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
+import { ArrowLeft, Globe, TrendingUp, Ship, FileText, Loader2, CheckCircle, AlertTriangle, Target, DollarSign, Package, MapPin, ArrowRight, Search, ExternalLink } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import Header from '@/components/layout/Header';
+import BottomNav from '@/components/layout/BottomNav';
+
+const SETTORI = [
+  'Alimentare e bevande',
+  'Moda e tessile',
+  'Arredamento e design',
+  'Meccanica e automazione',
+  'Cosmetica e cura persona',
+  'Tecnologia e elettronica',
+  'Automotive e componentistica',
+  'Farmaceutico e medicale',
+  'Agricoltura e agroalimentare',
+  'Altro'
+];
+
+const MERCATI_TARGET = [
+  { code: 'US', name: 'Stati Uniti', flag: '🇺🇸' },
+  { code: 'CN', name: 'Cina', flag: '🇨🇳' },
+  { code: 'DE', name: 'Germania', flag: '🇩🇪' },
+  { code: 'FR', name: 'Francia', flag: '🇫🇷' },
+  { code: 'UK', name: 'Regno Unito', flag: '🇬🇧' },
+  { code: 'JP', name: 'Giappone', flag: '🇯🇵' },
+  { code: 'AE', name: 'Emirati Arabi', flag: '🇦🇪' },
+  { code: 'BR', name: 'Brasile', flag: '🇧🇷' },
+  { code: 'IN', name: 'India', flag: '🇮🇳' },
+  { code: 'AU', name: 'Australia', flag: '🇦🇺' },
+  { code: 'KR', name: 'Corea del Sud', flag: '🇰🇷' },
+  { code: 'SA', name: 'Arabia Saudita', flag: '🇸🇦' }
+];
+
+export default function ImportExport() {
+  const [user, setUser] = useState(null);
+  const [activeTab, setActiveTab] = useState('export'); // 'export' | 'import'
+  const [exportForm, setExportForm] = useState({
+    settore: '',
+    prodotto: '',
+    descrizione_prodotto: '',
+    fatturato_annuo: '',
+    esperienza_export: '',
+    mercati_interesse: [],
+    certificazioni: '',
+    capacita_produttiva: ''
+  });
+  const [analyzing, setAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState(null);
+  const [hsCodeSearch, setHsCodeSearch] = useState('');
+  const [hsCodeResult, setHsCodeResult] = useState(null);
+  const [searchingHsCode, setSearchingHsCode] = useState(false);
+
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const currentUser = await base44.auth.me();
+        setUser(currentUser);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    loadUser();
+  }, []);
+
+  const { data: messages = [] } = useQuery({
+    queryKey: ['unread-messages', user?.email],
+    queryFn: () => base44.entities.Message.filter({ to_email: user?.email, is_read: false }),
+    enabled: !!user?.email,
+  });
+
+  const toggleMercato = (code) => {
+    setExportForm(prev => ({
+      ...prev,
+      mercati_interesse: prev.mercati_interesse.includes(code)
+        ? prev.mercati_interesse.filter(m => m !== code)
+        : [...prev.mercati_interesse, code]
+    }));
+  };
+
+  const analyzeExportPotential = async () => {
+    if (!exportForm.settore || !exportForm.prodotto || exportForm.mercati_interesse.length === 0) return;
+    
+    setAnalyzing(true);
+    try {
+      const mercatiNomi = exportForm.mercati_interesse.map(code => 
+        MERCATI_TARGET.find(m => m.code === code)?.name
+      ).join(', ');
+
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `Sei un Export Manager esperto con 20 anni di esperienza nell'internazionalizzazione delle PMI italiane. 
+        
+Analizza questa opportunità di export per un'azienda italiana:
+
+PROFILO AZIENDA:
+- Settore: ${exportForm.settore}
+- Prodotto: ${exportForm.prodotto}
+- Descrizione: ${exportForm.descrizione_prodotto || 'Non specificata'}
+- Fatturato annuo: ${exportForm.fatturato_annuo || 'Non specificato'}
+- Esperienza export: ${exportForm.esperienza_export || 'Nessuna'}
+- Certificazioni: ${exportForm.certificazioni || 'Non specificate'}
+- Capacità produttiva: ${exportForm.capacita_produttiva || 'Non specificata'}
+
+MERCATI DI INTERESSE: ${mercatiNomi}
+
+Fornisci un'analisi dettagliata e professionale che includa:
+1. Valutazione generale della readiness all'export (punteggio 1-10)
+2. Per ogni mercato selezionato: opportunità, sfide, barriere tariffarie/non tariffarie, documenti necessari
+3. Raccomandazione sui mercati prioritari
+4. Stima dei costi di ingresso per mercato
+5. Timeline consigliata
+6. Certificazioni necessarie per ogni mercato
+7. Canali di distribuzione consigliati
+8. Rischi principali e come mitigarli
+9. Primi passi concreti da fare
+
+Usa dati reali e aggiornati su dazi, normative e requisiti. Sii specifico e pratico.`,
+        add_context_from_internet: true,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            readiness_score: { type: "number" },
+            readiness_commento: { type: "string" },
+            raccomandazione_generale: { type: "string" },
+            mercati_analisi: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  mercato: { type: "string" },
+                  punteggio_opportunita: { type: "number" },
+                  opportunita: { type: "array", items: { type: "string" } },
+                  sfide: { type: "array", items: { type: "string" } },
+                  barriere_tariffarie: { type: "string" },
+                  documenti_necessari: { type: "array", items: { type: "string" } },
+                  certificazioni_richieste: { type: "array", items: { type: "string" } },
+                  costo_ingresso_stimato: { type: "string" },
+                  canali_distribuzione: { type: "array", items: { type: "string" } }
+                }
+              }
+            },
+            mercati_prioritari: { type: "array", items: { type: "string" } },
+            timeline_consigliata: { type: "string" },
+            rischi_principali: { type: "array", items: { type: "string" } },
+            primi_passi: { type: "array", items: { type: "string" } },
+            risorse_utili: { type: "array", items: { type: "object", properties: { nome: { type: "string" }, url: { type: "string" }, descrizione: { type: "string" } } } }
+          }
+        }
+      });
+
+      setAnalysisResult(result);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setAnalyzing(false);
+    }
+  };
+
+  const searchHsCode = async () => {
+    if (!hsCodeSearch.trim()) return;
+    
+    setSearchingHsCode(true);
+    try {
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `Cerca informazioni doganali per il prodotto: "${hsCodeSearch}"
+        
+Fornisci:
+1. Codice HS (Harmonized System) più probabile per questo prodotto
+2. Descrizione ufficiale della voce doganale
+3. Dazi doganali medi per import in Italia dalla Cina
+4. Dazi doganali medi per export dall'Italia verso USA, Cina, UK
+5. Eventuali restrizioni o certificazioni obbligatorie
+6. IVA applicabile
+7. Documentazione necessaria per import/export
+
+Usa fonti ufficiali come TARIC, Agenzia delle Dogane, WCO.`,
+        add_context_from_internet: true,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            hs_code: { type: "string" },
+            descrizione_doganale: { type: "string" },
+            capitolo_hs: { type: "string" },
+            dazi_import_cina_italia: { type: "string" },
+            dazi_export: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  paese: { type: "string" },
+                  dazio_percentuale: { type: "string" },
+                  note: { type: "string" }
+                }
+              }
+            },
+            iva_italia: { type: "string" },
+            restrizioni: { type: "array", items: { type: "string" } },
+            certificazioni_obbligatorie: { type: "array", items: { type: "string" } },
+            documenti_necessari: { type: "array", items: { type: "string" } },
+            fonti: { type: "array", items: { type: "string" } }
+          }
+        }
+      });
+
+      setHsCodeResult(result);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSearchingHsCode(false);
+    }
+  };
+
+  const resetAnalysis = () => {
+    setAnalysisResult(null);
+    setExportForm({
+      settore: '',
+      prodotto: '',
+      descrizione_prodotto: '',
+      fatturato_annuo: '',
+      esperienza_export: '',
+      mercati_interesse: [],
+      certificazioni: '',
+      capacita_produttiva: ''
+    });
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-900 pb-24">
+      <Header user={user} />
+      
+      <main className="px-4 py-6 max-w-md mx-auto">
+        <div className="flex items-center gap-3 mb-6">
+          <Link to={createPageUrl('Home')} className="text-lime-400">
+            <ArrowLeft className="w-6 h-6" />
+          </Link>
+          <h1 className="text-white text-xl font-bold">Import / Export</h1>
+        </div>
+
+        {/* Hero Card */}
+        <Card className="bg-gradient-to-br from-emerald-500 to-teal-600 border-0 mb-6">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
+                <Globe className="w-8 h-8 text-white" />
+              </div>
+              <div>
+                <h2 className="text-white text-xl font-bold">Internazionalizzazione</h2>
+                <p className="text-white/80 text-sm">Analizza mercati e opportunità globali</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Tab Switch */}
+        <div className="flex gap-2 mb-6">
+          <Button
+            onClick={() => setActiveTab('export')}
+            className={`flex-1 ${activeTab === 'export' ? 'bg-lime-400 text-slate-900' : 'bg-slate-800 text-white'}`}
+          >
+            <TrendingUp className="w-4 h-4 mr-2" />
+            Export
+          </Button>
+          <Button
+            onClick={() => setActiveTab('import')}
+            className={`flex-1 ${activeTab === 'import' ? 'bg-lime-400 text-slate-900' : 'bg-slate-800 text-white'}`}
+          >
+            <Ship className="w-4 h-4 mr-2" />
+            Import
+          </Button>
+        </div>
+
+        {activeTab === 'export' ? (
+          <>
+            {!analysisResult ? (
+              <div className="space-y-4">
+                {/* Form Export */}
+                <Card className="bg-slate-800 border-slate-700">
+                  <CardContent className="p-4">
+                    <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+                      <Target className="w-5 h-5 text-lime-400" />
+                      Valuta il tuo potenziale Export
+                    </h3>
+                    
+                    <div className="space-y-4">
+                      <div>
+                        <label className="text-slate-400 text-sm mb-1 block">Settore *</label>
+                        <Select
+                          value={exportForm.settore}
+                          onValueChange={(value) => setExportForm({ ...exportForm, settore: value })}
+                        >
+                          <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                            <SelectValue placeholder="Seleziona il tuo settore" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {SETTORI.map((s) => (
+                              <SelectItem key={s} value={s}>{s}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div>
+                        <label className="text-slate-400 text-sm mb-1 block">Prodotto principale *</label>
+                        <Input
+                          placeholder="Es. Macchine per packaging alimentare"
+                          value={exportForm.prodotto}
+                          onChange={(e) => setExportForm({ ...exportForm, prodotto: e.target.value })}
+                          className="bg-slate-900 border-slate-700 text-white"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-slate-400 text-sm mb-1 block">Descrizione prodotto</label>
+                        <Textarea
+                          placeholder="Descrivi brevemente il tuo prodotto, caratteristiche distintive, vantaggi competitivi..."
+                          value={exportForm.descrizione_prodotto}
+                          onChange={(e) => setExportForm({ ...exportForm, descrizione_prodotto: e.target.value })}
+                          className="bg-slate-900 border-slate-700 text-white min-h-[80px]"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-slate-400 text-sm mb-1 block">Fatturato annuo</label>
+                          <Select
+                            value={exportForm.fatturato_annuo}
+                            onValueChange={(value) => setExportForm({ ...exportForm, fatturato_annuo: value })}
+                          >
+                            <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                              <SelectValue placeholder="Range" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="< 500k">{'< 500.000€'}</SelectItem>
+                              <SelectItem value="500k-1M">500k - 1M €</SelectItem>
+                              <SelectItem value="1M-5M">1M - 5M €</SelectItem>
+                              <SelectItem value="5M-10M">5M - 10M €</SelectItem>
+                              <SelectItem value="> 10M">{'> 10M €'}</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div>
+                          <label className="text-slate-400 text-sm mb-1 block">Esperienza export</label>
+                          <Select
+                            value={exportForm.esperienza_export}
+                            onValueChange={(value) => setExportForm({ ...exportForm, esperienza_export: value })}
+                          >
+                            <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                              <SelectValue placeholder="Livello" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="nessuna">Nessuna</SelectItem>
+                              <SelectItem value="occasionale">Occasionale</SelectItem>
+                              <SelectItem value="regolare_eu">Regolare (solo UE)</SelectItem>
+                              <SelectItem value="regolare_extra_eu">Regolare (extra UE)</SelectItem>
+                              <SelectItem value="consolidata">Consolidata</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="text-slate-400 text-sm mb-1 block">Certificazioni possedute</label>
+                        <Input
+                          placeholder="Es. ISO 9001, CE, FDA, HACCP..."
+                          value={exportForm.certificazioni}
+                          onChange={(e) => setExportForm({ ...exportForm, certificazioni: e.target.value })}
+                          className="bg-slate-900 border-slate-700 text-white"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-slate-400 text-sm mb-1 block">Capacità produttiva disponibile per export</label>
+                        <Input
+                          placeholder="Es. 30% della produzione, 1000 unità/mese"
+                          value={exportForm.capacita_produttiva}
+                          onChange={(e) => setExportForm({ ...exportForm, capacita_produttiva: e.target.value })}
+                          className="bg-slate-900 border-slate-700 text-white"
+                        />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Selezione Mercati */}
+                <Card className="bg-slate-800 border-slate-700">
+                  <CardContent className="p-4">
+                    <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+                      <MapPin className="w-5 h-5 text-lime-400" />
+                      Mercati di interesse *
+                    </h3>
+                    <p className="text-slate-400 text-sm mb-3">Seleziona uno o più mercati da analizzare</p>
+                    
+                    <div className="grid grid-cols-3 gap-2">
+                      {MERCATI_TARGET.map((mercato) => (
+                        <button
+                          key={mercato.code}
+                          onClick={() => toggleMercato(mercato.code)}
+                          className={`p-2 rounded-lg text-center transition-all ${
+                            exportForm.mercati_interesse.includes(mercato.code)
+                              ? 'bg-lime-400 text-slate-900'
+                              : 'bg-slate-700 text-white hover:bg-slate-600'
+                          }`}
+                        >
+                          <span className="text-xl">{mercato.flag}</span>
+                          <p className="text-xs mt-1">{mercato.name}</p>
+                        </button>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Button
+                  onClick={analyzeExportPotential}
+                  disabled={!exportForm.settore || !exportForm.prodotto || exportForm.mercati_interesse.length === 0 || analyzing}
+                  className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 font-semibold h-12"
+                >
+                  {analyzing ? (
+                    <>
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      Analisi in corso...
+                    </>
+                  ) : (
+                    <>
+                      <TrendingUp className="w-5 h-5 mr-2" />
+                      Analizza Potenziale Export
+                    </>
+                  )}
+                </Button>
+              </div>
+            ) : (
+              /* Risultati Analisi Export */
+              <div className="space-y-4">
+                {/* Readiness Score */}
+                <Card className="bg-slate-800 border-slate-700">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-white font-semibold">Export Readiness</h3>
+                      <div className={`text-2xl font-bold ${
+                        analysisResult.readiness_score >= 7 ? 'text-green-400' :
+                        analysisResult.readiness_score >= 5 ? 'text-yellow-400' : 'text-red-400'
+                      }`}>
+                        {analysisResult.readiness_score}/10
+                      </div>
+                    </div>
+                    <p className="text-slate-300 text-sm">{analysisResult.readiness_commento}</p>
+                  </CardContent>
+                </Card>
+
+                {/* Raccomandazione */}
+                <Card className="bg-emerald-500/20 border-emerald-500/50">
+                  <CardContent className="p-4">
+                    <h3 className="text-emerald-400 font-semibold mb-2 flex items-center gap-2">
+                      <CheckCircle className="w-5 h-5" />
+                      Raccomandazione
+                    </h3>
+                    <p className="text-emerald-200 text-sm">{analysisResult.raccomandazione_generale}</p>
+                  </CardContent>
+                </Card>
+
+                {/* Mercati Prioritari */}
+                {analysisResult.mercati_prioritari?.length > 0 && (
+                  <Card className="bg-slate-800 border-slate-700">
+                    <CardContent className="p-4">
+                      <h3 className="text-white font-semibold mb-2">🎯 Mercati Prioritari</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {analysisResult.mercati_prioritari.map((m, i) => (
+                          <span key={i} className="bg-lime-400/20 text-lime-400 px-3 py-1 rounded-full text-sm">
+                            {m}
+                          </span>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Analisi per Mercato */}
+                {analysisResult.mercati_analisi?.map((mercato, idx) => (
+                  <Card key={idx} className="bg-slate-800 border-slate-700">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-white font-semibold">{mercato.mercato}</h3>
+                        <span className={`px-2 py-1 rounded text-xs font-bold ${
+                          mercato.punteggio_opportunita >= 7 ? 'bg-green-500/20 text-green-400' :
+                          mercato.punteggio_opportunita >= 5 ? 'bg-yellow-500/20 text-yellow-400' : 'bg-red-500/20 text-red-400'
+                        }`}>
+                          {mercato.punteggio_opportunita}/10
+                        </span>
+                      </div>
+
+                      {mercato.opportunita?.length > 0 && (
+                        <div className="mb-3">
+                          <p className="text-green-400 text-xs font-semibold mb-1">Opportunità:</p>
+                          <ul className="text-slate-300 text-sm space-y-1">
+                            {mercato.opportunita.map((o, i) => <li key={i}>• {o}</li>)}
+                          </ul>
+                        </div>
+                      )}
+
+                      {mercato.sfide?.length > 0 && (
+                        <div className="mb-3">
+                          <p className="text-orange-400 text-xs font-semibold mb-1">Sfide:</p>
+                          <ul className="text-slate-300 text-sm space-y-1">
+                            {mercato.sfide.map((s, i) => <li key={i}>• {s}</li>)}
+                          </ul>
+                        </div>
+                      )}
+
+                      <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div>
+                          <p className="text-slate-400 text-xs">Barriere tariffarie:</p>
+                          <p className="text-white">{mercato.barriere_tariffarie}</p>
+                        </div>
+                        <div>
+                          <p className="text-slate-400 text-xs">Costo ingresso stimato:</p>
+                          <p className="text-white">{mercato.costo_ingresso_stimato}</p>
+                        </div>
+                      </div>
+
+                      {mercato.certificazioni_richieste?.length > 0 && (
+                        <div className="mt-3">
+                          <p className="text-slate-400 text-xs mb-1">Certificazioni richieste:</p>
+                          <div className="flex flex-wrap gap-1">
+                            {mercato.certificazioni_richieste.map((c, i) => (
+                              <span key={i} className="bg-slate-700 text-slate-300 px-2 py-0.5 rounded text-xs">{c}</span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+
+                {/* Timeline */}
+                {analysisResult.timeline_consigliata && (
+                  <Card className="bg-slate-800 border-slate-700">
+                    <CardContent className="p-4">
+                      <h3 className="text-white font-semibold mb-2">⏱️ Timeline Consigliata</h3>
+                      <p className="text-slate-300 text-sm">{analysisResult.timeline_consigliata}</p>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Primi Passi */}
+                {analysisResult.primi_passi?.length > 0 && (
+                  <Card className="bg-blue-500/20 border-blue-500/50">
+                    <CardContent className="p-4">
+                      <h3 className="text-blue-400 font-semibold mb-2">🚀 Primi Passi</h3>
+                      <ol className="text-blue-200 text-sm space-y-2">
+                        {analysisResult.primi_passi.map((p, i) => (
+                          <li key={i} className="flex gap-2">
+                            <span className="bg-blue-500/30 rounded-full w-5 h-5 flex items-center justify-center text-xs flex-shrink-0">{i + 1}</span>
+                            {p}
+                          </li>
+                        ))}
+                      </ol>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Rischi */}
+                {analysisResult.rischi_principali?.length > 0 && (
+                  <Card className="bg-orange-500/20 border-orange-500/50">
+                    <CardContent className="p-4">
+                      <h3 className="text-orange-400 font-semibold mb-2 flex items-center gap-2">
+                        <AlertTriangle className="w-5 h-5" />
+                        Rischi Principali
+                      </h3>
+                      <ul className="text-orange-200 text-sm space-y-1">
+                        {analysisResult.rischi_principali.map((r, i) => <li key={i}>• {r}</li>)}
+                      </ul>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Risorse Utili */}
+                {analysisResult.risorse_utili?.length > 0 && (
+                  <Card className="bg-slate-800 border-slate-700">
+                    <CardContent className="p-4">
+                      <h3 className="text-white font-semibold mb-3">🔗 Risorse Utili</h3>
+                      <div className="space-y-2">
+                        {analysisResult.risorse_utili.map((r, i) => (
+                          <a
+                            key={i}
+                            href={r.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-lime-400 hover:text-lime-300 text-sm"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                            {r.nome}
+                          </a>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                <Button
+                  onClick={resetAnalysis}
+                  variant="outline"
+                  className="w-full border-slate-600 text-slate-400 hover:bg-slate-800"
+                >
+                  Nuova Analisi
+                </Button>
+              </div>
+            )}
+          </>
+        ) : (
+          /* Tab Import */
+          <div className="space-y-4">
+            <Card className="bg-slate-800 border-slate-700">
+              <CardContent className="p-4">
+                <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+                  <Search className="w-5 h-5 text-lime-400" />
+                  Ricerca Codice Doganale (HS Code)
+                </h3>
+                <p className="text-slate-400 text-sm mb-4">
+                  Inserisci il nome del prodotto per trovare il codice HS, dazi e requisiti di importazione
+                </p>
+                
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Es. Componenti elettronici, tessuti in cotone..."
+                    value={hsCodeSearch}
+                    onChange={(e) => setHsCodeSearch(e.target.value)}
+                    className="bg-slate-900 border-slate-700 text-white flex-1"
+                    onKeyPress={(e) => e.key === 'Enter' && searchHsCode()}
+                  />
+                  <Button
+                    onClick={searchHsCode}
+                    disabled={!hsCodeSearch.trim() || searchingHsCode}
+                    className="bg-lime-400 hover:bg-lime-500 text-slate-900"
+                  >
+                    {searchingHsCode ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {hsCodeResult && (
+              <div className="space-y-4">
+                <Card className="bg-slate-800 border-slate-700">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-white font-semibold">Codice HS</h3>
+                      <span className="bg-lime-400 text-slate-900 px-3 py-1 rounded font-mono font-bold">
+                        {hsCodeResult.hs_code}
+                      </span>
+                    </div>
+                    <p className="text-slate-300 text-sm">{hsCodeResult.descrizione_doganale}</p>
+                    <p className="text-slate-500 text-xs mt-2">Capitolo: {hsCodeResult.capitolo_hs}</p>
+                  </CardContent>
+                </Card>
+
+                {/* Dazi Import dalla Cina */}
+                <Card className="bg-red-500/20 border-red-500/50">
+                  <CardContent className="p-4">
+                    <h3 className="text-red-400 font-semibold mb-2 flex items-center gap-2">
+                      <Ship className="w-5 h-5" />
+                      Import dalla Cina → Italia
+                    </h3>
+                    <p className="text-white text-lg font-bold">{hsCodeResult.dazi_import_cina_italia}</p>
+                    <p className="text-red-200 text-sm mt-1">IVA Italia: {hsCodeResult.iva_italia}</p>
+                  </CardContent>
+                </Card>
+
+                {/* Dazi Export */}
+                {hsCodeResult.dazi_export?.length > 0 && (
+                  <Card className="bg-slate-800 border-slate-700">
+                    <CardContent className="p-4">
+                      <h3 className="text-white font-semibold mb-3">📤 Dazi Export dall'Italia</h3>
+                      <div className="space-y-2">
+                        {hsCodeResult.dazi_export.map((d, i) => (
+                          <div key={i} className="flex items-center justify-between bg-slate-700/50 rounded-lg p-2">
+                            <span className="text-white">{d.paese}</span>
+                            <div className="text-right">
+                              <span className="text-lime-400 font-semibold">{d.dazio_percentuale}</span>
+                              {d.note && <p className="text-slate-400 text-xs">{d.note}</p>}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Certificazioni Obbligatorie */}
+                {hsCodeResult.certificazioni_obbligatorie?.length > 0 && (
+                  <Card className="bg-yellow-500/20 border-yellow-500/50">
+                    <CardContent className="p-4">
+                      <h3 className="text-yellow-400 font-semibold mb-2">📋 Certificazioni Obbligatorie</h3>
+                      <ul className="text-yellow-200 text-sm space-y-1">
+                        {hsCodeResult.certificazioni_obbligatorie.map((c, i) => <li key={i}>• {c}</li>)}
+                      </ul>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Documenti */}
+                {hsCodeResult.documenti_necessari?.length > 0 && (
+                  <Card className="bg-slate-800 border-slate-700">
+                    <CardContent className="p-4">
+                      <h3 className="text-white font-semibold mb-2">📄 Documenti Necessari</h3>
+                      <ul className="text-slate-300 text-sm space-y-1">
+                        {hsCodeResult.documenti_necessari.map((d, i) => <li key={i}>• {d}</li>)}
+                      </ul>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Restrizioni */}
+                {hsCodeResult.restrizioni?.length > 0 && (
+                  <Card className="bg-orange-500/20 border-orange-500/50">
+                    <CardContent className="p-4">
+                      <h3 className="text-orange-400 font-semibold mb-2 flex items-center gap-2">
+                        <AlertTriangle className="w-5 h-5" />
+                        Restrizioni
+                      </h3>
+                      <ul className="text-orange-200 text-sm space-y-1">
+                        {hsCodeResult.restrizioni.map((r, i) => <li key={i}>• {r}</li>)}
+                      </ul>
+                    </CardContent>
+                  </Card>
+                )}
+
+                <Button
+                  onClick={() => { setHsCodeResult(null); setHsCodeSearch(''); }}
+                  variant="outline"
+                  className="w-full border-slate-600 text-slate-400 hover:bg-slate-800"
+                >
+                  Nuova Ricerca
+                </Button>
+              </div>
+            )}
+
+            {/* Link Risorse Doganali */}
+            <Card className="bg-slate-800 border-slate-700">
+              <CardContent className="p-4">
+                <h3 className="text-white font-semibold mb-3">🔗 Database Doganali Ufficiali</h3>
+                <div className="space-y-2">
+                  <a href="https://ec.europa.eu/taxation_customs/dds2/taric/taric_consultation.jsp" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-lime-400 hover:text-lime-300 text-sm">
+                    <ExternalLink className="w-4 h-4" />
+                    TARIC - Tariffa Doganale UE
+                  </a>
+                  <a href="https://www.adm.gov.it/portale/taric" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-lime-400 hover:text-lime-300 text-sm">
+                    <ExternalLink className="w-4 h-4" />
+                    Agenzia Dogane e Monopoli Italia
+                  </a>
+                  <a href="https://www.trademap.org/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-lime-400 hover:text-lime-300 text-sm">
+                    <ExternalLink className="w-4 h-4" />
+                    Trade Map - Statistiche Commercio
+                  </a>
+                  <a href="https://madb.europa.eu/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-lime-400 hover:text-lime-300 text-sm">
+                    <ExternalLink className="w-4 h-4" />
+                    Market Access Database UE
+                  </a>
+                  <a href="https://www.ice.it/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-lime-400 hover:text-lime-300 text-sm">
+                    <ExternalLink className="w-4 h-4" />
+                    ICE - Agenzia Commercio Estero
+                  </a>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+      </main>
+
+      <BottomNav currentPage="ImportExport" unreadMessages={messages.length} />
+    </div>
+  );
+}
