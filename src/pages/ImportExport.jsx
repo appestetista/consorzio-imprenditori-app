@@ -1472,14 +1472,14 @@ IMPORTANTE: Usa SOLO fonti ufficiali (TARIC, Agenzia delle Dogane, WCO). NON INV
                 </div>
                 
                 {importContactSent ? (
-                  <div className="bg-green-500/20 border border-green-500/50 rounded-lg p-4 text-center">
-                    <CheckCircle className="w-8 h-8 text-green-400 mx-auto mb-2" />
-                    <p className="text-green-400 font-medium">Richiesta inviata!</p>
-                    <p className="text-green-200 text-sm mt-1">Il team Import ti contatterà al più presto.</p>
+                  <div className="bg-white/20 rounded-xl p-4 text-center">
+                    <CheckCircle className="w-10 h-10 text-white mx-auto mb-2" />
+                    <p className="text-white font-bold text-lg">Richiesta inviata!</p>
+                    <p className="text-white/80 text-sm mt-1">Il team Import ti contatterà al più presto.</p>
                     <Button
                       onClick={() => setImportContactSent(false)}
                       variant="outline"
-                      className="mt-3 border-green-500/50 text-green-400 hover:bg-green-500/20"
+                      className="mt-3 border-white/50 text-white hover:bg-white/20"
                     >
                       Invia altra richiesta
                     </Button>
@@ -1490,13 +1490,13 @@ IMPORTANTE: Usa SOLO fonti ufficiali (TARIC, Agenzia delle Dogane, WCO). NON INV
                       placeholder="Oggetto (es. Richiesta preventivo import gadget)"
                       value={importContactForm.subject}
                       onChange={(e) => setImportContactForm({ ...importContactForm, subject: e.target.value })}
-                      className="bg-slate-900 border-slate-700 text-white"
+                      className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
                     />
                     <Textarea
                       placeholder="Descrivi la tua richiesta: che prodotto vuoi importare, quantità, tempistiche desiderate..."
                       value={importContactForm.message}
                       onChange={(e) => setImportContactForm({ ...importContactForm, message: e.target.value })}
-                      className="bg-slate-900 border-slate-700 text-white min-h-[100px]"
+                      className="bg-white/10 border-white/20 text-white placeholder:text-white/50 min-h-[100px]"
                     />
                     
                     {/* Allegati e Foto */}
