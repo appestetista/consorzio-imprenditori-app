@@ -142,17 +142,6 @@ export default function Messaggi() {
     return users.find(u => u.email === email);
   };
 
-  // Configurazione sezioni messaggi
-  const sourceConfig = {
-    marketplace: { label: 'Marketplace', icon: ShoppingBag, color: 'bg-purple-500', key: 'marketplace' },
-    video: { label: 'Video Interviste', icon: Video, color: 'bg-blue-500', key: 'video' },
-    contatta_consorzio: { label: 'Contatta Consorzio', icon: Phone, color: 'bg-green-500', key: 'contatta_consorzio' },
-    consulenze: { label: 'Consulenze', icon: Briefcase, color: 'bg-orange-500', key: 'consulenze' },
-    import_export: { label: 'Import/Export', icon: Globe, color: 'bg-teal-500', key: 'import_export' },
-    analisi_contratti: { label: 'Analisi Contratti', icon: FileCheck, color: 'bg-indigo-500', key: 'analisi_contratti' },
-    diretto: { label: 'Messaggio Diretto', icon: MessageCircle, color: 'bg-slate-500', key: 'diretto' }
-  };
-
   // Funzione per ottenere l'etichetta della sezione
   const getSourceLabel = (msg) => {
     // Prova prima con il campo source
