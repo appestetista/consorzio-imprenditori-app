@@ -424,7 +424,7 @@ Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
             <Button
               onClick={handleAnalyze}
               disabled={files.length === 0 || uploading || analyzing}
-              className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 font-semibold py-6"
+              className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 font-semibold h-12"
             >
               {uploading ? (
                 <>
