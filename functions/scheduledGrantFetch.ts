@@ -64,55 +64,46 @@ Deno.serve(async (req) => {
             const batchPromises = batch.map(async (url) => {
                 console.log(`Fetching from: ${url}`);
                 try {
-                    const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
-                    prompt: `Analizza il sito ${url} e estrai i bandi/incentivi APERTI per imprese italiane. Max 10 bandi principali.
+                    const response = await openai.chat.completions.create({
+                        model: "gpt-4o-mini",
+                        messages: [
+                            {
+                                role: "system",
+                                content: "Sei un esperto di bandi e finanziamenti per imprese italiane. Rispondi SOLO con JSON valido."
+                            },
+                            {
+                                role: "user",
+                                content: `Analizza il sito ${url} e estrai i bandi/incentivi APERTI per imprese italiane. Max 10 bandi principali.
 
-                    Per ogni bando estrai (usa null se non disponibile):
-                    - title: Titolo
-                    - description: Descrizione breve (max 200 caratteri)  
-                    - ente_erogatore: UE/Stato/Regione/Altro
-                    - livello: Europeo/Nazionale/Regionale
-                    - grant_type: Digitalizzazione/Innovazione/Ricerca e Sviluppo/Energia/Sostenibilità/Internazionalizzazione/Altro
-                    - funding_type: Contributo a fondo perduto/Finanziamento agevolato/Credito d'imposta/Misto
-                    - coverage_percentage: numero 0-100
-                    - min_amount, max_amount: importi euro
-                    - status: Aperto/In apertura/Chiuso
-                    - deadline: YYYY-MM-DD
-                    - eligible_company_sizes: ["Micro","Piccola","Media","Grande"]
-                    - eligible_regions: array regioni (vuoto se nazionale)
-                    - website_url: URL DIRETTO alla pagina ufficiale del bando (IMPORTANTE: deve essere il link specifico al bando, non generico)
+Per ogni bando estrai (usa null se non disponibile):
+- title: Titolo
+- description: Descrizione breve (max 200 caratteri)  
+- ente_erogatore: UE/Stato/Regione/Altro
+- livello: Europeo/Nazionale/Regionale
+- grant_type: Digitalizzazione/Innovazione/Ricerca e Sviluppo/Energia/Sostenibilità/Internazionalizzazione/Altro
+- funding_type: Contributo a fondo perduto/Finanziamento agevolato/Credito d'imposta/Misto
+- coverage_percentage: numero 0-100
+- min_amount, max_amount: importi euro
+- status: Aperto/In apertura/Chiuso
+- deadline: YYYY-MM-DD
+- eligible_company_sizes: ["Micro","Piccola","Media","Grande"]
+- eligible_regions: array regioni (vuoto se nazionale)
+- website_url: URL DIRETTO alla pagina ufficiale del bando
 
-                    Solo bandi REALI e ATTUALI. IMPORTANTE: includi SEMPRE il website_url con il link diretto al bando ufficiale.`,
-                    add_context_from_internet: true,
-                    response_json_schema: {
-                        type: "object",
-                        properties: {
-                            grants: {
-                                type: "array",
-                                items: {
-                                    type: "object",
-                                    properties: {
-                                        title: { type: "string" },
-                                        description: { type: "string" },
-                                        ente_erogatore: { type: "string" },
-                                        livello: { type: "string" },
-                                        grant_type: { type: "string" },
-                                        funding_type: { type: "string" },
-                                        coverage_percentage: { type: "number" },
-                                        min_amount: { type: "number" },
-                                        max_amount: { type: "number" },
-                                        status: { type: "string" },
-                                        deadline: { type: "string" },
-                                        eligible_company_sizes: { type: "array", items: { type: "string" } },
-                                        eligible_regions: { type: "array", items: { type: "string" } },
-                                        website_url: { type: "string" }
-                                    }
-                                }
+Solo bandi REALI e ATTUALI. Rispondi con: {"grants": [...]}`
                             }
-                        }
-                    }
+                        ],
+                        max_tokens: 4096,
+                        temperature: 0.3
                     });
-                    return result?.grants || [];
+
+                    const text = response.choices[0].message.content;
+                    const jsonMatch = text.match(/\{[\s\S]*\}/);
+                    if (jsonMatch) {
+                        const parsed = JSON.parse(jsonMatch[0]);
+                        return parsed?.grants || [];
+                    }
+                    return [];
                 } catch (err) {
                     console.error(`Error fetching ${url}:`, err.message);
                     return [];
