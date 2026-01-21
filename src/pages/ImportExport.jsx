@@ -161,6 +161,73 @@ export default function ImportExport() {
     }
   });
 
+  const analyzeImportFeasibility = async () => {
+    if (!importForm.descrizione_prodotto || !importForm.quantita || !importForm.tipo_richiesta) return;
+    
+    setAnalyzingImport(true);
+    try {
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `Sei un esperto di import dalla Cina con 15 anni di esperienza nel sourcing e nella produzione in Asia.
+
+Valuta la fattibilità di questo import per un'azienda italiana:
+
+TIPO RICHIESTA: ${importForm.tipo_richiesta === 'produzione_custom' ? 'Produzione su misura da disegni/specifiche' : 'Ricerca prodotto esistente già disponibile'}
+PRODOTTO: ${importForm.descrizione_prodotto}
+QUANTITÀ RICHIESTA: ${importForm.quantita}
+FREQUENZA ORDINI: ${importForm.frequenza || 'Non specificata'}
+TEMPO MASSIMO ATTESA: ${importForm.tempo_attesa || 'Non specificato'}
+BUDGET: ${importForm.budget || 'Non specificato'}
+ESPERIENZA IMPORT: ${importForm.esperienza_import || 'Non specificata'}
+REQUISITI SPECIFICI: ${importForm.requisiti || 'Nessuno specificato'}
+
+Fornisci un'analisi completa che includa:
+1. Punteggio fattibilità (1-10)
+2. Se l'import è consigliato o meno per questa azienda
+3. MOQ (Minimum Order Quantity) tipico per questo tipo di prodotto
+4. Tempi realistici (produzione + spedizione)
+5. Stima costi (prodotto, spedizione, dazi, IVA)
+6. Criticità specifiche per questo tipo di import
+7. Requisiti necessari (certificazioni, documenti, ecc.)
+8. Prossimi passi concreti
+
+IMPORTANTE: Sii REALISTICO. Considera i MOQ tipici cinesi, i tempi reali di produzione e spedizione via mare (30-45 giorni) o aerea (7-10 giorni). Non promettere tempi irrealistici.`,
+        add_context_from_internet: true,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            punteggio_fattibilita: { type: "number" },
+            consigliato: { type: "boolean" },
+            valutazione_generale: { type: "string" },
+            raccomandazione: { type: "string" },
+            moq_tipico: { type: "string" },
+            tempi_produzione: { type: "string" },
+            tempi_spedizione: { type: "string" },
+            tempo_totale: { type: "string" },
+            costi_stimati: {
+              type: "object",
+              properties: {
+                costo_prodotto: { type: "string" },
+                costo_spedizione: { type: "string" },
+                dazi_doganali: { type: "string" },
+                iva: { type: "string" },
+                totale_stimato: { type: "string" }
+              }
+            },
+            criticita: { type: "array", items: { type: "string" } },
+            requisiti_necessari: { type: "array", items: { type: "string" } },
+            prossimi_passi: { type: "array", items: { type: "string" } }
+          }
+        }
+      });
+
+      setImportResult(result);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setAnalyzingImport(false);
+    }
+  };
+
   const toggleMercato = (code) => {
     setExportForm(prev => ({
       ...prev,
