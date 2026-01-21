@@ -222,8 +222,9 @@ export default function ImportExport() {
     
     setAnalyzingImport(true);
     try {
+      const currentYear = new Date().getFullYear();
       const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Sei un esperto di import dalla Cina con 15 anni di esperienza nel sourcing e nella produzione in Asia.
+        prompt: `Sei un esperto di import dalla Cina con 15 anni di esperienza nel sourcing e nella produzione in Asia. Siamo nel ${currentYear}.
 
 Valuta la fattibilità di questo import per un'azienda italiana:
 
@@ -236,42 +237,56 @@ BUDGET: ${importForm.budget || 'Non specificato'}
 ESPERIENZA IMPORT: ${importForm.esperienza_import || 'Non specificata'}
 REQUISITI SPECIFICI: ${importForm.requisiti || 'Nessuno specificato'}
 
-Fornisci un'analisi completa che includa:
-1. Punteggio fattibilità (1-10)
-2. Se l'import è consigliato o meno per questa azienda
-3. MOQ (Minimum Order Quantity) tipico per questo tipo di prodotto
-4. Tempi realistici (produzione + spedizione)
-5. Stima costi (prodotto, spedizione, dazi, IVA)
-6. Criticità specifiche per questo tipo di import
-7. Requisiti necessari (certificazioni, documenti, ecc.)
-8. Prossimi passi concreti
+IMPORTANTE - DATI REALI E AGGIORNATI:
+- Usa SOLO dati verificati e aggiornati al ${currentYear} o al massimo ${currentYear - 1}
+- NON INVENTARE MAI dati, prezzi, percentuali o statistiche
+- Per i costi di spedizione, usa le tariffe reali attuali (container 20'/40', aereo al kg)
+- Per i dazi, usa il database TARIC aggiornato
+- Se non hai un dato certo, scrivi "Da verificare" invece di inventare
 
-IMPORTANTE: Sii REALISTICO. Considera i MOQ tipici cinesi, i tempi reali di produzione e spedizione via mare (30-45 giorni) o aerea (7-10 giorni). Non promettere tempi irrealistici.`,
+Fornisci un'analisi completa che includa:
+1. Punteggio fattibilità (1-10) con motivazione
+2. Se l'import è consigliato o meno e perché
+3. MOQ (Minimum Order Quantity) tipico per questo prodotto nel mercato cinese attuale
+4. Tempi realistici dettagliati (produzione + spedizione mare/aereo)
+5. Stima costi dettagliata con range realistici (prodotto FOB, spedizione, dazi %, IVA 22%)
+6. Criticità specifiche per questo tipo di import
+7. Requisiti necessari (certificazioni CE, documenti doganali, ecc.)
+8. Prossimi passi concreti e ordinati
+9. Vantaggi specifici di questo import
+10. Fonti dati utilizzate`,
         add_context_from_internet: true,
         response_json_schema: {
           type: "object",
           properties: {
             punteggio_fattibilita: { type: "number" },
+            motivazione_punteggio: { type: "string" },
             consigliato: { type: "boolean" },
             valutazione_generale: { type: "string" },
             raccomandazione: { type: "string" },
             moq_tipico: { type: "string" },
             tempi_produzione: { type: "string" },
-            tempi_spedizione: { type: "string" },
+            tempi_spedizione_mare: { type: "string" },
+            tempi_spedizione_aerea: { type: "string" },
             tempo_totale: { type: "string" },
             costi_stimati: {
               type: "object",
               properties: {
-                costo_prodotto: { type: "string" },
-                costo_spedizione: { type: "string" },
-                dazi_doganali: { type: "string" },
+                costo_prodotto_fob: { type: "string" },
+                costo_spedizione_mare: { type: "string" },
+                costo_spedizione_aerea: { type: "string" },
+                dazi_doganali_percentuale: { type: "string" },
                 iva: { type: "string" },
-                totale_stimato: { type: "string" }
+                costi_accessori: { type: "string" },
+                totale_stimato_min: { type: "string" },
+                totale_stimato_max: { type: "string" }
               }
             },
+            vantaggi: { type: "array", items: { type: "string" } },
             criticita: { type: "array", items: { type: "string" } },
             requisiti_necessari: { type: "array", items: { type: "string" } },
-            prossimi_passi: { type: "array", items: { type: "string" } }
+            prossimi_passi: { type: "array", items: { type: "string" } },
+            fonti_dati: { type: "array", items: { type: "string" } }
           }
         }
       });
