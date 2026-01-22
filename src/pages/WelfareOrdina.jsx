@@ -106,16 +106,15 @@ export default function WelfareOrdina() {
       [contractId]: { ...prev[contractId], sending: true }
     }));
 
-    await base44.integrations.Core.SendEmail({
-      to: 'app.consorzio.imprenditori@gmail.com',
-      subject: `CONTRATTO ${contratto.nome.toUpperCase()} - ${user.company_name || user.full_name}`,
-      body: `
-        <h2>Nuovo Contratto ${contratto.nome}</h2>
-        <p><strong>Azienda:</strong> ${user.company_name || user.full_name}</p>
-        <p><strong>Email:</strong> ${user.email}</p>
-        <p><strong>Telefono:</strong> ${user.telefono_referente || 'Non specificato'}</p>
-        <p><strong>Contratto allegato:</strong> <a href="${status.fileUrl}">${status.fileName}</a></p>
-      `
+    // Salva la richiesta nel database
+    await base44.entities.WelfareRequest.create({
+      user_email: user.email,
+      user_name: user.company_name || user.full_name,
+      user_phone: user.telefono_referente || '',
+      tipo_buono: contractId,
+      contratto_url: status.fileUrl,
+      contratto_nome: status.fileName,
+      status: 'contratto_inviato'
     });
 
     setContractStatus(prev => ({
@@ -156,7 +155,6 @@ export default function WelfareOrdina() {
   };
 
   const sendExcel = async (contractId) => {
-    const contratto = CONTRATTI.find(c => c.id === contractId);
     const status = contractStatus[contractId];
     
     setContractStatus(prev => ({
@@ -164,16 +162,20 @@ export default function WelfareOrdina() {
       [contractId]: { ...prev[contractId], excelSending: true }
     }));
 
-    await base44.integrations.Core.SendEmail({
-      to: 'app.consorzio.imprenditori@gmail.com',
-      subject: `TABELLA DIPENDENTI ${contratto.nome.toUpperCase()} - ${user.company_name || user.full_name}`,
-      body: `
-        <h2>Tabella Dipendenti per ${contratto.nome}</h2>
-        <p><strong>Azienda:</strong> ${user.company_name || user.full_name}</p>
-        <p><strong>Email:</strong> ${user.email}</p>
-        <p><strong>File Excel:</strong> <a href="${status.excelUrl}">${status.excelName}</a></p>
-      `
+    // Trova la richiesta esistente e aggiornala con l'excel
+    const requests = await base44.entities.WelfareRequest.filter({
+      user_email: user.email,
+      tipo_buono: contractId,
+      status: 'contratto_inviato'
     });
+
+    if (requests.length > 0) {
+      await base44.entities.WelfareRequest.update(requests[0].id, {
+        excel_url: status.excelUrl,
+        excel_nome: status.excelName,
+        status: 'excel_inviato'
+      });
+    }
 
     setContractStatus(prev => ({
       ...prev,
