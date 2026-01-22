@@ -12,7 +12,7 @@ const CONTRATTI = [
   {
     id: 'buoni_pasto',
     nome: 'Buoni Pasto',
-    descrizione: 'Buoni pasto digitali con esenzione fiscale fino a 8€',
+    descrizione: 'Buoni pasto digitali con esenzione fiscale fino a 10€',
     icon: CreditCard,
     bgColor: 'bg-orange-100',
     iconBg: 'bg-orange-200',
