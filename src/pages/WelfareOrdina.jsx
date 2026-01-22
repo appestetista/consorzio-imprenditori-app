@@ -68,15 +68,28 @@ export default function WelfareOrdina() {
   };
 
   const downloadExcelTemplate = (contratto) => {
-    // Crea CSV con le colonne del template
+    // Crea file XLSX con le colonne del template
     const colonne = contratto.excelColonne;
-    const csvContent = colonne.join(',') + '\n';
     
-    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    // Genera XML per formato Excel (xlsx-like via XML Spreadsheet)
+    const xmlContent = `<?xml version="1.0" encoding="UTF-8"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+ <Worksheet ss:Name="Template">
+  <Table>
+   <Row>
+    ${colonne.map(col => `<Cell><Data ss:Type="String">${col}</Data></Cell>`).join('')}
+   </Row>
+  </Table>
+ </Worksheet>
+</Workbook>`;
+    
+    const blob = new Blob([xmlContent], { type: 'application/vnd.ms-excel' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `template_${contratto.id}.csv`;
+    a.download = `template_${contratto.id}.xls`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
