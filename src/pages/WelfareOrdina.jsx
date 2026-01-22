@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Banknote, Download, Upload, FileText, CheckCircle, Loader2, Info, AlertCircle, X, CreditCard, ShoppingBag, Gift } from 'lucide-react';
+import { ArrowLeft, Banknote, Download, Upload, FileText, CheckCircle, Loader2, Info, AlertCircle, X, CreditCard, ShoppingBag, Gift, ZoomIn } from 'lucide-react';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Card, CardContent } from '@/components/ui/card';
