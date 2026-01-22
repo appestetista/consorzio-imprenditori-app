@@ -310,43 +310,44 @@ export default function WelfareOrdina() {
                         <Button
                           onClick={() => handleDownload(contratto.pdfUrl, contratto.nome)}
                           variant="outline"
-                          className="flex-1 border-slate-600 text-slate-300 hover:bg-slate-700"
+                          size="sm"
+                          className="flex-1 border-slate-600 text-slate-300 hover:bg-slate-700 text-xs px-2"
                         >
-                          <Download className="w-4 h-4 mr-2" />
-                          Scarica PDF
+                          <Download className="w-3 h-3 mr-1 flex-shrink-0" />
+                          <span className="truncate">Scarica</span>
                         </Button>
 
                         {isUploaded && !submittedContracts[contratto.id] ? (
-                          <div className="flex-1 bg-green-500/20 border border-green-500/50 rounded-lg px-3 py-2 flex items-center justify-between">
-                            <div className="flex items-center gap-2 min-w-0">
-                              <CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" />
-                              <span className="text-green-400 text-sm truncate">{isUploaded.name}</span>
+                          <div className="flex-1 bg-green-500/20 border border-green-500/50 rounded-lg px-2 py-1.5 flex items-center justify-between min-w-0">
+                            <div className="flex items-center gap-1 min-w-0 flex-1 overflow-hidden">
+                              <CheckCircle className="w-3 h-3 text-green-400 flex-shrink-0" />
+                              <span className="text-green-400 text-xs truncate">{isUploaded.name}</span>
                             </div>
-                            <button onClick={() => removeUpload(contratto.id)} className="text-red-400 hover:text-red-300 ml-2">
-                              <X className="w-4 h-4" />
+                            <button onClick={() => removeUpload(contratto.id)} className="text-red-400 hover:text-red-300 flex-shrink-0">
+                              <X className="w-3 h-3" />
                             </button>
                           </div>
                         ) : submittedContracts[contratto.id] ? (
-                          <div className="flex-1 bg-green-500/20 border border-green-500/50 rounded-lg px-3 py-2 flex items-center justify-center gap-2">
-                            <CheckCircle className="w-4 h-4 text-green-400" />
-                            <span className="text-green-400 text-sm">Inviato</span>
+                          <div className="flex-1 bg-green-500/20 border border-green-500/50 rounded-lg px-2 py-1.5 flex items-center justify-center gap-1">
+                            <CheckCircle className="w-3 h-3 text-green-400" />
+                            <span className="text-green-400 text-xs">Inviato</span>
                           </div>
                         ) : (
-                          <label className="flex-1 cursor-pointer">
-                            <div className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg transition-colors ${
+                          <label className="flex-1 cursor-pointer min-w-0">
+                            <div className={`flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg transition-colors text-xs ${
                               isUploading 
                                 ? 'bg-slate-700 text-slate-400' 
                                 : 'bg-pink-500 hover:bg-pink-600 text-white'
                             }`}>
                               {isUploading ? (
                                 <>
-                                  <Loader2 className="w-4 h-4 animate-spin" />
-                                  Caricamento...
+                                  <Loader2 className="w-3 h-3 animate-spin flex-shrink-0" />
+                                  <span className="truncate">Carico...</span>
                                 </>
                               ) : (
                                 <>
-                                  <Upload className="w-4 h-4" />
-                                  Carica Firmato
+                                  <Upload className="w-3 h-3 flex-shrink-0" />
+                                  <span className="truncate">Carica</span>
                                 </>
                               )}
                             </div>
