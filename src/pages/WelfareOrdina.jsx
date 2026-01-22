@@ -269,7 +269,7 @@ export default function WelfareOrdina() {
                         <Button
                           onClick={() => sendContract(contratto.id)}
                           disabled={status.sending}
-                          className={`w-full bg-gradient-to-r ${contratto.accentColor} hover:opacity-90 text-white font-bold shadow-md`}
+                          className={`w-full bg-gradient-to-r ${contratto.accentColor} hover:opacity-90 text-white font-bold shadow-md animate-pulse`}
                         >
                           {status.sending ? (
                             <>
