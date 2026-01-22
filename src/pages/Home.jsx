@@ -153,6 +153,25 @@ export default function Home() {
     enabled: !!effectiveUser?.email,
   });
 
+  // Conta scadenze compliance entro 7 giorni (non disabilitate)
+  const { data: complianceAlerts = 0 } = useQuery({
+    queryKey: ['compliance-alerts', effectiveUser?.email],
+    queryFn: async () => {
+      const norms = await base44.entities.ComplianceNorm.filter({ user_email: effectiveUser?.email });
+      const oggi = new Date();
+      oggi.setHours(0, 0, 0, 0);
+      
+      return norms.filter(norm => {
+        if (!norm.data_scadenza || norm.notifica_disabilitata) return false;
+        const scadenza = new Date(norm.data_scadenza);
+        scadenza.setHours(0, 0, 0, 0);
+        const giorniMancanti = Math.ceil((scadenza - oggi) / (1000 * 60 * 60 * 24));
+        return giorniMancanti >= 0 && giorniMancanti <= 7;
+      }).length;
+    },
+    enabled: !!effectiveUser?.email,
+  });
+
   const { data: newGrantsCount = 0 } = useQuery({
     queryKey: ['new-grants-count', effectiveUser?.email, userGrantView?.last_viewed_at],
     queryFn: async () => {
@@ -271,7 +290,7 @@ export default function Home() {
     { title: 'Welfare\nAziendale', icon: Heart, page: 'WelfareAziendale', notifications: 0, permission: 'welfare_aziendale', variant: 'pink' },
     { title: 'Analisi\nContratti', icon: FileSearch, page: 'AnalisiContratti', notifications: contractMessagesCount, permission: 'analisi_contratti' },
     { title: 'Import /\nExport', icon: Globe, page: 'ImportExport', notifications: 0, permission: 'import_export' },
-    { title: 'Compliance\nAziendale', icon: Shield, page: 'ComplianceAziendale', notifications: 0, permission: 'compliance', variant: 'blue' },
+    { title: 'Compliance\nAziendale', icon: Shield, page: 'ComplianceAziendale', notifications: complianceAlerts, permission: 'compliance', variant: 'blue' },
   ];
 
   return (
