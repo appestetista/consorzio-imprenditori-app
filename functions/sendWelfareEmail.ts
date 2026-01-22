@@ -9,30 +9,47 @@ Deno.serve(async (req) => {
             return Response.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const { tipo, subject, body } = await req.json();
+        const { to, subject, body } = await req.json();
 
-        // Usa il servizio email interno per inviare notifica
-        await base44.asServiceRole.integrations.Core.SendEmail({
-            to: user.email, // Invia a se stesso come conferma
-            subject: `[CONFERMA] ${subject}`,
-            body: `<p>La tua richiesta è stata inviata con successo.</p>${body}`
+        // Ottieni access token Gmail
+        const accessToken = await base44.asServiceRole.connectors.getAccessToken("gmail");
+
+        // Crea il messaggio email in formato MIME
+        const emailContent = [
+            `To: ${to}`,
+            `Subject: ${subject}`,
+            `Content-Type: text/html; charset=utf-8`,
+            '',
+            body
+        ].join('\r\n');
+
+        // Codifica in base64 URL-safe
+        const encodedEmail = btoa(unescape(encodeURIComponent(emailContent)))
+            .replace(/\+/g, '-')
+            .replace(/\//g, '_')
+            .replace(/=+$/, '');
+
+        // Invia tramite Gmail API
+        const response = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                raw: encodedEmail
+            })
         });
 
-        // Per email esterne, logghiamo i dati per elaborazione manuale
-        // In produzione si potrebbe usare un servizio email esterno (SendGrid, etc.)
-        console.log('=== NUOVA RICHIESTA WELFARE ===');
-        console.log('Destinatario: app.consorzio.imprenditori@gmail.com');
-        console.log('Oggetto:', subject);
-        console.log('Da:', user.email);
-        console.log('Contenuto:', body);
-        console.log('===============================');
+        if (!response.ok) {
+            const error = await response.text();
+            console.error('Gmail API error:', error);
+            return Response.json({ error: 'Errore invio email' }, { status: 500 });
+        }
 
-        return Response.json({ 
-            success: true, 
-            message: 'Richiesta inviata con successo' 
-        });
+        return Response.json({ success: true });
     } catch (error) {
-        console.error('Errore invio email:', error);
+        console.error('Errore:', error);
         return Response.json({ error: error.message }, { status: 500 });
     }
 });
