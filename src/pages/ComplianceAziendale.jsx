@@ -344,6 +344,8 @@ GENERA ORA L'ELENCO COMPLETO PER: ${tipoAttivita} con ${numeroDipendenti || 'num
       });
 
       if (result?.adempimenti && result.adempimenti.length > 0) {
+        const createdNormIds = [];
+
         for (const adempimento of result.adempimenti) {
           // Valida la categoria
           const validCategorie = ["Sicurezza sul lavoro", "Privacy e GDPR", "Ambientale", "Fiscale", "Igiene e Sanità", "Antincendio", "Formazione obbligatoria", "Altro"];
@@ -351,8 +353,8 @@ GENERA ORA L'ELENCO COMPLETO PER: ${tipoAttivita} con ${numeroDipendenti || 'num
           if (!validCategorie.includes(categoria)) {
             categoria = 'Altro';
           }
-          
-          await base44.entities.ComplianceNorm.create({
+
+          const created = await base44.entities.ComplianceNorm.create({
             user_email: effectiveUser?.email,
             branch_id: branchId,
             nome: adempimento.nome,
@@ -367,10 +369,81 @@ GENERA ORA L'ELENCO COMPLETO PER: ${tipoAttivita} con ${numeroDipendenti || 'num
             documenti_urls: [],
             documenti_nomi: []
           });
+          createdNormIds.push({ id: created.id, nome: adempimento.nome });
         }
-        
+
         console.log('[ComplianceAziendale] Generati', result.adempimenti.length, 'adempimenti per branch', branchId);
         queryClient.invalidateQueries({ queryKey: ['compliance-norms'] });
+
+        // Seconda fase: verifica aggiornamenti normativi con ricerca web
+        try {
+          const updatePrompt = `Verifica se ci sono aggiornamenti normativi recenti (2024-2025) per i seguenti adempimenti italiani:
+
+      ${result.adempimenti.map(a => `- ${a.nome}`).join('\n')}
+
+      Per ogni adempimento, cerca sul web se ci sono:
+      - Modifiche legislative recenti
+      - Nuove scadenze o tempistiche
+      - Aggiornamenti alle sanzioni
+      - Nuovi obblighi aggiunti
+
+      Rispondi SOLO se trovi aggiornamenti concreti e verificati. Se non ci sono modifiche, restituisci un array vuoto.`;
+
+          const updateResult = await base44.integrations.Core.InvokeLLM({
+            prompt: updatePrompt,
+            add_context_from_internet: true,
+            response_json_schema: {
+              type: "object",
+              properties: {
+                aggiornamenti: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      nome_adempimento: { type: "string" },
+                      nuova_descrizione: { type: "string" },
+                      nuova_sanzione: { type: "string" },
+                      nota_aggiornamento: { type: "string" }
+                    }
+                  }
+                }
+              }
+            }
+          });
+
+          if (updateResult?.aggiornamenti && updateResult.aggiornamenti.length > 0) {
+            console.log('[ComplianceAziendale] Trovati', updateResult.aggiornamenti.length, 'aggiornamenti normativi');
+
+            for (const aggiornamento of updateResult.aggiornamenti) {
+              const normToUpdate = createdNormIds.find(n => 
+                n.nome.toLowerCase().includes(aggiornamento.nome_adempimento.toLowerCase()) ||
+                aggiornamento.nome_adempimento.toLowerCase().includes(n.nome.toLowerCase())
+              );
+
+              if (normToUpdate) {
+                const updateData = {};
+                if (aggiornamento.nuova_descrizione) {
+                  updateData.descrizione = aggiornamento.nuova_descrizione;
+                }
+                if (aggiornamento.nuova_sanzione) {
+                  updateData.sanzione_prevista = aggiornamento.nuova_sanzione;
+                }
+                if (aggiornamento.nota_aggiornamento) {
+                  updateData.note = `⚠️ Aggiornamento normativo: ${aggiornamento.nota_aggiornamento}`;
+                }
+
+                if (Object.keys(updateData).length > 0) {
+                  await base44.entities.ComplianceNorm.update(normToUpdate.id, updateData);
+                  console.log('[ComplianceAziendale] Aggiornato adempimento:', normToUpdate.nome);
+                }
+              }
+            }
+
+            queryClient.invalidateQueries({ queryKey: ['compliance-norms'] });
+          }
+        } catch (updateError) {
+          console.log('[ComplianceAziendale] Verifica aggiornamenti non riuscita, adempimenti base già salvati');
+        }
       }
     } catch (error) {
       console.error('Errore generazione adempimenti:', error);
