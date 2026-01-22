@@ -366,17 +366,16 @@ export default function WelfareOrdina() {
                         <Button
                           onClick={() => submitSingleContract(contratto.id)}
                           disabled={submittingContract === contratto.id}
-                          className={`w-full mt-3 font-semibold h-10 bg-gradient-to-r ${contratto.color} hover:opacity-90 text-white`}
+                          className={`w-full mt-3 font-bold h-12 bg-gradient-to-r ${contratto.color} hover:opacity-90 text-white uppercase tracking-wide animate-pulse`}
                         >
                           {submittingContract === contratto.id ? (
                             <>
-                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                              Invio in corso...
+                              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                              INVIO IN CORSO...
                             </>
                           ) : (
                             <>
-                              <CheckCircle className="w-4 h-4 mr-2" />
-                              Adesione Contratto {contratto.nome}
+                              INVIA ADESIONE
                             </>
                           )}
                         </Button>
