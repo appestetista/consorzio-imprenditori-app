@@ -18,13 +18,14 @@ Deno.serve(async (req) => {
         const emailContent = [
             `To: ${to}`,
             `Subject: ${subject}`,
-            `Content-Type: text/html; charset=utf-8`,
+            'MIME-Version: 1.0',
+            'Content-Type: text/html; charset=utf-8',
             '',
             body
         ].join('\r\n');
 
         // Codifica in base64 URL-safe
-        const encodedEmail = btoa(unescape(encodeURIComponent(emailContent)))
+        const encodedMessage = btoa(unescape(encodeURIComponent(emailContent)))
             .replace(/\+/g, '-')
             .replace(/\//g, '_')
             .replace(/=+$/, '');
@@ -37,19 +38,19 @@ Deno.serve(async (req) => {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                raw: encodedEmail
+                raw: encodedMessage
             })
         });
 
         if (!response.ok) {
             const error = await response.text();
             console.error('Gmail API error:', error);
-            return Response.json({ error: 'Errore invio email' }, { status: 500 });
+            return Response.json({ error: 'Failed to send email' }, { status: 500 });
         }
 
         return Response.json({ success: true });
     } catch (error) {
-        console.error('Errore:', error);
+        console.error('Errore invio email:', error);
         return Response.json({ error: error.message }, { status: 500 });
     }
 });
