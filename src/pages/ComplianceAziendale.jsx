@@ -206,7 +206,7 @@ export default function ComplianceAziendale() {
       
       queryClient.invalidateQueries({ queryKey: ['company-branches'] });
       
-      await generateNormsForBranch(createdBranch.id, tipoAttivita, numeroDipendenti);
+      await generateNormsForBranch(createdBranch.id, tipoAttivita, numeroDipendenti, newBranch.data_attivazione);
       
       setNewBranch({ nome: '', tipo_attivita: '', codice_ateco: '', indirizzo: '', numero_dipendenti: '', data_attivazione: '' });
                   setShowBranchManager(false);
@@ -218,7 +218,7 @@ export default function ComplianceAziendale() {
     }
   };
   
-  const generateNormsForBranch = async (branchId, tipoAttivita, numeroDipendenti) => {
+  const generateNormsForBranch = async (branchId, tipoAttivita, numeroDipendenti, dataAttivazione) => {
     if (!tipoAttivita.trim()) return;
     
     try {
