@@ -278,21 +278,95 @@ NON includere adempimenti facoltativi o raccomandati.`;
     if (!tipoAttivita.trim()) return;
     
     try {
-      const prompt = `Sei un esperto di compliance aziendale italiana. 
-Genera una lista di adempimenti obbligatori per legge per un'azienda con queste caratteristiche:
+      const prompt = `SEI UN CONSULENTE LEGALE ESPERTO IN COMPLIANCE AZIENDALE ITALIANA.
+
+COMPITO: Genera l'elenco COMPLETO e ACCURATO di TUTTI gli adempimenti OBBLIGATORI PER LEGGE per questa attività.
+
+DATI AZIENDA:
 - Tipo di attività: ${tipoAttivita}
 - Numero dipendenti: ${numeroDipendenti || 'non specificato'}
 
-Per ogni adempimento obbligatorio, fornisci:
-1. nome: Nome dell'adempimento (es: "DVR - Documento Valutazione Rischi")
-2. descrizione: Breve descrizione di cosa richiede
-3. categoria: Una tra: "Sicurezza sul lavoro", "Privacy e GDPR", "Ambientale", "Fiscale", "Igiene e Sanità", "Antincendio", "Formazione obbligatoria", "Altro"
-4. frequenza_rinnovo_mesi: Ogni quanti mesi va rinnovato/aggiornato (numero)
-5. sanzione_prevista: Descrizione della sanzione in caso di mancato rispetto
-6. priorita: "alta", "media" o "bassa"
+ISTRUZIONI CRITICHE - LEGGI ATTENTAMENTE:
 
-Includi SOLO adempimenti realmente obbligatori per legge italiana per questo tipo di attività.
-NON includere adempimenti facoltativi o raccomandati.`;
+1. VERIFICA OGNI NORMATIVA: Per ogni adempimento, verifica mentalmente:
+   - Quale legge/decreto lo impone (D.Lgs. 81/08, Reg. CE 852/2004, GDPR, ecc.)
+   - Se si applica REALMENTE a questo tipo di attività
+   - Se il numero di dipendenti influisce sull'obbligo
+
+2. CATEGORIE DI ADEMPIMENTI DA VERIFICARE OBBLIGATORIAMENTE:
+
+   A) SICUREZZA SUL LAVORO (D.Lgs. 81/2008):
+      - DVR (Documento Valutazione Rischi) - SEMPRE obbligatorio con dipendenti
+      - DUVRI (se ci sono interferenze con altre aziende)
+      - Nomina RSPP (Responsabile Servizio Prevenzione Protezione)
+      - Nomina RLS (Rappresentante Lavoratori Sicurezza) - se >15 dipendenti eletto, altrimenti territoriale
+      - Nomina Medico Competente (se rischi specifici)
+      - Nomina Addetti Antincendio
+      - Nomina Addetti Primo Soccorso
+      - Cassetta Primo Soccorso
+      - Sorveglianza Sanitaria (se prevista)
+
+   B) ANTINCENDIO (DM 10/03/1998, DM 02/09/2021):
+      - CPI (Certificato Prevenzione Incendi) - verificare se l'attività rientra nell'Allegato I DPR 151/2011
+      - SCIA Antincendio
+      - Piano di Emergenza ed Evacuazione - OBBLIGATORIO se >10 lavoratori o attività soggette a CPI
+      - Estintori e loro manutenzione
+      - Vie di esodo e segnaletica
+      - Illuminazione di emergenza
+
+   C) FORMAZIONE OBBLIGATORIA (Accordo Stato-Regioni):
+      - Formazione generale lavoratori (4 ore)
+      - Formazione specifica lavoratori (4-8-12 ore in base al rischio)
+      - Formazione Preposti
+      - Formazione Dirigenti
+      - Formazione Addetti Antincendio
+      - Formazione Addetti Primo Soccorso
+      - Formazione HACCP (per alimentaristi)
+      - Aggiornamenti periodici
+
+   D) IGIENE E SANITÀ (per attività alimentari - Reg. CE 852/2004, 853/2004):
+      - SCIA Sanitaria / Notifica ASL
+      - Piano HACCP (Autocontrollo)
+      - Attestato Alimentarista per tutti gli operatori
+      - Registrazione/Riconoscimento stabilimento
+      - Tracciabilità alimentare
+      - Gestione allergeni
+
+   E) PRIVACY E GDPR (Reg. UE 679/2016):
+      - Registro dei Trattamenti - SEMPRE obbligatorio per aziende con dipendenti
+      - Informativa Privacy clienti
+      - Informativa Privacy dipendenti
+      - Nomina Responsabili Trattamento
+      - DPO (se trattamento dati su larga scala)
+      - Videosorveglianza (se presente): informativa + autorizzazione ITL
+
+   F) AMBIENTALE (D.Lgs. 152/2006):
+      - Autorizzazione scarichi
+      - Gestione rifiuti (registro carico/scarico, MUD)
+      - Emissioni in atmosfera (se cucina professionale)
+
+   G) FISCALE E AMMINISTRATIVO:
+      - SCIA Commerciale
+      - Licenze specifiche (somministrazione, vendita, ecc.)
+      - Registro corrispettivi / Registratore telematico
+      - Libro Unico del Lavoro
+
+3. OUTPUT RICHIESTO per ogni adempimento:
+   - nome: Nome ufficiale dell'adempimento
+   - descrizione: Cosa richiede concretamente e riferimento normativo
+   - categoria: Una tra le categorie indicate
+   - frequenza_rinnovo_mesi: Frequenza aggiornamento (es: DVR quando cambiano condizioni, formazione ogni 5 anni = 60 mesi)
+   - sanzione_prevista: Sanzione REALE prevista dalla normativa (con importi se possibile)
+   - priorita: "alta" se sanzione penale o chiusura attività, "media" se sanzione amministrativa significativa, "bassa" altri casi
+   - riferimento_normativo: Legge/Decreto che lo impone
+
+4. REGOLE FONDAMENTALI:
+   - NON INVENTARE: Se non sei sicuro che un adempimento sia obbligatorio, NON includerlo
+   - NON OMETTERE: Se un adempimento è sicuramente obbligatorio, DEVE essere incluso
+   - ESSERE SPECIFICI: Adatta gli adempimenti al tipo specifico di attività
+   - Per un RISTORANTE: Piano Emergenza Evacuazione è OBBLIGATORIO (>10 persone presenti inclusi clienti)
+
+GENERA ORA L'ELENCO COMPLETO PER: ${tipoAttivita} con ${numeroDipendenti || 'numero non specificato di'} dipendenti.`;
 
       const result = await base44.integrations.Core.InvokeLLM({
         prompt,
