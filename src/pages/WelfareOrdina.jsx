@@ -499,6 +499,17 @@ export default function WelfareOrdina() {
       </main>
 
       <BottomNav currentPage="WelfareAziendale" unreadMessages={messages.length} />
+
+      {/* Dialog zoom immagine Excel */}
+      <Dialog open={showExcelZoom} onOpenChange={setShowExcelZoom}>
+        <DialogContent className="max-w-4xl bg-slate-900 border-slate-700 p-2">
+          <img 
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/342cf25ac_buonispesa-omaggi.png"
+            alt="Esempio tabella Excel"
+            className="w-full rounded-lg"
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
