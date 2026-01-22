@@ -957,6 +957,12 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
         </div>
         )}
       </main>
+    </>
+  );
+}
+
+// Placeholder per chiusura corretta
+const _placeholder = null;
 
       {/* Dialog Gestione Rami Aziendali */}
       <Dialog open={showBranchManager} onOpenChange={setShowBranchManager}>
