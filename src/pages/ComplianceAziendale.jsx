@@ -95,7 +95,8 @@ export default function ComplianceAziendale() {
       oggi.setHours(0, 0, 0, 0);
       
       for (const norm of rawNorms) {
-        if (norm.data_scadenza && norm.stato !== 'non_conforme') {
+        // Aggiorna lo stato a non_conforme SOLO se ci sono documenti caricati e la scadenza è passata
+        if (norm.data_scadenza && norm.stato !== 'non_conforme' && norm.documenti_urls?.length > 0) {
           const scadenza = new Date(norm.data_scadenza);
           scadenza.setHours(0, 0, 0, 0);
           
