@@ -149,6 +149,7 @@ export default function WelfareOrdina() {
 
   const [submittedContracts, setSubmittedContracts] = useState({});
   const [submittingContract, setSubmittingContract] = useState(null);
+  const [showExcelZoom, setShowExcelZoom] = useState(false);
 
   const submitSingleContract = async (contractId) => {
     const contratto = CONTRATTI.find(c => c.id === contractId);
