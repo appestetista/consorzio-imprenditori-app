@@ -356,7 +356,7 @@ GENERA ORA L'ELENCO COMPLETO PER: ${tipoAttivita} con ${numeroDipendenti || 'num
             user_email: effectiveUser?.email,
             branch_id: branchId,
             nome: adempimento.nome,
-            descrizione: `${adempimento.descrizione}${adempimento.riferimento_normativo ? '\n\nRiferimento: ' + adempimento.riferimento_normativo : ''}`,
+            descrizione: adempimento.descrizione,
             categoria: categoria,
             frequenza_rinnovo_mesi: adempimento.frequenza_rinnovo_mesi || 12,
             sanzione_prevista: adempimento.sanzione_prevista,
