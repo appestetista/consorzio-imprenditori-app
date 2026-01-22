@@ -90,7 +90,6 @@ export default function ComplianceAziendale() {
     queryFn: async () => {
       const rawNorms = await base44.entities.ComplianceNorm.filter({ user_email: effectiveUser?.email });
       
-      // Ricalcola stato per documenti scaduti
       const oggi = new Date();
       oggi.setHours(0, 0, 0, 0);
       
@@ -100,7 +99,6 @@ export default function ComplianceAziendale() {
           scadenza.setHours(0, 0, 0, 0);
           
           if (scadenza < oggi) {
-            // Aggiorna in background a non_conforme
             await base44.entities.ComplianceNorm.update(norm.id, { stato: 'non_conforme' });
             norm.stato = 'non_conforme';
           }
@@ -142,7 +140,6 @@ export default function ComplianceAziendale() {
 
   const deleteBranchMutation = useMutation({
     mutationFn: async (branchId) => {
-      // Elimina anche gli adempimenti associati
       const branchNorms = norms.filter(n => n.branch_id === branchId);
       for (const norm of branchNorms) {
         await base44.entities.ComplianceNorm.delete(norm.id);
@@ -154,8 +151,6 @@ export default function ComplianceAziendale() {
       queryClient.invalidateQueries({ queryKey: ['compliance-norms'] });
     }
   });
-
-  
 
   const updateNormMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.ComplianceNorm.update(id, data),
@@ -172,7 +167,6 @@ export default function ComplianceAziendale() {
     }
   });
 
-  // Genera automaticamente le normative tramite AI per un ramo
   const handleAutoGenerate = async (branchId) => {
     if (!activityType.trim()) return;
     
@@ -248,14 +242,12 @@ NON includere adempimenti facoltativi o raccomandati.`;
     }
   };
 
-  // Crea un nuovo ramo e genera adempimenti
   const handleCreateBranch = async () => {
     if (!newBranch.nome.trim() || !newBranch.tipo_attivita.trim()) return;
     
     setGeneratingNorms(true);
     
     try {
-      // Salva i valori prima di creare il branch
       const tipoAttivita = newBranch.tipo_attivita;
       const numeroDipendenti = newBranch.numero_dipendenti || '';
       
@@ -270,7 +262,6 @@ NON includere adempimenti facoltativi o raccomandati.`;
       
       queryClient.invalidateQueries({ queryKey: ['company-branches'] });
       
-      // Genera automaticamente gli adempimenti per questo ramo con i valori salvati
       await generateNormsForBranch(createdBranch.id, tipoAttivita, numeroDipendenti);
       
       setNewBranch({ nome: '', tipo_attivita: '', codice_ateco: '', indirizzo: '', numero_dipendenti: '' });
@@ -283,7 +274,6 @@ NON includere adempimenti facoltativi o raccomandati.`;
     }
   };
   
-  // Funzione separata per generare adempimenti per un ramo specifico
   const generateNormsForBranch = async (branchId, tipoAttivita, numeroDipendenti) => {
     if (!tipoAttivita.trim()) return;
     
@@ -361,17 +351,14 @@ NON includere adempimenti facoltativi o raccomandati.`;
     const norm = norms.find(n => n.id === normId);
     if (!norm) return;
 
-    // Verifica se siamo in modalità admin (bypass controlli)
     const isAdminMode = user?.role === 'admin' && !impersonation.active;
 
     setUploadingDoc(true);
     setAnalyzingDoc(normId);
     
     try {
-      // 1. Upload del file
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
       
-      // 2. Analisi AI del documento con verifica pertinenza E coerenza azienda
       const aziendaInfo = `
 DATI AZIENDA REGISTRATA:
 - Ragione sociale: ${effectiveUser?.company_name || 'Non specificata'}
@@ -426,23 +413,19 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
         }
       });
 
-      // CONTROLLO 1: Pertinenza
       if (!analysisResult.documento_pertinente) {
         alert(`⚠️ Documento non valido!\n\n${analysisResult.motivo_non_pertinente || 'Il documento caricato non corrisponde all\'adempimento richiesto. Assicurati di caricare il documento corretto per: ' + norm.nome}`);
         return;
       }
 
-      // CONTROLLO 2: Coerenza azienda (bypass per admin)
       if (!analysisResult.documento_appartiene_azienda && !isAdminMode) {
         alert(`⚠️ Documento di un'altra azienda!\n\n${analysisResult.motivo_azienda_diversa || 'I dati nel documento non corrispondono alla tua azienda.'}\n\n${analysisResult.dati_azienda_trovati ? 'Dati trovati nel documento: ' + analysisResult.dati_azienda_trovati : ''}\n\nControlla di aver caricato il documento corretto.`);
         return;
       }
 
-      // 3. Documento valido - salva e aggiorna stato
       const newUrls = [...(norm.documenti_urls || []), file_url];
       const newNames = [...(norm.documenti_nomi || []), file.name];
       
-      // Verifica se il documento è scaduto
       let statoFinale = analysisResult.stato_conformita || 'conforme';
       if (analysisResult.data_scadenza) {
         const oggi = new Date();
@@ -450,7 +433,6 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
         const scadenza = new Date(analysisResult.data_scadenza);
         scadenza.setHours(0, 0, 0, 0);
         
-        // Se scaduto, forza stato a non_conforme
         if (scadenza < oggi) {
           statoFinale = 'non_conforme';
         }
@@ -464,14 +446,12 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
         data_ultima_verifica: new Date().toISOString().split('T')[0]
       };
 
-      // Se trovata una data di scadenza, aggiornala
       if (analysisResult.data_scadenza) {
         updateData.data_scadenza = analysisResult.data_scadenza;
       }
 
       await updateNormMutation.mutateAsync({ id: normId, data: updateData });
 
-      // Mostra risultato analisi
       if (statoFinale === 'conforme') {
         alert(`✅ Documento analizzato!\n\nStato: CONFORME\n${analysisResult.data_scadenza ? 'Scadenza: ' + analysisResult.data_scadenza : ''}\n\n${analysisResult.note_analisi || ''}`);
       } else if (statoFinale === 'non_conforme') {
@@ -497,12 +477,19 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
     updateNormMutation.mutate({ id: normId, data: { documenti_urls: newUrls, documenti_nomi: newNames }});
   };
 
-  // Calcola statistiche per il grafico a torta
+  // Filtra per ramo selezionato
+  const filteredNorms = norms.filter(n => {
+    const matchBranch = selectedBranch === 'all' || n.branch_id === selectedBranch;
+    const matchCategoria = selectedCategoria === 'all' || n.categoria === selectedCategoria;
+    return matchBranch && matchCategoria;
+  });
+
+  // Calcola statistiche basate sugli adempimenti filtrati
   const stats = {
-    conforme: norms.filter(n => n.stato === 'conforme').length,
-    da_migliorare: norms.filter(n => n.stato === 'da_migliorare').length,
-    non_conforme: norms.filter(n => n.stato === 'non_conforme').length,
-    non_verificato: norms.filter(n => n.stato === 'non_verificato').length,
+    conforme: filteredNorms.filter(n => n.stato === 'conforme').length,
+    da_migliorare: filteredNorms.filter(n => n.stato === 'da_migliorare').length,
+    non_conforme: filteredNorms.filter(n => n.stato === 'non_conforme').length,
+    non_verificato: filteredNorms.filter(n => n.stato === 'non_verificato').length,
   };
 
   const pieData = [
@@ -512,7 +499,6 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
     { name: 'Non verificato', value: stats.non_verificato, color: STATO_COLORS.non_verificato },
   ].filter(d => d.value > 0);
 
-  // Calcola posizione nella barra temporale
   const getTimelinePosition = (norm) => {
     if (!norm.data_scadenza) return null;
     
@@ -523,12 +509,10 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
     
     const giorniMancanti = Math.ceil((scadenza - oggi) / (1000 * 60 * 60 * 24));
     
-    // Se scaduto (giorniMancanti < 0), sempre rosso e 100%
     if (giorniMancanti < 0) {
       return { percentuale: 100, color: 'red', giorniMancanti, scadenza };
     }
     
-    // Calcola percentuale basata sul periodo di rinnovo
     const frequenzaGiorni = (norm.frequenza_rinnovo_mesi || 12) * 30;
     const inizioPeriodo = new Date(scadenza);
     inizioPeriodo.setDate(inizioPeriodo.getDate() - frequenzaGiorni);
@@ -537,21 +521,12 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
     const trascorso = oggi - inizioPeriodo;
     const percentuale = Math.min(Math.max((trascorso / totale) * 100, 0), 100);
     
-    // Determina colore: verde (0-60%), arancione (60-85%), rosso (85-100% o scaduto)
     let color = 'green';
     if (percentuale > 85) color = 'red';
     else if (percentuale > 60) color = 'orange';
     
     return { percentuale, color, giorniMancanti, scadenza };
   };
-
-  // Filtra per ramo e categoria
-  // Gli adempimenti senza branch_id (vecchi) sono sempre visibili quando "Tutti i rami"
-  const filteredNorms = norms.filter(n => {
-    const matchBranch = selectedBranch === 'all' || n.branch_id === selectedBranch || (!n.branch_id && selectedBranch === 'all');
-    const matchCategoria = selectedCategoria === 'all' || n.categoria === selectedCategoria;
-    return matchBranch && matchCategoria;
-  });
 
   if (loading || !effectiveUser) {
     return (
@@ -609,10 +584,9 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
             <Label className="text-slate-400 text-xs mb-2 block">Filtra per Ramo Aziendale</Label>
             <Select value={selectedBranch} onValueChange={setSelectedBranch}>
               <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
-                <SelectValue placeholder="Tutti i rami" />
+                <SelectValue placeholder="Seleziona un ramo" />
               </SelectTrigger>
               <SelectContent className="bg-slate-800 border-slate-700">
-                <SelectItem value="all" className="text-white">Tutti i rami</SelectItem>
                 {branches.map(branch => (
                   <SelectItem key={branch.id} value={branch.id} className="text-white">
                     {branch.nome}
@@ -648,7 +622,7 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
                   <div className="text-center py-8">
                     <Shield className="w-16 h-16 text-slate-600 mx-auto mb-3" />
                     <p className="text-slate-400">Nessuna normativa inserita</p>
-                    <p className="text-slate-500 text-sm">Usa "Genera Automaticamente" o aggiungi manualmente</p>
+                    <p className="text-slate-500 text-sm">Aggiungi un ramo aziendale per generare gli adempimenti</p>
                   </div>
                 ) : (
                   <>
@@ -672,7 +646,6 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
                       </ResponsiveContainer>
                     </div>
                     
-                    {/* Legenda */}
                     <div className="grid grid-cols-2 gap-2 mt-4">
                       <div className="flex items-center gap-2">
                         <div className="w-3 h-3 rounded-full bg-green-500"></div>
@@ -726,243 +699,220 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
                 </div>
               </div>
             )}
-          </>
-        )}
 
-        {/* Lista normative - solo se selezionato un ramo o nessun ramo configurato */}
-        {(branches.length === 0 || selectedBranch !== 'all') && (
-        <div className="space-y-3">
-          {filteredNorms.map((norm) => {
-            const timeline = getTimelinePosition(norm);
-            const isExpanded = expandedNorm === norm.id;
-            
-            return (
-              <Card key={norm.id} className="bg-slate-800 border-slate-700 overflow-hidden">
-                <CardContent className="p-0">
-                  {/* Header norma */}
-                  <button
-                    onClick={() => setExpandedNorm(isExpanded ? null : norm.id)}
-                    className="w-full p-4 flex items-start gap-3 text-left"
-                  >
-                    {/* Pallino stato */}
-                    <div 
-                      className="w-4 h-4 rounded-full flex-shrink-0 mt-1"
-                      style={{ backgroundColor: STATO_COLORS[norm.stato] }}
-                    />
-                    
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-2">
-                        <h4 className="text-white font-medium truncate">{norm.nome}</h4>
-                        {isExpanded ? (
-                          <ChevronUp className="w-5 h-5 text-slate-400 flex-shrink-0" />
-                        ) : (
-                          <ChevronDown className="w-5 h-5 text-slate-400 flex-shrink-0" />
-                        )}
-                      </div>
-                      <p className="text-slate-400 text-sm">
-                                {norm.categoria}
-                                {norm.branch_id && branches.find(b => b.id === norm.branch_id) && (
-                                  <span className="text-slate-500"> • {branches.find(b => b.id === norm.branch_id)?.nome}</span>
-                                )}
-                              </p>
-                      <p className="text-xs mt-1" style={{ color: STATO_COLORS[norm.stato] }}>
-                        {STATO_LABELS[norm.stato]}
-                      </p>
-                    </div>
-                  </button>
-
-                  {/* Barra temporale scadenza */}
-                  {timeline && (
-                    <div className="px-4 pb-3">
-                      <div className="flex items-center justify-between text-xs text-slate-500 mb-1">
-                        <span>Inizio periodo</span>
-                        <span className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          Scadenza: {new Date(timeline.scadenza).toLocaleDateString('it-IT')}
-                        </span>
-                      </div>
-                      <div className="relative h-3 bg-slate-700 rounded-full overflow-hidden">
-                        {/* Barra colorata gradiente */}
+            {/* Lista normative */}
+            <div className="space-y-3">
+              {filteredNorms.map((norm) => {
+                const timeline = getTimelinePosition(norm);
+                const isExpanded = expandedNorm === norm.id;
+                
+                return (
+                  <Card key={norm.id} className="bg-slate-800 border-slate-700 overflow-hidden">
+                    <CardContent className="p-0">
+                      <button
+                        onClick={() => setExpandedNorm(isExpanded ? null : norm.id)}
+                        className="w-full p-4 flex items-start gap-3 text-left"
+                      >
                         <div 
-                          className="absolute inset-y-0 left-0 rounded-full"
-                          style={{
-                            width: `${timeline.percentuale}%`,
-                            background: timeline.color === 'green' 
-                              ? 'linear-gradient(90deg, #22c55e, #22c55e)'
-                              : timeline.color === 'orange'
-                                ? 'linear-gradient(90deg, #22c55e, #f97316)'
-                                : 'linear-gradient(90deg, #22c55e, #f97316, #ef4444)'
-                          }}
+                          className="w-4 h-4 rounded-full flex-shrink-0 mt-1"
+                          style={{ backgroundColor: STATO_COLORS[norm.stato] }}
                         />
-                        {/* Cursore posizione attuale */}
-                        <div 
-                          className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full border-2 border-slate-900 shadow-lg"
-                          style={{ left: `calc(${timeline.percentuale}% - 8px)` }}
-                        />
-                      </div>
-                      <p className={`text-xs mt-1 text-right ${
-                        timeline.color === 'red' ? 'text-red-400' :
-                        timeline.color === 'orange' ? 'text-orange-400' : 'text-green-400'
-                      }`}>
-                        {timeline.giorniMancanti > 0 
-                          ? `${timeline.giorniMancanti} giorni alla scadenza`
-                          : timeline.giorniMancanti === 0 
-                            ? 'Scade oggi!'
-                            : `Scaduto da ${Math.abs(timeline.giorniMancanti)} giorni`
-                        }
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Dettagli espansi */}
-                  {isExpanded && (
-                    <div className="px-4 pb-4 border-t border-slate-700 pt-4 space-y-4">
-                      {norm.descrizione && (
-                        <div>
-                          <p className="text-slate-400 text-xs mb-1">Descrizione</p>
-                          <p className="text-white text-sm">{norm.descrizione}</p>
-                        </div>
-                      )}
-
-                      {norm.sanzione_prevista && (
-                        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3">
-                          <div className="flex items-center gap-2 mb-1">
-                            <AlertTriangle className="w-4 h-4 text-red-400" />
-                            <p className="text-red-400 text-xs font-medium">Sanzione prevista</p>
-                          </div>
-                          <p className="text-red-300 text-sm">{norm.sanzione_prevista}</p>
-                        </div>
-                      )}
-
-                      {/* Documenti */}
-                      <div>
-                        <div className="flex items-center justify-between mb-2">
-                          <Label className="text-slate-400 text-xs">Documenti allegati</Label>
-                          <label className="cursor-pointer">
-                            <input
-                              type="file"
-                              className="hidden"
-                              onChange={(e) => handleDocumentUpload(e, norm.id)}
-                              disabled={uploadingDoc || analyzingDoc === norm.id}
-                            />
-                            <span className="text-lime-400 text-xs flex items-center gap-1 hover:underline">
-                              <Upload className="w-3 h-3" />
-                              {analyzingDoc === norm.id ? 'Analisi AI in corso...' : uploadingDoc ? 'Caricamento...' : 'Carica documento'}
-                            </span>
-                          </label>
-                        </div>
-
-                        {analyzingDoc === norm.id && (
-                          <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 mb-2">
-                            <div className="flex items-center gap-2">
-                              <Loader2 className="w-4 h-4 text-blue-400 animate-spin" />
-                              <p className="text-blue-300 text-sm">L'AI sta analizzando il documento...</p>
-                            </div>
-                          </div>
-                        )}
                         
-                        {norm.documenti_urls?.length > 0 ? (
-                          <div className="space-y-2">
-                            {norm.documenti_urls.map((url, idx) => (
-                              <div key={idx} className="flex items-center justify-between bg-slate-900 rounded-lg p-2">
-                                <a 
-                                  href={url} 
-                                  target="_blank" 
-                                  rel="noopener noreferrer"
-                                  className="text-lime-400 text-sm flex items-center gap-2 truncate hover:underline"
-                                >
-                                  <FileText className="w-4 h-4 flex-shrink-0" />
-                                  <span className="truncate">{norm.documenti_nomi?.[idx] || `Documento ${idx + 1}`}</span>
-                                </a>
-                                <button
-                                  onClick={() => removeDocument(idx, norm.id)}
-                                  className="text-red-400 hover:text-red-300 p-1"
-                                >
-                                  <X className="w-4 h-4" />
-                                </button>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <p className="text-slate-500 text-sm">Nessun documento caricato</p>
-                        )}
-                      </div>
-
-                      {/* Barra stato documento dopo analisi */}
-                      {norm.documenti_urls?.length > 0 && norm.stato !== 'non_verificato' && (
-                        <div className="bg-slate-900 rounded-lg p-3">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className={`text-sm font-medium ${
-                              norm.stato === 'conforme' ? 'text-green-400' :
-                              norm.stato === 'da_migliorare' ? 'text-orange-400' : 'text-red-400'
-                            }`}>
-                              {norm.stato === 'conforme' ? '✅ Documento a norma' :
-                               norm.stato === 'da_migliorare' ? '🟠 Da migliorare' : '🔴 Non conforme'}
-                            </span>
-                            {norm.data_ultima_verifica && (
-                              <span className="text-slate-500 text-xs">
-                                Verificato: {new Date(norm.data_ultima_verifica).toLocaleDateString('it-IT')}
-                              </span>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-2">
+                            <h4 className="text-white font-medium truncate">{norm.nome}</h4>
+                            {isExpanded ? (
+                              <ChevronUp className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                            ) : (
+                              <ChevronDown className="w-5 h-5 text-slate-400 flex-shrink-0" />
                             )}
                           </div>
-                          
-                          {norm.note && (
-                            <p className="text-slate-400 text-xs mb-2">{norm.note}</p>
+                          <p className="text-slate-400 text-sm">{norm.categoria}</p>
+                          <p className="text-xs mt-1" style={{ color: STATO_COLORS[norm.stato] }}>
+                            {STATO_LABELS[norm.stato]}
+                          </p>
+                        </div>
+                      </button>
+
+                      {timeline && (
+                        <div className="px-4 pb-3">
+                          <div className="flex items-center justify-between text-xs text-slate-500 mb-1">
+                            <span>Inizio periodo</span>
+                            <span className="flex items-center gap-1">
+                              <Calendar className="w-3 h-3" />
+                              Scadenza: {new Date(timeline.scadenza).toLocaleDateString('it-IT')}
+                            </span>
+                          </div>
+                          <div className="relative h-3 bg-slate-700 rounded-full overflow-hidden">
+                            <div 
+                              className="absolute inset-y-0 left-0 rounded-full"
+                              style={{
+                                width: `${timeline.percentuale}%`,
+                                background: timeline.color === 'green' 
+                                  ? 'linear-gradient(90deg, #22c55e, #22c55e)'
+                                  : timeline.color === 'orange'
+                                    ? 'linear-gradient(90deg, #22c55e, #f97316)'
+                                    : 'linear-gradient(90deg, #22c55e, #f97316, #ef4444)'
+                              }}
+                            />
+                            <div 
+                              className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full border-2 border-slate-900 shadow-lg"
+                              style={{ left: `calc(${timeline.percentuale}% - 8px)` }}
+                            />
+                          </div>
+                          <p className={`text-xs mt-1 text-right ${
+                            timeline.color === 'red' ? 'text-red-400' :
+                            timeline.color === 'orange' ? 'text-orange-400' : 'text-green-400'
+                          }`}>
+                            {timeline.giorniMancanti > 0 
+                              ? `${timeline.giorniMancanti} giorni alla scadenza`
+                              : timeline.giorniMancanti === 0 
+                                ? 'Scade oggi!'
+                                : `Scaduto da ${Math.abs(timeline.giorniMancanti)} giorni`
+                            }
+                          </p>
+                        </div>
+                      )}
+
+                      {isExpanded && (
+                        <div className="px-4 pb-4 border-t border-slate-700 pt-4 space-y-4">
+                          {norm.descrizione && (
+                            <div>
+                              <p className="text-slate-400 text-xs mb-1">Descrizione</p>
+                              <p className="text-white text-sm">{norm.descrizione}</p>
+                            </div>
+                          )}
+
+                          {norm.sanzione_prevista && (
+                            <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3">
+                              <div className="flex items-center gap-2 mb-1">
+                                <AlertTriangle className="w-4 h-4 text-red-400" />
+                                <p className="text-red-400 text-xs font-medium">Sanzione prevista</p>
+                              </div>
+                              <p className="text-red-300 text-sm">{norm.sanzione_prevista}</p>
+                            </div>
+                          )}
+
+                          <div>
+                            <div className="flex items-center justify-between mb-2">
+                              <Label className="text-slate-400 text-xs">Documenti allegati</Label>
+                              <label className="cursor-pointer">
+                                <input
+                                  type="file"
+                                  className="hidden"
+                                  onChange={(e) => handleDocumentUpload(e, norm.id)}
+                                  disabled={uploadingDoc || analyzingDoc === norm.id}
+                                />
+                                <span className="text-lime-400 text-xs flex items-center gap-1 hover:underline">
+                                  <Upload className="w-3 h-3" />
+                                  {analyzingDoc === norm.id ? 'Analisi AI in corso...' : uploadingDoc ? 'Caricamento...' : 'Carica documento'}
+                                </span>
+                              </label>
+                            </div>
+
+                            {analyzingDoc === norm.id && (
+                              <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 mb-2">
+                                <div className="flex items-center gap-2">
+                                  <Loader2 className="w-4 h-4 text-blue-400 animate-spin" />
+                                  <p className="text-blue-300 text-sm">L'AI sta analizzando il documento...</p>
+                                </div>
+                              </div>
+                            )}
+                            
+                            {norm.documenti_urls?.length > 0 ? (
+                              <div className="space-y-2">
+                                {norm.documenti_urls.map((url, idx) => (
+                                  <div key={idx} className="flex items-center justify-between bg-slate-900 rounded-lg p-2">
+                                    <a 
+                                      href={url} 
+                                      target="_blank" 
+                                      rel="noopener noreferrer"
+                                      className="text-lime-400 text-sm flex items-center gap-2 truncate hover:underline"
+                                    >
+                                      <FileText className="w-4 h-4 flex-shrink-0" />
+                                      <span className="truncate">{norm.documenti_nomi?.[idx] || `Documento ${idx + 1}`}</span>
+                                    </a>
+                                    <button
+                                      onClick={() => removeDocument(idx, norm.id)}
+                                      className="text-red-400 hover:text-red-300 p-1"
+                                    >
+                                      <X className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className="text-slate-500 text-sm">Nessun documento caricato</p>
+                            )}
+                          </div>
+
+                          {norm.documenti_urls?.length > 0 && norm.stato !== 'non_verificato' && (
+                            <div className="bg-slate-900 rounded-lg p-3">
+                              <div className="flex items-center justify-between mb-2">
+                                <span className={`text-sm font-medium ${
+                                  norm.stato === 'conforme' ? 'text-green-400' :
+                                  norm.stato === 'da_migliorare' ? 'text-orange-400' : 'text-red-400'
+                                }`}>
+                                  {norm.stato === 'conforme' ? '✅ Documento a norma' :
+                                   norm.stato === 'da_migliorare' ? '🟠 Da migliorare' : '🔴 Non conforme'}
+                                </span>
+                                {norm.data_ultima_verifica && (
+                                  <span className="text-slate-500 text-xs">
+                                    Verificato: {new Date(norm.data_ultima_verifica).toLocaleDateString('it-IT')}
+                                  </span>
+                                )}
+                              </div>
+                              
+                              {norm.note && (
+                                <p className="text-slate-400 text-xs mb-2">{norm.note}</p>
+                              )}
+                            </div>
+                          )}
+
+                          {norm.data_scadenza && timeline && timeline.giorniMancanti <= 7 && timeline.giorniMancanti >= 0 && !norm.notifica_disabilitata && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => updateNormMutation.mutate({ id: norm.id, data: { notifica_disabilitata: true }})}
+                              className="w-full border-orange-500/50 text-orange-400 hover:bg-orange-500/20"
+                            >
+                              <CheckCircle className="w-4 h-4 mr-2" />
+                              Ho preso visione - Disabilita notifica
+                            </Button>
+                          )}
+
+                          {!norm.is_locked && (
+                            <div className="flex gap-2 pt-2">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  if (confirm('Eliminare questa normativa?')) {
+                                    deleteNormMutation.mutate(norm.id);
+                                  }
+                                }}
+                                className="border-red-500/50 text-red-400 hover:bg-red-500/20"
+                              >
+                                <Trash2 className="w-4 h-4 mr-1" />
+                                Elimina
+                              </Button>
+                            </div>
+                          )}
+                          {norm.is_locked && (
+                            <p className="text-slate-500 text-xs italic pt-2">
+                              🔒 Adempimento obbligatorio per legge - non eliminabile
+                            </p>
                           )}
                         </div>
                       )}
-
-                      {/* Pulsante disabilita notifica */}
-                      {norm.data_scadenza && timeline && timeline.giorniMancanti <= 7 && timeline.giorniMancanti >= 0 && !norm.notifica_disabilitata && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => updateNormMutation.mutate({ id: norm.id, data: { notifica_disabilitata: true }})}
-                          className="w-full border-orange-500/50 text-orange-400 hover:bg-orange-500/20"
-                        >
-                          <CheckCircle className="w-4 h-4 mr-2" />
-                          Ho preso visione - Disabilita notifica
-                        </Button>
-                      )}
-
-                      {/* Azioni - solo se non è locked */}
-                      {!norm.is_locked && (
-                        <div className="flex gap-2 pt-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              if (confirm('Eliminare questa normativa?')) {
-                                deleteNormMutation.mutate(norm.id);
-                              }
-                            }}
-                            className="border-red-500/50 text-red-400 hover:bg-red-500/20"
-                          >
-                            <Trash2 className="w-4 h-4 mr-1" />
-                            Elimina
-                          </Button>
-                        </div>
-                      )}
-                      {norm.is_locked && (
-                        <p className="text-slate-500 text-xs italic pt-2">
-                          🔒 Adempimento obbligatorio per legge - non eliminabile
-                        </p>
-                      )}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </>
         )}
       </main>
-    </>
-  );
-}
-
-// Placeholder per chiusura corretta
-const _placeholder = null;
 
       {/* Dialog Gestione Rami Aziendali */}
       <Dialog open={showBranchManager} onOpenChange={setShowBranchManager}>
@@ -975,7 +925,6 @@ const _placeholder = null;
           </DialogHeader>
           
           <div className="space-y-4 mt-4">
-            {/* Lista rami esistenti - sempre visibile */}
             <div className="space-y-2">
               <Label className="text-slate-300">Rami esistenti ({branches.length})</Label>
               {branches.length === 0 ? (
@@ -1041,7 +990,6 @@ const _placeholder = null;
               )}
             </div>
 
-            {/* Form nuovo ramo */}
             <div className="border-t border-slate-700 pt-4">
               <Label className="text-slate-300 mb-2 block">Aggiungi nuovo ramo</Label>
               
