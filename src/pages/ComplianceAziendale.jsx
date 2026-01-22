@@ -229,6 +229,7 @@ COMPITO: Genera l'elenco COMPLETO e ACCURATO di TUTTI gli adempimenti OBBLIGATOR
 DATI AZIENDA:
 - Tipo di attività: ${tipoAttivita}
 - Numero dipendenti: ${numeroDipendenti || 'non specificato'}
+- Data attivazione attività: ${dataAttivazione || 'non specificata'}
 
 ISTRUZIONI CRITICHE - LEGGI ATTENTAMENTE:
 
@@ -303,6 +304,7 @@ ISTRUZIONI CRITICHE - LEGGI ATTENTAMENTE:
    - sanzione_prevista: Sanzione REALE prevista dalla normativa (con importi se possibile)
    - priorita: "alta" se sanzione penale o chiusura attività, "media" se sanzione amministrativa significativa, "bassa" altri casi
    - riferimento_normativo: Legge/Decreto che lo impone
+   - data_scadenza: Data di scadenza in formato YYYY-MM-DD calcolata dalla data di attivazione (${dataAttivazione || 'oggi'}) + frequenza rinnovo. Se adempimento una tantum senza scadenza, lasciare null
 
 4. REGOLE FONDAMENTALI:
    - NON INVENTARE: Se non sei sicuro che un adempimento sia obbligatorio, NON includerlo
