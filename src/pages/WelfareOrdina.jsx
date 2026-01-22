@@ -136,9 +136,20 @@ export default function WelfareOrdina() {
       `
     });
 
+    // Salva nel database
+    const newRequest = await base44.entities.WelfareRequest.create({
+      user_email: user.email,
+      user_name: user.company_name || user.full_name,
+      user_phone: user.telefono_referente || '',
+      tipo_buono: contractId,
+      contratto_url: status.fileUrl,
+      contratto_nome: status.fileName,
+      status: 'contratto_inviato'
+    });
+
     setContractStatus(prev => ({
       ...prev,
-      [contractId]: { ...prev[contractId], sending: false, contractSent: true }
+      [contractId]: { ...prev[contractId], sending: false, contractSent: true, requestId: newRequest.id }
     }));
   };
 
@@ -193,6 +204,15 @@ export default function WelfareOrdina() {
         <p><strong>File Excel:</strong> <a href="${status.excelUrl}">${status.excelName}</a></p>
       `
     });
+
+    // Aggiorna nel database
+    if (status.requestId) {
+      await base44.entities.WelfareRequest.update(status.requestId, {
+        excel_url: status.excelUrl,
+        excel_nome: status.excelName,
+        status: 'excel_inviato'
+      });
+    }
 
     setContractStatus(prev => ({
       ...prev,
