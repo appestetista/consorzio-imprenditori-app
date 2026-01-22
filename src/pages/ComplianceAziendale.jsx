@@ -320,7 +320,7 @@ GENERA ORA L'ELENCO COMPLETO PER: ${tipoAttivita} con ${numeroDipendenti || 'num
 
       const result = await base44.integrations.Core.InvokeLLM({
         prompt,
-        add_context_from_internet: true, // Cerca informazioni aggiornate sulle normative
+        add_context_from_internet: false,
         response_json_schema: {
           type: "object",
           properties: {
@@ -335,8 +335,7 @@ GENERA ORA L'ELENCO COMPLETO PER: ${tipoAttivita} con ${numeroDipendenti || 'num
                   frequenza_rinnovo_mesi: { type: "number" },
                   sanzione_prevista: { type: "string" },
                   priorita: { type: "string" },
-                  riferimento_normativo: { type: "string" },
-                  data_scadenza: { type: "string", description: "Data scadenza formato YYYY-MM-DD o null" }
+                  data_scadenza: { type: "string" }
                 }
               }
             }
