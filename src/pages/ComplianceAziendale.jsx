@@ -900,8 +900,8 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
                         </div>
                       </button>
 
-                      {/* Mostra timeline solo se ci sono documenti caricati O se è scaduto/in scadenza */}
-                                              {timeline && (norm.documenti_urls?.length > 0 || timeline.giorniMancanti <= 30) && (
+                      {/* Mostra timeline solo se ci sono documenti caricati */}
+                                              {timeline && norm.documenti_urls?.length > 0 && (
                                                 <div className="px-4 pb-3">
                                                   <div className="flex items-center justify-between text-xs text-slate-500 mb-1">
                                                     <span>Inizio periodo</span>
