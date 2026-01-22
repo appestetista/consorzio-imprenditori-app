@@ -400,14 +400,14 @@ export default function WelfareOrdina() {
 
                   {/* Upload Excel */}
                   {excelFile ? (
-                    <div className="bg-green-500/20 border border-green-500/50 rounded-lg px-4 py-3 flex items-center justify-between">
-                      <div className="flex items-center gap-2 min-w-0">
+                    <div className="bg-green-500/20 border border-green-500/50 rounded-lg px-4 py-3 flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
                         <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
                         <span className="text-green-400 text-sm truncate">{excelFile.name}</span>
                       </div>
                       <button 
                         onClick={() => setExcelFile(null)} 
-                        className="text-red-400 hover:text-red-300 ml-2"
+                        className="text-red-400 hover:text-red-300 flex-shrink-0 p-1"
                       >
                         <X className="w-4 h-4" />
                       </button>
