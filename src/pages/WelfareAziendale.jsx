@@ -54,12 +54,6 @@ export default function WelfareAziendale() {
       title: 'Ordina',
       description: 'Richiedi i buoni welfare per la tua azienda',
       page: 'WelfareOrdina'
-    },
-    {
-      icon: History,
-      title: 'Storico Ordini',
-      description: 'Visualizza e gestisci i tuoi ordini',
-      page: 'WelfareStorico'
     }
   ];
 
@@ -78,14 +72,20 @@ export default function WelfareAziendale() {
         {/* Hero Card */}
         <Card className="bg-gradient-to-br from-pink-500 to-rose-500 border-0 mb-6">
           <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
-                <Heart className="w-8 h-8 text-white" />
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
+                  <Heart className="w-8 h-8 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-white text-xl font-bold">Welfare Aziendale</h2>
+                  <p className="text-white/80 text-sm">Benefici e servizi per i tuoi dipendenti</p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-white text-xl font-bold">Welfare Aziendale</h2>
-                <p className="text-white/80 text-sm">Benefici e servizi per i tuoi dipendenti</p>
-              </div>
+              <Link to={createPageUrl('WelfareStorico')} className="bg-white/20 hover:bg-white/30 transition-colors rounded-lg px-3 py-2 flex items-center gap-1.5">
+                <History className="w-4 h-4 text-white" />
+                <span className="text-white text-xs font-medium">Storico</span>
+              </Link>
             </div>
           </CardContent>
         </Card>
