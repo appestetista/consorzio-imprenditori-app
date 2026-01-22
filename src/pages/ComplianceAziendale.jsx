@@ -45,22 +45,11 @@ export default function ComplianceAziendale() {
   const [user, setUser] = useState(null);
   const [effectiveUser, setEffectiveUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [showAddNorm, setShowAddNorm] = useState(false);
+  
   const [expandedNorm, setExpandedNorm] = useState(null);
   const [uploadingDoc, setUploadingDoc] = useState(false);
   const [selectedCategoria, setSelectedCategoria] = useState('all');
-  const [newNorm, setNewNorm] = useState({
-    nome: '',
-    descrizione: '',
-    categoria: 'Sicurezza sul lavoro',
-    data_scadenza: '',
-    frequenza_rinnovo_mesi: 12,
-    sanzione_prevista: '',
-    priorita: 'media',
-    stato: 'non_verificato',
-    documenti_urls: [],
-    documenti_nomi: []
-  });
+  
   const [showAutoGenerate, setShowAutoGenerate] = useState(false);
   const [generatingNorms, setGeneratingNorms] = useState(false);
   const [activityType, setActivityType] = useState('');
@@ -103,28 +92,7 @@ export default function ComplianceAziendale() {
     enabled: !!effectiveUser?.email,
   });
 
-  const createNormMutation = useMutation({
-    mutationFn: (data) => base44.entities.ComplianceNorm.create({
-      ...data,
-      user_email: effectiveUser?.email
-    }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['compliance-norms'] });
-      setShowAddNorm(false);
-      setNewNorm({
-        nome: '',
-        descrizione: '',
-        categoria: 'Sicurezza sul lavoro',
-        data_scadenza: '',
-        frequenza_rinnovo_mesi: 12,
-        sanzione_prevista: '',
-        priorita: 'media',
-        stato: 'non_verificato',
-        documenti_urls: [],
-        documenti_nomi: []
-      });
-    }
-  });
+  
 
   const updateNormMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.ComplianceNorm.update(id, data),
@@ -232,13 +200,6 @@ NON includere adempimenti facoltativi o raccomandati.`;
           id: normId, 
           data: { documenti_urls: newUrls, documenti_nomi: newNames }
         });
-      } else {
-        // Nuova norma
-        setNewNorm({
-          ...newNorm,
-          documenti_urls: [...newNorm.documenti_urls, file_url],
-          documenti_nomi: [...newNorm.documenti_nomi, file.name]
-        });
       }
     } catch (error) {
       console.error('Errore upload:', error);
@@ -247,19 +208,11 @@ NON includere adempimenti facoltativi o raccomandati.`;
     }
   };
 
-  const removeDocument = (index, normId = null) => {
-    if (normId) {
-      const norm = norms.find(n => n.id === normId);
-      const newUrls = norm.documenti_urls.filter((_, i) => i !== index);
-      const newNames = norm.documenti_nomi.filter((_, i) => i !== index);
-      updateNormMutation.mutate({ id: normId, data: { documenti_urls: newUrls, documenti_nomi: newNames }});
-    } else {
-      setNewNorm({
-        ...newNorm,
-        documenti_urls: newNorm.documenti_urls.filter((_, i) => i !== index),
-        documenti_nomi: newNorm.documenti_nomi.filter((_, i) => i !== index)
-      });
-    }
+  const removeDocument = (index, normId) => {
+    const norm = norms.find(n => n.id === normId);
+    const newUrls = norm.documenti_urls.filter((_, i) => i !== index);
+    const newNames = norm.documenti_nomi.filter((_, i) => i !== index);
+    updateNormMutation.mutate({ id: normId, data: { documenti_urls: newUrls, documenti_nomi: newNames }});
   };
 
   // Calcola statistiche per il grafico a torta
@@ -632,164 +585,6 @@ NON includere adempimenti facoltativi o raccomandati.`;
           })}
         </div>
       </main>
-
-      {/* Dialog aggiungi norma */}
-      <Dialog open={showAddNorm} onOpenChange={setShowAddNorm}>
-        <DialogContent className="bg-slate-800 border-slate-700 max-h-[85vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-white">Aggiungi Normativa</DialogTitle>
-          </DialogHeader>
-          
-          <div className="space-y-4 mt-4">
-            <div>
-              <Label className="text-slate-300">Nome normativa *</Label>
-              <Input
-                value={newNorm.nome}
-                onChange={(e) => setNewNorm({ ...newNorm, nome: e.target.value })}
-                className="bg-slate-900 border-slate-700 text-white mt-1"
-                placeholder="Es: DVR - Documento Valutazione Rischi"
-              />
-            </div>
-
-            <div>
-              <Label className="text-slate-300">Categoria *</Label>
-              <Select
-                value={newNorm.categoria}
-                onValueChange={(value) => setNewNorm({ ...newNorm, categoria: value })}
-              >
-                <SelectTrigger className="bg-slate-900 border-slate-700 text-white mt-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {CATEGORIE.map((cat) => (
-                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label className="text-slate-300">Descrizione</Label>
-              <Textarea
-                value={newNorm.descrizione}
-                onChange={(e) => setNewNorm({ ...newNorm, descrizione: e.target.value })}
-                className="bg-slate-900 border-slate-700 text-white mt-1"
-                placeholder="Descrizione della normativa e requisiti..."
-                rows={3}
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label className="text-slate-300">Data scadenza</Label>
-                <Input
-                  type="date"
-                  value={newNorm.data_scadenza}
-                  onChange={(e) => setNewNorm({ ...newNorm, data_scadenza: e.target.value })}
-                  className="bg-slate-900 border-slate-700 text-white mt-1"
-                />
-              </div>
-              <div>
-                <Label className="text-slate-300">Frequenza rinnovo (mesi)</Label>
-                <Input
-                  type="number"
-                  value={newNorm.frequenza_rinnovo_mesi}
-                  onChange={(e) => setNewNorm({ ...newNorm, frequenza_rinnovo_mesi: parseInt(e.target.value) || 12 })}
-                  className="bg-slate-900 border-slate-700 text-white mt-1"
-                />
-              </div>
-            </div>
-
-            <div>
-              <Label className="text-slate-300">Sanzione in caso di non conformità</Label>
-              <Textarea
-                value={newNorm.sanzione_prevista}
-                onChange={(e) => setNewNorm({ ...newNorm, sanzione_prevista: e.target.value })}
-                className="bg-slate-900 border-slate-700 text-white mt-1"
-                placeholder="Es: Multa da €2.000 a €6.600..."
-                rows={2}
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label className="text-slate-300">Priorità</Label>
-                <Select
-                  value={newNorm.priorita}
-                  onValueChange={(value) => setNewNorm({ ...newNorm, priorita: value })}
-                >
-                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white mt-1">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="alta">🔴 Alta</SelectItem>
-                    <SelectItem value="media">🟠 Media</SelectItem>
-                    <SelectItem value="bassa">🟢 Bassa</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label className="text-slate-300">Stato attuale</Label>
-                <Select
-                  value={newNorm.stato}
-                  onValueChange={(value) => setNewNorm({ ...newNorm, stato: value })}
-                >
-                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white mt-1">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="conforme">✅ Conforme</SelectItem>
-                    <SelectItem value="da_migliorare">🟠 Da migliorare</SelectItem>
-                    <SelectItem value="non_conforme">🔴 Non conforme</SelectItem>
-                    <SelectItem value="non_verificato">⚪ Non verificato</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {/* Upload documenti */}
-            <div>
-              <Label className="text-slate-300">Documenti</Label>
-              <div className="mt-2 space-y-2">
-                {newNorm.documenti_urls.map((url, idx) => (
-                  <div key={idx} className="flex items-center justify-between bg-slate-900 rounded-lg p-2">
-                    <span className="text-lime-400 text-sm truncate flex items-center gap-2">
-                      <FileText className="w-4 h-4" />
-                      {newNorm.documenti_nomi[idx]}
-                    </span>
-                    <button
-                      onClick={() => removeDocument(idx)}
-                      className="text-red-400 hover:text-red-300 p-1"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                ))}
-                <label className="flex items-center justify-center gap-2 bg-slate-900 border-2 border-dashed border-slate-700 rounded-lg p-4 cursor-pointer hover:border-lime-400 transition-colors">
-                  <input
-                    type="file"
-                    className="hidden"
-                    onChange={(e) => handleDocumentUpload(e)}
-                    disabled={uploadingDoc}
-                  />
-                  <Upload className="w-5 h-5 text-lime-400" />
-                  <span className="text-slate-300">
-                    {uploadingDoc ? 'Caricamento...' : 'Carica documento'}
-                  </span>
-                </label>
-              </div>
-            </div>
-
-            <Button
-              onClick={() => createNormMutation.mutate(newNorm)}
-              disabled={!newNorm.nome || createNormMutation.isPending}
-              className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900"
-            >
-              {createNormMutation.isPending ? 'Salvataggio...' : 'Aggiungi Normativa'}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
 
       {/* Dialog Genera Automaticamente */}
       <Dialog open={showAutoGenerate} onOpenChange={setShowAutoGenerate}>

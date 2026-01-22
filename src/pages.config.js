@@ -3,6 +3,7 @@ import AnalisiContratti from './pages/AnalisiContratti';
 import CalendarioIncontri from './pages/CalendarioIncontri';
 import CatalogoBuoniPasto from './pages/CatalogoBuoniPasto';
 import CompleteProfile from './pages/CompleteProfile';
+import ComplianceAziendale from './pages/ComplianceAziendale';
 import Consulenze from './pages/Consulenze';
 import ContattaConsorzio from './pages/ContattaConsorzio';
 import ContattaMembri from './pages/ContattaMembri';
@@ -28,7 +29,6 @@ import WelfareAziendale from './pages/WelfareAziendale';
 import WelfareNormativa from './pages/WelfareNormativa';
 import WelfareOrdina from './pages/WelfareOrdina';
 import WelfareTipologie from './pages/WelfareTipologie';
-import ComplianceAziendale from './pages/ComplianceAziendale';
 import __Layout from './Layout.jsx';
 
 
@@ -38,6 +38,7 @@ export const PAGES = {
     "CalendarioIncontri": CalendarioIncontri,
     "CatalogoBuoniPasto": CatalogoBuoniPasto,
     "CompleteProfile": CompleteProfile,
+    "ComplianceAziendale": ComplianceAziendale,
     "Consulenze": Consulenze,
     "ContattaConsorzio": ContattaConsorzio,
     "ContattaMembri": ContattaMembri,
@@ -63,7 +64,6 @@ export const PAGES = {
     "WelfareNormativa": WelfareNormativa,
     "WelfareOrdina": WelfareOrdina,
     "WelfareTipologie": WelfareTipologie,
-    "ComplianceAziendale": ComplianceAziendale,
 }
 
 export const pagesConfig = {
