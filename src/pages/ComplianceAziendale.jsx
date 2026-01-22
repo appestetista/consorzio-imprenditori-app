@@ -856,63 +856,144 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
         </div>
       </main>
 
-      {/* Dialog Genera Automaticamente */}
-      <Dialog open={showAutoGenerate} onOpenChange={setShowAutoGenerate}>
-        <DialogContent className="bg-slate-800 border-slate-700">
+      {/* Dialog Gestione Rami Aziendali */}
+      <Dialog open={showBranchManager} onOpenChange={setShowBranchManager}>
+        <DialogContent className="bg-slate-800 border-slate-700 max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-white flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-blue-400" />
-              Genera Adempimenti Automaticamente
+              <Building2 className="w-5 h-5 text-lime-400" />
+              Rami Aziendali
             </DialogTitle>
           </DialogHeader>
           
           <div className="space-y-4 mt-4">
-            <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3">
-              <p className="text-blue-300 text-sm">
-                Inserisci il tipo di attività della tua azienda e genereremo automaticamente tutti gli adempimenti obbligatori per legge che devi rispettare.
-              </p>
-            </div>
+            {/* Lista rami esistenti */}
+            {branches.length > 0 && (
+              <div className="space-y-2">
+                <Label className="text-slate-300">Rami esistenti</Label>
+                {branches.map(branch => (
+                  <Card key={branch.id} className="bg-slate-900 border-slate-700">
+                    <CardContent className="p-3">
+                      {editingBranch?.id === branch.id ? (
+                        <div className="space-y-2">
+                          <Input
+                            value={editingBranch.nome}
+                            onChange={(e) => setEditingBranch({...editingBranch, nome: e.target.value})}
+                            className="bg-slate-800 border-slate-600 text-white"
+                            placeholder="Nome ramo"
+                          />
+                          <Input
+                            value={editingBranch.tipo_attivita}
+                            onChange={(e) => setEditingBranch({...editingBranch, tipo_attivita: e.target.value})}
+                            className="bg-slate-800 border-slate-600 text-white"
+                            placeholder="Tipo attività"
+                          />
+                          <div className="flex gap-2">
+                            <Button size="sm" onClick={() => updateBranchMutation.mutate({ id: branch.id, data: editingBranch })} className="bg-lime-400 text-slate-900">
+                              Salva
+                            </Button>
+                            <Button size="sm" variant="outline" onClick={() => setEditingBranch(null)} className="border-slate-600 text-slate-300">
+                              Annulla
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-white font-medium">{branch.nome}</p>
+                            <p className="text-slate-400 text-sm">{branch.tipo_attivita}</p>
+                            {branch.numero_dipendenti && (
+                              <p className="text-slate-500 text-xs">{branch.numero_dipendenti} dipendenti</p>
+                            )}
+                          </div>
+                          <div className="flex gap-1">
+                            <Button size="sm" variant="ghost" onClick={() => setEditingBranch(branch)} className="text-slate-400 hover:text-white">
+                              ✏️
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="ghost" 
+                              onClick={() => {
+                                if (confirm(`Eliminare il ramo "${branch.nome}" e tutti i suoi adempimenti?`)) {
+                                  deleteBranchMutation.mutate(branch.id);
+                                }
+                              }} 
+                              className="text-red-400 hover:text-red-300"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
 
-            <div>
-              <Label className="text-slate-300">Tipo di attività *</Label>
-              <Textarea
-                value={activityType}
-                onChange={(e) => setActivityType(e.target.value)}
-                className="bg-slate-900 border-slate-700 text-white mt-1"
-                placeholder="Es: Ristorante con 10 dipendenti, Officina meccanica, Negozio al dettaglio, Studio di consulenza, Azienda manifatturiera metalmeccanica..."
-                rows={3}
-              />
-            </div>
+            {/* Form nuovo ramo */}
+            <div className="border-t border-slate-700 pt-4">
+              <Label className="text-slate-300 mb-2 block">Aggiungi nuovo ramo</Label>
+              
+              <div className="space-y-3">
+                <Input
+                  value={newBranch.nome}
+                  onChange={(e) => setNewBranch({...newBranch, nome: e.target.value})}
+                  className="bg-slate-900 border-slate-700 text-white"
+                  placeholder="Nome ramo (es: Sede Principale, Magazzino, Filiale Roma)"
+                />
+                
+                <Textarea
+                  value={newBranch.tipo_attivita}
+                  onChange={(e) => setNewBranch({...newBranch, tipo_attivita: e.target.value})}
+                  className="bg-slate-900 border-slate-700 text-white"
+                  placeholder="Tipo di attività (es: Ristorante, Officina meccanica, Ufficio amministrativo)"
+                  rows={2}
+                />
+                
+                <div className="grid grid-cols-2 gap-2">
+                  <Input
+                    value={newBranch.codice_ateco}
+                    onChange={(e) => setNewBranch({...newBranch, codice_ateco: e.target.value})}
+                    className="bg-slate-900 border-slate-700 text-white"
+                    placeholder="Codice ATECO"
+                  />
+                  <Input
+                    type="number"
+                    value={newBranch.numero_dipendenti}
+                    onChange={(e) => setNewBranch({...newBranch, numero_dipendenti: e.target.value})}
+                    className="bg-slate-900 border-slate-700 text-white"
+                    placeholder="N° dipendenti"
+                    min="0"
+                  />
+                </div>
+                
+                <Input
+                  value={newBranch.indirizzo}
+                  onChange={(e) => setNewBranch({...newBranch, indirizzo: e.target.value})}
+                  className="bg-slate-900 border-slate-700 text-white"
+                  placeholder="Indirizzo (opzionale)"
+                />
 
-            <div>
-              <Label className="text-slate-300">Numero dipendenti</Label>
-              <Input
-                type="number"
-                value={employeesCount}
-                onChange={(e) => setEmployeesCount(e.target.value)}
-                className="bg-slate-900 border-slate-700 text-white mt-1"
-                placeholder="Es: 5, 15, 50..."
-                min="0"
-              />
+                <Button
+                  onClick={handleCreateBranch}
+                  disabled={!newBranch.nome.trim() || !newBranch.tipo_attivita.trim() || generatingNorms}
+                  className="w-full bg-lime-400 text-slate-900 hover:bg-lime-500"
+                >
+                  {generatingNorms ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Generazione adempimenti...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Aggiungi Ramo e Genera Adempimenti
+                    </>
+                  )}
+                </Button>
+              </div>
             </div>
-
-            <Button
-              onClick={handleAutoGenerate}
-              disabled={!activityType.trim() || generatingNorms}
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white"
-            >
-              {generatingNorms ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Generazione in corso...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  Genera Adempimenti
-                </>
-              )}
-            </Button>
           </div>
         </DialogContent>
       </Dialog>
