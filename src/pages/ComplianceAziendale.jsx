@@ -54,6 +54,7 @@ export default function ComplianceAziendale() {
   const [generatingNorms, setGeneratingNorms] = useState(false);
   const [activityType, setActivityType] = useState('');
   const [employeesCount, setEmployeesCount] = useState('');
+  const [analyzingDoc, setAnalyzingDoc] = useState(null); // ID della norma in analisi
   const { impersonation, appMode } = useImpersonation();
   const queryClient = useQueryClient();
 
@@ -183,28 +184,88 @@ NON includere adempimenti facoltativi o raccomandati.`;
     }
   };
 
-  const handleDocumentUpload = async (e, normId = null) => {
+  const handleDocumentUpload = async (e, normId) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    const norm = norms.find(n => n.id === normId);
+    if (!norm) return;
+
     setUploadingDoc(true);
+    setAnalyzingDoc(normId);
+    
     try {
+      // 1. Upload del file
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
       
-      if (normId) {
-        // Aggiorna norma esistente
-        const norm = norms.find(n => n.id === normId);
-        const newUrls = [...(norm.documenti_urls || []), file_url];
-        const newNames = [...(norm.documenti_nomi || []), file.name];
-        await updateNormMutation.mutateAsync({ 
-          id: normId, 
-          data: { documenti_urls: newUrls, documenti_nomi: newNames }
-        });
+      // 2. Analisi AI del documento
+      const analysisResult = await base44.integrations.Core.InvokeLLM({
+        prompt: `Sei un esperto di compliance aziendale italiana. Analizza questo documento e verifica se corrisponde all'adempimento richiesto.
+
+ADEMPIMENTO RICHIESTO: "${norm.nome}"
+DESCRIZIONE: "${norm.descrizione || 'Non specificata'}"
+CATEGORIA: "${norm.categoria}"
+
+Analizza il documento caricato e rispondi:
+1. Il documento è pertinente a questo adempimento? (es: se serve un DVR e l'utente carica una fattura, NON è pertinente)
+2. Se pertinente, il documento è conforme ai requisiti di legge?
+3. Qual è la data di scadenza/rinnovo del documento? (cerca date nel documento)
+4. Ci sono criticità o mancanze?
+
+IMPORTANTE: Sii rigoroso nella verifica della pertinenza.`,
+        file_urls: [file_url],
+        response_json_schema: {
+          type: "object",
+          properties: {
+            documento_pertinente: { type: "boolean" },
+            motivo_non_pertinente: { type: "string" },
+            documento_conforme: { type: "boolean" },
+            stato_conformita: { type: "string", enum: ["conforme", "da_migliorare", "non_conforme"] },
+            data_scadenza: { type: "string", description: "Data in formato YYYY-MM-DD se trovata" },
+            criticita: { type: "array", items: { type: "string" } },
+            note_analisi: { type: "string" }
+          }
+        }
+      });
+
+      if (!analysisResult.documento_pertinente) {
+        // Documento non pertinente - avvisa l'utente
+        alert(`⚠️ Documento non valido!\n\n${analysisResult.motivo_non_pertinente || 'Il documento caricato non corrisponde all\'adempimento richiesto. Assicurati di caricare il documento corretto per: ' + norm.nome}`);
+        return;
       }
+
+      // 3. Documento pertinente - salva e aggiorna stato
+      const newUrls = [...(norm.documenti_urls || []), file_url];
+      const newNames = [...(norm.documenti_nomi || []), file.name];
+      
+      const updateData = { 
+        documenti_urls: newUrls, 
+        documenti_nomi: newNames,
+        stato: analysisResult.stato_conformita || 'conforme',
+        note: analysisResult.note_analisi || '',
+        data_ultima_verifica: new Date().toISOString().split('T')[0]
+      };
+
+      // Se trovata una data di scadenza, aggiornala
+      if (analysisResult.data_scadenza) {
+        updateData.data_scadenza = analysisResult.data_scadenza;
+      }
+
+      await updateNormMutation.mutateAsync({ id: normId, data: updateData });
+
+      // Mostra risultato analisi
+      if (analysisResult.stato_conformita === 'conforme') {
+        alert(`✅ Documento analizzato!\n\nStato: CONFORME\n${analysisResult.data_scadenza ? 'Scadenza: ' + analysisResult.data_scadenza : ''}\n\n${analysisResult.note_analisi || ''}`);
+      } else {
+        alert(`⚠️ Documento analizzato!\n\nStato: ${analysisResult.stato_conformita?.toUpperCase()}\n\nCriticità:\n${analysisResult.criticita?.join('\n') || analysisResult.note_analisi || 'Verifica necessaria'}`);
+      }
+
     } catch (error) {
-      console.error('Errore upload:', error);
+      console.error('Errore upload/analisi:', error);
+      alert('Errore durante l\'analisi del documento. Riprova.');
     } finally {
       setUploadingDoc(false);
+      setAnalyzingDoc(null);
     }
   };
 
@@ -506,14 +567,23 @@ NON includere adempimenti facoltativi o raccomandati.`;
                               type="file"
                               className="hidden"
                               onChange={(e) => handleDocumentUpload(e, norm.id)}
-                              disabled={uploadingDoc}
+                              disabled={uploadingDoc || analyzingDoc === norm.id}
                             />
                             <span className="text-lime-400 text-xs flex items-center gap-1 hover:underline">
                               <Upload className="w-3 h-3" />
-                              {uploadingDoc ? 'Caricamento...' : 'Carica documento'}
+                              {analyzingDoc === norm.id ? 'Analisi AI in corso...' : uploadingDoc ? 'Caricamento...' : 'Carica documento'}
                             </span>
                           </label>
                         </div>
+
+                        {analyzingDoc === norm.id && (
+                          <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 mb-2">
+                            <div className="flex items-center gap-2">
+                              <Loader2 className="w-4 h-4 text-blue-400 animate-spin" />
+                              <p className="text-blue-300 text-sm">L'AI sta analizzando il documento...</p>
+                            </div>
+                          </div>
+                        )}
                         
                         {norm.documenti_urls?.length > 0 ? (
                           <div className="space-y-2">
@@ -541,6 +611,43 @@ NON includere adempimenti facoltativi o raccomandati.`;
                           <p className="text-slate-500 text-sm">Nessun documento caricato</p>
                         )}
                       </div>
+
+                      {/* Barra stato documento dopo analisi */}
+                      {norm.documenti_urls?.length > 0 && norm.stato !== 'non_verificato' && (
+                        <div className="bg-slate-900 rounded-lg p-3">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className={`text-sm font-medium ${
+                              norm.stato === 'conforme' ? 'text-green-400' :
+                              norm.stato === 'da_migliorare' ? 'text-orange-400' : 'text-red-400'
+                            }`}>
+                              {norm.stato === 'conforme' ? '✅ Documento a norma' :
+                               norm.stato === 'da_migliorare' ? '🟠 Da migliorare' : '🔴 Non conforme'}
+                            </span>
+                            {norm.data_ultima_verifica && (
+                              <span className="text-slate-500 text-xs">
+                                Verificato: {new Date(norm.data_ultima_verifica).toLocaleDateString('it-IT')}
+                              </span>
+                            )}
+                          </div>
+                          
+                          {norm.note && (
+                            <p className="text-slate-400 text-xs mb-2">{norm.note}</p>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Pulsante disabilita notifica */}
+                      {norm.data_scadenza && timeline && timeline.giorniMancanti <= 7 && timeline.giorniMancanti >= 0 && !norm.notifica_disabilitata && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => updateNormMutation.mutate({ id: norm.id, data: { notifica_disabilitata: true }})}
+                          className="w-full border-orange-500/50 text-orange-400 hover:bg-orange-500/20"
+                        >
+                          <CheckCircle className="w-4 h-4 mr-2" />
+                          Ho preso visione - Disabilita notifica
+                        </Button>
+                      )}
 
                       {/* Azioni */}
                       <div className="flex gap-2 pt-2">
