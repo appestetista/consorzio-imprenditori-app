@@ -612,11 +612,12 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
     });
 
   // Calcola statistiche basate sugli adempimenti filtrati
+  // Gli adempimenti senza documenti caricati sono sempre considerati "non_verificato" per il grafico
   const stats = {
-    conforme: filteredNorms.filter(n => n.stato === 'conforme').length,
-    da_migliorare: filteredNorms.filter(n => n.stato === 'da_migliorare').length,
-    non_conforme: filteredNorms.filter(n => n.stato === 'non_conforme').length,
-    non_verificato: filteredNorms.filter(n => n.stato === 'non_verificato').length,
+    conforme: filteredNorms.filter(n => n.stato === 'conforme' && n.documenti_urls?.length > 0).length,
+    da_migliorare: filteredNorms.filter(n => n.stato === 'da_migliorare' && n.documenti_urls?.length > 0).length,
+    non_conforme: filteredNorms.filter(n => n.stato === 'non_conforme' && n.documenti_urls?.length > 0).length,
+    non_verificato: filteredNorms.filter(n => n.stato === 'non_verificato' || !n.documenti_urls?.length).length,
   };
 
   const pieData = [
