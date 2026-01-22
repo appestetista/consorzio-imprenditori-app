@@ -682,7 +682,7 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
                     Tutte
                   </Button>
                   {CATEGORIE.map((cat) => {
-                    const count = filteredNorms.filter(n => n.categoria === cat).length;
+                    const count = norms.filter(n => (selectedBranch === 'all' || n.branch_id === selectedBranch) && n.categoria === cat).length;
                     if (count === 0) return null;
                     return (
                       <Button
