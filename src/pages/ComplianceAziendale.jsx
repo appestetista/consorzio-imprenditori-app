@@ -623,92 +623,110 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
           </div>
         )}
 
-        {/* Grafico a torta */}
-        <Card className="bg-slate-800 border-slate-700 mb-6">
-          <CardContent className="p-4">
-            <h3 className="text-white font-semibold mb-4 text-center">Stato Conformità</h3>
-            
-            {norms.length === 0 ? (
-              <div className="text-center py-8">
-                <Shield className="w-16 h-16 text-slate-600 mx-auto mb-3" />
-                <p className="text-slate-400">Nessuna normativa inserita</p>
-                <p className="text-slate-500 text-sm">Usa "Genera Automaticamente" o aggiungi manualmente</p>
+        {/* Messaggio se nessun ramo selezionato */}
+        {branches.length > 0 && selectedBranch === 'all' && (
+          <Card className="bg-gradient-to-r from-amber-500/20 to-orange-500/20 border-amber-500/30 mb-6">
+            <CardContent className="p-6 text-center">
+              <div className="flex flex-col items-center gap-3">
+                <ChevronUp className="w-8 h-8 text-amber-400 animate-bounce" />
+                <h3 className="text-white font-semibold text-lg">Scegli il Ramo Aziendale</h3>
+                <p className="text-slate-400 text-sm">Seleziona un ramo dal menu a tendina qui sopra per visualizzare i relativi adempimenti</p>
               </div>
-            ) : (
-              <>
-                <div className="h-48">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={pieData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={50}
-                        outerRadius={80}
-                        paddingAngle={2}
-                        dataKey="value"
-                      >
-                        {pieData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-                
-                {/* Legenda */}
-                <div className="grid grid-cols-2 gap-2 mt-4">
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                    <span className="text-slate-300 text-sm">Conforme ({stats.conforme})</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-orange-500"></div>
-                    <span className="text-slate-300 text-sm">Da migliorare ({stats.da_migliorare})</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                    <span className="text-slate-300 text-sm">Non conforme ({stats.non_conforme})</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-gray-500"></div>
-                    <span className="text-slate-300 text-sm">Non verificato ({stats.non_verificato})</span>
-                  </div>
-                </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
 
-        {/* Filtro categoria */}
-        {norms.length > 0 && (
-          <div className="mb-4 overflow-x-auto pb-2">
-            <div className="flex gap-2 min-w-max">
-              <Button
-                variant={selectedCategoria === 'all' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setSelectedCategoria('all')}
-                className={selectedCategoria === 'all' ? 'bg-lime-400 text-slate-900' : 'border-slate-600 text-slate-300'}
-              >
-                Tutte
-              </Button>
-              {CATEGORIE.map((cat) => {
-                const count = norms.filter(n => n.categoria === cat).length;
-                if (count === 0) return null;
-                return (
+        {/* Contenuto visibile solo se selezionato un ramo specifico */}
+        {(branches.length === 0 || selectedBranch !== 'all') && (
+          <>
+            {/* Grafico a torta */}
+            <Card className="bg-slate-800 border-slate-700 mb-6">
+              <CardContent className="p-4">
+                <h3 className="text-white font-semibold mb-4 text-center">Stato Conformità</h3>
+                
+                {filteredNorms.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Shield className="w-16 h-16 text-slate-600 mx-auto mb-3" />
+                    <p className="text-slate-400">Nessuna normativa inserita</p>
+                    <p className="text-slate-500 text-sm">Usa "Genera Automaticamente" o aggiungi manualmente</p>
+                  </div>
+                ) : (
+                  <>
+                    <div className="h-48">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={pieData}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={50}
+                            outerRadius={80}
+                            paddingAngle={2}
+                            dataKey="value"
+                          >
+                            {pieData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                          </Pie>
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                    
+                    {/* Legenda */}
+                    <div className="grid grid-cols-2 gap-2 mt-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                        <span className="text-slate-300 text-sm">Conforme ({stats.conforme})</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-orange-500"></div>
+                        <span className="text-slate-300 text-sm">Da migliorare ({stats.da_migliorare})</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                        <span className="text-slate-300 text-sm">Non conforme ({stats.non_conforme})</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-gray-500"></div>
+                        <span className="text-slate-300 text-sm">Non verificato ({stats.non_verificato})</span>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Filtro categoria */}
+            {filteredNorms.length > 0 && (
+              <div className="mb-4 overflow-x-auto pb-2">
+                <div className="flex gap-2 min-w-max">
                   <Button
-                    key={cat}
-                    variant={selectedCategoria === cat ? 'default' : 'outline'}
+                    variant={selectedCategoria === 'all' ? 'default' : 'outline'}
                     size="sm"
-                    onClick={() => setSelectedCategoria(cat)}
-                    className={selectedCategoria === cat ? 'bg-lime-400 text-slate-900' : 'border-slate-600 text-slate-300'}
+                    onClick={() => setSelectedCategoria('all')}
+                    className={selectedCategoria === 'all' ? 'bg-lime-400 text-slate-900' : 'border-slate-600 text-slate-300'}
                   >
-                    {cat} ({count})
+                    Tutte
                   </Button>
-                );
-              })}
-            </div>
-          </div>
+                  {CATEGORIE.map((cat) => {
+                    const count = filteredNorms.filter(n => n.categoria === cat).length;
+                    if (count === 0) return null;
+                    return (
+                      <Button
+                        key={cat}
+                        variant={selectedCategoria === cat ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setSelectedCategoria(cat)}
+                        className={selectedCategoria === cat ? 'bg-lime-400 text-slate-900' : 'border-slate-600 text-slate-300'}
+                      >
+                        {cat} ({count})
+                      </Button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </>
         )}
 
         {/* Lista normative */}
