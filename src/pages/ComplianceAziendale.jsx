@@ -900,45 +900,46 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
                         </div>
                       </button>
 
-                      {timeline && (
-                        <div className="px-4 pb-3">
-                          <div className="flex items-center justify-between text-xs text-slate-500 mb-1">
-                            <span>Inizio periodo</span>
-                            <span className="flex items-center gap-1">
-                              <Calendar className="w-3 h-3" />
-                              Scadenza: {new Date(timeline.scadenza).toLocaleDateString('it-IT')}
-                            </span>
-                          </div>
-                          <div className="relative h-3 bg-slate-700 rounded-full overflow-hidden">
-                            <div 
-                              className="absolute inset-y-0 left-0 rounded-full"
-                              style={{
-                                width: `${timeline.percentuale}%`,
-                                background: timeline.color === 'green' 
-                                  ? 'linear-gradient(90deg, #22c55e, #22c55e)'
-                                  : timeline.color === 'orange'
-                                    ? 'linear-gradient(90deg, #22c55e, #f97316)'
-                                    : 'linear-gradient(90deg, #22c55e, #f97316, #ef4444)'
-                              }}
-                            />
-                            <div 
-                              className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full border-2 border-slate-900 shadow-lg"
-                              style={{ left: `calc(${timeline.percentuale}% - 8px)` }}
-                            />
-                          </div>
-                          <p className={`text-xs mt-1 text-right ${
-                            timeline.color === 'red' ? 'text-red-400' :
-                            timeline.color === 'orange' ? 'text-orange-400' : 'text-green-400'
-                          }`}>
-                            {timeline.giorniMancanti > 0 
-                              ? `${timeline.giorniMancanti} giorni alla scadenza`
-                              : timeline.giorniMancanti === 0 
-                                ? 'Scade oggi!'
-                                : `Scaduto da ${Math.abs(timeline.giorniMancanti)} giorni`
-                            }
-                          </p>
-                        </div>
-                      )}
+                      {/* Mostra timeline solo se ci sono documenti caricati O se è scaduto/in scadenza */}
+                                              {timeline && (norm.documenti_urls?.length > 0 || timeline.giorniMancanti <= 30) && (
+                                                <div className="px-4 pb-3">
+                                                  <div className="flex items-center justify-between text-xs text-slate-500 mb-1">
+                                                    <span>Inizio periodo</span>
+                                                    <span className="flex items-center gap-1">
+                                                      <Calendar className="w-3 h-3" />
+                                                      Scadenza: {new Date(timeline.scadenza).toLocaleDateString('it-IT')}
+                                                    </span>
+                                                  </div>
+                                                  <div className="relative h-3 bg-slate-700 rounded-full overflow-hidden">
+                                                    <div 
+                                                      className="absolute inset-y-0 left-0 rounded-full"
+                                                      style={{
+                                                        width: `${timeline.percentuale}%`,
+                                                        background: timeline.color === 'green' 
+                                                          ? 'linear-gradient(90deg, #22c55e, #22c55e)'
+                                                          : timeline.color === 'orange'
+                                                            ? 'linear-gradient(90deg, #22c55e, #f97316)'
+                                                            : 'linear-gradient(90deg, #22c55e, #f97316, #ef4444)'
+                                                      }}
+                                                    />
+                                                    <div 
+                                                      className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full border-2 border-slate-900 shadow-lg"
+                                                      style={{ left: `calc(${timeline.percentuale}% - 8px)` }}
+                                                    />
+                                                  </div>
+                                                  <p className={`text-xs mt-1 text-right ${
+                                                    timeline.color === 'red' ? 'text-red-400' :
+                                                    timeline.color === 'orange' ? 'text-orange-400' : 'text-green-400'
+                                                  }`}>
+                                                    {timeline.giorniMancanti > 0 
+                                                      ? `${timeline.giorniMancanti} giorni alla scadenza`
+                                                      : timeline.giorniMancanti === 0 
+                                                        ? 'Scade oggi!'
+                                                        : `Scaduto da ${Math.abs(timeline.giorniMancanti)} giorni`
+                                                    }
+                                                  </p>
+                                                </div>
+                                              )}
 
                       {isExpanded && (
                         <div className="px-4 pb-4 border-t border-slate-700 pt-4 space-y-4">
