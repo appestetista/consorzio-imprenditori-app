@@ -71,11 +71,11 @@ export default function WelfareAziendale() {
 
         {/* Hero Card */}
         <Card className="bg-gradient-to-br from-pink-500 to-rose-500 border-0 mb-6">
-          <CardContent className="p-4">
+          <CardContent className="p-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center">
-                  <Heart className="w-7 h-7 text-white" />
+                <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                  <Heart className="w-6 h-6 text-white" />
                 </div>
                 <div>
                   <h2 className="text-white text-xl font-bold">Welfare Aziendale</h2>
