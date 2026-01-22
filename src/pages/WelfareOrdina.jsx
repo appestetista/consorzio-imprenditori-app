@@ -60,6 +60,9 @@ export default function WelfareOrdina() {
   const [uploadedContracts, setUploadedContracts] = useState({});
   const [uploading, setUploading] = useState({});
   const [submitted, setSubmitted] = useState(false);
+  const [excelFile, setExcelFile] = useState(null);
+  const [uploadingExcel, setUploadingExcel] = useState(false);
+  const [showExcelExample, setShowExcelExample] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -124,10 +127,35 @@ export default function WelfareOrdina() {
     });
   };
 
+  const handleExcelUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploadingExcel(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setExcelFile({ url: file_url, name: file.name });
+    } catch (err) {
+      console.error('Errore upload Excel:', err);
+    } finally {
+      setUploadingExcel(false);
+      e.target.value = '';
+    }
+  };
+
+  // Verifica se serve il file Excel (buoni spesa o buoni omaggio)
+  const needsExcelFile = uploadedContracts['buoni_spesa'] || uploadedContracts['buoni_omaggio'];
+
   const submitMutation = useMutation({
     mutationFn: async () => {
       const uploadedKeys = Object.keys(uploadedContracts);
       const contrattiNomi = uploadedKeys.map(k => CONTRATTI.find(c => c.id === k)?.nome).join(', ');
+      
+      // Prepara documenti allegati
+      const documentiUrls = Object.values(uploadedContracts).map(c => c.url);
+      if (excelFile) {
+        documentiUrls.push(excelFile.url);
+      }
       
       // Crea richiesta welfare
       await base44.entities.RichiestaRisparmio.create({
@@ -135,8 +163,8 @@ export default function WelfareOrdina() {
         user_name: user.company_name || user.full_name,
         user_phone: user.telefono_referente || '',
         categoria: 'Welfare Aziendale',
-        note: `Contratti caricati: ${contrattiNomi}`,
-        foto_bolletta_url: Object.values(uploadedContracts).map(c => c.url).join(', '),
+        note: `Contratti caricati: ${contrattiNomi}${excelFile ? ' | File Excel dipendenti: ' + excelFile.name : ''}`,
+        foto_bolletta_url: documentiUrls.join(', '),
         status: 'pending'
       });
 
@@ -324,13 +352,97 @@ export default function WelfareOrdina() {
               })}
             </div>
 
-            {/* Info File Excel */}
-            <Alert className="mb-6 bg-amber-500/20 border-amber-500/30">
-              <AlertCircle className="h-4 w-4 text-amber-400" />
-              <AlertDescription className="text-amber-200 text-sm">
-                <strong>Nota:</strong> Dopo l'invio dei contratti, ti forniremo un file Excel da compilare con l'elenco dei dipendenti a cui assegnare i buoni.
-              </AlertDescription>
-            </Alert>
+            {/* Sezione Upload Excel - solo per buoni spesa e omaggio */}
+            {needsExcelFile && (
+              <Card className="bg-slate-800 border-slate-700 mb-6">
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-3 mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center flex-shrink-0">
+                      <FileText className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-white font-bold">File Excel Dipendenti</h3>
+                      <p className="text-slate-400 text-sm">Compila e carica la tabella con i dati dei beneficiari</p>
+                    </div>
+                  </div>
+
+                  {/* Esempio immagine */}
+                  <div className="mb-4">
+                    <button 
+                      onClick={() => setShowExcelExample(!showExcelExample)}
+                      className="text-emerald-400 text-sm flex items-center gap-1 hover:underline mb-2"
+                    >
+                      <Info className="w-4 h-4" />
+                      {showExcelExample ? 'Nascondi esempio' : 'Vedi esempio formato tabella'}
+                    </button>
+                    
+                    {showExcelExample && (
+                      <div className="bg-slate-700/50 rounded-lg p-3">
+                        <p className="text-slate-300 text-xs mb-2">La tabella Excel deve contenere le seguenti colonne:</p>
+                        <img 
+                          src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/5d6491c18_esempiotabellaexcel.png"
+                          alt="Esempio formato Excel"
+                          className="w-full rounded-lg border border-slate-600"
+                        />
+                        <div className="mt-3 bg-slate-800 rounded-lg p-3">
+                          <p className="text-slate-400 text-xs font-medium mb-2">Colonne richieste:</p>
+                          <ul className="text-slate-300 text-xs space-y-1">
+                            <li>• <strong>Nome</strong> - Nome del dipendente</li>
+                            <li>• <strong>Cognome</strong> - Cognome del dipendente</li>
+                            <li>• <strong>Email</strong> - Email del dipendente</li>
+                            <li>• <strong>Importo (€)</strong> - Valore del buono da assegnare</li>
+                            <li>• <strong>Codice Fiscale</strong> - Codice fiscale del dipendente</li>
+                          </ul>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Upload Excel */}
+                  {excelFile ? (
+                    <div className="bg-green-500/20 border border-green-500/50 rounded-lg px-4 py-3 flex items-center justify-between">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
+                        <span className="text-green-400 text-sm truncate">{excelFile.name}</span>
+                      </div>
+                      <button 
+                        onClick={() => setExcelFile(null)} 
+                        className="text-red-400 hover:text-red-300 ml-2"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="cursor-pointer block">
+                      <div className={`flex items-center justify-center gap-2 py-3 px-4 rounded-lg border-2 border-dashed transition-colors ${
+                        uploadingExcel 
+                          ? 'border-slate-600 bg-slate-700/50 text-slate-400' 
+                          : 'border-emerald-500/50 hover:border-emerald-400 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20'
+                      }`}>
+                        {uploadingExcel ? (
+                          <>
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                            <span>Caricamento...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="w-5 h-5" />
+                            <span>Carica File Excel (.xlsx, .xls)</span>
+                          </>
+                        )}
+                      </div>
+                      <input
+                        type="file"
+                        accept=".xlsx,.xls,.csv"
+                        onChange={handleExcelUpload}
+                        className="hidden"
+                        disabled={uploadingExcel}
+                      />
+                    </label>
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
             {/* Riepilogo e Invio */}
             {uploadedCount > 0 && (
@@ -358,7 +470,7 @@ export default function WelfareOrdina() {
 
             <Button
               onClick={() => submitMutation.mutate()}
-              disabled={uploadedCount === 0 || submitMutation.isPending}
+              disabled={uploadedCount === 0 || submitMutation.isPending || (needsExcelFile && !excelFile)}
               className="w-full bg-pink-500 hover:bg-pink-600 text-white font-semibold h-12 disabled:opacity-50"
             >
               {submitMutation.isPending ? (
