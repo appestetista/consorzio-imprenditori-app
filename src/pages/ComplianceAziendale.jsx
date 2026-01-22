@@ -470,8 +470,9 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
   };
 
   // Filtra per ramo e categoria
+  // Gli adempimenti senza branch_id (vecchi) sono sempre visibili quando "Tutti i rami"
   const filteredNorms = norms.filter(n => {
-    const matchBranch = selectedBranch === 'all' || n.branch_id === selectedBranch;
+    const matchBranch = selectedBranch === 'all' || n.branch_id === selectedBranch || (!n.branch_id && selectedBranch === 'all');
     const matchCategoria = selectedCategoria === 'all' || n.categoria === selectedCategoria;
     return matchBranch && matchCategoria;
   });
