@@ -252,7 +252,13 @@ NON includere adempimenti facoltativi o raccomandati.`;
   const handleCreateBranch = async () => {
     if (!newBranch.nome.trim() || !newBranch.tipo_attivita.trim()) return;
     
+    setGeneratingNorms(true);
+    
     try {
+      // Salva i valori prima di creare il branch
+      const tipoAttivita = newBranch.tipo_attivita;
+      const numeroDipendenti = newBranch.numero_dipendenti || '';
+      
       const createdBranch = await base44.entities.CompanyBranch.create({
         user_email: effectiveUser?.email,
         ...newBranch,
@@ -260,21 +266,91 @@ NON includere adempimenti facoltativi o raccomandati.`;
         is_active: true
       });
       
-      // Imposta i valori per generare gli adempimenti
-      setActivityType(newBranch.tipo_attivita);
-      setEmployeesCount(newBranch.numero_dipendenti || '');
+      console.log('[ComplianceAziendale] Branch creato:', createdBranch.id);
       
       queryClient.invalidateQueries({ queryKey: ['company-branches'] });
       
-      // Genera automaticamente gli adempimenti per questo ramo
-      setGeneratingNorms(true);
-      await handleAutoGenerate(createdBranch.id);
+      // Genera automaticamente gli adempimenti per questo ramo con i valori salvati
+      await generateNormsForBranch(createdBranch.id, tipoAttivita, numeroDipendenti);
       
       setNewBranch({ nome: '', tipo_attivita: '', codice_ateco: '', indirizzo: '', numero_dipendenti: '' });
       setShowBranchManager(false);
     } catch (error) {
       console.error('Errore creazione ramo:', error);
       alert('Errore nella creazione del ramo. Riprova.');
+    } finally {
+      setGeneratingNorms(false);
+    }
+  };
+  
+  // Funzione separata per generare adempimenti per un ramo specifico
+  const generateNormsForBranch = async (branchId, tipoAttivita, numeroDipendenti) => {
+    if (!tipoAttivita.trim()) return;
+    
+    try {
+      const prompt = `Sei un esperto di compliance aziendale italiana. 
+Genera una lista di adempimenti obbligatori per legge per un'azienda con queste caratteristiche:
+- Tipo di attività: ${tipoAttivita}
+- Numero dipendenti: ${numeroDipendenti || 'non specificato'}
+
+Per ogni adempimento obbligatorio, fornisci:
+1. nome: Nome dell'adempimento (es: "DVR - Documento Valutazione Rischi")
+2. descrizione: Breve descrizione di cosa richiede
+3. categoria: Una tra: "Sicurezza sul lavoro", "Privacy e GDPR", "Ambientale", "Fiscale", "Igiene e Sanità", "Antincendio", "Formazione obbligatoria", "Altro"
+4. frequenza_rinnovo_mesi: Ogni quanti mesi va rinnovato/aggiornato (numero)
+5. sanzione_prevista: Descrizione della sanzione in caso di mancato rispetto
+6. priorita: "alta", "media" o "bassa"
+
+Includi SOLO adempimenti realmente obbligatori per legge italiana per questo tipo di attività.
+NON includere adempimenti facoltativi o raccomandati.`;
+
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            adempimenti: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  nome: { type: "string" },
+                  descrizione: { type: "string" },
+                  categoria: { type: "string" },
+                  frequenza_rinnovo_mesi: { type: "number" },
+                  sanzione_prevista: { type: "string" },
+                  priorita: { type: "string" }
+                }
+              }
+            }
+          }
+        }
+      });
+
+      if (result?.adempimenti && result.adempimenti.length > 0) {
+        for (const adempimento of result.adempimenti) {
+          await base44.entities.ComplianceNorm.create({
+            user_email: effectiveUser?.email,
+            branch_id: branchId,
+            nome: adempimento.nome,
+            descrizione: adempimento.descrizione,
+            categoria: adempimento.categoria || 'Altro',
+            frequenza_rinnovo_mesi: adempimento.frequenza_rinnovo_mesi || 12,
+            sanzione_prevista: adempimento.sanzione_prevista,
+            priorita: adempimento.priorita || 'media',
+            stato: 'non_verificato',
+            is_locked: true,
+            documenti_urls: [],
+            documenti_nomi: []
+          });
+        }
+        
+        console.log('[ComplianceAziendale] Generati', result.adempimenti.length, 'adempimenti per branch', branchId);
+        queryClient.invalidateQueries({ queryKey: ['compliance-norms'] });
+      }
+    } catch (error) {
+      console.error('Errore generazione adempimenti:', error);
+      alert('Errore nella generazione degli adempimenti. Riprova.');
     }
   };
 
