@@ -824,22 +824,29 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
                         </Button>
                       )}
 
-                      {/* Azioni */}
-                      <div className="flex gap-2 pt-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            if (confirm('Eliminare questa normativa?')) {
-                              deleteNormMutation.mutate(norm.id);
-                            }
-                          }}
-                          className="border-red-500/50 text-red-400 hover:bg-red-500/20"
-                        >
-                          <Trash2 className="w-4 h-4 mr-1" />
-                          Elimina
-                        </Button>
-                      </div>
+                      {/* Azioni - solo se non è locked */}
+                      {!norm.is_locked && (
+                        <div className="flex gap-2 pt-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              if (confirm('Eliminare questa normativa?')) {
+                                deleteNormMutation.mutate(norm.id);
+                              }
+                            }}
+                            className="border-red-500/50 text-red-400 hover:bg-red-500/20"
+                          >
+                            <Trash2 className="w-4 h-4 mr-1" />
+                            Elimina
+                          </Button>
+                        </div>
+                      )}
+                      {norm.is_locked && (
+                        <p className="text-slate-500 text-xs italic pt-2">
+                          🔒 Adempimento obbligatorio per legge - non eliminabile
+                        </p>
+                      )}
                     </div>
                   )}
                 </CardContent>
