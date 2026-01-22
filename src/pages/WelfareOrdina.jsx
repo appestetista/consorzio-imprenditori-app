@@ -199,8 +199,7 @@ export default function WelfareOrdina() {
             const status = contractStatus[contratto.id] || {};
 
             return (
-              <Card key={contratto.id} className={`${contratto.bgColor} border-0 overflow-hidden shadow-lg`}>
-                <div className={`h-2 bg-gradient-to-r ${contratto.accentColor}`} />
+              <Card key={contratto.id} className={`${contratto.bgColor} border-0 overflow-hidden shadow-lg rounded-2xl`}>
                 <CardContent className="p-5">
                   {/* Header riquadro */}
                   <div className="flex items-start gap-4 mb-5">
