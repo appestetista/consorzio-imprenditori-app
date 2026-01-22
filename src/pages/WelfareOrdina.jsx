@@ -248,12 +248,18 @@ export default function WelfareOrdina() {
               <p className="text-green-200 text-sm mb-4">
                 Abbiamo ricevuto i tuoi contratti. Ora dovrai compilare una tabella Excel come questo esempio con i dati di chi usufruirà dei benefit:
               </p>
-              <div className="mb-4">
+              <div 
+                className="mb-4 cursor-pointer relative group"
+                onClick={() => setShowExcelZoom(true)}
+              >
                 <img 
-                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/6cb640958_buonispesa-omaggi.png"
+                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/342cf25ac_buonispesa-omaggi.png"
                   alt="Esempio tabella Excel"
-                  className="w-full rounded-lg border border-green-500/30"
+                  className="w-full rounded-lg border border-green-500/30 transition-transform group-hover:scale-[1.02]"
                 />
+                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                  <ZoomIn className="w-8 h-8 text-white" />
+                </div>
               </div>
               <Alert className="bg-blue-500/20 border-blue-500/30 text-left">
                 <Info className="h-4 w-4 text-blue-400" />
