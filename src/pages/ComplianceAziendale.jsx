@@ -118,6 +118,43 @@ export default function ComplianceAziendale() {
     enabled: !!effectiveUser?.email,
   });
 
+  const { data: branches = [] } = useQuery({
+    queryKey: ['company-branches', effectiveUser?.email],
+    queryFn: () => base44.entities.CompanyBranch.filter({ user_email: effectiveUser?.email, is_active: true }),
+    enabled: !!effectiveUser?.email,
+  });
+
+  const createBranchMutation = useMutation({
+    mutationFn: (data) => base44.entities.CompanyBranch.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['company-branches'] });
+      setNewBranch({ nome: '', tipo_attivita: '', codice_ateco: '', indirizzo: '', numero_dipendenti: '' });
+    }
+  });
+
+  const updateBranchMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.CompanyBranch.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['company-branches'] });
+      setEditingBranch(null);
+    }
+  });
+
+  const deleteBranchMutation = useMutation({
+    mutationFn: async (branchId) => {
+      // Elimina anche gli adempimenti associati
+      const branchNorms = norms.filter(n => n.branch_id === branchId);
+      for (const norm of branchNorms) {
+        await base44.entities.ComplianceNorm.delete(norm.id);
+      }
+      await base44.entities.CompanyBranch.update(branchId, { is_active: false });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['company-branches'] });
+      queryClient.invalidateQueries({ queryKey: ['compliance-norms'] });
+    }
+  });
+
   
 
   const updateNormMutation = useMutation({
