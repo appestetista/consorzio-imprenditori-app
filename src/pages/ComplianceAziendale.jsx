@@ -663,7 +663,12 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
                           <ChevronDown className="w-5 h-5 text-slate-400 flex-shrink-0" />
                         )}
                       </div>
-                      <p className="text-slate-400 text-sm">{norm.categoria}</p>
+                      <p className="text-slate-400 text-sm">
+                                {norm.categoria}
+                                {norm.branch_id && branches.find(b => b.id === norm.branch_id) && (
+                                  <span className="text-slate-500"> • {branches.find(b => b.id === norm.branch_id)?.nome}</span>
+                                )}
+                              </p>
                       <p className="text-xs mt-1" style={{ color: STATO_COLORS[norm.stato] }}>
                         {STATO_LABELS[norm.stato]}
                       </p>
