@@ -64,7 +64,7 @@ export default function ComplianceAziendale() {
   const [showAutoGenerate, setShowAutoGenerate] = useState(false);
   const [generatingNorms, setGeneratingNorms] = useState(false);
   const [activityType, setActivityType] = useState('');
-  const [companySize, setCompanySize] = useState('piccola');
+  const [employeesCount, setEmployeesCount] = useState('');
   const { impersonation, appMode } = useImpersonation();
   const queryClient = useQueryClient();
 
@@ -150,7 +150,7 @@ export default function ComplianceAziendale() {
       const prompt = `Sei un esperto di compliance aziendale italiana. 
 Genera una lista di adempimenti obbligatori per legge per un'azienda con queste caratteristiche:
 - Tipo di attività: ${activityType}
-- Dimensione: ${companySize}
+- Numero dipendenti: ${employeesCount || 'non specificato'}
 
 Per ogni adempimento obbligatorio, fornisci:
 1. nome: Nome dell'adempimento (es: "DVR - Documento Valutazione Rischi")
@@ -820,21 +820,15 @@ NON includere adempimenti facoltativi o raccomandati.`;
             </div>
 
             <div>
-              <Label className="text-slate-300">Dimensione azienda</Label>
-              <Select
-                value={companySize}
-                onValueChange={setCompanySize}
-              >
-                <SelectTrigger className="bg-slate-900 border-slate-700 text-white mt-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="micro">Micro (1-9 dipendenti)</SelectItem>
-                  <SelectItem value="piccola">Piccola (10-49 dipendenti)</SelectItem>
-                  <SelectItem value="media">Media (50-249 dipendenti)</SelectItem>
-                  <SelectItem value="grande">Grande (250+ dipendenti)</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label className="text-slate-300">Numero dipendenti</Label>
+              <Input
+                type="number"
+                value={employeesCount}
+                onChange={(e) => setEmployeesCount(e.target.value)}
+                className="bg-slate-900 border-slate-700 text-white mt-1"
+                placeholder="Es: 5, 15, 50..."
+                min="0"
+              />
             </div>
 
             <Button
