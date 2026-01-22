@@ -370,6 +370,7 @@ GENERA ORA L'ELENCO COMPLETO PER: ${tipoAttivita} con ${numeroDipendenti || 'num
 
       const result = await base44.integrations.Core.InvokeLLM({
         prompt,
+        add_context_from_internet: true, // Cerca informazioni aggiornate sulle normative
         response_json_schema: {
           type: "object",
           properties: {
@@ -383,7 +384,8 @@ GENERA ORA L'ELENCO COMPLETO PER: ${tipoAttivita} con ${numeroDipendenti || 'num
                   categoria: { type: "string" },
                   frequenza_rinnovo_mesi: { type: "number" },
                   sanzione_prevista: { type: "string" },
-                  priorita: { type: "string" }
+                  priorita: { type: "string" },
+                  riferimento_normativo: { type: "string" }
                 }
               }
             }
@@ -393,12 +395,19 @@ GENERA ORA L'ELENCO COMPLETO PER: ${tipoAttivita} con ${numeroDipendenti || 'num
 
       if (result?.adempimenti && result.adempimenti.length > 0) {
         for (const adempimento of result.adempimenti) {
+          // Valida la categoria
+          const validCategorie = ["Sicurezza sul lavoro", "Privacy e GDPR", "Ambientale", "Fiscale", "Igiene e Sanità", "Antincendio", "Formazione obbligatoria", "Altro"];
+          let categoria = adempimento.categoria || 'Altro';
+          if (!validCategorie.includes(categoria)) {
+            categoria = 'Altro';
+          }
+          
           await base44.entities.ComplianceNorm.create({
             user_email: effectiveUser?.email,
             branch_id: branchId,
             nome: adempimento.nome,
-            descrizione: adempimento.descrizione,
-            categoria: adempimento.categoria || 'Altro',
+            descrizione: `${adempimento.descrizione}${adempimento.riferimento_normativo ? '\n\nRiferimento: ' + adempimento.riferimento_normativo : ''}`,
+            categoria: categoria,
             frequenza_rinnovo_mesi: adempimento.frequenza_rinnovo_mesi || 12,
             sanzione_prevista: adempimento.sanzione_prevista,
             priorita: adempimento.priorita || 'media',
