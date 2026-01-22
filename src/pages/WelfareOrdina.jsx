@@ -244,12 +244,19 @@ export default function WelfareOrdina() {
               <CheckCircle className="w-16 h-16 text-green-400 mx-auto mb-4" />
               <h3 className="text-green-400 font-bold text-xl mb-2">Richiesta Inviata!</h3>
               <p className="text-green-200 text-sm mb-4">
-                Abbiamo ricevuto i tuoi contratti. Ti contatteremo entro 48 ore per procedere con l'attivazione.
+                Abbiamo ricevuto i tuoi contratti. Ora dovrai compilare una tabella Excel come questo esempio con i dati di chi usufruirà dei benefit:
               </p>
+              <div className="mb-4">
+                <img 
+                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/6cb640958_buonispesa-omaggi.png"
+                  alt="Esempio tabella Excel"
+                  className="w-full rounded-lg border border-green-500/30"
+                />
+              </div>
               <Alert className="bg-blue-500/20 border-blue-500/30 text-left">
                 <Info className="h-4 w-4 text-blue-400" />
                 <AlertDescription className="text-blue-200 text-sm">
-                  <strong>Prossimo passo:</strong> Ti invieremo un file Excel da compilare con la lista dei dipendenti beneficiari dei buoni.
+                  <strong>Colonne richieste:</strong> Nome, Cognome, Email, Importo (€), Codice Fiscale
                 </AlertDescription>
               </Alert>
             </CardContent>
