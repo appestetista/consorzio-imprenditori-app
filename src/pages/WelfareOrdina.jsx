@@ -8,9 +8,6 @@ import { Button } from '@/components/ui/button';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 
-const EXCEL_BUONI_SPESA_OMAGGIO = 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/a6bfbd695_tabella1.png';
-const EXCEL_BUONI_PASTO = 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/7dc688899_tabella2.png';
-
 const CONTRATTI = [
   {
     id: 'buoni_pasto',
@@ -23,8 +20,7 @@ const CONTRATTI = [
     accentColor: 'from-orange-400 to-amber-400',
     pdfUrl: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/8b4e08588_buonipasto.pdf',
     needsExcel: true,
-    excelImage: EXCEL_BUONI_PASTO,
-    excelColonne: 'Matricola, Nome, Cognome, Codice Fiscale, Email, Valore del buono (€), Quantità buoni'
+    excelColonne: ['Matricola', 'Nome', 'Cognome', 'Codice Fiscale', 'Email', 'Valore del buono (€)', 'Quantità buoni']
   },
   {
     id: 'buoni_spesa',
@@ -37,8 +33,7 @@ const CONTRATTI = [
     accentColor: 'from-emerald-400 to-green-400',
     pdfUrl: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/3ba3e9801_buonispesa.pdf',
     needsExcel: true,
-    excelImage: EXCEL_BUONI_SPESA_OMAGGIO,
-    excelColonne: 'Nome, Cognome, Email, Importo (€), Codice Fiscale'
+    excelColonne: ['Nome', 'Cognome', 'Email', 'Importo (€)', 'Codice Fiscale']
   },
   {
     id: 'buoni_omaggio',
@@ -51,8 +46,7 @@ const CONTRATTI = [
     accentColor: 'from-violet-400 to-purple-400',
     pdfUrl: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/edb949281_buoniomaggio.pdf',
     needsExcel: true,
-    excelImage: EXCEL_BUONI_SPESA_OMAGGIO,
-    excelColonne: 'Nome, Cognome, Email, Importo (€), Codice Fiscale'
+    excelColonne: ['Nome', 'Cognome', 'Email', 'Importo (€)', 'Codice Fiscale']
   }
 ];
 
@@ -71,6 +65,22 @@ export default function WelfareOrdina() {
 
   const handleDownload = (pdfUrl) => {
     window.open(pdfUrl, '_blank');
+  };
+
+  const downloadExcelTemplate = (contratto) => {
+    // Crea CSV con le colonne del template
+    const colonne = contratto.excelColonne;
+    const csvContent = colonne.join(',') + '\n';
+    
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `template_${contratto.id}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   const handleContractUpload = async (contractId, e) => {
@@ -304,19 +314,25 @@ export default function WelfareOrdina() {
                       {contratto.needsExcel && !status.excelSent && (
                         <>
                           <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
-                            <div className="flex items-start gap-2 mb-2">
+                            <div className="flex items-start gap-2 mb-3">
                               <FileSpreadsheet className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
                               <div>
-                                <p className="text-blue-700 font-semibold text-sm">Carica qui la tabella Excel con i destinatari del benefit</p>
-                                <p className="text-blue-600 text-xs mt-1">La tabella dovrà essere fatta così:</p>
+                                <p className="text-blue-700 font-semibold text-sm">Carica la tabella con i destinatari del benefit</p>
+                                <p className="text-blue-600 text-xs mt-1">Scarica il template, compilalo e ricaricalo qui</p>
                               </div>
                             </div>
-                            <img 
-                              src={contratto.excelImage} 
-                              alt="Esempio Excel"
-                              className="w-full rounded-lg border border-blue-200 mt-2 shadow-sm"
-                            />
-                            <p className="text-slate-500 text-xs mt-2">Colonne: {contratto.excelColonne}</p>
+                            
+                            <Button
+                              onClick={() => downloadExcelTemplate(contratto)}
+                              variant="outline"
+                              size="sm"
+                              className="w-full mb-3 border-blue-300 bg-white hover:bg-blue-50 text-blue-700"
+                            >
+                              <Download className="w-4 h-4 mr-2" />
+                              Scarica Template Excel
+                            </Button>
+                            
+                            <p className="text-slate-500 text-xs">Colonne: {contratto.excelColonne.join(', ')}</p>
                           </div>
 
                           {/* Upload Excel */}
