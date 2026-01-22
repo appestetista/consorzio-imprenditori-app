@@ -620,10 +620,10 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
   };
 
   const pieData = [
+    { name: 'Non verificato', value: stats.non_verificato, color: STATO_COLORS.non_verificato },
     { name: 'Conforme', value: stats.conforme, color: STATO_COLORS.conforme },
     { name: 'Da migliorare', value: stats.da_migliorare, color: STATO_COLORS.da_migliorare },
     { name: 'Non conforme', value: stats.non_conforme, color: STATO_COLORS.non_conforme },
-    { name: 'Non verificato', value: stats.non_verificato, color: STATO_COLORS.non_verificato },
   ].filter(d => d.value > 0);
 
   const getTimelinePosition = (norm) => {
