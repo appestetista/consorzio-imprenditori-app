@@ -14,7 +14,10 @@ const CONTRATTI = [
     nome: 'Buoni Pasto',
     descrizione: 'Buoni pasto digitali con esenzione fiscale fino a 8€',
     icon: CreditCard,
-    color: 'from-orange-500 to-amber-500',
+    bgColor: 'bg-orange-100',
+    iconBg: 'bg-orange-200',
+    iconColor: 'text-orange-600',
+    accentColor: 'from-orange-400 to-amber-400',
     pdfUrl: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/8b4e08588_buonipasto.pdf',
     needsExcel: false
   },
@@ -23,7 +26,10 @@ const CONTRATTI = [
     nome: 'Buoni Spesa',
     descrizione: 'Buoni spesa per supermercati e negozi convenzionati',
     icon: ShoppingBag,
-    color: 'from-green-500 to-emerald-500',
+    bgColor: 'bg-emerald-100',
+    iconBg: 'bg-emerald-200',
+    iconColor: 'text-emerald-600',
+    accentColor: 'from-emerald-400 to-green-400',
     pdfUrl: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/3ba3e9801_buonispesa.pdf',
     needsExcel: true
   },
@@ -32,7 +38,10 @@ const CONTRATTI = [
     nome: 'Buoni Omaggio',
     descrizione: 'Buoni regalo per premi e omaggi ai collaboratori',
     icon: Gift,
-    color: 'from-purple-500 to-violet-500',
+    bgColor: 'bg-violet-100',
+    iconBg: 'bg-violet-200',
+    iconColor: 'text-violet-600',
+    accentColor: 'from-violet-400 to-purple-400',
     pdfUrl: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/edb949281_buoniomaggio.pdf',
     needsExcel: true
   }
@@ -190,17 +199,17 @@ export default function WelfareOrdina() {
             const status = contractStatus[contratto.id] || {};
 
             return (
-              <Card key={contratto.id} className="bg-slate-800 border-slate-700 overflow-hidden">
-                <div className={`h-2 bg-gradient-to-r ${contratto.color}`} />
-                <CardContent className="p-4">
+              <Card key={contratto.id} className={`${contratto.bgColor} border-0 overflow-hidden shadow-lg`}>
+                <div className={`h-2 bg-gradient-to-r ${contratto.accentColor}`} />
+                <CardContent className="p-5">
                   {/* Header riquadro */}
-                  <div className="flex items-start gap-3 mb-4">
-                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${contratto.color} flex items-center justify-center flex-shrink-0`}>
-                      <Icon className="w-6 h-6 text-white" />
+                  <div className="flex items-start gap-4 mb-5">
+                    <div className={`w-14 h-14 rounded-2xl ${contratto.iconBg} flex items-center justify-center flex-shrink-0 shadow-sm`}>
+                      <Icon className={`w-7 h-7 ${contratto.iconColor}`} />
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-white font-bold">{contratto.nome}</h3>
-                      <p className="text-slate-400 text-sm">{contratto.descrizione}</p>
+                      <h3 className="text-slate-800 font-bold text-lg">{contratto.nome}</h3>
+                      <p className="text-slate-600 text-sm">{contratto.descrizione}</p>
                     </div>
                   </div>
 
@@ -208,30 +217,30 @@ export default function WelfareOrdina() {
                   <Button
                     onClick={() => handleDownload(contratto.pdfUrl)}
                     variant="outline"
-                    className="w-full mb-3 border-slate-600 text-slate-300 hover:bg-slate-700"
+                    className="w-full mb-3 border-slate-400 bg-white hover:bg-slate-50 text-slate-700"
                   >
                     <Download className="w-4 h-4 mr-2" />
-                    Scarica Contratto
+                    <span className="font-bold">Scarica Contratto</span>
                   </Button>
 
                   {/* STEP 2: Carica contratto firmato */}
                   {!status.contractSent && (
                     <>
                       {status.uploaded ? (
-                        <div className="bg-green-500/20 border border-green-500/50 rounded-lg px-3 py-2 flex items-center justify-between mb-3">
+                        <div className="bg-green-100 border border-green-300 rounded-lg px-3 py-2 flex items-center justify-between mb-3">
                           <div className="flex items-center gap-2 min-w-0 flex-1">
-                            <CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" />
-                            <span className="text-green-400 text-sm truncate">{status.fileName}</span>
+                            <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
+                            <span className="text-green-700 text-sm truncate">{status.fileName}</span>
                           </div>
-                          <button onClick={() => removeContractUpload(contratto.id)} className="text-red-400 hover:text-red-300">
+                          <button onClick={() => removeContractUpload(contratto.id)} className="text-red-500 hover:text-red-600">
                             <X className="w-4 h-4" />
                           </button>
                         </div>
                       ) : (
                         <label className="cursor-pointer block mb-3">
-                          <div className={`flex items-center justify-center gap-2 py-2 px-4 rounded-lg transition-colors ${
+                          <div className={`flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl transition-colors shadow-sm ${
                             status.uploading 
-                              ? 'bg-slate-700 text-slate-400' 
+                              ? 'bg-slate-200 text-slate-400' 
                               : 'bg-pink-500 hover:bg-pink-600 text-white'
                           }`}>
                             {status.uploading ? (
@@ -261,7 +270,7 @@ export default function WelfareOrdina() {
                         <Button
                           onClick={() => sendContract(contratto.id)}
                           disabled={status.sending}
-                          className={`w-full bg-gradient-to-r ${contratto.color} hover:opacity-90 text-white font-bold`}
+                          className={`w-full bg-gradient-to-r ${contratto.accentColor} hover:opacity-90 text-white font-bold shadow-md`}
                         >
                           {status.sending ? (
                             <>
@@ -278,47 +287,47 @@ export default function WelfareOrdina() {
 
                   {/* STEP 4: Contratto inviato - mostra richiesta Excel (solo per buoni spesa/omaggio) */}
                   {status.contractSent && (
-                    <div className="mt-4 pt-4 border-t border-slate-700">
-                      <div className="flex items-center gap-2 mb-3">
-                        <CheckCircle className="w-5 h-5 text-green-400" />
-                        <span className="text-green-400 font-medium">Contratto Inviato!</span>
+                    <div className="mt-4 pt-4 border-t border-slate-300">
+                      <div className="flex items-center gap-2 mb-3 bg-green-100 rounded-lg px-3 py-2">
+                        <CheckCircle className="w-5 h-5 text-green-600" />
+                        <span className="text-green-700 font-medium">Contratto Inviato!</span>
                       </div>
 
                       {contratto.needsExcel && !status.excelSent && (
                         <>
-                          <div className="bg-blue-500/20 border border-blue-500/30 rounded-lg p-3 mb-4">
+                          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-4">
                             <div className="flex items-start gap-2 mb-2">
-                              <FileSpreadsheet className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+                              <FileSpreadsheet className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
                               <div>
-                                <p className="text-blue-300 font-medium text-sm">Ora crea una tabella Excel</p>
-                                <p className="text-blue-200 text-xs mt-1">Segui questo esempio con i dati dei dipendenti:</p>
+                                <p className="text-blue-700 font-semibold text-sm">Ora crea una tabella Excel</p>
+                                <p className="text-blue-600 text-xs mt-1">Segui questo esempio con i dati dei dipendenti:</p>
                               </div>
                             </div>
                             <img 
                               src={EXCEL_EXAMPLE_IMAGE} 
                               alt="Esempio Excel"
-                              className="w-full rounded-lg border border-slate-600 mt-2"
+                              className="w-full rounded-lg border border-blue-200 mt-2 shadow-sm"
                             />
-                            <p className="text-slate-400 text-xs mt-2">Colonne: Nome, Cognome, Email, Importo (€), Codice Fiscale</p>
+                            <p className="text-slate-500 text-xs mt-2">Colonne: Nome, Cognome, Email, Importo (€), Codice Fiscale</p>
                           </div>
 
                           {/* Upload Excel */}
                           {status.excelUploaded ? (
-                            <div className="bg-green-500/20 border border-green-500/50 rounded-lg px-3 py-2 flex items-center justify-between mb-3">
+                            <div className="bg-green-100 border border-green-300 rounded-lg px-3 py-2 flex items-center justify-between mb-3">
                               <div className="flex items-center gap-2 min-w-0 flex-1">
-                                <CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" />
-                                <span className="text-green-400 text-sm truncate">{status.excelName}</span>
+                                <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0" />
+                                <span className="text-green-700 text-sm truncate">{status.excelName}</span>
                               </div>
-                              <button onClick={() => removeExcelUpload(contratto.id)} className="text-red-400 hover:text-red-300">
+                              <button onClick={() => removeExcelUpload(contratto.id)} className="text-red-500 hover:text-red-600">
                                 <X className="w-4 h-4" />
                               </button>
                             </div>
                           ) : (
                             <label className="cursor-pointer block mb-3">
-                              <div className={`flex items-center justify-center gap-2 py-2 px-4 rounded-lg border-2 border-dashed transition-colors ${
+                              <div className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl border-2 border-dashed transition-colors ${
                                 status.excelUploading 
-                                  ? 'border-slate-600 bg-slate-700/50 text-slate-400' 
-                                  : 'border-emerald-500/50 hover:border-emerald-400 bg-emerald-500/10 text-emerald-400'
+                                  ? 'border-slate-300 bg-slate-100 text-slate-400' 
+                                  : 'border-emerald-400 hover:border-emerald-500 bg-emerald-50 text-emerald-600'
                               }`}>
                                 {status.excelUploading ? (
                                   <>
@@ -347,7 +356,7 @@ export default function WelfareOrdina() {
                             <Button
                               onClick={() => sendExcel(contratto.id)}
                               disabled={status.excelSending}
-                              className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold"
+                              className={`w-full bg-gradient-to-r ${contratto.accentColor} hover:opacity-90 text-white font-bold`}
                             >
                               {status.excelSending ? (
                                 <>
@@ -363,14 +372,14 @@ export default function WelfareOrdina() {
                       )}
 
                       {status.excelSent && (
-                        <div className="flex items-center gap-2 mt-3">
-                          <CheckCircle className="w-5 h-5 text-green-400" />
-                          <span className="text-green-400 font-medium">Tabella Excel Inviata!</span>
+                        <div className="flex items-center gap-2 mt-3 bg-green-100 rounded-lg px-3 py-2">
+                          <CheckCircle className="w-5 h-5 text-green-600" />
+                          <span className="text-green-700 font-medium">Tabella Excel Inviata!</span>
                         </div>
                       )}
 
                       {!contratto.needsExcel && (
-                        <p className="text-slate-400 text-sm">La tua richiesta è stata inviata. Ti contatteremo presto!</p>
+                        <p className="text-slate-600 text-sm">La tua richiesta è stata inviata. Ti contatteremo presto!</p>
                       )}
                     </div>
                   )}
