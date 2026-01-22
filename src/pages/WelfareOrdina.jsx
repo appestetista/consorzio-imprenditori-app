@@ -479,47 +479,7 @@ export default function WelfareOrdina() {
               </Card>
             )}
 
-            {/* Riepilogo e Invio */}
-            {uploadedCount > 0 && (
-              <Card className="bg-slate-800 border-slate-700 mb-4">
-                <CardContent className="p-4">
-                  <h3 className="text-white font-semibold mb-3">Riepilogo Contratti Caricati</h3>
-                  <div className="space-y-2 mb-4">
-                    {Object.keys(uploadedContracts).map(key => {
-                      const contratto = CONTRATTI.find(c => c.id === key);
-                      return (
-                        <div key={key} className="flex items-center gap-2 bg-slate-700/50 rounded-lg px-3 py-2">
-                          <FileText className="w-4 h-4 text-pink-400" />
-                          <span className="text-white text-sm">{contratto?.nome}</span>
-                          <CheckCircle className="w-4 h-4 text-green-400 ml-auto" />
-                        </div>
-                      );
-                    })}
-                  </div>
-                  <p className="text-slate-400 text-sm mb-4">
-                    {uploadedCount} contratt{uploadedCount === 1 ? 'o' : 'i'} pront{uploadedCount === 1 ? 'o' : 'i'} per l'invio
-                  </p>
-                </CardContent>
-              </Card>
-            )}
 
-            <Button
-              onClick={() => submitMutation.mutate()}
-              disabled={uploadedCount === 0 || submitMutation.isPending}
-              className="w-full bg-pink-500 hover:bg-pink-600 text-white font-semibold h-12 disabled:opacity-50"
-            >
-              {submitMutation.isPending ? (
-                <>
-                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  Invio in corso...
-                </>
-              ) : (
-                <>
-                  <Upload className="w-5 h-5 mr-2" />
-                  Invia Richiesta ({uploadedCount} contratt{uploadedCount === 1 ? 'o' : 'i'})
-                </>
-              )}
-            </Button>
           </>
         )}
       </main>
