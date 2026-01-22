@@ -503,12 +503,21 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
     updateNormMutation.mutate({ id: normId, data: { documenti_urls: newUrls, documenti_nomi: newNames }});
   };
 
-  // Filtra per ramo selezionato
-  const filteredNorms = norms.filter(n => {
-    const matchBranch = selectedBranch === 'all' || n.branch_id === selectedBranch;
-    const matchCategoria = selectedCategoria === 'all' || n.categoria === selectedCategoria;
-    return matchBranch && matchCategoria;
-  });
+  // Filtra per ramo selezionato e ordina per scadenza
+  const filteredNorms = norms
+    .filter(n => {
+      const matchBranch = selectedBranch === 'all' || n.branch_id === selectedBranch;
+      const matchCategoria = selectedCategoria === 'all' || n.categoria === selectedCategoria;
+      return matchBranch && matchCategoria;
+    })
+    .sort((a, b) => {
+      // Prima quelli con scadenza (dal più vicino al più lontano)
+      // Poi quelli senza scadenza
+      if (!a.data_scadenza && !b.data_scadenza) return 0;
+      if (!a.data_scadenza) return 1; // a va dopo
+      if (!b.data_scadenza) return -1; // b va dopo
+      return new Date(a.data_scadenza) - new Date(b.data_scadenza);
+    });
 
   // Calcola statistiche basate sugli adempimenti filtrati
   const stats = {
