@@ -83,7 +83,28 @@ export default function ComplianceAziendale() {
 
   const { data: norms = [], isLoading: loadingNorms } = useQuery({
     queryKey: ['compliance-norms', effectiveUser?.email],
-    queryFn: () => base44.entities.ComplianceNorm.filter({ user_email: effectiveUser?.email }),
+    queryFn: async () => {
+      const rawNorms = await base44.entities.ComplianceNorm.filter({ user_email: effectiveUser?.email });
+      
+      // Ricalcola stato per documenti scaduti
+      const oggi = new Date();
+      oggi.setHours(0, 0, 0, 0);
+      
+      for (const norm of rawNorms) {
+        if (norm.data_scadenza && norm.stato !== 'non_conforme') {
+          const scadenza = new Date(norm.data_scadenza);
+          scadenza.setHours(0, 0, 0, 0);
+          
+          if (scadenza < oggi) {
+            // Aggiorna in background a non_conforme
+            await base44.entities.ComplianceNorm.update(norm.id, { stato: 'non_conforme' });
+            norm.stato = 'non_conforme';
+          }
+        }
+      }
+      
+      return rawNorms;
+    },
     enabled: !!effectiveUser?.email,
   });
 
