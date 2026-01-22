@@ -7,6 +7,8 @@ import { cn } from '@/lib/utils';
 
 export default function FeatureCard({ title, icon: Icon, pageName, notificationCount = 0, disabled = false, variant = 'default' }) {
   const isPink = variant === 'pink';
+  const isBlue = variant === 'blue';
+  const accentColor = isPink ? 'text-pink-400' : isBlue ? 'text-blue-400' : 'text-lime-400';
   const content = (
     <div className={cn(
       "relative bg-slate-800/90 rounded-xl p-6 flex flex-col items-center justify-center min-h-[120px] transition-all duration-300",
@@ -22,8 +24,8 @@ export default function FeatureCard({ title, icon: Icon, pageName, notificationC
           <NotificationBell count={notificationCount} />
         </div>
       )}
-      {Icon && <Icon className={cn("w-8 h-8 mb-3", disabled ? "text-red-400" : isPink ? "text-pink-400" : "text-lime-400")} />}
-      <span className={cn("text-sm font-medium text-center leading-tight", disabled ? "text-red-300" : isPink ? "text-pink-400" : "text-white")}>{title}</span>
+      {Icon && <Icon className={cn("w-8 h-8 mb-3", disabled ? "text-red-400" : accentColor)} />}
+      <span className={cn("text-sm font-medium text-center leading-tight", disabled ? "text-red-300" : (isPink || isBlue) ? accentColor : "text-white")}>{title}</span>
     </div>
   );
 
