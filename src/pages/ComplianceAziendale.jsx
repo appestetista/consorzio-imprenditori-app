@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Shield, Upload, FileText, AlertTriangle, CheckCircle, Clock, Plus, X, ChevronDown, ChevronUp, Trash2, Calendar } from 'lucide-react';
+import { ArrowLeft, Shield, Upload, FileText, AlertTriangle, CheckCircle, Clock, Plus, X, ChevronDown, ChevronUp, Trash2, Calendar, Sparkles, Loader2, Building2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -61,6 +61,10 @@ export default function ComplianceAziendale() {
     documenti_urls: [],
     documenti_nomi: []
   });
+  const [showAutoGenerate, setShowAutoGenerate] = useState(false);
+  const [generatingNorms, setGeneratingNorms] = useState(false);
+  const [activityType, setActivityType] = useState('');
+  const [companySize, setCompanySize] = useState('piccola');
   const { impersonation, appMode } = useImpersonation();
   const queryClient = useQueryClient();
 
@@ -136,6 +140,80 @@ export default function ComplianceAziendale() {
       setExpandedNorm(null);
     }
   });
+
+  // Genera automaticamente le normative tramite AI
+  const handleAutoGenerate = async () => {
+    if (!activityType.trim()) return;
+    
+    setGeneratingNorms(true);
+    try {
+      const prompt = `Sei un esperto di compliance aziendale italiana. 
+Genera una lista di adempimenti obbligatori per legge per un'azienda con queste caratteristiche:
+- Tipo di attività: ${activityType}
+- Dimensione: ${companySize}
+
+Per ogni adempimento obbligatorio, fornisci:
+1. nome: Nome dell'adempimento (es: "DVR - Documento Valutazione Rischi")
+2. descrizione: Breve descrizione di cosa richiede
+3. categoria: Una tra: "Sicurezza sul lavoro", "Privacy e GDPR", "Ambientale", "Fiscale", "Igiene e Sanità", "Antincendio", "Formazione obbligatoria", "Altro"
+4. frequenza_rinnovo_mesi: Ogni quanti mesi va rinnovato/aggiornato (numero)
+5. sanzione_prevista: Descrizione della sanzione in caso di mancato rispetto
+6. priorita: "alta", "media" o "bassa"
+
+Includi SOLO adempimenti realmente obbligatori per legge italiana per questo tipo di attività.
+NON includere adempimenti facoltativi o raccomandati.`;
+
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            adempimenti: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  nome: { type: "string" },
+                  descrizione: { type: "string" },
+                  categoria: { type: "string" },
+                  frequenza_rinnovo_mesi: { type: "number" },
+                  sanzione_prevista: { type: "string" },
+                  priorita: { type: "string" }
+                }
+              }
+            }
+          }
+        }
+      });
+
+      if (result?.adempimenti && result.adempimenti.length > 0) {
+        // Crea le normative nel database
+        for (const adempimento of result.adempimenti) {
+          await base44.entities.ComplianceNorm.create({
+            user_email: effectiveUser?.email,
+            nome: adempimento.nome,
+            descrizione: adempimento.descrizione,
+            categoria: adempimento.categoria || 'Altro',
+            frequenza_rinnovo_mesi: adempimento.frequenza_rinnovo_mesi || 12,
+            sanzione_prevista: adempimento.sanzione_prevista,
+            priorita: adempimento.priorita || 'media',
+            stato: 'non_verificato',
+            documenti_urls: [],
+            documenti_nomi: []
+          });
+        }
+        
+        queryClient.invalidateQueries({ queryKey: ['compliance-norms'] });
+        setShowAutoGenerate(false);
+        setActivityType('');
+      }
+    } catch (error) {
+      console.error('Errore generazione:', error);
+      alert('Errore nella generazione. Riprova.');
+    } finally {
+      setGeneratingNorms(false);
+    }
+  };
 
   const handleDocumentUpload = async (e, normId = null) => {
     const file = e.target.files?.[0];
@@ -256,6 +334,27 @@ export default function ComplianceAziendale() {
           </Button>
         </div>
 
+        {/* Banner Genera Automaticamente */}
+        {norms.length === 0 && (
+          <Card 
+            className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 border-blue-500/30 mb-6 cursor-pointer hover:border-blue-400/50 transition-colors"
+            onClick={() => setShowAutoGenerate(true)}
+          >
+            <CardContent className="p-4">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-blue-500/30 rounded-xl flex items-center justify-center">
+                  <Sparkles className="w-6 h-6 text-blue-400" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-white font-semibold">Genera Automaticamente</h3>
+                  <p className="text-slate-400 text-sm">Inserisci il tipo di attività e generiamo gli adempimenti obbligatori</p>
+                </div>
+                <ChevronDown className="w-5 h-5 text-blue-400" />
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Grafico a torta */}
         <Card className="bg-slate-800 border-slate-700 mb-6">
           <CardContent className="p-4">
@@ -265,7 +364,7 @@ export default function ComplianceAziendale() {
               <div className="text-center py-8">
                 <Shield className="w-16 h-16 text-slate-600 mx-auto mb-3" />
                 <p className="text-slate-400">Nessuna normativa inserita</p>
-                <p className="text-slate-500 text-sm">Aggiungi le normative che la tua azienda deve rispettare</p>
+                <p className="text-slate-500 text-sm">Usa "Genera Automaticamente" o aggiungi manualmente</p>
               </div>
             ) : (
               <>
@@ -685,6 +784,73 @@ export default function ComplianceAziendale() {
               className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900"
             >
               {createNormMutation.isPending ? 'Salvataggio...' : 'Aggiungi Normativa'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog Genera Automaticamente */}
+      <Dialog open={showAutoGenerate} onOpenChange={setShowAutoGenerate}>
+        <DialogContent className="bg-slate-800 border-slate-700">
+          <DialogHeader>
+            <DialogTitle className="text-white flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-blue-400" />
+              Genera Adempimenti Automaticamente
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4 mt-4">
+            <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3">
+              <p className="text-blue-300 text-sm">
+                Inserisci il tipo di attività della tua azienda e genereremo automaticamente tutti gli adempimenti obbligatori per legge che devi rispettare.
+              </p>
+            </div>
+
+            <div>
+              <Label className="text-slate-300">Tipo di attività *</Label>
+              <Textarea
+                value={activityType}
+                onChange={(e) => setActivityType(e.target.value)}
+                className="bg-slate-900 border-slate-700 text-white mt-1"
+                placeholder="Es: Ristorante con 10 dipendenti, Officina meccanica, Negozio al dettaglio, Studio di consulenza, Azienda manifatturiera metalmeccanica..."
+                rows={3}
+              />
+            </div>
+
+            <div>
+              <Label className="text-slate-300">Dimensione azienda</Label>
+              <Select
+                value={companySize}
+                onValueChange={setCompanySize}
+              >
+                <SelectTrigger className="bg-slate-900 border-slate-700 text-white mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="micro">Micro (1-9 dipendenti)</SelectItem>
+                  <SelectItem value="piccola">Piccola (10-49 dipendenti)</SelectItem>
+                  <SelectItem value="media">Media (50-249 dipendenti)</SelectItem>
+                  <SelectItem value="grande">Grande (250+ dipendenti)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Button
+              onClick={handleAutoGenerate}
+              disabled={!activityType.trim() || generatingNorms}
+              className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+            >
+              {generatingNorms ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Generazione in corso...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Genera Adempimenti
+                </>
+              )}
             </Button>
           </div>
         </DialogContent>
