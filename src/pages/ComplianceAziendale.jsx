@@ -497,25 +497,6 @@ NON includere adempimenti facoltativi o raccomandati.`;
                         </div>
                       )}
 
-                      {/* Modifica stato */}
-                      <div>
-                        <Label className="text-slate-400 text-xs">Stato conformità</Label>
-                        <Select
-                          value={norm.stato}
-                          onValueChange={(value) => updateNormMutation.mutate({ id: norm.id, data: { stato: value }})}
-                        >
-                          <SelectTrigger className="bg-slate-900 border-slate-700 text-white mt-1">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="conforme">✅ Conforme</SelectItem>
-                            <SelectItem value="da_migliorare">🟠 Da migliorare</SelectItem>
-                            <SelectItem value="non_conforme">🔴 Non conforme</SelectItem>
-                            <SelectItem value="non_verificato">⚪ Non verificato</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
                       {/* Documenti */}
                       <div>
                         <div className="flex items-center justify-between mb-2">
