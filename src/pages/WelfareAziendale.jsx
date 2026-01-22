@@ -71,22 +71,22 @@ export default function WelfareAziendale() {
 
         {/* Hero Card */}
         <Card className="bg-gradient-to-br from-pink-500 to-rose-500 border-0 mb-6">
-          <CardContent className="p-6">
+          <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
-                  <Heart className="w-8 h-8 text-white" />
+                <div className="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center">
+                  <Heart className="w-7 h-7 text-white" />
                 </div>
                 <div>
                   <h2 className="text-white text-xl font-bold">Welfare Aziendale</h2>
                   <p className="text-white/80 text-sm">Benefici e servizi per i tuoi dipendenti</p>
                 </div>
               </div>
-              <Link to={createPageUrl('WelfareStorico')} className="bg-slate-900 hover:bg-slate-800 transition-all hover:scale-105 rounded-2xl px-5 py-5 flex flex-col items-center gap-3 shadow-lg border border-lime-400/30 ml-6 -mr-2">
-                <div className="w-12 h-12 bg-lime-400/20 rounded-full flex items-center justify-center">
-                  <History className="w-6 h-6 text-lime-400" />
+              <Link to={createPageUrl('WelfareStorico')} className="bg-slate-900 hover:bg-slate-800 transition-all hover:scale-105 rounded-2xl px-4 py-3 flex flex-col items-center gap-2 shadow-lg border border-lime-400/30 ml-6 -mr-2">
+                <div className="w-10 h-10 bg-lime-400/20 rounded-full flex items-center justify-center">
+                  <History className="w-5 h-5 text-lime-400" />
                 </div>
-                <span className="text-white text-xs font-bold text-center leading-tight uppercase tracking-wide">STORICO<br/>ORDINI</span>
+                <span className="text-white text-[10px] font-bold text-center leading-tight uppercase tracking-wide">STORICO<br/>ORDINI</span>
               </Link>
             </div>
           </CardContent>
