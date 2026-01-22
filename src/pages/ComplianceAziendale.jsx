@@ -272,10 +272,24 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
       const newUrls = [...(norm.documenti_urls || []), file_url];
       const newNames = [...(norm.documenti_nomi || []), file.name];
       
+      // Verifica se il documento è scaduto
+      let statoFinale = analysisResult.stato_conformita || 'conforme';
+      if (analysisResult.data_scadenza) {
+        const oggi = new Date();
+        oggi.setHours(0, 0, 0, 0);
+        const scadenza = new Date(analysisResult.data_scadenza);
+        scadenza.setHours(0, 0, 0, 0);
+        
+        // Se scaduto, forza stato a non_conforme
+        if (scadenza < oggi) {
+          statoFinale = 'non_conforme';
+        }
+      }
+      
       const updateData = { 
         documenti_urls: newUrls, 
         documenti_nomi: newNames,
-        stato: analysisResult.stato_conformita || 'conforme',
+        stato: statoFinale,
         note: analysisResult.note_analisi || '',
         data_ultima_verifica: new Date().toISOString().split('T')[0]
       };
@@ -288,10 +302,13 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
       await updateNormMutation.mutateAsync({ id: normId, data: updateData });
 
       // Mostra risultato analisi
-      if (analysisResult.stato_conformita === 'conforme') {
+      if (statoFinale === 'conforme') {
         alert(`✅ Documento analizzato!\n\nStato: CONFORME\n${analysisResult.data_scadenza ? 'Scadenza: ' + analysisResult.data_scadenza : ''}\n\n${analysisResult.note_analisi || ''}`);
+      } else if (statoFinale === 'non_conforme') {
+        const isScaduto = analysisResult.data_scadenza && new Date(analysisResult.data_scadenza) < new Date();
+        alert(`🔴 Documento analizzato!\n\nStato: NON CONFORME${isScaduto ? ' (SCADUTO)' : ''}\n\nCriticità:\n${analysisResult.criticita?.join('\n') || analysisResult.note_analisi || 'Documento scaduto o non conforme'}`);
       } else {
-        alert(`⚠️ Documento analizzato!\n\nStato: ${analysisResult.stato_conformita?.toUpperCase()}\n\nCriticità:\n${analysisResult.criticita?.join('\n') || analysisResult.note_analisi || 'Verifica necessaria'}`);
+        alert(`⚠️ Documento analizzato!\n\nStato: DA MIGLIORARE\n\nCriticità:\n${analysisResult.criticita?.join('\n') || analysisResult.note_analisi || 'Verifica necessaria'}`);
       }
 
     } catch (error) {
