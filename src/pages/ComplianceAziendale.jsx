@@ -54,7 +54,11 @@ export default function ComplianceAziendale() {
   const [generatingNorms, setGeneratingNorms] = useState(false);
   const [activityType, setActivityType] = useState('');
   const [employeesCount, setEmployeesCount] = useState('');
-  const [analyzingDoc, setAnalyzingDoc] = useState(null); // ID della norma in analisi
+  const [analyzingDoc, setAnalyzingDoc] = useState(null);
+  const [showBranchManager, setShowBranchManager] = useState(false);
+  const [editingBranch, setEditingBranch] = useState(null);
+  const [selectedBranch, setSelectedBranch] = useState('all');
+  const [newBranch, setNewBranch] = useState({ nome: '', tipo_attivita: '', codice_ateco: '', indirizzo: '', numero_dipendenti: '' });
   const { impersonation, appMode } = useImpersonation();
   const queryClient = useQueryClient();
 
