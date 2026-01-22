@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Heart, FileText, Gift, ShoppingBag, Send } from 'lucide-react';
+import { ArrowLeft, Heart, FileText, Gift, ShoppingBag, Send, History } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Card, CardContent } from '@/components/ui/card';
@@ -54,6 +54,12 @@ export default function WelfareAziendale() {
       title: 'Ordina',
       description: 'Richiedi i buoni welfare per la tua azienda',
       page: 'WelfareOrdina'
+    },
+    {
+      icon: History,
+      title: 'Storico Ordini',
+      description: 'Visualizza e gestisci i tuoi ordini',
+      page: 'WelfareStorico'
     }
   ];
 
