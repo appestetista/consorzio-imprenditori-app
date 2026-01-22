@@ -8,6 +8,9 @@ import { Button } from '@/components/ui/button';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 
+const EXCEL_BUONI_SPESA_OMAGGIO = 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/a6bfbd695_tabella1.png';
+const EXCEL_BUONI_PASTO = 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/7dc688899_tabella2.png';
+
 const CONTRATTI = [
   {
     id: 'buoni_pasto',
@@ -19,7 +22,9 @@ const CONTRATTI = [
     iconColor: 'text-orange-600',
     accentColor: 'from-orange-400 to-amber-400',
     pdfUrl: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/8b4e08588_buonipasto.pdf',
-    needsExcel: false
+    needsExcel: true,
+    excelImage: EXCEL_BUONI_PASTO,
+    excelColonne: 'Matricola, Nome, Cognome, Codice Fiscale, Email, Valore del buono (€), Quantità buoni'
   },
   {
     id: 'buoni_spesa',
@@ -31,7 +36,9 @@ const CONTRATTI = [
     iconColor: 'text-emerald-600',
     accentColor: 'from-emerald-400 to-green-400',
     pdfUrl: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/3ba3e9801_buonispesa.pdf',
-    needsExcel: true
+    needsExcel: true,
+    excelImage: EXCEL_BUONI_SPESA_OMAGGIO,
+    excelColonne: 'Nome, Cognome, Email, Importo (€), Codice Fiscale'
   },
   {
     id: 'buoni_omaggio',
@@ -43,11 +50,11 @@ const CONTRATTI = [
     iconColor: 'text-violet-600',
     accentColor: 'from-violet-400 to-purple-400',
     pdfUrl: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/edb949281_buoniomaggio.pdf',
-    needsExcel: true
+    needsExcel: true,
+    excelImage: EXCEL_BUONI_SPESA_OMAGGIO,
+    excelColonne: 'Nome, Cognome, Email, Importo (€), Codice Fiscale'
   }
 ];
-
-const EXCEL_EXAMPLE_IMAGE = 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/e2de31a19_buonispesa-omaggi.png';
 
 export default function WelfareOrdina() {
   const [user, setUser] = useState(null);
@@ -300,16 +307,16 @@ export default function WelfareOrdina() {
                             <div className="flex items-start gap-2 mb-2">
                               <FileSpreadsheet className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
                               <div>
-                                <p className="text-blue-700 font-semibold text-sm">Ora crea una tabella Excel</p>
-                                <p className="text-blue-600 text-xs mt-1">Segui questo esempio con i dati dei dipendenti:</p>
+                                <p className="text-blue-700 font-semibold text-sm">Carica qui la tabella Excel con i destinatari del benefit</p>
+                                <p className="text-blue-600 text-xs mt-1">La tabella dovrà essere fatta così:</p>
                               </div>
                             </div>
                             <img 
-                              src={EXCEL_EXAMPLE_IMAGE} 
+                              src={contratto.excelImage} 
                               alt="Esempio Excel"
                               className="w-full rounded-lg border border-blue-200 mt-2 shadow-sm"
                             />
-                            <p className="text-slate-500 text-xs mt-2">Colonne: Nome, Cognome, Email, Importo (€), Codice Fiscale</p>
+                            <p className="text-slate-500 text-xs mt-2">Colonne: {contratto.excelColonne}</p>
                           </div>
 
                           {/* Upload Excel */}
@@ -379,9 +386,7 @@ export default function WelfareOrdina() {
                         </div>
                       )}
 
-                      {!contratto.needsExcel && (
-                        <p className="text-slate-600 text-sm">La tua richiesta è stata inviata. Ti contatteremo presto!</p>
-                      )}
+
                     </div>
                   )}
                 </CardContent>
