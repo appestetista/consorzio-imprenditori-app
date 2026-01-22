@@ -191,6 +191,9 @@ NON includere adempimenti facoltativi o raccomandati.`;
     const norm = norms.find(n => n.id === normId);
     if (!norm) return;
 
+    // Verifica se siamo in modalità admin (bypass controlli)
+    const isAdminMode = user?.role === 'admin' && !impersonation.active;
+
     setUploadingDoc(true);
     setAnalyzingDoc(normId);
     
@@ -198,27 +201,49 @@ NON includere adempimenti facoltativi o raccomandati.`;
       // 1. Upload del file
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
       
-      // 2. Analisi AI del documento
+      // 2. Analisi AI del documento con verifica pertinenza E coerenza azienda
+      const aziendaInfo = `
+DATI AZIENDA REGISTRATA:
+- Ragione sociale: ${effectiveUser?.company_name || 'Non specificata'}
+- Partita IVA: ${effectiveUser?.vat_number || 'Non specificata'}
+- Codice Fiscale: ${effectiveUser?.fiscal_code || 'Non specificato'}
+- Indirizzo: ${effectiveUser?.address || 'Non specificato'}
+- Città: ${effectiveUser?.city || 'Non specificata'}
+- Email: ${effectiveUser?.email || 'Non specificata'}
+- Codice ATECO: ${effectiveUser?.ateco_code || 'Non specificato'}
+- Forma giuridica: ${effectiveUser?.legal_form || 'Non specificata'}`;
+
       const analysisResult = await base44.integrations.Core.InvokeLLM({
-        prompt: `Sei un esperto di compliance aziendale italiana. Analizza questo documento e verifica se corrisponde all'adempimento richiesto.
+        prompt: `Sei un esperto di compliance aziendale italiana. Analizza questo documento e verifica:
 
 ADEMPIMENTO RICHIESTO: "${norm.nome}"
 DESCRIZIONE: "${norm.descrizione || 'Non specificata'}"
 CATEGORIA: "${norm.categoria}"
 
-Analizza il documento caricato e rispondi:
-1. Il documento è pertinente a questo adempimento? (es: se serve un DVR e l'utente carica una fattura, NON è pertinente)
-2. Se pertinente, il documento è conforme ai requisiti di legge?
-3. Qual è la data di scadenza/rinnovo del documento? (cerca date nel documento)
-4. Ci sono criticità o mancanze?
+${aziendaInfo}
 
-IMPORTANTE: Sii rigoroso nella verifica della pertinenza.`,
+CONTROLLI DA EFFETTUARE IN ORDINE:
+
+1. PERTINENZA: Il documento è pertinente a questo adempimento? (es: se serve un DVR e l'utente carica una fattura, NON è pertinente)
+
+2. COERENZA AZIENDA: Se il documento è pertinente, verifica che i dati aziendali nel documento (ragione sociale, P.IVA, CF, indirizzo) corrispondano ai dati dell'azienda registrata sopra. 
+   - Se trovi una ragione sociale diversa, P.IVA diversa, o dati di un'altra azienda → il documento NON appartiene a questa azienda
+   - Sii rigoroso: anche piccole discrepanze nei dati identificativi (P.IVA, CF) indicano un documento di un'altra azienda
+
+3. CONFORMITÀ: Se passa i controlli 1 e 2, verifica se il documento è conforme ai requisiti di legge
+
+4. SCADENZA: Cerca la data di scadenza/rinnovo nel documento
+
+IMPORTANTE: Sii molto rigoroso nei controlli. Non creare falsi positivi.`,
         file_urls: [file_url],
         response_json_schema: {
           type: "object",
           properties: {
             documento_pertinente: { type: "boolean" },
             motivo_non_pertinente: { type: "string" },
+            documento_appartiene_azienda: { type: "boolean" },
+            motivo_azienda_diversa: { type: "string" },
+            dati_azienda_trovati: { type: "string", description: "Ragione sociale/P.IVA trovati nel documento" },
             documento_conforme: { type: "boolean" },
             stato_conformita: { type: "string", enum: ["conforme", "da_migliorare", "non_conforme"] },
             data_scadenza: { type: "string", description: "Data in formato YYYY-MM-DD se trovata" },
@@ -228,13 +253,19 @@ IMPORTANTE: Sii rigoroso nella verifica della pertinenza.`,
         }
       });
 
+      // CONTROLLO 1: Pertinenza
       if (!analysisResult.documento_pertinente) {
-        // Documento non pertinente - avvisa l'utente
         alert(`⚠️ Documento non valido!\n\n${analysisResult.motivo_non_pertinente || 'Il documento caricato non corrisponde all\'adempimento richiesto. Assicurati di caricare il documento corretto per: ' + norm.nome}`);
         return;
       }
 
-      // 3. Documento pertinente - salva e aggiorna stato
+      // CONTROLLO 2: Coerenza azienda (bypass per admin)
+      if (!analysisResult.documento_appartiene_azienda && !isAdminMode) {
+        alert(`⚠️ Documento di un'altra azienda!\n\n${analysisResult.motivo_azienda_diversa || 'I dati nel documento non corrispondono alla tua azienda.'}\n\n${analysisResult.dati_azienda_trovati ? 'Dati trovati nel documento: ' + analysisResult.dati_azienda_trovati : ''}\n\nControlla di aver caricato il documento corretto.`);
+        return;
+      }
+
+      // 3. Documento valido - salva e aggiorna stato
       const newUrls = [...(norm.documenti_urls || []), file_url];
       const newNames = [...(norm.documenti_nomi || []), file.name];
       
