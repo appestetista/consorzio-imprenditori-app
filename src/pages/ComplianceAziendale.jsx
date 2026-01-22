@@ -873,11 +873,13 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
           </DialogHeader>
           
           <div className="space-y-4 mt-4">
-            {/* Lista rami esistenti */}
-            {branches.length > 0 && (
-              <div className="space-y-2">
-                <Label className="text-slate-300">Rami esistenti</Label>
-                {branches.map(branch => (
+            {/* Lista rami esistenti - sempre visibile */}
+            <div className="space-y-2">
+              <Label className="text-slate-300">Rami esistenti ({branches.length})</Label>
+              {branches.length === 0 ? (
+                <p className="text-slate-500 text-sm py-2">Nessun ramo aziendale configurato. Aggiungine uno qui sotto.</p>
+              ) : (
+                branches.map(branch => (
                   <Card key={branch.id} className="bg-slate-900 border-slate-700">
                     <CardContent className="p-3">
                       {editingBranch?.id === branch.id ? (
@@ -933,9 +935,8 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
                       )}
                     </CardContent>
                   </Card>
-                ))}
-              </div>
-            )}
+                ))
+              )}
 
             {/* Form nuovo ramo */}
             <div className="border-t border-slate-700 pt-4">
