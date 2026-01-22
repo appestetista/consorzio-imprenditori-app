@@ -215,7 +215,9 @@ export default function ComplianceAziendale() {
       await generateNormsForBranch(createdBranch.id, tipoAttivita, numeroDipendenti, newBranch.data_attivazione);
       
       setNewBranch({ nome: '', tipo_attivita: '', codice_ateco: '', indirizzo: '', numero_dipendenti: '', data_attivazione: '' });
-                  setShowBranchManager(false);
+      setShowBranchManager(false);
+      // Seleziona automaticamente il ramo appena creato per mostrare gli adempimenti
+      setSelectedBranch(createdBranch.id);
     } catch (error) {
       console.error('Errore creazione ramo:', error);
       alert('Errore nella creazione del ramo. Riprova.');
