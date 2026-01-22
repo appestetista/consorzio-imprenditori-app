@@ -325,13 +325,15 @@ NON includere adempimenti facoltativi o raccomandati.`;
             </Link>
             <h1 className="text-lime-400 text-xl font-bold">Compliance Aziendale</h1>
           </div>
-          <Button 
-            onClick={() => setShowAddNorm(true)}
-            className="bg-lime-400 text-slate-900 hover:bg-lime-500"
-            size="sm"
-          >
-            <Plus className="w-4 h-4 mr-1" /> Aggiungi
-          </Button>
+          {norms.length > 0 && (
+            <Button 
+              onClick={() => setShowAutoGenerate(true)}
+              className="bg-blue-500 text-white hover:bg-blue-600"
+              size="sm"
+            >
+              <Sparkles className="w-4 h-4 mr-1" /> Genera
+            </Button>
+          )}
         </div>
 
         {/* Banner Genera Automaticamente */}
