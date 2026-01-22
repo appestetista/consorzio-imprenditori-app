@@ -331,7 +331,8 @@ GENERA ORA L'ELENCO COMPLETO PER: ${tipoAttivita} con ${numeroDipendenti || 'num
                   frequenza_rinnovo_mesi: { type: "number" },
                   sanzione_prevista: { type: "string" },
                   priorita: { type: "string" },
-                  riferimento_normativo: { type: "string" }
+                  riferimento_normativo: { type: "string" },
+                  data_scadenza: { type: "string", description: "Data scadenza formato YYYY-MM-DD o null" }
                 }
               }
             }
@@ -358,6 +359,7 @@ GENERA ORA L'ELENCO COMPLETO PER: ${tipoAttivita} con ${numeroDipendenti || 'num
             sanzione_prevista: adempimento.sanzione_prevista,
             priorita: adempimento.priorita || 'media',
             stato: 'non_verificato',
+            data_scadenza: adempimento.data_scadenza || null,
             is_locked: true,
             documenti_urls: [],
             documenti_nomi: []
