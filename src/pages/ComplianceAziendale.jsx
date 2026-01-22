@@ -327,7 +327,18 @@ IMPORTANTE: Sii molto rigoroso nei controlli. Non creare falsi positivi.`,
     if (!norm.data_scadenza) return null;
     
     const oggi = new Date();
+    oggi.setHours(0, 0, 0, 0);
     const scadenza = new Date(norm.data_scadenza);
+    scadenza.setHours(0, 0, 0, 0);
+    
+    const giorniMancanti = Math.ceil((scadenza - oggi) / (1000 * 60 * 60 * 24));
+    
+    // Se scaduto (giorniMancanti < 0), sempre rosso e 100%
+    if (giorniMancanti < 0) {
+      return { percentuale: 100, color: 'red', giorniMancanti, scadenza };
+    }
+    
+    // Calcola percentuale basata sul periodo di rinnovo
     const frequenzaGiorni = (norm.frequenza_rinnovo_mesi || 12) * 30;
     const inizioPeriodo = new Date(scadenza);
     inizioPeriodo.setDate(inizioPeriodo.getDate() - frequenzaGiorni);
@@ -336,12 +347,10 @@ IMPORTANTE: Sii molto rigoroso nei controlli. Non creare falsi positivi.`,
     const trascorso = oggi - inizioPeriodo;
     const percentuale = Math.min(Math.max((trascorso / totale) * 100, 0), 100);
     
-    // Determina colore: verde (0-60%), arancione (60-85%), rosso (85-100%)
+    // Determina colore: verde (0-60%), arancione (60-85%), rosso (85-100% o scaduto)
     let color = 'green';
     if (percentuale > 85) color = 'red';
     else if (percentuale > 60) color = 'orange';
-    
-    const giorniMancanti = Math.ceil((scadenza - oggi) / (1000 * 60 * 60 * 24));
     
     return { percentuale, color, giorniMancanti, scadenza };
   };
