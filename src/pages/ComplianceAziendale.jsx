@@ -1063,15 +1063,27 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
                 </div>
                 
                 <Input
-                  value={newBranch.indirizzo}
-                  onChange={(e) => setNewBranch({...newBranch, indirizzo: e.target.value})}
-                  className="bg-slate-900 border-slate-700 text-white"
-                  placeholder="Indirizzo (opzionale)"
-                />
+                                        value={newBranch.indirizzo}
+                                        onChange={(e) => setNewBranch({...newBranch, indirizzo: e.target.value})}
+                                        className="bg-slate-900 border-slate-700 text-white"
+                                        placeholder="Indirizzo (opzionale)"
+                                      />
 
-                <Button
+                                      <div>
+                                        <Label className="text-slate-400 text-xs mb-1 block">Data di attivazione attività *</Label>
+                                        <Input
+                                          type="date"
+                                          value={newBranch.data_attivazione}
+                                          onChange={(e) => setNewBranch({...newBranch, data_attivazione: e.target.value})}
+                                          className="bg-slate-900 border-slate-700 text-white"
+                                          required
+                                        />
+                                        <p className="text-slate-500 text-xs mt-1">Data in cui è iniziata l'attività (per calcolare le scadenze)</p>
+                                      </div>
+
+                                      <Button
                   onClick={handleCreateBranch}
-                  disabled={!newBranch.nome.trim() || !newBranch.tipo_attivita.trim() || generatingNorms}
+                  disabled={!newBranch.nome.trim() || !newBranch.tipo_attivita.trim() || !newBranch.data_attivazione || generatingNorms}
                   className="w-full bg-lime-400 text-slate-900 hover:bg-lime-500"
                 >
                   {generatingNorms ? (
