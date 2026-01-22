@@ -1212,23 +1212,31 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
                                         <p className="text-slate-500 text-xs mt-1">Data in cui è iniziata l'attività (per calcolare le scadenze)</p>
                                       </div>
 
-                                      <Button
-                  onClick={handleCreateBranch}
-                  disabled={!newBranch.nome.trim() || !newBranch.tipo_attivita.trim() || !newBranch.data_attivazione || generatingNorms}
-                  className="w-full bg-lime-400 text-slate-900 hover:bg-lime-500"
-                >
-                  {generatingNorms ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Generazione adempimenti...
-                    </>
-                  ) : (
-                    <>
-                      <Plus className="w-4 h-4 mr-2" />
-                      Aggiungi Ramo e Genera Adempimenti
-                    </>
-                  )}
-                </Button>
+                                      {generatingNorms ? (
+                                                              <div className="bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-purple-500/30 rounded-xl p-6 text-center">
+                                                                <div className="relative w-16 h-16 mx-auto mb-4">
+                                                                  <div className="absolute inset-0 bg-purple-500/30 rounded-full animate-ping"></div>
+                                                                  <div className="relative w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
+                                                                    <Sparkles className="w-8 h-8 text-white animate-pulse" />
+                                                                  </div>
+                                                                </div>
+                                                                <h3 className="text-white font-semibold text-lg mb-2">🤖 L'AI sta lavorando per te</h3>
+                                                                <p className="text-slate-400 text-sm mb-3">Stiamo analizzando il tipo di attività e generando tutti gli adempimenti obbligatori per legge...</p>
+                                                                <div className="flex items-center justify-center gap-2 text-purple-400 text-xs">
+                                                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                                                  <span>Questo può richiedere qualche secondo</span>
+                                                                </div>
+                                                              </div>
+                                                            ) : (
+                                                              <Button
+                                                                onClick={handleCreateBranch}
+                                                                disabled={!newBranch.nome.trim() || !newBranch.tipo_attivita.trim() || !newBranch.data_attivazione}
+                                                                className="w-full bg-lime-400 text-slate-900 hover:bg-lime-500"
+                                                              >
+                                                                <Plus className="w-4 h-4 mr-2" />
+                                                                Aggiungi Ramo e Genera Adempimenti
+                                                              </Button>
+                                                            )}
               </div>
             </div>
           </div>
