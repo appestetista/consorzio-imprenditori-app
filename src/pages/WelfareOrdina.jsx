@@ -146,14 +146,21 @@ export default function WelfareOrdina() {
   // Verifica se serve il file Excel (buoni spesa o buoni omaggio)
   const needsExcelFile = uploadedContracts['buoni_spesa'] || uploadedContracts['buoni_omaggio'];
 
-  const submitMutation = useMutation({
-    mutationFn: async () => {
-      const uploadedKeys = Object.keys(uploadedContracts);
-      const contrattiNomi = uploadedKeys.map(k => CONTRATTI.find(c => c.id === k)?.nome).join(', ');
-      
+  const [submittedContracts, setSubmittedContracts] = useState({});
+  const [submittingContract, setSubmittingContract] = useState(null);
+
+  const submitSingleContract = async (contractId) => {
+    const contratto = CONTRATTI.find(c => c.id === contractId);
+    const uploadedFile = uploadedContracts[contractId];
+    
+    if (!contratto || !uploadedFile) return;
+    
+    setSubmittingContract(contractId);
+    
+    try {
       // Prepara documenti allegati
-      const documentiUrls = Object.values(uploadedContracts).map(c => c.url);
-      if (excelFile) {
+      const documentiUrls = [uploadedFile.url];
+      if ((contractId === 'buoni_spesa' || contractId === 'buoni_omaggio') && excelFile) {
         documentiUrls.push(excelFile.url);
       }
       
@@ -163,7 +170,7 @@ export default function WelfareOrdina() {
         user_name: user.company_name || user.full_name,
         user_phone: user.telefono_referente || '',
         categoria: 'Welfare Aziendale',
-        note: `Contratti caricati: ${contrattiNomi}${excelFile ? ' | File Excel dipendenti: ' + excelFile.name : ''}`,
+        note: `Adesione: ${contratto.nome}${excelFile && (contractId === 'buoni_spesa' || contractId === 'buoni_omaggio') ? ' | File Excel dipendenti: ' + excelFile.name : ''}`,
         foto_bolletta_url: documentiUrls.join(', '),
         status: 'pending'
       });
@@ -175,31 +182,33 @@ export default function WelfareOrdina() {
         base44.entities.Notification.create({
           user_email: admin.email,
           type: 'consultation',
-          title: 'Nuova richiesta Welfare Aziendale',
-          content: `${user.company_name || user.full_name} ha caricato contratti welfare: ${contrattiNomi}`
+          title: `Nuova Adesione ${contratto.nome}`,
+          content: `${user.company_name || user.full_name} ha richiesto adesione a ${contratto.nome}`
         })
       ));
 
       // Invia email
       await base44.integrations.Core.SendEmail({
         to: 'consorzioimprenditori@gmail.com',
-        subject: '📋 Nuova Richiesta Welfare Aziendale',
+        subject: `📋 Nuova Adesione ${contratto.nome}`,
         body: `
-          <h2>Nuova Richiesta Welfare</h2>
+          <h2>Nuova Adesione ${contratto.nome}</h2>
           <p><strong>Azienda:</strong> ${user.company_name || user.full_name}</p>
           <p><strong>Email:</strong> ${user.email}</p>
           <p><strong>Telefono:</strong> ${user.telefono_referente || 'Non specificato'}</p>
-          <p><strong>Contratti caricati:</strong> ${contrattiNomi}</p>
           <br>
           <p>Accedi al pannello per visualizzare i documenti e procedere.</p>
         `
       });
-    },
-    onSuccess: () => {
-      setSubmitted(true);
+
+      setSubmittedContracts(prev => ({ ...prev, [contractId]: true }));
       queryClient.invalidateQueries({ queryKey: ['welfare-requests'] });
+    } catch (err) {
+      console.error('Errore invio:', err);
+    } finally {
+      setSubmittingContract(null);
     }
-  });
+  };
 
   const uploadedCount = Object.keys(uploadedContracts).length;
 
