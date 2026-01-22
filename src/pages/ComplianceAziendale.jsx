@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Shield, Upload, FileText, AlertTriangle, CheckCircle, Clock, Plus, X, ChevronDown, ChevronUp, Trash2, Calendar, Sparkles, Loader2, Building2 } from 'lucide-react';
+import { ArrowLeft, Shield, Upload, FileText, AlertTriangle, CheckCircle, Clock, Plus, X, ChevronDown, ChevronUp, Trash2, Calendar, Sparkles, Loader2, Building2, MoreVertical, Pencil } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import Header from '../components/layout/Header';
@@ -376,73 +377,69 @@ GENERA ORA L'ELENCO COMPLETO PER: ${tipoAttivita} con ${numeroDipendenti || 'num
         queryClient.invalidateQueries({ queryKey: ['compliance-norms'] });
 
         // Seconda fase: verifica aggiornamenti normativi con ricerca web
-        try {
-          const updatePrompt = `Verifica se ci sono aggiornamenti normativi recenti (2024-2025) per i seguenti adempimenti italiani:
+        const updatePrompt = `Verifica se ci sono aggiornamenti normativi recenti (2024-2025) per i seguenti adempimenti italiani:
 
-      ${result.adempimenti.map(a => `- ${a.nome}`).join('\n')}
+${result.adempimenti.map(a => `- ${a.nome}`).join('\n')}
 
-      Per ogni adempimento, cerca sul web se ci sono:
-      - Modifiche legislative recenti
-      - Nuove scadenze o tempistiche
-      - Aggiornamenti alle sanzioni
-      - Nuovi obblighi aggiunti
+Per ogni adempimento, cerca sul web se ci sono:
+- Modifiche legislative recenti
+- Nuove scadenze o tempistiche
+- Aggiornamenti alle sanzioni
+- Nuovi obblighi aggiunti
 
-      Rispondi SOLO se trovi aggiornamenti concreti e verificati. Se non ci sono modifiche, restituisci un array vuoto.`;
+Rispondi SOLO se trovi aggiornamenti concreti e verificati. Se non ci sono modifiche, restituisci un array vuoto.`;
 
-          const updateResult = await base44.integrations.Core.InvokeLLM({
-            prompt: updatePrompt,
-            add_context_from_internet: true,
-            response_json_schema: {
-              type: "object",
-              properties: {
-                aggiornamenti: {
-                  type: "array",
-                  items: {
-                    type: "object",
-                    properties: {
-                      nome_adempimento: { type: "string" },
-                      nuova_descrizione: { type: "string" },
-                      nuova_sanzione: { type: "string" },
-                      nota_aggiornamento: { type: "string" }
-                    }
+        const updateResult = await base44.integrations.Core.InvokeLLM({
+          prompt: updatePrompt,
+          add_context_from_internet: true,
+          response_json_schema: {
+            type: "object",
+            properties: {
+              aggiornamenti: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    nome_adempimento: { type: "string" },
+                    nuova_descrizione: { type: "string" },
+                    nuova_sanzione: { type: "string" },
+                    nota_aggiornamento: { type: "string" }
                   }
                 }
               }
             }
-          });
+          }
+        });
 
-          if (updateResult?.aggiornamenti && updateResult.aggiornamenti.length > 0) {
-            console.log('[ComplianceAziendale] Trovati', updateResult.aggiornamenti.length, 'aggiornamenti normativi');
+        if (updateResult?.aggiornamenti && updateResult.aggiornamenti.length > 0) {
+          console.log('[ComplianceAziendale] Trovati', updateResult.aggiornamenti.length, 'aggiornamenti normativi');
 
-            for (const aggiornamento of updateResult.aggiornamenti) {
-              const normToUpdate = createdNormIds.find(n => 
-                n.nome.toLowerCase().includes(aggiornamento.nome_adempimento.toLowerCase()) ||
-                aggiornamento.nome_adempimento.toLowerCase().includes(n.nome.toLowerCase())
-              );
+          for (const aggiornamento of updateResult.aggiornamenti) {
+            const normToUpdate = createdNormIds.find(n => 
+              n.nome.toLowerCase().includes(aggiornamento.nome_adempimento.toLowerCase()) ||
+              aggiornamento.nome_adempimento.toLowerCase().includes(n.nome.toLowerCase())
+            );
 
-              if (normToUpdate) {
-                const updateData = {};
-                if (aggiornamento.nuova_descrizione) {
-                  updateData.descrizione = aggiornamento.nuova_descrizione;
-                }
-                if (aggiornamento.nuova_sanzione) {
-                  updateData.sanzione_prevista = aggiornamento.nuova_sanzione;
-                }
-                if (aggiornamento.nota_aggiornamento) {
-                  updateData.note = `⚠️ Aggiornamento normativo: ${aggiornamento.nota_aggiornamento}`;
-                }
+            if (normToUpdate) {
+              const updateData = {};
+              if (aggiornamento.nuova_descrizione) {
+                updateData.descrizione = aggiornamento.nuova_descrizione;
+              }
+              if (aggiornamento.nuova_sanzione) {
+                updateData.sanzione_prevista = aggiornamento.nuova_sanzione;
+              }
+              if (aggiornamento.nota_aggiornamento) {
+                updateData.note = `⚠️ Aggiornamento normativo: ${aggiornamento.nota_aggiornamento}`;
+              }
 
-                if (Object.keys(updateData).length > 0) {
-                  await base44.entities.ComplianceNorm.update(normToUpdate.id, updateData);
-                  console.log('[ComplianceAziendale] Aggiornato adempimento:', normToUpdate.nome);
-                }
+              if (Object.keys(updateData).length > 0) {
+                await base44.entities.ComplianceNorm.update(normToUpdate.id, updateData);
+                console.log('[ComplianceAziendale] Aggiornato adempimento:', normToUpdate.nome);
               }
             }
-
-            queryClient.invalidateQueries({ queryKey: ['compliance-norms'] });
           }
-        } catch (updateError) {
-          console.log('[ComplianceAziendale] Verifica aggiornamenti non riuscita, adempimenti base già salvati');
+
+          queryClient.invalidateQueries({ queryKey: ['compliance-norms'] });
         }
       }
     } catch (error) {
@@ -702,18 +699,57 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
         {branches.length > 0 && (
           <div className="mb-4">
             <Label className="text-slate-400 text-xs mb-2 block">Filtra per Ramo Aziendale</Label>
-            <Select value={selectedBranch} onValueChange={setSelectedBranch}>
-              <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
-                <SelectValue placeholder="Seleziona un ramo" />
-              </SelectTrigger>
-              <SelectContent className="bg-slate-800 border-slate-700">
-                {branches.map(branch => (
-                  <SelectItem key={branch.id} value={branch.id} className="text-white">
-                    {branch.nome}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="flex gap-2">
+              <Select value={selectedBranch} onValueChange={setSelectedBranch}>
+                <SelectTrigger className="bg-slate-800 border-slate-700 text-white flex-1">
+                  <SelectValue placeholder="Seleziona un ramo" />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border-slate-700">
+                  {branches.map(branch => (
+                    <SelectItem key={branch.id} value={branch.id} className="text-white">
+                      {branch.nome}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              {selectedBranch !== 'all' && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="icon" className="border-slate-700 text-slate-300 hover:bg-slate-700">
+                      <MoreVertical className="w-4 h-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="bg-slate-800 border-slate-700">
+                    <DropdownMenuItem 
+                      onClick={() => {
+                        const branch = branches.find(b => b.id === selectedBranch);
+                        if (branch) {
+                          setEditingBranch(branch);
+                          setShowBranchManager(true);
+                        }
+                      }}
+                      className="text-white hover:bg-slate-700 cursor-pointer"
+                    >
+                      <Pencil className="w-4 h-4 mr-2" />
+                      Modifica ramo
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => {
+                        const branch = branches.find(b => b.id === selectedBranch);
+                        if (branch && confirm(`Eliminare il ramo "${branch.nome}" e tutti i suoi adempimenti?`)) {
+                          deleteBranchMutation.mutate(branch.id);
+                        }
+                      }}
+                      className="text-red-400 hover:bg-red-500/20 cursor-pointer"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Elimina ramo
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </div>
           </div>
         )}
 
