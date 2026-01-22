@@ -231,10 +231,13 @@ CONTROLLI DA EFFETTUARE IN ORDINE:
    - Sii rigoroso: anche piccole discrepanze nei dati identificativi (P.IVA, CF) indicano un documento di un'altra azienda
 
 3. CONFORMITÀ: Se passa i controlli 1 e 2, verifica se il documento è conforme ai requisiti di legge
+   - IMPORTANTE: Se il documento ha una data di scadenza e questa è PASSATA (nel passato rispetto ad oggi ${new Date().toISOString().split('T')[0]}), il documento è SCADUTO e quindi lo stato DEVE essere "non_conforme" (rosso)
+   - Se il documento è valido e non scaduto → "conforme"
+   - Se ci sono piccole mancanze ma non è scaduto → "da_migliorare"
 
-4. SCADENZA: Cerca la data di scadenza/rinnovo nel documento
+4. SCADENZA: Cerca la data di scadenza/rinnovo nel documento (formato YYYY-MM-DD)
 
-IMPORTANTE: Sii molto rigoroso nei controlli. Non creare falsi positivi.`,
+IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non importa se era valido prima.`,
         file_urls: [file_url],
         response_json_schema: {
           type: "object",
