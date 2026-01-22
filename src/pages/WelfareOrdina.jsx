@@ -503,6 +503,12 @@ export default function WelfareOrdina() {
       {/* Dialog zoom immagine Excel */}
       <Dialog open={showExcelZoom} onOpenChange={setShowExcelZoom}>
         <DialogContent className="max-w-4xl bg-slate-900 border-slate-700 p-2">
+          <button
+            onClick={() => setShowExcelZoom(false)}
+            className="absolute top-3 right-3 z-10 bg-slate-800 hover:bg-slate-700 rounded-full p-2 transition-colors"
+          >
+            <X className="w-5 h-5 text-white" />
+          </button>
           <img 
             src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/342cf25ac_buonispesa-omaggi.png"
             alt="Esempio tabella Excel"
