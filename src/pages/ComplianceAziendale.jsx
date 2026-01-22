@@ -195,11 +195,12 @@ export default function ComplianceAziendale() {
       const numeroDipendenti = newBranch.numero_dipendenti || '';
       
       const createdBranch = await base44.entities.CompanyBranch.create({
-        user_email: effectiveUser?.email,
-        ...newBranch,
-        numero_dipendenti: newBranch.numero_dipendenti ? parseInt(newBranch.numero_dipendenti) : null,
-        is_active: true
-      });
+                  user_email: effectiveUser?.email,
+                  ...newBranch,
+                  numero_dipendenti: newBranch.numero_dipendenti ? parseInt(newBranch.numero_dipendenti) : null,
+                  data_attivazione: newBranch.data_attivazione || null,
+                  is_active: true
+                });
       
       console.log('[ComplianceAziendale] Branch creato:', createdBranch.id);
       
@@ -207,8 +208,8 @@ export default function ComplianceAziendale() {
       
       await generateNormsForBranch(createdBranch.id, tipoAttivita, numeroDipendenti);
       
-      setNewBranch({ nome: '', tipo_attivita: '', codice_ateco: '', indirizzo: '', numero_dipendenti: '' });
-      setShowBranchManager(false);
+      setNewBranch({ nome: '', tipo_attivita: '', codice_ateco: '', indirizzo: '', numero_dipendenti: '', data_attivazione: '' });
+                  setShowBranchManager(false);
     } catch (error) {
       console.error('Errore creazione ramo:', error);
       alert('Errore nella creazione del ramo. Riprova.');
