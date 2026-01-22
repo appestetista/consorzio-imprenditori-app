@@ -139,18 +139,22 @@ export default function ComplianceAziendale() {
   });
 
   const deleteBranchMutation = useMutation({
-    mutationFn: async (branchId) => {
-      const branchNorms = norms.filter(n => n.branch_id === branchId);
-      for (const norm of branchNorms) {
-        await base44.entities.ComplianceNorm.delete(norm.id);
-      }
-      await base44.entities.CompanyBranch.update(branchId, { is_active: false });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['company-branches'] });
-      queryClient.invalidateQueries({ queryKey: ['compliance-norms'] });
-    }
-  });
+        mutationFn: async (branchId) => {
+          // Elimina tutti gli adempimenti associati a questo ramo
+          const branchNorms = norms.filter(n => n.branch_id === branchId);
+          for (const norm of branchNorms) {
+            await base44.entities.ComplianceNorm.delete(norm.id);
+          }
+          // Elimina definitivamente il ramo
+          await base44.entities.CompanyBranch.delete(branchId);
+        },
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ['company-branches'] });
+          queryClient.invalidateQueries({ queryKey: ['compliance-norms'] });
+          // Se il ramo eliminato era selezionato, resetta la selezione
+          setSelectedBranch('all');
+        }
+      });
 
   const updateNormMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.ComplianceNorm.update(id, data),
