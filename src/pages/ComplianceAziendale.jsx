@@ -513,8 +513,12 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
   };
 
   // Filtra per ramo selezionato e ordina per scadenza
+  // Mostra solo adempimenti di rami ancora esistenti
+  const existingBranchIds = branches.map(b => b.id);
   const filteredNorms = norms
     .filter(n => {
+      // Escludi adempimenti di rami eliminati
+      if (n.branch_id && !existingBranchIds.includes(n.branch_id)) return false;
       const matchBranch = selectedBranch === 'all' || n.branch_id === selectedBranch;
       const matchCategoria = selectedCategoria === 'all' || n.categoria === selectedCategoria;
       return matchBranch && matchCategoria;
