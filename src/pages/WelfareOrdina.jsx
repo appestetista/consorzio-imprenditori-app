@@ -316,7 +316,7 @@ export default function WelfareOrdina() {
                           Scarica PDF
                         </Button>
 
-                        {isUploaded ? (
+                        {isUploaded && !submittedContracts[contratto.id] ? (
                           <div className="flex-1 bg-green-500/20 border border-green-500/50 rounded-lg px-3 py-2 flex items-center justify-between">
                             <div className="flex items-center gap-2 min-w-0">
                               <CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" />
@@ -325,6 +325,11 @@ export default function WelfareOrdina() {
                             <button onClick={() => removeUpload(contratto.id)} className="text-red-400 hover:text-red-300 ml-2">
                               <X className="w-4 h-4" />
                             </button>
+                          </div>
+                        ) : submittedContracts[contratto.id] ? (
+                          <div className="flex-1 bg-green-500/20 border border-green-500/50 rounded-lg px-3 py-2 flex items-center justify-center gap-2">
+                            <CheckCircle className="w-4 h-4 text-green-400" />
+                            <span className="text-green-400 text-sm">Inviato</span>
                           </div>
                         ) : (
                           <label className="flex-1 cursor-pointer">
@@ -355,6 +360,27 @@ export default function WelfareOrdina() {
                           </label>
                         )}
                       </div>
+
+                      {/* Pulsante Adesione - solo se caricato e non ancora inviato */}
+                      {isUploaded && !submittedContracts[contratto.id] && (
+                        <Button
+                          onClick={() => submitSingleContract(contratto.id)}
+                          disabled={submittingContract === contratto.id}
+                          className={`w-full mt-3 font-semibold h-10 bg-gradient-to-r ${contratto.color} hover:opacity-90 text-white`}
+                        >
+                          {submittingContract === contratto.id ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Invio in corso...
+                            </>
+                          ) : (
+                            <>
+                              <CheckCircle className="w-4 h-4 mr-2" />
+                              Adesione Contratto {contratto.nome}
+                            </>
+                          )}
+                        </Button>
+                      )}
                     </CardContent>
                   </Card>
                 );
