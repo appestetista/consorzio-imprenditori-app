@@ -729,7 +729,8 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
           </>
         )}
 
-        {/* Lista normative */}
+        {/* Lista normative - solo se selezionato un ramo o nessun ramo configurato */}
+        {(branches.length === 0 || selectedBranch !== 'all') && (
         <div className="space-y-3">
           {filteredNorms.map((norm) => {
             const timeline = getTimelinePosition(norm);
