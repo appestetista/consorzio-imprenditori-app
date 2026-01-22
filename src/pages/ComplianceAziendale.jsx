@@ -677,7 +677,7 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
                     variant={selectedCategoria === 'all' ? 'default' : 'outline'}
                     size="sm"
                     onClick={() => setSelectedCategoria('all')}
-                    className={selectedCategoria === 'all' ? 'bg-lime-400 text-slate-900' : 'border-slate-600 text-slate-300'}
+                    className={selectedCategoria === 'all' ? 'bg-slate-700 text-white' : 'border-slate-600 text-slate-300'}
                   >
                     Tutte
                   </Button>
@@ -690,7 +690,7 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
                         variant={selectedCategoria === cat ? 'default' : 'outline'}
                         size="sm"
                         onClick={() => setSelectedCategoria(cat)}
-                        className={selectedCategoria === cat ? 'bg-lime-400 text-slate-900' : 'border-slate-600 text-slate-300'}
+                        className={selectedCategoria === cat ? 'bg-slate-700 text-white' : 'border-slate-600 text-slate-300'}
                       >
                         {cat} ({count})
                       </Button>
