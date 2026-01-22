@@ -496,36 +496,54 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
             </Link>
             <h1 className="text-lime-400 text-xl font-bold">Compliance Aziendale</h1>
           </div>
-          {norms.length > 0 && (
-            <Button 
-              onClick={() => setShowAutoGenerate(true)}
-              className="bg-blue-500 text-white hover:bg-blue-600"
-              size="sm"
-            >
-              <Sparkles className="w-4 h-4 mr-1" /> Genera
-            </Button>
-          )}
+          <Button 
+            onClick={() => setShowBranchManager(true)}
+            className="bg-lime-400 text-slate-900 hover:bg-lime-500"
+            size="sm"
+          >
+            <Building2 className="w-4 h-4 mr-1" /> Rami Azienda
+          </Button>
         </div>
 
-        {/* Banner Genera Automaticamente */}
-        {norms.length === 0 && (
+        {/* Banner Aggiungi primo ramo */}
+        {branches.length === 0 && (
           <Card 
             className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 border-blue-500/30 mb-6 cursor-pointer hover:border-blue-400/50 transition-colors"
-            onClick={() => setShowAutoGenerate(true)}
+            onClick={() => setShowBranchManager(true)}
           >
             <CardContent className="p-4">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-blue-500/30 rounded-xl flex items-center justify-center">
-                  <Sparkles className="w-6 h-6 text-blue-400" />
+                  <Building2 className="w-6 h-6 text-blue-400" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-white font-semibold">Genera Automaticamente</h3>
-                  <p className="text-slate-400 text-sm">Inserisci il tipo di attività e generiamo gli adempimenti obbligatori</p>
+                  <h3 className="text-white font-semibold">Aggiungi il primo Ramo Aziendale</h3>
+                  <p className="text-slate-400 text-sm">Inserisci i rami della tua azienda per generare gli adempimenti obbligatori</p>
                 </div>
                 <ChevronDown className="w-5 h-5 text-blue-400" />
               </div>
             </CardContent>
           </Card>
+        )}
+
+        {/* Selezione Ramo */}
+        {branches.length > 0 && (
+          <div className="mb-4">
+            <Label className="text-slate-400 text-xs mb-2 block">Filtra per Ramo Aziendale</Label>
+            <Select value={selectedBranch} onValueChange={setSelectedBranch}>
+              <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                <SelectValue placeholder="Tutti i rami" />
+              </SelectTrigger>
+              <SelectContent className="bg-slate-800 border-slate-700">
+                <SelectItem value="all" className="text-white">Tutti i rami</SelectItem>
+                {branches.map(branch => (
+                  <SelectItem key={branch.id} value={branch.id} className="text-white">
+                    {branch.nome}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         )}
 
         {/* Grafico a torta */}
