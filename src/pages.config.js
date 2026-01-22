@@ -28,6 +28,7 @@ import VideoInterviste from './pages/VideoInterviste';
 import WelfareAziendale from './pages/WelfareAziendale';
 import WelfareNormativa from './pages/WelfareNormativa';
 import WelfareTipologie from './pages/WelfareTipologie';
+import WelfareOrdina from './pages/WelfareOrdina';
 import __Layout from './Layout.jsx';
 
 
@@ -62,6 +63,7 @@ export const PAGES = {
     "WelfareAziendale": WelfareAziendale,
     "WelfareNormativa": WelfareNormativa,
     "WelfareTipologie": WelfareTipologie,
+    "WelfareOrdina": WelfareOrdina,
 }
 
 export const pagesConfig = {
