@@ -469,9 +469,12 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
     return { percentuale, color, giorniMancanti, scadenza };
   };
 
-  const filteredNorms = selectedCategoria === 'all' 
-    ? norms 
-    : norms.filter(n => n.categoria === selectedCategoria);
+  // Filtra per ramo e categoria
+  const filteredNorms = norms.filter(n => {
+    const matchBranch = selectedBranch === 'all' || n.branch_id === selectedBranch;
+    const matchCategoria = selectedCategoria === 'all' || n.categoria === selectedCategoria;
+    return matchBranch && matchCategoria;
+  });
 
   if (loading || !effectiveUser) {
     return (
