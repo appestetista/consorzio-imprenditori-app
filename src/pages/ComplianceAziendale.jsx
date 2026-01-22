@@ -348,11 +348,21 @@ GENERA ORA L'ELENCO COMPLETO PER: ${tipoAttivita} con ${numeroDipendenti || 'num
         const createdNormIds = [];
 
         for (const adempimento of result.adempimenti) {
-          // Valida la categoria
+          // Valida la categoria con normalizzazione (case-insensitive)
           const validCategorie = ["Sicurezza sul lavoro", "Privacy e GDPR", "Ambientale", "Fiscale", "Igiene e Sanità", "Antincendio", "Formazione obbligatoria", "Altro"];
           let categoria = adempimento.categoria || 'Altro';
-          if (!validCategorie.includes(categoria)) {
-            categoria = 'Altro';
+
+          // Normalizza la categoria confrontando in lowercase
+          const categoriaLower = categoria.toLowerCase().trim();
+          const matchedCategoria = validCategorie.find(c => c.toLowerCase() === categoriaLower);
+          if (matchedCategoria) {
+            categoria = matchedCategoria;
+          } else {
+            // Prova match parziale
+            const partialMatch = validCategorie.find(c => 
+              categoriaLower.includes(c.toLowerCase()) || c.toLowerCase().includes(categoriaLower)
+            );
+            categoria = partialMatch || 'Altro';
           }
 
           const created = await base44.entities.ComplianceNorm.create({
