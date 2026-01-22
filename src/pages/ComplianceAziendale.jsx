@@ -935,6 +935,8 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
                       )}
                     </CardContent>
                   </Card>
+                ))
+              )}
             </div>
 
             {/* Form nuovo ramo */}
