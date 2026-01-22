@@ -27,7 +27,6 @@ import RisparmioEnergetico from './pages/RisparmioEnergetico';
 import VideoInterviste from './pages/VideoInterviste';
 import WelfareAziendale from './pages/WelfareAziendale';
 import WelfareNormativa from './pages/WelfareNormativa';
-import WelfareOrdina from './pages/WelfareOrdina';
 import WelfareTipologie from './pages/WelfareTipologie';
 import __Layout from './Layout.jsx';
 
@@ -62,12 +61,11 @@ export const PAGES = {
     "VideoInterviste": VideoInterviste,
     "WelfareAziendale": WelfareAziendale,
     "WelfareNormativa": WelfareNormativa,
-    "WelfareOrdina": WelfareOrdina,
     "WelfareTipologie": WelfareTipologie,
 }
 
 export const pagesConfig = {
-    mainPage: "Home",
+    mainPage: "AdminPanel",
     Pages: PAGES,
     Layout: __Layout,
 };
