@@ -82,9 +82,11 @@ export default function WelfareAziendale() {
                   <p className="text-white/80 text-sm">Benefici e servizi per i tuoi dipendenti</p>
                 </div>
               </div>
-              <Link to={createPageUrl('WelfareStorico')} className="bg-slate-900 hover:bg-slate-800 transition-colors rounded-xl px-3 py-3 flex flex-col items-center gap-1">
-                <History className="w-5 h-5 text-lime-400" />
-                <span className="text-white text-[10px] font-medium text-center leading-tight">Storico<br/>Ordini</span>
+              <Link to={createPageUrl('WelfareStorico')} className="bg-slate-900 hover:bg-slate-800 transition-all hover:scale-105 rounded-2xl px-4 py-4 flex flex-col items-center gap-2 shadow-lg border border-lime-400/30 ml-4">
+                <div className="w-10 h-10 bg-lime-400/20 rounded-full flex items-center justify-center">
+                  <History className="w-5 h-5 text-lime-400" />
+                </div>
+                <span className="text-white text-xs font-semibold text-center leading-tight">Storico<br/>Ordini</span>
               </Link>
             </div>
           </CardContent>
