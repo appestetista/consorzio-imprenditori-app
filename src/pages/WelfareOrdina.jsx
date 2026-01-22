@@ -189,15 +189,14 @@ export default function WelfareOrdina() {
 
       // Invia email
       await base44.integrations.Core.SendEmail({
-        to: 'consorzioimprenditori@gmail.com',
-        subject: `📋 Nuova Adesione ${contratto.nome}`,
+        to: 'app.consorzio.imprenditori@gmail.com',
+        subject: `ATTIVAZIONE WELFARE - ${user.company_name || user.full_name}`,
         body: `
-          <h2>Nuova Adesione ${contratto.nome}</h2>
+          <h2>ATTIVAZIONE WELFARE</h2>
           <p><strong>Azienda:</strong> ${user.company_name || user.full_name}</p>
+          <p><strong>Tipo:</strong> ${contratto.nome}</p>
           <p><strong>Email:</strong> ${user.email}</p>
           <p><strong>Telefono:</strong> ${user.telefono_referente || 'Non specificato'}</p>
-          <br>
-          <p>Accedi al pannello per visualizzare i documenti e procedere.</p>
         `
       });
 
