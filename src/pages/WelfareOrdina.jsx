@@ -470,8 +470,7 @@ export default function WelfareOrdina() {
 
             <Button
               onClick={() => submitMutation.mutate()}
-              disabled={uploadedCount === 0 || submitMutation.isPending || (needsExcelFile && !excelFile)}
-              title={needsExcelFile && !excelFile ? "Carica il file Excel con i dati dei dipendenti" : ""}
+              disabled={uploadedCount === 0 || submitMutation.isPending}
               className="w-full bg-pink-500 hover:bg-pink-600 text-white font-semibold h-12 disabled:opacity-50"
             >
               {submitMutation.isPending ? (
