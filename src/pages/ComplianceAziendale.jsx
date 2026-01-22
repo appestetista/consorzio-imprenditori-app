@@ -172,8 +172,8 @@ export default function ComplianceAziendale() {
     }
   });
 
-  // Genera automaticamente le normative tramite AI
-  const handleAutoGenerate = async () => {
+  // Genera automaticamente le normative tramite AI per un ramo
+  const handleAutoGenerate = async (branchId) => {
     if (!activityType.trim()) return;
     
     setGeneratingNorms(true);
@@ -218,10 +218,10 @@ NON includere adempimenti facoltativi o raccomandati.`;
       });
 
       if (result?.adempimenti && result.adempimenti.length > 0) {
-        // Crea le normative nel database
         for (const adempimento of result.adempimenti) {
           await base44.entities.ComplianceNorm.create({
             user_email: effectiveUser?.email,
+            branch_id: branchId,
             nome: adempimento.nome,
             descrizione: adempimento.descrizione,
             categoria: adempimento.categoria || 'Altro',
@@ -229,6 +229,7 @@ NON includere adempimenti facoltativi o raccomandati.`;
             sanzione_prevista: adempimento.sanzione_prevista,
             priorita: adempimento.priorita || 'media',
             stato: 'non_verificato',
+            is_locked: true,
             documenti_urls: [],
             documenti_nomi: []
           });
@@ -237,12 +238,43 @@ NON includere adempimenti facoltativi o raccomandati.`;
         queryClient.invalidateQueries({ queryKey: ['compliance-norms'] });
         setShowAutoGenerate(false);
         setActivityType('');
+        setEmployeesCount('');
       }
     } catch (error) {
       console.error('Errore generazione:', error);
       alert('Errore nella generazione. Riprova.');
     } finally {
       setGeneratingNorms(false);
+    }
+  };
+
+  // Crea un nuovo ramo e genera adempimenti
+  const handleCreateBranch = async () => {
+    if (!newBranch.nome.trim() || !newBranch.tipo_attivita.trim()) return;
+    
+    try {
+      const createdBranch = await base44.entities.CompanyBranch.create({
+        user_email: effectiveUser?.email,
+        ...newBranch,
+        numero_dipendenti: newBranch.numero_dipendenti ? parseInt(newBranch.numero_dipendenti) : null,
+        is_active: true
+      });
+      
+      // Imposta i valori per generare gli adempimenti
+      setActivityType(newBranch.tipo_attivita);
+      setEmployeesCount(newBranch.numero_dipendenti || '');
+      
+      queryClient.invalidateQueries({ queryKey: ['company-branches'] });
+      
+      // Genera automaticamente gli adempimenti per questo ramo
+      setGeneratingNorms(true);
+      await handleAutoGenerate(createdBranch.id);
+      
+      setNewBranch({ nome: '', tipo_attivita: '', codice_ateco: '', indirizzo: '', numero_dipendenti: '' });
+      setShowBranchManager(false);
+    } catch (error) {
+      console.error('Errore creazione ramo:', error);
+      alert('Errore nella creazione del ramo. Riprova.');
     }
   };
 
