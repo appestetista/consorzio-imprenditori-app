@@ -303,9 +303,9 @@ export default function GestioneBandi() {
                 <Card key={grant.id} className="bg-slate-800 border-slate-700">
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between gap-3 mb-3">
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0 overflow-hidden">
                         <div className="flex items-center gap-2 flex-wrap mb-2">
-                          <h3 className="text-white font-medium">{grant.title}</h3>
+                          <h3 className="text-white font-medium break-words">{grant.title}</h3>
                           {grant.easy_access && (
                             <Badge className="bg-lime-400 text-slate-900 text-xs">Attivabile</Badge>
                           )}
@@ -331,11 +331,11 @@ export default function GestioneBandi() {
                             href={grant.website_url} 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            className="text-blue-400 hover:text-blue-300 text-xs underline mt-1 inline-flex items-center gap-1"
+                            className="text-blue-400 hover:text-blue-300 text-xs underline mt-1 inline-flex items-center gap-1 break-all"
                             onClick={(e) => e.stopPropagation()}
                           >
-                            <ExternalLink className="w-3 h-3" />
-                            {grant.website_url}
+                            <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                            <span className="truncate">{grant.website_url}</span>
                           </a>
                         )}
                         <div className="flex items-center gap-2 text-xs mt-1">
