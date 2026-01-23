@@ -77,27 +77,14 @@ export default function InviteUserForm() {
   const inviteMutation = useMutation({
     mutationFn: async () => {
       const emailLower = email.toLowerCase().trim();
-      
-      // Genera token univoco
-      const inviteToken = crypto.randomUUID();
 
-      // 1. Salva l'invito pendente con tutti i dati
-      await base44.entities.PendingInvite.create({
-        email: emailLower,
-        user_type: userType,
-        invited_by: (await base44.auth.me()).email,
-        is_registered: false,
-        zona: userType === 'consulente' ? zona : null,
-        consultant_category: userType === 'consulente' ? consultantCategory : null,
-        assigned_sections: userType === 'consulente' ? assignedSections : [],
-        invite_token: inviteToken
-      });
-
-      // 2. Invia email personalizzata via backend function
+      // Invia invito via backend function (crea PendingInvite + invito Base44 + email benvenuto)
       await base44.functions.invoke('sendInviteEmail', {
         email: emailLower,
         userType,
-        inviteToken
+        zona: userType === 'consulente' ? zona : null,
+        consultantCategory: userType === 'consulente' ? consultantCategory : null,
+        assignedSections: userType === 'consulente' ? assignedSections : []
       });
 
       return { email: emailLower, userType };
