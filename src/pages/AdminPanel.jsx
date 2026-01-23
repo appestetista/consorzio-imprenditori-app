@@ -20,6 +20,7 @@ import RisparmioRequestsAdmin from '../components/admin/RisparmioRequestsAdmin';
 import MembersDirectory from '../components/members/MembersDirectory';
 import ZoneAssignmentManager from '../components/admin/ZoneAssignmentManager';
 import UsageTracker from '../components/admin/UsageTracker';
+import InviteUserForm from '../components/admin/InviteUserForm';
 
 const CONSULTANT_CATEGORIES = [
   "Stampa Digitale e Cataloghi",
