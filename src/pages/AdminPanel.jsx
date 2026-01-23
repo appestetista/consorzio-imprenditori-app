@@ -20,6 +20,7 @@ import RisparmioRequestsAdmin from '../components/admin/RisparmioRequestsAdmin';
 import MembersDirectory from '../components/members/MembersDirectory';
 import ZoneAssignmentManager from '../components/admin/ZoneAssignmentManager';
 import UsageTracker from '../components/admin/UsageTracker';
+import ZoneManager from '../components/admin/ZoneManager';
 export default function AdminPanel() {
   const [user, setUser] = useState(null);
   const [showImpersonationDialog, setShowImpersonationDialog] = useState(false);
@@ -437,6 +438,9 @@ export default function AdminPanel() {
 
             {/* Cultura Aziendale */}
             <CulturaAziendaleAdmin />
+
+            {/* Gestione Zone */}
+            <ZoneManager />
 
             {/* Gestione Zone per Sondaggi */}
             <ZoneAssignmentManager />

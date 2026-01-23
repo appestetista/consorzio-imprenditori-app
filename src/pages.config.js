@@ -3,6 +3,7 @@ import AnalisiContratti from './pages/AnalisiContratti';
 import CalendarioIncontri from './pages/CalendarioIncontri';
 import CatalogoBuoniPasto from './pages/CatalogoBuoniPasto';
 import CompleteProfile from './pages/CompleteProfile';
+import CompleteRegistration from './pages/CompleteRegistration';
 import ComplianceAziendale from './pages/ComplianceAziendale';
 import Consulenze from './pages/Consulenze';
 import ContattaConsorzio from './pages/ContattaConsorzio';
@@ -13,6 +14,7 @@ import DirectoryUtenti from './pages/DirectoryUtenti';
 import FinanziamentiAgevolati from './pages/FinanziamentiAgevolati';
 import Fornitori from './pages/Fornitori';
 import GestioneBandi from './pages/GestioneBandi';
+import GestioneConsulenti from './pages/GestioneConsulenti';
 import GestioneMembri from './pages/GestioneMembri';
 import Home from './pages/Home';
 import ImportExport from './pages/ImportExport';
@@ -30,8 +32,6 @@ import WelfareNormativa from './pages/WelfareNormativa';
 import WelfareOrdina from './pages/WelfareOrdina';
 import WelfareStorico from './pages/WelfareStorico';
 import WelfareTipologie from './pages/WelfareTipologie';
-import GestioneConsulenti from './pages/GestioneConsulenti';
-import CompleteRegistration from './pages/CompleteRegistration';
 import __Layout from './Layout.jsx';
 
 
@@ -41,6 +41,7 @@ export const PAGES = {
     "CalendarioIncontri": CalendarioIncontri,
     "CatalogoBuoniPasto": CatalogoBuoniPasto,
     "CompleteProfile": CompleteProfile,
+    "CompleteRegistration": CompleteRegistration,
     "ComplianceAziendale": ComplianceAziendale,
     "Consulenze": Consulenze,
     "ContattaConsorzio": ContattaConsorzio,
@@ -51,6 +52,7 @@ export const PAGES = {
     "FinanziamentiAgevolati": FinanziamentiAgevolati,
     "Fornitori": Fornitori,
     "GestioneBandi": GestioneBandi,
+    "GestioneConsulenti": GestioneConsulenti,
     "GestioneMembri": GestioneMembri,
     "Home": Home,
     "ImportExport": ImportExport,
@@ -68,8 +70,6 @@ export const PAGES = {
     "WelfareOrdina": WelfareOrdina,
     "WelfareStorico": WelfareStorico,
     "WelfareTipologie": WelfareTipologie,
-    "GestioneConsulenti": GestioneConsulenti,
-    "CompleteRegistration": CompleteRegistration,
 }
 
 export const pagesConfig = {
