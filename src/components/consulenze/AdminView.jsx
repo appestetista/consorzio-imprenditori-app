@@ -41,10 +41,7 @@ export default function AdminView({ consultants, adminEmail }) {
   });
   const queryClient = useQueryClient();
 
-  const { data: allUsers = [] } = useQuery({
-    queryKey: ['all-users-admin'],
-    queryFn: () => base44.entities.User.list(),
-  });
+
 
   const { data: allBookings = [] } = useQuery({
     queryKey: ['all-bookings-admin'],
