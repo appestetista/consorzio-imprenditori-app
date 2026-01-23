@@ -9,20 +9,28 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized - Admin only' }, { status: 403 });
     }
 
-    const { email, userType, inviteToken } = await req.json();
+    const { email, userType, zona, consultantCategory, assignedSections } = await req.json();
 
-    if (!email || !userType || !inviteToken) {
+    if (!email || !userType) {
       return Response.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    // Ottieni access token Gmail
+    // 1. Crea il PendingInvite per salvare i dati extra (tipo utente, zona, sezioni)
+    await base44.asServiceRole.entities.PendingInvite.create({
+      email: email.toLowerCase(),
+      user_type: userType,
+      invited_by: user.email,
+      zona: zona || null,
+      consultant_category: consultantCategory || null,
+      assigned_sections: assignedSections || []
+    });
+
+    // 2. Usa l'invito nativo Base44 - questo genera il link corretto e invia l'email di sistema
+    // Il ruolo è sempre "user" - il tipo (utente/consulente) è gestito nel nostro sistema
+    await base44.users.inviteUser(email, "user");
+
+    // 3. Invia anche un'email personalizzata come benvenuto aggiuntivo
     const accessToken = await base44.asServiceRole.connectors.getAccessToken("gmail");
-
-    // Costruisci il link di registrazione
-    // Il link porta alla pagina di registrazione dell'app con il token
-    const appUrl = Deno.env.get("APP_URL") || "https://app.base44.io";
-    const registrationLink = `${appUrl}/register?token=${inviteToken}&email=${encodeURIComponent(email)}`;
-
     const tipoUtente = userType === 'consulente' ? 'Consulente' : 'Membro';
 
     // Corpo email HTML
