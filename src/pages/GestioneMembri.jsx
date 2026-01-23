@@ -38,6 +38,7 @@ export default function GestioneMembri() {
   const [selectedMember, setSelectedMember] = useState(null);
   const [showPermissions, setShowPermissions] = useState(false);
   const [showMemberForm, setShowMemberForm] = useState(false);
+  const [showInviteForm, setShowInviteForm] = useState(false);
   const [formData, setFormData] = useState(null);
   const [initialFormData, setInitialFormData] = useState(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
