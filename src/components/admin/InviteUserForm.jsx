@@ -123,14 +123,7 @@ export default function InviteUserForm({ onSuccess }) {
   const isConsulente = userType === 'consulente';
 
   return (
-    <Card className="bg-slate-800 border-slate-700">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-white text-sm flex items-center gap-2">
-          <UserPlus className="w-4 h-4 text-lime-400" />
-          Invita Nuovo Utente
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
+    <div className="space-y-4">
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Email */}
           <div>
