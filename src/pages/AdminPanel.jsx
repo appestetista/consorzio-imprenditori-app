@@ -464,6 +464,9 @@ export default function AdminPanel() {
 
           {/* TAB GESTIONE */}
           <TabsContent value="gestione" className="space-y-4">
+            {/* Invita Utenti */}
+            <InviteUserForm />
+
             {/* Monitoraggio Utilizzo */}
             <UsageTracker />
 
