@@ -39,14 +39,16 @@ export default function CompleteRegistration() {
   useEffect(() => {
     if (isLoading) {
       setStep('loading');
-    } else if (!token || !email || !invite) {
-      setStep('invalid');
-    } else if (invite.is_registered) {
-      setStep('already_registered');
+    } else if (!token || !email || !inviteData?.valid) {
+      if (alreadyRegistered) {
+        setStep('already_registered');
+      } else {
+        setStep('invalid');
+      }
     } else {
       setStep('form');
     }
-  }, [isLoading, token, email, invite]);
+  }, [isLoading, token, email, inviteData, alreadyRegistered]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
