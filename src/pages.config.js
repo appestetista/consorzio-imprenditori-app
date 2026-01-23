@@ -31,6 +31,7 @@ import WelfareOrdina from './pages/WelfareOrdina';
 import WelfareStorico from './pages/WelfareStorico';
 import WelfareTipologie from './pages/WelfareTipologie';
 import GestioneConsulenti from './pages/GestioneConsulenti';
+import CompleteRegistration from './pages/CompleteRegistration';
 import __Layout from './Layout.jsx';
 
 
@@ -68,6 +69,7 @@ export const PAGES = {
     "WelfareStorico": WelfareStorico,
     "WelfareTipologie": WelfareTipologie,
     "GestioneConsulenti": GestioneConsulenti,
+    "CompleteRegistration": CompleteRegistration,
 }
 
 export const pagesConfig = {

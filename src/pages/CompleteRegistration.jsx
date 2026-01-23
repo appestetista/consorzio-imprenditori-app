@@ -1,0 +1,195 @@
+import React, { useState, useEffect } from 'react';
+import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Loader2, CheckCircle, AlertCircle, User, Mail, Lock } from 'lucide-react';
+
+export default function CompleteRegistration() {
+  const [step, setStep] = useState('loading'); // loading, invalid, form, success, error
+  const [formData, setFormData] = useState({
+    full_name: '',
+    password: '',
+    confirmPassword: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  // Leggi i parametri URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get('token');
+  const email = urlParams.get('email');
+
+  // Cerca l'invito pendente
+  const { data: invite, isLoading, error } = useQuery({
+    queryKey: ['pending-invite', token],
+    queryFn: async () => {
+      if (!token || !email) return null;
+      const invites = await base44.entities.PendingInvite.filter({ 
+        invite_token: token,
+        email: email.toLowerCase()
+      });
+      return invites[0] || null;
+    },
+    enabled: !!token && !!email,
+  });
+
+  useEffect(() => {
+    if (isLoading) {
+      setStep('loading');
+    } else if (!token || !email || !invite) {
+      setStep('invalid');
+    } else if (invite.is_registered) {
+      setStep('already_registered');
+    } else {
+      setStep('form');
+    }
+  }, [isLoading, token, email, invite]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (formData.password !== formData.confirmPassword) {
+      setErrorMessage('Le password non corrispondono');
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setErrorMessage('La password deve essere di almeno 6 caratteri');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setErrorMessage('');
+
+    try {
+      // Qui dovremmo chiamare l'API di registrazione di Base44
+      // Purtroppo non possiamo creare utenti direttamente, quindi reindirizziamo al flusso standard
+      // ma con i dati pre-compilati
+      
+      // Segna l'invito come utilizzato prima di reindirizzare
+      // L'utente dovrà completare la registrazione con Base44
+      
+      // Reindirizza alla pagina di login/registrazione Base44
+      // con l'email pre-impostata
+      window.location.href = `https://app.base44.io/register?email=${encodeURIComponent(email)}`;
+      
+    } catch (error) {
+      console.error('Errore registrazione:', error);
+      setErrorMessage(error.message || 'Errore durante la registrazione');
+      setIsSubmitting(false);
+    }
+  };
+
+  // Loading state
+  if (step === 'loading') {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+        <Card className="bg-slate-800 border-slate-700 w-full max-w-md">
+          <CardContent className="p-8 text-center">
+            <Loader2 className="w-12 h-12 text-lime-400 animate-spin mx-auto mb-4" />
+            <p className="text-white">Verifica invito in corso...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Invalid invite
+  if (step === 'invalid') {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+        <Card className="bg-slate-800 border-slate-700 w-full max-w-md">
+          <CardContent className="p-8 text-center">
+            <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
+            <h2 className="text-white text-xl font-bold mb-2">Link non valido</h2>
+            <p className="text-slate-400 mb-4">
+              Questo link di invito non è valido o è scaduto. Contatta l'amministratore per ricevere un nuovo invito.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Already registered
+  if (step === 'already_registered') {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+        <Card className="bg-slate-800 border-slate-700 w-full max-w-md">
+          <CardContent className="p-8 text-center">
+            <CheckCircle className="w-12 h-12 text-lime-400 mx-auto mb-4" />
+            <h2 className="text-white text-xl font-bold mb-2">Già registrato</h2>
+            <p className="text-slate-400 mb-4">
+              Questo invito è già stato utilizzato. Se hai già un account, puoi accedere direttamente.
+            </p>
+            <Button 
+              onClick={() => window.location.href = '/'}
+              className="bg-lime-400 text-slate-900 hover:bg-lime-500"
+            >
+              Vai al Login
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Registration form
+  return (
+    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+      <Card className="bg-slate-800 border-slate-700 w-full max-w-md">
+        <CardHeader className="text-center pb-2">
+          <div className="w-16 h-16 bg-lime-400/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <User className="w-8 h-8 text-lime-400" />
+          </div>
+          <CardTitle className="text-white text-xl">Completa la Registrazione</CardTitle>
+          <p className="text-slate-400 text-sm mt-2">
+            Benvenuto nel Consorzio Imprenditori come {invite?.user_type === 'consulente' ? 'Consulente' : 'Membro'}
+          </p>
+        </CardHeader>
+        <CardContent className="p-6">
+          <div className="bg-slate-900 rounded-lg p-3 mb-6 flex items-center gap-3">
+            <Mail className="w-5 h-5 text-lime-400" />
+            <div>
+              <p className="text-slate-400 text-xs">Email</p>
+              <p className="text-white font-medium">{email}</p>
+            </div>
+          </div>
+
+          <div className="space-y-4 mb-6">
+            <p className="text-slate-300 text-sm">
+              Per completare la registrazione, clicca sul pulsante qui sotto. Verrai reindirizzato alla pagina di registrazione dove potrai impostare la tua password.
+            </p>
+            <p className="text-amber-400 text-sm font-medium">
+              ⚠️ Importante: usa esattamente questa email per registrarti: <strong>{email}</strong>
+            </p>
+          </div>
+
+          {errorMessage && (
+            <div className="bg-red-500/20 border border-red-500/30 rounded-lg p-3 mb-4">
+              <p className="text-red-400 text-sm">{errorMessage}</p>
+            </div>
+          )}
+
+          <Button
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+            className="w-full bg-lime-400 text-slate-900 hover:bg-lime-500"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Reindirizzamento...
+              </>
+            ) : (
+              'Completa Registrazione'
+            )}
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
