@@ -22,19 +22,19 @@ export default function CompleteRegistration() {
   const token = urlParams.get('token');
   const email = urlParams.get('email');
 
-  // Cerca l'invito pendente
-  const { data: invite, isLoading, error } = useQuery({
-    queryKey: ['pending-invite', token],
+  // Verifica l'invito tramite backend function (non richiede autenticazione)
+  const { data: inviteData, isLoading, error } = useQuery({
+    queryKey: ['verify-invite', token],
     queryFn: async () => {
-      if (!token || !email) return null;
-      const invites = await base44.entities.PendingInvite.filter({ 
-        invite_token: token,
-        email: email.toLowerCase()
-      });
-      return invites[0] || null;
+      if (!token || !email) return { valid: false };
+      const response = await base44.functions.invoke('verifyInvite', { token, email: email.toLowerCase() });
+      return response.data;
     },
     enabled: !!token && !!email,
   });
+
+  const invite = inviteData?.valid ? inviteData.invite : null;
+  const alreadyRegistered = inviteData?.already_registered;
 
   useEffect(() => {
     if (isLoading) {

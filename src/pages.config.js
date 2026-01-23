@@ -15,7 +15,9 @@ import FinanziamentiAgevolati from './pages/FinanziamentiAgevolati';
 import Fornitori from './pages/Fornitori';
 import GestioneBandi from './pages/GestioneBandi';
 import GestioneConsulenti from './pages/GestioneConsulenti';
+import GestioneCostiAI from './pages/GestioneCostiAI';
 import GestioneMembri from './pages/GestioneMembri';
+import GestioneZone from './pages/GestioneZone';
 import Home from './pages/Home';
 import ImportExport from './pages/ImportExport';
 import Imprenditori from './pages/Imprenditori';
@@ -32,8 +34,6 @@ import WelfareNormativa from './pages/WelfareNormativa';
 import WelfareOrdina from './pages/WelfareOrdina';
 import WelfareStorico from './pages/WelfareStorico';
 import WelfareTipologie from './pages/WelfareTipologie';
-import GestioneZone from './pages/GestioneZone';
-import GestioneCostiAI from './pages/GestioneCostiAI';
 import __Layout from './Layout.jsx';
 
 
@@ -55,7 +55,9 @@ export const PAGES = {
     "Fornitori": Fornitori,
     "GestioneBandi": GestioneBandi,
     "GestioneConsulenti": GestioneConsulenti,
+    "GestioneCostiAI": GestioneCostiAI,
     "GestioneMembri": GestioneMembri,
+    "GestioneZone": GestioneZone,
     "Home": Home,
     "ImportExport": ImportExport,
     "Imprenditori": Imprenditori,
@@ -72,8 +74,6 @@ export const PAGES = {
     "WelfareOrdina": WelfareOrdina,
     "WelfareStorico": WelfareStorico,
     "WelfareTipologie": WelfareTipologie,
-    "GestioneZone": GestioneZone,
-    "GestioneCostiAI": GestioneCostiAI,
 }
 
 export const pagesConfig = {
