@@ -35,7 +35,7 @@ Deno.serve(async (req) => {
     const accessToken = await base44.asServiceRole.connectors.getAccessToken("gmail");
     const tipoUtente = userType === 'consulente' ? 'Consulente' : 'Membro';
 
-    // Corpo email HTML - email di benvenuto (il link di registrazione lo invia Base44)
+    // Corpo email HTML con pulsante di registrazione
     const htmlBody = `
 <!DOCTYPE html>
 <html>
@@ -47,6 +47,7 @@ Deno.serve(async (req) => {
     .header { background: #1e293b; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
     .header h1 { color: #a3e635; margin: 0; font-size: 24px; }
     .content { background: #f8fafc; padding: 30px; border-radius: 0 0 10px 10px; }
+    .button { display: inline-block; background: #a3e635; color: #1e293b !important; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0; }
     .footer { text-align: center; color: #64748b; font-size: 12px; margin-top: 20px; }
   </style>
 </head>
@@ -59,7 +60,11 @@ Deno.serve(async (req) => {
       <h2>Benvenuto!</h2>
       <p>Sei stato invitato a iscriverti all'app <strong>Consorzio Imprenditori</strong> come <strong>${tipoUtente}</strong>.</p>
       
-      <p>A breve riceverai un'altra email con il <strong>link di registrazione</strong>.</p>
+      <p>Clicca sul pulsante qui sotto per completare la registrazione:</p>
+      
+      <p style="text-align: center;">
+        <a href="${registrationLink}" class="button">REGISTRATI ORA</a>
+      </p>
       
       <p><strong>Importante:</strong></p>
       <ul>
@@ -68,7 +73,8 @@ Deno.serve(async (req) => {
         <li>Se usi un'email diversa, non potrai accedere</li>
       </ul>
       
-      <p>Ti aspettiamo nel Consorzio!</p>
+      <p>Se il pulsante non funziona, copia e incolla questo link nel browser:</p>
+      <p style="word-break: break-all; color: #64748b; font-size: 12px;">${registrationLink}</p>
     </div>
     <div class="footer">
       <p>Questa email è stata inviata automaticamente. Non rispondere.</p>
