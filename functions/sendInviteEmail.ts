@@ -81,7 +81,7 @@ Deno.serve(async (req) => {
     const emailLines = [
       `From: Consorzio Imprenditori <app.consorzio.imprenditori@gmail.com>`,
       `To: ${email}`,
-      `Subject: =?UTF-8?B?${btoa(unescape(encodeURIComponent("Sei stato invitato a iscriverti all'app Consorzio Imprenditori")))}?=`,
+      `Subject: =?UTF-8?B?${btoa(unescape(encodeURIComponent("Benvenuto nel Consorzio Imprenditori!")))}?=`,
       `MIME-Version: 1.0`,
       `Content-Type: text/html; charset=utf-8`,
       ``,
