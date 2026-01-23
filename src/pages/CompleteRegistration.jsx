@@ -51,30 +51,13 @@ export default function CompleteRegistration() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (formData.password !== formData.confirmPassword) {
-      setErrorMessage('Le password non corrispondono');
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      setErrorMessage('La password deve essere di almeno 6 caratteri');
-      return;
-    }
-
     setIsSubmitting(true);
     setErrorMessage('');
 
     try {
-      // Qui dovremmo chiamare l'API di registrazione di Base44
-      // Purtroppo non possiamo creare utenti direttamente, quindi reindirizziamo al flusso standard
-      // ma con i dati pre-compilati
-      
-      // Segna l'invito come utilizzato prima di reindirizzare
-      // L'utente dovrà completare la registrazione con Base44
-      
-      // Reindirizza alla pagina di login/registrazione Base44
-      // con l'email pre-impostata
-      window.location.href = `https://app.base44.io/register?email=${encodeURIComponent(email)}`;
+      // Usa il metodo di Base44 per reindirizzare al login/registrazione
+      // Dopo la registrazione, l'utente tornerà alla home dell'app
+      base44.auth.redirectToLogin('/');
       
     } catch (error) {
       console.error('Errore registrazione:', error);
