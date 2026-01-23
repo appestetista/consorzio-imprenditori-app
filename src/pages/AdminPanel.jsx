@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Users, Video, Calendar, Briefcase, Settings, Bell, CheckCircle, XCircle, Clock, Trash2, Mail, Eye, MessageSquare, CalendarDays } from 'lucide-react';
+import { ArrowLeft, Users, Video, Calendar, Briefcase, Settings, Bell, CheckCircle, XCircle, Clock, Trash2, Mail, Eye, MessageSquare, CalendarDays, MapPin } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -279,28 +279,36 @@ export default function AdminPanel() {
         </div>
 
         {/* Link rapidi Gestione */}
-        <div className="grid grid-cols-3 gap-2 mb-4">
+        <div className="grid grid-cols-4 gap-2 mb-4">
           <Link to={createPageUrl('GestioneConsulenti')}>
             <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700">
-              <CardContent className="p-3 text-center">
+              <CardContent className="p-2 text-center">
                 <Briefcase className="w-5 h-5 text-lime-400 mx-auto mb-1" />
-                <p className="text-white text-xs">Gestione Consulenti</p>
+                <p className="text-white text-[10px]">Consulenti</p>
               </CardContent>
             </Card>
           </Link>
           <Link to={createPageUrl('GestioneMembri')}>
             <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700">
-              <CardContent className="p-3 text-center">
+              <CardContent className="p-2 text-center">
                 <Users className="w-5 h-5 text-lime-400 mx-auto mb-1" />
-                <p className="text-white text-xs">Gestione Utenti</p>
+                <p className="text-white text-[10px]">Utenti</p>
               </CardContent>
             </Card>
           </Link>
           <Link to={createPageUrl('GestioneBandi')}>
             <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700">
-              <CardContent className="p-3 text-center">
+              <CardContent className="p-2 text-center">
                 <Briefcase className="w-5 h-5 text-lime-400 mx-auto mb-1" />
-                <p className="text-white text-xs">Gestione Bandi</p>
+                <p className="text-white text-[10px]">Bandi</p>
+              </CardContent>
+            </Card>
+          </Link>
+          <Link to={createPageUrl('GestioneZone')}>
+            <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700">
+              <CardContent className="p-2 text-center">
+                <MapPin className="w-5 h-5 text-lime-400 mx-auto mb-1" />
+                <p className="text-white text-[10px]">Zone</p>
               </CardContent>
             </Card>
           </Link>
