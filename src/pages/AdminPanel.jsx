@@ -165,23 +165,6 @@ export default function AdminPanel() {
     }
   });
 
-  const createConsultantMutation = useMutation({
-    mutationFn: async (data) => {
-      return base44.entities.Consultant.create({
-        ...data,
-        available_slots: 100
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['consultants'] });
-      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
-      setShowAddConsultant(false);
-      setNewConsultant({ name: '', category: '', phone: '', email: '', referente: '', cellulare_referente: '' });
-    }
-  });
-
-
-
   const updateConsultationStatusMutation = useMutation({
     mutationFn: async ({ requestId, status, userEmail, grantTitle }) => {
       await base44.entities.GrantInterest.update(requestId, { consultation_status: status });
