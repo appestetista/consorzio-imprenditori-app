@@ -49,7 +49,7 @@ const SECTIONS = [
   { id: 'compliance', label: 'Compliance Aziendale' },
 ];
 
-export default function InviteUserForm() {
+export default function InviteUserForm({ onSuccess }) {
   const [email, setEmail] = useState('');
   const [userType, setUserType] = useState('');
   const [zona, setZona] = useState('');
