@@ -11,7 +11,7 @@ export default function FeatureCard({ title, icon: Icon, pageName, notificationC
   const accentColor = isPink ? 'text-pink-400' : isBlue ? 'text-blue-400' : 'text-lime-400';
   const content = (
     <div className={cn(
-      "relative bg-slate-800/90 rounded-xl p-6 flex flex-col items-center justify-center min-h-[120px] transition-all duration-300",
+      "relative bg-slate-800/90 rounded-xl p-6 flex flex-col items-center justify-center min-h-[120px] transition-all duration-300 overflow-hidden",
       disabled ? "opacity-50 cursor-not-allowed border-red-500/50" : "hover:bg-slate-700/90 hover:scale-105 cursor-pointer border-slate-700/50",
       "border"
     )}>
@@ -25,7 +25,7 @@ export default function FeatureCard({ title, icon: Icon, pageName, notificationC
         </div>
       )}
       {Icon && <Icon className={cn("w-8 h-8 mb-3", disabled ? "text-red-400" : accentColor)} />}
-      <span className={cn("text-sm font-medium text-center leading-tight", disabled ? "text-red-300" : (isPink || isBlue) ? accentColor : "text-white")}>{title}</span>
+      <span className={cn("text-sm font-medium text-center leading-tight break-words w-full px-1", disabled ? "text-red-300" : (isPink || isBlue) ? accentColor : "text-white")}>{title}</span>
     </div>
   );
 
