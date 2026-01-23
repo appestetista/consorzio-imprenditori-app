@@ -35,6 +35,18 @@ export default function Home() {
     });
   }, [user, appMode, impersonation]);
 
+  // Assegna automaticamente il tipo utente al primo login
+  useEffect(() => {
+    const assignType = async () => {
+      try {
+        await base44.functions.invoke('assignUserType', {});
+      } catch (e) {
+        console.log('assignUserType non disponibile o errore:', e);
+      }
+    };
+    assignType();
+  }, []);
+
   useEffect(() => {
     const loadUser = async () => {
       setLoading(true);
