@@ -122,9 +122,12 @@ Deno.serve(async (req) => {
       throw new Error(`Gmail API error: ${response.status}`);
     }
 
+    // NON chiamare base44.users.inviteUser - inviamo solo la nostra email personalizzata
+
     return Response.json({ 
       success: true, 
-      message: `Email inviata a ${email}` 
+      message: `Email inviata a ${email}`,
+      registrationLink: registrationLink
     });
 
   } catch (error) {
