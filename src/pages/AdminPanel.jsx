@@ -440,19 +440,19 @@ export default function AdminPanel() {
 
             {/* Link rapidi */}
             <div className="grid grid-cols-2 gap-2">
+              <Link to={createPageUrl('Consulenze')}>
+                <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700">
+                  <CardContent className="p-3 text-center">
+                    <Briefcase className="w-5 h-5 text-lime-400 mx-auto mb-1" />
+                    <p className="text-white text-xs">Gestione Consulenti</p>
+                  </CardContent>
+                </Card>
+              </Link>
               <Link to={createPageUrl('GestioneBandi')}>
                 <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700">
                   <CardContent className="p-3 text-center">
                     <Briefcase className="w-5 h-5 text-lime-400 mx-auto mb-1" />
                     <p className="text-white text-xs">Gestione Bandi</p>
-                  </CardContent>
-                </Card>
-              </Link>
-              <Link to={createPageUrl('GestioneMembri')}>
-                <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700">
-                  <CardContent className="p-3 text-center">
-                    <Users className="w-5 h-5 text-lime-400 mx-auto mb-1" />
-                    <p className="text-white text-xs">Gestione Utenti</p>
                   </CardContent>
                 </Card>
               </Link>
