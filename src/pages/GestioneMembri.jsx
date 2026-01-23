@@ -35,6 +35,7 @@ const PERMISSIONS_LIST = [
 export default function GestioneMembri() {
   const [user, setUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedZone, setSelectedZone] = useState('all');
   const [selectedMember, setSelectedMember] = useState(null);
   const [showPermissions, setShowPermissions] = useState(false);
   const [showMemberForm, setShowMemberForm] = useState(false);
@@ -49,6 +50,11 @@ export default function GestioneMembri() {
   const { data: members = [], isLoading } = useQuery({
     queryKey: ['all-members'],
     queryFn: () => base44.entities.User.list(),
+  });
+
+  const { data: zones = [] } = useQuery({
+    queryKey: ['zones'],
+    queryFn: () => base44.entities.Zone.filter({ is_active: true }),
   });
 
   const { data: pendingInvites = [] } = useQuery({
@@ -184,11 +190,13 @@ export default function GestioneMembri() {
 
   const filteredMembers = members.filter(member => {
     const searchLower = searchTerm.toLowerCase();
-    return (
+    const matchesSearch = (
       member.company_name?.toLowerCase().includes(searchLower) ||
       member.full_name?.toLowerCase().includes(searchLower) ||
       member.email?.toLowerCase().includes(searchLower)
     );
+    const matchesZone = selectedZone === 'all' || member.zona === selectedZone;
+    return matchesSearch && matchesZone;
   });
 
   const handleEditMember = (member) => {
@@ -359,15 +367,28 @@ export default function GestioneMembri() {
           </div>
         )}
 
-        {/* Search */}
-        <div className="relative mb-6">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-          <Input
-            placeholder="Cerca utenti..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="bg-slate-800 border-slate-700 text-white pl-10"
-          />
+        {/* Search and Zone Filter */}
+        <div className="space-y-3 mb-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+            <Input
+              placeholder="Cerca utenti..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="bg-slate-800 border-slate-700 text-white pl-10"
+            />
+          </div>
+          <Select value={selectedZone} onValueChange={setSelectedZone}>
+            <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+              <SelectValue placeholder="Filtra per zona" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tutte le zone</SelectItem>
+              {zones.map(zone => (
+                <SelectItem key={zone.id} value={zone.name}>{zone.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Pending Invites */}

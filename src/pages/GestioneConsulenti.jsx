@@ -60,6 +60,7 @@ const SECTIONS = [
 export default function GestioneConsulenti() {
   const [user, setUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedZone, setSelectedZone] = useState('all');
   const [selectedConsultant, setSelectedConsultant] = useState(null);
   const [showSections, setShowSections] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
@@ -85,6 +86,11 @@ export default function GestioneConsulenti() {
   const { data: consultants = [], isLoading } = useQuery({
     queryKey: ['consultants'],
     queryFn: () => base44.entities.Consultant.list(),
+  });
+
+  const { data: zones = [] } = useQuery({
+    queryKey: ['zones'],
+    queryFn: () => base44.entities.Zone.filter({ is_active: true }),
   });
 
   const { data: pendingInvites = [] } = useQuery({
@@ -152,11 +158,13 @@ export default function GestioneConsulenti() {
 
   const filteredConsultants = consultants.filter(consultant => {
     const searchLower = searchTerm.toLowerCase();
-    return (
+    const matchesSearch = (
       consultant.name?.toLowerCase().includes(searchLower) ||
       consultant.email?.toLowerCase().includes(searchLower) ||
       consultant.category?.toLowerCase().includes(searchLower)
     );
+    const matchesZone = selectedZone === 'all' || consultant.zona === selectedZone;
+    return matchesSearch && matchesZone;
   });
 
   const handleEditConsultant = (consultant) => {
@@ -223,15 +231,28 @@ export default function GestioneConsulenti() {
           </Button>
         </div>
 
-        {/* Search */}
-        <div className="relative mb-6">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-          <Input
-            placeholder="Cerca consulenti..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="bg-slate-800 border-slate-700 text-white pl-10"
-          />
+        {/* Search and Zone Filter */}
+        <div className="space-y-3 mb-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+            <Input
+              placeholder="Cerca consulenti..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="bg-slate-800 border-slate-700 text-white pl-10"
+            />
+          </div>
+          <Select value={selectedZone} onValueChange={setSelectedZone}>
+            <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+              <SelectValue placeholder="Filtra per zona" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tutte le zone</SelectItem>
+              {zones.map(zone => (
+                <SelectItem key={zone.id} value={zone.name}>{zone.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Pending Invites */}
