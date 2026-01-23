@@ -326,44 +326,11 @@ export default function GestioneMembri() {
             <h1 className="text-white text-xl font-bold">Gestione Utenti</h1>
           </div>
           <Button
-            onClick={() => {
-              setFormData({
-                company_name: '',
-                specializzazione: '',
-                email: '',
-                phone: '',
-                website: '',
-                logo_url: '',
-                full_name: '',
-                referente: '',
-                cellulare_referente: '',
-                referente_cellulare: '',
-                referente_email: '',
-                vat_number: '',
-                ateco_code: '',
-                company_size: 'Piccola',
-                address: '',
-                city: '',
-                province: '',
-                postal_code: '',
-                ragione_sociale_fatturazione: '',
-                partita_iva: '',
-                codice_fiscale: '',
-                codice_sdi: '',
-                indirizzo: '',
-                citta: '',
-                regione: '',
-                cap: '',
-                paese: '',
-                region: ''
-              });
-              setSelectedMember(null);
-              setShowMemberForm(true);
-            }}
+            onClick={() => setShowInviteForm(true)}
             className="bg-lime-400 hover:bg-lime-500 text-slate-900"
           >
-            <Plus className="w-5 h-5 mr-2" />
-            Nuovo
+            <UserPlus className="w-5 h-5 mr-2" />
+            Invita
           </Button>
         </div>
 
