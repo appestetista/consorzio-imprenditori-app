@@ -215,38 +215,7 @@ export default function AdminView({ consultants, adminEmail }) {
           </div>
         </TabsContent>
 
-        <TabsContent value="members">
-          <h2 className="text-white text-xl font-bold mb-4">Gestione Utenti</h2>
-          <div className="space-y-3">
-            {members.map((member) => {
-              return (
-                <Card key={member.id} className="bg-slate-800 border-slate-700">
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex-1">
-                        <h3 className="text-white font-bold">{member.company_name || member.full_name}</h3>
-                        <p className="text-slate-400 text-sm">{member.email}</p>
-                        {member.is_blocked && (
-                          <Badge className="bg-red-600 mt-2">Bloccato</Badge>
-                        )}
-                      </div>
-                      <Link to={`${createPageUrl('GestioneMembri')}?memberId=${member.id}`}>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="bg-slate-700 hover:bg-slate-600 text-lime-400 border-slate-600"
-                        >
-                          <Edit className="w-4 h-4 mr-1" />
-                          Modifica
-                        </Button>
-                      </Link>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        </TabsContent>
+
 
         <TabsContent value="bookings">
           <h2 className="text-white text-xl font-bold mb-4">Tutte le Richieste</h2>
