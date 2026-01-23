@@ -115,8 +115,6 @@ export default function AdminView({ consultants, adminEmail }) {
     }
   });
 
-  const members = allUsers.filter(u => u.role === 'user');
-
   const handleEditConsultant = (consultant) => {
     setEditingConsultant(consultant);
     setConsultantForm({
