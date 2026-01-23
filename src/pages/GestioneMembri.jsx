@@ -911,6 +911,22 @@ export default function GestioneMembri() {
         </DialogContent>
       </Dialog>
 
+      {/* Invite User Dialog */}
+      <Dialog open={showInviteForm} onOpenChange={setShowInviteForm}>
+        <DialogContent className="bg-slate-900 border-slate-700 max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-white flex items-center gap-2">
+              <UserPlus className="w-5 h-5 text-lime-400" />
+              Invita Nuovo Utente
+            </DialogTitle>
+          </DialogHeader>
+          <InviteUserForm onSuccess={() => {
+            setShowInviteForm(false);
+            queryClient.invalidateQueries({ queryKey: ['all-members'] });
+          }} />
+        </DialogContent>
+      </Dialog>
+
       <BottomNav currentPage="GestioneMembri" unreadMessages={messages.length} />
     </div>
   );
