@@ -25,11 +25,13 @@ Deno.serve(async (req) => {
       assigned_sections: assignedSections || []
     });
 
-    // 2. Usa l'invito nativo Base44 - questo genera il link corretto e invia l'email di sistema
-    // Il ruolo è sempre "user" - il tipo (utente/consulente) è gestito nel nostro sistema
-    await base44.users.inviteUser(email, "user");
+    // 2. Usa l'invito nativo Base44 per generare il link di registrazione
+    const inviteResult = await base44.users.inviteUser(email, "user");
+    
+    // Il link di registrazione è nel risultato dell'invito
+    const registrationLink = inviteResult?.invite_url || inviteResult?.url || `https://app.base44.io/register`;
 
-    // 3. Invia anche un'email personalizzata come benvenuto aggiuntivo
+    // 3. Invia email personalizzata con il link di registrazione
     const accessToken = await base44.asServiceRole.connectors.getAccessToken("gmail");
     const tipoUtente = userType === 'consulente' ? 'Consulente' : 'Membro';
 
