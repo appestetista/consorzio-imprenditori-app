@@ -20,26 +20,8 @@ import RisparmioRequestsAdmin from '../components/admin/RisparmioRequestsAdmin';
 import MembersDirectory from '../components/members/MembersDirectory';
 import ZoneAssignmentManager from '../components/admin/ZoneAssignmentManager';
 import UsageTracker from '../components/admin/UsageTracker';
-import InviteConsultantForm from '../components/admin/InviteConsultantForm';
-
-const CONSULTANT_CATEGORIES = [
-  "Stampa Digitale e Cataloghi",
-  "Assicurazioni Aziendali",
-  "Agenzia di Comunicazione",
-  "Commercialista",
-  "Igiene e Sicurezza",
-  "Internazionalizzazione/Export",
-  "Broker Energetico",
-  "Avvocato",
-  "Bandi Europei",
-  "Affitto Stampanti/Cyber Sicurezza",
-  "Efficientamento Energetico/Centralini"
-];
-
 export default function AdminPanel() {
   const [user, setUser] = useState(null);
-  const [showAddConsultant, setShowAddConsultant] = useState(false);
-  const [newConsultant, setNewConsultant] = useState({ name: '', category: '', phone: '', email: '', referente: '', cellulare_referente: '' });
   const [showImpersonationDialog, setShowImpersonationDialog] = useState(false);
   const { impersonation, startImpersonation, appMode } = useImpersonation();
 
