@@ -15,6 +15,9 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
+    // Genera un token univoco per l'invito
+    const inviteToken = crypto.randomUUID();
+
     // 1. Crea il PendingInvite per salvare i dati extra (tipo utente, zona, sezioni)
     await base44.asServiceRole.entities.PendingInvite.create({
       email: email.toLowerCase(),
@@ -22,14 +25,13 @@ Deno.serve(async (req) => {
       invited_by: user.email,
       zona: zona || null,
       consultant_category: consultantCategory || null,
-      assigned_sections: assignedSections || []
+      assigned_sections: assignedSections || [],
+      invite_token: inviteToken
     });
 
-    // 2. Usa l'invito nativo Base44 per generare il link di registrazione
-    const inviteResult = await base44.users.inviteUser(email, "user");
-    
-    // Il link di registrazione è nel risultato dell'invito
-    const registrationLink = inviteResult?.invite_url || inviteResult?.url || `https://app.base44.io/register`;
+    // 2. Costruisci il link di registrazione con il token
+    const appUrl = Deno.env.get("APP_URL") || "https://consorzio-imprenditori.base44.app";
+    const registrationLink = `${appUrl}/CompleteRegistration?token=${inviteToken}&email=${encodeURIComponent(email.toLowerCase())}`;
 
     // 3. Invia email personalizzata con il link di registrazione
     const accessToken = await base44.asServiceRole.connectors.getAccessToken("gmail");
