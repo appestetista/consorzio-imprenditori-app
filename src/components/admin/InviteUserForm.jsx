@@ -5,43 +5,107 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { UserPlus, Copy, Check, Send, MessageCircle } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { UserPlus, Send, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+
+const CONSULTANT_CATEGORIES = [
+  "Stampa Digitale e Cataloghi",
+  "Assicurazioni Aziendali",
+  "Agenzia di Comunicazione",
+  "Commercialista",
+  "Igiene e Sicurezza",
+  "Internazionalizzazione/Export",
+  "Broker Energetico",
+  "Avvocato",
+  "Bandi Europei",
+  "Affitto Stampanti/Cyber Sicurezza",
+  "Efficientamento Energetico/Centralini"
+];
+
+const ZONES = [
+  "Nord Italia",
+  "Centro Italia", 
+  "Sud Italia",
+  "Isole",
+  "Nazionale"
+];
+
+const SECTIONS = [
+  { id: 'calendario', label: 'Calendario Incontri' },
+  { id: 'video_interviste', label: 'Video Interviste' },
+  { id: 'cultura_aziendale', label: 'Academy' },
+  { id: 'consulenze', label: 'Consulenze' },
+  { id: 'finanziamenti', label: 'Finanziamenti Agevolati' },
+  { id: 'contatta_membri', label: 'Contatta Imprenditori' },
+  { id: 'risparmio_energetico', label: 'Risparmio' },
+  { id: 'marketplace', label: 'Marketplace' },
+  { id: 'imprenditori', label: 'Consigli da Imprenditori' },
+  { id: 'fornitori', label: 'Ricerca Fornitori' },
+  { id: 'welfare_aziendale', label: 'Welfare Aziendale' },
+  { id: 'analisi_contratti', label: 'Analisi Contratti' },
+  { id: 'import_export', label: 'Import/Export' },
+  { id: 'compliance', label: 'Compliance Aziendale' },
+];
 
 export default function InviteUserForm() {
   const [email, setEmail] = useState('');
-  const [userType, setUserType] = useState('utente');
-  const [copied, setCopied] = useState(false);
-  const [inviteSent, setInviteSent] = useState(false);
-  const [whatsappMessage, setWhatsappMessage] = useState('');
+  const [userType, setUserType] = useState('');
+  const [zona, setZona] = useState('');
+  const [consultantCategory, setConsultantCategory] = useState('');
+  const [assignedSections, setAssignedSections] = useState([]);
   
   const queryClient = useQueryClient();
 
+  const toggleSection = (sectionId) => {
+    setAssignedSections(prev => 
+      prev.includes(sectionId) 
+        ? prev.filter(s => s !== sectionId)
+        : [...prev, sectionId]
+    );
+  };
+
+  const selectAllSections = () => {
+    setAssignedSections(SECTIONS.map(s => s.id));
+  };
+
+  const deselectAllSections = () => {
+    setAssignedSections([]);
+  };
+
   const inviteMutation = useMutation({
-    mutationFn: async ({ email, userType }) => {
-      // 1. Salva l'invito pendente
+    mutationFn: async () => {
+      const emailLower = email.toLowerCase().trim();
+      
+      // Genera token univoco
+      const inviteToken = crypto.randomUUID();
+
+      // 1. Salva l'invito pendente con tutti i dati
       await base44.entities.PendingInvite.create({
-        email: email.toLowerCase().trim(),
+        email: emailLower,
         user_type: userType,
         invited_by: (await base44.auth.me()).email,
-        is_registered: false
+        is_registered: false,
+        zona: userType === 'consulente' ? zona : null,
+        consultant_category: userType === 'consulente' ? consultantCategory : null,
+        assigned_sections: userType === 'consulente' ? assignedSections : [],
+        invite_token: inviteToken
       });
 
-      // 2. Invia l'invito via Base44
-      await base44.users.inviteUser(email.toLowerCase().trim(), 'user');
+      // 2. Invia email personalizzata via backend function
+      await base44.functions.invoke('sendInviteEmail', {
+        email: emailLower,
+        userType,
+        inviteToken
+      });
 
-      return { email, userType };
+      return { email: emailLower, userType };
     },
     onSuccess: ({ email, userType }) => {
       queryClient.invalidateQueries({ queryKey: ['pending-invites'] });
-      setInviteSent(true);
-      
-      // Genera messaggio WhatsApp
-      const tipoUtente = userType === 'consulente' ? 'Consulente' : 'Membro';
-      const message = `Ciao! Sei stato invitato come ${tipoUtente} nel Consorzio.\n\nRiceverai un'email all'indirizzo ${email} con il link per completare la registrazione.\n\nControlla anche la cartella spam!`;
-      setWhatsappMessage(message);
-      
-      toast.success('Invito inviato con successo!');
+      toast.success(`Invito inviato a ${email}!`);
+      resetForm();
     },
     onError: (error) => {
       console.error('Errore invito:', error);
@@ -52,26 +116,22 @@ export default function InviteUserForm() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!email || !userType) return;
-    inviteMutation.mutate({ email, userType });
-  };
-
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(whatsappMessage);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const openWhatsApp = () => {
-    const encodedMessage = encodeURIComponent(whatsappMessage);
-    window.open(`https://wa.me/?text=${encodedMessage}`, '_blank');
+    if (userType === 'consulente' && (!consultantCategory || assignedSections.length === 0)) {
+      toast.error('Seleziona categoria e almeno una sezione per il consulente');
+      return;
+    }
+    inviteMutation.mutate();
   };
 
   const resetForm = () => {
     setEmail('');
-    setUserType('utente');
-    setInviteSent(false);
-    setWhatsappMessage('');
+    setUserType('');
+    setZona('');
+    setConsultantCategory('');
+    setAssignedSections([]);
   };
+
+  const isConsulente = userType === 'consulente';
 
   return (
     <Card className="bg-slate-800 border-slate-700">
@@ -82,83 +142,137 @@ export default function InviteUserForm() {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {!inviteSent ? (
-          <form onSubmit={handleSubmit} className="space-y-3">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Email */}
+          <div>
+            <Label className="text-slate-400 text-xs">Email *</Label>
             <Input
               type="email"
-              placeholder="Email"
+              placeholder="email@esempio.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="bg-slate-900 border-slate-700 text-white"
+              className="bg-slate-900 border-slate-700 text-white mt-1"
               required
             />
+          </div>
+
+          {/* Tipo Utente */}
+          <div>
+            <Label className="text-slate-400 text-xs">Tipo Utente *</Label>
             <Select value={userType} onValueChange={setUserType}>
-              <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
-                <SelectValue placeholder="Tipo utente" />
+              <SelectTrigger className="bg-slate-900 border-slate-700 text-white mt-1">
+                <SelectValue placeholder="Seleziona tipo..." />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="utente">👤 Utente (Membro)</SelectItem>
                 <SelectItem value="consulente">👔 Consulente</SelectItem>
               </SelectContent>
             </Select>
-            <Button
-              type="submit"
-              disabled={inviteMutation.isPending || !email}
-              className="w-full bg-lime-400 text-slate-900 hover:bg-lime-500"
-            >
-              {inviteMutation.isPending ? (
-                'Invio in corso...'
-              ) : (
-                <>
-                  <Send className="w-4 h-4 mr-2" />
-                  Invia Invito
-                </>
-              )}
-            </Button>
-          </form>
-        ) : (
-          <div className="space-y-3">
-            <div className="bg-green-500/20 border border-green-500/50 rounded-lg p-3">
-              <p className="text-green-400 text-sm font-medium flex items-center gap-2">
-                <Check className="w-4 h-4" />
-                Invito inviato a {email}!
-              </p>
-            </div>
-            
-            <div className="bg-slate-900 rounded-lg p-3">
-              <p className="text-slate-400 text-xs mb-2">Messaggio per WhatsApp:</p>
-              <p className="text-white text-sm whitespace-pre-wrap mb-3">{whatsappMessage}</p>
-              
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={copyToClipboard}
-                  className="flex-1 border-slate-600 text-white hover:bg-slate-700"
-                >
-                  {copied ? <Check className="w-4 h-4 mr-1" /> : <Copy className="w-4 h-4 mr-1" />}
-                  {copied ? 'Copiato!' : 'Copia'}
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={openWhatsApp}
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-white"
-                >
-                  <MessageCircle className="w-4 h-4 mr-1" />
-                  WhatsApp
-                </Button>
-              </div>
-            </div>
-
-            <Button
-              variant="ghost"
-              onClick={resetForm}
-              className="w-full text-slate-400 hover:text-white"
-            >
-              Invita altro utente
-            </Button>
           </div>
-        )}
+
+          {/* Campi extra per Consulente */}
+          {isConsulente && (
+            <>
+              {/* Categoria Consulente */}
+              <div>
+                <Label className="text-slate-400 text-xs">Categoria Consulente *</Label>
+                <Select value={consultantCategory} onValueChange={setConsultantCategory}>
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white mt-1">
+                    <SelectValue placeholder="Seleziona categoria..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CONSULTANT_CATEGORIES.map(cat => (
+                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Zona */}
+              <div>
+                <Label className="text-slate-400 text-xs">Zona</Label>
+                <Select value={zona} onValueChange={setZona}>
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white mt-1">
+                    <SelectValue placeholder="Seleziona zona..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ZONES.map(z => (
+                      <SelectItem key={z} value={z}>{z}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Sezioni Assegnate */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <Label className="text-slate-400 text-xs">Sezioni Visibili *</Label>
+                  <div className="flex gap-2">
+                    <button 
+                      type="button" 
+                      onClick={selectAllSections}
+                      className="text-lime-400 text-xs hover:underline"
+                    >
+                      Tutte
+                    </button>
+                    <span className="text-slate-600">|</span>
+                    <button 
+                      type="button" 
+                      onClick={deselectAllSections}
+                      className="text-slate-400 text-xs hover:underline"
+                    >
+                      Nessuna
+                    </button>
+                  </div>
+                </div>
+                <div className="bg-slate-900 rounded-lg p-3 max-h-48 overflow-y-auto space-y-2">
+                  {SECTIONS.map(section => (
+                    <div key={section.id} className="flex items-center gap-2">
+                      <Checkbox
+                        id={section.id}
+                        checked={assignedSections.includes(section.id)}
+                        onCheckedChange={() => toggleSection(section.id)}
+                        className="border-slate-600 data-[state=checked]:bg-lime-400 data-[state=checked]:border-lime-400"
+                      />
+                      <Label 
+                        htmlFor={section.id} 
+                        className="text-white text-sm cursor-pointer"
+                      >
+                        {section.label}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-slate-500 text-xs mt-1">
+                  {assignedSections.length} sezioni selezionate
+                </p>
+              </div>
+            </>
+          )}
+
+          {/* Bottone Invio */}
+          <Button
+            type="submit"
+            disabled={inviteMutation.isPending || !email || !userType || (isConsulente && (!consultantCategory || assignedSections.length === 0))}
+            className="w-full bg-lime-400 text-slate-900 hover:bg-lime-500"
+          >
+            {inviteMutation.isPending ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Invio in corso...
+              </>
+            ) : (
+              <>
+                <Send className="w-4 h-4 mr-2" />
+                Invia Invito via Email
+              </>
+            )}
+          </Button>
+
+          <p className="text-slate-500 text-xs text-center">
+            L'email verrà inviata da app.consorzio.imprenditori@gmail.com
+          </p>
+        </form>
       </CardContent>
     </Card>
   );

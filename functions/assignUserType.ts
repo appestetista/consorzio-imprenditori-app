@@ -16,6 +16,8 @@ Deno.serve(async (req) => {
     });
 
     if (pendingInvites.length === 0) {
+      // Nessun invito trovato - l'utente non è stato invitato
+      // Questo non dovrebbe succedere se il sistema funziona correttamente
       return Response.json({ 
         success: true, 
         message: 'Nessun invito pendente trovato',
@@ -25,10 +27,62 @@ Deno.serve(async (req) => {
 
     const invite = pendingInvites[0];
     
-    // Aggiorna l'utente con il tipo corretto
-    await base44.asServiceRole.entities.User.update(user.id, {
+    // Prepara i dati da aggiornare sull'utente
+    const updateData = {
       user_type: invite.user_type
-    });
+    };
+
+    // Se è un consulente, assegna anche i permessi specifici
+    if (invite.user_type === 'consulente') {
+      // Imposta zona se presente
+      if (invite.zona) {
+        updateData.zona = invite.zona;
+      }
+
+      // Imposta i permessi basati sulle sezioni assegnate
+      if (invite.assigned_sections && invite.assigned_sections.length > 0) {
+        const permissions = {};
+        const allSections = [
+          'calendario', 'video_interviste', 'cultura_aziendale', 'consulenze',
+          'finanziamenti', 'contatta_membri', 'risparmio_energetico', 'marketplace',
+          'imprenditori', 'fornitori', 'welfare_aziendale', 'analisi_contratti',
+          'import_export', 'compliance'
+        ];
+        
+        // Disabilita tutte le sezioni di default
+        allSections.forEach(section => {
+          permissions[section] = false;
+        });
+        
+        // Abilita solo le sezioni assegnate
+        invite.assigned_sections.forEach(section => {
+          permissions[section] = true;
+        });
+
+        // Consulenze sempre abilitata per i consulenti
+        permissions.consulenze = true;
+
+        updateData.permissions = permissions;
+      }
+
+      // Crea anche il record Consultant se non esiste
+      const existingConsultants = await base44.asServiceRole.entities.Consultant.filter({
+        email: user.email.toLowerCase()
+      });
+
+      if (existingConsultants.length === 0 && invite.consultant_category) {
+        await base44.asServiceRole.entities.Consultant.create({
+          name: user.full_name || user.email,
+          email: user.email.toLowerCase(),
+          category: invite.consultant_category,
+          city: invite.zona || '',
+          available_slots: 100
+        });
+      }
+    }
+
+    // Aggiorna l'utente con i dati
+    await base44.asServiceRole.entities.User.update(user.id, updateData);
 
     // Segna l'invito come completato
     await base44.asServiceRole.entities.PendingInvite.update(invite.id, {
@@ -37,8 +91,9 @@ Deno.serve(async (req) => {
 
     return Response.json({ 
       success: true, 
-      message: 'Tipo utente assegnato',
-      user_type: invite.user_type
+      message: 'Tipo utente e permessi assegnati',
+      user_type: invite.user_type,
+      assigned_sections: invite.assigned_sections
     });
 
   } catch (error) {
