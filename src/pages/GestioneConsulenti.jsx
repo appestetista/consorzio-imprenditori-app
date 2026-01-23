@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, User, Lock, Unlock, Trash2, Settings, Search, Edit, UserPlus, Save, Briefcase } from 'lucide-react';
+import { ArrowLeft, User, Lock, Unlock, Trash2, Settings, Search, Edit, UserPlus, Save, Briefcase, Clock, Mail } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -91,7 +91,7 @@ export default function GestioneConsulenti() {
     queryKey: ['pending-invites-consultants'],
     queryFn: async () => {
       const invites = await base44.entities.PendingInvite.filter({ user_type: 'consulente' });
-      return invites;
+      return invites.filter(i => !i.is_registered);
     },
   });
 
@@ -233,6 +233,37 @@ export default function GestioneConsulenti() {
             className="bg-slate-800 border-slate-700 text-white pl-10"
           />
         </div>
+
+        {/* Pending Invites */}
+        {pendingInvites.length > 0 && (
+          <Card className="bg-amber-500/10 border-amber-500/30 mb-4">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Clock className="w-4 h-4 text-amber-400" />
+                <h3 className="text-amber-400 font-medium text-sm">Inviti in attesa ({pendingInvites.length})</h3>
+              </div>
+              <div className="space-y-2">
+                {pendingInvites.map((invite) => (
+                  <div key={invite.id} className="bg-slate-900 rounded-lg p-3 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Mail className="w-4 h-4 text-amber-400" />
+                      <div>
+                        <p className="text-white text-sm">{invite.email}</p>
+                        <p className="text-lime-400 text-xs">{invite.consultant_category || 'Categoria non specificata'}</p>
+                        <p className="text-slate-500 text-xs">
+                          Invitato il {new Date(invite.created_date).toLocaleDateString('it-IT')}
+                        </p>
+                      </div>
+                    </div>
+                    <Badge className="bg-amber-500/20 text-amber-400 border-0 text-xs">
+                      In attesa
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Consultants List */}
         {isLoading ? (
