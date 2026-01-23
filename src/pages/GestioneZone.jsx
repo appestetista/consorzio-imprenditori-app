@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
+import ZoneAssignmentManager from '../components/admin/ZoneAssignmentManager';
 
 export default function GestioneZone() {
   const [user, setUser] = useState(null);
@@ -192,6 +193,11 @@ export default function GestioneZone() {
             ))}
           </div>
         )}
+
+        {/* Assegnazione Zone agli utenti */}
+        <div className="mt-6">
+          <ZoneAssignmentManager />
+        </div>
 
         <Dialog open={showForm} onOpenChange={(open) => !open && resetForm()}>
           <DialogContent className="bg-slate-800 border-slate-700">
