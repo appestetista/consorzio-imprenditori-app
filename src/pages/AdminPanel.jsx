@@ -314,7 +314,7 @@ export default function AdminPanel() {
 
         {/* Link rapidi Gestione */}
         <div className="grid grid-cols-3 gap-2 mb-4">
-          <Link to={createPageUrl('Consulenze')}>
+          <Link to={createPageUrl('GestioneConsulenti')}>
             <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700">
               <CardContent className="p-3 text-center">
                 <Briefcase className="w-5 h-5 text-lime-400 mx-auto mb-1" />
