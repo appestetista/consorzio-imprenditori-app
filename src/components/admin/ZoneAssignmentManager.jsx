@@ -9,20 +9,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 
-// Liste predefinite di zone (puoi personalizzarle)
-const DEFAULT_ZONES = [
-  'Zona Nord',
-  'Zona Centro',
-  'Zona Sud',
-  'Zona Est',
-  'Zona Ovest',
-  'Milano e Provincia',
-  'Roma e Provincia',
-  'Napoli e Provincia',
-  'Torino e Provincia',
-  'Firenze e Provincia'
-];
-
 export default function ZoneAssignmentManager() {
   const [showAssignDialog, setShowAssignDialog] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -38,6 +24,12 @@ export default function ZoneAssignmentManager() {
     queryFn: () => base44.entities.User.list(),
   });
 
+  // Leggi zone dall'entità Zone
+  const { data: zonesFromDb = [] } = useQuery({
+    queryKey: ['zones-all'],
+    queryFn: () => base44.entities.Zone.list(),
+  });
+
   // Filtra solo utenti e consulenti (non admin)
   const filteredUsers = allUsers.filter(u => 
     u.role !== 'admin' &&
@@ -49,9 +41,8 @@ export default function ZoneAssignmentManager() {
      u.zona === filterZone)
   );
 
-  // Ottieni lista zone uniche dagli utenti
-  const existingZones = [...new Set(allUsers.filter(u => u.zona).map(u => u.zona))];
-  const allZones = [...new Set([...DEFAULT_ZONES, ...existingZones])].sort();
+  // Usa le zone dal database
+  const allZones = zonesFromDb.filter(z => z.is_active !== false).map(z => z.name).sort();
 
   const updateZoneMutation = useMutation({
     mutationFn: async ({ userId, zona }) => {
