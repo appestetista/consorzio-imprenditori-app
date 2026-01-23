@@ -91,8 +91,10 @@ export default function InviteUserForm({ onSuccess }) {
     },
     onSuccess: ({ email, userType }) => {
       queryClient.invalidateQueries({ queryKey: ['pending-invites'] });
+      queryClient.invalidateQueries({ queryKey: ['all-members'] });
       toast.success(`Invito inviato a ${email}!`);
       resetForm();
+      onSuccess?.();
     },
     onError: (error) => {
       console.error('Errore invito:', error);
