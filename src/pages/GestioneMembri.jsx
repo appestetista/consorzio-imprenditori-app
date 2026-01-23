@@ -19,6 +19,7 @@ import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import MembersDirectory from '../components/members/MembersDirectory';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
+import InviteUserForm from '../components/admin/InviteUserForm';
 
 const PERMISSIONS_LIST = [
   { key: 'calendario', label: 'Calendario Incontri' },
