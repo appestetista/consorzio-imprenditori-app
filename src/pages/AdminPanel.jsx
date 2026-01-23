@@ -339,11 +339,11 @@ export default function AdminPanel() {
               </div>
             </TabsTrigger>
             <TabsTrigger value="risparmio" className="flex-1 text-xs data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
-              <div className="flex items-center gap-1">
-                <Settings className="w-3.5 h-3.5" />
-                Risparmio
-              </div>
-            </TabsTrigger>
+                              <div className="flex items-center gap-1">
+                                <Settings className="w-3.5 h-3.5" />
+                                Welfare
+                              </div>
+                            </TabsTrigger>
             <TabsTrigger value="gestione" className="flex-1 text-xs data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
               <div className="flex items-center gap-1">
                 <Users className="w-3.5 h-3.5" />
