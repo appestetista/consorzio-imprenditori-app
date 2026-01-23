@@ -30,8 +30,7 @@ Deno.serve(async (req) => {
     });
 
     // 2. Costruisci il link di registrazione con il token
-    // Usa direttamente l'URL hardcoded per evitare problemi con secrets errati
-    const appUrl = "https://consorzio-imprenditori.base44.app";
+    const appUrl = Deno.env.get("APP_URL") || "https://695e2f74bb7d2636b5606a98.base44.app";
     const registrationLink = `${appUrl}/CompleteRegistration?token=${inviteToken}&email=${encodeURIComponent(email.toLowerCase())}`;
 
     // 3. Invia email personalizzata con il link di registrazione
