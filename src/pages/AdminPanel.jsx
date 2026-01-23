@@ -479,30 +479,22 @@ export default function AdminPanel() {
             {/* Assegnazione Consulenti */}
             <ConsultantAssignmentManager />
 
-            {/* Gestione Consulenti */}
+            {/* Gestione Consulenti - Link alla pagina dedicata */}
             <Card className="bg-slate-800 border-slate-700">
               <CardContent className="p-3">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-white font-medium text-sm">Consulenti ({consultants.length})</h3>
-                  <Dialog open={showAddConsultant} onOpenChange={setShowAddConsultant}>
-                    <DialogTrigger asChild>
-                      <Button size="sm" className="bg-lime-400 text-slate-900 h-7 text-xs [&>svg]:text-slate-900">
-                        <Plus className="w-3 h-3 mr-1" /> Invita
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="bg-slate-800 border-slate-700 max-h-[85vh] overflow-y-auto">
-                      <DialogHeader>
-                        <DialogTitle className="text-white">Invita Consulente</DialogTitle>
-                      </DialogHeader>
-                      <InviteConsultantForm onSuccess={() => setShowAddConsultant(false)} />
-                    </DialogContent>
-                  </Dialog>
+                  <Link to={createPageUrl('GestioneConsulenti')}>
+                    <Button size="sm" className="bg-lime-400 text-slate-900 h-7 text-xs [&>svg]:text-slate-900">
+                      <Settings className="w-3 h-3 mr-1" /> Gestisci
+                    </Button>
+                  </Link>
                 </div>
                 {consultants.length === 0 ? (
                   <p className="text-slate-400 text-xs">Nessun consulente</p>
                 ) : (
                   <div className="space-y-2 max-h-60 overflow-y-auto">
-                    {consultants.map((consultant) => (
+                    {consultants.slice(0, 3).map((consultant) => (
                       <div key={consultant.id} className="bg-slate-900 rounded-lg p-2 flex items-center justify-between">
                         <div className="min-w-0 flex-1">
                           <p className="text-white text-sm font-medium truncate">{consultant.name}</p>
@@ -514,6 +506,13 @@ export default function AdminPanel() {
                         </Button>
                       </div>
                     ))}
+                    {consultants.length > 3 && (
+                      <Link to={createPageUrl('GestioneConsulenti')} className="block">
+                        <p className="text-lime-400 text-xs text-center py-1 hover:underline">
+                          Vedi tutti ({consultants.length})
+                        </p>
+                      </Link>
+                    )}
                   </div>
                 )}
               </CardContent>
