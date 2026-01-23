@@ -487,26 +487,14 @@ export default function AdminPanel() {
                   <Dialog open={showAddConsultant} onOpenChange={setShowAddConsultant}>
                     <DialogTrigger asChild>
                       <Button size="sm" className="bg-lime-400 text-slate-900 h-7 text-xs [&>svg]:text-slate-900">
-                        <Plus className="w-3 h-3 mr-1" /> Aggiungi
+                        <Plus className="w-3 h-3 mr-1" /> Invita
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="bg-slate-800 border-slate-700">
+                    <DialogContent className="bg-slate-800 border-slate-700 max-h-[85vh] overflow-y-auto">
                       <DialogHeader>
-                        <DialogTitle className="text-white">Nuovo Consulente</DialogTitle>
+                        <DialogTitle className="text-white">Invita Consulente</DialogTitle>
                       </DialogHeader>
-                      <div className="space-y-3 mt-4">
-                        <Input placeholder="Nome/Studio" value={newConsultant.name} onChange={(e) => setNewConsultant({...newConsultant, name: e.target.value})} className="bg-slate-900 border-slate-700 text-white" />
-                        <Select value={newConsultant.category} onValueChange={(value) => setNewConsultant({...newConsultant, category: value})}>
-                          <SelectTrigger className="bg-slate-900 border-slate-700 text-white"><SelectValue placeholder="Categoria" /></SelectTrigger>
-                          <SelectContent>{CONSULTANT_CATEGORIES.map((cat) => (<SelectItem key={cat} value={cat}>{cat}</SelectItem>))}</SelectContent>
-                        </Select>
-                        <Input placeholder="Email" type="email" value={newConsultant.email} onChange={(e) => setNewConsultant({...newConsultant, email: e.target.value})} className="bg-slate-900 border-slate-700 text-white" />
-                        <Input placeholder="Telefono" value={newConsultant.phone} onChange={(e) => setNewConsultant({...newConsultant, phone: e.target.value})} className="bg-slate-900 border-slate-700 text-white" />
-                        <Input placeholder="Referente" value={newConsultant.referente} onChange={(e) => setNewConsultant({...newConsultant, referente: e.target.value})} className="bg-slate-900 border-slate-700 text-white" />
-                        <Button onClick={() => createConsultantMutation.mutate(newConsultant)} disabled={createConsultantMutation.isPending || !newConsultant.name || !newConsultant.category} className="w-full bg-lime-400 text-slate-900 [&>svg]:text-slate-900">
-                          {createConsultantMutation.isPending ? 'Creazione...' : 'Aggiungi'}
-                        </Button>
-                      </div>
+                      <InviteConsultantForm onSuccess={() => setShowAddConsultant(false)} />
                     </DialogContent>
                   </Dialog>
                 </div>
