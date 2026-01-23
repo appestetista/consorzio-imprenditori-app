@@ -106,17 +106,7 @@ export default function AdminView({ consultants, adminEmail }) {
     }
   });
 
-  const [consultationCredits, setConsultationCredits] = useState({});
 
-  const updateUserConsultationsMutation = useMutation({
-    mutationFn: async ({ userId, credits }) => {
-      await base44.entities.User.update(userId, { consulenze_disponibili: credits });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['all-users-admin'] });
-      setConsultationCredits({});
-    }
-  });
 
   const deleteBookingMutation = useMutation({
     mutationFn: (bookingId) => base44.entities.ConsultationBooking.delete(bookingId),
