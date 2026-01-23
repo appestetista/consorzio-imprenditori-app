@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -21,14 +21,6 @@ const CONSULTANT_CATEGORIES = [
   "Bandi Europei",
   "Affitto Stampanti/Cyber Sicurezza",
   "Efficientamento Energetico/Centralini"
-];
-
-const ZONES = [
-  "Nord Italia",
-  "Centro Italia", 
-  "Sud Italia",
-  "Isole",
-  "Nazionale"
 ];
 
 const SECTIONS = [
@@ -55,6 +47,11 @@ export default function InviteConsultantForm({ onSuccess }) {
   const [assignedSections, setAssignedSections] = useState([]);
   
   const queryClient = useQueryClient();
+
+  const { data: zones = [] } = useQuery({
+    queryKey: ['zones'],
+    queryFn: () => base44.entities.Zone.filter({ is_active: true }),
+  });
 
   const toggleSection = (sectionId) => {
     setAssignedSections(prev => 
@@ -101,7 +98,7 @@ export default function InviteConsultantForm({ onSuccess }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!email || !consultantCategory || assignedSections.length === 0) {
+    if (!email || !consultantCategory || !zona || assignedSections.length === 0) {
       toast.error('Compila tutti i campi obbligatori');
       return;
     }
@@ -145,14 +142,14 @@ export default function InviteConsultantForm({ onSuccess }) {
         </div>
 
         <div>
-          <Label className="text-slate-400 text-xs">Zona</Label>
+          <Label className="text-slate-400 text-xs">Zona *</Label>
           <Select value={zona} onValueChange={setZona}>
             <SelectTrigger className="bg-slate-900 border-slate-700 text-white mt-1">
               <SelectValue placeholder="Seleziona zona..." />
             </SelectTrigger>
             <SelectContent>
-              {ZONES.map(z => (
-                <SelectItem key={z} value={z}>{z}</SelectItem>
+              {zones.map(z => (
+                <SelectItem key={z.id} value={z.name}>{z.name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -204,7 +201,7 @@ export default function InviteConsultantForm({ onSuccess }) {
 
         <Button
           type="submit"
-          disabled={inviteMutation.isPending || !email || !consultantCategory || assignedSections.length === 0}
+          disabled={inviteMutation.isPending || !email || !consultantCategory || !zona || assignedSections.length === 0}
           className="w-full bg-lime-400 text-slate-900 hover:bg-lime-500"
         >
           {inviteMutation.isPending ? (

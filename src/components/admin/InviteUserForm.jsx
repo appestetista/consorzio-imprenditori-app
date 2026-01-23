@@ -1,16 +1,23 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Send, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function InviteUserForm({ onSuccess }) {
   const [email, setEmail] = useState('');
+  const [zona, setZona] = useState('');
   
   const queryClient = useQueryClient();
+
+  const { data: zones = [] } = useQuery({
+    queryKey: ['zones'],
+    queryFn: () => base44.entities.Zone.filter({ is_active: true }),
+  });
 
   const inviteMutation = useMutation({
     mutationFn: async () => {
@@ -19,7 +26,7 @@ export default function InviteUserForm({ onSuccess }) {
       await base44.functions.invoke('sendInviteEmail', {
         email: emailLower,
         userType: 'utente',
-        zona: null,
+        zona: zona || null,
         consultantCategory: null,
         assignedSections: []
       });
@@ -28,9 +35,11 @@ export default function InviteUserForm({ onSuccess }) {
     },
     onSuccess: ({ email }) => {
       queryClient.invalidateQueries({ queryKey: ['pending-invites'] });
+      queryClient.invalidateQueries({ queryKey: ['pending-invites-users'] });
       queryClient.invalidateQueries({ queryKey: ['all-members'] });
       toast.success(`Invito inviato a ${email}!`);
       setEmail('');
+      setZona('');
       onSuccess?.();
     },
     onError: (error) => {
@@ -41,7 +50,10 @@ export default function InviteUserForm({ onSuccess }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!email) return;
+    if (!email || !zona) {
+      toast.error('Seleziona email e zona');
+      return;
+    }
     inviteMutation.mutate();
   };
 
@@ -60,9 +72,23 @@ export default function InviteUserForm({ onSuccess }) {
           />
         </div>
 
+        <div>
+          <Label className="text-slate-400 text-xs">Zona *</Label>
+          <Select value={zona} onValueChange={setZona}>
+            <SelectTrigger className="bg-slate-900 border-slate-700 text-white mt-1">
+              <SelectValue placeholder="Seleziona zona..." />
+            </SelectTrigger>
+            <SelectContent>
+              {zones.map(z => (
+                <SelectItem key={z.id} value={z.name}>{z.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
         <Button
           type="submit"
-          disabled={inviteMutation.isPending || !email}
+          disabled={inviteMutation.isPending || !email || !zona}
           className="w-full bg-lime-400 text-slate-900 hover:bg-lime-500"
         >
           {inviteMutation.isPending ? (
