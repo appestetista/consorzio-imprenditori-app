@@ -33,6 +33,7 @@ import WelfareOrdina from './pages/WelfareOrdina';
 import WelfareStorico from './pages/WelfareStorico';
 import WelfareTipologie from './pages/WelfareTipologie';
 import GestioneZone from './pages/GestioneZone';
+import GestioneCostiAI from './pages/GestioneCostiAI';
 import __Layout from './Layout.jsx';
 
 
@@ -72,6 +73,7 @@ export const PAGES = {
     "WelfareStorico": WelfareStorico,
     "WelfareTipologie": WelfareTipologie,
     "GestioneZone": GestioneZone,
+    "GestioneCostiAI": GestioneCostiAI,
 }
 
 export const pagesConfig = {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Users, Video, Calendar, Briefcase, Settings, Bell, CheckCircle, XCircle, Clock, Trash2, Mail, Eye, MessageSquare, CalendarDays, MapPin } from 'lucide-react';
+import { ArrowLeft, Users, Video, Calendar, Briefcase, Settings, Bell, CheckCircle, XCircle, Clock, Trash2, Mail, Eye, MessageSquare, CalendarDays, MapPin, DollarSign } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -18,7 +18,7 @@ import ImpersonationDialog from '../components/admin/ImpersonationDialog';
 import ConsultantAssignmentManager from '../components/admin/ConsultantAssignmentManager';
 import RisparmioRequestsAdmin from '../components/admin/RisparmioRequestsAdmin';
 import MembersDirectory from '../components/members/MembersDirectory';
-import UsageTracker from '../components/admin/UsageTracker';
+
 export default function AdminPanel() {
   const [user, setUser] = useState(null);
   const [showImpersonationDialog, setShowImpersonationDialog] = useState(false);
@@ -294,11 +294,11 @@ export default function AdminPanel() {
               </CardContent>
             </Card>
           </Link>
-          <Link to={createPageUrl('GestioneBandi')}>
+          <Link to={createPageUrl('GestioneCostiAI')}>
             <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700">
               <CardContent className="p-2 text-center">
-                <Briefcase className="w-5 h-5 text-lime-400 mx-auto mb-1" />
-                <p className="text-white text-[10px]">Bandi</p>
+                <DollarSign className="w-5 h-5 text-lime-400 mx-auto mb-1" />
+                <p className="text-white text-[10px]">Costi AI</p>
               </CardContent>
             </Card>
           </Link>
@@ -307,6 +307,18 @@ export default function AdminPanel() {
               <CardContent className="p-2 text-center">
                 <MapPin className="w-5 h-5 text-lime-400 mx-auto mb-1" />
                 <p className="text-white text-[10px]">Zone</p>
+              </CardContent>
+            </Card>
+          </Link>
+        </div>
+        
+        {/* Link Bandi separato */}
+        <div className="mb-4">
+          <Link to={createPageUrl('GestioneBandi')}>
+            <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700">
+              <CardContent className="p-3 flex items-center justify-center gap-2">
+                <Briefcase className="w-5 h-5 text-lime-400" />
+                <p className="text-white text-xs">Gestione Bandi</p>
               </CardContent>
             </Card>
           </Link>
@@ -436,8 +448,6 @@ export default function AdminPanel() {
 
           {/* TAB GESTIONE */}
           <TabsContent value="gestione" className="space-y-4">
-            {/* Monitoraggio Utilizzo */}
-            <UsageTracker />
 
             {/* Directory Membri */}
             <MembersDirectory />
