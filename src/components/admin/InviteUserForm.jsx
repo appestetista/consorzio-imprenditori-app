@@ -245,16 +245,16 @@ export default function InviteUserForm({ onSuccess }) {
               </>
             ) : (
               <>
-                <Send className="w-4 h-4 mr-2" />
-                Invia Invito via Email
-                </>
-                )}
-                </Button>
+              <Send className="w-4 h-4 mr-2" />
+              Invia Invito via Email
+            </>
+          )}
+          </Button>
 
-                <p className="text-slate-500 text-xs text-center">
-                L'email verrà inviata da app.consorzio.imprenditori@gmail.com
-                </p>
-                </form>
-                </div>
+          <p className="text-slate-500 text-xs text-center">
+            L'email verrà inviata da app.consorzio.imprenditori@gmail.com
+          </p>
+        </form>
+    </div>
   );
 }
