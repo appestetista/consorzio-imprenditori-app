@@ -267,6 +267,7 @@ export default function Home() {
   };
   const eventResponse = getUserEventResponse();
   const isBlocked = effectiveUser?.is_blocked && appMode !== 'user-preview' && effectiveUser?.role !== 'admin';
+  const isEmailNotAuthorized = effectiveUser?.block_reason === 'email_non_autorizzata';
   const isAdmin = appMode === 'admin';
 
   if (loading) {
@@ -292,6 +293,37 @@ export default function Home() {
             className="bg-lime-400 text-slate-900 px-6 py-2 rounded-lg font-medium"
           >
             Riprova
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (isBlocked && isEmailNotAuthorized) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+        <div className="text-center max-w-md">
+          <div className="w-20 h-20 bg-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-4xl">📧</span>
+          </div>
+          <h1 className="text-white text-xl font-bold mb-3">Email non autorizzata</h1>
+          <p className="text-slate-300 mb-4">
+            Per accedere devi utilizzare la mail concordata con l'amministrazione del Consorzio.
+          </p>
+          <p className="text-slate-400 text-sm mb-6">
+            Se non ricordi quale email utilizzare, chiama il:
+          </p>
+          <a 
+            href="tel:3292005433" 
+            className="inline-flex items-center gap-2 bg-lime-400 text-slate-900 px-6 py-3 rounded-lg font-bold text-lg hover:bg-lime-500 transition-colors"
+          >
+            📞 329 200 5433
+          </a>
+          <button 
+            onClick={() => base44.auth.logout()}
+            className="block w-full mt-4 text-slate-500 hover:text-slate-300 text-sm"
+          >
+            Esci e riprova con un'altra email
           </button>
         </div>
       </div>
