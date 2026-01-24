@@ -33,15 +33,18 @@ Deno.serve(async (req) => {
     
     // Prepara i dati da aggiornare sull'utente
     const updateData = {
-      user_type: invite.user_type
+      user_type: invite.user_type,
+      is_blocked: false,
+      block_reason: null
     };
+
+    // Imposta zona se presente (per tutti i tipi utente)
+    if (invite.zona) {
+      updateData.zona = invite.zona;
+    }
 
     // Se è un consulente, assegna anche i permessi specifici
     if (invite.user_type === 'consulente') {
-      // Imposta zona se presente
-      if (invite.zona) {
-        updateData.zona = invite.zona;
-      }
 
       // Imposta i permessi basati sulle sezioni assegnate
       if (invite.assigned_sections && invite.assigned_sections.length > 0) {
