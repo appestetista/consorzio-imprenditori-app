@@ -79,7 +79,8 @@ export default function PreAuthEmailForm({ zones = [], onSuccess }) {
     const matchesStatus = filterStatus === 'all' || 
       (filterStatus === 'registered' && invite.is_registered) ||
       (filterStatus === 'pending' && !invite.is_registered);
-    return matchesSearch && matchesType && matchesStatus;
+    const matchesZona = filterZona === 'all' || invite.zona === filterZona;
+    return matchesSearch && matchesType && matchesStatus && matchesZona;
   });
 
   return (
