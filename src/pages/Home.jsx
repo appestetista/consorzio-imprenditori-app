@@ -261,10 +261,30 @@ export default function Home() {
   const isBlocked = effectiveUser?.is_blocked && appMode !== 'user-preview' && effectiveUser?.role !== 'admin';
   const isAdmin = appMode === 'admin';
 
-  if (loading || !effectiveUser) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-lime-400"></div>
+      </div>
+    );
+  }
+
+  if (!effectiveUser) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+        <div className="text-center">
+          <div className="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-4xl">⚠️</span>
+          </div>
+          <h1 className="text-white text-xl font-bold mb-2">Errore di caricamento</h1>
+          <p className="text-slate-400 mb-4">Non è stato possibile caricare il tuo profilo.</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="bg-lime-400 text-slate-900 px-6 py-2 rounded-lg font-medium"
+          >
+            Riprova
+          </button>
+        </div>
       </div>
     );
   }
