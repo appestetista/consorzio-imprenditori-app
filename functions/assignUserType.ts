@@ -9,6 +9,17 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Se l'utente ha già un user_type assegnato, non fare nulla
+    // (evita di bloccare utenti già registrati correttamente)
+    if (user.user_type) {
+      return Response.json({ 
+        success: true, 
+        already_assigned: true,
+        message: 'Tipo utente già assegnato',
+        user_type: user.user_type
+      });
+    }
+
     // Cerca se c'è un invito pendente per questa email
     const pendingInvites = await base44.asServiceRole.entities.PendingInvite.filter({
       email: user.email.toLowerCase(),
@@ -16,6 +27,22 @@ Deno.serve(async (req) => {
     });
 
     if (pendingInvites.length === 0) {
+      // Controlla se esiste un invito già registrato per questa email
+      // (caso in cui l'utente ha già completato la registrazione in precedenza)
+      const registeredInvites = await base44.asServiceRole.entities.PendingInvite.filter({
+        email: user.email.toLowerCase(),
+        is_registered: true
+      });
+
+      if (registeredInvites.length > 0) {
+        // L'utente era già stato autorizzato, non bloccare
+        return Response.json({ 
+          success: true, 
+          already_registered: true,
+          message: 'Utente già registrato'
+        });
+      }
+
       // Nessun invito trovato - blocca l'utente
       await base44.asServiceRole.entities.User.update(user.id, {
         is_blocked: true,
