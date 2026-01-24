@@ -45,7 +45,6 @@ Deno.serve(async (req) => {
 
     // Se è un consulente, assegna anche i permessi specifici
     if (invite.user_type === 'consulente') {
-
       // Imposta i permessi basati sulle sezioni assegnate
       if (invite.assigned_sections && invite.assigned_sections.length > 0) {
         const permissions = {};
