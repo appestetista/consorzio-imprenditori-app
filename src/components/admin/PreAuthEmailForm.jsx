@@ -23,6 +23,7 @@ export default function PreAuthEmailForm({ zones = [], onSuccess }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [filterZona, setFilterZona] = useState('all');
   const queryClient = useQueryClient();
 
   const { data: pendingInvites = [], isLoading } = useQuery({
