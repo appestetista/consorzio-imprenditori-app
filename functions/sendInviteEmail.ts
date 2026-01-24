@@ -29,9 +29,10 @@ Deno.serve(async (req) => {
       invite_token: inviteToken
     });
 
-    // 2. Costruisci il link di registrazione con il token
+    // 2. Costruisci il link di registrazione - porta alla pagina di signup nativa di Base44
     const appUrl = Deno.env.get("APP_URL") || "https://695e2f74bb7d2636b5606a98.base44.app";
-    const registrationLink = `${appUrl}/CompleteRegistration?token=${inviteToken}&email=${encodeURIComponent(email.toLowerCase())}`;
+    // Il link porta alla pagina di login con parametro per creare account, precompilando l'email
+    const registrationLink = `${appUrl}/login?from_url=${encodeURIComponent(appUrl + '/CompleteRegistration?token=' + inviteToken)}&email=${encodeURIComponent(email.toLowerCase())}`;
 
     // 3. Invia email personalizzata con il link di registrazione
     const accessToken = await base44.asServiceRole.connectors.getAccessToken("gmail");
