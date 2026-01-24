@@ -31,8 +31,8 @@ Deno.serve(async (req) => {
 
     // 2. Costruisci il link di registrazione - porta alla pagina di signup nativa
     const appUrl = "https://app.consorzioimprenditori.com";
-    // Link diretto alla pagina di login/signup di Base44 per questa app
-    const registrationLink = `${appUrl}/login?from_url=${encodeURIComponent('/' + 'CompleteRegistration?token=' + inviteToken)}`;
+    // Link diretto alla pagina di login/signup, dopo il login torna alla home
+    const registrationLink = `${appUrl}/login?from_url=${encodeURIComponent(appUrl + '/')}`;
 
     // 3. Invia email personalizzata con il link di registrazione via Gmail API
     const accessToken = await base44.asServiceRole.connectors.getAccessToken("gmail");
