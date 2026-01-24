@@ -53,10 +53,18 @@ export default function Home() {
       console.log('[HOME] loadUser - appMode:', appMode, 'previewUserId:', impersonation.previewUserId);
       try {
         const currentUser = await base44.auth.me();
-        console.log('[HOME] currentUser loaded:', { id: currentUser.id, role: currentUser.role });
+        console.log('[HOME] currentUser loaded:', currentUser);
+
+        if (!currentUser) {
+          console.error('[HOME] currentUser è null/undefined');
+          setEffectiveUser(null);
+          setLoading(false);
+          return;
+        }
+
         setUser(currentUser);
         setCurrentUserRole(currentUser.role);
-        
+
         // Se appMode === 'user-preview', carica l'utente impersonato via previewUserId
         if (appMode === 'user-preview' && impersonation.previewUserId) {
           console.log('[HOME] Loading impersonated user with ID:', impersonation.previewUserId);
