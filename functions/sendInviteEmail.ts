@@ -96,22 +96,35 @@ Deno.serve(async (req) => {
         <div class="step">
           <span class="step-number">3</span>
           <div>
-            <strong>Password:</strong> Inventane una a tua scelta<br>
-            <em>(minimo 8 caratteri, con numeri e lettere)</em>
+            <strong>Password:</strong> Inventane una a tua scelta
           </div>
         </div>
         
         <div class="step">
           <span class="step-number">4</span>
           <div>
-            <strong>Full Name:</strong> Inserisci il tuo nome completo
+            Clicca su <span class="highlight">"Create account"</span> (significa "Crea account")
           </div>
         </div>
+        
+        <p class="arrow">⬇️ ⬇️ ⬇️</p>
         
         <div class="step">
           <span class="step-number">5</span>
           <div>
-            Clicca su <span class="highlight">"Create account"</span> (significa "Crea account")
+            <strong>Riceverai subito una seconda email</strong> con un <span class="highlight">codice numerico a 6 cifre</span><br>
+            Inseriscilo nelle caselle che appariranno:
+          </div>
+        </div>
+        
+        <div style="text-align: center; margin: 15px 0;">
+          <div style="display: inline-flex; gap: 8px;">
+            <div style="width: 40px; height: 50px; border: 2px solid #1e293b; border-radius: 8px; background: white; display: inline-flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; color: #1e293b;">1</div>
+            <div style="width: 40px; height: 50px; border: 2px solid #1e293b; border-radius: 8px; background: white; display: inline-flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; color: #1e293b;">2</div>
+            <div style="width: 40px; height: 50px; border: 2px solid #1e293b; border-radius: 8px; background: white; display: inline-flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; color: #1e293b;">3</div>
+            <div style="width: 40px; height: 50px; border: 2px solid #1e293b; border-radius: 8px; background: white; display: inline-flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; color: #1e293b;">4</div>
+            <div style="width: 40px; height: 50px; border: 2px solid #1e293b; border-radius: 8px; background: white; display: inline-flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; color: #1e293b;">5</div>
+            <div style="width: 40px; height: 50px; border: 2px solid #1e293b; border-radius: 8px; background: white; display: inline-flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; color: #1e293b;">6</div>
           </div>
         </div>
       </div>
