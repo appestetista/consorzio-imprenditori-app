@@ -16,12 +16,16 @@ Deno.serve(async (req) => {
     });
 
     if (pendingInvites.length === 0) {
-      // Nessun invito trovato - l'utente non è stato invitato
-      // Questo non dovrebbe succedere se il sistema funziona correttamente
+      // Nessun invito trovato - blocca l'utente
+      await base44.asServiceRole.entities.User.update(user.id, {
+        is_blocked: true,
+        block_reason: 'email_non_autorizzata'
+      });
+      
       return Response.json({ 
-        success: true, 
-        message: 'Nessun invito pendente trovato',
-        user_type: user.user_type || 'utente'
+        success: false, 
+        blocked: true,
+        message: 'Email non autorizzata'
       });
     }
 
