@@ -39,8 +39,21 @@ export default function Home() {
   useEffect(() => {
     const assignType = async () => {
       try {
+        const currentUser = await base44.auth.me();
+        // Skip se l'utente è admin o ha già un tipo assegnato
+        if (currentUser?.role === 'admin' || currentUser?.user_type) {
+          console.log('[HOME] Utente admin o già assegnato, skip assignUserType');
+          return;
+        }
+
         const result = await base44.functions.invoke('assignUserType', {});
         console.log('[HOME] assignUserType result:', result.data);
+
+        // Se già assegnato o già registrato, non fare nulla
+        if (result.data?.already_assigned || result.data?.already_registered) {
+          console.log('[HOME] Utente già configurato');
+          return;
+        }
 
         // Se l'utente è stato bloccato, ricarica per mostrare la schermata di blocco
         if (result.data?.blocked) {
