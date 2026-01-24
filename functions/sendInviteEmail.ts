@@ -51,6 +51,11 @@ Deno.serve(async (req) => {
     .content { background: #f8fafc; padding: 30px; border-radius: 0 0 10px 10px; }
     .button { display: inline-block; background: #a3e635; color: #1e293b !important; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0; }
     .footer { text-align: center; color: #64748b; font-size: 12px; margin-top: 20px; }
+    .instructions-box { background: #fef3c7; border: 2px solid #f59e0b; border-radius: 10px; padding: 20px; margin: 20px 0; }
+    .step { display: flex; align-items: flex-start; margin: 15px 0; }
+    .step-number { background: #1e293b; color: #a3e635; width: 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 15px; flex-shrink: 0; }
+    .arrow { font-size: 24px; color: #f59e0b; text-align: center; margin: 10px 0; }
+    .highlight { background: #a3e635; color: #1e293b; padding: 2px 8px; border-radius: 4px; font-weight: bold; }
   </style>
 </head>
 <body>
@@ -62,21 +67,59 @@ Deno.serve(async (req) => {
       <h2>Benvenuto!</h2>
       <p>Sei stato invitato a iscriverti all'app <strong>Consorzio Imprenditori</strong> come <strong>${tipoUtente}</strong>.</p>
       
-      <p>Clicca sul pulsante qui sotto per completare la registrazione:</p>
-      
       <p style="text-align: center;">
-        <a href="${registrationLink}" class="button">REGISTRATI ORA</a>
+        <a href="${registrationLink}" class="button">ACCEDI ALL'APP</a>
       </p>
       
-      <p><strong>Importante:</strong></p>
-      <ul>
-        <li>Usa questa email (${email}) per registrarti</li>
-        <li>Scegli una password sicura</li>
-        <li>Se usi un'email diversa, non potrai accedere</li>
-      </ul>
+      <div class="instructions-box">
+        <h3 style="margin-top: 0; color: #92400e;">📋 ISTRUZIONI PER LA REGISTRAZIONE</h3>
+        <p><strong>La pagina sarà in inglese, segui questi passaggi:</strong></p>
+        
+        <div class="step">
+          <span class="step-number">1</span>
+          <div>
+            <strong>Non hai ancora un account?</strong><br>
+            Clicca su <span class="highlight">"Sign up"</span> (significa "Registrati")
+          </div>
+        </div>
+        
+        <p class="arrow">⬇️ ⬇️ ⬇️</p>
+        
+        <div class="step">
+          <span class="step-number">2</span>
+          <div>
+            <strong>Email:</strong> Inserisci <span class="highlight">${email}</span><br>
+            <em style="color: #dc2626;">⚠️ IMPORTANTE: Usa esattamente questa email!</em>
+          </div>
+        </div>
+        
+        <div class="step">
+          <span class="step-number">3</span>
+          <div>
+            <strong>Password:</strong> Inventane una a tua scelta<br>
+            <em>(minimo 8 caratteri, con numeri e lettere)</em>
+          </div>
+        </div>
+        
+        <div class="step">
+          <span class="step-number">4</span>
+          <div>
+            <strong>Full Name:</strong> Inserisci il tuo nome completo
+          </div>
+        </div>
+        
+        <div class="step">
+          <span class="step-number">5</span>
+          <div>
+            Clicca su <span class="highlight">"Create account"</span> (significa "Crea account")
+          </div>
+        </div>
+      </div>
       
-      <p>Se il pulsante non funziona, copia e incolla questo link nel browser:</p>
-      <p style="word-break: break-all; color: #64748b; font-size: 12px;">${registrationLink}</p>
+      <p style="text-align: center; color: #64748b; font-size: 14px;">
+        Se il pulsante non funziona, copia e incolla questo link nel browser:<br>
+        <span style="word-break: break-all; font-size: 11px;">${registrationLink}</span>
+      </p>
     </div>
     <div class="footer">
       <p>Questa email è stata inviata automaticamente. Non rispondere.</p>
