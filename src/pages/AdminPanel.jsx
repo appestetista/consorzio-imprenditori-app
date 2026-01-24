@@ -450,6 +450,20 @@ export default function AdminPanel() {
           {/* TAB GESTIONE */}
           <TabsContent value="gestione" className="space-y-4">
 
+            {/* Pre-autorizzazione Email */}
+            <Card className="bg-slate-800 border-slate-700">
+              <CardContent className="p-4">
+                <h3 className="text-white font-medium text-sm mb-3 flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-lime-400" />
+                  Pre-autorizza Email
+                </h3>
+                <p className="text-slate-400 text-xs mb-3">
+                  Inserisci le email autorizzate a registrarsi. Quando si iscriveranno, verranno automaticamente assegnati al ruolo e zona indicati.
+                </p>
+                <PreAuthEmailForm />
+              </CardContent>
+            </Card>
+
             {/* Directory Membri */}
             <MembersDirectory />
 
