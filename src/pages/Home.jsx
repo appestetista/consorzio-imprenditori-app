@@ -39,13 +39,27 @@ export default function Home() {
   useEffect(() => {
     const assignType = async () => {
       try {
-        await base44.functions.invoke('assignUserType', {});
+        const result = await base44.functions.invoke('assignUserType', {});
+        console.log('[HOME] assignUserType result:', result.data);
+
+        // Se l'utente è stato bloccato, ricarica per mostrare la schermata di blocco
+        if (result.data?.blocked) {
+          console.log('[HOME] Utente bloccato, ricarico pagina');
+          window.location.reload();
+          return;
+        }
+
+        // Se l'assegnazione è andata a buon fine, reindirizza al profilo per completarlo
+        if (result.data?.success && result.data?.user_type) {
+          console.log('[HOME] Tipo utente assegnato:', result.data.user_type, '- reindirizzo al profilo');
+          navigate(createPageUrl('MyProfile'));
+        }
       } catch (e) {
         console.log('assignUserType non disponibile o errore:', e);
       }
     };
     assignType();
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     const loadUser = async () => {
