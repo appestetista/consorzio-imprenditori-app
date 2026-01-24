@@ -29,22 +29,103 @@ Deno.serve(async (req) => {
       invite_token: inviteToken
     });
 
-    // 2. Usa l'invito nativo di Base44 per la registrazione
+    // 2. Costruisci il link di registrazione - porta alla pagina di signup nativa
     const appUrl = "https://app.consorzioimprenditori.com";
-    
-    // Invita l'utente tramite Base44 SDK - questo crea l'utente e invia l'email di invito nativa
-    await base44.users.inviteUser(email.toLowerCase(), 'user');
-    
-    // Il link per completare il profilo dopo la registrazione
-    const completeProfileLink = `${appUrl}/CompleteRegistration?token=${inviteToken}`;
+    // Link diretto alla pagina di login/signup di Base44 per questa app
+    const registrationLink = `${appUrl}/login?from_url=${encodeURIComponent('/' + 'CompleteRegistration?token=' + inviteToken)}`;
 
-    // L'email viene inviata automaticamente da Base44 con il link di registrazione nativo
-    // che porta alla schermata "Create your account" (immagine 3)
+    // 3. Invia email personalizzata con il link di registrazione via Gmail API
+    const accessToken = await base44.asServiceRole.connectors.getAccessToken("gmail");
+    const tipoUtente = userType === 'consulente' ? 'Consulente' : 'Membro';
+
+    const htmlBody = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { background: #1e293b; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+    .header h1 { color: #a3e635; margin: 0; font-size: 24px; }
+    .content { background: #f8fafc; padding: 30px; border-radius: 0 0 10px 10px; }
+    .button { display: inline-block; background: #a3e635; color: #1e293b !important; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0; }
+    .footer { text-align: center; color: #64748b; font-size: 12px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Consorzio Imprenditori</h1>
+    </div>
+    <div class="content">
+      <h2>Benvenuto!</h2>
+      <p>Sei stato invitato a iscriverti all'app <strong>Consorzio Imprenditori</strong> come <strong>${tipoUtente}</strong>.</p>
+      
+      <p>Clicca sul pulsante qui sotto per completare la registrazione:</p>
+      
+      <p style="text-align: center;">
+        <a href="${registrationLink}" class="button">REGISTRATI ORA</a>
+      </p>
+      
+      <p><strong>Importante:</strong></p>
+      <ul>
+        <li>Usa questa email (${email}) per registrarti</li>
+        <li>Scegli una password sicura</li>
+        <li>Se usi un'email diversa, non potrai accedere</li>
+      </ul>
+      
+      <p>Se il pulsante non funziona, copia e incolla questo link nel browser:</p>
+      <p style="word-break: break-all; color: #64748b; font-size: 12px;">${registrationLink}</p>
+    </div>
+    <div class="footer">
+      <p>Questa email è stata inviata automaticamente. Non rispondere.</p>
+      <p>© ${new Date().getFullYear()} Consorzio Imprenditori</p>
+    </div>
+  </div>
+</body>
+</html>
+    `;
+
+    // Costruisci email in formato RFC 2822
+    const emailLines = [
+      `From: Consorzio Imprenditori <consorzioimprenditori@gmail.com>`,
+      `To: ${email}`,
+      `Subject: =?UTF-8?B?${btoa(unescape(encodeURIComponent("Benvenuto nel Consorzio Imprenditori!")))}?=`,
+      `MIME-Version: 1.0`,
+      `Content-Type: text/html; charset=utf-8`,
+      ``,
+      htmlBody
+    ];
+    
+    const rawEmail = emailLines.join('\r\n');
+    const encodedEmail = btoa(unescape(encodeURIComponent(rawEmail)))
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=+$/, '');
+
+    // Invia via Gmail API
+    const response = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        raw: encodedEmail
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error('Gmail API error:', errorData);
+      throw new Error(`Gmail API error: ${response.status}`);
+    }
 
     return Response.json({ 
       success: true, 
-      message: `Invito inviato a ${email}`,
-      completeProfileLink: completeProfileLink
+      message: `Email inviata a ${email}`,
+      registrationLink: registrationLink
     });
 
   } catch (error) {
