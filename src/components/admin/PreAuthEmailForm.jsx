@@ -166,6 +166,17 @@ export default function PreAuthEmailForm({ zones = [], onSuccess }) {
             </SelectContent>
           </Select>
         </div>
+        <Select value={filterZona} onValueChange={setFilterZona}>
+          <SelectTrigger className="bg-slate-900 border-slate-700 text-white h-7 text-xs">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tutte le zone</SelectItem>
+            {ZONE_OPTIONS.map((z) => (
+              <SelectItem key={z} value={z}>{z}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Lista email */}
