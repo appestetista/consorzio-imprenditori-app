@@ -53,7 +53,7 @@ Deno.serve(async (req) => {
     .footer { text-align: center; color: #64748b; font-size: 12px; margin-top: 20px; }
     .instructions-box { background: #fef3c7; border: 2px solid #f59e0b; border-radius: 10px; padding: 20px; margin: 20px 0; }
     .step { display: flex; align-items: flex-start; margin: 15px 0; }
-    .step-number { background: #1e293b; color: #a3e635; width: 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 15px; flex-shrink: 0; }
+    .step-number { background: #1e293b; color: #a3e635; width: 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 15px; flex-shrink: 0; text-align: center; line-height: 30px; }
     .arrow { font-size: 24px; color: #f59e0b; text-align: center; margin: 10px 0; }
     .highlight { background: #a3e635; color: #1e293b; padding: 2px 8px; border-radius: 4px; font-weight: bold; }
   </style>
