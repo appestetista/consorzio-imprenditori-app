@@ -278,6 +278,7 @@ export default function Home() {
           </div>
           <h1 className="text-white text-xl font-bold mb-2">Errore di caricamento</h1>
           <p className="text-slate-400 mb-4">Non è stato possibile caricare il tuo profilo.</p>
+          <p className="text-slate-500 text-sm mb-4">Se hai appena effettuato la registrazione, attendi qualche secondo e riprova.</p>
           <button 
             onClick={() => window.location.reload()} 
             className="bg-lime-400 text-slate-900 px-6 py-2 rounded-lg font-medium"
