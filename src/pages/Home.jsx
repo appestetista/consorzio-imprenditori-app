@@ -172,6 +172,9 @@ export default function Home() {
     enabled: !!effectiveUser?.email,
   });
 
+  // Conta inviti a eventi senza risposta
+  const pendingEventInvites = partecipazioni.filter(p => p.stato === 'nessuna_risposta').length;
+
   // Per utenti/consulenti: conta nuovi bandi dalla loro ultima visita
   // In impersonation, usa il ruolo impersonato, non quello reale
   const effectiveRole = impersonation.active ? impersonation.role : effectiveUser?.role;
