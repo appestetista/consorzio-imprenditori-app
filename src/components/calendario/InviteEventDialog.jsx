@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
-import { X, Search, Users, Briefcase, Send, Check } from 'lucide-react';
+import { X, Search, Users, Briefcase, Send, Check, Trash2 } from 'lucide-react';
 
 export default function InviteEventDialog({ open, onClose, event, type }) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -61,6 +61,34 @@ export default function InviteEventDialog({ open, onClose, event, type }) {
       p => p.user_email === email && p.evento_id === event?.id
     );
     return partecipazione?.stato || null;
+  };
+
+  // Ritira invito
+  const handleWithdrawInvite = async (email) => {
+    const partecipazione = partecipazioni.find(
+      p => p.user_email === email && p.evento_id === event?.id
+    );
+    if (!partecipazione) return;
+
+    try {
+      // Elimina la partecipazione
+      await base44.entities.PartecipazioniEvento.delete(partecipazione.id);
+      
+      // Elimina eventuali notifiche correlate
+      const notifications = await base44.entities.Notification.filter({
+        user_email: email,
+        type: 'event',
+        reference_id: event.id
+      });
+      for (const notif of notifications) {
+        await base44.entities.Notification.delete(notif.id);
+      }
+
+      queryClient.invalidateQueries({ queryKey: ['partecipazioni-eventi'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    } catch (error) {
+      console.error('Errore ritiro invito:', error);
+    }
   };
 
   const toggleSelect = (id) => {
@@ -235,18 +263,19 @@ Il Consorzio
                 key={item.id}
                 className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${
                   alreadyInvited 
-                    ? 'bg-slate-700/50 border-slate-600 cursor-not-allowed' 
+                    ? 'bg-slate-700/50 border-slate-600' 
                     : isSelected 
                       ? 'bg-lime-400/20 border-lime-400' 
                       : 'bg-slate-900 border-slate-700 hover:border-slate-600 cursor-pointer'
                 }`}
                 onClick={() => !alreadyInvited && toggleSelect(item.id)}
               >
-                <Checkbox
-                  checked={isSelected}
-                  disabled={alreadyInvited}
-                  className="border-slate-500 data-[state=checked]:bg-lime-400 data-[state=checked]:border-lime-400"
-                />
+                {!alreadyInvited && (
+                  <Checkbox
+                    checked={isSelected}
+                    className="border-slate-500 data-[state=checked]:bg-lime-400 data-[state=checked]:border-lime-400"
+                  />
+                )}
                 <div className="flex-1 min-w-0">
                   <p className="text-white font-medium truncate">
                     {type === 'users' ? (item.company_name || item.full_name) : item.name}
@@ -256,6 +285,20 @@ Il Consorzio
                   </p>
                 </div>
                 {getStatusBadge(status)}
+                {alreadyInvited && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="text-red-400 hover:text-red-300 hover:bg-red-900/30 p-1 h-auto"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleWithdrawInvite(email);
+                    }}
+                    title="Ritira invito"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                )}
               </div>
             );
           })}
