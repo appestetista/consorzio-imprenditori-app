@@ -412,13 +412,14 @@ export default function FinanziamentiAgevolati() {
       // Non caricare raccomandazioni per admin
       if (isRealAdmin) return;
       
-      if (!user || !filteredGrants.length || loadingRecommendations || Object.keys(aiRecommendations).length > 0) return;
-      
-      // Skip se limite raggiunto
+      // Skip se limite raggiunto - PRIMA di tutto
       if (grantRecsLimitReached) {
-        console.log('Grant recommendations limit reached');
+        console.log('Grant recommendations limit reached - skipping AI analysis');
+        setAiRecommendations({}); // Assicura che non ci siano raccomandazioni
         return;
       }
+      
+      if (!user || !filteredGrants.length || loadingRecommendations || Object.keys(aiRecommendations).length > 0) return;
       
       setLoadingRecommendations(true);
       
