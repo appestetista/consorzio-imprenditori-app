@@ -369,7 +369,7 @@ export default function CalendarioIncontri() {
             <h1 className="text-white text-xl font-bold">Calendario Incontri</h1>
           </div>
           
-          {isAdmin && (
+          {isAdmin ? (
             <Dialog open={showAddEvent} onOpenChange={setShowAddEvent}>
               <DialogTrigger asChild>
                 <Button className="bg-lime-400 hover:bg-lime-500 text-slate-900">
@@ -377,6 +377,16 @@ export default function CalendarioIncontri() {
                   Nuovo
                 </Button>
               </DialogTrigger>
+        ) : (
+          <Button 
+            className="bg-slate-700 hover:bg-slate-600 text-white"
+            onClick={() => setShowUserEventForm(true)}
+          >
+            <Plus className="w-5 h-5 mr-1" />
+            Proponi evento
+          </Button>
+        )}
+        {isAdmin && (
               <DialogContent className="bg-slate-800 border-slate-700 max-h-[85vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle className="text-white">Nuovo Incontro</DialogTitle>
