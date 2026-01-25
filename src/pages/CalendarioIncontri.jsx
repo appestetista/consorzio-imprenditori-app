@@ -377,16 +377,6 @@ export default function CalendarioIncontri() {
                   Nuovo
                 </Button>
               </DialogTrigger>
-        ) : (
-          <Button 
-            className="bg-slate-700 hover:bg-slate-600 text-white"
-            onClick={() => setShowUserEventForm(true)}
-          >
-            <Plus className="w-5 h-5 mr-1" />
-            Proponi evento
-          </Button>
-        )}
-        {isAdmin && (
               <DialogContent className="bg-slate-800 border-slate-700 max-h-[85vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle className="text-white">Nuovo Incontro</DialogTitle>
