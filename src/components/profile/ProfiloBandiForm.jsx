@@ -192,13 +192,13 @@ export default function ProfiloBandiForm({ user, onSaved }) {
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Alert campi obbligatori mancanti */}
       {!hasAllRequired && (
-        <Alert className="bg-red-500/20 border-red-500/50">
-          <AlertTriangle className="h-5 w-5 text-red-400" />
-          <AlertDescription className="text-red-300">
+        <Alert className="bg-lime-500/20 border-lime-500/50">
+          <AlertTriangle className="h-5 w-5 text-lime-400" />
+          <AlertDescription className="text-lime-300">
             <p className="font-bold mb-2">⚠️ Completa i campi obbligatori per vedere i bandi compatibili:</p>
             <ul className="list-disc list-inside space-y-1">
               {missingFields.map((field) => (
-                <li key={field} className="text-red-400">{field}</li>
+                <li key={field} className="text-lime-400">{field}</li>
               ))}
             </ul>
           </AlertDescription>
@@ -221,13 +221,13 @@ export default function ProfiloBandiForm({ user, onSaved }) {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label className={`text-sm flex items-center ${!formData.company_size ? 'text-red-400' : 'text-slate-300'}`}>
-              Dimensione Azienda <span className="text-red-400 ml-1">*</span>
+            <Label className={`text-sm flex items-center ${!formData.company_size ? 'text-lime-400' : 'text-slate-300'}`}>
+              Dimensione Azienda <span className="text-lime-400 ml-1">*</span>
               <HelpTooltip text="Micro (<10 dip., <2M€), Piccola (<50 dip., <10M€), Media (<250 dip., <50M€), Grande (oltre)" />
             </Label>
             <Select value={formData.company_size} onValueChange={(value) => updateAndSave('company_size', value)}>
-              <SelectTrigger className={`bg-slate-900 text-white mt-1 ${!formData.company_size ? 'border-red-500 border-2' : 'border-slate-700'}`}>
-                <SelectValue placeholder="⚠️ Seleziona dimensione" />
+              <SelectTrigger className={`bg-slate-900 text-white mt-1 ${!formData.company_size ? 'border-lime-400 border-2' : 'border-slate-700'}`}>
+                <SelectValue placeholder="Seleziona dimensione" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="Micro">Micro (&lt;10 dip., &lt;2M€)</SelectItem>
@@ -356,7 +356,7 @@ export default function ProfiloBandiForm({ user, onSaved }) {
                 );
               })}
             </div>
-            <p className={`text-xs mt-2 ${formData.interested_regions?.length ? 'text-slate-500' : 'text-red-400'}`}>
+            <p className={`text-xs mt-2 ${formData.interested_regions?.length ? 'text-slate-500' : 'text-lime-400'}`}>
               {formData.interested_regions?.length || 0} regioni selezionate {!formData.interested_regions?.length && '(seleziona almeno una regione)'}
             </p>
           </div>
