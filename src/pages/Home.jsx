@@ -270,16 +270,8 @@ export default function Home() {
     enabled: !!effectiveUser?.email && isNotAdmin,
   });
 
-  // Count notifications by type - per eventi, mostra solo se non ha ancora risposto
-      const eventNotifications = notifications.filter(n => {
-        if (n.type !== 'event') return false;
-        // Verifica se l'utente ha già risposto a questo evento
-        const partecipazione = partecipazioni.find(p => p.evento_id === n.reference_id);
-        if (partecipazione && (partecipazione.stato === 'confermato' || partecipazione.stato === 'non_confermato')) {
-          return false; // Ha già risposto, non mostrare notifica
-        }
-        return true;
-      }).length;
+  // Count notifications by type - per eventi, mostra inviti in attesa di risposta
+  const eventNotifications = pendingEventInvites;
   const videoNotifications = notifications.filter(n => n.type === 'video').length;
   const consultationNotifications = notifications.filter(n => n.type === 'consultation').length;
 
