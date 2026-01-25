@@ -221,13 +221,13 @@ export default function ProfiloBandiForm({ user, onSaved }) {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label className="text-slate-300 text-sm flex items-center">
-              Dimensione Azienda *
+            <Label className={`text-sm flex items-center ${!formData.company_size ? 'text-red-400' : 'text-slate-300'}`}>
+              Dimensione Azienda <span className="text-red-400 ml-1">*</span>
               <HelpTooltip text="Micro (<10 dip., <2M€), Piccola (<50 dip., <10M€), Media (<250 dip., <50M€), Grande (oltre)" />
             </Label>
             <Select value={formData.company_size} onValueChange={(value) => updateAndSave('company_size', value)}>
-              <SelectTrigger className="bg-slate-900 border-slate-700 text-white mt-1">
-                <SelectValue placeholder="Seleziona dimensione" />
+              <SelectTrigger className={`bg-slate-900 text-white mt-1 ${!formData.company_size ? 'border-red-500 border-2' : 'border-slate-700'}`}>
+                <SelectValue placeholder="⚠️ Seleziona dimensione" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="Micro">Micro (&lt;10 dip., &lt;2M€)</SelectItem>
