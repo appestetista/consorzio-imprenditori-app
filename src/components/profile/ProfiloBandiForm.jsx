@@ -292,8 +292,8 @@ export default function ProfiloBandiForm({ user, onSaved }) {
                 console.error('Errore salvataggio regione:', err);
               }
             }}>
-              <SelectTrigger className="bg-slate-900 border-slate-700 text-white mt-1">
-                <SelectValue placeholder="Seleziona regione" />
+              <SelectTrigger className={`bg-slate-900 text-white mt-1 ${!formData.region ? 'border-red-500 border-2' : 'border-slate-700'}`}>
+                <SelectValue placeholder="⚠️ Seleziona regione" />
               </SelectTrigger>
               <SelectContent>
                 {REGIONI_ITALIA.map((regione) => (
