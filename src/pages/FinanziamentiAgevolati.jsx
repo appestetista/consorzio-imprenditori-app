@@ -504,18 +504,25 @@ Per ogni bando, fornisci:
     getAIRecommendations();
   }, [user, filteredGrants.length, grantRecsLimitReached]);
 
-  // Funzione per determinare se un bando è regionale
-  const isRegionalGrant = (grant) => {
-    return grant.livello === 'Regionale' && !grant.is_national;
+  // Funzione per determinare se un bando è della regione dell'utente
+  const isUserRegionGrant = (grant) => {
+    const effectiveUser = getEffectiveUserProfile();
+    const userRegions = effectiveUser?.interested_regions || 
+                        (effectiveUser?.region ? [effectiveUser.region] : []);
+    
+    if (!grant.eligible_regions?.length || userRegions.length === 0) return false;
+    
+    // Verifica se almeno una regione del bando corrisponde alle regioni dell'utente
+    return grant.eligible_regions.some(region => userRegions.includes(region));
   };
 
   // Sort grants based on selected sorting option
   const sortedGrants = [...filteredGrants].sort((a, b) => {
-    // PRIMA: Ordina per regionale vs nazionale (regionali prima)
-    const aIsRegional = isRegionalGrant(a);
-    const bIsRegional = isRegionalGrant(b);
-    if (aIsRegional && !bIsRegional) return -1;
-    if (!aIsRegional && bIsRegional) return 1;
+    // PRIMA: Ordina per bandi della regione dell'utente (prima quelli che matchano la regione)
+    const aIsUserRegion = isUserRegionGrant(a);
+    const bIsUserRegion = isUserRegionGrant(b);
+    if (aIsUserRegion && !bIsUserRegion) return -1;
+    if (!aIsUserRegion && bIsUserRegion) return 1;
 
     // Se ci sono raccomandazioni AI e nessun ordinamento specifico, usa quelle
     if (filters.sortBy === 'created_date_desc' && Object.keys(aiRecommendations).length > 0) {
