@@ -552,30 +552,53 @@ export default function CalendarioIncontri() {
                     )}
 
                     {/* Stato partecipazione utente - solo per non-admin */}
-                    {userResponse && !isAdmin && (
+                    {!isAdmin && (
                       <div className="pt-3 border-t border-slate-700">
-                        <div className={`p-3 rounded-lg ${
-                          userResponse === 'accepted' ? 'bg-green-600/20' : 'bg-red-600/20'
-                        }`}>
-                          <p className={`text-sm font-medium ${
-                            userResponse === 'accepted' ? 'text-green-400' : 'text-red-400'
-                          }`}>
-                            {userResponse === 'accepted' 
-                              ? "✓ Hai scelto di partecipare all'incontro" 
-                              : "✗ Hai scelto di non partecipare all'incontro"}
-                          </p>
-                        </div>
-                        {!isBlocked && (
-                          <button
-                            className="w-full mt-3 text-base text-lime-400 hover:text-lime-300 font-medium underline"
-                            onClick={() => setChangeResponseEvent(event)}
-                          >
-                            Hai cambiato idea?
-                          </button>
-                        )}
+                        {userResponse ? (
+                          <>
+                            <div className={`p-3 rounded-lg ${
+                              userResponse === 'accepted' ? 'bg-green-600/20' : 'bg-red-600/20'
+                            }`}>
+                              <p className={`text-sm font-medium ${
+                                userResponse === 'accepted' ? 'text-green-400' : 'text-red-400'
+                              }`}>
+                                {userResponse === 'accepted' 
+                                  ? "✓ Hai scelto di partecipare all'incontro" 
+                                  : "✗ Hai scelto di non partecipare all'incontro"}
+                              </p>
+                            </div>
+                            {!isBlocked && (
+                              <button
+                                className="w-full mt-3 text-base text-lime-400 hover:text-lime-300 font-medium underline"
+                                onClick={() => setChangeResponseEvent(event)}
+                              >
+                                Hai cambiato idea?
+                              </button>
+                            )}
+                          </>
+                        ) : !isBlocked ? (
+                          <div className="grid grid-cols-2 gap-3">
+                            <Button
+                              className="bg-green-600 hover:bg-green-700 text-white"
+                              disabled={respondToEventMutation.isPending}
+                              onClick={() => respondToEventMutation.mutate({ eventId: event.id, response: 'accept' })}
+                            >
+                              <Check className="w-4 h-4 mr-2" />
+                              Parteciperò
+                            </Button>
+                            <Button
+                              className="bg-red-600 hover:bg-red-700 text-white"
+                              disabled={respondToEventMutation.isPending}
+                              onClick={() => respondToEventMutation.mutate({ eventId: event.id, response: 'decline' })}
+                            >
+                              <X className="w-4 h-4 mr-2" />
+                              Non parteciperò
+                            </Button>
+                          </div>
+                        ) : null}
                       </div>
                     )}
-                    {isBlocked && (
+                    {isBlocked && !userResponse && !isAdmin && (
                       <div className="mt-3 p-3 bg-slate-700/50 rounded-lg">
                         <p className="text-slate-300 text-xs leading-relaxed">
                           La conferma di partecipazione non è più modificabile. Siamo a ridosso dell'evento e non è più possibile confermare o annullare la presenza online. Per necessità urgenti, contatta direttamente il Consorzio.
