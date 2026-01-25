@@ -100,6 +100,27 @@ export default function AdminPanel() {
 
   const pendingVideoRequests = videoInterviewRequests.filter(r => r.status === 'pending');
 
+  // Notifiche risposte eventi
+  const { data: eventResponseNotifications = [] } = useQuery({
+    queryKey: ['event-response-notifications', user?.email],
+    queryFn: () => base44.entities.Notification.filter({ 
+      user_email: user?.email, 
+      type: 'event_response',
+      is_read: false 
+    }),
+    enabled: !!user?.email,
+  });
+
+  const { data: allUsers = [] } = useQuery({
+    queryKey: ['all-users-admin'],
+    queryFn: () => base44.entities.User.list(),
+  });
+
+  const { data: allEvents = [] } = useQuery({
+    queryKey: ['all-events-admin'],
+    queryFn: () => base44.entities.Event.list('-date'),
+  });
+
   const [showVideoRequests, setShowVideoRequests] = useState(false);
   const [showAllMessages, setShowAllMessages] = useState(false);
 
