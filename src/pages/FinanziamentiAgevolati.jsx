@@ -801,7 +801,7 @@ Per ogni bando, fornisci:
                 return (
                   <div key={grant.id} className="relative">
                     <div className="absolute -top-2 -right-2 z-10 bg-purple-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-                      🎯 {recommendation.score}% match
+                      🎯 {recommendation.score}% compatibile
                     </div>
                     <GrantCard
                       grant={grant}

@@ -99,7 +99,7 @@ export default function GrantCard({ grant, onDetails, userInterest, onToggleAler
             {aiRecommendation && aiRecommendation.score >= 75 && !isTopRecommended && (
               <Badge className="bg-purple-600 text-white border-0 text-xs mt-1">
                 <Sparkles className="w-3 h-3 mr-1" />
-                {aiRecommendation.score}% match
+                {aiRecommendation.score}% compatibile
               </Badge>
             )}
           </div>
