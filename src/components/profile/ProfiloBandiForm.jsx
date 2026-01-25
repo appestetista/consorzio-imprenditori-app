@@ -226,7 +226,10 @@ export default function ProfiloBandiForm({ user, onSaved }) {
               <HelpTooltip text="Micro (<10 dip., <2M€), Piccola (<50 dip., <10M€), Media (<250 dip., <50M€), Grande (oltre)" />
             </Label>
             <Select value={formData.company_size} onValueChange={(value) => updateAndSave('company_size', value)}>
-              <SelectTrigger className={`bg-slate-900 text-white mt-1 ${!formData.company_size ? 'border-lime-400 border-[3px]' : 'border-slate-700'}`}>
+              <SelectTrigger 
+                className="bg-slate-900 text-white mt-1"
+                style={!formData.company_size ? { border: '3px solid #a3e635' } : { border: '1px solid rgb(51 65 85)' }}
+              >
                 <SelectValue placeholder="Seleziona dimensione" />
               </SelectTrigger>
               <SelectContent>
@@ -244,7 +247,10 @@ export default function ProfiloBandiForm({ user, onSaved }) {
               <HelpTooltip text="La forma societaria come risulta dalla visura camerale." />
             </Label>
             <Select value={formData.legal_form} onValueChange={(value) => updateAndSave('legal_form', value)}>
-              <SelectTrigger className={`bg-slate-900 text-white mt-1 ${!formData.legal_form ? 'border-lime-400 border-[3px]' : 'border-slate-700'}`}>
+              <SelectTrigger 
+                className="bg-slate-900 text-white mt-1"
+                style={!formData.legal_form ? { border: '3px solid #a3e635' } : { border: '1px solid rgb(51 65 85)' }}
+              >
                 <SelectValue placeholder="Seleziona forma giuridica" />
               </SelectTrigger>
               <SelectContent>
@@ -292,7 +298,10 @@ export default function ProfiloBandiForm({ user, onSaved }) {
                 console.error('Errore salvataggio regione:', err);
               }
             }}>
-              <SelectTrigger className={`bg-slate-900 text-white mt-1 ${!formData.region ? 'border-lime-400 border-[3px]' : 'border-slate-700'}`}>
+              <SelectTrigger 
+                className="bg-slate-900 text-white mt-1"
+                style={!formData.region ? { border: '3px solid #a3e635' } : { border: '1px solid rgb(51 65 85)' }}
+              >
                 <SelectValue placeholder="Seleziona regione" />
               </SelectTrigger>
               <SelectContent>
@@ -393,7 +402,10 @@ export default function ProfiloBandiForm({ user, onSaved }) {
               Settore Principale <span className="text-lime-400">*</span>
             </Label>
             <Select value={formData.sector} onValueChange={(value) => updateAndSave('sector', value)}>
-              <SelectTrigger className={`bg-slate-900 text-white mt-1 ${!formData.sector ? 'border-lime-400 border-[3px]' : 'border-slate-700'}`}>
+              <SelectTrigger 
+                className="bg-slate-900 text-white mt-1"
+                style={!formData.sector ? { border: '3px solid #a3e635' } : { border: '1px solid rgb(51 65 85)' }}
+              >
                 <SelectValue placeholder="Seleziona settore" />
               </SelectTrigger>
               <SelectContent>
@@ -408,7 +420,14 @@ export default function ProfiloBandiForm({ user, onSaved }) {
             <Label className={`text-sm ${!formData.ateco_code ? 'text-lime-400' : 'text-slate-300'}`}>
               Codice ATECO Principale <span className="text-lime-400">*</span>
             </Label>
-            <Input value={formData.ateco_code} onBlur={(e) => updateAndSave('ateco_code', e.target.value)} onChange={(e) => setFormData({...formData, ateco_code: e.target.value})} className={`bg-slate-900 text-white mt-1 ${!formData.ateco_code ? 'border-lime-400 border-[3px]' : 'border-slate-700'}`} placeholder="Es: 62.01.00" />
+            <Input 
+              value={formData.ateco_code} 
+              onBlur={(e) => updateAndSave('ateco_code', e.target.value)} 
+              onChange={(e) => setFormData({...formData, ateco_code: e.target.value})} 
+              className="bg-slate-900 text-white mt-1"
+              style={!formData.ateco_code ? { border: '3px solid #a3e635' } : { border: '1px solid rgb(51 65 85)' }}
+              placeholder="Es: 62.01.00" 
+            />
           </div>
 
           <div>
