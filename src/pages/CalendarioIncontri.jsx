@@ -621,6 +621,32 @@ export default function CalendarioIncontri() {
 
                     {isAdmin && (
                      <div className="pt-3 border-t border-slate-700 space-y-2">
+                       {/* Pulsanti approvazione per eventi in attesa */}
+                       {event.approval_status === 'pending' && (
+                         <div className="grid grid-cols-2 gap-2 mb-2">
+                           <Button
+                             size="sm"
+                             className="bg-green-600 hover:bg-green-700 text-white"
+                             onClick={() => approveEventMutation.mutate({ eventId: event.id, approved: true })}
+                             disabled={approveEventMutation.isPending}
+                           >
+                             <Check className="w-4 h-4 mr-1" />
+                             Approva
+                           </Button>
+                           <Button
+                             size="sm"
+                             className="bg-red-600 hover:bg-red-700 text-white"
+                             onClick={() => {
+                               const reason = prompt('Motivo del rifiuto (opzionale):');
+                               approveEventMutation.mutate({ eventId: event.id, approved: false, rejectionReason: reason });
+                             }}
+                             disabled={approveEventMutation.isPending}
+                           >
+                             <X className="w-4 h-4 mr-1" />
+                             Rifiuta
+                           </Button>
+                         </div>
+                       )}
                        <div className="grid grid-cols-2 gap-2">
                          <Button
                            variant="outline"
