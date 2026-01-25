@@ -324,12 +324,11 @@ export default function GrantCard({ grant, onDetails, userInterest, onToggleAler
           <div className="flex gap-2">
             <Button
               size="sm"
-              variant="outline"
-              className={`flex-1 ${userInterest?.wants_alerts ? 'border-lime-400 text-lime-400' : 'border-slate-600 text-slate-300'}`}
+              className={`flex-1 ${userInterest?.wants_alerts ? 'bg-lime-400 hover:bg-lime-500 text-slate-900 font-bold' : 'bg-slate-700 hover:bg-slate-600 text-white font-bold'}`}
               onClick={onToggleAlerts}
             >
               {userInterest?.wants_alerts ? <Bell className="w-4 h-4 mr-1" /> : <BellOff className="w-4 h-4 mr-1" />}
-              {userInterest?.wants_alerts ? 'Avviso a 60 e 30 gg' : 'Avviso a 60 e 30 gg'}
+              Avviso a 60 e 30 gg
             </Button>
             
             <Button
