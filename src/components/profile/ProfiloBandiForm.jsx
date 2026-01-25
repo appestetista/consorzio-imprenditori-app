@@ -173,8 +173,38 @@ export default function ProfiloBandiForm({ user, onSaved }) {
     saveMutation.mutate(formData);
   };
 
+  // Verifica campi obbligatori mancanti
+  const getMissingRequiredFields = () => {
+    const missing = [];
+    if (!formData.company_size) missing.push('Dimensione Azienda');
+    if (!formData.region) missing.push('Regione Sede Legale');
+    if (!formData.interested_regions?.length) missing.push('Regioni di Interesse');
+    if (!formData.sector) missing.push('Settore Principale');
+    if (!formData.ateco_code) missing.push('Codice ATECO');
+    if (!formData.legal_form) missing.push('Forma Giuridica');
+    return missing;
+  };
+
+  const missingFields = getMissingRequiredFields();
+  const hasAllRequired = missingFields.length === 0;
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Alert campi obbligatori mancanti */}
+      {!hasAllRequired && (
+        <Alert className="bg-red-500/20 border-red-500/50">
+          <AlertTriangle className="h-5 w-5 text-red-400" />
+          <AlertDescription className="text-red-300">
+            <p className="font-bold mb-2">⚠️ Completa i campi obbligatori per vedere i bandi compatibili:</p>
+            <ul className="list-disc list-inside space-y-1">
+              {missingFields.map((field) => (
+                <li key={field} className="text-red-400">{field}</li>
+              ))}
+            </ul>
+          </AlertDescription>
+        </Alert>
+      )}
+
       {saved && (
         <Alert className="bg-green-500/20 border-green-500/30">
           <CheckCircle className="h-4 w-4 text-green-500" />
