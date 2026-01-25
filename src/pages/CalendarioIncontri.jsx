@@ -579,20 +579,28 @@ export default function CalendarioIncontri() {
                         ) : !isBlocked ? (
                           <div className="grid grid-cols-2 gap-3">
                             <Button
-                              className="bg-green-600 hover:bg-green-700 text-white"
+                              className="bg-green-600 hover:bg-green-700 text-white flex items-center justify-center"
                               disabled={respondToEventMutation.isPending}
-                              onClick={() => respondToEventMutation.mutate({ eventId: event.id, response: 'accept' })}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                respondToEventMutation.mutate({ eventId: event.id, response: 'accept' });
+                              }}
                             >
-                              <Check className="w-4 h-4 mr-2" />
-                              Parteciperò
+                              <Check className="w-4 h-4 mr-2 flex-shrink-0" />
+                              <span>Parteciperò</span>
                             </Button>
                             <Button
-                              className="bg-red-600 hover:bg-red-700 text-white"
+                              className="bg-red-600 hover:bg-red-700 text-white flex items-center justify-center"
                               disabled={respondToEventMutation.isPending}
-                              onClick={() => respondToEventMutation.mutate({ eventId: event.id, response: 'decline' })}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                respondToEventMutation.mutate({ eventId: event.id, response: 'decline' });
+                              }}
                             >
-                              <X className="w-4 h-4 mr-2" />
-                              Non parteciperò
+                              <X className="w-4 h-4 mr-2 flex-shrink-0" />
+                              <span>Non parteciperò</span>
                             </Button>
                           </div>
                         ) : null}
