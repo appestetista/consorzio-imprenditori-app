@@ -277,7 +277,9 @@ export default function ProfiloBandiForm({ user, onSaved }) {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label className="text-slate-300 text-sm flex items-center">Regione Sede Legale *</Label>
+            <Label className={`text-sm flex items-center ${!formData.region ? 'text-red-400' : 'text-slate-300'}`}>
+              Regione Sede Legale <span className="text-red-400 ml-1">*</span>
+            </Label>
             <Select value={formData.region} onValueChange={async (value) => {
               const currentInterested = formData.interested_regions || [];
               const newInterested = currentInterested.includes(value) 
