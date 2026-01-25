@@ -329,7 +329,7 @@ export default function GrantCard({ grant, onDetails, userInterest, onToggleAler
               onClick={onToggleAlerts}
             >
               {userInterest?.wants_alerts ? <Bell className="w-4 h-4 mr-1" /> : <BellOff className="w-4 h-4 mr-1" />}
-              {userInterest?.wants_alerts ? 'Avvisi attivi' : 'Attiva avvisi'}
+              {userInterest?.wants_alerts ? 'Avviso a 60 e 30 gg' : 'Avviso a 60 e 30 gg'}
             </Button>
             
             <Button
