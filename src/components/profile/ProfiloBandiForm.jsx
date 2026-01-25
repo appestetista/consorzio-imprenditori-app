@@ -248,7 +248,8 @@ export default function ProfiloBandiForm({ user, onSaved }) {
             </Label>
             <Select value={formData.legal_form} onValueChange={(value) => updateAndSave('legal_form', value)}>
               <SelectTrigger 
-                className={`bg-slate-900 text-white mt-1 ${!formData.legal_form ? 'border-[3px] border-lime-400' : 'border border-slate-700'}`}
+                className="bg-slate-900 text-white mt-1"
+                style={!formData.legal_form ? { border: '3px solid #a3e635', boxShadow: '0 0 0 1px #a3e635' } : {}}
               >
                 <SelectValue placeholder="Seleziona forma giuridica" />
               </SelectTrigger>
