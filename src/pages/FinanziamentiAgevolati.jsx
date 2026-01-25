@@ -758,15 +758,6 @@ Per ogni bando, fornisci:
           </Alert>
         )}
 
-        {/* Contatore Raccomandazioni AI */}
-        {user && !isRealAdmin && (
-          <UsageCounter 
-            usageCount={grantRecsUsage} 
-            limit={grantRecsLimit} 
-            label="Raccomandazioni AI disponibili questo mese" 
-          />
-        )}
-
         {/* AI Recommendations Loading */}
         {loadingRecommendations && (
           <Alert className="mb-6 bg-purple-500/10 border-purple-500/30">
@@ -779,10 +770,10 @@ Per ogni bando, fornisci:
 
         {/* Limite Raggiunto AI */}
         {grantRecsLimitReached && !isRealAdmin && (
-          <Alert className="mb-6 bg-yellow-500/10 border-yellow-500/30">
-            <AlertCircle className="h-4 w-4 text-yellow-400" />
-            <AlertDescription className="text-yellow-300 text-sm">
-              Hai raggiunto il limite mensile di raccomandazioni AI. I bandi sono comunque visibili senza analisi personalizzata.
+          <Alert className="mb-6 bg-orange-500/10 border-orange-500/30">
+            <AlertCircle className="h-4 w-4 text-orange-400" />
+            <AlertDescription className="text-orange-300 text-sm">
+              Per questo mese non verranno più calcolate corrispondenze AI tra il vostro profilo e i bandi. Avete raggiunto il limite di 10 analisi mensili. I bandi restano comunque visibili.
             </AlertDescription>
           </Alert>
         )}
