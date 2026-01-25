@@ -7,8 +7,9 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, User, Building2, Phone, MapPin, Save, Upload, X, Image as ImageIcon, LogOut, FileText } from 'lucide-react';
+import { ArrowLeft, User, Building2, Phone, MapPin, Save, Upload, X, Image as ImageIcon, LogOut, FileText, AlertTriangle } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
@@ -183,6 +184,17 @@ export default function MyProfile() {
           </TabsList>
 
           <TabsContent value="profilo">
+
+        {/* Avviso per compilare Profilo Bandi */}
+        {user?.role !== 'consulente' && (!user?.legal_form || !user?.sector || !user?.ateco_code) && (
+          <Alert className="bg-lime-500/20 border-lime-500/50 mb-4">
+            <AlertTriangle className="h-5 w-5 text-lime-400" />
+            <AlertDescription className="text-lime-300">
+              <p className="font-bold mb-1">📋 Completa il tuo Profilo Bandi!</p>
+              <p className="text-sm">Per ricevere le opportunità di finanziamento più adatte alla tua azienda, compila anche la sezione <span className="font-bold text-lime-400">"Profilo Bandi"</span>.</p>
+            </AlertDescription>
+          </Alert>
+        )}
 
         {/* Card Dati Personali - solo per admin non impersonato */}
         {user?.role === 'admin' && !impersonation.active && (
