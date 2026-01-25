@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation } from '@tanstack/react-query';
-import { Building2, MapPin, FileText, Scale, Save, CheckCircle, Euro, Users, Briefcase, Globe, HelpCircle } from 'lucide-react';
+import { Building2, MapPin, FileText, Scale, Save, CheckCircle, Euro, Users, Briefcase, Globe, HelpCircle, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,6 +10,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useImpersonation } from '../admin/ImpersonationContext';
+
+// Campi obbligatori per il matching bandi
+const REQUIRED_FIELDS = ['company_size', 'region', 'interested_regions', 'sector', 'ateco_code', 'legal_form'];
 
 const HelpTooltip = ({ text }) => (
   <Popover>
