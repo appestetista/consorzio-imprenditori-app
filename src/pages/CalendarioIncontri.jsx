@@ -220,10 +220,19 @@ export default function CalendarioIncontri() {
     }
   });
 
+  // Usa l'email dell'utente impersonificato se attivo, altrimenti l'utente reale
+  const getEffectiveUserEmail = () => {
+    if (impersonation.active && impersonation.targetEmail) {
+      return impersonation.targetEmail;
+    }
+    return user?.email;
+  };
+
   const getUserResponse = (eventoId) => {
-    if (!user?.email) return null;
+    const effectiveEmail = getEffectiveUserEmail();
+    if (!effectiveEmail) return null;
     const partecipazione = partecipazioni.find(
-      p => p.user_email === user.email && p.evento_id === eventoId
+      p => p.user_email === effectiveEmail && p.evento_id === eventoId
     );
     if (!partecipazione) return null;
     // Solo se ha effettivamente risposto (non "nessuna_risposta")
