@@ -778,8 +778,8 @@ Per ogni bando, fornisci:
           </Alert>
         )}
 
-        {/* Top Recommended Grants */}
-        {topRecommendedGrants.length > 0 && (
+        {/* Top Recommended Grants - nascosto se limite raggiunto */}
+        {topRecommendedGrants.length > 0 && !grantRecsLimitReached && (
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-4">
               <Sparkles className="w-5 h-5 text-purple-400" />
@@ -833,7 +833,7 @@ Per ogni bando, fornisci:
               if (topRecommendedGrants.find(g => g.id === grant.id)) return null;
               
               const interest = userInterests.find(i => i.grant_id === grant.id);
-              const recommendation = aiRecommendations[grant.id];
+              const recommendation = grantRecsLimitReached ? null : aiRecommendations[grant.id];
               return (
                 <GrantCard
                   key={grant.id}
