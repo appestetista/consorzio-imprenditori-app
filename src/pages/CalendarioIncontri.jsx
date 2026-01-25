@@ -21,7 +21,9 @@ import InviteEventDialog from '../components/calendario/InviteEventDialog';
 export default function CalendarioIncontri() {
   const [user, setUser] = useState(null);
   const [showAddEvent, setShowAddEvent] = useState(false);
+  const [showUserEventForm, setShowUserEventForm] = useState(false);
   const [newEvent, setNewEvent] = useState({ title: '', description: '', date: '', time: '', location: '', image_url: '', reminder_enabled: false });
+  const [newUserEvent, setNewUserEvent] = useState({ title: '', description: '', date: '', time: '', location: '', image_url: '' });
   const [uploadingImage, setUploadingImage] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
   const [showEditEvent, setShowEditEvent] = useState(false);
@@ -103,6 +105,8 @@ export default function CalendarioIncontri() {
 
       const event = await base44.entities.Event.create({
         ...eventData,
+        event_type: 'consorzio',
+        approval_status: 'approved',
         data_blocco_partecipazione: dataBlocco?.toISOString(),
         participants: [],
         declined: []
@@ -126,6 +130,69 @@ export default function CalendarioIncontri() {
       queryClient.invalidateQueries({ queryKey: ['events'] });
       setShowAddEvent(false);
       setNewEvent({ title: '', description: '', date: '', time: '', location: '', image_url: '', reminder_enabled: false });
+    }
+  });
+
+  // Mutation per creare evento utente (richiede approvazione)
+  const createUserEventMutation = useMutation({
+    mutationFn: async (eventData) => {
+      const event = await base44.entities.Event.create({
+        ...eventData,
+        event_type: 'utente',
+        approval_status: 'pending',
+        creator_email: user?.email,
+        creator_name: user?.company_name || user?.full_name || user?.email,
+        participants: [],
+        declined: []
+      });
+      
+      // Notifica agli admin per approvazione
+      const admins = await base44.entities.User.filter({ role: 'admin' });
+      for (const admin of admins) {
+        await base44.entities.Notification.create({
+          user_email: admin.email,
+          type: 'event',
+          title: 'Nuovo evento da approvare',
+          content: `${user?.company_name || user?.full_name} ha proposto un evento: "${eventData.title}"`,
+          reference_id: event.id,
+          is_read: false
+        });
+      }
+      
+      return event;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+      setShowUserEventForm(false);
+      setNewUserEvent({ title: '', description: '', date: '', time: '', location: '', image_url: '' });
+    }
+  });
+
+  // Mutation per approvare/rifiutare evento
+  const approveEventMutation = useMutation({
+    mutationFn: async ({ eventId, approved, rejectionReason }) => {
+      const event = allEvents.find(e => e.id === eventId);
+      await base44.entities.Event.update(eventId, {
+        approval_status: approved ? 'approved' : 'rejected',
+        rejection_reason: rejectionReason || null
+      });
+      
+      // Notifica al creatore
+      if (event?.creator_email) {
+        await base44.entities.Notification.create({
+          user_email: event.creator_email,
+          type: 'event',
+          title: approved ? 'Evento approvato!' : 'Evento non approvato',
+          content: approved 
+            ? `Il tuo evento "${event.title}" è stato approvato ed è ora visibile nel calendario.`
+            : `Il tuo evento "${event.title}" non è stato approvato. ${rejectionReason || ''}`,
+          reference_id: eventId,
+          is_read: false
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['events'] });
     }
   });
 
