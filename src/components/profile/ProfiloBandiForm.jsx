@@ -239,13 +239,13 @@ export default function ProfiloBandiForm({ user, onSaved }) {
           </div>
 
           <div>
-            <Label className="text-slate-300 text-sm flex items-center">
-              Forma Giuridica *
+            <Label className={`text-sm flex items-center ${!formData.legal_form ? 'text-red-400' : 'text-slate-300'}`}>
+              Forma Giuridica <span className="text-red-400 ml-1">*</span>
               <HelpTooltip text="La forma societaria come risulta dalla visura camerale." />
             </Label>
             <Select value={formData.legal_form} onValueChange={(value) => updateAndSave('legal_form', value)}>
-              <SelectTrigger className="bg-slate-900 border-slate-700 text-white mt-1">
-                <SelectValue placeholder="Seleziona forma giuridica" />
+              <SelectTrigger className={`bg-slate-900 text-white mt-1 ${!formData.legal_form ? 'border-red-500 border-2' : 'border-slate-700'}`}>
+                <SelectValue placeholder="⚠️ Seleziona forma giuridica" />
               </SelectTrigger>
               <SelectContent>
                 {FORME_GIURIDICHE.map((forma) => (
