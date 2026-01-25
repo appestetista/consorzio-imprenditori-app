@@ -389,10 +389,12 @@ export default function ProfiloBandiForm({ user, onSaved }) {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label className="text-slate-300 text-sm">Settore Principale *</Label>
+            <Label className={`text-sm ${!formData.sector ? 'text-red-400' : 'text-slate-300'}`}>
+              Settore Principale <span className="text-red-400">*</span>
+            </Label>
             <Select value={formData.sector} onValueChange={(value) => updateAndSave('sector', value)}>
-              <SelectTrigger className="bg-slate-900 border-slate-700 text-white mt-1">
-                <SelectValue placeholder="Seleziona settore" />
+              <SelectTrigger className={`bg-slate-900 text-white mt-1 ${!formData.sector ? 'border-red-500 border-2' : 'border-slate-700'}`}>
+                <SelectValue placeholder="⚠️ Seleziona settore" />
               </SelectTrigger>
               <SelectContent>
                 {SETTORI.map((settore) => (
