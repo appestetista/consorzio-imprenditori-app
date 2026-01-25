@@ -780,6 +780,63 @@ export default function CalendarioIncontri() {
 
       <BottomNav currentPage="CalendarioIncontri" unreadMessages={messages.length} />
 
+      {/* Dialog per creare evento utente */}
+      <Dialog open={showUserEventForm} onOpenChange={setShowUserEventForm}>
+        <DialogContent className="bg-slate-800 border-slate-700 max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-white">Proponi un Evento</DialogTitle>
+          </DialogHeader>
+          <button
+            onClick={() => setShowUserEventForm(false)}
+            className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
+          >
+            <X className="h-4 w-4 text-slate-400" />
+          </button>
+          <p className="text-slate-400 text-sm mb-4">
+            Il tuo evento sarà visibile dopo l'approvazione del Consorzio.
+          </p>
+          <div className="space-y-4">
+            <Input
+              placeholder="Titolo evento"
+              value={newUserEvent.title}
+              onChange={(e) => setNewUserEvent({...newUserEvent, title: e.target.value})}
+              className="bg-slate-900 border-slate-700 text-white"
+            />
+            <Textarea
+              placeholder="Descrizione"
+              value={newUserEvent.description}
+              onChange={(e) => setNewUserEvent({...newUserEvent, description: e.target.value})}
+              className="bg-slate-900 border-slate-700 text-white"
+            />
+            <Input
+              type="date"
+              value={newUserEvent.date}
+              onChange={(e) => setNewUserEvent({...newUserEvent, date: e.target.value})}
+              className="bg-slate-900 border-slate-700 text-white"
+            />
+            <Input
+              type="time"
+              value={newUserEvent.time}
+              onChange={(e) => setNewUserEvent({...newUserEvent, time: e.target.value})}
+              className="bg-slate-900 border-slate-700 text-white"
+            />
+            <Input
+              placeholder="Luogo"
+              value={newUserEvent.location}
+              onChange={(e) => setNewUserEvent({...newUserEvent, location: e.target.value})}
+              className="bg-slate-900 border-slate-700 text-white"
+            />
+            <Button 
+              onClick={() => createUserEventMutation.mutate(newUserEvent)}
+              disabled={createUserEventMutation.isPending || !newUserEvent.title || !newUserEvent.date || !newUserEvent.time || !newUserEvent.location}
+              className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900"
+            >
+              {createUserEventMutation.isPending ? 'Invio...' : 'Invia per approvazione'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Invite Dialog */}
       <InviteEventDialog
         open={!!inviteDialogEvent && !!inviteDialogType}
