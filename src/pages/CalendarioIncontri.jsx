@@ -47,9 +47,17 @@ export default function CalendarioIncontri() {
 
   const isAdmin = user?.role === 'admin' && !impersonation.active;
 
-  const { data: events = [], isLoading } = useQuery({
+  const { data: allEvents = [], isLoading } = useQuery({
     queryKey: ['events'],
     queryFn: () => base44.entities.Event.list('date'),
+  });
+
+  // Filtra eventi: admin vede tutto, utenti vedono solo approvati + i propri in attesa
+  const events = allEvents.filter(event => {
+    if (isAdmin) return true;
+    if (event.approval_status === 'approved' || !event.approval_status) return true;
+    if (event.creator_email === user?.email) return true;
+    return false;
   });
 
   const { data: partecipazioni = [] } = useQuery({
