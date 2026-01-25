@@ -353,9 +353,9 @@ export default function AdminPanel() {
               <div className="relative flex items-center gap-1">
                 <Bell className="w-3.5 h-3.5" />
                 Richieste
-                {(pendingRequests.length + pendingVideoRequests.length + unreadAdminMessages.length) > 0 && (
+                {(pendingRequests.length + pendingVideoRequests.length + unreadAdminMessages.length + eventResponseNotifications.length) > 0 && (
                   <span className="bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
-                    {pendingRequests.length + pendingVideoRequests.length + unreadAdminMessages.length}
+                    {pendingRequests.length + pendingVideoRequests.length + unreadAdminMessages.length + eventResponseNotifications.length}
                   </span>
                 )}
               </div>
