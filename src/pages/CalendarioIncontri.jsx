@@ -49,7 +49,7 @@ export default function CalendarioIncontri() {
 
   const { data: events = [], isLoading } = useQuery({
     queryKey: ['events'],
-    queryFn: () => base44.entities.Event.list('-date'),
+    queryFn: () => base44.entities.Event.list('date'),
   });
 
   const { data: partecipazioni = [] } = useQuery({
