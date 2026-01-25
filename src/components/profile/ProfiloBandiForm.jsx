@@ -309,10 +309,10 @@ export default function ProfiloBandiForm({ user, onSaved }) {
           </div>
 
           {/* Regioni di interesse per bandi */}
-          <div className="pt-4 border-t border-slate-700 mt-4">
-            <Label className="text-slate-300 text-sm flex items-center mb-3">
-              <MapPin className="w-4 h-4 mr-2 text-lime-400" />
-              Regioni di interesse per bandi *
+          <div className={`pt-4 border-t mt-4 ${!formData.interested_regions?.length ? 'border-red-500' : 'border-slate-700'}`}>
+            <Label className={`text-sm flex items-center mb-3 ${!formData.interested_regions?.length ? 'text-red-400' : 'text-slate-300'}`}>
+              <MapPin className={`w-4 h-4 mr-2 ${!formData.interested_regions?.length ? 'text-red-400' : 'text-lime-400'}`} />
+              Regioni di interesse per bandi <span className="text-red-400 ml-1">*</span>
               <HelpTooltip text="Seleziona le regioni per cui vuoi ricevere notifiche sui bandi. La regione della tua sede legale è selezionata automaticamente." />
             </Label>
             <p className="text-slate-400 text-xs mb-3">
