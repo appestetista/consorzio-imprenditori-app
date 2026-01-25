@@ -494,6 +494,14 @@ export default function CalendarioIncontri() {
                 </div>
               </DialogContent>
             </Dialog>
+          ) : (
+            <Button 
+              className="bg-slate-700 hover:bg-slate-600 text-white"
+              onClick={() => setShowUserEventForm(true)}
+            >
+              <Plus className="w-5 h-5 mr-1" />
+              Proponi evento
+            </Button>
           )}
         </div>
 
