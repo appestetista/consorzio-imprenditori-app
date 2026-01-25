@@ -524,9 +524,35 @@ export default function CalendarioIncontri() {
               const isBlocked = isEventBlocked(event);
               
               return (
-                <Card key={event.id} className="bg-slate-800 border-slate-700 overflow-hidden">
+                <Card key={event.id} className={`overflow-hidden ${
+                event.event_type === 'consorzio' || !event.event_type 
+                  ? 'bg-slate-800 border-2 border-lime-400' 
+                  : 'bg-slate-800/70 border-slate-700'
+              }`}>
+                  {/* Badge tipo evento e stato approvazione */}
+                  <div className="flex items-center gap-2 px-4 pt-3">
+                    {(event.event_type === 'consorzio' || !event.event_type) ? (
+                      <span className="bg-lime-400 text-slate-900 text-xs font-bold px-2 py-1 rounded">
+                        EVENTO CONSORZIO
+                      </span>
+                    ) : (
+                      <span className="bg-slate-600 text-white text-xs font-medium px-2 py-1 rounded">
+                        Evento di {event.creator_name || 'Membro'}
+                      </span>
+                    )}
+                    {event.approval_status === 'pending' && (
+                      <span className="bg-yellow-500 text-slate-900 text-xs font-bold px-2 py-1 rounded">
+                        IN ATTESA
+                      </span>
+                    )}
+                    {event.approval_status === 'rejected' && (
+                      <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">
+                        NON APPROVATO
+                      </span>
+                    )}
+                  </div>
                   {event.image_url && (
-                    <div className="w-full h-48 overflow-hidden">
+                    <div className="w-full h-48 overflow-hidden mt-2">
                       <img 
                         src={event.image_url} 
                         alt={event.title}
