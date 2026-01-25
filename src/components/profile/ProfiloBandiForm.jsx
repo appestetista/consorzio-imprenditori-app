@@ -405,8 +405,10 @@ export default function ProfiloBandiForm({ user, onSaved }) {
           </div>
 
           <div>
-            <Label className="text-slate-300 text-sm">Codice ATECO Principale *</Label>
-            <Input value={formData.ateco_code} onBlur={(e) => updateAndSave('ateco_code', e.target.value)} onChange={(e) => setFormData({...formData, ateco_code: e.target.value})} className="bg-slate-900 border-slate-700 text-white mt-1" placeholder="Es: 62.01.00" />
+            <Label className={`text-sm ${!formData.ateco_code ? 'text-red-400' : 'text-slate-300'}`}>
+              Codice ATECO Principale <span className="text-red-400">*</span>
+            </Label>
+            <Input value={formData.ateco_code} onBlur={(e) => updateAndSave('ateco_code', e.target.value)} onChange={(e) => setFormData({...formData, ateco_code: e.target.value})} className={`bg-slate-900 text-white mt-1 ${!formData.ateco_code ? 'border-red-500 border-2' : 'border-slate-700'}`} placeholder="⚠️ Es: 62.01.00" />
           </div>
 
           <div>
