@@ -147,7 +147,7 @@ export default function ConsultantsList({ currentUserEmail, showChat = false }) 
   );
 }
 
-function ConsultantCard({ consultant, onChat, currentUserEmail, unreadCount }) {
+function ConsultantCard({ consultant, onChat, currentUserEmail, unreadCount, showChat }) {
   const isCurrentUser = consultant.email === currentUserEmail;
   
   return (
@@ -182,12 +182,159 @@ function ConsultantCard({ consultant, onChat, currentUserEmail, unreadCount }) {
               size="sm"
               className="bg-lime-400 hover:bg-lime-500 text-slate-900"
             >
-              <MessageCircle className="w-4 h-4 mr-1" />
-              Chatta
+              <MessageCircle className="w-4 h-4" />
             </Button>
           </div>
         )}
       </div>
     </Card>
+  );
+}
+
+function FullChat({ consultant, currentUserEmail, onBack }) {
+  const [message, setMessage] = useState('');
+  const [isSending, setIsSending] = useState(false);
+  const queryClient = useQueryClient();
+
+  const { data: messages = [], refetch } = useQuery({
+    queryKey: ['chat-messages', currentUserEmail, consultant.email],
+    queryFn: async () => {
+      const sent = await base44.entities.Message.filter({ 
+        from_email: currentUserEmail, 
+        to_email: consultant.email 
+      });
+      const received = await base44.entities.Message.filter({ 
+        from_email: consultant.email, 
+        to_email: currentUserEmail 
+      });
+      
+      for (const msg of received) {
+        if (!msg.is_read) {
+          await base44.entities.Message.update(msg.id, { is_read: true });
+        }
+      }
+      
+      return [...sent, ...received].sort((a, b) => 
+        new Date(a.created_date) - new Date(b.created_date)
+      );
+    },
+    refetchInterval: 3000,
+  });
+
+  useEffect(() => {
+    const unsubscribe = base44.entities.Message.subscribe((event) => {
+      if (event.type === 'create') {
+        const msg = event.data;
+        if ((msg.from_email === currentUserEmail && msg.to_email === consultant.email) ||
+            (msg.from_email === consultant.email && msg.to_email === currentUserEmail)) {
+          refetch();
+          queryClient.invalidateQueries({ queryKey: ['unread-messages-consultants', currentUserEmail] });
+        }
+      }
+    });
+
+    return () => unsubscribe();
+  }, [currentUserEmail, consultant.email, refetch, queryClient]);
+
+  const handleSend = async () => {
+    if (!message.trim() || isSending) return;
+    
+    setIsSending(true);
+    try {
+      await base44.entities.Message.create({
+        from_email: currentUserEmail,
+        to_email: consultant.email,
+        content: message.trim(),
+        source: 'consulenze',
+        source_reference: consultant.name,
+        is_read: false
+      });
+      setMessage('');
+      refetch();
+    } catch (e) {
+      console.error('Errore invio messaggio:', e);
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-col h-[calc(100vh-280px)] min-h-[400px]">
+      <div className="bg-slate-800 border-b border-slate-700 p-3 flex items-center gap-3">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onBack}
+          className="text-slate-400 hover:text-white p-1"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </Button>
+        <div className="w-10 h-10 rounded-full bg-amber-400/20 flex items-center justify-center">
+          <Briefcase className="w-5 h-5 text-amber-400" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-white font-semibold truncate">{consultant.name}</p>
+          <p className="text-amber-400 text-xs truncate">{consultant.category}</p>
+        </div>
+        {consultant.phone && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-lime-400"
+            onClick={() => window.open(`tel:${consultant.phone}`)}
+          >
+            <Phone className="w-5 h-5" />
+          </Button>
+        )}
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-900">
+        {messages.length === 0 ? (
+          <div className="text-center text-slate-500 py-8">
+            <MessageCircle className="w-12 h-12 mx-auto mb-2 opacity-50" />
+            <p>Nessun messaggio</p>
+            <p className="text-xs">Inizia una conversazione</p>
+          </div>
+        ) : (
+          messages.map((msg) => {
+            const isFromMe = msg.from_email === currentUserEmail;
+            return (
+              <div key={msg.id} className={`flex ${isFromMe ? 'justify-end' : 'justify-start'}`}>
+                <div className={`rounded-2xl px-4 py-2 max-w-[80%] ${
+                  isFromMe 
+                    ? 'bg-lime-400 text-slate-900 rounded-tr-sm' 
+                    : 'bg-slate-700 text-white rounded-tl-sm'
+                }`}>
+                  <p className="text-sm">{msg.content}</p>
+                  <p className={`text-xs mt-1 ${isFromMe ? 'text-slate-700' : 'text-slate-400'}`}>
+                    {new Date(msg.created_date).toLocaleTimeString('it-IT', { 
+                      hour: '2-digit', 
+                      minute: '2-digit' 
+                    })}
+                  </p>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      <div className="bg-slate-800 border-t border-slate-700 p-3 flex gap-2">
+        <Input
+          placeholder="Scrivi un messaggio..."
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+          className="bg-slate-900 border-slate-700 text-white flex-1"
+        />
+        <Button
+          onClick={handleSend}
+          disabled={!message.trim() || isSending}
+          className="bg-lime-400 hover:bg-lime-500 text-slate-900"
+        >
+          <Send className="w-5 h-5" />
+        </Button>
+      </div>
+    </div>
   );
 }
