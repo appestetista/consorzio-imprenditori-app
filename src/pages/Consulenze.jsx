@@ -76,8 +76,11 @@ export default function Consulenze() {
   });
 
   const isAdmin = user?.role === 'admin' && !impersonation.active;
-  const isConsultant = effectiveUser?.role === 'consulente' || (impersonation.active && impersonation.role === 'consulente');
-  const isMember = effectiveUser?.role === 'user' || (impersonation.active && impersonation.role === 'user');
+  
+  // Verifica se l'utente è un consulente controllando anche l'entità Consultant
+  const isConsultantByEntity = consultants.some(c => c.email === effectiveUser?.email);
+  const isConsultant = effectiveUser?.role === 'consulente' || isConsultantByEntity || (impersonation.active && impersonation.role === 'consulente');
+  const isMember = !isAdmin && !isConsultant;
 
   // Real-time subscription per notifiche e bookings
   useEffect(() => {
