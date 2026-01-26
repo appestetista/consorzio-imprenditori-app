@@ -26,19 +26,19 @@ export default function Header({ user, totalNotifications = 0 }) {
       // Impersonificazione attiva: mostra nome azienda dell'utente impersonificato
       title = impersonation.targetName || 'Utente';
       // Il sottotitolo dipende dal ruolo dell'utente impersonificato
-      if (impersonation.role === 'user') {
+      if (impersonation.role === 'consulente') {
+        subtitle = 'Consulente';
+      } else {
         subtitle = 'Membro del Consorzio';
-      } else if (impersonation.role === 'consulente') {
-        subtitle = 'Consulente del Consorzio';
       }
     } else {
       // Nessuna impersonificazione
       if (isAdmin) {
         title = 'Admin Consorzio';
         subtitle = 'Amministratore';
-      } else if (user?.role === 'consulente') {
+      } else if (user?.user_type === 'consulente') {
         title = user?.company_name || 'Consulente';
-        subtitle = 'Consulente del Consorzio';
+        subtitle = 'Consulente';
       } else {
         title = user?.company_name || 'Membro';
         subtitle = 'Membro del Consorzio';
