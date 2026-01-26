@@ -697,19 +697,37 @@ export default function CalendarioIncontri() {
                        </Button>
 
                        <Button
-                         variant="outline"
-                         size="sm"
-                         className="w-full border-slate-600 text-slate-300 hover:bg-slate-700"
-                         onClick={() => {
-                           setEditingEvent(event);
-                           setShowEditEvent(true);
-                         }}
-                       >
-                         <Edit className="w-4 h-4 mr-2" />
-                         Modifica evento
-                       </Button>
-                     </div>
-                    )}
+                           variant="outline"
+                           size="sm"
+                           className="w-full border-slate-600 text-slate-300 hover:bg-slate-700"
+                           onClick={() => {
+                             setEditingEvent(event);
+                             setShowEditEvent(true);
+                           }}
+                         >
+                           <Edit className="w-4 h-4 mr-2" />
+                           Modifica evento
+                         </Button>
+
+                         {/* Pulsante elimina definitivo solo per admin */}
+                         {event.is_cancelled && (
+                           <Button
+                             variant="destructive"
+                             size="sm"
+                             className="w-full mt-2"
+                             onClick={async () => {
+                               if (confirm('Eliminare definitivamente questo evento? Questa azione è irreversibile.')) {
+                                 await base44.entities.Event.delete(event.id);
+                                 queryClient.invalidateQueries({ queryKey: ['events'] });
+                               }
+                             }}
+                           >
+                             <X className="w-4 h-4 mr-2" />
+                             Elimina definitivamente
+                           </Button>
+                         )}
+                       </div>
+                       )}
 
                     {/* Pulsanti modifica/cancella per il creatore dell'evento */}
                       {!isAdmin && event.creator_email === user?.email && event.approval_status === 'approved' && !event.is_cancelled && (
