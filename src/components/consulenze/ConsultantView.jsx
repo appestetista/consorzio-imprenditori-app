@@ -385,32 +385,6 @@ export default function ConsultantView({ user }) {
       </TabsList>
 
       <TabsContent value="consulenze">
-        <Card className="bg-gradient-to-br from-slate-800 to-slate-900 border-lime-400/30 mb-6">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-lime-400 rounded-full flex items-center justify-center">
-                  <User className="w-6 h-6 text-slate-900" />
-                </div>
-                <div>
-                  <h2 className="text-white text-xl font-bold">{myConsultantProfile?.name || 'Consulente'}</h2>
-                  <p className="text-lime-400 text-sm">{myConsultantProfile?.category}</p>
-                </div>
-              </div>
-              <div className="relative">
-                <div className="w-10 h-10 bg-slate-700 rounded-full flex items-center justify-center">
-                  <Bell className="w-5 h-5 text-lime-400" />
-                </div>
-                {bookings.filter(b => b.status === 'pending').length > 0 && (
-                  <div className="absolute -top-1 -right-1 bg-red-500 rounded-full w-5 h-5 flex items-center justify-center">
-                    <span className="text-white text-xs font-bold">{bookings.filter(b => b.status === 'pending').length}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
         <Card className="bg-slate-800 border-lime-400/30">
         <CardHeader>
           <CardTitle className="text-white">Richieste di Consulenza</CardTitle>
