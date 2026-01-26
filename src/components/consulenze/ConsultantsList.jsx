@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import useNotificationSound from '../hooks/useNotificationSound';
-import { Search, MessageCircle, User, Briefcase } from 'lucide-react';
+import { Search, MessageCircle, User, Briefcase, Users, Send, ArrowLeft, Phone } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -10,8 +10,9 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
-export default function ConsultantsList({ currentUserEmail }) {
+export default function ConsultantsList({ currentUserEmail, showChat = false }) {
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedConsultant, setSelectedConsultant] = useState(null);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { playSound } = useNotificationSound();
