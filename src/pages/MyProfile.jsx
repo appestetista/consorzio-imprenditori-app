@@ -388,7 +388,7 @@ export default function MyProfile() {
               <User className="w-4 h-4 mr-2" />
               Profilo
             </TabsTrigger>
-            {user?.role !== 'consulente' && (
+            {user?.user_type !== 'consulente' && (
               <TabsTrigger value="bandi" className="flex-1 data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
                 <FileText className="w-4 h-4 mr-2" />
                 Profilo Bandi
