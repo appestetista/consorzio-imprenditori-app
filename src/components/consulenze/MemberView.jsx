@@ -343,35 +343,25 @@ export default function MemberView({ user, consultants, isLoading }) {
                       </>
                     )}
 
-                    {/* Mostra chat se c'è una prenotazione attiva con questo consulente */}
+                    {/* Mostra appuntamento se programmato */}
                     {(() => {
-                    const activeBooking = activeBookings.find(b => b.consultant_id === consultant.id);
-                    if (activeBooking) {
-                    return (
-                    <div className="mt-3">
-                    {activeBooking.scheduled_date && (
-                      <div className="bg-blue-500/20 border border-blue-500/50 rounded-lg p-2 mb-2">
-                        <div className="flex items-center gap-2 text-blue-400 text-xs">
-                          <Calendar className="w-3 h-3" />
-                          <span>Appuntamento: {new Date(activeBooking.scheduled_date).toLocaleString('it-IT', {
-                            day: '2-digit',
-                            month: '2-digit',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}</span>
-                        </div>
-                      </div>
-                    )}
-                    <ConsultationChat
-                      bookingId={activeBooking.id}
-                      currentUserEmail={user.email}
-                      otherUserEmail={consultant.email}
-                      otherUserName={consultant.name}
-                    />
-                    </div>
-                    );
-                    }
-                    return null;
+                      const activeBooking = activeBookings.find(b => b.consultant_id === consultant.id);
+                      if (activeBooking?.scheduled_date) {
+                        return (
+                          <div className="mt-3 bg-blue-500/20 border border-blue-500/50 rounded-lg p-2">
+                            <div className="flex items-center gap-2 text-blue-400 text-xs">
+                              <Calendar className="w-3 h-3" />
+                              <span>Appuntamento: {new Date(activeBooking.scheduled_date).toLocaleString('it-IT', {
+                                day: '2-digit',
+                                month: '2-digit',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}</span>
+                            </div>
+                          </div>
+                        );
+                      }
+                      return null;
                     })()}
                     </CardContent>
                     </Card>
