@@ -330,21 +330,20 @@ export default function MyProfile() {
         return value && typeof value === 'string' && value.trim() !== '';
       });
       
+      toast.success('Profilo salvato con successo!');
+      
       if (allFieldsComplete) {
         // In impersonation torna all'AdminPanel, altrimenti alla Home
         if (impersonation.active) {
-          alert('Profilo aggiornato con successo!');
           navigate(createPageUrl('Home'));
         } else {
           navigate(createPageUrl('Home'));
         }
         return;
       }
-      
-      alert('Profilo aggiornato con successo!');
     } catch (error) {
       console.error('Errore salvataggio:', error);
-      alert('Errore durante il salvataggio');
+      toast.error('Errore durante il salvataggio');
     } finally {
       setSaving(false);
     }
@@ -388,12 +387,10 @@ export default function MyProfile() {
               <User className="w-4 h-4 mr-2" />
               Profilo
             </TabsTrigger>
-            {user?.user_type !== 'consulente' && (
-              <TabsTrigger value="bandi" className="flex-1 data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
-                <FileText className="w-4 h-4 mr-2" />
-                Profilo Bandi
-              </TabsTrigger>
-            )}
+            <TabsTrigger value="bandi" className="flex-1 data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
+              <FileText className="w-4 h-4 mr-2" />
+              Profilo Bandi
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="profilo">
@@ -706,11 +703,9 @@ export default function MyProfile() {
         )}
           </TabsContent>
 
-          {user?.user_type !== 'consulente' && (
-            <TabsContent value="bandi">
+          <TabsContent value="bandi">
               <ProfiloBandiForm user={user} />
             </TabsContent>
-          )}
         </Tabs>
       </main>
 
