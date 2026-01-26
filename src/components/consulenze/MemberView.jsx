@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Phone, Check, Gift, Users } from 'lucide-react';
+import { Phone, Check, Gift, Users, MessageCircle, Clock, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ConsultantsList from './ConsultantsList';
 import PendingConfirmations from './PendingConfirmations';
+import ConsultationChat from './ConsultationChat';
 
 const CONSULTANT_CATEGORIES = [
   "Stampa Digitale e Cataloghi",
@@ -30,6 +31,17 @@ export default function MemberView({ user, consultants, isLoading }) {
   const [assignments, setAssignments] = useState([]);
   const [bookings, setBookings] = useState([]);
   const queryClient = useQueryClient();
+
+  // Carica tutte le prenotazioni attive dell'utente (per mostrare la chat)
+  const { data: activeBookings = [] } = useQuery({
+    queryKey: ['user-active-bookings', user?.email],
+    queryFn: async () => {
+      const allBookings = await base44.entities.ConsultationBooking.filter({ user_email: user.email });
+      // Filtra solo quelle che non sono completate o cancellate
+      return allBookings.filter(b => !['completed', 'cancelled'].includes(b.status));
+    },
+    enabled: !!user?.email,
+  });
 
   // Carica le assegnazioni dei consulenti per questo utente
   React.useEffect(() => {
@@ -301,31 +313,62 @@ export default function MemberView({ user, consultants, isLoading }) {
                     />
 
                     <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        className="bg-lime-400 hover:bg-lime-500 text-slate-900 border-0"
-                        onClick={() => bookConsultationMutation.mutate({ 
-                          consultantId: consultant.id, 
-                          message: consultationMessages[consultant.id] || '' 
-                        })}
-                        disabled={isRequested || bookConsultationMutation.isPending || !consultationMessages[consultant.id]?.trim()}
-                      >
-                        invia
-                      </Button>
-                      {consultant.phone && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="bg-slate-700 hover:bg-slate-600 text-white border-slate-600"
-                          onClick={() => window.open(`tel:${consultant.phone}`)}
-                        >
-                          <Phone className="w-4 h-4 mr-1" />
-                          chiama
-                        </Button>
-                      )}
+                    <Button
+                    size="sm"
+                    className="bg-lime-400 hover:bg-lime-500 text-slate-900 border-0"
+                    onClick={() => bookConsultationMutation.mutate({ 
+                    consultantId: consultant.id, 
+                    message: consultationMessages[consultant.id] || '' 
+                    })}
+                    disabled={isRequested || bookConsultationMutation.isPending || !consultationMessages[consultant.id]?.trim()}
+                    >
+                    invia
+                    </Button>
+                    {consultant.phone && (
+                    <Button
+                    variant="outline"
+                    size="sm"
+                    className="bg-slate-700 hover:bg-slate-600 text-white border-slate-600"
+                    onClick={() => window.open(`tel:${consultant.phone}`)}
+                    >
+                    <Phone className="w-4 h-4 mr-1" />
+                    chiama
+                    </Button>
+                    )}
                     </div>
-                  </CardContent>
-                </Card>
+
+                    {/* Mostra chat se c'è una prenotazione attiva con questo consulente */}
+                    {(() => {
+                    const activeBooking = activeBookings.find(b => b.consultant_id === consultant.id);
+                    if (activeBooking) {
+                    return (
+                    <div className="mt-3">
+                    {activeBooking.scheduled_date && (
+                      <div className="bg-blue-500/20 border border-blue-500/50 rounded-lg p-2 mb-2">
+                        <div className="flex items-center gap-2 text-blue-400 text-xs">
+                          <Calendar className="w-3 h-3" />
+                          <span>Appuntamento: {new Date(activeBooking.scheduled_date).toLocaleString('it-IT', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}</span>
+                        </div>
+                      </div>
+                    )}
+                    <ConsultationChat
+                      bookingId={activeBooking.id}
+                      currentUserEmail={user.email}
+                      otherUserEmail={consultant.email}
+                      otherUserName={consultant.name}
+                    />
+                    </div>
+                    );
+                    }
+                    return null;
+                    })()}
+                    </CardContent>
+                    </Card>
               );
             })}
           </div>
