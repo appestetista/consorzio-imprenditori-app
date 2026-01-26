@@ -702,38 +702,54 @@ export default function CalendarioIncontri() {
                     )}
 
                     {/* Pulsanti modifica/cancella per il creatore dell'evento */}
-                    {!isAdmin && event.creator_email === user?.email && event.approval_status === 'approved' && (
-                      <div className="pt-3 border-t border-slate-700">
-                        <div className="grid grid-cols-2 gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="border-slate-600 text-slate-300 hover:bg-slate-700"
-                            onClick={() => {
-                              setEditingEvent(event);
-                              setShowEditEvent(true);
-                            }}
-                          >
-                            <Edit className="w-4 h-4 mr-1" />
-                            Modifica
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="border-red-600 text-red-400 hover:bg-red-600/20"
-                            onClick={async () => {
-                              if (confirm('Sei sicuro di voler cancellare questo evento?')) {
-                                await base44.entities.Event.delete(event.id);
-                                queryClient.invalidateQueries({ queryKey: ['events'] });
-                              }
-                            }}
-                          >
-                            <X className="w-4 h-4 mr-1" />
-                            Cancella
-                          </Button>
+                      {!isAdmin && event.creator_email === user?.email && event.approval_status === 'approved' && !event.is_cancelled && (
+                        <div className="pt-3 border-t border-slate-700">
+                          <div className="grid grid-cols-2 gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                              onClick={() => {
+                                setEditingEvent(event);
+                                setShowEditEvent(true);
+                              }}
+                            >
+                              <Edit className="w-4 h-4 mr-1" />
+                              Modifica
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="border-red-600 text-red-400 hover:bg-red-600/20"
+                              onClick={async () => {
+                                if (confirm('Sei sicuro di voler cancellare questo evento? Gli invitati riceveranno una notifica.')) {
+                                  // Marca come cancellato invece di eliminare
+                                  await base44.entities.Event.update(event.id, {
+                                    is_cancelled: true,
+                                    cancelled_at: new Date().toISOString()
+                                  });
+                                  // Notifica a tutti gli invitati
+                                  const partecipazioniEvento = partecipazioni.filter(p => p.evento_id === event.id);
+                                  for (const p of partecipazioniEvento) {
+                                    await base44.entities.Notification.create({
+                                      user_email: p.user_email,
+                                      type: 'event',
+                                      title: 'Evento cancellato',
+                                      content: `L'evento "${event.title}" è stato cancellato dal creatore.`,
+                                      reference_id: event.id,
+                                      is_read: false
+                                    });
+                                  }
+                                  queryClient.invalidateQueries({ queryKey: ['events'] });
+                                }
+                              }}
+                            >
+                              <X className="w-4 h-4 mr-1" />
+                              Cancella
+                            </Button>
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
 
                     {/* Stato partecipazione utente - solo per non-admin */}
                     {!isAdmin && event.creator_email !== user?.email && (
