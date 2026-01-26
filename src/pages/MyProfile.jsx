@@ -236,6 +236,9 @@ function ConsultantProfileCard({ consultantData, setConsultantData, savingConsul
                   : <>Nella zona a te assegnata in questo momento abbiamo inserito <span className="font-bold text-lime-400">{usersInZoneCount}</span> utenti dentro il consorzio.</>
                 }
               </p>
+              <p className="text-lime-400 text-sm font-semibold mt-2">
+                💡 La consulenza gratuita è il miglior modo per farti conoscere e acquisire nuovi clienti!
+              </p>
             </div>
           )}
           
