@@ -15,6 +15,19 @@ import BottomNav from '../components/layout/BottomNav';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import ProfiloBandiForm from '../components/profile/ProfiloBandiForm';
 
+const CONSULTANT_CATEGORIES = [
+  "Stampa Digitale e Cataloghi",
+  "Assicurazioni Aziendali",
+  "Agenzia di Comunicazione",
+  "Commercialista",
+  "Igiene e Sicurezza",
+  "Internazionalizzazione/Export",
+  "Broker Energetico",
+  "Avvocato",
+  "Bandi Europei",
+  "Affitto Stampanti/Cyber Sicurezza",
+  "Efficientamento Energetico/Centralini"
+];
 
 export default function MyProfile() {
   const navigate = useNavigate();
@@ -23,6 +36,8 @@ export default function MyProfile() {
   const [saving, setSaving] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [formData, setFormData] = useState({});
+  const [consultantData, setConsultantData] = useState(null);
+  const [savingConsultant, setSavingConsultant] = useState(false);
   const { impersonation, setCurrentUserRole, appMode, stopImpersonation } = useImpersonation();
 
   useEffect(() => {
