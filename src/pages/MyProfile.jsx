@@ -58,6 +58,17 @@ function ConsultantProfileCard({ consultantData, setConsultantData, savingConsul
     }
   });
 
+  // Conta utenti nella zona del consulente
+  const { data: usersInZone = [] } = useQuery({
+    queryKey: ['users-in-zone', consultantData?.zona],
+    queryFn: async () => {
+      if (!consultantData?.zona) return [];
+      const users = await base44.entities.User.filter({ zona: consultantData.zona, user_type: 'utente' });
+      return users.filter(u => !u.is_blocked);
+    },
+    enabled: !!consultantData?.zona
+  });
+
   const handleSaveConsultant = async () => {
     if (!localData.phone || !localData.city) {
       toast.error('Telefono e Sede sono obbligatori');
