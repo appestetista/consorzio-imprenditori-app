@@ -415,9 +415,9 @@ export default function ConsultantView({ user }) {
               Conferma Completamento
             </AlertDialogTitle>
             <AlertDialogDescription className="text-slate-300">
-              Sei sicuro che questa consulenza è stata completata? 
+              Stai per segnare questa consulenza come completata.
               <br /><br />
-              <span className="text-lime-400 font-semibold">Attenzione:</span> Questa azione azzererà la possibilità del cliente di richiederne un'altra gratuitamente, a meno che tu non decida di assegnargli manualmente nuove consulenze.
+              <span className="text-lime-400 font-semibold">Nota:</span> L'utente riceverà una notifica e dovrà confermare che la consulenza è effettivamente avvenuta. Solo dopo la sua conferma verrà decrementato il contatore delle consulenze gratuite.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
