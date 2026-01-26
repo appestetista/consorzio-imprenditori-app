@@ -179,6 +179,34 @@ export default function ConsultantView({ user }) {
     enabled: !!myConsultantProfile?.id,
   });
 
+  // Conta messaggi non letti per il tab Utenti
+  const { data: unreadMessagesCount = 0 } = useQuery({
+    queryKey: ['unread-messages-count-consultant', user?.email],
+    queryFn: async () => {
+      const messages = await base44.entities.Message.filter({ 
+        to_email: user?.email, 
+        is_read: false 
+      });
+      return messages.length;
+    },
+    enabled: !!user?.email
+  });
+
+  // Subscribe real-time ai messaggi
+  useEffect(() => {
+    if (!user?.email) return;
+
+    const unsubscribe = base44.entities.Message.subscribe((event) => {
+      if (event.type === 'create' && event.data?.to_email === user?.email) {
+        playSound();
+        queryClient.invalidateQueries({ queryKey: ['unread-messages-count-consultant', user?.email] });
+        queryClient.invalidateQueries({ queryKey: ['unread-messages-from-users', user?.email] });
+      }
+    });
+
+    return () => unsubscribe();
+  }, [user?.email, queryClient, playSound]);
+
   const updateStatusMutation = useMutation({
     mutationFn: async ({ bookingId, status }) => {
       await base44.entities.ConsultationBooking.update(bookingId, { status });
