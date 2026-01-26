@@ -120,12 +120,27 @@ export default function MemberView({ user, consultants, isLoading }) {
 
   const bookConsultationMutation = useMutation({
     mutationFn: async ({ consultantId, message }) => {
+      // Trova il consulente per ottenere la sua email
+      const consultant = consultants.find(c => c.id === consultantId);
+      
       await base44.entities.ConsultationBooking.create({
         consultant_id: consultantId,
         user_email: user.email,
         subject: message,
         status: 'pending'
       });
+      
+      // Crea notifica per il consulente
+      if (consultant?.email) {
+        await base44.entities.Notification.create({
+          user_email: consultant.email,
+          type: 'consultation',
+          title: 'Nuova richiesta di consulenza',
+          content: `${user.company_name || user.full_name || user.email} ha richiesto una consulenza: "${message}"`,
+          is_read: false,
+          reference_id: consultantId
+        });
+      }
       
       // Diminuisci le consulenze disponibili per questo specifico consulente-utente
       const assignment = assignments.find(a => a.consultant_id === consultantId);
