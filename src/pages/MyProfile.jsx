@@ -211,8 +211,18 @@ export default function MyProfile() {
 
           <TabsContent value="profilo">
 
+        {/* Profilo Consulente */}
+        {user?.user_type === 'consulente' && consultantData && (
+          <ConsultantProfileCard 
+            consultantData={consultantData}
+            setConsultantData={setConsultantData}
+            savingConsultant={savingConsultant}
+            setSavingConsultant={setSavingConsultant}
+          />
+        )}
+
         {/* Avviso per compilare Profilo Bandi */}
-        {user?.role !== 'consulente' && (!user?.legal_form || !user?.sector || !user?.ateco_code) && (
+        {user?.user_type !== 'consulente' && (!user?.legal_form || !user?.sector || !user?.ateco_code) && (
           <Alert className="bg-lime-500/20 border-lime-500/50 mb-4">
             <AlertTriangle className="h-5 w-5 text-lime-400" />
             <AlertDescription className="text-lime-300">
