@@ -183,6 +183,7 @@ export default function ConsultantView({ user }) {
   const statusColors = {
     pending: 'bg-yellow-500',
     confirmed: 'bg-blue-500',
+    awaiting_user_confirmation: 'bg-orange-500',
     completed: 'bg-green-600',
     cancelled: 'bg-red-500'
   };
@@ -190,6 +191,7 @@ export default function ConsultantView({ user }) {
   const statusLabels = {
     pending: 'In Attesa',
     confirmed: 'Confermata',
+    awaiting_user_confirmation: 'In attesa conferma utente',
     completed: 'Completata',
     cancelled: 'Annullata'
   };
@@ -374,14 +376,14 @@ export default function ConsultantView({ user }) {
                       </div>
                     </div>
                     <div className="mb-2">
-                      <Badge className={isCompleted ? 'bg-green-600 text-white' : 'bg-orange-500 text-white'}>
-                        {isCompleted ? 'Completata' : 'In Attesa'}
+                      <Badge className={`${statusColors[booking.status]} text-white`}>
+                        {statusLabels[booking.status]}
                       </Badge>
                     </div>
                     <div className="bg-slate-900/50 rounded-lg p-3 mb-3">
                       <p className="text-white text-sm">{booking.subject}</p>
                     </div>
-                    {!isCompleted && (
+                    {booking.status === 'pending' && (
                       <Button
                         className="bg-lime-400 hover:bg-lime-500 text-slate-900 w-full font-bold"
                         onClick={() => setConfirmDialog({ 
@@ -394,6 +396,12 @@ export default function ConsultantView({ user }) {
                         <CheckCircle className="w-5 h-5 mr-2" />
                         Segna come Completata
                       </Button>
+                    )}
+                    {booking.status === 'awaiting_user_confirmation' && (
+                      <div className="bg-orange-500/20 border border-orange-500/50 rounded-lg p-3 text-center">
+                        <Clock className="w-5 h-5 text-orange-400 mx-auto mb-1" />
+                        <p className="text-orange-400 text-sm font-medium">In attesa che l'utente confermi</p>
+                      </div>
                     )}
                   </div>
                 );
