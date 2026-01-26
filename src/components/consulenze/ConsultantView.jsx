@@ -255,11 +255,11 @@ export default function ConsultantView({ user }) {
 
       <div className="flex gap-2 mb-6">
         <Button
-          className={`flex-1 ${activeTab === 'members' ? 'bg-lime-400 text-slate-900 hover:bg-lime-500' : 'bg-slate-700 text-white hover:bg-slate-600'}`}
-          onClick={() => setActiveTab('members')}
+          className={`flex-1 ${activeTab === 'users' ? 'bg-lime-400 text-slate-900 hover:bg-lime-500' : 'bg-slate-700 text-white hover:bg-slate-600'}`}
+          onClick={() => setActiveTab('users')}
         >
-          <Users className="w-4 h-4 mr-2" />
-          Lista Membri
+          <Building2 className="w-4 h-4 mr-2" />
+          Utenti
         </Button>
         <Button
           className={`flex-1 ${activeTab === 'requests' ? 'bg-lime-400 text-slate-900 hover:bg-lime-500' : 'bg-slate-700 text-white hover:bg-slate-600'}`}
