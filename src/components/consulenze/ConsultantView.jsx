@@ -117,12 +117,12 @@ function MiniCalendar({ selectedDate, onSelectDate, scheduledDate }) {
 }
 
 export default function ConsultantView({ user }) {
-  const queryClient = useQueryClient();
-  const [creditsInput, setCreditsInput] = useState({});
-  const [activeTab, setActiveTab] = useState('users'); // 'users' o 'requests'
-  const [confirmDialog, setConfirmDialog] = useState({ open: false, bookingId: null, userEmail: null });
-  const [scheduleDialog, setScheduleDialog] = useState({ open: false, bookingId: null, userEmail: null });
-  const [scheduledDateTime, setScheduledDateTime] = useState('');
+    const queryClient = useQueryClient();
+    const [creditsInput, setCreditsInput] = useState({});
+    const [activeTab, setActiveTab] = useState('users'); // 'users' o 'requests'
+    const [confirmDialog, setConfirmDialog] = useState({ open: false, bookingId: null, userEmail: null });
+    const [selectedDates, setSelectedDates] = useState({}); // { bookingId: Date }
+    const [selectedTimes, setSelectedTimes] = useState({}); // { bookingId: 'HH:MM' }
 
   const { data: myConsultantProfile } = useQuery({
     queryKey: ['my-consultant-profile', user?.email],
