@@ -18,6 +18,15 @@ Deno.serve(async (req) => {
     // Genera un token univoco per l'invito
     const inviteToken = crypto.randomUUID();
 
+    // 0. Elimina eventuali inviti precedenti per questa email (evita duplicati)
+    const existingInvites = await base44.asServiceRole.entities.PendingInvite.filter({
+      email: email.toLowerCase()
+    });
+    
+    for (const oldInvite of existingInvites) {
+      await base44.asServiceRole.entities.PendingInvite.delete(oldInvite.id);
+    }
+
     // 1. Crea il PendingInvite per salvare i dati extra (tipo utente, zona, sezioni)
     await base44.asServiceRole.entities.PendingInvite.create({
       email: email.toLowerCase(),
