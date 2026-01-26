@@ -85,21 +85,21 @@ export default function EventZoneManager({ event, open, onClose }) {
     } else {
       setSelectedUsers([...selectedUsers, email]);
     }
-    setSelectAllUsers(false);
+    setSelectAllInType(false);
   };
 
-  const handleSelectAllUsers = (checked) => {
-    setSelectAllUsers(checked);
+  const handleSelectAllInType = (checked) => {
+    setSelectAllInType(checked);
     if (checked) {
       setSelectedUsers([]);
     }
   };
 
   const getTargetUsers = () => {
-    if (selectAllUsers) {
-      return filteredUsers;
+    if (selectAllInType) {
+      return filteredByType;
     }
-    return filteredUsers.filter(u => selectedUsers.includes(u.email));
+    return filteredByType.filter(u => selectedUsers.includes(u.email));
   };
 
   const publishMutation = useMutation({
