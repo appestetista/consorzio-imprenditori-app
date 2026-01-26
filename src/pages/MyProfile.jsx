@@ -81,6 +81,17 @@ export default function MyProfile() {
           paese: effectiveUser.paese || '',
           region: effectiveUser.region || ''
         });
+
+        // Se l'utente è un consulente, carica i dati del consulente
+        if (effectiveUser.user_type === 'consulente') {
+          const consultants = await base44.entities.Consultant.filter({
+            email: effectiveUser.email.toLowerCase()
+          });
+          if (consultants.length > 0) {
+            setConsultantData(consultants[0]);
+          }
+        }
+
         setLoading(false);
       } catch (e) {
         console.error(e);
