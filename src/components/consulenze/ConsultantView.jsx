@@ -13,7 +13,7 @@ import ZoneUsersList from './ZoneUsersList';
 export default function ConsultantView({ user }) {
   const queryClient = useQueryClient();
   const [creditsInput, setCreditsInput] = useState({});
-  const [activeTab, setActiveTab] = useState('members'); // 'members' o 'requests'
+  const [activeTab, setActiveTab] = useState('users'); // 'users' o 'requests'
   const [confirmDialog, setConfirmDialog] = useState({ open: false, bookingId: null, userEmail: null });
   const [scheduleDialog, setScheduleDialog] = useState({ open: false, bookingId: null, userEmail: null });
   const [scheduledDateTime, setScheduledDateTime] = useState('');
