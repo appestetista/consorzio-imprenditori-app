@@ -13,30 +13,28 @@ import ZoneUsersList from './ZoneUsersList';
 // Componente per risposta rapida sotto il messaggio
 function QuickReplyInput({ bookingId, currentUserEmail, otherUserEmail }) {
   const [message, setMessage] = useState('');
-  const queryClient = useQueryClient();
+  const [isSending, setIsSending] = useState(false);
   const conversationId = `consultation_${bookingId}`;
 
-  const sendMutation = useMutation({
-    mutationFn: async (content) => {
+  const handleSend = async () => {
+    if (!message.trim() || isSending || !currentUserEmail) return;
+    
+    setIsSending(true);
+    try {
       await base44.entities.Message.create({
         from_email: currentUserEmail,
         to_email: otherUserEmail,
-        content: content,
+        content: message.trim(),
         conversation_id: conversationId,
         source: 'consulenze',
         source_reference: `Consulenza #${bookingId.slice(-6)}`,
         is_read: false
       });
-    },
-    onSuccess: () => {
       setMessage('');
-      queryClient.invalidateQueries({ queryKey: ['consultation-messages', conversationId] });
-    }
-  });
-
-  const handleSend = () => {
-    if (message.trim()) {
-      sendMutation.mutate(message.trim());
+    } catch (e) {
+      console.error('Errore invio messaggio:', e);
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -53,7 +51,7 @@ function QuickReplyInput({ bookingId, currentUserEmail, otherUserEmail }) {
         size="sm"
         className="bg-lime-400 hover:bg-lime-500 text-slate-900 h-9 w-9 p-0"
         onClick={handleSend}
-        disabled={!message.trim() || sendMutation.isPending}
+        disabled={!message.trim() || isSending}
       >
         <Send className="w-4 h-4" />
       </Button>
