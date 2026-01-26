@@ -371,7 +371,8 @@ export default function ConsultantView({ user }) {
                           </p>
                         </div>
                         <Button
-                          className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 font-bold"
+                          size="sm"
+                          className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 text-xs"
                           onClick={() => setConfirmDialog({ 
                             open: true, 
                             bookingId: booking.id, 
@@ -379,7 +380,7 @@ export default function ConsultantView({ user }) {
                           })}
                           disabled={completeConsultationMutation.isPending}
                         >
-                          <CheckCircle className="w-4 h-4 mr-2" />
+                          <CheckCircle className="w-3 h-3 mr-1" />
                           Segna come Completata
                         </Button>
                       </div>
