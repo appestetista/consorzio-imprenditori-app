@@ -25,6 +25,7 @@ export default function CalendarioIncontri() {
   const [newEvent, setNewEvent] = useState({ title: '', description: '', date: '', time: '', location: '', image_url: '', reminder_enabled: false });
   const [newUserEvent, setNewUserEvent] = useState({ title: '', description: '', date: '', time: '', location: '', image_url: '' });
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadingUserImage, setUploadingUserImage] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
   const [showEditEvent, setShowEditEvent] = useState(false);
   const [inviteDialogEvent, setInviteDialogEvent] = useState(null);
@@ -91,6 +92,21 @@ export default function CalendarioIncontri() {
       console.error('Errore upload immagine:', error);
     } finally {
       setUploadingImage(false);
+    }
+  };
+
+  const handleUserImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    setUploadingUserImage(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setNewUserEvent({ ...newUserEvent, image_url: file_url });
+    } catch (error) {
+      console.error('Errore upload immagine:', error);
+    } finally {
+      setUploadingUserImage(false);
     }
   };
 
@@ -876,6 +892,57 @@ export default function CalendarioIncontri() {
               onChange={(e) => setNewUserEvent({...newUserEvent, location: e.target.value})}
               className="bg-slate-900 border-slate-700 text-white"
             />
+            
+            {/* Image Upload (opzionale) */}
+            <div className="space-y-2">
+              <Label className="text-slate-300">Locandina (opzionale)</Label>
+              <div className="flex flex-col gap-3">
+                {newUserEvent.image_url ? (
+                  <div className="relative rounded-lg overflow-hidden border border-slate-700">
+                    <img 
+                      src={newUserEvent.image_url} 
+                      alt="Locandina" 
+                      className="w-full h-48 object-cover"
+                    />
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      className="absolute top-2 right-2"
+                      onClick={() => setNewUserEvent({...newUserEvent, image_url: ''})}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <Label 
+                    htmlFor="user-event-image" 
+                    className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-700 rounded-lg cursor-pointer hover:bg-slate-700/50 transition-colors"
+                  >
+                    {uploadingUserImage ? (
+                      <div className="text-center">
+                        <div className="animate-spin w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full mx-auto mb-2"></div>
+                        <p className="text-sm text-slate-400">Caricamento...</p>
+                      </div>
+                    ) : (
+                      <>
+                        <Upload className="w-8 h-8 text-slate-400 mb-2" />
+                        <p className="text-sm text-slate-300">Carica locandina</p>
+                        <p className="text-xs text-slate-500">PNG, JPG (max 5MB)</p>
+                      </>
+                    )}
+                    <Input
+                      id="user-event-image"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleUserImageUpload}
+                      disabled={uploadingUserImage}
+                    />
+                  </Label>
+                )}
+              </div>
+            </div>
+
             <Button 
               onClick={() => createUserEventMutation.mutate(newUserEvent)}
               disabled={createUserEventMutation.isPending || !newUserEvent.title || !newUserEvent.date || !newUserEvent.time || !newUserEvent.location}
