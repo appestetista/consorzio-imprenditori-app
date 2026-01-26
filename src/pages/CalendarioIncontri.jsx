@@ -606,9 +606,9 @@ export default function CalendarioIncontri() {
                         <span>{event.time}</span>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center gap-2 text-slate-300 text-sm">
-                      <MapPin className="w-4 h-4 text-lime-400" />
+                      <MapPin className="w-4 h-4 text-lime-400 flex-shrink-0" />
                       <span>{event.location}</span>
                     </div>
                     
@@ -728,8 +728,42 @@ export default function CalendarioIncontri() {
                      </div>
                     )}
 
+                    {/* Pulsanti modifica/cancella per il creatore dell'evento */}
+                    {!isAdmin && event.creator_email === user?.email && event.approval_status === 'approved' && (
+                      <div className="pt-3 border-t border-slate-700">
+                        <div className="grid grid-cols-2 gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                            onClick={() => {
+                              setEditingEvent(event);
+                              setShowEditEvent(true);
+                            }}
+                          >
+                            <Edit className="w-4 h-4 mr-1" />
+                            Modifica
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="border-red-600 text-red-400 hover:bg-red-600/20"
+                            onClick={async () => {
+                              if (confirm('Sei sicuro di voler cancellare questo evento?')) {
+                                await base44.entities.Event.delete(event.id);
+                                queryClient.invalidateQueries({ queryKey: ['events'] });
+                              }
+                            }}
+                          >
+                            <X className="w-4 h-4 mr-1" />
+                            Cancella
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+
                     {/* Stato partecipazione utente - solo per non-admin */}
-                    {!isAdmin && (
+                    {!isAdmin && event.creator_email !== user?.email && (
                       <div className="pt-3 border-t border-slate-700">
                         {userResponse ? (
                           <>
@@ -783,7 +817,7 @@ export default function CalendarioIncontri() {
                         ) : null}
                       </div>
                     )}
-                    {isBlocked && !userResponse && !isAdmin && (
+                    {isBlocked && !userResponse && !isAdmin && event.creator_email !== user?.email && (
                       <div className="mt-3 p-3 bg-slate-700/50 rounded-lg">
                         <p className="text-slate-300 text-xs leading-relaxed">
                           La conferma di partecipazione non è più modificabile. Siamo a ridosso dell'evento e non è più possibile confermare o annullare la presenza online. Per necessità urgenti, contatta direttamente il Consorzio.
