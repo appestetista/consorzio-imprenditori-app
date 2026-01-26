@@ -10,89 +10,108 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import ZoneUsersList from './ZoneUsersList';
 
-// Componente per mostrare i messaggi della chat
-function ChatMessages({ bookingId, currentUserEmail }) {
-  const conversationId = `consultation_${bookingId}`;
+// Mini calendario per selezionare data consulenza
+function MiniCalendar({ selectedDate, onSelectDate, scheduledDate }) {
+  const [currentMonth, setCurrentMonth] = useState(new Date());
   
-  const { data: messages = [] } = useQuery({
-    queryKey: ['consultation-messages', conversationId],
-    queryFn: () => base44.entities.Message.filter({ conversation_id: conversationId }),
-    refetchInterval: 5000,
-  });
-
-  // Filtra solo i messaggi di risposta (non il primo messaggio dell'utente)
-  const replyMessages = messages.filter(m => m.source === 'consulenze');
-
-  if (replyMessages.length === 0) return null;
-
-  return (
-    <div className="space-y-2 mb-2">
-      {replyMessages.map((msg) => {
-        const isFromConsultant = msg.from_email === currentUserEmail;
-        return (
-          <div key={msg.id} className={`flex ${isFromConsultant ? 'justify-end' : 'justify-start'}`}>
-            <div className={`rounded-2xl px-3 py-2 max-w-[85%] ${
-              isFromConsultant 
-                ? 'bg-lime-400 text-slate-900 rounded-tr-sm' 
-                : 'bg-slate-600 text-white rounded-tl-sm'
-            }`}>
-              <p className="text-sm">{msg.content}</p>
-              <p className={`text-xs mt-1 ${isFromConsultant ? 'text-slate-700' : 'text-slate-400'}`}>
-                {new Date(msg.created_date).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
-              </p>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-// Componente per risposta rapida sotto il messaggio
-function QuickReplyInput({ bookingId, currentUserEmail, otherUserEmail }) {
-  const [message, setMessage] = useState('');
-  const [isSending, setIsSending] = useState(false);
-  const conversationId = `consultation_${bookingId}`;
-
-  const handleSend = async () => {
-    if (!message.trim() || isSending || !currentUserEmail) return;
+  const daysInMonth = useMemo(() => {
+    const year = currentMonth.getFullYear();
+    const month = currentMonth.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const days = [];
     
-    setIsSending(true);
-    try {
-      await base44.entities.Message.create({
-        from_email: currentUserEmail,
-        to_email: otherUserEmail,
-        content: message.trim(),
-        conversation_id: conversationId,
-        source: 'consulenze',
-        source_reference: `Consulenza #${bookingId.slice(-6)}`,
-        is_read: false
-      });
-      setMessage('');
-    } catch (e) {
-      console.error('Errore invio messaggio:', e);
-    } finally {
-      setIsSending(false);
+    // Aggiungi giorni vuoti per allineamento
+    const startDayOfWeek = firstDay.getDay() || 7; // Lunedì = 1
+    for (let i = 1; i < startDayOfWeek; i++) {
+      days.push(null);
     }
-  };
-
+    
+    // Aggiungi i giorni del mese
+    for (let d = 1; d <= lastDay.getDate(); d++) {
+      days.push(new Date(year, month, d));
+    }
+    
+    return days;
+  }, [currentMonth]);
+  
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const scheduledDay = scheduledDate ? new Date(scheduledDate) : null;
+  if (scheduledDay) scheduledDay.setHours(0, 0, 0, 0);
+  
+  const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 
+                      'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
+  
   return (
-    <div className="flex gap-2">
-      <Input
-        placeholder="Rispondi..."
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-        className="bg-slate-900 border-slate-600 text-white text-sm h-9 flex-1"
-      />
-      <Button
-        size="sm"
-        className="bg-lime-400 hover:bg-lime-500 text-slate-900 h-9 w-9 p-0"
-        onClick={handleSend}
-        disabled={!message.trim() || isSending}
-      >
-        <Send className="w-4 h-4" />
-      </Button>
+    <div className="bg-slate-700/50 rounded-lg p-2">
+      {/* Header mese */}
+      <div className="flex items-center justify-between mb-2">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="h-6 w-6 p-0 text-slate-400"
+          onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))}
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </Button>
+        <span className="text-white text-xs font-medium">
+          {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+        </span>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="h-6 w-6 p-0 text-slate-400"
+          onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))}
+        >
+          <ChevronRight className="w-4 h-4" />
+        </Button>
+      </div>
+      
+      {/* Giorni settimana */}
+      <div className="grid grid-cols-7 gap-1 mb-1">
+        {['L', 'M', 'M', 'G', 'V', 'S', 'D'].map((d, i) => (
+          <div key={i} className="text-center text-slate-500 text-[10px]">{d}</div>
+        ))}
+      </div>
+      
+      {/* Griglia giorni */}
+      <div className="grid grid-cols-7 gap-1">
+        {daysInMonth.map((day, i) => {
+          if (!day) return <div key={i} />;
+          
+          const isPast = day < today;
+          const isSelected = selectedDate && day.toDateString() === selectedDate.toDateString();
+          const isScheduled = scheduledDay && day.toDateString() === scheduledDay.toDateString();
+          const isToday = day.toDateString() === today.toDateString();
+          
+          return (
+            <button
+              key={i}
+              disabled={isPast || isScheduled}
+              onClick={() => !isPast && !isScheduled && onSelectDate(isSelected ? null : day)}
+              className={`
+                h-6 w-6 text-[10px] rounded flex items-center justify-center transition-all
+                ${isPast ? 'text-slate-600 cursor-not-allowed' : 'hover:bg-slate-600 cursor-pointer'}
+                ${isSelected ? 'bg-lime-400 text-slate-900 font-bold' : ''}
+                ${isScheduled ? 'bg-blue-500 text-white font-bold' : ''}
+                ${isToday && !isSelected && !isScheduled ? 'border border-lime-400/50 text-lime-400' : 'text-white'}
+              `}
+            >
+              {day.getDate()}
+            </button>
+          );
+        })}
+      </div>
+      
+      {scheduledDate && (
+        <div className="mt-2 text-center">
+          <Badge className="bg-blue-500 text-white text-[10px]">
+            Appuntamento: {new Date(scheduledDate).toLocaleDateString('it-IT')}
+          </Badge>
+        </div>
+      )}
     </div>
   );
 }
