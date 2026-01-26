@@ -515,6 +515,8 @@ export default function MyProfile() {
           <Save className="w-5 h-5 mr-2" />
           {saving ? 'Salvataggio...' : 'Salva Modifiche'}
         </Button>
+          </>
+        )}
 
           </TabsContent>
 
