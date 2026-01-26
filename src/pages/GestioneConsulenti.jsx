@@ -269,7 +269,10 @@ export default function GestioneConsulenti() {
                     <div className="flex items-center gap-3">
                       <Mail className="w-4 h-4 text-amber-400" />
                       <div>
-                        <p className="text-white text-sm">{invite.email}</p>
+                        {invite.consultant_name && (
+                          <p className="text-white text-sm font-medium">{invite.consultant_name}</p>
+                        )}
+                        <p className={`text-sm ${invite.consultant_name ? 'text-slate-400' : 'text-white'}`}>{invite.email}</p>
                         <p className="text-lime-400 text-xs">{invite.consultant_category || 'Categoria non specificata'}</p>
                         <p className="text-slate-500 text-xs">
                           Invitato il {new Date(invite.created_date).toLocaleDateString('it-IT')}
