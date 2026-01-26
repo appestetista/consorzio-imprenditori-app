@@ -456,15 +456,7 @@ export default function ConsultantView({ user }) {
                       </div>
                     )}
 
-                    {/* Chat con l'utente */}
-                    {!isCompleted && (
-                      <ConsultationChat
-                        bookingId={booking.id}
-                        currentUserEmail={user?.email}
-                        otherUserEmail={booking.user_email}
-                        otherUserName={displayName}
-                      />
-                    )}
+
                   </div>
                 );
               })}
