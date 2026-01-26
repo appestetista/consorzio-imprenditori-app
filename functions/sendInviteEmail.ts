@@ -9,7 +9,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized - Admin only' }, { status: 403 });
     }
 
-    const { email, userType, zona, consultantCategory, assignedSections } = await req.json();
+    const { email, userType, zona, consultantCategory, consultantName, assignedSections } = await req.json();
 
     if (!email || !userType) {
       return Response.json({ error: 'Missing required fields' }, { status: 400 });
@@ -25,6 +25,7 @@ Deno.serve(async (req) => {
       invited_by: user.email,
       zona: zona || null,
       consultant_category: consultantCategory || null,
+      consultant_name: consultantName || null,
       assigned_sections: assignedSections || [],
       invite_token: inviteToken
     });
