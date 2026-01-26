@@ -86,6 +86,7 @@ export default function Consulenze() {
     const unsubNotifications = base44.entities.Notification.subscribe((event) => {
       if (event.data?.user_email === effectiveUser.email && event.type === 'create') {
         playSound();
+        queryClient.invalidateQueries({ queryKey: ['notifications'] });
       }
     });
 
@@ -98,13 +99,18 @@ export default function Consulenze() {
           queryClient.invalidateQueries({ queryKey: ['consultant-bookings'] });
         }
       }
+      // Se l'utente riceve un aggiornamento sulla sua prenotazione (conferma, schedulazione)
+      if (event.type === 'update' && isMember && event.data?.user_email === effectiveUser.email) {
+        playSound();
+        queryClient.invalidateQueries({ queryKey: ['consultation-bookings'] });
+      }
     });
 
     return () => {
       unsubNotifications();
       unsubBookings();
     };
-  }, [effectiveUser?.email, isConsultant, consultants, playSound, queryClient]);
+  }, [effectiveUser?.email, isConsultant, isMember, consultants, playSound, queryClient]);
 
   return (
     <div className="min-h-screen bg-slate-900 pb-24">
