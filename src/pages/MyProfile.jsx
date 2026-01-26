@@ -34,6 +34,188 @@ const CONSULTANT_CATEGORIES = [
   "Efficientamento Energetico/Centralini"
 ];
 
+function ConsultantProfileCard({ consultantData, setConsultantData, savingConsultant, setSavingConsultant }) {
+  const [localData, setLocalData] = useState({
+    name: consultantData?.name || '',
+    phone: consultantData?.phone || '',
+    city: consultantData?.city || '',
+    referente: consultantData?.referente || '',
+    cellulare_referente: consultantData?.cellulare_referente || '',
+    block_calls_for_all: consultantData?.block_calls_for_all || false,
+    blocked_users_calls: consultantData?.blocked_users_calls || []
+  });
+
+  // Carica lista utenti per blocco chiamate individuali
+  const { data: allUsers = [] } = useQuery({
+    queryKey: ['users-for-block'],
+    queryFn: async () => {
+      const users = await base44.entities.User.filter({ user_type: 'utente' });
+      return users.filter(u => !u.is_blocked);
+    }
+  });
+
+  const handleSaveConsultant = async () => {
+    if (!localData.phone || !localData.city) {
+      toast.error('Telefono e Sede sono obbligatori');
+      return;
+    }
+    
+    setSavingConsultant(true);
+    try {
+      await base44.entities.Consultant.update(consultantData.id, localData);
+      setConsultantData({ ...consultantData, ...localData });
+      toast.success('Profilo consulente aggiornato!');
+    } catch (error) {
+      console.error('Errore salvataggio:', error);
+      toast.error('Errore durante il salvataggio');
+    } finally {
+      setSavingConsultant(false);
+    }
+  };
+
+  const toggleBlockUser = (userEmail) => {
+    const blocked = localData.blocked_users_calls || [];
+    if (blocked.includes(userEmail)) {
+      setLocalData({ ...localData, blocked_users_calls: blocked.filter(e => e !== userEmail) });
+    } else {
+      setLocalData({ ...localData, blocked_users_calls: [...blocked, userEmail] });
+    }
+  };
+
+  return (
+    <Card className="bg-slate-800 border-slate-700 mb-4">
+      <CardHeader>
+        <CardTitle className="text-white flex items-center gap-2">
+          <Building2 className="w-5 h-5 text-lime-400" />
+          Profilo Studio
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {/* Nome Studio */}
+        <div>
+          <Label className="text-lime-400 text-sm font-medium mb-1 block">Nome Studio (obbligatorio)</Label>
+          <Input
+            placeholder="Inserisci il nome dello studio"
+            value={localData.name}
+            onChange={(e) => setLocalData({ ...localData, name: e.target.value })}
+            className="bg-lime-400/10 border-lime-400 text-white placeholder:text-lime-400/50"
+          />
+        </div>
+
+        {/* Specializzazione (solo visualizzazione) */}
+        <div>
+          <Label className="text-slate-400 text-sm mb-1 block">Specializzazione (assegnata dall'admin)</Label>
+          <Select value={consultantData?.category || ''} disabled>
+            <SelectTrigger className="bg-slate-900 border-slate-600 text-slate-400">
+              <SelectValue placeholder="Nessuna categoria" />
+            </SelectTrigger>
+            <SelectContent>
+              {CONSULTANT_CATEGORIES.map(cat => (
+                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Telefono */}
+        <div>
+          <Label className="text-lime-400 text-sm font-medium mb-1 block">Telefono (obbligatorio)</Label>
+          <Input
+            placeholder="Inserisci il numero di telefono"
+            value={localData.phone}
+            onChange={(e) => setLocalData({ ...localData, phone: e.target.value })}
+            className="bg-lime-400/10 border-lime-400 text-white placeholder:text-lime-400/50"
+          />
+        </div>
+
+        {/* Sede */}
+        <div>
+          <Label className="text-lime-400 text-sm font-medium mb-1 block">Sede (obbligatorio)</Label>
+          <Input
+            placeholder="Inserisci la sede"
+            value={localData.city}
+            onChange={(e) => setLocalData({ ...localData, city: e.target.value })}
+            className="bg-lime-400/10 border-lime-400 text-white placeholder:text-lime-400/50"
+          />
+        </div>
+
+        {/* Referente */}
+        <div>
+          <Label className="text-slate-400 text-sm mb-1 block">Nome Referente</Label>
+          <Input
+            placeholder="Nome del referente"
+            value={localData.referente}
+            onChange={(e) => setLocalData({ ...localData, referente: e.target.value })}
+            className="bg-slate-900 border-slate-700 text-white"
+          />
+        </div>
+
+        {/* Cellulare Referente */}
+        <div>
+          <Label className="text-slate-400 text-sm mb-1 block">Cellulare Referente</Label>
+          <Input
+            placeholder="Cellulare del referente"
+            value={localData.cellulare_referente}
+            onChange={(e) => setLocalData({ ...localData, cellulare_referente: e.target.value })}
+            className="bg-slate-900 border-slate-700 text-white"
+          />
+        </div>
+
+        {/* Gestione Chiamate */}
+        <div className="border-t border-slate-700 pt-4 mt-4">
+          <h3 className="text-white font-medium mb-3 flex items-center gap-2">
+            <PhoneOff className="w-4 h-4 text-red-400" />
+            Gestione Chiamate
+          </h3>
+
+          {/* Blocca tutti */}
+          <div className="flex items-center justify-between bg-slate-900 rounded-lg p-3 mb-3">
+            <div>
+              <p className="text-white text-sm font-medium">Blocca chiamate da tutti</p>
+              <p className="text-slate-400 text-xs">Rispondi solo ai messaggi</p>
+            </div>
+            <Switch
+              checked={localData.block_calls_for_all}
+              onCheckedChange={(checked) => setLocalData({ ...localData, block_calls_for_all: checked })}
+            />
+          </div>
+
+          {/* Blocco singoli utenti */}
+          {!localData.block_calls_for_all && allUsers.length > 0 && (
+            <div className="bg-slate-900 rounded-lg p-3">
+              <p className="text-slate-400 text-xs mb-2">Blocca chiamate da utenti specifici:</p>
+              <div className="max-h-40 overflow-y-auto space-y-2">
+                {allUsers.map(u => (
+                  <div key={u.id} className="flex items-center gap-2">
+                    <Checkbox
+                      id={`block-${u.id}`}
+                      checked={(localData.blocked_users_calls || []).includes(u.email)}
+                      onCheckedChange={() => toggleBlockUser(u.email)}
+                      className="border-slate-600 data-[state=checked]:bg-red-500 data-[state=checked]:border-red-500"
+                    />
+                    <Label htmlFor={`block-${u.id}`} className="text-white text-sm cursor-pointer">
+                      {u.company_name || u.full_name || u.email}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <Button
+          onClick={handleSaveConsultant}
+          disabled={savingConsultant || !localData.phone || !localData.city}
+          className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 text-lg py-6 mt-4"
+        >
+          <Save className="w-5 h-5 mr-2" />
+          {savingConsultant ? 'Salvataggio...' : 'Salva Profilo Studio'}
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function MyProfile() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
