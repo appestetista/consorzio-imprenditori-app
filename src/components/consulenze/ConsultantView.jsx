@@ -202,7 +202,7 @@ export default function ConsultantView({ user }) {
         hour: '2-digit',
         minute: '2-digit'
       });
-      
+
       await base44.entities.Notification.create({
         user_email: userEmail,
         type: 'consultation',
@@ -212,10 +212,11 @@ export default function ConsultantView({ user }) {
         reference_id: bookingId
       });
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['consultant-bookings'] });
-      setScheduleDialog({ open: false, bookingId: null, userEmail: null });
-      setScheduledDateTime('');
+      // Reset selected date/time per questo booking
+      setSelectedDates(prev => ({ ...prev, [variables.bookingId]: null }));
+      setSelectedTimes(prev => ({ ...prev, [variables.bookingId]: '' }));
     }
   });
 
