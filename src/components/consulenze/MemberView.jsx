@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import PendingConfirmations from './PendingConfirmations';
-import ConsultantsListWithChat from './ConsultantsListWithChat';
+import ConsultantsListWithChat from './ConsultantsListWithChat.js';
 
 const CONSULTANT_CATEGORIES = [
   "Stampa Digitale e Cataloghi",
