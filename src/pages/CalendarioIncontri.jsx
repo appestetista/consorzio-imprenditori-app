@@ -243,14 +243,15 @@ export default function CalendarioIncontri() {
         reminder_enabled: eventData.reminder_enabled
       });
 
-      // Invia notifica a tutti gli utenti invitati
+      // Invia notifica a tutti gli utenti invitati (sia per admin che per creatore)
       const partecipazioniEvento = partecipazioni.filter(p => p.evento_id === editingEvent.id);
+      const modifierName = isAdmin ? 'l\'amministratore' : (user?.company_name || user?.full_name || 'il creatore');
       for (const p of partecipazioniEvento) {
         await base44.entities.Notification.create({
           user_email: p.user_email,
           type: 'event',
           title: 'Evento modificato',
-          content: `L'evento "${eventData.title}" è stato modificato. Controlla i dettagli aggiornati.`,
+          content: `L'evento "${eventData.title}" è stato modificato da ${modifierName}. Controlla i dettagli aggiornati.`,
           reference_id: editingEvent.id,
           is_read: false
         });
