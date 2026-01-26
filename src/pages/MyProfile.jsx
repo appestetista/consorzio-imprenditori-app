@@ -14,6 +14,11 @@ import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import ProfiloBandiForm from '../components/profile/ProfiloBandiForm';
+import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
+import { PhoneOff, PhoneCall } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 const CONSULTANT_CATEGORIES = [
   "Stampa Digitale e Cataloghi",
