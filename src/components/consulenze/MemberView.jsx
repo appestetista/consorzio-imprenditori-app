@@ -236,8 +236,8 @@ export default function MemberView({ user, consultants, isLoading }) {
               const availableConsultations = assignment ? assignment.available_consultations : defaultConsultations;
               const completedBookings = bookings.filter(b => b.consultant_id === consultant.id).length;
               
-              // Non mostrare il consulente se ha 0 consulenze gratuite e l'utente non ha assignment extra
-              if (availableConsultations === 0 && !assignment) return null;
+              // Non mostrare il consulente se ha 0 consulenze disponibili
+              if (availableConsultations === 0) return null;
               
               return (
                 <Card key={index} className="bg-slate-800 border-slate-700">
