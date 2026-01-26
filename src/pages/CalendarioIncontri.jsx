@@ -564,7 +564,7 @@ export default function CalendarioIncontri() {
                         </span>
                       </div>
                     </div>
-                  )
+                  )}
                   {/* Badge tipo evento e stato approvazione */}
                   <div className="flex items-center gap-2 px-4 pt-3">
                     {(event.event_type === 'consorzio' || !event.event_type) ? (
