@@ -376,6 +376,11 @@ export default function ConsultantView({ user }) {
         <TabsTrigger value="utenti" className="flex-1 data-[state=active]:bg-amber-500 data-[state=active]:text-white">
           <Building2 className="w-4 h-4 mr-2" />
           Utenti
+          {unreadMessagesCount > 0 && (
+            <span className="ml-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+              {unreadMessagesCount}
+            </span>
+          )}
         </TabsTrigger>
       </TabsList>
 
