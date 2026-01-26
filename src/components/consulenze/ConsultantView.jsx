@@ -424,96 +424,72 @@ export default function ConsultantView({ user }) {
                         {statusLabels[booking.status]}
                       </Badge>
                     </div>
-                    {/* Messaggio utente stile WhatsApp */}
-                    <div className="flex justify-start mb-2">
-                      <div className="bg-slate-600 rounded-2xl rounded-tl-sm px-3 py-2 max-w-[85%]">
-                        <p className="text-white text-sm">{booking.subject}</p>
-                      </div>
+                    {/* Messaggio utente */}
+                    <div className="bg-slate-600 rounded-lg px-3 py-2 mb-3">
+                      <p className="text-white text-sm">{booking.subject}</p>
                     </div>
-                    
-                    {/* Messaggi chat */}
-                    <ChatMessages 
-                      bookingId={booking.id}
-                      currentUserEmail={user?.email}
+
+                    {/* Mini Calendario per programmare o vedere appuntamento */}
+                    <MiniCalendar 
+                      selectedDate={selectedDates[booking.id]}
+                      onSelectDate={(date) => setSelectedDates(prev => ({ ...prev, [booking.id]: date }))}
+                      scheduledDate={booking.scheduled_date}
                     />
-                    
-                    {/* Input risposta rapida */}
-                    <div className="mb-3">
-                      <QuickReplyInput 
-                        bookingId={booking.id}
-                        currentUserEmail={user?.email}
-                        otherUserEmail={booking.user_email}
-                      />
-                    </div>
-                    {booking.status === 'pending' && (
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          className="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-xs"
-                          onClick={() => setScheduleDialog({ 
-                            open: true, 
-                            bookingId: booking.id, 
-                            userEmail: booking.user_email 
-                          })}
-                        >
-                          <Calendar className="w-3 h-3 mr-1" />
-                          Programma
-                        </Button>
-                        <Button
-                          size="sm"
-                          className="flex-1 bg-lime-400 hover:bg-lime-500 text-slate-900 text-xs"
-                          onClick={() => setConfirmDialog({ 
-                            open: true, 
-                            bookingId: booking.id, 
-                            userEmail: booking.user_email 
-                          })}
-                          disabled={completeConsultationMutation.isPending}
-                        >
-                          <CheckCircle className="w-3 h-3 mr-1" />
-                          Completata
-                        </Button>
-                      </div>
-                    )}
-                    {booking.status === 'confirmed' && booking.scheduled_date && (
-                      <div className="space-y-2">
-                        <div className="bg-blue-500/20 border border-blue-500/50 rounded-lg p-3">
-                          <div className="flex items-center gap-2 text-blue-400 mb-1">
-                            <Calendar className="w-4 h-4" />
-                            <span className="font-medium">Programmata</span>
-                          </div>
-                          <p className="text-white text-sm">
-                            {new Date(booking.scheduled_date).toLocaleString('it-IT', {
-                              weekday: 'long',
-                              day: '2-digit',
-                              month: 'long',
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            })}
-                          </p>
+
+                    {/* Se è selezionato un giorno, mostra selezione ora */}
+                    {selectedDates[booking.id] && booking.status === 'pending' && (
+                      <div className="mt-2 space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Input
+                            type="time"
+                            value={selectedTimes[booking.id] || ''}
+                            onChange={(e) => setSelectedTimes(prev => ({ ...prev, [booking.id]: e.target.value }))}
+                            className="bg-slate-900 border-slate-600 text-white text-sm h-8 flex-1"
+                          />
                         </div>
                         <Button
                           size="sm"
-                          className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 text-xs"
-                          onClick={() => setConfirmDialog({ 
-                            open: true, 
-                            bookingId: booking.id, 
-                            userEmail: booking.user_email 
-                          })}
-                          disabled={completeConsultationMutation.isPending}
+                          className="w-full bg-blue-500 hover:bg-blue-600 text-white text-xs"
+                          disabled={!selectedTimes[booking.id] || scheduleConsultationMutation.isPending}
+                          onClick={() => {
+                            const date = selectedDates[booking.id];
+                            const [hours, minutes] = selectedTimes[booking.id].split(':');
+                            date.setHours(parseInt(hours), parseInt(minutes));
+                            scheduleConsultationMutation.mutate({
+                              bookingId: booking.id,
+                              userEmail: booking.user_email,
+                              scheduledDate: date.toISOString()
+                            });
+                          }}
                         >
-                          <CheckCircle className="w-3 h-3 mr-1" />
-                          Segna come Completata
+                          <Send className="w-3 h-3 mr-1" />
+                          Invia Data Proposta
                         </Button>
                       </div>
                     )}
+
+                    {/* Pulsante Completata */}
+                    <div className="mt-3">
+                      <Button
+                        size="sm"
+                        className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 text-xs"
+                        onClick={() => setConfirmDialog({ 
+                          open: true, 
+                          bookingId: booking.id, 
+                          userEmail: booking.user_email 
+                        })}
+                        disabled={completeConsultationMutation.isPending}
+                      >
+                        <CheckCircle className="w-3 h-3 mr-1" />
+                        Completata
+                      </Button>
+                    </div>
+
                     {booking.status === 'awaiting_user_confirmation' && (
-                      <div className="bg-orange-500/20 border border-orange-500/50 rounded-lg p-3 text-center">
-                        <Clock className="w-5 h-5 text-orange-400 mx-auto mb-1" />
-                        <p className="text-orange-400 text-sm font-medium">In attesa che l'utente confermi</p>
+                      <div className="bg-orange-500/20 border border-orange-500/50 rounded-lg p-2 text-center mt-2">
+                        <p className="text-orange-400 text-xs font-medium">In attesa conferma utente</p>
                       </div>
                     )}
-
-
                   </div>
                 );
               })}
