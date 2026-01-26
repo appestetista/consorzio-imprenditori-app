@@ -58,16 +58,23 @@ function ConsultantProfileCard({ consultantData, setConsultantData, savingConsul
     }
   });
 
-  // Conta utenti nella zona del consulente
-  const { data: usersInZone = [] } = useQuery({
-    queryKey: ['users-in-zone', consultantData?.zona],
+  // Conta utenti nelle zone del consulente (può avere più zone separate da virgola)
+  const { data: usersInZoneCount = 0 } = useQuery({
+    queryKey: ['users-in-zone-count', consultantData?.zona],
     queryFn: async () => {
-      if (!consultantData?.zona) return [];
-      const users = await base44.entities.User.filter({ zona: consultantData.zona, user_type: 'utente' });
-      return users.filter(u => !u.is_blocked);
+      if (!consultantData?.zona) return 0;
+      // La zona può essere singola o multipla (separata da virgola)
+      const zones = consultantData.zona.split(',').map(z => z.trim()).filter(Boolean);
+      const allUsers = await base44.entities.User.filter({ user_type: 'utente' });
+      const activeUsers = allUsers.filter(u => !u.is_blocked && u.zona && zones.includes(u.zona));
+      return activeUsers.length;
     },
     enabled: !!consultantData?.zona
   });
+
+  // Determina se il consulente ha più zone
+  const consultantZones = consultantData?.zona ? consultantData.zona.split(',').map(z => z.trim()).filter(Boolean) : [];
+  const hasMultipleZones = consultantZones.length > 1;
 
   const handleSaveConsultant = async () => {
     if (!localData.phone || !localData.city) {
