@@ -337,6 +337,9 @@ export default function GestioneConsulenti() {
                             {consultant.zona}
                           </Badge>
                         )}
+                        <Badge className="bg-lime-500/20 text-lime-400 border-0 text-xs mt-1">
+                          {consultant.free_consultations_per_user ?? 1} consulenze gratuite/utente
+                        </Badge>
                       </div>
                     </div>
                     
