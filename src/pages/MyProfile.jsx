@@ -65,7 +65,9 @@ function ConsultantProfileCard({ consultantData, setConsultantData, savingConsul
       if (!consultantData?.zona) return 0;
       // La zona può essere singola o multipla (separata da virgola)
       const zones = consultantData.zona.split(',').map(z => z.trim().toLowerCase()).filter(Boolean);
-      const allUsers = await base44.entities.User.list();
+      // Usa listMembers backend function per avere accesso completo agli utenti
+      const { data } = await base44.functions.invoke('listMembers', {});
+      const allUsers = data?.users || [];
       // Filtra: user_type = utente (o undefined per utenti che non hanno il campo), non bloccati, e con zona corrispondente
       const activeUsers = allUsers.filter(u => {
         const isUtente = !u.user_type || u.user_type === 'utente';
