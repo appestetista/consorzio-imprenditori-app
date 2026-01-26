@@ -42,15 +42,26 @@ export default function EventZoneManager({ event, open, onClose }) {
   });
 
   // Filtra utenti per zona selezionata
-  const filteredUsers = allUsers.filter(u => {
+  const filteredByZone = allUsers.filter(u => {
     if (u.role === 'admin') return false;
     if (allZones) return true;
     const userZone = u.zona || u.zone;
     return userZone && selectedZones.includes(userZone);
   });
 
+  // Separa utenti e consulenti
+  const allUsersInZone = filteredByZone.filter(u => u.role === 'user' || u.user_type === 'utente');
+  const allConsultantsInZone = filteredByZone.filter(u => u.role === 'consulente' || u.user_type === 'consulente');
+
+  // Filtra per tipo destinatario selezionato
+  const filteredByType = recipientType === 'all' 
+    ? filteredByZone 
+    : recipientType === 'users' 
+      ? allUsersInZone 
+      : allConsultantsInZone;
+
   // Filtra per ricerca
-  const searchedUsers = filteredUsers.filter(u => {
+  const searchedUsers = filteredByType.filter(u => {
     if (!searchTerm) return true;
     const searchLower = searchTerm.toLowerCase();
     return (
@@ -59,10 +70,6 @@ export default function EventZoneManager({ event, open, onClose }) {
       u.email?.toLowerCase().includes(searchLower)
     );
   });
-
-  // Separa utenti e consulenti
-  const users = searchedUsers.filter(u => u.role === 'user' || u.user_type === 'utente');
-  const consultants = searchedUsers.filter(u => u.role === 'consulente' || u.user_type === 'consulente');
 
   const handleZoneToggle = (zoneName) => {
     if (selectedZones.includes(zoneName)) {
