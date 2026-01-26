@@ -319,10 +319,19 @@ export default function ConsultantView({ user }) {
                       </Badge>
                     </div>
                     {/* Messaggio stile WhatsApp */}
-                    <div className="flex justify-start mb-3">
+                    <div className="flex justify-start mb-2">
                       <div className="bg-slate-600 rounded-2xl rounded-tl-sm px-3 py-2 max-w-[85%]">
                         <p className="text-white text-sm">{booking.subject}</p>
                       </div>
+                    </div>
+                    
+                    {/* Input risposta rapida */}
+                    <div className="mb-3">
+                      <QuickReplyInput 
+                        bookingId={booking.id}
+                        currentUserEmail={consultant?.email}
+                        otherUserEmail={booking.user_email}
+                      />
                     </div>
                     {booking.status === 'pending' && (
                       <div className="flex gap-2">
