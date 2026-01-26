@@ -232,6 +232,9 @@ export default function MyProfile() {
           </Alert>
         )}
 
+        {/* Se consulente, nascondi il resto */}
+        {user?.user_type !== 'consulente' && (
+          <>
         {/* Card Dati Personali - solo per admin non impersonato */}
         {user?.role === 'admin' && !impersonation.active && (
           <Card className="bg-slate-800 border-slate-700 mb-4">
