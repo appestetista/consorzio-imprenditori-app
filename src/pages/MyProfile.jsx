@@ -16,9 +16,10 @@ import { useImpersonation } from '../components/admin/ImpersonationContext';
 import ProfiloBandiForm from '../components/profile/ProfiloBandiForm';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
-import { PhoneOff, PhoneCall } from 'lucide-react';
+import { PhoneOff, PhoneCall, Gift, AlertTriangle as AlertTriangleIcon, EyeOff } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
 const CONSULTANT_CATEGORIES = [
   "Stampa Digitale e Cataloghi",
@@ -42,8 +43,11 @@ function ConsultantProfileCard({ consultantData, setConsultantData, savingConsul
     referente: consultantData?.referente || '',
     cellulare_referente: consultantData?.cellulare_referente || '',
     block_calls_for_all: consultantData?.block_calls_for_all || false,
-    blocked_users_calls: consultantData?.blocked_users_calls || []
+    blocked_users_calls: consultantData?.blocked_users_calls || [],
+    free_consultations_per_user: consultantData?.free_consultations_per_user ?? 1
   });
+  const [showZeroWarning, setShowZeroWarning] = useState(false);
+  const [pendingZeroValue, setPendingZeroValue] = useState(false);
 
   // Carica lista utenti per blocco chiamate individuali
   const { data: allUsers = [] } = useQuery({
@@ -60,17 +64,44 @@ function ConsultantProfileCard({ consultantData, setConsultantData, savingConsul
       return;
     }
     
+    // Se sta impostando 0 consulenze, mostra avviso
+    if (localData.free_consultations_per_user === 0 && !pendingZeroValue) {
+      setShowZeroWarning(true);
+      return;
+    }
+    
     setSavingConsultant(true);
     try {
       await base44.entities.Consultant.update(consultantData.id, localData);
       setConsultantData({ ...consultantData, ...localData });
       toast.success('Profilo consulente aggiornato!');
+      setPendingZeroValue(false);
     } catch (error) {
       console.error('Errore salvataggio:', error);
       toast.error('Errore durante il salvataggio');
     } finally {
       setSavingConsultant(false);
     }
+  };
+
+  const confirmZeroConsultations = () => {
+    setPendingZeroValue(true);
+    setShowZeroWarning(false);
+    // Salva automaticamente dopo conferma
+    setSavingConsultant(true);
+    base44.entities.Consultant.update(consultantData.id, localData)
+      .then(() => {
+        setConsultantData({ ...consultantData, ...localData });
+        toast.success('Profilo consulente aggiornato!');
+      })
+      .catch((error) => {
+        console.error('Errore salvataggio:', error);
+        toast.error('Errore durante il salvataggio');
+      })
+      .finally(() => {
+        setSavingConsultant(false);
+        setPendingZeroValue(false);
+      });
   };
 
   const toggleBlockUser = (userEmail) => {
@@ -161,6 +192,51 @@ function ConsultantProfileCard({ consultantData, setConsultantData, savingConsul
           />
         </div>
 
+        {/* Zona assegnata (solo visualizzazione) */}
+        <div>
+          <Label className="text-slate-400 text-sm mb-1 block">Zona Assegnata (dall'admin)</Label>
+          <Input
+            value={consultantData?.zona || 'Nessuna zona assegnata'}
+            disabled
+            className="bg-slate-900 border-slate-600 text-slate-400"
+          />
+          <p className="text-slate-500 text-xs mt-1">Sarai visibile solo agli utenti di questa zona</p>
+        </div>
+
+        {/* Consulenze Gratuite */}
+        <div className="border-t border-slate-700 pt-4 mt-4">
+          <h3 className="text-white font-medium mb-3 flex items-center gap-2">
+            <Gift className="w-4 h-4 text-lime-400" />
+            Consulenze Gratuite
+          </h3>
+          
+          <div className="bg-slate-900 rounded-lg p-4">
+            <Label className="text-lime-400 text-sm font-medium mb-2 block">
+              Numero consulenze gratuite per ogni utente
+            </Label>
+            <div className="flex items-center gap-3">
+              <Input
+                type="number"
+                min="0"
+                max="100"
+                value={localData.free_consultations_per_user}
+                onChange={(e) => setLocalData({ ...localData, free_consultations_per_user: parseInt(e.target.value) || 0 })}
+                className="bg-slate-800 border-lime-400 text-white w-24 text-center"
+              />
+              <span className="text-slate-400 text-sm">consulenze gratuite</span>
+            </div>
+            <p className="text-slate-500 text-xs mt-2">
+              Ogni utente della tua zona avrà diritto a questo numero di consulenze gratuite con te
+            </p>
+            {localData.free_consultations_per_user === 0 && (
+              <div className="flex items-center gap-2 mt-3 bg-amber-500/20 rounded-lg p-2">
+                <EyeOff className="w-4 h-4 text-amber-400" />
+                <span className="text-amber-400 text-xs">Con 0 consulenze non sarai visibile nelle richieste</span>
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Gestione Chiamate */}
         <div className="border-t border-slate-700 pt-4 mt-4">
           <h3 className="text-white font-medium mb-3 flex items-center gap-2">
@@ -212,6 +288,34 @@ function ConsultantProfileCard({ consultantData, setConsultantData, savingConsul
           {savingConsultant ? 'Salvataggio...' : 'Salva Profilo Studio'}
         </Button>
       </CardContent>
+
+      {/* Alert Dialog per 0 consulenze */}
+      <AlertDialog open={showZeroWarning} onOpenChange={setShowZeroWarning}>
+        <AlertDialogContent className="bg-slate-800 border-slate-700">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white flex items-center gap-2">
+              <AlertTriangleIcon className="w-5 h-5 text-amber-400" />
+              Attenzione: Visibilità disattivata
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-400">
+              Impostando <strong className="text-white">0 consulenze gratuite</strong>, il tuo profilo <strong className="text-amber-400">non sarà più visibile</strong> quando un'azienda richiede una consulenza nella tua categoria.
+              <br /><br />
+              Potrai comunque essere contattato direttamente da chi già conosce i tuoi servizi.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-slate-700 text-slate-400 border-slate-600 hover:text-white">
+              Annulla
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              className="bg-amber-500 hover:bg-amber-600 text-slate-900"
+              onClick={confirmZeroConsultations}
+            >
+              Conferma comunque
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }
