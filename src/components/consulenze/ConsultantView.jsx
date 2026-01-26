@@ -500,6 +500,6 @@ export default function ConsultantView({ user }) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </>
+    </Tabs>
   );
 }
