@@ -474,6 +474,16 @@ export default function ConsultantView({ user }) {
                         <p className="text-orange-400 text-sm font-medium">In attesa che l'utente confermi</p>
                       </div>
                     )}
+
+                    {/* Chat con l'utente */}
+                    {!isCompleted && (
+                      <ConsultationChat
+                        bookingId={booking.id}
+                        currentUserEmail={user?.email}
+                        otherUserEmail={booking.user_email}
+                        otherUserName={displayName}
+                      />
+                    )}
                   </div>
                 );
               })}
