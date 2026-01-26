@@ -108,9 +108,28 @@ function ExtraConsultationsManager({ consultantId, consultantZona }) {
   };
 
   const handleAddOneMore = async (assignmentId, currentAmount) => {
+    // Trova l'assignment per ottenere l'email dell'utente
+    const assignment = existingAssignments.find(a => a.id === assignmentId);
+    
     await base44.entities.ConsultantAssignment.update(assignmentId, {
       available_consultations: currentAmount + 1
     });
+    
+    // Invia notifica all'utente
+    if (assignment) {
+      const consultants = await base44.entities.Consultant.filter({ id: consultantId });
+      const consultant = consultants[0];
+      
+      await base44.entities.Notification.create({
+        user_email: assignment.user_email,
+        type: 'consultation',
+        title: 'Nuova consulenza gratuita assegnata',
+        content: `${consultant?.name || 'Un consulente'} (${consultant?.category || ''}) ti ha assegnato 1 consulenza gratuita aggiuntiva!`,
+        is_read: false,
+        reference_id: consultantId
+      });
+    }
+    
     refetchAssignments();
   };
 
