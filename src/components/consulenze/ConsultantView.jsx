@@ -403,20 +403,33 @@ export default function ConsultantView({ user }) {
             <div className="space-y-3">
               {bookings.map((booking) => {
                 const member = allMembers.find(m => m.email === booking.user_email);
-                const displayName = member?.company_name || member?.full_name || booking.user_email;
+                const companyName = member?.company_name || 'Azienda';
+                const referente = member?.referente || member?.full_name || '-';
+                const phone = member?.phone || member?.cellulare_referente || null;
                 const isCompleted = booking.status === 'completed';
                 return (
                   <div key={booking.id} className="bg-slate-700/50 rounded-lg p-3 overflow-hidden">
+                    {/* Intestazione con nome azienda */}
                     <div className="flex items-start gap-2 mb-2">
-                      <div className="w-9 h-9 bg-lime-400 rounded-full flex items-center justify-center flex-shrink-0">
-                        <span className="text-slate-900 font-bold text-xs">
-                          {displayName[0].toUpperCase()}
-                        </span>
+                      <div className="w-10 h-10 bg-lime-400 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <Building2 className="w-5 h-5 text-slate-900" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-white font-bold text-sm truncate">{displayName}</h3>
-                        <p className="text-slate-400 text-xs truncate">{booking.user_email}</p>
-                        <div className="flex items-center gap-1 text-xs text-slate-500 mt-0.5">
+                        <h3 className="text-white font-bold text-sm truncate">{companyName}</h3>
+                        <p className="text-slate-300 text-xs truncate">
+                          <User className="w-3 h-3 inline mr-1" />
+                          {referente}
+                        </p>
+                        <p className="text-slate-400 text-xs truncate">
+                          <Mail className="w-3 h-3 inline mr-1" />
+                          {booking.user_email}
+                        </p>
+                        {phone && (
+                          <p className="text-slate-400 text-xs truncate">
+                            📞 {phone}
+                          </p>
+                        )}
+                        <div className="flex items-center gap-1 text-xs text-slate-500 mt-1">
                           <Clock className="w-3 h-3 flex-shrink-0" />
                           <span>Richiesta: {new Date(booking.created_date).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' })}</span>
                         </div>
@@ -427,9 +440,7 @@ export default function ConsultantView({ user }) {
                           </div>
                         )}
                       </div>
-                    </div>
-                    <div className="mb-2">
-                      <Badge className={`${statusColors[booking.status]} text-white text-xs`}>
+                      <Badge className={`${statusColors[booking.status]} text-white text-xs flex-shrink-0`}>
                         {statusLabels[booking.status]}
                       </Badge>
                     </div>
