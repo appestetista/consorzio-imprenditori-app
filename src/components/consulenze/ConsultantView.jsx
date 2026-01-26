@@ -10,6 +10,44 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import ZoneUsersList from './ZoneUsersList';
 
+// Componente per mostrare i messaggi della chat
+function ChatMessages({ bookingId, currentUserEmail }) {
+  const conversationId = `consultation_${bookingId}`;
+  
+  const { data: messages = [] } = useQuery({
+    queryKey: ['consultation-messages', conversationId],
+    queryFn: () => base44.entities.Message.filter({ conversation_id: conversationId }),
+    refetchInterval: 5000,
+  });
+
+  // Filtra solo i messaggi di risposta (non il primo messaggio dell'utente)
+  const replyMessages = messages.filter(m => m.source === 'consulenze');
+
+  if (replyMessages.length === 0) return null;
+
+  return (
+    <div className="space-y-2 mb-2">
+      {replyMessages.map((msg) => {
+        const isFromConsultant = msg.from_email === currentUserEmail;
+        return (
+          <div key={msg.id} className={`flex ${isFromConsultant ? 'justify-end' : 'justify-start'}`}>
+            <div className={`rounded-2xl px-3 py-2 max-w-[85%] ${
+              isFromConsultant 
+                ? 'bg-lime-400 text-slate-900 rounded-tr-sm' 
+                : 'bg-slate-600 text-white rounded-tl-sm'
+            }`}>
+              <p className="text-sm">{msg.content}</p>
+              <p className={`text-xs mt-1 ${isFromConsultant ? 'text-slate-700' : 'text-slate-400'}`}>
+                {new Date(msg.created_date).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+              </p>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 // Componente per risposta rapida sotto il messaggio
 function QuickReplyInput({ bookingId, currentUserEmail, otherUserEmail }) {
   const [message, setMessage] = useState('');
