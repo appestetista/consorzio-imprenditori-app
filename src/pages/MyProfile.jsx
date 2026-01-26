@@ -707,7 +707,7 @@ export default function MyProfile() {
 
           </TabsContent>
 
-          {user?.role !== 'consulente' && (
+          {user?.user_type !== 'consulente' && (
             <TabsContent value="bandi">
               <ProfiloBandiForm user={user} />
             </TabsContent>
