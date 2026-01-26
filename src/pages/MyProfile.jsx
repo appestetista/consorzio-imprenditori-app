@@ -704,7 +704,6 @@ export default function MyProfile() {
         </Button>
           </>
         )}
-
           </TabsContent>
 
           {user?.user_type !== 'consulente' && (
