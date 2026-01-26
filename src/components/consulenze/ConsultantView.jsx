@@ -124,6 +124,7 @@ export default function ConsultantView({ user }) {
     const [confirmDialog, setConfirmDialog] = useState({ open: false, bookingId: null, userEmail: null });
     const [selectedDates, setSelectedDates] = useState({}); // { bookingId: Date }
     const [selectedTimes, setSelectedTimes] = useState({}); // { bookingId: 'HH:MM' }
+    const { playSound } = useNotificationSound();
 
   const { data: myConsultantProfile } = useQuery({
     queryKey: ['my-consultant-profile', user?.email],
