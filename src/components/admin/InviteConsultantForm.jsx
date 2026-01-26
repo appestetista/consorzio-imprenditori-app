@@ -41,6 +41,7 @@ const SECTIONS = [
 ];
 
 export default function InviteConsultantForm({ onSuccess }) {
+  const [consultantName, setConsultantName] = useState('');
   const [email, setEmail] = useState('');
   const [zona, setZona] = useState('');
   const [consultantCategory, setConsultantCategory] = useState('');
@@ -78,6 +79,7 @@ export default function InviteConsultantForm({ onSuccess }) {
         userType: 'consulente',
         zona: zona || null,
         consultantCategory,
+        consultantName: consultantName.trim() || null,
         assignedSections
       });
 
@@ -98,7 +100,7 @@ export default function InviteConsultantForm({ onSuccess }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!email || !consultantCategory || !zona || assignedSections.length === 0) {
+    if (!consultantName || !email || !consultantCategory || !zona || assignedSections.length === 0) {
       toast.error('Compila tutti i campi obbligatori');
       return;
     }
@@ -106,6 +108,7 @@ export default function InviteConsultantForm({ onSuccess }) {
   };
 
   const resetForm = () => {
+    setConsultantName('');
     setEmail('');
     setZona('');
     setConsultantCategory('');
@@ -115,6 +118,18 @@ export default function InviteConsultantForm({ onSuccess }) {
   return (
     <div className="space-y-4">
       <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <Label className="text-slate-400 text-xs">Nome Consulente/Studio *</Label>
+          <Input
+            type="text"
+            placeholder="Nome consulente o studio"
+            value={consultantName}
+            onChange={(e) => setConsultantName(e.target.value)}
+            className="bg-slate-900 border-slate-700 text-white mt-1"
+            required
+          />
+        </div>
+
         <div>
           <Label className="text-slate-400 text-xs">Email *</Label>
           <Input
@@ -201,7 +216,7 @@ export default function InviteConsultantForm({ onSuccess }) {
 
         <Button
           type="submit"
-          disabled={inviteMutation.isPending || !email || !consultantCategory || !zona || assignedSections.length === 0}
+          disabled={inviteMutation.isPending || !consultantName || !email || !consultantCategory || !zona || assignedSections.length === 0}
           className="w-full bg-lime-400 text-slate-900 hover:bg-lime-500"
         >
           {inviteMutation.isPending ? (
