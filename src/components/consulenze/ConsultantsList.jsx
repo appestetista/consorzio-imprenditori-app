@@ -236,17 +236,35 @@ function FullChat({ consultant, currentUserEmail, onBack }) {
     return () => unsubscribe();
   }, [currentUserEmail, consultant.email, refetch, queryClient]);
 
+  // Trova booking attivo per usare lo stesso conversation_id
+  const { data: activeBooking } = useQuery({
+    queryKey: ['active-booking-chat', currentUserEmail, consultant.id],
+    queryFn: async () => {
+      const bookings = await base44.entities.ConsultationBooking.filter({ 
+        user_email: currentUserEmail,
+        consultant_id: consultant.id
+      });
+      // Trova booking non completato/cancellato
+      return bookings.find(b => !['completed', 'cancelled'].includes(b.status));
+    },
+    enabled: !!currentUserEmail && !!consultant.id
+  });
+
   const handleSend = async () => {
     if (!message.trim() || isSending) return;
     
     setIsSending(true);
     try {
+      // Usa conversation_id dalla consulenza se esiste
+      const conversationId = activeBooking ? `consultation_${activeBooking.id}` : null;
+      
       await base44.entities.Message.create({
         from_email: currentUserEmail,
         to_email: consultant.email,
         content: message.trim(),
         source: 'consulenze',
-        source_reference: consultant.name,
+        source_reference: activeBooking ? `Consulenza #${activeBooking.id.slice(-6)}` : consultant.name,
+        conversation_id: conversationId,
         is_read: false
       });
       setMessage('');
