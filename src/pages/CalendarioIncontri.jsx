@@ -676,17 +676,15 @@ export default function CalendarioIncontri() {
                            </Button>
                          </div>
                        )}
-                       {/* Pulsante per gestire zone/notifiche per eventi approvati non ancora notificati */}
-                       {event.approval_status === 'approved' && event.event_type === 'utente' && !event.notifications_sent && (
-                         <Button
-                           size="sm"
-                           className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 mb-2"
-                           onClick={() => setZoneManagerEvent(event)}
-                         >
-                           <Send className="w-4 h-4 mr-1" />
-                           Gestisci Zone e Notifiche
-                         </Button>
-                       )}
+                       {/* Pulsante per gestire zone/notifiche per tutti gli eventi */}
+                       <Button
+                         size="sm"
+                         className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 mb-2"
+                         onClick={() => setZoneManagerEvent(event)}
+                       >
+                         <Send className="w-4 h-4 mr-1" />
+                         {event.notifications_sent ? 'Gestisci Zone' : 'Gestisci Zone e Notifiche'}
+                       </Button>
                        <div className="grid grid-cols-2 gap-2">
                          <Button
                            variant="outline"
