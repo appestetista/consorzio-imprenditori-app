@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ConsultantsList from './ConsultantsList';
+import PendingConfirmations from './PendingConfirmations';
 
 const CONSULTANT_CATEGORIES = [
   "Stampa Digitale e Cataloghi",
@@ -195,6 +196,9 @@ export default function MemberView({ user, consultants, isLoading }) {
       </TabsList>
 
       <TabsContent value="consulenze">
+        {/* Mostra consulenze in attesa di conferma */}
+        <PendingConfirmations userEmail={user?.email} />
+
         <Card className="bg-gradient-to-br from-slate-800 to-slate-900 border-lime-400/30 mb-6">
           <CardContent className="p-6">
             <div className="flex items-center gap-2 text-lime-400 mb-3">
