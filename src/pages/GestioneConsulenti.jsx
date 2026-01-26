@@ -176,6 +176,7 @@ export default function GestioneConsulenti() {
       city: consultant.city || '',
       referente: consultant.referente || '',
       cellulare_referente: consultant.cellulare_referente || '',
+      zona: consultant.zona || '',
     });
     setSelectedConsultant(consultant);
     setShowEditForm(true);
@@ -330,6 +331,11 @@ export default function GestioneConsulenti() {
                         <p className="text-slate-400 text-xs truncate">{consultant.email}</p>
                         {consultant.city && (
                           <p className="text-slate-500 text-xs">{consultant.city}</p>
+                        )}
+                        {consultant.zona && (
+                          <Badge className="bg-blue-500/20 text-blue-400 border-0 text-xs mt-1">
+                            {consultant.zona}
+                          </Badge>
                         )}
                       </div>
                     </div>
@@ -498,6 +504,24 @@ export default function GestioneConsulenti() {
                   className="bg-slate-900 border-slate-700 text-white mt-1"
                   placeholder="+39 333 1234567"
                 />
+              </div>
+
+              <div>
+                <Label className="text-lime-400 text-sm font-medium">Zona Assegnata *</Label>
+                <Select
+                  value={formData.zona}
+                  onValueChange={(value) => setFormData({...formData, zona: value})}
+                >
+                  <SelectTrigger className="bg-slate-900 border-lime-400 text-white mt-1">
+                    <SelectValue placeholder="Seleziona zona..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {zones.map(zone => (
+                      <SelectItem key={zone.id} value={zone.name}>{zone.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-slate-500 text-xs mt-1">Il consulente sarà visibile solo agli utenti di questa zona</p>
               </div>
 
               <div className="flex gap-3 pt-4 border-t border-slate-700">
