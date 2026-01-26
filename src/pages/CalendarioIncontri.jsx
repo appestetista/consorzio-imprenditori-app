@@ -549,11 +549,21 @@ export default function CalendarioIncontri() {
               const isBlocked = isEventBlocked(event);
               
               return (
-                <Card key={event.id} className={`overflow-hidden ${
+                <Card key={event.id} className={`overflow-hidden relative ${
                 event.event_type === 'consorzio' || !event.event_type 
                   ? 'bg-slate-800 border-2 border-lime-400' 
                   : 'bg-slate-800/70 border-slate-700'
-              }`}>
+                } ${event.is_cancelled ? 'opacity-70' : ''}`}>
+                  {/* Overlay evento cancellato */}
+                  {event.is_cancelled && (
+                    <div className="absolute inset-0 bg-red-900/80 flex items-center justify-center z-10 pointer-events-none">
+                      <div className="text-center transform -rotate-12">
+                        <span className="text-white text-3xl font-black uppercase tracking-wider drop-shadow-lg border-4 border-white px-6 py-2">
+                          EVENTO CANCELLATO
+                        </span>
+                      </div>
+                    </div>
+                  )
                   {/* Badge tipo evento e stato approvazione */}
                   <div className="flex items-center gap-2 px-4 pt-3">
                     {(event.event_type === 'consorzio' || !event.event_type) ? (
