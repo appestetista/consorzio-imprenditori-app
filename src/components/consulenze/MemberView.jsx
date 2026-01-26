@@ -7,9 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import ConsultantsList from './ConsultantsList';
 import PendingConfirmations from './PendingConfirmations';
-import ConsultationChat from './ConsultationChat';
+import ConsultantsListWithChat from './ConsultantsListWithChat';
 
 const CONSULTANT_CATEGORIES = [
   "Stampa Digitale e Cataloghi",
@@ -270,9 +269,6 @@ export default function MemberView({ user, consultants, isLoading }) {
               const availableConsultations = assignment ? assignment.available_consultations : defaultConsultations;
               const completedBookings = bookings.filter(b => b.consultant_id === consultant.id).length;
               
-              // Non mostrare il consulente se ha 0 consulenze disponibili
-              if (availableConsultations === 0) return null;
-              
               return (
                 <Card key={index} className="bg-slate-800 border-slate-700">
                   <CardHeader className="pb-2">
@@ -301,41 +297,51 @@ export default function MemberView({ user, consultants, isLoading }) {
                       </div>
                     </div>
 
-                    <Textarea
-                      placeholder="Scrivi qui brevemente l'oggetto della consulenza..."
-                      value={consultationMessages[consultant.id] || ''}
-                      onChange={(e) => setConsultationMessages(prev => ({
-                        ...prev,
-                        [consultant.id]: e.target.value
-                      }))}
-                      disabled={isRequested}
-                      className="bg-slate-900 border-lime-400/30 text-white min-h-[80px] mb-3"
-                    />
+                    {availableConsultations === 0 ? (
+                      <div className="bg-slate-700/50 rounded-lg p-3 text-center">
+                        <p className="text-slate-400 text-sm">
+                          Non hai consulenze gratuite disponibili presso questo consulente
+                        </p>
+                      </div>
+                    ) : (
+                      <>
+                        <Textarea
+                          placeholder="Scrivi qui brevemente l'oggetto della consulenza..."
+                          value={consultationMessages[consultant.id] || ''}
+                          onChange={(e) => setConsultationMessages(prev => ({
+                            ...prev,
+                            [consultant.id]: e.target.value
+                          }))}
+                          disabled={isRequested}
+                          className="bg-slate-900 border-lime-400/30 text-white min-h-[80px] mb-3"
+                        />
 
-                    <div className="flex gap-2">
-                    <Button
-                    size="sm"
-                    className="bg-lime-400 hover:bg-lime-500 text-slate-900 border-0"
-                    onClick={() => bookConsultationMutation.mutate({ 
-                    consultantId: consultant.id, 
-                    message: consultationMessages[consultant.id] || '' 
-                    })}
-                    disabled={isRequested || bookConsultationMutation.isPending || !consultationMessages[consultant.id]?.trim()}
-                    >
-                    invia
-                    </Button>
-                    {consultant.phone && (
-                    <Button
-                    variant="outline"
-                    size="sm"
-                    className="bg-slate-700 hover:bg-slate-600 text-white border-slate-600"
-                    onClick={() => window.open(`tel:${consultant.phone}`)}
-                    >
-                    <Phone className="w-4 h-4 mr-1" />
-                    chiama
-                    </Button>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            className="bg-lime-400 hover:bg-lime-500 text-slate-900 border-0"
+                            onClick={() => bookConsultationMutation.mutate({ 
+                              consultantId: consultant.id, 
+                              message: consultationMessages[consultant.id] || '' 
+                            })}
+                            disabled={isRequested || bookConsultationMutation.isPending || !consultationMessages[consultant.id]?.trim()}
+                          >
+                            invia
+                          </Button>
+                          {consultant.phone && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="bg-slate-700 hover:bg-slate-600 text-white border-slate-600"
+                              onClick={() => window.open(`tel:${consultant.phone}`)}
+                            >
+                              <Phone className="w-4 h-4 mr-1" />
+                              chiama
+                            </Button>
+                          )}
+                        </div>
+                      </>
                     )}
-                    </div>
 
                     {/* Mostra chat se c'è una prenotazione attiva con questo consulente */}
                     {(() => {
@@ -376,7 +382,7 @@ export default function MemberView({ user, consultants, isLoading }) {
       </TabsContent>
 
       <TabsContent value="consulenti">
-        <ConsultantsList currentUserEmail={user?.email} />
+        <ConsultantsListWithChat currentUserEmail={user?.email} />
       </TabsContent>
     </Tabs>
   );
