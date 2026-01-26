@@ -232,8 +232,8 @@ function ConsultantProfileCard({ consultantData, setConsultantData, savingConsul
             <div className="bg-lime-400/10 rounded-lg p-3 mb-3 border border-lime-400/30">
               <p className="text-lime-300 text-sm">
                 {hasMultipleZones 
-                  ? <>Nelle zone a te assegnate in questo momento abbiamo inserito <span className="font-bold text-lime-400">{usersInZoneCount}</span> utenti dentro il consorzio.</>
-                  : <>Nella zona a te assegnata in questo momento abbiamo inserito <span className="font-bold text-lime-400">{usersInZoneCount}</span> utenti dentro il consorzio.</>
+                  ? <>Nelle zone a te assegnate in questo momento abbiamo inserito <span className="font-bold text-lime-400 text-2xl mx-1">{usersInZoneCount}</span> utenti dentro il consorzio.</>
+                  : <>Nella zona a te assegnata in questo momento abbiamo inserito <span className="font-bold text-lime-400 text-2xl mx-1">{usersInZoneCount}</span> utenti dentro il consorzio.</>
                 }
               </p>
               <p className="text-lime-400 text-sm font-semibold mt-2">
