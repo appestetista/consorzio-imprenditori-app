@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import ZoneUsersList from './ZoneUsersList';
+import ConsultationChat from './ConsultationChat';
 
 // Componente per risposta rapida sotto il messaggio
 function QuickReplyInput({ bookingId, currentUserEmail, otherUserEmail }) {
