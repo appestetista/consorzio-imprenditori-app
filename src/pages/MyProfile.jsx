@@ -64,9 +64,16 @@ function ConsultantProfileCard({ consultantData, setConsultantData, savingConsul
     queryFn: async () => {
       if (!consultantData?.zona) return 0;
       // La zona può essere singola o multipla (separata da virgola)
-      const zones = consultantData.zona.split(',').map(z => z.trim()).filter(Boolean);
-      const allUsers = await base44.entities.User.filter({ user_type: 'utente' });
-      const activeUsers = allUsers.filter(u => !u.is_blocked && u.zona && zones.includes(u.zona));
+      const zones = consultantData.zona.split(',').map(z => z.trim().toLowerCase()).filter(Boolean);
+      const allUsers = await base44.entities.User.list();
+      // Filtra: user_type = utente (o undefined per utenti che non hanno il campo), non bloccati, e con zona corrispondente
+      const activeUsers = allUsers.filter(u => {
+        const isUtente = !u.user_type || u.user_type === 'utente';
+        const isNotBlocked = !u.is_blocked;
+        const userZona = (u.zona || '').trim().toLowerCase();
+        const isInZone = userZona && zones.includes(userZona);
+        return isUtente && isNotBlocked && isInZone;
+      });
       return activeUsers.length;
     },
     enabled: !!consultantData?.zona
