@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -10,11 +10,14 @@ import MemberView from '../components/consulenze/MemberView';
 import ConsultantView from '../components/consulenze/ConsultantView';
 import AdminView from '../components/consulenze/AdminView';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
+import useNotificationSound from '../components/hooks/useNotificationSound';
 
 export default function Consulenze() {
   const [user, setUser] = useState(null);
   const [effectiveUser, setEffectiveUser] = useState(null);
   const { impersonation } = useImpersonation();
+  const { playSound } = useNotificationSound();
+  const queryClient = useQueryClient();
 
   // Carica l'user corrente
   useEffect(() => {
@@ -75,6 +78,33 @@ export default function Consulenze() {
   const isAdmin = user?.role === 'admin' && !impersonation.active;
   const isConsultant = effectiveUser?.role === 'consulente' || (impersonation.active && impersonation.role === 'consulente');
   const isMember = effectiveUser?.role === 'user' || (impersonation.active && impersonation.role === 'user');
+
+  // Real-time subscription per notifiche e bookings
+  useEffect(() => {
+    if (!effectiveUser?.email) return;
+
+    const unsubNotifications = base44.entities.Notification.subscribe((event) => {
+      if (event.data?.user_email === effectiveUser.email && event.type === 'create') {
+        playSound();
+      }
+    });
+
+    const unsubBookings = base44.entities.ConsultationBooking.subscribe((event) => {
+      // Se il consulente riceve una nuova richiesta, suona
+      if (event.type === 'create' && isConsultant) {
+        const consultantProfile = consultants.find(c => c.email === effectiveUser.email);
+        if (consultantProfile && event.data?.consultant_id === consultantProfile.id) {
+          playSound();
+          queryClient.invalidateQueries({ queryKey: ['consultant-bookings'] });
+        }
+      }
+    });
+
+    return () => {
+      unsubNotifications();
+      unsubBookings();
+    };
+  }, [effectiveUser?.email, isConsultant, consultants, playSound, queryClient]);
 
   return (
     <div className="min-h-screen bg-slate-900 pb-24">
