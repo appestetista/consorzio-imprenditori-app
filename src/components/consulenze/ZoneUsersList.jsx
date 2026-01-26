@@ -2,7 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import useNotificationSound from '../hooks/useNotificationSound';
-import { Search, MessageCircle, User, Building2, Bell } from 'lucide-react';
+import { Search, MessageCircle, User, Building2, Bell, ArrowLeft, Phone, Send } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -12,6 +12,7 @@ import { createPageUrl } from '@/utils';
 
 export default function ZoneUsersList({ consultantEmail, consultantZona }) {
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedUser, setSelectedUser] = useState(null);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { playSound } = useNotificationSound();
@@ -116,8 +117,8 @@ export default function ZoneUsersList({ consultantEmail, consultantZona }) {
     });
   }, [filteredUsers, unreadDataByEmail]);
 
-  const handleChat = (email) => {
-    navigate(createPageUrl('Messaggi') + `?contact=${encodeURIComponent(email)}`);
+  const handleChat = (user) => {
+    setSelectedUser(user);
   };
 
   if (isLoading) {
@@ -133,6 +134,17 @@ export default function ZoneUsersList({ consultantEmail, consultantZona }) {
       <div className="text-center py-8">
         <p className="text-slate-400">Nessuna zona assegnata. Contatta l'amministratore.</p>
       </div>
+    );
+  }
+
+  // Se è selezionato un utente, mostra la chat
+  if (selectedUser) {
+    return (
+      <FullChatWithUser 
+        user={selectedUser}
+        consultantEmail={consultantEmail}
+        onBack={() => setSelectedUser(null)}
+      />
     );
   }
 
@@ -165,7 +177,7 @@ export default function ZoneUsersList({ consultantEmail, consultantZona }) {
             <UserCard 
               key={user.id} 
               user={user} 
-              onChat={() => handleChat(user.email)}
+              onChat={() => handleChat(user)}
               unreadCount={unreadDataByEmail[user.email]?.count || 0}
             />
           ))
@@ -220,11 +232,165 @@ function UserCard({ user, onChat, unreadCount }) {
               : "bg-lime-400 hover:bg-lime-500 text-slate-900"
             }
           >
-            <MessageCircle className="w-4 h-4 mr-1" />
-            {unreadCount > 0 ? 'Rispondi' : 'Chatta'}
+            <MessageCircle className="w-4 h-4" />
           </Button>
         </div>
       </div>
     </Card>
+  );
+}
+
+function FullChatWithUser({ user, consultantEmail, onBack }) {
+  const [message, setMessage] = useState('');
+  const [isSending, setIsSending] = useState(false);
+  const queryClient = useQueryClient();
+  const displayName = user.company_name || user.full_name || user.email;
+
+  const { data: messages = [], refetch } = useQuery({
+    queryKey: ['chat-messages-user', consultantEmail, user.email],
+    queryFn: async () => {
+      const sent = await base44.entities.Message.filter({ 
+        from_email: consultantEmail, 
+        to_email: user.email 
+      });
+      const received = await base44.entities.Message.filter({ 
+        from_email: user.email, 
+        to_email: consultantEmail 
+      });
+      
+      // Segna come letti i messaggi ricevuti
+      for (const msg of received) {
+        if (!msg.is_read) {
+          await base44.entities.Message.update(msg.id, { is_read: true });
+        }
+      }
+      
+      return [...sent, ...received].sort((a, b) => 
+        new Date(a.created_date) - new Date(b.created_date)
+      );
+    },
+    refetchInterval: 3000,
+  });
+
+  useEffect(() => {
+    const unsubscribe = base44.entities.Message.subscribe((event) => {
+      if (event.type === 'create') {
+        const msg = event.data;
+        if ((msg.from_email === consultantEmail && msg.to_email === user.email) ||
+            (msg.from_email === user.email && msg.to_email === consultantEmail)) {
+          refetch();
+          queryClient.invalidateQueries({ queryKey: ['unread-messages-from-users', consultantEmail] });
+        }
+      }
+    });
+
+    return () => unsubscribe();
+  }, [consultantEmail, user.email, refetch, queryClient]);
+
+  const handleSend = async () => {
+    if (!message.trim() || isSending) return;
+    
+    setIsSending(true);
+    try {
+      await base44.entities.Message.create({
+        from_email: consultantEmail,
+        to_email: user.email,
+        content: message.trim(),
+        source: 'consulenze',
+        source_reference: displayName,
+        is_read: false
+      });
+      setMessage('');
+      refetch();
+    } catch (e) {
+      console.error('Errore invio messaggio:', e);
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-col h-[calc(100vh-280px)] min-h-[400px]">
+      {/* Header */}
+      <div className="bg-slate-800 border-b border-slate-700 p-3 flex items-center gap-3">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onBack}
+          className="text-slate-400 hover:text-white p-1"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </Button>
+        <div className="w-10 h-10 rounded-full bg-lime-400/20 flex items-center justify-center">
+          <Building2 className="w-5 h-5 text-lime-400" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-white font-semibold truncate">{displayName}</p>
+          {user.referente && (
+            <p className="text-slate-400 text-xs truncate">{user.referente}</p>
+          )}
+        </div>
+        {user.phone && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-lime-400"
+            onClick={() => window.open(`tel:${user.phone}`)}
+          >
+            <Phone className="w-5 h-5" />
+          </Button>
+        )}
+      </div>
+
+      {/* Messaggi */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-900">
+        {messages.length === 0 ? (
+          <div className="text-center text-slate-500 py-8">
+            <MessageCircle className="w-12 h-12 mx-auto mb-2 opacity-50" />
+            <p>Nessun messaggio</p>
+            <p className="text-xs">Inizia una conversazione</p>
+          </div>
+        ) : (
+          messages.map((msg) => {
+            const isFromMe = msg.from_email === consultantEmail;
+            return (
+              <div key={msg.id} className={`flex ${isFromMe ? 'justify-end' : 'justify-start'}`}>
+                <div className={`rounded-2xl px-4 py-2 max-w-[80%] ${
+                  isFromMe 
+                    ? 'bg-lime-400 text-slate-900 rounded-tr-sm' 
+                    : 'bg-slate-700 text-white rounded-tl-sm'
+                }`}>
+                  <p className="text-sm">{msg.content}</p>
+                  <p className={`text-xs mt-1 ${isFromMe ? 'text-slate-700' : 'text-slate-400'}`}>
+                    {new Date(msg.created_date).toLocaleTimeString('it-IT', { 
+                      hour: '2-digit', 
+                      minute: '2-digit' 
+                    })}
+                  </p>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* Input */}
+      <div className="bg-slate-800 border-t border-slate-700 p-3 flex gap-2">
+        <Input
+          placeholder="Scrivi un messaggio..."
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+          className="bg-slate-900 border-slate-700 text-white flex-1"
+        />
+        <Button
+          onClick={handleSend}
+          disabled={!message.trim() || isSending}
+          className="bg-lime-400 hover:bg-lime-500 text-slate-900"
+        >
+          <Send className="w-5 h-5" />
+        </Button>
+      </div>
+    </div>
   );
 }
