@@ -66,8 +66,17 @@ export default function ConsultantsList({ currentUserEmail, showChat = false }) 
     );
   }, [consultants, searchTerm]);
 
-  const handleChat = (email) => {
-    navigate(createPageUrl('Messaggi') + `?contact=${encodeURIComponent(email)}`);
+  // Totale messaggi non letti
+  const totalUnread = useMemo(() => {
+    return Object.values(unreadCountByEmail).reduce((sum, count) => sum + count, 0);
+  }, [unreadCountByEmail]);
+
+  const handleChat = (consultant) => {
+    if (showChat) {
+      setSelectedConsultant(consultant);
+    } else {
+      navigate(createPageUrl('Messaggi') + `?contact=${encodeURIComponent(consultant.email)}`);
+    }
   };
 
   if (isLoading) {
@@ -78,8 +87,34 @@ export default function ConsultantsList({ currentUserEmail, showChat = false }) 
     );
   }
 
+  // Se è selezionato un consulente e showChat è true, mostra la chat
+  if (showChat && selectedConsultant) {
+    return (
+      <FullChat 
+        consultant={selectedConsultant}
+        currentUserEmail={currentUserEmail}
+        onBack={() => setSelectedConsultant(null)}
+      />
+    );
+  }
+
   return (
     <div className="space-y-4">
+      {/* Header con titolo e badge totale */}
+      {showChat && (
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-white font-semibold flex items-center gap-2">
+            <Users className="w-5 h-5 text-amber-400" />
+            Consulenti
+          </h3>
+          {totalUnread > 0 && (
+            <Badge className="bg-red-500 text-white">
+              {totalUnread} messaggi
+            </Badge>
+          )}
+        </div>
+      )}
+
       {/* Ricerca */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
@@ -100,9 +135,10 @@ export default function ConsultantsList({ currentUserEmail, showChat = false }) 
             <ConsultantCard 
               key={consultant.id} 
               consultant={consultant} 
-              onChat={() => handleChat(consultant.email)}
+              onChat={() => handleChat(consultant)}
               currentUserEmail={currentUserEmail}
               unreadCount={unreadCountByEmail[consultant.email] || 0}
+              showChat={showChat}
             />
           ))
         )}
