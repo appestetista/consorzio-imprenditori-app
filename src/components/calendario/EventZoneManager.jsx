@@ -9,11 +9,12 @@ import { Send, MapPin, Users, Check, Briefcase, ChevronRight, ChevronLeft } from
 import { Input } from '@/components/ui/input';
 
 export default function EventZoneManager({ event, open, onClose }) {
-  const [step, setStep] = useState(1); // 1 = zone, 2 = utenti
+  const [step, setStep] = useState(1); // 1 = zone, 2 = destinatari
   const [selectedZones, setSelectedZones] = useState([]);
   const [allZones, setAllZones] = useState(true);
+  const [recipientType, setRecipientType] = useState('all'); // 'all', 'users', 'consultants'
   const [selectedUsers, setSelectedUsers] = useState([]);
-  const [selectAllUsers, setSelectAllUsers] = useState(true);
+  const [selectAllInType, setSelectAllInType] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const queryClient = useQueryClient();
 
