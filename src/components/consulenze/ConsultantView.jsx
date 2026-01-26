@@ -327,18 +327,20 @@ export default function ConsultantView({ user }) {
                     {booking.status === 'pending' && (
                       <div className="flex gap-2">
                         <Button
-                          className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold"
+                          size="sm"
+                          className="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-xs"
                           onClick={() => setScheduleDialog({ 
                             open: true, 
                             bookingId: booking.id, 
                             userEmail: booking.user_email 
                           })}
                         >
-                          <Calendar className="w-4 h-4 mr-2" />
+                          <Calendar className="w-3 h-3 mr-1" />
                           Programma
                         </Button>
                         <Button
-                          className="flex-1 bg-lime-400 hover:bg-lime-500 text-slate-900 font-bold"
+                          size="sm"
+                          className="flex-1 bg-lime-400 hover:bg-lime-500 text-slate-900 text-xs"
                           onClick={() => setConfirmDialog({ 
                             open: true, 
                             bookingId: booking.id, 
@@ -346,7 +348,7 @@ export default function ConsultantView({ user }) {
                           })}
                           disabled={completeConsultationMutation.isPending}
                         >
-                          <CheckCircle className="w-4 h-4 mr-2" />
+                          <CheckCircle className="w-3 h-3 mr-1" />
                           Completata
                         </Button>
                       </div>
