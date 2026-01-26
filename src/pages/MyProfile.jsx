@@ -61,6 +61,10 @@ function ExtraConsultationsManager({ consultantId, consultantZona }) {
     
     const existingAssignment = existingAssignments.find(a => a.user_email === selectedUser);
     
+    // Trova i dati del consulente per la notifica
+    const consultants = await base44.entities.Consultant.filter({ id: consultantId });
+    const consultant = consultants[0];
+    
     if (existingAssignment) {
       // Aggiorna l'assegnazione esistente
       await base44.entities.ConsultantAssignment.update(existingAssignment.id, {
@@ -75,6 +79,16 @@ function ExtraConsultationsManager({ consultantId, consultantZona }) {
         is_assigned: true
       });
     }
+    
+    // Invia notifica all'utente
+    await base44.entities.Notification.create({
+      user_email: selectedUser,
+      type: 'consultation',
+      title: 'Nuove consulenze gratuite assegnate',
+      content: `${consultant?.name || 'Un consulente'} (${consultant?.category || ''}) ti ha assegnato ${extraAmount} consulenz${extraAmount > 1 ? 'e' : 'a'} gratuit${extraAmount > 1 ? 'e' : 'a'}!`,
+      is_read: false,
+      reference_id: consultantId
+    });
     
     toast.success(`Aggiunte ${extraAmount} consulenze gratuite!`);
     setSelectedUser('');
