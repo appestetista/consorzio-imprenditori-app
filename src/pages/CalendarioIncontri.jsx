@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { Calendar, MapPin, Clock, Users, Check, X, Plus, ArrowLeft, Image, Upload, Edit, Briefcase, Bell } from 'lucide-react';
+import { Calendar, MapPin, Clock, Users, Check, X, Plus, ArrowLeft, Image, Upload, Edit, Briefcase, Bell, Send } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,7 @@ import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import InviteEventDialog from '../components/calendario/InviteEventDialog';
+import EventZoneManager from '../components/calendario/EventZoneManager';
 
 export default function CalendarioIncontri() {
   const [user, setUser] = useState(null);
@@ -33,6 +34,7 @@ export default function CalendarioIncontri() {
   const [showParticipantsEvent, setShowParticipantsEvent] = useState(null);
   const [changeResponseEvent, setChangeResponseEvent] = useState(null);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [zoneManagerEvent, setZoneManagerEvent] = useState(null);
   const queryClient = useQueryClient();
   const { impersonation } = useImpersonation();
 
@@ -56,12 +58,19 @@ export default function CalendarioIncontri() {
     queryFn: () => base44.entities.Event.list('date'),
   });
 
-  // Filtra eventi: admin vede tutto, utenti vedono solo approvati + i propri in attesa
+  // Filtra eventi: admin vede tutto, utenti vedono solo approvati + i propri in attesa + filtro zone
   const events = allEvents.filter(event => {
     if (isAdmin) return true;
-    if (event.approval_status === 'approved' || !event.approval_status) return true;
+    // Mostra sempre i propri eventi
     if (event.creator_email === user?.email) return true;
-    return false;
+    // Eventi non approvati non visibili
+    if (event.approval_status !== 'approved' && event.approval_status) return false;
+    // Filtra per zona se l'evento ha zone specifiche
+    if (event.visible_to_zones && event.visible_to_zones.length > 0) {
+      const userZone = user?.zona || user?.zone;
+      if (!userZone || !event.visible_to_zones.includes(userZone)) return false;
+    }
+    return true;
   });
 
   const { data: partecipazioni = [] } = useQuery({
@@ -643,7 +652,11 @@ export default function CalendarioIncontri() {
                            <Button
                              size="sm"
                              className="bg-green-600 hover:bg-green-700 text-white"
-                             onClick={() => approveEventMutation.mutate({ eventId: event.id, approved: true })}
+                             onClick={() => {
+                               approveEventMutation.mutate({ eventId: event.id, approved: true });
+                               // Dopo approvazione, apri il gestore zone
+                               setTimeout(() => setZoneManagerEvent(event), 500);
+                             }}
                              disabled={approveEventMutation.isPending}
                            >
                              <Check className="w-4 h-4 mr-1" />
@@ -662,6 +675,17 @@ export default function CalendarioIncontri() {
                              Rifiuta
                            </Button>
                          </div>
+                       )}
+                       {/* Pulsante per gestire zone/notifiche per eventi approvati non ancora notificati */}
+                       {event.approval_status === 'approved' && event.event_type === 'utente' && !event.notifications_sent && (
+                         <Button
+                           size="sm"
+                           className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 mb-2"
+                           onClick={() => setZoneManagerEvent(event)}
+                         >
+                           <Send className="w-4 h-4 mr-1" />
+                           Gestisci Zone e Notifiche
+                         </Button>
                        )}
                        <div className="grid grid-cols-2 gap-2">
                          <Button
@@ -1032,6 +1056,13 @@ export default function CalendarioIncontri() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Event Zone Manager Dialog */}
+      <EventZoneManager
+        event={zoneManagerEvent}
+        open={!!zoneManagerEvent}
+        onClose={() => setZoneManagerEvent(null)}
+      />
 
       {/* Participants List Dialog (Admin only) */}
       {showParticipantsEvent && (
