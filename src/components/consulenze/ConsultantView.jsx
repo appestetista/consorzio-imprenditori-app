@@ -379,7 +379,7 @@ export default function ConsultantView({ user }) {
                     <div className="mb-3">
                       <QuickReplyInput 
                         bookingId={booking.id}
-                        currentUserEmail={consultant?.email}
+                        currentUserEmail={user?.email}
                         otherUserEmail={booking.user_email}
                       />
                     </div>
