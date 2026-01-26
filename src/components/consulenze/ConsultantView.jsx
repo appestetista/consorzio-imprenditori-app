@@ -291,41 +291,38 @@ export default function ConsultantView({ user }) {
                 const displayName = member?.company_name || member?.full_name || booking.user_email;
                 const isCompleted = booking.status === 'completed';
                 return (
-                  <div key={booking.id} className="bg-slate-700/50 rounded-lg p-4">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-lime-400 rounded-full flex items-center justify-center flex-shrink-0">
-                          <span className="text-slate-900 font-bold text-sm">
-                            {displayName[0].toUpperCase()}
-                          </span>
+                  <div key={booking.id} className="bg-slate-700/50 rounded-lg p-3 overflow-hidden">
+                    <div className="flex items-start gap-2 mb-2">
+                      <div className="w-9 h-9 bg-lime-400 rounded-full flex items-center justify-center flex-shrink-0">
+                        <span className="text-slate-900 font-bold text-xs">
+                          {displayName[0].toUpperCase()}
+                        </span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-white font-bold text-sm truncate">{displayName}</h3>
+                        <p className="text-slate-400 text-xs truncate">{booking.user_email}</p>
+                        <div className="flex items-center gap-1 text-xs text-slate-500 mt-0.5">
+                          <Clock className="w-3 h-3 flex-shrink-0" />
+                          <span>Richiesta: {new Date(booking.created_date).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' })}</span>
                         </div>
-                        <div className="flex-1">
-                          <h3 className="text-white font-bold">{displayName}</h3>
-                          {member?.referente && (
-                            <p className="text-slate-300 text-sm">{member.referente}</p>
-                          )}
-                          <div className="flex flex-col gap-0.5 mt-1">
-                            <div className="flex items-center gap-1.5 text-xs text-slate-400">
-                              <Clock className="w-3 h-3" />
-                              <span>Richiesta: {new Date(booking.created_date).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' })}</span>
-                            </div>
-                            {isCompleted && booking.completed_date && (
-                              <div className="flex items-center gap-1.5 text-xs text-green-400">
-                                <CheckCircle className="w-3 h-3" />
-                                <span>Completata: {new Date(booking.completed_date).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' })}</span>
-                              </div>
-                            )}
+                        {isCompleted && booking.completed_date && (
+                          <div className="flex items-center gap-1 text-xs text-green-400 mt-0.5">
+                            <CheckCircle className="w-3 h-3 flex-shrink-0" />
+                            <span>Completata: {new Date(booking.completed_date).toLocaleDateString('it-IT')}</span>
                           </div>
-                        </div>
+                        )}
                       </div>
                     </div>
                     <div className="mb-2">
-                      <Badge className={`${statusColors[booking.status]} text-white`}>
+                      <Badge className={`${statusColors[booking.status]} text-white text-xs`}>
                         {statusLabels[booking.status]}
                       </Badge>
                     </div>
-                    <div className="bg-slate-900/50 rounded-lg p-3 mb-3">
-                      <p className="text-white text-sm">{booking.subject}</p>
+                    {/* Messaggio stile WhatsApp */}
+                    <div className="flex justify-start mb-3">
+                      <div className="bg-slate-600 rounded-2xl rounded-tl-sm px-3 py-2 max-w-[85%]">
+                        <p className="text-white text-sm">{booking.subject}</p>
+                      </div>
                     </div>
                     {booking.status === 'pending' && (
                       <div className="flex gap-2">
