@@ -247,7 +247,7 @@ export default function EventZoneManager({ event, open, onClose }) {
             </>
           )}
 
-          {/* Step 2: Selezione Utenti */}
+          {/* Step 2: Selezione Destinatari */}
           {step === 2 && (
             <>
               <Button
@@ -266,18 +266,50 @@ export default function EventZoneManager({ event, open, onClose }) {
                   Chi vuoi notificare?
                 </Label>
 
+                {/* Selezione tipo: Tutti, Solo Utenti, Solo Consulenti */}
+                <div className="grid grid-cols-3 gap-2">
+                  <Button
+                    variant={recipientType === 'all' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => { setRecipientType('all'); setSelectAllInType(true); setSelectedUsers([]); }}
+                    className={recipientType === 'all' ? 'bg-lime-400 text-slate-900' : 'border-slate-600 text-slate-300'}
+                  >
+                    Tutti ({filteredByZone.length})
+                  </Button>
+                  <Button
+                    variant={recipientType === 'users' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => { setRecipientType('users'); setSelectAllInType(true); setSelectedUsers([]); }}
+                    className={recipientType === 'users' ? 'bg-lime-400 text-slate-900' : 'border-slate-600 text-slate-300'}
+                  >
+                    <Users className="w-3 h-3 mr-1" />
+                    Utenti ({allUsersInZone.length})
+                  </Button>
+                  <Button
+                    variant={recipientType === 'consultants' ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => { setRecipientType('consultants'); setSelectAllInType(true); setSelectedUsers([]); }}
+                    className={recipientType === 'consultants' ? 'bg-lime-400 text-slate-900' : 'border-slate-600 text-slate-300'}
+                  >
+                    <Briefcase className="w-3 h-3 mr-1" />
+                    Consulenti ({allConsultantsInZone.length})
+                  </Button>
+                </div>
+
                 <div className="flex items-center space-x-2 p-3 bg-slate-900 rounded-lg">
                   <Checkbox
-                    id="all-users"
-                    checked={selectAllUsers}
-                    onCheckedChange={handleSelectAllUsers}
+                    id="all-in-type"
+                    checked={selectAllInType}
+                    onCheckedChange={handleSelectAllInType}
                   />
-                  <Label htmlFor="all-users" className="text-white cursor-pointer">
-                    Tutti gli utenti delle zone selezionate ({filteredUsers.length})
+                  <Label htmlFor="all-in-type" className="text-white cursor-pointer">
+                    {recipientType === 'all' && `Tutti (${filteredByType.length})`}
+                    {recipientType === 'users' && `Tutti gli utenti (${filteredByType.length})`}
+                    {recipientType === 'consultants' && `Tutti i consulenti (${filteredByType.length})`}
                   </Label>
                 </div>
 
-                {!selectAllUsers && (
+                {!selectAllInType && (
                   <>
                     <Input
                       placeholder="Cerca utente o azienda..."
@@ -286,54 +318,24 @@ export default function EventZoneManager({ event, open, onClose }) {
                       className="bg-slate-900 border-slate-700 text-white"
                     />
 
-                    <div className="max-h-60 overflow-y-auto space-y-3">
-                      {/* Utenti */}
-                      {users.length > 0 && (
-                        <div>
-                          <p className="text-slate-400 text-xs uppercase mb-2 flex items-center gap-1">
-                            <Users className="w-3 h-3" /> Utenti ({users.length})
-                          </p>
-                          <div className="space-y-1">
-                            {users.map((user) => (
-                              <div key={user.id} className="flex items-center space-x-2 p-2 bg-slate-900/50 rounded-lg">
-                                <Checkbox
-                                  id={`user-${user.id}`}
-                                  checked={selectedUsers.includes(user.email)}
-                                  onCheckedChange={() => handleUserToggle(user.email)}
-                                />
-                                <Label htmlFor={`user-${user.id}`} className="text-slate-300 cursor-pointer text-sm flex-1">
-                                  <span className="font-medium">{user.company_name || user.full_name}</span>
-                                  {user.zona && <span className="text-slate-500 text-xs ml-2">({user.zona})</span>}
-                                </Label>
-                              </div>
-                            ))}
+                    <div className="max-h-60 overflow-y-auto space-y-1">
+                      {searchedUsers.map((user) => {
+                        const isConsultant = user.role === 'consulente' || user.user_type === 'consulente';
+                        return (
+                          <div key={user.id} className="flex items-center space-x-2 p-2 bg-slate-900/50 rounded-lg">
+                            <Checkbox
+                              id={`user-${user.id}`}
+                              checked={selectedUsers.includes(user.email)}
+                              onCheckedChange={() => handleUserToggle(user.email)}
+                            />
+                            <Label htmlFor={`user-${user.id}`} className="text-slate-300 cursor-pointer text-sm flex-1 flex items-center gap-2">
+                              {isConsultant ? <Briefcase className="w-3 h-3 text-slate-500" /> : <Users className="w-3 h-3 text-slate-500" />}
+                              <span className="font-medium">{user.company_name || user.full_name}</span>
+                              {user.zona && <span className="text-slate-500 text-xs">({user.zona})</span>}
+                            </Label>
                           </div>
-                        </div>
-                      )}
-
-                      {/* Consulenti */}
-                      {consultants.length > 0 && (
-                        <div>
-                          <p className="text-slate-400 text-xs uppercase mb-2 flex items-center gap-1">
-                            <Briefcase className="w-3 h-3" /> Consulenti ({consultants.length})
-                          </p>
-                          <div className="space-y-1">
-                            {consultants.map((user) => (
-                              <div key={user.id} className="flex items-center space-x-2 p-2 bg-slate-900/50 rounded-lg">
-                                <Checkbox
-                                  id={`consultant-${user.id}`}
-                                  checked={selectedUsers.includes(user.email)}
-                                  onCheckedChange={() => handleUserToggle(user.email)}
-                                />
-                                <Label htmlFor={`consultant-${user.id}`} className="text-slate-300 cursor-pointer text-sm flex-1">
-                                  <span className="font-medium">{user.company_name || user.full_name}</span>
-                                  {user.zona && <span className="text-slate-500 text-xs ml-2">({user.zona})</span>}
-                                </Label>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
+                        );
+                      })}
 
                       {searchedUsers.length === 0 && (
                         <p className="text-slate-500 text-sm text-center py-4">Nessun utente trovato</p>
