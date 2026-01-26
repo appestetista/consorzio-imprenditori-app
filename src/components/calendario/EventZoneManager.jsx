@@ -24,8 +24,9 @@ export default function EventZoneManager({ event, open, onClose }) {
       setStep(1);
       setSelectedZones(event.visible_to_zones || []);
       setAllZones(!event.visible_to_zones || event.visible_to_zones.length === 0);
+      setRecipientType('all');
       setSelectedUsers([]);
-      setSelectAllUsers(true);
+      setSelectAllInType(true);
       setSearchTerm('');
     }
   }, [open, event]);
