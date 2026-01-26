@@ -275,82 +275,11 @@ export default function ConsultantView({ user }) {
         </Button>
       </div>
 
-      {activeTab === 'members' && (
-        <Card className="bg-slate-800 border-lime-400/30 mb-6">
-        <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
-            <Users className="w-5 h-5 text-lime-400" />
-            Lista Membri ({allMembers.length})
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            {allMembers.map((member) => {
-              const assignment = assignments.find(a => a.user_email === member.email && a.is_assigned);
-              const availableCredits = assignment?.available_consultations || 0;
-              const completedBookings = bookings.filter(b => b.user_email === member.email && b.status === 'completed').length;
-              const hasPendingRequest = bookings.some(b => b.user_email === member.email && b.status === 'pending');
-              const pendingCount = bookings.filter(b => b.user_email === member.email && b.status === 'pending').length;
-
-              return (
-                <div key={member.id} className="bg-slate-700/50 rounded-lg p-3">
-                  <div className="mb-3 flex items-start justify-between">
-                    <div className="flex-1">
-                      <p className="text-white font-medium">{member.company_name || member.full_name}</p>
-                      {member.referente && (
-                        <p className="text-slate-400 text-xs">{member.referente}</p>
-                      )}
-                    </div>
-                    <div className="relative ml-2">
-                      <Bell className={`w-5 h-5 ${hasPendingRequest ? 'text-red-500' : 'text-green-500'}`} />
-                      {hasPendingRequest && pendingCount > 0 && (
-                        <div className="absolute -top-1 -right-1 bg-red-500 rounded-full w-4 h-4 flex items-center justify-center">
-                          <span className="text-white text-xs font-bold">{pendingCount}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-2">
-                        <div className="text-center">
-                          <p className="text-lime-400 font-bold text-lg">{availableCredits}</p>
-                          <p className="text-slate-500 text-xs">assegnate</p>
-                        </div>
-                        <div className="flex flex-col gap-0.5">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-5 w-5 p-0 bg-lime-400/20 text-lime-400 border-lime-400/30 hover:bg-lime-400 hover:text-slate-900"
-                            disabled={updateAssignmentMutation.isPending || createAssignmentMutation.isPending}
-                            onClick={() => handleIncrement(member.email, availableCredits, assignment)}
-                          >
-                            <ChevronUp className="w-3 h-3" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-5 w-5 p-0 bg-slate-600/50 text-slate-400 border-slate-600 hover:bg-slate-600 hover:text-white disabled:opacity-30"
-                            disabled={availableCredits <= 0 || updateAssignmentMutation.isPending}
-                            onClick={() => handleDecrement(member.email, availableCredits, assignment)}
-                          >
-                            <ChevronDown className="w-3 h-3" />
-                          </Button>
-                        </div>
-                      </div>
-                      <span className="text-slate-600">/</span>
-                      <div className="text-center">
-                        <p className="text-green-400 font-bold text-lg">{completedBookings}</p>
-                        <p className="text-slate-500 text-xs">completate</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
+      {activeTab === 'users' && (
+        <ZoneUsersList 
+          consultantEmail={user?.email} 
+          consultantZona={myConsultantProfile?.zona}
+        />
       )}
 
       {activeTab === 'requests' && (
