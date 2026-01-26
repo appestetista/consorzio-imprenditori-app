@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Mail, User, Clock, CheckCircle, XCircle, Users, Plus, ChevronUp, ChevronDown, Bell, AlertTriangle } from 'lucide-react';
+import { Mail, User, Clock, CheckCircle, XCircle, Users, Plus, ChevronUp, ChevronDown, Bell, AlertTriangle, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -13,6 +13,8 @@ export default function ConsultantView({ user }) {
   const [creditsInput, setCreditsInput] = useState({});
   const [activeTab, setActiveTab] = useState('members'); // 'members' o 'requests'
   const [confirmDialog, setConfirmDialog] = useState({ open: false, bookingId: null, userEmail: null });
+  const [scheduleDialog, setScheduleDialog] = useState({ open: false, bookingId: null, userEmail: null });
+  const [scheduledDateTime, setScheduledDateTime] = useState('');
 
   const { data: myConsultantProfile } = useQuery({
     queryKey: ['my-consultant-profile', user?.email],
@@ -73,6 +75,39 @@ export default function ConsultantView({ user }) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['consultant-bookings'] });
+    }
+  });
+
+  const scheduleConsultationMutation = useMutation({
+    mutationFn: async ({ bookingId, userEmail, scheduledDate }) => {
+      await base44.entities.ConsultationBooking.update(bookingId, { 
+        status: 'confirmed',
+        scheduled_date: scheduledDate
+      });
+
+      // Notifica all'utente con data/ora programmata
+      const formattedDate = new Date(scheduledDate).toLocaleString('it-IT', {
+        weekday: 'long',
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      
+      await base44.entities.Notification.create({
+        user_email: userEmail,
+        type: 'consultation',
+        title: 'Consulenza confermata',
+        content: `${myConsultantProfile?.name || 'Il consulente'} (${myConsultantProfile?.category || ''}) ha confermato la tua consulenza per ${formattedDate}.`,
+        is_read: false,
+        reference_id: bookingId
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['consultant-bookings'] });
+      setScheduleDialog({ open: false, bookingId: null, userEmail: null });
+      setScheduledDateTime('');
     }
   });
 
@@ -375,18 +410,62 @@ export default function ConsultantView({ user }) {
                       <p className="text-white text-sm">{booking.subject}</p>
                     </div>
                     {booking.status === 'pending' && (
-                      <Button
-                        className="bg-lime-400 hover:bg-lime-500 text-slate-900 w-full font-bold"
-                        onClick={() => setConfirmDialog({ 
-                          open: true, 
-                          bookingId: booking.id, 
-                          userEmail: booking.user_email 
-                        })}
-                        disabled={completeConsultationMutation.isPending}
-                      >
-                        <CheckCircle className="w-5 h-5 mr-2" />
-                        Segna come Completata
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold"
+                          onClick={() => setScheduleDialog({ 
+                            open: true, 
+                            bookingId: booking.id, 
+                            userEmail: booking.user_email 
+                          })}
+                        >
+                          <Calendar className="w-4 h-4 mr-2" />
+                          Programma
+                        </Button>
+                        <Button
+                          className="flex-1 bg-lime-400 hover:bg-lime-500 text-slate-900 font-bold"
+                          onClick={() => setConfirmDialog({ 
+                            open: true, 
+                            bookingId: booking.id, 
+                            userEmail: booking.user_email 
+                          })}
+                          disabled={completeConsultationMutation.isPending}
+                        >
+                          <CheckCircle className="w-4 h-4 mr-2" />
+                          Completata
+                        </Button>
+                      </div>
+                    )}
+                    {booking.status === 'confirmed' && booking.scheduled_date && (
+                      <div className="space-y-2">
+                        <div className="bg-blue-500/20 border border-blue-500/50 rounded-lg p-3">
+                          <div className="flex items-center gap-2 text-blue-400 mb-1">
+                            <Calendar className="w-4 h-4" />
+                            <span className="font-medium">Programmata</span>
+                          </div>
+                          <p className="text-white text-sm">
+                            {new Date(booking.scheduled_date).toLocaleString('it-IT', {
+                              weekday: 'long',
+                              day: '2-digit',
+                              month: 'long',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </p>
+                        </div>
+                        <Button
+                          className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 font-bold"
+                          onClick={() => setConfirmDialog({ 
+                            open: true, 
+                            bookingId: booking.id, 
+                            userEmail: booking.user_email 
+                          })}
+                          disabled={completeConsultationMutation.isPending}
+                        >
+                          <CheckCircle className="w-4 h-4 mr-2" />
+                          Segna come Completata
+                        </Button>
+                      </div>
                     )}
                     {booking.status === 'awaiting_user_confirmation' && (
                       <div className="bg-orange-500/20 border border-orange-500/50 rounded-lg p-3 text-center">
@@ -435,6 +514,53 @@ export default function ConsultantView({ user }) {
               }}
             >
               Conferma Completamento
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Dialog per programmare la consulenza */}
+      <AlertDialog open={scheduleDialog.open} onOpenChange={(open) => {
+        if (!open) {
+          setScheduleDialog({ open: false, bookingId: null, userEmail: null });
+          setScheduledDateTime('');
+        }
+      }}>
+        <AlertDialogContent className="bg-slate-800 border-lime-400/30">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-blue-400" />
+              Programma Consulenza
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-300">
+              Seleziona la data e l'ora per la consulenza. L'utente riceverà una notifica con i dettagli.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-4">
+            <Input
+              type="datetime-local"
+              value={scheduledDateTime}
+              onChange={(e) => setScheduledDateTime(e.target.value)}
+              className="bg-slate-900 border-slate-700 text-white"
+              min={new Date().toISOString().slice(0, 16)}
+            />
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-slate-700 text-white hover:bg-slate-600 border-slate-600">
+              Annulla
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-blue-500 text-white hover:bg-blue-600"
+              disabled={!scheduledDateTime || scheduleConsultationMutation.isPending}
+              onClick={() => {
+                scheduleConsultationMutation.mutate({ 
+                  bookingId: scheduleDialog.bookingId, 
+                  userEmail: scheduleDialog.userEmail,
+                  scheduledDate: new Date(scheduledDateTime).toISOString()
+                });
+              }}
+            >
+              Conferma Appuntamento
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
