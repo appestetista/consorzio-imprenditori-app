@@ -273,7 +273,9 @@ export default function GestioneConsulenti() {
                           <p className="text-white text-sm font-medium">{invite.consultant_name}</p>
                         )}
                         <p className={`text-sm ${invite.consultant_name ? 'text-slate-400' : 'text-white'}`}>{invite.email}</p>
-                        <p className="text-lime-400 text-xs">{invite.consultant_category || 'Categoria non specificata'}</p>
+                        {invite.consultant_category && (
+                          <p className="text-lime-400 text-xs">{invite.consultant_category}</p>
+                        )}
                         <p className="text-slate-500 text-xs">
                           Invitato il {new Date(invite.created_date).toLocaleDateString('it-IT')}
                         </p>
