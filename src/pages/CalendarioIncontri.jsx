@@ -685,32 +685,7 @@ export default function CalendarioIncontri() {
                          <Send className="w-4 h-4 mr-1" />
                          {event.notifications_sent ? 'Gestisci Zone' : 'Gestisci Zone e Notifiche'}
                        </Button>
-                       <div className="grid grid-cols-2 gap-2">
-                         <Button
-                           variant="outline"
-                           size="sm"
-                           className="border-lime-400 text-lime-400 hover:bg-lime-400/20"
-                           onClick={() => {
-                             setInviteDialogEvent(event);
-                             setInviteDialogType('users');
-                           }}
-                         >
-                           <Users className="w-4 h-4 mr-1" />
-                           Invita Utenti
-                         </Button>
-                         <Button
-                           variant="outline"
-                           size="sm"
-                           className="border-lime-400 text-lime-400 hover:bg-lime-400/20"
-                           onClick={() => {
-                             setInviteDialogEvent(event);
-                             setInviteDialogType('consultants');
-                           }}
-                         >
-                           <Briefcase className="w-4 h-4 mr-1" />
-                           Invita Consulenti
-                         </Button>
-                       </div>
+
                        <Button
                          variant="outline"
                          size="sm"
