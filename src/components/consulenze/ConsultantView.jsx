@@ -1,15 +1,65 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Mail, User, Clock, CheckCircle, XCircle, Users, Plus, ChevronUp, ChevronDown, Bell, AlertTriangle, Calendar, Building2, Gift } from 'lucide-react';
+import { Mail, User, Clock, CheckCircle, XCircle, Users, Plus, ChevronUp, ChevronDown, Bell, AlertTriangle, Calendar, Building2, Gift, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import ConsultationChat from './ConsultationChat';
 import ZoneUsersList from './ZoneUsersList';
+
+// Componente per risposta rapida sotto il messaggio
+function QuickReplyInput({ bookingId, currentUserEmail, otherUserEmail }) {
+  const [message, setMessage] = useState('');
+  const queryClient = useQueryClient();
+  const conversationId = `consultation_${bookingId}`;
+
+  const sendMutation = useMutation({
+    mutationFn: async (content) => {
+      await base44.entities.Message.create({
+        from_email: currentUserEmail,
+        to_email: otherUserEmail,
+        content: content,
+        conversation_id: conversationId,
+        source: 'consulenze',
+        source_reference: `Consulenza #${bookingId.slice(-6)}`,
+        is_read: false
+      });
+    },
+    onSuccess: () => {
+      setMessage('');
+      queryClient.invalidateQueries({ queryKey: ['consultation-messages', conversationId] });
+    }
+  });
+
+  const handleSend = () => {
+    if (message.trim()) {
+      sendMutation.mutate(message.trim());
+    }
+  };
+
+  return (
+    <div className="flex gap-2">
+      <Input
+        placeholder="Rispondi..."
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+        className="bg-slate-900 border-slate-600 text-white text-sm h-9 flex-1"
+      />
+      <Button
+        size="sm"
+        className="bg-lime-400 hover:bg-lime-500 text-slate-900 h-9 w-9 p-0"
+        onClick={handleSend}
+        disabled={!message.trim() || sendMutation.isPending}
+      >
+        <Send className="w-4 h-4" />
+      </Button>
+    </div>
+  );
+}
 
 export default function ConsultantView({ user }) {
   const queryClient = useQueryClient();
