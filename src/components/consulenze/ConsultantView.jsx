@@ -78,29 +78,20 @@ export default function ConsultantView({ user }) {
 
   const completeConsultationMutation = useMutation({
     mutationFn: async ({ bookingId, userEmail }) => {
-      // Trova l'utente
-      const users = await base44.entities.User.filter({ email: userEmail });
-      if (users.length > 0) {
-        const user = users[0];
-        const currentUsed = user.consulenze_usate || [];
-        // Aggiungi l'ID della consulenza completata
-        await base44.entities.User.update(user.id, {
-          consulenze_usate: [...currentUsed, bookingId]
-        });
-      }
-      
-      // Decrementa le consultazioni assegnate
-      const assignment = assignments.find(a => a.user_email === userEmail && a.is_assigned);
-      if (assignment && assignment.available_consultations > 0) {
-        await base44.entities.ConsultantAssignment.update(assignment.id, {
-          available_consultations: assignment.available_consultations - 1
-        });
-      }
-      
-      // Aggiorna lo stato della prenotazione con data di completamento
+      // Aggiorna lo stato della prenotazione - in attesa conferma utente
       await base44.entities.ConsultationBooking.update(bookingId, { 
-        status: 'completed',
-        completed_date: new Date().toISOString()
+        status: 'awaiting_user_confirmation',
+        consultant_confirmed_at: new Date().toISOString()
+      });
+
+      // Invia notifica all'utente per confermare la consulenza
+      await base44.entities.Notification.create({
+        user_email: userEmail,
+        type: 'consultation',
+        title: 'Conferma consulenza richiesta',
+        content: `${myConsultantProfile?.name || 'Il consulente'} (${myConsultantProfile?.category || ''}) ha segnato la consulenza come completata. Confermi che la consulenza è avvenuta?`,
+        is_read: false,
+        reference_id: bookingId
       });
     },
     onSuccess: () => {
