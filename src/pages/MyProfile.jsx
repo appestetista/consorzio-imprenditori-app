@@ -221,6 +221,14 @@ function ConsultantProfileCard({ consultantData, setConsultantData, savingConsul
             Consulenze Gratuite
           </h3>
           
+          {consultantData?.zona && (
+            <div className="bg-lime-400/10 rounded-lg p-3 mb-3 border border-lime-400/30">
+              <p className="text-lime-300 text-sm">
+                Nella zona a te assegnata in questo momento abbiamo inserito <span className="font-bold text-lime-400">{usersInZone.length}</span> utenti dentro il consorzio.
+              </p>
+            </div>
+          )}
+          
           <div className="bg-slate-900 rounded-lg p-4">
             <Label className="text-lime-400 text-sm font-medium mb-2 block">
               Numero consulenze gratuite per ogni utente
