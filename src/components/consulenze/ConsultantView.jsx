@@ -367,12 +367,18 @@ export default function ConsultantView({ user }) {
                         {statusLabels[booking.status]}
                       </Badge>
                     </div>
-                    {/* Messaggio stile WhatsApp */}
+                    {/* Messaggio utente stile WhatsApp */}
                     <div className="flex justify-start mb-2">
                       <div className="bg-slate-600 rounded-2xl rounded-tl-sm px-3 py-2 max-w-[85%]">
                         <p className="text-white text-sm">{booking.subject}</p>
                       </div>
                     </div>
+                    
+                    {/* Messaggi chat */}
+                    <ChatMessages 
+                      bookingId={booking.id}
+                      currentUserEmail={user?.email}
+                    />
                     
                     {/* Input risposta rapida */}
                     <div className="mb-3">
