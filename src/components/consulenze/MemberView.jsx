@@ -41,15 +41,18 @@ export default function MemberView({ user, consultants, isLoading }) {
       });
       
       // Crea automaticamente assignment per consulenti che non ne hanno
+      // usando il valore free_consultations_per_user del consulente
       const allConsultants = await base44.entities.Consultant.list();
       for (const consultant of allConsultants) {
         const hasAssignment = userAssignments.some(a => a.consultant_id === consultant.id);
         if (!hasAssignment) {
+          // Usa il valore impostato dal consulente, default 1 se non specificato
+          const freeConsultations = consultant.free_consultations_per_user ?? 1;
           try {
             await base44.entities.ConsultantAssignment.create({
               user_email: user.email,
               consultant_id: consultant.id,
-              available_consultations: 1,
+              available_consultations: freeConsultations,
               is_assigned: true
             });
           } catch (error) {
