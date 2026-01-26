@@ -270,7 +270,6 @@ export default function ConsultantView({ user }) {
           </CardContent>
         </Card>
 
-      {activeTab === 'requests' && (
         <Card className="bg-slate-800 border-lime-400/30">
         <CardHeader>
           <CardTitle className="text-white">Richieste di Consulenza</CardTitle>
