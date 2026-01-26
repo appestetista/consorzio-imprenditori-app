@@ -34,6 +34,7 @@ export default function CalendarioIncontri() {
   const [showParticipantsEvent, setShowParticipantsEvent] = useState(null);
   const [changeResponseEvent, setChangeResponseEvent] = useState(null);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [showEditSuccessPopup, setShowEditSuccessPopup] = useState(false);
   const [zoneManagerEvent, setZoneManagerEvent] = useState(null);
   const queryClient = useQueryClient();
   const { impersonation } = useImpersonation();
@@ -263,6 +264,7 @@ export default function CalendarioIncontri() {
       queryClient.invalidateQueries({ queryKey: ['events'] });
       setShowEditEvent(false);
       setEditingEvent(null);
+      setShowEditSuccessPopup(true);
     }
   });
 
@@ -1086,6 +1088,28 @@ export default function CalendarioIncontri() {
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Success Popup dopo modifica evento */}
+      <Dialog open={showEditSuccessPopup} onOpenChange={setShowEditSuccessPopup}>
+        <DialogContent className="bg-slate-800 border-slate-700">
+          <div className="text-center py-4">
+            <div className="w-16 h-16 bg-lime-400/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Check className="w-8 h-8 text-lime-400" />
+            </div>
+            <h3 className="text-white text-lg font-bold mb-2">EVENTO MODIFICATO</h3>
+            <p className="text-slate-400 text-sm">
+              Le modifiche sono state salvate.<br />
+              Tutti gli invitati sono stati notificati delle modifiche.
+            </p>
+            <Button 
+              className="mt-6 bg-lime-400 hover:bg-lime-500 text-slate-900"
+              onClick={() => setShowEditSuccessPopup(false)}
+            >
+              OK
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Success Popup dopo invio proposta evento */}
       <Dialog open={showSuccessPopup} onOpenChange={setShowSuccessPopup}>
