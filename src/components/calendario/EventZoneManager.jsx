@@ -228,9 +228,9 @@ export default function EventZoneManager({ event, open, onClose }) {
               <div className="bg-slate-700/50 p-3 rounded-lg">
                 <p className="text-slate-400 text-sm">
                   {allZones 
-                    ? `L'evento sarà visibile a tutti (${filteredUsers.length} utenti)`
+                    ? `L'evento sarà visibile a tutti (${filteredByZone.length} utenti)`
                     : selectedZones.length > 0
-                      ? `L'evento sarà visibile a ${selectedZones.length} zone (${filteredUsers.length} utenti)`
+                      ? `L'evento sarà visibile a ${selectedZones.length} zone (${filteredByZone.length} utenti)`
                       : 'Seleziona almeno una zona'
                   }
                 </p>
