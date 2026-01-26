@@ -543,52 +543,6 @@ export default function ConsultantView({ user }) {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Dialog per programmare la consulenza */}
-      <AlertDialog open={scheduleDialog.open} onOpenChange={(open) => {
-        if (!open) {
-          setScheduleDialog({ open: false, bookingId: null, userEmail: null });
-          setScheduledDateTime('');
-        }
-      }}>
-        <AlertDialogContent className="bg-slate-800 border-lime-400/30">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-white flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-blue-400" />
-              Programma Consulenza
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-slate-300">
-              Seleziona la data e l'ora per la consulenza. L'utente riceverà una notifica con i dettagli.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="py-4">
-            <Input
-              type="datetime-local"
-              value={scheduledDateTime}
-              onChange={(e) => setScheduledDateTime(e.target.value)}
-              className="bg-slate-900 border-slate-700 text-white"
-              min={new Date().toISOString().slice(0, 16)}
-            />
-          </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="bg-slate-700 text-white hover:bg-slate-600 border-slate-600">
-              Annulla
-            </AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-blue-500 text-white hover:bg-blue-600"
-              disabled={!scheduledDateTime || scheduleConsultationMutation.isPending}
-              onClick={() => {
-                scheduleConsultationMutation.mutate({ 
-                  bookingId: scheduleDialog.bookingId, 
-                  userEmail: scheduleDialog.userEmail,
-                  scheduledDate: new Date(scheduledDateTime).toISOString()
-                });
-              }}
-            >
-              Conferma Appuntamento
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </Tabs>
+      </Tabs>
   );
 }
