@@ -408,7 +408,14 @@ export default function ConsultantView({ user }) {
           )}
         </CardContent>
       </Card>
-      )}
+      </TabsContent>
+
+      <TabsContent value="utenti">
+        <ZoneUsersList 
+          consultantEmail={user?.email} 
+          consultantZona={myConsultantProfile?.zona}
+        />
+      </TabsContent>
 
       <AlertDialog open={confirmDialog.open} onOpenChange={(open) => {
         if (!open) {
