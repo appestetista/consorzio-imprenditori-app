@@ -16,10 +16,171 @@ import { useImpersonation } from '../components/admin/ImpersonationContext';
 import ProfiloBandiForm from '../components/profile/ProfiloBandiForm';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
-import { PhoneOff, PhoneCall, Gift, AlertTriangle as AlertTriangleIcon, EyeOff } from 'lucide-react';
+import { PhoneOff, PhoneCall, Gift, AlertTriangle as AlertTriangleIcon, EyeOff, UserPlus, Minus, Plus } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+
+// Componente per gestire consulenze extra per utenti specifici
+function ExtraConsultationsManager({ consultantId, consultantZona }) {
+  const [selectedUser, setSelectedUser] = useState('');
+  const [extraAmount, setExtraAmount] = useState(1);
+
+  // Carica utenti della zona
+  const { data: zoneUsers = [] } = useQuery({
+    queryKey: ['zone-users-for-extra', consultantZona],
+    queryFn: async () => {
+      if (!consultantZona) return [];
+      const zones = consultantZona.split(',').map(z => z.trim().toLowerCase()).filter(Boolean);
+      const { data } = await base44.functions.invoke('listMembers', {});
+      const allUsers = data?.users || [];
+      return allUsers.filter(u => {
+        const isUtente = !u.user_type || u.user_type === 'utente';
+        const isNotBlocked = !u.is_blocked;
+        const userZona = (u.zona || '').trim().toLowerCase();
+        const isInZone = userZona && zones.includes(userZona);
+        return isUtente && isNotBlocked && isInZone;
+      });
+    },
+    enabled: !!consultantZona
+  });
+
+  // Carica assegnazioni esistenti per questo consulente
+  const { data: existingAssignments = [], refetch: refetchAssignments } = useQuery({
+    queryKey: ['consultant-assignments', consultantId],
+    queryFn: async () => {
+      if (!consultantId) return [];
+      const assignments = await base44.entities.ConsultantAssignment.filter({ consultant_id: consultantId });
+      return assignments;
+    },
+    enabled: !!consultantId
+  });
+
+  const handleAddExtra = async () => {
+    if (!selectedUser || extraAmount < 1) return;
+    
+    const existingAssignment = existingAssignments.find(a => a.user_email === selectedUser);
+    
+    if (existingAssignment) {
+      // Aggiorna l'assegnazione esistente
+      await base44.entities.ConsultantAssignment.update(existingAssignment.id, {
+        available_consultations: (existingAssignment.available_consultations || 0) + extraAmount
+      });
+    } else {
+      // Crea nuova assegnazione
+      await base44.entities.ConsultantAssignment.create({
+        user_email: selectedUser,
+        consultant_id: consultantId,
+        available_consultations: extraAmount,
+        is_assigned: true
+      });
+    }
+    
+    toast.success(`Aggiunte ${extraAmount} consulenze gratuite!`);
+    setSelectedUser('');
+    setExtraAmount(1);
+    refetchAssignments();
+  };
+
+  const handleRemoveExtra = async (assignmentId, currentAmount) => {
+    if (currentAmount <= 1) {
+      await base44.entities.ConsultantAssignment.delete(assignmentId);
+    } else {
+      await base44.entities.ConsultantAssignment.update(assignmentId, {
+        available_consultations: currentAmount - 1
+      });
+    }
+    refetchAssignments();
+  };
+
+  const handleAddOneMore = async (assignmentId, currentAmount) => {
+    await base44.entities.ConsultantAssignment.update(assignmentId, {
+      available_consultations: currentAmount + 1
+    });
+    refetchAssignments();
+  };
+
+  // Filtra utenti che hanno assegnazioni extra (più di 0)
+  const usersWithExtra = existingAssignments.filter(a => a.available_consultations > 0);
+
+  return (
+    <div className="space-y-3">
+      {/* Form per aggiungere consulenze extra */}
+      <div className="bg-slate-900 rounded-lg p-3 space-y-3">
+        <Select value={selectedUser} onValueChange={setSelectedUser}>
+          <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+            <SelectValue placeholder="Seleziona utente..." />
+          </SelectTrigger>
+          <SelectContent>
+            {zoneUsers.map(u => (
+              <SelectItem key={u.email} value={u.email}>
+                {u.company_name || u.full_name || u.email}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        
+        <div className="flex items-center gap-2">
+          <Label className="text-slate-400 text-sm">Consulenze da aggiungere:</Label>
+          <Input
+            type="number"
+            min="1"
+            max="10"
+            value={extraAmount}
+            onChange={(e) => setExtraAmount(parseInt(e.target.value) || 1)}
+            className="bg-slate-800 border-slate-700 text-white w-20 text-center"
+          />
+        </div>
+        
+        <Button
+          onClick={handleAddExtra}
+          disabled={!selectedUser}
+          className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900"
+          size="sm"
+        >
+          <UserPlus className="w-4 h-4 mr-2" />
+          Assegna Consulenze Extra
+        </Button>
+      </div>
+
+      {/* Lista utenti con consulenze extra */}
+      {usersWithExtra.length > 0 && (
+        <div className="bg-slate-900 rounded-lg p-3">
+          <p className="text-slate-400 text-xs mb-2">Utenti con consulenze extra assegnate:</p>
+          <div className="space-y-2 max-h-40 overflow-y-auto">
+            {usersWithExtra.map(assignment => {
+              const user = zoneUsers.find(u => u.email === assignment.user_email);
+              return (
+                <div key={assignment.id} className="flex items-center justify-between bg-slate-800 rounded-lg p-2">
+                  <span className="text-white text-sm truncate flex-1">
+                    {user?.company_name || user?.full_name || assignment.user_email}
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleRemoveExtra(assignment.id, assignment.available_consultations)}
+                      className="w-6 h-6 rounded bg-red-500/20 text-red-400 flex items-center justify-center hover:bg-red-500/30"
+                    >
+                      <Minus className="w-3 h-3" />
+                    </button>
+                    <span className="text-lime-400 font-bold w-6 text-center">
+                      {assignment.available_consultations}
+                    </span>
+                    <button
+                      onClick={() => handleAddOneMore(assignment.id, assignment.available_consultations)}
+                      className="w-6 h-6 rounded bg-lime-500/20 text-lime-400 flex items-center justify-center hover:bg-lime-500/30"
+                    >
+                      <Plus className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 const CONSULTANT_CATEGORIES = [
   "Stampa Digitale e Cataloghi",
@@ -276,6 +437,22 @@ function ConsultantProfileCard({ consultantData, setConsultantData, savingConsul
               </div>
             )}
           </div>
+        </div>
+
+        {/* Consulenze Extra per Utenti Specifici */}
+        <div className="border-t border-slate-700 pt-4 mt-4">
+          <h3 className="text-white font-medium mb-3 flex items-center gap-2">
+            <UserPlus className="w-4 h-4 text-lime-400" />
+            Consulenze Extra per Utenti Specifici
+          </h3>
+          <p className="text-slate-400 text-xs mb-3">
+            Assegna consulenze gratuite aggiuntive a utenti specifici della tua zona
+          </p>
+          
+          <ExtraConsultationsManager 
+            consultantId={consultantData?.id}
+            consultantZona={consultantData?.zona}
+          />
         </div>
 
         {/* Gestione Chiamate */}
