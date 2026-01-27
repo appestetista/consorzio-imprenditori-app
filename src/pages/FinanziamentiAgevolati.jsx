@@ -1013,16 +1013,10 @@ Restituisci solo gli ID dei bandi compatibili.`,
 
       {/* Grant Details Modal */}
       <Dialog open={showDetails} onOpenChange={setShowDetails}>
-        <DialogContent className="bg-slate-800 border-slate-700 max-h-[85vh] overflow-y-auto">
+        <DialogContent className="bg-slate-800 border-slate-700 max-w-[95vw] sm:max-w-lg max-h-[85vh] overflow-y-auto fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%]">
           <DialogHeader>
-            <DialogTitle className="text-white">{selectedGrant?.title}</DialogTitle>
+            <DialogTitle className="text-white pr-8">{selectedGrant?.title}</DialogTitle>
           </DialogHeader>
-          <button
-            onClick={() => setShowDetails(false)}
-            className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity z-10"
-          >
-            <XCircle className="h-4 w-4 text-slate-400" />
-          </button>
           
           {selectedGrant && (
             <div className="space-y-4 mt-4">
