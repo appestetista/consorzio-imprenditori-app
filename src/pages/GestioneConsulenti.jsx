@@ -156,6 +156,15 @@ export default function GestioneConsulenti() {
     }
   });
 
+  const deleteInviteMutation = useMutation({
+    mutationFn: async (inviteId) => {
+      return base44.entities.PendingInvite.delete(inviteId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pending-invites-consultants'] });
+    }
+  });
+
   const filteredConsultants = consultants.filter(consultant => {
     const searchLower = searchTerm.toLowerCase();
     const matchesSearch = (
