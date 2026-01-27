@@ -580,19 +580,31 @@ function ConsultantProfileCard({ consultantData, setConsultantData, savingConsul
         {/* Gestione Chiamate */}
         <div className="border-t border-slate-700 pt-4 mt-4">
           <h3 className="text-white font-medium mb-3 flex items-center gap-2">
-            <PhoneOff className="w-4 h-4 text-red-400" />
+            {localData.block_calls_for_all ? (
+              <PhoneOff className="w-4 h-4 text-red-400" />
+            ) : (
+              <PhoneCall className="w-4 h-4 text-green-400" />
+            )}
             Gestione Chiamate
           </h3>
 
           {/* Blocca tutti */}
           <div className="flex items-center justify-between bg-slate-900 rounded-lg p-3 mb-3">
-            <div>
-              <p className="text-white text-sm font-medium">Blocca chiamate da tutti</p>
-              <p className="text-slate-400 text-xs">Rispondi solo ai messaggi</p>
+            <div className="flex items-center gap-3">
+              {localData.block_calls_for_all ? (
+                <PhoneOff className="w-5 h-5 text-red-400" />
+              ) : (
+                <PhoneCall className="w-5 h-5 text-green-400" />
+              )}
+              <div>
+                <p className="text-white text-sm font-medium">Blocca chiamate da tutti</p>
+                <p className="text-slate-400 text-xs">Rispondi solo ai messaggi</p>
+              </div>
             </div>
             <Switch
               checked={localData.block_calls_for_all}
               onCheckedChange={(checked) => setLocalData({ ...localData, block_calls_for_all: checked })}
+              className={localData.block_calls_for_all ? "data-[state=checked]:bg-red-500" : "data-[state=unchecked]:bg-green-500"}
             />
           </div>
 
