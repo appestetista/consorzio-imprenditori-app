@@ -108,8 +108,20 @@ export default function GestioneConsulenti() {
   });
 
   const toggleBlockMutation = useMutation({
-    mutationFn: async ({ consultantId, isBlocked }) => {
-      return base44.entities.Consultant.update(consultantId, { is_blocked: !isBlocked });
+    mutationFn: async ({ consultantId, isBlocked, consultantEmail }) => {
+      // Aggiorna il Consultant
+      await base44.entities.Consultant.update(consultantId, { is_blocked: !isBlocked });
+      
+      // Aggiorna anche l'utente User collegato
+      if (consultantEmail) {
+        const users = await base44.entities.User.filter({ email: consultantEmail.toLowerCase() });
+        if (users.length > 0) {
+          await base44.entities.User.update(users[0].id, { 
+            is_blocked: !isBlocked,
+            block_reason: !isBlocked ? 'bloccato_da_admin' : null
+          });
+        }
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['consultants'] });
