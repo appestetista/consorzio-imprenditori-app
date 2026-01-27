@@ -282,7 +282,7 @@ export default function AdminPanel() {
               </CardContent>
             </Card>
           </Link>
-          <Link to={createPageUrl('Consulenze')}>
+          <Link to={createPageUrl('GestioneConsulenti')}>
             <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 relative">
               <CardContent className="p-2 text-center">
                 <Briefcase className="w-5 h-5 text-lime-400 mx-auto mb-1" />
