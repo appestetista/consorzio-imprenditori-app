@@ -31,9 +31,13 @@ export default function Home() {
       'auth.user.role': user?.role,
       appMode,
       previewUserId: impersonation.previewUserId,
-      impersonationActive: impersonation.active
+      impersonationActive: impersonation.active,
+      'effectiveUser.permissions': effectiveUser?.permissions,
+      'effectiveUser.data.permissions': effectiveUser?.data?.permissions,
+      'effectiveUser.user_type': effectiveUser?.user_type,
+      'effectiveUser.data.user_type': effectiveUser?.data?.user_type
     });
-  }, [user, appMode, impersonation]);
+  }, [user, appMode, impersonation, effectiveUser]);
 
   // Assegna automaticamente il tipo utente al primo login
   // SKIP se in impersonation mode (qualsiasi tipo di impersonation)
