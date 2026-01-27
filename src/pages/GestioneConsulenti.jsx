@@ -130,13 +130,45 @@ export default function GestioneConsulenti() {
 
   const updateSectionsMutation = useMutation({
     mutationFn: async ({ consultantId, sections }) => {
-      // Aggiorna sia nel Consultant che nel PendingInvite (se esiste)
+      // Aggiorna le sezioni nel Consultant
       await base44.entities.Consultant.update(consultantId, { assigned_sections: sections });
       
       // Trova e aggiorna anche il PendingInvite collegato
       const invite = pendingInvites.find(i => i.email === selectedConsultant?.email);
       if (invite) {
         await base44.entities.PendingInvite.update(invite.id, { assigned_sections: sections });
+      }
+
+      // IMPORTANTE: Aggiorna anche i permessi sull'utente User
+      // Cerca l'utente collegato al consulente
+      if (selectedConsultant?.email) {
+        const users = await base44.entities.User.filter({ email: selectedConsultant.email.toLowerCase() });
+        if (users.length > 0) {
+          const userToUpdate = users[0];
+          
+          // Costruisci i permessi basati sulle sezioni
+          const allSections = [
+            'calendario', 'video_interviste', 'cultura_aziendale', 'consulenze',
+            'finanziamenti', 'contatta_membri', 'risparmio_energetico', 'marketplace',
+            'imprenditori', 'fornitori', 'welfare_aziendale', 'analisi_contratti',
+            'import_export', 'compliance'
+          ];
+          
+          const permissions = {};
+          allSections.forEach(section => {
+            permissions[section] = false;
+          });
+          
+          // Abilita le sezioni selezionate
+          sections.forEach(section => {
+            permissions[section] = true;
+          });
+          
+          // Consulenze sempre abilitata per i consulenti
+          permissions.consulenze = true;
+          
+          await base44.entities.User.update(userToUpdate.id, { permissions });
+        }
       }
     },
     onSuccess: () => {
