@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Sparkles, AlertCircle, Info, Briefcase, XCircle, Building2, CalendarDays, MessageSquare, Mail, Eye, Trash2, User, Phone } from 'lucide-react';
+import { ArrowLeft, Sparkles, AlertCircle, Info, Briefcase, XCircle, Building2, CalendarDays, MessageSquare, Mail, Eye, Trash2, User, Phone, Search, Loader2 } from 'lucide-react';
 import { useAILimits } from '@/components/hooks/useAILimits';
 import UsageCounter from '@/components/common/UsageCounter';
 import { format } from 'date-fns';
@@ -37,6 +37,9 @@ export default function FinanziamentiAgevolati() {
         sortBy: 'deadline_asc'
       });
   const [showConsultationMessages, setShowConsultationMessages] = useState(false);
+  const [showOnlyMatching, setShowOnlyMatching] = useState(false);
+  const [loadingMatch, setLoadingMatch] = useState(false);
+  const [matchedGrantIds, setMatchedGrantIds] = useState([]);
   const queryClient = useQueryClient();
   const { impersonation } = useImpersonation();
   
@@ -148,6 +151,15 @@ export default function FinanziamentiAgevolati() {
     isLimitReached: grantRecsLimitReached, 
     trackUsage: trackGrantRecsUsage 
   } = useAILimits(user?.email, 'grant_recommendations');
+
+  // Limiti AI Match Bandi
+  const { 
+    usageCount: grantMatchUsage, 
+    limit: grantMatchLimit, 
+    isLimitReached: grantMatchLimitReached, 
+    trackUsage: trackGrantMatchUsage,
+    remaining: grantMatchRemaining
+  } = useAILimits(impersonation.active ? impersonation.targetEmail : user?.email, 'grant_match');
 
   // Richieste consulenza per admin (con info utente e bando)
   const { data: consultationRequests = [] } = useQuery({
