@@ -539,7 +539,7 @@ export default function ConsultantView({ user }) {
                                     }))}
                                     className="bg-slate-900 border-amber-400/50 text-white text-xs"
                                   />
-                                  <p className="text-slate-500 text-[10px] mt-1">È consigliabile non scrivere niente</p>
+                                  <p className="text-lime-400 text-[10px] mt-1">È consigliabile non scrivere niente</p>
                                 </div>
                               )}
                               
