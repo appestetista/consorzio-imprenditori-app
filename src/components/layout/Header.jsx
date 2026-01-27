@@ -129,7 +129,7 @@ export default function Header({ user, totalNotifications = 0 }) {
           
           <div className="space-y-2">
             <p className="text-lime-400 font-semibold mb-4">
-              {user?.company_name || user?.full_name || 'Utente'}
+              {getCompanyName() || user?.full_name || 'Utente'}
             </p>
             
             {/* Pulsante Torna ad Admin - Solo se impersonation attiva */}
