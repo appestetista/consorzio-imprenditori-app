@@ -299,15 +299,7 @@ export default function AdminPanel() {
         </div>
 
         {/* Link rapidi Gestione */}
-        <div className="grid grid-cols-4 gap-2 mb-4">
-          <Link to={createPageUrl('GestioneConsulenti')}>
-            <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700">
-              <CardContent className="p-2 text-center">
-                <Briefcase className="w-5 h-5 text-lime-400 mx-auto mb-1" />
-                <p className="text-white text-[10px]">Consulenti</p>
-              </CardContent>
-            </Card>
-          </Link>
+        <div className="grid grid-cols-3 gap-2 mb-4">
           <Link to={createPageUrl('GestioneMembri')}>
             <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700">
               <CardContent className="p-2 text-center">
