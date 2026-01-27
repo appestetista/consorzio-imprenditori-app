@@ -297,7 +297,18 @@ function ConsultantProfileCard({ consultantData, setConsultantData, savingConsul
     
     setSavingConsultant(true);
     try {
+      // Aggiorna l'entità Consultant
       await base44.entities.Consultant.update(consultantData.id, localData);
+      
+      // Sincronizza anche l'entità User con i dati rilevanti
+      await base44.auth.updateMe({
+        company_name: localData.name,
+        phone: localData.phone,
+        city: localData.city,
+        referente: localData.referente,
+        cellulare_referente: localData.cellulare_referente
+      });
+      
       setConsultantData({ ...consultantData, ...localData });
       toast.success('Profilo consulente aggiornato!');
       setPendingZeroValue(false);
