@@ -25,20 +25,17 @@ export default function Home() {
   const [showChangeResponse, setShowChangeResponse] = useState(false);
   const navigate = useNavigate();
 
-  // DEBUG LOG TEMPORANEO
+  // DEBUG LOG
   useEffect(() => {
-    console.log('[HOME] DEBUG INFO:', {
-      'auth.user.id': user?.id,
-      'auth.user.role': user?.role,
-      appMode,
-      previewUserId: impersonation.previewUserId,
-      impersonationActive: impersonation.active,
-      'effectiveUser.permissions': effectiveUser?.permissions,
-      'effectiveUser.data.permissions': effectiveUser?.data?.permissions,
-      'effectiveUser.user_type': effectiveUser?.user_type,
-      'effectiveUser.data.user_type': effectiveUser?.data?.user_type
+    console.log('[HOME] Effective user (normalized):', {
+      id: effectiveUser?.id,
+      email: effectiveUser?.email,
+      role: effectiveUser?.role,
+      user_type: effectiveUser?.user_type,
+      permissions: effectiveUser?.permissions,
+      is_blocked: effectiveUser?.is_blocked
     });
-  }, [user, appMode, impersonation, effectiveUser]);
+  }, [effectiveUser]);
 
   // Assegna automaticamente il tipo utente al primo login
   // SKIP se in impersonation mode (qualsiasi tipo di impersonation)
