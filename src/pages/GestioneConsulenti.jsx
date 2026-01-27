@@ -457,9 +457,9 @@ export default function GestioneConsulenti() {
                             disabled={toggleBlockMutation.isPending}
                           >
                             {consultant.is_blocked ? (
-                              <Lock className="w-4 h-4" />
+                              <PhoneOff className="w-4 h-4" />
                             ) : (
-                              <Unlock className="w-4 h-4" />
+                              <Phone className="w-4 h-4" />
                             )}
                           </Button>
                         </AlertDialogTrigger>
