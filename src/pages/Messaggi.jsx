@@ -92,7 +92,10 @@ export default function Messaggi() {
 
   const { data: users = [] } = useQuery({
     queryKey: ['users-list'],
-    queryFn: () => base44.entities.User.list(),
+    queryFn: async () => {
+      const response = await base44.functions.invoke('listMembers');
+      return response.data?.users || [];
+    },
   });
 
   // Configurazione sezioni messaggi

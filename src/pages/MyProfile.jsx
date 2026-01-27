@@ -243,12 +243,13 @@ function ConsultantProfileCard({ consultantData, setConsultantData, savingConsul
   const [showZeroWarning, setShowZeroWarning] = useState(false);
   const [pendingZeroValue, setPendingZeroValue] = useState(false);
 
-  // Carica lista utenti per blocco chiamate individuali
+  // Carica lista utenti per blocco chiamate individuali (usa backend function per bypassare restrizioni)
   const { data: allUsers = [] } = useQuery({
     queryKey: ['users-for-block'],
     queryFn: async () => {
-      const users = await base44.entities.User.filter({ user_type: 'utente' });
-      return users.filter(u => !u.is_blocked);
+      const response = await base44.functions.invoke('listMembers');
+      const users = response.data?.users || [];
+      return users.filter(u => (!u.user_type || u.user_type === 'utente') && !u.is_blocked);
     }
   });
 
