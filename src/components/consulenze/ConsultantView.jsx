@@ -531,7 +531,7 @@ export default function ConsultantView({ user }) {
                               {(confirmedMeetingModes[booking.id] || booking.meeting_preference) === 'sede_azienda' && (
                                 <div className="mt-2">
                                   <Input
-                                    placeholder="Rimborso carburante € (consigliabile non scrivere niente)"
+                                    placeholder="Rimborso carburante €"
                                     value={meetingModeNotes[booking.id] || ''}
                                     onChange={(e) => setMeetingModeNotes(prev => ({
                                       ...prev,
