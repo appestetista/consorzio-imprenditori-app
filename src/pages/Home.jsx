@@ -292,7 +292,8 @@ export default function Home() {
   const consultationNotifications = notifications.filter(n => n.type === 'consultation').length;
 
   const nextEvent = events[0];
-  const permissions = effectiveUser?.permissions || {};
+  // I permessi possono essere in effectiveUser.permissions o effectiveUser.data.permissions
+  const permissions = effectiveUser?.permissions || effectiveUser?.data?.permissions || {};
 
   // Verifica stato partecipazione all'evento
   const getUserEventResponse = () => {
@@ -385,7 +386,7 @@ export default function Home() {
   const culturaAziendaleNotifications = notifications.filter(n => n.type === 'cultura_aziendale').length;
   const marketplaceNotifications = notifications.filter(n => n.type === 'message' && n.title?.includes('Marketplace')).length;
 
-  const isConsultant = effectiveUser?.role === 'consulente';
+  const isConsultant = effectiveUser?.user_type === 'consulente' || effectiveUser?.role === 'consulente';
 
   const features = [
     { title: 'Calendario\nincontri', icon: Calendar, page: 'CalendarioIncontri', notifications: eventNotifications, permission: 'calendario' },
