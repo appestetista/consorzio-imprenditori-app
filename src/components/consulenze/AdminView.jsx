@@ -38,7 +38,8 @@ export default function AdminView({ consultants, adminEmail }) {
     email: '',
     referente: '',
     cellulare_referente: '',
-    available_slots: 100
+    zona: '',
+    free_consultations_per_user: 1
   });
   const queryClient = useQueryClient();
 
@@ -126,7 +127,8 @@ export default function AdminView({ consultants, adminEmail }) {
       email: consultant.email || '',
       referente: consultant.referente || '',
       cellulare_referente: consultant.cellulare_referente || '',
-      available_slots: consultant.available_slots || 100
+      zona: consultant.zona || '',
+      free_consultations_per_user: consultant.free_consultations_per_user ?? 1
     });
     setShowConsultantDialog(true);
   };
@@ -265,7 +267,8 @@ export default function AdminView({ consultants, adminEmail }) {
             email: '',
             referente: '',
             cellulare_referente: '',
-            available_slots: 100
+            zona: '',
+            free_consultations_per_user: 1
           });
         }
       }}>
@@ -339,11 +342,21 @@ export default function AdminView({ consultants, adminEmail }) {
               />
             </div>
             <div>
-              <Label className="text-slate-300">Slot Disponibili</Label>
+              <Label className="text-slate-300">Zona</Label>
+              <Input
+                value={consultantForm.zona}
+                onChange={(e) => setConsultantForm({...consultantForm, zona: e.target.value})}
+                className="bg-slate-900 border-slate-700 text-white"
+                placeholder="Es: Lombardia, Nord Italia..."
+              />
+            </div>
+            <div>
+              <Label className="text-slate-300">Consulenze gratuite per utente</Label>
               <Input
                 type="number"
-                value={consultantForm.available_slots}
-                onChange={(e) => setConsultantForm({...consultantForm, available_slots: parseInt(e.target.value) || 0})}
+                min="0"
+                value={consultantForm.free_consultations_per_user}
+                onChange={(e) => setConsultantForm({...consultantForm, free_consultations_per_user: parseInt(e.target.value) || 0})}
                 className="bg-slate-900 border-slate-700 text-white"
               />
             </div>
