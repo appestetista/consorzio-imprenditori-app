@@ -238,7 +238,9 @@ function ConsultantProfileCard({ consultantData, setConsultantData, savingConsul
     cellulare_referente: consultantData?.cellulare_referente || '',
     block_calls_for_all: consultantData?.block_calls_for_all || false,
     blocked_users_calls: consultantData?.blocked_users_calls || [],
-    free_consultations_per_user: consultantData?.free_consultations_per_user ?? 1
+    free_consultations_per_user: consultantData?.free_consultations_per_user ?? 1,
+    sede_azienda_disabled: consultantData?.sede_azienda_disabled || false,
+    rimborso_carburante: consultantData?.rimborso_carburante || 0
   });
   const [showZeroWarning, setShowZeroWarning] = useState(false);
   const [pendingZeroValue, setPendingZeroValue] = useState(false);
@@ -468,6 +470,47 @@ function ConsultantProfileCard({ consultantData, setConsultantData, savingConsul
               <div className="flex items-center gap-2 mt-3 bg-amber-500/20 rounded-lg p-2">
                 <EyeOff className="w-4 h-4 text-amber-400" />
                 <span className="text-amber-400 text-xs">Con 0 consulenze non sarai visibile nelle richieste</span>
+              </div>
+            )}
+          </div>
+          
+          {/* Opzioni modalità sede aziendale */}
+          <div className="bg-slate-900 rounded-lg p-4 mt-4">
+            <Label className="text-white text-sm font-medium mb-3 block">
+              Consulenze in presenza presso la sede aziendale
+            </Label>
+            
+            <div className="flex items-center justify-between bg-slate-800 rounded-lg p-3 mb-3">
+              <div>
+                <p className="text-white text-sm font-medium">Disabilita questa opzione</p>
+                <p className="text-slate-400 text-xs">Gli utenti non potranno richiedere consulenze presso la loro sede</p>
+              </div>
+              <Switch
+                checked={localData.sede_azienda_disabled}
+                onCheckedChange={(checked) => setLocalData({ ...localData, sede_azienda_disabled: checked, rimborso_carburante: checked ? 0 : localData.rimborso_carburante })}
+              />
+            </div>
+            
+            {!localData.sede_azienda_disabled && (
+              <div className="bg-slate-800 rounded-lg p-3">
+                <Label className="text-slate-300 text-xs mb-2 block">
+                  Rimborso carburante (€) - opzionale
+                </Label>
+                <div className="flex items-center gap-2">
+                  <span className="text-white">€</span>
+                  <Input
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="5"
+                    value={localData.rimborso_carburante}
+                    onChange={(e) => setLocalData({ ...localData, rimborso_carburante: parseFloat(e.target.value) || 0 })}
+                    className="bg-slate-900 border-slate-600 text-white w-24 text-center"
+                  />
+                </div>
+                <p className="text-slate-500 text-xs mt-2">
+                  Se impostato, verrà mostrato agli utenti che richiedono consulenze presso la loro sede
+                </p>
               </div>
             )}
           </div>
