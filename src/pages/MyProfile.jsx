@@ -609,7 +609,7 @@ function ConsultantProfileCard({ consultantData, setConsultantData, savingConsul
 
         <Button
           onClick={handleSaveConsultant}
-          disabled={savingConsultant || !localData.phone || !localData.city}
+          disabled={savingConsultant || !localData || !localData.phone || !localData.city}
           className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 text-lg py-6 mt-4"
         >
           <Save className="w-5 h-5 mr-2" />
