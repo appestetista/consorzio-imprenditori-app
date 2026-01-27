@@ -390,7 +390,7 @@ export default function ConsultantView({ user }) {
                     {/* Per richieste pending: mostra calendario per proporre date */}
                     {booking.status === 'pending' && (
                       <>
-                        <p className="text-slate-400 text-xs mb-2">Seleziona fino a 3 date da proporre:</p>
+                        <p className="text-lime-400 text-xs mb-2 font-medium">Seleziona fino a 3 date da proporre:</p>
                         <MiniCalendarMulti 
                           selectedDates={bookingSelectedDates}
                           onToggleDate={(date) => handleToggleDate(booking.id, date)}
