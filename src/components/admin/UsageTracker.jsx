@@ -358,6 +358,17 @@ export default function UsageTracker() {
         </div>
 
         {/* Statistiche attività utenti */}
+        <div className="grid grid-cols-2 gap-2 mb-2">
+          <div className="bg-slate-900/50 rounded-lg p-2">
+            <div className="flex items-center gap-1 text-slate-400 mb-1">
+              <TrendingUp className="w-3 h-3" />
+              Match Bandi AI
+            </div>
+            <span className="text-white font-semibold">€{(systemCosts.grantMatch * EUR_USD_RATE).toFixed(2)}</span>
+            <p className="text-slate-500 text-[10px]">~{systemCosts.grantMatchCalls || 0} match</p>
+          </div>
+        </div>
+        
         <div className="grid grid-cols-4 gap-2">
           <div className="bg-slate-900 rounded-lg p-2 text-center">
             <FileText className="w-4 h-4 text-lime-400 mx-auto mb-1" />
