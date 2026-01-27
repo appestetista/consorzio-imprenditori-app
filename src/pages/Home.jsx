@@ -37,12 +37,13 @@ export default function Home() {
 
   // Assegna automaticamente il tipo utente al primo login
   // SKIP se in impersonation mode (qualsiasi tipo di impersonation)
-  // Eseguito solo UNA VOLTA al primo montaggio
-  const [assignTypeRan, setAssignTypeRan] = useState(false);
-  
   useEffect(() => {
-    // Evita esecuzioni multiple
-    if (assignTypeRan) return;
+    // Evita esecuzioni multiple nella stessa sessione usando sessionStorage
+    const alreadyRan = sessionStorage.getItem('assignTypeRan');
+    if (alreadyRan) {
+      console.log('[HOME] assignUserType già eseguito in questa sessione, skip');
+      return;
+    }
     
     const assignType = async () => {
       // Skip se siamo in impersonation mode (utente o consulente)
@@ -55,11 +56,13 @@ export default function Home() {
         const currentUser = await base44.auth.me();
         // Skip se l'utente è admin o ha già un tipo assegnato (incluso consulente)
         if (currentUser?.role === 'admin' || currentUser?.user_type) {
-          console.log('[HOME] Utente admin o già assegnato, skip assignUserType');
+          console.log('[HOME] Utente admin o già assegnato, skip assignUserType. user_type:', currentUser?.user_type);
+          sessionStorage.setItem('assignTypeRan', 'true');
           return;
         }
 
-        setAssignTypeRan(true); // Marca come eseguito PRIMA della chiamata
+        // Marca come eseguito PRIMA della chiamata
+        sessionStorage.setItem('assignTypeRan', 'true');
         
         const result = await base44.functions.invoke('assignUserType', {});
         console.log('[HOME] assignUserType result:', result.data);
@@ -88,7 +91,7 @@ export default function Home() {
       }
     };
     assignType();
-  }, []);
+  }, [impersonation.active, navigate]);
 
   useEffect(() => {
     const loadUser = async () => {
