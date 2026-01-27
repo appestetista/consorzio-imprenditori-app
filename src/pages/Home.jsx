@@ -377,12 +377,29 @@ export default function Home() {
   if (isBlocked) {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
-        <div className="text-center">
+        <div className="text-center max-w-md">
           <div className="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
             <span className="text-4xl">🚫</span>
           </div>
-          <h1 className="text-white text-xl font-bold mb-2">Accesso Bloccato</h1>
-          <p className="text-slate-400">Il tuo account è stato sospeso. Contatta la direzione per maggiori informazioni.</p>
+          <h1 className="text-white text-xl font-bold mb-3">Accesso Bloccato</h1>
+          <p className="text-slate-300 mb-4">
+            Sei stato bloccato dalla direzione del consorzio.
+          </p>
+          <p className="text-slate-400 text-sm mb-6">
+            Per ulteriori spiegazioni chiama il:
+          </p>
+          <a 
+            href="tel:3292005433" 
+            className="inline-flex items-center gap-2 bg-lime-400 text-slate-900 px-6 py-3 rounded-lg font-bold text-lg hover:bg-lime-500 transition-colors"
+          >
+            📞 329 200 5433
+          </a>
+          <button 
+            onClick={() => base44.auth.logout()}
+            className="block w-full mt-4 text-slate-500 hover:text-slate-300 text-sm"
+          >
+            Esci
+          </button>
         </div>
       </div>
     );
