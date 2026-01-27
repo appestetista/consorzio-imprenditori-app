@@ -133,7 +133,7 @@ export default function Header({ user, totalNotifications = 0 }) {
             </p>
             
             {/* Pulsante Torna ad Admin - Solo se impersonation attiva */}
-            {impersonation.active && isAdmin && (
+            {impersonation.active && (
               <Link
                 to={createPageUrl('Home')}
                 onClick={() => {
