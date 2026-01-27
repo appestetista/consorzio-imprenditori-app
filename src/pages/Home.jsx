@@ -394,8 +394,8 @@ export default function Home() {
   const culturaAziendaleNotifications = notifications.filter(n => n.type === 'cultura_aziendale').length;
   const marketplaceNotifications = notifications.filter(n => n.type === 'message' && n.title?.includes('Marketplace')).length;
 
-  // user_type può essere a livello root o dentro .data
-  const isConsultant = effectiveUser?.user_type === 'consulente' || effectiveUser?.data?.user_type === 'consulente' || effectiveUser?.role === 'consulente';
+  // Dati già normalizzati
+  const isConsultant = isUserConsultant(effectiveUser);
 
   const features = [
     { title: 'Calendario\nincontri', icon: Calendar, page: 'CalendarioIncontri', notifications: eventNotifications, permission: 'calendario' },
