@@ -31,6 +31,7 @@ export default function VideoInterviste() {
   const [showEditVideo, setShowEditVideo] = useState(false);
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [requestMessage, setRequestMessage] = useState('');
+  const [requestSent, setRequestSent] = useState(false);
   const queryClient = useQueryClient();
   const { impersonation, appMode } = useImpersonation();
   const { playSound } = useNotificationSound();
@@ -266,9 +267,7 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
       });
     },
     onSuccess: () => {
-      setShowRequestModal(false);
-      setRequestMessage('');
-      alert('Richiesta inviata con successo!');
+      setRequestSent(true);
     }
   });
 
@@ -697,20 +696,29 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
               </div>
             </div>
 
-            <Textarea
-              placeholder="Aggiungi eventuali note o preferenze per la tua video intervista..."
-              value={requestMessage}
-              onChange={(e) => setRequestMessage(e.target.value)}
-              className="bg-slate-900 border-slate-700 text-white min-h-[120px]"
-            />
-            
-            <Button 
-              onClick={() => requestInterviewMutation.mutate()}
-              disabled={requestInterviewMutation.isPending || !requestMessage.trim()}
-              className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900"
-            >
-              {requestInterviewMutation.isPending ? 'Invio...' : 'Invia Richiesta'}
-            </Button>
+            {requestSent ? (
+              <div className="bg-green-500/20 border border-green-500/30 rounded-lg p-4 text-center">
+                <p className="text-green-400 font-medium">✓ Richiesta inviata</p>
+                <p className="text-slate-400 text-sm mt-1">Ti contatteremo al più presto</p>
+              </div>
+            ) : (
+              <>
+                <Textarea
+                  placeholder="Aggiungi eventuali note o preferenze per la tua video intervista..."
+                  value={requestMessage}
+                  onChange={(e) => setRequestMessage(e.target.value)}
+                  className="bg-slate-900 border-slate-700 text-white min-h-[120px]"
+                />
+                
+                <Button 
+                  onClick={() => requestInterviewMutation.mutate()}
+                  disabled={requestInterviewMutation.isPending || !requestMessage.trim()}
+                  className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900"
+                >
+                  {requestInterviewMutation.isPending ? 'Invio...' : 'Invia Richiesta'}
+                </Button>
+              </>
+            )}
           </div>
         </DialogContent>
       </Dialog>
