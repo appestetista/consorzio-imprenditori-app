@@ -60,10 +60,10 @@ export default function Header({ user, totalNotifications = 0 }) {
   const getUserLogo = () => {
     if (impersonation.active) {
       // In impersonazione: usa il logo dell'utente impersonificato se disponibile
-      return impersonation.targetUserData?.company_logo || DEFAULT_LOGO;
+      return impersonation.targetUserData?.company_logo || impersonation.targetUserData?.data?.company_logo || DEFAULT_LOGO;
     }
     // Utente normale o consulente: usa il proprio logo se disponibile
-    return user?.company_logo || DEFAULT_LOGO;
+    return user?.company_logo || user?.data?.company_logo || user?.data?.logo_url || DEFAULT_LOGO;
   };
 
   return (
