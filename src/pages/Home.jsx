@@ -37,7 +37,13 @@ export default function Home() {
 
   // Assegna automaticamente il tipo utente al primo login
   // SKIP se in impersonation mode (qualsiasi tipo di impersonation)
+  // Eseguito solo UNA VOLTA al primo montaggio
+  const [assignTypeRan, setAssignTypeRan] = useState(false);
+  
   useEffect(() => {
+    // Evita esecuzioni multiple
+    if (assignTypeRan) return;
+    
     const assignType = async () => {
       // Skip se siamo in impersonation mode (utente o consulente)
       if (impersonation.active) {
@@ -53,6 +59,8 @@ export default function Home() {
           return;
         }
 
+        setAssignTypeRan(true); // Marca come eseguito PRIMA della chiamata
+        
         const result = await base44.functions.invoke('assignUserType', {});
         console.log('[HOME] assignUserType result:', result.data);
 
@@ -80,7 +88,7 @@ export default function Home() {
       }
     };
     assignType();
-  }, [navigate, impersonation.active]);
+  }, []);
 
   useEffect(() => {
     const loadUser = async () => {
