@@ -59,7 +59,13 @@ export default function Home() {
 
         // Se già assegnato o già registrato, non fare nulla
         if (result.data?.already_assigned || result.data?.already_registered) {
-          console.log('[HOME] Utente già configurato');
+          console.log('[HOME] Utente già configurato, user_type:', result.data?.user_type);
+          return;
+        }
+
+        // Se il consulente è stato autorizzato da record esistente, non fare redirect
+        if (result.data?.success && result.data?.message?.includes('Consulente autorizzato')) {
+          console.log('[HOME] Consulente autorizzato da record esistente');
           return;
         }
 
