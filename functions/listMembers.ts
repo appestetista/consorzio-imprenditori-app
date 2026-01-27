@@ -27,7 +27,10 @@ Deno.serve(async (req) => {
       role: u.role,
       zona: u.zona,
       user_type: u.user_type,
-      is_blocked: u.is_blocked
+      is_blocked: u.is_blocked,
+      phone: u.phone || u.cellulare_referente,
+      cellulare_referente: u.cellulare_referente,
+      settore: u.settore
     }));
 
     return Response.json({ users: safeUsers });
