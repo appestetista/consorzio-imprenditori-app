@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, User, Lock, Unlock, Trash2, Settings, Search, Edit, UserPlus, Save, Briefcase, Clock, Mail } from 'lucide-react';
+import { ArrowLeft, User, Trash2, Settings, Search, Edit, UserPlus, Save, Briefcase, Clock, Mail, Phone, PhoneOff } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
