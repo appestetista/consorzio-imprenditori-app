@@ -135,6 +135,15 @@ export default function Consulenze() {
     };
   }, [effectiveUser?.email, isConsultant, isMember, consultants, playSound, queryClient]);
 
+  // Loading state mentre si caricano i dati
+  if (!effectiveUser) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-900 pb-24">
       <Header user={effectiveUser || user} />
