@@ -33,6 +33,7 @@ export default function AdminView({ consultants, adminEmail }) {
   const [consultantForm, setConsultantForm] = useState({
     name: '',
     category: '',
+    city: '',
     phone: '',
     email: '',
     referente: '',
@@ -120,6 +121,7 @@ export default function AdminView({ consultants, adminEmail }) {
     setConsultantForm({
       name: consultant.name || '',
       category: consultant.category || '',
+      city: consultant.city || '',
       phone: consultant.phone || '',
       email: consultant.email || '',
       referente: consultant.referente || '',
@@ -258,6 +260,7 @@ export default function AdminView({ consultants, adminEmail }) {
           setConsultantForm({
             name: '',
             category: '',
+            city: '',
             phone: '',
             email: '',
             referente: '',
@@ -304,7 +307,15 @@ export default function AdminView({ consultants, adminEmail }) {
               />
             </div>
             <div>
-              <Label className="text-slate-300">Telefono</Label>
+              <Label className="text-slate-300">Città/Sede *</Label>
+              <Input
+                value={consultantForm.city}
+                onChange={(e) => setConsultantForm({...consultantForm, city: e.target.value})}
+                className="bg-slate-900 border-slate-700 text-white"
+              />
+            </div>
+            <div>
+              <Label className="text-slate-300">Telefono *</Label>
               <Input
                 value={consultantForm.phone}
                 onChange={(e) => setConsultantForm({...consultantForm, phone: e.target.value})}
@@ -338,7 +349,7 @@ export default function AdminView({ consultants, adminEmail }) {
             </div>
             <Button
               onClick={() => saveConsultantMutation.mutate(consultantForm)}
-              disabled={!consultantForm.name || !consultantForm.category || saveConsultantMutation.isPending}
+              disabled={!consultantForm.name || !consultantForm.category || !consultantForm.city || !consultantForm.phone || saveConsultantMutation.isPending}
               className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900"
             >
               {saveConsultantMutation.isPending ? 'Salvataggio...' : 'Salva'}
