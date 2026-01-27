@@ -17,16 +17,17 @@ export default function ZoneUsersList({ consultantEmail, consultantZona }) {
   const queryClient = useQueryClient();
   const { playSound } = useNotificationSound();
 
-  // Carica tutti gli utenti della zona del consulente
+  // Carica tutti gli utenti della zona del consulente (usa backend function per bypassare restrizioni)
   const { data: zoneUsers = [], isLoading } = useQuery({
     queryKey: ['zone-users', consultantZona],
     queryFn: async () => {
-      const users = await base44.entities.User.list();
+      const response = await base44.functions.invoke('listMembers');
+      const users = response.data?.users || [];
       // Filtra utenti della stessa zona (escludendo admin e il consulente stesso)
       return users.filter(u => 
         u.zona === consultantZona && 
         u.role !== 'admin' && 
-        u.email !== consultantEmail
+        u.email?.toLowerCase() !== consultantEmail?.toLowerCase()
       );
     },
     enabled: !!consultantZona

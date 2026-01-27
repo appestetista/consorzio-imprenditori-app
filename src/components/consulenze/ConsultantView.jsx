@@ -154,8 +154,8 @@ export default function ConsultantView({ user }) {
   const { data: allMembers = [] } = useQuery({
     queryKey: ['all-members-consultant'],
     queryFn: async () => {
-      const users = await base44.entities.User.list();
-      return users;
+      const response = await base44.functions.invoke('listMembers');
+      return response.data?.users || [];
     },
   });
 
