@@ -291,6 +291,8 @@ function ConsultantProfileCard({ consultantData, setConsultantData, savingConsul
   const hasMultipleZones = consultantZones.length > 1;
 
   const handleSaveConsultant = async () => {
+    if (!localData) return;
+    
     if (!localData.name) {
       toast.error('Il nome dello studio è obbligatorio');
       return;
