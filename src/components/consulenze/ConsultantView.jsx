@@ -369,9 +369,9 @@ export default function ConsultantView({ user }) {
                           <User className="w-3 h-3 inline mr-1" />
                           {referente}
                         </p>
-                        <div className="flex items-center gap-1 text-xs text-slate-500 mt-1">
+                        <div className="flex items-center gap-1 text-xs text-white mt-1">
                           <Clock className="w-3 h-3 flex-shrink-0" />
-                          <span>Richiesta: {new Date(booking.created_date).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' })}</span>
+                          <span>Richiesta: {new Date(booking.created_date).toLocaleString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
                         </div>
                         {isCompleted && booking.completed_date && (
                           <div className="flex items-center gap-1 text-xs text-green-400 mt-0.5">
