@@ -517,7 +517,7 @@ export default function ConsultantView({ user }) {
                               {(confirmedMeetingModes[booking.id] || booking.meeting_preference) === 'online' && (
                                 <div className="mt-2">
                                   <Input
-                                    placeholder="Inserisci il link per la videocall (es. Google Meet, Zoom...)"
+                                    placeholder="Link videocall"
                                     value={meetingModeNotes[booking.id] || ''}
                                     onChange={(e) => setMeetingModeNotes(prev => ({
                                       ...prev,
@@ -525,6 +525,7 @@ export default function ConsultantView({ user }) {
                                     }))}
                                     className="bg-slate-900 border-blue-400/50 text-white text-xs"
                                   />
+                                  <p className="text-lime-400 text-[10px] mt-1">Inserisci il link per la videocall (es. Google Meet, Zoom)</p>
                                 </div>
                               )}
                               
