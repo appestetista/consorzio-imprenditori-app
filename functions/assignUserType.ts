@@ -43,6 +43,62 @@ Deno.serve(async (req) => {
         });
       }
 
+      // Controlla se esiste un Consultant con questa email (creato manualmente dall'admin)
+      const existingConsultants = await base44.asServiceRole.entities.Consultant.filter({
+        email: user.email.toLowerCase()
+      });
+
+      if (existingConsultants.length > 0) {
+        // Il consulente esiste già - autorizza e assegna tipo utente
+        const consultant = existingConsultants[0];
+        
+        // Prepara permessi basati sulle sezioni assegnate al consulente
+        const permissions = {};
+        const allSections = [
+          'calendario', 'video_interviste', 'cultura_aziendale', 'consulenze',
+          'finanziamenti', 'contatta_membri', 'risparmio_energetico', 'marketplace',
+          'imprenditori', 'fornitori', 'welfare_aziendale', 'analisi_contratti',
+          'import_export', 'compliance'
+        ];
+        
+        allSections.forEach(section => {
+          permissions[section] = false;
+        });
+        
+        if (consultant.assigned_sections && consultant.assigned_sections.length > 0) {
+          consultant.assigned_sections.forEach(section => {
+            permissions[section] = true;
+          });
+        }
+        permissions.consulenze = true; // Sempre abilitata per consulenti
+
+        await base44.asServiceRole.entities.User.update(user.id, {
+          user_type: 'consulente',
+          is_blocked: false,
+          block_reason: null,
+          zona: consultant.zona || null,
+          permissions: permissions
+        });
+
+        // Crea anche il PendingInvite per tracciamento (segnato come già registrato)
+        await base44.asServiceRole.entities.PendingInvite.create({
+          email: user.email.toLowerCase(),
+          user_type: 'consulente',
+          invited_by: 'auto-from-consultant',
+          is_registered: true,
+          zona: consultant.zona || null,
+          consultant_category: consultant.category || null,
+          consultant_name: consultant.name || null,
+          assigned_sections: consultant.assigned_sections || []
+        });
+
+        return Response.json({ 
+          success: true, 
+          message: 'Consulente autorizzato da record esistente',
+          user_type: 'consulente'
+        });
+      }
+
       // Nessun invito trovato - blocca l'utente
       await base44.asServiceRole.entities.User.update(user.id, {
         is_blocked: true,
