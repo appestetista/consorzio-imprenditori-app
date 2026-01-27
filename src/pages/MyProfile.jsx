@@ -20,6 +20,7 @@ import { PhoneOff, PhoneCall, Gift, AlertTriangle as AlertTriangleIcon, EyeOff, 
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { Toaster } from 'sonner';
 
 // Componente per gestire consulenze extra per utenti specifici
 function ExtraConsultationsManager({ consultantId, consultantZona }) {
