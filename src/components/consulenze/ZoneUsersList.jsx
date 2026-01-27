@@ -21,14 +21,27 @@ export default function ZoneUsersList({ consultantEmail, consultantZona }) {
   const { data: zoneUsers = [], isLoading } = useQuery({
     queryKey: ['zone-users', consultantZona],
     queryFn: async () => {
+      if (!consultantZona) return [];
       const response = await base44.functions.invoke('listMembers');
       const users = response.data?.users || [];
-      // Filtra utenti della stessa zona (escludendo admin e il consulente stesso)
-      return users.filter(u => 
-        u.zona === consultantZona && 
-        u.role !== 'admin' && 
-        u.email?.toLowerCase() !== consultantEmail?.toLowerCase()
-      );
+      
+      // La zona del consulente può essere multipla (separata da virgola)
+      const consultantZones = consultantZona.split(',').map(z => z.trim().toLowerCase()).filter(Boolean);
+      
+      // Filtra utenti:
+      // - della stessa zona (o una delle zone del consulente)
+      // - escludendo admin
+      // - escludendo il consulente stesso
+      // - escludendo altri consulenti (user_type = 'consulente')
+      return users.filter(u => {
+        const userZona = (u.zona || '').trim().toLowerCase();
+        const isInZone = userZona && consultantZones.includes(userZona);
+        const isNotAdmin = u.role !== 'admin';
+        const isNotSelf = u.email?.toLowerCase() !== consultantEmail?.toLowerCase();
+        const isNotConsultant = !u.user_type || u.user_type !== 'consulente';
+        
+        return isInZone && isNotAdmin && isNotSelf && isNotConsultant;
+      });
     },
     enabled: !!consultantZona
   });
