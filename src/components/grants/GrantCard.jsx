@@ -58,62 +58,65 @@ export default function GrantCard({ grant, onDetails, userInterest, onToggleAler
       isTopRecommended ? 'ring-2 ring-purple-500/50 shadow-lg shadow-purple-500/20' : ''
     }`}>
       <CardHeader className="pb-3">
-        <div className="flex items-start justify-between gap-2">
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-2xl">{getGrantTypeIcon(grant.grant_type)}</span>
-              {grant.easy_access && (
-                <Badge className="bg-lime-400 text-slate-900 font-bold">
-                  <Zap className="w-3 h-3 mr-1" />
-                  Attivabile Subito
-                </Badge>
-              )}
-            </div>
-            <CardTitle className="text-white text-base leading-tight break-words">{grant.title}</CardTitle>
-            {/* Ente erogatore in evidenza - SEMPRE VISIBILE */}
-            <div className="bg-orange-500/20 border border-orange-500/50 rounded-md px-2 py-1.5 mt-2 flex flex-wrap items-center gap-1.5">
-              <Building2 className="w-4 h-4 text-orange-400 flex-shrink-0" />
-              <span className="text-orange-300 text-xs font-bold">
-                Ente: {grant.ente_erogatore || 'N/D'}
-              </span>
-              {grant.livello && (
-                <Badge className="bg-orange-500 text-white text-[10px] px-1 py-0">{grant.livello}</Badge>
-              )}
-              <InfoTooltip 
-                title="Ente Erogatore" 
-                description="È l'ente pubblico che gestisce e finanzia il bando. Può essere l'Unione Europea (UE), lo Stato italiano, una Regione o un altro ente pubblico."
-              />
-            </div>
-            {grant.website_url && (
-              <a 
-                href={grant.website_url} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="text-blue-400 hover:text-blue-300 text-xs underline flex items-center gap-1 mt-2"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <ExternalLink className="w-3 h-3" />
-                {grant.website_url}
-              </a>
+        {/* RIGA SUPERIORE: Badge status + data */}
+        <div className="flex items-center justify-between gap-2 mb-2">
+          <div className="flex items-center gap-2">
+            <span className="text-xl">{getGrantTypeIcon(grant.grant_type)}</span>
+            {grant.easy_access && (
+              <Badge className="bg-lime-400 text-slate-900 font-bold text-[10px] px-1.5">
+                <Zap className="w-3 h-3 mr-0.5" />
+                Subito
+              </Badge>
             )}
             {aiRecommendation && aiRecommendation.score >= 75 && !isTopRecommended && (
-              <Badge className="bg-purple-600 text-white border-0 text-xs mt-1">
-                <Sparkles className="w-3 h-3 mr-1" />
-                {aiRecommendation.score}% compatibile
+              <Badge className="bg-purple-600 text-white border-0 text-[10px] px-1.5">
+                <Sparkles className="w-3 h-3 mr-0.5" />
+                {aiRecommendation.score}%
               </Badge>
             )}
           </div>
-          <div className="text-right">
-            <Badge className={`${getStatusColor(grant.status)} text-white`}>
+          <div className="flex items-center gap-2">
+            <Badge className={`${getStatusColor(grant.status)} text-white text-[10px]`}>
               {grant.status}
             </Badge>
             {grant.created_date && (
-              <p className="text-lime-400/80 text-xs mt-1 font-medium">
-                📅 Inserito il {format(new Date(grant.created_date), 'd MMM yyyy', { locale: it })}
-              </p>
+              <span className="text-lime-400/80 text-[10px] font-medium whitespace-nowrap">
+                📅 {format(new Date(grant.created_date), 'd/M/yy', { locale: it })}
+              </span>
             )}
           </div>
         </div>
+
+        {/* TITOLO */}
+        <CardTitle className="text-white text-sm leading-tight">{grant.title}</CardTitle>
+        
+        {/* Ente erogatore */}
+        <div className="bg-orange-500/20 border border-orange-500/50 rounded-md px-2 py-1 mt-2 flex flex-wrap items-center gap-1">
+          <Building2 className="w-3 h-3 text-orange-400 flex-shrink-0" />
+          <span className="text-orange-300 text-[10px] font-bold">
+            {grant.ente_erogatore || 'N/D'}
+          </span>
+          {grant.livello && (
+            <Badge className="bg-orange-500 text-white text-[9px] px-1 py-0">{grant.livello}</Badge>
+          )}
+          <InfoTooltip 
+            title="Ente Erogatore" 
+            description="È l'ente pubblico che gestisce e finanzia il bando. Può essere l'Unione Europea (UE), lo Stato italiano, una Regione o un altro ente pubblico."
+          />
+        </div>
+        
+        {grant.website_url && (
+          <a 
+            href={grant.website_url} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-blue-400 hover:text-blue-300 text-[10px] underline flex items-center gap-1 mt-1.5 truncate"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <ExternalLink className="w-3 h-3 flex-shrink-0" />
+            <span className="truncate">{grant.website_url}</span>
+          </a>
+        )}
       </CardHeader>
       
       <CardContent className="space-y-3">
