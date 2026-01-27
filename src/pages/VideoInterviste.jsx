@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
+import useNotificationSound from '../components/hooks/useNotificationSound';
 
 function getYouTubeId(url) {
   if (!url) return null;
@@ -32,6 +33,8 @@ export default function VideoInterviste() {
   const [requestMessage, setRequestMessage] = useState('');
   const queryClient = useQueryClient();
   const { impersonation, appMode } = useImpersonation();
+  const { playSound } = useNotificationSound();
+  const [prevPendingCount, setPrevPendingCount] = useState(0);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -103,6 +106,14 @@ export default function VideoInterviste() {
   });
 
   const pendingVideoRequests = videoInterviewRequests.filter(r => r.status === 'pending');
+
+  // Notifica sonora per admin quando arriva nuova richiesta
+  useEffect(() => {
+    if (isAdmin && pendingVideoRequests.length > prevPendingCount && prevPendingCount > 0) {
+      playSound();
+    }
+    setPrevPendingCount(pendingVideoRequests.length);
+  }, [pendingVideoRequests.length, isAdmin, prevPendingCount, playSound]);
 
   const markVideoRequestReadMutation = useMutation({
     mutationFn: async (requestId) => {
@@ -661,19 +672,25 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
           </button>
           <div className="space-y-4 mt-4">
             <div className="bg-lime-400/20 rounded-lg p-4 border border-lime-400/30">
-              <p className="text-lime-400 text-sm font-medium mb-2">✓ Servizio Incluso</p>
+              <p className="text-lime-400 text-sm font-medium mb-2">Costo del servizio: € 500</p>
               <p className="text-slate-300 text-xs">
-                La video intervista annuale è compresa nel prezzo di iscrizione. 
-                Ti contatteremo per organizzare le riprese.
+                (intervista e montaggio compresi e pubblicazione dentro l'app)
               </p>
             </div>
             
             <div className="space-y-2">
               <p className="text-slate-300 text-sm font-medium">I tuoi dati:</p>
-              <div className="bg-slate-900 rounded-lg p-3 space-y-1">
-                <p className="text-white text-sm">{effectiveUser?.company_name || effectiveUser?.full_name}</p>
+              <div className="bg-slate-900 rounded-lg p-3 space-y-2">
+                {effectiveUser?.company_name && (
+                  <p className="text-white text-sm font-medium">{effectiveUser.company_name}</p>
+                )}
+                {effectiveUser?.full_name && (
+                  <p className="text-slate-300 text-sm">{effectiveUser.full_name}</p>
+                )}
                 <p className="text-slate-400 text-xs">{effectiveUser?.email}</p>
-                {effectiveUser?.phone && <p className="text-slate-400 text-xs">{effectiveUser.phone}</p>}
+                {effectiveUser?.phone && <p className="text-slate-400 text-xs">Tel: {effectiveUser.phone}</p>}
+                {effectiveUser?.city && <p className="text-slate-400 text-xs">Città: {effectiveUser.city}</p>}
+                {effectiveUser?.address && <p className="text-slate-400 text-xs">Indirizzo: {effectiveUser.address}</p>}
               </div>
             </div>
 
