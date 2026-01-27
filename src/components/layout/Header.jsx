@@ -174,7 +174,7 @@ export default function Header({ user, totalNotifications = 0 }) {
             )}
 
             {/* Voce menu Il Mio Profilo - visibile per utenti, consulenti e quando in impersonation */}
-            {(user?.role === 'user' || user?.role === 'consulente' || impersonation.active) && (
+            {(normalizedUser?.role === 'user' || isUserConsultant(normalizedUser) || impersonation.active) && (
               <Link
                 to={createPageUrl('MyProfile')}
                 onClick={() => setMenuOpen(false)}
