@@ -41,6 +41,9 @@ export default function ContattaMembri() {
   const filteredMembers = members.filter(member => {
     if (member.email === user?.email) return false;
     if (member.is_blocked) return false;
+    if (member.role === 'admin') return false; // Nascondi admin
+    if (member.user_type === 'consulente') return false; // Nascondi consulenti
+    if (member.user_type !== 'utente') return false; // Mostra solo utenti
     const searchLower = searchTerm.toLowerCase();
     return (
       member.company_name?.toLowerCase().includes(searchLower) ||
