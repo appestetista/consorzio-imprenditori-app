@@ -446,21 +446,50 @@ export default function GestioneConsulenti() {
                         <Settings className="w-4 h-4" />
                       </Button>
                       
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className={consultant.is_blocked 
-                          ? 'border-red-600 text-red-400 hover:bg-red-600/20'
-                          : 'border-green-600 text-green-400 hover:bg-green-600/20'}
-                        onClick={() => toggleBlockMutation.mutate({ consultantId: consultant.id, isBlocked: consultant.is_blocked })}
-                        disabled={toggleBlockMutation.isPending}
-                      >
-                        {consultant.is_blocked ? (
-                          <Lock className="w-4 h-4" />
-                        ) : (
-                          <Unlock className="w-4 h-4" />
-                        )}
-                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className={consultant.is_blocked 
+                              ? 'border-red-600 text-red-400 hover:bg-red-600/20'
+                              : 'border-green-600 text-green-400 hover:bg-green-600/20'}
+                            disabled={toggleBlockMutation.isPending}
+                          >
+                            {consultant.is_blocked ? (
+                              <Lock className="w-4 h-4" />
+                            ) : (
+                              <Unlock className="w-4 h-4" />
+                            )}
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent className="bg-slate-800 border-slate-700">
+                          <AlertDialogHeader>
+                            <AlertDialogTitle className="text-white">
+                              {consultant.is_blocked ? 'Sbloccare questo consulente?' : 'Bloccare questo consulente?'}
+                            </AlertDialogTitle>
+                            <AlertDialogDescription className="text-slate-400">
+                              {consultant.is_blocked 
+                                ? `${consultant.name} potrà nuovamente accedere all'app.`
+                                : `${consultant.name} vedrà il messaggio: "Sei stato bloccato dalla direzione del consorzio. Per ulteriori spiegazioni chiama il 329 2005433"`
+                              }
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel className="bg-slate-700 text-slate-400 border-slate-600 hover:text-white">Annulla</AlertDialogCancel>
+                            <AlertDialogAction 
+                              className={consultant.is_blocked ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"}
+                              onClick={() => toggleBlockMutation.mutate({ 
+                                consultantId: consultant.id, 
+                                isBlocked: consultant.is_blocked,
+                                consultantEmail: consultant.email
+                              })}
+                            >
+                              {consultant.is_blocked ? 'Sblocca' : 'Blocca'}
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                       
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
