@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Phone, Check, Gift, Users, MessageCircle, Clock, Calendar } from 'lucide-react';
+import { Phone, Check, Gift, Users, MessageCircle, Clock, Calendar, Video, Building2, Briefcase } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import PendingConfirmations from './PendingConfirmations';
@@ -26,6 +29,8 @@ const CONSULTANT_CATEGORIES = [
 
 export default function MemberView({ user, consultants, isLoading }) {
   const [consultationMessages, setConsultationMessages] = useState({});
+  const [meetingPreferences, setMeetingPreferences] = useState({});
+  const [meetingLinks, setMeetingLinks] = useState({});
   const [requestedConsultants, setRequestedConsultants] = useState([]);
   const [assignments, setAssignments] = useState([]);
   const [bookings, setBookings] = useState([]);
@@ -130,16 +135,23 @@ export default function MemberView({ user, consultants, isLoading }) {
   }, [user?.email]);
 
   const bookConsultationMutation = useMutation({
-    mutationFn: async ({ consultantId, message }) => {
+    mutationFn: async ({ consultantId, message, preference, link }) => {
       // Trova il consulente per ottenere la sua email
       const consultant = consultants.find(c => c.id === consultantId);
       
-      await base44.entities.ConsultationBooking.create({
+      const bookingData = {
         consultant_id: consultantId,
         user_email: user.email,
         subject: message,
+        meeting_preference: preference,
         status: 'pending'
-      });
+      };
+      
+      if (preference === 'online' && link) {
+        bookingData.meeting_link = link;
+      }
+      
+      await base44.entities.ConsultationBooking.create(bookingData);
       
       // Crea notifica per il consulente
       if (consultant?.email) {
@@ -185,6 +197,14 @@ export default function MemberView({ user, consultants, isLoading }) {
       setRequestedConsultants(prev => [...prev, variables.consultantId]);
       
       setConsultationMessages(prev => ({
+        ...prev,
+        [variables.consultantId]: ''
+      }));
+      setMeetingPreferences(prev => ({
+        ...prev,
+        [variables.consultantId]: ''
+      }));
+      setMeetingLinks(prev => ({
         ...prev,
         [variables.consultantId]: ''
       }));
@@ -316,15 +336,66 @@ export default function MemberView({ user, consultants, isLoading }) {
                           className="bg-slate-900 border-lime-400/30 text-white min-h-[80px] mb-3"
                         />
 
+                        {/* Preferenza modalità incontro */}
+                        <div className="mb-3">
+                          <Label className="text-slate-300 text-sm mb-2 block">Preferenza modalità:</Label>
+                          <RadioGroup
+                            value={meetingPreferences[consultant.id] || ''}
+                            onValueChange={(value) => setMeetingPreferences(prev => ({
+                              ...prev,
+                              [consultant.id]: value
+                            }))}
+                            disabled={isRequested}
+                            className="space-y-2"
+                          >
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="online" id={`online-${consultant.id}`} className="border-lime-400 text-lime-400" />
+                              <Label htmlFor={`online-${consultant.id}`} className="text-white flex items-center gap-2 cursor-pointer">
+                                <Video className="w-4 h-4 text-blue-400" />
+                                Online (videochiamata)
+                              </Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="sede_azienda" id={`sede_azienda-${consultant.id}`} className="border-lime-400 text-lime-400" />
+                              <Label htmlFor={`sede_azienda-${consultant.id}`} className="text-white flex items-center gap-2 cursor-pointer">
+                                <Building2 className="w-4 h-4 text-amber-400" />
+                                In presenza presso la mia sede
+                              </Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="sede_consulente" id={`sede_consulente-${consultant.id}`} className="border-lime-400 text-lime-400" />
+                              <Label htmlFor={`sede_consulente-${consultant.id}`} className="text-white flex items-center gap-2 cursor-pointer">
+                                <Briefcase className="w-4 h-4 text-purple-400" />
+                                In presenza presso lo studio del consulente
+                              </Label>
+                            </div>
+                          </RadioGroup>
+                          
+                          {meetingPreferences[consultant.id] === 'online' && (
+                            <Input
+                              placeholder="Inserisci il link per la call (es. Google Meet, Zoom...)"
+                              value={meetingLinks[consultant.id] || ''}
+                              onChange={(e) => setMeetingLinks(prev => ({
+                                ...prev,
+                                [consultant.id]: e.target.value
+                              }))}
+                              disabled={isRequested}
+                              className="bg-slate-900 border-blue-400/30 text-white mt-2"
+                            />
+                          )}
+                        </div>
+
                         <div className="flex gap-2">
                           <Button
                             size="sm"
                             className="bg-lime-400 hover:bg-lime-500 text-slate-900 border-0"
                             onClick={() => bookConsultationMutation.mutate({ 
                               consultantId: consultant.id, 
-                              message: consultationMessages[consultant.id] || '' 
+                              message: consultationMessages[consultant.id] || '',
+                              preference: meetingPreferences[consultant.id],
+                              link: meetingLinks[consultant.id] || ''
                             })}
-                            disabled={isRequested || bookConsultationMutation.isPending || !consultationMessages[consultant.id]?.trim()}
+                            disabled={isRequested || bookConsultationMutation.isPending || !consultationMessages[consultant.id]?.trim() || !meetingPreferences[consultant.id]}
                           >
                             invia
                           </Button>
