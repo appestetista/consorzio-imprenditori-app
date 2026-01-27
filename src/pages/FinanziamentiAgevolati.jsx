@@ -144,13 +144,7 @@ export default function FinanziamentiAgevolati() {
     enabled: !!user?.email,
   });
 
-  // Limiti AI Raccomandazioni
-  const { 
-    usageCount: grantRecsUsage, 
-    limit: grantRecsLimit, 
-    isLimitReached: grantRecsLimitReached, 
-    trackUsage: trackGrantRecsUsage 
-  } = useAILimits(user?.email, 'grant_recommendations');
+
 
   // Limiti AI Match Bandi
   const { 
@@ -413,109 +407,10 @@ export default function FinanziamentiAgevolati() {
     return true;
   };
 
-  // Admin vede tutti i bandi senza filtro profilo
-  const filteredGrants = allGrants
-    .filter(g => isRealAdmin ? true : matchesCompanyProfile(g))
-    .filter(applyFilters);
+  // TUTTI vedono TUTTI i bandi - l'ordinamento per regione/nazione/europa avviene dopo
+  const filteredGrants = allGrants.filter(applyFilters);
 
-  // Get AI recommendations when grants and user are loaded
-  useEffect(() => {
-    const getAIRecommendations = async () => {
-      // Non caricare raccomandazioni per admin
-      if (isRealAdmin) return;
-      
-      // Skip se limite raggiunto - PRIMA di tutto
-      if (grantRecsLimitReached) {
-        console.log('Grant recommendations limit reached - skipping AI analysis');
-        setAiRecommendations({}); // Assicura che non ci siano raccomandazioni
-        return;
-      }
-      
-      if (!user || !filteredGrants.length || loadingRecommendations || Object.keys(aiRecommendations).length > 0) return;
-      
-      setLoadingRecommendations(true);
-      
-      try {
-        // Traccia utilizzo
-        await trackGrantRecsUsage();
-        const userProfile = {
-          company_name: user.company_name || 'N/A',
-          company_size: user.company_size || 'N/A',
-          region: user.region || 'N/A',
-          ateco_code: user.ateco_code || 'N/A',
-          legal_form: user.legal_form || 'N/A',
-          sector: user.sector || 'N/A'
-        };
-
-        const grantsForAnalysis = filteredGrants.slice(0, 10).map(g => ({
-          id: g.id,
-          title: g.title,
-          description: g.description,
-          grant_type: g.grant_type,
-          funding_type: g.funding_type,
-          coverage_percentage: g.coverage_percentage,
-          min_amount: g.min_amount,
-          max_amount: g.max_amount,
-          easy_access: g.easy_access,
-          requires_cofinancing: g.requires_cofinancing
-        }));
-
-        const prompt = `Sei un consulente esperto di bandi e finanziamenti agevolati per PMI italiane.
-
-Analizza il profilo aziendale e assegna un punteggio di rilevanza (da 0 a 100) a ciascun bando, considerando:
-- Compatibilità con il settore e dimensione aziendale
-- Facilità di accesso e requisiti
-- Importo e copertura del finanziamento
-- Coerenza con le esigenze tipiche del settore
-
-PROFILO AZIENDALE:
-${JSON.stringify(userProfile, null, 2)}
-
-BANDI DISPONIBILI:
-${JSON.stringify(grantsForAnalysis, null, 2)}
-
-Per ogni bando, fornisci:
-- relevance_score: punteggio 0-100
-- reason: breve spiegazione (max 100 caratteri) del perché è rilevante`;
-
-        const response = await base44.integrations.Core.InvokeLLM({
-          prompt: prompt,
-          response_json_schema: {
-            type: "object",
-            properties: {
-              recommendations: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    grant_id: { type: "string" },
-                    relevance_score: { type: "number" },
-                    reason: { type: "string" }
-                  }
-                }
-              }
-            }
-          }
-        });
-
-        const recommendationsMap = {};
-        response.recommendations.forEach(rec => {
-          recommendationsMap[rec.grant_id] = {
-            score: rec.relevance_score,
-            reason: rec.reason
-          };
-        });
-        
-        setAiRecommendations(recommendationsMap);
-      } catch (error) {
-        console.error('Error getting AI recommendations:', error);
-      } finally {
-        setLoadingRecommendations(false);
-      }
-    };
-
-    getAIRecommendations();
-  }, [user, filteredGrants.length, grantRecsLimitReached]);
+  // RIMOSSO: AI recommendations automatiche - ora l'utente deve cliccare il pulsante manualmente
 
   // Funzione per determinare se un bando è della regione dell'utente
   const isUserRegionGrant = (grant) => {
@@ -675,9 +570,7 @@ Restituisci solo gli ID dei bandi compatibili.`,
     ? sortedGrants.filter(g => matchedGrantIds.includes(g.id))
     : sortedGrants;
 
-  const topRecommendedGrants = sortedGrants.filter(g => 
-    aiRecommendations[g.id]?.score >= 75
-  ).slice(0, 3);
+
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -892,9 +785,11 @@ Restituisci solo gli ID dei bandi compatibili.`,
               )}
             </div>
             <p className="text-slate-500 text-xs mt-1 text-center">
-              {grantMatchLimitReached 
-                ? '⚠️ Limite mensile raggiunto (30 ricerche)' 
-                : `${grantMatchRemaining} ricerche AI rimanenti questo mese`}
+              {hasIncompleteProfile 
+                ? '⚠️ Completa il Profilo Bandi per usare la ricerca AI'
+                : grantMatchLimitReached 
+                  ? '⚠️ Limite mensile raggiunto (4 ricerche)' 
+                  : `${grantMatchRemaining} ricerche AI rimanenti questo mese`}
             </p>
           </div>
         )}
@@ -914,60 +809,14 @@ Restituisci solo gli ID dei bandi compatibili.`,
           </Alert>
         )}
 
-        {/* AI Recommendations Loading */}
-        {loadingRecommendations && (
+        {/* AI Match Loading */}
+        {loadingMatch && (
           <Alert className="mb-6 bg-purple-500/10 border-purple-500/30">
             <Sparkles className="h-4 w-4 text-purple-400 animate-pulse" />
             <AlertDescription className="text-purple-300 text-sm">
               🤖 Sto analizzando i bandi più adatti al tuo profilo...
             </AlertDescription>
           </Alert>
-        )}
-
-        {/* Limite Raggiunto AI */}
-        {grantRecsLimitReached && !isRealAdmin && (
-          <Alert className="mb-6 bg-orange-500/10 border-orange-500/30">
-            <AlertCircle className="h-4 w-4 text-orange-400" />
-            <AlertDescription className="text-orange-300 text-sm">
-              Per questo mese non verranno più calcolate corrispondenze AI tra il vostro profilo e i bandi. Avete raggiunto il limite di 10 analisi mensili. I bandi restano comunque visibili.
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {/* Top Recommended Grants - nascosto se limite raggiunto */}
-        {topRecommendedGrants.length > 0 && !grantRecsLimitReached && (
-          <div className="mb-6">
-            <div className="flex items-center gap-2 mb-4">
-              <Sparkles className="w-5 h-5 text-purple-400" />
-              <h2 className="text-white font-bold">Consigliati per te</h2>
-            </div>
-            <div className="space-y-3">
-              {topRecommendedGrants.map((grant) => {
-                const interest = userInterests.find(i => i.grant_id === grant.id);
-                const recommendation = aiRecommendations[grant.id];
-                return (
-                  <div key={grant.id} className="relative">
-                    <div className="absolute -top-2 -right-2 z-10 bg-purple-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
-                      🎯 {recommendation.score}% compatibile
-                    </div>
-                    <GrantCard
-                      grant={grant}
-                      userInterest={interest}
-                      onDetails={handleShowDetails}
-                      onToggleAlerts={() => handleToggleAlerts(grant)}
-                      onRequestConsultation={() => handleRequestConsultation(grant)}
-                      aiRecommendation={recommendation}
-                      isTopRecommended={true}
-                      userProfile={user}
-                    />
-                  </div>
-                );
-              })}
-            </div>
-            <div className="mt-4 border-t border-slate-700 pt-4">
-              <h3 className="text-slate-400 font-medium mb-3">Altri bandi compatibili</h3>
-            </div>
-          </div>
         )}
 
         {/* Grants List */}
@@ -990,10 +839,7 @@ Restituisci solo gli ID dei bandi compatibili.`,
         ) : (
           <div className="space-y-4">
             {displayGrants.map((grant) => {
-              if (topRecommendedGrants.find(g => g.id === grant.id)) return null;
-              
               const interest = userInterests.find(i => i.grant_id === grant.id);
-              const recommendation = grantRecsLimitReached ? null : aiRecommendations[grant.id];
               return (
                 <GrantCard
                   key={grant.id}
@@ -1002,7 +848,6 @@ Restituisci solo gli ID dei bandi compatibili.`,
                   onDetails={handleShowDetails}
                   onToggleAlerts={() => handleToggleAlerts(grant)}
                   onRequestConsultation={() => handleRequestConsultation(grant)}
-                  aiRecommendation={recommendation}
                   userProfile={user}
                 />
               );
