@@ -99,6 +99,32 @@ Deno.serve(async (req) => {
         });
       }
 
+      // Controlla se l'utente esiste già nel DB con dati aziendali (aggiunto manualmente dall'admin)
+      // Se ha company_name o company_email o zona, significa che è stato pre-configurato
+      if (user.company_name || user.company_email || user.zona) {
+        // L'utente è stato aggiunto manualmente - autorizza come utente normale
+        await base44.asServiceRole.entities.User.update(user.id, {
+          user_type: 'utente',
+          is_blocked: false,
+          block_reason: null
+        });
+
+        // Crea PendingInvite per tracciamento (segnato come già registrato)
+        await base44.asServiceRole.entities.PendingInvite.create({
+          email: user.email.toLowerCase(),
+          user_type: 'utente',
+          invited_by: 'auto-from-user-record',
+          is_registered: true,
+          zona: user.zona || null
+        });
+
+        return Response.json({ 
+          success: true, 
+          message: 'Utente autorizzato da record esistente',
+          user_type: 'utente'
+        });
+      }
+
       // Nessun invito trovato - blocca l'utente
       await base44.asServiceRole.entities.User.update(user.id, {
         is_blocked: true,
