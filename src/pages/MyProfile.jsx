@@ -362,6 +362,7 @@ function ConsultantProfileCard({ consultantData, setConsultantData, savingConsul
   };
 
   const toggleBlockUser = (userEmail) => {
+    if (!localData) return;
     const blocked = localData.blocked_users_calls || [];
     if (blocked.includes(userEmail)) {
       setLocalData({ ...localData, blocked_users_calls: blocked.filter(e => e !== userEmail) });
@@ -369,6 +370,17 @@ function ConsultantProfileCard({ consultantData, setConsultantData, savingConsul
       setLocalData({ ...localData, blocked_users_calls: [...blocked, userEmail] });
     }
   };
+
+  // Se localData non è ancora inizializzato, mostra loading
+  if (!localData) {
+    return (
+      <Card className="bg-slate-800 border-slate-700 mb-4">
+        <CardContent className="p-6 flex items-center justify-center">
+          <div className="animate-spin w-6 h-6 border-2 border-lime-400 border-t-transparent rounded-full"></div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="bg-slate-800 border-slate-700 mb-4">
