@@ -385,10 +385,7 @@ export default function ConsultantView({ user }) {
                       </Badge>
                     </div>
                     
-                    {/* Messaggio utente */}
-                    <div className="bg-slate-600 rounded-lg px-3 py-2 mb-3">
-                      <p className="text-white text-sm">{booking.subject}</p>
-                    </div>
+
 
                     {/* Per richieste pending: mostra calendario per proporre date */}
                     {booking.status === 'pending' && (
