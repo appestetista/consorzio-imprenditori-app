@@ -312,9 +312,9 @@ export default function Home() {
     return null;
   };
   const eventResponse = getUserEventResponse();
-  // is_blocked e block_reason possono essere a livello root o dentro data
-  const isBlocked = (effectiveUser?.is_blocked || effectiveUser?.data?.is_blocked) && appMode !== 'user-preview' && effectiveUser?.role !== 'admin';
-  const isEmailNotAuthorized = (effectiveUser?.block_reason || effectiveUser?.data?.block_reason) === 'email_non_autorizzata';
+  // Dati già normalizzati
+  const isBlocked = effectiveUser?.is_blocked && appMode !== 'user-preview' && effectiveUser?.role !== 'admin';
+  const isEmailNotAuthorized = effectiveUser?.block_reason === 'email_non_autorizzata';
   const isAdmin = appMode === 'admin';
 
   if (loading) {
