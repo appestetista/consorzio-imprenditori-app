@@ -119,15 +119,17 @@ export default function Home() {
           const users = await base44.entities.User.filter({ id: impersonation.previewUserId });
           console.log('[HOME] Impersonated user filter result:', { count: users.length, users });
           if (users.length > 0) {
-            console.log('[HOME] Setting effectiveUser to impersonated user');
-            setEffectiveUser(users[0]);
+            console.log('[HOME] Setting effectiveUser to impersonated user (normalized)');
+            // Normalizza i dati utente per avere sempre la stessa struttura
+            setEffectiveUser(normalizeUser(users[0]));
           } else {
             console.error('[HOME] No user found with ID:', impersonation.previewUserId);
             setEffectiveUser(null);
           }
         } else {
-          console.log('[HOME] Using currentUser as effectiveUser');
-          setEffectiveUser(currentUser);
+          console.log('[HOME] Using currentUser as effectiveUser (normalized)');
+          // Normalizza anche l'utente corrente
+          setEffectiveUser(normalizeUser(currentUser));
         }
       } catch (e) {
         console.error('[HOME] Error loading user:', e);
