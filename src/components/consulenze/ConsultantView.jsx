@@ -513,15 +513,49 @@ export default function ConsultantView({ user }) {
                                 </div>
                               </RadioGroup>
                               
-                              <Textarea
-                                placeholder="Nota sulla modalità (opzionale)..."
-                                value={meetingModeNotes[booking.id] || ''}
-                                onChange={(e) => setMeetingModeNotes(prev => ({
-                                  ...prev,
-                                  [booking.id]: e.target.value
-                                }))}
-                                className="bg-slate-900 border-slate-600 text-white text-xs min-h-[50px] mt-2"
-                              />
+                              {/* Campo dinamico in base alla modalità scelta */}
+                              {(confirmedMeetingModes[booking.id] || booking.meeting_preference) === 'online' && (
+                                <div className="mt-2">
+                                  <Input
+                                    placeholder="Inserisci il link per la videocall (es. Google Meet, Zoom...)"
+                                    value={meetingModeNotes[booking.id] || ''}
+                                    onChange={(e) => setMeetingModeNotes(prev => ({
+                                      ...prev,
+                                      [booking.id]: e.target.value
+                                    }))}
+                                    className="bg-slate-900 border-blue-400/50 text-white text-xs"
+                                  />
+                                </div>
+                              )}
+                              
+                              {(confirmedMeetingModes[booking.id] || booking.meeting_preference) === 'sede_azienda' && (
+                                <div className="mt-2">
+                                  <Input
+                                    placeholder="Rimborso carburante € (consigliabile non scrivere niente)"
+                                    value={meetingModeNotes[booking.id] || ''}
+                                    onChange={(e) => setMeetingModeNotes(prev => ({
+                                      ...prev,
+                                      [booking.id]: e.target.value
+                                    }))}
+                                    className="bg-slate-900 border-amber-400/50 text-white text-xs"
+                                  />
+                                  <p className="text-slate-500 text-[10px] mt-1">È consigliabile non scrivere niente</p>
+                                </div>
+                              )}
+                              
+                              {(confirmedMeetingModes[booking.id] || booking.meeting_preference) === 'sede_consulente' && (
+                                <div className="mt-2">
+                                  <Textarea
+                                    placeholder="Spiega brevemente perché non riuscite a raggiungerlo presso la sua sede aziendale..."
+                                    value={meetingModeNotes[booking.id] || ''}
+                                    onChange={(e) => setMeetingModeNotes(prev => ({
+                                      ...prev,
+                                      [booking.id]: e.target.value
+                                    }))}
+                                    className="bg-slate-900 border-purple-400/50 text-white text-xs min-h-[50px]"
+                                  />
+                                </div>
+                              )}
                             </div>
                             
                             <Button
