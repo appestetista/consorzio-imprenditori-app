@@ -36,10 +36,10 @@ export default function Home() {
   }, [user, appMode, impersonation]);
 
   // Assegna automaticamente il tipo utente al primo login
-  // SKIP se in impersonation mode
+  // SKIP se in impersonation mode (qualsiasi tipo di impersonation)
   useEffect(() => {
     const assignType = async () => {
-      // Skip se siamo in impersonation mode
+      // Skip se siamo in impersonation mode (utente o consulente)
       if (impersonation.active) {
         console.log('[HOME] In impersonation mode, skip assignUserType');
         return;
