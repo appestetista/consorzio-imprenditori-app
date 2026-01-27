@@ -148,7 +148,7 @@ export default function Header({ user, totalNotifications = 0 }) {
             )}
             
             {/* Voci menu solo per Admin (non consulenti, non in impersonation) */}
-            {isAdmin && user?.role === 'admin' && !impersonation.active && (
+            {isAdmin && !impersonation.active && (
               <>
                 <Link
                   to={createPageUrl('AdminPanel')}
