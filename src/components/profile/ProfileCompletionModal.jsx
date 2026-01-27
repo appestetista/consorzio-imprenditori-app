@@ -1,21 +1,29 @@
 import { useEffect } from 'react';
 import { createPageUrl } from '@/utils';
 
-const REQUIRED_FIELDS = ['company_name', 'company_email', 'referente', 'cellulare_referente', 'referente_email', 'region', 'specializzazione'];
+const REQUIRED_FIELDS_USER = ['company_name', 'company_email', 'referente', 'cellulare_referente', 'referente_email', 'region', 'specializzazione'];
+const REQUIRED_FIELDS_CONSULENTE = []; // I consulenti hanno il loro profilo studio separato
 
 export default function ProfileCompletionModal({ user }) {
   useEffect(() => {
     if (!user) return;
     if (user.role === 'admin') return;
+    
+    // I consulenti non hanno campi obbligatori qui - hanno il Profilo Studio
+    if (user.user_type === 'consulente') return;
 
-    // Verifica campi mancanti
-    const hasMissingFields = REQUIRED_FIELDS.some(field => {
+    // Verifica campi mancanti solo per utenti normali
+    const hasMissingFields = REQUIRED_FIELDS_USER.some(field => {
       const value = user[field];
       return !value || (typeof value === 'string' && value.trim() === '');
     });
 
-    // Se mancano campi, redirect a MyProfile
-    if (hasMissingFields) {
+    // Se mancano campi, redirect a MyProfile (solo se siamo GIÀ sulla Home)
+    // Evita loop infiniti: non fare redirect se siamo già su MyProfile
+    const currentPath = window.location.pathname;
+    const isOnMyProfile = currentPath.includes('MyProfile');
+    
+    if (hasMissingFields && !isOnMyProfile) {
       console.log('[ProfileCompletionModal] Campi mancanti, redirect a MyProfile');
       window.location.href = createPageUrl('MyProfile');
     }
