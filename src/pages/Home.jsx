@@ -37,16 +37,7 @@ export default function Home() {
 
   // Assegna automaticamente il tipo utente al primo login
   // SKIP se in impersonation mode (qualsiasi tipo di impersonation)
-  // Usa un ref per tenere traccia dell'esecuzione (persiste tra render)
-  const assignTypeRanRef = React.useRef(false);
-  
   useEffect(() => {
-    // Evita esecuzioni multiple usando il ref
-    if (assignTypeRanRef.current) {
-      console.log('[HOME] assignUserType già eseguito in questo mount, skip');
-      return;
-    }
-    
     const assignType = async () => {
       // Skip se siamo in impersonation mode (utente o consulente)
       if (impersonation.active) {
@@ -57,15 +48,12 @@ export default function Home() {
       try {
         const currentUser = await base44.auth.me();
         // Skip se l'utente è admin o ha già un tipo assegnato (incluso consulente)
+        // Questo è il controllo PRINCIPALE - se user_type esiste, non fare MAI redirect
         if (currentUser?.role === 'admin' || currentUser?.user_type) {
           console.log('[HOME] Utente admin o già assegnato, skip assignUserType. user_type:', currentUser?.user_type);
-          assignTypeRanRef.current = true;
           return;
         }
 
-        // Marca come eseguito PRIMA della chiamata
-        assignTypeRanRef.current = true;
-        
         const result = await base44.functions.invoke('assignUserType', {});
         console.log('[HOME] assignUserType result:', result.data);
 
@@ -84,6 +72,7 @@ export default function Home() {
 
         // Se l'assegnazione è andata a buon fine e NON è un consulente, reindirizza al profilo per completarlo
         // I consulenti hanno già il profilo da completare in MyProfile > Profilo Studio
+        // IMPORTANTE: redirect solo se user_type è stato APPENA assegnato (success=true)
         if (result.data?.success && result.data?.user_type && result.data.user_type !== 'consulente') {
           console.log('[HOME] Tipo utente assegnato:', result.data.user_type, '- reindirizzo al profilo');
           navigate(createPageUrl('MyProfile'));
