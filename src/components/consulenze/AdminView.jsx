@@ -50,6 +50,11 @@ export default function AdminView({ consultants, adminEmail }) {
     queryFn: () => base44.entities.ConsultationBooking.list('-created_date'),
   });
 
+  const { data: zones = [] } = useQuery({
+    queryKey: ['zones'],
+    queryFn: () => base44.entities.Zone.filter({ is_active: true }),
+  });
+
   // Conta le notifiche di consulenza non lette per l'admin
   const { data: unreadConsultationNotifications = [] } = useQuery({
     queryKey: ['unread-consultation-notifications', adminEmail],
@@ -343,12 +348,16 @@ export default function AdminView({ consultants, adminEmail }) {
             </div>
             <div>
               <Label className="text-slate-300">Zona</Label>
-              <Input
-                value={consultantForm.zona}
-                onChange={(e) => setConsultantForm({...consultantForm, zona: e.target.value})}
-                className="bg-slate-900 border-slate-700 text-white"
-                placeholder="Es: Lombardia, Nord Italia..."
-              />
+              <Select value={consultantForm.zona} onValueChange={(v) => setConsultantForm({...consultantForm, zona: v})}>
+                <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                  <SelectValue placeholder="Seleziona zona" />
+                </SelectTrigger>
+                <SelectContent>
+                  {zones.map(zone => (
+                    <SelectItem key={zone.id} value={zone.name}>{zone.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <Label className="text-slate-300">Consulenze gratuite per utente</Label>
