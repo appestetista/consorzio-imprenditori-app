@@ -299,17 +299,8 @@ export default function Home() {
   const consultationNotifications = notifications.filter(n => n.type === 'consultation').length;
 
   const nextEvent = events[0];
-  // I permessi possono essere in effectiveUser.permissions o effectiveUser.data.permissions
-  // Per utenti caricati via auth.me() i dati sono appiattiti, per User.filter() sono in .data
-  const permissions = effectiveUser?.permissions || effectiveUser?.data?.permissions || {};
-  
-  // DEBUG: log permissions per capire da dove vengono
-  console.log('[HOME] Permissions check:', {
-    'effectiveUser.permissions': effectiveUser?.permissions,
-    'effectiveUser.data?.permissions': effectiveUser?.data?.permissions,
-    'final permissions': permissions,
-    'isConsultant': isConsultant
-  });
+  // I permessi sono già normalizzati grazie a normalizeUser()
+  const permissions = effectiveUser?.permissions || {};
 
   // Verifica stato partecipazione all'evento
   const getUserEventResponse = () => {
