@@ -12,17 +12,15 @@ export default function Header({ user, totalNotifications = 0 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [impersonationDialogOpen, setImpersonationDialogOpen] = useState(false);
   const { impersonation, startImpersonation, stopImpersonation } = useImpersonation();
-  const isAdmin = user?.role === 'admin';
-
+  
+  // Normalizza l'utente per avere sempre la stessa struttura dati
+  const normalizedUser = useMemo(() => normalizeUser(user), [user]);
+  const isAdmin = normalizedUser?.role === 'admin';
+  
   const handleLogout = () => {
     base44.auth.logout();
   };
 
-  // Determina il titolo e sottotitolo in base allo stato
-  // I dati utente possono essere a livello root o dentro .data (dipende da come vengono caricati)
-  const getUserType = () => user?.user_type || user?.data?.user_type;
-  const getCompanyName = () => user?.company_name || user?.data?.company_name;
-  
   const getHeaderInfo = () => {
     let title = '';
     let subtitle = '';
@@ -41,11 +39,11 @@ export default function Header({ user, totalNotifications = 0 }) {
       if (isAdmin) {
         title = 'Admin Consorzio';
         subtitle = 'Amministratore';
-      } else if (getUserType() === 'consulente') {
-        title = getCompanyName() || 'Consulente';
+      } else if (isUserConsultant(normalizedUser)) {
+        title = normalizedUser?.company_name || 'Consulente';
         subtitle = 'Consulente';
       } else {
-        title = getCompanyName() || 'Membro';
+        title = normalizedUser?.company_name || 'Membro';
         subtitle = 'Membro del Consorzio';
       }
     }
