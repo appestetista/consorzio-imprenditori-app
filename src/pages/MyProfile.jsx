@@ -237,7 +237,7 @@ function ConsultantProfileCard({ consultantData, setConsultantData, savingConsul
 
   // Inizializza localData quando consultantData è disponibile
   useEffect(() => {
-    if (consultantData && !localData) {
+    if (consultantData) {
       setLocalData({
         name: consultantData.name || '',
         phone: consultantData.phone || '',
