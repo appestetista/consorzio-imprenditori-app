@@ -105,11 +105,14 @@ Deno.serve(async (req) => {
 
       if (existingConsultants.length === 0 && invite.consultant_category) {
         await base44.asServiceRole.entities.Consultant.create({
-          name: user.full_name || user.email,
+          name: invite.consultant_name || user.full_name || user.email,
           email: user.email.toLowerCase(),
           category: invite.consultant_category,
-          city: invite.zona || '',
-          available_slots: 100
+          city: invite.zona || 'Da definire',
+          phone: 'Da definire',
+          zona: invite.zona || '',
+          assigned_sections: invite.assigned_sections || [],
+          free_consultations_per_user: 1
         });
       }
     }
