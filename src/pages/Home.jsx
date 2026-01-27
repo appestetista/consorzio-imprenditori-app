@@ -37,11 +37,13 @@ export default function Home() {
 
   // Assegna automaticamente il tipo utente al primo login
   // SKIP se in impersonation mode (qualsiasi tipo di impersonation)
+  // Usa un ref per tenere traccia dell'esecuzione (persiste tra render)
+  const assignTypeRanRef = React.useRef(false);
+  
   useEffect(() => {
-    // Evita esecuzioni multiple nella stessa sessione usando sessionStorage
-    const alreadyRan = sessionStorage.getItem('assignTypeRan');
-    if (alreadyRan) {
-      console.log('[HOME] assignUserType già eseguito in questa sessione, skip');
+    // Evita esecuzioni multiple usando il ref
+    if (assignTypeRanRef.current) {
+      console.log('[HOME] assignUserType già eseguito in questo mount, skip');
       return;
     }
     
@@ -57,12 +59,12 @@ export default function Home() {
         // Skip se l'utente è admin o ha già un tipo assegnato (incluso consulente)
         if (currentUser?.role === 'admin' || currentUser?.user_type) {
           console.log('[HOME] Utente admin o già assegnato, skip assignUserType. user_type:', currentUser?.user_type);
-          sessionStorage.setItem('assignTypeRan', 'true');
+          assignTypeRanRef.current = true;
           return;
         }
 
         // Marca come eseguito PRIMA della chiamata
-        sessionStorage.setItem('assignTypeRan', 'true');
+        assignTypeRanRef.current = true;
         
         const result = await base44.functions.invoke('assignUserType', {});
         console.log('[HOME] assignUserType result:', result.data);
