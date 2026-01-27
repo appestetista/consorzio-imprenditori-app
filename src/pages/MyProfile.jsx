@@ -589,11 +589,31 @@ export default function MyProfile() {
         setCurrentUserRole(currentUser.role);
         let effectiveUser = currentUser;
 
-        // Se appMode === 'user-preview', carica l'utente impersonato via previewUserId
-        if (impersonation.active && impersonation.previewUserId && impersonation.role === 'user') {
-          const users = await base44.entities.User.filter({ id: impersonation.previewUserId });
-          if (users.length > 0) {
-            effectiveUser = users[0];
+        // Gestione impersonation
+        if (impersonation.active) {
+          if (impersonation.role === 'user' && impersonation.previewUserId) {
+            // Impersonificazione utente normale
+            const users = await base44.entities.User.filter({ id: impersonation.previewUserId });
+            if (users.length > 0) {
+              effectiveUser = users[0];
+            }
+          } else if (impersonation.role === 'consulente' && impersonation.targetEmail) {
+            // Impersonificazione consulente - carica i dati dell'utente consulente
+            const consultantUsers = await base44.entities.User.filter({ email: impersonation.targetEmail });
+            if (consultantUsers.length > 0) {
+              effectiveUser = {
+                ...consultantUsers[0],
+                user_type: 'consulente'
+              };
+            } else {
+              // Crea un oggetto user fittizio per il consulente
+              effectiveUser = {
+                ...currentUser,
+                email: impersonation.targetEmail,
+                full_name: impersonation.targetName,
+                user_type: 'consulente'
+              };
+            }
           }
         }
 
@@ -625,12 +645,24 @@ export default function MyProfile() {
         });
 
         // Se l'utente è un consulente, carica i dati del consulente
-        if (effectiveUser.user_type === 'consulente') {
+        // Controlla sia user_type che se è impersonificato come consulente
+        const isConsultant = effectiveUser.user_type === 'consulente' || 
+                             (impersonation.active && impersonation.role === 'consulente');
+        
+        if (isConsultant) {
+          const consultantEmail = impersonation.active && impersonation.role === 'consulente' 
+            ? impersonation.targetEmail 
+            : effectiveUser.email;
+          
           const consultants = await base44.entities.Consultant.filter({
-            email: effectiveUser.email.toLowerCase()
+            email: consultantEmail?.toLowerCase()
           });
           if (consultants.length > 0) {
             setConsultantData(consultants[0]);
+            // Se impersonificato come consulente, imposta user_type
+            if (impersonation.active && impersonation.role === 'consulente') {
+              effectiveUser.user_type = 'consulente';
+            }
           }
         }
 

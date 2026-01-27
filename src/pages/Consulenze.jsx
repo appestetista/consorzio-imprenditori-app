@@ -41,6 +41,7 @@ export default function Consulenze() {
         
         if (impersonation.active) {
           if (impersonation.role === 'user') {
+            // Impersonificazione utente normale
             const impersonatedUser = await base44.entities.User.filter({ id: impersonation.targetId });
             if (impersonatedUser.length > 0) {
               setEffectiveUser(impersonatedUser[0]);
@@ -48,11 +49,22 @@ export default function Consulenze() {
               setEffectiveUser(currentUser);
             }
           } else if (impersonation.role === 'consulente') {
-            setEffectiveUser({ 
-              ...currentUser, 
-              email: impersonation.targetEmail,
-              role: 'consulente' 
-            });
+            // Impersonificazione consulente - carica i dati completi dell'utente consulente
+            const consultantUsers = await base44.entities.User.filter({ email: impersonation.targetEmail });
+            if (consultantUsers.length > 0) {
+              setEffectiveUser({
+                ...consultantUsers[0],
+                user_type: 'consulente'
+              });
+            } else {
+              // Fallback se non c'è un record User per il consulente
+              setEffectiveUser({ 
+                ...currentUser, 
+                email: impersonation.targetEmail,
+                user_type: 'consulente',
+                full_name: impersonation.targetName
+              });
+            }
           }
         } else {
           setEffectiveUser(currentUser);
@@ -62,7 +74,7 @@ export default function Consulenze() {
       }
     };
     loadEffectiveUser();
-  }, [impersonation.active, impersonation.targetId, impersonation.role, impersonation.targetEmail]);
+  }, [impersonation.active, impersonation.targetId, impersonation.role, impersonation.targetEmail, impersonation.targetName]);
 
   const { data: consultants = [], isLoading } = useQuery({
     queryKey: ['consultants'],
@@ -77,9 +89,17 @@ export default function Consulenze() {
 
   const isAdmin = user?.role === 'admin' && !impersonation.active;
   
-  // Verifica se l'utente è un consulente controllando anche l'entità Consultant
-  const isConsultantByEntity = consultants.some(c => c.email === effectiveUser?.email);
-  const isConsultant = effectiveUser?.role === 'consulente' || isConsultantByEntity || (impersonation.active && impersonation.role === 'consulente');
+  // Verifica se l'utente effettivo è un consulente controllando l'entità Consultant
+  const isConsultantByEntity = consultants.some(c => c.email?.toLowerCase() === effectiveUser?.email?.toLowerCase());
+  
+  // Un utente è consulente se:
+  // 1. È impersonificato come consulente (impersonation.role === 'consulente')
+  // 2. Il suo user_type nell'entità User è 'consulente'
+  // 3. La sua email corrisponde a un record nell'entità Consultant
+  const isConsultant = (impersonation.active && impersonation.role === 'consulente') || 
+                       effectiveUser?.user_type === 'consulente' ||
+                       isConsultantByEntity;
+  
   const isMember = !isAdmin && !isConsultant;
 
   // Real-time subscription per notifiche e bookings
