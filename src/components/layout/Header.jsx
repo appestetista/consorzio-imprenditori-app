@@ -50,13 +50,25 @@ export default function Header({ user, totalNotifications = 0 }) {
 
   const { title, subtitle } = getHeaderInfo();
 
+  // Logo dell'utente: se ha un logo aziendale usa quello, altrimenti il logo del consorzio
+  const DEFAULT_LOGO = "https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=100&h=100&fit=crop";
+  
+  const getUserLogo = () => {
+    if (impersonation.active) {
+      // In impersonazione: usa il logo dell'utente impersonificato se disponibile
+      return impersonation.targetUserData?.company_logo || DEFAULT_LOGO;
+    }
+    // Utente normale o consulente: usa il proprio logo se disponibile
+    return user?.company_logo || DEFAULT_LOGO;
+  };
+
   return (
     <>
       <header className="bg-slate-900 py-4 px-4 flex items-center justify-between sticky top-0 z-40 border-b border-lime-400/30">
         <div className="flex items-center gap-3">
           <img 
-            src="https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=100&h=100&fit=crop" 
-            alt="Logo Consorzio" 
+            src={getUserLogo()} 
+            alt="Logo" 
             className="w-10 h-10 rounded-full object-cover"
           />
           <div>
