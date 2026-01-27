@@ -1,11 +1,14 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Mail, User, Clock, CheckCircle, XCircle, Users, Plus, ChevronUp, ChevronDown, Bell, AlertTriangle, Calendar, Building2, Gift, Send, ChevronLeft, ChevronRight, MessageCircle, X } from 'lucide-react';
+import { Mail, User, Clock, CheckCircle, XCircle, Users, Plus, ChevronUp, ChevronDown, Bell, AlertTriangle, Calendar, Building2, Gift, Send, ChevronLeft, ChevronRight, MessageCircle, X, Video, Briefcase } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import ZoneUsersList from './ZoneUsersList';
@@ -134,6 +137,8 @@ export default function ConsultantView({ user }) {
     const [confirmDialog, setConfirmDialog] = useState({ open: false, bookingId: null, userEmail: null });
     const [selectedDates, setSelectedDates] = useState({}); // { bookingId: [Date, Date] }
     const [selectedTimes, setSelectedTimes] = useState({}); // { bookingId: { dateIndex: 'HH:MM' } }
+    const [confirmedMeetingModes, setConfirmedMeetingModes] = useState({}); // { bookingId: 'online' | 'sede_azienda' | 'sede_consulente' }
+    const [meetingModeNotes, setMeetingModeNotes] = useState({}); // { bookingId: 'nota...' }
     const { playSound } = useNotificationSound();
 
   const { data: myConsultantProfile } = useQuery({
@@ -189,11 +194,20 @@ export default function ConsultantView({ user }) {
 
   // Proponi date al cliente
   const proposeDatesMutation = useMutation({
-    mutationFn: async ({ bookingId, userEmail, proposedDates }) => {
-      await base44.entities.ConsultationBooking.update(bookingId, { 
+    mutationFn: async ({ bookingId, userEmail, proposedDates, confirmedMode, modeNote }) => {
+      const updateData = { 
         status: 'dates_proposed',
         proposed_dates: proposedDates.map(d => d.toISOString())
-      });
+      };
+      
+      if (confirmedMode) {
+        updateData.confirmed_meeting_mode = confirmedMode;
+      }
+      if (modeNote) {
+        updateData.meeting_mode_note = modeNote;
+      }
+      
+      await base44.entities.ConsultationBooking.update(bookingId, updateData);
 
       // Formatta le date per la notifica
       const formattedDates = proposedDates.map(d => 
@@ -219,6 +233,8 @@ export default function ConsultantView({ user }) {
       queryClient.invalidateQueries({ queryKey: ['consultant-bookings'] });
       setSelectedDates(prev => ({ ...prev, [variables.bookingId]: [] }));
       setSelectedTimes(prev => ({ ...prev, [variables.bookingId]: {} }));
+      setConfirmedMeetingModes(prev => ({ ...prev, [variables.bookingId]: '' }));
+      setMeetingModeNotes(prev => ({ ...prev, [variables.bookingId]: '' }));
     }
   });
 
@@ -286,8 +302,28 @@ export default function ConsultantView({ user }) {
     proposeDatesMutation.mutate({
       bookingId,
       userEmail,
-      proposedDates: proposedDatesWithTime
+      proposedDates: proposedDatesWithTime,
+      confirmedMode: confirmedMeetingModes[bookingId],
+      modeNote: meetingModeNotes[bookingId]
     });
+  };
+  
+  const getMeetingModeLabel = (mode) => {
+    switch(mode) {
+      case 'online': return 'Online (videochiamata)';
+      case 'sede_azienda': return 'Presso la sede dell\'azienda';
+      case 'sede_consulente': return 'Presso lo studio del consulente';
+      default: return mode;
+    }
+  };
+  
+  const getMeetingModeIcon = (mode) => {
+    switch(mode) {
+      case 'online': return <Video className="w-4 h-4 text-blue-400" />;
+      case 'sede_azienda': return <Building2 className="w-4 h-4 text-amber-400" />;
+      case 'sede_consulente': return <Briefcase className="w-4 h-4 text-purple-400" />;
+      default: return null;
+    }
   };
 
   const statusColors = {
@@ -387,6 +423,27 @@ export default function ConsultantView({ user }) {
                     
 
 
+                    {/* Mostra preferenza modalità dell'utente */}
+                    {booking.meeting_preference && (
+                      <div className="bg-slate-600/50 rounded-lg p-2 mb-3">
+                        <p className="text-slate-400 text-xs mb-1">Preferenza utente:</p>
+                        <div className="flex items-center gap-2 text-white text-sm">
+                          {getMeetingModeIcon(booking.meeting_preference)}
+                          <span>{getMeetingModeLabel(booking.meeting_preference)}</span>
+                        </div>
+                        {booking.meeting_preference === 'online' && booking.meeting_link && (
+                          <a 
+                            href={booking.meeting_link} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-blue-400 text-xs hover:underline mt-1 block truncate"
+                          >
+                            {booking.meeting_link}
+                          </a>
+                        )}
+                      </div>
+                    )}
+
                     {/* Per richieste pending: mostra calendario per proporre date */}
                     {booking.status === 'pending' && (
                       <>
@@ -421,6 +478,51 @@ export default function ConsultantView({ user }) {
                                 </Button>
                               </div>
                             ))}
+                            
+                            {/* Conferma modalità incontro */}
+                            <div className="mt-3 bg-slate-600/30 rounded-lg p-2">
+                              <Label className="text-slate-300 text-xs mb-2 block">Conferma modalità incontro:</Label>
+                              <RadioGroup
+                                value={confirmedMeetingModes[booking.id] || booking.meeting_preference || ''}
+                                onValueChange={(value) => setConfirmedMeetingModes(prev => ({
+                                  ...prev,
+                                  [booking.id]: value
+                                }))}
+                                className="space-y-1"
+                              >
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem value="online" id={`conf-online-${booking.id}`} className="border-lime-400 text-lime-400 h-3 w-3" />
+                                  <Label htmlFor={`conf-online-${booking.id}`} className="text-white text-xs flex items-center gap-1 cursor-pointer">
+                                    <Video className="w-3 h-3 text-blue-400" />
+                                    Online
+                                  </Label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem value="sede_azienda" id={`conf-sede_azienda-${booking.id}`} className="border-lime-400 text-lime-400 h-3 w-3" />
+                                  <Label htmlFor={`conf-sede_azienda-${booking.id}`} className="text-white text-xs flex items-center gap-1 cursor-pointer">
+                                    <Building2 className="w-3 h-3 text-amber-400" />
+                                    Sede azienda
+                                  </Label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem value="sede_consulente" id={`conf-sede_consulente-${booking.id}`} className="border-lime-400 text-lime-400 h-3 w-3" />
+                                  <Label htmlFor={`conf-sede_consulente-${booking.id}`} className="text-white text-xs flex items-center gap-1 cursor-pointer">
+                                    <Briefcase className="w-3 h-3 text-purple-400" />
+                                    Mio studio
+                                  </Label>
+                                </div>
+                              </RadioGroup>
+                              
+                              <Textarea
+                                placeholder="Nota sulla modalità (opzionale)..."
+                                value={meetingModeNotes[booking.id] || ''}
+                                onChange={(e) => setMeetingModeNotes(prev => ({
+                                  ...prev,
+                                  [booking.id]: e.target.value
+                                }))}
+                                className="bg-slate-900 border-slate-600 text-white text-xs min-h-[50px] mt-2"
+                              />
+                            </div>
                             
                             <Button
                               size="sm"
@@ -469,6 +571,15 @@ export default function ConsultantView({ user }) {
                             minute: '2-digit'
                           })}
                         </p>
+                        {booking.confirmed_meeting_mode && (
+                          <div className="flex items-center gap-2 text-white text-sm mt-2">
+                            {getMeetingModeIcon(booking.confirmed_meeting_mode)}
+                            <span>{getMeetingModeLabel(booking.confirmed_meeting_mode)}</span>
+                          </div>
+                        )}
+                        {booking.meeting_mode_note && (
+                          <p className="text-slate-300 text-xs mt-1 italic">"{booking.meeting_mode_note}"</p>
+                        )}
                       </div>
                     )}
 
