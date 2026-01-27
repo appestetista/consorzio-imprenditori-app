@@ -675,7 +675,7 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
           </button>
           <div className="space-y-4 mt-4">
             <div className="bg-lime-400/20 rounded-lg p-4 border border-lime-400/30">
-              <p className="text-lime-400 text-sm font-medium mb-2">Costo del servizio: € 500</p>
+              <p className="text-lime-400 text-sm font-medium mb-2">Costo del servizio: € 500 + IVA</p>
               <p className="text-slate-300 text-xs">
                 Intervista + montaggio + pubblicazione nell'app compresa nel prezzo
               </p>
