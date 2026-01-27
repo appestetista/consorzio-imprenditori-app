@@ -837,9 +837,7 @@ export default function MyProfile() {
           />
         )}
 
-{/* Avviso per compilare Profilo Bandi - opzionale, non più mostrato */}
-
-        {/* Se consulente, nascondi il resto */}
+{/* Se consulente, mostra solo Profilo Studio, altrimenti mostra form azienda */}
         {user?.user_type !== 'consulente' && (
           <>
         {/* Card Dati Personali - solo per admin non impersonato */}
