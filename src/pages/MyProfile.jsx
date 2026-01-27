@@ -231,20 +231,27 @@ const CONSULTANT_CATEGORIES = [
 ];
 
 function ConsultantProfileCard({ consultantData, setConsultantData, savingConsultant, setSavingConsultant }) {
-  const [localData, setLocalData] = useState({
-    name: consultantData?.name || '',
-    phone: consultantData?.phone || '',
-    city: consultantData?.city || '',
-    referente: consultantData?.referente || '',
-    cellulare_referente: consultantData?.cellulare_referente || '',
-    block_calls_for_all: consultantData?.block_calls_for_all || false,
-    blocked_users_calls: consultantData?.blocked_users_calls || [],
-    free_consultations_per_user: consultantData?.free_consultations_per_user ?? 1,
-    sede_azienda_disabled: consultantData?.sede_azienda_disabled || false,
-    rimborso_carburante: consultantData?.rimborso_carburante || 0
-  });
+  const [localData, setLocalData] = useState(null);
   const [showZeroWarning, setShowZeroWarning] = useState(false);
   const [pendingZeroValue, setPendingZeroValue] = useState(false);
+
+  // Inizializza localData quando consultantData è disponibile
+  useEffect(() => {
+    if (consultantData && !localData) {
+      setLocalData({
+        name: consultantData.name || '',
+        phone: consultantData.phone || '',
+        city: consultantData.city || '',
+        referente: consultantData.referente || '',
+        cellulare_referente: consultantData.cellulare_referente || '',
+        block_calls_for_all: consultantData.block_calls_for_all || false,
+        blocked_users_calls: consultantData.blocked_users_calls || [],
+        free_consultations_per_user: consultantData.free_consultations_per_user ?? 1,
+        sede_azienda_disabled: consultantData.sede_azienda_disabled || false,
+        rimborso_carburante: consultantData.rimborso_carburante || 0
+      });
+    }
+  }, [consultantData]);
 
   // Carica lista utenti per blocco chiamate individuali (usa backend function per bypassare restrizioni)
   const { data: allUsers = [] } = useQuery({
