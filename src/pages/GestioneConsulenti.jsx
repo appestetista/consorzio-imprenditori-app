@@ -260,8 +260,20 @@ export default function GestioneConsulenti() {
     setSectionsData([]);
   };
 
-  if (!user || user.role !== 'admin') {
-    return null;
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full"></div>
+      </div>
+    );
+  }
+
+  if (user.role !== 'admin') {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <p className="text-white">Accesso non autorizzato</p>
+      </div>
+    );
   }
 
   return (
