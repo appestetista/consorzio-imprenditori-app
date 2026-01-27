@@ -6,14 +6,16 @@ export const AI_LIMITS = {
   contract_analysis: 50,
   export_analysis: 20,
   import_analysis: 20,
-  grant_recommendations: 10
+  grant_recommendations: 10,
+  grant_match: 30
 };
 
 export const AI_LIMIT_LABELS = {
   contract_analysis: 'Analisi Contratti',
   export_analysis: 'Analisi Export',
   import_analysis: 'Analisi Import',
-  grant_recommendations: 'Raccomandazioni Bandi'
+  grant_recommendations: 'Raccomandazioni Bandi',
+  grant_match: 'Match Bandi Profilo'
 };
 
 export function getCurrentMonthYear() {

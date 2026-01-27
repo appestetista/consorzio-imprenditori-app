@@ -158,6 +158,10 @@ export default function UsageTracker() {
       const importExportAnalysisCount = Math.ceil(importExportMessages.length / 2);
       const importExportCostUsd = importExportAnalysisCount * GPT4O_WEB_SEARCH_COST_PER_CALL;
 
+      // MATCH BANDI AI (utenti che usano il pulsante "Cerca compatibili")
+      const grantMatchLogs = usageLogs.filter(l => l.action_type === 'grant_match');
+      const grantMatchCostUsd = grantMatchLogs.length * 0.02; // ~$0.02 per match
+
       const systemCosts = {
         grantSearch: grantSearchCostUsd,
         grantSearchCalls: grantSearchCallsTotal,
@@ -165,7 +169,9 @@ export default function UsageTracker() {
         grantEnrichmentCalls: estimatedEnrichments,
         importExport: importExportCostUsd,
         importExportCalls: importExportAnalysisCount,
-        total: grantSearchCostUsd + grantEnrichmentCostUsd + importExportCostUsd,
+        grantMatch: grantMatchCostUsd,
+        grantMatchCalls: grantMatchLogs.length,
+        total: grantSearchCostUsd + grantEnrichmentCostUsd + importExportCostUsd + grantMatchCostUsd,
         weeksSinceStart
       };
 
@@ -323,6 +329,24 @@ export default function UsageTracker() {
                 </div>
                 <span className="text-white font-semibold">€{(systemCosts.importExport * EUR_USD_RATE).toFixed(2)}</span>
                 <p className="text-slate-500 text-[10px]">~{systemCosts.importExportCalls || 0} analisi</p>
+              </div>
+              <div className="bg-slate-900/50 rounded-lg p-2">
+                <div className="flex items-center gap-1 text-slate-400 mb-1">
+                  <TrendingUp className="w-3 h-3" />
+                  Match Bandi AI
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <HelpCircle className="w-3 h-3 text-slate-500 hover:text-lime-400 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-[250px] bg-slate-800 border-slate-700 text-white">
+                      <p className="text-xs"><strong>GPT-4o</strong></p>
+                      <p className="text-[10px] text-slate-300 mt-1">L'AI confronta il profilo aziendale con i bandi disponibili per trovare quelli più compatibili.</p>
+                      <p className="text-[10px] text-lime-400 mt-1">~$0.02 per match</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                <span className="text-white font-semibold">€{(systemCosts.grantMatch * EUR_USD_RATE).toFixed(2)}</span>
+                <p className="text-slate-500 text-[10px]">~{systemCosts.grantMatchCalls || 0} match</p>
               </div>
             </div>
           </TooltipProvider>

@@ -69,15 +69,15 @@ export default function GrantCard({ grant, onDetails, userInterest, onToggleAler
                 </Badge>
               )}
             </div>
-            <CardTitle className="text-white text-lg">{grant.title}</CardTitle>
+            <CardTitle className="text-white text-base leading-tight break-words">{grant.title}</CardTitle>
             {/* Ente erogatore in evidenza - SEMPRE VISIBILE */}
-            <div className="bg-orange-500/20 border border-orange-500/50 rounded-md px-2.5 py-1.5 mt-2 inline-flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-orange-400" />
-              <span className="text-orange-300 text-sm font-bold">
-                Ente Erogatore: {grant.ente_erogatore || 'Non specificato'}
+            <div className="bg-orange-500/20 border border-orange-500/50 rounded-md px-2 py-1.5 mt-2 flex flex-wrap items-center gap-1.5">
+              <Building2 className="w-4 h-4 text-orange-400 flex-shrink-0" />
+              <span className="text-orange-300 text-xs font-bold">
+                Ente: {grant.ente_erogatore || 'N/D'}
               </span>
               {grant.livello && (
-                <Badge className="bg-orange-500 text-white text-xs px-1.5 py-0">{grant.livello}</Badge>
+                <Badge className="bg-orange-500 text-white text-[10px] px-1 py-0">{grant.livello}</Badge>
               )}
               <InfoTooltip 
                 title="Ente Erogatore" 
@@ -300,45 +300,43 @@ export default function GrantCard({ grant, onDetails, userInterest, onToggleAler
         )}
 
         <div className="space-y-2 pt-2">
-          <div className="flex gap-2">
-            <Button
-              size="sm"
-              className="flex-1 bg-lime-400 hover:bg-lime-500 text-slate-900"
-              onClick={() => onDetails(grant)}
-            >
-              Dettagli
-            </Button>
-          </div>
+          <Button
+            size="sm"
+            className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 font-medium"
+            onClick={() => onDetails(grant)}
+          >
+            Dettagli
+          </Button>
           {grant.website_url && (
             <Button
               size="sm"
               variant="outline"
-              className="w-full border-blue-500 text-blue-400"
+              className="w-full border-blue-500 text-blue-400 text-xs"
               onClick={() => window.open(grant.website_url, '_blank')}
             >
-              <ExternalLink className="w-4 h-4 mr-2" />
-              Link ufficiale bando
+              <ExternalLink className="w-3 h-3 mr-1 flex-shrink-0" />
+              <span className="truncate">Link ufficiale bando</span>
             </Button>
           )}
           
-          <div className="flex gap-2">
+          <div className="grid grid-cols-2 gap-2">
             <Button
               size="sm"
-              className={`flex-1 ${userInterest?.wants_alerts ? 'bg-lime-400 hover:bg-lime-500 text-slate-900 font-bold' : 'bg-slate-700 hover:bg-slate-600 text-white font-bold'}`}
+              className={`${userInterest?.wants_alerts ? 'bg-lime-400 hover:bg-lime-500 text-slate-900' : 'bg-slate-700 hover:bg-slate-600 text-white'} text-[10px] px-2 h-8`}
               onClick={onToggleAlerts}
             >
-              {userInterest?.wants_alerts ? <Bell className="w-4 h-4 mr-1" /> : <BellOff className="w-4 h-4 mr-1" />}
-              Avviso a 60 e 30 gg
+              {userInterest?.wants_alerts ? <Bell className="w-3 h-3 mr-1 flex-shrink-0" /> : <BellOff className="w-3 h-3 mr-1 flex-shrink-0" />}
+              <span className="truncate">Avviso a 60 e 30 gg</span>
             </Button>
             
             <Button
               size="sm"
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+              className="bg-blue-600 hover:bg-blue-700 text-white text-[10px] px-2 h-8"
               onClick={onRequestConsultation}
               disabled={userInterest?.requested_consultation}
             >
-              <Briefcase className="w-4 h-4 mr-1" />
-              {userInterest?.requested_consultation ? 'Richiesta inviata' : 'Richiedi consulenza'}
+              <Briefcase className="w-3 h-3 mr-1 flex-shrink-0" />
+              <span className="truncate">{userInterest?.requested_consultation ? 'Richiesta inviata' : 'Richiedi consulenza'}</span>
             </Button>
           </div>
         </div>
