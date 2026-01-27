@@ -420,15 +420,6 @@ export default function ConsultantView({ user }) {
                           <User className="w-3 h-3 inline mr-1" />
                           {referente}
                         </p>
-                        <p className="text-slate-400 text-xs truncate">
-                          <Mail className="w-3 h-3 inline mr-1" />
-                          {booking.user_email}
-                        </p>
-                        {phone && (
-                          <p className="text-slate-400 text-xs truncate">
-                            📞 {phone}
-                          </p>
-                        )}
                         <div className="flex items-center gap-1 text-xs text-slate-500 mt-1">
                           <Clock className="w-3 h-3 flex-shrink-0" />
                           <span>Richiesta: {new Date(booking.created_date).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' })}</span>
