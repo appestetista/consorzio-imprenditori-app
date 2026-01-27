@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Mail, User, Clock, CheckCircle, XCircle, Users, Plus, ChevronUp, ChevronDown, Bell, AlertTriangle, Calendar, Building2, Gift, Send, ChevronLeft, ChevronRight, MessageCircle } from 'lucide-react';
+import { Mail, User, Clock, CheckCircle, XCircle, Users, Plus, ChevronUp, ChevronDown, Bell, AlertTriangle, Calendar, Building2, Gift, Send, ChevronLeft, ChevronRight, MessageCircle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -11,8 +11,8 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import ZoneUsersList from './ZoneUsersList';
 import useNotificationSound from '../hooks/useNotificationSound';
 
-// Mini calendario per selezionare data consulenza
-function MiniCalendar({ selectedDate, onSelectDate, scheduledDate }) {
+// Mini calendario per selezionare più date (consulente propone)
+function MiniCalendarMulti({ selectedDates = [], onToggleDate, maxDates = 3, scheduledDate, proposedDates = [] }) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   
   const daysInMonth = useMemo(() => {
@@ -22,13 +22,11 @@ function MiniCalendar({ selectedDate, onSelectDate, scheduledDate }) {
     const lastDay = new Date(year, month + 1, 0);
     const days = [];
     
-    // Aggiungi giorni vuoti per allineamento
-    const startDayOfWeek = firstDay.getDay() || 7; // Lunedì = 1
+    const startDayOfWeek = firstDay.getDay() || 7;
     for (let i = 1; i < startDayOfWeek; i++) {
       days.push(null);
     }
     
-    // Aggiungi i giorni del mese
     for (let d = 1; d <= lastDay.getDate(); d++) {
       days.push(new Date(year, month, d));
     }
@@ -42,12 +40,17 @@ function MiniCalendar({ selectedDate, onSelectDate, scheduledDate }) {
   const scheduledDay = scheduledDate ? new Date(scheduledDate) : null;
   if (scheduledDay) scheduledDay.setHours(0, 0, 0, 0);
   
+  const proposedDays = proposedDates.map(d => {
+    const date = new Date(d);
+    date.setHours(0, 0, 0, 0);
+    return date;
+  });
+  
   const monthNames = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 
                       'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
   
   return (
     <div className="bg-slate-700/50 rounded-lg p-2">
-      {/* Header mese */}
       <div className="flex items-center justify-between mb-2">
         <Button 
           variant="ghost" 
@@ -70,34 +73,35 @@ function MiniCalendar({ selectedDate, onSelectDate, scheduledDate }) {
         </Button>
       </div>
       
-      {/* Giorni settimana */}
       <div className="grid grid-cols-7 gap-1 mb-1">
         {['L', 'M', 'M', 'G', 'V', 'S', 'D'].map((d, i) => (
           <div key={i} className="text-center text-slate-500 text-[10px]">{d}</div>
         ))}
       </div>
       
-      {/* Griglia giorni */}
       <div className="grid grid-cols-7 gap-1">
         {daysInMonth.map((day, i) => {
           if (!day) return <div key={i} />;
           
           const isPast = day < today;
-          const isSelected = selectedDate && day.toDateString() === selectedDate.toDateString();
+          const isSelected = selectedDates.some(d => d.toDateString() === day.toDateString());
           const isScheduled = scheduledDay && day.toDateString() === scheduledDay.toDateString();
+          const isProposed = proposedDays.some(d => d.toDateString() === day.toDateString());
           const isToday = day.toDateString() === today.toDateString();
+          const canSelect = !isPast && !isScheduled && (isSelected || selectedDates.length < maxDates);
           
           return (
             <button
               key={i}
-              disabled={isPast || isScheduled}
-              onClick={() => !isPast && !isScheduled && onSelectDate(isSelected ? null : day)}
+              disabled={isPast || isScheduled || (!isSelected && selectedDates.length >= maxDates)}
+              onClick={() => canSelect && onToggleDate(day)}
               className={`
                 h-6 w-6 text-[10px] rounded flex items-center justify-center transition-all
                 ${isPast ? 'text-slate-600 cursor-not-allowed' : 'hover:bg-slate-600 cursor-pointer'}
                 ${isSelected ? 'bg-lime-400 text-slate-900 font-bold' : ''}
-                ${isScheduled ? 'bg-blue-500 text-white font-bold' : ''}
-                ${isToday && !isSelected && !isScheduled ? 'border border-lime-400/50 text-lime-400' : 'text-white'}
+                ${isScheduled ? 'bg-green-500 text-white font-bold' : ''}
+                ${isProposed && !isSelected ? 'bg-blue-500/50 text-white' : ''}
+                ${isToday && !isSelected && !isScheduled && !isProposed ? 'border border-lime-400/50 text-lime-400' : 'text-white'}
               `}
             >
               {day.getDate()}
@@ -108,8 +112,16 @@ function MiniCalendar({ selectedDate, onSelectDate, scheduledDate }) {
       
       {scheduledDate && (
         <div className="mt-2 text-center">
+          <Badge className="bg-green-500 text-white text-[10px]">
+            ✓ Confermato: {new Date(scheduledDate).toLocaleDateString('it-IT')}
+          </Badge>
+        </div>
+      )}
+      
+      {proposedDates.length > 0 && !scheduledDate && (
+        <div className="mt-2 text-center">
           <Badge className="bg-blue-500 text-white text-[10px]">
-            Appuntamento: {new Date(scheduledDate).toLocaleDateString('it-IT')}
+            Date proposte: {proposedDates.length}
           </Badge>
         </div>
       )}
@@ -119,11 +131,9 @@ function MiniCalendar({ selectedDate, onSelectDate, scheduledDate }) {
 
 export default function ConsultantView({ user }) {
     const queryClient = useQueryClient();
-    const [creditsInput, setCreditsInput] = useState({});
-    const [activeTab, setActiveTab] = useState('users'); // 'users' o 'requests'
     const [confirmDialog, setConfirmDialog] = useState({ open: false, bookingId: null, userEmail: null });
-    const [selectedDates, setSelectedDates] = useState({}); // { bookingId: Date }
-    const [selectedTimes, setSelectedTimes] = useState({}); // { bookingId: 'HH:MM' }
+    const [selectedDates, setSelectedDates] = useState({}); // { bookingId: [Date, Date] }
+    const [selectedTimes, setSelectedTimes] = useState({}); // { bookingId: { dateIndex: 'HH:MM' } }
     const { playSound } = useNotificationSound();
 
   const { data: myConsultantProfile } = useQuery({
@@ -147,36 +157,6 @@ export default function ConsultantView({ user }) {
       const users = await base44.entities.User.list();
       return users;
     },
-  });
-
-  const { data: assignments = [] } = useQuery({
-    queryKey: ['consultant-assignments', myConsultantProfile?.id],
-    queryFn: async () => {
-      if (!myConsultantProfile?.id) return [];
-      const existingAssignments = await base44.entities.ConsultantAssignment.filter({ 
-        consultant_id: myConsultantProfile.id 
-      });
-      
-      // Crea automaticamente assignment per membri che non ne hanno
-      const users = await base44.entities.User.list();
-      for (const user of users) {
-        const hasAssignment = existingAssignments.some(a => a.user_email === user.email);
-        if (!hasAssignment) {
-          await base44.entities.ConsultantAssignment.create({
-            user_email: user.email,
-            consultant_id: myConsultantProfile.id,
-            available_consultations: 1,
-            is_assigned: true
-          });
-        }
-      }
-      
-      // Ricarica tutti gli assignment dopo la creazione
-      return await base44.entities.ConsultantAssignment.filter({ 
-        consultant_id: myConsultantProfile.id 
-      });
-    },
-    enabled: !!myConsultantProfile?.id,
   });
 
   // Conta messaggi non letti per il tab Utenti
@@ -207,58 +187,48 @@ export default function ConsultantView({ user }) {
     return () => unsubscribe();
   }, [user?.email, queryClient, playSound]);
 
-  const updateStatusMutation = useMutation({
-    mutationFn: async ({ bookingId, status }) => {
-      await base44.entities.ConsultationBooking.update(bookingId, { status });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['consultant-bookings'] });
-    }
-  });
-
-  const scheduleConsultationMutation = useMutation({
-    mutationFn: async ({ bookingId, userEmail, scheduledDate }) => {
+  // Proponi date al cliente
+  const proposeDatesMutation = useMutation({
+    mutationFn: async ({ bookingId, userEmail, proposedDates }) => {
       await base44.entities.ConsultationBooking.update(bookingId, { 
-        status: 'confirmed',
-        scheduled_date: scheduledDate
+        status: 'dates_proposed',
+        proposed_dates: proposedDates.map(d => d.toISOString())
       });
 
-      // Notifica all'utente con data/ora programmata
-      const formattedDate = new Date(scheduledDate).toLocaleString('it-IT', {
-        weekday: 'long',
-        day: '2-digit',
-        month: 'long',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
+      // Formatta le date per la notifica
+      const formattedDates = proposedDates.map(d => 
+        d.toLocaleString('it-IT', {
+          weekday: 'short',
+          day: '2-digit',
+          month: 'short',
+          hour: '2-digit',
+          minute: '2-digit'
+        })
+      ).join(' | ');
 
       await base44.entities.Notification.create({
         user_email: userEmail,
         type: 'consultation',
-        title: 'Consulenza confermata',
-        content: `${myConsultantProfile?.name || 'Il consulente'} (${myConsultantProfile?.category || ''}) ha confermato la tua consulenza per ${formattedDate}.`,
+        title: 'Date disponibili per consulenza',
+        content: `${myConsultantProfile?.name || 'Il consulente'} ti ha proposto le seguenti date: ${formattedDates}. Vai in Consulenze per confermare.`,
         is_read: false,
         reference_id: bookingId
       });
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['consultant-bookings'] });
-      // Reset selected date/time per questo booking
-      setSelectedDates(prev => ({ ...prev, [variables.bookingId]: null }));
-      setSelectedTimes(prev => ({ ...prev, [variables.bookingId]: '' }));
+      setSelectedDates(prev => ({ ...prev, [variables.bookingId]: [] }));
+      setSelectedTimes(prev => ({ ...prev, [variables.bookingId]: {} }));
     }
   });
 
   const completeConsultationMutation = useMutation({
     mutationFn: async ({ bookingId, userEmail }) => {
-      // Aggiorna lo stato della prenotazione - in attesa conferma utente
       await base44.entities.ConsultationBooking.update(bookingId, { 
         status: 'awaiting_user_confirmation',
         consultant_confirmed_at: new Date().toISOString()
       });
 
-      // Invia notifica all'utente per confermare la consulenza
       await base44.entities.Notification.create({
         user_email: userEmail,
         type: 'consultation',
@@ -270,84 +240,60 @@ export default function ConsultantView({ user }) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['consultant-bookings'] });
-      queryClient.invalidateQueries({ queryKey: ['consultant-assignments'] });
-      queryClient.invalidateQueries({ queryKey: ['all-members-consultant'] });
     }
   });
 
-  const recalculateTotalConsultations = async (userEmail) => {
-    const allAssignments = await base44.entities.ConsultantAssignment.filter({ 
-      user_email: userEmail,
-      is_assigned: true 
+  const handleToggleDate = (bookingId, date) => {
+    setSelectedDates(prev => {
+      const current = prev[bookingId] || [];
+      const exists = current.findIndex(d => d.toDateString() === date.toDateString());
+      if (exists >= 0) {
+        // Rimuovi
+        const newDates = [...current];
+        newDates.splice(exists, 1);
+        return { ...prev, [bookingId]: newDates };
+      } else if (current.length < 3) {
+        // Aggiungi
+        return { ...prev, [bookingId]: [...current, date] };
+      }
+      return prev;
     });
-    const total = allAssignments.reduce((sum, a) => sum + (a.available_consultations || 0), 0);
+  };
+
+  const handleTimeChange = (bookingId, dateIndex, time) => {
+    setSelectedTimes(prev => ({
+      ...prev,
+      [bookingId]: {
+        ...(prev[bookingId] || {}),
+        [dateIndex]: time
+      }
+    }));
+  };
+
+  const handleSendProposedDates = (bookingId, userEmail) => {
+    const dates = selectedDates[bookingId] || [];
+    const times = selectedTimes[bookingId] || {};
     
-    const users = await base44.entities.User.filter({ email: userEmail });
-    if (users.length > 0) {
-      await base44.entities.User.update(users[0].id, {
-        consulenze_gratuite_totali: total
-      });
-    }
-  };
-
-  const updateAssignmentMutation = useMutation({
-    mutationFn: async ({ assignmentId, userEmail, newValue }) => {
-      await base44.entities.ConsultantAssignment.update(assignmentId, { 
-        available_consultations: newValue 
-      });
-      await recalculateTotalConsultations(userEmail);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['consultant-assignments'] });
-      queryClient.invalidateQueries({ queryKey: ['all-members-consultant'] });
-    }
-  });
-
-  const createAssignmentMutation = useMutation({
-    mutationFn: async ({ userEmail, consultantId, value }) => {
-      await base44.entities.ConsultantAssignment.create({
-        user_email: userEmail,
-        consultant_id: consultantId,
-        available_consultations: value,
-        is_assigned: true
-      });
-      await recalculateTotalConsultations(userEmail);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['consultant-assignments'] });
-      queryClient.invalidateQueries({ queryKey: ['all-members-consultant'] });
-    }
-  });
-
-  const handleIncrement = (userEmail, currentCredits, assignment) => {
-    if (assignment) {
-      updateAssignmentMutation.mutate({ 
-        assignmentId: assignment.id, 
-        userEmail, 
-        newValue: currentCredits + 1 
-      });
-    } else {
-      createAssignmentMutation.mutate({ 
-        userEmail, 
-        consultantId: myConsultantProfile.id, 
-        value: 1 
-      });
-    }
-  };
-
-  const handleDecrement = (userEmail, currentCredits, assignment) => {
-    if (currentCredits > 0 && assignment) {
-      updateAssignmentMutation.mutate({ 
-        assignmentId: assignment.id, 
-        userEmail, 
-        newValue: currentCredits - 1 
-      });
-    }
+    // Combina date e orari
+    const proposedDatesWithTime = dates.map((date, idx) => {
+      const time = times[idx] || '10:00';
+      const [hours, minutes] = time.split(':');
+      const newDate = new Date(date);
+      newDate.setHours(parseInt(hours), parseInt(minutes));
+      return newDate;
+    });
+    
+    proposeDatesMutation.mutate({
+      bookingId,
+      userEmail,
+      proposedDates: proposedDatesWithTime
+    });
   };
 
   const statusColors = {
     pending: 'bg-yellow-500',
-    confirmed: 'bg-blue-500',
+    dates_proposed: 'bg-blue-500',
+    confirmed: 'bg-green-500',
     awaiting_user_confirmation: 'bg-orange-500',
     completed: 'bg-green-600',
     cancelled: 'bg-red-500'
@@ -355,8 +301,9 @@ export default function ConsultantView({ user }) {
 
   const statusLabels = {
     pending: 'In Attesa',
+    dates_proposed: 'Date proposte',
     confirmed: 'Confermata',
-    awaiting_user_confirmation: 'In attesa conferma utente',
+    awaiting_user_confirmation: 'Attesa conferma',
     completed: 'Completata',
     cancelled: 'Annullata'
   };
@@ -405,8 +352,10 @@ export default function ConsultantView({ user }) {
                 const member = allMembers.find(m => m.email === booking.user_email);
                 const companyName = member?.company_name || 'Azienda';
                 const referente = member?.referente || member?.full_name || '-';
-                const phone = member?.phone || member?.cellulare_referente || null;
                 const isCompleted = booking.status === 'completed';
+                const bookingSelectedDates = selectedDates[booking.id] || [];
+                const bookingSelectedTimes = selectedTimes[booking.id] || {};
+                
                 return (
                   <div key={booking.id} className="bg-slate-700/50 rounded-lg p-3 overflow-hidden">
                     {/* Intestazione con nome azienda */}
@@ -435,66 +384,115 @@ export default function ConsultantView({ user }) {
                         {statusLabels[booking.status]}
                       </Badge>
                     </div>
+                    
                     {/* Messaggio utente */}
                     <div className="bg-slate-600 rounded-lg px-3 py-2 mb-3">
                       <p className="text-white text-sm">{booking.subject}</p>
                     </div>
 
-                    {/* Mini Calendario per programmare o vedere appuntamento */}
-                    <MiniCalendar 
-                      selectedDate={selectedDates[booking.id]}
-                      onSelectDate={(date) => setSelectedDates(prev => ({ ...prev, [booking.id]: date }))}
-                      scheduledDate={booking.scheduled_date}
-                    />
+                    {/* Per richieste pending: mostra calendario per proporre date */}
+                    {booking.status === 'pending' && (
+                      <>
+                        <p className="text-slate-400 text-xs mb-2">Seleziona fino a 3 date da proporre:</p>
+                        <MiniCalendarMulti 
+                          selectedDates={bookingSelectedDates}
+                          onToggleDate={(date) => handleToggleDate(booking.id, date)}
+                          maxDates={3}
+                        />
+                        
+                        {/* Mostra orari per date selezionate */}
+                        {bookingSelectedDates.length > 0 && (
+                          <div className="mt-3 space-y-2">
+                            {bookingSelectedDates.map((date, idx) => (
+                              <div key={idx} className="flex items-center gap-2 bg-slate-600/50 rounded p-2">
+                                <span className="text-white text-xs flex-1">
+                                  {date.toLocaleDateString('it-IT', { weekday: 'short', day: '2-digit', month: 'short' })}
+                                </span>
+                                <Input
+                                  type="time"
+                                  value={bookingSelectedTimes[idx] || '10:00'}
+                                  onChange={(e) => handleTimeChange(booking.id, idx, e.target.value)}
+                                  className="bg-slate-900 border-slate-600 text-white text-xs h-7 w-24"
+                                />
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-7 w-7 p-0 text-red-400 hover:text-red-300"
+                                  onClick={() => handleToggleDate(booking.id, date)}
+                                >
+                                  <X className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            ))}
+                            
+                            <Button
+                              size="sm"
+                              className="w-full bg-blue-500 hover:bg-blue-600 text-white text-xs mt-2"
+                              disabled={bookingSelectedDates.length === 0 || proposeDatesMutation.isPending}
+                              onClick={() => handleSendProposedDates(booking.id, booking.user_email)}
+                            >
+                              <Send className="w-3 h-3 mr-1" />
+                              Invia {bookingSelectedDates.length} data/e proposta/e
+                            </Button>
+                          </div>
+                        )}
+                      </>
+                    )}
 
-                    {/* Se è selezionato un giorno, mostra selezione ora */}
-                    {selectedDates[booking.id] && booking.status === 'pending' && (
-                      <div className="mt-2 space-y-2">
-                        <div className="flex items-center gap-2">
-                          <Input
-                            type="time"
-                            value={selectedTimes[booking.id] || ''}
-                            onChange={(e) => setSelectedTimes(prev => ({ ...prev, [booking.id]: e.target.value }))}
-                            className="bg-slate-900 border-slate-600 text-white text-sm h-8 flex-1"
-                          />
+                    {/* Per date proposte: mostra le date in attesa di conferma */}
+                    {booking.status === 'dates_proposed' && booking.proposed_dates && (
+                      <div className="bg-blue-500/20 border border-blue-500/50 rounded-lg p-3 mb-3">
+                        <p className="text-blue-400 text-xs font-medium mb-2">Date proposte (in attesa di conferma):</p>
+                        <div className="space-y-1">
+                          {booking.proposed_dates.map((date, idx) => (
+                            <div key={idx} className="text-white text-sm">
+                              • {new Date(date).toLocaleString('it-IT', {
+                                weekday: 'short',
+                                day: '2-digit',
+                                month: 'short',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </div>
+                          ))}
                         </div>
-                        <Button
-                          size="sm"
-                          className="w-full bg-blue-500 hover:bg-blue-600 text-white text-xs"
-                          disabled={!selectedTimes[booking.id] || scheduleConsultationMutation.isPending}
-                          onClick={() => {
-                            const date = selectedDates[booking.id];
-                            const [hours, minutes] = selectedTimes[booking.id].split(':');
-                            date.setHours(parseInt(hours), parseInt(minutes));
-                            scheduleConsultationMutation.mutate({
-                              bookingId: booking.id,
-                              userEmail: booking.user_email,
-                              scheduledDate: date.toISOString()
-                            });
-                          }}
-                        >
-                          <Send className="w-3 h-3 mr-1" />
-                          Invia Data Proposta
-                        </Button>
                       </div>
                     )}
 
-                    {/* Pulsante Completata */}
-                    <div className="mt-3">
-                      <Button
-                        size="sm"
-                        className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 text-xs"
-                        onClick={() => setConfirmDialog({ 
-                          open: true, 
-                          bookingId: booking.id, 
-                          userEmail: booking.user_email 
-                        })}
-                        disabled={completeConsultationMutation.isPending}
-                      >
-                        <CheckCircle className="w-3 h-3 mr-1" />
-                        Completata
-                      </Button>
-                    </div>
+                    {/* Per confermate: mostra data confermata */}
+                    {booking.status === 'confirmed' && booking.scheduled_date && (
+                      <div className="bg-green-500/20 border border-green-500/50 rounded-lg p-3 mb-3">
+                        <p className="text-green-400 text-xs font-medium mb-1">Appuntamento confermato:</p>
+                        <p className="text-white text-sm font-bold">
+                          {new Date(booking.scheduled_date).toLocaleString('it-IT', {
+                            weekday: 'long',
+                            day: '2-digit',
+                            month: 'long',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Pulsante Completata - solo per confermate o date_proposed */}
+                    {['confirmed', 'dates_proposed'].includes(booking.status) && (
+                      <div className="mt-3">
+                        <Button
+                          size="sm"
+                          className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 text-xs"
+                          onClick={() => setConfirmDialog({ 
+                            open: true, 
+                            bookingId: booking.id, 
+                            userEmail: booking.user_email 
+                          })}
+                          disabled={completeConsultationMutation.isPending}
+                        >
+                          <CheckCircle className="w-3 h-3 mr-1" />
+                          Segna come Completata
+                        </Button>
+                      </div>
+                    )}
 
                     {booking.status === 'awaiting_user_confirmation' && (
                       <div className="bg-orange-500/20 border border-orange-500/50 rounded-lg p-2 text-center mt-2">
@@ -531,7 +529,7 @@ export default function ConsultantView({ user }) {
             <AlertDialogDescription className="text-slate-300">
               Stai per segnare questa consulenza come completata.
               <br /><br />
-              <span className="text-lime-400 font-semibold">Nota:</span> L'utente riceverà una notifica e dovrà confermare che la consulenza è effettivamente avvenuta. Solo dopo la sua conferma verrà decrementato il contatore delle consulenze gratuite.
+              <span className="text-lime-400 font-semibold">Nota:</span> L'utente riceverà una notifica e dovrà confermare che la consulenza è effettivamente avvenuta.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
