@@ -219,11 +219,14 @@ export default function VideoInterviste() {
     mutationFn: async () => {
       if (!requestMessage.trim()) return;
       
+      // Usa sempre user (l'utente reale loggato), non effectiveUser
+      const requestingUser = user;
+      
       // Salva la richiesta nel database
       const request = await base44.entities.VideoInterviewRequest.create({
-        requester_email: effectiveUser.email,
-        requester_name: effectiveUser.company_name || effectiveUser.full_name,
-        requester_phone: effectiveUser.phone || '',
+        requester_email: requestingUser.email,
+        requester_name: requestingUser.company_name || requestingUser.full_name,
+        requester_phone: requestingUser.phone || '',
         message: requestMessage,
         status: 'pending'
       });
@@ -235,7 +238,7 @@ export default function VideoInterviste() {
           user_email: admin.email,
           type: 'video',
           title: 'Nuova Richiesta Video Intervista',
-          content: `${effectiveUser.company_name || effectiveUser.full_name} ha richiesto una video intervista`,
+          content: `${requestingUser.company_name || requestingUser.full_name} ha richiesto una video intervista`,
           reference_id: request.id,
           is_read: false
         });
@@ -245,14 +248,14 @@ export default function VideoInterviste() {
       await base44.integrations.Core.SendEmail({
         from_name: 'Piattaforma Consorzio',
         to: 'consorzioimprenditori@gmail.com',
-        subject: `Richiesta Video Intervista - ${effectiveUser.company_name || effectiveUser.full_name}`,
+        subject: `Richiesta Video Intervista - ${requestingUser.company_name || requestingUser.full_name}`,
         body: `
 Nuova richiesta di video intervista dalla piattaforma:
 
-AZIENDA: ${effectiveUser.company_name || 'N/A'}
-REFERENTE: ${effectiveUser.full_name || 'N/A'}
-EMAIL: ${effectiveUser.email}
-TELEFONO: ${effectiveUser.phone || 'N/A'}
+AZIENDA: ${requestingUser.company_name || 'N/A'}
+REFERENTE: ${requestingUser.full_name || 'N/A'}
+EMAIL: ${requestingUser.email}
+TELEFONO: ${requestingUser.phone || 'N/A'}
 
 MESSAGGIO:
 ${requestMessage}
@@ -681,16 +684,16 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
             <div className="space-y-2">
               <p className="text-slate-300 text-sm font-medium">I tuoi dati:</p>
               <div className="bg-slate-900 rounded-lg p-3 space-y-2">
-                {effectiveUser?.company_name && (
-                  <p className="text-white text-sm font-medium">{effectiveUser.company_name}</p>
+                {user?.company_name && (
+                  <p className="text-white text-sm font-medium">{user.company_name}</p>
                 )}
-                {effectiveUser?.full_name && (
-                  <p className="text-slate-300 text-sm">{effectiveUser.full_name}</p>
+                {user?.full_name && (
+                  <p className="text-slate-300 text-sm">{user.full_name}</p>
                 )}
-                <p className="text-slate-400 text-xs">{effectiveUser?.email}</p>
-                {effectiveUser?.phone && <p className="text-slate-400 text-xs">Tel: {effectiveUser.phone}</p>}
-                {effectiveUser?.city && <p className="text-slate-400 text-xs">Città: {effectiveUser.city}</p>}
-                {effectiveUser?.address && <p className="text-slate-400 text-xs">Indirizzo: {effectiveUser.address}</p>}
+                <p className="text-slate-400 text-xs">{user?.email}</p>
+                {user?.phone && <p className="text-slate-400 text-xs">Tel: {user.phone}</p>}
+                {user?.city && <p className="text-slate-400 text-xs">Città: {user.city}</p>}
+                {user?.address && <p className="text-slate-400 text-xs">Indirizzo: {user.address}</p>}
               </div>
             </div>
 
