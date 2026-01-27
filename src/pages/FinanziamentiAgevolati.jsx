@@ -857,6 +857,48 @@ Restituisci solo gli ID dei bandi compatibili.`,
           </div>
         )}
 
+        {/* Pulsante Match AI con Profilo - Solo per utenti non admin */}
+        {!isRealAdmin && (
+          <div className="mb-4">
+            <div className="flex gap-2">
+              <Button
+                onClick={handleMatchWithProfile}
+                disabled={loadingMatch || grantMatchLimitReached || hasIncompleteProfile}
+                className={`flex-1 ${showOnlyMatching ? 'bg-purple-600 hover:bg-purple-700' : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700'} text-white`}
+              >
+                {loadingMatch ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Analisi in corso...
+                  </>
+                ) : (
+                  <>
+                    <Search className="w-4 h-4 mr-2" />
+                    {showOnlyMatching ? `Compatibili: ${matchedGrantIds.length}` : 'Cerca bandi compatibili AI'}
+                  </>
+                )}
+              </Button>
+              {showOnlyMatching && (
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowOnlyMatching(false);
+                    setMatchedGrantIds([]);
+                  }}
+                  className="border-slate-600 text-slate-300"
+                >
+                  Mostra tutti
+                </Button>
+              )}
+            </div>
+            <p className="text-slate-500 text-xs mt-1 text-center">
+              {grantMatchLimitReached 
+                ? '⚠️ Limite mensile raggiunto (30 ricerche)' 
+                : `${grantMatchRemaining} ricerche AI rimanenti questo mese`}
+            </p>
+          </div>
+        )}
+
         {/* Filters */}
         <div className="mb-6">
           <GrantFilters filters={filters} onFilterChange={handleFilterChange} />
@@ -933,17 +975,21 @@ Restituisci solo gli ID dei bandi compatibili.`,
           <div className="text-center py-12">
             <div className="animate-spin w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full mx-auto"></div>
           </div>
-        ) : filteredGrants.length === 0 ? (
+        ) : displayGrants.length === 0 ? (
           <div className="text-center py-12">
             <Sparkles className="w-16 h-16 text-slate-600 mx-auto mb-4" />
-            <p className="text-slate-400">Nessun bando compatibile trovato</p>
+            <p className="text-slate-400">
+              {showOnlyMatching ? 'Nessun bando compatibile trovato con il tuo profilo' : 'Nessun bando compatibile trovato'}
+            </p>
             <p className="text-slate-500 text-sm mt-2">
-              Prova a modificare i filtri o completa il profilo aziendale
+              {showOnlyMatching 
+                ? 'Prova a completare il profilo bandi per risultati migliori'
+                : 'Prova a modificare i filtri o completa il profilo aziendale'}
             </p>
           </div>
         ) : (
           <div className="space-y-4">
-            {sortedGrants.map((grant) => {
+            {displayGrants.map((grant) => {
               if (topRecommendedGrants.find(g => g.id === grant.id)) return null;
               
               const interest = userInterests.find(i => i.grant_id === grant.id);
