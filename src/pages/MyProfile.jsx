@@ -620,7 +620,12 @@ function ConsultantProfileCard({ consultantData, setConsultantData, savingConsul
         </div>
 
         <Button
-          onClick={handleSaveConsultant}
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleSaveConsultant();
+          }}
           disabled={savingConsultant || !localData || !localData.phone || !localData.city}
           className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 text-lg py-6 mt-4"
         >
