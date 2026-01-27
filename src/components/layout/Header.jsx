@@ -18,6 +18,10 @@ export default function Header({ user, totalNotifications = 0 }) {
   };
 
   // Determina il titolo e sottotitolo in base allo stato
+  // I dati utente possono essere a livello root o dentro .data (dipende da come vengono caricati)
+  const getUserType = () => user?.user_type || user?.data?.user_type;
+  const getCompanyName = () => user?.company_name || user?.data?.company_name;
+  
   const getHeaderInfo = () => {
     let title = '';
     let subtitle = '';
@@ -36,11 +40,11 @@ export default function Header({ user, totalNotifications = 0 }) {
       if (isAdmin) {
         title = 'Admin Consorzio';
         subtitle = 'Amministratore';
-      } else if (user?.user_type === 'consulente') {
-        title = user?.company_name || 'Consulente';
+      } else if (getUserType() === 'consulente') {
+        title = getCompanyName() || 'Consulente';
         subtitle = 'Consulente';
       } else {
-        title = user?.company_name || 'Membro';
+        title = getCompanyName() || 'Membro';
         subtitle = 'Membro del Consorzio';
       }
     }
