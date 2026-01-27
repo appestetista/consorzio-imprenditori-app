@@ -40,7 +40,7 @@ export default function Home() {
     const assignType = async () => {
       try {
         const currentUser = await base44.auth.me();
-        // Skip se l'utente è admin o ha già un tipo assegnato
+        // Skip se l'utente è admin o ha già un tipo assegnato (incluso consulente)
         if (currentUser?.role === 'admin' || currentUser?.user_type) {
           console.log('[HOME] Utente admin o già assegnato, skip assignUserType');
           return;
@@ -62,8 +62,9 @@ export default function Home() {
           return;
         }
 
-        // Se l'assegnazione è andata a buon fine, reindirizza al profilo per completarlo
-        if (result.data?.success && result.data?.user_type) {
+        // Se l'assegnazione è andata a buon fine e NON è un consulente, reindirizza al profilo per completarlo
+        // I consulenti hanno già il profilo da completare in MyProfile > Profilo Studio
+        if (result.data?.success && result.data?.user_type && result.data.user_type !== 'consulente') {
           console.log('[HOME] Tipo utente assegnato:', result.data.user_type, '- reindirizzo al profilo');
           navigate(createPageUrl('MyProfile'));
         }
