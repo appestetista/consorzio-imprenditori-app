@@ -284,6 +284,10 @@ function ConsultantProfileCard({ consultantData, setConsultantData, savingConsul
   const hasMultipleZones = consultantZones.length > 1;
 
   const handleSaveConsultant = async () => {
+    if (!localData.name) {
+      toast.error('Il nome dello studio è obbligatorio');
+      return;
+    }
     if (!localData.phone || !localData.city) {
       toast.error('Telefono e Sede sono obbligatori');
       return;
@@ -300,7 +304,7 @@ function ConsultantProfileCard({ consultantData, setConsultantData, savingConsul
       // Aggiorna l'entità Consultant
       await base44.entities.Consultant.update(consultantData.id, localData);
       
-      // Sincronizza anche l'entità User con i dati rilevanti
+      // Sincronizza anche l'entità User con i dati rilevanti (company_name = name del Consultant)
       await base44.auth.updateMe({
         company_name: localData.name,
         phone: localData.phone,
@@ -310,7 +314,7 @@ function ConsultantProfileCard({ consultantData, setConsultantData, savingConsul
       });
       
       setConsultantData({ ...consultantData, ...localData });
-      toast.success('Profilo consulente aggiornato!');
+      toast.success('Profilo studio aggiornato!');
       setPendingZeroValue(false);
     } catch (error) {
       console.error('Errore salvataggio:', error);
@@ -338,7 +342,7 @@ function ConsultantProfileCard({ consultantData, setConsultantData, savingConsul
       });
       
       setConsultantData({ ...consultantData, ...localData });
-      toast.success('Profilo consulente aggiornato!');
+      toast.success('Profilo studio aggiornato!');
     } catch (error) {
       console.error('Errore salvataggio:', error);
       toast.error('Errore durante il salvataggio');
