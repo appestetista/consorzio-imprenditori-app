@@ -64,11 +64,18 @@ export default function MembersDirectory({ currentUserEmail }) {
 
   const isLoading = loadingUsers;
 
-  // Filtra utenti in base alla ricerca
+  // Filtra utenti in base alla ricerca - mostra solo utenti di tipo 'utente' (no admin, no consulenti)
   const filteredUsers = useMemo(() => {
-    if (!searchTerm) return allUsers;
+    // Prima filtra per tipo utente
+    const membersOnly = allUsers.filter(user => 
+      user.user_type === 'utente' && 
+      user.role !== 'admin' && 
+      !user.is_blocked
+    );
+    
+    if (!searchTerm) return membersOnly;
     const search = searchTerm.toLowerCase();
-    return allUsers.filter(user => 
+    return membersOnly.filter(user => 
       user.company_name?.toLowerCase().includes(search) ||
       user.full_name?.toLowerCase().includes(search) ||
       user.city?.toLowerCase().includes(search)
