@@ -79,11 +79,7 @@ export default function Header({ user, totalNotifications = 0 }) {
             </button>
           )}
 
-          {totalNotifications > 0 && (
-            <span className="bg-red-500 text-white text-xs rounded-full min-w-6 h-6 px-1.5 flex items-center justify-center font-bold">
-              {totalNotifications}
-            </span>
-          )}
+          
           <button 
             onClick={() => setMenuOpen(!menuOpen)}
             className="bg-lime-400 p-2 rounded-lg"
