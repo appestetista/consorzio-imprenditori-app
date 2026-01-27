@@ -837,16 +837,7 @@ export default function MyProfile() {
           />
         )}
 
-        {/* Avviso per compilare Profilo Bandi */}
-        {user?.user_type !== 'consulente' && (!user?.legal_form || !user?.sector || !user?.ateco_code) && (
-          <Alert className="bg-lime-500/20 border-lime-500/50 mb-4">
-            <AlertTriangle className="h-5 w-5 text-lime-400" />
-            <AlertDescription className="text-lime-300">
-              <p className="font-bold mb-1">📋 Completa il tuo Profilo Bandi!</p>
-              <p className="text-sm">Per ricevere le opportunità di finanziamento più adatte alla tua azienda, compila anche la sezione <span className="font-bold text-lime-400">"Profilo Bandi"</span>.</p>
-            </AlertDescription>
-          </Alert>
-        )}
+{/* Avviso per compilare Profilo Bandi - opzionale, non più mostrato */}
 
         {/* Se consulente, nascondi il resto */}
         {user?.user_type !== 'consulente' && (
