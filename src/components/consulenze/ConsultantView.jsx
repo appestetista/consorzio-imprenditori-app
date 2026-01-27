@@ -127,10 +127,10 @@ export default function ConsultantView({ user }) {
     const { playSound } = useNotificationSound();
 
   const { data: myConsultantProfile } = useQuery({
-    queryKey: ['my-consultant-profile', user?.email],
+    queryKey: ['my-consultant-profile', user?.email?.toLowerCase()],
     queryFn: async () => {
       const consultants = await base44.entities.Consultant.list();
-      return consultants.find(c => c.email === user?.email);
+      return consultants.find(c => c.email?.toLowerCase() === user?.email?.toLowerCase());
     },
     enabled: !!user?.email,
   });
