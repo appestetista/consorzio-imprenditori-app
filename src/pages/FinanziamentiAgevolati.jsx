@@ -529,13 +529,39 @@ Per ogni bando, fornisci:
     return grant.eligible_regions.some(region => userRegions.includes(region));
   };
 
+  // Funzione per determinare livello del bando
+  const getGrantLevel = (grant) => {
+    const effectiveUser = getEffectiveUserProfile();
+    const userRegions = effectiveUser?.interested_regions || 
+                        (effectiveUser?.region ? [effectiveUser.region] : []);
+    
+    // 1. Bando della regione dell'utente
+    if (grant.eligible_regions?.length > 0 && userRegions.length > 0) {
+      if (grant.eligible_regions.some(r => userRegions.includes(r))) {
+        return 1; // Regione utente - priorità massima
+      }
+    }
+    
+    // 2. Bando nazionale
+    if (grant.livello === 'Nazionale' || grant.is_national) {
+      return 2;
+    }
+    
+    // 3. Bando europeo
+    if (grant.livello === 'Europeo') {
+      return 3;
+    }
+    
+    // 4. Altre regioni
+    return 4;
+  };
+
   // Sort grants based on selected sorting option
   const sortedGrants = [...filteredGrants].sort((a, b) => {
-    // PRIMA: Ordina per bandi della regione dell'utente (prima quelli che matchano la regione)
-    const aIsUserRegion = isUserRegionGrant(a);
-    const bIsUserRegion = isUserRegionGrant(b);
-    if (aIsUserRegion && !bIsUserRegion) return -1;
-    if (!aIsUserRegion && bIsUserRegion) return 1;
+    // PRIMA: Ordina per livello geografico (regione utente > nazionale > europeo > altre)
+    const levelA = getGrantLevel(a);
+    const levelB = getGrantLevel(b);
+    if (levelA !== levelB) return levelA - levelB;
 
     // Se ci sono raccomandazioni AI e nessun ordinamento specifico, usa quelle
     if (filters.sortBy === 'created_date_desc' && Object.keys(aiRecommendations).length > 0) {
@@ -573,6 +599,81 @@ Per ogni bando, fornisci:
         return 0;
     }
   });
+
+  // Funzione per eseguire match AI con il profilo
+  const handleMatchWithProfile = async () => {
+    if (grantMatchLimitReached) return;
+    
+    setLoadingMatch(true);
+    try {
+      await trackGrantMatchUsage();
+      
+      const effectiveUser = getEffectiveUserProfile();
+      const userProfile = {
+        company_name: effectiveUser?.company_name || 'N/A',
+        company_size: effectiveUser?.company_size || 'N/A',
+        region: effectiveUser?.region || 'N/A',
+        interested_regions: effectiveUser?.interested_regions || [],
+        ateco_code: effectiveUser?.ateco_code || 'N/A',
+        legal_form: effectiveUser?.legal_form || 'N/A',
+        sector: effectiveUser?.sector || effectiveUser?.settore || 'N/A',
+        years_of_activity: effectiveUser?.years_of_activity || 'N/A'
+      };
+
+      const grantsForAnalysis = filteredGrants.slice(0, 30).map(g => ({
+        id: g.id,
+        title: g.title,
+        description: g.description?.substring(0, 200),
+        grant_type: g.grant_type,
+        funding_type: g.funding_type,
+        eligible_company_sizes: g.eligible_company_sizes,
+        eligible_regions: g.eligible_regions,
+        eligible_ateco_codes: g.eligible_ateco_codes,
+        livello: g.livello,
+        min_years_activity: g.min_years_activity
+      }));
+
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt: `Sei un esperto di finanziamenti agevolati per PMI italiane.
+Analizza il profilo aziendale e confrontalo con i bandi disponibili.
+Restituisci SOLO gli ID dei bandi che sono COMPATIBILI con il profilo aziendale.
+Un bando è compatibile se:
+- La dimensione aziendale rientra tra quelle ammissibili (o non ci sono restrizioni)
+- La regione dell'azienda è tra quelle ammissibili (o è un bando nazionale/europeo)
+- Il settore/codice ATECO è compatibile (o non ci sono restrizioni)
+- Gli anni di attività sono sufficienti (o non ci sono restrizioni)
+
+PROFILO AZIENDALE:
+${JSON.stringify(userProfile, null, 2)}
+
+BANDI DISPONIBILI:
+${JSON.stringify(grantsForAnalysis, null, 2)}
+
+Restituisci solo gli ID dei bandi compatibili.`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            compatible_grant_ids: {
+              type: "array",
+              items: { type: "string" }
+            }
+          }
+        }
+      });
+
+      setMatchedGrantIds(response.compatible_grant_ids || []);
+      setShowOnlyMatching(true);
+    } catch (error) {
+      console.error('Error matching grants:', error);
+    } finally {
+      setLoadingMatch(false);
+    }
+  };
+
+  // Filtra i bandi se è attivo il filtro match
+  const displayGrants = showOnlyMatching && matchedGrantIds.length > 0
+    ? sortedGrants.filter(g => matchedGrantIds.includes(g.id))
+    : sortedGrants;
 
   const topRecommendedGrants = sortedGrants.filter(g => 
     aiRecommendations[g.id]?.score >= 75
