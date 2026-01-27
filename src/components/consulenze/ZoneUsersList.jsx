@@ -28,19 +28,25 @@ export default function ZoneUsersList({ consultantEmail, consultantZona }) {
       // La zona del consulente può essere multipla (separata da virgola)
       const consultantZones = consultantZona.split(',').map(z => z.trim().toLowerCase()).filter(Boolean);
       
+      // Carica lista email dei consulenti per escluderli
+      const consultantsRes = await base44.entities.Consultant.list();
+      const consultantEmails = consultantsRes.map(c => c.email?.toLowerCase()).filter(Boolean);
+      
       // Filtra utenti:
       // - della stessa zona (o una delle zone del consulente)
       // - escludendo admin
       // - escludendo il consulente stesso
-      // - escludendo altri consulenti (user_type = 'consulente')
+      // - escludendo altri consulenti (user_type = 'consulente' oppure email presente in Consultant)
       return users.filter(u => {
         const userZona = (u.zona || '').trim().toLowerCase();
+        const userEmail = (u.email || '').toLowerCase();
         const isInZone = userZona && consultantZones.includes(userZona);
         const isNotAdmin = u.role !== 'admin';
-        const isNotSelf = u.email?.toLowerCase() !== consultantEmail?.toLowerCase();
-        const isNotConsultant = !u.user_type || u.user_type !== 'consulente';
+        const isNotSelf = userEmail !== consultantEmail?.toLowerCase();
+        const isNotConsultantByType = u.user_type !== 'consulente';
+        const isNotConsultantByEmail = !consultantEmails.includes(userEmail);
         
-        return isInZone && isNotAdmin && isNotSelf && isNotConsultant;
+        return isInZone && isNotAdmin && isNotSelf && isNotConsultantByType && isNotConsultantByEmail;
       });
     },
     enabled: !!consultantZona
