@@ -291,9 +291,39 @@ export default function GestioneConsulenti() {
                         </p>
                       </div>
                     </div>
-                    <Badge className="bg-amber-500/20 text-amber-400 border-0 text-xs">
-                      In attesa
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                      <Badge className="bg-amber-500/20 text-amber-400 border-0 text-xs">
+                        In attesa
+                      </Badge>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-red-400 hover:text-red-300 hover:bg-red-500/20 h-7 w-7 p-0"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent className="bg-slate-800 border-slate-700">
+                          <AlertDialogHeader>
+                            <AlertDialogTitle className="text-white">Cancellare questo invito?</AlertDialogTitle>
+                            <AlertDialogDescription className="text-slate-400">
+                              L'invito per {invite.email} verrà eliminato. Il consulente non potrà più registrarsi con questo link.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel className="bg-slate-700 text-slate-400 border-slate-600 hover:text-white">Annulla</AlertDialogCancel>
+                            <AlertDialogAction 
+                              className="bg-red-600 hover:bg-red-700"
+                              onClick={() => deleteInviteMutation.mutate(invite.id)}
+                            >
+                              Elimina
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
                   </div>
                 ))}
               </div>
