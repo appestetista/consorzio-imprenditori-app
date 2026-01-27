@@ -810,7 +810,7 @@ export default function CalendarioIncontri() {
                         ) : !isBlocked ? (
                           <div className="grid grid-cols-2 gap-3">
                             <Button
-                              className="bg-green-600 hover:bg-green-700 text-white flex items-center justify-center"
+                              className="bg-green-600 hover:bg-green-700 text-white flex items-center justify-center text-sm"
                               disabled={respondToEventMutation.isPending}
                               onClick={(e) => {
                                 e.preventDefault();
@@ -818,11 +818,11 @@ export default function CalendarioIncontri() {
                                 respondToEventMutation.mutate({ eventId: event.id, response: 'accept' });
                               }}
                             >
-                              <Check className="w-4 h-4 mr-2 flex-shrink-0" />
-                              <span>Parteciperò</span>
+                              <Check className="w-4 h-4 mr-1 flex-shrink-0" />
+                              <span className="truncate">Parteciperò</span>
                             </Button>
                             <Button
-                              className="bg-red-600 hover:bg-red-700 text-white flex items-center justify-center"
+                              className="bg-red-600 hover:bg-red-700 text-white flex items-center justify-center text-sm"
                               disabled={respondToEventMutation.isPending}
                               onClick={(e) => {
                                 e.preventDefault();
@@ -830,8 +830,8 @@ export default function CalendarioIncontri() {
                                 respondToEventMutation.mutate({ eventId: event.id, response: 'decline' });
                               }}
                             >
-                              <X className="w-4 h-4 mr-2 flex-shrink-0" />
-                              <span>Non parteciperò</span>
+                              <X className="w-4 h-4 mr-1 flex-shrink-0" />
+                              <span className="truncate">Non parteciperò</span>
                             </Button>
                           </div>
                         ) : null}
@@ -1064,24 +1064,24 @@ export default function CalendarioIncontri() {
               </p>
               <div className="grid grid-cols-2 gap-3">
                 <Button
-                  className="bg-green-600 hover:bg-green-700 text-white"
+                  className="bg-green-600 hover:bg-green-700 text-white flex items-center justify-center text-sm"
                   onClick={() => {
                     respondToEventMutation.mutate({ eventId: changeResponseEvent.id, response: 'accept' });
                     setChangeResponseEvent(null);
                   }}
                 >
-                  <Check className="w-4 h-4 mr-2" />
-                  Parteciperò
+                  <Check className="w-4 h-4 mr-1 flex-shrink-0" />
+                  <span className="truncate">Parteciperò</span>
                 </Button>
                 <Button
-                  className="bg-red-600 hover:bg-red-700 text-white"
+                  className="bg-red-600 hover:bg-red-700 text-white flex items-center justify-center text-sm"
                   onClick={() => {
                     respondToEventMutation.mutate({ eventId: changeResponseEvent.id, response: 'decline' });
                     setChangeResponseEvent(null);
                   }}
                 >
-                  <X className="w-4 h-4 mr-2" />
-                  Non parteciperò
+                  <X className="w-4 h-4 mr-1 flex-shrink-0" />
+                  <span className="truncate">Non parteciperò</span>
                 </Button>
               </div>
             </div>
