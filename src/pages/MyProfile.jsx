@@ -320,24 +320,32 @@ function ConsultantProfileCard({ consultantData, setConsultantData, savingConsul
     }
   };
 
-  const confirmZeroConsultations = () => {
+  const confirmZeroConsultations = async () => {
     setPendingZeroValue(true);
     setShowZeroWarning(false);
     // Salva automaticamente dopo conferma
     setSavingConsultant(true);
-    base44.entities.Consultant.update(consultantData.id, localData)
-      .then(() => {
-        setConsultantData({ ...consultantData, ...localData });
-        toast.success('Profilo consulente aggiornato!');
-      })
-      .catch((error) => {
-        console.error('Errore salvataggio:', error);
-        toast.error('Errore durante il salvataggio');
-      })
-      .finally(() => {
-        setSavingConsultant(false);
-        setPendingZeroValue(false);
+    try {
+      await base44.entities.Consultant.update(consultantData.id, localData);
+      
+      // Sincronizza anche l'entità User
+      await base44.auth.updateMe({
+        company_name: localData.name,
+        phone: localData.phone,
+        city: localData.city,
+        referente: localData.referente,
+        cellulare_referente: localData.cellulare_referente
       });
+      
+      setConsultantData({ ...consultantData, ...localData });
+      toast.success('Profilo consulente aggiornato!');
+    } catch (error) {
+      console.error('Errore salvataggio:', error);
+      toast.error('Errore durante il salvataggio');
+    } finally {
+      setSavingConsultant(false);
+      setPendingZeroValue(false);
+    }
   };
 
   const toggleBlockUser = (userEmail) => {
