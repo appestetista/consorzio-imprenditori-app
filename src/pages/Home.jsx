@@ -36,8 +36,15 @@ export default function Home() {
   }, [user, appMode, impersonation]);
 
   // Assegna automaticamente il tipo utente al primo login
+  // SKIP se in impersonation mode
   useEffect(() => {
     const assignType = async () => {
+      // Skip se siamo in impersonation mode
+      if (impersonation.active) {
+        console.log('[HOME] In impersonation mode, skip assignUserType');
+        return;
+      }
+      
       try {
         const currentUser = await base44.auth.me();
         // Skip se l'utente è admin o ha già un tipo assegnato (incluso consulente)
@@ -73,7 +80,7 @@ export default function Home() {
       }
     };
     assignType();
-  }, [navigate]);
+  }, [navigate, impersonation.active]);
 
   useEffect(() => {
     const loadUser = async () => {
