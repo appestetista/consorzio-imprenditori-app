@@ -311,8 +311,8 @@ export default function ConsultantView({ user }) {
   const getMeetingModeLabel = (mode) => {
     switch(mode) {
       case 'online': return 'Online (videochiamata)';
-      case 'sede_azienda': return 'Presso la sede dell\'azienda';
-      case 'sede_consulente': return 'Presso lo studio del consulente';
+      case 'sede_azienda': return 'In presenza nella sede aziendale';
+      case 'sede_consulente': return 'In presenza presso il nostro studio';
       default: return mode;
     }
   };
@@ -491,24 +491,24 @@ export default function ConsultantView({ user }) {
                                 className="space-y-1"
                               >
                                 <div className="flex items-center space-x-2">
-                                  <RadioGroupItem value="online" id={`conf-online-${booking.id}`} className="border-lime-400 text-lime-400 h-3 w-3" />
+                                  <RadioGroupItem value="online" id={`conf-online-${booking.id}`} className="border-lime-400 text-lime-400 data-[state=checked]:bg-lime-400 h-3 w-3" />
                                   <Label htmlFor={`conf-online-${booking.id}`} className="text-white text-xs flex items-center gap-1 cursor-pointer">
                                     <Video className="w-3 h-3 text-blue-400" />
                                     Online
                                   </Label>
                                 </div>
                                 <div className="flex items-center space-x-2">
-                                  <RadioGroupItem value="sede_azienda" id={`conf-sede_azienda-${booking.id}`} className="border-lime-400 text-lime-400 h-3 w-3" />
+                                  <RadioGroupItem value="sede_azienda" id={`conf-sede_azienda-${booking.id}`} className="border-lime-400 text-lime-400 data-[state=checked]:bg-lime-400 h-3 w-3" />
                                   <Label htmlFor={`conf-sede_azienda-${booking.id}`} className="text-white text-xs flex items-center gap-1 cursor-pointer">
                                     <Building2 className="w-3 h-3 text-amber-400" />
-                                    Sede azienda
+                                    Sede aziendale
                                   </Label>
                                 </div>
                                 <div className="flex items-center space-x-2">
-                                  <RadioGroupItem value="sede_consulente" id={`conf-sede_consulente-${booking.id}`} className="border-lime-400 text-lime-400 h-3 w-3" />
+                                  <RadioGroupItem value="sede_consulente" id={`conf-sede_consulente-${booking.id}`} className="border-lime-400 text-lime-400 data-[state=checked]:bg-lime-400 h-3 w-3" />
                                   <Label htmlFor={`conf-sede_consulente-${booking.id}`} className="text-white text-xs flex items-center gap-1 cursor-pointer">
                                     <Briefcase className="w-3 h-3 text-purple-400" />
-                                    Mio studio
+                                    Nostro studio
                                   </Label>
                                 </div>
                               </RadioGroup>

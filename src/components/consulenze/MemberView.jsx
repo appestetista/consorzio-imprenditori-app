@@ -349,24 +349,28 @@ export default function MemberView({ user, consultants, isLoading }) {
                             className="space-y-2"
                           >
                             <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="online" id={`online-${consultant.id}`} className="border-lime-400 text-lime-400" />
+                              <RadioGroupItem value="online" id={`online-${consultant.id}`} className="border-lime-400 text-lime-400 data-[state=checked]:bg-lime-400" />
                               <Label htmlFor={`online-${consultant.id}`} className="text-white flex items-center gap-2 cursor-pointer">
                                 <Video className="w-4 h-4 text-blue-400" />
                                 Online (videochiamata)
                               </Label>
                             </div>
                             <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="sede_azienda" id={`sede_azienda-${consultant.id}`} className="border-lime-400 text-lime-400" />
-                              <Label htmlFor={`sede_azienda-${consultant.id}`} className="text-white flex items-center gap-2 cursor-pointer">
-                                <Building2 className="w-4 h-4 text-amber-400" />
-                                In presenza presso la mia sede
+                              <RadioGroupItem value="sede_azienda" id={`sede_azienda-${consultant.id}`} className="border-lime-400 text-lime-400 data-[state=checked]:bg-lime-400" disabled={consultant.sede_azienda_disabled} />
+                              <Label htmlFor={`sede_azienda-${consultant.id}`} className={`flex items-center gap-2 cursor-pointer ${consultant.sede_azienda_disabled ? 'text-slate-500' : 'text-white'}`}>
+                                <Building2 className={`w-4 h-4 ${consultant.sede_azienda_disabled ? 'text-slate-500' : 'text-amber-400'}`} />
+                                In presenza nella vostra sede aziendale
+                                {consultant.sede_azienda_disabled && <span className="text-xs text-red-400">(non disponibile)</span>}
+                                {!consultant.sede_azienda_disabled && consultant.rimborso_carburante > 0 && (
+                                  <span className="text-xs text-amber-400">(+€{consultant.rimborso_carburante} rimborso)</span>
+                                )}
                               </Label>
                             </div>
                             <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="sede_consulente" id={`sede_consulente-${consultant.id}`} className="border-lime-400 text-lime-400" />
+                              <RadioGroupItem value="sede_consulente" id={`sede_consulente-${consultant.id}`} className="border-lime-400 text-lime-400 data-[state=checked]:bg-lime-400" />
                               <Label htmlFor={`sede_consulente-${consultant.id}`} className="text-white flex items-center gap-2 cursor-pointer">
                                 <Briefcase className="w-4 h-4 text-purple-400" />
-                                In presenza presso lo studio del consulente
+                                In presenza presso il nostro studio
                               </Label>
                             </div>
                           </RadioGroup>
