@@ -32,7 +32,8 @@ export default function Messaggi() {
   const { impersonation, appMode } = useImpersonation();
   
   // L'utente effettivo è quello impersonato se attivo, altrimenti l'utente loggato
-  const isImpersonating = impersonation?.active && appMode === 'user-preview';
+  // Supporta sia impersonificazione utente (user-preview) che consulente
+  const isImpersonating = impersonation?.active;
   const impersonatedUser = impersonation?.targetUserData || { 
     email: impersonation?.targetEmail, 
     full_name: impersonation?.targetName,

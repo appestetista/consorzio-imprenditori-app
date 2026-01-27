@@ -673,7 +673,7 @@ export default function MyProfile() {
       }
     };
     loadUser();
-  }, [impersonation.active, impersonation.previewUserId, impersonation.role]);
+  }, [impersonation.active, impersonation.previewUserId, impersonation.role, impersonation.targetEmail, impersonation.targetName]);
 
   const handleLogoUpload = async (e) => {
     const file = e.target.files?.[0];
