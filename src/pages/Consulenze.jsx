@@ -125,6 +125,33 @@ export default function Consulenze() {
   
   const isMember = !isAdmin && !isConsultant;
 
+  // Segna come lette le notifiche consultation quando si apre la pagina
+  useEffect(() => {
+    if (!effectiveUser?.email) return;
+    
+    const markConsultationNotificationsAsRead = async () => {
+      try {
+        const unreadNotifications = await base44.entities.Notification.filter({
+          user_email: effectiveUser.email,
+          type: 'consultation',
+          is_read: false
+        });
+        
+        for (const notification of unreadNotifications) {
+          await base44.entities.Notification.update(notification.id, { is_read: true });
+        }
+        
+        if (unreadNotifications.length > 0) {
+          queryClient.invalidateQueries({ queryKey: ['notifications'] });
+        }
+      } catch (e) {
+        console.error('[Consulenze] Error marking notifications as read:', e);
+      }
+    };
+    
+    markConsultationNotificationsAsRead();
+  }, [effectiveUser?.email, queryClient]);
+
   // Real-time subscription per notifiche e bookings
   useEffect(() => {
     if (!effectiveUser?.email) return;
