@@ -355,8 +355,8 @@ export default function Home() {
   // Count notifications by type - per eventi, mostra inviti in attesa di risposta
   const eventNotifications = pendingEventInvites;
   const videoNotifications = notifications.filter(n => n.type === 'video').length;
-  // Notifiche consulenze = notifiche tipo consultation + messaggi non letti dalla sezione consulenze (escluse le consulenze gratuite)
-  const consultationNotifications = notifications.filter(n => n.type === 'consultation').length + consultationMessagesCount;
+  // Notifiche consulenze: per utenti = messaggi non letti, per consulenti = solo messaggi (le richieste vanno nella fascia in basso)
+  const consultationNotifications = consultationMessagesCount;
 
   const nextEvent = events[0];
   // I permessi sono già normalizzati grazie a normalizeUser()
