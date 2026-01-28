@@ -68,14 +68,6 @@ export default function VideoRating({
         {totalRatings > 0 && (
           <span className="text-xs text-amber-400 ml-1">({totalRatings})</span>
         )}
-        
-        {/* Info tooltip */}
-        <button
-          onClick={() => setShowLegend(!showLegend)}
-          className="ml-1 text-slate-500 hover:text-slate-300 transition-colors"
-        >
-          <ChevronDown className={cn("w-4 h-4 transition-transform", showLegend && "rotate-180")} />
-        </button>
       </div>
 
     </div>
