@@ -379,12 +379,6 @@ export default function AdminPanel() {
                                 Welfare
                               </div>
                             </TabsTrigger>
-            <TabsTrigger value="gestione" className="flex-1 text-xs data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
-              <div className="flex items-center gap-1">
-                <Users className="w-3.5 h-3.5" />
-                Gestione
-              </div>
-            </TabsTrigger>
           </TabsList>
 
           {/* TAB RICHIESTE */}
@@ -556,46 +550,6 @@ export default function AdminPanel() {
           {/* TAB RISPARMIO */}
           <TabsContent value="risparmio">
             <RisparmioRequestsAdmin />
-          </TabsContent>
-
-          {/* TAB GESTIONE */}
-          <TabsContent value="gestione" className="space-y-4">
-
-            {/* Gestione Utenti Unificata */}
-            <Card className="bg-slate-800 border-slate-700">
-              <CardContent className="p-4">
-                <Link to={createPageUrl('GestioneMembri')} className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Users className="w-6 h-6 text-lime-400" />
-                    <div>
-                      <h3 className="text-white font-medium text-sm">Gestione Utenti</h3>
-                      <p className="text-slate-400 text-xs">Invita, modifica, blocca utenti e gestisci ruoli</p>
-                    </div>
-                  </div>
-                  <span className="text-lime-400 text-lg font-bold">{stats?.activeUsers || 0}</span>
-                </Link>
-              </CardContent>
-            </Card>
-
-            {/* Pre-autorizzazione Email */}
-            <Card className="bg-slate-800 border-slate-700">
-              <CardContent className="p-4">
-                <h3 className="text-white font-medium text-sm mb-3 flex items-center gap-2">
-                  <Mail className="w-4 h-4 text-lime-400" />
-                  Pre-autorizza Email
-                </h3>
-                <p className="text-slate-400 text-xs mb-3">
-                  Inserisci le email autorizzate a registrarsi. Quando si iscriveranno, verranno automaticamente assegnati al ruolo e zona indicati.
-                </p>
-                <PreAuthEmailForm />
-              </CardContent>
-            </Card>
-
-            {/* Cultura Aziendale */}
-            <CulturaAziendaleAdmin />
-
-            {/* Assegnazione Consulenti */}
-            <ConsultantAssignmentManager />
           </TabsContent>
         </Tabs>
       </main>
