@@ -836,7 +836,7 @@ export default function Imprenditori() {
             <div>
               <label className="text-slate-400 text-sm mb-2 block">Aggiungi foto o video (opzionale)</label>
               
-              {!newPoll.media_url && !recordedBlob && !isRecording ? (
+              {!newPoll.media_url && !recordedBlob && !isPreviewing ? (
                 <div className="grid grid-cols-3 gap-2">
                   {/* Carica foto */}
                   <label className="flex flex-col items-center justify-center gap-1 py-3 px-2 rounded-lg border border-slate-600 bg-slate-700 hover:bg-slate-600 cursor-pointer transition-all">
@@ -862,18 +862,18 @@ export default function Imprenditori() {
                     />
                   </label>
                   
-                  {/* Registra video */}
+                  {/* Apri Camera */}
                   <button
                     type="button"
-                    onClick={startRecording}
+                    onClick={() => openCameraPreview()}
                     className="flex flex-col items-center justify-center gap-1 py-3 px-2 rounded-lg border border-slate-600 bg-slate-700 hover:bg-slate-600 transition-all"
                   >
                     <Camera className="w-5 h-5 text-red-400" />
                     <span className="text-xs text-slate-300">Registra</span>
                   </button>
                 </div>
-              ) : isRecording ? (
-                <div className="border-2 border-red-500 rounded-xl overflow-hidden">
+              ) : isPreviewing ? (
+                <div className={`border-2 ${isRecording ? 'border-red-500' : 'border-lime-400'} rounded-xl overflow-hidden`}>
                   <div className="relative">
                     <video
                       ref={videoRef}
@@ -882,10 +882,15 @@ export default function Imprenditori() {
                       playsInline
                       className={`w-full aspect-video object-cover ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
                     />
-                    <div className="absolute top-3 left-3 flex items-center gap-2 bg-red-600 px-3 py-1 rounded-full">
-                      <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
-                      <span className="text-white text-sm font-medium">{formatTime(recordingTime)} / 2:00</span>
-                    </div>
+                    
+                    {/* Timer (solo se sta registrando) */}
+                    {isRecording && (
+                      <div className="absolute top-3 left-3 flex items-center gap-2 bg-red-600 px-3 py-1 rounded-full">
+                        <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                        <span className="text-white text-sm font-medium">{formatTime(recordingTime)} / 2:00</span>
+                      </div>
+                    )}
+                    
                     {/* Pulsante switch camera */}
                     <button
                       type="button"
@@ -894,15 +899,41 @@ export default function Imprenditori() {
                     >
                       <RefreshCw className="w-5 h-5" />
                     </button>
-                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2">
-                      <button
-                        type="button"
-                        onClick={stopRecording}
-                        className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-full font-medium flex items-center gap-2"
-                      >
-                        <div className="w-3 h-3 bg-white rounded-sm" />
-                        Stop
-                      </button>
+                    
+                    {/* Controlli in basso */}
+                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-3">
+                      {!isRecording ? (
+                        <>
+                          {/* Pulsante chiudi */}
+                          <button
+                            type="button"
+                            onClick={closeCameraPreview}
+                            className="bg-slate-700/80 hover:bg-slate-600 text-white px-4 py-2 rounded-full font-medium flex items-center gap-2"
+                          >
+                            <X className="w-4 h-4" />
+                            Chiudi
+                          </button>
+                          {/* Pulsante avvia registrazione */}
+                          <button
+                            type="button"
+                            onClick={startRecording}
+                            className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-full font-medium flex items-center gap-2"
+                          >
+                            <div className="w-3 h-3 bg-white rounded-full" />
+                            Avvia
+                          </button>
+                        </>
+                      ) : (
+                        /* Pulsante stop */
+                        <button
+                          type="button"
+                          onClick={stopRecording}
+                          className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-full font-medium flex items-center gap-2"
+                        >
+                          <div className="w-3 h-3 bg-white rounded-sm" />
+                          Stop
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
