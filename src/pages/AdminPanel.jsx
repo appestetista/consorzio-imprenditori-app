@@ -462,6 +462,43 @@ export default function AdminPanel() {
               </CardContent>
             </Card>
 
+            {/* Messaggi Consulenze (utenti <-> consulenti) */}
+            <Card className="bg-slate-800 border-slate-700">
+              <CardContent className="p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <Briefcase className={`w-4 h-4 ${unreadConsultationMessages > 0 ? 'text-orange-400' : 'text-slate-400'}`} />
+                    <span className="text-white font-medium text-sm">Messaggi Consulenze ({unreadConsultationMessages} nuovi)</span>
+                  </div>
+                  <Button size="sm" variant="ghost" className="text-lime-400 h-7 text-xs" onClick={() => setShowConsultationMessages(true)}>
+                    Vedi tutti
+                  </Button>
+                </div>
+                {unreadConsultationMessages > 0 && (
+                  <div className="space-y-1">
+                    {consultationMessages.filter(m => !m.is_read).slice(0, 2).map((msg) => (
+                      <div key={msg.id} className="bg-slate-900 rounded p-2 text-xs">
+                        <div className="flex items-center gap-1 mb-1">
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded ${msg.from_type === 'consulente' ? 'bg-blue-500/20 text-blue-400' : 'bg-lime-400/20 text-lime-400'}`}>
+                            {msg.from_type === 'consulente' ? '👔 Cons.' : '👤 Utente'}
+                          </span>
+                          <span className="text-slate-500">→</span>
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded ${msg.to_type === 'consulente' ? 'bg-blue-500/20 text-blue-400' : 'bg-lime-400/20 text-lime-400'}`}>
+                            {msg.to_type === 'consulente' ? '👔 Cons.' : '👤 Utente'}
+                          </span>
+                        </div>
+                        <p className="text-white font-medium truncate">{msg.from_name} → {msg.to_name}</p>
+                        <p className="text-slate-400 truncate">{msg.content}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {unreadConsultationMessages === 0 && (
+                  <p className="text-slate-400 text-xs">Nessun messaggio non letto</p>
+                )}
+              </CardContent>
+            </Card>
+
             {/* Richieste Consulenza Bandi */}
             <Card className="bg-slate-800 border-slate-700">
               <CardContent className="p-3">
