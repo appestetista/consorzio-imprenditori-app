@@ -98,7 +98,6 @@ export default function VideoInterviste() {
   const { data: allUsers = [] } = useQuery({
     queryKey: ['all-users'],
     queryFn: () => base44.entities.User.list(),
-    enabled: isAdmin,
   });
 
   const { data: videoInterviewRequests = [] } = useQuery({
@@ -516,6 +515,7 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
                             onRate={(diamonds) => rateMutation.mutate({ videoId: video.id, video, diamonds })}
                             onView={() => handleVideoPlay(video)}
                             isRating={rateMutation.isPending}
+                            allUsers={allUsers}
                           />
                           
                           <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-700">
