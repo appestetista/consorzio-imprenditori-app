@@ -144,6 +144,20 @@ export default function Home() {
     enabled: !!effectiveUser?.email,
   });
 
+  // Messaggi non letti per la sezione Consulenze (source: 'consulenze')
+  const { data: consultationMessagesCount = 0 } = useQuery({
+    queryKey: ['consultation-messages-unread', effectiveUser?.email],
+    queryFn: async () => {
+      const received = await base44.entities.Message.filter({ 
+        to_email: effectiveUser?.email, 
+        source: 'consulenze',
+        is_read: false 
+      });
+      return received.length;
+    },
+    enabled: !!effectiveUser?.email,
+  });
+
   // Subscribe real-time alle notifiche
       useEffect(() => {
         if (!effectiveUser?.email) return;
