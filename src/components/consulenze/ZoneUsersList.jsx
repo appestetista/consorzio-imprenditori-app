@@ -52,12 +52,13 @@ export default function ZoneUsersList({ consultantEmail, consultantZona }) {
     enabled: !!consultantZona
   });
 
-  // Carica messaggi non letti per mostrare notifiche
+  // Carica messaggi non letti per mostrare notifiche (solo dalla sezione consulenze)
   const { data: unreadMessages = [] } = useQuery({
     queryKey: ['unread-messages-from-users', consultantEmail],
     queryFn: async () => {
       const messages = await base44.entities.Message.filter({ 
         to_email: consultantEmail, 
+        source: 'consulenze',
         is_read: false 
       });
       return messages;
