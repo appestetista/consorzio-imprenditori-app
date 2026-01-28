@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Gem, Eye, ChevronDown } from 'lucide-react';
+import React from 'react';
+import { Gem, Eye } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function VideoRating({ 
