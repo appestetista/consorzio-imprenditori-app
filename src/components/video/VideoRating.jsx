@@ -9,7 +9,6 @@ export default function VideoRating({
   onView,
   isRating = false 
 }) {
-  const [showLegend, setShowLegend] = useState(false);
   const viewsCount = video.views_count || 0;
   const ratings = video.ratings || [];
   const userRating = ratings.find(r => r.user_email === userEmail);
