@@ -251,7 +251,8 @@ export default function Imprenditori() {
     video.src = URL.createObjectURL(file);
   };
 
-  const startRecording = async (mode = facingMode) => {
+  // Apre l'anteprima della camera (senza registrare)
+  const openCameraPreview = async (mode = facingMode) => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: { facingMode: mode }, 
@@ -262,59 +263,80 @@ export default function Imprenditori() {
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
-
-      const recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
-      const chunks = [];
-
-      recorder.ondataavailable = (e) => {
-        if (e.data.size > 0) chunks.push(e.data);
-      };
-
-      recorder.onstop = () => {
-        const blob = new Blob(chunks, { type: 'video/webm' });
-        setRecordedBlob(blob);
-        stream.getTracks().forEach(track => track.stop());
-      };
-
-      recorder.start();
-      setMediaRecorder(recorder);
-      setIsRecording(true);
-      setRecordingTime(0);
-
-      timerRef.current = setInterval(() => {
-        setRecordingTime(prev => {
-          if (prev >= 120) {
-            clearInterval(timerRef.current);
-            recorder.stop();
-            setIsRecording(false);
-            return 120;
-          }
-          return prev + 1;
-        });
-      }, 1000);
-
+      setIsPreviewing(true);
     } catch (err) {
       console.error('Errore accesso camera:', err);
       setUploadError('Impossibile accedere alla fotocamera. Verifica i permessi.');
     }
   };
 
+  // Avvia la registrazione (dalla modalità anteprima)
+  const startRecording = async () => {
+    if (!streamRef.current) return;
+    
+    const recorder = new MediaRecorder(streamRef.current, { mimeType: 'video/webm' });
+    const chunks = [];
+
+    recorder.ondataavailable = (e) => {
+      if (e.data.size > 0) chunks.push(e.data);
+    };
+
+    recorder.onstop = () => {
+      const blob = new Blob(chunks, { type: 'video/webm' });
+      setRecordedBlob(blob);
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+      setIsPreviewing(false);
+    };
+
+    recorder.start();
+    setMediaRecorder(recorder);
+    setIsRecording(true);
+    setRecordingTime(0);
+
+    timerRef.current = setInterval(() => {
+      setRecordingTime(prev => {
+        if (prev >= 120) {
+          clearInterval(timerRef.current);
+          recorder.stop();
+          setIsRecording(false);
+          return 120;
+        }
+        return prev + 1;
+      });
+    }, 1000);
+  };
+
+  // Chiude l'anteprima senza registrare
+  const closeCameraPreview = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+    }
+    setIsPreviewing(false);
+    setIsRecording(false);
+  };
+
   const switchCamera = async () => {
     const newMode = facingMode === 'user' ? 'environment' : 'user';
     setFacingMode(newMode);
     
+    // Ferma lo stream corrente
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+    }
+    
     if (isRecording) {
-      // Ferma la registrazione corrente
+      // Se stava registrando, ferma la registrazione
       if (timerRef.current) clearInterval(timerRef.current);
       if (mediaRecorder && mediaRecorder.state !== 'inactive') {
         mediaRecorder.stop();
       }
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
-      }
-      // Riavvia con la nuova camera
-      setTimeout(() => startRecording(newMode), 100);
+      setIsRecording(false);
     }
+    
+    // Riapri con la nuova camera
+    setTimeout(() => openCameraPreview(newMode), 100);
   };
 
   const stopRecording = () => {
