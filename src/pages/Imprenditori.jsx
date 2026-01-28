@@ -346,9 +346,7 @@ export default function Imprenditori() {
     if (mediaRecorder && mediaRecorder.state !== 'inactive') {
       mediaRecorder.stop();
     }
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
-    }
+    // Non fermare lo stream qui, viene fermato in recorder.onstop
     setIsRecording(false);
   };
 
