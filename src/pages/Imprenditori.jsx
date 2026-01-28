@@ -38,6 +38,7 @@ export default function Imprenditori() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
   const [isRecording, setIsRecording] = useState(false);
+  const [isPreviewing, setIsPreviewing] = useState(false); // Nuova: anteprima camera attiva
   const [recordedBlob, setRecordedBlob] = useState(null);
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [recordingTime, setRecordingTime] = useState(0);
