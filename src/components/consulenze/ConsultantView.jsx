@@ -141,11 +141,15 @@ export default function ConsultantView({ user }) {
     const [meetingModeNotes, setMeetingModeNotes] = useState({}); // { bookingId: 'nota...' }
     const { playSound } = useNotificationSound();
 
-  const { data: myConsultantProfile } = useQuery({
+  const { data: myConsultantProfile, isLoading: isLoadingProfile } = useQuery({
     queryKey: ['my-consultant-profile', user?.email?.toLowerCase()],
     queryFn: async () => {
       const consultants = await base44.entities.Consultant.list();
-      return consultants.find(c => c.email?.toLowerCase() === user?.email?.toLowerCase());
+      console.log('[ConsultantView] Cercando consulente per email:', user?.email);
+      console.log('[ConsultantView] Consulenti trovati:', consultants.map(c => c.email));
+      const found = consultants.find(c => c.email?.toLowerCase() === user?.email?.toLowerCase());
+      console.log('[ConsultantView] Profilo trovato:', found);
+      return found;
     },
     enabled: !!user?.email,
   });
