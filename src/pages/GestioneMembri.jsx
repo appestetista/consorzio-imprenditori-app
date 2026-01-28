@@ -661,6 +661,11 @@ export default function GestioneMembri() {
           <TabsContent value="consulenti" className="space-y-4">
             <ConsultantAssignmentManager />
           </TabsContent>
+
+          {/* TAB ZONE UTENTI */}
+          <TabsContent value="zone" className="space-y-4">
+            <ZoneAssignmentManager />
+          </TabsContent>
         </Tabs>
       </main>
 
