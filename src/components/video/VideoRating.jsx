@@ -99,10 +99,10 @@ export default function VideoRating({
             isRating && "opacity-50 cursor-not-allowed"
           )}
         >
-          <span className={cn("text-xs text-right w-28 mr-3", currentDiamonds === 3 ? "text-amber-400" : "text-slate-400")}>
+          <span className={cn("text-xs text-right w-24 mr-3", currentDiamonds === 3 ? "text-amber-400" : "text-slate-400")}>
             {ratingOptions[2].label}
           </span>
-          <div className="flex gap-0.5">
+          <div className="w-14 flex justify-end gap-0.5">
             <Gem className={cn("w-4 h-4", currentDiamonds === 3 ? "text-amber-400 fill-amber-400" : "text-slate-500")} />
             <Gem className={cn("w-4 h-4", currentDiamonds === 3 ? "text-amber-400 fill-amber-400" : "text-slate-500")} />
             <Gem className={cn("w-4 h-4", currentDiamonds === 3 ? "text-amber-400 fill-amber-400" : "text-slate-500")} />
