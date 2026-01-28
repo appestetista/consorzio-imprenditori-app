@@ -141,17 +141,21 @@ export default function ConsultantView({ user }) {
     const [meetingModeNotes, setMeetingModeNotes] = useState({}); // { bookingId: 'nota...' }
     const { playSound } = useNotificationSound();
 
-  const { data: myConsultantProfile, isLoading: isLoadingProfile } = useQuery({
-    queryKey: ['my-consultant-profile', user?.email?.toLowerCase()],
+  // L'email può essere nel root o in data (struttura User entity)
+  const userEmail = user?.email || user?.data?.email;
+  
+  const { data: myConsultantProfile, isLoading: isLoadingProfile, error: profileError } = useQuery({
+    queryKey: ['my-consultant-profile', userEmail?.toLowerCase()],
     queryFn: async () => {
+      console.log('[ConsultantView] user ricevuto:', user);
+      console.log('[ConsultantView] Cercando consulente per email:', userEmail);
       const consultants = await base44.entities.Consultant.list();
-      console.log('[ConsultantView] Cercando consulente per email:', user?.email);
       console.log('[ConsultantView] Consulenti trovati:', consultants.map(c => c.email));
-      const found = consultants.find(c => c.email?.toLowerCase() === user?.email?.toLowerCase());
+      const found = consultants.find(c => c.email?.toLowerCase() === userEmail?.toLowerCase());
       console.log('[ConsultantView] Profilo trovato:', found);
-      return found;
+      return found || null;
     },
-    enabled: !!user?.email,
+    enabled: !!userEmail,
   });
 
   const { data: bookings = [], isLoading } = useQuery({
