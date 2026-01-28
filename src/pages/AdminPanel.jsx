@@ -1544,179 +1544,353 @@ export default function AdminPanel() {
           <DialogHeader className="p-4 border-b border-slate-700 sticky top-0 bg-slate-900 z-10">
             <DialogTitle className="text-white flex items-center gap-2">
               <Briefcase className="w-5 h-5 text-lime-400" />
-              Gestione Consulenti
+              Gestione Consulenze
             </DialogTitle>
           </DialogHeader>
           
-          <div className="p-4 space-y-4">
-            {/* Pulsante Invita */}
-            <div className="flex justify-end">
-              <Button
-                onClick={() => setShowInviteForm(true)}
-                className="bg-lime-400 hover:bg-lime-500 text-slate-900"
-              >
-                <UserPlus className="w-5 h-5 mr-2" />
-                Invita Consulente
-              </Button>
-            </div>
+          <div className="p-4">
+            {/* Tabs interne al pannello consulenze */}
+            <Tabs defaultValue="consulenti" className="w-full">
+              <TabsList className="w-full bg-slate-800 border border-slate-700 mb-4 grid grid-cols-4">
+                <TabsTrigger value="consulenti" className="text-[10px] data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
+                  Consulenti
+                </TabsTrigger>
+                <TabsTrigger value="prenotazioni" className="text-[10px] data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900 relative">
+                  Prenotazioni
+                  {pendingConsultationBookings > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[8px] rounded-full w-4 h-4 flex items-center justify-center">
+                      {pendingConsultationBookings}
+                    </span>
+                  )}
+                </TabsTrigger>
+                <TabsTrigger value="messaggi" className="text-[10px] data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900 relative">
+                  Messaggi
+                  {unreadConsultationMessages > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-orange-500 text-white text-[8px] rounded-full w-4 h-4 flex items-center justify-center">
+                      {unreadConsultationMessages}
+                    </span>
+                  )}
+                </TabsTrigger>
+                <TabsTrigger value="zone" className="text-[10px] data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
+                  Zone
+                </TabsTrigger>
+              </TabsList>
 
-            {/* Search and Zone Filter */}
-            <div className="space-y-3">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                <Input
-                  placeholder="Cerca consulenti..."
-                  value={searchTermConsultant}
-                  onChange={(e) => setSearchTermConsultant(e.target.value)}
-                  className="bg-slate-800 border-slate-700 text-white pl-10"
-                />
-              </div>
-              <Select value={selectedZoneConsultant} onValueChange={setSelectedZoneConsultant}>
-                <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
-                  <SelectValue placeholder="Filtra per zona" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tutte le zone</SelectItem>
-                  {zones.map(zone => (
-                    <SelectItem key={zone.id} value={zone.name}>{zone.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+              {/* TAB CONSULENTI */}
+              <TabsContent value="consulenti" className="space-y-4">
+                {/* Pulsante Invita */}
+                <div className="flex justify-end">
+                  <Button
+                    onClick={() => setShowInviteForm(true)}
+                    className="bg-lime-400 hover:bg-lime-500 text-slate-900"
+                  >
+                    <UserPlus className="w-4 h-4 mr-2" />
+                    Invita
+                  </Button>
+                </div>
 
-            {/* Pending Invites */}
-            {pendingInvitesConsultants.length > 0 && (
-              <Card className="bg-amber-500/10 border-amber-500/30">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Clock className="w-4 h-4 text-amber-400" />
-                    <h3 className="text-amber-400 font-medium text-sm">Inviti in attesa ({pendingInvitesConsultants.length})</h3>
+                {/* Search and Zone Filter */}
+                <div className="space-y-2">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <Input
+                      placeholder="Cerca consulenti..."
+                      value={searchTermConsultant}
+                      onChange={(e) => setSearchTermConsultant(e.target.value)}
+                      className="bg-slate-800 border-slate-700 text-white pl-9 h-9 text-sm"
+                    />
                   </div>
-                  <div className="space-y-2">
-                    {pendingInvitesConsultants.map((invite) => (
-                      <div key={invite.id} className="bg-slate-900 rounded-lg p-3 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <Mail className="w-4 h-4 text-amber-400" />
-                          <div>
-                            {invite.consultant_name && (
-                              <p className="text-white text-sm font-medium">{invite.consultant_name}</p>
-                            )}
-                            <p className={`text-sm ${invite.consultant_name ? 'text-slate-400' : 'text-white'}`}>{invite.email}</p>
-                            {invite.consultant_category && (
-                              <p className="text-lime-400 text-xs">{invite.consultant_category}</p>
-                            )}
-                          </div>
-                        </div>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="ghost" size="sm" className="text-red-400 hover:text-red-300 hover:bg-red-500/20 h-7 w-7 p-0">
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent className="bg-slate-800 border-slate-700">
-                            <AlertDialogHeader>
-                              <AlertDialogTitle className="text-white">Cancellare questo invito?</AlertDialogTitle>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel className="bg-slate-700 text-slate-400 border-slate-600">Annulla</AlertDialogCancel>
-                              <AlertDialogAction className="bg-red-600 hover:bg-red-700" onClick={() => deleteInviteConsultantMutation.mutate(invite.id)}>Elimina</AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                  <Select value={selectedZoneConsultant} onValueChange={setSelectedZoneConsultant}>
+                    <SelectTrigger className="bg-slate-800 border-slate-700 text-white h-9 text-sm">
+                      <SelectValue placeholder="Filtra per zona" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Tutte le zone</SelectItem>
+                      {zones.map(zone => (
+                        <SelectItem key={zone.id} value={zone.name}>{zone.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Pending Invites */}
+                {pendingInvitesConsultants.length > 0 && (
+                  <Card className="bg-amber-500/10 border-amber-500/30">
+                    <CardContent className="p-3">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Clock className="w-4 h-4 text-amber-400" />
+                        <h3 className="text-amber-400 font-medium text-xs">Inviti in attesa ({pendingInvitesConsultants.length})</h3>
                       </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Consultants List */}
-            {isLoadingConsultants ? (
-              <div className="text-center py-12">
-                <div className="animate-spin w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full mx-auto"></div>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {filteredConsultants.length === 0 ? (
-                  <Card className="bg-slate-800 border-slate-700">
-                    <CardContent className="p-6 text-center">
-                      <Briefcase className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-                      <p className="text-slate-400">Nessun consulente trovato</p>
+                      <div className="space-y-2">
+                        {pendingInvitesConsultants.map((invite) => (
+                          <div key={invite.id} className="bg-slate-900 rounded-lg p-2 flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <Mail className="w-3 h-3 text-amber-400" />
+                              <div>
+                                {invite.consultant_name && (
+                                  <p className="text-white text-xs font-medium">{invite.consultant_name}</p>
+                                )}
+                                <p className={`text-xs ${invite.consultant_name ? 'text-slate-400' : 'text-white'}`}>{invite.email}</p>
+                              </div>
+                            </div>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="ghost" size="sm" className="text-red-400 hover:text-red-300 hover:bg-red-500/20 h-6 w-6 p-0">
+                                  <Trash2 className="w-3 h-3" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent className="bg-slate-800 border-slate-700">
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle className="text-white">Cancellare questo invito?</AlertDialogTitle>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel className="bg-slate-700 text-slate-400 border-slate-600">Annulla</AlertDialogCancel>
+                                  <AlertDialogAction className="bg-red-600 hover:bg-red-700" onClick={() => deleteInviteConsultantMutation.mutate(invite.id)}>Elimina</AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
+                        ))}
+                      </div>
                     </CardContent>
                   </Card>
+                )}
+
+                {/* Consultants List */}
+                {isLoadingConsultants ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin w-6 h-6 border-2 border-lime-400 border-t-transparent rounded-full mx-auto"></div>
+                  </div>
                 ) : (
-                  filteredConsultants.map((consultant) => (
-                    <Card key={consultant.id} className="bg-slate-800 border-slate-700">
-                      <CardContent className="p-4">
-                        <div className="flex items-start gap-3">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                            consultant.is_blocked ? 'bg-red-500/20' : 'bg-lime-400/20'
-                          }`}>
-                            <Briefcase className={`w-5 h-5 ${consultant.is_blocked ? 'text-red-400' : 'text-lime-400'}`} />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <p className="text-white font-medium truncate text-sm">{consultant.name || 'N/A'}</p>
-                              {consultant.is_blocked && (
-                                <Badge className="bg-red-500/20 text-red-400 border-0 text-xs">Bloccato</Badge>
-                              )}
+                  <div className="space-y-2">
+                    {filteredConsultants.length === 0 ? (
+                      <Card className="bg-slate-800 border-slate-700">
+                        <CardContent className="p-4 text-center">
+                          <Briefcase className="w-10 h-10 text-slate-600 mx-auto mb-2" />
+                          <p className="text-slate-400 text-sm">Nessun consulente trovato</p>
+                        </CardContent>
+                      </Card>
+                    ) : (
+                      filteredConsultants.map((consultant) => (
+                        <Card key={consultant.id} className="bg-slate-800 border-slate-700">
+                          <CardContent className="p-3">
+                            <div className="flex items-start gap-2">
+                              <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                                consultant.is_blocked ? 'bg-red-500/20' : 'bg-lime-400/20'
+                              }`}>
+                                <Briefcase className={`w-4 h-4 ${consultant.is_blocked ? 'text-red-400' : 'text-lime-400'}`} />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-1 flex-wrap">
+                                  <p className="text-white font-medium truncate text-xs">{consultant.name || 'N/A'}</p>
+                                  {consultant.is_blocked && (
+                                    <Badge className="bg-red-500/20 text-red-400 border-0 text-[10px]">Bloccato</Badge>
+                                  )}
+                                </div>
+                                <p className="text-lime-400 text-[10px] truncate">{consultant.category}</p>
+                                <p className="text-slate-400 text-[10px] truncate">{consultant.email}</p>
+                                {consultant.zona && (
+                                  <Badge className="bg-blue-500/20 text-blue-400 border-0 text-[10px] mt-0.5">{consultant.zona}</Badge>
+                                )}
+                              </div>
                             </div>
-                            <p className="text-lime-400 text-xs truncate">{consultant.category}</p>
-                            <p className="text-slate-400 text-xs truncate">{consultant.email}</p>
-                            {consultant.zona && (
-                              <Badge className="bg-blue-500/20 text-blue-400 border-0 text-[10px] mt-1">{consultant.zona}</Badge>
-                            )}
+                            
+                            <div className="flex gap-1 mt-2">
+                              <Button variant="outline" size="sm" className="flex-1 border-lime-400 text-lime-400 hover:bg-lime-400/20 h-7 text-[10px]" onClick={() => handleEditConsultant(consultant)}>
+                                <Edit className="w-3 h-3 mr-1" /> Modifica
+                              </Button>
+                              <Button variant="outline" size="sm" className="border-slate-600 text-slate-300 hover:bg-slate-700 h-7 w-7 p-0" onClick={() => handleOpenSections(consultant)}>
+                                <Settings className="w-3 h-3" />
+                              </Button>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button variant="outline" size="sm" className={`h-7 w-7 p-0 ${consultant.is_blocked ? 'border-green-600 text-green-400 hover:bg-green-600/20' : 'border-red-600 text-red-400 hover:bg-red-600/20'}`}>
+                                    {consultant.is_blocked ? <Phone className="w-3 h-3" /> : <PhoneOff className="w-3 h-3" />}
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent className="bg-slate-800 border-slate-700">
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle className="text-white">{consultant.is_blocked ? 'Sbloccare?' : 'Bloccare?'}</AlertDialogTitle>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel className="bg-slate-700 text-slate-400 border-slate-600">Annulla</AlertDialogCancel>
+                                    <AlertDialogAction className={consultant.is_blocked ? "bg-green-600" : "bg-red-600"} onClick={() => toggleBlockConsultantMutation.mutate({ consultantId: consultant.id, isBlocked: consultant.is_blocked, consultantEmail: consultant.email })}>
+                                      {consultant.is_blocked ? 'Sblocca' : 'Blocca'}
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button variant="outline" size="sm" className="border-red-600 text-red-400 hover:bg-red-600/20 h-7 w-7 p-0">
+                                    <Trash2 className="w-3 h-3" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent className="bg-slate-800 border-slate-700">
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle className="text-white">Eliminare?</AlertDialogTitle>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel className="bg-slate-700 text-slate-400 border-slate-600">Annulla</AlertDialogCancel>
+                                    <AlertDialogAction className="bg-red-600" onClick={() => deleteConsultantMutation.mutate(consultant.id)}>Elimina</AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))
+                    )}
+                  </div>
+                )}
+              </TabsContent>
+
+              {/* TAB PRENOTAZIONI */}
+              <TabsContent value="prenotazioni" className="space-y-3">
+                <h3 className="text-white font-medium text-sm">Prenotazioni Consulenze</h3>
+                {consultationBookings.length === 0 ? (
+                  <p className="text-slate-400 text-xs text-center py-4">Nessuna prenotazione</p>
+                ) : (
+                  consultationBookings.map((booking) => {
+                    const consultant = consultants.find(c => c.id === booking.consultant_id);
+                    const statusColors = {
+                      pending: 'bg-yellow-500',
+                      dates_proposed: 'bg-blue-500',
+                      confirmed: 'bg-green-600',
+                      completed: 'bg-slate-500',
+                      cancelled: 'bg-red-500'
+                    };
+                    return (
+                      <Card key={booking.id} className="bg-slate-800 border-slate-700">
+                        <CardContent className="p-3">
+                          <div className="flex items-start justify-between mb-2">
+                            <Badge className={`${statusColors[booking.status]} text-white text-[10px]`}>
+                              {booking.status}
+                            </Badge>
+                            <span className="text-slate-400 text-[10px]">
+                              {new Date(booking.created_date).toLocaleDateString('it-IT')}
+                            </span>
                           </div>
+                          <p className="text-lime-400 font-medium text-xs">{consultant?.category || 'N/D'}</p>
+                          <p className="text-white text-xs">{consultant?.name || 'N/D'}</p>
+                          <p className="text-slate-400 text-[10px]">Utente: {booking.user_email}</p>
+                          {booking.subject && (
+                            <div className="bg-slate-900 rounded p-2 mt-2">
+                              <p className="text-slate-300 text-[10px]">{booking.subject}</p>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    );
+                  })
+                )}
+              </TabsContent>
+
+              {/* TAB MESSAGGI */}
+              <TabsContent value="messaggi" className="space-y-3">
+                <h3 className="text-white font-medium text-sm">Messaggi Utenti ↔ Consulenti</h3>
+                {consultationMessages.length === 0 ? (
+                  <p className="text-slate-400 text-xs text-center py-4">Nessun messaggio</p>
+                ) : (
+                  consultationMessages.slice(0, 20).map((msg) => (
+                    <Card key={msg.id} className={`border ${!msg.is_read ? 'bg-orange-400/10 border-orange-400/30' : 'bg-slate-800 border-slate-700'}`}>
+                      <CardContent className="p-3">
+                        <div className="flex items-center gap-1 mb-1">
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded ${msg.from_type === 'consulente' ? 'bg-blue-500/20 text-blue-400' : 'bg-lime-400/20 text-lime-400'}`}>
+                            {msg.from_type === 'consulente' ? '👔' : '👤'}
+                          </span>
+                          <span className="text-slate-500 text-[10px]">→</span>
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded ${msg.to_type === 'consulente' ? 'bg-blue-500/20 text-blue-400' : 'bg-lime-400/20 text-lime-400'}`}>
+                            {msg.to_type === 'consulente' ? '👔' : '👤'}
+                          </span>
+                          {!msg.is_read && (
+                            <Badge className="bg-orange-400 text-slate-900 text-[10px] ml-auto">NUOVO</Badge>
+                          )}
                         </div>
-                        
-                        <div className="flex gap-2 mt-3">
-                          <Button variant="outline" size="sm" className="flex-1 border-lime-400 text-lime-400 hover:bg-lime-400/20 h-8 text-xs" onClick={() => handleEditConsultant(consultant)}>
-                            <Edit className="w-3 h-3 mr-1" /> Modifica
-                          </Button>
-                          <Button variant="outline" size="sm" className="border-slate-600 text-slate-300 hover:bg-slate-700 h-8 w-8 p-0" onClick={() => handleOpenSections(consultant)}>
-                            <Settings className="w-3 h-3" />
-                          </Button>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="outline" size="sm" className={`h-8 w-8 p-0 ${consultant.is_blocked ? 'border-green-600 text-green-400 hover:bg-green-600/20' : 'border-red-600 text-red-400 hover:bg-red-600/20'}`}>
-                                {consultant.is_blocked ? <Phone className="w-3 h-3" /> : <PhoneOff className="w-3 h-3" />}
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent className="bg-slate-800 border-slate-700">
-                              <AlertDialogHeader>
-                                <AlertDialogTitle className="text-white">{consultant.is_blocked ? 'Sbloccare?' : 'Bloccare?'}</AlertDialogTitle>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel className="bg-slate-700 text-slate-400 border-slate-600">Annulla</AlertDialogCancel>
-                                <AlertDialogAction className={consultant.is_blocked ? "bg-green-600" : "bg-red-600"} onClick={() => toggleBlockConsultantMutation.mutate({ consultantId: consultant.id, isBlocked: consultant.is_blocked, consultantEmail: consultant.email })}>
-                                  {consultant.is_blocked ? 'Sblocca' : 'Blocca'}
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="outline" size="sm" className="border-red-600 text-red-400 hover:bg-red-600/20 h-8 w-8 p-0">
-                                <Trash2 className="w-3 h-3" />
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent className="bg-slate-800 border-slate-700">
-                              <AlertDialogHeader>
-                                <AlertDialogTitle className="text-white">Eliminare?</AlertDialogTitle>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel className="bg-slate-700 text-slate-400 border-slate-600">Annulla</AlertDialogCancel>
-                                <AlertDialogAction className="bg-red-600" onClick={() => deleteConsultantMutation.mutate(consultant.id)}>Elimina</AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
+                        <p className="text-white text-xs font-medium">{msg.from_name}</p>
+                        <p className="text-slate-400 text-[10px]">→ {msg.to_name}</p>
+                        <div className="bg-slate-900 rounded p-2 mt-1">
+                          <p className="text-slate-300 text-[10px] line-clamp-2">{msg.content}</p>
                         </div>
+                        <p className="text-slate-500 text-[10px] mt-1">
+                          {msg.created_date ? new Date(msg.created_date).toLocaleDateString('it-IT', {
+                            day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+                          }) : ''}
+                        </p>
                       </CardContent>
                     </Card>
                   ))
                 )}
-              </div>
-            )}
+              </TabsContent>
+
+              {/* TAB ZONE CONSULENTI */}
+              <TabsContent value="zone" className="space-y-3">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-white font-medium text-sm flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-lime-400" />
+                    Zone Consulenti
+                  </h3>
+                  <Button
+                    size="sm"
+                    className="bg-lime-400 text-slate-900 h-7 text-xs"
+                    onClick={() => navigate(createPageUrl('GestioneZone'))}
+                  >
+                    Gestisci Zone
+                  </Button>
+                </div>
+                
+                {/* Riepilogo consulenti per zona */}
+                <div className="space-y-2">
+                  {zones.map(zone => {
+                    const zoneConsultants = consultants.filter(c => c.zona === zone.name);
+                    return (
+                      <Card key={zone.id} className="bg-slate-800 border-slate-700">
+                        <CardContent className="p-3">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <MapPin className="w-4 h-4 text-lime-400" />
+                              <span className="text-white text-sm font-medium">{zone.name}</span>
+                            </div>
+                            <Badge className="bg-lime-400/20 text-lime-400 text-xs">
+                              {zoneConsultants.length} consulenti
+                            </Badge>
+                          </div>
+                          {zoneConsultants.length > 0 && (
+                            <div className="mt-2 space-y-1">
+                              {zoneConsultants.slice(0, 3).map(c => (
+                                <p key={c.id} className="text-slate-400 text-[10px]">• {c.name} ({c.category})</p>
+                              ))}
+                              {zoneConsultants.length > 3 && (
+                                <p className="text-slate-500 text-[10px]">+{zoneConsultants.length - 3} altri</p>
+                              )}
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                  
+                  {/* Consulenti senza zona */}
+                  {consultants.filter(c => !c.zona).length > 0 && (
+                    <Card className="bg-red-500/10 border-red-500/30">
+                      <CardContent className="p-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-red-400 text-sm font-medium">⚠️ Senza zona</span>
+                          <Badge className="bg-red-500/20 text-red-400 text-xs">
+                            {consultants.filter(c => !c.zona).length} consulenti
+                          </Badge>
+                        </div>
+                        <div className="mt-2 space-y-1">
+                          {consultants.filter(c => !c.zona).slice(0, 3).map(c => (
+                            <p key={c.id} className="text-slate-400 text-[10px]">• {c.name}</p>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
         </DialogContent>
       </Dialog>
