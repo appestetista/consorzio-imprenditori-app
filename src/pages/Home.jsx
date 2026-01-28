@@ -286,6 +286,24 @@ export default function Home() {
     enabled: !!effectiveUser?.email && !isUserConsultant(effectiveUser),
   });
 
+  // Conta richieste di consulenza in attesa per i consulenti
+  const { data: pendingConsultationRequests = 0 } = useQuery({
+    queryKey: ['pending-consultation-requests', effectiveUser?.email],
+    queryFn: async () => {
+      // Prima trova il profilo consulente
+      const consultants = await base44.entities.Consultant.filter({ email: effectiveUser?.email });
+      if (consultants.length === 0) return 0;
+      const consultant = consultants[0];
+      
+      // Conta le richieste in stato pending o dates_proposed (non ancora confermate)
+      const bookings = await base44.entities.ConsultationBooking.filter({ 
+        consultant_id: consultant.id
+      });
+      return bookings.filter(b => ['pending', 'dates_proposed'].includes(b.status)).length;
+    },
+    enabled: !!effectiveUser?.email && isUserConsultant(effectiveUser),
+  });
+
   const { data: newGrantsCount = 0 } = useQuery({
     queryKey: ['new-grants-count', effectiveUser?.email, userGrantView?.last_viewed_at],
     queryFn: async () => {
