@@ -158,7 +158,25 @@ export default function Imprenditori() {
   }, [effectiveUser?.email, posts, user?.role, impersonation?.active]);
 
   const createPostMutation = useMutation({
-    mutationFn: (data) => base44.entities.ImprenditorePost.create(data),
+    mutationFn: async (data) => {
+      const post = await base44.entities.ImprenditorePost.create(data);
+      
+      // Se il sondaggio è indirizzato a utenti specifici, crea notifiche
+      if (data.target_type === 'specific' && data.target_users?.length > 0) {
+        for (const targetEmail of data.target_users) {
+          await base44.entities.Notification.create({
+            user_email: targetEmail,
+            type: 'cultura_aziendale', // riuso tipo esistente per sondaggi
+            title: 'Nuovo sondaggio per te',
+            content: `${data.author_name} ti ha chiesto un parere: "${data.title}"`,
+            is_read: false,
+            reference_id: post.id
+          });
+        }
+      }
+      
+      return post;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['imprenditore-posts'] });
       setShowAddDialog(false);
