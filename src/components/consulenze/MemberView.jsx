@@ -326,8 +326,10 @@ export default function MemberView({ user, consultants, isLoading }) {
               const availableConsultations = assignment ? assignment.available_consultations : defaultConsultations;
               const completedBookings = bookings.filter(b => b.consultant_id === consultant.id).length;
               
+              const hasAvailable = availableConsultations > 0;
+              
               return (
-                <Card key={index} className="bg-slate-800 border-slate-700">
+                <Card key={index} className={`border-slate-700 ${hasAvailable ? 'bg-green-900/20 border-green-500/30' : 'bg-red-900/20 border-red-500/30'}`}>
                   <CardHeader className="pb-2">
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-lime-400 text-base">{category}</CardTitle>
