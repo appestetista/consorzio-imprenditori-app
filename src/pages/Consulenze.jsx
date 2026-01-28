@@ -90,15 +90,27 @@ export default function Consulenze() {
   const isAdmin = user?.role === 'admin' && !impersonation.active;
   
   // Verifica se l'utente effettivo è un consulente controllando l'entità Consultant
-  const isConsultantByEntity = consultants.some(c => c.email?.toLowerCase() === effectiveUser?.email?.toLowerCase());
+  const effectiveEmail = effectiveUser?.email?.toLowerCase();
+  const isConsultantByEntity = consultants.some(c => c.email?.toLowerCase() === effectiveEmail);
+  
+  // L'user_type può essere nel root o in data (struttura User entity)
+  const effectiveUserType = effectiveUser?.user_type || effectiveUser?.data?.user_type;
   
   // Un utente è consulente se:
   // 1. È impersonificato come consulente (impersonation.role === 'consulente')
   // 2. Il suo user_type nell'entità User è 'consulente'
   // 3. La sua email corrisponde a un record nell'entità Consultant
   const isConsultant = (impersonation.active && impersonation.role === 'consulente') || 
-                       effectiveUser?.user_type === 'consulente' ||
+                       effectiveUserType === 'consulente' ||
                        isConsultantByEntity;
+  
+  console.log('[Consulenze] Debug isConsultant:', {
+    effectiveEmail,
+    effectiveUserType,
+    isConsultantByEntity,
+    isConsultant,
+    consultantEmails: consultants.map(c => c.email?.toLowerCase())
+  });
   
   const isMember = !isAdmin && !isConsultant;
 
