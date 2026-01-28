@@ -79,20 +79,6 @@ export default function VideoRating({
         </button>
       </div>
 
-      {/* Leggenda espandibile */}
-      {showLegend && (
-        <div className="absolute right-0 top-full mt-1 z-10 bg-slate-800 border border-slate-700 rounded-lg p-2 shadow-lg text-xs whitespace-nowrap">
-          <div className="flex items-center gap-2 text-slate-300 py-0.5">
-            <Gem className="w-3 h-3 text-amber-400" /> Apprezzo l'azienda
-          </div>
-          <div className="flex items-center gap-2 text-slate-300 py-0.5">
-            <Gem className="w-3 h-3 text-amber-400" /><Gem className="w-3 h-3 text-amber-400" /> Molto interessante
-          </div>
-          <div className="flex items-center gap-2 text-slate-300 py-0.5">
-            <Gem className="w-3 h-3 text-amber-400" /><Gem className="w-3 h-3 text-amber-400" /><Gem className="w-3 h-3 text-amber-400" /> Ci collaborerei
-          </div>
-        </div>
-      )}
     </div>
   );
 }
