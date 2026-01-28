@@ -844,40 +844,49 @@ export default function Imprenditori() {
               <label className="text-slate-400 text-sm mb-2 block">Aggiungi foto o video (opzionale)</label>
               
               {!newPoll.media_url && !recordedBlob && !isPreviewing ? (
-                <div className="grid grid-cols-3 gap-2">
-                  {/* Carica foto */}
-                  <label className="flex flex-col items-center justify-center gap-1 py-3 px-2 rounded-lg border border-slate-600 bg-slate-700 hover:bg-slate-600 cursor-pointer transition-all">
-                    <Image className="w-5 h-5 text-lime-400" />
-                    <span className="text-xs text-slate-300">Foto</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="hidden"
-                    />
-                  </label>
-                  
-                  {/* Carica video */}
-                  <label className="flex flex-col items-center justify-center gap-1 py-3 px-2 rounded-lg border border-slate-600 bg-slate-700 hover:bg-slate-600 cursor-pointer transition-all">
-                    <Upload className="w-5 h-5 text-blue-400" />
-                    <span className="text-xs text-slate-300">Video</span>
-                    <input
-                      type="file"
-                      accept="video/*"
-                      onChange={handleVideoUpload}
-                      className="hidden"
-                    />
-                  </label>
-                  
-                  {/* Apri Camera */}
+                <div className="space-y-3">
+                  {/* Pulsante Apri Camera - grande e in evidenza */}
                   <button
                     type="button"
                     onClick={() => openCameraPreview()}
-                    className="flex flex-col items-center justify-center gap-1 py-3 px-2 rounded-lg border border-slate-600 bg-slate-700 hover:bg-slate-600 transition-all"
+                    className="w-full flex items-center justify-center gap-3 py-4 rounded-xl border-2 border-dashed border-slate-500 bg-slate-700/50 hover:bg-slate-600/50 hover:border-lime-400/50 transition-all"
                   >
-                    <Camera className="w-5 h-5 text-red-400" />
-                    <span className="text-xs text-slate-300">Registra</span>
+                    <Camera className="w-6 h-6 text-lime-400" />
+                    <span className="text-slate-200 font-medium">Apri Camera</span>
                   </button>
+                  
+                  {/* Oppure carica file */}
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 h-px bg-slate-600"></div>
+                    <span className="text-slate-500 text-xs">oppure carica</span>
+                    <div className="flex-1 h-px bg-slate-600"></div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-2">
+                    {/* Carica foto */}
+                    <label className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg border border-slate-600 bg-slate-700 hover:bg-slate-600 cursor-pointer transition-all">
+                      <Image className="w-4 h-4 text-lime-400" />
+                      <span className="text-xs text-slate-300">Foto</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                      />
+                    </label>
+                    
+                    {/* Carica video */}
+                    <label className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg border border-slate-600 bg-slate-700 hover:bg-slate-600 cursor-pointer transition-all">
+                      <Upload className="w-4 h-4 text-blue-400" />
+                      <span className="text-xs text-slate-300">Video</span>
+                      <input
+                        type="file"
+                        accept="video/*"
+                        onChange={handleVideoUpload}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
                 </div>
               ) : isPreviewing ? (
                 <div className={`border-2 ${isRecording ? 'border-red-500' : 'border-lime-400'} rounded-xl overflow-hidden`}>
