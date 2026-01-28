@@ -360,10 +360,13 @@ export default function AdminPanel() {
           <h2 className="text-white font-semibold text-sm mb-3">Sezioni Home</h2>
           <div className="grid grid-cols-3 gap-2">
             <Link to={createPageUrl('CalendarioIncontri')}>
-              <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20">
+              <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20 relative">
                 <CardContent className="p-2 flex flex-col items-center justify-center h-full">
                   <Calendar className="w-5 h-5 text-lime-400 mb-1" />
                   <p className="text-white text-[10px] text-center leading-tight">Calendario<br/>incontri</p>
+                  <span className="absolute top-1 right-1 bg-lime-400 text-slate-900 text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
+                    {stats?.totalEvents || 0}
+                  </span>
                 </CardContent>
               </Card>
             </Link>
