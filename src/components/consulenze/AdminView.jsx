@@ -29,6 +29,23 @@ const CONSULTANT_CATEGORIES = [
   "Efficientamento Energetico/Centralini"
 ];
 
+const SECTIONS = [
+  { id: 'calendario', label: 'Calendario Incontri' },
+  { id: 'video_interviste', label: 'Video Interviste' },
+  { id: 'cultura_aziendale', label: 'Academy' },
+  { id: 'consulenze', label: 'Consulenze' },
+  { id: 'finanziamenti', label: 'Finanziamenti Agevolati' },
+  { id: 'contatta_membri', label: 'Contatta Imprenditori' },
+  { id: 'risparmio_energetico', label: 'Risparmio' },
+  { id: 'marketplace', label: 'Marketplace' },
+  { id: 'imprenditori', label: 'Consigli da Imprenditori' },
+  { id: 'fornitori', label: 'Ricerca Fornitori' },
+  { id: 'welfare_aziendale', label: 'Welfare Aziendale' },
+  { id: 'analisi_contratti', label: 'Analisi Contratti' },
+  { id: 'import_export', label: 'Import/Export' },
+  { id: 'compliance', label: 'Compliance Aziendale' },
+];
+
 export default function AdminView({ consultants, adminEmail }) {
   const [showConsultantDialog, setShowConsultantDialog] = useState(false);
   const [editingConsultant, setEditingConsultant] = useState(null);
@@ -44,6 +61,15 @@ export default function AdminView({ consultants, adminEmail }) {
     zona: '',
     free_consultations_per_user: 1
   });
+  
+  // Stati per gestione consulenti avanzata
+  const [searchTermConsultant, setSearchTermConsultant] = useState('');
+  const [selectedZoneFilter, setSelectedZoneFilter] = useState('all');
+  const [showSections, setShowSections] = useState(false);
+  const [selectedConsultant, setSelectedConsultant] = useState(null);
+  const [sectionsData, setSectionsData] = useState([]);
+  const [showInviteForm, setShowInviteForm] = useState(false);
+  
   const queryClient = useQueryClient();
 
 
