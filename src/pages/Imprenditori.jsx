@@ -598,13 +598,13 @@ export default function Imprenditori() {
             </div>
           </div>
           
-          {/* Mezzo cerchio "Esempio" attaccato sotto al bordo inferiore, a destra */}
+          {/* Linguetta "Esempio" attaccata sotto al bordo inferiore, a destra */}
           {!showExample && (
             <button
               onClick={() => setShowExample(true)}
-              className="absolute top-full right-4 w-24 h-5 bg-lime-400 rounded-b-full flex items-center justify-center shadow-lg hover:bg-lime-500 transition-all"
+              className="absolute top-full right-2 w-20 h-5 bg-gradient-to-r from-lime-400/10 to-emerald-400/10 border border-t-0 border-lime-400/30 rounded-b-lg flex items-center justify-center hover:bg-lime-400/20 transition-all"
             >
-              <span className="text-slate-900 text-[10px] font-bold">Esempio</span>
+              <span className="text-lime-400 text-[10px] font-bold">Esempio</span>
             </button>
           )}
           
