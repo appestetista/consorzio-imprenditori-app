@@ -711,15 +711,23 @@ export default function AdminPanel() {
                     <div className="bg-slate-800 rounded-lg p-3 mb-3">
                       <p className="text-white text-sm whitespace-pre-wrap">{msg.content}</p>
                     </div>
-                    <p className="text-slate-500 text-xs">
-                      {msg.created_date ? new Date(msg.created_date).toLocaleDateString('it-IT', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      }) : 'N/A'}
-                    </p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-slate-500 text-xs">
+                        {msg.created_date ? new Date(msg.created_date).toLocaleDateString('it-IT', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        }) : 'N/A'}
+                      </p>
+                      <Link to={`${createPageUrl('Messaggi')}?contact=${encodeURIComponent(msg.from_email)}`}>
+                        <Button size="sm" className="bg-lime-400 hover:bg-lime-500 text-slate-900">
+                          <Mail className="w-4 h-4 mr-1" />
+                          Apri chat
+                        </Button>
+                      </Link>
+                    </div>
                   </CardContent>
                 </Card>
               ))
