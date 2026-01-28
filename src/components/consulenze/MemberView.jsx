@@ -270,6 +270,11 @@ export default function MemberView({ user, consultants, isLoading }) {
         <TabsTrigger value="consulenti" className="flex-1 data-[state=active]:bg-amber-500 data-[state=active]:text-white">
           <Users className="w-4 h-4 mr-2" />
           Consulenti
+          {unreadConsultationMessages > 0 && (
+            <span className="ml-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+              {unreadConsultationMessages}
+            </span>
+          )}
         </TabsTrigger>
       </TabsList>
 
