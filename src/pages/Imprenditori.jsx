@@ -250,10 +250,10 @@ export default function Imprenditori() {
     video.src = URL.createObjectURL(file);
   };
 
-  const startRecording = async () => {
+  const startRecording = async (mode = facingMode) => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'user' }, 
+        video: { facingMode: mode }, 
         audio: true 
       });
       streamRef.current = stream;
@@ -295,6 +295,24 @@ export default function Imprenditori() {
     } catch (err) {
       console.error('Errore accesso camera:', err);
       setUploadError('Impossibile accedere alla fotocamera. Verifica i permessi.');
+    }
+  };
+
+  const switchCamera = async () => {
+    const newMode = facingMode === 'user' ? 'environment' : 'user';
+    setFacingMode(newMode);
+    
+    if (isRecording) {
+      // Ferma la registrazione corrente
+      if (timerRef.current) clearInterval(timerRef.current);
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+      }
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+      // Riavvia con la nuova camera
+      setTimeout(() => startRecording(newMode), 100);
     }
   };
 
