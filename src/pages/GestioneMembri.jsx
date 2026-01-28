@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, User, Lock, Unlock, Trash2, Settings, Search, Shield, ShieldOff, Edit, X, UserPlus, Upload, Image, Save, FileText, Clock, Mail } from 'lucide-react';
+import { ArrowLeft, User, Lock, Unlock, Trash2, Settings, Search, Shield, ShieldOff, Edit, X, UserPlus, Upload, Image, Save, FileText, Clock, Mail, GraduationCap, Briefcase, Users } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,9 @@ import BottomNav from '../components/layout/BottomNav';
 import MembersDirectory from '../components/members/MembersDirectory';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import InviteUserForm from '../components/admin/InviteUserForm';
+import PreAuthEmailForm from '../components/admin/PreAuthEmailForm';
+import CulturaAziendaleAdmin from '../components/admin/CulturaAziendaleAdmin';
+import ConsultantAssignmentManager from '../components/admin/ConsultantAssignmentManager';
 
 const PERMISSIONS_LIST = [
   { key: 'calendario', label: 'Calendario Incontri' },
