@@ -362,6 +362,22 @@ export default function ConsultantView({ user }) {
     );
   }
 
+  // Se c'è stato un errore nel caricamento
+  if (profileError) {
+    console.error('[ConsultantView] Errore caricamento profilo:', profileError);
+    return (
+      <Card className="bg-slate-800 border-red-400/30">
+        <CardContent className="p-6 text-center">
+          <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <h3 className="text-white font-bold text-lg mb-2">Errore caricamento</h3>
+          <p className="text-slate-400 text-sm">
+            Si è verificato un errore nel caricamento del profilo. Riprova.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   // Se il profilo consulente non esiste, mostra errore
   if (!myConsultantProfile) {
     return (
@@ -370,7 +386,7 @@ export default function ConsultantView({ user }) {
           <AlertTriangle className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
           <h3 className="text-white font-bold text-lg mb-2">Profilo consulente non trovato</h3>
           <p className="text-slate-400 text-sm mb-2">
-            Non è stato trovato un profilo consulente associato alla tua email: <span className="text-lime-400">{user?.email}</span>
+            Non è stato trovato un profilo consulente associato alla tua email: <span className="text-lime-400">{userEmail}</span>
           </p>
           <p className="text-slate-500 text-xs">
             Contatta l'amministrazione per verificare che il tuo profilo sia configurato correttamente.
