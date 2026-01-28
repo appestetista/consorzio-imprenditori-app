@@ -169,16 +169,30 @@ export default function VideoInterviste() {
       const existingIndex = ratings.findIndex(r => r.user_email === effectiveUser.email);
       
       let updatedRatings;
+      let updateData = {};
+      
       if (existingIndex >= 0) {
-        // Aggiorna voto esistente
+        // Aggiorna voto esistente (no nuova visualizzazione)
         updatedRatings = [...ratings];
         updatedRatings[existingIndex] = { user_email: effectiveUser.email, diamonds };
+        updateData = { ratings: updatedRatings };
       } else {
-        // Nuovo voto
+        // Nuovo voto = aggiungi anche una visualizzazione
         updatedRatings = [...ratings, { user_email: effectiveUser.email, diamonds }];
+        const views = video.views || [];
+        const viewsCount = (video.views_count || 0) + 1;
+        const newView = {
+          user_email: effectiveUser.email,
+          viewed_at: new Date().toISOString()
+        };
+        updateData = { 
+          ratings: updatedRatings,
+          views: [...views, newView],
+          views_count: viewsCount
+        };
       }
       
-      return base44.entities.Video.update(videoId, { ratings: updatedRatings });
+      return base44.entities.Video.update(videoId, updateData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['videos'] });
