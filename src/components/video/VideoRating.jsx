@@ -20,6 +20,13 @@ export default function VideoRating({
     onRate(diamonds);
   };
 
+  // Calcola statistiche voti
+  const diamondStats = {
+    1: ratings.filter(r => r.diamonds === 1).length,
+    2: ratings.filter(r => r.diamonds === 2).length,
+    3: ratings.filter(r => r.diamonds === 3).length,
+  };
+
   const ratingOptions = [
     { diamonds: 1, label: "Apprezzo l'azienda" },
     { diamonds: 2, label: "Molto interessante" },
