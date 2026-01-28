@@ -8,11 +8,14 @@
 export function normalizeUser(user) {
   if (!user) return null;
   
+  // Debug per capire la struttura
+  console.log('[normalizeUser] Input user:', JSON.stringify(user, null, 2));
+  
   // Se i dati sono già a livello root (auth.me()), restituisci così com'è
   // Se sono dentro .data (User.filter()), appiattisci
   const data = user.data || {};
   
-  return {
+  const result = {
     // Campi sempre a livello root
     id: user.id,
     email: user.email,
@@ -73,6 +76,9 @@ export function normalizeUser(user) {
     // Mantieni anche l'oggetto data originale per retrocompatibilità
     _originalData: data
   };
+  
+  console.log('[normalizeUser] Output:', JSON.stringify(result, null, 2));
+  return result;
 }
 
 /**
