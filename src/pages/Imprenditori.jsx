@@ -859,12 +859,20 @@ export default function Imprenditori() {
                       autoPlay
                       muted
                       playsInline
-                      className="w-full aspect-video object-cover"
+                      className={`w-full aspect-video object-cover ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
                     />
                     <div className="absolute top-3 left-3 flex items-center gap-2 bg-red-600 px-3 py-1 rounded-full">
                       <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
                       <span className="text-white text-sm font-medium">{formatTime(recordingTime)} / 2:00</span>
                     </div>
+                    {/* Pulsante switch camera */}
+                    <button
+                      type="button"
+                      onClick={switchCamera}
+                      className="absolute top-3 right-3 bg-slate-800/70 hover:bg-slate-700 text-white p-2 rounded-full"
+                    >
+                      <Camera className="w-5 h-5" />
+                    </button>
                     <div className="absolute bottom-3 left-1/2 -translate-x-1/2">
                       <button
                         type="button"
