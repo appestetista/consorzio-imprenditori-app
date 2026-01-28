@@ -21,6 +21,7 @@ export default function Imprenditori() {
   const [effectiveUser, setEffectiveUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showExample, setShowExample] = useState(false);
   const [newPoll, setNewPoll] = useState({ 
     title: '', 
     content: '', 
