@@ -285,20 +285,7 @@ export default function AdminPanel() {
             </Card>
           </Link>
 
-          <Link to={createPageUrl('VideoInterviste')}>
-            <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 relative">
-              <CardContent className="p-2 text-center">
-                <Video className="w-5 h-5 text-lime-400 mx-auto mb-1" />
-                <p className="text-lg font-bold text-white">{stats?.totalVideos || 0}</p>
-                <p className="text-slate-400 text-[10px]">Video</p>
-                {pendingVideoRequests.length > 0 && (
-                  <span className="absolute top-1 right-1 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
-                    {pendingVideoRequests.length}
-                  </span>
-                )}
-              </CardContent>
-            </Card>
-          </Link>
+
           <Link to={createPageUrl('GestioneConsulenti')}>
             <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 relative">
               <CardContent className="p-2 text-center">
