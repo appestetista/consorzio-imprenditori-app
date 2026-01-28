@@ -221,33 +221,47 @@ export default function PendingConfirmations({ userEmail }) {
   // Conferma che la consulenza è avvenuta
   const confirmCompletedMutation = useMutation({
     mutationFn: async (bookingId) => {
-      const booking = pendingBookings.find(b => b.id === bookingId);
-      if (!booking) return;
-
-      const users = await base44.entities.User.filter({ email: userEmail });
-      if (users.length > 0) {
-        const user = users[0];
-        const currentUsed = user.consulenze_usate || [];
-        await base44.entities.User.update(user.id, {
-          consulenze_usate: [...currentUsed, bookingId]
-        });
+      console.log('[PendingConfirmations] Confirming booking:', bookingId);
+      
+      // Recupera la booking direttamente dal DB per sicurezza
+      const allBookings = await base44.entities.ConsultationBooking.filter({ id: bookingId });
+      const booking = allBookings[0];
+      
+      if (!booking) {
+        console.error('[PendingConfirmations] Booking not found:', bookingId);
+        throw new Error('Prenotazione non trovata');
       }
 
-      const assignment = assignments.find(a => a.consultant_id === booking.consultant_id && a.is_assigned);
-      if (assignment && assignment.available_consultations > 0) {
-        await base44.entities.ConsultantAssignment.update(assignment.id, {
-          available_consultations: assignment.available_consultations - 1
-        });
-      }
+      console.log('[PendingConfirmations] Booking found:', booking);
 
+      // Aggiorna lo stato della booking a completed
       await base44.entities.ConsultationBooking.update(bookingId, {
         status: 'completed',
         completed_date: new Date().toISOString(),
         user_confirmed_at: new Date().toISOString()
       });
 
+      console.log('[PendingConfirmations] Booking updated to completed');
+
+      // Aggiorna consulenze_usate sull'utente
+      try {
+        const users = await base44.entities.User.filter({ email: userEmail });
+        if (users.length > 0) {
+          const user = users[0];
+          const currentUsed = user.consulenze_usate || [];
+          if (!currentUsed.includes(bookingId)) {
+            await base44.entities.User.update(user.id, {
+              consulenze_usate: [...currentUsed, bookingId]
+            });
+          }
+        }
+      } catch (e) {
+        console.log('[PendingConfirmations] Error updating user consulenze_usate:', e);
+      }
+
+      // Notifica il consulente
       const consultant = consultants.find(c => c.id === booking.consultant_id);
-      if (consultant) {
+      if (consultant?.email) {
         await base44.entities.Notification.create({
           user_email: consultant.email,
           type: 'consultation',
@@ -256,12 +270,18 @@ export default function PendingConfirmations({ userEmail }) {
           is_read: false,
           reference_id: bookingId
         });
+        console.log('[PendingConfirmations] Notification sent to consultant:', consultant.email);
       }
     },
     onSuccess: () => {
+      console.log('[PendingConfirmations] Mutation successful, invalidating queries');
       queryClient.invalidateQueries({ queryKey: ['pending-confirmations'] });
       queryClient.invalidateQueries({ queryKey: ['user-assignments'] });
       queryClient.invalidateQueries({ queryKey: ['consultation-bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['user-active-bookings'] });
+    },
+    onError: (error) => {
+      console.error('[PendingConfirmations] Mutation error:', error);
     }
   });
 
