@@ -190,12 +190,14 @@ export default function ConsultantView({ user }) {
     enabled: !!userEmail
   });
 
-  // Subscribe real-time ai messaggi
+  // Subscribe real-time ai messaggi (solo dalla sezione consulenze)
   useEffect(() => {
     if (!userEmail) return;
 
     const unsubscribe = base44.entities.Message.subscribe((event) => {
-      if (event.type === 'create' && event.data?.to_email === userEmail) {
+      if (event.type === 'create' && 
+          event.data?.to_email === userEmail && 
+          event.data?.source === 'consulenze') {
         playSound();
         queryClient.invalidateQueries({ queryKey: ['unread-messages-count-consultant', userEmail] });
         queryClient.invalidateQueries({ queryKey: ['unread-messages-from-users', userEmail] });
