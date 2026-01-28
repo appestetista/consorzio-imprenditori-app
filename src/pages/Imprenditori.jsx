@@ -254,19 +254,26 @@ export default function Imprenditori() {
   // Apre l'anteprima della camera (senza registrare)
   const openCameraPreview = async (mode = facingMode) => {
     try {
+      // Prima imposta isPreviewing per rendere visibile il video element
+      setIsPreviewing(true);
+      
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: { facingMode: mode }, 
         audio: true 
       });
       streamRef.current = stream;
       
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-      }
-      setIsPreviewing(true);
+      // Usa setTimeout per assicurarsi che il video element sia renderizzato
+      setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          videoRef.current.play().catch(console.error);
+        }
+      }, 100);
     } catch (err) {
       console.error('Errore accesso camera:', err);
       setUploadError('Impossibile accedere alla fotocamera. Verifica i permessi.');
+      setIsPreviewing(false);
     }
   };
 
