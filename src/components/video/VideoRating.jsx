@@ -1,5 +1,5 @@
-import React from 'react';
-import { Gem, Eye } from 'lucide-react';
+import React, { useState } from 'react';
+import { Gem, Eye, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function VideoRating({ 
@@ -9,88 +9,90 @@ export default function VideoRating({
   onView,
   isRating = false 
 }) {
+  const [showLegend, setShowLegend] = useState(false);
   const viewsCount = video.views_count || 0;
   const ratings = video.ratings || [];
   const userRating = ratings.find(r => r.user_email === userEmail);
   const currentDiamonds = userRating?.diamonds || 0;
+  const totalRatings = ratings.length;
 
   const handleRate = (diamonds) => {
     if (isRating) return;
     onRate(diamonds);
   };
 
-  // Calcola statistiche voti
-  const diamondStats = {
-    1: ratings.filter(r => r.diamonds === 1).length,
-    2: ratings.filter(r => r.diamonds === 2).length,
-    3: ratings.filter(r => r.diamonds === 3).length,
+  const ratingLabels = {
+    1: "Apprezzo",
+    2: "Interessante", 
+    3: "Collaborerei"
   };
 
   return (
-    <div className="space-y-3">
+    <div className="flex items-center justify-between gap-3 py-1">
       {/* Visualizzazioni */}
-      <div className="flex items-center gap-2 text-slate-400">
+      <div className="flex items-center gap-1.5 text-slate-400">
         <Eye className="w-4 h-4" />
-        <span className="text-sm">{viewsCount} visualizzazioni</span>
+        <span className="text-sm font-medium">{viewsCount}</span>
       </div>
 
-      {/* Sistema di voto con diamanti */}
-      <div className="bg-slate-900/50 rounded-lg p-3 space-y-3">
-        <div className="flex items-center justify-center gap-4">
-          {[1, 2, 3].map((diamonds) => (
-            <button
-              key={diamonds}
-              onClick={() => handleRate(diamonds)}
-              disabled={isRating}
-              className={cn(
-                "flex items-center gap-1 px-3 py-2 rounded-lg transition-all",
-                currentDiamonds === diamonds 
-                  ? "bg-amber-400/30 ring-2 ring-amber-400" 
-                  : "bg-slate-800 hover:bg-slate-700",
-                isRating && "opacity-50 cursor-not-allowed"
-              )}
-            >
+      {/* Diamanti rating inline */}
+      <div className="flex items-center gap-1">
+        {[1, 2, 3].map((diamonds) => (
+          <button
+            key={diamonds}
+            onClick={() => handleRate(diamonds)}
+            disabled={isRating}
+            title={ratingLabels[diamonds]}
+            className={cn(
+              "relative flex items-center justify-center w-8 h-8 rounded-full transition-all",
+              currentDiamonds === diamonds 
+                ? "bg-amber-400/20 ring-1 ring-amber-400" 
+                : "hover:bg-slate-700/50",
+              isRating && "opacity-50 cursor-not-allowed"
+            )}
+          >
+            <div className="flex items-center gap-px">
               {Array.from({ length: diamonds }).map((_, i) => (
                 <Gem 
                   key={i} 
                   className={cn(
-                    "w-5 h-5",
-                    currentDiamonds === diamonds ? "text-amber-400 fill-amber-400" : "text-slate-400"
+                    "w-3.5 h-3.5",
+                    currentDiamonds >= diamonds ? "text-amber-400 fill-amber-400" : "text-slate-500"
                   )} 
                 />
               ))}
-            </button>
-          ))}
-        </div>
-
-        {/* Leggenda */}
-        <div className="grid grid-cols-3 gap-2 text-center text-xs">
-          <div className="text-slate-400">
-            <div className="flex items-center justify-center gap-0.5 mb-1">
-              <Gem className="w-3 h-3 text-amber-400" />
             </div>
-            <span>Apprezzo l'azienda</span>
-            {diamondStats[1] > 0 && <span className="text-amber-400 block">({diamondStats[1]})</span>}
-          </div>
-          <div className="text-slate-400">
-            <div className="flex items-center justify-center gap-0.5 mb-1">
-              <Gem className="w-3 h-3 text-amber-400" />
-              <Gem className="w-3 h-3 text-amber-400" />
-            </div>
-            <span>Molto interessante</span>
-            {diamondStats[2] > 0 && <span className="text-amber-400 block">({diamondStats[2]})</span>}
-          </div>
-          <div className="text-slate-400">
-            <div className="flex items-center justify-center gap-0.5 mb-1">
-              <Gem className="w-3 h-3 text-amber-400" />
-              <Gem className="w-3 h-3 text-amber-400" />
-              <Gem className="w-3 h-3 text-amber-400" />
-            </div>
-            <span>Ci collaborerei</span>
-            {diamondStats[3] > 0 && <span className="text-amber-400 block">({diamondStats[3]})</span>}
-          </div>
-        </div>
+          </button>
+        ))}
+        
+        {/* Contatore voti totali */}
+        {totalRatings > 0 && (
+          <span className="text-xs text-amber-400 ml-1">({totalRatings})</span>
+        )}
+        
+        {/* Info tooltip */}
+        <button
+          onClick={() => setShowLegend(!showLegend)}
+          className="ml-1 text-slate-500 hover:text-slate-300 transition-colors"
+        >
+          <ChevronDown className={cn("w-4 h-4 transition-transform", showLegend && "rotate-180")} />
+        </button>
       </div>
+
+      {/* Leggenda espandibile */}
+      {showLegend && (
+        <div className="absolute right-0 top-full mt-1 z-10 bg-slate-800 border border-slate-700 rounded-lg p-2 shadow-lg text-xs whitespace-nowrap">
+          <div className="flex items-center gap-2 text-slate-300 py-0.5">
+            <Gem className="w-3 h-3 text-amber-400" /> Apprezzo l'azienda
+          </div>
+          <div className="flex items-center gap-2 text-slate-300 py-0.5">
+            <Gem className="w-3 h-3 text-amber-400" /><Gem className="w-3 h-3 text-amber-400" /> Molto interessante
+          </div>
+          <div className="flex items-center gap-2 text-slate-300 py-0.5">
+            <Gem className="w-3 h-3 text-amber-400" /><Gem className="w-3 h-3 text-amber-400" /><Gem className="w-3 h-3 text-amber-400" /> Ci collaborerei
+          </div>
+        </div>
+      )}
     </div>
   );
 }
