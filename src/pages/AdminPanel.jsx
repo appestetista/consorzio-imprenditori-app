@@ -561,6 +561,22 @@ export default function AdminPanel() {
           {/* TAB GESTIONE */}
           <TabsContent value="gestione" className="space-y-4">
 
+            {/* Gestione Utenti Unificata */}
+            <Card className="bg-slate-800 border-slate-700">
+              <CardContent className="p-4">
+                <Link to={createPageUrl('GestioneMembri')} className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Users className="w-6 h-6 text-lime-400" />
+                    <div>
+                      <h3 className="text-white font-medium text-sm">Gestione Utenti</h3>
+                      <p className="text-slate-400 text-xs">Invita, modifica, blocca utenti e gestisci ruoli</p>
+                    </div>
+                  </div>
+                  <span className="text-lime-400 text-lg font-bold">{stats?.activeUsers || 0}</span>
+                </Link>
+              </CardContent>
+            </Card>
+
             {/* Pre-autorizzazione Email */}
             <Card className="bg-slate-800 border-slate-700">
               <CardContent className="p-4">
@@ -575,13 +591,8 @@ export default function AdminPanel() {
               </CardContent>
             </Card>
 
-            {/* Directory Membri */}
-            <MembersDirectory />
-
             {/* Cultura Aziendale */}
             <CulturaAziendaleAdmin />
-
-
 
             {/* Assegnazione Consulenti */}
             <ConsultantAssignmentManager />
