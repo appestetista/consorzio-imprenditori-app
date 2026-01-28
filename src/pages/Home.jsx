@@ -136,7 +136,7 @@ export default function Home() {
       }
     };
     loadUser();
-  }, [appMode, impersonation.previewUserId, navigate]);
+  }, [appMode, impersonation.previewUserId, setCurrentUserRole]);
 
   const { data: notifications = [] } = useQuery({
     queryKey: ['notifications', effectiveUser?.email],
