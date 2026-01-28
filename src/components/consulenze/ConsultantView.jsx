@@ -187,18 +187,18 @@ export default function ConsultantView({ user }) {
 
   // Subscribe real-time ai messaggi
   useEffect(() => {
-    if (!user?.email) return;
+    if (!userEmail) return;
 
     const unsubscribe = base44.entities.Message.subscribe((event) => {
-      if (event.type === 'create' && event.data?.to_email === user?.email) {
+      if (event.type === 'create' && event.data?.to_email === userEmail) {
         playSound();
-        queryClient.invalidateQueries({ queryKey: ['unread-messages-count-consultant', user?.email] });
-        queryClient.invalidateQueries({ queryKey: ['unread-messages-from-users', user?.email] });
+        queryClient.invalidateQueries({ queryKey: ['unread-messages-count-consultant', userEmail] });
+        queryClient.invalidateQueries({ queryKey: ['unread-messages-from-users', userEmail] });
       }
     });
 
     return () => unsubscribe();
-  }, [user?.email, queryClient, playSound]);
+  }, [userEmail, queryClient, playSound]);
 
   // Proponi date al cliente
   const proposeDatesMutation = useMutation({
