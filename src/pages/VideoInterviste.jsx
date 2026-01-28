@@ -163,16 +163,43 @@ export default function VideoInterviste() {
     }
   });
 
-  const toggleLikeMutation = useMutation({
+  const rateMutation = useMutation({
+    mutationFn: async ({ videoId, video, diamonds }) => {
+      const ratings = video.ratings || [];
+      const existingIndex = ratings.findIndex(r => r.user_email === effectiveUser.email);
+      
+      let updatedRatings;
+      if (existingIndex >= 0) {
+        // Aggiorna voto esistente
+        updatedRatings = [...ratings];
+        updatedRatings[existingIndex] = { user_email: effectiveUser.email, diamonds };
+      } else {
+        // Nuovo voto
+        updatedRatings = [...ratings, { user_email: effectiveUser.email, diamonds }];
+      }
+      
+      return base44.entities.Video.update(videoId, { ratings: updatedRatings });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['videos'] });
+    }
+  });
+
+  const trackViewMutation = useMutation({
     mutationFn: async ({ videoId, video }) => {
-      const likes = video.likes || [];
-      const userLiked = likes.includes(user.email);
+      const views = video.views || [];
+      const viewsCount = (video.views_count || 0) + 1;
       
-      const updatedLikes = userLiked
-        ? likes.filter(e => e !== user.email)
-        : [...likes, user.email];
+      // Registra la visualizzazione
+      const newView = {
+        user_email: effectiveUser.email,
+        viewed_at: new Date().toISOString()
+      };
       
-      return base44.entities.Video.update(videoId, { likes: updatedLikes });
+      return base44.entities.Video.update(videoId, { 
+        views: [...views, newView],
+        views_count: viewsCount
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['videos'] });
