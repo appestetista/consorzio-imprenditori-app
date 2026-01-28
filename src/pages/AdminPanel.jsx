@@ -308,6 +308,137 @@ export default function AdminPanel() {
     }
   });
 
+  // Mutations per gestione consulenti
+  const toggleBlockConsultantMutation = useMutation({
+    mutationFn: async ({ consultantId, isBlocked, consultantEmail }) => {
+      await base44.entities.Consultant.update(consultantId, { is_blocked: !isBlocked });
+      if (consultantEmail) {
+        const users = await base44.entities.User.filter({ email: consultantEmail.toLowerCase() });
+        if (users.length > 0) {
+          await base44.entities.User.update(users[0].id, { 
+            is_blocked: !isBlocked,
+            block_reason: !isBlocked ? 'bloccato_da_admin' : null
+          });
+        }
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['consultants'] });
+    }
+  });
+
+  const updateConsultantMutation = useMutation({
+    mutationFn: async ({ consultantId, data }) => {
+      return base44.entities.Consultant.update(consultantId, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['consultants'] });
+      setShowEditForm(false);
+      setFormDataConsultant(null);
+      setSelectedConsultant(null);
+    }
+  });
+
+  const updateSectionsMutation = useMutation({
+    mutationFn: async ({ consultantId, sections }) => {
+      await base44.entities.Consultant.update(consultantId, { assigned_sections: sections });
+      const invite = pendingInvitesConsultants.find(i => i.email === selectedConsultant?.email);
+      if (invite) {
+        await base44.entities.PendingInvite.update(invite.id, { assigned_sections: sections });
+      }
+      if (selectedConsultant?.email) {
+        const users = await base44.entities.User.filter({ email: selectedConsultant.email.toLowerCase() });
+        if (users.length > 0) {
+          const userToUpdate = users[0];
+          const allSections = ['calendario', 'video_interviste', 'cultura_aziendale', 'consulenze',
+            'finanziamenti', 'contatta_membri', 'risparmio_energetico', 'marketplace',
+            'imprenditori', 'fornitori', 'welfare_aziendale', 'analisi_contratti',
+            'import_export', 'compliance'];
+          const permissions = {};
+          allSections.forEach(section => { permissions[section] = false; });
+          sections.forEach(section => { permissions[section] = true; });
+          permissions.consulenze = true;
+          await base44.entities.User.update(userToUpdate.id, { permissions });
+        }
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['consultants'] });
+      queryClient.invalidateQueries({ queryKey: ['pending-invites-consultants'] });
+      setShowSections(false);
+      setSelectedConsultant(null);
+    }
+  });
+
+  const deleteConsultantMutation = useMutation({
+    mutationFn: async (consultantId) => {
+      return base44.entities.Consultant.delete(consultantId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['consultants'] });
+    }
+  });
+
+  const deleteInviteConsultantMutation = useMutation({
+    mutationFn: async (inviteId) => {
+      return base44.entities.PendingInvite.delete(inviteId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pending-invites-consultants'] });
+    }
+  });
+
+  // Filtri e handlers consulenti
+  const filteredConsultants = consultants.filter(consultant => {
+    const searchLower = searchTermConsultant.toLowerCase();
+    const matchesSearch = (
+      consultant.name?.toLowerCase().includes(searchLower) ||
+      consultant.email?.toLowerCase().includes(searchLower) ||
+      consultant.category?.toLowerCase().includes(searchLower)
+    );
+    const matchesZone = selectedZoneConsultant === 'all' || consultant.zona === selectedZoneConsultant;
+    return matchesSearch && matchesZone;
+  });
+
+  const handleEditConsultant = (consultant) => {
+    setFormDataConsultant({
+      name: consultant.name || '',
+      category: consultant.category || '',
+      email: consultant.email || '',
+      phone: consultant.phone || '',
+      city: consultant.city || '',
+      referente: consultant.referente || '',
+      cellulare_referente: consultant.cellulare_referente || '',
+      zona: consultant.zona || '',
+    });
+    setSelectedConsultant(consultant);
+    setShowEditForm(true);
+  };
+
+  const handleOpenSections = (consultant) => {
+    const invite = pendingInvitesConsultants.find(i => i.email === consultant.email);
+    const sections = consultant.assigned_sections || invite?.assigned_sections || [];
+    setSectionsData(sections);
+    setSelectedConsultant(consultant);
+    setShowSections(true);
+  };
+
+  const toggleSection = (sectionId) => {
+    setSectionsData(prev => 
+      prev.includes(sectionId) 
+        ? prev.filter(s => s !== sectionId)
+        : [...prev, sectionId]
+    );
+  };
+
+  const selectAllSections = () => {
+    setSectionsData(SECTIONS.map(s => s.id));
+  };
+
+  const deselectAllSections = () => {
+    setSectionsData([]);
+  };
+
   if (!user) {
     return null;
   }
