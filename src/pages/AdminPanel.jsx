@@ -106,9 +106,22 @@ export default function AdminPanel() {
     }
   });
 
-  const { data: consultants = [] } = useQuery({
+  const { data: consultants = [], isLoading: isLoadingConsultants } = useQuery({
     queryKey: ['consultants'],
     queryFn: () => base44.entities.Consultant.list(),
+  });
+
+  const { data: zones = [] } = useQuery({
+    queryKey: ['zones'],
+    queryFn: () => base44.entities.Zone.filter({ is_active: true }),
+  });
+
+  const { data: pendingInvitesConsultants = [] } = useQuery({
+    queryKey: ['pending-invites-consultants'],
+    queryFn: async () => {
+      const invites = await base44.entities.PendingInvite.filter({ user_type: 'consulente' });
+      return invites.filter(i => !i.is_registered);
+    },
   });
 
   const { data: consultationBookings = [] } = useQuery({
