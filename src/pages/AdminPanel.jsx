@@ -548,19 +548,34 @@ export default function AdminPanel() {
                 </CardContent>
               </Card>
             </Link>
-            <Link to={createPageUrl('Consulenze')}>
-              <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20 relative">
-                <CardContent className="p-2 flex flex-col items-center justify-center h-full">
-                  <Briefcase className="w-5 h-5 text-lime-400 mb-1" />
-                  <p className="text-white text-[10px] text-center leading-tight">Consulenze</p>
-                  {pendingConsultationBookings > 0 && (
-                    <span className="absolute top-1 right-1 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
-                      {pendingConsultationBookings}
-                    </span>
-                  )}
-                </CardContent>
-              </Card>
-            </Link>
+            <Card 
+              className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20 relative cursor-pointer"
+              onClick={() => {
+                const tabsList = document.querySelector('[data-state="active"][value="consulenze"]');
+                if (!tabsList) {
+                  // Scroll to tabs and activate consulenze tab
+                  const tabsElement = document.getElementById('admin-tabs');
+                  if (tabsElement) tabsElement.scrollIntoView({ behavior: 'smooth' });
+                }
+                // Programmatically set tab - we'll use state
+                setActiveTab('consulenze');
+              }}
+            >
+              <CardContent className="p-2 flex flex-col items-center justify-center h-full">
+                <Briefcase className="w-5 h-5 text-lime-400 mb-1" />
+                <p className="text-white text-[10px] text-center leading-tight">Consulenze</p>
+                {(pendingConsultationBookings > 0 || (stats?.totalConsultants || 0) > 0) && (
+                  <span className="absolute top-1 right-1 bg-lime-400 text-slate-900 text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
+                    {stats?.totalConsultants || 0}
+                  </span>
+                )}
+                {pendingConsultationBookings > 0 && (
+                  <span className="absolute top-1 left-1 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
+                    {pendingConsultationBookings}
+                  </span>
+                )}
+              </CardContent>
+            </Card>
             <Link to={createPageUrl('FinanziamentiAgevolati')}>
               <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20">
                 <CardContent className="p-2 flex flex-col items-center justify-center h-full">
