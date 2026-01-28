@@ -350,22 +350,26 @@ export default function GestioneMembri() {
 
         {/* Tabs principali */}
         <Tabs defaultValue="utenti" className="w-full">
-          <TabsList className="w-full bg-slate-800 border border-slate-700 mb-4">
-            <TabsTrigger value="utenti" className="flex-1 text-xs data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
-              <Users className="w-3.5 h-3.5 mr-1" />
+          <TabsList className="w-full bg-slate-800 border border-slate-700 mb-4 grid grid-cols-5">
+            <TabsTrigger value="utenti" className="text-[10px] data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
+              <Users className="w-3 h-3 mr-0.5" />
               Utenti
             </TabsTrigger>
-            <TabsTrigger value="registrazioni" className="flex-1 text-xs data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
-              <UserPlus className="w-3.5 h-3.5 mr-1" />
-              Registrazioni
+            <TabsTrigger value="registrazioni" className="text-[10px] data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
+              <UserPlus className="w-3 h-3 mr-0.5" />
+              Inviti
             </TabsTrigger>
-            <TabsTrigger value="academy" className="flex-1 text-xs data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
-              <GraduationCap className="w-3.5 h-3.5 mr-1" />
+            <TabsTrigger value="academy" className="text-[10px] data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
+              <GraduationCap className="w-3 h-3 mr-0.5" />
               Academy
             </TabsTrigger>
-            <TabsTrigger value="consulenti" className="flex-1 text-xs data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
-              <Briefcase className="w-3.5 h-3.5 mr-1" />
+            <TabsTrigger value="consulenti" className="text-[10px] data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
+              <Briefcase className="w-3 h-3 mr-0.5" />
               Assegna
+            </TabsTrigger>
+            <TabsTrigger value="zone" className="text-[10px] data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
+              <MapPin className="w-3 h-3 mr-0.5" />
+              Zone
             </TabsTrigger>
           </TabsList>
 
