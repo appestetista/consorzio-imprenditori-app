@@ -614,7 +614,6 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
               <div className="space-y-4">
                 {videos.map((video) => {
                   const youtubeId = getYouTubeId(video.youtube_url);
-                  const likesCount = video.likes?.length || 0;
                   
                   return (
                     <Card key={video.id} className="bg-slate-800 border-slate-700 overflow-hidden">
@@ -630,7 +629,10 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
                         )}
                         
                         {youtubeId ? (
-                          <div className="relative aspect-video">
+                          <div 
+                            className="relative aspect-video"
+                            onClick={() => handleVideoPlay(video)}
+                          >
                             <iframe
                               src={`https://www.youtube.com/embed/${youtubeId}`}
                               title={video.title}
@@ -646,34 +648,25 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
                           </div>
                         )}
                       </div>
-                      <CardContent className="p-3">
-                        <div className="flex items-center justify-between gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="bg-lime-400 hover:bg-lime-500 text-slate-900 border-0"
-                            onClick={() => sendContactMessageMutation.mutate(video)}
-                            disabled={sendContactMessageMutation.isPending}
-                          >
-                            <MessageCircle className="w-4 h-4 mr-2" />
-                            {sendContactMessageMutation.isPending ? 'Invio...' : 'contatta l\'azienda'}
-                          </Button>
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => toggleLikeMutation.mutate({ videoId: video.id, video })}
-                              className="flex items-center gap-1"
-                            >
-                              <ThumbsUp 
-                                className={`w-5 h-5 ${hasUserLiked(video) ? 'text-lime-400 fill-lime-400' : 'text-slate-400'}`} 
-                              />
-                              {likesCount > 0 && (
-                                <span className="bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
-                                  {likesCount}
-                                </span>
-                              )}
-                            </button>
-                          </div>
-                        </div>
+                      <CardContent className="p-3 space-y-3">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 border-0"
+                          onClick={() => sendContactMessageMutation.mutate(video)}
+                          disabled={sendContactMessageMutation.isPending}
+                        >
+                          <MessageCircle className="w-4 h-4 mr-2" />
+                          {sendContactMessageMutation.isPending ? 'Invio...' : 'contatta l\'azienda'}
+                        </Button>
+                        
+                        <VideoRating 
+                          video={video}
+                          userEmail={effectiveUser?.email}
+                          onRate={(diamonds) => rateMutation.mutate({ videoId: video.id, video, diamonds })}
+                          onView={() => handleVideoPlay(video)}
+                          isRating={rateMutation.isPending}
+                        />
                       </CardContent>
                     </Card>
                   );
