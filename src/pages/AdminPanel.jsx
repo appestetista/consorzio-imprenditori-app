@@ -22,10 +22,51 @@ import ImpersonationDialog from '../components/admin/ImpersonationDialog';
 import RisparmioRequestsAdmin from '../components/admin/RisparmioRequestsAdmin';
 import InviteConsultantForm from '../components/admin/InviteConsultantForm';
 
+const CONSULTANT_CATEGORIES = [
+  "Stampa Digitale e Cataloghi",
+  "Assicurazioni Aziendali",
+  "Agenzia di Comunicazione",
+  "Commercialista",
+  "Igiene e Sicurezza",
+  "Internazionalizzazione/Export",
+  "Broker Energetico",
+  "Avvocato",
+  "Bandi Europei",
+  "Affitto Stampanti/Cyber Sicurezza",
+  "Efficientamento Energetico/Centralini"
+];
+
+const SECTIONS = [
+  { id: 'calendario', label: 'Calendario Incontri' },
+  { id: 'video_interviste', label: 'Video Interviste' },
+  { id: 'cultura_aziendale', label: 'Academy' },
+  { id: 'consulenze', label: 'Consulenze' },
+  { id: 'finanziamenti', label: 'Finanziamenti Agevolati' },
+  { id: 'contatta_membri', label: 'Contatta Imprenditori' },
+  { id: 'risparmio_energetico', label: 'Risparmio' },
+  { id: 'marketplace', label: 'Marketplace' },
+  { id: 'imprenditori', label: 'Consigli da Imprenditori' },
+  { id: 'fornitori', label: 'Ricerca Fornitori' },
+  { id: 'welfare_aziendale', label: 'Welfare Aziendale' },
+  { id: 'analisi_contratti', label: 'Analisi Contratti' },
+  { id: 'import_export', label: 'Import/Export' },
+  { id: 'compliance', label: 'Compliance Aziendale' },
+];
+
 export default function AdminPanel() {
   const [user, setUser] = useState(null);
   const [showImpersonationDialog, setShowImpersonationDialog] = useState(false);
   const { impersonation, startImpersonation, appMode } = useImpersonation();
+
+  // Stati per tab Consulenze
+  const [searchTermConsultant, setSearchTermConsultant] = useState('');
+  const [selectedZoneConsultant, setSelectedZoneConsultant] = useState('all');
+  const [selectedConsultant, setSelectedConsultant] = useState(null);
+  const [showSections, setShowSections] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
+  const [showInviteForm, setShowInviteForm] = useState(false);
+  const [formDataConsultant, setFormDataConsultant] = useState(null);
+  const [sectionsData, setSectionsData] = useState([]);
 
   const queryClient = useQueryClient();
   const navigate = useNavigate();
