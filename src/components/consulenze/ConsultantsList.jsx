@@ -214,10 +214,10 @@ function FullChat({ consultant, currentUserEmail, onBack }) {
         to_email: currentUserEmail 
       });
       
-      for (const msg of received) {
-        if (!msg.is_read) {
-          await base44.entities.Message.update(msg.id, { is_read: true });
-        }
+      // Segna messaggi come letti
+      const unreadMsgs = received.filter(m => !m.is_read);
+      for (const msg of unreadMsgs) {
+        await base44.entities.Message.update(msg.id, { is_read: true });
       }
       
       return [...sent, ...received].sort((a, b) => 
@@ -226,6 +226,12 @@ function FullChat({ consultant, currentUserEmail, onBack }) {
     },
     refetchInterval: 3000,
   });
+
+  // Invalida query messaggi non letti quando si apre/aggiorna la chat
+  useEffect(() => {
+    queryClient.invalidateQueries({ queryKey: ['unread-messages-consultants', currentUserEmail] });
+    queryClient.invalidateQueries({ queryKey: ['consultation-unread-messages'] });
+  }, [messages, currentUserEmail, queryClient]);
 
   useEffect(() => {
     const unsubscribe = base44.entities.Message.subscribe((event) => {
