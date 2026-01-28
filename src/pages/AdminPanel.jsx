@@ -179,7 +179,7 @@ export default function AdminPanel() {
     enabled: !!user?.email,
   });
 
-  // Tutti i messaggi ricevuti dagli utenti e consulenti per l'admin
+  // Tutti i messaggi ricevuti dagli utenti e consulenti per l'admin (ESCLUSI quelli delle consulenze)
   const { data: allAdminMessages = [] } = useQuery({
     queryKey: ['all-admin-messages'],
     queryFn: async () => {
@@ -187,8 +187,8 @@ export default function AdminPanel() {
       const users = await base44.entities.User.list();
       const consultants = await base44.entities.Consultant.list();
       
-      // Filtra messaggi inviati all'admin
-      const adminMessages = allMessages.filter(m => m.to_email === user?.email);
+      // Filtra messaggi inviati all'admin ESCLUDENDO quelli con source 'consulenze'
+      const adminMessages = allMessages.filter(m => m.to_email === user?.email && m.source !== 'consulenze');
       
       return adminMessages.map(msg => {
         const sender = users.find(u => u.email === msg.from_email);
