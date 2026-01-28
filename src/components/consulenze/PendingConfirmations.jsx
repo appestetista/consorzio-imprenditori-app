@@ -164,6 +164,32 @@ export default function PendingConfirmations({ userEmail }) {
     enabled: !!userEmail
   });
 
+  // Segna come lette le notifiche consultation quando vengono visualizzate le prenotazioni
+  React.useEffect(() => {
+    if (!userEmail || pendingBookings.length === 0) return;
+    
+    const markNotificationsAsRead = async () => {
+      const unreadNotifications = await base44.entities.Notification.filter({
+        user_email: userEmail,
+        type: 'consultation',
+        is_read: false
+      });
+      
+      // Segna come lette le notifiche relative alle booking in attesa visualizzate
+      const bookingIds = pendingBookings.map(b => b.id);
+      for (const notification of unreadNotifications) {
+        if (bookingIds.includes(notification.reference_id)) {
+          await base44.entities.Notification.update(notification.id, { is_read: true });
+        }
+      }
+      
+      // Invalida la cache delle notifiche
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    };
+    
+    markNotificationsAsRead();
+  }, [userEmail, pendingBookings, queryClient]);
+
   // Carica i consulenti per mostrare i nomi
   const { data: consultants = [] } = useQuery({
     queryKey: ['all-consultants'],
