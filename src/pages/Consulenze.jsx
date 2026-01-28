@@ -159,15 +159,26 @@ export default function Consulenze() {
   }, [effectiveUser?.email, isConsultant, isMember, consultants, playSound, queryClient]);
 
   // Loading state mentre si caricano i dati
-  if (!effectiveUser || isLoading) {
+  if (!effectiveUser) {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center">
         <div className="animate-spin w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full"></div>
+        <p className="text-slate-400 ml-3">Caricamento utente...</p>
       </div>
     );
   }
   
-  console.log('[Consulenze] Rendering view:', { isAdmin, isConsultant, isMember, effectiveUserEmail: effectiveUser?.email });
+  // Se sta ancora caricando i consulenti ma l'utente è già caricato, mostra loading
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full"></div>
+        <p className="text-slate-400 ml-3">Caricamento consulenti...</p>
+      </div>
+    );
+  }
+  
+  console.log('[Consulenze] Rendering view:', { isAdmin, isConsultant, isMember, effectiveUserEmail: effectiveUser?.email, consultantsCount: consultants.length });
 
   return (
     <div className="min-h-screen bg-slate-900 pb-24">
