@@ -584,15 +584,53 @@ export default function Imprenditori() {
           </Button>
         </div>
 
-        {/* Info banner */}
-        <div className="bg-gradient-to-r from-lime-400/10 to-emerald-400/10 border border-lime-400/30 rounded-xl p-4 mb-6">
+        {/* Info banner con bottone esempio */}
+        <div className="bg-gradient-to-r from-lime-400/10 to-emerald-400/10 border border-lime-400/30 rounded-xl p-4 mb-6 relative overflow-hidden">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-lime-400/20 rounded-full flex items-center justify-center">
               <BarChart3 className="w-5 h-5 text-lime-400" />
             </div>
-            <div>
+            <div className="flex-1">
               <p className="text-white font-medium">Chiedi consiglio alla community</p>
               <p className="text-slate-400 text-sm">Crea sondaggi e prendi decisioni insieme agli altri imprenditori</p>
+            </div>
+          </div>
+          
+          {/* Mezzo cerchio "Esempio" sul lato destro */}
+          <button
+            onClick={() => setShowExample(true)}
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-16 h-16 bg-lime-400 rounded-full flex items-center justify-center shadow-lg hover:bg-lime-500 transition-all"
+          >
+            <span className="text-slate-900 text-xs font-bold -ml-4">Esempio</span>
+          </button>
+          
+          {/* Pannello esempio che scorre da destra */}
+          <div 
+            className={`absolute inset-0 bg-slate-800 transition-transform duration-300 ease-in-out ${
+              showExample ? 'translate-x-0' : 'translate-x-full'
+            }`}
+          >
+            <div className="p-4 h-full flex flex-col">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-lime-400 font-bold text-sm">Esempio di sondaggio</p>
+                <button
+                  onClick={() => setShowExample(false)}
+                  className="w-6 h-6 bg-slate-700 rounded-full flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-600"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="flex-1 flex items-center gap-3">
+                <img 
+                  src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=100&h=100&fit=crop" 
+                  alt="Esempio" 
+                  className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-white text-sm font-medium leading-tight">"Assumo un nuovo dipendente o esternalizzo?"</p>
+                  <p className="text-slate-400 text-xs mt-1">Crea sondaggi come questo per ricevere consigli!</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
