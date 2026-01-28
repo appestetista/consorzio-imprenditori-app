@@ -38,6 +38,7 @@ export default function Consulenze() {
     const loadEffectiveUser = async () => {
       try {
         const currentUser = await base44.auth.me();
+        console.log('[Consulenze] currentUser from auth.me():', currentUser);
         
         if (impersonation.active) {
           if (impersonation.role === 'user') {
@@ -67,10 +68,16 @@ export default function Consulenze() {
             }
           }
         } else {
-          setEffectiveUser(currentUser);
+          // Normalizza i dati: user_type può essere in data.user_type
+          const normalizedUser = {
+            ...currentUser,
+            user_type: currentUser.user_type || currentUser.data?.user_type
+          };
+          console.log('[Consulenze] normalizedUser:', normalizedUser);
+          setEffectiveUser(normalizedUser);
         }
       } catch (e) {
-        console.error(e);
+        console.error('[Consulenze] Error loading user:', e);
       }
     };
     loadEffectiveUser();
