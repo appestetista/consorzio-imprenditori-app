@@ -677,6 +677,57 @@ export default function AdminPanel() {
         </DialogContent>
       </Dialog>
 
+      {/* Dialog Messaggi Consulenze */}
+      <Dialog open={showConsultationMessages} onOpenChange={setShowConsultationMessages}>
+        <DialogContent className="bg-slate-800 border-slate-700 max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-white">Messaggi Consulenze (Utenti ↔ Consulenti)</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            {consultationMessages.length === 0 ? (
+              <p className="text-slate-400 text-center py-8">Nessun messaggio tra utenti e consulenti</p>
+            ) : (
+              consultationMessages.map((msg) => (
+                <Card key={msg.id} className={`border ${!msg.is_read ? 'bg-orange-400/10 border-orange-400/30' : 'bg-slate-900 border-slate-700'}`}>
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className={`text-xs px-2 py-0.5 rounded ${msg.from_type === 'consulente' ? 'bg-blue-500/20 text-blue-400' : 'bg-lime-400/20 text-lime-400'}`}>
+                            {msg.from_type === 'consulente' ? '👔 Consulente' : '👤 Utente'}
+                          </span>
+                          <span className="text-slate-500">→</span>
+                          <span className={`text-xs px-2 py-0.5 rounded ${msg.to_type === 'consulente' ? 'bg-blue-500/20 text-blue-400' : 'bg-lime-400/20 text-lime-400'}`}>
+                            {msg.to_type === 'consulente' ? '👔 Consulente' : '👤 Utente'}
+                          </span>
+                        </div>
+                        <p className="text-white font-bold">{msg.from_name}</p>
+                        <p className="text-slate-400 text-xs">→ {msg.to_name}</p>
+                      </div>
+                      {!msg.is_read && (
+                        <span className="bg-orange-400 text-slate-900 text-xs font-bold px-2 py-1 rounded">NUOVO</span>
+                      )}
+                    </div>
+                    <div className="bg-slate-800 rounded-lg p-3 mb-3">
+                      <p className="text-white text-sm whitespace-pre-wrap">{msg.content}</p>
+                    </div>
+                    <p className="text-slate-500 text-xs">
+                      {msg.created_date ? new Date(msg.created_date).toLocaleDateString('it-IT', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      }) : 'N/A'}
+                    </p>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Dialog Richieste Video Interviste */}
       <Dialog open={showVideoRequests} onOpenChange={setShowVideoRequests}>
         <DialogContent className="bg-slate-800 border-slate-700 max-h-[85vh] overflow-y-auto">
