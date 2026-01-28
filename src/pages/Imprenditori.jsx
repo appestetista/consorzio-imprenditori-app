@@ -126,7 +126,7 @@ export default function Imprenditori() {
     return unsubscribe;
   }, [effectiveUser?.email, queryClient, playSound]);
 
-  // Segna post come visualizzati quando l'utente entra nella pagina (solo quelli visibili a lui)
+  // Segna post come visualizzati e notifiche come lette quando l'utente entra nella pagina
   useEffect(() => {
     const markAsViewed = async () => {
       if (!effectiveUser?.email || posts.length === 0) return;
@@ -151,6 +151,17 @@ export default function Imprenditori() {
             viewed_by: [...viewedBy, effectiveUser.email]
           });
         }
+      }
+      
+      // Segna le notifiche di sondaggi come lette
+      const notifications = await base44.entities.Notification.filter({
+        user_email: effectiveUser.email,
+        type: 'cultura_aziendale',
+        is_read: false
+      });
+      
+      for (const notif of notifications) {
+        await base44.entities.Notification.update(notif.id, { is_read: true });
       }
     };
 
