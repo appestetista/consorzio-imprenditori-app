@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Video, ThumbsUp, MessageCircle, Plus, ArrowLeft, Play, Trash2, X, Edit, Mail, Eye, Clock, Bell } from 'lucide-react';
+import { Video, MessageCircle, Plus, ArrowLeft, Play, Trash2, X, Edit, Mail, Eye, Clock, Bell } from 'lucide-react';
+import VideoRating from '../components/video/VideoRating';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
