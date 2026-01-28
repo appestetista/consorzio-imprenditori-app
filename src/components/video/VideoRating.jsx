@@ -38,17 +38,19 @@ export default function VideoRating({
           onClick={() => handleRate(1)}
           disabled={isRating}
           className={cn(
-            "flex items-center gap-2 px-2 py-0.5 rounded transition-all",
+            "flex items-center py-0.5 rounded transition-all",
             currentDiamonds === 1 
               ? "bg-amber-400/20" 
               : "hover:bg-slate-700/50",
             isRating && "opacity-50 cursor-not-allowed"
           )}
         >
-          <span className={cn("text-xs", currentDiamonds === 1 ? "text-amber-400" : "text-slate-400")}>
+          <span className={cn("text-xs text-right w-28", currentDiamonds === 1 ? "text-amber-400" : "text-slate-400")}>
             {ratingOptions[0].label}
           </span>
-          <Gem className={cn("w-4 h-4", currentDiamonds === 1 ? "text-amber-400 fill-amber-400" : "text-slate-500")} />
+          <div className="w-14 flex justify-end pr-1">
+            <Gem className={cn("w-4 h-4", currentDiamonds === 1 ? "text-amber-400 fill-amber-400" : "text-slate-500")} />
+          </div>
         </button>
       </div>
 
@@ -58,17 +60,17 @@ export default function VideoRating({
           onClick={() => handleRate(2)}
           disabled={isRating}
           className={cn(
-            "flex items-center gap-2 px-2 py-0.5 rounded transition-all",
+            "flex items-center py-0.5 rounded transition-all",
             currentDiamonds === 2 
               ? "bg-amber-400/20" 
               : "hover:bg-slate-700/50",
             isRating && "opacity-50 cursor-not-allowed"
           )}
         >
-          <span className={cn("text-xs", currentDiamonds === 2 ? "text-amber-400" : "text-slate-400")}>
+          <span className={cn("text-xs text-right w-28", currentDiamonds === 2 ? "text-amber-400" : "text-slate-400")}>
             {ratingOptions[1].label}
           </span>
-          <div className="flex gap-0.5">
+          <div className="w-14 flex justify-end gap-0.5 pr-1">
             <Gem className={cn("w-4 h-4", currentDiamonds === 2 ? "text-amber-400 fill-amber-400" : "text-slate-500")} />
             <Gem className={cn("w-4 h-4", currentDiamonds === 2 ? "text-amber-400 fill-amber-400" : "text-slate-500")} />
           </div>
@@ -81,17 +83,17 @@ export default function VideoRating({
           onClick={() => handleRate(3)}
           disabled={isRating}
           className={cn(
-            "flex items-center gap-2 px-2 py-0.5 rounded transition-all",
+            "flex items-center py-0.5 rounded transition-all",
             currentDiamonds === 3 
               ? "bg-amber-400/20" 
               : "hover:bg-slate-700/50",
             isRating && "opacity-50 cursor-not-allowed"
           )}
         >
-          <span className={cn("text-xs", currentDiamonds === 3 ? "text-amber-400" : "text-slate-400")}>
+          <span className={cn("text-xs text-right w-28", currentDiamonds === 3 ? "text-amber-400" : "text-slate-400")}>
             {ratingOptions[2].label}
           </span>
-          <div className="flex gap-0.5">
+          <div className="w-14 flex justify-end gap-0.5 pr-1">
             <Gem className={cn("w-4 h-4", currentDiamonds === 3 ? "text-amber-400 fill-amber-400" : "text-slate-500")} />
             <Gem className={cn("w-4 h-4", currentDiamonds === 3 ? "text-amber-400 fill-amber-400" : "text-slate-500")} />
             <Gem className={cn("w-4 h-4", currentDiamonds === 3 ? "text-amber-400 fill-amber-400" : "text-slate-500")} />
