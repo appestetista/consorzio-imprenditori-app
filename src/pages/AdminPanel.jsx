@@ -367,8 +367,11 @@ export default function AdminPanel() {
                 <CardContent className="p-2 flex flex-col items-center justify-center h-full">
                   <Video className="w-5 h-5 text-lime-400 mb-1" />
                   <p className="text-white text-[10px] text-center leading-tight">Video<br/>interviste</p>
+                  <span className="absolute top-1 right-1 bg-lime-400 text-slate-900 text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
+                    {stats?.totalVideos || 0}
+                  </span>
                   {pendingVideoRequests.length > 0 && (
-                    <span className="absolute top-1 right-1 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
+                    <span className="absolute top-1 left-1 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
                       {pendingVideoRequests.length}
                     </span>
                   )}
