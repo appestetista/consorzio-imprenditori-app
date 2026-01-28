@@ -12,13 +12,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
-import CulturaAziendaleAdmin from '../components/admin/CulturaAziendaleAdmin';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import ImpersonationDialog from '../components/admin/ImpersonationDialog';
-import ConsultantAssignmentManager from '../components/admin/ConsultantAssignmentManager';
 import RisparmioRequestsAdmin from '../components/admin/RisparmioRequestsAdmin';
-import MembersDirectory from '../components/members/MembersDirectory';
-import PreAuthEmailForm from '../components/admin/PreAuthEmailForm';
 
 export default function AdminPanel() {
   const [user, setUser] = useState(null);
