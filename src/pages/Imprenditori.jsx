@@ -598,11 +598,11 @@ export default function Imprenditori() {
             </div>
           </div>
           
-          {/* Mezzo cerchio "Esempio" attaccato sotto al riquadro */}
+          {/* Mezzo cerchio "Esempio" attaccato sotto al riquadro, a destra */}
           {!showExample && (
             <button
               onClick={() => setShowExample(true)}
-              className="absolute -bottom-5 left-1/2 -translate-x-1/2 w-24 h-10 bg-lime-400 rounded-b-full flex items-center justify-center shadow-lg hover:bg-lime-500 transition-all"
+              className="absolute -bottom-5 right-4 w-24 h-10 bg-lime-400 rounded-b-full flex items-center justify-center shadow-lg hover:bg-lime-500 transition-all"
             >
               <span className="text-slate-900 text-xs font-bold">Esempio</span>
             </button>
