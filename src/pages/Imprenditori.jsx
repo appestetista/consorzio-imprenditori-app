@@ -577,7 +577,7 @@ export default function Imprenditori() {
           </div>
           <Button 
             onClick={() => setShowAddDialog(true)}
-            className="bg-lime-400 text-slate-900 hover:bg-lime-500"
+            className="bg-lime-400 text-slate-900 hover:bg-lime-500 animate-pulse"
             size="sm"
           >
             <Plus className="w-4 h-4 mr-1" /> Nuovo
