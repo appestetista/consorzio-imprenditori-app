@@ -68,13 +68,15 @@ export default function Consulenze() {
             }
           }
         } else {
-          // Normalizza i dati: user_type e email possono essere in data.*
+          // Normalizza i dati: user_type e altri campi possono essere in data.*
+          // base44.auth.me() restituisce dati con struttura diversa a seconda del contesto
           const normalizedUser = {
             ...currentUser,
-            email: currentUser.email || currentUser.data?.email,
-            user_type: currentUser.user_type || currentUser.data?.user_type,
-            full_name: currentUser.full_name || currentUser.data?.full_name
+            ...currentUser.data, // Flatten dei dati nested
+            email: currentUser.email, // email è sempre nel root per auth.me()
+            user_type: currentUser.user_type || currentUser.data?.user_type
           };
+          console.log('[Consulenze] currentUser raw:', JSON.stringify(currentUser, null, 2));
           console.log('[Consulenze] normalizedUser:', normalizedUser);
           setEffectiveUser(normalizedUser);
         }
