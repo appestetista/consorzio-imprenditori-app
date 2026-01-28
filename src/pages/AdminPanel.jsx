@@ -1537,6 +1537,189 @@ export default function AdminPanel() {
           }} />
         </DialogContent>
       </Dialog>
+
+      {/* Pannello Consulenze Full Screen */}
+      <Dialog open={showConsulenzePanel} onOpenChange={setShowConsulenzePanel}>
+        <DialogContent className="bg-slate-900 border-slate-700 max-w-lg max-h-[90vh] overflow-y-auto p-0">
+          <DialogHeader className="p-4 border-b border-slate-700 sticky top-0 bg-slate-900 z-10">
+            <DialogTitle className="text-white flex items-center gap-2">
+              <Briefcase className="w-5 h-5 text-lime-400" />
+              Gestione Consulenti
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="p-4 space-y-4">
+            {/* Pulsante Invita */}
+            <div className="flex justify-end">
+              <Button
+                onClick={() => setShowInviteForm(true)}
+                className="bg-lime-400 hover:bg-lime-500 text-slate-900"
+              >
+                <UserPlus className="w-5 h-5 mr-2" />
+                Invita Consulente
+              </Button>
+            </div>
+
+            {/* Search and Zone Filter */}
+            <div className="space-y-3">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <Input
+                  placeholder="Cerca consulenti..."
+                  value={searchTermConsultant}
+                  onChange={(e) => setSearchTermConsultant(e.target.value)}
+                  className="bg-slate-800 border-slate-700 text-white pl-10"
+                />
+              </div>
+              <Select value={selectedZoneConsultant} onValueChange={setSelectedZoneConsultant}>
+                <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                  <SelectValue placeholder="Filtra per zona" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tutte le zone</SelectItem>
+                  {zones.map(zone => (
+                    <SelectItem key={zone.id} value={zone.name}>{zone.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Pending Invites */}
+            {pendingInvitesConsultants.length > 0 && (
+              <Card className="bg-amber-500/10 border-amber-500/30">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Clock className="w-4 h-4 text-amber-400" />
+                    <h3 className="text-amber-400 font-medium text-sm">Inviti in attesa ({pendingInvitesConsultants.length})</h3>
+                  </div>
+                  <div className="space-y-2">
+                    {pendingInvitesConsultants.map((invite) => (
+                      <div key={invite.id} className="bg-slate-900 rounded-lg p-3 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <Mail className="w-4 h-4 text-amber-400" />
+                          <div>
+                            {invite.consultant_name && (
+                              <p className="text-white text-sm font-medium">{invite.consultant_name}</p>
+                            )}
+                            <p className={`text-sm ${invite.consultant_name ? 'text-slate-400' : 'text-white'}`}>{invite.email}</p>
+                            {invite.consultant_category && (
+                              <p className="text-lime-400 text-xs">{invite.consultant_category}</p>
+                            )}
+                          </div>
+                        </div>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="sm" className="text-red-400 hover:text-red-300 hover:bg-red-500/20 h-7 w-7 p-0">
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent className="bg-slate-800 border-slate-700">
+                            <AlertDialogHeader>
+                              <AlertDialogTitle className="text-white">Cancellare questo invito?</AlertDialogTitle>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel className="bg-slate-700 text-slate-400 border-slate-600">Annulla</AlertDialogCancel>
+                              <AlertDialogAction className="bg-red-600 hover:bg-red-700" onClick={() => deleteInviteConsultantMutation.mutate(invite.id)}>Elimina</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Consultants List */}
+            {isLoadingConsultants ? (
+              <div className="text-center py-12">
+                <div className="animate-spin w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full mx-auto"></div>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {filteredConsultants.length === 0 ? (
+                  <Card className="bg-slate-800 border-slate-700">
+                    <CardContent className="p-6 text-center">
+                      <Briefcase className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+                      <p className="text-slate-400">Nessun consulente trovato</p>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  filteredConsultants.map((consultant) => (
+                    <Card key={consultant.id} className="bg-slate-800 border-slate-700">
+                      <CardContent className="p-4">
+                        <div className="flex items-start gap-3">
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                            consultant.is_blocked ? 'bg-red-500/20' : 'bg-lime-400/20'
+                          }`}>
+                            <Briefcase className={`w-5 h-5 ${consultant.is_blocked ? 'text-red-400' : 'text-lime-400'}`} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <p className="text-white font-medium truncate text-sm">{consultant.name || 'N/A'}</p>
+                              {consultant.is_blocked && (
+                                <Badge className="bg-red-500/20 text-red-400 border-0 text-xs">Bloccato</Badge>
+                              )}
+                            </div>
+                            <p className="text-lime-400 text-xs truncate">{consultant.category}</p>
+                            <p className="text-slate-400 text-xs truncate">{consultant.email}</p>
+                            {consultant.zona && (
+                              <Badge className="bg-blue-500/20 text-blue-400 border-0 text-[10px] mt-1">{consultant.zona}</Badge>
+                            )}
+                          </div>
+                        </div>
+                        
+                        <div className="flex gap-2 mt-3">
+                          <Button variant="outline" size="sm" className="flex-1 border-lime-400 text-lime-400 hover:bg-lime-400/20 h-8 text-xs" onClick={() => handleEditConsultant(consultant)}>
+                            <Edit className="w-3 h-3 mr-1" /> Modifica
+                          </Button>
+                          <Button variant="outline" size="sm" className="border-slate-600 text-slate-300 hover:bg-slate-700 h-8 w-8 p-0" onClick={() => handleOpenSections(consultant)}>
+                            <Settings className="w-3 h-3" />
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="outline" size="sm" className={`h-8 w-8 p-0 ${consultant.is_blocked ? 'border-green-600 text-green-400 hover:bg-green-600/20' : 'border-red-600 text-red-400 hover:bg-red-600/20'}`}>
+                                {consultant.is_blocked ? <Phone className="w-3 h-3" /> : <PhoneOff className="w-3 h-3" />}
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent className="bg-slate-800 border-slate-700">
+                              <AlertDialogHeader>
+                                <AlertDialogTitle className="text-white">{consultant.is_blocked ? 'Sbloccare?' : 'Bloccare?'}</AlertDialogTitle>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel className="bg-slate-700 text-slate-400 border-slate-600">Annulla</AlertDialogCancel>
+                                <AlertDialogAction className={consultant.is_blocked ? "bg-green-600" : "bg-red-600"} onClick={() => toggleBlockConsultantMutation.mutate({ consultantId: consultant.id, isBlocked: consultant.is_blocked, consultantEmail: consultant.email })}>
+                                  {consultant.is_blocked ? 'Sblocca' : 'Blocca'}
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="outline" size="sm" className="border-red-600 text-red-400 hover:bg-red-600/20 h-8 w-8 p-0">
+                                <Trash2 className="w-3 h-3" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent className="bg-slate-800 border-slate-700">
+                              <AlertDialogHeader>
+                                <AlertDialogTitle className="text-white">Eliminare?</AlertDialogTitle>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel className="bg-slate-700 text-slate-400 border-slate-600">Annulla</AlertDialogCancel>
+                                <AlertDialogAction className="bg-red-600" onClick={() => deleteConsultantMutation.mutate(consultant.id)}>Elimina</AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
