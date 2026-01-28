@@ -68,10 +68,12 @@ export default function Consulenze() {
             }
           }
         } else {
-          // Normalizza i dati: user_type può essere in data.user_type
+          // Normalizza i dati: user_type e email possono essere in data.*
           const normalizedUser = {
             ...currentUser,
-            user_type: currentUser.user_type || currentUser.data?.user_type
+            email: currentUser.email || currentUser.data?.email,
+            user_type: currentUser.user_type || currentUser.data?.user_type,
+            full_name: currentUser.full_name || currentUser.data?.full_name
           };
           console.log('[Consulenze] normalizedUser:', normalizedUser);
           setEffectiveUser(normalizedUser);
