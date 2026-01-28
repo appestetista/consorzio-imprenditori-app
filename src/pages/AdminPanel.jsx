@@ -75,6 +75,34 @@ export default function AdminPanel() {
 
   const pendingConsultationBookings = consultationBookings.length;
 
+  // Messaggi nella sezione consulenze (tra utenti e consulenti)
+  const { data: consultationMessages = [] } = useQuery({
+    queryKey: ['consultation-messages-admin'],
+    queryFn: async () => {
+      const allMessages = await base44.entities.Message.filter({ source: 'consulenze' });
+      const users = await base44.entities.User.list();
+      const consultantsList = await base44.entities.Consultant.list();
+      
+      // Restituisci tutti i messaggi con info mittente/destinatario
+      return allMessages.map(msg => {
+        const fromUser = users.find(u => u.email === msg.from_email);
+        const toUser = users.find(u => u.email === msg.to_email);
+        const fromConsultant = consultantsList.find(c => c.email === msg.from_email);
+        const toConsultant = consultantsList.find(c => c.email === msg.to_email);
+        
+        return {
+          ...msg,
+          from_name: fromUser?.company_name || fromUser?.full_name || fromConsultant?.name || msg.from_email,
+          to_name: toUser?.company_name || toUser?.full_name || toConsultant?.name || msg.to_email,
+          from_type: fromConsultant ? 'consulente' : 'utente',
+          to_type: toConsultant ? 'consulente' : 'utente'
+        };
+      }).sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+    },
+  });
+
+  const unreadConsultationMessages = consultationMessages.filter(m => !m.is_read).length;
+
   const { data: consultationRequests = [] } = useQuery({
     queryKey: ['consultation-requests'],
     queryFn: async () => {
