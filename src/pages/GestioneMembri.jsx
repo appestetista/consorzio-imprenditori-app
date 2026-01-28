@@ -369,15 +369,6 @@ export default function GestioneMembri() {
 
           {/* TAB UTENTI */}
           <TabsContent value="utenti" className="space-y-4">
-            <div className="flex justify-end mb-4">
-              <Button
-                onClick={() => setShowInviteForm(true)}
-                className="bg-lime-400 hover:bg-lime-500 text-slate-900"
-              >
-                <UserPlus className="w-5 h-5 mr-2" />
-                Invita
-              </Button>
-            </div>
 
         {members.some(m => m.is_blocked) && (
           <div className="mb-4">
