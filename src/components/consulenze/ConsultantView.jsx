@@ -174,15 +174,15 @@ export default function ConsultantView({ user }) {
 
   // Conta messaggi non letti per il tab Utenti
   const { data: unreadMessagesCount = 0 } = useQuery({
-    queryKey: ['unread-messages-count-consultant', user?.email],
+    queryKey: ['unread-messages-count-consultant', userEmail],
     queryFn: async () => {
       const messages = await base44.entities.Message.filter({ 
-        to_email: user?.email, 
+        to_email: userEmail, 
         is_read: false 
       });
       return messages.length;
     },
-    enabled: !!user?.email
+    enabled: !!userEmail
   });
 
   // Subscribe real-time ai messaggi
