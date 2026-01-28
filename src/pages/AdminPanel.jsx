@@ -658,12 +658,23 @@ export default function AdminPanel() {
                 )}
               </div>
             </TabsTrigger>
+            <TabsTrigger value="consulenze" className="flex-1 text-xs data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
+              <div className="relative flex items-center gap-1">
+                <Briefcase className="w-3.5 h-3.5" />
+                Consulenze
+                {(stats?.totalConsultants || 0) > 0 && (
+                  <span className="bg-lime-400 text-slate-900 text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
+                    {stats?.totalConsultants || 0}
+                  </span>
+                )}
+              </div>
+            </TabsTrigger>
             <TabsTrigger value="risparmio" className="flex-1 text-xs data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
-                              <div className="flex items-center gap-1">
-                                <Settings className="w-3.5 h-3.5" />
-                                Welfare
-                              </div>
-                            </TabsTrigger>
+              <div className="flex items-center gap-1">
+                <Settings className="w-3.5 h-3.5" />
+                Welfare
+              </div>
+            </TabsTrigger>
           </TabsList>
 
           {/* TAB RICHIESTE */}
