@@ -52,10 +52,12 @@ export default function VideoRating({
             isRating && "opacity-50 cursor-not-allowed"
           )}
         >
-          <span className={cn("text-xs text-right w-28 mr-3", currentDiamonds === 1 ? "text-amber-400" : "text-slate-400")}>
+          <span className={cn("text-xs text-right w-24 mr-3", currentDiamonds === 1 ? "text-amber-400" : "text-slate-400")}>
             {ratingOptions[0].label}
           </span>
-          <Gem className={cn("w-4 h-4", currentDiamonds === 1 ? "text-amber-400 fill-amber-400" : "text-slate-500")} />
+          <div className="w-14 flex justify-end">
+            <Gem className={cn("w-4 h-4", currentDiamonds === 1 ? "text-amber-400 fill-amber-400" : "text-slate-500")} />
+          </div>
           <span className="w-6 text-right text-xs text-amber-400/70">{diamondStats[1] > 0 ? diamondStats[1] : ''}</span>
         </button>
       </div>
