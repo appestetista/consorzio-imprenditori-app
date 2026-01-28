@@ -22,11 +22,15 @@ export default function ConsultantsList({ currentUserEmail, showChat = false }) 
     queryFn: () => base44.entities.Consultant.list()
   });
 
-  // Carica messaggi non letti per mostrare notifiche
+  // Carica messaggi non letti per mostrare notifiche (solo dalla sezione consulenze)
   const { data: unreadMessages = [] } = useQuery({
     queryKey: ['unread-messages-consultants', currentUserEmail],
     queryFn: async () => {
-      const messages = await base44.entities.Message.filter({ to_email: currentUserEmail, is_read: false });
+      const messages = await base44.entities.Message.filter({ 
+        to_email: currentUserEmail, 
+        source: 'consulenze',
+        is_read: false 
+      });
       return messages;
     },
     enabled: !!currentUserEmail
