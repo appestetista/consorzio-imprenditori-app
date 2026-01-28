@@ -1314,6 +1314,221 @@ export default function AdminPanel() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Edit Consultant Dialog */}
+      <Dialog open={showEditForm} onOpenChange={(open) => {
+        setShowEditForm(open);
+        if (!open) {
+          setSelectedConsultant(null);
+          setFormDataConsultant(null);
+        }
+      }}>
+        <DialogContent className="bg-slate-800 border-slate-700 max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-white">Modifica Consulente</DialogTitle>
+          </DialogHeader>
+          
+          {formDataConsultant && (
+            <div className="space-y-4 mt-4">
+              <div>
+                <Label className="text-slate-300 text-sm">Nome/Studio *</Label>
+                <Input
+                  value={formDataConsultant.name}
+                  onChange={(e) => setFormDataConsultant({...formDataConsultant, name: e.target.value})}
+                  className="bg-slate-900 border-slate-700 text-white mt-1"
+                  placeholder="Nome consulente o studio"
+                />
+              </div>
+
+              <div>
+                <Label className="text-slate-300 text-sm">Categoria *</Label>
+                <Select
+                  value={formDataConsultant.category}
+                  onValueChange={(value) => setFormDataConsultant({...formDataConsultant, category: value})}
+                >
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white mt-1">
+                    <SelectValue placeholder="Seleziona categoria..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CONSULTANT_CATEGORIES.map(cat => (
+                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label className="text-slate-300 text-sm">Email</Label>
+                <Input
+                  type="email"
+                  value={formDataConsultant.email}
+                  onChange={(e) => setFormDataConsultant({...formDataConsultant, email: e.target.value})}
+                  className="bg-slate-900 border-slate-700 text-white mt-1"
+                  placeholder="email@esempio.com"
+                />
+              </div>
+
+              <div>
+                <Label className="text-slate-300 text-sm">Telefono</Label>
+                <Input
+                  value={formDataConsultant.phone}
+                  onChange={(e) => setFormDataConsultant({...formDataConsultant, phone: e.target.value})}
+                  className="bg-slate-900 border-slate-700 text-white mt-1"
+                  placeholder="+39 02 1234567"
+                />
+              </div>
+
+              <div>
+                <Label className="text-slate-300 text-sm">Città</Label>
+                <Input
+                  value={formDataConsultant.city}
+                  onChange={(e) => setFormDataConsultant({...formDataConsultant, city: e.target.value})}
+                  className="bg-slate-900 border-slate-700 text-white mt-1"
+                  placeholder="Milano"
+                />
+              </div>
+
+              <div>
+                <Label className="text-slate-300 text-sm">Referente</Label>
+                <Input
+                  value={formDataConsultant.referente}
+                  onChange={(e) => setFormDataConsultant({...formDataConsultant, referente: e.target.value})}
+                  className="bg-slate-900 border-slate-700 text-white mt-1"
+                  placeholder="Nome referente"
+                />
+              </div>
+
+              <div>
+                <Label className="text-slate-300 text-sm">Cellulare Referente</Label>
+                <Input
+                  value={formDataConsultant.cellulare_referente}
+                  onChange={(e) => setFormDataConsultant({...formDataConsultant, cellulare_referente: e.target.value})}
+                  className="bg-slate-900 border-slate-700 text-white mt-1"
+                  placeholder="+39 333 1234567"
+                />
+              </div>
+
+              <div>
+                <Label className="text-lime-400 text-sm font-medium">Zona Assegnata *</Label>
+                <Select
+                  value={formDataConsultant.zona}
+                  onValueChange={(value) => setFormDataConsultant({...formDataConsultant, zona: value})}
+                >
+                  <SelectTrigger className="bg-slate-900 border-lime-400 text-white mt-1">
+                    <SelectValue placeholder="Seleziona zona..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {zones.map(zone => (
+                      <SelectItem key={zone.id} value={zone.name}>{zone.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-slate-500 text-xs mt-1">Il consulente sarà visibile solo agli utenti di questa zona</p>
+              </div>
+
+              <div className="flex gap-3 pt-4 border-t border-slate-700">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowEditForm(false)}
+                  className="flex-1 border-slate-600 text-slate-400 hover:text-white"
+                >
+                  Annulla
+                </Button>
+                <Button
+                  onClick={() => updateConsultantMutation.mutate({
+                    consultantId: selectedConsultant.id,
+                    data: formDataConsultant
+                  })}
+                  disabled={updateConsultantMutation.isPending || !formDataConsultant.name || !formDataConsultant.category}
+                  className="flex-1 bg-lime-400 hover:bg-lime-500 text-slate-900"
+                >
+                  <Save className="w-4 h-4 mr-2" />
+                  {updateConsultantMutation.isPending ? 'Salvataggio...' : 'Salva Modifiche'}
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Sections Dialog */}
+      <Dialog open={showSections} onOpenChange={setShowSections}>
+        <DialogContent className="bg-slate-800 border-slate-700">
+          <DialogHeader>
+            <DialogTitle className="text-white">Sezioni Visibili - {selectedConsultant?.name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-slate-400 text-sm">{sectionsData.length} sezioni selezionate</span>
+              <div className="flex gap-2">
+                <button 
+                  type="button" 
+                  onClick={selectAllSections}
+                  className="text-lime-400 text-xs hover:underline"
+                >
+                  Tutte
+                </button>
+                <span className="text-slate-600">|</span>
+                <button 
+                  type="button" 
+                  onClick={deselectAllSections}
+                  className="text-slate-400 text-xs hover:underline"
+                >
+                  Nessuna
+                </button>
+              </div>
+            </div>
+            
+            <div className="bg-slate-900 rounded-lg p-3 max-h-64 overflow-y-auto space-y-2">
+              {SECTIONS.map(section => (
+                <div key={section.id} className="flex items-center gap-2">
+                  <Checkbox
+                    id={`section-${section.id}`}
+                    checked={sectionsData.includes(section.id)}
+                    onCheckedChange={() => toggleSection(section.id)}
+                    className="border-slate-600 data-[state=checked]:bg-lime-400 data-[state=checked]:border-lime-400"
+                  />
+                  <Label 
+                    htmlFor={`section-${section.id}`} 
+                    className="text-white text-sm cursor-pointer"
+                  >
+                    {section.label}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button 
+              onClick={() => updateSectionsMutation.mutate({ 
+                consultantId: selectedConsultant.id, 
+                sections: sectionsData 
+              })}
+              disabled={updateSectionsMutation.isPending}
+              className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900"
+            >
+              {updateSectionsMutation.isPending ? 'Salvataggio...' : 'Salva Sezioni'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Invite Consultant Dialog */}
+      <Dialog open={showInviteForm} onOpenChange={setShowInviteForm}>
+        <DialogContent className="bg-slate-900 border-slate-700 max-w-md max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-white flex items-center gap-2">
+              <UserPlus className="w-5 h-5 text-lime-400" />
+              Invita Nuovo Consulente
+            </DialogTitle>
+          </DialogHeader>
+          <InviteConsultantForm onSuccess={() => {
+            setShowInviteForm(false);
+            queryClient.invalidateQueries({ queryKey: ['consultants'] });
+            queryClient.invalidateQueries({ queryKey: ['pending-invites-consultants'] });
+          }} />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
