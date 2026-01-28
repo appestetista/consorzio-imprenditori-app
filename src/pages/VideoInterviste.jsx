@@ -299,8 +299,8 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
     }
   });
 
-  const hasUserLiked = (video) => {
-    return video.likes?.includes(effectiveUser?.email);
+  const handleVideoPlay = (video) => {
+    trackViewMutation.mutate({ videoId: video.id, video });
   };
 
   const handleEditVideo = (video) => {
