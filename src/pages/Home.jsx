@@ -159,22 +159,38 @@ export default function Home() {
   });
 
   // Subscribe real-time alle notifiche
-      useEffect(() => {
-        if (!effectiveUser?.email) return;
+  useEffect(() => {
+    if (!effectiveUser?.email) return;
 
-        const unsubscribe = base44.entities.Notification.subscribe((event) => {
-          if (event.data?.user_email === effectiveUser.email) {
-            // Suona notifica per nuove notifiche
-            if (event.type === 'create') {
-              playSound();
-            }
-            // Invalida la cache per aggiornare le notifiche
-            queryClient.invalidateQueries({ queryKey: ['notifications', effectiveUser.email] });
-          }
-        });
+    const unsubscribe = base44.entities.Notification.subscribe((event) => {
+      if (event.data?.user_email === effectiveUser.email) {
+        // Suona notifica per nuove notifiche
+        if (event.type === 'create') {
+          playSound();
+        }
+        // Invalida la cache per aggiornare le notifiche
+        queryClient.invalidateQueries({ queryKey: ['notifications', effectiveUser.email] });
+      }
+    });
 
-        return unsubscribe;
-      }, [effectiveUser?.email, queryClient, playSound]);
+    return unsubscribe;
+  }, [effectiveUser?.email, queryClient, playSound]);
+
+  // Subscribe real-time ai messaggi consulenze
+  useEffect(() => {
+    if (!effectiveUser?.email) return;
+
+    const unsubscribe = base44.entities.Message.subscribe((event) => {
+      if (event.type === 'create' && 
+          event.data?.to_email === effectiveUser.email && 
+          event.data?.source === 'consulenze') {
+        playSound();
+        queryClient.invalidateQueries({ queryKey: ['consultation-messages-unread', effectiveUser.email] });
+      }
+    });
+
+    return unsubscribe;
+  }, [effectiveUser?.email, queryClient, playSound]);
 
   const { data: messages = [] } = useQuery({
     queryKey: ['unread-messages', effectiveUser?.email],
