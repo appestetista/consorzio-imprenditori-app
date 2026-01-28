@@ -531,6 +531,7 @@ export default function Home() {
                                 notificationCount={feature.notifications}
                                 disabled={permissions[feature.permission] === false}
                                 variant={feature.variant}
+                                bottomBadge={feature.bottomBadge}
                               />
           ))}
         </div>
