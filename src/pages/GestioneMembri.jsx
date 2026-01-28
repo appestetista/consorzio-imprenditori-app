@@ -46,6 +46,7 @@ export default function GestioneMembri() {
   const [formData, setFormData] = useState(null);
   const [initialFormData, setInitialFormData] = useState(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [selectedZoneRegistrati, setSelectedZoneRegistrati] = useState('all');
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { impersonation } = useImpersonation();
@@ -555,7 +556,7 @@ export default function GestioneMembri() {
 
           {/* TAB REGISTRAZIONI */}
           <TabsContent value="registrazioni" className="space-y-4">
-            {/* Sezione Invita Utenti */}
+            {/* Invita Utente */}
             <Card className="bg-slate-800 border-slate-700">
               <CardContent className="p-4">
                 <h3 className="text-white font-medium text-sm mb-2 flex items-center gap-2">
@@ -563,7 +564,7 @@ export default function GestioneMembri() {
                   Invita Utente
                 </h3>
                 <p className="text-slate-400 text-xs mb-3">
-                  Invia un invito via email. <span className="text-amber-400">Solo per utenti/membri</span> (non consulenti).
+                  Invia subito un invito via email. Solo per utenti (membri del consorzio).
                 </p>
                 <InviteUserForm onSuccess={() => {
                   queryClient.invalidateQueries({ queryKey: ['all-members'] });
@@ -572,7 +573,7 @@ export default function GestioneMembri() {
               </CardContent>
             </Card>
 
-            {/* Sezione Pre-autorizza */}
+            {/* Pre-autorizza */}
             <Card className="bg-slate-800 border-slate-700">
               <CardContent className="p-4">
                 <h3 className="text-white font-medium text-sm mb-2 flex items-center gap-2">
@@ -580,76 +581,72 @@ export default function GestioneMembri() {
                   Pre-autorizza Email
                 </h3>
                 <p className="text-slate-400 text-xs mb-3">
-                  Inserisci email autorizzate a registrarsi. <span className="text-blue-400">Per utenti O consulenti</span>. Quando si iscriveranno, verranno assegnati automaticamente.
+                  Inserisci email in whitelist. Funziona per utenti e consulenti. L'utente non riceve email, ma quando si registra viene riconosciuto.
                 </p>
                 <PreAuthEmailForm />
               </CardContent>
             </Card>
 
-            {/* Sezione Lista Registrati */}
+            {/* Lista Registrati per Zona */}
             <Card className="bg-slate-800 border-slate-700">
               <CardContent className="p-4">
                 <h3 className="text-white font-medium text-sm mb-3 flex items-center gap-2">
-                  <Users className="w-4 h-4 text-purple-400" />
-                  Lista Registrati
+                  <Users className="w-4 h-4 text-green-400" />
+                  Utenti Registrati per Zona
                 </h3>
                 
-                {/* Filtro per zona */}
-                <div className="mb-4">
-                  <Label className="text-slate-400 text-xs">Filtra per zona</Label>
-                  <Select value={selectedZone} onValueChange={setSelectedZone}>
-                    <SelectTrigger className="bg-slate-900 border-slate-700 text-white mt-1">
-                      <SelectValue placeholder="Tutte le zone" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Tutte le zone</SelectItem>
-                      {zones.map(zone => (
-                        <SelectItem key={zone.id} value={zone.name}>{zone.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Lista utenti filtrati */}
-                <div className="space-y-2 max-h-80 overflow-y-auto">
-                  {members
-                    .filter(m => selectedZone === 'all' || m.zona === selectedZone)
-                    .map(member => (
-                      <div key={member.id} className="bg-slate-900 rounded-lg p-3 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                            member.user_type === 'consulente' ? 'bg-blue-500/20' : 'bg-lime-400/20'
-                          }`}>
-                            {member.user_type === 'consulente' 
-                              ? <Briefcase className="w-4 h-4 text-blue-400" />
-                              : <User className="w-4 h-4 text-lime-400" />
-                            }
-                          </div>
-                          <div>
-                            <p className="text-white text-sm">{member.company_name || member.full_name || 'N/A'}</p>
-                            <p className="text-slate-500 text-xs">{member.email}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {member.zona && (
-                            <Badge className="bg-slate-700 text-slate-300 border-0 text-xs">
-                              {member.zona}
-                            </Badge>
-                          )}
-                          <Badge className={`border-0 text-xs ${
-                            member.user_type === 'consulente' 
-                              ? 'bg-blue-500/20 text-blue-400' 
-                              : 'bg-lime-400/20 text-lime-400'
-                          }`}>
-                            {member.user_type === 'consulente' ? 'Consulente' : 'Utente'}
-                          </Badge>
-                        </div>
-                      </div>
+                <Select value={selectedZoneRegistrati} onValueChange={setSelectedZoneRegistrati}>
+                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white mb-4">
+                    <SelectValue placeholder="Seleziona zona..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tutte le zone</SelectItem>
+                    {zones.map(zone => (
+                      <SelectItem key={zone.id} value={zone.name}>{zone.name}</SelectItem>
                     ))}
-                  {members.filter(m => selectedZone === 'all' || m.zona === selectedZone).length === 0 && (
-                    <p className="text-slate-500 text-sm text-center py-4">Nessun utente in questa zona</p>
-                  )}
-                </div>
+                  </SelectContent>
+                </Select>
+
+                {selectedZoneRegistrati && (
+                  <div className="space-y-2 max-h-64 overflow-y-auto">
+                    {members
+                      .filter(m => selectedZoneRegistrati === 'all' || m.zona === selectedZoneRegistrati)
+                      .map(member => (
+                        <div key={member.id} className="bg-slate-900 rounded-lg p-3 flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                              member.user_type === 'consulente' ? 'bg-blue-500/20' : 'bg-lime-400/20'
+                            }`}>
+                              <User className={`w-4 h-4 ${
+                                member.user_type === 'consulente' ? 'text-blue-400' : 'text-lime-400'
+                              }`} />
+                            </div>
+                            <div>
+                              <p className="text-white text-sm">{member.company_name || member.full_name}</p>
+                              <p className="text-slate-500 text-xs">{member.email}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {member.zona && (
+                              <Badge className="bg-slate-700 text-slate-300 border-0 text-xs">
+                                {member.zona}
+                              </Badge>
+                            )}
+                            <Badge className={`border-0 text-xs ${
+                              member.user_type === 'consulente' 
+                                ? 'bg-blue-500/20 text-blue-400' 
+                                : 'bg-lime-400/20 text-lime-400'
+                            }`}>
+                              {member.user_type === 'consulente' ? 'Consulente' : 'Utente'}
+                            </Badge>
+                          </div>
+                        </div>
+                      ))}
+                    {members.filter(m => selectedZoneRegistrati === 'all' || m.zona === selectedZoneRegistrati).length === 0 && (
+                      <p className="text-slate-500 text-sm text-center py-4">Nessun utente in questa zona</p>
+                    )}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
