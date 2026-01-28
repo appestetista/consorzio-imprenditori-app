@@ -168,15 +168,16 @@ export default function Home() {
     enabled: !!effectiveUser?.email,
   });
 
-  // Conta sondaggi non visualizzati
+  // Conta notifiche sondaggi non lette (tipo cultura_aziendale per sondaggi indirizzati)
   const { data: unviewedPollsCount = 0 } = useQuery({
     queryKey: ['unviewed-polls-count', effectiveUser?.email],
     queryFn: async () => {
-      const posts = await base44.entities.ImprenditorePost.list('-created_date');
-      return posts.filter(post => {
-        if (!post.viewed_by) return true;
-        return !post.viewed_by.includes(effectiveUser?.email);
-      }).length;
+      const notifications = await base44.entities.Notification.filter({
+        user_email: effectiveUser?.email,
+        type: 'cultura_aziendale',
+        is_read: false
+      });
+      return notifications.length;
     },
     enabled: !!effectiveUser?.email,
   });
