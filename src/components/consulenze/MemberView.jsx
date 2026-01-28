@@ -392,16 +392,20 @@ export default function MemberView({ user, consultants, isLoading }) {
                                 Online (videochiamata)
                               </Label>
                             </div>
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="sede_azienda" id={`sede_azienda-${consultant.id}`} className="border-lime-400 text-lime-400 data-[state=checked]:bg-lime-400" disabled={consultant.sede_azienda_disabled} />
-                              <Label htmlFor={`sede_azienda-${consultant.id}`} className={`flex items-center gap-2 cursor-pointer ${consultant.sede_azienda_disabled ? 'text-slate-500' : 'text-white'}`}>
-                                <Building2 className={`w-4 h-4 ${consultant.sede_azienda_disabled ? 'text-slate-500' : 'text-amber-400'}`} />
-                                In presenza nella vostra sede aziendale
-                                {consultant.sede_azienda_disabled && <span className="text-xs text-red-400">(non disponibile)</span>}
-                                {!consultant.sede_azienda_disabled && consultant.rimborso_carburante > 0 && (
-                                  <span className="text-xs text-amber-400">(+€{consultant.rimborso_carburante} rimborso)</span>
-                                )}
-                              </Label>
+                            <div className="flex flex-col">
+                              <div className="flex items-center space-x-2">
+                                <RadioGroupItem value="sede_azienda" id={`sede_azienda-${consultant.id}`} className="border-lime-400 text-lime-400 data-[state=checked]:bg-lime-400" disabled={consultant.sede_azienda_disabled} />
+                                <Label htmlFor={`sede_azienda-${consultant.id}`} className={`flex items-center gap-2 cursor-pointer ${consultant.sede_azienda_disabled ? 'text-slate-500' : 'text-white'}`}>
+                                  <Building2 className={`w-4 h-4 ${consultant.sede_azienda_disabled ? 'text-slate-500' : 'text-amber-400'}`} />
+                                  In presenza presso la nostra azienda
+                                  {consultant.sede_azienda_disabled && <span className="text-xs text-red-400">(non disponibile)</span>}
+                                </Label>
+                              </div>
+                              {meetingPreferences[consultant.id] === 'sede_azienda' && !consultant.sede_azienda_disabled && consultant.rimborso_carburante > 0 && (
+                                <p className="text-amber-400 text-xs mt-1 ml-6">
+                                  ⚠️ Il consulente, anche se la consulenza è gratuita, richiede un piccolo rimborso carburante di €{consultant.rimborso_carburante}
+                                </p>
+                              )}
                             </div>
                             <div className="flex items-center space-x-2">
                               <RadioGroupItem value="sede_consulente" id={`sede_consulente-${consultant.id}`} className="border-lime-400 text-lime-400 data-[state=checked]:bg-lime-400" />
