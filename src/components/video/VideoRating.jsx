@@ -20,56 +20,55 @@ export default function VideoRating({
     onRate(diamonds);
   };
 
-  const ratingLabels = {
-    1: "Apprezzo",
-    2: "Interessante", 
-    3: "Collaborerei"
-  };
+  const ratingOptions = [
+    { diamonds: 1, label: "Apprezzo l'azienda" },
+    { diamonds: 2, label: "Molto interessante" },
+    { diamonds: 3, label: "Ci collaborerei" }
+  ];
 
   return (
-    <div className="flex items-center justify-between gap-3 py-1">
+    <div className="space-y-2">
       {/* Visualizzazioni */}
       <div className="flex items-center gap-1.5 text-slate-400">
         <Eye className="w-4 h-4" />
-        <span className="text-sm font-medium">{viewsCount}</span>
+        <span className="text-sm">{viewsCount} visualizzazioni</span>
       </div>
 
-      {/* Diamanti rating inline */}
-      <div className="flex items-center gap-1">
-        {[1, 2, 3].map((diamonds) => (
+      {/* Diamanti rating verticale */}
+      <div className="flex flex-col gap-1">
+        {ratingOptions.map(({ diamonds, label }) => (
           <button
             key={diamonds}
             onClick={() => handleRate(diamonds)}
             disabled={isRating}
-            title={ratingLabels[diamonds]}
             className={cn(
-              "relative flex items-center justify-center w-8 h-8 rounded-full transition-all",
+              "flex items-center gap-2 px-2 py-1 rounded-lg transition-all text-left",
               currentDiamonds === diamonds 
                 ? "bg-amber-400/20 ring-1 ring-amber-400" 
                 : "hover:bg-slate-700/50",
               isRating && "opacity-50 cursor-not-allowed"
             )}
           >
-            <div className="flex items-center gap-px">
+            <div className="flex items-center gap-0.5 w-14 justify-center">
               {Array.from({ length: diamonds }).map((_, i) => (
                 <Gem 
                   key={i} 
                   className={cn(
-                    "w-3.5 h-3.5",
-                    currentDiamonds >= diamonds ? "text-amber-400 fill-amber-400" : "text-slate-500"
+                    "w-4 h-4",
+                    currentDiamonds === diamonds ? "text-amber-400 fill-amber-400" : "text-slate-500"
                   )} 
                 />
               ))}
             </div>
+            <span className={cn(
+              "text-xs",
+              currentDiamonds === diamonds ? "text-amber-400" : "text-slate-400"
+            )}>
+              {label}
+            </span>
           </button>
         ))}
-        
-        {/* Contatore voti totali */}
-        {totalRatings > 0 && (
-          <span className="text-xs text-amber-400 ml-1">({totalRatings})</span>
-        )}
       </div>
-
     </div>
   );
 }
