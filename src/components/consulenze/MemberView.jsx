@@ -36,6 +36,37 @@ export default function MemberView({ user, consultants, isLoading }) {
   const [assignments, setAssignments] = useState([]);
   const [bookings, setBookings] = useState([]);
   const queryClient = useQueryClient();
+  const { playSound } = useNotificationSound();
+
+  // Conta messaggi non letti dai consulenti
+  const { data: unreadConsultationMessages = 0 } = useQuery({
+    queryKey: ['unread-consultation-messages-member', user?.email],
+    queryFn: async () => {
+      const messages = await base44.entities.Message.filter({ 
+        to_email: user?.email, 
+        source: 'consulenze',
+        is_read: false 
+      });
+      return messages.length;
+    },
+    enabled: !!user?.email
+  });
+
+  // Subscribe real-time ai messaggi consulenze
+  useEffect(() => {
+    if (!user?.email) return;
+
+    const unsubscribe = base44.entities.Message.subscribe((event) => {
+      if (event.type === 'create' && 
+          event.data?.to_email === user.email && 
+          event.data?.source === 'consulenze') {
+        playSound();
+        queryClient.invalidateQueries({ queryKey: ['unread-consultation-messages-member', user.email] });
+      }
+    });
+
+    return () => unsubscribe();
+  }, [user?.email, queryClient, playSound]);
 
   // Carica tutte le prenotazioni attive dell'utente (per mostrare la chat)
   const { data: activeBookings = [] } = useQuery({
