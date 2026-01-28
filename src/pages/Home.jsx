@@ -261,7 +261,7 @@ export default function Home() {
       const norms = await base44.entities.ComplianceNorm.filter({ user_email: effectiveUser?.email });
       const oggi = new Date();
       oggi.setHours(0, 0, 0, 0);
-      
+
       return norms.filter(norm => {
         if (!norm.data_scadenza || norm.notifica_disabilitata) return false;
         const scadenza = new Date(norm.data_scadenza);
@@ -271,6 +271,19 @@ export default function Home() {
       }).length;
     },
     enabled: !!effectiveUser?.email,
+  });
+
+  // Conta consulenze gratuite disponibili per l'utente (solo per utenti, non consulenti)
+  const { data: freeConsultationsCount = 0 } = useQuery({
+    queryKey: ['free-consultations-count', effectiveUser?.email],
+    queryFn: async () => {
+      const assignments = await base44.entities.ConsultantAssignment.filter({ 
+        user_email: effectiveUser?.email,
+        is_assigned: true
+      });
+      return assignments.reduce((sum, a) => sum + (a.available_consultations || 0), 0);
+    },
+    enabled: !!effectiveUser?.email && !isUserConsultant(effectiveUser),
   });
 
   const { data: newGrantsCount = 0 } = useQuery({
