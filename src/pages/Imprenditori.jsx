@@ -585,33 +585,38 @@ export default function Imprenditori() {
         </div>
 
         {/* Info banner con bottone esempio */}
-        <div className="bg-gradient-to-r from-lime-400/10 to-emerald-400/10 border border-lime-400/30 rounded-xl p-4 mb-6 relative overflow-hidden">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-lime-400/20 rounded-full flex items-center justify-center">
-              <BarChart3 className="w-5 h-5 text-lime-400" />
-            </div>
-            <div className="flex-1">
-              <p className="text-white font-medium">Chiedi consiglio alla community</p>
-              <p className="text-slate-400 text-sm">Crea sondaggi e prendi decisioni insieme agli altri imprenditori</p>
+        <div className="relative mb-6">
+          <div className="bg-gradient-to-r from-lime-400/10 to-emerald-400/10 border border-lime-400/30 rounded-xl p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-lime-400/20 rounded-full flex items-center justify-center">
+                <BarChart3 className="w-5 h-5 text-lime-400" />
+              </div>
+              <div className="flex-1">
+                <p className="text-white font-medium">Chiedi consiglio alla community</p>
+                <p className="text-slate-400 text-sm">Crea sondaggi e prendi decisioni insieme agli altri imprenditori</p>
+              </div>
             </div>
           </div>
           
-          {/* Mezzo cerchio "Esempio" sul lato destro */}
-          <button
-            onClick={() => setShowExample(true)}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-16 h-16 bg-lime-400 rounded-full flex items-center justify-center shadow-lg hover:bg-lime-500 transition-all"
-          >
-            <span className="text-slate-900 text-xs font-bold -ml-4">Esempio</span>
-          </button>
+          {/* Mezzo cerchio "Esempio" attaccato sotto al riquadro */}
+          {!showExample && (
+            <button
+              onClick={() => setShowExample(true)}
+              className="absolute -bottom-5 left-1/2 -translate-x-1/2 w-24 h-10 bg-lime-400 rounded-b-full flex items-center justify-center shadow-lg hover:bg-lime-500 transition-all"
+            >
+              <span className="text-slate-900 text-xs font-bold">Esempio</span>
+            </button>
+          )}
           
-          {/* Pannello esempio che scorre da destra */}
+          {/* Pannello esempio che scende dall'alto */}
           <div 
-            className={`absolute inset-0 bg-slate-800 transition-transform duration-300 ease-in-out ${
-              showExample ? 'translate-x-0' : 'translate-x-full'
+            className={`overflow-hidden transition-all duration-300 ease-in-out ${
+              showExample ? 'max-h-[500px] opacity-100 mt-2' : 'max-h-0 opacity-0'
             }`}
           >
-            <div className="p-4 h-full flex flex-col">
-              <div className="flex items-center justify-between mb-3">
+            <div className="bg-gradient-to-br from-slate-800 to-slate-800/80 rounded-2xl overflow-hidden shadow-lg border border-slate-700/50">
+              {/* Header con X per chiudere */}
+              <div className="flex items-center justify-between px-4 pt-3 pb-2">
                 <p className="text-lime-400 font-bold text-sm">Esempio di sondaggio</p>
                 <button
                   onClick={() => setShowExample(false)}
@@ -620,15 +625,77 @@ export default function Imprenditori() {
                   <X className="w-4 h-4" />
                 </button>
               </div>
-              <div className="flex-1 flex items-center gap-3">
-                <img 
-                  src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=100&h=100&fit=crop" 
-                  alt="Esempio" 
-                  className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
-                />
-                <div className="flex-1 min-w-0">
-                  <p className="text-white text-sm font-medium leading-tight">"Assumo un nuovo dipendente o esternalizzo?"</p>
-                  <p className="text-slate-400 text-xs mt-1">Crea sondaggi come questo per ricevere consigli!</p>
+              
+              {/* Sondaggio esempio - replica esatta della card reale */}
+              <div className="p-4 pt-0">
+                {/* Header con autore */}
+                <div className="flex items-start gap-3 mb-4">
+                  <div className="w-11 h-11 bg-gradient-to-br from-lime-400 to-lime-500 rounded-full flex items-center justify-center shadow-md">
+                    <BarChart3 className="w-5 h-5 text-slate-900" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-white font-semibold">Mario Rossi Srl</p>
+                    <p className="text-slate-500 text-xs">28 gen 2026</p>
+                  </div>
+                </div>
+
+                {/* Domanda */}
+                <h3 className="text-white font-bold text-lg mb-2 leading-tight">Assumo un nuovo dipendente o esternalizzo il servizio?</h3>
+                <p className="text-slate-400 text-sm mb-4">Ho bisogno di supporto per la gestione amministrativa. Cosa mi consigliate?</p>
+
+                {/* Opzioni di voto */}
+                <div className="space-y-2 mb-4">
+                  <button className="w-full text-left">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="w-5 h-5 rounded-full border-2 border-lime-400 bg-lime-400 flex items-center justify-center">
+                        <Check className="w-3 h-3 text-slate-900" />
+                      </div>
+                      <span className="text-sm flex-1 text-lime-400 font-medium">Assumi un dipendente</span>
+                      <div className="flex items-center gap-1">
+                        <div className="w-5 h-5 bg-slate-600 rounded-full flex items-center justify-center">
+                          <User className="w-3 h-3 text-slate-300" />
+                        </div>
+                        <span className="text-sm text-lime-400">12</span>
+                      </div>
+                    </div>
+                    <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden ml-7">
+                      <div className="h-full bg-lime-400 rounded-full" style={{ width: '60%' }} />
+                    </div>
+                  </button>
+                  
+                  <button className="w-full text-left">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="w-5 h-5 rounded-full border-2 border-slate-500 flex items-center justify-center"></div>
+                      <span className="text-sm flex-1 text-white">Esternalizza il servizio</span>
+                      <div className="flex items-center gap-1">
+                        <div className="w-5 h-5 bg-slate-600 rounded-full flex items-center justify-center">
+                          <User className="w-3 h-3 text-slate-300" />
+                        </div>
+                        <span className="text-sm text-slate-400">8</span>
+                      </div>
+                    </div>
+                    <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden ml-7">
+                      <div className="h-full bg-slate-500 rounded-full" style={{ width: '40%' }} />
+                    </div>
+                  </button>
+                </div>
+
+                {/* Info voti */}
+                <div className="flex items-center justify-between text-sm text-slate-500 pt-2 border-t border-slate-700/50">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 bg-slate-600 rounded-full flex items-center justify-center">
+                      <User className="w-3 h-3 text-slate-400" />
+                    </div>
+                    <span>20 voti</span>
+                  </div>
+                </div>
+
+                {/* Bottone commenti */}
+                <div className="flex items-center gap-1 pt-3 mt-3 border-t border-slate-700/50">
+                  <div className="flex items-center gap-2 px-3 py-2 rounded-xl text-slate-400">
+                    <MessageCircle className="w-5 h-5" />
+                    <span className="text-sm font-medium">5 commenti</span>
+                  </div>
                 </div>
               </div>
             </div>
