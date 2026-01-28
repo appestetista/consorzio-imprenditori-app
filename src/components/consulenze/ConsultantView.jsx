@@ -160,33 +160,6 @@ export default function ConsultantView({ user }) {
     enabled: !!myConsultantProfile?.id,
   });
 
-  // Se il profilo consulente non è stato ancora caricato o non esiste, mostra loading o errore
-  if (isLoadingProfile) {
-    return (
-      <div className="text-center py-12">
-        <div className="animate-spin w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full mx-auto"></div>
-        <p className="text-slate-400 mt-4">Caricamento profilo consulente...</p>
-      </div>
-    );
-  }
-
-  if (!myConsultantProfile) {
-    return (
-      <Card className="bg-slate-800 border-red-400/30">
-        <CardContent className="p-6 text-center">
-          <AlertTriangle className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
-          <h3 className="text-white font-bold text-lg mb-2">Profilo consulente non trovato</h3>
-          <p className="text-slate-400 text-sm mb-2">
-            Non è stato trovato un profilo consulente associato alla tua email: <span className="text-lime-400">{user?.email}</span>
-          </p>
-          <p className="text-slate-500 text-xs">
-            Contatta l'amministrazione per verificare che il tuo profilo sia configurato correttamente.
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
-
   const { data: allMembers = [] } = useQuery({
     queryKey: ['all-members-consultant'],
     queryFn: async () => {
