@@ -41,6 +41,7 @@ export default function Imprenditori() {
   const [recordedBlob, setRecordedBlob] = useState(null);
   const [mediaRecorder, setMediaRecorder] = useState(null);
   const [recordingTime, setRecordingTime] = useState(0);
+  const [facingMode, setFacingMode] = useState('user'); // 'user' = frontale, 'environment' = posteriore
   const videoRef = React.useRef(null);
   const streamRef = React.useRef(null);
   const timerRef = React.useRef(null);
