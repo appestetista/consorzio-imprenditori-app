@@ -75,12 +75,9 @@ export function ImpersonationProvider({ children }) {
 
   const getAppMode = () => {
     if (impersonation.active && impersonation.role === 'user') {
-      console.log('[ImpersonationContext] App mode set to: user-preview');
       return 'user-preview';
     }
-    const mode = userRole === 'admin' ? 'admin' : 'user';
-    console.log('[ImpersonationContext] App mode set to:', mode, '(impersonation.active:', impersonation.active, ')');
-    return mode;
+    return userRole === 'admin' ? 'admin' : 'user';
   };
 
   const appMode = getAppMode();
