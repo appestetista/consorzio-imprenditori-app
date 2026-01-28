@@ -692,7 +692,7 @@ export default function ConsultantView({ user }) {
 
       <TabsContent value="utenti">
         <ZoneUsersList 
-          consultantEmail={user?.email} 
+          consultantEmail={userEmail} 
           consultantZona={myConsultantProfile?.zona}
         />
       </TabsContent>
