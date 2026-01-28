@@ -45,12 +45,14 @@ export default function ConsultantsList({ currentUserEmail, showChat = false }) 
     return counts;
   }, [unreadMessages]);
 
-  // Subscribe real-time ai messaggi - suono per nuovi messaggi
+  // Subscribe real-time ai messaggi - suono per nuovi messaggi (solo dalla sezione consulenze)
   useEffect(() => {
     if (!currentUserEmail) return;
 
     const unsubscribe = base44.entities.Message.subscribe((event) => {
-      if (event.type === 'create' && event.data?.to_email === currentUserEmail) {
+      if (event.type === 'create' && 
+          event.data?.to_email === currentUserEmail && 
+          event.data?.source === 'consulenze') {
         playSound();
         queryClient.invalidateQueries({ queryKey: ['unread-messages-consultants', currentUserEmail] });
       }
