@@ -23,6 +23,7 @@ import InviteUserForm from '../components/admin/InviteUserForm';
 import PreAuthEmailForm from '../components/admin/PreAuthEmailForm';
 import CulturaAziendaleAdmin from '../components/admin/CulturaAziendaleAdmin';
 import ConsultantAssignmentManager from '../components/admin/ConsultantAssignmentManager';
+import ZoneAssignmentManager from '../components/admin/ZoneAssignmentManager';
 
 const PERMISSIONS_LIST = [
   { key: 'calendario', label: 'Calendario Incontri' },
