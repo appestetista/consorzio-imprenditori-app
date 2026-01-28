@@ -141,8 +141,12 @@ export default function ConsultantView({ user }) {
     const [meetingModeNotes, setMeetingModeNotes] = useState({}); // { bookingId: 'nota...' }
     const { playSound } = useNotificationSound();
 
-  // L'email può essere nel root o in data (struttura User entity)
+  // L'email è sempre nel root dopo la normalizzazione in Consulenze.js
+  // ma per sicurezza controlliamo anche data.email
   const userEmail = user?.email || user?.data?.email;
+  
+  console.log('[ConsultantView] Props user:', JSON.stringify(user, null, 2));
+  console.log('[ConsultantView] userEmail estratto:', userEmail);
   
   const { data: myConsultantProfile, isLoading: isLoadingProfile, error: profileError } = useQuery({
     queryKey: ['my-consultant-profile', userEmail?.toLowerCase()],
