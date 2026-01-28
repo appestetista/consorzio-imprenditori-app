@@ -344,14 +344,40 @@ export default function GestioneMembri() {
             </Link>
             <h1 className="text-white text-xl font-bold">Gestione Utenti</h1>
           </div>
-          <Button
-            onClick={() => setShowInviteForm(true)}
-            className="bg-lime-400 hover:bg-lime-500 text-slate-900"
-          >
-            <UserPlus className="w-5 h-5 mr-2" />
-            Invita
-          </Button>
         </div>
+
+        {/* Tabs principali */}
+        <Tabs defaultValue="utenti" className="w-full">
+          <TabsList className="w-full bg-slate-800 border border-slate-700 mb-4">
+            <TabsTrigger value="utenti" className="flex-1 text-xs data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
+              <Users className="w-3.5 h-3.5 mr-1" />
+              Utenti
+            </TabsTrigger>
+            <TabsTrigger value="preauth" className="flex-1 text-xs data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
+              <Mail className="w-3.5 h-3.5 mr-1" />
+              Pre-autorizza
+            </TabsTrigger>
+            <TabsTrigger value="academy" className="flex-1 text-xs data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
+              <GraduationCap className="w-3.5 h-3.5 mr-1" />
+              Academy
+            </TabsTrigger>
+            <TabsTrigger value="consulenti" className="flex-1 text-xs data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
+              <Briefcase className="w-3.5 h-3.5 mr-1" />
+              Assegna
+            </TabsTrigger>
+          </TabsList>
+
+          {/* TAB UTENTI */}
+          <TabsContent value="utenti" className="space-y-4">
+            <div className="flex justify-end mb-4">
+              <Button
+                onClick={() => setShowInviteForm(true)}
+                className="bg-lime-400 hover:bg-lime-500 text-slate-900"
+              >
+                <UserPlus className="w-5 h-5 mr-2" />
+                Invita
+              </Button>
+            </div>
 
         {members.some(m => m.is_blocked) && (
           <div className="mb-4">
