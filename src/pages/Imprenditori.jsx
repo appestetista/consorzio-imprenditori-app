@@ -871,7 +871,7 @@ export default function Imprenditori() {
                       onClick={switchCamera}
                       className="absolute top-3 right-3 bg-slate-800/70 hover:bg-slate-700 text-white p-2 rounded-full"
                     >
-                      <Camera className="w-5 h-5" />
+                      <RefreshCw className="w-5 h-5" />
                     </button>
                     <div className="absolute bottom-3 left-1/2 -translate-x-1/2">
                       <button
