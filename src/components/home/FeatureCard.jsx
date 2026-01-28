@@ -30,8 +30,16 @@ export default function FeatureCard({ title, icon: Icon, pageName, notificationC
         <span className={cn("text-sm font-medium text-center leading-tight break-words w-full px-1", disabled ? "text-red-300" : (isPink || isBlue) ? accentColor : "text-white")}>{title}</span>
       </div>
       {bottomBadge && (
-        <div className="w-full bg-lime-400/20 text-lime-400 text-xs font-bold text-center py-1.5 border-t border-lime-400/30">
-          🎁 {bottomBadge} consulenze gratuite
+        <div className={cn(
+          "w-full text-xs font-bold text-center py-1.5 border-t",
+          bottomBadgeType === 'requests' 
+            ? "bg-amber-400/20 text-amber-400 border-amber-400/30" 
+            : "bg-lime-400/20 text-lime-400 border-lime-400/30"
+        )}>
+          {bottomBadgeType === 'requests' 
+            ? `📋 ${bottomBadge} ${bottomBadge === 1 ? 'richiesta' : 'richieste'}`
+            : `🎁 ${bottomBadge} consulenze gratuite`
+          }
         </div>
       )}
     </div>
