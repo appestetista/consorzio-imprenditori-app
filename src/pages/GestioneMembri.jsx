@@ -353,9 +353,9 @@ export default function GestioneMembri() {
               <Users className="w-3.5 h-3.5 mr-1" />
               Utenti
             </TabsTrigger>
-            <TabsTrigger value="preauth" className="flex-1 text-xs data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
-              <Mail className="w-3.5 h-3.5 mr-1" />
-              Pre-autorizza
+            <TabsTrigger value="registrazioni" className="flex-1 text-xs data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
+              <UserPlus className="w-3.5 h-3.5 mr-1" />
+              Registrazioni
             </TabsTrigger>
             <TabsTrigger value="academy" className="flex-1 text-xs data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
               <GraduationCap className="w-3.5 h-3.5 mr-1" />
