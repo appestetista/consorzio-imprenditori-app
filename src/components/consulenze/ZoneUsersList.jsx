@@ -66,12 +66,14 @@ export default function ZoneUsersList({ consultantEmail, consultantZona }) {
     enabled: !!consultantEmail
   });
 
-  // Subscribe real-time ai messaggi - suono per nuovi messaggi
+  // Subscribe real-time ai messaggi - suono per nuovi messaggi (solo dalla sezione consulenze)
   useEffect(() => {
     if (!consultantEmail) return;
 
     const unsubscribe = base44.entities.Message.subscribe((event) => {
-      if (event.type === 'create' && event.data?.to_email === consultantEmail) {
+      if (event.type === 'create' && 
+          event.data?.to_email === consultantEmail && 
+          event.data?.source === 'consulenze') {
         playSound();
         queryClient.invalidateQueries({ queryKey: ['unread-messages-from-users', consultantEmail] });
       }
