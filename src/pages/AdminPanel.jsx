@@ -465,29 +465,13 @@ export default function AdminPanel() {
         </div>
 
         {/* Stats Grid compatto */}
-        <div className="grid grid-cols-4 gap-2 mb-4">
+        <div className="grid grid-cols-2 gap-2 mb-4">
           <Link to={createPageUrl('GestioneMembri')}>
             <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700">
               <CardContent className="p-2 text-center">
                 <Users className="w-5 h-5 text-lime-400 mx-auto mb-1" />
                 <p className="text-lg font-bold text-white">{stats?.activeUsers || 0}</p>
                 <p className="text-slate-400 text-[10px]">Utenti</p>
-              </CardContent>
-            </Card>
-          </Link>
-
-
-          <Link to={createPageUrl('GestioneConsulenti')}>
-            <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 relative">
-              <CardContent className="p-2 text-center">
-                <Briefcase className="w-5 h-5 text-lime-400 mx-auto mb-1" />
-                <p className="text-lg font-bold text-white">{stats?.totalConsultants || 0}</p>
-                <p className="text-slate-400 text-[10px]">Consulenti</p>
-                {pendingConsultationBookings > 0 && (
-                  <span className="absolute top-1 right-1 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
-                    {pendingConsultationBookings}
-                  </span>
-                )}
               </CardContent>
             </Card>
           </Link>
