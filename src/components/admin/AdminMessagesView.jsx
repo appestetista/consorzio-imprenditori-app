@@ -259,48 +259,91 @@ export default function AdminMessagesView({ onBack }) {
           </AlertDialog>
         </div>
 
-        {/* Messaggi */}
-        <div className="space-y-2 max-h-[60vh] overflow-y-auto">
+        {/* Messaggi stile chat con fumetti */}
+        <div className="space-y-3 max-h-[60vh] overflow-y-auto px-2 py-3 bg-slate-950 rounded-lg">
           {conv.messages.map(msg => {
             const isFromPerson = msg.from_email === selectedPerson;
-            const sender = peopleMap[msg.from_email] || { name: msg.from_email };
+            const sender = peopleMap[msg.from_email] || { name: msg.from_email, type: 'sconosciuto' };
+            // Se la persona selezionata è un utente, i suoi messaggi vanno a destra (lime)
+            // Se è un consulente, i suoi messaggi vanno a sinistra (blue)
+            const personIsConsultant = person.person.type === 'consulente';
+            const isRightSide = personIsConsultant ? !isFromPerson : isFromPerson;
             
             return (
-              <Card key={msg.id} className={`border ${isFromPerson ? 'bg-slate-800 border-slate-700' : 'bg-slate-700 border-slate-600'}`}>
-                <CardContent className="p-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className={`text-xs font-medium ${isFromPerson ? 'text-lime-400' : 'text-blue-400'}`}>
-                          {sender.name}
-                        </span>
-                        <span className="text-slate-500 text-[10px]">
-                          {format(new Date(msg.created_date), 'd MMM HH:mm', { locale: it })}
-                        </span>
-                        {!msg.is_read && msg.to_email === selectedPerson && (
-                          <Badge className="bg-red-500 text-white text-[10px]">Non letto</Badge>
-                        )}
+              <div 
+                key={msg.id} 
+                className={`flex ${isRightSide ? 'justify-end' : 'justify-start'}`}
+              >
+                <div className={`flex items-end gap-2 max-w-[85%] ${isRightSide ? 'flex-row-reverse' : 'flex-row'}`}>
+                  {/* Avatar */}
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                    isRightSide ? 'bg-lime-400/30' : 'bg-blue-500/30'
+                  }`}>
+                    {isRightSide ? (
+                      <User className="w-4 h-4 text-lime-400" />
+                    ) : (
+                      <Briefcase className="w-4 h-4 text-blue-400" />
+                    )}
+                  </div>
+                  
+                  {/* Fumetto messaggio */}
+                  <div className={`rounded-2xl px-4 py-2 ${
+                    isRightSide 
+                      ? 'bg-lime-400 text-slate-900 rounded-br-sm' 
+                      : 'bg-blue-500 text-white rounded-bl-sm'
+                  }`}>
+                    {/* Nome mittente */}
+                    <p className={`text-[10px] font-bold mb-1 ${
+                      isRightSide ? 'text-slate-700' : 'text-blue-100'
+                    }`}>
+                      {sender.name} {isRightSide ? '(Azienda)' : '(Consulente)'}
+                    </p>
+                    
+                    {/* Contenuto */}
+                    <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                    
+                    {/* Allegati */}
+                    {msg.attachments?.length > 0 && (
+                      <div className="flex gap-1 mt-2 flex-wrap">
+                        {msg.attachments.map((att, i) => (
+                          <a 
+                            key={i} 
+                            href={att.url} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className={`text-xs underline ${isRightSide ? 'text-slate-700' : 'text-blue-100'}`}
+                          >
+                            📎 {att.name}
+                          </a>
+                        ))}
                       </div>
-                      <p className="text-white text-sm whitespace-pre-wrap">{msg.content}</p>
-                      {msg.attachments?.length > 0 && (
-                        <div className="flex gap-1 mt-1 flex-wrap">
-                          {msg.attachments.map((att, i) => (
-                            <a key={i} href={att.url} target="_blank" rel="noopener noreferrer" className="text-lime-400 text-xs underline">
-                              📎 {att.name}
-                            </a>
-                          ))}
-                        </div>
+                    )}
+                    
+                    {/* Ora e stato */}
+                    <div className={`flex items-center gap-2 mt-1 ${
+                      isRightSide ? 'text-slate-600' : 'text-blue-200'
+                    }`}>
+                      <span className="text-[10px]">
+                        {format(new Date(msg.created_date), 'HH:mm', { locale: it })}
+                        {new Date(msg.created_date).toDateString() !== new Date().toDateString() && (
+                          <span className="ml-1">• {format(new Date(msg.created_date), 'd MMM', { locale: it })}</span>
+                        )}
+                      </span>
+                      {!msg.is_read && msg.to_email === selectedPerson && (
+                        <span className="bg-red-500 text-white text-[8px] px-1.5 py-0.5 rounded-full">NUOVO</span>
                       )}
                     </div>
-                    <button
-                      onClick={() => setMessageToDelete(msg)}
-                      className="text-slate-500 hover:text-red-400 p-1"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
                   </div>
-                </CardContent>
-              </Card>
+                  
+                  {/* Pulsante elimina */}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setMessageToDelete(msg); }}
+                    className="text-slate-600 hover:text-red-400 p-1 opacity-50 hover:opacity-100 transition-opacity"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
             );
           })}
         </div>
