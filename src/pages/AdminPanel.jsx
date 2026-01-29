@@ -1886,70 +1886,7 @@ export default function AdminPanel() {
 
               {/* TAB ZONE CONSULENTI */}
               <TabsContent value="zone" className="space-y-3">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-white font-medium text-sm flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-lime-400" />
-                    Zone Consulenti
-                  </h3>
-                  <Button
-                    size="sm"
-                    className="bg-lime-400 text-slate-900 h-7 text-xs"
-                    onClick={() => navigate(createPageUrl('GestioneZone'))}
-                  >
-                    Gestisci Zone
-                  </Button>
-                </div>
-                
-                {/* Riepilogo consulenti per zona */}
-                <div className="space-y-2">
-                  {zones.map(zone => {
-                    const zoneConsultants = consultants.filter(c => c.zona === zone.name);
-                    return (
-                      <Card key={zone.id} className="bg-slate-800 border-slate-700">
-                        <CardContent className="p-3">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <MapPin className="w-4 h-4 text-lime-400" />
-                              <span className="text-white text-sm font-medium">{zone.name}</span>
-                            </div>
-                            <Badge className="bg-lime-400/20 text-lime-400 text-xs">
-                              {zoneConsultants.length} consulenti
-                            </Badge>
-                          </div>
-                          {zoneConsultants.length > 0 && (
-                            <div className="mt-2 space-y-1">
-                              {zoneConsultants.slice(0, 3).map(c => (
-                                <p key={c.id} className="text-slate-400 text-[10px]">• {c.name} ({c.category})</p>
-                              ))}
-                              {zoneConsultants.length > 3 && (
-                                <p className="text-slate-500 text-[10px]">+{zoneConsultants.length - 3} altri</p>
-                              )}
-                            </div>
-                          )}
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
-                  
-                  {/* Consulenti senza zona */}
-                  {consultants.filter(c => !c.zona).length > 0 && (
-                    <Card className="bg-red-500/10 border-red-500/30">
-                      <CardContent className="p-3">
-                        <div className="flex items-center justify-between">
-                          <span className="text-red-400 text-sm font-medium">⚠️ Senza zona</span>
-                          <Badge className="bg-red-500/20 text-red-400 text-xs">
-                            {consultants.filter(c => !c.zona).length} consulenti
-                          </Badge>
-                        </div>
-                        <div className="mt-2 space-y-1">
-                          {consultants.filter(c => !c.zona).slice(0, 3).map(c => (
-                            <p key={c.id} className="text-slate-400 text-[10px]">• {c.name}</p>
-                          ))}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
-                </div>
+                <ZoneManagerSimple />
               </TabsContent>
             </Tabs>
           </div>
