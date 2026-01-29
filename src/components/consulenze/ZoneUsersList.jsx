@@ -174,6 +174,7 @@ export default function ZoneUsersList({ consultantEmail, consultantZona, consult
       <FullChatWithUser 
         user={selectedUser}
         consultantEmail={consultantEmail}
+        consultantLogo={consultantLogo}
         onBack={() => setSelectedUser(null)}
       />
     );
