@@ -173,7 +173,14 @@ export default function AdminView({ consultants, adminEmail }) {
       cellulare_referente: consultant.cellulare_referente || '',
       zona: consultant.zona || '',
       zone_assegnate: consultant.zone_assegnate || (consultant.zona ? [consultant.zona] : []),
-      free_consultations_per_user: consultant.free_consultations_per_user ?? 1
+      free_consultations_per_user: consultant.free_consultations_per_user ?? 1,
+      // Campi admin
+      is_blocked: consultant.is_blocked || false,
+      block_calls_for_all: consultant.block_calls_for_all || false,
+      sede_azienda_disabled: consultant.sede_azienda_disabled || false,
+      rimborso_carburante: consultant.rimborso_carburante || 0,
+      available_slots: consultant.available_slots || 100,
+      assigned_sections: consultant.assigned_sections || []
     });
     setShowConsultantDialog(true);
   };
