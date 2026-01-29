@@ -692,7 +692,7 @@ export default function Messaggi() {
                           </span>
                         )}
                       </div>
-                      <p className="text-slate-400 text-sm truncate">{lastMessage?.content}</p>
+                      <p className="text-slate-400 text-sm truncate">{lastMessage?.content ? lastMessage.content.charAt(0).toUpperCase() + lastMessage.content.slice(1).toLowerCase() : ''}</p>
                       <p className="text-slate-500 text-xs">
                         {format(new Date(lastMessage?.created_date), 'd MMM, HH:mm', { locale: it })}
                       </p>
