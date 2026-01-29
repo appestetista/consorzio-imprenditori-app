@@ -564,13 +564,18 @@ export default function AdminMessagesView({ onBack }) {
       </div>
 
       {/* Stats */}
+      {/* Intestazione: Messaggi Utenti ↔ Consulenti */}
+      <div className="bg-slate-800 rounded-lg p-3 mb-2">
+        <p className="text-lime-400 font-bold text-center text-sm">Messaggi Utenti ↔ Consulenti</p>
+      </div>
+
       <div className="grid grid-cols-2 gap-2">
         <Card className="bg-slate-800 border-slate-700">
           <CardContent className="p-3 flex items-center gap-2">
             <Users className="w-5 h-5 text-lime-400" />
             <div>
               <p className="text-white font-bold text-lg">{filteredPeople.length}</p>
-              <p className="text-slate-400 text-[10px]">Persone con messaggi</p>
+              <p className="text-slate-400 text-[10px]">Persone</p>
             </div>
           </CardContent>
         </Card>
@@ -579,7 +584,7 @@ export default function AdminMessagesView({ onBack }) {
             <MessageSquare className="w-5 h-5 text-lime-400" />
             <div>
               <p className="text-white font-bold text-lg">{allMessages.length}</p>
-              <p className="text-slate-400 text-[10px]">Messaggi totali</p>
+              <p className="text-slate-400 text-[10px]">Messaggi</p>
             </div>
           </CardContent>
         </Card>
