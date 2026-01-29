@@ -73,6 +73,7 @@ export default function AdminView({ consultants, adminEmail }) {
   const [selectedConsultant, setSelectedConsultant] = useState(null);
   const [sectionsData, setSectionsData] = useState([]);
   const [showInviteForm, setShowInviteForm] = useState(false);
+  const [dialogViewMode, setDialogViewMode] = useState('admin'); // 'admin' o 'consultant'
   
   const queryClient = useQueryClient();
 
