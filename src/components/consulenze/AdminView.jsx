@@ -425,17 +425,38 @@ export default function AdminView({ consultants, adminEmail }) {
               />
             </div>
             <div>
-              <Label className="text-slate-300">Zona</Label>
-              <Select value={consultantForm.zona} onValueChange={(v) => setConsultantForm({...consultantForm, zona: v})}>
-                <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
-                  <SelectValue placeholder="Seleziona zona" />
-                </SelectTrigger>
-                <SelectContent>
-                  {zones.map(zone => (
-                    <SelectItem key={zone.id} value={zone.name}>{zone.name}</SelectItem>
+              <Label className="text-lime-400 font-medium">Zone Assegnate</Label>
+              <div className="bg-slate-900 border border-slate-700 rounded-md p-3 mt-1 space-y-2 max-h-40 overflow-y-auto">
+                {zones.map(zone => (
+                  <div key={zone.id} className="flex items-center gap-2">
+                    <Checkbox
+                      id={`zone-edit-${zone.id}`}
+                      checked={consultantForm.zone_assegnate?.includes(zone.name)}
+                      onCheckedChange={(checked) => {
+                        const currentZones = consultantForm.zone_assegnate || [];
+                        if (checked) {
+                          setConsultantForm({...consultantForm, zone_assegnate: [...currentZones, zone.name], zona: zone.name});
+                        } else {
+                          const newZones = currentZones.filter(z => z !== zone.name);
+                          setConsultantForm({...consultantForm, zone_assegnate: newZones, zona: newZones[0] || ''});
+                        }
+                      }}
+                      className="border-slate-600 data-[state=checked]:bg-lime-400 data-[state=checked]:border-lime-400"
+                    />
+                    <Label htmlFor={`zone-edit-${zone.id}`} className="text-white text-sm cursor-pointer">
+                      {zone.name}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+              {consultantForm.zone_assegnate?.length > 0 && (
+                <div className="flex flex-wrap gap-1 mt-2">
+                  {consultantForm.zone_assegnate.map(z => (
+                    <Badge key={z} className="bg-lime-400/20 text-lime-400 border-0 text-xs">{z}</Badge>
                   ))}
-                </SelectContent>
-              </Select>
+                </div>
+              )}
+              <p className="text-slate-500 text-xs mt-1">Il consulente sarà visibile agli utenti delle zone selezionate</p>
             </div>
             <div>
               <Label className="text-slate-300">Consulenze gratuite per utente</Label>
