@@ -938,7 +938,7 @@ export default function MyProfile() {
            </Link>
          )}
          {/* Logo del consulente se presente */}
-         {user?.user_type === 'consulente' && consultantData?.logo_url && (
+         {consultantData?.logo_url && (
            <img 
              src={consultantData.logo_url} 
              alt="Logo" 
