@@ -759,10 +759,6 @@ export default function AdminPanel() {
             </CardContent>
           </Card>
         )}
-
-        {/* Nascosto - era Tabs per organizzare le sezioni */}
-        <div className="hidden">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full" id="admin-tabs">
           <TabsList className="w-full bg-slate-800 border border-slate-700 mb-4">
             <TabsTrigger value="richieste" className="flex-1 text-xs data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
               <div className="relative flex items-center gap-1">
@@ -821,11 +817,6 @@ export default function AdminPanel() {
 
 
 
-
-
-
-          </TabsContent>
-        </Tabs>
       </main>
 
       <BottomNav currentPage="AdminPanel" unreadMessages={messages.length} />
