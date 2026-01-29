@@ -651,11 +651,6 @@ export default function GestioneMembri() {
             </Card>
           </TabsContent>
 
-          {/* TAB ACADEMY */}
-          <TabsContent value="academy" className="space-y-4">
-            <CulturaAziendaleAdmin />
-          </TabsContent>
-
           {/* TAB ASSEGNA CONSULENTI */}
           <TabsContent value="consulenti" className="space-y-4">
             <ConsultantAssignmentManager />
