@@ -281,7 +281,18 @@ export default function AdminView({ consultants, adminEmail }) {
           </div>
 
           <div className="space-y-3">
-            {consultants.map((consultant) => (
+            {consultants
+              .filter(c => {
+                const matchesSearch = !searchTermConsultant || 
+                  c.name?.toLowerCase().includes(searchTermConsultant.toLowerCase()) ||
+                  c.category?.toLowerCase().includes(searchTermConsultant.toLowerCase()) ||
+                  c.email?.toLowerCase().includes(searchTermConsultant.toLowerCase());
+                const matchesZone = selectedZoneFilter === 'all' || 
+                  c.zone_assegnate?.includes(selectedZoneFilter) ||
+                  c.zona === selectedZoneFilter;
+                return matchesSearch && matchesZone;
+              })
+              .map((consultant) => (
               <Card key={consultant.id} className={`bg-slate-800 border-slate-700 ${consultant.is_blocked ? 'opacity-60' : ''}`}>
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between">
