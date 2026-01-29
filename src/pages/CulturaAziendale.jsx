@@ -153,6 +153,28 @@ export default function CulturaAziendale() {
     }
   };
 
+  const handleRenameCategory = async (oldName, newName) => {
+    if (!newName.trim() || oldName === newName.trim()) {
+      setEditingCategory(null);
+      return;
+    }
+    
+    // Aggiorna tutti i video con la vecchia categoria
+    const videosToUpdate = videos.filter(v => v.categoria === oldName);
+    for (const video of videosToUpdate) {
+      await base44.entities.CulturaAziendaleVideo.update(video.id, { categoria: newName.trim() });
+    }
+    
+    // Se era custom, aggiorna anche l'array customCategories
+    if (!CATEGORIE.includes(oldName)) {
+      setCustomCategories(prev => prev.map(c => c === oldName ? newName.trim() : c));
+    }
+    
+    queryClient.invalidateQueries({ queryKey: ['cultura-aziendale-videos'] });
+    setEditingCategory(null);
+    setEditedCategoryName('');
+  };
+
   const validate = () => {
     const newErrors = [];
     if (!formData.title) newErrors.push('Titolo obbligatorio');
