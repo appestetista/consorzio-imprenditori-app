@@ -659,9 +659,12 @@ export default function AdminPanel() {
               <CardContent className="p-2 flex flex-col items-center justify-center h-full">
                 <MessageSquare className="w-5 h-5 text-lime-400 mb-1" />
                 <p className="text-white text-[10px] text-center leading-tight">Gestione<br/>Messaggi</p>
+                <span className="absolute top-1 right-1 bg-lime-400 text-slate-900 text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
+                  {allAdminMessages.length}
+                </span>
                 {unreadAdminMessages.length > 0 && (
-                  <span className="absolute top-1 right-1 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
-                    {unreadAdminMessages.length}
+                  <span className="absolute top-1 left-1 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
+                    <Bell className="w-2.5 h-2.5" />
                   </span>
                 )}
               </CardContent>
@@ -676,28 +679,22 @@ export default function AdminPanel() {
               <div className="relative flex items-center gap-1">
                 <Bell className="w-3.5 h-3.5" />
                 Richieste
-                {(pendingRequests.length + pendingVideoRequests.length + unreadAdminMessages.length + eventResponseNotifications.length + unreadConsultationMessages) > 0 && (
+                {(pendingRequests.length + pendingVideoRequests.length + eventResponseNotifications.length) > 0 && (
                   <span className="bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
-                    {pendingRequests.length + pendingVideoRequests.length + unreadAdminMessages.length + eventResponseNotifications.length + unreadConsultationMessages}
+                    {pendingRequests.length + pendingVideoRequests.length + eventResponseNotifications.length}
                   </span>
                 )}
               </div>
             </TabsTrigger>
             <TabsTrigger value="consulenze" className="flex-1 text-xs data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
               <div className="relative flex items-center gap-1">
-                <Briefcase className="w-3.5 h-3.5" />
+                <Bell className="w-3.5 h-3.5" />
                 Consulenze
                 {(stats?.totalConsultants || 0) > 0 && (
                   <span className="bg-lime-400 text-slate-900 text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
                     {stats?.totalConsultants || 0}
                   </span>
                 )}
-              </div>
-            </TabsTrigger>
-            <TabsTrigger value="risparmio" className="flex-1 text-xs data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
-              <div className="flex items-center gap-1">
-                <Settings className="w-3.5 h-3.5" />
-                Welfare
               </div>
             </TabsTrigger>
           </TabsList>
@@ -746,42 +743,7 @@ export default function AdminPanel() {
 
 
 
-            {/* Messaggi Consulenze (utenti <-> consulenti) */}
-            <Card className="bg-slate-800 border-slate-700">
-              <CardContent className="p-3">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <Briefcase className={`w-4 h-4 ${unreadConsultationMessages > 0 ? 'text-orange-400' : 'text-slate-400'}`} />
-                    <span className="text-white font-medium text-sm">Messaggi Consulenze ({unreadConsultationMessages} nuovi)</span>
-                  </div>
-                  <Button size="sm" variant="ghost" className="text-lime-400 h-7 text-xs" onClick={() => setShowConsultationMessages(true)}>
-                    Vedi tutti
-                  </Button>
-                </div>
-                {unreadConsultationMessages > 0 && (
-                  <div className="space-y-1">
-                    {consultationMessages.filter(m => !m.is_read).slice(0, 2).map((msg) => (
-                      <div key={msg.id} className="bg-slate-900 rounded p-2 text-xs">
-                        <div className="flex items-center gap-1 mb-1">
-                          <span className={`text-[10px] px-1.5 py-0.5 rounded ${msg.from_type === 'consulente' ? 'bg-blue-500/20 text-blue-400' : 'bg-lime-400/20 text-lime-400'}`}>
-                            {msg.from_type === 'consulente' ? '👔 Cons.' : '👤 Utente'}
-                          </span>
-                          <span className="text-slate-500">→</span>
-                          <span className={`text-[10px] px-1.5 py-0.5 rounded ${msg.to_type === 'consulente' ? 'bg-blue-500/20 text-blue-400' : 'bg-lime-400/20 text-lime-400'}`}>
-                            {msg.to_type === 'consulente' ? '👔 Cons.' : '👤 Utente'}
-                          </span>
-                        </div>
-                        <p className="text-white font-medium truncate">{msg.from_name} → {msg.to_name}</p>
-                        <p className="text-slate-400 truncate">{msg.content}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {unreadConsultationMessages === 0 && (
-                  <p className="text-slate-400 text-xs">Nessun messaggio non letto</p>
-                )}
-              </CardContent>
-            </Card>
+
 
             {/* Richieste Consulenza Bandi */}
             <Card className="bg-slate-800 border-slate-700">
@@ -1099,11 +1061,6 @@ export default function AdminPanel() {
                 )}
               </div>
             )}
-          </TabsContent>
-
-          {/* TAB RISPARMIO */}
-          <TabsContent value="risparmio">
-            <RisparmioRequestsAdmin />
           </TabsContent>
         </Tabs>
       </main>
