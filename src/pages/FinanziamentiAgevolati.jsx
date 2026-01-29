@@ -1490,6 +1490,101 @@ Restituisci solo gli ID dei bandi compatibili.`,
         </DialogContent>
       </Dialog>
 
+      {/* Create/Edit Bando Form Dialog - Admin */}
+      <Dialog open={showBandoForm} onOpenChange={(open) => {
+        setShowBandoForm(open);
+        if (!open) setEditingBando(null);
+      }}>
+        <DialogContent className="bg-slate-800 border-slate-700 max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-white">
+              {editingBando ? 'Modifica Bando' : 'Nuovo Bando'}
+            </DialogTitle>
+          </DialogHeader>
+          <BandoForm
+            bando={editingBando}
+            onSubmit={handleBandoFormSubmit}
+            onCancel={() => {
+              setShowBandoForm(false);
+              setEditingBando(null);
+            }}
+            isSubmitting={createBandoMutation.isPending || updateBandoMutation.isPending}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Matching Preview Dialog - Admin */}
+      <Dialog open={showMatchingPreview} onOpenChange={setShowMatchingPreview}>
+        <DialogContent className="bg-slate-800 border-slate-700 max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-white">
+              Anteprima Matching: {selectedBandoForPreview?.title}
+            </DialogTitle>
+          </DialogHeader>
+          
+          {selectedBandoForPreview && (
+            <div className="space-y-4 mt-4">
+              <div className="bg-slate-900 rounded-lg p-4">
+                <h4 className="text-lime-400 font-medium mb-2">Criteri di Eligibilità</h4>
+                <div className="space-y-2 text-sm">
+                  {selectedBandoForPreview.eligible_company_sizes?.length > 0 && (
+                    <div>
+                      <span className="text-slate-400">Dimensioni:</span>
+                      <span className="text-white ml-2">{selectedBandoForPreview.eligible_company_sizes.join(', ')}</span>
+                    </div>
+                  )}
+                  {selectedBandoForPreview.eligible_regions?.length > 0 && (
+                    <div>
+                      <span className="text-slate-400">Regioni:</span>
+                      <span className="text-white ml-2">{selectedBandoForPreview.eligible_regions.join(', ')}</span>
+                    </div>
+                  )}
+                  {selectedBandoForPreview.eligible_ateco_codes?.length > 0 && (
+                    <div>
+                      <span className="text-slate-400">ATECO:</span>
+                      <span className="text-white ml-2">{selectedBandoForPreview.eligible_ateco_codes.join(', ')}</span>
+                    </div>
+                  )}
+                  {selectedBandoForPreview.eligible_legal_forms?.length > 0 && (
+                    <div>
+                      <span className="text-slate-400">Forme giuridiche:</span>
+                      <span className="text-white ml-2">{selectedBandoForPreview.eligible_legal_forms.join(', ')}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <h4 className="text-white font-medium mb-3">
+                  Aziende Compatibili ({getMatchingUsersForBando(selectedBandoForPreview).length})
+                </h4>
+                <div className="space-y-2">
+                  {getMatchingUsersForBando(selectedBandoForPreview).length === 0 ? (
+                    <Alert className="bg-yellow-500/20 border-yellow-500/30">
+                      <AlertDescription className="text-yellow-400 text-sm">
+                        Attenzione: nessuna azienda corrisponde ai criteri. Verifica i requisiti.
+                      </AlertDescription>
+                    </Alert>
+                  ) : (
+                    getMatchingUsersForBando(selectedBandoForPreview).map((u) => (
+                      <div key={u.id} className="bg-slate-700 rounded-lg p-3">
+                        <p className="text-white font-medium">{u.company_name || u.full_name}</p>
+                        <div className="flex gap-3 text-xs text-slate-400 mt-1">
+                          {u.company_size && <span>Dim: {u.company_size}</span>}
+                          {u.region && <span>• {u.region}</span>}
+                          {u.ateco_code && <span>• ATECO: {u.ateco_code}</span>}
+                          {u.legal_form && <span>• {u.legal_form}</span>}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       <BottomNav currentPage="FinanziamentiAgevolati" unreadMessages={messages.length} />
     </div>
   );
