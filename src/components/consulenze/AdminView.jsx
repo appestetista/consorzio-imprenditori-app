@@ -801,6 +801,7 @@ export default function AdminView({ consultants, adminEmail }) {
   );
 }
 
+
 // Componente per mostrare la vista read-only del consulente
 function ConsultantReadOnlyView({ consultant, zones, allUsers }) {
   // Trova utente correlato al consulente
