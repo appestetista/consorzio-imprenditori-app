@@ -469,13 +469,127 @@ export default function AdminView({ consultants, adminEmail }) {
                 className="bg-slate-900 border-slate-700 text-white"
               />
             </div>
-            <Button
-              onClick={() => saveConsultantMutation.mutate(consultantForm)}
-              disabled={!consultantForm.name || !consultantForm.category || !consultantForm.city || !consultantForm.phone || saveConsultantMutation.isPending}
-              className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900"
-            >
-              {saveConsultantMutation.isPending ? 'Salvataggio...' : 'Salva'}
-            </Button>
+
+            {/* Sezione Admin - Impostazioni avanzate */}
+            {editingConsultant && (
+              <div className="border-t border-slate-700 pt-4 mt-4">
+                <h4 className="text-amber-400 font-semibold text-sm mb-3 flex items-center gap-2">
+                  <Settings className="w-4 h-4" />
+                  Impostazioni Admin
+                </h4>
+                
+                {/* Blocco consulente */}
+                <div className="flex items-center justify-between py-2">
+                  <div>
+                    <Label className="text-slate-300">Blocca Consulente</Label>
+                    <p className="text-slate-500 text-xs">Il consulente non potrà accedere</p>
+                  </div>
+                  <Switch
+                    checked={consultantForm.is_blocked || false}
+                    onCheckedChange={(checked) => setConsultantForm({...consultantForm, is_blocked: checked})}
+                    className="data-[state=checked]:bg-red-500"
+                  />
+                </div>
+
+                {/* Blocca chiamate per tutti */}
+                <div className="flex items-center justify-between py-2">
+                  <div>
+                    <Label className="text-slate-300">Blocca Chiamate</Label>
+                    <p className="text-slate-500 text-xs">Blocca chiamate da tutti gli utenti</p>
+                  </div>
+                  <Switch
+                    checked={consultantForm.block_calls_for_all || false}
+                    onCheckedChange={(checked) => setConsultantForm({...consultantForm, block_calls_for_all: checked})}
+                    className="data-[state=checked]:bg-orange-500"
+                  />
+                </div>
+
+                {/* Disabilita sede azienda */}
+                <div className="flex items-center justify-between py-2">
+                  <div>
+                    <Label className="text-slate-300">Disabilita Sede Azienda</Label>
+                    <p className="text-slate-500 text-xs">Disabilita consulenze in sede aziendale</p>
+                  </div>
+                  <Switch
+                    checked={consultantForm.sede_azienda_disabled || false}
+                    onCheckedChange={(checked) => setConsultantForm({...consultantForm, sede_azienda_disabled: checked})}
+                    className="data-[state=checked]:bg-orange-500"
+                  />
+                </div>
+
+                {/* Rimborso carburante */}
+                <div className="py-2">
+                  <Label className="text-slate-300">Rimborso Carburante (€)</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={consultantForm.rimborso_carburante || 0}
+                    onChange={(e) => setConsultantForm({...consultantForm, rimborso_carburante: parseFloat(e.target.value) || 0})}
+                    className="bg-slate-900 border-slate-700 text-white mt-1"
+                    placeholder="0.00"
+                  />
+                  <p className="text-slate-500 text-xs mt-1">Per consulenze in sede aziendale</p>
+                </div>
+
+                {/* Slot disponibili */}
+                <div className="py-2">
+                  <Label className="text-slate-300">Slot Totali Disponibili</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    value={consultantForm.available_slots || 100}
+                    onChange={(e) => setConsultantForm({...consultantForm, available_slots: parseInt(e.target.value) || 0})}
+                    className="bg-slate-900 border-slate-700 text-white mt-1"
+                  />
+                </div>
+
+                {/* Sezioni assegnate */}
+                <div className="py-2">
+                  <Label className="text-slate-300 mb-2 block">Sezioni Visibili al Consulente</Label>
+                  <div className="bg-slate-900 border border-slate-700 rounded-md p-3 space-y-2 max-h-40 overflow-y-auto">
+                    {SECTIONS.map(section => (
+                      <div key={section.id} className="flex items-center gap-2">
+                        <Checkbox
+                          id={`section-${section.id}`}
+                          checked={consultantForm.assigned_sections?.includes(section.id)}
+                          onCheckedChange={(checked) => {
+                            const currentSections = consultantForm.assigned_sections || [];
+                            if (checked) {
+                              setConsultantForm({...consultantForm, assigned_sections: [...currentSections, section.id]});
+                            } else {
+                              setConsultantForm({...consultantForm, assigned_sections: currentSections.filter(s => s !== section.id)});
+                            }
+                          }}
+                          className="border-slate-600 data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500"
+                        />
+                        <Label htmlFor={`section-${section.id}`} className="text-white text-sm cursor-pointer">
+                          {section.label}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="flex gap-2 pt-2">
+              <Button
+                variant="outline"
+                onClick={() => setShowConsultantDialog(false)}
+                className="flex-1 border-slate-600 text-slate-400 hover:text-white"
+              >
+                Annulla
+              </Button>
+              <Button
+                onClick={() => saveConsultantMutation.mutate(consultantForm)}
+                disabled={!consultantForm.name || !consultantForm.category || !consultantForm.city || !consultantForm.phone || saveConsultantMutation.isPending}
+                className="flex-1 bg-lime-400 hover:bg-lime-500 text-slate-900"
+              >
+                <Save className="w-4 h-4 mr-2" />
+                {saveConsultantMutation.isPending ? 'Salvataggio...' : 'Salva Modifiche'}
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
