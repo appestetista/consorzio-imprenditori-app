@@ -166,17 +166,27 @@ export default function InviteConsultantForm({ onSuccess }) {
         </div>
 
         <div>
-          <Label className="text-slate-400 text-xs">Zona *</Label>
-          <Select value={zona} onValueChange={setZona}>
-            <SelectTrigger className="bg-slate-900 border-slate-700 text-white mt-1">
-              <SelectValue placeholder="Seleziona zona..." />
-            </SelectTrigger>
-            <SelectContent>
-              {zones.map(z => (
-                <SelectItem key={z.id} value={z.name}>{z.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Label className="text-slate-400 text-xs">Zone Assegnate *</Label>
+          <div className="bg-slate-900 border border-slate-700 rounded-md p-3 mt-1 space-y-2 max-h-40 overflow-y-auto">
+            {zones.map(z => (
+              <div key={z.id} className="flex items-center gap-2">
+                <Checkbox
+                  id={`invite-zone-${z.id}`}
+                  checked={zoneAssegnate.includes(z.name)}
+                  onCheckedChange={() => toggleZone(z.name)}
+                  className="border-slate-600 data-[state=checked]:bg-lime-400 data-[state=checked]:border-lime-400"
+                />
+                <Label htmlFor={`invite-zone-${z.id}`} className="text-white text-sm cursor-pointer">
+                  {z.name}
+                </Label>
+              </div>
+            ))}
+          </div>
+          {zoneAssegnate.length > 0 && (
+            <p className="text-lime-400 text-xs mt-1">
+              {zoneAssegnate.length} zona/e selezionata/e
+            </p>
+          )}
         </div>
 
         <div>
