@@ -252,42 +252,78 @@ export default function AdminView({ consultants, adminEmail }) {
           <div className="space-y-3">
             {allBookings.map((booking) => {
               const consultant = consultants.find(c => c.id === booking.consultant_id);
+              const user = allUsers.find(u => u.email === booking.user_email);
               const statusColors = {
                 pending: 'bg-yellow-500',
                 confirmed: 'bg-blue-500',
                 completed: 'bg-green-600',
                 cancelled: 'bg-red-500'
               };
+              const statusLabels = {
+                pending: 'In attesa',
+                dates_proposed: 'Date proposte',
+                confirmed: 'Confermato',
+                awaiting_user_confirmation: 'In conferma',
+                completed: 'Completato',
+                cancelled: 'Annullato'
+              };
               return (
                 <Card key={booking.id} className="bg-slate-800 border-slate-700">
                   <CardContent className="p-4">
-                    <div className="flex items-start justify-between mb-2">
+                    {/* Riga 1: Status + Zona + Elimina */}
+                    <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
-                        <Badge className={statusColors[booking.status]}>
-                          {booking.status}
+                        <Badge className={statusColors[booking.status] || 'bg-slate-500'}>
+                          {statusLabels[booking.status] || booking.status}
                         </Badge>
+                        {(consultant?.zona || user?.zona) && (
+                          <Badge className="bg-slate-700 text-slate-300 text-[10px]">
+                            📍 {consultant?.zona || user?.zona}
+                          </Badge>
+                        )}
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-slate-400">
-                          {new Date(booking.created_date).toLocaleDateString('it-IT')}
-                        </span>
-                        <button
-                          onClick={() => {
-                            if (confirm('Vuoi eliminare questa richiesta?')) {
-                              deleteBookingMutation.mutate(booking.id);
-                            }
-                          }}
-                          className="text-red-400 hover:text-red-500 transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                      <button
+                        onClick={() => {
+                          if (confirm('Vuoi eliminare questa richiesta?')) {
+                            deleteBookingMutation.mutate(booking.id);
+                          }
+                        }}
+                        className="text-red-400 hover:text-red-500 transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    {/* Riga 2: Categoria consulente */}
+                    <p className="text-lime-400 font-bold text-sm">{consultant?.category || 'Consulente N/D'}</p>
+                    <p className="text-white text-xs">{consultant?.name}</p>
+
+                    {/* Riga 3: Utente (nome + azienda) */}
+                    <div className="mt-2 p-2 bg-slate-900 rounded-lg">
+                      <p className="text-white font-medium text-sm">
+                        🏢 {user?.company_name || user?.full_name || booking.user_email}
+                      </p>
+                      {user?.full_name && user?.company_name && (
+                        <p className="text-slate-400 text-xs">{user.full_name}</p>
+                      )}
+                      <p className="text-slate-500 text-[10px]">{booking.user_email}</p>
+                    </div>
+
+                    {/* Riga 4: Oggetto richiesta */}
+                    {booking.subject && (
+                      <div className="mt-2">
+                        <p className="text-slate-300 text-xs italic">"{booking.subject}"</p>
                       </div>
-                    </div>
-                    <p className="text-lime-400 font-bold text-sm">{consultant?.category || 'N/D'}</p>
-                    <p className="text-white text-sm mt-1">Membro: {booking.user_email}</p>
-                    <div className="bg-slate-900 rounded-lg p-2 mt-2">
-                      <p className="text-slate-300 text-xs">{booking.subject}</p>
-                    </div>
+                    )}
+
+                    {/* Riga 5: Vai alla chat */}
+                    <Link 
+                      to={createPageUrl('Messaggi') + `?source=consulenze&email=${booking.user_email}`}
+                      className="mt-3 flex items-center justify-center gap-2 bg-lime-400 hover:bg-lime-500 text-slate-900 font-bold text-xs py-2 px-3 rounded-lg transition-colors"
+                    >
+                      <MessageSquare className="w-4 h-4" />
+                      Vai alla Chat
+                    </Link>
                   </CardContent>
                 </Card>
               );
