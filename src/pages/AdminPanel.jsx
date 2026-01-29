@@ -482,25 +482,7 @@ export default function AdminPanel() {
           </Link>
         </div>
 
-        {/* Link rapidi Gestione */}
-        <div className="grid grid-cols-2 gap-2 mb-4">
-          <Link to={createPageUrl('GestioneCostiAI')}>
-            <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700">
-              <CardContent className="p-2 text-center">
-                <DollarSign className="w-5 h-5 text-lime-400 mx-auto mb-1" />
-                <p className="text-white text-[10px]">Costi AI</p>
-              </CardContent>
-            </Card>
-          </Link>
-          <Link to={createPageUrl('GestioneZone')}>
-            <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700">
-              <CardContent className="p-2 text-center">
-                <MapPin className="w-5 h-5 text-lime-400 mx-auto mb-1" />
-                <p className="text-white text-[10px]">Zone</p>
-              </CardContent>
-            </Card>
-          </Link>
-        </div>
+
         
 
 
