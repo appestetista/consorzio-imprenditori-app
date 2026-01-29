@@ -575,12 +575,40 @@ export default function ZoneManagerSimple() {
             </DialogTitle>
           </DialogHeader>
           
-          <div className="space-y-2 max-h-[50vh] overflow-y-auto">
+          {/* Filtri */}
+          <div className="space-y-2">
+            <div className="relative">
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Input
+                placeholder={assignType === 'consulente' ? "Cerca consulente..." : "Cerca utente o azienda..."}
+                value={searchFilter}
+                onChange={(e) => setSearchFilter(e.target.value)}
+                className="bg-slate-900 border-slate-700 text-white h-8 pl-8 text-sm"
+              />
+            </div>
+            
+            {assignType === 'consulente' && consultantCategories.length > 1 && (
+              <select
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                className="w-full h-8 bg-slate-900 border border-slate-700 text-white text-sm rounded-md px-2"
+              >
+                <option value="all">Tutte le categorie</option>
+                {consultantCategories.map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+            )}
+          </div>
+
+          <div className="space-y-2 max-h-[45vh] overflow-y-auto">
             {assignType === 'consulente' ? (
-              consultants.length === 0 ? (
-                <p className="text-slate-400 text-sm text-center py-4">Nessun consulente</p>
+              filteredConsultants.length === 0 ? (
+                <p className="text-slate-400 text-sm text-center py-4">
+                  {searchFilter || categoryFilter !== 'all' ? 'Nessun risultato' : 'Nessun consulente'}
+                </p>
               ) : (
-                consultants.map(c => {
+                filteredConsultants.map(c => {
                   const isInZone = isConsultantInZone(c.id, assignZoneId);
                   return (
                     <div 
@@ -605,10 +633,12 @@ export default function ZoneManagerSimple() {
                 })
               )
             ) : (
-              normalUsers.length === 0 ? (
-                <p className="text-slate-400 text-sm text-center py-4">Nessun utente</p>
+              filteredUsers.length === 0 ? (
+                <p className="text-slate-400 text-sm text-center py-4">
+                  {searchFilter ? 'Nessun risultato' : 'Nessun utente'}
+                </p>
               ) : (
-                normalUsers.map(u => {
+                filteredUsers.map(u => {
                   const isInZone = isUserInZone(u.id, assignZoneId);
                   return (
                     <div 
