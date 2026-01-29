@@ -7,6 +7,7 @@ import { createPageUrl } from '@/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
+import SectionConsultantPanel from '../components/consulenze/SectionConsultantPanel';
 
 export default function RisparmioEnergetico() {
   const [user, setUser] = useState(null);
@@ -113,6 +114,17 @@ export default function RisparmioEnergetico() {
             </Link>
           ))}
         </div>
+
+        {/* Pannello Consulenti per questa sezione */}
+        {user && (
+          <div className="mt-6">
+            <SectionConsultantPanel 
+              sectionId="risparmio_energetico" 
+              sectionLabel="Risparmio Energetico" 
+              user={user} 
+            />
+          </div>
+        )}
 
         {/* Info */}
         <Card className="bg-slate-800/50 border-slate-700 mt-6">

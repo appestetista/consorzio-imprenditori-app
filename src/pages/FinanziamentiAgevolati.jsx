@@ -23,6 +23,7 @@ import GrantFilters from '../components/grants/GrantFilters';
 import BandoStats from '../components/admin/BandoStats';
 import BandoForm from '../components/admin/BandoForm';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
+import SectionConsultantPanel from '../components/consulenze/SectionConsultantPanel';
 
 export default function FinanziamentiAgevolati() {
   const [user, setUser] = useState(null);
@@ -1134,6 +1135,17 @@ Restituisci solo gli ID dei bandi compatibili.`,
         <div className="mb-6">
           <GrantFilters filters={filters} onFilterChange={handleFilterChange} />
         </div>
+
+        {/* Pannello Consulenti per questa sezione - solo utenti non admin */}
+        {!isRealAdmin && user && (
+          <div className="mb-6">
+            <SectionConsultantPanel 
+              sectionId="finanziamenti" 
+              sectionLabel="Finanziamenti Agevolati" 
+              user={user} 
+            />
+          </div>
+        )}
 
         {/* Info Box - solo per utenti non admin */}
         {user?.role !== 'admin' && (
