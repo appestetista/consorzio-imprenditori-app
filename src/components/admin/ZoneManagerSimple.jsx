@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { MapPin, Plus, Edit, Trash2, Save, X, Users, Briefcase, ChevronDown, ChevronUp, Check } from 'lucide-react';
+import { MapPin, Plus, Edit, Trash2, Save, X, Users, Briefcase, ChevronDown, ChevronUp, Check, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -23,6 +23,8 @@ export default function ZoneManagerSimple() {
   const [showAssignDialog, setShowAssignDialog] = useState(false);
   const [assignType, setAssignType] = useState('consulente'); // 'consulente' o 'utente'
   const [assignZoneId, setAssignZoneId] = useState(null);
+  const [searchFilter, setSearchFilter] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('all');
   
   const queryClient = useQueryClient();
 
@@ -248,8 +250,32 @@ export default function ZoneManagerSimple() {
   const openAssignDialog = (zoneId, type) => {
     setAssignZoneId(zoneId);
     setAssignType(type);
+    setSearchFilter('');
+    setCategoryFilter('all');
     setShowAssignDialog(true);
   };
+
+  // Categorie uniche dei consulenti per il filtro
+  const consultantCategories = [...new Set(consultants.map(c => c.category).filter(Boolean))];
+
+  // Filtro consulenti
+  const filteredConsultants = consultants.filter(c => {
+    const matchesSearch = !searchFilter || 
+      c.name?.toLowerCase().includes(searchFilter.toLowerCase()) ||
+      c.email?.toLowerCase().includes(searchFilter.toLowerCase());
+    const matchesCategory = categoryFilter === 'all' || c.category === categoryFilter;
+    return matchesSearch && matchesCategory;
+  });
+
+  // Filtro utenti
+  const filteredUsers = normalUsers.filter(u => {
+    if (!searchFilter) return true;
+    return (
+      u.full_name?.toLowerCase().includes(searchFilter.toLowerCase()) ||
+      u.company_name?.toLowerCase().includes(searchFilter.toLowerCase()) ||
+      u.email?.toLowerCase().includes(searchFilter.toLowerCase())
+    );
+  });
 
   const isConsultantInZone = (consultantId, zoneId) => {
     const zone = zones.find(z => z.id === zoneId);
