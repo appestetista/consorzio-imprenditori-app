@@ -197,6 +197,7 @@ export default function AdminMessagesView({ onBack }) {
       queryClient.invalidateQueries({ queryKey: ['admin-all-messages'] });
       setMessageToDelete(null);
       toast.success('Messaggio eliminato');
+      // Non chiudiamo la conversazione, rimaniamo nella chat
     }
   });
 
