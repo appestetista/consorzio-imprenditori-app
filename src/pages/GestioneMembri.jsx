@@ -349,7 +349,7 @@ export default function GestioneMembri() {
 
         {/* Tabs principali */}
         <Tabs defaultValue="utenti" className="w-full">
-          <TabsList className="w-full bg-slate-800 border border-slate-700 mb-4 grid grid-cols-5">
+          <TabsList className="w-full bg-slate-800 border border-slate-700 mb-4 grid grid-cols-4">
             <TabsTrigger value="utenti" className="text-[10px] data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
               <Users className="w-3 h-3 mr-0.5" />
               Utenti
@@ -357,10 +357,6 @@ export default function GestioneMembri() {
             <TabsTrigger value="registrazioni" className="text-[10px] data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
               <UserPlus className="w-3 h-3 mr-0.5" />
               Inviti
-            </TabsTrigger>
-            <TabsTrigger value="academy" className="text-[10px] data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
-              <GraduationCap className="w-3 h-3 mr-0.5" />
-              Academy
             </TabsTrigger>
             <TabsTrigger value="consulenti" className="text-[10px] data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
               <Briefcase className="w-3 h-3 mr-0.5" />
