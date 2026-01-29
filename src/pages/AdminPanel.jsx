@@ -653,14 +653,14 @@ export default function AdminPanel() {
               </Card>
             </Link>
             <Card 
-              className="bg-orange-500 border-orange-600 hover:bg-orange-600 h-20 cursor-pointer relative"
+              className="bg-slate-700 border-slate-600 hover:bg-slate-600 h-20 cursor-pointer relative"
               onClick={() => setShowAdminMessages(true)}
             >
               <CardContent className="p-2 flex flex-col items-center justify-center h-full">
-                <MessageSquare className="w-5 h-5 text-white mb-1" />
+                <MessageSquare className="w-5 h-5 text-lime-400 mb-1" />
                 <p className="text-white text-[10px] text-center leading-tight">Gestione<br/>Messaggi</p>
                 {unreadAdminMessages.length > 0 && (
-                  <span className="absolute top-1 right-1 bg-white text-orange-500 text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
+                  <span className="absolute top-1 right-1 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
                     {unreadAdminMessages.length}
                   </span>
                 )}
