@@ -582,46 +582,18 @@ export default function AdminMessagesView({ onBack }) {
               >
                 <CardContent className="p-3">
                   <div className="flex items-center gap-3">
-                    {/* Avatar azienda */}
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center bg-lime-400/20">
-                      <User className="w-5 h-5 text-lime-400" />
-                    </div>
-                    
                     <div className="flex-1 min-w-0">
-                      {/* Azienda → Consulente */}
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <p className="text-white font-bold text-sm truncate">
-                          {conv.azienda?.name}
-                        </p>
-                        <span className="text-slate-500">→</span>
-                        <p className="text-blue-400 text-sm truncate">
-                          {conv.consulente?.name}
-                        </p>
-                      </div>
+                      {/* Azienda ↔ Consulente */}
+                      <p className="text-white text-sm">
+                        <span className="font-bold">{conv.azienda?.name}</span>
+                        <span className="text-slate-500 mx-2">↔</span>
+                        <span className="text-blue-400">{conv.consulente?.name}</span>
+                      </p>
                       
-                      {/* Badge sezioni */}
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {conv.sourcesArray?.map(src => (
-                          <Badge key={src} className={`${sourceLabels[src]?.color || 'bg-slate-500'} text-white text-[10px]`}>
-                            {sourceLabels[src]?.label || src}
-                          </Badge>
-                        ))}
-                      </div>
-                      
-                      {/* Info */}
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="bg-slate-700 text-lime-400 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                          💬 {conv.totalMessages} messaggi
-                        </span>
-                        <span className="text-slate-500 text-[10px]">
-                          • {format(new Date(conv.lastMessageDate), 'd MMM HH:mm', { locale: it })}
-                        </span>
-                      </div>
-                    </div>
-                    
-                    {/* Avatar consulente */}
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center bg-blue-500/20">
-                      <Briefcase className="w-5 h-5 text-blue-400" />
+                      {/* Numero messaggi */}
+                      <p className="text-slate-400 text-xs mt-1">
+                        {conv.totalMessages} messaggi
+                      </p>
                     </div>
                     
                     <ChevronRight className="w-5 h-5 text-slate-500" />
