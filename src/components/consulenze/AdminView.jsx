@@ -217,14 +217,35 @@ export default function AdminView({ consultants, adminEmail }) {
 
           <div className="space-y-3">
             {consultants.map((consultant) => (
-              <Card key={consultant.id} className="bg-slate-800 border-slate-700">
+              <Card key={consultant.id} className={`bg-slate-800 border-slate-700 ${consultant.is_blocked ? 'opacity-60' : ''}`}>
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <h3 className="text-lime-400 font-bold text-base">{consultant.category}</h3>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="text-lime-400 font-bold text-base">{consultant.category}</h3>
+                        {consultant.is_blocked && (
+                          <Badge className="bg-red-500/20 text-red-400 border-0 text-xs">
+                            <Lock className="w-3 h-3 mr-1" />
+                            Bloccato
+                          </Badge>
+                        )}
+                        {consultant.block_calls_for_all && (
+                          <Badge className="bg-orange-500/20 text-orange-400 border-0 text-xs">
+                            <PhoneOff className="w-3 h-3 mr-1" />
+                            No chiamate
+                          </Badge>
+                        )}
+                      </div>
                       <p className="text-white text-sm mt-1">{consultant.name}</p>
                       <p className="text-slate-400 text-xs mt-1">Email: {consultant.email || 'N/D'}</p>
                       <p className="text-slate-400 text-xs">Tel: {consultant.phone || 'N/D'}</p>
+                      {consultant.zone_assegnate?.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {consultant.zone_assegnate.map(z => (
+                            <Badge key={z} className="bg-slate-700 text-slate-300 border-0 text-xs">{z}</Badge>
+                          ))}
+                        </div>
+                      )}
                     </div>
                     <div className="flex gap-2">
                       <Button
@@ -238,15 +259,43 @@ export default function AdminView({ consultants, adminEmail }) {
                       <Button
                         size="sm"
                         variant="outline"
-                        className="bg-red-900/50 hover:bg-red-900 text-red-400 border-red-800"
+                        className={consultant.is_blocked 
+                          ? 'bg-green-900/50 hover:bg-green-900 text-green-400 border-green-800'
+                          : 'bg-orange-900/50 hover:bg-orange-900 text-orange-400 border-orange-800'}
                         onClick={() => {
-                          if (confirm('Eliminare questo consulente?')) {
-                            deleteConsultantMutation.mutate(consultant.id);
-                          }
+                          saveConsultantMutation.mutate({ ...consultant, is_blocked: !consultant.is_blocked });
                         }}
                       >
-                        <Trash2 className="w-4 h-4" />
+                        {consultant.is_blocked ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
                       </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="bg-red-900/50 hover:bg-red-900 text-red-400 border-red-800"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent className="bg-slate-800 border-slate-700">
+                          <AlertDialogHeader>
+                            <AlertDialogTitle className="text-white">Eliminare questo consulente?</AlertDialogTitle>
+                            <AlertDialogDescription className="text-slate-400">
+                              Questa azione non può essere annullata. Il consulente verrà rimosso permanentemente.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel className="bg-slate-700 text-slate-400 border-slate-600 hover:text-white">Annulla</AlertDialogCancel>
+                            <AlertDialogAction 
+                              className="bg-red-600 hover:bg-red-700"
+                              onClick={() => deleteConsultantMutation.mutate(consultant.id)}
+                            >
+                              Elimina
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </div>
                   </div>
                 </CardContent>
