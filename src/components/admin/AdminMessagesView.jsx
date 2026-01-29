@@ -252,20 +252,7 @@ export default function AdminMessagesView({ onBack }) {
       .sort((a, b) => new Date(b.lastMessageDate) - new Date(a.lastMessageDate));
   }, [messagesByPerson, searchTerm, zoneFilter, typeFilter]);
 
-  // Filtra conversazioni della persona selezionata
-  const filteredConversations = useMemo(() => {
-    if (!selectedPerson) return [];
-    
-    const person = messagesByPerson[selectedPerson];
-    if (!person) return [];
-    
-    return Object.entries(person.conversations)
-      .filter(([_, conv]) => {
-        if (sourceFilter === 'all') return true;
-        return conv.source === sourceFilter;
-      })
-      .sort((a, b) => new Date(b[1].lastMessage?.created_date) - new Date(a[1].lastMessage?.created_date));
-  }, [selectedPerson, messagesByPerson, sourceFilter]);
+
 
   // Mutations
   const deleteMessageMutation = useMutation({
