@@ -340,24 +340,21 @@ export default function CulturaAziendale() {
 
       <BottomNav currentPage="CulturaAziendale" unreadMessages={messages.length} />
 
-      {/* Dialog Carica Video */}
+      {/* Dialog Carica/Modifica Video */}
       <Dialog open={showAddVideo} onOpenChange={(open) => {
         setShowAddVideo(open);
         if (!open) {
+          setEditingVideo(null);
           setFormData({ title: '', youtube_url: '', categoria: '' });
           setErrors([]);
         }
       }}>
-        <DialogContent className="bg-slate-800 border-slate-700">
+        <DialogContent className="bg-slate-800 border-slate-700 max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-white">Carica Video Academy</DialogTitle>
+            <DialogTitle className="text-white">
+              {editingVideo ? 'Modifica Video' : 'Carica Video Academy'}
+            </DialogTitle>
           </DialogHeader>
-          <button
-            onClick={() => setShowAddVideo(false)}
-            className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
-          >
-            <X className="h-4 w-4 text-white" />
-          </button>
 
           <div className="space-y-4 mt-4">
             {errors.length > 0 && (
@@ -395,19 +392,64 @@ export default function CulturaAziendale() {
                   <SelectValue placeholder="Seleziona categoria" />
                 </SelectTrigger>
                 <SelectContent>
-                  {CATEGORIE.map(cat => (
+                  {allCategories.map(cat => (
                     <SelectItem key={cat} value={cat}>{cat}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
 
+            {/* Gestione Categorie (solo admin) */}
+            <div className="border-t border-slate-700 pt-4">
+              <Label className="text-slate-300 mb-2 block">Gestisci Categorie</Label>
+              <div className="flex gap-2 mb-3">
+                <Input
+                  value={newCategory}
+                  onChange={(e) => setNewCategory(e.target.value)}
+                  placeholder="Nuova categoria..."
+                  className="bg-slate-900 border-slate-700 text-white flex-1"
+                  onKeyDown={(e) => e.key === 'Enter' && handleAddCategory()}
+                />
+                <Button
+                  type="button"
+                  onClick={handleAddCategory}
+                  className="bg-lime-400 hover:bg-lime-500 text-slate-900"
+                  size="sm"
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {allCategories.map(cat => (
+                  <Badge 
+                    key={cat} 
+                    className={`${CATEGORIE.includes(cat) ? 'bg-slate-700 text-slate-300' : 'bg-lime-400/20 text-lime-400'} flex items-center gap-1`}
+                  >
+                    {cat}
+                    {!CATEGORIE.includes(cat) && (
+                      <button 
+                        onClick={() => handleRemoveCategory(cat)}
+                        className="ml-1 hover:text-red-400"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    )}
+                  </Badge>
+                ))}
+              </div>
+              <p className="text-slate-500 text-xs mt-2">Le categorie grigie sono predefinite e non possono essere rimosse.</p>
+            </div>
+
             <Button
               onClick={handleSubmit}
-              disabled={createVideoMutation.isPending}
+              disabled={createVideoMutation.isPending || updateVideoMutation.isPending}
               className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900"
             >
-              {createVideoMutation.isPending ? 'Salvataggio...' : 'Carica Video'}
+              {(createVideoMutation.isPending || updateVideoMutation.isPending) 
+                ? 'Salvataggio...' 
+                : editingVideo 
+                  ? 'Salva Modifiche' 
+                  : 'Carica Video'}
             </Button>
           </div>
         </DialogContent>
