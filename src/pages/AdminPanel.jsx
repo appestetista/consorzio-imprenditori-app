@@ -730,27 +730,22 @@ export default function AdminPanel() {
               </Card>
             )}
 
-            {/* Messaggi - Card che apre gestione completa */}
-            <Card 
-              className="bg-slate-800 border-slate-700 cursor-pointer hover:bg-slate-700"
+            {/* Messaggi - Pulsante rettangolare arancione */}
+            <Button 
+              className="w-full bg-orange-500 hover:bg-orange-600 text-white h-10 justify-between"
               onClick={() => setShowAdminMessages(true)}
             >
-              <CardContent className="p-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <MessageSquare className="w-4 h-4 text-lime-400" />
-                    <span className="text-white font-medium text-sm">Gestione Messaggi</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {unreadAdminMessages.length > 0 && (
-                      <Badge className="bg-red-500 text-white text-xs">{unreadAdminMessages.length} nuovi</Badge>
-                    )}
-                    <span className="text-slate-400 text-xs">→</span>
-                  </div>
-                </div>
-                <p className="text-slate-400 text-xs mt-1">Vedi tutte le conversazioni per utente/consulente</p>
-              </CardContent>
-            </Card>
+              <div className="flex items-center gap-2">
+                <MessageSquare className="w-4 h-4" />
+                <span className="font-medium text-sm">Gestione Messaggi</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {unreadAdminMessages.length > 0 && (
+                  <Badge className="bg-white text-orange-500 text-xs">{unreadAdminMessages.length} nuovi</Badge>
+                )}
+                <span>→</span>
+              </div>
+            </Button>
 
             {/* Messaggi Consulenze (utenti <-> consulenti) */}
             <Card className="bg-slate-800 border-slate-700">
