@@ -235,7 +235,7 @@ export default function InviteConsultantForm({ onSuccess }) {
 
         <Button
           type="submit"
-          disabled={inviteMutation.isPending || !consultantName || !email || !consultantCategory || !zona || assignedSections.length === 0}
+          disabled={inviteMutation.isPending || !consultantName || !email || !consultantCategory || zoneAssegnate.length === 0 || assignedSections.length === 0}
           className="w-full bg-lime-400 text-slate-900 hover:bg-lime-500"
         >
           {inviteMutation.isPending ? (
