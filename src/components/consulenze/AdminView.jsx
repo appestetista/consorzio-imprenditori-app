@@ -793,7 +793,11 @@ export default function AdminView({ consultants, adminEmail }) {
 
           {/* Vista Consulente (quello che vede il consulente nel suo profilo) */}
           {dialogViewMode === 'consultant' && editingConsultant && (
-            <ConsultantReadOnlyView consultant={editingConsultant} zones={zones} allUsers={allUsers} />
+            <ConsultantReadOnlyView 
+              consultant={{...editingConsultant, ...consultantForm}} 
+              zones={zones} 
+              allUsers={allUsers} 
+            />
           )}
         </DialogContent>
       </Dialog>
