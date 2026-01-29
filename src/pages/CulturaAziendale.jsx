@@ -163,7 +163,11 @@ export default function CulturaAziendale() {
 
   const handleSubmit = () => {
     if (!validate()) return;
-    createVideoMutation.mutate(formData);
+    if (editingVideo) {
+      updateVideoMutation.mutate({ id: editingVideo.id, data: formData });
+    } else {
+      createVideoMutation.mutate(formData);
+    }
   };
 
   const filteredVideos = videos.filter(video => {
