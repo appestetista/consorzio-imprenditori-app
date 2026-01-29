@@ -613,18 +613,31 @@ export default function ZoneManagerSimple() {
               />
             </div>
             
-            {assignType === 'consulente' && consultantCategories.length > 1 && (
+            <div className="flex gap-2">
+              {assignType === 'consulente' && consultantCategories.length > 1 && (
+                <select
+                  value={categoryFilter}
+                  onChange={(e) => setCategoryFilter(e.target.value)}
+                  className="flex-1 h-8 bg-slate-900 border border-slate-700 text-white text-xs rounded-md px-2"
+                >
+                  <option value="all">Tutte le categorie</option>
+                  {consultantCategories.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              )}
               <select
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-                className="w-full h-8 bg-slate-900 border border-slate-700 text-white text-sm rounded-md px-2"
+                value={zoneFilter}
+                onChange={(e) => setZoneFilter(e.target.value)}
+                className="flex-1 h-8 bg-slate-900 border border-slate-700 text-white text-xs rounded-md px-2"
               >
-                <option value="all">Tutte le categorie</option>
-                {consultantCategories.map(cat => (
-                  <option key={cat} value={cat}>{cat}</option>
+                <option value="all">Tutte le zone</option>
+                <option value="none">Senza zona</option>
+                {zones.map(z => (
+                  <option key={z.id} value={z.id}>{z.name}</option>
                 ))}
               </select>
-            )}
+            </div>
           </div>
 
           <div className="space-y-2 max-h-[45vh] overflow-y-auto">
