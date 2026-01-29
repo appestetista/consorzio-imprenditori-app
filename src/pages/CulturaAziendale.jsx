@@ -267,8 +267,45 @@ export default function CulturaAziendale() {
                     </div>
                     
                     {video.title && (
-                      <div className="bg-slate-900 px-3 py-2 border-b border-slate-700">
+                      <div className="bg-slate-900 px-3 py-2 border-b border-slate-700 flex items-center justify-between">
                         <h3 className="text-white font-semibold text-base">{video.title}</h3>
+                        {isAdmin && (
+                          <div className="flex gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleEditVideo(video)}
+                              className="text-lime-400 hover:bg-lime-400/20 h-8 w-8 p-0"
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-red-400 hover:bg-red-600/20 h-8 w-8 p-0"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent className="bg-slate-800 border-slate-700">
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle className="text-white">Eliminare questo video?</AlertDialogTitle>
+                                  <AlertDialogDescription className="text-slate-400">
+                                    Il video verrà rimosso definitivamente dall'Academy.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel className="bg-slate-700 text-white border-slate-600">Annulla</AlertDialogCancel>
+                                  <AlertDialogAction className="bg-red-600 hover:bg-red-700" onClick={() => deleteVideoMutation.mutate(video.id)}>
+                                    Elimina
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
+                        )}
                       </div>
                     )}
                     
