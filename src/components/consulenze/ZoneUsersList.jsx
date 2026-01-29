@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
-export default function ZoneUsersList({ consultantEmail, consultantZona, consultantZoneAssegnate }) {
+export default function ZoneUsersList({ consultantEmail, consultantZona, consultantZoneAssegnate, consultantLogo }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUser, setSelectedUser] = useState(null);
   const navigate = useNavigate();
