@@ -77,7 +77,8 @@ export default function InviteConsultantForm({ onSuccess }) {
       await base44.functions.invoke('sendInviteEmail', {
         email: emailLower,
         userType: 'consulente',
-        zona: zona || null,
+        zona: zoneAssegnate[0] || null,
+        zone_assegnate: zoneAssegnate,
         consultantCategory,
         consultantName: consultantName.trim() || null,
         assignedSections
