@@ -1770,39 +1770,80 @@ export default function AdminPanel() {
 
               {/* TAB MESSAGGI */}
               <TabsContent value="messaggi" className="space-y-3">
-                <h3 className="text-white font-medium text-sm">Messaggi Utenti ↔ Consulenti</h3>
-                {consultationMessages.length === 0 ? (
-                  <p className="text-slate-400 text-xs text-center py-4">Nessun messaggio</p>
-                ) : (
-                  consultationMessages.slice(0, 20).map((msg) => (
-                    <Card key={msg.id} className={`border ${!msg.is_read ? 'bg-orange-400/10 border-orange-400/30' : 'bg-slate-800 border-slate-700'}`}>
+                <h3 className="text-white font-medium text-sm">Conversazioni Utenti ↔ Consulenti</h3>
+                {(() => {
+                  // Raggruppa messaggi per conversazione (coppia utente-consulente)
+                  const conversationsMap = {};
+                  consultationMessages.forEach(msg => {
+                    const emails = [msg.from_email, msg.to_email].sort();
+                    const convKey = `${emails[0]}_${emails[1]}`;
+                    
+                    if (!conversationsMap[convKey]) {
+                      // Determina chi è utente e chi consulente
+                      const person1 = { email: emails[0], name: msg.from_email === emails[0] ? msg.from_name : msg.to_name, type: msg.from_email === emails[0] ? msg.from_type : msg.to_type };
+                      const person2 = { email: emails[1], name: msg.from_email === emails[1] ? msg.from_name : msg.to_name, type: msg.from_email === emails[1] ? msg.from_type : msg.to_type };
+                      
+                      let azienda, consulente;
+                      if (person1.type === 'consulente') {
+                        consulente = person1;
+                        azienda = person2;
+                      } else {
+                        azienda = person1;
+                        consulente = person2;
+                      }
+                      
+                      conversationsMap[convKey] = {
+                        key: convKey,
+                        azienda,
+                        consulente,
+                        messages: [],
+                        lastMessageDate: null
+                      };
+                    }
+                    conversationsMap[convKey].messages.push(msg);
+                  });
+                  
+                  // Calcola statistiche e ordina
+                  const conversations = Object.values(conversationsMap)
+                    .map(conv => {
+                      conv.messages.sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
+                      conv.lastMessageDate = conv.messages[conv.messages.length - 1]?.created_date;
+                      conv.totalMessages = conv.messages.length;
+                      return conv;
+                    })
+                    .sort((a, b) => new Date(b.lastMessageDate) - new Date(a.lastMessageDate));
+                  
+                  if (conversations.length === 0) {
+                    return <p className="text-slate-400 text-xs text-center py-4">Nessuna conversazione</p>;
+                  }
+                  
+                  return conversations.map((conv) => (
+                    <Card 
+                      key={conv.key} 
+                      className="bg-slate-800 border-slate-700 cursor-pointer hover:bg-slate-700"
+                      onClick={() => {
+                        // Vai alla pagina messaggi con il contatto
+                        navigate(`${createPageUrl('Messaggi')}?contact=${encodeURIComponent(conv.azienda?.email)}`);
+                      }}
+                    >
                       <CardContent className="p-3">
-                        <div className="flex items-center gap-1 mb-1">
-                          <span className={`text-[10px] px-1.5 py-0.5 rounded ${msg.from_type === 'consulente' ? 'bg-blue-500/20 text-blue-400' : 'bg-lime-400/20 text-lime-400'}`}>
-                            {msg.from_type === 'consulente' ? '👔' : '👤'}
-                          </span>
-                          <span className="text-slate-500 text-[10px]">→</span>
-                          <span className={`text-[10px] px-1.5 py-0.5 rounded ${msg.to_type === 'consulente' ? 'bg-blue-500/20 text-blue-400' : 'bg-lime-400/20 text-lime-400'}`}>
-                            {msg.to_type === 'consulente' ? '👔' : '👤'}
-                          </span>
-                          {!msg.is_read && (
-                            <Badge className="bg-orange-400 text-slate-900 text-[10px] ml-auto">NUOVO</Badge>
-                          )}
+                        <div className="flex items-center gap-3">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-white text-sm">
+                              <span className="font-bold">{conv.azienda?.name}</span>
+                              <span className="text-slate-500 mx-2">↔</span>
+                              <span className="text-blue-400">{conv.consulente?.name}</span>
+                            </p>
+                            <p className="text-slate-400 text-xs mt-1">
+                              {conv.totalMessages} messaggi
+                            </p>
+                          </div>
+                          <ChevronRight className="w-5 h-5 text-slate-500" />
                         </div>
-                        <p className="text-white text-xs font-medium">{msg.from_name}</p>
-                        <p className="text-slate-400 text-[10px]">→ {msg.to_name}</p>
-                        <div className="bg-slate-900 rounded p-2 mt-1">
-                          <p className="text-slate-300 text-[10px] line-clamp-2">{msg.content}</p>
-                        </div>
-                        <p className="text-slate-500 text-[10px] mt-1">
-                          {msg.created_date ? new Date(msg.created_date).toLocaleDateString('it-IT', {
-                            day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
-                          }) : ''}
-                        </p>
                       </CardContent>
                     </Card>
-                  ))
-                )}
+                  ));
+                })()}
               </TabsContent>
 
               {/* TAB ZONE CONSULENTI */}
