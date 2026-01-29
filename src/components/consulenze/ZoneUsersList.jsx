@@ -291,7 +291,7 @@ function UserCard({ user, onChat, unreadCount }) {
   );
 }
 
-function FullChatWithUser({ user, consultantEmail, onBack }) {
+function FullChatWithUser({ user, consultantEmail, consultantLogo, onBack }) {
   const [message, setMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
   const queryClient = useQueryClient();
