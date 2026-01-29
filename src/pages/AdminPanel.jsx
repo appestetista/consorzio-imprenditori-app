@@ -782,66 +782,7 @@ export default function AdminPanel() {
 
 
 
-            {/* Richieste Consulenza Bandi */}
-            <Card className="bg-slate-800 border-slate-700">
-              <CardContent className="p-3">
-                <h3 className="text-white font-medium text-sm mb-2 flex items-center gap-2">
-                  <Bell className={`w-4 h-4 ${pendingRequests.length > 0 ? 'text-red-500' : 'text-slate-400'}`} />
-                  Consulenza Bandi ({pendingRequests.length})
-                </h3>
-                {pendingRequests.length === 0 ? (
-                  <p className="text-slate-400 text-xs">Nessuna richiesta pendente</p>
-                ) : (
-                  <div className="space-y-2">
-                    {pendingRequests.slice(0, 3).map((request) => (
-                      <div key={request.id} className="bg-lime-400/10 border border-lime-400/30 rounded-lg p-3">
-                        <div className="flex items-start justify-between mb-2">
-                          <div>
-                            <p className="text-white font-medium text-sm">{request.user?.company_name || request.user?.full_name}</p>
-                            <p className="text-slate-400 text-xs">{request.grant?.title}</p>
-                          </div>
-                          <button onClick={() => deleteConsultationRequestMutation.mutate(request.id)} className="text-red-400">
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button size="sm" className="flex-1 bg-lime-400 text-slate-900 h-7 text-xs [&>svg]:text-slate-900"
-                            onClick={() => updateConsultationStatusMutation.mutate({ requestId: request.id, status: 'accepted', userEmail: request.user?.email, grantTitle: request.grant?.title })}>
-                            <CheckCircle className="w-3 h-3 mr-1" /> Accetta
-                          </Button>
-                          <Button size="sm" variant="destructive" className="flex-1 h-7 text-xs"
-                            onClick={() => updateConsultationStatusMutation.mutate({ requestId: request.id, status: 'rejected', userEmail: request.user?.email, grantTitle: request.grant?.title })}>
-                            <XCircle className="w-3 h-3 mr-1" /> Rifiuta
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
 
-            {/* Richieste Video */}
-            <Card className="bg-slate-800 border-slate-700">
-              <CardContent className="p-3">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-white font-medium text-sm flex items-center gap-2">
-                    <Video className={`w-4 h-4 ${pendingVideoRequests.length > 0 ? 'text-red-500' : 'text-slate-400'}`} />
-                    Video Interviste ({pendingVideoRequests.length})
-                  </h3>
-                  {pendingVideoRequests.length > 0 && (
-                    <Button size="sm" variant="ghost" className="text-lime-400 h-7 text-xs" onClick={() => setShowVideoRequests(true)}>
-                      Vedi
-                    </Button>
-                  )}
-                </div>
-                {pendingVideoRequests.length === 0 ? (
-                  <p className="text-slate-400 text-xs">Nessuna richiesta pendente</p>
-                ) : (
-                  <p className="text-lime-400 text-xs">{pendingVideoRequests.length} nuove richieste</p>
-                )}
-              </CardContent>
-            </Card>
           </TabsContent>
         </Tabs>
       </main>
