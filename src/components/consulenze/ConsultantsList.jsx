@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
-export default function ConsultantsList({ currentUserEmail, showChat = false }) {
+export default function ConsultantsList({ currentUserEmail, showChat = false, userZona = null }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedConsultant, setSelectedConsultant] = useState(null);
   const navigate = useNavigate();
@@ -21,6 +21,17 @@ export default function ConsultantsList({ currentUserEmail, showChat = false }) 
     queryKey: ['consultants-list'],
     queryFn: () => base44.entities.Consultant.list()
   });
+
+  // Filtra consulenti che servono la zona dell'utente
+  const filteredByZone = useMemo(() => {
+    if (!userZona) return consultants;
+    const userZonaLower = userZona.toLowerCase();
+    return consultants.filter(c => {
+      const consultantZones = c.zone_assegnate?.map(z => z.toLowerCase()) || [];
+      const hasZona = c.zona?.toLowerCase();
+      return consultantZones.includes(userZonaLower) || hasZona === userZonaLower;
+    });
+  }, [consultants, userZona]);
 
   // Carica messaggi non letti per mostrare notifiche (solo dalla sezione consulenze)
   const { data: unreadMessages = [] } = useQuery({
@@ -63,14 +74,14 @@ export default function ConsultantsList({ currentUserEmail, showChat = false }) 
 
   // Filtra consulenti in base alla ricerca
   const filteredConsultants = useMemo(() => {
-    if (!searchTerm) return consultants;
+    if (!searchTerm) return filteredByZone;
     const search = searchTerm.toLowerCase();
-    return consultants.filter(c => 
+    return filteredByZone.filter(c => 
       c.name?.toLowerCase().includes(search) ||
       c.referente?.toLowerCase().includes(search) ||
       c.category?.toLowerCase().includes(search)
     );
-  }, [consultants, searchTerm]);
+  }, [filteredByZone, searchTerm]);
 
   // Totale messaggi non letti
   const totalUnread = useMemo(() => {
