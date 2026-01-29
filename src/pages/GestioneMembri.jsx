@@ -21,7 +21,6 @@ import MembersDirectory from '../components/members/MembersDirectory';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import InviteUserForm from '../components/admin/InviteUserForm';
 import PreAuthEmailForm from '../components/admin/PreAuthEmailForm';
-import CulturaAziendaleAdmin from '../components/admin/CulturaAziendaleAdmin';
 import ConsultantAssignmentManager from '../components/admin/ConsultantAssignmentManager';
 import ZoneAssignmentManager from '../components/admin/ZoneAssignmentManager';
 
