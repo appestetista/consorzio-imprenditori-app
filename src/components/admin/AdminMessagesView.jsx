@@ -614,23 +614,19 @@ export default function AdminMessagesView({ onBack }) {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <p className="text-white font-medium text-sm truncate">{person.person.name}</p>
+                        <p className="text-white font-bold text-sm truncate">{person.person.name}</p>
                         {person.unreadCount > 0 && (
                           <Badge className="bg-red-500 text-white text-[10px]">{person.unreadCount} nuovi</Badge>
                         )}
                       </div>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Badge className={`${person.person.type === 'consulente' ? 'bg-blue-500/20 text-blue-400' : 'bg-lime-500/20 text-lime-400'} text-[10px]`}>
-                          {person.person.type === 'consulente' ? '👔 Consulente' : '👤 Utente'}
-                        </Badge>
-                        {person.person.zona && (
-                          <span className="text-slate-500 text-[10px]">{person.person.zona}</span>
-                        )}
-                      </div>
+                      <p className={`text-[10px] mt-0.5 ${person.person.type === 'consulente' ? 'text-blue-400' : 'text-lime-400'}`}>
+                        {person.person.type === 'consulente' ? '👔 Consulente' : '🏢 Azienda'}
+                        {person.person.zona && <span className="text-slate-500 ml-2">• {person.person.zona}</span>}
+                      </p>
                       <div className="flex items-center gap-3 mt-1">
                         <span className="text-slate-400 text-[10px]">{person.conversationsCount} conversazioni</span>
                         <span className="bg-slate-700 text-lime-400 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                          💬 {person.totalMessages} messaggi totali
+                          💬 {person.totalMessages} msg
                         </span>
                       </div>
                     </div>
