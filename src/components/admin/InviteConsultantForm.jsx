@@ -43,7 +43,7 @@ const SECTIONS = [
 export default function InviteConsultantForm({ onSuccess }) {
   const [consultantName, setConsultantName] = useState('');
   const [email, setEmail] = useState('');
-  const [zona, setZona] = useState('');
+  const [zoneAssegnate, setZoneAssegnate] = useState([]);
   const [consultantCategory, setConsultantCategory] = useState('');
   const [assignedSections, setAssignedSections] = useState([]);
   
