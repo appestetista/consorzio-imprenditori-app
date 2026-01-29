@@ -217,6 +217,7 @@ export default function AdminPanel() {
   const [showConsultationMessages, setShowConsultationMessages] = useState(false);
   const [activeTab, setActiveTab] = useState('richieste');
   const [showConsulenzePanel, setShowConsulenzePanel] = useState(false);
+  const [showAdminMessages, setShowAdminMessages] = useState(false);
 
   const markVideoRequestReadMutation = useMutation({
     mutationFn: async (requestId) => {
