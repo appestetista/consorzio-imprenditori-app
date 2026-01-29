@@ -461,12 +461,7 @@ export default function AdminPanel() {
       
       <main className="px-4 py-6 max-w-md mx-auto">
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <button onClick={() => navigate(createPageUrl('Home'))} className="text-lime-400">
-              <ArrowLeft className="w-6 h-6" />
-            </button>
-            <h1 className="text-white text-xl font-bold">Pannello Admin</h1>
-          </div>
+          <h1 className="text-white text-xl font-bold">Pannello Admin</h1>
           <p className="text-slate-400 text-xs">
             {new Date().toLocaleDateString('it-IT', { day: 'numeric', month: 'short' })}
           </p>
