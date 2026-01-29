@@ -134,13 +134,25 @@ export default function ConsultationChat({ bookingId, currentUserEmail, otherUse
               <div className="space-y-2">
                 {messages.map((msg) => {
                   const isMe = msg.from_email === currentUserEmail;
+                  const avatarLogo = isMe ? currentUserLogo : otherUserLogo;
                   return (
                     <div
                       key={msg.id}
-                      className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}
+                      className={`flex items-end gap-2 ${isMe ? 'justify-end' : 'justify-start'}`}
                     >
+                      {!isMe && (
+                        <div className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0 bg-slate-600">
+                          {avatarLogo ? (
+                            <img src={avatarLogo} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-slate-400 text-xs">
+                              {otherUserName?.charAt(0)?.toUpperCase() || '?'}
+                            </div>
+                          )}
+                        </div>
+                      )}
                       <div
-                        className={`max-w-[80%] rounded-lg px-3 py-2 ${
+                        className={`max-w-[75%] rounded-lg px-3 py-2 ${
                           isMe
                             ? 'bg-lime-400 text-slate-900'
                             : 'bg-slate-700 text-white'
@@ -154,6 +166,17 @@ export default function ConsultationChat({ bookingId, currentUserEmail, otherUse
                           })}
                         </p>
                       </div>
+                      {isMe && (
+                        <div className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0 bg-lime-400/20">
+                          {avatarLogo ? (
+                            <img src={avatarLogo} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-lime-400 text-xs font-bold">
+                              Tu
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   );
                 })}
