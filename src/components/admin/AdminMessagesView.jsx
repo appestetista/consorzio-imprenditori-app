@@ -211,6 +211,7 @@ export default function AdminMessagesView({ onBack }) {
       queryClient.invalidateQueries({ queryKey: ['admin-all-messages'] });
       setConversationToDelete(null);
       setSelectedConversation(null);
+      setSelectedPerson(null); // Torna alla lista principale
       toast.success('Conversazione eliminata');
     }
   });
