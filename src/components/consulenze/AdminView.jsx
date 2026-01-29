@@ -789,8 +789,177 @@ export default function AdminView({ consultants, adminEmail }) {
               </Button>
             </div>
           </div>
+          )}
+
+          {/* Vista Consulente (quello che vede il consulente nel suo profilo) */}
+          {dialogViewMode === 'consultant' && editingConsultant && (
+            <ConsultantReadOnlyView consultant={editingConsultant} zones={zones} allUsers={allUsers} />
+          )}
         </DialogContent>
       </Dialog>
     </>
+  );
+}
+
+// Componente per mostrare la vista read-only del consulente
+function ConsultantReadOnlyView({ consultant, zones, allUsers }) {
+  // Trova utente correlato al consulente
+  const consultantUser = allUsers.find(u => u.email?.toLowerCase() === consultant.email?.toLowerCase());
+  
+  return (
+    <div className="space-y-4 mt-4">
+      <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 mb-4">
+        <p className="text-blue-400 text-sm">
+          👁️ Questa è la vista che il consulente vede nel suo profilo "Il Mio Profilo"
+        </p>
+      </div>
+
+      {/* Profilo Studio */}
+      <div className="bg-slate-900 rounded-lg p-4">
+        <h3 className="text-lime-400 font-semibold text-sm mb-3 flex items-center gap-2">
+          <Building2 className="w-4 h-4" />
+          Profilo Studio
+        </h3>
+        
+        <div className="space-y-3">
+          <div>
+            <Label className="text-slate-500 text-xs">Nome Studio</Label>
+            <p className="text-white">{consultant.name || '-'}</p>
+          </div>
+          <div>
+            <Label className="text-slate-500 text-xs">Specializzazione (assegnata dall'admin)</Label>
+            <p className="text-slate-400">{consultant.category || '-'}</p>
+          </div>
+          <div>
+            <Label className="text-slate-500 text-xs">Email</Label>
+            <p className="text-white">{consultant.email || '-'}</p>
+          </div>
+          <div>
+            <Label className="text-slate-500 text-xs">Telefono</Label>
+            <p className="text-white">{consultant.phone || '-'}</p>
+          </div>
+          <div>
+            <Label className="text-slate-500 text-xs">Sede</Label>
+            <p className="text-white">{consultant.city || '-'}</p>
+          </div>
+          <div>
+            <Label className="text-slate-500 text-xs">Referente</Label>
+            <p className="text-white">{consultant.referente || '-'}</p>
+          </div>
+          <div>
+            <Label className="text-slate-500 text-xs">Cellulare Referente</Label>
+            <p className="text-white">{consultant.cellulare_referente || '-'}</p>
+          </div>
+          <div>
+            <Label className="text-slate-500 text-xs">Zone Assegnate (dall'admin)</Label>
+            <div className="flex flex-wrap gap-1 mt-1">
+              {consultant.zone_assegnate?.length > 0 ? (
+                consultant.zone_assegnate.map(z => (
+                  <Badge key={z} className="bg-slate-700 text-slate-300 text-xs">{z}</Badge>
+                ))
+              ) : consultant.zona ? (
+                <Badge className="bg-slate-700 text-slate-300 text-xs">{consultant.zona}</Badge>
+              ) : (
+                <p className="text-slate-500">-</p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Consulenze Gratuite */}
+      <div className="bg-slate-900 rounded-lg p-4">
+        <h3 className="text-lime-400 font-semibold text-sm mb-3 flex items-center gap-2">
+          🎁 Consulenze Gratuite
+        </h3>
+        
+        <div className="space-y-3">
+          <div>
+            <Label className="text-slate-500 text-xs">Consulenze gratuite per utente</Label>
+            <p className="text-lime-400 text-2xl font-bold">{consultant.free_consultations_per_user ?? 1}</p>
+          </div>
+          
+          {consultant.sede_azienda_disabled && (
+            <div className="bg-amber-500/10 rounded-lg p-2">
+              <p className="text-amber-400 text-xs">⚠️ Consulenze in sede aziendale disabilitate</p>
+            </div>
+          )}
+          
+          {!consultant.sede_azienda_disabled && consultant.rimborso_carburante > 0 && (
+            <div>
+              <Label className="text-slate-500 text-xs">Rimborso carburante</Label>
+              <p className="text-white">€{consultant.rimborso_carburante}</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Gestione Chiamate */}
+      <div className="bg-slate-900 rounded-lg p-4">
+        <h3 className="text-lime-400 font-semibold text-sm mb-3 flex items-center gap-2">
+          📞 Gestione Chiamate
+        </h3>
+        
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-slate-400 text-sm">Blocca chiamate da tutti</span>
+            <Badge className={consultant.block_calls_for_all ? 'bg-red-500/20 text-red-400' : 'bg-green-500/20 text-green-400'}>
+              {consultant.block_calls_for_all ? 'Attivo' : 'Disattivo'}
+            </Badge>
+          </div>
+          
+          {consultant.blocked_users_calls?.length > 0 && (
+            <div>
+              <Label className="text-slate-500 text-xs">Utenti bloccati individualmente</Label>
+              <p className="text-red-400 text-sm">{consultant.blocked_users_calls.length} utenti bloccati</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Dati Utente (se presente) */}
+      {consultantUser && (
+        <div className="bg-slate-900 rounded-lg p-4">
+          <h3 className="text-blue-400 font-semibold text-sm mb-3 flex items-center gap-2">
+            👤 Dati Account Utente
+          </h3>
+          
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-slate-500">Nome completo</span>
+              <span className="text-white">{consultantUser.full_name || '-'}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-500">Email</span>
+              <span className="text-white">{consultantUser.email || '-'}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-500">Ruolo</span>
+              <Badge className={consultantUser.role === 'admin' ? 'bg-amber-500/20 text-amber-400' : 'bg-slate-700 text-slate-300'}>
+                {consultantUser.role === 'admin' ? 'Admin' : 'Utente'}
+              </Badge>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-500">Tipo utente</span>
+              <span className="text-lime-400">{consultantUser.user_type || 'consulente'}</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Sezioni Visibili */}
+      {consultant.assigned_sections?.length > 0 && (
+        <div className="bg-slate-900 rounded-lg p-4">
+          <h3 className="text-lime-400 font-semibold text-sm mb-3 flex items-center gap-2">
+            📋 Sezioni Visibili
+          </h3>
+          <div className="flex flex-wrap gap-1">
+            {consultant.assigned_sections.map(s => (
+              <Badge key={s} className="bg-blue-500/20 text-blue-400 text-xs">{s}</Badge>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
