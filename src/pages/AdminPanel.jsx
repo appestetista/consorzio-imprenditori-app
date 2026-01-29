@@ -423,6 +423,12 @@ export default function AdminPanel() {
       zone_assegnate: consultant.zone_assegnate || (consultant.zona ? [consultant.zona] : []),
       assigned_sections: consultant.assigned_sections || [],
       communication_sections: consultant.communication_sections || [],
+      // Campi aggiuntivi (visibili anche al consulente)
+      available_slots: consultant.available_slots ?? 100,
+      free_consultations_per_user: consultant.free_consultations_per_user ?? 1,
+      sede_azienda_disabled: consultant.sede_azienda_disabled ?? false,
+      rimborso_carburante: consultant.rimborso_carburante ?? 0,
+      block_calls_for_all: consultant.block_calls_for_all ?? false,
     });
     setSelectedConsultant(consultant);
     setShowEditForm(true);
