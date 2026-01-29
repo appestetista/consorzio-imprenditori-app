@@ -37,6 +37,14 @@ export default function Home() {
     });
   }, [effectiveUser]);
 
+  // Redirect automatico ad AdminPanel per admin (se non in impersonation)
+  useEffect(() => {
+    if (!loading && effectiveUser?.role === 'admin' && !impersonation.active) {
+      console.log('[HOME] Admin detected, redirecting to AdminPanel');
+      navigate(createPageUrl('AdminPanel'));
+    }
+  }, [loading, effectiveUser?.role, impersonation.active, navigate]);
+
   // Assegna automaticamente il tipo utente al primo login
   // SKIP se in impersonation mode (qualsiasi tipo di impersonation)
   useEffect(() => {
