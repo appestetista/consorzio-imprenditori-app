@@ -417,7 +417,7 @@ export default function Messaggi() {
                         ))}
                       </div>
                     )}
-                    {msg.content && <p className="text-sm whitespace-pre-wrap">{msg.content}</p>}
+                    {msg.content && <p className="text-sm whitespace-pre-wrap">{msg.content.charAt(0).toUpperCase() + msg.content.slice(1).toLowerCase()}</p>}
                     <div className={`flex items-center justify-end gap-1 mt-1 ${
                       isMyMessage ? 'text-slate-700' : 'text-slate-400'
                     }`}>
