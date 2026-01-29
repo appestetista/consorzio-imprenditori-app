@@ -216,7 +216,7 @@ function ConsultantCard({ consultant, onChat, currentUserEmail, unreadCount, sho
   );
 }
 
-function FullChat({ consultant, currentUserEmail, onBack }) {
+function FullChat({ consultant, currentUserEmail, currentUserLogo, onBack }) {
   const [message, setMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
   const queryClient = useQueryClient();
@@ -356,8 +356,19 @@ function FullChat({ consultant, currentUserEmail, onBack }) {
           messages.map((msg) => {
             const isFromMe = msg.from_email === currentUserEmail;
             return (
-              <div key={msg.id} className={`flex ${isFromMe ? 'justify-end' : 'justify-start'}`}>
-                <div className={`rounded-2xl px-4 py-2 max-w-[80%] ${
+              <div key={msg.id} className={`flex items-end gap-2 ${isFromMe ? 'justify-end' : 'justify-start'}`}>
+                {!isFromMe && (
+                  <div className="w-7 h-7 rounded-full overflow-hidden flex-shrink-0 bg-amber-400/20">
+                    {consultant.logo_url ? (
+                      <img src={consultant.logo_url} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Briefcase className="w-4 h-4 text-amber-400" />
+                      </div>
+                    )}
+                  </div>
+                )}
+                <div className={`rounded-2xl px-4 py-2 max-w-[75%] ${
                   isFromMe 
                     ? 'bg-lime-400 text-slate-900 rounded-tr-sm' 
                     : 'bg-slate-700 text-white rounded-tl-sm'
@@ -370,6 +381,17 @@ function FullChat({ consultant, currentUserEmail, onBack }) {
                     })}
                   </p>
                 </div>
+                {isFromMe && (
+                  <div className="w-7 h-7 rounded-full overflow-hidden flex-shrink-0 bg-lime-400/20">
+                    {currentUserLogo ? (
+                      <img src={currentUserLogo} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-lime-400 text-xs font-bold">
+                        Tu
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             );
           })
