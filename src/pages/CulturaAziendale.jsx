@@ -36,8 +36,11 @@ export default function CulturaAziendale() {
   const [effectiveUser, setEffectiveUser] = useState(null);
   const [selectedCategoria, setSelectedCategoria] = useState('all');
   const [showAddVideo, setShowAddVideo] = useState(false);
+  const [editingVideo, setEditingVideo] = useState(null);
   const [formData, setFormData] = useState({ title: '', youtube_url: '', categoria: '' });
   const [errors, setErrors] = useState([]);
+  const [customCategories, setCustomCategories] = useState([]);
+  const [newCategory, setNewCategory] = useState('');
   const { impersonation } = useImpersonation();
   const queryClient = useQueryClient();
 
