@@ -1821,10 +1821,7 @@ export default function AdminPanel() {
                     <Card 
                       key={conv.key} 
                       className="bg-slate-800 border-slate-700 cursor-pointer hover:bg-slate-700"
-                      onClick={() => {
-                        // Vai alla pagina messaggi con il contatto
-                        navigate(`${createPageUrl('Messaggi')}?contact=${encodeURIComponent(conv.azienda?.email)}`);
-                      }}
+                      onClick={() => setSelectedConsulenzaConversation(conv)}
                     >
                       <CardContent className="p-3">
                         <div className="flex items-center gap-3">
@@ -1844,6 +1841,44 @@ export default function AdminPanel() {
                     </Card>
                   ));
                 })()}
+                
+                {/* Vista chat inline */}
+                {selectedConsulenzaConversation && (
+                  <Dialog open={!!selectedConsulenzaConversation} onOpenChange={() => setSelectedConsulenzaConversation(null)}>
+                    <DialogContent className="bg-slate-900 border-slate-700 max-w-lg max-h-[80vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle className="text-white text-sm">
+                          {selectedConsulenzaConversation.azienda?.name} ↔ {selectedConsulenzaConversation.consulente?.name}
+                        </DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-3 max-h-[50vh] overflow-y-auto px-2 py-3 bg-slate-950 rounded-lg">
+                        {selectedConsulenzaConversation.messages.map(msg => {
+                          const isFromAzienda = msg.from_email === selectedConsulenzaConversation.azienda?.email;
+                          return (
+                            <div 
+                              key={msg.id} 
+                              className={`flex ${isFromAzienda ? 'justify-end' : 'justify-start'}`}
+                            >
+                              <div className={`max-w-[80%] rounded-2xl px-3 py-2 ${
+                                isFromAzienda 
+                                  ? 'bg-lime-400 text-slate-900 rounded-br-sm' 
+                                  : 'bg-slate-600 text-white rounded-bl-sm'
+                              }`}>
+                                <p className={`text-[10px] font-bold mb-1 ${isFromAzienda ? 'text-slate-700' : 'text-slate-300'}`}>
+                                  {isFromAzienda ? msg.from_name : msg.from_name} {isFromAzienda ? '(Azienda)' : '(Consulente)'}
+                                </p>
+                                <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                                <p className={`text-[10px] mt-1 ${isFromAzienda ? 'text-slate-600' : 'text-slate-400'}`}>
+                                  {new Date(msg.created_date).toLocaleString('it-IT', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                )}
               </TabsContent>
 
               {/* TAB ZONE CONSULENTI */}
