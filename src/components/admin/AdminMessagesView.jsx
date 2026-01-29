@@ -335,9 +335,9 @@ export default function AdminMessagesView({ onBack }) {
                           </span>
                           {/* Spunte stile WhatsApp */}
                           {msg.is_read ? (
-                            <CheckCheck className="w-3.5 h-3.5 text-blue-600" />
+                            <CheckCheck className="w-4 h-4 text-fuchsia-500" strokeWidth={3} />
                           ) : (
-                            <Check className={`w-3.5 h-3.5 ${isRightSide ? 'text-slate-600' : 'text-blue-200'}`} />
+                            <Check className={`w-4 h-4 ${isRightSide ? 'text-slate-600' : 'text-blue-200'}`} strokeWidth={2.5} />
                           )}
                         </div>
                         <div className="flex items-center gap-1">
