@@ -1753,24 +1753,84 @@ export default function AdminPanel() {
               {/* TAB PRENOTAZIONI */}
               <TabsContent value="prenotazioni" className="space-y-3">
                 <h3 className="text-white font-medium text-sm">Prenotazioni Consulenze</h3>
-                {consultationBookings.length === 0 ? (
-                  <p className="text-slate-400 text-xs text-center py-4">Nessuna prenotazione</p>
-                ) : (
-                  consultationBookings.map((booking) => {
+                
+                {/* Filtri */}
+                <div className="grid grid-cols-3 gap-2">
+                  <Select value={bookingStatusFilter} onValueChange={setBookingStatusFilter}>
+                    <SelectTrigger className="bg-slate-800 border-slate-700 text-white h-8 text-[10px]">
+                      <SelectValue placeholder="Stato" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Tutti gli stati</SelectItem>
+                      <SelectItem value="pending">In attesa</SelectItem>
+                      <SelectItem value="dates_proposed">Date proposte</SelectItem>
+                      <SelectItem value="confirmed">Confermata</SelectItem>
+                      <SelectItem value="completed">Completata</SelectItem>
+                      <SelectItem value="cancelled">Annullata</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select value={bookingZoneFilter} onValueChange={setBookingZoneFilter}>
+                    <SelectTrigger className="bg-slate-800 border-slate-700 text-white h-8 text-[10px]">
+                      <SelectValue placeholder="Zona" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Tutte le zone</SelectItem>
+                      {zones.map(zone => (
+                        <SelectItem key={zone.id} value={zone.name}>{zone.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select value={bookingConsultantFilter} onValueChange={setBookingConsultantFilter}>
+                    <SelectTrigger className="bg-slate-800 border-slate-700 text-white h-8 text-[10px]">
+                      <SelectValue placeholder="Consulente" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Tutti</SelectItem>
+                      {consultants.map(c => (
+                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {(() => {
+                  const filteredBookings = consultationBookings.filter(booking => {
                     const consultant = consultants.find(c => c.id === booking.consultant_id);
-                    const statusColors = {
-                      pending: 'bg-yellow-500',
-                      dates_proposed: 'bg-blue-500',
-                      confirmed: 'bg-green-600',
-                      completed: 'bg-slate-500',
-                      cancelled: 'bg-red-500'
-                    };
+                    const matchesStatus = bookingStatusFilter === 'all' || booking.status === bookingStatusFilter;
+                    const matchesZone = bookingZoneFilter === 'all' || consultant?.zona === bookingZoneFilter;
+                    const matchesConsultant = bookingConsultantFilter === 'all' || booking.consultant_id === bookingConsultantFilter;
+                    return matchesStatus && matchesZone && matchesConsultant;
+                  });
+
+                  if (filteredBookings.length === 0) {
+                    return <p className="text-slate-400 text-xs text-center py-4">Nessuna prenotazione trovata</p>;
+                  }
+
+                  const statusColors = {
+                    pending: 'bg-yellow-500',
+                    dates_proposed: 'bg-blue-500',
+                    confirmed: 'bg-green-600',
+                    awaiting_user_confirmation: 'bg-purple-500',
+                    completed: 'bg-slate-500',
+                    cancelled: 'bg-red-500'
+                  };
+                  const statusLabels = {
+                    pending: 'In attesa',
+                    dates_proposed: 'Date proposte',
+                    confirmed: 'Confermata',
+                    awaiting_user_confirmation: 'Attesa conferma',
+                    completed: 'Completata',
+                    cancelled: 'Annullata'
+                  };
+
+                  return filteredBookings.map((booking) => {
+                    const consultant = consultants.find(c => c.id === booking.consultant_id);
                     return (
                       <Card key={booking.id} className="bg-slate-800 border-slate-700">
                         <CardContent className="p-3">
                           <div className="flex items-start justify-between mb-2">
-                            <Badge className={`${statusColors[booking.status]} text-white text-[10px]`}>
-                              {booking.status}
+                            <Badge className={`${statusColors[booking.status] || 'bg-slate-500'} text-white text-[10px]`}>
+                              {statusLabels[booking.status] || booking.status}
                             </Badge>
                             <span className="text-slate-400 text-[10px]">
                               {new Date(booking.created_date).toLocaleDateString('it-IT')}
@@ -1778,17 +1838,69 @@ export default function AdminPanel() {
                           </div>
                           <p className="text-lime-400 font-medium text-xs">{consultant?.category || 'N/D'}</p>
                           <p className="text-white text-xs">{consultant?.name || 'N/D'}</p>
-                          <p className="text-slate-400 text-[10px]">Utente: {booking.user_email}</p>
+                          {consultant?.zona && (
+                            <Badge className="bg-blue-500/20 text-blue-400 border-0 text-[10px] mt-1">{consultant.zona}</Badge>
+                          )}
+                          <p className="text-slate-400 text-[10px] mt-1">Utente: {booking.user_email}</p>
+                          {booking.meeting_preference && (
+                            <p className="text-slate-500 text-[10px]">Modalità: {booking.meeting_preference === 'online' ? '💻 Online' : booking.meeting_preference === 'sede_azienda' ? '🏢 Sede azienda' : '📍 Sede consulente'}</p>
+                          )}
+                          {booking.scheduled_date && (
+                            <p className="text-green-400 text-[10px]">📅 {new Date(booking.scheduled_date).toLocaleDateString('it-IT', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</p>
+                          )}
                           {booking.subject && (
                             <div className="bg-slate-900 rounded p-2 mt-2">
                               <p className="text-slate-300 text-[10px]">{booking.subject}</p>
                             </div>
                           )}
+                          
+                          {/* Azioni admin */}
+                          <div className="flex gap-1 mt-2">
+                            <Link to={`${createPageUrl('Messaggi')}?contact=${encodeURIComponent(booking.user_email)}`} className="flex-1">
+                              <Button variant="outline" size="sm" className="w-full border-lime-400 text-lime-400 hover:bg-lime-400/20 h-6 text-[10px]">
+                                <Mail className="w-3 h-3 mr-1" /> Utente
+                              </Button>
+                            </Link>
+                            {consultant?.email && (
+                              <Link to={`${createPageUrl('Messaggi')}?contact=${encodeURIComponent(consultant.email)}`} className="flex-1">
+                                <Button variant="outline" size="sm" className="w-full border-blue-400 text-blue-400 hover:bg-blue-400/20 h-6 text-[10px]">
+                                  <Mail className="w-3 h-3 mr-1" /> Consulente
+                                </Button>
+                              </Link>
+                            )}
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="outline" size="sm" className="border-red-600 text-red-400 hover:bg-red-600/20 h-6 w-6 p-0">
+                                  <Trash2 className="w-3 h-3" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent className="bg-slate-800 border-slate-700">
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle className="text-white">Eliminare questa prenotazione?</AlertDialogTitle>
+                                  <AlertDialogDescription className="text-slate-400">
+                                    La prenotazione verrà rimossa permanentemente.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel className="bg-slate-700 text-slate-400 border-slate-600">Annulla</AlertDialogCancel>
+                                  <AlertDialogAction 
+                                    className="bg-red-600 hover:bg-red-700"
+                                    onClick={async () => {
+                                      await base44.entities.ConsultationBooking.delete(booking.id);
+                                      queryClient.invalidateQueries({ queryKey: ['consultation-bookings-admin'] });
+                                    }}
+                                  >
+                                    Elimina
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
                         </CardContent>
                       </Card>
                     );
-                  })
-                )}
+                  });
+                })()}
               </TabsContent>
 
               {/* TAB MESSAGGI */}
