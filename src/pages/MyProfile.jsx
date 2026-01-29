@@ -918,27 +918,35 @@ export default function MyProfile() {
 
   return (
    <div className="min-h-screen bg-slate-900 pb-24">
-     <Header user={user} />
-      
-      <main className="px-4 py-6 max-w-2xl mx-auto">
-        <div className="flex items-center gap-3 mb-6">
-          {impersonation.active ? (
-            <button
-              onClick={() => {
-                stopImpersonation();
-                navigate(createPageUrl('AdminPanel'));
-              }}
-              className="text-lime-400 hover:text-lime-500 transition-colors"
-            >
-              <X className="w-6 h-6" />
-            </button>
-          ) : (
-            <Link to={createPageUrl('Home')} className="text-lime-400">
-              <ArrowLeft className="w-6 h-6" />
-            </Link>
-          )}
-          <h1 className="text-white text-xl font-bold">Il Mio Profilo</h1>
-        </div>
+    <Header user={user} />
+
+     <main className="px-4 py-6 max-w-2xl mx-auto">
+       <div className="flex items-center gap-3 mb-6">
+         {impersonation.active ? (
+           <button
+             onClick={() => {
+               stopImpersonation();
+               navigate(createPageUrl('AdminPanel'));
+             }}
+             className="text-lime-400 hover:text-lime-500 transition-colors"
+           >
+             <X className="w-6 h-6" />
+           </button>
+         ) : (
+           <Link to={createPageUrl('Home')} className="text-lime-400">
+             <ArrowLeft className="w-6 h-6" />
+           </Link>
+         )}
+         {/* Logo del consulente se presente */}
+         {user?.user_type === 'consulente' && consultantData?.logo_url && (
+           <img 
+             src={consultantData.logo_url} 
+             alt="Logo" 
+             className="w-10 h-10 object-contain rounded-lg bg-slate-800 border border-slate-700"
+           />
+         )}
+         <h1 className="text-white text-xl font-bold">Il Mio Profilo</h1>
+       </div>
 
         <Tabs defaultValue="profilo" className="w-full">
           <TabsList className="w-full bg-slate-800 border border-slate-700 mb-4">
