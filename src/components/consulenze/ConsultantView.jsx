@@ -702,6 +702,7 @@ export default function ConsultantView({ user }) {
           consultantEmail={userEmail} 
           consultantZona={myConsultantProfile?.zona}
           consultantZoneAssegnate={myConsultantProfile?.zone_assegnate}
+          consultantLogo={myConsultantProfile?.logo_url}
         />
       </TabsContent>
 
