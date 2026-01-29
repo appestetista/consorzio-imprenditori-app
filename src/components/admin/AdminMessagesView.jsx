@@ -23,7 +23,6 @@ export default function AdminMessagesView({ onBack }) {
   const [sourceFilter, setSourceFilter] = useState('all');
   
   // Stati per navigazione
-  const [selectedPerson, setSelectedPerson] = useState(null); // persona selezionata (mostra le sue conversazioni)
   const [selectedConversation, setSelectedConversation] = useState(null); // conversazione selezionata (mostra i messaggi)
   
   // Stati per azioni
