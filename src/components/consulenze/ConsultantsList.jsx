@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
-export default function ConsultantsList({ currentUserEmail, showChat = false, userZona = null }) {
+export default function ConsultantsList({ currentUserEmail, currentUserLogo = null, showChat = false, userZona = null }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedConsultant, setSelectedConsultant] = useState(null);
   const navigate = useNavigate();
@@ -110,6 +110,7 @@ export default function ConsultantsList({ currentUserEmail, showChat = false, us
       <FullChat 
         consultant={selectedConsultant}
         currentUserEmail={currentUserEmail}
+        currentUserLogo={currentUserLogo}
         onBack={() => setSelectedConsultant(null)}
       />
     );
