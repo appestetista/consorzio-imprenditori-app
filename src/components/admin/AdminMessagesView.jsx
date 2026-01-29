@@ -371,7 +371,9 @@ export default function AdminMessagesView({ onBack }) {
                       </p>
                       
                       {/* Contenuto */}
-                      <p className="text-sm whitespace-pre-wrap break-words">{msg.content}</p>
+                      <p className="text-sm whitespace-pre-wrap break-words">
+                        {msg.content ? msg.content.charAt(0).toUpperCase() + msg.content.slice(1).toLowerCase() : ''}
+                      </p>
                       
                       {/* Allegati */}
                       {msg.attachments?.length > 0 && (
