@@ -83,12 +83,65 @@ export default function AdminMessagesView({ onBack }) {
     return map;
   }, [users, consultants]);
 
-  // Raggruppa messaggi per persona (utente/consulente)
+  // Raggruppa messaggi per conversazione UNICA tra due persone (non duplicata)
+  // Chiave: coppia ordinata di email + source
+  const uniqueConversations = useMemo(() => {
+    const convMap = {};
+    
+    allMessages.forEach(msg => {
+      if (!msg.from_email || !msg.to_email) return;
+      
+      // Crea chiave unica ordinando le email
+      const emails = [msg.from_email, msg.to_email].sort();
+      const source = msg.source || 'diretto';
+      const convKey = `${emails[0]}_${emails[1]}_${source}`;
+      
+      if (!convMap[convKey]) {
+        const person1 = peopleMap[emails[0]] || { email: emails[0], name: emails[0], type: 'sconosciuto' };
+        const person2 = peopleMap[emails[1]] || { email: emails[1], name: emails[1], type: 'sconosciuto' };
+        
+        // Determina chi è l'azienda e chi il consulente
+        let azienda, consulente;
+        if (person1.type === 'consulente') {
+          consulente = person1;
+          azienda = person2;
+        } else if (person2.type === 'consulente') {
+          consulente = person2;
+          azienda = person1;
+        } else {
+          // Entrambi utenti, usa ordine alfabetico
+          azienda = person1;
+          consulente = person2;
+        }
+        
+        convMap[convKey] = {
+          key: convKey,
+          azienda,
+          consulente,
+          source,
+          messages: [],
+          lastMessageDate: null
+        };
+      }
+      
+      convMap[convKey].messages.push(msg);
+    });
+    
+    // Calcola statistiche
+    Object.values(convMap).forEach(conv => {
+      conv.messages.sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
+      conv.lastMessageDate = conv.messages[conv.messages.length - 1]?.created_date;
+      conv.totalMessages = conv.messages.length;
+    });
+    
+    return convMap;
+  }, [allMessages, peopleMap]);
+
+  // Per retrocompatibilità, mantieni anche il raggruppamento per persona
   const messagesByPerson = useMemo(() => {
     const grouped = {};
     
     allMessages.forEach(msg => {
-      // Considera sia mittente che destinatario
       [msg.from_email, msg.to_email].forEach(email => {
         if (!email) return;
         
@@ -103,12 +156,10 @@ export default function AdminMessagesView({ onBack }) {
           };
         }
         
-        // Aggiungi messaggio se non già presente
         if (!grouped[email].messages.find(m => m.id === msg.id)) {
           grouped[email].messages.push(msg);
         }
         
-        // Raggruppa per conversazione (altra persona + source)
         const otherEmail = msg.from_email === email ? msg.to_email : msg.from_email;
         const source = msg.source || 'diretto';
         const convKey = `${otherEmail}_${source}`;
@@ -128,7 +179,6 @@ export default function AdminMessagesView({ onBack }) {
       });
     });
     
-    // Calcola statistiche e ordina
     Object.values(grouped).forEach(person => {
       person.messages.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
       person.lastMessageDate = person.messages[0]?.created_date;
@@ -136,7 +186,6 @@ export default function AdminMessagesView({ onBack }) {
       person.totalMessages = person.messages.length;
       person.conversationsCount = Object.keys(person.conversations).length;
       
-      // Ordina messaggi in ogni conversazione
       Object.values(person.conversations).forEach(conv => {
         conv.messages.sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
         conv.lastMessage = conv.messages[conv.messages.length - 1];
