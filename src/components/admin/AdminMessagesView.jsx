@@ -478,8 +478,17 @@ export default function AdminMessagesView({ onBack }) {
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
+                      {/* Mostra: AZIENDA → CONSULENTE */}
                       <div className="flex items-center gap-2">
-                        <p className="text-white font-medium text-sm truncate">{conv.otherPerson.name}</p>
+                        <p className="text-white font-medium text-sm truncate">
+                          {person.person.type === 'consulente' ? (
+                            // Se la persona selezionata è consulente: Azienda → Consulente
+                            <>{conv.otherPerson.name} → {person.person.name}</>
+                          ) : (
+                            // Se la persona selezionata è utente: Utente → Consulente
+                            <>{person.person.name} → {conv.otherPerson.name}</>
+                          )}
+                        </p>
                         {conv.unreadCount > 0 && (
                           <Badge className="bg-red-500 text-white text-[10px]">{conv.unreadCount}</Badge>
                         )}
@@ -487,7 +496,6 @@ export default function AdminMessagesView({ onBack }) {
                       <Badge className={`${sourceLabels[conv.source]?.color || 'bg-slate-500'} text-white text-[10px] mt-1`}>
                         {sourceLabels[conv.source]?.label || conv.source}
                       </Badge>
-                      <p className="text-slate-400 text-xs truncate mt-1">{conv.lastMessage?.content}</p>
                       <div className="flex items-center gap-2 mt-1">
                         <span className="bg-slate-700 text-lime-400 text-[10px] font-bold px-2 py-0.5 rounded-full">
                           💬 {conv.messages.length} messaggi
