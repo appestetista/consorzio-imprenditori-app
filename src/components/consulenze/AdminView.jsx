@@ -487,14 +487,44 @@ export default function AdminView({ consultants, adminEmail }) {
             zone_assegnate: [],
             free_consultations_per_user: 1
           });
+          setDialogViewMode('admin');
         }
       }}>
-        <DialogContent className="bg-slate-800 border-slate-700 max-h-[90vh] overflow-y-auto">
+        <DialogContent className="bg-slate-800 border-slate-700 max-h-[90vh] overflow-y-auto max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="text-white">
-              {editingConsultant ? 'Modifica Consulente' : 'Aggiungi Consulente'}
+            <DialogTitle className="text-white flex items-center justify-between">
+              <span>{editingConsultant ? 'Modifica Consulente' : 'Aggiungi Consulente'}</span>
+              {editingConsultant && (
+                <div className="flex bg-slate-900 rounded-lg p-1">
+                  <button
+                    type="button"
+                    onClick={() => setDialogViewMode('admin')}
+                    className={`px-3 py-1 text-xs font-medium rounded transition-colors ${
+                      dialogViewMode === 'admin' 
+                        ? 'bg-amber-500 text-slate-900' 
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    👑 Admin
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDialogViewMode('consultant')}
+                    className={`px-3 py-1 text-xs font-medium rounded transition-colors ${
+                      dialogViewMode === 'consultant' 
+                        ? 'bg-lime-400 text-slate-900' 
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    👤 Vista Consulente
+                  </button>
+                </div>
+              )}
             </DialogTitle>
           </DialogHeader>
+          
+          {/* Vista Admin */}
+          {dialogViewMode === 'admin' && (
           <div className="space-y-4 mt-4">
             <div>
               <Label className="text-slate-300">Nome *</Label>
