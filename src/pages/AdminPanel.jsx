@@ -470,13 +470,31 @@ export default function AdminPanel() {
         </div>
 
         {/* Stats Grid compatto */}
-        <div className="grid grid-cols-2 gap-2 mb-4">
+        <div className="grid grid-cols-3 gap-2 mb-4">
           <Link to={createPageUrl('GestioneMembri')}>
             <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700">
               <CardContent className="p-2 text-center">
                 <Users className="w-5 h-5 text-lime-400 mx-auto mb-1" />
                 <p className="text-lg font-bold text-white">{stats?.activeUsers || 0}</p>
                 <p className="text-slate-400 text-[10px]">Utenti</p>
+              </CardContent>
+            </Card>
+          </Link>
+          <Link to={createPageUrl('GestioneCostiAI')}>
+            <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700">
+              <CardContent className="p-2 text-center">
+                <DollarSign className="w-5 h-5 text-lime-400 mx-auto mb-1" />
+                <p className="text-lg font-bold text-white">AI</p>
+                <p className="text-slate-400 text-[10px]">Costi</p>
+              </CardContent>
+            </Card>
+          </Link>
+          <Link to={createPageUrl('GestioneZone')}>
+            <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700">
+              <CardContent className="p-2 text-center">
+                <MapPin className="w-5 h-5 text-lime-400 mx-auto mb-1" />
+                <p className="text-lg font-bold text-white">Zone</p>
+                <p className="text-slate-400 text-[10px]">Gestione</p>
               </CardContent>
             </Card>
           </Link>
