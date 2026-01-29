@@ -532,77 +532,100 @@ export default function AdminMessagesView({ onBack }) {
       </div>
 
       {/* Stats */}
-      {/* Intestazione: Messaggi Utenti ↔ Consulenti */}
       <div className="bg-slate-800 rounded-lg p-3 mb-2">
-        <p className="text-lime-400 font-bold text-center text-sm">Messaggi Utenti ↔ Consulenti</p>
+        <p className="text-lime-400 font-bold text-center text-sm">Messaggi Aziende ↔ Consulenti</p>
       </div>
 
       <div className="grid grid-cols-2 gap-2">
         <Card className="bg-slate-800 border-slate-700">
           <CardContent className="p-3 flex items-center gap-2">
-            <Users className="w-5 h-5 text-lime-400" />
+            <MessageSquare className="w-5 h-5 text-lime-400" />
             <div>
-              <p className="text-white font-bold text-lg">{filteredPeople.length}</p>
-              <p className="text-slate-400 text-[10px]">Persone</p>
+              <p className="text-white font-bold text-lg">{filteredUniqueConversations.length}</p>
+              <p className="text-slate-400 text-[10px]">Conversazioni</p>
             </div>
           </CardContent>
         </Card>
         <Card className="bg-slate-800 border-slate-700">
           <CardContent className="p-3 flex items-center gap-2">
-            <MessageSquare className="w-5 h-5 text-lime-400" />
+            <Mail className="w-5 h-5 text-lime-400" />
             <div>
               <p className="text-white font-bold text-lg">{allMessages.length}</p>
-              <p className="text-slate-400 text-[10px]">Messaggi</p>
+              <p className="text-slate-400 text-[10px]">Messaggi totali</p>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Lista persone */}
+      {/* Filtro source */}
+      <Select value={sourceFilter} onValueChange={setSourceFilter}>
+        <SelectTrigger className="bg-slate-800 border-slate-700 text-white h-8 text-xs">
+          <SelectValue placeholder="Filtra per sezione" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">Tutte le sezioni</SelectItem>
+          {Object.entries(sourceLabels).map(([key, val]) => (
+            <SelectItem key={key} value={key}>{val.label}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      {/* Lista conversazioni uniche */}
       {loadingMessages ? (
         <div className="text-center py-8">
           <div className="animate-spin w-6 h-6 border-2 border-lime-400 border-t-transparent rounded-full mx-auto"></div>
         </div>
       ) : (
         <div className="space-y-2 max-h-[50vh] overflow-y-auto">
-          {filteredPeople.length === 0 ? (
-            <p className="text-slate-400 text-sm text-center py-4">Nessun risultato</p>
+          {filteredUniqueConversations.length === 0 ? (
+            <p className="text-slate-400 text-sm text-center py-4">Nessuna conversazione</p>
           ) : (
-            filteredPeople.map(person => (
+            filteredUniqueConversations.map(conv => (
               <Card 
-                key={person.email} 
+                key={conv.key} 
                 className="bg-slate-800 border-slate-700 cursor-pointer hover:bg-slate-700"
-                onClick={() => setSelectedPerson(person.email)}
+                onClick={() => setSelectedConversation(conv.key)}
               >
                 <CardContent className="p-3">
                   <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                      person.person.type === 'consulente' ? 'bg-blue-500/20' : 'bg-lime-400/20'
-                    }`}>
-                      {person.person.type === 'consulente' ? (
-                        <Briefcase className="w-5 h-5 text-blue-400" />
-                      ) : (
-                        <User className="w-5 h-5 text-lime-400" />
-                      )}
+                    {/* Avatar azienda */}
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center bg-lime-400/20">
+                      <User className="w-5 h-5 text-lime-400" />
                     </div>
+                    
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <p className="text-white font-bold text-sm truncate">{person.person.name}</p>
-                        {person.unreadCount > 0 && (
-                          <Badge className="bg-red-500 text-white text-[10px]">{person.unreadCount} nuovi</Badge>
-                        )}
+                      {/* Azienda → Consulente */}
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="text-white font-bold text-sm truncate">
+                          {conv.azienda?.name}
+                        </p>
+                        <span className="text-slate-500">→</span>
+                        <p className="text-blue-400 text-sm truncate">
+                          {conv.consulente?.name}
+                        </p>
                       </div>
-                      <p className={`text-[10px] mt-0.5 ${person.person.type === 'consulente' ? 'text-blue-400' : 'text-lime-400'}`}>
-                        {person.person.type === 'consulente' ? '👔 Consulente' : '🏢 Azienda'}
-                        {person.person.zona && <span className="text-slate-500 ml-2">• {person.person.zona}</span>}
-                      </p>
-                      <div className="flex items-center gap-3 mt-1">
-                        <span className="text-slate-400 text-[10px]">{person.conversationsCount} conversazioni</span>
+                      
+                      {/* Badge sezione */}
+                      <Badge className={`${sourceLabels[conv.source]?.color || 'bg-slate-500'} text-white text-[10px] mt-1`}>
+                        {sourceLabels[conv.source]?.label || conv.source}
+                      </Badge>
+                      
+                      {/* Info */}
+                      <div className="flex items-center gap-2 mt-1">
                         <span className="bg-slate-700 text-lime-400 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                          💬 {person.totalMessages} msg
+                          💬 {conv.totalMessages} messaggi
+                        </span>
+                        <span className="text-slate-500 text-[10px]">
+                          • {format(new Date(conv.lastMessageDate), 'd MMM HH:mm', { locale: it })}
                         </span>
                       </div>
                     </div>
+                    
+                    {/* Avatar consulente */}
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center bg-blue-500/20">
+                      <Briefcase className="w-5 h-5 text-blue-400" />
+                    </div>
+                    
                     <ChevronRight className="w-5 h-5 text-slate-500" />
                   </div>
                 </CardContent>
