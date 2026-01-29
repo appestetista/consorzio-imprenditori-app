@@ -702,6 +702,40 @@ export default function AdminView({ consultants, adminEmail }) {
                     ))}
                   </div>
                 </div>
+
+                {/* Blocca chiamate da utenti specifici */}
+                <div className="py-2">
+                  <Label className="text-slate-300 mb-2 block">Blocca Chiamate da Utenti Specifici</Label>
+                  <div className="bg-slate-900 border border-slate-700 rounded-md p-3 space-y-2 max-h-40 overflow-y-auto">
+                    {allUsers
+                      .filter(u => u.user_type !== 'consulente')
+                      .map(user => (
+                        <div key={user.id} className="flex items-center gap-2">
+                          <Checkbox
+                            id={`block-user-${user.id}`}
+                            checked={consultantForm.blocked_users_calls?.includes(user.email)}
+                            onCheckedChange={(checked) => {
+                              const currentBlocked = consultantForm.blocked_users_calls || [];
+                              if (checked) {
+                                setConsultantForm({...consultantForm, blocked_users_calls: [...currentBlocked, user.email]});
+                              } else {
+                                setConsultantForm({...consultantForm, blocked_users_calls: currentBlocked.filter(e => e !== user.email)});
+                              }
+                            }}
+                            className="border-slate-600 data-[state=checked]:bg-red-500 data-[state=checked]:border-red-500"
+                          />
+                          <Label htmlFor={`block-user-${user.id}`} className="text-white text-sm cursor-pointer">
+                            {user.company_name || user.full_name} <span className="text-slate-500 text-xs">({user.email})</span>
+                          </Label>
+                        </div>
+                      ))}
+                  </div>
+                  {consultantForm.blocked_users_calls?.length > 0 && (
+                    <p className="text-red-400 text-xs mt-1">
+                      {consultantForm.blocked_users_calls.length} utente/i bloccato/i
+                    </p>
+                  )}
+                </div>
               </div>
             )}
 
