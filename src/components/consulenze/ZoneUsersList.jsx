@@ -224,12 +224,13 @@ export default function ZoneUsersList({ consultantEmail, consultantZona, consult
 
 function UserCard({ user, onChat, unreadCount }) {
   const displayName = user.company_name || user.full_name || user.email;
+  const hasLogo = user.logo_url || user.company_logo;
   
   return (
     <Card className={`bg-slate-800 border-slate-700 p-4 ${unreadCount > 0 ? 'border-l-4 border-l-red-500' : ''}`}>
       <div className="flex items-center gap-3">
-        <div className={`w-14 h-14 rounded-lg flex items-center justify-center flex-shrink-0 ${
-          unreadCount > 0 ? 'bg-red-500/20' : 'bg-lime-400/20'
+        <div className={`w-14 h-14 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden ${
+          unreadCount > 0 ? 'bg-red-500/20' : hasLogo ? '' : 'bg-lime-400/20'
         }`}>
           {unreadCount > 0 ? (
             <div className="relative">
@@ -238,6 +239,12 @@ function UserCard({ user, onChat, unreadCount }) {
                 {unreadCount}
               </span>
             </div>
+          ) : hasLogo ? (
+            <img 
+              src={user.logo_url || user.company_logo} 
+              alt={displayName}
+              className="w-full h-full object-cover rounded-lg"
+            />
           ) : (
             <Building2 className="w-7 h-7 text-lime-400" />
           )}
@@ -252,9 +259,18 @@ function UserCard({ user, onChat, unreadCount }) {
               {user.referente}
             </p>
           )}
-          {user.settore && (
+          {/* Località */}
+          {user.city && (
+            <p className="text-slate-500 text-xs truncate flex items-center gap-1 mt-0.5">
+              <MapPin className="w-3 h-3" />
+              {user.city}
+            </p>
+          )}
+          {/* Specializzazione */}
+          {(user.specializzazione || user.settore) && (
             <Badge className="bg-blue-400/20 text-blue-400 text-xs mt-1">
-              {user.settore}
+              <Briefcase className="w-3 h-3 mr-1" />
+              {user.specializzazione || user.settore}
             </Badge>
           )}
         </div>
