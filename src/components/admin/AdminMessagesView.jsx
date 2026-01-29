@@ -5,7 +5,7 @@ import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { 
   ArrowLeft, User, Search, Filter, Trash2, Mail, MapPin, 
-  Briefcase, ChevronRight, MessageSquare, Users, X
+  Briefcase, ChevronRight, MessageSquare, Users, X, Check, CheckCheck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -326,16 +326,21 @@ export default function AdminMessagesView({ onBack }) {
                       <div className={`flex items-center justify-between gap-2 mt-1 ${
                         isRightSide ? 'text-slate-600' : 'text-blue-200'
                       }`}>
-                        <span className="text-[10px]">
-                          {format(new Date(msg.created_date), 'HH:mm', { locale: it })}
-                          {new Date(msg.created_date).toDateString() !== new Date().toDateString() && (
-                            <span className="ml-1">• {format(new Date(msg.created_date), 'd MMM', { locale: it })}</span>
-                          )}
-                        </span>
                         <div className="flex items-center gap-1">
-                          {!msg.is_read && msg.to_email === selectedPerson && (
-                            <span className="bg-red-500 text-white text-[8px] px-1.5 py-0.5 rounded-full">NUOVO</span>
+                          <span className="text-[10px]">
+                            {format(new Date(msg.created_date), 'HH:mm', { locale: it })}
+                            {new Date(msg.created_date).toDateString() !== new Date().toDateString() && (
+                              <span className="ml-1">• {format(new Date(msg.created_date), 'd MMM', { locale: it })}</span>
+                            )}
+                          </span>
+                          {/* Spunte stile WhatsApp */}
+                          {msg.is_read ? (
+                            <CheckCheck className="w-3.5 h-3.5 text-cyan-400" />
+                          ) : (
+                            <Check className={`w-3.5 h-3.5 ${isRightSide ? 'text-slate-600' : 'text-blue-200'}`} />
                           )}
+                        </div>
+                        <div className="flex items-center gap-1">
                           <button
                             type="button"
                             onClick={(e) => { 

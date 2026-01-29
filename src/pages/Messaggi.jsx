@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { ArrowLeft, Send, User, X, Paperclip, Camera, FileText, Image as ImageIcon, ShoppingBag, Video, Phone, Briefcase, MessageCircle, Filter, TrendingUp, Ship, FileCheck, Zap, Globe } from 'lucide-react';
+import { ArrowLeft, Send, User, X, Paperclip, Camera, FileText, Image as ImageIcon, ShoppingBag, Video, Phone, Briefcase, MessageCircle, Filter, TrendingUp, Ship, FileCheck, Zap, Globe, Check, CheckCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -418,16 +418,26 @@ export default function Messaggi() {
                       </div>
                     )}
                     {msg.content && <p className="text-sm whitespace-pre-wrap">{msg.content}</p>}
-                    <p className={`text-xs mt-1 ${
+                    <div className={`flex items-center justify-end gap-1 mt-1 ${
                       isMyMessage ? 'text-slate-700' : 'text-slate-400'
                     }`}>
-                      {format(new Date(msg.created_date), 'HH:mm', { locale: it })}
-                      {new Date(msg.created_date).toDateString() !== new Date().toDateString() && (
-                        <span className="ml-1">
-                          · {format(new Date(msg.created_date), 'd MMM', { locale: it })}
-                        </span>
+                      <span className="text-xs">
+                        {format(new Date(msg.created_date), 'HH:mm', { locale: it })}
+                        {new Date(msg.created_date).toDateString() !== new Date().toDateString() && (
+                          <span className="ml-1">
+                            · {format(new Date(msg.created_date), 'd MMM', { locale: it })}
+                          </span>
+                        )}
+                      </span>
+                      {/* Spunte stile WhatsApp - solo per i miei messaggi */}
+                      {isMyMessage && (
+                        msg.is_read ? (
+                          <CheckCheck className="w-4 h-4 text-cyan-400" />
+                        ) : (
+                          <Check className="w-4 h-4" />
+                        )
                       )}
-                    </p>
+                    </div>
                     </div>
                     {canDeleteMessage(msg) && (
                     <button
