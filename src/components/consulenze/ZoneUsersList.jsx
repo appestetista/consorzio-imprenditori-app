@@ -373,8 +373,12 @@ function FullChatWithUser({ user, consultantEmail, consultantLogo, onBack }) {
         >
           <ArrowLeft className="w-5 h-5" />
         </Button>
-        <div className="w-10 h-10 rounded-full bg-lime-400/20 flex items-center justify-center">
-          <Building2 className="w-5 h-5 text-lime-400" />
+        <div className="w-10 h-10 rounded-full bg-lime-400/20 flex items-center justify-center overflow-hidden">
+          {(user.logo_url || user.company_logo) ? (
+            <img src={user.logo_url || user.company_logo} alt={displayName} className="w-full h-full object-cover" />
+          ) : (
+            <Building2 className="w-5 h-5 text-lime-400" />
+          )}
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-white font-semibold truncate">{displayName}</p>
