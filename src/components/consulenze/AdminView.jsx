@@ -171,6 +171,7 @@ export default function AdminView({ consultants, adminEmail }) {
       referente: consultant.referente || '',
       cellulare_referente: consultant.cellulare_referente || '',
       zona: consultant.zona || '',
+      zone_assegnate: consultant.zone_assegnate || (consultant.zona ? [consultant.zona] : []),
       free_consultations_per_user: consultant.free_consultations_per_user ?? 1
     });
     setShowConsultantDialog(true);
