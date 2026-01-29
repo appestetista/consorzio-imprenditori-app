@@ -272,76 +272,80 @@ export default function AdminMessagesView({ onBack }) {
             return (
               <div 
                 key={msg.id} 
-                className={`flex ${isRightSide ? 'justify-end' : 'justify-start'}`}
+                className={`flex ${isRightSide ? 'justify-end' : 'justify-start'} group`}
               >
-                <div className={`flex items-end gap-2 max-w-[85%] ${isRightSide ? 'flex-row-reverse' : 'flex-row'}`}>
+                <div className={`flex items-end gap-1 max-w-[80%] ${isRightSide ? 'flex-row-reverse' : 'flex-row'}`}>
                   {/* Avatar */}
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${
                     isRightSide ? 'bg-lime-400/30' : 'bg-blue-500/30'
                   }`}>
                     {isRightSide ? (
-                      <User className="w-4 h-4 text-lime-400" />
+                      <User className="w-3.5 h-3.5 text-lime-400" />
                     ) : (
-                      <Briefcase className="w-4 h-4 text-blue-400" />
+                      <Briefcase className="w-3.5 h-3.5 text-blue-400" />
                     )}
                   </div>
                   
                   {/* Fumetto messaggio */}
-                  <div className={`rounded-2xl px-4 py-2 ${
-                    isRightSide 
-                      ? 'bg-lime-400 text-slate-900 rounded-br-sm' 
-                      : 'bg-blue-500 text-white rounded-bl-sm'
-                  }`}>
-                    {/* Nome mittente */}
-                    <p className={`text-[10px] font-bold mb-1 ${
-                      isRightSide ? 'text-slate-700' : 'text-blue-100'
+                  <div className="relative">
+                    <div className={`rounded-2xl px-3 py-2 ${
+                      isRightSide 
+                        ? 'bg-lime-400 text-slate-900 rounded-br-sm' 
+                        : 'bg-blue-500 text-white rounded-bl-sm'
                     }`}>
-                      {sender.name} {isRightSide ? '(Azienda)' : '(Consulente)'}
-                    </p>
-                    
-                    {/* Contenuto */}
-                    <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                    
-                    {/* Allegati */}
-                    {msg.attachments?.length > 0 && (
-                      <div className="flex gap-1 mt-2 flex-wrap">
-                        {msg.attachments.map((att, i) => (
-                          <a 
-                            key={i} 
-                            href={att.url} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            className={`text-xs underline ${isRightSide ? 'text-slate-700' : 'text-blue-100'}`}
-                          >
-                            📎 {att.name}
-                          </a>
-                        ))}
-                      </div>
-                    )}
-                    
-                    {/* Ora e stato */}
-                    <div className={`flex items-center gap-2 mt-1 ${
-                      isRightSide ? 'text-slate-600' : 'text-blue-200'
-                    }`}>
-                      <span className="text-[10px]">
-                        {format(new Date(msg.created_date), 'HH:mm', { locale: it })}
-                        {new Date(msg.created_date).toDateString() !== new Date().toDateString() && (
-                          <span className="ml-1">• {format(new Date(msg.created_date), 'd MMM', { locale: it })}</span>
-                        )}
-                      </span>
-                      {!msg.is_read && msg.to_email === selectedPerson && (
-                        <span className="bg-red-500 text-white text-[8px] px-1.5 py-0.5 rounded-full">NUOVO</span>
+                      {/* Nome mittente */}
+                      <p className={`text-[10px] font-bold mb-1 ${
+                        isRightSide ? 'text-slate-700' : 'text-blue-100'
+                      }`}>
+                        {sender.name} {isRightSide ? '(Azienda)' : '(Consulente)'}
+                      </p>
+                      
+                      {/* Contenuto */}
+                      <p className="text-sm whitespace-pre-wrap break-words">{msg.content}</p>
+                      
+                      {/* Allegati */}
+                      {msg.attachments?.length > 0 && (
+                        <div className="flex gap-1 mt-2 flex-wrap">
+                          {msg.attachments.map((att, i) => (
+                            <a 
+                              key={i} 
+                              href={att.url} 
+                              target="_blank" 
+                              rel="noopener noreferrer" 
+                              className={`text-xs underline ${isRightSide ? 'text-slate-700' : 'text-blue-100'}`}
+                            >
+                              📎 {att.name}
+                            </a>
+                          ))}
+                        </div>
                       )}
+                      
+                      {/* Ora e stato + elimina inline */}
+                      <div className={`flex items-center justify-between gap-2 mt-1 ${
+                        isRightSide ? 'text-slate-600' : 'text-blue-200'
+                      }`}>
+                        <span className="text-[10px]">
+                          {format(new Date(msg.created_date), 'HH:mm', { locale: it })}
+                          {new Date(msg.created_date).toDateString() !== new Date().toDateString() && (
+                            <span className="ml-1">• {format(new Date(msg.created_date), 'd MMM', { locale: it })}</span>
+                          )}
+                        </span>
+                        <div className="flex items-center gap-1">
+                          {!msg.is_read && msg.to_email === selectedPerson && (
+                            <span className="bg-red-500 text-white text-[8px] px-1.5 py-0.5 rounded-full">NUOVO</span>
+                          )}
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setMessageToDelete(msg); }}
+                            className={`opacity-0 group-hover:opacity-100 transition-opacity ${
+                              isRightSide ? 'text-slate-700 hover:text-red-600' : 'text-blue-200 hover:text-red-300'
+                            }`}
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  
-                  {/* Pulsante elimina */}
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setMessageToDelete(msg); }}
-                    className="text-slate-600 hover:text-red-400 p-1 opacity-50 hover:opacity-100 transition-opacity"
-                  >
-                    <Trash2 className="w-3 h-3" />
-                  </button>
                 </div>
               </div>
             );
