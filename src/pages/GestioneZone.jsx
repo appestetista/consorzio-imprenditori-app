@@ -13,16 +13,12 @@ import { toast } from 'sonner';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
-import ZoneAssignmentManager from '../components/admin/ZoneAssignmentManager';
+import ZoneManagerSimple from '../components/admin/ZoneManagerSimple';
 
 export default function GestioneZone() {
   const [user, setUser] = useState(null);
-  const [showForm, setShowForm] = useState(false);
-  const [editingZone, setEditingZone] = useState(null);
-  const [formData, setFormData] = useState({ name: '', description: '' });
   
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
 
   useEffect(() => {
     const loadUser = async () => {
@@ -38,64 +34,6 @@ export default function GestioneZone() {
     };
     loadUser();
   }, []);
-
-  const { data: zones = [], isLoading } = useQuery({
-    queryKey: ['zones-all'],
-    queryFn: () => base44.entities.Zone.list(),
-  });
-
-  const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.Zone.create({ ...data, is_active: true }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['zones-all'] });
-      queryClient.invalidateQueries({ queryKey: ['zones'] });
-      toast.success('Zona creata');
-      resetForm();
-    }
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Zone.update(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['zones-all'] });
-      queryClient.invalidateQueries({ queryKey: ['zones'] });
-      toast.success('Zona aggiornata');
-      resetForm();
-    }
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.Zone.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['zones-all'] });
-      queryClient.invalidateQueries({ queryKey: ['zones'] });
-      toast.success('Zona eliminata');
-    }
-  });
-
-  const resetForm = () => {
-    setShowForm(false);
-    setEditingZone(null);
-    setFormData({ name: '', description: '' });
-  };
-
-  const handleEdit = (zone) => {
-    setEditingZone(zone);
-    setFormData({ name: zone.name, description: zone.description || '' });
-    setShowForm(true);
-  };
-
-  const handleSubmit = () => {
-    if (!formData.name.trim()) {
-      toast.error('Inserisci il nome della zona');
-      return;
-    }
-    if (editingZone) {
-      updateMutation.mutate({ id: editingZone.id, data: formData });
-    } else {
-      createMutation.mutate(formData);
-    }
-  };
 
   if (!user) return null;
 
