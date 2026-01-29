@@ -737,7 +737,7 @@ export default function AdminPanel() {
           </TabsList>
 
           {/* TAB RICHIESTE */}
-          <TabsContent value="richieste" className="space-y-4" forceMount style={{ display: activeTab === 'richieste' ? 'block' : 'none' }}>
+          <TabsContent value="richieste" className="space-y-4">
             {/* Risposte Eventi */}
             {eventResponseNotifications.length > 0 && (
               <Card className="bg-slate-800 border-slate-700">
