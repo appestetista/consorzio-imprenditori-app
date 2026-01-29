@@ -67,6 +67,11 @@ export default function AdminPanel() {
   const [showInviteForm, setShowInviteForm] = useState(false);
   const [formDataConsultant, setFormDataConsultant] = useState(null);
   const [sectionsData, setSectionsData] = useState([]);
+  
+  // Stati per filtri prenotazioni
+  const [bookingStatusFilter, setBookingStatusFilter] = useState('all');
+  const [bookingZoneFilter, setBookingZoneFilter] = useState('all');
+  const [bookingConsultantFilter, setBookingConsultantFilter] = useState('all');
 
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -126,10 +131,10 @@ export default function AdminPanel() {
 
   const { data: consultationBookings = [] } = useQuery({
     queryKey: ['consultation-bookings-admin'],
-    queryFn: () => base44.entities.ConsultationBooking.filter({ status: 'pending' }),
+    queryFn: () => base44.entities.ConsultationBooking.list('-created_date'),
   });
 
-  const pendingConsultationBookings = consultationBookings.length;
+  const pendingConsultationBookings = consultationBookings.filter(b => b.status === 'pending').length;
 
   // Messaggi nella sezione consulenze (tra utenti e consulenti)
   const { data: consultationMessages = [] } = useQuery({
