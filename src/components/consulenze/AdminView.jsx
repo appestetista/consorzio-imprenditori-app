@@ -350,6 +350,7 @@ export default function AdminView({ consultants, adminEmail }) {
             referente: '',
             cellulare_referente: '',
             zona: '',
+            zone_assegnate: [],
             free_consultations_per_user: 1
           });
         }
