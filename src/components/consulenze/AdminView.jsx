@@ -993,11 +993,25 @@ function ConsultantReadOnlyView({ consultant, zones, allUsers }) {
       {consultant.assigned_sections?.length > 0 && (
         <div className="bg-slate-900 rounded-lg p-4">
           <h3 className="text-lime-400 font-semibold text-sm mb-3 flex items-center gap-2">
-            📋 Sezioni Visibili
+            📋 Sezioni Visibili (tab consultabili)
           </h3>
           <div className="flex flex-wrap gap-1">
             {consultant.assigned_sections.map(s => (
               <Badge key={s} className="bg-blue-500/20 text-blue-400 text-xs">{s}</Badge>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Pannelli Comunicazione */}
+      {consultant.communication_sections?.length > 0 && (
+        <div className="bg-slate-900 rounded-lg p-4">
+          <h3 className="text-amber-400 font-semibold text-sm mb-3 flex items-center gap-2">
+            📣 Pannelli Comunicazione (dove appare agli utenti)
+          </h3>
+          <div className="flex flex-wrap gap-1">
+            {consultant.communication_sections.map(s => (
+              <Badge key={s} className="bg-amber-500/20 text-amber-400 text-xs">{s}</Badge>
             ))}
           </div>
         </div>
