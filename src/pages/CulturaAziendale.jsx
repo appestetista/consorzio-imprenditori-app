@@ -445,23 +445,62 @@ export default function CulturaAziendale() {
               </div>
               <div className="flex flex-wrap gap-2">
                 {allCategories.map(cat => (
-                  <Badge 
-                    key={cat} 
-                    className={`${CATEGORIE.includes(cat) ? 'bg-slate-700 text-slate-300' : 'bg-lime-400/20 text-lime-400'} flex items-center gap-1`}
-                  >
-                    {cat}
-                    {!CATEGORIE.includes(cat) && (
-                      <button 
-                        onClick={() => handleRemoveCategory(cat)}
-                        className="ml-1 hover:text-red-400"
+                  <div key={cat} className="flex items-center">
+                    {editingCategory === cat ? (
+                      <div className="flex items-center gap-1">
+                        <Input
+                          value={editedCategoryName}
+                          onChange={(e) => setEditedCategoryName(e.target.value)}
+                          className="bg-slate-900 border-slate-600 text-white h-7 w-32 text-xs"
+                          autoFocus
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') handleRenameCategory(cat, editedCategoryName);
+                            if (e.key === 'Escape') setEditingCategory(null);
+                          }}
+                        />
+                        <Button
+                          size="sm"
+                          className="h-7 px-2 bg-lime-400 hover:bg-lime-500 text-slate-900"
+                          onClick={() => handleRenameCategory(cat, editedCategoryName)}
+                        >
+                          ✓
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-7 px-2 text-slate-400"
+                          onClick={() => setEditingCategory(null)}
+                        >
+                          ✕
+                        </Button>
+                      </div>
+                    ) : (
+                      <Badge 
+                        className={`${CATEGORIE.includes(cat) ? 'bg-slate-700 text-slate-300' : 'bg-lime-400/20 text-lime-400'} flex items-center gap-1 cursor-pointer`}
+                        onClick={() => {
+                          setEditingCategory(cat);
+                          setEditedCategoryName(cat);
+                        }}
                       >
-                        <X className="w-3 h-3" />
-                      </button>
+                        {cat}
+                        <Pencil className="w-3 h-3 ml-1 opacity-50" />
+                        {!CATEGORIE.includes(cat) && (
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemoveCategory(cat);
+                            }}
+                            className="ml-1 hover:text-red-400"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        )}
+                      </Badge>
                     )}
-                  </Badge>
+                  </div>
                 ))}
               </div>
-              <p className="text-slate-500 text-xs mt-2">Le categorie grigie sono predefinite e non possono essere rimosse.</p>
+              <p className="text-slate-500 text-xs mt-2">Clicca su una categoria per rinominarla. Le categorie custom (verdi) possono essere eliminate.</p>
             </div>
 
             <Button
