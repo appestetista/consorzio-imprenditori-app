@@ -584,25 +584,27 @@ export default function AdminMessagesView({ onBack }) {
       )}
 
       {/* Dialog elimina messaggio */}
-      <AlertDialog open={!!messageToDelete} onOpenChange={() => setMessageToDelete(null)}>
-        <AlertDialogContent className="bg-slate-800 border-slate-700">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-white">Eliminare questo messaggio?</AlertDialogTitle>
-            <AlertDialogDescription className="text-slate-400">
-              Questa azione è permanente.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="bg-slate-700 text-slate-400 border-slate-600">Annulla</AlertDialogCancel>
-            <AlertDialogAction 
-              className="bg-red-600 hover:bg-red-700"
-              onClick={() => deleteMessageMutation.mutate(messageToDelete.id)}
-            >
-              Elimina
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {messageToDelete && (
+        <AlertDialog open={true} onOpenChange={(open) => !open && setMessageToDelete(null)}>
+          <AlertDialogContent className="bg-slate-800 border-slate-700">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-white">Eliminare questo messaggio?</AlertDialogTitle>
+              <AlertDialogDescription className="text-slate-400">
+                Questa azione è permanente.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel className="bg-slate-700 text-slate-400 border-slate-600">Annulla</AlertDialogCancel>
+              <AlertDialogAction 
+                className="bg-red-600 hover:bg-red-700"
+                onClick={() => deleteMessageMutation.mutate(messageToDelete.id)}
+              >
+                Elimina
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
 
       {/* Dialog elimina conversazione */}
       <AlertDialog open={!!conversationToDelete} onOpenChange={() => setConversationToDelete(null)}>
