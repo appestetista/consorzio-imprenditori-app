@@ -383,9 +383,14 @@ export default function AdminMessagesView({ onBack }) {
                         {sourceLabels[conv.source]?.label || conv.source}
                       </Badge>
                       <p className="text-slate-400 text-xs truncate mt-1">{conv.lastMessage?.content}</p>
-                      <p className="text-slate-500 text-[10px]">
-                        {conv.messages.length} messaggi • {format(new Date(conv.lastMessage?.created_date), 'd MMM', { locale: it })}
-                      </p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="bg-slate-700 text-lime-400 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                          💬 {conv.messages.length} messaggi
+                        </span>
+                        <span className="text-slate-500 text-[10px]">
+                          • {format(new Date(conv.lastMessage?.created_date), 'd MMM', { locale: it })}
+                        </span>
+                      </div>
                     </div>
                     <ChevronRight className="w-5 h-5 text-slate-500" />
                   </div>
