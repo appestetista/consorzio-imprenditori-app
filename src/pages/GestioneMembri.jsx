@@ -193,6 +193,9 @@ export default function GestioneMembri() {
   });
 
   const filteredMembers = members.filter(member => {
+    // Escludi i consulenti dalla lista utenti
+    if (member.user_type === 'consulente') return false;
+    
     const searchLower = searchTerm.toLowerCase();
     const matchesSearch = (
       member.company_name?.toLowerCase().includes(searchLower) ||
@@ -610,7 +613,7 @@ export default function GestioneMembri() {
                 {selectedZoneRegistrati && (
                   <div className="space-y-2 max-h-64 overflow-y-auto">
                     {members
-                      .filter(m => selectedZoneRegistrati === 'all' || m.zona === selectedZoneRegistrati)
+                      .filter(m => m.user_type !== 'consulente' && (selectedZoneRegistrati === 'all' || m.zona === selectedZoneRegistrati))
                       .map(member => (
                         <div key={member.id} className="bg-slate-900 rounded-lg p-3 flex items-center justify-between">
                           <div className="flex items-center gap-3">
@@ -642,7 +645,7 @@ export default function GestioneMembri() {
                           </div>
                         </div>
                       ))}
-                    {members.filter(m => selectedZoneRegistrati === 'all' || m.zona === selectedZoneRegistrati).length === 0 && (
+                    {members.filter(m => m.user_type !== 'consulente' && (selectedZoneRegistrati === 'all' || m.zona === selectedZoneRegistrati)).length === 0 && (
                       <p className="text-slate-500 text-sm text-center py-4">Nessun utente in questa zona</p>
                     )}
                   </div>
