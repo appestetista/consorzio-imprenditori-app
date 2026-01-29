@@ -170,9 +170,17 @@ function ConsultantCard({ consultant, onChat, currentUserEmail, unreadCount, sho
   return (
     <Card className="bg-slate-800 border-slate-700 p-4">
       <div className="flex items-center gap-3">
-        <div className="w-14 h-14 rounded-lg bg-amber-400/20 flex items-center justify-center flex-shrink-0">
-          <Briefcase className="w-7 h-7 text-amber-400" />
-        </div>
+        {consultant.logo_url ? (
+          <img 
+            src={consultant.logo_url} 
+            alt={`Logo ${consultant.name}`}
+            className="w-14 h-14 object-contain rounded-lg bg-slate-900 border border-slate-700 flex-shrink-0"
+          />
+        ) : (
+          <div className="w-14 h-14 rounded-lg bg-amber-400/20 flex items-center justify-center flex-shrink-0">
+            <Briefcase className="w-7 h-7 text-amber-400" />
+          </div>
+        )}
         <div className="min-w-0 flex-1">
           <p className="text-white font-semibold truncate">
             {consultant.name || 'Consulente'}
@@ -310,9 +318,17 @@ function FullChat({ consultant, currentUserEmail, onBack }) {
         >
           <ArrowLeft className="w-5 h-5" />
         </Button>
-        <div className="w-10 h-10 rounded-full bg-amber-400/20 flex items-center justify-center">
-          <Briefcase className="w-5 h-5 text-amber-400" />
-        </div>
+        {consultant.logo_url ? (
+          <img 
+            src={consultant.logo_url} 
+            alt={`Logo ${consultant.name}`}
+            className="w-10 h-10 object-contain rounded-full bg-slate-900 border border-slate-700"
+          />
+        ) : (
+          <div className="w-10 h-10 rounded-full bg-amber-400/20 flex items-center justify-center">
+            <Briefcase className="w-5 h-5 text-amber-400" />
+          </div>
+        )}
         <div className="flex-1 min-w-0">
           <p className="text-white font-semibold truncate">{consultant.name}</p>
           <p className="text-amber-400 text-xs truncate">{consultant.category}</p>
