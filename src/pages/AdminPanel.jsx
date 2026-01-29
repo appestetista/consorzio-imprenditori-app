@@ -759,64 +759,6 @@ export default function AdminPanel() {
             </CardContent>
           </Card>
         )}
-          <TabsList className="w-full bg-slate-800 border border-slate-700 mb-4">
-            <TabsTrigger value="richieste" className="flex-1 text-xs data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
-              <div className="relative flex items-center gap-1">
-                <Bell className="w-3.5 h-3.5" />
-                Richieste
-                {(pendingRequests.length + pendingVideoRequests.length + eventResponseNotifications.length) > 0 && (
-                  <span className="bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
-                    {pendingRequests.length + pendingVideoRequests.length + eventResponseNotifications.length}
-                  </span>
-                )}
-              </div>
-            </TabsTrigger>
-          </TabsList>
-
-          {/* TAB RICHIESTE */}
-          <TabsContent value="richieste" className="space-y-4">
-            {/* Risposte Eventi */}
-            {eventResponseNotifications.length > 0 && (
-              <Card className="bg-slate-800 border-slate-700">
-                <CardContent className="p-3">
-                  <h3 className="text-white font-medium text-sm mb-2 flex items-center gap-2">
-                    <CalendarDays className="w-4 h-4 text-lime-400" />
-                    Risposte Eventi ({eventResponseNotifications.length})
-                  </h3>
-                  <div className="space-y-2">
-                    {eventResponseNotifications.slice(0, 5).map((notif) => {
-                      const evento = allEvents.find(e => e.id === notif.reference_id);
-                      return (
-                        <div key={notif.id} className="bg-lime-400/10 border border-lime-400/30 rounded-lg p-3">
-                          <p className="text-white text-sm">{notif.content}</p>
-                          {evento && (
-                            <p className="text-slate-400 text-xs mt-1">Evento: {evento.title}</p>
-                          )}
-                          <p className="text-slate-500 text-xs mt-1">
-                            {notif.created_date ? new Date(notif.created_date).toLocaleDateString('it-IT', {
-                              day: 'numeric',
-                              month: 'short',
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            }) : ''}
-                          </p>
-                        </div>
-                      );
-                    })}
-                    {eventResponseNotifications.length > 5 && (
-                      <Link to={createPageUrl('CalendarioIncontri')} className="block">
-                        <p className="text-lime-400 text-xs text-center py-1 hover:underline">
-                          Vedi tutti ({eventResponseNotifications.length})
-                        </p>
-                      </Link>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-
-
       </main>
 
       <BottomNav currentPage="AdminPanel" unreadMessages={messages.length} />
