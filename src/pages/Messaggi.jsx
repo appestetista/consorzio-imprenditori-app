@@ -434,7 +434,7 @@ export default function Messaggi() {
                         msg.is_read ? (
                           <CheckCheck className="w-5 h-5 text-fuchsia-500 font-bold" strokeWidth={3} />
                         ) : (
-                          <Check className="w-5 h-5 text-slate-500" strokeWidth={2.5} />
+                          <Check className="w-5 h-5 text-white" strokeWidth={2.5} />
                         )
                       )}
                     </div>

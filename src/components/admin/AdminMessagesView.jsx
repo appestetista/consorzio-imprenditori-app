@@ -337,7 +337,7 @@ export default function AdminMessagesView({ onBack }) {
                           {msg.is_read ? (
                             <CheckCheck className="w-4 h-4 text-fuchsia-500" strokeWidth={3} />
                           ) : (
-                            <Check className="w-4 h-4 text-slate-500" strokeWidth={2.5} />
+                            <Check className="w-4 h-4 text-white" strokeWidth={2.5} />
                           )}
                         </div>
                         <div className="flex items-center gap-1">
