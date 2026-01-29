@@ -730,28 +730,25 @@ export default function AdminPanel() {
               </Card>
             )}
 
-            {/* Messaggi */}
-            <Card className="bg-slate-800 border-slate-700">
+            {/* Messaggi - Card che apre gestione completa */}
+            <Card 
+              className="bg-slate-800 border-slate-700 cursor-pointer hover:bg-slate-700"
+              onClick={() => setShowAdminMessages(true)}
+            >
               <CardContent className="p-3">
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <MessageSquare className={`w-4 h-4 ${unreadAdminMessages.length > 0 ? 'text-lime-400' : 'text-slate-400'}`} />
-                    <span className="text-white font-medium text-sm">Messaggi ({unreadAdminMessages.length} nuovi)</span>
+                    <MessageSquare className="w-4 h-4 text-lime-400" />
+                    <span className="text-white font-medium text-sm">Gestione Messaggi</span>
                   </div>
-                  <Button size="sm" variant="ghost" className="text-lime-400 h-7 text-xs" onClick={() => setShowAllMessages(true)}>
-                    Vedi tutti
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    {unreadAdminMessages.length > 0 && (
+                      <Badge className="bg-red-500 text-white text-xs">{unreadAdminMessages.length} nuovi</Badge>
+                    )}
+                    <span className="text-slate-400 text-xs">→</span>
+                  </div>
                 </div>
-                {unreadAdminMessages.length > 0 && (
-                  <div className="space-y-1">
-                    {unreadAdminMessages.slice(0, 2).map((msg) => (
-                      <div key={msg.id} className="bg-slate-900 rounded p-2 text-xs">
-                        <p className="text-white font-medium truncate">{msg.sender_name}</p>
-                        <p className="text-slate-400 truncate">{msg.content}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <p className="text-slate-400 text-xs mt-1">Vedi tutte le conversazioni per utente/consulente</p>
               </CardContent>
             </Card>
 
