@@ -986,180 +986,196 @@ export default function AdminPanel() {
           
           {formDataConsultant && (
             <div className="space-y-4 mt-4">
-              <div>
-                <Label className="text-slate-300 text-sm">Nome/Studio *</Label>
-                <Input
-                  value={formDataConsultant.name}
-                  onChange={(e) => setFormDataConsultant({...formDataConsultant, name: e.target.value})}
-                  className="bg-slate-900 border-slate-700 text-white mt-1"
-                  placeholder="Nome consulente o studio"
-                />
-              </div>
-
-              <div>
-                <Label className="text-slate-300 text-sm">Categoria *</Label>
-                <Select
-                  value={formDataConsultant.category}
-                  onValueChange={(value) => setFormDataConsultant({...formDataConsultant, category: value})}
-                >
-                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white mt-1">
-                    <SelectValue placeholder="Seleziona categoria..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CONSULTANT_CATEGORIES.map(cat => (
-                      <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label className="text-slate-300 text-sm">Email</Label>
-                <Input
-                  type="email"
-                  value={formDataConsultant.email}
-                  onChange={(e) => setFormDataConsultant({...formDataConsultant, email: e.target.value})}
-                  className="bg-slate-900 border-slate-700 text-white mt-1"
-                  placeholder="email@esempio.com"
-                />
-              </div>
-
-              <div>
-                <Label className="text-slate-300 text-sm">Telefono</Label>
-                <Input
-                  value={formDataConsultant.phone}
-                  onChange={(e) => setFormDataConsultant({...formDataConsultant, phone: e.target.value})}
-                  className="bg-slate-900 border-slate-700 text-white mt-1"
-                  placeholder="+39 02 1234567"
-                />
-              </div>
-
-              <div>
-                <Label className="text-slate-300 text-sm">Città</Label>
-                <Input
-                  value={formDataConsultant.city}
-                  onChange={(e) => setFormDataConsultant({...formDataConsultant, city: e.target.value})}
-                  className="bg-slate-900 border-slate-700 text-white mt-1"
-                  placeholder="Milano"
-                />
-              </div>
-
-              <div>
-                <Label className="text-slate-300 text-sm">Referente</Label>
-                <Input
-                  value={formDataConsultant.referente}
-                  onChange={(e) => setFormDataConsultant({...formDataConsultant, referente: e.target.value})}
-                  className="bg-slate-900 border-slate-700 text-white mt-1"
-                  placeholder="Nome referente"
-                />
-              </div>
-
-              <div>
-                <Label className="text-slate-300 text-sm">Cellulare Referente</Label>
-                <Input
-                  value={formDataConsultant.cellulare_referente}
-                  onChange={(e) => setFormDataConsultant({...formDataConsultant, cellulare_referente: e.target.value})}
-                  className="bg-slate-900 border-slate-700 text-white mt-1"
-                  placeholder="+39 333 1234567"
-                />
-              </div>
-
-              <div>
-                <Label className="text-lime-400 text-sm font-medium">Zone Assegnate *</Label>
-                <div className="bg-slate-900 border border-lime-400 rounded-md p-3 mt-1 space-y-2 max-h-40 overflow-y-auto">
-                  {zones.map(zone => (
-                    <div key={zone.id} className="flex items-center gap-2">
-                      <Checkbox
-                        id={`zone-edit-${zone.id}`}
-                        checked={formDataConsultant.zone_assegnate?.includes(zone.name)}
-                        onCheckedChange={(checked) => {
-                          const currentZones = formDataConsultant.zone_assegnate || [];
-                          if (checked) {
-                            setFormDataConsultant({...formDataConsultant, zone_assegnate: [...currentZones, zone.name], zona: zone.name});
-                          } else {
-                            const newZones = currentZones.filter(z => z !== zone.name);
-                            setFormDataConsultant({...formDataConsultant, zone_assegnate: newZones, zona: newZones[0] || ''});
-                          }
-                        }}
-                        className="border-slate-600 data-[state=checked]:bg-lime-400 data-[state=checked]:border-lime-400"
-                      />
-                      <Label htmlFor={`zone-edit-${zone.id}`} className="text-white text-sm cursor-pointer">
-                        {zone.name}
-                      </Label>
-                    </div>
-                  ))}
+              {/* ============ SEZIONE CAMPI SOLO ADMIN (bordino lime) ============ */}
+              <div className="border-l-4 border-lime-400 pl-4 py-2 bg-lime-400/5 rounded-r-lg">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-2 h-2 rounded-full bg-lime-400"></div>
+                  <h3 className="text-lime-400 font-medium text-sm">🔒 Campi solo Admin</h3>
                 </div>
-                {formDataConsultant.zone_assegnate?.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {formDataConsultant.zone_assegnate.map(z => (
-                      <Badge key={z} className="bg-lime-400/20 text-lime-400 border-0 text-xs">{z}</Badge>
-                    ))}
+                <p className="text-slate-500 text-xs mb-4">Questi campi sono modificabili solo dall'amministratore</p>
+                
+                <div className="space-y-3">
+                  <div>
+                    <Label className="text-slate-300 text-sm">Categoria *</Label>
+                    <Select
+                      value={formDataConsultant.category}
+                      onValueChange={(value) => setFormDataConsultant({...formDataConsultant, category: value})}
+                    >
+                      <SelectTrigger className="bg-slate-900 border-lime-400/30 text-white mt-1">
+                        <SelectValue placeholder="Seleziona categoria..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {CONSULTANT_CATEGORIES.map(cat => (
+                          <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-                )}
-                <p className="text-slate-500 text-xs mt-1">Il consulente sarà visibile agli utenti delle zone selezionate</p>
-              </div>
 
-              {/* Sezioni Visibili (tab che può consultare) */}
-              <div>
-                <Label className="text-blue-400 text-sm font-medium">Sezioni Visibili (tab consultabili)</Label>
-                <div className="bg-slate-900 border border-blue-400/50 rounded-md p-3 mt-1 space-y-2 max-h-40 overflow-y-auto">
-                  {SECTIONS.map(section => (
-                    <div key={section.id} className="flex items-center gap-2">
-                      <Checkbox
-                        id={`section-edit-${section.id}`}
-                        checked={formDataConsultant.assigned_sections?.includes(section.id)}
-                        onCheckedChange={(checked) => {
-                          const currentSections = formDataConsultant.assigned_sections || [];
-                          if (checked) {
-                            setFormDataConsultant({...formDataConsultant, assigned_sections: [...currentSections, section.id]});
-                          } else {
-                            setFormDataConsultant({...formDataConsultant, assigned_sections: currentSections.filter(s => s !== section.id)});
-                          }
-                        }}
-                        className="border-slate-600 data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500"
-                      />
-                      <Label htmlFor={`section-edit-${section.id}`} className="text-white text-sm cursor-pointer">
-                        {section.label}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Pannelli Comunicazione (dove appare agli utenti) */}
-              <div>
-                <Label className="text-amber-400 text-sm font-medium">Pannelli Comunicazione (dove appare agli utenti)</Label>
-                <p className="text-slate-500 text-xs mb-1">Seleziona in quali sezioni gli utenti potranno contattare questo consulente</p>
-                <div className="bg-slate-900 border border-amber-400/50 rounded-md p-3 mt-1 space-y-2 max-h-40 overflow-y-auto">
-                  {SECTIONS.map(section => (
-                    <div key={`comm-${section.id}`} className="flex items-center gap-2">
-                      <Checkbox
-                        id={`comm-edit-${section.id}`}
-                        checked={formDataConsultant.communication_sections?.includes(section.id)}
-                        onCheckedChange={(checked) => {
-                          const currentSections = formDataConsultant.communication_sections || [];
-                          if (checked) {
-                            setFormDataConsultant({...formDataConsultant, communication_sections: [...currentSections, section.id]});
-                          } else {
-                            setFormDataConsultant({...formDataConsultant, communication_sections: currentSections.filter(s => s !== section.id)});
-                          }
-                        }}
-                        className="border-slate-600 data-[state=checked]:bg-amber-500 data-[state=checked]:border-amber-500"
-                      />
-                      <Label htmlFor={`comm-edit-${section.id}`} className="text-white text-sm cursor-pointer">
-                        {section.label}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
-                {formDataConsultant.communication_sections?.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {formDataConsultant.communication_sections.map(s => {
-                      const sectionLabel = SECTIONS.find(sec => sec.id === s)?.label || s;
-                      return <Badge key={s} className="bg-amber-500/20 text-amber-400 border-0 text-xs">{sectionLabel}</Badge>;
-                    })}
+                  <div>
+                    <Label className="text-slate-300 text-sm">Email</Label>
+                    <Input
+                      type="email"
+                      value={formDataConsultant.email}
+                      onChange={(e) => setFormDataConsultant({...formDataConsultant, email: e.target.value})}
+                      className="bg-slate-900 border-lime-400/30 text-white mt-1"
+                      placeholder="email@esempio.com"
+                    />
                   </div>
-                )}
+
+                  <div>
+                    <Label className="text-slate-300 text-sm">Zone Assegnate *</Label>
+                    <div className="bg-slate-900 border border-lime-400/50 rounded-md p-3 mt-1 space-y-2 max-h-40 overflow-y-auto">
+                      {zones.map(zone => (
+                        <div key={zone.id} className="flex items-center gap-2">
+                          <Checkbox
+                            id={`zone-edit-${zone.id}`}
+                            checked={formDataConsultant.zone_assegnate?.includes(zone.name)}
+                            onCheckedChange={(checked) => {
+                              const currentZones = formDataConsultant.zone_assegnate || [];
+                              if (checked) {
+                                setFormDataConsultant({...formDataConsultant, zone_assegnate: [...currentZones, zone.name], zona: zone.name});
+                              } else {
+                                const newZones = currentZones.filter(z => z !== zone.name);
+                                setFormDataConsultant({...formDataConsultant, zone_assegnate: newZones, zona: newZones[0] || ''});
+                              }
+                            }}
+                            className="border-slate-600 data-[state=checked]:bg-lime-400 data-[state=checked]:border-lime-400"
+                          />
+                          <Label htmlFor={`zone-edit-${zone.id}`} className="text-white text-sm cursor-pointer">
+                            {zone.name}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                    {formDataConsultant.zone_assegnate?.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        {formDataConsultant.zone_assegnate.map(z => (
+                          <Badge key={z} className="bg-lime-400/20 text-lime-400 border-0 text-xs">{z}</Badge>
+                        ))}
+                      </div>
+                    )}
+                    <p className="text-slate-500 text-xs mt-1">Il consulente sarà visibile agli utenti delle zone selezionate</p>
+                  </div>
+
+                  {/* Sezioni Visibili (tab che può consultare) */}
+                  <div>
+                    <Label className="text-slate-300 text-sm">Sezioni Visibili (tab consultabili)</Label>
+                    <div className="bg-slate-900 border border-lime-400/30 rounded-md p-3 mt-1 space-y-2 max-h-40 overflow-y-auto">
+                      {SECTIONS.map(section => (
+                        <div key={section.id} className="flex items-center gap-2">
+                          <Checkbox
+                            id={`section-edit-${section.id}`}
+                            checked={formDataConsultant.assigned_sections?.includes(section.id)}
+                            onCheckedChange={(checked) => {
+                              const currentSections = formDataConsultant.assigned_sections || [];
+                              if (checked) {
+                                setFormDataConsultant({...formDataConsultant, assigned_sections: [...currentSections, section.id]});
+                              } else {
+                                setFormDataConsultant({...formDataConsultant, assigned_sections: currentSections.filter(s => s !== section.id)});
+                              }
+                            }}
+                            className="border-slate-600 data-[state=checked]:bg-lime-400 data-[state=checked]:border-lime-400"
+                          />
+                          <Label htmlFor={`section-edit-${section.id}`} className="text-white text-sm cursor-pointer">
+                            {section.label}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Pannelli Comunicazione (dove appare agli utenti) */}
+                  <div>
+                    <Label className="text-slate-300 text-sm">Pannelli Comunicazione (dove appare agli utenti)</Label>
+                    <p className="text-slate-500 text-xs mb-1">Seleziona in quali sezioni gli utenti potranno contattare questo consulente</p>
+                    <div className="bg-slate-900 border border-lime-400/30 rounded-md p-3 mt-1 space-y-2 max-h-40 overflow-y-auto">
+                      {SECTIONS.map(section => (
+                        <div key={`comm-${section.id}`} className="flex items-center gap-2">
+                          <Checkbox
+                            id={`comm-edit-${section.id}`}
+                            checked={formDataConsultant.communication_sections?.includes(section.id)}
+                            onCheckedChange={(checked) => {
+                              const currentSections = formDataConsultant.communication_sections || [];
+                              if (checked) {
+                                setFormDataConsultant({...formDataConsultant, communication_sections: [...currentSections, section.id]});
+                              } else {
+                                setFormDataConsultant({...formDataConsultant, communication_sections: currentSections.filter(s => s !== section.id)});
+                              }
+                            }}
+                            className="border-slate-600 data-[state=checked]:bg-lime-400 data-[state=checked]:border-lime-400"
+                          />
+                          <Label htmlFor={`comm-edit-${section.id}`} className="text-white text-sm cursor-pointer">
+                            {section.label}
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                    {formDataConsultant.communication_sections?.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        {formDataConsultant.communication_sections.map(s => {
+                          const sectionLabel = SECTIONS.find(sec => sec.id === s)?.label || s;
+                          return <Badge key={s} className="bg-lime-400/20 text-lime-400 border-0 text-xs">{sectionLabel}</Badge>;
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* ============ CAMPI CONDIVISI (visibili anche dal consulente) ============ */}
+              <div className="space-y-3 pt-4 border-t border-slate-700">
+                <p className="text-slate-400 text-xs">Campi modificabili anche dal consulente:</p>
+                
+                <div>
+                  <Label className="text-slate-300 text-sm">Nome/Studio *</Label>
+                  <Input
+                    value={formDataConsultant.name}
+                    onChange={(e) => setFormDataConsultant({...formDataConsultant, name: e.target.value})}
+                    className="bg-slate-900 border-slate-700 text-white mt-1"
+                    placeholder="Nome consulente o studio"
+                  />
+                </div>
+
+                <div>
+                  <Label className="text-slate-300 text-sm">Telefono</Label>
+                  <Input
+                    value={formDataConsultant.phone}
+                    onChange={(e) => setFormDataConsultant({...formDataConsultant, phone: e.target.value})}
+                    className="bg-slate-900 border-slate-700 text-white mt-1"
+                    placeholder="+39 02 1234567"
+                  />
+                </div>
+
+                <div>
+                  <Label className="text-slate-300 text-sm">Città</Label>
+                  <Input
+                    value={formDataConsultant.city}
+                    onChange={(e) => setFormDataConsultant({...formDataConsultant, city: e.target.value})}
+                    className="bg-slate-900 border-slate-700 text-white mt-1"
+                    placeholder="Milano"
+                  />
+                </div>
+
+                <div>
+                  <Label className="text-slate-300 text-sm">Referente</Label>
+                  <Input
+                    value={formDataConsultant.referente}
+                    onChange={(e) => setFormDataConsultant({...formDataConsultant, referente: e.target.value})}
+                    className="bg-slate-900 border-slate-700 text-white mt-1"
+                    placeholder="Nome referente"
+                  />
+                </div>
+
+                <div>
+                  <Label className="text-slate-300 text-sm">Cellulare Referente</Label>
+                  <Input
+                    value={formDataConsultant.cellulare_referente}
+                    onChange={(e) => setFormDataConsultant({...formDataConsultant, cellulare_referente: e.target.value})}
+                    className="bg-slate-900 border-slate-700 text-white mt-1"
+                    placeholder="+39 333 1234567"
+                  />
+                </div>
               </div>
 
               {/* ============ SEZIONE CAMPI CONSULENTE (bordino viola) ============ */}
