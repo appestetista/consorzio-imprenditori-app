@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Sparkles, AlertCircle, Info, Briefcase, XCircle, Building2, CalendarDays, MessageSquare, Mail, Eye, Trash2, User, Phone, Search, Loader2 } from 'lucide-react';
+import { ArrowLeft, Sparkles, AlertCircle, Info, Briefcase, XCircle, Building2, CalendarDays, MessageSquare, Mail, Eye, Trash2, User, Phone, Search, Loader2, Plus, Edit, Share2, Archive, ExternalLink } from 'lucide-react';
 import { useAILimits } from '@/components/hooks/useAILimits';
 import UsageCounter from '@/components/common/UsageCounter';
+import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -17,6 +20,8 @@ import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import GrantCard from '../components/grants/GrantCard';
 import GrantFilters from '../components/grants/GrantFilters';
+import BandoStats from '../components/admin/BandoStats';
+import BandoForm from '../components/admin/BandoForm';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 
 export default function FinanziamentiAgevolati() {
