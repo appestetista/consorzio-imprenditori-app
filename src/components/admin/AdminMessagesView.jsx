@@ -492,105 +492,179 @@ export default function AdminMessagesView({ onBack }) {
     );
   }
 
-  // Vista conversazioni di una persona
-  if (selectedPerson) {
-    const person = messagesByPerson[selectedPerson];
+  // Vista chat di una conversazione unica
+  if (selectedConversation) {
+    const conv = uniqueConversations[selectedConversation];
     
-    if (!person) return null;
+    if (!conv) return null;
     
     return (
       <div className="space-y-4">
         {/* Header */}
         <div className="flex items-center gap-3">
-          <button onClick={() => { setSelectedPerson(null); setSourceFilter('all'); }} className="text-lime-400">
+          <button onClick={() => setSelectedConversation(null)} className="text-lime-400">
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="flex-1">
-            <p className="text-white font-medium">{person.person.name}</p>
-            <div className="flex items-center gap-2">
-              <Badge className={`${person.person.type === 'consulente' ? 'bg-blue-500' : 'bg-lime-500'} text-white text-[10px]`}>
-                {person.person.type === 'consulente' ? '👔 Consulente' : '👤 Utente'}
-              </Badge>
-              {person.person.zona && (
-                <Badge className="bg-slate-600 text-slate-300 text-[10px]">
-                  <MapPin className="w-3 h-3 mr-1" />
-                  {person.person.zona}
-                </Badge>
-              )}
-            </div>
+            <p className="text-white font-medium text-sm">
+              {conv.azienda?.name} ↔ {conv.consulente?.name}
+            </p>
+            <Badge className={`${sourceLabels[conv.source]?.color || 'bg-slate-500'} text-white text-[10px]`}>
+              {sourceLabels[conv.source]?.label || conv.source}
+            </Badge>
           </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-red-600 text-red-400 hover:bg-red-600/20"
+            onClick={() => setConversationToDelete(conv.messages.map(m => m.id))}
+          >
+            <Trash2 className="w-4 h-4 mr-1" />
+            Elimina tutto
+          </Button>
         </div>
 
-        {/* Filtro source */}
-        <Select value={sourceFilter} onValueChange={setSourceFilter}>
-          <SelectTrigger className="bg-slate-800 border-slate-700 text-white h-8 text-xs">
-            <SelectValue placeholder="Filtra per sezione" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tutte le sezioni</SelectItem>
-            {Object.entries(sourceLabels).map(([key, val]) => (
-              <SelectItem key={key} value={key}>{val.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        {/* Lista conversazioni */}
-        <div className="space-y-2 max-h-[60vh] overflow-y-auto">
-          {filteredConversations.length === 0 ? (
-            <p className="text-slate-400 text-sm text-center py-4">Nessuna conversazione</p>
-          ) : (
-            filteredConversations.map(([convKey, conv]) => (
-              <Card 
-                key={convKey} 
-                className="bg-slate-800 border-slate-700 cursor-pointer hover:bg-slate-700"
-                onClick={() => setSelectedConversation(convKey)}
+        {/* Messaggi stile chat con fumetti */}
+        <div className="space-y-3 max-h-[60vh] overflow-y-auto px-2 py-3 bg-slate-950 rounded-lg">
+          {conv.messages.map(msg => {
+            const isFromAzienda = msg.from_email === conv.azienda?.email;
+            const sender = peopleMap[msg.from_email] || { name: msg.from_email, type: 'sconosciuto' };
+            
+            return (
+              <div 
+                key={msg.id} 
+                className={`flex ${isFromAzienda ? 'justify-end' : 'justify-start'} group`}
               >
-                <CardContent className="p-3">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                      conv.otherPerson.type === 'consulente' ? 'bg-blue-500/20' : 'bg-lime-400/20'
-                    }`}>
-                      {conv.otherPerson.type === 'consulente' ? (
-                        <Briefcase className="w-5 h-5 text-blue-400" />
-                      ) : (
-                        <User className="w-5 h-5 text-lime-400" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      {/* Mostra: AZIENDA → CONSULENTE */}
-                      <div className="flex items-center gap-2">
-                        <p className="text-white font-medium text-sm truncate">
-                          {person.person.type === 'consulente' ? (
-                            // Se la persona selezionata è consulente: Azienda → Consulente
-                            <>{conv.otherPerson.name} → {person.person.name}</>
-                          ) : (
-                            // Se la persona selezionata è utente: Utente → Consulente
-                            <>{person.person.name} → {conv.otherPerson.name}</>
-                          )}
-                        </p>
-                        {conv.unreadCount > 0 && (
-                          <Badge className="bg-red-500 text-white text-[10px]">{conv.unreadCount}</Badge>
-                        )}
-                      </div>
-                      <Badge className={`${sourceLabels[conv.source]?.color || 'bg-slate-500'} text-white text-[10px] mt-1`}>
-                        {sourceLabels[conv.source]?.label || conv.source}
-                      </Badge>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="bg-slate-700 text-lime-400 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                          💬 {conv.messages.length} messaggi
-                        </span>
-                        <span className="text-slate-500 text-[10px]">
-                          • {format(new Date(conv.lastMessage?.created_date), 'd MMM', { locale: it })}
-                        </span>
-                      </div>
-                    </div>
-                    <ChevronRight className="w-5 h-5 text-slate-500" />
+                <div className={`flex items-end gap-1 max-w-[80%] ${isFromAzienda ? 'flex-row-reverse' : 'flex-row'}`}>
+                  {/* Avatar */}
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${
+                    isFromAzienda ? 'bg-lime-400/30' : 'bg-blue-500/30'
+                  }`}>
+                    {isFromAzienda ? (
+                      <User className="w-3.5 h-3.5 text-lime-400" />
+                    ) : (
+                      <Briefcase className="w-3.5 h-3.5 text-blue-400" />
+                    )}
                   </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
+                  
+                  {/* Fumetto messaggio */}
+                  <div className="relative">
+                    <div className={`rounded-2xl px-3 py-2 ${
+                      isFromAzienda 
+                        ? 'bg-lime-400 text-slate-900 rounded-br-sm' 
+                        : 'bg-slate-600 text-white rounded-bl-sm'
+                    }`}>
+                      {/* Nome mittente */}
+                      <p className={`text-[10px] font-bold mb-1 ${
+                        isFromAzienda ? 'text-slate-700' : 'text-slate-300'
+                      }`}>
+                        {sender.name} {isFromAzienda ? '(Azienda)' : '(Consulente)'}
+                      </p>
+                      
+                      {/* Contenuto */}
+                      <p className="text-sm whitespace-pre-wrap break-words">{msg.content}</p>
+                      
+                      {/* Allegati */}
+                      {msg.attachments?.length > 0 && (
+                        <div className="flex gap-1 mt-2 flex-wrap">
+                          {msg.attachments.map((att, i) => (
+                            <a 
+                              key={i} 
+                              href={att.url} 
+                              target="_blank" 
+                              rel="noopener noreferrer" 
+                              className={`text-xs underline ${isFromAzienda ? 'text-slate-700' : 'text-slate-300'}`}
+                            >
+                              📎 {att.name}
+                            </a>
+                          ))}
+                        </div>
+                      )}
+                      
+                      {/* Ora e stato + elimina inline */}
+                      <div className={`flex items-center justify-between gap-2 mt-1 ${
+                        isFromAzienda ? 'text-slate-600' : 'text-slate-400'
+                      }`}>
+                        <div className="flex items-center gap-1">
+                          <span className="text-[10px]">
+                            {format(new Date(msg.created_date), 'HH:mm', { locale: it })}
+                            {new Date(msg.created_date).toDateString() !== new Date().toDateString() && (
+                              <span className="ml-1">• {format(new Date(msg.created_date), 'd MMM', { locale: it })}</span>
+                            )}
+                          </span>
+                          {msg.is_read ? (
+                            <CheckCheck className="w-4 h-4 text-fuchsia-500" strokeWidth={3} />
+                          ) : (
+                            <Check className="w-4 h-4 text-white" strokeWidth={2.5} />
+                          )}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={(e) => { 
+                            e.preventDefault();
+                            e.stopPropagation(); 
+                            setMessageToDelete(msg); 
+                          }}
+                          className={`opacity-50 hover:opacity-100 transition-opacity ${
+                            isFromAzienda ? 'text-slate-700 hover:text-red-600' : 'text-slate-400 hover:text-red-300'
+                          }`}
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
+
+        {/* Dialog elimina messaggio */}
+        {messageToDelete && (
+          <AlertDialog open={true} onOpenChange={(open) => !open && setMessageToDelete(null)}>
+            <AlertDialogContent className="bg-slate-800 border-slate-700">
+              <AlertDialogHeader>
+                <AlertDialogTitle className="text-white">Eliminare questo messaggio?</AlertDialogTitle>
+                <AlertDialogDescription className="text-slate-400">
+                  Questa azione è permanente.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel className="bg-slate-700 text-slate-400 border-slate-600">Annulla</AlertDialogCancel>
+                <AlertDialogAction 
+                  className="bg-red-600 hover:bg-red-700"
+                  onClick={() => deleteMessageMutation.mutate(messageToDelete.id)}
+                >
+                  Elimina
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
+
+        {/* Dialog elimina conversazione */}
+        {conversationToDelete && (
+          <AlertDialog open={true} onOpenChange={(open) => !open && setConversationToDelete(null)}>
+            <AlertDialogContent className="bg-slate-800 border-slate-700">
+              <AlertDialogHeader>
+                <AlertDialogTitle className="text-white">Eliminare tutti i messaggi?</AlertDialogTitle>
+                <AlertDialogDescription className="text-slate-400">
+                  Verranno eliminati {conversationToDelete?.length || 0} messaggi. Questa azione è permanente.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel className="bg-slate-700 text-slate-400 border-slate-600">Annulla</AlertDialogCancel>
+                <AlertDialogAction 
+                  className="bg-red-600 hover:bg-red-700"
+                  onClick={() => deleteConversationMutation.mutate(conversationToDelete)}
+                >
+                  Elimina tutto
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
       </div>
     );
   }
