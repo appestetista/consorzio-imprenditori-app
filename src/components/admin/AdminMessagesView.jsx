@@ -223,8 +223,8 @@ export default function AdminMessagesView({ onBack }) {
           (typeFilter === 'utenti' && conv.azienda?.type === 'utente') ||
           (typeFilter === 'consulenti' && conv.consulente?.type === 'consulente');
         
-        // Filtro source
-        const matchesSource = sourceFilter === 'all' || conv.source === sourceFilter;
+        // Filtro source - controlla se almeno uno dei source corrisponde
+        const matchesSource = sourceFilter === 'all' || conv.sources.has(sourceFilter);
         
         return matchesSearch && matchesZone && matchesType && matchesSource;
       })
