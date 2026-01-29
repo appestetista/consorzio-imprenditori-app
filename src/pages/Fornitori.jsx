@@ -13,6 +13,7 @@ import NewSupplierRequestForm from '../components/fornitori/NewSupplierRequestFo
 import MyRequestsList from '../components/fornitori/MyRequestsList';
 import OpenRequestsList from '../components/fornitori/OpenRequestsList';
 import SupplierProfileSetup from '../components/fornitori/SupplierProfileSetup';
+import SectionConsultantPanel from '../components/consulenze/SectionConsultantPanel';
 
 export default function Fornitori() {
   const [user, setUser] = useState(null);
@@ -131,6 +132,17 @@ export default function Fornitori() {
           </TabsList>
 
           <TabsContent value="my-requests" className="mt-0">
+            {/* Pannello Consulenti per questa sezione */}
+            {effectiveUser && (
+              <div className="mb-6">
+                <SectionConsultantPanel 
+                  sectionId="fornitori" 
+                  sectionLabel="Ricerca Fornitori" 
+                  user={effectiveUser} 
+                />
+              </div>
+            )}
+
             {!showNewRequest ? (
               <>
                 <Button 

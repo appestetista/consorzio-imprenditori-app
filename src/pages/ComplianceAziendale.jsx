@@ -16,6 +16,7 @@ import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import SectionConsultantPanel from '../components/consulenze/SectionConsultantPanel';
 
 const CATEGORIE = [
   "Sicurezza sul lavoro",
@@ -783,6 +784,17 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
         {/* Contenuto visibile solo se selezionato un ramo specifico */}
         {(branches.length === 0 || selectedBranch !== 'all') && (
           <>
+            {/* Pannello Consulenti per questa sezione */}
+            {effectiveUser && (
+              <div className="mb-6">
+                <SectionConsultantPanel 
+                  sectionId="compliance" 
+                  sectionLabel="Compliance Aziendale" 
+                  user={effectiveUser} 
+                />
+              </div>
+            )}
+
             {/* Grafico a torta */}
             <Card className="bg-slate-800 border-slate-700 mb-6">
               <CardContent className="p-4">

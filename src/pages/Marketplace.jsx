@@ -18,6 +18,7 @@ import BottomNav from '../components/layout/BottomNav';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import JobApplicationForm from '../components/marketplace/JobApplicationForm';
 import ApplicationReadStatus from '../components/marketplace/ApplicationReadStatus';
+import SectionConsultantPanel from '../components/consulenze/SectionConsultantPanel';
 
 const CATEGORIES = [
   "Ricerca Personale",
@@ -593,6 +594,17 @@ export default function Marketplace() {
             </DialogContent>
           </Dialog>
         </div>
+
+        {/* Pannello Consulenti per questa sezione */}
+        {user && (
+          <div className="mb-6">
+            <SectionConsultantPanel 
+              sectionId="marketplace" 
+              sectionLabel="Marketplace" 
+              user={user} 
+            />
+          </div>
+        )}
 
         {/* Category Filter */}
         <div className="mb-6 overflow-x-auto pb-2">

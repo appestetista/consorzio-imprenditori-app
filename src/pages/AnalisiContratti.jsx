@@ -16,6 +16,7 @@ import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import ContractMessagesSection from '@/components/analisi-contratti/ContractMessagesSection';
+import SectionConsultantPanel from '../components/consulenze/SectionConsultantPanel';
 
 export default function AnalisiContratti() {
   const [user, setUser] = useState(null);
@@ -298,6 +299,17 @@ Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
                         <ContractMessagesSection user={user} avvocati={avvocati} />
                       ) : (
                         <>
+                          {/* Pannello Consulenti per questa sezione */}
+                          {user && (
+                            <div className="mb-6">
+                              <SectionConsultantPanel 
+                                sectionId="analisi_contratti" 
+                                sectionLabel="Analisi Contratti" 
+                                user={user} 
+                              />
+                            </div>
+                          )}
+
                           {/* Limite Raggiunto Banner */}
                           {isLimitReached && (
                             <LimitReachedBanner 

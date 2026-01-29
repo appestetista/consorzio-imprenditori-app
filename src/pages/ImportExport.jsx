@@ -16,6 +16,7 @@ import Header from '@/components/layout/Header';
 import BottomNav from '@/components/layout/BottomNav';
 import ImportMessagesSection from '@/components/import-export/ImportMessagesSection';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import SectionConsultantPanel from '../components/consulenze/SectionConsultantPanel';
 
 const SETTORI = [
   'Alimentare e bevande',
@@ -588,6 +589,17 @@ IMPORTANTE: Usa SOLO fonti ufficiali (TARIC, Agenzia delle Dogane, WCO). NON INV
           <ImportMessagesSection user={user} />
         ) : activeTab === 'export' ? (
           <>
+            {/* Pannello Consulenti per Export */}
+            {user && (
+              <div className="mb-6">
+                <SectionConsultantPanel 
+                  sectionId="import_export" 
+                  sectionLabel="Import / Export" 
+                  user={user} 
+                />
+              </div>
+            )}
+
             {/* Limite Export */}
             {exportLimitReached && (
               <LimitReachedBanner actionType="export_analysis" usageCount={exportUsage} limit={exportLimit} />

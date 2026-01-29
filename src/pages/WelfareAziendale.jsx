@@ -7,6 +7,7 @@ import { createPageUrl } from '@/utils';
 import { Card, CardContent } from '@/components/ui/card';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
+import SectionConsultantPanel from '../components/consulenze/SectionConsultantPanel';
 
 export default function WelfareAziendale() {
   const [user, setUser] = useState(null);
@@ -91,6 +92,17 @@ export default function WelfareAziendale() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Pannello Consulenti per questa sezione */}
+        {user && (
+          <div className="mb-6">
+            <SectionConsultantPanel 
+              sectionId="welfare_aziendale" 
+              sectionLabel="Welfare Aziendale" 
+              user={user} 
+            />
+          </div>
+        )}
 
         {/* Sections Grid */}
         <div className="grid grid-cols-2 gap-3">
