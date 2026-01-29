@@ -509,9 +509,12 @@ export default function AdminMessagesView({ onBack }) {
                           <span className="text-slate-500 text-[10px]">{person.person.zona}</span>
                         )}
                       </div>
-                      <p className="text-slate-400 text-[10px] mt-1">
-                        {person.conversationsCount} conversazioni • {person.totalMessages} messaggi
-                      </p>
+                      <div className="flex items-center gap-3 mt-1">
+                        <span className="text-slate-400 text-[10px]">{person.conversationsCount} conversazioni</span>
+                        <span className="bg-slate-700 text-lime-400 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                          💬 {person.totalMessages} messaggi totali
+                        </span>
+                      </div>
                     </div>
                     <ChevronRight className="w-5 h-5 text-slate-500" />
                   </div>
