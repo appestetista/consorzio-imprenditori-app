@@ -1538,6 +1538,13 @@ export default function AdminPanel() {
         </DialogContent>
       </Dialog>
 
+      {/* Pannello Gestione Messaggi Admin */}
+      <Dialog open={showAdminMessages} onOpenChange={setShowAdminMessages}>
+        <DialogContent className="bg-slate-900 border-slate-700 max-w-lg max-h-[90vh] overflow-y-auto p-4">
+          <AdminMessagesView onBack={() => setShowAdminMessages(false)} />
+        </DialogContent>
+      </Dialog>
+
       {/* Pannello Consulenze Full Screen */}
       <Dialog open={showConsulenzePanel} onOpenChange={setShowConsulenzePanel}>
         <DialogContent className="bg-slate-900 border-slate-700 max-w-lg max-h-[90vh] overflow-y-auto p-0">
