@@ -41,6 +41,8 @@ export default function CulturaAziendale() {
   const [errors, setErrors] = useState([]);
   const [customCategories, setCustomCategories] = useState([]);
   const [newCategory, setNewCategory] = useState('');
+  const [editingCategory, setEditingCategory] = useState(null);
+  const [editedCategoryName, setEditedCategoryName] = useState('');
   const { impersonation } = useImpersonation();
   const queryClient = useQueryClient();
 
