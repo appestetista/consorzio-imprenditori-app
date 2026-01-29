@@ -247,16 +247,39 @@ export default function ZoneManagerSimple() {
     }
   });
 
+  const [zoneFilter, setZoneFilter] = useState('all');
+
   const openAssignDialog = (zoneId, type) => {
     setAssignZoneId(zoneId);
     setAssignType(type);
     setSearchFilter('');
     setCategoryFilter('all');
+    setZoneFilter('all');
     setShowAssignDialog(true);
   };
 
   // Categorie uniche dei consulenti per il filtro
   const consultantCategories = [...new Set(consultants.map(c => c.category).filter(Boolean))];
+
+  // Helper per verificare se un consulente è in una zona specifica
+  const consultantBelongsToZone = (consultant, zoneId) => {
+    const zone = zones.find(z => z.id === zoneId);
+    if (!zone) return false;
+    if (consultant.zone_ids?.includes(zoneId)) return true;
+    if (consultant.zona === zone.name) return true;
+    if (consultant.zone_assegnate?.includes(zone.name)) return true;
+    return false;
+  };
+
+  // Helper per verificare se un utente è in una zona specifica
+  const userBelongsToZone = (user, zoneId) => {
+    const zone = zones.find(z => z.id === zoneId);
+    if (!zone) return false;
+    if (user.zone_ids?.includes(zoneId)) return true;
+    if (user.zona === zone.name) return true;
+    if (user.zone_assegnate?.includes(zone.name)) return true;
+    return false;
+  };
 
   // Filtro consulenti
   const filteredConsultants = consultants.filter(c => {
@@ -264,17 +287,20 @@ export default function ZoneManagerSimple() {
       c.name?.toLowerCase().includes(searchFilter.toLowerCase()) ||
       c.email?.toLowerCase().includes(searchFilter.toLowerCase());
     const matchesCategory = categoryFilter === 'all' || c.category === categoryFilter;
-    return matchesSearch && matchesCategory;
+    const matchesZone = zoneFilter === 'all' || 
+      zoneFilter === 'none' ? !zones.some(z => consultantBelongsToZone(c, z.id)) : consultantBelongsToZone(c, zoneFilter);
+    return matchesSearch && matchesCategory && matchesZone;
   });
 
   // Filtro utenti
   const filteredUsers = normalUsers.filter(u => {
-    if (!searchFilter) return true;
-    return (
+    const matchesSearch = !searchFilter || 
       u.full_name?.toLowerCase().includes(searchFilter.toLowerCase()) ||
       u.company_name?.toLowerCase().includes(searchFilter.toLowerCase()) ||
-      u.email?.toLowerCase().includes(searchFilter.toLowerCase())
-    );
+      u.email?.toLowerCase().includes(searchFilter.toLowerCase());
+    const matchesZone = zoneFilter === 'all' || 
+      zoneFilter === 'none' ? !zones.some(z => userBelongsToZone(u, z.id)) : userBelongsToZone(u, zoneFilter);
+    return matchesSearch && matchesZone;
   });
 
   const isConsultantInZone = (consultantId, zoneId) => {
