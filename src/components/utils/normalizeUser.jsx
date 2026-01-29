@@ -32,7 +32,8 @@ export function normalizeUser(user) {
     
     // Dati aziendali
     company_name: user.company_name || data.company_name,
-    company_logo: user.company_logo || data.company_logo || data.logo_url,
+    company_logo: user.logo_url || user.company_logo || data.logo_url || data.company_logo,
+    logo_url: user.logo_url || data.logo_url,
     company_email: user.company_email || data.company_email,
     company_size: user.company_size || data.company_size,
     specializzazione: user.specializzazione || data.specializzazione,
