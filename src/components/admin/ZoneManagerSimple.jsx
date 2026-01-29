@@ -292,15 +292,14 @@ export default function ZoneManagerSimple() {
     return matchesSearch && matchesCategory && matchesZone;
   });
 
-  // Filtro utenti
+  // Filtro utenti (solo ricerca, no filtro zone)
   const filteredUsers = normalUsers.filter(u => {
-    const matchesSearch = !searchFilter || 
+    if (!searchFilter) return true;
+    return (
       u.full_name?.toLowerCase().includes(searchFilter.toLowerCase()) ||
       u.company_name?.toLowerCase().includes(searchFilter.toLowerCase()) ||
-      u.email?.toLowerCase().includes(searchFilter.toLowerCase());
-    const matchesZone = zoneFilter === 'all' || 
-      zoneFilter === 'none' ? !zones.some(z => userBelongsToZone(u, z.id)) : userBelongsToZone(u, zoneFilter);
-    return matchesSearch && matchesZone;
+      u.email?.toLowerCase().includes(searchFilter.toLowerCase())
+    );
   });
 
   const isConsultantInZone = (consultantId, zoneId) => {
