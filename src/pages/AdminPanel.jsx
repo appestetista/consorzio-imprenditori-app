@@ -502,17 +502,7 @@ export default function AdminPanel() {
           </Link>
         </div>
         
-        {/* Link Bandi separato */}
-        <div className="mb-4">
-          <Link to={createPageUrl('GestioneBandi')}>
-            <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700">
-              <CardContent className="p-3 flex items-center justify-center gap-2">
-                <Briefcase className="w-5 h-5 text-lime-400" />
-                <p className="text-white text-xs">Gestione Bandi</p>
-              </CardContent>
-            </Card>
-          </Link>
-        </div>
+
 
         {/* Sezioni Home - griglia di card linkate */}
         <div className="mb-6">

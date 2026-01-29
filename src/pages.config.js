@@ -62,7 +62,6 @@ import CulturaAziendale from './pages/CulturaAziendale';
 import DirectoryUtenti from './pages/DirectoryUtenti';
 import FinanziamentiAgevolati from './pages/FinanziamentiAgevolati';
 import Fornitori from './pages/Fornitori';
-import GestioneBandi from './pages/GestioneBandi';
 import GestioneConsulenti from './pages/GestioneConsulenti';
 import GestioneCostiAI from './pages/GestioneCostiAI';
 import GestioneMembri from './pages/GestioneMembri';
@@ -102,7 +101,6 @@ export const PAGES = {
     "DirectoryUtenti": DirectoryUtenti,
     "FinanziamentiAgevolati": FinanziamentiAgevolati,
     "Fornitori": Fornitori,
-    "GestioneBandi": GestioneBandi,
     "GestioneConsulenti": GestioneConsulenti,
     "GestioneCostiAI": GestioneCostiAI,
     "GestioneMembri": GestioneMembri,
