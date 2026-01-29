@@ -730,22 +730,7 @@ export default function AdminPanel() {
               </Card>
             )}
 
-            {/* Messaggi - Pulsante rettangolare arancione */}
-            <Button 
-              className="w-full bg-orange-500 hover:bg-orange-600 text-white h-10 justify-between"
-              onClick={() => setShowAdminMessages(true)}
-            >
-              <div className="flex items-center gap-2">
-                <MessageSquare className="w-4 h-4" />
-                <span className="font-medium text-sm">Gestione Messaggi</span>
-              </div>
-              <div className="flex items-center gap-2">
-                {unreadAdminMessages.length > 0 && (
-                  <Badge className="bg-white text-orange-500 text-xs">{unreadAdminMessages.length} nuovi</Badge>
-                )}
-                <span>→</span>
-              </div>
-            </Button>
+
 
             {/* Messaggi Consulenze (utenti <-> consulenti) */}
             <Card className="bg-slate-800 border-slate-700">
