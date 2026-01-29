@@ -592,10 +592,14 @@ export default function AdminMessagesView({ onBack }) {
                         </p>
                       </div>
                       
-                      {/* Badge sezione */}
-                      <Badge className={`${sourceLabels[conv.source]?.color || 'bg-slate-500'} text-white text-[10px] mt-1`}>
-                        {sourceLabels[conv.source]?.label || conv.source}
-                      </Badge>
+                      {/* Badge sezioni */}
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {conv.sourcesArray?.map(src => (
+                          <Badge key={src} className={`${sourceLabels[src]?.color || 'bg-slate-500'} text-white text-[10px]`}>
+                            {sourceLabels[src]?.label || src}
+                          </Badge>
+                        ))}
+                      </div>
                       
                       {/* Info */}
                       <div className="flex items-center gap-2 mt-1">
