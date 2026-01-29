@@ -86,6 +86,12 @@ export default function AdminView({ consultants, adminEmail }) {
     queryFn: () => base44.entities.Zone.filter({ is_active: true }),
   });
 
+  // Fetch users to get names
+  const { data: allUsers = [] } = useQuery({
+    queryKey: ['all-users-admin'],
+    queryFn: () => base44.entities.User.list(),
+  });
+
   // Conta le notifiche di consulenza non lette per l'admin
   const { data: unreadConsultationNotifications = [] } = useQuery({
     queryKey: ['unread-consultation-notifications', adminEmail],
