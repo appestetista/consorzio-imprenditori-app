@@ -1160,6 +1160,72 @@ export default function AdminPanel() {
                 )}
               </div>
 
+              {/* Sezione Impostazioni Consulenze */}
+              <div className="border-t border-slate-700 pt-4 mt-4">
+                <h3 className="text-purple-400 font-medium text-sm mb-3">⚙️ Impostazioni Consulenze</h3>
+                
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-slate-300 text-xs">Consulenze disponibili totali</Label>
+                    <Input
+                      type="number"
+                      value={formDataConsultant.available_slots}
+                      onChange={(e) => setFormDataConsultant({...formDataConsultant, available_slots: parseInt(e.target.value) || 0})}
+                      className="bg-slate-900 border-slate-700 text-white mt-1 h-8 text-sm"
+                      min="0"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-slate-300 text-xs">Consulenze gratuite per utente</Label>
+                    <Input
+                      type="number"
+                      value={formDataConsultant.free_consultations_per_user}
+                      onChange={(e) => setFormDataConsultant({...formDataConsultant, free_consultations_per_user: parseInt(e.target.value) || 0})}
+                      className="bg-slate-900 border-slate-700 text-white mt-1 h-8 text-sm"
+                      min="0"
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-3">
+                  <Label className="text-slate-300 text-xs">Rimborso carburante (€) per sede aziendale</Label>
+                  <Input
+                    type="number"
+                    value={formDataConsultant.rimborso_carburante}
+                    onChange={(e) => setFormDataConsultant({...formDataConsultant, rimborso_carburante: parseFloat(e.target.value) || 0})}
+                    className="bg-slate-900 border-slate-700 text-white mt-1 h-8 text-sm"
+                    min="0"
+                    step="0.01"
+                  />
+                </div>
+
+                <div className="mt-3 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="sede_azienda_disabled"
+                      checked={formDataConsultant.sede_azienda_disabled}
+                      onCheckedChange={(checked) => setFormDataConsultant({...formDataConsultant, sede_azienda_disabled: checked})}
+                      className="border-slate-600 data-[state=checked]:bg-purple-500 data-[state=checked]:border-purple-500"
+                    />
+                    <Label htmlFor="sede_azienda_disabled" className="text-white text-sm cursor-pointer">
+                      Disabilita modalità "in sede aziendale"
+                    </Label>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="block_calls_for_all"
+                      checked={formDataConsultant.block_calls_for_all}
+                      onCheckedChange={(checked) => setFormDataConsultant({...formDataConsultant, block_calls_for_all: checked})}
+                      className="border-slate-600 data-[state=checked]:bg-red-500 data-[state=checked]:border-red-500"
+                    />
+                    <Label htmlFor="block_calls_for_all" className="text-red-400 text-sm cursor-pointer">
+                      Blocca chiamate da tutti gli utenti
+                    </Label>
+                  </div>
+                </div>
+              </div>
+
               <div className="flex gap-3 pt-4 border-t border-slate-700">
                 <Button
                   variant="outline"
