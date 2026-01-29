@@ -779,6 +779,187 @@ Restituisci solo gli ID dei bandi compatibili.`,
           </div>
         </div>
 
+        {/* SEZIONE ADMIN: Gestione Bandi */}
+        {isRealAdmin && (
+          <>
+            {/* Pulsante Nuovo Bando */}
+            <div className="flex justify-end mb-4">
+              <Button
+                onClick={() => {
+                  setEditingBando(null);
+                  setShowBandoForm(true);
+                }}
+                className="bg-lime-400 hover:bg-lime-500 text-slate-900"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Nuovo Bando
+              </Button>
+            </div>
+
+            {/* Dashboard Stats Admin */}
+            <div className="mb-6">
+              <BandoStats grants={allGrants} />
+            </div>
+
+            {/* Search Admin */}
+            <Card className="bg-slate-800 border-slate-700 mb-6">
+              <CardContent className="p-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Input
+                    placeholder="Cerca bandi..."
+                    value={adminSearchTerm}
+                    onChange={(e) => setAdminSearchTerm(e.target.value)}
+                    className="bg-slate-900 border-slate-700 text-white pl-10"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Lista Bandi Admin */}
+            <div className="space-y-3 mb-8">
+              {adminFilteredGrants.map((grant) => {
+                const matchingUsers = getMatchingUsersForBando(grant);
+                const daysUntilDeadline = grant.deadline 
+                  ? Math.ceil((new Date(grant.deadline) - new Date()) / (1000 * 60 * 60 * 24))
+                  : null;
+
+                return (
+                  <Card key={grant.id} className="bg-slate-800 border-slate-700">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between gap-3 mb-3">
+                        <div className="flex-1 min-w-0 overflow-hidden">
+                          <div className="flex items-center gap-2 flex-wrap mb-2">
+                            <h3 className="text-white font-medium break-words">{grant.title}</h3>
+                            {grant.easy_access && (
+                              <Badge className="bg-lime-400 text-slate-900 text-xs">Attivabile</Badge>
+                            )}
+                            <Badge className={
+                              grant.status === 'Aperto' ? 'bg-green-500' :
+                              grant.status === 'In apertura' ? 'bg-yellow-500' : 'bg-red-500'
+                            }>
+                              {grant.status}
+                            </Badge>
+                          </div>
+                          <p className="text-slate-400 text-sm line-clamp-2 mb-1">{grant.description}</p>
+                          <div className="flex flex-wrap gap-2 text-xs">
+                            <span className="text-slate-400">{grant.ente_erogatore}</span>
+                            <span className="text-slate-500">•</span>
+                            <span className="text-slate-400">{grant.livello}</span>
+                            <span className="text-slate-500">•</span>
+                            <span className="text-slate-400">{grant.grant_type}</span>
+                            <span className="text-slate-500">•</span>
+                            <span className="text-lime-400">{matchingUsers.length} aziende compatibili</span>
+                          </div>
+                          {grant.website_url && (
+                            <a 
+                              href={grant.website_url} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-blue-400 hover:text-blue-300 text-xs underline mt-1 inline-flex items-center gap-1 break-all"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                              <span className="truncate">{grant.website_url}</span>
+                            </a>
+                          )}
+                          <div className="flex items-center gap-2 text-xs mt-1">
+                            <CalendarDays className="w-3.5 h-3.5 text-orange-400" />
+                            <span className="text-orange-400 font-medium">
+                              Scadenza: {grant.deadline && !isNaN(new Date(grant.deadline).getTime()) 
+                                ? format(new Date(grant.deadline), 'd MMM yyyy', { locale: it }) 
+                                : 'A esaurimento fondi'}
+                            </span>
+                          </div>
+                          {(grant.prezzo_istruttoria || grant.percentuale_erogazione) && (
+                            <div className="flex flex-wrap gap-3 text-xs mt-2">
+                              {grant.prezzo_istruttoria && (
+                                <span className="text-blue-400">
+                                  Istruttoria: {grant.prezzo_istruttoria.toLocaleString('it-IT')} €
+                                </span>
+                              )}
+                              {grant.percentuale_erogazione && (
+                                <span className="text-blue-400">
+                                  Success fee: {grant.percentuale_erogazione}%
+                                </span>
+                              )}
+                            </div>
+                          )}
+                          {daysUntilDeadline !== null && daysUntilDeadline > 0 && daysUntilDeadline <= 30 && (
+                            <Alert className="mt-2 bg-orange-500/20 border-orange-500/30 py-2">
+                              <AlertDescription className="text-orange-400 text-xs">
+                                Scadenza tra {daysUntilDeadline} giorni
+                              </AlertDescription>
+                            </Alert>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-slate-600 text-slate-300 h-8 px-2 text-xs"
+                          onClick={() => handleEditBando(grant)}
+                        >
+                          <Edit className="w-3.5 h-3.5 mr-1" />
+                          Modifica
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-slate-600 text-slate-300 h-8 px-2 text-xs"
+                          onClick={() => {
+                            setSelectedBandoForPreview(grant);
+                            setShowMatchingPreview(true);
+                          }}
+                        >
+                          <Eye className="w-3.5 h-3.5 mr-1" />
+                          Anteprima ({matchingUsers.length})
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-lime-400 text-lime-400 h-8 px-2 text-xs"
+                          onClick={() => handleShareBando(grant)}
+                        >
+                          <Share2 className="w-3.5 h-3.5 mr-1" />
+                          Condividi
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-red-600 text-red-400 h-8 px-2 text-xs"
+                          onClick={() => handleArchiveBando(grant.id)}
+                          disabled={archiveBandoMutation.isPending}
+                        >
+                          <Archive className="w-3.5 h-3.5 mr-1" />
+                          Archivia
+                        </Button>
+                        {grant.website_url && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-blue-500 text-blue-400 h-8 px-2 text-xs"
+                            onClick={() => window.open(grant.website_url, '_blank')}
+                          >
+                            <ExternalLink className="w-3.5 h-3.5 mr-1" />
+                            Link ufficiale
+                          </Button>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+
+            <div className="border-t border-slate-700 my-6 pt-6">
+              <h2 className="text-white font-semibold mb-4">Vista Utente</h2>
+            </div>
+          </>
+        )}
+
         {/* Profile Warning - solo per utenti non admin */}
         {/* Data odierna */}
         <div className="bg-slate-800 rounded-lg p-4 border border-slate-700 mb-4 flex items-center gap-3">
