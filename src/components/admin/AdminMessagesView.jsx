@@ -335,7 +335,7 @@ export default function AdminMessagesView({ onBack }) {
                           </span>
                           {/* Spunte stile WhatsApp */}
                           {msg.is_read ? (
-                            <CheckCheck className="w-3.5 h-3.5 text-cyan-400" />
+                            <CheckCheck className="w-3.5 h-3.5 text-blue-600" />
                           ) : (
                             <Check className={`w-3.5 h-3.5 ${isRightSide ? 'text-slate-600' : 'text-blue-200'}`} />
                           )}

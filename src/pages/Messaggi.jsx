@@ -432,7 +432,7 @@ export default function Messaggi() {
                       {/* Spunte stile WhatsApp - solo per i miei messaggi */}
                       {isMyMessage && (
                         msg.is_read ? (
-                          <CheckCheck className="w-4 h-4 text-cyan-400" />
+                          <CheckCheck className="w-4 h-4 text-blue-600" />
                         ) : (
                           <Check className="w-4 h-4" />
                         )
