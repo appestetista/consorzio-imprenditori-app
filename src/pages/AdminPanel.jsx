@@ -421,6 +421,8 @@ export default function AdminPanel() {
       cellulare_referente: consultant.cellulare_referente || '',
       zona: consultant.zona || '',
       zone_assegnate: consultant.zone_assegnate || (consultant.zona ? [consultant.zona] : []),
+      assigned_sections: consultant.assigned_sections || [],
+      communication_sections: consultant.communication_sections || [],
     });
     setSelectedConsultant(consultant);
     setShowEditForm(true);
@@ -1087,6 +1089,69 @@ export default function AdminPanel() {
                   </div>
                 )}
                 <p className="text-slate-500 text-xs mt-1">Il consulente sarà visibile agli utenti delle zone selezionate</p>
+              </div>
+
+              {/* Sezioni Visibili (tab che può consultare) */}
+              <div>
+                <Label className="text-blue-400 text-sm font-medium">Sezioni Visibili (tab consultabili)</Label>
+                <div className="bg-slate-900 border border-blue-400/50 rounded-md p-3 mt-1 space-y-2 max-h-40 overflow-y-auto">
+                  {SECTIONS.map(section => (
+                    <div key={section.id} className="flex items-center gap-2">
+                      <Checkbox
+                        id={`section-edit-${section.id}`}
+                        checked={formDataConsultant.assigned_sections?.includes(section.id)}
+                        onCheckedChange={(checked) => {
+                          const currentSections = formDataConsultant.assigned_sections || [];
+                          if (checked) {
+                            setFormDataConsultant({...formDataConsultant, assigned_sections: [...currentSections, section.id]});
+                          } else {
+                            setFormDataConsultant({...formDataConsultant, assigned_sections: currentSections.filter(s => s !== section.id)});
+                          }
+                        }}
+                        className="border-slate-600 data-[state=checked]:bg-blue-500 data-[state=checked]:border-blue-500"
+                      />
+                      <Label htmlFor={`section-edit-${section.id}`} className="text-white text-sm cursor-pointer">
+                        {section.label}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Pannelli Comunicazione (dove appare agli utenti) */}
+              <div>
+                <Label className="text-amber-400 text-sm font-medium">Pannelli Comunicazione (dove appare agli utenti)</Label>
+                <p className="text-slate-500 text-xs mb-1">Seleziona in quali sezioni gli utenti potranno contattare questo consulente</p>
+                <div className="bg-slate-900 border border-amber-400/50 rounded-md p-3 mt-1 space-y-2 max-h-40 overflow-y-auto">
+                  {SECTIONS.map(section => (
+                    <div key={`comm-${section.id}`} className="flex items-center gap-2">
+                      <Checkbox
+                        id={`comm-edit-${section.id}`}
+                        checked={formDataConsultant.communication_sections?.includes(section.id)}
+                        onCheckedChange={(checked) => {
+                          const currentSections = formDataConsultant.communication_sections || [];
+                          if (checked) {
+                            setFormDataConsultant({...formDataConsultant, communication_sections: [...currentSections, section.id]});
+                          } else {
+                            setFormDataConsultant({...formDataConsultant, communication_sections: currentSections.filter(s => s !== section.id)});
+                          }
+                        }}
+                        className="border-slate-600 data-[state=checked]:bg-amber-500 data-[state=checked]:border-amber-500"
+                      />
+                      <Label htmlFor={`comm-edit-${section.id}`} className="text-white text-sm cursor-pointer">
+                        {section.label}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+                {formDataConsultant.communication_sections?.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {formDataConsultant.communication_sections.map(s => {
+                      const sectionLabel = SECTIONS.find(sec => sec.id === s)?.label || s;
+                      return <Badge key={s} className="bg-amber-500/20 text-amber-400 border-0 text-xs">{sectionLabel}</Badge>;
+                    })}
+                  </div>
+                )}
               </div>
 
               <div className="flex gap-3 pt-4 border-t border-slate-700">
