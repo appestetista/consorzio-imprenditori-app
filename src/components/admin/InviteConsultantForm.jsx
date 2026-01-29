@@ -99,9 +99,17 @@ export default function InviteConsultantForm({ onSuccess }) {
     }
   });
 
+  const toggleZone = (zoneName) => {
+    setZoneAssegnate(prev => 
+      prev.includes(zoneName) 
+        ? prev.filter(z => z !== zoneName)
+        : [...prev, zoneName]
+    );
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!consultantName || !email || !consultantCategory || !zona || assignedSections.length === 0) {
+    if (!consultantName || !email || !consultantCategory || zoneAssegnate.length === 0 || assignedSections.length === 0) {
       toast.error('Compila tutti i campi obbligatori');
       return;
     }
@@ -111,7 +119,7 @@ export default function InviteConsultantForm({ onSuccess }) {
   const resetForm = () => {
     setConsultantName('');
     setEmail('');
-    setZona('');
+    setZoneAssegnate([]);
     setConsultantCategory('');
     setAssignedSections([]);
   };
