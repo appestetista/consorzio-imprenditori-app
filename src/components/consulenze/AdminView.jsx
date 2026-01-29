@@ -180,7 +180,8 @@ export default function AdminView({ consultants, adminEmail }) {
       sede_azienda_disabled: consultant.sede_azienda_disabled || false,
       rimborso_carburante: consultant.rimborso_carburante || 0,
       available_slots: consultant.available_slots || 100,
-      assigned_sections: consultant.assigned_sections || []
+      assigned_sections: consultant.assigned_sections || [],
+      blocked_users_calls: consultant.blocked_users_calls || []
     });
     setShowConsultantDialog(true);
   };
