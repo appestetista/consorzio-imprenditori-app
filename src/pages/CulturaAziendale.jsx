@@ -106,6 +106,51 @@ export default function CulturaAziendale() {
     }
   });
 
+  const updateVideoMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.CulturaAziendaleVideo.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cultura-aziendale-videos'] });
+      setEditingVideo(null);
+      setShowAddVideo(false);
+      setFormData({ title: '', youtube_url: '', categoria: '' });
+      setErrors([]);
+    }
+  });
+
+  const deleteVideoMutation = useMutation({
+    mutationFn: (videoId) => base44.entities.CulturaAziendaleVideo.delete(videoId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cultura-aziendale-videos'] });
+    }
+  });
+
+  // Calcola tutte le categorie (predefinite + custom dai video esistenti)
+  const allCategories = [...new Set([...CATEGORIE, ...videos.map(v => v.categoria).filter(Boolean), ...customCategories])];
+
+  const handleEditVideo = (video) => {
+    setEditingVideo(video);
+    setFormData({
+      title: video.title,
+      youtube_url: video.youtube_url,
+      categoria: video.categoria
+    });
+    setShowAddVideo(true);
+  };
+
+  const handleAddCategory = () => {
+    if (newCategory.trim() && !allCategories.includes(newCategory.trim())) {
+      setCustomCategories([...customCategories, newCategory.trim()]);
+      setNewCategory('');
+    }
+  };
+
+  const handleRemoveCategory = (cat) => {
+    // Rimuovi solo dalle custom, non dalle predefinite
+    if (!CATEGORIE.includes(cat)) {
+      setCustomCategories(customCategories.filter(c => c !== cat));
+    }
+  };
+
   const validate = () => {
     const newErrors = [];
     if (!formData.title) newErrors.push('Titolo obbligatorio');
