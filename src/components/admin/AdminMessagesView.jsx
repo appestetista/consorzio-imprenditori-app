@@ -82,18 +82,17 @@ export default function AdminMessagesView({ onBack }) {
     return map;
   }, [users, consultants]);
 
-  // Raggruppa messaggi per conversazione UNICA tra due persone (non duplicata)
-  // Chiave: coppia ordinata di email + source
+  // Raggruppa messaggi per conversazione UNICA tra due persone (senza considerare source)
+  // Chiave: solo coppia ordinata di email
   const uniqueConversations = useMemo(() => {
     const convMap = {};
     
     allMessages.forEach(msg => {
       if (!msg.from_email || !msg.to_email) return;
       
-      // Crea chiave unica ordinando le email
+      // Crea chiave unica ordinando le email (SENZA source)
       const emails = [msg.from_email, msg.to_email].sort();
-      const source = msg.source || 'diretto';
-      const convKey = `${emails[0]}_${emails[1]}_${source}`;
+      const convKey = `${emails[0]}_${emails[1]}`;
       
       if (!convMap[convKey]) {
         const person1 = peopleMap[emails[0]] || { email: emails[0], name: emails[0], type: 'sconosciuto' };
@@ -117,12 +116,14 @@ export default function AdminMessagesView({ onBack }) {
           key: convKey,
           azienda,
           consulente,
-          source,
+          sources: new Set(), // Raccoglie tutte le sezioni usate
           messages: [],
           lastMessageDate: null
         };
       }
       
+      // Aggiungi il source alla lista
+      convMap[convKey].sources.add(msg.source || 'diretto');
       convMap[convKey].messages.push(msg);
     });
     
@@ -131,6 +132,7 @@ export default function AdminMessagesView({ onBack }) {
       conv.messages.sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
       conv.lastMessageDate = conv.messages[conv.messages.length - 1]?.created_date;
       conv.totalMessages = conv.messages.length;
+      conv.sourcesArray = Array.from(conv.sources); // Converti Set in array per rendering
     });
     
     return convMap;
