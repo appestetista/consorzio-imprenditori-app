@@ -1868,7 +1868,9 @@ export default function AdminPanel() {
                                 <p className={`text-[10px] font-bold mb-1 ${isFromAzienda ? 'text-slate-700' : 'text-slate-300'}`}>
                                   {isFromAzienda ? msg.from_name : msg.from_name} {isFromAzienda ? '(Azienda)' : '(Consulente)'}
                                 </p>
-                                <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                                <p className="text-sm whitespace-pre-wrap">
+                                  {msg.content ? msg.content.charAt(0).toUpperCase() + msg.content.slice(1).toLowerCase() : ''}
+                                </p>
                                 <p className={`text-[10px] mt-1 ${isFromAzienda ? 'text-slate-600' : 'text-slate-400'}`}>
                                   {new Date(msg.created_date).toLocaleString('it-IT', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                                 </p>
