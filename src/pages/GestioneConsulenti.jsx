@@ -230,6 +230,7 @@ export default function GestioneConsulenti() {
       referente: consultant.referente || '',
       cellulare_referente: consultant.cellulare_referente || '',
       zona: consultant.zona || '',
+      zone_assegnate: consultant.zone_assegnate || (consultant.zona ? [consultant.zona] : []),
     });
     setSelectedConsultant(consultant);
     setShowEditForm(true);
