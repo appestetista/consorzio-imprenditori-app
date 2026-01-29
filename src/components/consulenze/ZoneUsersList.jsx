@@ -10,23 +10,31 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
-export default function ZoneUsersList({ consultantEmail, consultantZona }) {
+export default function ZoneUsersList({ consultantEmail, consultantZona, consultantZoneAssegnate }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUser, setSelectedUser] = useState(null);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { playSound } = useNotificationSound();
 
-  // Carica tutti gli utenti della zona del consulente (usa backend function per bypassare restrizioni)
+  // Determina le zone da usare: zone_assegnate (array) ha priorità su zona (stringa singola)
+  const effectiveZones = useMemo(() => {
+    if (consultantZoneAssegnate && consultantZoneAssegnate.length > 0) {
+      return consultantZoneAssegnate.map(z => z.trim().toLowerCase()).filter(Boolean);
+    }
+    if (consultantZona) {
+      return consultantZona.split(',').map(z => z.trim().toLowerCase()).filter(Boolean);
+    }
+    return [];
+  }, [consultantZona, consultantZoneAssegnate]);
+
+  // Carica tutti gli utenti delle zone del consulente (usa backend function per bypassare restrizioni)
   const { data: zoneUsers = [], isLoading } = useQuery({
-    queryKey: ['zone-users', consultantZona],
+    queryKey: ['zone-users', effectiveZones.join(',')],
     queryFn: async () => {
-      if (!consultantZona) return [];
+      if (effectiveZones.length === 0) return [];
       const response = await base44.functions.invoke('listMembers');
       const users = response.data?.users || [];
-      
-      // La zona del consulente può essere multipla (separata da virgola)
-      const consultantZones = consultantZona.split(',').map(z => z.trim().toLowerCase()).filter(Boolean);
       
       // Carica lista email dei consulenti per escluderli
       const consultantsRes = await base44.entities.Consultant.list();
@@ -40,7 +48,7 @@ export default function ZoneUsersList({ consultantEmail, consultantZona }) {
       return users.filter(u => {
         const userZona = (u.zona || '').trim().toLowerCase();
         const userEmail = (u.email || '').toLowerCase();
-        const isInZone = userZona && consultantZones.includes(userZona);
+        const isInZone = userZona && effectiveZones.includes(userZona);
         const isNotAdmin = u.role !== 'admin';
         const isNotSelf = userEmail !== consultantEmail?.toLowerCase();
         const isNotConsultantByType = u.user_type !== 'consulente';
@@ -49,7 +57,7 @@ export default function ZoneUsersList({ consultantEmail, consultantZona }) {
         return isInZone && isNotAdmin && isNotSelf && isNotConsultantByType && isNotConsultantByEmail;
       });
     },
-    enabled: !!consultantZona
+    enabled: effectiveZones.length > 0
   });
 
   // Carica messaggi non letti per mostrare notifiche (solo dalla sezione consulenze)
@@ -152,7 +160,7 @@ export default function ZoneUsersList({ consultantEmail, consultantZona }) {
     );
   }
 
-  if (!consultantZona) {
+  if (effectiveZones.length === 0) {
     return (
       <div className="text-center py-8">
         <p className="text-slate-400">Nessuna zona assegnata. Contatta l'amministratore.</p>
@@ -173,11 +181,15 @@ export default function ZoneUsersList({ consultantEmail, consultantZona }) {
 
   return (
     <div className="space-y-4">
-      {/* Header con zona */}
+      {/* Header con zone */}
       <div className="bg-slate-800 border border-lime-400/30 rounded-lg p-3">
-        <p className="text-slate-400 text-sm">La tua zona:</p>
-        <p className="text-lime-400 font-bold">{consultantZona}</p>
-        <p className="text-slate-500 text-xs mt-1">{sortedUsers.length} utenti nella tua zona</p>
+        <p className="text-slate-400 text-sm">{effectiveZones.length > 1 ? 'Le tue zone:' : 'La tua zona:'}</p>
+        <div className="flex flex-wrap gap-1 mt-1">
+          {effectiveZones.map((zone, idx) => (
+            <Badge key={idx} className="bg-lime-400/20 text-lime-400 border-0">{zone.toUpperCase()}</Badge>
+          ))}
+        </div>
+        <p className="text-slate-500 text-xs mt-2">{sortedUsers.length} utenti nelle tue zone</p>
       </div>
 
       {/* Ricerca */}
