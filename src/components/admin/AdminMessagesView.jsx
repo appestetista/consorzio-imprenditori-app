@@ -336,8 +336,13 @@ export default function AdminMessagesView({ onBack }) {
                             <span className="bg-red-500 text-white text-[8px] px-1.5 py-0.5 rounded-full">NUOVO</span>
                           )}
                           <button
-                            onClick={(e) => { e.stopPropagation(); setMessageToDelete(msg); }}
-                            className={`opacity-0 group-hover:opacity-100 transition-opacity ${
+                            type="button"
+                            onClick={(e) => { 
+                              e.preventDefault();
+                              e.stopPropagation(); 
+                              setMessageToDelete(msg); 
+                            }}
+                            className={`opacity-50 hover:opacity-100 transition-opacity ${
                               isRightSide ? 'text-slate-700 hover:text-red-600' : 'text-blue-200 hover:text-red-300'
                             }`}
                           >
