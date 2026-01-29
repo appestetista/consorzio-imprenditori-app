@@ -182,6 +182,7 @@ export default function AdminView({ consultants, adminEmail }) {
       rimborso_carburante: consultant.rimborso_carburante || 0,
       available_slots: consultant.available_slots || 100,
       assigned_sections: consultant.assigned_sections || [],
+      communication_sections: consultant.communication_sections || [],
       blocked_users_calls: consultant.blocked_users_calls || []
     });
     setShowConsultantDialog(true);
@@ -708,9 +709,9 @@ export default function AdminView({ consultants, adminEmail }) {
                   />
                 </div>
 
-                {/* Sezioni assegnate */}
+                {/* Sezioni assegnate (tab che può consultare) */}
                 <div className="py-2">
-                  <Label className="text-slate-300 mb-2 block">Sezioni Visibili al Consulente</Label>
+                  <Label className="text-slate-300 mb-2 block">Sezioni Visibili al Consulente (tab che può consultare)</Label>
                   <div className="bg-slate-900 border border-slate-700 rounded-md p-3 space-y-2 max-h-40 overflow-y-auto">
                     {SECTIONS.map(section => (
                       <div key={section.id} className="flex items-center gap-2">
@@ -733,6 +734,42 @@ export default function AdminView({ consultants, adminEmail }) {
                       </div>
                     ))}
                   </div>
+                </div>
+
+                {/* Sezioni comunicazione (dove appare agli utenti) */}
+                <div className="py-2">
+                  <Label className="text-amber-400 mb-2 block font-medium">Pannelli Comunicazione (dove appare agli utenti per interazione)</Label>
+                  <p className="text-slate-500 text-xs mb-2">Seleziona in quali sezioni gli utenti potranno contattare questo consulente</p>
+                  <div className="bg-slate-900 border border-amber-500/30 rounded-md p-3 space-y-2 max-h-40 overflow-y-auto">
+                    {SECTIONS.map(section => (
+                      <div key={`comm-${section.id}`} className="flex items-center gap-2">
+                        <Checkbox
+                          id={`comm-section-${section.id}`}
+                          checked={consultantForm.communication_sections?.includes(section.id)}
+                          onCheckedChange={(checked) => {
+                            const currentSections = consultantForm.communication_sections || [];
+                            if (checked) {
+                              setConsultantForm({...consultantForm, communication_sections: [...currentSections, section.id]});
+                            } else {
+                              setConsultantForm({...consultantForm, communication_sections: currentSections.filter(s => s !== section.id)});
+                            }
+                          }}
+                          className="border-slate-600 data-[state=checked]:bg-amber-500 data-[state=checked]:border-amber-500"
+                        />
+                        <Label htmlFor={`comm-section-${section.id}`} className="text-white text-sm cursor-pointer">
+                          {section.label}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                  {consultantForm.communication_sections?.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {consultantForm.communication_sections.map(s => {
+                        const sectionLabel = SECTIONS.find(sec => sec.id === s)?.label || s;
+                        return <Badge key={s} className="bg-amber-500/20 text-amber-400 border-0 text-xs">{sectionLabel}</Badge>;
+                      })}
+                    </div>
+                  )}
                 </div>
 
                 {/* Blocca chiamate da utenti specifici */}
