@@ -293,11 +293,11 @@ export default function AdminMessagesView({ onBack }) {
                     <div className={`rounded-2xl px-3 py-2 ${
                       isRightSide 
                         ? 'bg-lime-400 text-slate-900 rounded-br-sm' 
-                        : 'bg-blue-500 text-white rounded-bl-sm'
+                        : 'bg-slate-600 text-white rounded-bl-sm'
                     }`}>
                       {/* Nome mittente */}
                       <p className={`text-[10px] font-bold mb-1 ${
-                        isRightSide ? 'text-slate-700' : 'text-blue-100'
+                        isRightSide ? 'text-slate-700' : 'text-slate-300'
                       }`}>
                         {sender.name} {isRightSide ? '(Azienda)' : '(Consulente)'}
                       </p>
@@ -314,7 +314,7 @@ export default function AdminMessagesView({ onBack }) {
                               href={att.url} 
                               target="_blank" 
                               rel="noopener noreferrer" 
-                              className={`text-xs underline ${isRightSide ? 'text-slate-700' : 'text-blue-100'}`}
+                              className={`text-xs underline ${isRightSide ? 'text-slate-700' : 'text-slate-300'}`}
                             >
                               📎 {att.name}
                             </a>
@@ -324,7 +324,7 @@ export default function AdminMessagesView({ onBack }) {
                       
                       {/* Ora e stato + elimina inline */}
                       <div className={`flex items-center justify-between gap-2 mt-1 ${
-                        isRightSide ? 'text-slate-600' : 'text-blue-200'
+                        isRightSide ? 'text-slate-600' : 'text-slate-400'
                       }`}>
                         <div className="flex items-center gap-1">
                           <span className="text-[10px]">
@@ -349,7 +349,7 @@ export default function AdminMessagesView({ onBack }) {
                               setMessageToDelete(msg); 
                             }}
                             className={`opacity-50 hover:opacity-100 transition-opacity ${
-                              isRightSide ? 'text-slate-700 hover:text-red-600' : 'text-blue-200 hover:text-red-300'
+                              isRightSide ? 'text-slate-700 hover:text-red-600' : 'text-slate-400 hover:text-red-300'
                             }`}
                           >
                             <X className="w-3 h-3" />
