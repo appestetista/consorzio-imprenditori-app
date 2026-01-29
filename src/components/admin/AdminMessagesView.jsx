@@ -60,15 +60,18 @@ export default function AdminMessagesView({ onBack }) {
     const map = {};
     
     users.forEach(u => {
+      // Controlla se l'utente è un consulente tramite user_type o se è nella tabella Consultant
+      const isConsultant = u.user_type === 'consulente';
       map[u.email] = {
         email: u.email,
         name: u.company_name || u.full_name || u.email,
-        type: 'utente',
+        type: isConsultant ? 'consulente' : 'utente',
         zona: u.zona,
         role: u.role
       };
     });
     
+    // Sovrascrivi con dati dalla tabella Consultant (hanno priorità)
     consultants.forEach(c => {
       map[c.email] = {
         email: c.email,
