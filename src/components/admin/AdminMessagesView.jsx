@@ -196,23 +196,53 @@ export default function AdminMessagesView({ onBack }) {
     return grouped;
   }, [allMessages, peopleMap]);
 
-  // Filtra persone
+  // Filtra conversazioni uniche
+  const filteredUniqueConversations = useMemo(() => {
+    return Object.values(uniqueConversations)
+      .filter(conv => {
+        // Escludi admin
+        if (conv.azienda?.role === 'admin' || conv.consulente?.role === 'admin') return false;
+        
+        // Filtro ricerca
+        const searchLower = searchTerm.toLowerCase();
+        const matchesSearch = !searchTerm || 
+          conv.azienda?.name?.toLowerCase().includes(searchLower) ||
+          conv.consulente?.name?.toLowerCase().includes(searchLower) ||
+          conv.azienda?.email?.toLowerCase().includes(searchLower) ||
+          conv.consulente?.email?.toLowerCase().includes(searchLower);
+        
+        // Filtro zona
+        const matchesZone = zoneFilter === 'all' || 
+          conv.azienda?.zona === zoneFilter || 
+          conv.consulente?.zona === zoneFilter;
+        
+        // Filtro tipo: se filtra per utenti, mostra conversazioni dove c'è almeno un utente
+        // se filtra per consulenti, mostra conversazioni dove c'è almeno un consulente
+        const matchesType = typeFilter === 'all' || 
+          (typeFilter === 'utenti' && conv.azienda?.type === 'utente') ||
+          (typeFilter === 'consulenti' && conv.consulente?.type === 'consulente');
+        
+        // Filtro source
+        const matchesSource = sourceFilter === 'all' || conv.source === sourceFilter;
+        
+        return matchesSearch && matchesZone && matchesType && matchesSource;
+      })
+      .sort((a, b) => new Date(b.lastMessageDate) - new Date(a.lastMessageDate));
+  }, [uniqueConversations, searchTerm, zoneFilter, typeFilter, sourceFilter]);
+
+  // Filtra persone (per retrocompatibilità)
   const filteredPeople = useMemo(() => {
     return Object.values(messagesByPerson)
       .filter(p => {
-        // Escludi admin
         if (p.person.role === 'admin') return false;
         
-        // Filtro ricerca
         const searchLower = searchTerm.toLowerCase();
         const matchesSearch = !searchTerm || 
           p.person.name?.toLowerCase().includes(searchLower) ||
           p.email.toLowerCase().includes(searchLower);
         
-        // Filtro zona
         const matchesZone = zoneFilter === 'all' || p.person.zona === zoneFilter;
         
-        // Filtro tipo
         const matchesType = typeFilter === 'all' || 
           (typeFilter === 'utenti' && p.person.type === 'utente') ||
           (typeFilter === 'consulenti' && p.person.type === 'consulente');
