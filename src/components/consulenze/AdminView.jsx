@@ -206,13 +206,78 @@ export default function AdminView({ consultants, adminEmail }) {
         <TabsContent value="consultants">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-white text-xl font-bold">Gestione Consulenti</h2>
-            <Button
-              onClick={() => setShowConsultantDialog(true)}
-              className="bg-lime-400 hover:bg-lime-500 text-slate-900"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Aggiungi Consulente
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => setShowInviteForm(!showInviteForm)}
+                variant="outline"
+                className="border-blue-500 text-blue-400 hover:bg-blue-500/20"
+              >
+                <Send className="w-4 h-4 mr-2" />
+                Invita
+              </Button>
+              <Button
+                onClick={() => {
+                  setEditingConsultant(null);
+                  setConsultantForm({
+                    name: '',
+                    category: '',
+                    city: '',
+                    phone: '',
+                    email: '',
+                    referente: '',
+                    cellulare_referente: '',
+                    zona: '',
+                    zone_assegnate: [],
+                    free_consultations_per_user: 1
+                  });
+                  setShowConsultantDialog(true);
+                }}
+                className="bg-lime-400 hover:bg-lime-500 text-slate-900"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Aggiungi
+              </Button>
+            </div>
+          </div>
+
+          {/* Form Invita Consulente */}
+          {showInviteForm && (
+            <Card className="bg-slate-800 border-blue-500/30 mb-4">
+              <CardContent className="p-4">
+                <h3 className="text-blue-400 font-medium text-sm mb-3 flex items-center gap-2">
+                  <Send className="w-4 h-4" />
+                  Invita Consulente via Email
+                </h3>
+                <InviteConsultantForm onSuccess={() => {
+                  setShowInviteForm(false);
+                  queryClient.invalidateQueries({ queryKey: ['consultants'] });
+                }} />
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Filtri */}
+          <div className="flex gap-2 mb-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Input
+                placeholder="Cerca consulente..."
+                value={searchTermConsultant}
+                onChange={(e) => setSearchTermConsultant(e.target.value)}
+                className="bg-slate-900 border-slate-700 text-white pl-9 text-sm"
+              />
+            </div>
+            <Select value={selectedZoneFilter} onValueChange={setSelectedZoneFilter}>
+              <SelectTrigger className="bg-slate-900 border-slate-700 text-white w-40">
+                <SelectValue placeholder="Zona" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tutte le zone</SelectItem>
+                {zones.map(zone => (
+                  <SelectItem key={zone.id} value={zone.name}>{zone.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-3">
