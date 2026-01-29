@@ -526,6 +526,9 @@ export default function AdminPanel() {
                   <span className="absolute top-1 right-1 bg-lime-400 text-slate-900 text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
                     {stats?.totalEvents || 0}
                   </span>
+                  <span className="absolute top-1 left-1 text-slate-400">
+                    <Bell className="w-3 h-3" />
+                  </span>
                 </CardContent>
               </Card>
             </Link>
@@ -537,19 +540,26 @@ export default function AdminPanel() {
                   <span className="absolute top-1 right-1 bg-lime-400 text-slate-900 text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
                     {stats?.totalVideos || 0}
                   </span>
-                  {pendingVideoRequests.length > 0 && (
-                    <span className="absolute top-1 left-1 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
-                      {pendingVideoRequests.length}
+                  {pendingVideoRequests.length > 0 ? (
+                    <span className="absolute top-1 left-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center">
+                      <Bell className="w-2.5 h-2.5" />
+                    </span>
+                  ) : (
+                    <span className="absolute top-1 left-1 text-slate-400">
+                      <Bell className="w-3 h-3" />
                     </span>
                   )}
                 </CardContent>
               </Card>
             </Link>
             <Link to={createPageUrl('CulturaAziendale')}>
-              <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20">
+              <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20 relative">
                 <CardContent className="p-2 flex flex-col items-center justify-center h-full">
                   <BookOpen className="w-5 h-5 text-lime-400 mb-1" />
                   <p className="text-white text-[10px] text-center leading-tight">Academy</p>
+                  <span className="absolute top-1 left-1 text-slate-400">
+                    <Bell className="w-3 h-3" />
+                  </span>
                 </CardContent>
               </Card>
             </Link>
@@ -565,90 +575,124 @@ export default function AdminPanel() {
                     {stats?.totalConsultants || 0}
                   </span>
                 )}
-                {pendingConsultationBookings > 0 && (
-                  <span className="absolute top-1 left-1 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
-                    {pendingConsultationBookings}
+                {pendingConsultationBookings > 0 ? (
+                  <span className="absolute top-1 left-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center">
+                    <Bell className="w-2.5 h-2.5" />
+                  </span>
+                ) : (
+                  <span className="absolute top-1 left-1 text-slate-400">
+                    <Bell className="w-3 h-3" />
                   </span>
                 )}
               </CardContent>
             </Card>
             <Link to={createPageUrl('FinanziamentiAgevolati')}>
-              <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20">
+              <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20 relative">
                 <CardContent className="p-2 flex flex-col items-center justify-center h-full">
                   <Sparkles className="w-5 h-5 text-lime-400 mb-1" />
                   <p className="text-white text-[10px] text-center leading-tight">Finanziamenti<br/>agevolati</p>
+                  <span className="absolute top-1 left-1 text-slate-400">
+                    <Bell className="w-3 h-3" />
+                  </span>
                 </CardContent>
               </Card>
             </Link>
             <Link to={createPageUrl('GestioneMembri')}>
-              <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20">
+              <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20 relative">
                 <CardContent className="p-2 flex flex-col items-center justify-center h-full">
                   <User className="w-5 h-5 text-lime-400 mb-1" />
                   <p className="text-white text-[10px] text-center leading-tight">Contatta<br/>Imprenditori</p>
+                  <span className="absolute top-1 left-1 text-slate-400">
+                    <Bell className="w-3 h-3" />
+                  </span>
                 </CardContent>
               </Card>
             </Link>
             <Link to={createPageUrl('RisparmioEnergetico')}>
-              <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20">
+              <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20 relative">
                 <CardContent className="p-2 flex flex-col items-center justify-center h-full">
                   <Euro className="w-5 h-5 text-lime-400 mb-1" />
                   <p className="text-white text-[10px] text-center leading-tight">Risparmio</p>
+                  <span className="absolute top-1 left-1 text-slate-400">
+                    <Bell className="w-3 h-3" />
+                  </span>
                 </CardContent>
               </Card>
             </Link>
             <Link to={createPageUrl('Marketplace')}>
-              <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20">
+              <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20 relative">
                 <CardContent className="p-2 flex flex-col items-center justify-center h-full">
                   <ShoppingBag className="w-5 h-5 text-lime-400 mb-1" />
                   <p className="text-white text-[10px] text-center leading-tight">Market<br/>place</p>
+                  <span className="absolute top-1 left-1 text-slate-400">
+                    <Bell className="w-3 h-3" />
+                  </span>
                 </CardContent>
               </Card>
             </Link>
             <Link to={createPageUrl('Imprenditori')}>
-              <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20">
+              <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20 relative">
                 <CardContent className="p-2 flex flex-col items-center justify-center h-full">
                   <Handshake className="w-5 h-5 text-lime-400 mb-1" />
                   <p className="text-white text-[10px] text-center leading-tight">Consigli da<br/>Imprenditori</p>
+                  <span className="absolute top-1 left-1 text-slate-400">
+                    <Bell className="w-3 h-3" />
+                  </span>
                 </CardContent>
               </Card>
             </Link>
             <Link to={createPageUrl('Fornitori')}>
-              <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20">
+              <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20 relative">
                 <CardContent className="p-2 flex flex-col items-center justify-center h-full">
                   <Truck className="w-5 h-5 text-lime-400 mb-1" />
                   <p className="text-white text-[10px] text-center leading-tight">Ricerca<br/>Fornitori</p>
+                  <span className="absolute top-1 left-1 text-slate-400">
+                    <Bell className="w-3 h-3" />
+                  </span>
                 </CardContent>
               </Card>
             </Link>
             <Link to={createPageUrl('WelfareAziendale')}>
-              <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20">
+              <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20 relative">
                 <CardContent className="p-2 flex flex-col items-center justify-center h-full">
                   <Heart className="w-5 h-5 text-pink-400 mb-1" />
                   <p className="text-white text-[10px] text-center leading-tight">Welfare<br/>Aziendale</p>
+                  <span className="absolute top-1 left-1 text-slate-400">
+                    <Bell className="w-3 h-3" />
+                  </span>
                 </CardContent>
               </Card>
             </Link>
             <Link to={createPageUrl('AnalisiContratti')}>
-              <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20">
+              <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20 relative">
                 <CardContent className="p-2 flex flex-col items-center justify-center h-full">
                   <FileSearch className="w-5 h-5 text-lime-400 mb-1" />
                   <p className="text-white text-[10px] text-center leading-tight">Analisi<br/>Contratti</p>
+                  <span className="absolute top-1 left-1 text-slate-400">
+                    <Bell className="w-3 h-3" />
+                  </span>
                 </CardContent>
               </Card>
             </Link>
             <Link to={createPageUrl('ImportExport')}>
-              <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20">
+              <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20 relative">
                 <CardContent className="p-2 flex flex-col items-center justify-center h-full">
                   <Globe className="w-5 h-5 text-lime-400 mb-1" />
                   <p className="text-white text-[10px] text-center leading-tight">Import /<br/>Export</p>
+                  <span className="absolute top-1 left-1 text-slate-400">
+                    <Bell className="w-3 h-3" />
+                  </span>
                 </CardContent>
               </Card>
             </Link>
             <Link to={createPageUrl('ComplianceAziendale')}>
-              <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20">
+              <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20 relative">
                 <CardContent className="p-2 flex flex-col items-center justify-center h-full">
                   <Shield className="w-5 h-5 text-blue-400 mb-1" />
                   <p className="text-white text-[10px] text-center leading-tight">Compliance<br/>Aziendale</p>
+                  <span className="absolute top-1 left-1 text-slate-400">
+                    <Bell className="w-3 h-3" />
+                  </span>
                 </CardContent>
               </Card>
             </Link>
@@ -662,9 +706,13 @@ export default function AdminPanel() {
                 <span className="absolute top-1 right-1 bg-lime-400 text-slate-900 text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
                   {allAdminMessages.length}
                 </span>
-                {unreadAdminMessages.length > 0 && (
-                  <span className="absolute top-1 left-1 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
+                {unreadAdminMessages.length > 0 ? (
+                  <span className="absolute top-1 left-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center">
                     <Bell className="w-2.5 h-2.5" />
+                  </span>
+                ) : (
+                  <span className="absolute top-1 left-1 text-slate-400">
+                    <Bell className="w-3 h-3" />
                   </span>
                 )}
               </CardContent>
@@ -686,21 +734,10 @@ export default function AdminPanel() {
                 )}
               </div>
             </TabsTrigger>
-            <TabsTrigger value="consulenze" className="flex-1 text-xs data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
-              <div className="relative flex items-center gap-1">
-                <Bell className="w-3.5 h-3.5" />
-                Consulenze
-                {(stats?.totalConsultants || 0) > 0 && (
-                  <span className="bg-lime-400 text-slate-900 text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
-                    {stats?.totalConsultants || 0}
-                  </span>
-                )}
-              </div>
-            </TabsTrigger>
           </TabsList>
 
           {/* TAB RICHIESTE */}
-          <TabsContent value="richieste" className="space-y-4">
+          <TabsContent value="richieste" className="space-y-4" forceMount style={{ display: activeTab === 'richieste' ? 'block' : 'none' }}>
             {/* Risposte Eventi */}
             {eventResponseNotifications.length > 0 && (
               <Card className="bg-slate-800 border-slate-700">
@@ -807,8 +844,7 @@ export default function AdminPanel() {
             </Card>
           </TabsContent>
 
-          {/* TAB CONSULENZE */}
-          <TabsContent value="consulenze" className="space-y-4">
+          {/* TAB CONSULENZE - RIMOSSO, ORA È SOLO NEL PANNELLO SOPRA */}
             {/* Pulsante Invita */}
             <div className="flex justify-end mb-2">
               <Button
