@@ -508,7 +508,7 @@ export default function MemberView({ user, consultants, isLoading }) {
       </TabsContent>
 
       <TabsContent value="consulenti">
-        <ConsultantsList currentUserEmail={user?.email} showChat={true} userZona={user?.zona} />
+        <ConsultantsList currentUserEmail={user?.email} currentUserLogo={user?.logo_url} showChat={true} userZona={user?.zona} />
       </TabsContent>
     </Tabs>
   );
