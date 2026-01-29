@@ -207,6 +207,148 @@ export default function FinanziamentiAgevolati() {
     }
   });
 
+  // Query per tutti gli utenti (per matching admin)
+  const { data: allUsersForMatching = [] } = useQuery({
+    queryKey: ['all-users-for-matching'],
+    queryFn: () => base44.entities.User.list(),
+    enabled: isRealAdmin,
+  });
+
+  // Mutations per gestione bandi admin
+  const createBandoMutation = useMutation({
+    mutationFn: async (data) => {
+      const newGrant = await base44.entities.FinancialGrant.create({
+        ...data,
+        created_by_email: user.email,
+        last_modified_by_email: user.email
+      });
+      
+      // Invia notifica a tutti gli utenti per il nuovo bando
+      const allUsers = await base44.entities.User.list();
+      const notificationPromises = allUsers.map(u =>
+        base44.entities.Notification.create({
+          user_email: u.email,
+          type: 'event',
+          title: 'Nuovo bando disponibile',
+          content: `È stato pubblicato un nuovo bando: ${data.title}`,
+          reference_id: newGrant.id
+        })
+      );
+      
+      await Promise.all(notificationPromises);
+      
+      return newGrant;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['financial-grants'] });
+      setShowBandoForm(false);
+      setEditingBando(null);
+      toast.success('Bando creato con successo');
+    }
+  });
+
+  const updateBandoMutation = useMutation({
+    mutationFn: async ({ id, data }) => {
+      return base44.entities.FinancialGrant.update(id, {
+        ...data,
+        last_modified_by_email: user.email
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['financial-grants'] });
+      setShowBandoForm(false);
+      setEditingBando(null);
+      toast.success('Bando aggiornato');
+    }
+  });
+
+  const archiveBandoMutation = useMutation({
+    mutationFn: async (id) => {
+      return base44.entities.FinancialGrant.update(id, { is_archived: true });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['financial-grants'] });
+      toast.success('Bando archiviato');
+    }
+  });
+
+  // Handlers per gestione bandi admin
+  const handleBandoFormSubmit = (data) => {
+    if (editingBando) {
+      updateBandoMutation.mutate({ id: editingBando.id, data });
+    } else {
+      createBandoMutation.mutate(data);
+    }
+  };
+
+  const handleEditBando = (bando) => {
+    setEditingBando(bando);
+    setShowBandoForm(true);
+  };
+
+  const handleShareBando = async (bando) => {
+    const shareText = `📢 Bando: ${bando.title}\n\n${bando.description || ''}\n\n💰 ${bando.funding_type || 'Agevolazione'}\n📍 ${bando.livello || ''} - ${bando.ente_erogatore || ''}\n\n${bando.website_url || ''}`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: bando.title,
+          text: shareText,
+        });
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          await navigator.clipboard.writeText(shareText);
+          toast.success('Testo copiato negli appunti');
+        }
+      }
+    } else {
+      await navigator.clipboard.writeText(shareText);
+      toast.success('Testo copiato negli appunti');
+    }
+  };
+
+  const handleArchiveBando = (id) => {
+    if (confirm('Archiviare questo bando?')) {
+      archiveBandoMutation.mutate(id);
+    }
+  };
+
+  const getMatchingUsersForBando = (bando) => {
+    return allUsersForMatching.filter(u => {
+      if (bando.eligible_company_sizes?.length > 0 && u.company_size) {
+        if (!bando.eligible_company_sizes.includes(u.company_size)) return false;
+      }
+      if (bando.eligible_regions?.length > 0 && u.region) {
+        if (!bando.eligible_regions.includes(u.region)) return false;
+      }
+      if (bando.eligible_ateco_codes?.length > 0 && u.ateco_code) {
+        const hasMatch = bando.eligible_ateco_codes.some(code => 
+          u.ateco_code.startsWith(code) || code.startsWith(u.ateco_code.substring(0, 2))
+        );
+        if (!hasMatch) return false;
+      }
+      if (bando.eligible_legal_forms?.length > 0 && u.legal_form) {
+        if (!bando.eligible_legal_forms.includes(u.legal_form)) return false;
+      }
+      return true;
+    });
+  };
+
+  // Filtro admin per ricerca bandi
+  const adminFilteredGrants = allGrants
+    .filter(g => {
+      if (!adminSearchTerm) return true;
+      const searchLower = adminSearchTerm.toLowerCase();
+      return g.title?.toLowerCase().includes(searchLower) || 
+             g.description?.toLowerCase().includes(searchLower);
+    })
+    .sort((a, b) => {
+      if (!a.deadline && !b.deadline) return 0;
+      if (!a.deadline) return 1;
+      if (!b.deadline) return -1;
+      return new Date(a.deadline) - new Date(b.deadline);
+    });
+
   const toggleAlertsMutation = useMutation({
     mutationFn: async ({ grantId, currentState }) => {
       const existing = userInterests.find(i => i.grant_id === grantId);
