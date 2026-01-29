@@ -527,13 +527,13 @@ export default function AdminMessagesView({ onBack }) {
 
       {/* Stats */}
       <div className="bg-slate-800 rounded-lg p-3 mb-2">
-        <p className="text-lime-400 font-bold text-center text-sm">Messaggi Aziende ↔ Consulenti</p>
+        <p className="text-lime-400 font-bold text-center text-sm">Conversazioni Aziende ↔ Consulenti</p>
       </div>
 
       <div className="grid grid-cols-2 gap-2">
         <Card className="bg-slate-800 border-slate-700">
           <CardContent className="p-3 flex items-center gap-2">
-            <MessageSquare className="w-5 h-5 text-lime-400" />
+            <Users className="w-5 h-5 text-lime-400" />
             <div>
               <p className="text-white font-bold text-lg">{filteredUniqueConversations.length}</p>
               <p className="text-slate-400 text-[10px]">Conversazioni</p>
@@ -542,27 +542,14 @@ export default function AdminMessagesView({ onBack }) {
         </Card>
         <Card className="bg-slate-800 border-slate-700">
           <CardContent className="p-3 flex items-center gap-2">
-            <Mail className="w-5 h-5 text-lime-400" />
+            <MessageSquare className="w-5 h-5 text-lime-400" />
             <div>
               <p className="text-white font-bold text-lg">{allMessages.length}</p>
-              <p className="text-slate-400 text-[10px]">Messaggi totali</p>
+              <p className="text-slate-400 text-[10px]">Messaggi</p>
             </div>
           </CardContent>
         </Card>
       </div>
-
-      {/* Filtro source */}
-      <Select value={sourceFilter} onValueChange={setSourceFilter}>
-        <SelectTrigger className="bg-slate-800 border-slate-700 text-white h-8 text-xs">
-          <SelectValue placeholder="Filtra per sezione" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Tutte le sezioni</SelectItem>
-          {Object.entries(sourceLabels).map(([key, val]) => (
-            <SelectItem key={key} value={key}>{val.label}</SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
 
       {/* Lista conversazioni uniche */}
       {loadingMessages ? (
