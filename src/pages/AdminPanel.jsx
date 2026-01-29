@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Users, Video, Calendar, Briefcase, Settings, Bell, CheckCircle, XCircle, Clock, Trash2, Mail, Eye, MessageSquare, CalendarDays, MapPin, DollarSign, Sparkles, Euro, ShoppingBag, BookOpen, Handshake, Truck, Heart, FileSearch, Globe, Shield, User, UserPlus, Search, Edit, Phone, PhoneOff, Save, Plus } from 'lucide-react';
+import { ArrowLeft, Users, Video, Calendar, Briefcase, Settings, Bell, CheckCircle, XCircle, Clock, Trash2, Mail, Eye, MessageSquare, CalendarDays, MapPin, DollarSign, Sparkles, Euro, ShoppingBag, BookOpen, Handshake, Truck, Heart, FileSearch, Globe, Shield, User, UserPlus, Search, Edit, Phone, PhoneOff, Save, Plus, Upload, X, Image as ImageIcon } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -430,6 +430,7 @@ export default function AdminPanel() {
       rimborso_carburante: consultant.rimborso_carburante ?? 0,
       block_calls_for_all: consultant.block_calls_for_all ?? false,
       blocked_users_calls: consultant.blocked_users_calls || [],
+      logo_url: consultant.logo_url || '',
     });
     setSelectedConsultant(consultant);
     setShowEditForm(true);
@@ -1170,6 +1171,50 @@ export default function AdminPanel() {
                 <p className="text-slate-500 text-xs mb-4">Questi campi sono modificabili anche dal consulente nel suo pannello</p>
                 
                 <div className="space-y-3">
+                  {/* Logo Studio */}
+                  <div>
+                    <Label className="text-slate-300 text-xs">Logo Studio</Label>
+                    <div className="mt-1 space-y-2">
+                      {formDataConsultant.logo_url && (
+                        <div className="flex items-center gap-2 bg-slate-900 rounded-lg p-2">
+                          <img 
+                            src={formDataConsultant.logo_url} 
+                            alt="Logo" 
+                            className="w-12 h-12 object-contain rounded"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setFormDataConsultant({...formDataConsultant, logo_url: ''})}
+                            className="border-red-600 text-red-400 h-7 text-xs"
+                          >
+                            <X className="w-3 h-3 mr-1" />
+                            Rimuovi
+                          </Button>
+                        </div>
+                      )}
+                      <label className="flex items-center justify-center gap-2 bg-slate-900 border border-dashed border-purple-500/50 rounded-lg p-3 cursor-pointer hover:border-purple-400 transition-colors">
+                        <input
+                          type="file"
+                          accept="image/jpeg,image/png,image/jpg"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            try {
+                              const { file_url } = await base44.integrations.Core.UploadFile({ file });
+                              setFormDataConsultant({...formDataConsultant, logo_url: file_url});
+                            } catch (error) {
+                              console.error('Errore upload logo:', error);
+                            }
+                          }}
+                          className="hidden"
+                        />
+                        <Upload className="w-4 h-4 text-purple-400" />
+                        <span className="text-slate-300 text-xs">Carica logo</span>
+                      </label>
+                    </div>
+                  </div>
                   {/* Consulenze disponibili totali */}
                   <div>
                     <Label className="text-slate-300 text-xs">Consulenze disponibili totali</Label>

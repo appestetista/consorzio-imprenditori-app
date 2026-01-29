@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, User, Building2, Phone, MapPin, Save, Upload, X, Image as ImageIcon, LogOut, FileText, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, User, Building2, Phone, MapPin, Save, Upload, X, Image as ImageIcon, LogOut, FileText, AlertTriangle, Briefcase } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import Header from '../components/layout/Header';
@@ -248,7 +248,8 @@ function ConsultantProfileCard({ consultantData, setConsultantData, savingConsul
         blocked_users_calls: consultantData.blocked_users_calls || [],
         free_consultations_per_user: consultantData.free_consultations_per_user ?? 1,
         sede_azienda_disabled: consultantData.sede_azienda_disabled || false,
-        rimborso_carburante: consultantData.rimborso_carburante || 0
+        rimborso_carburante: consultantData.rimborso_carburante || 0,
+        logo_url: consultantData.logo_url || ''
       });
     }
   }, [consultantData]);
@@ -319,7 +320,8 @@ function ConsultantProfileCard({ consultantData, setConsultantData, savingConsul
         phone: localData.phone,
         city: localData.city,
         referente: localData.referente,
-        cellulare_referente: localData.cellulare_referente
+        cellulare_referente: localData.cellulare_referente,
+        logo_url: localData.logo_url
       });
       
       setConsultantData({ ...consultantData, ...localData });
@@ -347,7 +349,8 @@ function ConsultantProfileCard({ consultantData, setConsultantData, savingConsul
         phone: localData.phone,
         city: localData.city,
         referente: localData.referente,
-        cellulare_referente: localData.cellulare_referente
+        cellulare_referente: localData.cellulare_referente,
+        logo_url: localData.logo_url
       });
       
       setConsultantData({ ...consultantData, ...localData });
@@ -382,15 +385,78 @@ function ConsultantProfileCard({ consultantData, setConsultantData, savingConsul
     );
   }
 
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    setUploadingLogo(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setLocalData({ ...localData, logo_url: file_url });
+    } catch (error) {
+      toast.error('Errore durante il caricamento del logo');
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
+
   return (
     <Card className="bg-slate-800 border-slate-700 mb-4">
       <CardHeader>
         <CardTitle className="text-white flex items-center gap-2">
-          <Building2 className="w-5 h-5 text-lime-400" />
+          <Briefcase className="w-5 h-5 text-lime-400" />
           Profilo Studio
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* Logo Studio */}
+        <div>
+          <Label className="text-lime-400 text-sm font-medium mb-1 block">Logo Studio</Label>
+          <div className="mt-2 space-y-3">
+            {localData.logo_url && (
+              <div className="flex items-center gap-3 bg-slate-900 rounded-lg p-3">
+                <img 
+                  src={localData.logo_url} 
+                  alt="Logo" 
+                  className="w-16 h-16 object-contain rounded"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setLocalData({...localData, logo_url: ''})}
+                  className="border-red-600 text-red-400"
+                >
+                  <X className="w-4 h-4 mr-1" />
+                  Rimuovi
+                </Button>
+              </div>
+            )}
+            <label className="flex items-center justify-center gap-2 bg-slate-900 border-2 border-dashed border-slate-700 rounded-lg p-4 cursor-pointer hover:border-lime-400 transition-colors">
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/jpg"
+                onChange={handleLogoUpload}
+                className="hidden"
+                disabled={uploadingLogo}
+              />
+              {uploadingLogo ? (
+                <>
+                  <div className="animate-spin w-5 h-5 border-2 border-lime-400 border-t-transparent rounded-full"></div>
+                  <span className="text-slate-400">Caricamento...</span>
+                </>
+              ) : (
+                <>
+                  <Upload className="w-5 h-5 text-lime-400" />
+                  <span className="text-slate-300">Carica logo</span>
+                </>
+              )}
+            </label>
+          </div>
+        </div>
+
         {/* Nome Studio */}
         <div>
           <Label className="text-lime-400 text-sm font-medium mb-1 block">Nome Studio (obbligatorio)</Label>
