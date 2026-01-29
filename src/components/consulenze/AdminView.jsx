@@ -270,49 +270,51 @@ export default function AdminView({ consultants, adminEmail }) {
               return (
                 <Card key={booking.id} className="bg-slate-800 border-slate-700">
                   <CardContent className="p-4">
-                    {/* Riga 1: Status + Zona + Elimina */}
+                    {/* Riga 1: Status + Data/Zona a destra + Elimina */}
                     <div className="flex items-center justify-between mb-3">
+                      <Badge className={statusColors[booking.status] || 'bg-slate-500'}>
+                        {statusLabels[booking.status] || booking.status}
+                      </Badge>
                       <div className="flex items-center gap-2">
-                        <Badge className={statusColors[booking.status] || 'bg-slate-500'}>
-                          {statusLabels[booking.status] || booking.status}
-                        </Badge>
+                        <span className="text-slate-400 text-[10px]">
+                          {new Date(booking.created_date).toLocaleDateString('it-IT')}
+                        </span>
                         {(consultant?.zona || user?.zona) && (
                           <Badge className="bg-slate-700 text-slate-300 text-[10px]">
                             📍 {consultant?.zona || user?.zona}
                           </Badge>
                         )}
+                        <button
+                          onClick={() => {
+                            if (confirm('Vuoi eliminare questa richiesta?')) {
+                              deleteBookingMutation.mutate(booking.id);
+                            }
+                          }}
+                          className="text-red-400 hover:text-red-500 transition-colors ml-1"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </div>
-                      <button
-                        onClick={() => {
-                          if (confirm('Vuoi eliminare questa richiesta?')) {
-                            deleteBookingMutation.mutate(booking.id);
-                          }
-                        }}
-                        className="text-red-400 hover:text-red-500 transition-colors"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
                     </div>
 
-                    {/* Riga 2: Categoria consulente */}
+                    {/* Riga 2: Consulente */}
                     <p className="text-lime-400 font-bold text-sm">{consultant?.category || 'Consulente N/D'}</p>
                     <p className="text-white text-xs">{consultant?.name}</p>
 
-                    {/* Riga 3: Utente (nome + azienda) */}
+                    {/* Riga 3: Utente (solo nome azienda, NO email) */}
                     <div className="mt-2 p-2 bg-slate-900 rounded-lg">
                       <p className="text-white font-medium text-sm">
-                        🏢 {user?.company_name || user?.full_name || booking.user_email}
+                        🏢 {user?.company_name || user?.full_name || 'Utente'}
                       </p>
                       {user?.full_name && user?.company_name && (
                         <p className="text-slate-400 text-xs">{user.full_name}</p>
                       )}
-                      <p className="text-slate-500 text-[10px]">{booking.user_email}</p>
                     </div>
 
-                    {/* Riga 4: Oggetto richiesta */}
+                    {/* Riga 4: Testo richiesta */}
                     {booking.subject && (
-                      <div className="mt-2">
-                        <p className="text-slate-300 text-xs italic">"{booking.subject}"</p>
+                      <div className="mt-2 p-2 bg-slate-700/50 rounded-lg">
+                        <p className="text-slate-300 text-xs">"{booking.subject}"</p>
                       </div>
                     )}
 
