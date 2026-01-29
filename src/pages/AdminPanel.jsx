@@ -826,6 +826,7 @@ export default function AdminPanel() {
 
           </TabsContent>
         </Tabs>
+        </div>
       </main>
 
       <BottomNav currentPage="AdminPanel" unreadMessages={messages.length} />
