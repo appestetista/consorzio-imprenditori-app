@@ -5,7 +5,7 @@ import { Send, MessageCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
-export default function ConsultationChat({ bookingId, currentUserEmail, otherUserEmail, otherUserName }) {
+export default function ConsultationChat({ bookingId, currentUserEmail, otherUserEmail, otherUserName, currentUserLogo, otherUserLogo }) {
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState('');
   const messagesEndRef = useRef(null);
