@@ -374,17 +374,6 @@ function ConsultantProfileCard({ consultantData, setConsultantData, savingConsul
     }
   };
 
-  // Se localData non è ancora inizializzato, mostra loading
-  if (!localData) {
-    return (
-      <Card className="bg-slate-800 border-slate-700 mb-4">
-        <CardContent className="p-6 flex items-center justify-center">
-          <div className="animate-spin w-6 h-6 border-2 border-lime-400 border-t-transparent rounded-full"></div>
-        </CardContent>
-      </Card>
-    );
-  }
-
   const [uploadingLogo, setUploadingLogo] = useState(false);
 
   const handleLogoUpload = async (e) => {
@@ -401,6 +390,17 @@ function ConsultantProfileCard({ consultantData, setConsultantData, savingConsul
       setUploadingLogo(false);
     }
   };
+
+  // Se localData non è ancora inizializzato, mostra loading
+  if (!localData) {
+    return (
+      <Card className="bg-slate-800 border-slate-700 mb-4">
+        <CardContent className="p-6 flex items-center justify-center">
+          <div className="animate-spin w-6 h-6 border-2 border-lime-400 border-t-transparent rounded-full"></div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="bg-slate-800 border-slate-700 mb-4">

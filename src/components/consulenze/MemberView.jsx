@@ -352,11 +352,20 @@ export default function MemberView({ user, consultants, isLoading }) {
                   </CardHeader>
                   <CardContent>
                     <div className="flex items-start justify-between gap-3 mb-3">
-                      <div className="flex-1">
-                        <p className="text-slate-400 text-xs mb-0.5">Consulente:</p>
-                        <p className="text-white font-medium text-base mb-2">{consultant.name}</p>
-                        <p className="text-slate-400 text-xs mb-0.5">Referente:</p>
-                        <p className="text-lime-400 text-sm">{consultant.referente || 'N/A'}</p>
+                      <div className="flex items-start gap-3 flex-1">
+                        {consultant.logo_url && (
+                          <img 
+                            src={consultant.logo_url} 
+                            alt={`Logo ${consultant.name}`}
+                            className="w-14 h-14 object-contain rounded-lg bg-slate-800 border border-slate-700 flex-shrink-0"
+                          />
+                        )}
+                        <div className="flex-1">
+                          <p className="text-slate-400 text-xs mb-0.5">Consulente:</p>
+                          <p className="text-white font-medium text-base mb-2">{consultant.name}</p>
+                          <p className="text-slate-400 text-xs mb-0.5">Referente:</p>
+                          <p className="text-lime-400 text-sm">{consultant.referente || 'N/A'}</p>
+                        </div>
                       </div>
                       <div className="flex-shrink-0 text-right">
                         <p className="text-lime-400 text-xl font-bold">{availableConsultations}</p>
