@@ -82,7 +82,7 @@ export default function Header({ user, totalNotifications = 0, hasNewNotificatio
           </div>
         </div>
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {impersonation.active && (
             <button
               onClick={() => {
@@ -96,6 +96,14 @@ export default function Header({ user, totalNotifications = 0, hasNewNotificatio
             </button>
           )}
 
+          {/* Notification Bell */}
+          <Link to={createPageUrl('CalendarioIncontri')}>
+            <NotificationBell 
+              count={totalNotifications} 
+              hasNewNotification={hasNewNotification}
+              onViewed={onNotificationViewed}
+            />
+          </Link>
           
           <button 
             onClick={() => setMenuOpen(!menuOpen)}
