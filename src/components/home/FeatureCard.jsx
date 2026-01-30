@@ -30,10 +30,10 @@ export default function FeatureCard({
   const bellNotificationCount = isCalendar ? notificationCount : 0;
   const hasPendingInvites = isCalendar && pendingInvites > 0;
   
-  // Video: glow e fascia solo se ci sono nuovi video NON ancora visti
-  const hasUnseenNewVideos = isVideo && newVideosCount > 0;
-  // Il puntino è sempre visibile se ci sono video, ma cambia colore
-  const showVideoDot = isVideo && totalVideosCount > 0;
+  // Video: logica separata per glow, fascia e colore bollino
+  const hasUnseenNewVideos = isVideo && newVideosCount > 0 && !hasVisitedVideos;
+  const showVideoBadge = isVideo && totalVideosCount > 0;
+  const videoBadgeIsRed = hasUnseenNewVideos;
   
   const shouldGlow = (isCalendar && (bellNotificationCount > 0 || hasPendingInvites)) || hasUnseenNewVideos;
   const hasBottomBadge = bottomBadge || (isCalendar && eventCount > 0) || hasUnseenNewVideos;
