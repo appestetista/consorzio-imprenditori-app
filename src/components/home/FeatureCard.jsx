@@ -79,18 +79,15 @@ export default function FeatureCard({
             </div>
           )}
           
-          {!disabled && isVideo && showVideoDot && (
+          {!disabled && isVideo && showVideoBadge && (
             <div className="absolute top-3 right-3">
               <div className={cn(
-                "relative w-8 h-8 rounded-full flex items-center justify-center transition-colors",
-                hasUnseenNewVideos ? "bg-[#bd0449]" : "bg-slate-900 border-2 border-lime-400"
+                "min-w-[28px] h-[28px] rounded-full flex items-center justify-center px-1.5 text-sm font-bold transition-colors",
+                videoBadgeIsRed 
+                  ? "bg-[#bd0449] text-white" 
+                  : "bg-lime-400 text-slate-900"
               )}>
-                <Bell className={cn("w-4 h-4", hasUnseenNewVideos ? "text-white animate-bounce" : "text-lime-400")} />
-                {hasUnseenNewVideos && (
-                  <span className="absolute -top-2 -right-2 bg-white text-slate-900 text-[11px] font-bold rounded-full min-w-[20px] h-[20px] flex items-center justify-center px-1 shadow-md animate-pulse">
-                    {newVideosCount > 99 ? '99+' : newVideosCount}
-                  </span>
-                )}
+                {totalVideosCount > 99 ? '99+' : totalVideosCount}
               </div>
             </div>
           )}
