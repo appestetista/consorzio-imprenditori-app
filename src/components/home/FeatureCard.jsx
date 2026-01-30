@@ -13,7 +13,8 @@ export default function FeatureCard({
   variant = 'default', 
   bottomBadge = null, 
   bottomBadgeType = 'consultations',
-  eventCount = 0
+  eventCount = 0,
+  pendingInvites = 0
 }) {
   const isPink = variant === 'pink';
   const isBlue = variant === 'blue';
@@ -21,7 +22,8 @@ export default function FeatureCard({
   
   const isCalendar = pageName === 'CalendarioIncontri';
   const bellNotificationCount = isCalendar ? notificationCount : 0;
-  const shouldGlow = isCalendar && bellNotificationCount > 0;
+  const hasPendingInvites = isCalendar && pendingInvites > 0;
+  const shouldGlow = isCalendar && (bellNotificationCount > 0 || hasPendingInvites);
   const hasBottomBadge = bottomBadge || (isCalendar && eventCount > 0);
   
   const content = (
@@ -52,12 +54,12 @@ export default function FeatureCard({
             <div className="absolute top-3 right-3">
               <div className={cn(
                 "relative w-8 h-8 rounded-full flex items-center justify-center transition-colors",
-                bellNotificationCount > 0 ? "bg-[#bd0449]" : "bg-slate-900 border-2 border-lime-400"
+                (bellNotificationCount > 0 || hasPendingInvites) ? "bg-[#bd0449]" : "bg-slate-900 border-2 border-lime-400"
               )}>
-                <Bell className={cn("w-4 h-4", bellNotificationCount > 0 ? "text-white" : "text-lime-400")} />
-                {bellNotificationCount > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-white text-slate-900 text-[11px] font-bold rounded-full min-w-[20px] h-[20px] flex items-center justify-center px-1 shadow-md">
-                    {bellNotificationCount > 99 ? '99+' : bellNotificationCount}
+                <Bell className={cn("w-4 h-4", (bellNotificationCount > 0 || hasPendingInvites) ? "text-white animate-bounce" : "text-lime-400")} />
+                {(bellNotificationCount > 0 || hasPendingInvites) && (
+                  <span className="absolute -top-2 -right-2 bg-white text-slate-900 text-[11px] font-bold rounded-full min-w-[20px] h-[20px] flex items-center justify-center px-1 shadow-md animate-pulse">
+                    {(bellNotificationCount + pendingInvites) > 99 ? '99+' : (bellNotificationCount + pendingInvites)}
                   </span>
                 )}
               </div>
