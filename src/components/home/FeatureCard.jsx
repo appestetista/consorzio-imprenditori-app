@@ -14,16 +14,24 @@ export default function FeatureCard({
   bottomBadge = null, 
   bottomBadgeType = 'consultations',
   eventCount = 0,
-  pendingInvites = 0
+  pendingInvites = 0,
+  newVideosCount = 0
 }) {
   const isPink = variant === 'pink';
   const isBlue = variant === 'blue';
   const accentColor = isPink ? 'text-pink-400' : isBlue ? 'text-blue-400' : 'text-lime-400';
   
   const isCalendar = pageName === 'CalendarioIncontri';
+  const isVideo = pageName === 'VideoInterviste';
+  
+  // Calendario: campanella + badge con pendingInvites
   const bellNotificationCount = isCalendar ? notificationCount : 0;
   const hasPendingInvites = isCalendar && pendingInvites > 0;
-  const shouldGlow = isCalendar && (bellNotificationCount > 0 || hasPendingInvites);
+  
+  // Video: campanella + badge con newVideosCount
+  const hasNewVideos = isVideo && newVideosCount > 0;
+  
+  const shouldGlow = (isCalendar && (bellNotificationCount > 0 || hasPendingInvites)) || hasNewVideos;
   const hasBottomBadge = bottomBadge || (isCalendar && eventCount > 0);
   
   const content = (
