@@ -669,9 +669,8 @@ export default function Home() {
                                 disabled={permissions[feature.permission] === false}
                                 variant={feature.variant}
                                 bottomBadge={feature.bottomBadge}
+                                bottomBadgeType={feature.bottomBadgeType}
                                 eventCount={feature.eventCount || 0}
-                                hasNewNotification={feature.hasNewNotification || false}
-                                onNotificationViewed={feature.onNotificationViewed || (() => {})}
                               />
           ))}
         </div>
