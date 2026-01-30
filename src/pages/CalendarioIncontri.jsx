@@ -416,7 +416,8 @@ export default function CalendarioIncontri() {
       return result;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['partecipazioni-eventi'] });
+      // Ricarica la pagina per mostrare la nuova situazione
+      window.location.reload();
     }
   });
 
