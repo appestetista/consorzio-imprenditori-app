@@ -649,21 +649,37 @@ export default function CalendarioIncontri() {
               const participantCount = getParticipantCount(event.id);
               const isBlocked = isEventBlocked(event);
               
+              // Determina overlay basato su risposta utente o stato evento
+              const getOverlayStyle = () => {
+                if (event.is_cancelled) return 'cancelled';
+                if (!isAdmin && event.creator_email !== user?.email && userResponse) {
+                  return userResponse === 'accepted' ? 'accepted' : 'declined';
+                }
+                return null;
+              };
+              const overlayType = getOverlayStyle();
+
               return (
                 <Card key={event.id} className={`overflow-hidden relative ${
                 event.event_type === 'consorzio' || !event.event_type 
                   ? 'bg-slate-800 border-2 border-lime-400' 
                   : 'bg-slate-800/70 border-slate-700'
-                } ${event.is_cancelled ? 'opacity-70' : ''}`}>
-                  {/* Overlay evento cancellato */}
-                  {event.is_cancelled && (
-                    <div className="absolute inset-0 bg-red-900/80 flex items-center justify-center z-10 pointer-events-none">
+                }`}>
+                  {/* Overlay basato su stato */}
+                  {overlayType === 'cancelled' && (
+                    <div className="absolute inset-0 bg-red-900/70 flex items-center justify-center z-10 pointer-events-none">
                       <div className="text-center transform -rotate-12">
-                        <span className="text-white text-3xl font-black uppercase tracking-wider drop-shadow-lg border-4 border-white px-6 py-2">
-                          EVENTO CANCELLATO
+                        <span className="text-white text-2xl font-black uppercase tracking-wider drop-shadow-lg border-4 border-white px-4 py-2">
+                          EVENTO ANNULLATO
                         </span>
                       </div>
                     </div>
+                  )}
+                  {overlayType === 'accepted' && (
+                    <div className="absolute inset-0 bg-green-900/40 z-10 pointer-events-none" />
+                  )}
+                  {overlayType === 'declined' && (
+                    <div className="absolute inset-0 bg-red-900/40 z-10 pointer-events-none" />
                   )}
                   {/* Badge tipo evento e stato approvazione */}
                   <div className="flex items-center gap-2 px-4 pt-3">
@@ -688,11 +704,11 @@ export default function CalendarioIncontri() {
                     )}
                   </div>
                   {event.image_url && (
-                    <div className="w-full h-48 overflow-hidden mt-2">
+                    <div className="w-full mt-2 bg-slate-900">
                       <img 
                         src={event.image_url} 
                         alt={event.title}
-                        className="w-full h-full object-cover"
+                        className="w-full h-auto max-h-[400px] object-contain"
                       />
                     </div>
                   )}
@@ -932,30 +948,32 @@ export default function CalendarioIncontri() {
                       )}
 
                     {/* Stato partecipazione utente - solo per non-admin */}
-                    {!isAdmin && event.creator_email !== user?.email && (
-                      <div className="pt-3 border-t border-slate-700">
+                    {!isAdmin && event.creator_email !== user?.email && !event.is_cancelled && (
+                      <div className="pt-3 border-t border-slate-700 relative z-20">
                         {userResponse ? (
-                          <>
+                          <div className="space-y-3">
                             <div className={`p-3 rounded-lg ${
-                              userResponse === 'accepted' ? 'bg-green-600/20' : 'bg-red-600/20'
+                              userResponse === 'accepted' ? 'bg-green-600/30 border border-green-500/50' : 'bg-red-600/30 border border-red-500/50'
                             }`}>
-                              <p className={`text-sm font-medium ${
+                              <p className={`text-sm font-bold ${
                                 userResponse === 'accepted' ? 'text-green-400' : 'text-red-400'
                               }`}>
                                 {userResponse === 'accepted' 
-                                  ? "✓ Hai scelto di partecipare all'incontro" 
-                                  : "✗ Hai scelto di non partecipare all'incontro"}
+                                  ? "✓ PARTECIPERAI A QUESTO EVENTO" 
+                                  : "✗ NON PARTECIPERAI A QUESTO EVENTO"}
                               </p>
                             </div>
                             {!isBlocked && (
-                              <button
-                                className="w-full mt-3 text-base text-lime-400 hover:text-lime-300 font-medium underline"
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="w-full border-lime-400 text-lime-400 hover:bg-lime-400/20"
                                 onClick={() => setChangeResponseEvent(event)}
                               >
-                                Hai cambiato idea?
-                              </button>
+                                Cambia la tua risposta
+                              </Button>
                             )}
-                          </>
+                          </div>
                         ) : !isBlocked ? (
                           <div className="grid grid-cols-2 gap-3">
                             <Button

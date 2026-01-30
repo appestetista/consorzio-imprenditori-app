@@ -1,13 +1,27 @@
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 
-// Suono di notifica brillante e chiaro usando Web Audio API
+// Suono di notifica tipo campanello usando Web Audio API
 export default function useNotificationSound() {
+  const audioContextRef = useRef(null);
+
   const playSound = useCallback(() => {
     try {
-      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      // Riusa l'AudioContext esistente o creane uno nuovo
+      if (!audioContextRef.current || audioContextRef.current.state === 'closed') {
+        audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+      }
       
-      // Primo tono - brillante e alto
-      const playTone = (frequency, startTime, duration, volume) => {
+      const audioContext = audioContextRef.current;
+      
+      // Resume AudioContext se sospeso (necessario per policy autoplay browser)
+      if (audioContext.state === 'suspended') {
+        audioContext.resume();
+      }
+
+      const now = audioContext.currentTime;
+      
+      // Crea un suono tipo "ding dong" elegante
+      const playBell = (frequency, startTime, duration, volume) => {
         const oscillator = audioContext.createOscillator();
         const gainNode = audioContext.createGain();
         
@@ -17,21 +31,19 @@ export default function useNotificationSound() {
         oscillator.frequency.setValueAtTime(frequency, startTime);
         oscillator.type = 'sine';
         
-        // Volume più alto e brillante
+        // Attack rapido, decay naturale tipo campanello
         gainNode.gain.setValueAtTime(0, startTime);
-        gainNode.gain.linearRampToValueAtTime(volume, startTime + 0.02);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+        gainNode.gain.linearRampToValueAtTime(volume, startTime + 0.01);
+        gainNode.gain.exponentialRampToValueAtTime(volume * 0.3, startTime + 0.1);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
         
         oscillator.start(startTime);
         oscillator.stop(startTime + duration);
       };
-      
-      const now = audioContext.currentTime;
-      
-      // Sequenza di 3 toni ascendenti - più brillanti e riconoscibili
-      playTone(1200, now, 0.15, 0.5);          // Do6 - primo tono
-      playTone(1500, now + 0.12, 0.15, 0.5);   // Mi6 - secondo tono  
-      playTone(1800, now + 0.24, 0.25, 0.6);   // Sol6 - terzo tono più lungo
+
+      // Sequenza "ding-ding" - due note alte e chiare
+      playBell(1400, now, 0.4, 0.4);           // Prima nota
+      playBell(1800, now + 0.15, 0.5, 0.5);    // Seconda nota più alta
       
     } catch (error) {
       console.log('Audio non supportato:', error);
