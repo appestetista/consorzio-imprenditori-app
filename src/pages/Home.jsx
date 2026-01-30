@@ -13,6 +13,7 @@ import useNotificationSound from '../components/hooks/useNotificationSound';
 import ChangeResponsePopup from '@/components/calendario/ChangeResponsePopup';
 import ProfileCompletionModal from '@/components/profile/ProfileCompletionModal';
 import { normalizeUser, isUserConsultant, getUserPermissions } from '../components/utils/normalizeUser';
+import SoundPermissionPopup from '../components/notifications/SoundPermissionPopup';
 
 export default function Home() {
   const [user, setUser] = useState(null);
@@ -685,10 +686,13 @@ export default function Home() {
                           )}
 
                   {/* Modal obbligatorio per completare il profilo */}
-                  <ProfileCompletionModal 
-                    user={effectiveUser} 
-                    onProfileComplete={() => window.location.reload()}
-                  />
-                </div>
-              );
-              }
+                          <ProfileCompletionModal 
+                            user={effectiveUser} 
+                            onProfileComplete={() => window.location.reload()}
+                          />
+
+                          {/* Popup per abilitare notifiche sonore al primo accesso */}
+                          <SoundPermissionPopup />
+                        </div>
+                      );
+                      }
