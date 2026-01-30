@@ -590,12 +590,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-slate-900 pb-24">
-      <Header 
-        user={effectiveUser || user} 
-        totalNotifications={notifications.length}
-        hasNewNotification={hasNewNotification}
-        onNotificationViewed={() => setHasNewNotification(false)}
-      />
+      <Header user={effectiveUser || user} />
       
       <main className="px-4 py-6 max-w-md mx-auto">
         {/* Welcome Banner */}
