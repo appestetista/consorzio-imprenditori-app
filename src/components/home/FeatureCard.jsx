@@ -15,7 +15,9 @@ export default function FeatureCard({
   bottomBadgeType = 'consultations',
   eventCount = 0,
   pendingInvites = 0,
-  newVideosCount = 0
+  newVideosCount = 0,
+  totalVideosCount = 0,
+  hasVisitedVideos = false
 }) {
   const isPink = variant === 'pink';
   const isBlue = variant === 'blue';
@@ -28,11 +30,13 @@ export default function FeatureCard({
   const bellNotificationCount = isCalendar ? notificationCount : 0;
   const hasPendingInvites = isCalendar && pendingInvites > 0;
   
-  // Video: campanella + badge con newVideosCount
-  const hasNewVideos = isVideo && newVideosCount > 0;
+  // Video: glow e fascia solo se ci sono nuovi video NON ancora visti
+  const hasUnseenNewVideos = isVideo && newVideosCount > 0;
+  // Il puntino è sempre visibile se ci sono video, ma cambia colore
+  const showVideoDot = isVideo && totalVideosCount > 0;
   
-  const shouldGlow = (isCalendar && (bellNotificationCount > 0 || hasPendingInvites)) || hasNewVideos;
-  const hasBottomBadge = bottomBadge || (isCalendar && eventCount > 0);
+  const shouldGlow = (isCalendar && (bellNotificationCount > 0 || hasPendingInvites)) || hasUnseenNewVideos;
+  const hasBottomBadge = bottomBadge || (isCalendar && eventCount > 0) || hasUnseenNewVideos;
   
   const content = (
     <div className="relative">
