@@ -1004,8 +1004,8 @@ export default function CalendarioIncontri() {
                         ) : null}
                       </div>
                     )}
-                    {isBlocked && !userResponse && !isAdmin && event.creator_email !== user?.email && (
-                      <div className="mt-3 p-3 bg-slate-700/50 rounded-lg">
+                    {isBlocked && !userResponse && !isAdmin && event.creator_email !== user?.email && !event.is_cancelled && (
+                      <div className="mt-3 p-3 bg-slate-700/50 rounded-lg relative z-20">
                         <p className="text-slate-300 text-xs leading-relaxed">
                           La conferma di partecipazione non è più modificabile. Siamo a ridosso dell'evento e non è più possibile confermare o annullare la presenza online. Per necessità urgenti, contatta direttamente il Consorzio.
                         </p>
