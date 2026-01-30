@@ -209,7 +209,7 @@ export default function EventZoneManager({ event, open, onClose }) {
       <DialogContent className="bg-slate-800 border-slate-700 max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-white">
-            {step === 1 ? 'Seleziona Zone' : 'Seleziona Destinatari'}
+            Gestisci Zone e Destinatari
           </DialogTitle>
         </DialogHeader>
 
