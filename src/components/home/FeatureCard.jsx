@@ -26,8 +26,8 @@ export default function FeatureCard({
   const leftBadgeCount = isCalendar ? eventCount : 0;
   const bellNotificationCount = isCalendar ? notificationCount : 0;
   
-  // Glow SOLO per calendario quando ci sono inviti in attesa (notifiche > 0)
-  const shouldGlow = isCalendar && bellNotificationCount > 0;
+  // Glow SOLO per calendario - basato su hasNewNotification (persiste finché l'utente non clicca)
+  const shouldGlow = isCalendar && hasNewNotification;
   
   const content = (
     <div className="relative">
