@@ -238,17 +238,51 @@ export default function Home() {
 
   // Tutti gli eventi futuri per il contatore nella card Calendario
   const { data: allFutureEvents = [] } = useQuery({
-    queryKey: ['all-future-events-home'],
+    queryKey: ['all-future-events-home', effectiveUser?.email],
     queryFn: async () => {
       const allEvents = await base44.entities.Event.list('-date');
       const today = new Date();
       today.setHours(0, 0, 0, 0);
+      
+      const userZone = effectiveUser?.zona || effectiveUser?.zone;
+      const isUserType = effectiveUser?.user_type === 'utente' || effectiveUser?.role === 'user';
+      const isConsultantType = effectiveUser?.user_type === 'consulente' || effectiveUser?.role === 'consulente';
+      
       return allEvents.filter(e => {
         const eventDate = new Date(e.date);
         eventDate.setHours(0, 0, 0, 0);
-        return eventDate >= today && e.approval_status === 'approved';
+        if (eventDate < today || e.approval_status !== 'approved') return false;
+        
+        // Filtra per zona e tipo utente usando zone_visibility
+        if (e.zone_visibility && e.zone_visibility.length > 0) {
+          const allZonesConfig = e.zone_visibility.find(zv => zv.zone === '__all__');
+          if (allZonesConfig) {
+            const target = allZonesConfig.target || 'all';
+            if (target === 'all') return true;
+            if (target === 'users' && isUserType) return true;
+            if (target === 'consultants' && isConsultantType) return true;
+            return false;
+          }
+          
+          const zoneConfig = e.zone_visibility.find(zv => zv.zone === userZone);
+          if (!zoneConfig) return false;
+          
+          const target = zoneConfig.target || 'all';
+          if (target === 'all') return true;
+          if (target === 'users' && isUserType) return true;
+          if (target === 'consultants' && isConsultantType) return true;
+          return false;
+        }
+        
+        // Retrocompatibilità
+        if (e.visible_to_zones && e.visible_to_zones.length > 0) {
+          if (!userZone || !e.visible_to_zones.includes(userZone)) return false;
+        }
+        
+        return true;
       });
     },
+    enabled: !!effectiveUser,
   });
 
   // Stato per tracciare nuovi eventi calendario (basato su inviti senza risposta)
