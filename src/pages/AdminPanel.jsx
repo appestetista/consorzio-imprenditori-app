@@ -587,9 +587,15 @@ export default function AdminPanel() {
                   <span className="absolute top-1 left-1 bg-lime-400 text-slate-900 text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
                     {stats?.totalEvents || 0}
                   </span>
-                  <span className="absolute top-1 right-1 text-slate-400">
-                    <Bell className="w-3 h-3" />
-                  </span>
+                  {pendingApprovalEventsCount > 0 ? (
+                    <span className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center">
+                      <Bell className="w-2.5 h-2.5" />
+                    </span>
+                  ) : (
+                    <span className="absolute top-1 right-1 text-slate-400">
+                      <Bell className="w-3 h-3" />
+                    </span>
+                  )}
                 </CardContent>
               </Card>
             </Link>
