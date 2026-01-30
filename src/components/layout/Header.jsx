@@ -14,10 +14,52 @@ export default function Header({ user }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [impersonationDialogOpen, setImpersonationDialogOpen] = useState(false);
   const { impersonation, startImpersonation, stopImpersonation } = useImpersonation();
+  const queryClient = useQueryClient();
+  const { playSound } = useNotificationSound();
+  const prevNotificationCountRef = useRef(0);
   
   // Normalizza l'utente per avere sempre la stessa struttura dati
   const normalizedUser = useMemo(() => normalizeUser(user), [user]);
   const isAdmin = normalizedUser?.role === 'admin';
+  const effectiveEmail = impersonation.active ? impersonation.targetEmail : normalizedUser?.email;
+
+  // Fetch notifiche non lette
+  const { data: notifications = [] } = useQuery({
+    queryKey: ['header-notifications', effectiveEmail],
+    queryFn: () => base44.entities.Notification.filter({ 
+      user_email: effectiveEmail, 
+      is_read: false 
+    }),
+    enabled: !!effectiveEmail,
+    refetchInterval: 10000, // Ogni 10 secondi
+  });
+
+  const unreadCount = notifications.length;
+
+  // Suona quando arriva una nuova notifica
+  useEffect(() => {
+    if (unreadCount > prevNotificationCountRef.current && prevNotificationCountRef.current > 0) {
+      playSound?.();
+    }
+    prevNotificationCountRef.current = unreadCount;
+  }, [unreadCount, playSound]);
+
+  // Subscribe real-time alle notifiche
+  useEffect(() => {
+    if (!effectiveEmail) return;
+    
+    const unsubscribe = base44.entities.Notification.subscribe((event) => {
+      if (event.type === 'create' && event.data?.user_email === effectiveEmail) {
+        playSound?.();
+        queryClient.invalidateQueries({ queryKey: ['header-notifications', effectiveEmail] });
+      }
+      if (event.type === 'update' || event.type === 'delete') {
+        queryClient.invalidateQueries({ queryKey: ['header-notifications', effectiveEmail] });
+      }
+    });
+
+    return unsubscribe;
+  }, [effectiveEmail, queryClient, playSound]);
   
   const handleLogout = () => {
     base44.auth.logout();
