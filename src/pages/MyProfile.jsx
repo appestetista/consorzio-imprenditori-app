@@ -14,6 +14,7 @@ import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import ProfiloBandiForm from '../components/profile/ProfiloBandiForm';
+import NotificationPreferences from '../components/profile/NotificationPreferences';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
 import { PhoneOff, PhoneCall, Gift, AlertTriangle as AlertTriangleIcon, EyeOff, UserPlus, Minus, Plus } from 'lucide-react';
