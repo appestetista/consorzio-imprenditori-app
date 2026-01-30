@@ -118,7 +118,7 @@ export default function CalendarioIncontri() {
   useEffect(() => {
     if (futureEventsCount > lastEventCount && lastEventCount > 0) {
       setHasNewEvent(true);
-      playSound();
+      if (playSound) playSound();
     }
     setLastEventCount(futureEventsCount);
   }, [futureEventsCount, lastEventCount, playSound]);
