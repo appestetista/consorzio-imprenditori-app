@@ -14,15 +14,28 @@ Deno.serve(async (req) => {
         let conversations = [];
         let errors = [];
         
+        // Prova prima senza filtro agent_name per vedere tutte le conversazioni
         try {
-            conversations = await base44.asServiceRole.agents.listConversations({
+            const allConvs = await base44.asServiceRole.agents.listConversations({ limit: 100 });
+            console.log(`All conversations (no filter): ${allConvs?.length || 0}`);
+            if (allConvs?.length > 0) {
+                allConvs.forEach(c => console.log(`  - agent: ${c.agent_name}, id: ${c.id}`));
+            }
+            conversations = allConvs || [];
+        } catch (e) {
+            errors.push(`listConversations (all) error: ${e.message}`);
+            console.log('listConversations (all) failed:', e.message);
+        }
+        
+        // Prova anche con filtro specifico
+        try {
+            const filtered = await base44.asServiceRole.agents.listConversations({
                 agent_name: 'event_notifier',
                 limit: 100
             });
-            console.log(`Found ${conversations?.length || 0} conversations`);
+            console.log(`Filtered by event_notifier: ${filtered?.length || 0}`);
         } catch (e) {
-            errors.push(`listConversations error: ${e.message}`);
-            console.log('listConversations failed:', e.message);
+            errors.push(`listConversations (filtered) error: ${e.message}`);
         }
 
         // Log dettagliato delle conversazioni trovate
