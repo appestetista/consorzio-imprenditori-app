@@ -257,8 +257,24 @@ export default function Home() {
     queryFn: () => base44.entities.Event.list('-date', 1),
   });
 
-  // Tutti gli eventi futuri per il contatore nella card Calendario
-  // Il numero nel cerchio a sinistra si decrementa SOLO se eventi passano, vengono cancellati o annullati
+  // Conteggio TOTALE eventi futuri (per striscia informativa - senza filtri visibilità)
+  const { data: totalFutureEventsCount = 0 } = useQuery({
+    queryKey: ['total-future-events-count'],
+    queryFn: async () => {
+      const allEvents = await base44.entities.Event.list('-date');
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      return allEvents.filter(e => {
+        const eventDate = new Date(e.date);
+        eventDate.setHours(0, 0, 0, 0);
+        // Solo filtro: non passati, approvati, non cancellati
+        return eventDate >= today && e.approval_status === 'approved' && !e.is_cancelled;
+      }).length;
+    },
+  });
+
+  // Eventi futuri VISIBILI all'utente (per logica campanella/azioni)
   const { data: allFutureEvents = [] } = useQuery({
     queryKey: ['all-future-events-home', effectiveUser?.email],
     queryFn: async () => {
