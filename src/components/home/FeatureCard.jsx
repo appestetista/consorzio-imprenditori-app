@@ -59,7 +59,7 @@ export default function FeatureCard({
                 <Bell className={cn("w-4 h-4", (bellNotificationCount > 0 || hasPendingInvites) ? "text-white animate-bounce" : "text-lime-400")} />
                 {(bellNotificationCount > 0 || hasPendingInvites) && (
                   <span className="absolute -top-2 -right-2 bg-white text-slate-900 text-[11px] font-bold rounded-full min-w-[20px] h-[20px] flex items-center justify-center px-1 shadow-md animate-pulse">
-                    {(bellNotificationCount + pendingInvites) > 99 ? '99+' : (bellNotificationCount + pendingInvites)}
+                    {pendingInvites > 99 ? '99+' : pendingInvites}
                   </span>
                 )}
               </div>
