@@ -43,13 +43,15 @@ export default function FeatureCard({
   
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { markVideosAsVisited } = useVideoVisit();
 
   const handleVideoCardClick = async (e) => {
     e.preventDefault();
-    // Aggiorna last_video_view_at PRIMA della navigazione
+    // Segna come visitato nel context PRIMA di tutto (per aggiornare UI immediatamente)
+    markVideosAsVisited();
+    // Aggiorna last_video_view_at in background
     try {
       await base44.auth.updateMe({ last_video_view_at: new Date().toISOString() });
-      // Invalida la query per aggiornare lo stato nella Home
       queryClient.invalidateQueries({ queryKey: ['videos-data'] });
     } catch (err) {
       console.error('[FeatureCard] Errore aggiornamento last_video_view_at:', err);
