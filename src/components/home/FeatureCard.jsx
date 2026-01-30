@@ -29,12 +29,17 @@ export default function FeatureCard({
   const isCalendar = pageName === 'CalendarioIncontri';
   const isVideo = pageName === 'VideoInterviste';
   
+  // Usa il context per sapere se l'utente ha già visitato i video in questa sessione
+  const { hasVisitedVideos: hasVisitedFromContext } = useVideoVisit();
+  
   // Calendario: campanella + badge con pendingInvites
   const bellNotificationCount = isCalendar ? notificationCount : 0;
   const hasPendingInvites = isCalendar && pendingInvites > 0;
   
   // Video: logica separata per glow, fascia e colore bollino
-  const hasUnseenNewVideos = isVideo && newVideosCount > 0 && !hasVisitedVideos;
+  // Combina il flag dal context (sessione) con il flag dal DB (passato come prop)
+  const effectiveHasVisited = hasVisitedFromContext || hasVisitedVideos;
+  const hasUnseenNewVideos = isVideo && newVideosCount > 0 && !effectiveHasVisited;
   const showVideoBadge = isVideo && totalVideosCount > 0;
   const videoBadgeIsRed = hasUnseenNewVideos;
   
