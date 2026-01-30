@@ -251,9 +251,8 @@ export default function Home() {
     },
   });
 
-  // Stato per tracciare nuovi eventi calendario
+  // Stato per tracciare nuovi eventi calendario (basato su inviti senza risposta)
   const [hasNewCalendarEvent, setHasNewCalendarEvent] = useState(false);
-  const [lastCalendarEventCount, setLastCalendarEventCount] = useState(0);
 
   // Subscribe real-time agli eventi
   useEffect(() => {
@@ -264,18 +263,20 @@ export default function Home() {
       }
       queryClient.invalidateQueries({ queryKey: ['all-future-events-home'] });
       queryClient.invalidateQueries({ queryKey: ['upcoming-events'] });
+      queryClient.invalidateQueries({ queryKey: ['partecipazioni-home', effectiveUser?.email] });
     });
 
     return unsubscribe;
-  }, [queryClient, playSound]);
+  }, [queryClient, playSound, effectiveUser?.email]);
 
-  // Traccia quando cambiano gli eventi per attivare il glow
+  // Attiva il glow se ci sono inviti in attesa di risposta (pendingEventInvites > 0)
   useEffect(() => {
-    if (allFutureEvents.length > lastCalendarEventCount && lastCalendarEventCount > 0) {
+    if (pendingEventInvites > 0) {
       setHasNewCalendarEvent(true);
+    } else {
+      setHasNewCalendarEvent(false);
     }
-    setLastCalendarEventCount(allFutureEvents.length);
-  }, [allFutureEvents.length, lastCalendarEventCount]);
+  }, [pendingEventInvites]);
 
   const { data: partecipazioni = [] } = useQuery({
     queryKey: ['partecipazioni-home', effectiveUser?.email],
