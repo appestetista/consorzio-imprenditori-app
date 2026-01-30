@@ -993,74 +993,97 @@ export default function CalendarioIncontri() {
 
       {/* Edit Event Dialog */}
       {editingEvent && (
-        <Dialog open={showEditEvent} onOpenChange={setShowEditEvent}>
-          <DialogContent className="bg-slate-800 border-slate-700 max-h-[85vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="text-white">Modifica Incontro</DialogTitle>
-            </DialogHeader>
-            <button
-              onClick={() => setShowEditEvent(false)}
-              className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
-            >
-              <X className="h-4 w-4 text-slate-400" />
-            </button>
-            <div className="space-y-4 mt-4">
-              <Input
-                placeholder="Titolo"
-                value={editingEvent.title}
-                onChange={(e) => setEditingEvent({...editingEvent, title: e.target.value})}
-                className="bg-slate-900 border-slate-700 text-white"
-              />
-              <Textarea
-                placeholder="Descrizione"
-                value={editingEvent.description}
-                onChange={(e) => setEditingEvent({...editingEvent, description: e.target.value})}
-                className="bg-slate-900 border-slate-700 text-white"
-              />
-              <Input
-                type="date"
-                value={editingEvent.date}
-                onChange={(e) => setEditingEvent({...editingEvent, date: e.target.value})}
-                className="bg-slate-900 border-slate-700 text-white"
-              />
-              <Input
-                type="time"
-                value={editingEvent.time}
-                onChange={(e) => setEditingEvent({...editingEvent, time: e.target.value})}
-                className="bg-slate-900 border-slate-700 text-white"
-              />
-              <Input
-                placeholder="Luogo"
-                value={editingEvent.location}
-                onChange={(e) => setEditingEvent({...editingEvent, location: e.target.value})}
-                className="bg-slate-900 border-slate-700 text-white"
-              />
-              
-              {/* Reminder Switch */}
-              <div className="flex items-center justify-between p-3 bg-slate-900 rounded-lg border border-slate-700">
-                <div className="flex items-center gap-3">
-                  <Bell className="w-5 h-5 text-lime-400" />
-                  <div>
-                    <Label className="text-white text-sm">Promemoria automatici</Label>
-                    <p className="text-slate-500 text-xs">Invia notifiche ogni 48h a chi non risponde</p>
-                  </div>
-                </div>
-                <Switch
-                  checked={editingEvent.reminder_enabled || false}
-                  onCheckedChange={(checked) => setEditingEvent({...editingEvent, reminder_enabled: checked})}
-                />
-              </div>
-              
-              <Button 
-                onClick={() => updateEventMutation.mutate(editingEvent)}
-                disabled={updateEventMutation.isPending}
-                className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900"
-              >
-                {updateEventMutation.isPending ? 'Salvataggio...' : 'Salva Modifiche'}
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+      <Dialog open={showEditEvent} onOpenChange={(open) => {
+      if (!open) {
+      setShowEditEvent(false);
+      setEditingEvent(null);
+      }
+      }}>
+      <DialogContent className="bg-slate-800 border-slate-700 max-h-[85vh] overflow-y-auto">
+      <DialogHeader>
+      <DialogTitle className="text-white">Modifica Incontro</DialogTitle>
+      </DialogHeader>
+      <button
+      onClick={() => {
+        setShowEditEvent(false);
+        setEditingEvent(null);
+      }}
+      className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
+      >
+      <X className="h-4 w-4 text-slate-400" />
+      </button>
+      <div className="space-y-4 mt-4">
+      <Input
+        placeholder="Titolo"
+        value={editingEvent.title || ''}
+        onChange={(e) => setEditingEvent({...editingEvent, title: e.target.value})}
+        className="bg-slate-900 border-slate-700 text-white"
+      />
+      <Textarea
+        placeholder="Descrizione"
+        value={editingEvent.description || ''}
+        onChange={(e) => setEditingEvent({...editingEvent, description: e.target.value})}
+        className="bg-slate-900 border-slate-700 text-white"
+      />
+      <Input
+        type="date"
+        value={editingEvent.date || ''}
+        onChange={(e) => setEditingEvent({...editingEvent, date: e.target.value})}
+        className="bg-slate-900 border-slate-700 text-white"
+      />
+      <Input
+        type="time"
+        value={editingEvent.time || ''}
+        onChange={(e) => setEditingEvent({...editingEvent, time: e.target.value})}
+        className="bg-slate-900 border-slate-700 text-white"
+      />
+      <Input
+        placeholder="Luogo"
+        value={editingEvent.location || ''}
+        onChange={(e) => setEditingEvent({...editingEvent, location: e.target.value})}
+        className="bg-slate-900 border-slate-700 text-white"
+      />
+
+      {/* Reminder Switch */}
+      <div className="flex items-center justify-between p-3 bg-slate-900 rounded-lg border border-slate-700">
+        <div className="flex items-center gap-3">
+          <Bell className="w-5 h-5 text-lime-400" />
+          <div>
+            <Label className="text-white text-sm">Promemoria automatici</Label>
+            <p className="text-slate-500 text-xs">Invia notifiche ogni 48h a chi non risponde</p>
+          </div>
+        </div>
+        <Switch
+          checked={editingEvent.reminder_enabled || false}
+          onCheckedChange={(checked) => setEditingEvent({...editingEvent, reminder_enabled: checked})}
+        />
+      </div>
+
+      <Button 
+        onClick={() => updateEventMutation.mutate(editingEvent)}
+        disabled={updateEventMutation.isPending}
+        className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900"
+      >
+        {updateEventMutation.isPending ? 'Salvataggio...' : 'Salva Modifiche'}
+      </Button>
+
+      {/* Pulsante per gestire zone (solo admin) */}
+      {isAdmin && (
+        <Button 
+          variant="outline"
+          onClick={() => {
+            setShowEditEvent(false);
+            setZoneManagerEvent(editingEvent);
+          }}
+          className="w-full border-slate-600 text-slate-300 hover:bg-slate-700"
+        >
+          <Send className="w-4 h-4 mr-2" />
+          Gestisci Zone e Destinatari
+        </Button>
+      )}
+      </div>
+      </DialogContent>
+      </Dialog>
       )}
 
       <BottomNav currentPage="CalendarioIncontri" unreadMessages={messages.length} />
