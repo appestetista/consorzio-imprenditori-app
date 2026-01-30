@@ -41,7 +41,7 @@ export default function FeatureCard({
   const effectiveHasVisited = hasVisitedFromContext || hasVisitedVideos;
   const hasUnseenNewVideos = isVideo && newVideosCount > 0 && !effectiveHasVisited;
   const showVideoBadge = isVideo && totalVideosCount > 0;
-  const videoBadgeIsRed = hasUnseenNewVideos;
+  const videoBadgeIsRed = isVideo && newVideosCount > 0 && !effectiveHasVisited;
   
   const shouldGlow = (isCalendar && (bellNotificationCount > 0 || hasPendingInvites)) || hasUnseenNewVideos;
   const hasBottomBadge = bottomBadge || (isCalendar && eventCount > 0) || hasUnseenNewVideos;
