@@ -800,14 +800,61 @@ export default function CalendarioIncontri() {
                            Modifica evento
                          </Button>
 
-                         {/* Pulsante elimina evento per admin */}
+                         {/* Pulsanti cancella/elimina evento per admin */}
+                         {!event.is_cancelled ? (
+                           <Button
+                             variant="outline"
+                             size="sm"
+                             className="w-full mt-2 border-orange-600 text-orange-400 hover:bg-orange-600/20"
+                             onClick={async () => {
+                               if (confirm('Cancellare questo evento? Rimarrà visibile con la scritta "CANCELLATO". Gli invitati riceveranno una notifica.')) {
+                                 await base44.entities.Event.update(event.id, {
+                                   is_cancelled: true,
+                                   cancelled_at: new Date().toISOString()
+                                 });
+                                 const partecipazioniEvento = partecipazioni.filter(p => p.evento_id === event.id);
+                                 for (const p of partecipazioniEvento) {
+                                   await base44.entities.Notification.create({
+                                     user_email: p.user_email,
+                                     type: 'event',
+                                     title: 'Evento cancellato',
+                                     content: `L'evento "${event.title}" è stato cancellato.`,
+                                     reference_id: event.id,
+                                     is_read: false
+                                   });
+                                 }
+                                 queryClient.invalidateQueries({ queryKey: ['events'] });
+                               }
+                             }}
+                           >
+                             <X className="w-4 h-4 mr-2" />
+                             Cancella evento
+                           </Button>
+                         ) : (
+                           <Button
+                             variant="outline"
+                             size="sm"
+                             className="w-full mt-2 border-green-600 text-green-400 hover:bg-green-600/20"
+                             onClick={async () => {
+                               if (confirm('Ripristinare questo evento?')) {
+                                 await base44.entities.Event.update(event.id, {
+                                   is_cancelled: false,
+                                   cancelled_at: null
+                                 });
+                                 queryClient.invalidateQueries({ queryKey: ['events'] });
+                               }
+                             }}
+                           >
+                             <Check className="w-4 h-4 mr-2" />
+                             Ripristina evento
+                           </Button>
+                         )}
                          <Button
                            variant="destructive"
                            size="sm"
                            className="w-full mt-2"
                            onClick={async () => {
-                             if (confirm('Eliminare definitivamente questo evento? Questa azione è irreversibile.')) {
-                               // Elimina anche le partecipazioni correlate
+                             if (confirm('Eliminare DEFINITIVAMENTE questo evento? Questa azione è irreversibile e l\'evento non sarà più visibile.')) {
                                const partecipazioniEvento = partecipazioni.filter(p => p.evento_id === event.id);
                                for (const p of partecipazioniEvento) {
                                  await base44.entities.PartecipazioniEvento.delete(p.id);
@@ -819,7 +866,7 @@ export default function CalendarioIncontri() {
                            }}
                          >
                            <X className="w-4 h-4 mr-2" />
-                           Elimina evento
+                           Elimina definitivamente
                          </Button>
                        </div>
                        )}
