@@ -76,18 +76,11 @@ export default function FeatureCard({
             <div className="absolute top-3 right-3">
               <div 
                 className={cn(
-                  "relative w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer",
+                  "relative w-8 h-8 rounded-full flex items-center justify-center transition-colors",
                   bellNotificationCount > 0 
                     ? "bg-[#bd0449]" 
                     : "bg-slate-900 border-2 border-lime-400"
                 )}
-                onClick={(e) => {
-                  if (bellNotificationCount > 0) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    onNotificationViewed();
-                  }
-                }}
               >
                 <Bell className={cn(
                   "w-4 h-4",
@@ -130,7 +123,12 @@ export default function FeatureCard({
   const pageUrl = createPageUrl(pageName);
 
   return (
-    <Link to={pageUrl} className="cursor-pointer block">
+    <Link to={pageUrl} className="cursor-pointer block" onClick={() => {
+      // Quando clicco sulla card, rimuovo il bagliore
+      if (isCalendar && bellNotificationCount > 0) {
+        onNotificationViewed();
+      }
+    }}>
       {content}
     </Link>
   );
