@@ -5,10 +5,15 @@ export default function useNotificationSound() {
   const audioContextRef = useRef(null);
   const isUnlockedRef = useRef(false);
 
-  // Sblocca AudioContext al primo click/touch dell'utente
+  // Controlla se l'utente ha abilitato i suoni
+  const isSoundEnabled = () => {
+    return localStorage.getItem('soundNotificationsEnabled') === 'true';
+  };
+
+  // Sblocca AudioContext al primo click/touch dell'utente (solo se suoni abilitati)
   useEffect(() => {
     const unlockAudio = () => {
-      if (isUnlockedRef.current) return;
+      if (isUnlockedRef.current || !isSoundEnabled()) return;
       
       try {
         if (!audioContextRef.current || audioContextRef.current.state === 'closed') {
@@ -39,6 +44,12 @@ export default function useNotificationSound() {
   }, []);
 
   const playSound = useCallback(() => {
+    // Non suonare se l'utente ha disabilitato i suoni
+    if (!isSoundEnabled()) {
+      console.log('[AUDIO] Suoni disabilitati dall\'utente');
+      return;
+    }
+
     try {
       // Crea o riusa AudioContext
       if (!audioContextRef.current || audioContextRef.current.state === 'closed') {
