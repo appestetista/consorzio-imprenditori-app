@@ -753,7 +753,8 @@ export default function CalendarioIncontri() {
                       <span>{event.location}</span>
                     </div>
                     
-                    {isAdmin && (
+                    {/* Mostra partecipanti per admin O per il creatore dell'evento */}
+                    {(isAdmin || event.creator_email === user?.email) && (
                                                 <>
                                                   <div 
                                                     className="flex items-center gap-2 text-slate-300 text-sm cursor-pointer hover:text-lime-400"
@@ -778,10 +779,12 @@ export default function CalendarioIncontri() {
                                                     <span className="text-xs text-slate-500">(clicca per lista)</span>
                                                   </div>
 
-                                                  <div className="flex items-center gap-2 text-slate-400 text-sm">
-                                                    <Users className="w-4 h-4 text-slate-500" />
-                                                    <span>{getInvitedCount(event.id)} invitati totali</span>
-                                                  </div>
+                                                  {isAdmin && (
+                                                    <div className="flex items-center gap-2 text-slate-400 text-sm">
+                                                      <Users className="w-4 h-4 text-slate-500" />
+                                                      <span>{getInvitedCount(event.id)} invitati totali</span>
+                                                    </div>
+                                                  )}
                                                 </>
                                               )}
 
