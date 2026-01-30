@@ -104,7 +104,12 @@ export default function FeatureCard({
             {eventCount} {eventCount === 1 ? 'incontro' : 'incontri'} per te
           </div>
         )}
-        {bottomBadge && !isCalendar && (
+        {isVideo && hasUnseenNewVideos && (
+          <div className="w-full text-xs font-bold text-center py-1.5 border-t bg-[#bd0449]/20 text-[#bd0449] border-[#bd0449]/30">
+            {newVideosCount} {newVideosCount === 1 ? 'nuovo video' : 'nuovi video'}
+          </div>
+        )}
+        {bottomBadge && !isCalendar && !isVideo && (
           <div className={cn(
             "w-full text-xs font-bold text-center py-1.5 border-t",
             bottomBadgeType === 'requests' ? "bg-amber-400/20 text-amber-400 border-amber-400/30" : "bg-lime-400/20 text-lime-400 border-lime-400/30"
