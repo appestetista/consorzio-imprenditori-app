@@ -405,23 +405,6 @@ export default function CalendarioIncontri() {
         });
       }
 
-      // Invia notifica agli admin
-      const admins = await base44.entities.User.filter({ role: 'admin' });
-      const userName = user?.company_name || user?.full_name || userEmail;
-      const responseText = response === 'accept' ? 'parteciperà' : 'non parteciperà';
-      const eventoTitle = evento?.title || 'Evento';
-      
-      for (const admin of admins) {
-        await base44.entities.Notification.create({
-          user_email: admin.email,
-          type: 'event_response',
-          title: 'Risposta evento',
-          content: `${userName} ${responseText} a "${eventoTitle}"`,
-          reference_id: eventId,
-          is_read: false
-        });
-      }
-
       return result;
     },
     onSuccess: () => {
