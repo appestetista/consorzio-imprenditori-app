@@ -29,22 +29,26 @@ export default function FeatureCard({
       bottomBadge ? "pb-0" : "p-6"
     )}>
       <div className={cn("flex flex-col items-center justify-center flex-1", bottomBadge ? "p-6 pb-3" : "")}>
-        {/* Cerchio contatore a sinistra */}
-        {!disabled && notificationCount > 0 && (
+        {/* Cerchio contatore a sinistra - per calendario mostra eventCount, altrimenti notificationCount */}
+        {!disabled && (eventCount > 0 || notificationCount > 0) && (
           <div className="absolute top-3 left-3">
             <span className="bg-lime-400 text-slate-900 text-[10px] rounded-full w-5 h-5 flex items-center justify-center font-bold">
-              {notificationCount}
+              {eventCount > 0 ? eventCount : notificationCount}
             </span>
           </div>
         )}
-        {/* Campanella a destra */}
+        {/* Campanella a destra con glow fuxia per nuove notifiche */}
         {disabled ? (
           <div className="absolute top-3 right-3">
             <Lock className="w-4 h-4 text-red-400" />
           </div>
         ) : (
           <div className="absolute top-3 right-3">
-            <NotificationBell count={0} />
+            <NotificationBell 
+              count={hasNewNotification ? 1 : 0} 
+              hasNewNotification={hasNewNotification}
+              onViewed={onNotificationViewed}
+            />
           </div>
         )}
         {Icon && <Icon className={cn("w-8 h-8 mb-3", disabled ? "text-red-400" : accentColor)} />}
