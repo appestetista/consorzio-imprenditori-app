@@ -37,6 +37,7 @@ export default function CalendarioIncontri() {
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [showEditSuccessPopup, setShowEditSuccessPopup] = useState(false);
   const [zoneManagerEvent, setZoneManagerEvent] = useState(null);
+  const [approvingEventId, setApprovingEventId] = useState(null);
   const queryClient = useQueryClient();
   const { impersonation } = useImpersonation();
   const { playSound } = useNotificationSound();
