@@ -5,7 +5,19 @@ import NotificationBell from '../ui/NotificationBell';
 import { Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export default function FeatureCard({ title, icon: Icon, pageName, notificationCount = 0, disabled = false, variant = 'default', bottomBadge = null, bottomBadgeType = 'consultations' }) {
+export default function FeatureCard({ 
+  title, 
+  icon: Icon, 
+  pageName, 
+  notificationCount = 0, 
+  disabled = false, 
+  variant = 'default', 
+  bottomBadge = null, 
+  bottomBadgeType = 'consultations',
+  hasNewNotification = false,
+  onNotificationViewed = () => {},
+  eventCount = 0
+}) {
   const isPink = variant === 'pink';
   const isBlue = variant === 'blue';
   const accentColor = isPink ? 'text-pink-400' : isBlue ? 'text-blue-400' : 'text-lime-400';
