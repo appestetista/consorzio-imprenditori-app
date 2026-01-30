@@ -78,6 +78,9 @@ export default function AdminPanel() {
 
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { playSound } = useNotificationSound();
+  const [hasNewNotification, setHasNewNotification] = useState(false);
+  const [lastEventCount, setLastEventCount] = useState(0);
 
   useEffect(() => {
     window.scrollTo(0, 0);
