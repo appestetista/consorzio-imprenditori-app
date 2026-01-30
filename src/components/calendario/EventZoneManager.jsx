@@ -7,27 +7,43 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Send, MapPin, Users, Check, Briefcase, ChevronRight, ChevronLeft } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function EventZoneManager({ event, open, onClose }) {
-  const [step, setStep] = useState(1); // 1 = zone, 2 = destinatari
   const [selectedZones, setSelectedZones] = useState([]);
   const [allZones, setAllZones] = useState(true);
-  const [recipientType, setRecipientType] = useState('all'); // 'all', 'users', 'consultants'
-  const [selectedUsers, setSelectedUsers] = useState([]);
-  const [selectAllInType, setSelectAllInType] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  // Per ogni zona: chi può vedere (all, users, consultants)
+  const [zoneVisibility, setZoneVisibility] = useState({});
+  // Tipo destinatari globale (quando allZones=true)
+  const [globalRecipientType, setGlobalRecipientType] = useState('all');
   const queryClient = useQueryClient();
 
   // Reset quando si apre il dialog
   useEffect(() => {
     if (open && event) {
-      setStep(1);
-      setSelectedZones(event.visible_to_zones || []);
-      setAllZones(!event.visible_to_zones || event.visible_to_zones.length === 0);
-      setRecipientType('all');
-      setSelectedUsers([]);
-      setSelectAllInType(true);
-      setSearchTerm('');
+      // Ricostruisci lo stato da event.zone_visibility se esiste
+      const existingVisibility = {};
+      if (event.zone_visibility && event.zone_visibility.length > 0) {
+        event.zone_visibility.forEach(zv => {
+          existingVisibility[zv.zone] = zv.target || 'all';
+        });
+        setZoneVisibility(existingVisibility);
+        setSelectedZones(event.zone_visibility.map(zv => zv.zone));
+        setAllZones(false);
+      } else if (event.visible_to_zones && event.visible_to_zones.length > 0) {
+        // Retrocompatibilità: se ci sono solo zone senza target, imposta 'all'
+        event.visible_to_zones.forEach(z => {
+          existingVisibility[z] = 'all';
+        });
+        setZoneVisibility(existingVisibility);
+        setSelectedZones(event.visible_to_zones);
+        setAllZones(false);
+      } else {
+        setZoneVisibility({});
+        setSelectedZones([]);
+        setAllZones(true);
+      }
+      setGlobalRecipientType('all');
     }
   }, [open, event]);
 
