@@ -149,9 +149,29 @@ export default function Home() {
     loadUser();
   }, [appMode, impersonation.previewUserId, setCurrentUserRole]);
 
+  // Mappa tipo notifica -> chiave preferenza sezione
+  const notificationTypeToSection = {
+    'event': 'calendario',
+    'event_response': 'calendario',
+    'video': 'video_interviste',
+    'message': 'contatta_membri',
+    'consultation': 'consulenze',
+    'cultura_aziendale': 'cultura_aziendale'
+  };
+
   const { data: notifications = [] } = useQuery({
-    queryKey: ['notifications', effectiveUser?.email],
-    queryFn: () => base44.entities.Notification.filter({ user_email: effectiveUser?.email, is_read: false }),
+    queryKey: ['notifications', effectiveUser?.email, effectiveUser?.notification_preferences],
+    queryFn: async () => {
+      const allNotifs = await base44.entities.Notification.filter({ user_email: effectiveUser?.email, is_read: false });
+      // Filtra in base alle preferenze utente
+      const prefs = effectiveUser?.notification_preferences || {};
+      return allNotifs.filter(n => {
+        const sectionKey = notificationTypeToSection[n.type];
+        // Se non c'è una preferenza specifica, mostra la notifica (default true)
+        if (!sectionKey) return true;
+        return prefs[sectionKey] !== false;
+      });
+    },
     enabled: !!effectiveUser?.email,
   });
 
