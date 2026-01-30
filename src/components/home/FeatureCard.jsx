@@ -55,15 +55,8 @@ export default function FeatureCard({
         )}
         style={shouldGlow && !disabled ? { animation: 'cardGlow 2s ease-in-out infinite' } : {}}
       >
-        <div className={cn("flex flex-col items-center justify-center flex-1", bottomBadge ? "p-6 pb-3" : "")}>
-          {/* Cerchio contatore a sinistra - SOLO per calendario mostra numero eventi */}
-          {!disabled && leftBadgeCount > 0 && (
-            <div className="absolute top-3 left-3">
-              <span className="bg-lime-400 text-slate-900 text-[10px] rounded-full w-5 h-5 flex items-center justify-center font-bold">
-                {leftBadgeCount}
-              </span>
-            </div>
-          )}
+        <div className={cn("flex flex-col items-center justify-center flex-1", (bottomBadge || (isCalendar && eventCount > 0)) ? "p-6 pb-3" : "")}>
+          {/* Rimosso cerchio contatore a sinistra - ora c'è la fascia sotto */}
           
           {/* Lucchetto per card disabilitate */}
           {disabled && (
