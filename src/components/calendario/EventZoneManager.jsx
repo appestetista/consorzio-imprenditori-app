@@ -82,6 +82,24 @@ export default function EventZoneManager({ event, open, onClose }) {
     return { zona, userType };
   };
 
+  // Debug: log utenti al mount
+  useEffect(() => {
+    if (allUsers.length > 0) {
+      console.log('[EventZoneManager] Utenti caricati:', allUsers.length);
+      allUsers.slice(0, 3).forEach(u => {
+        console.log('[EventZoneManager] Esempio utente:', { 
+          email: u.email, 
+          role: u.role,
+          zona_direct: u.zona,
+          zona_data: u.data?.zona,
+          user_type_direct: u.user_type,
+          user_type_data: u.data?.user_type,
+          extracted: getUserData(u)
+        });
+      });
+    }
+  }, [allUsers]);
+
   // Calcola utenti target in base a zone e visibilità
   const getTargetUsers = () => {
     const targetUsers = [];
