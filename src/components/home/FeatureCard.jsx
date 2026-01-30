@@ -124,12 +124,7 @@ export default function FeatureCard({
   const pageUrl = createPageUrl(pageName);
 
   return (
-    <Link to={pageUrl} className="cursor-pointer block" onClick={() => {
-      // Quando clicco sulla card, rimuovo il bagliore
-      if (isCalendar && bellNotificationCount > 0) {
-        onNotificationViewed();
-      }
-    }}>
+    <Link to={pageUrl} className="cursor-pointer block">
       {content}
     </Link>
   );
