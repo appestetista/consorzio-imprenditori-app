@@ -108,10 +108,22 @@ export default function AdminPanel() {
       ]);
       console.log('[AdminPanel] Tutti gli utenti dal database:', users);
       const filteredUsers = users;
+      
+      // Conta solo eventi futuri con data valida e approvati
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const validFutureEvents = events.filter(e => {
+        if (!e.date) return false;
+        const eventDate = new Date(e.date);
+        if (isNaN(eventDate.getTime())) return false;
+        eventDate.setHours(0, 0, 0, 0);
+        return eventDate >= today && e.approval_status === 'approved' && !e.is_cancelled;
+      });
+      
       return {
         totalUsers: filteredUsers.length,
         activeUsers: filteredUsers.filter(u => !u.is_blocked).length,
-        totalEvents: events.length,
+        totalEvents: validFutureEvents.length,
         totalVideos: videos.length,
         totalConsultants: consultants.length
       };
