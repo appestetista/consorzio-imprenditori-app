@@ -123,11 +123,11 @@ export default function CalendarioIncontri() {
     })
     .sort((a, b) => new Date(a.date) - new Date(b.date)); // Ordina per data crescente
   
-  // Conteggio eventi futuri (per il cerchio)
+  // Conteggio eventi futuri (per il cerchio) - esclude eventi cancellati/annullati
   const futureEventsCount = events.filter(e => {
     const eventDate = new Date(e.date);
     eventDate.setHours(0, 0, 0, 0);
-    return eventDate >= today && e.approval_status === 'approved';
+    return eventDate >= today && e.approval_status === 'approved' && !e.is_cancelled;
   }).length;
 
   // Subscribe real-time agli eventi per notifiche
