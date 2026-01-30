@@ -49,7 +49,9 @@ export default function useNotificationSound() {
 
   const playSound = useCallback(() => {
     // Non suonare se l'utente ha disabilitato i suoni
-    if (!isSoundEnabled()) {
+    const enabled = isSoundEnabled();
+    console.log('[AUDIO] playSound chiamato, suoni abilitati:', enabled);
+    if (!enabled) {
       console.log('[AUDIO] Suoni disabilitati dall\'utente');
       return;
     }
