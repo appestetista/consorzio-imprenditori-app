@@ -66,6 +66,12 @@ export default function EventInvitePopup({ user }) {
     }
   });
 
+  const [dismissed, setDismissed] = useState(false);
+
+  if (!pendingInvite || dismissed) return null;
+
+  const { evento, partecipazione } = pendingInvite;
+
   const handleRespond = (response) => {
     setRespondingTo(response);
     respondMutation.mutate({ 
@@ -73,12 +79,6 @@ export default function EventInvitePopup({ user }) {
       response 
     });
   };
-
-  const [dismissed, setDismissed] = useState(false);
-
-  if (!pendingInvite || dismissed) return null;
-
-  const { evento, partecipazione } = pendingInvite;
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
