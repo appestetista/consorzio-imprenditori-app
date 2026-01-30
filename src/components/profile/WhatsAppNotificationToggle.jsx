@@ -9,7 +9,10 @@ export default function WhatsAppNotificationToggle({ user }) {
   const [loading, setLoading] = useState(false);
   const isEnabled = user?.whatsapp_enabled;
   
-  const whatsappUrl = base44.agents.getWhatsAppConnectURL('event_notifier');
+  // Verifica se la funzione esiste prima di chiamarla
+  const whatsappUrl = base44.agents?.getWhatsAppConnectURL 
+    ? base44.agents.getWhatsAppConnectURL('event_notifier') 
+    : null;
 
   const handleDisable = async () => {
     setLoading(true);
