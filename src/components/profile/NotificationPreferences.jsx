@@ -4,9 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Bell, Volume2, Calendar, Video, Briefcase, Sparkles, User, Euro, ShoppingBag, BookOpen, Handshake, Truck, Heart, FileSearch, Globe, Shield, Save, Check, MessageCircle, ExternalLink } from 'lucide-react';
+import { Bell, Volume2, Calendar, Video, Briefcase, Sparkles, User, Euro, ShoppingBag, BookOpen, Handshake, Truck, Heart, FileSearch, Globe, Shield, Save, Check } from 'lucide-react';
 import { toast } from 'sonner';
-import WhatsAppNotificationToggle from './WhatsAppNotificationToggle';
 
 // Lista delle sezioni con notifiche
 const NOTIFICATION_SECTIONS = [
@@ -127,9 +126,6 @@ export default function NotificationPreferences({ user }) {
 
   return (
     <div className="space-y-4">
-      {/* Card Notifiche WhatsApp */}
-      <WhatsAppNotificationToggle user={user} />
-
       {/* Card Notifiche Sonore */}
       <Card className="bg-slate-800 border-slate-700">
         <CardHeader>
