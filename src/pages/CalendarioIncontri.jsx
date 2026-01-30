@@ -719,14 +719,18 @@ export default function CalendarioIncontri() {
                     )}
                     
                     <div className="flex flex-wrap gap-4 text-sm">
-                      <div className="flex items-center gap-2 text-lime-400">
-                        <Calendar className="w-4 h-4" />
-                        <span>{format(new Date(event.date), 'd MMMM yyyy', { locale: it })}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-lime-400">
-                        <Clock className="w-4 h-4" />
-                        <span>{event.time}</span>
-                      </div>
+                      {event.date && (
+                        <div className="flex items-center gap-2 text-lime-400">
+                          <Calendar className="w-4 h-4" />
+                          <span>{format(new Date(event.date), 'd MMMM yyyy', { locale: it })}</span>
+                        </div>
+                      )}
+                      {event.time && (
+                        <div className="flex items-center gap-2 text-lime-400">
+                          <Clock className="w-4 h-4" />
+                          <span>{event.time}</span>
+                        </div>
+                      )}
                     </div>
 
                     <div className="flex items-center gap-2 text-slate-300 text-sm">
