@@ -800,23 +800,27 @@ export default function CalendarioIncontri() {
                            Modifica evento
                          </Button>
 
-                         {/* Pulsante elimina definitivo solo per admin */}
-                         {event.is_cancelled && (
-                           <Button
-                             variant="destructive"
-                             size="sm"
-                             className="w-full mt-2"
-                             onClick={async () => {
-                               if (confirm('Eliminare definitivamente questo evento? Questa azione è irreversibile.')) {
-                                 await base44.entities.Event.delete(event.id);
-                                 queryClient.invalidateQueries({ queryKey: ['events'] });
+                         {/* Pulsante elimina evento per admin */}
+                         <Button
+                           variant="destructive"
+                           size="sm"
+                           className="w-full mt-2"
+                           onClick={async () => {
+                             if (confirm('Eliminare definitivamente questo evento? Questa azione è irreversibile.')) {
+                               // Elimina anche le partecipazioni correlate
+                               const partecipazioniEvento = partecipazioni.filter(p => p.evento_id === event.id);
+                               for (const p of partecipazioniEvento) {
+                                 await base44.entities.PartecipazioniEvento.delete(p.id);
                                }
-                             }}
-                           >
-                             <X className="w-4 h-4 mr-2" />
-                             Elimina definitivamente
-                           </Button>
-                         )}
+                               await base44.entities.Event.delete(event.id);
+                               queryClient.invalidateQueries({ queryKey: ['events'] });
+                               queryClient.invalidateQueries({ queryKey: ['partecipazioni-eventi'] });
+                             }
+                           }}
+                         >
+                           <X className="w-4 h-4 mr-2" />
+                           Elimina evento
+                         </Button>
                        </div>
                        )}
 
