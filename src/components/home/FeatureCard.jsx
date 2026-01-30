@@ -21,15 +21,13 @@ export default function FeatureCard({
   const isBlue = variant === 'blue';
   const accentColor = isPink ? 'text-pink-400' : isBlue ? 'text-blue-400' : 'text-lime-400';
   
-  // Per Calendario Incontri: 
-  // - cerchio a sinistra = eventCount (eventi attivi futuri non cancellati)
-  // - stella a destra = notificationCount (inviti in attesa di risposta)
+  // SOLO per Calendario Incontri: campanella e glow
   const isCalendar = pageName === 'CalendarioIncontri';
   const leftBadgeCount = isCalendar ? eventCount : 0;
-  const starNotificationCount = isCalendar ? notificationCount : notificationCount;
+  const bellNotificationCount = isCalendar ? notificationCount : 0;
   
-  // Determina se attivare il glow: per calendario quando ci sono inviti in attesa
-  const shouldGlow = isCalendar ? (hasNewNotification || starNotificationCount > 0) : hasNewNotification;
+  // Glow SOLO per calendario quando ci sono inviti in attesa (notifiche > 0)
+  const shouldGlow = isCalendar && bellNotificationCount > 0;
   
   const content = (
     <div className="relative">
@@ -66,22 +64,25 @@ export default function FeatureCard({
             </div>
           )}
           
-          {/* Campanella notifica a destra - SOLO per Calendario */}
-          {disabled ? (
+          {/* Lucchetto per card disabilitate */}
+          {disabled && (
             <div className="absolute top-3 right-3">
               <Lock className="w-4 h-4 text-red-400" />
             </div>
-          ) : isCalendar ? (
+          )}
+          
+          {/* Campanella notifica - SOLO per Calendario Incontri */}
+          {!disabled && isCalendar && (
             <div className="absolute top-3 right-3">
               <div 
                 className={cn(
                   "relative w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer",
-                  starNotificationCount > 0 
+                  bellNotificationCount > 0 
                     ? "bg-[#bd0449]" 
                     : "bg-slate-900 border-2 border-lime-400"
                 )}
                 onClick={(e) => {
-                  if (starNotificationCount > 0) {
+                  if (bellNotificationCount > 0) {
                     e.preventDefault();
                     e.stopPropagation();
                     onNotificationViewed();
@@ -90,17 +91,17 @@ export default function FeatureCard({
               >
                 <Bell className={cn(
                   "w-4 h-4",
-                  starNotificationCount > 0 ? "text-white" : "text-lime-400"
+                  bellNotificationCount > 0 ? "text-white" : "text-lime-400"
                 )} />
-                {/* Badge numerico bianco con numero nero */}
-                {starNotificationCount > 0 && (
+                {/* Badge numerico bianco con numero nero - SOLO quando ci sono notifiche */}
+                {bellNotificationCount > 0 && (
                   <span className="absolute -top-2 -right-2 bg-white text-slate-900 text-[11px] font-bold rounded-full min-w-[20px] h-[20px] flex items-center justify-center px-1 shadow-md">
-                    {starNotificationCount > 99 ? '99+' : starNotificationCount}
+                    {bellNotificationCount > 99 ? '99+' : bellNotificationCount}
                   </span>
                 )}
               </div>
             </div>
-          ) : null}
+          )}
           
           {Icon && <Icon className={cn("w-8 h-8 mb-3", disabled ? "text-red-400" : accentColor)} />}
           <span className={cn("text-sm font-medium text-center leading-tight break-words w-full px-1", disabled ? "text-red-300" : (isPink || isBlue) ? accentColor : "text-white")}>{title}</span>
