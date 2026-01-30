@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Menu, X, LogOut, Settings, Users, User, Eye, XCircle, Bell } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -7,8 +7,9 @@ import { cn } from '@/lib/utils';
 import { useImpersonation } from '../admin/ImpersonationContext';
 import ImpersonationDialog from '../admin/ImpersonationDialog';
 import { normalizeUser, isUserConsultant } from '../utils/normalizeUser';
+import NotificationBell from '../ui/NotificationBell';
 
-export default function Header({ user, totalNotifications = 0 }) {
+export default function Header({ user, totalNotifications = 0, hasNewNotification = false, onNotificationViewed = () => {} }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [impersonationDialogOpen, setImpersonationDialogOpen] = useState(false);
   const { impersonation, startImpersonation, stopImpersonation } = useImpersonation();
