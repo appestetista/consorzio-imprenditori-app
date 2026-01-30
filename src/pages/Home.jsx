@@ -712,6 +712,7 @@ export default function Home() {
                                 newVideosCount={feature.newVideosCount || 0}
                                 totalVideosCount={feature.totalVideosCount || 0}
                                 hasVisitedVideos={feature.hasVisitedVideos || false}
+                                latestVideoDate={feature.latestVideoDate || null}
                               />
           ))}
         </div>
