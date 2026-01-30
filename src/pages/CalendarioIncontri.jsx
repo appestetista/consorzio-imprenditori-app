@@ -128,7 +128,9 @@ export default function CalendarioIncontri() {
   
   // Conteggio eventi futuri (per il cerchio) - esclude eventi cancellati/annullati
   const futureEventsCount = events.filter(e => {
+    if (!e.date) return false;
     const eventDate = new Date(e.date);
+    if (isNaN(eventDate.getTime())) return false;
     eventDate.setHours(0, 0, 0, 0);
     return eventDate >= today && e.approval_status === 'approved' && !e.is_cancelled;
   }).length;
