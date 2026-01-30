@@ -42,16 +42,14 @@ Deno.serve(async (req) => {
         const results = [];
 
         for (const conv of conversations) {
-            // Cerca l'email dell'utente nei messaggi o metadata
-            const userMessage = conv.messages?.find(m => m.role === 'user');
+            // Cerca l'email dell'utente in vari campi
+            const userEmail = conv.user_email || conv.metadata?.user_email || conv.metadata?.email;
             
-            // Cerca l'utente tramite email dalla metadata o dal numero di telefono
-            // Base44 salva l'email dell'utente loggato nelle conversazioni
-            const userEmail = conv.user_email || conv.metadata?.user_email;
+            console.log(`Processing conv ${conv.id}, user_email: ${userEmail}`);
             
             if (userEmail) {
                 const matchingUser = allUsers.find(u => u.email === userEmail);
-                if (matchingUser && !matchingUser.whatsapp_conversation_id) {
+                if (matchingUser && !matchingUser.data?.whatsapp_conversation_id) {
                     // Aggiorna l'utente con il conversation_id
                     await base44.asServiceRole.entities.User.update(matchingUser.id, {
                         whatsapp_conversation_id: conv.id,
@@ -63,7 +61,7 @@ Deno.serve(async (req) => {
                         status: 'linked' 
                     });
                     console.log(`Linked ${matchingUser.email} to conversation ${conv.id}`);
-                } else if (matchingUser?.whatsapp_conversation_id) {
+                } else if (matchingUser?.data?.whatsapp_conversation_id) {
                     results.push({ 
                         email: matchingUser.email, 
                         status: 'already_linked' 
@@ -74,7 +72,9 @@ Deno.serve(async (req) => {
 
         return Response.json({ 
             success: true, 
-            conversationsFound: conversations.length,
+            conversationsFound: conversations?.length || 0,
+            totalUsers: allUsers.length,
+            errors,
             results 
         });
 
