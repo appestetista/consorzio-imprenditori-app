@@ -217,6 +217,39 @@ export default function AdminPanel() {
     queryFn: () => base44.entities.Event.list('-date'),
   });
 
+  // Conta eventi futuri per le notifiche
+  const futureEventsCount = (() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return allEvents.filter(e => {
+      const eventDate = new Date(e.date);
+      eventDate.setHours(0, 0, 0, 0);
+      return eventDate >= today && e.approval_status === 'approved';
+    }).length;
+  })();
+
+  // Subscribe real-time agli eventi
+  useEffect(() => {
+    const unsubscribe = base44.entities.Event.subscribe((event) => {
+      if (event.type === 'create') {
+        playSound();
+        setHasNewNotification(true);
+      }
+      queryClient.invalidateQueries({ queryKey: ['all-events-admin'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+    });
+
+    return unsubscribe;
+  }, [queryClient, playSound]);
+
+  // Traccia quando cambiano gli eventi per attivare il glow
+  useEffect(() => {
+    if (futureEventsCount > lastEventCount && lastEventCount > 0) {
+      setHasNewNotification(true);
+    }
+    setLastEventCount(futureEventsCount);
+  }, [futureEventsCount, lastEventCount]);
+
   const [showVideoRequests, setShowVideoRequests] = useState(false);
   const [showAllMessages, setShowAllMessages] = useState(false);
   const [showConsultationMessages, setShowConsultationMessages] = useState(false);
