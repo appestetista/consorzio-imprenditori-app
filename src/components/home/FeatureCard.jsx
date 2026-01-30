@@ -51,7 +51,7 @@ export default function FeatureCard({
           "relative bg-slate-800/90 rounded-xl flex flex-col items-center justify-center min-h-[120px] transition-all duration-300 overflow-hidden",
           disabled ? "opacity-50 cursor-not-allowed border-red-500/50" : "hover:bg-slate-700/90 hover:scale-105 cursor-pointer border-slate-700/50",
           "border",
-          bottomBadge ? "pb-0" : "p-6"
+          (bottomBadge || (isCalendar && eventCount > 0)) ? "pb-0" : "p-6"
         )}
         style={shouldGlow && !disabled ? { animation: 'cardGlow 2s ease-in-out infinite' } : {}}
       >
