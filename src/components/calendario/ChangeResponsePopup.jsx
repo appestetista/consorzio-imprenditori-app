@@ -29,10 +29,9 @@ export default function ChangeResponsePopup({ event, user, onClose }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['partecipazioni-home'] });
       queryClient.invalidateQueries({ queryKey: ['partecipazioni-eventi'] });
-      // Mostra feedback prima di chiudere e ricaricare
+      // Mostra feedback prima di chiudere
       setTimeout(() => {
         onClose();
-        window.location.reload();
       }, 800);
     },
     onError: () => {
