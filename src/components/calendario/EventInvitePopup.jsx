@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { Calendar, MapPin, Clock, Check, X as XIcon, Bell, X } from 'lucide-react';
+import { Calendar, MapPin, Clock, Check, X, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function EventInvitePopup({ user }) {
