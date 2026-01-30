@@ -1269,23 +1269,23 @@ export default function CalendarioIncontri() {
               <div className="grid grid-cols-2 gap-3">
                 <Button
                   className="bg-green-600 hover:bg-green-700 text-white flex items-center justify-center text-sm"
+                  disabled={respondToEventMutation.isPending}
                   onClick={() => {
                     respondToEventMutation.mutate({ eventId: changeResponseEvent.id, response: 'accept' });
-                    setChangeResponseEvent(null);
                   }}
                 >
                   <Check className="w-4 h-4 mr-1 flex-shrink-0" />
-                  <span className="truncate">Parteciperò</span>
+                  <span className="truncate">{respondToEventMutation.isPending ? '...' : 'Parteciperò'}</span>
                 </Button>
                 <Button
                   className="bg-red-600 hover:bg-red-700 text-white flex items-center justify-center text-sm"
+                  disabled={respondToEventMutation.isPending}
                   onClick={() => {
                     respondToEventMutation.mutate({ eventId: changeResponseEvent.id, response: 'decline' });
-                    setChangeResponseEvent(null);
                   }}
                 >
                   <X className="w-4 h-4 mr-1 flex-shrink-0" />
-                  <span className="truncate">Non parteciperò</span>
+                  <span className="truncate">{respondToEventMutation.isPending ? '...' : 'Non parteciperò'}</span>
                 </Button>
               </div>
             </div>
