@@ -127,6 +127,9 @@ export default function NotificationPreferences({ user }) {
 
   return (
     <div className="space-y-4">
+      {/* Card Notifiche WhatsApp */}
+      <WhatsAppNotificationToggle user={user} />
+
       {/* Card Notifiche Sonore */}
       <Card className="bg-slate-800 border-slate-700">
         <CardHeader>
