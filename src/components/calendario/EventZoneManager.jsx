@@ -104,6 +104,9 @@ export default function EventZoneManager({ event, open, onClose }) {
   const getTargetUsers = () => {
     const targetUsers = [];
     
+    // Normalizza zone selezionate per confronto case-insensitive
+    const selectedZonesLower = selectedZones.map(z => z.toLowerCase());
+    
     if (allZones) {
       // Tutte le zone con tipo globale
       allUsers.forEach(u => {
@@ -125,9 +128,14 @@ export default function EventZoneManager({ event, open, onClose }) {
       allUsers.forEach(u => {
         if (u.role === 'admin') return;
         const { zona: userZone, userType } = getUserData(u);
-        if (!userZone || !selectedZones.includes(userZone)) return;
+        if (!userZone) return;
         
-        const zoneTarget = zoneVisibility[userZone] || 'all';
+        // Confronto case-insensitive
+        const userZoneLower = userZone.toLowerCase();
+        const matchedZone = selectedZones.find(z => z.toLowerCase() === userZoneLower);
+        if (!matchedZone) return;
+        
+        const zoneTarget = zoneVisibility[matchedZone] || 'all';
         const isUser = userType === 'utente' || (u.role === 'user' && !userType);
         const isConsultant = userType === 'consulente';
         
