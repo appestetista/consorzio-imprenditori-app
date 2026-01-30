@@ -76,8 +76,9 @@ export default function EventZoneManager({ event, open, onClose }) {
   // Helper per estrarre dati utente (supporta struttura flat o annidata)
   const getUserData = (u) => {
     // I dati possono essere direttamente sull'oggetto o annidati in 'data'
-    const zona = u.zona || u.zone || (typeof u.data === 'object' ? u.data?.zona : null) || (typeof u.data === 'object' ? u.data?.zone : null);
-    const userType = u.user_type || (typeof u.data === 'object' ? u.data?.user_type : null);
+    const dataObj = typeof u.data === 'object' && u.data !== null ? u.data : {};
+    const zona = u.zona || u.zone || dataObj.zona || dataObj.zone || null;
+    const userType = u.user_type || dataObj.user_type || null;
     return { zona, userType };
   };
 
