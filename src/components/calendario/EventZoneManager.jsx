@@ -134,12 +134,24 @@ export default function EventZoneManager({ event, open, onClose }) {
 
   const publishMutation = useMutation({
     mutationFn: async () => {
-      const zonesToSave = allZones ? [] : selectedZones;
       const targetUsers = getTargetUsers();
 
-      // Aggiorna evento con zone selezionate
+      // Costruisci zone_visibility per salvare la configurazione
+      let zoneVisibilityToSave = [];
+      if (!allZones) {
+        zoneVisibilityToSave = selectedZones.map(zone => ({
+          zone,
+          target: zoneVisibility[zone] || 'all'
+        }));
+      } else {
+        // Se tutte le zone, salva con target globale
+        zoneVisibilityToSave = [{ zone: '__all__', target: globalRecipientType }];
+      }
+
+      // Aggiorna evento con zone e visibilità
       await base44.entities.Event.update(event.id, {
-        visible_to_zones: zonesToSave,
+        visible_to_zones: allZones ? [] : selectedZones,
+        zone_visibility: zoneVisibilityToSave,
         notifications_sent: true
       });
 
