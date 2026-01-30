@@ -237,6 +237,7 @@ export default function Home() {
   });
 
   // Tutti gli eventi futuri per il contatore nella card Calendario
+  // Il numero nel cerchio a sinistra si decrementa SOLO se eventi passano, vengono cancellati o annullati
   const { data: allFutureEvents = [] } = useQuery({
     queryKey: ['all-future-events-home', effectiveUser?.email],
     queryFn: async () => {
@@ -251,7 +252,8 @@ export default function Home() {
       return allEvents.filter(e => {
         const eventDate = new Date(e.date);
         eventDate.setHours(0, 0, 0, 0);
-        if (eventDate < today || e.approval_status !== 'approved') return false;
+        // Escludi eventi passati, non approvati, o cancellati/annullati
+        if (eventDate < today || e.approval_status !== 'approved' || e.is_cancelled) return false;
         
         // Filtra per zona e tipo utente usando zone_visibility
         if (e.zone_visibility && e.zone_visibility.length > 0) {
