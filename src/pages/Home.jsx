@@ -704,6 +704,7 @@ export default function Home() {
                                 bottomBadgeType={feature.bottomBadgeType}
                                 eventCount={feature.eventCount || 0}
                                 pendingInvites={feature.pendingInvites || 0}
+                                newVideosCount={feature.newVideosCount || 0}
                               />
           ))}
         </div>
