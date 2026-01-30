@@ -130,11 +130,8 @@ export default function EventZoneManager({ event, open, onClose }) {
     const target = zoneVisibility[zoneName] || 'all';
     return allUsers.filter(u => {
       if (u.role === 'admin') return false;
-      // Supporta sia zona diretta che annidata in data
-      const userZone = u.zona || u.zone || u.data?.zona || u.data?.zone;
+      const { zona: userZone, userType } = getUserData(u);
       if (userZone !== zoneName) return false;
-      // Supporta sia user_type diretto che annidato in data
-      const userType = u.user_type || u.data?.user_type;
       const isUser = userType === 'utente' || (u.role === 'user' && !userType);
       const isConsultant = userType === 'consulente';
       if (target === 'all') return true;
