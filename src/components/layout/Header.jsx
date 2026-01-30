@@ -36,12 +36,21 @@ export default function Header({ user }) {
 
   const unreadCount = notifications.length;
 
-  // Suona quando arriva una nuova notifica
+  // Suona quando arriva una nuova notifica + aggiorna badge PWA
   useEffect(() => {
     if (unreadCount > prevNotificationCountRef.current && prevNotificationCountRef.current > 0) {
       playSound?.();
     }
     prevNotificationCountRef.current = unreadCount;
+
+    // Aggiorna il badge sull'icona della PWA (se supportato)
+    if ('setAppBadge' in navigator) {
+      if (unreadCount > 0) {
+        navigator.setAppBadge(unreadCount).catch(() => {});
+      } else {
+        navigator.clearAppBadge().catch(() => {});
+      }
+    }
   }, [unreadCount, playSound]);
 
   // Subscribe real-time alle notifiche
