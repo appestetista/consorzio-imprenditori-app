@@ -1274,8 +1274,8 @@ export default function CalendarioIncontri() {
                 <Button
                   className="bg-green-600 hover:bg-green-700 text-white flex items-center justify-center text-sm"
                   disabled={respondToEventMutation.isPending}
-                  onClick={async () => {
-                    await respondToEventMutation.mutateAsync({ eventId: changeResponseEvent.id, response: 'accept' });
+                  onClick={() => {
+                    respondToEventMutation.mutate({ eventId: changeResponseEvent.id, response: 'accept' });
                   }}
                 >
                   {respondToEventMutation.isPending ? (
@@ -1288,8 +1288,8 @@ export default function CalendarioIncontri() {
                 <Button
                   className="bg-red-600 hover:bg-red-700 text-white flex items-center justify-center text-sm"
                   disabled={respondToEventMutation.isPending}
-                  onClick={async () => {
-                    await respondToEventMutation.mutateAsync({ eventId: changeResponseEvent.id, response: 'decline' });
+                  onClick={() => {
+                    respondToEventMutation.mutate({ eventId: changeResponseEvent.id, response: 'decline' });
                   }}
                 >
                   {respondToEventMutation.isPending ? (
