@@ -40,7 +40,7 @@ export default function CalendarioIncontri() {
   const [zoneManagerEvent, setZoneManagerEvent] = useState(null);
   const queryClient = useQueryClient();
   const { impersonation } = useImpersonation();
-  const playSound = useNotificationSound();
+  const { playSound } = useNotificationSound();
   
   // Stato per nuovi eventi (glow campanella)
   const [hasNewEvent, setHasNewEvent] = useState(false);
