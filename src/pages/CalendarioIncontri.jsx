@@ -601,6 +601,12 @@ export default function CalendarioIncontri() {
                       onCheckedChange={(checked) => setNewEvent({...newEvent, reminder_enabled: checked})}
                     />
                   </div>
+
+                  <div className="bg-amber-900/20 border border-amber-600/30 p-3 rounded-lg">
+                    <p className="text-amber-400 text-sm">
+                      💡 Dopo aver creato l'evento, potrai selezionare le zone e i destinatari dal pulsante "Gestisci Zone e Notifiche".
+                    </p>
+                  </div>
                   
                   <Button 
                     onClick={() => createEventMutation.mutate(newEvent)}
