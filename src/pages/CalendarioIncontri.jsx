@@ -124,7 +124,13 @@ export default function CalendarioIncontri() {
       
       return true;
     })
-    .sort((a, b) => new Date(a.date) - new Date(b.date)); // Ordina per data crescente
+    .sort((a, b) => {
+      const dateA = new Date(a.date);
+      const dateB = new Date(b.date);
+      if (isNaN(dateA.getTime())) return 1;
+      if (isNaN(dateB.getTime())) return -1;
+      return dateA - dateB;
+    }); // Ordina per data crescente
   
   // Conteggio eventi futuri (per il cerchio) - esclude eventi cancellati/annullati
   const futureEventsCount = events.filter(e => {
