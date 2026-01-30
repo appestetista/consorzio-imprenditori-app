@@ -12,10 +12,28 @@ Deno.serve(async (req) => {
         // Trova tutti gli utenti che devono ricevere la notifica
         const allUsers = await base44.asServiceRole.entities.User.list();
         
-        // Filtra utenti in base alla zona dell'evento
+        // Filtra utenti in base alla zona dell'evento e preferenze utente
         const targetUsers = allUsers.filter(user => {
             // Salta utenti senza zona o bloccati
             if (user.is_blocked || !user.zona) return false;
+            
+            // Controlla preferenze notifiche evento dell'utente
+            const eventPrefs = user.event_notification_preferences || {};
+            
+            // Se l'utente vuole solo eventi del suo comune
+            if (eventPrefs.only_my_city && user.city) {
+                // Controlla se la location dell'evento contiene la città dell'utente
+                const eventLocationLower = (event.location || '').toLowerCase();
+                const userCityLower = user.city.toLowerCase();
+                if (!eventLocationLower.includes(userCityLower)) {
+                    return false;
+                }
+            }
+            
+            // Se l'utente ha disabilitato gli inviti WhatsApp per eventi
+            if (eventPrefs.whatsapp_invites === false) {
+                return false;
+            }
             
             // Se l'evento è per tutte le zone
             if (!event.zone_visibility || event.zone_visibility.length === 0) {
@@ -26,6 +44,18 @@ Deno.serve(async (req) => {
             const allZonesConfig = event.zone_visibility.find(zv => zv.zone === '__all__');
             if (allZonesConfig) {
                 const target = allZonesConfig.target || 'all';
+                if (target === 'all') return true;
+                if (target === 'users' && user.user_type === 'utente') return true;
+                if (target === 'consultants' && user.user_type === 'consulente') return true;
+                return false;
+            }
+            
+            // Se l'utente vuole solo eventi della sua zona
+            if (eventPrefs.only_my_zone !== false) {
+                const zoneConfig = event.zone_visibility.find(zv => zv.zone === user.zona);
+                if (!zoneConfig) return false;
+                
+                const target = zoneConfig.target || 'all';
                 if (target === 'all') return true;
                 if (target === 'users' && user.user_type === 'utente') return true;
                 if (target === 'consultants' && user.user_type === 'consulente') return true;
