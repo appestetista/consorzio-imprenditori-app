@@ -231,10 +231,14 @@ export default function CalendarioIncontri() {
       
       return event;
     },
-    onSuccess: () => {
+    onSuccess: (createdEvent) => {
       queryClient.invalidateQueries({ queryKey: ['events'] });
       setShowAddEvent(false);
       setNewEvent({ title: '', description: '', date: '', time: '', location: '', image_url: '', reminder_enabled: false });
+      // Apri automaticamente il gestore zone dopo la creazione
+      if (createdEvent) {
+        setTimeout(() => setZoneManagerEvent(createdEvent), 300);
+      }
     }
   });
 
