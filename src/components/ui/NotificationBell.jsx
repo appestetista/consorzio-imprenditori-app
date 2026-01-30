@@ -8,7 +8,6 @@ export default function NotificationBell({
   hasNewNotification = false,
   onViewed = () => {} 
 }) {
-  const hasNotifications = count > 0;
   const [showGlow, setShowGlow] = useState(hasNewNotification);
   const [wasViewed, setWasViewed] = useState(false);
 
@@ -29,18 +28,18 @@ export default function NotificationBell({
       <style>{`
         @keyframes breathe {
           0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.1); }
+          50% { transform: scale(1.15); }
         }
         @keyframes glowPulse {
           0%, 100% { 
-            box-shadow: 0 0 8px 4px rgba(236, 72, 153, 0.6),
-                        0 0 16px 8px rgba(236, 72, 153, 0.4),
-                        0 0 24px 12px rgba(236, 72, 153, 0.2);
+            box-shadow: 0 0 6px 3px rgba(163, 230, 53, 0.5),
+                        0 0 12px 6px rgba(163, 230, 53, 0.3),
+                        0 0 18px 9px rgba(163, 230, 53, 0.15);
           }
           50% { 
-            box-shadow: 0 0 12px 6px rgba(236, 72, 153, 0.8),
-                        0 0 24px 12px rgba(236, 72, 153, 0.5),
-                        0 0 36px 18px rgba(236, 72, 153, 0.3);
+            box-shadow: 0 0 10px 5px rgba(163, 230, 53, 0.7),
+                        0 0 20px 10px rgba(163, 230, 53, 0.4),
+                        0 0 30px 15px rgba(163, 230, 53, 0.2);
           }
         }
         @keyframes dotPulse {
@@ -49,10 +48,10 @@ export default function NotificationBell({
         }
       `}</style>
       
-      {/* Glow effect container */}
-      {showGlow && hasNotifications && (
+      {/* Glow effect container - giallo lime fluorescente */}
+      {showGlow && (
         <div 
-          className="absolute inset-0 rounded-full"
+          className="absolute -inset-1 rounded-full"
           style={{ 
             animation: 'glowPulse 1.5s ease-in-out infinite',
             zIndex: -1
@@ -63,20 +62,15 @@ export default function NotificationBell({
       {/* Bell icon with breathing animation when has new notifications */}
       <Bell 
         className="w-5 h-5 text-lime-400" 
-        style={showGlow && hasNotifications ? { animation: 'breathe 2s ease-in-out infinite' } : {}}
+        style={showGlow ? { animation: 'breathe 2s ease-in-out infinite' } : {}}
       />
       
-      {/* Notification badge - fuxia when new, shows only count when viewed */}
-      {hasNotifications && (
+      {/* Pallino fucsia/magenta quando c'è nuova notifica */}
+      {showGlow && (
         <span 
-          className={cn(
-            "absolute -top-2 -right-2 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold",
-            showGlow ? "bg-pink-500" : "bg-slate-600"
-          )}
-          style={showGlow ? { animation: 'dotPulse 1.5s ease-in-out infinite' } : {}}
-        >
-          {count > 99 ? '99+' : count}
-        </span>
+          className="absolute -top-1 -right-1 bg-fuchsia-500 rounded-full w-2.5 h-2.5"
+          style={{ animation: 'dotPulse 1.5s ease-in-out infinite' }}
+        />
       )}
     </div>
   );
