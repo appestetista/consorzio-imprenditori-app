@@ -60,19 +60,39 @@ export default function CalendarioIncontri() {
   });
 
   // Filtra eventi: admin vede tutto, utenti vedono solo approvati + i propri in attesa + filtro zone
-  const events = allEvents.filter(event => {
-    if (isAdmin) return true;
-    // Mostra sempre i propri eventi
-    if (event.creator_email === user?.email) return true;
-    // Eventi non approvati non visibili
-    if (event.approval_status !== 'approved' && event.approval_status) return false;
-    // Filtra per zona se l'evento ha zone specifiche
-    if (event.visible_to_zones && event.visible_to_zones.length > 0) {
-      const userZone = user?.zona || user?.zone;
-      if (!userZone || !event.visible_to_zones.includes(userZone)) return false;
-    }
-    return true;
-  });
+  // Inoltre nasconde eventi passati (tranne per admin che li vede)
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const events = allEvents
+    .filter(event => {
+      // Nascondi eventi passati per non-admin
+      if (!isAdmin) {
+        const eventDate = new Date(event.date);
+        eventDate.setHours(0, 0, 0, 0);
+        if (eventDate < today) return false;
+      }
+      
+      if (isAdmin) return true;
+      // Mostra sempre i propri eventi
+      if (event.creator_email === user?.email) return true;
+      // Eventi non approvati non visibili
+      if (event.approval_status !== 'approved' && event.approval_status) return false;
+      // Filtra per zona se l'evento ha zone specifiche
+      if (event.visible_to_zones && event.visible_to_zones.length > 0) {
+        const userZone = user?.zona || user?.zone;
+        if (!userZone || !event.visible_to_zones.includes(userZone)) return false;
+      }
+      return true;
+    })
+    .sort((a, b) => new Date(a.date) - new Date(b.date)); // Ordina per data crescente
+  
+  // Conteggio eventi futuri (per il cerchio)
+  const futureEventsCount = events.filter(e => {
+    const eventDate = new Date(e.date);
+    eventDate.setHours(0, 0, 0, 0);
+    return eventDate >= today && e.approval_status === 'approved';
+  }).length;
 
   const { data: partecipazioni = [] } = useQuery({
     queryKey: ['partecipazioni-eventi'],
