@@ -10,12 +10,45 @@ Deno.serve(async (req) => {
             return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
         }
 
-        // Recupera tutte le conversazioni dell'agente event_notifier
-        const conversations = await base44.agents.listConversations({
-            agent_name: 'event_notifier'
-        });
+        // Prova diversi metodi per recuperare le conversazioni
+        let conversations = [];
+        
+        // Metodo 1: listConversations con agent_name
+        try {
+            conversations = await base44.agents.listConversations({
+                agent_name: 'event_notifier'
+            });
+            console.log(`Method 1 (listConversations): Found ${conversations?.length || 0} conversations`);
+        } catch (e) {
+            console.log('Method 1 failed:', e.message);
+        }
 
-        console.log(`Found ${conversations.length} conversations`);
+        // Metodo 2: prova senza parametri
+        if (!conversations || conversations.length === 0) {
+            try {
+                conversations = await base44.agents.listConversations();
+                console.log(`Method 2 (no params): Found ${conversations?.length || 0} conversations`);
+            } catch (e) {
+                console.log('Method 2 failed:', e.message);
+            }
+        }
+
+        // Metodo 3: prova con asServiceRole
+        if (!conversations || conversations.length === 0) {
+            try {
+                conversations = await base44.asServiceRole.agents.listConversations({
+                    agent_name: 'event_notifier'
+                });
+                console.log(`Method 3 (asServiceRole): Found ${conversations?.length || 0} conversations`);
+            } catch (e) {
+                console.log('Method 3 failed:', e.message);
+            }
+        }
+
+        console.log(`Total found: ${conversations?.length || 0} conversations`);
+        if (conversations?.length > 0) {
+            console.log('First conversation:', JSON.stringify(conversations[0], null, 2));
+        }
 
         // Recupera tutti gli utenti
         const allUsers = await base44.asServiceRole.entities.User.list();
