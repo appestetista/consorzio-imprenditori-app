@@ -152,13 +152,14 @@ export default function EventZoneManager({ event, open, onClose }) {
     return targetUsers;
   };
 
-  // Conta utenti per zona
+  // Conta utenti per zona (confronto case-insensitive)
   const getUserCountForZone = (zoneName) => {
     const target = zoneVisibility[zoneName] || 'all';
+    const zoneNameLower = zoneName.toLowerCase();
     return allUsers.filter(u => {
       if (u.role === 'admin') return false;
       const { zona: userZone, userType } = getUserData(u);
-      if (userZone !== zoneName) return false;
+      if (!userZone || userZone.toLowerCase() !== zoneNameLower) return false;
       const isUser = userType === 'utente' || (u.role === 'user' && !userType);
       const isConsultant = userType === 'consulente';
       if (target === 'all') return true;
