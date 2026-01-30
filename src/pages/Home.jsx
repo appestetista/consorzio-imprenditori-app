@@ -287,10 +287,19 @@ export default function Home() {
     enabled: !!effectiveUser,
   });
 
-  // Stato per tracciare nuovi eventi calendario (basato su inviti senza risposta)
-  const [hasNewCalendarEvent, setHasNewCalendarEvent] = useState(false);
+  // Stato per tracciare nuovi eventi calendario - persiste finché l'utente non clicca sulla card
+  const [hasNewCalendarEvent, setHasNewCalendarEvent] = useState(() => {
+    // Recupera lo stato dal localStorage
+    const saved = localStorage.getItem('calendarGlowActive');
+    return saved === 'true';
+  });
 
-  // Subscribe real-time agli eventi
+  // Salva lo stato del glow nel localStorage
+  useEffect(() => {
+    localStorage.setItem('calendarGlowActive', hasNewCalendarEvent ? 'true' : 'false');
+  }, [hasNewCalendarEvent]);
+
+  // Subscribe real-time agli eventi - quando arriva un nuovo evento, attiva glow e suona
   useEffect(() => {
     const unsubscribe = base44.entities.Event.subscribe((event) => {
       if (event.type === 'create') {
@@ -305,23 +314,29 @@ export default function Home() {
     return unsubscribe;
   }, [queryClient, playSound, effectiveUser?.email]);
 
+  // Subscribe real-time alle partecipazioni - quando arriva un nuovo invito, attiva glow e suona
+  useEffect(() => {
+    if (!effectiveUser?.email) return;
+
+    const unsubscribe = base44.entities.PartecipazioniEvento.subscribe((event) => {
+      if (event.type === 'create' && event.data?.user_email === effectiveUser.email) {
+        playSound();
+        setHasNewCalendarEvent(true);
+      }
+      queryClient.invalidateQueries({ queryKey: ['partecipazioni-home', effectiveUser.email] });
+    });
+
+    return unsubscribe;
+  }, [effectiveUser?.email, queryClient, playSound]);
+
   const { data: partecipazioni = [] } = useQuery({
     queryKey: ['partecipazioni-home', effectiveUser?.email],
     queryFn: () => base44.entities.PartecipazioniEvento.filter({ user_email: effectiveUser?.email }),
     enabled: !!effectiveUser?.email,
   });
 
-  // Conta inviti a eventi senza risposta
+  // Conta inviti a eventi senza risposta (per il badge numerico)
   const pendingEventInvites = partecipazioni.filter(p => p.stato === 'nessuna_risposta').length;
-
-  // Attiva il glow se ci sono inviti in attesa di risposta (pendingEventInvites > 0)
-  useEffect(() => {
-    if (pendingEventInvites > 0) {
-      setHasNewCalendarEvent(true);
-    } else {
-      setHasNewCalendarEvent(false);
-    }
-  }, [pendingEventInvites]);
 
   // Per utenti/consulenti: conta nuovi bandi dalla loro ultima visita
   // In impersonation, usa il ruolo impersonato, non quello reale
