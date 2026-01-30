@@ -20,7 +20,8 @@ export default function FeatureCard({
   pendingInvites = 0,
   newVideosCount = 0,
   totalVideosCount = 0,
-  hasVisitedVideos = false
+  hasVisitedVideos = false,
+  latestVideoDate = null
 }) {
   const isPink = variant === 'pink';
   const isBlue = variant === 'blue';
@@ -29,16 +30,18 @@ export default function FeatureCard({
   const isCalendar = pageName === 'CalendarioIncontri';
   const isVideo = pageName === 'VideoInterviste';
   
-  // Usa il context per sapere se l'utente ha già visitato i video in questa sessione
-  const { hasVisitedVideos: hasVisitedFromContext } = useVideoVisit();
+  // Usa il context con timestamp per confronto con nuovi video
+  const { lastVisitTimestamp, hasNewVideosSince } = useVideoVisit();
   
   // Calendario: campanella + badge con pendingInvites
   const bellNotificationCount = isCalendar ? notificationCount : 0;
   const hasPendingInvites = isCalendar && pendingInvites > 0;
   
-  // Video: logica separata per glow, fascia e colore bollino
-  // Combina il flag dal context (sessione) con il flag dal DB (passato come prop)
-  const effectiveHasVisited = hasVisitedFromContext || hasVisitedVideos;
+  // Video: logica basata su timestamp
+  // Se c'è un nuovo video dopo l'ultima visita (sessione), mostra notifiche
+  const hasNewVideosSinceVisit = isVideo && latestVideoDate && hasNewVideosSince(latestVideoDate);
+  // effectiveHasVisited = true solo se ha visitato E non ci sono nuovi video da allora
+  const effectiveHasVisited = lastVisitTimestamp && !hasNewVideosSinceVisit;
   const hasUnseenNewVideos = isVideo && newVideosCount > 0 && !effectiveHasVisited;
   const showVideoBadge = isVideo && totalVideosCount > 0;
   const videoBadgeIsRed = isVideo && newVideosCount > 0 && !effectiveHasVisited;
