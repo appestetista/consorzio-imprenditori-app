@@ -709,6 +709,8 @@ export default function Home() {
                                 eventCount={feature.eventCount || 0}
                                 pendingInvites={feature.pendingInvites || 0}
                                 newVideosCount={feature.newVideosCount || 0}
+                                totalVideosCount={feature.totalVideosCount || 0}
+                                hasVisitedVideos={feature.hasVisitedVideos || false}
                               />
           ))}
         </div>
