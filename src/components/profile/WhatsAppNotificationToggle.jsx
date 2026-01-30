@@ -65,16 +65,20 @@ export default function WhatsAppNotificationToggle({ user }) {
             <p className="text-slate-400 text-xs">
               Cliccando il pulsante verrai reindirizzato a WhatsApp. Invia il messaggio pre-compilato per attivare le notifiche.
             </p>
-            <a 
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg font-medium transition-colors"
-            >
-              <MessageCircle className="w-5 h-5" />
-              Attiva Notifiche WhatsApp
-              <ExternalLink className="w-4 h-4" />
-            </a>
+            {whatsappUrl ? (
+              <a 
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg font-medium transition-colors"
+              >
+                <MessageCircle className="w-5 h-5" />
+                Attiva Notifiche WhatsApp
+                <ExternalLink className="w-4 h-4" />
+              </a>
+            ) : (
+              <p className="text-slate-500 text-sm">Funzionalità WhatsApp non disponibile</p>
+            )}
           </div>
         )}
       </CardContent>
