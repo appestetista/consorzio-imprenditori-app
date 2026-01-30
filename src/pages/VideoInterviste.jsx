@@ -76,10 +76,17 @@ export default function VideoInterviste() {
     enabled: !!effectiveUser?.email,
   });
 
-  // Marca come lette tutte le notifiche video quando l'utente apre la sezione
+  // Marca come lette tutte le notifiche video e aggiorna last_video_view_at
   useEffect(() => {
     const markVideoNotificationsAsRead = async () => {
       if (!effectiveUser?.email) return;
+      
+      // Aggiorna il timestamp dell'ultima visita ai video
+      try {
+        await base44.auth.updateMe({ last_video_view_at: new Date().toISOString() });
+      } catch (e) {
+        console.log('Errore aggiornamento last_video_view_at:', e);
+      }
       
       const videoNotifications = await base44.entities.Notification.filter({
         user_email: effectiveUser.email,
