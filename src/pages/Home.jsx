@@ -331,6 +331,7 @@ export default function Home() {
         playSound();
       }
       queryClient.invalidateQueries({ queryKey: ['all-future-events-home'] });
+      queryClient.invalidateQueries({ queryKey: ['total-future-events-count'] });
       queryClient.invalidateQueries({ queryKey: ['upcoming-events'] });
       queryClient.invalidateQueries({ queryKey: ['partecipazioni-home', effectiveUser?.email] });
     });
