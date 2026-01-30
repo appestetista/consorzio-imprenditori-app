@@ -236,6 +236,47 @@ export default function Home() {
     queryFn: () => base44.entities.Event.list('-date', 1),
   });
 
+  // Tutti gli eventi futuri per il contatore nella card Calendario
+  const { data: allFutureEvents = [] } = useQuery({
+    queryKey: ['all-future-events-home'],
+    queryFn: async () => {
+      const allEvents = await base44.entities.Event.list('-date');
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return allEvents.filter(e => {
+        const eventDate = new Date(e.date);
+        eventDate.setHours(0, 0, 0, 0);
+        return eventDate >= today && e.approval_status === 'approved';
+      });
+    },
+  });
+
+  // Stato per tracciare nuovi eventi calendario
+  const [hasNewCalendarEvent, setHasNewCalendarEvent] = useState(false);
+  const [lastCalendarEventCount, setLastCalendarEventCount] = useState(0);
+
+  // Subscribe real-time agli eventi
+  useEffect(() => {
+    const unsubscribe = base44.entities.Event.subscribe((event) => {
+      if (event.type === 'create') {
+        playSound();
+        setHasNewCalendarEvent(true);
+      }
+      queryClient.invalidateQueries({ queryKey: ['all-future-events-home'] });
+      queryClient.invalidateQueries({ queryKey: ['upcoming-events'] });
+    });
+
+    return unsubscribe;
+  }, [queryClient, playSound]);
+
+  // Traccia quando cambiano gli eventi per attivare il glow
+  useEffect(() => {
+    if (allFutureEvents.length > lastCalendarEventCount && lastCalendarEventCount > 0) {
+      setHasNewCalendarEvent(true);
+    }
+    setLastCalendarEventCount(allFutureEvents.length);
+  }, [allFutureEvents.length, lastCalendarEventCount]);
+
   const { data: partecipazioni = [] } = useQuery({
     queryKey: ['partecipazioni-home', effectiveUser?.email],
     queryFn: () => base44.entities.PartecipazioniEvento.filter({ user_email: effectiveUser?.email }),
