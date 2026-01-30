@@ -10,8 +10,10 @@ export default function SoundPermissionPopup({ onComplete }) {
   useEffect(() => {
     // Controlla se l'utente ha già fatto la scelta
     const soundChoice = localStorage.getItem('soundNotificationsEnabled');
+    console.log('[SOUND POPUP] soundNotificationsEnabled:', soundChoice);
     if (soundChoice === null) {
       // Prima visita - mostra popup
+      console.log('[SOUND POPUP] Prima visita, mostro popup');
       setOpen(true);
     }
   }, []);
