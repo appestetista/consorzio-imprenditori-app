@@ -445,11 +445,17 @@ export default function CalendarioIncontri() {
             <Link to={createPageUrl('Home')} className="text-lime-400">
               <ArrowLeft className="w-6 h-6" />
             </Link>
-            {/* Cerchio con conteggio eventi */}
+            {/* Cerchio con conteggio eventi a sinistra */}
             <div className="w-10 h-10 rounded-full bg-lime-400 flex items-center justify-center">
               <span className="text-slate-900 font-bold text-lg">{futureEventsCount}</span>
             </div>
             <h1 className="text-white text-xl font-bold">Calendario Incontri</h1>
+            {/* Campanella notifica a destra del titolo */}
+            <NotificationBell 
+              count={hasNewEvent ? 1 : 0}
+              hasNewNotification={hasNewEvent}
+              onViewed={() => setHasNewEvent(false)}
+            />
           </div>
           
           {isAdmin ? (
