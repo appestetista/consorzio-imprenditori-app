@@ -3,30 +3,39 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 const VideoVisitContext = createContext();
 
 export function VideoVisitProvider({ children }) {
-  // Inizializza dallo storage locale per persistenza immediata
-  const [hasVisitedVideos, setHasVisitedVideos] = useState(() => {
-    const stored = sessionStorage.getItem('hasVisitedVideos');
-    return stored === 'true';
+  // Usa timestamp invece di booleano per confronto con nuovi video
+  const [lastVisitTimestamp, setLastVisitTimestamp] = useState(() => {
+    const stored = sessionStorage.getItem('videoVisitTimestamp');
+    return stored ? parseInt(stored, 10) : null;
   });
 
   // Sincronizza con sessionStorage
   useEffect(() => {
-    sessionStorage.setItem('hasVisitedVideos', hasVisitedVideos.toString());
-  }, [hasVisitedVideos]);
+    if (lastVisitTimestamp) {
+      sessionStorage.setItem('videoVisitTimestamp', lastVisitTimestamp.toString());
+    }
+  }, [lastVisitTimestamp]);
 
   const markVideosAsVisited = () => {
-    setHasVisitedVideos(true);
+    setLastVisitTimestamp(Date.now());
+  };
+
+  // Controlla se ci sono video nuovi rispetto all'ultima visita
+  const hasNewVideosSince = (latestVideoDate) => {
+    if (!lastVisitTimestamp || !latestVideoDate) return true;
+    return new Date(latestVideoDate).getTime() > lastVisitTimestamp;
   };
 
   const resetVideoVisit = () => {
-    setHasVisitedVideos(false);
-    sessionStorage.removeItem('hasVisitedVideos');
+    setLastVisitTimestamp(null);
+    sessionStorage.removeItem('videoVisitTimestamp');
   };
 
   return (
     <VideoVisitContext.Provider value={{ 
-      hasVisitedVideos, 
+      lastVisitTimestamp,
       markVideosAsVisited,
+      hasNewVideosSince,
       resetVideoVisit
     }}>
       {children}
