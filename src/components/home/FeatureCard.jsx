@@ -5,6 +5,7 @@ import { Lock, Bell } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { base44 } from '@/api/base44Client';
 import { useQueryClient } from '@tanstack/react-query';
+import { useVideoVisit } from '../context/VideoVisitContext';
 
 export default function FeatureCard({ 
   title, 
