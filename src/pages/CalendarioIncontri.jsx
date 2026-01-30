@@ -101,6 +101,28 @@ export default function CalendarioIncontri() {
     return eventDate >= today && e.approval_status === 'approved';
   }).length;
 
+  // Subscribe real-time agli eventi per notifiche
+  useEffect(() => {
+    const unsubscribe = base44.entities.Event.subscribe((event) => {
+      if (event.type === 'create') {
+        playSound();
+        setHasNewEvent(true);
+      }
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+    });
+
+    return unsubscribe;
+  }, [queryClient, playSound]);
+
+  // Traccia quando cambiano gli eventi per attivare il glow
+  useEffect(() => {
+    if (futureEventsCount > lastEventCount && lastEventCount > 0) {
+      setHasNewEvent(true);
+      playSound();
+    }
+    setLastEventCount(futureEventsCount);
+  }, [futureEventsCount, lastEventCount, playSound]);
+
   const { data: partecipazioni = [] } = useQuery({
     queryKey: ['partecipazioni-eventi'],
     queryFn: () => base44.entities.PartecipazioniEvento.list(),
