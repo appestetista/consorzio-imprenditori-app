@@ -72,9 +72,13 @@ export default function CalendarioIncontri() {
   
   const events = allEvents
     .filter(event => {
+      // Ignora eventi senza data valida
+      if (!event.date) return false;
+      
       // Nascondi eventi passati per non-admin
       if (!isAdmin) {
         const eventDate = new Date(event.date);
+        if (isNaN(eventDate.getTime())) return false; // Data non valida
         eventDate.setHours(0, 0, 0, 0);
         if (eventDate < today) return false;
       }
