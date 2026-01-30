@@ -100,7 +100,13 @@ export default function FeatureCard({
           {Icon && <Icon className={cn("w-8 h-8 mb-3", disabled ? "text-red-400" : accentColor)} />}
           <span className={cn("text-sm font-medium text-center leading-tight break-words w-full px-1", disabled ? "text-red-300" : (isPink || isBlue) ? accentColor : "text-white")}>{title}</span>
         </div>
-        {bottomBadge && (
+        {/* Fascia "incontri per te" - SOLO per Calendario quando ci sono eventi */}
+        {isCalendar && eventCount > 0 && (
+          <div className="w-full text-xs font-bold text-center py-1.5 border-t bg-lime-400/20 text-lime-400 border-lime-400/30">
+            📅 {eventCount} {eventCount === 1 ? 'incontro' : 'incontri'} per te
+          </div>
+        )}
+        {bottomBadge && !isCalendar && (
           <div className={cn(
             "w-full text-xs font-bold text-center py-1.5 border-t",
             bottomBadgeType === 'requests' 
