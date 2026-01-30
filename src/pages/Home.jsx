@@ -303,15 +303,6 @@ export default function Home() {
     return unsubscribe;
   }, [queryClient, playSound, effectiveUser?.email]);
 
-  // Attiva il glow se ci sono inviti in attesa di risposta (pendingEventInvites > 0)
-  useEffect(() => {
-    if (pendingEventInvites > 0) {
-      setHasNewCalendarEvent(true);
-    } else {
-      setHasNewCalendarEvent(false);
-    }
-  }, [pendingEventInvites]);
-
   const { data: partecipazioni = [] } = useQuery({
     queryKey: ['partecipazioni-home', effectiveUser?.email],
     queryFn: () => base44.entities.PartecipazioniEvento.filter({ user_email: effectiveUser?.email }),
@@ -320,6 +311,15 @@ export default function Home() {
 
   // Conta inviti a eventi senza risposta
   const pendingEventInvites = partecipazioni.filter(p => p.stato === 'nessuna_risposta').length;
+
+  // Attiva il glow se ci sono inviti in attesa di risposta (pendingEventInvites > 0)
+  useEffect(() => {
+    if (pendingEventInvites > 0) {
+      setHasNewCalendarEvent(true);
+    } else {
+      setHasNewCalendarEvent(false);
+    }
+  }, [pendingEventInvites]);
 
   // Per utenti/consulenti: conta nuovi bandi dalla loro ultima visita
   // In impersonation, usa il ruolo impersonato, non quello reale
