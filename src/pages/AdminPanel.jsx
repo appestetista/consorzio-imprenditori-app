@@ -568,10 +568,10 @@ export default function AdminPanel() {
                 <CardContent className="p-2 flex flex-col items-center justify-center h-full">
                   <Calendar className="w-5 h-5 text-lime-400 mb-1" />
                   <p className="text-white text-[10px] text-center leading-tight">Calendario<br/>incontri</p>
-                  <span className="absolute top-1 right-1 bg-lime-400 text-slate-900 text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
+                  <span className="absolute top-1 left-1 bg-lime-400 text-slate-900 text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
                     {stats?.totalEvents || 0}
                   </span>
-                  <span className="absolute top-1 left-1 text-slate-400">
+                  <span className="absolute top-1 right-1 text-slate-400">
                     <Bell className="w-3 h-3" />
                   </span>
                 </CardContent>
@@ -582,15 +582,15 @@ export default function AdminPanel() {
                 <CardContent className="p-2 flex flex-col items-center justify-center h-full">
                   <Video className="w-5 h-5 text-lime-400 mb-1" />
                   <p className="text-white text-[10px] text-center leading-tight">Video<br/>interviste</p>
-                  <span className="absolute top-1 right-1 bg-lime-400 text-slate-900 text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
+                  <span className="absolute top-1 left-1 bg-lime-400 text-slate-900 text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
                     {stats?.totalVideos || 0}
                   </span>
                   {pendingVideoRequests.length > 0 ? (
-                    <span className="absolute top-1 left-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center">
+                    <span className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center">
                       <Bell className="w-2.5 h-2.5" />
                     </span>
                   ) : (
-                    <span className="absolute top-1 left-1 text-slate-400">
+                    <span className="absolute top-1 right-1 text-slate-400">
                       <Bell className="w-3 h-3" />
                     </span>
                   )}
@@ -602,7 +602,7 @@ export default function AdminPanel() {
                 <CardContent className="p-2 flex flex-col items-center justify-center h-full">
                   <BookOpen className="w-5 h-5 text-lime-400 mb-1" />
                   <p className="text-white text-[10px] text-center leading-tight">Academy</p>
-                  <span className="absolute top-1 left-1 text-slate-400">
+                  <span className="absolute top-1 right-1 text-slate-400">
                     <Bell className="w-3 h-3" />
                   </span>
                 </CardContent>
@@ -616,16 +616,16 @@ export default function AdminPanel() {
                 <Briefcase className="w-5 h-5 text-lime-400 mb-1" />
                 <p className="text-white text-[10px] text-center leading-tight">Consulenze</p>
                 {(stats?.totalConsultants || 0) > 0 && (
-                  <span className="absolute top-1 right-1 bg-lime-400 text-slate-900 text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
+                  <span className="absolute top-1 left-1 bg-lime-400 text-slate-900 text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
                     {stats?.totalConsultants || 0}
                   </span>
                 )}
                 {pendingConsultationBookings > 0 ? (
-                  <span className="absolute top-1 left-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center">
+                  <span className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center">
                     <Bell className="w-2.5 h-2.5" />
                   </span>
                 ) : (
-                  <span className="absolute top-1 left-1 text-slate-400">
+                  <span className="absolute top-1 right-1 text-slate-400">
                     <Bell className="w-3 h-3" />
                   </span>
                 )}
@@ -636,7 +636,7 @@ export default function AdminPanel() {
                 <CardContent className="p-2 flex flex-col items-center justify-center h-full">
                   <Sparkles className="w-5 h-5 text-lime-400 mb-1" />
                   <p className="text-white text-[10px] text-center leading-tight">Finanziamenti<br/>agevolati</p>
-                  <span className="absolute top-1 left-1 text-slate-400">
+                  <span className="absolute top-1 right-1 text-slate-400">
                     <Bell className="w-3 h-3" />
                   </span>
                 </CardContent>
@@ -647,7 +647,7 @@ export default function AdminPanel() {
                 <CardContent className="p-2 flex flex-col items-center justify-center h-full">
                   <User className="w-5 h-5 text-lime-400 mb-1" />
                   <p className="text-white text-[10px] text-center leading-tight">Contatta<br/>Imprenditori</p>
-                  <span className="absolute top-1 left-1 text-slate-400">
+                  <span className="absolute top-1 right-1 text-slate-400">
                     <Bell className="w-3 h-3" />
                   </span>
                 </CardContent>
@@ -658,7 +658,7 @@ export default function AdminPanel() {
                 <CardContent className="p-2 flex flex-col items-center justify-center h-full">
                   <Euro className="w-5 h-5 text-lime-400 mb-1" />
                   <p className="text-white text-[10px] text-center leading-tight">Risparmio</p>
-                  <span className="absolute top-1 left-1 text-slate-400">
+                  <span className="absolute top-1 right-1 text-slate-400">
                     <Bell className="w-3 h-3" />
                   </span>
                 </CardContent>
@@ -669,7 +669,7 @@ export default function AdminPanel() {
                 <CardContent className="p-2 flex flex-col items-center justify-center h-full">
                   <ShoppingBag className="w-5 h-5 text-lime-400 mb-1" />
                   <p className="text-white text-[10px] text-center leading-tight">Market<br/>place</p>
-                  <span className="absolute top-1 left-1 text-slate-400">
+                  <span className="absolute top-1 right-1 text-slate-400">
                     <Bell className="w-3 h-3" />
                   </span>
                 </CardContent>
@@ -680,7 +680,7 @@ export default function AdminPanel() {
                 <CardContent className="p-2 flex flex-col items-center justify-center h-full">
                   <Handshake className="w-5 h-5 text-lime-400 mb-1" />
                   <p className="text-white text-[10px] text-center leading-tight">Consigli da<br/>Imprenditori</p>
-                  <span className="absolute top-1 left-1 text-slate-400">
+                  <span className="absolute top-1 right-1 text-slate-400">
                     <Bell className="w-3 h-3" />
                   </span>
                 </CardContent>
@@ -691,7 +691,7 @@ export default function AdminPanel() {
                 <CardContent className="p-2 flex flex-col items-center justify-center h-full">
                   <Truck className="w-5 h-5 text-lime-400 mb-1" />
                   <p className="text-white text-[10px] text-center leading-tight">Ricerca<br/>Fornitori</p>
-                  <span className="absolute top-1 left-1 text-slate-400">
+                  <span className="absolute top-1 right-1 text-slate-400">
                     <Bell className="w-3 h-3" />
                   </span>
                 </CardContent>
@@ -702,7 +702,7 @@ export default function AdminPanel() {
                 <CardContent className="p-2 flex flex-col items-center justify-center h-full">
                   <Heart className="w-5 h-5 text-pink-400 mb-1" />
                   <p className="text-white text-[10px] text-center leading-tight">Welfare<br/>Aziendale</p>
-                  <span className="absolute top-1 left-1 text-slate-400">
+                  <span className="absolute top-1 right-1 text-slate-400">
                     <Bell className="w-3 h-3" />
                   </span>
                 </CardContent>
@@ -713,7 +713,7 @@ export default function AdminPanel() {
                 <CardContent className="p-2 flex flex-col items-center justify-center h-full">
                   <FileSearch className="w-5 h-5 text-lime-400 mb-1" />
                   <p className="text-white text-[10px] text-center leading-tight">Analisi<br/>Contratti</p>
-                  <span className="absolute top-1 left-1 text-slate-400">
+                  <span className="absolute top-1 right-1 text-slate-400">
                     <Bell className="w-3 h-3" />
                   </span>
                 </CardContent>
@@ -724,7 +724,7 @@ export default function AdminPanel() {
                 <CardContent className="p-2 flex flex-col items-center justify-center h-full">
                   <Globe className="w-5 h-5 text-lime-400 mb-1" />
                   <p className="text-white text-[10px] text-center leading-tight">Import /<br/>Export</p>
-                  <span className="absolute top-1 left-1 text-slate-400">
+                  <span className="absolute top-1 right-1 text-slate-400">
                     <Bell className="w-3 h-3" />
                   </span>
                 </CardContent>
@@ -735,7 +735,7 @@ export default function AdminPanel() {
                 <CardContent className="p-2 flex flex-col items-center justify-center h-full">
                   <Shield className="w-5 h-5 text-blue-400 mb-1" />
                   <p className="text-white text-[10px] text-center leading-tight">Compliance<br/>Aziendale</p>
-                  <span className="absolute top-1 left-1 text-slate-400">
+                  <span className="absolute top-1 right-1 text-slate-400">
                     <Bell className="w-3 h-3" />
                   </span>
                 </CardContent>
@@ -748,15 +748,15 @@ export default function AdminPanel() {
               <CardContent className="p-2 flex flex-col items-center justify-center h-full">
                 <MessageSquare className="w-5 h-5 text-lime-400 mb-1" />
                 <p className="text-white text-[10px] text-center leading-tight">Gestione<br/>Messaggi</p>
-                <span className="absolute top-1 right-1 bg-lime-400 text-slate-900 text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
+                <span className="absolute top-1 left-1 bg-lime-400 text-slate-900 text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
                   {allAdminMessages.length}
                 </span>
                 {unreadAdminMessages.length > 0 ? (
-                  <span className="absolute top-1 left-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center">
+                  <span className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center">
                     <Bell className="w-2.5 h-2.5" />
                   </span>
                 ) : (
-                  <span className="absolute top-1 left-1 text-slate-400">
+                  <span className="absolute top-1 right-1 text-slate-400">
                     <Bell className="w-3 h-3" />
                   </span>
                 )}
