@@ -85,11 +85,40 @@ export default function CalendarioIncontri() {
       if (event.creator_email === user?.email) return true;
       // Eventi non approvati non visibili
       if (event.approval_status !== 'approved' && event.approval_status) return false;
-      // Filtra per zona se l'evento ha zone specifiche
+      
+      // Filtra per zona e tipo utente usando zone_visibility
+      const userZone = user?.zona || user?.zone;
+      const isUserType = user?.user_type === 'utente' || user?.role === 'user';
+      const isConsultantType = user?.user_type === 'consulente' || user?.role === 'consulente';
+      
+      if (event.zone_visibility && event.zone_visibility.length > 0) {
+        // Cerca se c'è __all__ (tutte le zone)
+        const allZonesConfig = event.zone_visibility.find(zv => zv.zone === '__all__');
+        if (allZonesConfig) {
+          // Evento per tutte le zone, controlla il target
+          const target = allZonesConfig.target || 'all';
+          if (target === 'all') return true;
+          if (target === 'users' && isUserType) return true;
+          if (target === 'consultants' && isConsultantType) return true;
+          return false;
+        }
+        
+        // Cerca la configurazione per la zona dell'utente
+        const zoneConfig = event.zone_visibility.find(zv => zv.zone === userZone);
+        if (!zoneConfig) return false; // La zona dell'utente non è nelle zone selezionate
+        
+        const target = zoneConfig.target || 'all';
+        if (target === 'all') return true;
+        if (target === 'users' && isUserType) return true;
+        if (target === 'consultants' && isConsultantType) return true;
+        return false;
+      }
+      
+      // Retrocompatibilità: se c'è solo visible_to_zones senza zone_visibility
       if (event.visible_to_zones && event.visible_to_zones.length > 0) {
-        const userZone = user?.zona || user?.zone;
         if (!userZone || !event.visible_to_zones.includes(userZone)) return false;
       }
+      
       return true;
     })
     .sort((a, b) => new Date(a.date) - new Date(b.date)); // Ordina per data crescente
