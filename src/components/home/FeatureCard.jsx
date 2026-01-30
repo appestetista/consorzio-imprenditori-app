@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Lock, Star } from 'lucide-react';
+import { Lock, Bell } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function FeatureCard({ 
@@ -66,7 +66,7 @@ export default function FeatureCard({
             </div>
           )}
           
-          {/* Stella notifica a destra - SOLO per Calendario */}
+          {/* Campanella notifica a destra - SOLO per Calendario */}
           {disabled ? (
             <div className="absolute top-3 right-3">
               <Lock className="w-4 h-4 text-red-400" />
@@ -75,10 +75,10 @@ export default function FeatureCard({
             <div className="absolute top-3 right-3">
               <div 
                 className={cn(
-                  "relative w-7 h-7 rounded-full flex items-center justify-center transition-colors cursor-pointer",
+                  "relative w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer",
                   starNotificationCount > 0 
                     ? "bg-[#bd0449]" 
-                    : "bg-slate-900 border border-lime-400"
+                    : "bg-slate-900 border-2 border-lime-400"
                 )}
                 onClick={(e) => {
                   if (starNotificationCount > 0) {
@@ -88,13 +88,13 @@ export default function FeatureCard({
                   }
                 }}
               >
-                <Star className={cn(
+                <Bell className={cn(
                   "w-4 h-4",
-                  starNotificationCount > 0 ? "text-white fill-white" : "text-lime-400"
+                  starNotificationCount > 0 ? "text-white" : "text-lime-400"
                 )} />
                 {/* Badge numerico bianco con numero nero */}
                 {starNotificationCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-white text-slate-900 text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+                  <span className="absolute -top-2 -right-2 bg-white text-slate-900 text-[11px] font-bold rounded-full min-w-[20px] h-[20px] flex items-center justify-center px-1 shadow-md">
                     {starNotificationCount > 99 ? '99+' : starNotificationCount}
                   </span>
                 )}
