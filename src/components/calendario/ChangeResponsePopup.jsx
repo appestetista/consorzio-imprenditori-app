@@ -139,7 +139,7 @@ export default function ChangeResponsePopup({ event, user, onClose }) {
           {/* Pulsante chiudi */}
           <Button
             variant="ghost"
-            className="w-full text-slate-400 hover:text-white"
+            className="w-full text-white hover:text-lime-400 hover:bg-slate-700"
             onClick={onClose}
           >
             Annulla
