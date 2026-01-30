@@ -57,65 +57,79 @@ export default function EventZoneManager({ event, open, onClose }) {
     queryFn: () => base44.entities.User.list(),
   });
 
-  // Filtra utenti per zona selezionata
-  const filteredByZone = allUsers.filter(u => {
-    if (u.role === 'admin') return false;
-    if (allZones) return true;
-    const userZone = u.zona || u.zone;
-    return userZone && selectedZones.includes(userZone);
-  });
-
-  // Separa utenti e consulenti
-  const allUsersInZone = filteredByZone.filter(u => u.role === 'user' || u.user_type === 'utente');
-  const allConsultantsInZone = filteredByZone.filter(u => u.role === 'consulente' || u.user_type === 'consulente');
-
-  // Filtra per tipo destinatario selezionato
-  const filteredByType = recipientType === 'all' 
-    ? filteredByZone 
-    : recipientType === 'users' 
-      ? allUsersInZone 
-      : allConsultantsInZone;
-
-  // Filtra per ricerca
-  const searchedUsers = filteredByType.filter(u => {
-    if (!searchTerm) return true;
-    const searchLower = searchTerm.toLowerCase();
-    return (
-      u.full_name?.toLowerCase().includes(searchLower) ||
-      u.company_name?.toLowerCase().includes(searchLower) ||
-      u.email?.toLowerCase().includes(searchLower)
-    );
-  });
-
   const handleZoneToggle = (zoneName) => {
     if (selectedZones.includes(zoneName)) {
       setSelectedZones(selectedZones.filter(z => z !== zoneName));
+      const newVisibility = { ...zoneVisibility };
+      delete newVisibility[zoneName];
+      setZoneVisibility(newVisibility);
     } else {
       setSelectedZones([...selectedZones, zoneName]);
+      setZoneVisibility({ ...zoneVisibility, [zoneName]: 'all' });
     }
   };
 
-  const handleUserToggle = (email) => {
-    if (selectedUsers.includes(email)) {
-      setSelectedUsers(selectedUsers.filter(e => e !== email));
-    } else {
-      setSelectedUsers([...selectedUsers, email]);
-    }
-    setSelectAllInType(false);
+  const handleZoneVisibilityChange = (zoneName, target) => {
+    setZoneVisibility({ ...zoneVisibility, [zoneName]: target });
   };
 
-  const handleSelectAllInType = (checked) => {
-    setSelectAllInType(checked);
-    if (checked) {
-      setSelectedUsers([]);
-    }
-  };
-
+  // Calcola utenti target in base a zone e visibilità
   const getTargetUsers = () => {
-    if (selectAllInType) {
-      return filteredByType;
+    const targetUsers = [];
+    
+    if (allZones) {
+      // Tutte le zone con tipo globale
+      allUsers.forEach(u => {
+        if (u.role === 'admin') return;
+        const isUser = u.role === 'user' || u.user_type === 'utente';
+        const isConsultant = u.role === 'consulente' || u.user_type === 'consulente';
+        
+        if (globalRecipientType === 'all') {
+          targetUsers.push(u);
+        } else if (globalRecipientType === 'users' && isUser) {
+          targetUsers.push(u);
+        } else if (globalRecipientType === 'consultants' && isConsultant) {
+          targetUsers.push(u);
+        }
+      });
+    } else {
+      // Zone specifiche con visibilità per zona
+      allUsers.forEach(u => {
+        if (u.role === 'admin') return;
+        const userZone = u.zona || u.zone;
+        if (!userZone || !selectedZones.includes(userZone)) return;
+        
+        const zoneTarget = zoneVisibility[userZone] || 'all';
+        const isUser = u.role === 'user' || u.user_type === 'utente';
+        const isConsultant = u.role === 'consulente' || u.user_type === 'consulente';
+        
+        if (zoneTarget === 'all') {
+          targetUsers.push(u);
+        } else if (zoneTarget === 'users' && isUser) {
+          targetUsers.push(u);
+        } else if (zoneTarget === 'consultants' && isConsultant) {
+          targetUsers.push(u);
+        }
+      });
     }
-    return filteredByType.filter(u => selectedUsers.includes(u.email));
+    
+    return targetUsers;
+  };
+
+  // Conta utenti per zona
+  const getUserCountForZone = (zoneName) => {
+    const target = zoneVisibility[zoneName] || 'all';
+    return allUsers.filter(u => {
+      if (u.role === 'admin') return false;
+      const userZone = u.zona || u.zone;
+      if (userZone !== zoneName) return false;
+      const isUser = u.role === 'user' || u.user_type === 'utente';
+      const isConsultant = u.role === 'consulente' || u.user_type === 'consulente';
+      if (target === 'all') return true;
+      if (target === 'users') return isUser;
+      if (target === 'consultants') return isConsultant;
+      return false;
+    }).length;
   };
 
   const publishMutation = useMutation({
