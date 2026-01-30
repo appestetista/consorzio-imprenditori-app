@@ -174,9 +174,10 @@ export default function Home() {
 
     const unsubscribe = base44.entities.Notification.subscribe((event) => {
       if (event.data?.user_email === effectiveUser.email) {
-        // Suona notifica per nuove notifiche
+        // Suona notifica per nuove notifiche e attiva glow
         if (event.type === 'create') {
           playSound();
+          setHasNewNotification(true);
         }
         // Invalida la cache per aggiornare le notifiche
         queryClient.invalidateQueries({ queryKey: ['notifications', effectiveUser.email] });
@@ -185,6 +186,14 @@ export default function Home() {
 
     return unsubscribe;
   }, [effectiveUser?.email, queryClient, playSound]);
+
+  // Traccia quando arrivano nuove notifiche per attivare il glow
+  useEffect(() => {
+    if (notifications.length > lastNotificationCount && lastNotificationCount > 0) {
+      setHasNewNotification(true);
+    }
+    setLastNotificationCount(notifications.length);
+  }, [notifications.length, lastNotificationCount]);
 
   // Subscribe real-time ai messaggi consulenze
   useEffect(() => {
