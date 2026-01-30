@@ -796,24 +796,40 @@ export default function CalendarioIncontri() {
                            <Button
                              size="sm"
                              className="bg-green-600 hover:bg-green-700 text-white"
-                             onClick={() => {
-                               approveEventMutation.mutate({ eventId: event.id, approved: true });
-                               // Dopo approvazione, apri il gestore zone
-                               setTimeout(() => setZoneManagerEvent(event), 500);
+                             onClick={async () => {
+                               if (approvingEventId === event.id) return; // Blocca doppio click
+                               setApprovingEventId(event.id);
+                               try {
+                                 await approveEventMutation.mutateAsync({ eventId: event.id, approved: true });
+                                 // Dopo approvazione, apri il gestore zone
+                                 setTimeout(() => setZoneManagerEvent(event), 500);
+                               } finally {
+                                 setApprovingEventId(null);
+                               }
                              }}
-                             disabled={approveEventMutation.isPending}
+                             disabled={approveEventMutation.isPending || approvingEventId === event.id}
                            >
-                             <Check className="w-4 h-4 mr-1" />
-                             Approva
+                             {approvingEventId === event.id ? (
+                               <div className="w-4 h-4 mr-1 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                             ) : (
+                               <Check className="w-4 h-4 mr-1" />
+                             )}
+                             {approvingEventId === event.id ? 'Approvo...' : 'Approva'}
                            </Button>
                            <Button
                              size="sm"
                              className="bg-red-600 hover:bg-red-700 text-white"
-                             onClick={() => {
+                             onClick={async () => {
+                               if (approvingEventId === event.id) return;
                                const reason = prompt('Motivo del rifiuto (opzionale):');
-                               approveEventMutation.mutate({ eventId: event.id, approved: false, rejectionReason: reason });
+                               setApprovingEventId(event.id);
+                               try {
+                                 await approveEventMutation.mutateAsync({ eventId: event.id, approved: false, rejectionReason: reason });
+                               } finally {
+                                 setApprovingEventId(null);
+                               }
                              }}
-                             disabled={approveEventMutation.isPending}
+                             disabled={approveEventMutation.isPending || approvingEventId === event.id}
                            >
                              <X className="w-4 h-4 mr-1" />
                              Rifiuta
