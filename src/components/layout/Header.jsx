@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { Menu, X, LogOut, Settings, User, Eye, XCircle } from 'lucide-react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { Menu, X, LogOut, Settings, User, Eye, XCircle, Bell } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
@@ -7,6 +7,8 @@ import { cn } from '@/lib/utils';
 import { useImpersonation } from '../admin/ImpersonationContext';
 import ImpersonationDialog from '../admin/ImpersonationDialog';
 import { normalizeUser, isUserConsultant } from '../utils/normalizeUser';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import useNotificationSound from '../hooks/useNotificationSound';
 
 export default function Header({ user }) {
   const [menuOpen, setMenuOpen] = useState(false);
