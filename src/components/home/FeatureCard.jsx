@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Lock, Bell } from 'lucide-react';
+import { Lock, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function FeatureCard({ 
@@ -21,15 +21,19 @@ export default function FeatureCard({
   const isBlue = variant === 'blue';
   const accentColor = isPink ? 'text-pink-400' : isBlue ? 'text-blue-400' : 'text-lime-400';
   
-  // Per Calendario Incontri: il numero nel cerchio a sinistra è SOLO eventCount (eventi attivi futuri non cancellati)
-  // La campanella mostra notificationCount (inviti in attesa di risposta)
+  // Per Calendario Incontri: 
+  // - cerchio a sinistra = eventCount (eventi attivi futuri non cancellati)
+  // - stella a destra = notificationCount (inviti in attesa di risposta)
   const isCalendar = pageName === 'CalendarioIncontri';
   const leftBadgeCount = isCalendar ? eventCount : 0;
-  const bellNotificationCount = isCalendar ? notificationCount : notificationCount;
+  const starNotificationCount = isCalendar ? notificationCount : notificationCount;
+  
+  // Determina se attivare il glow: per calendario quando ci sono inviti in attesa
+  const shouldGlow = isCalendar ? (hasNewNotification || starNotificationCount > 0) : hasNewNotification;
   
   const content = (
     <div className="relative">
-      {/* Glow effect attorno alla card quando hasNewNotification è true */}
+      {/* Glow effect attorno alla card */}
       <style>{`
         @keyframes cardGlow {
           0%, 100% { 
@@ -50,7 +54,7 @@ export default function FeatureCard({
           "border",
           bottomBadge ? "pb-0" : "p-6"
         )}
-        style={hasNewNotification && !disabled ? { animation: 'cardGlow 2s ease-in-out infinite' } : {}}
+        style={shouldGlow && !disabled ? { animation: 'cardGlow 2s ease-in-out infinite' } : {}}
       >
         <div className={cn("flex flex-col items-center justify-center flex-1", bottomBadge ? "p-6 pb-3" : "")}>
           {/* Cerchio contatore a sinistra - SOLO per calendario mostra numero eventi */}
@@ -62,41 +66,41 @@ export default function FeatureCard({
             </div>
           )}
           
-          {/* Campanella a destra */}
+          {/* Stella notifica a destra - SOLO per Calendario */}
           {disabled ? (
             <div className="absolute top-3 right-3">
               <Lock className="w-4 h-4 text-red-400" />
             </div>
-          ) : (
+          ) : isCalendar ? (
             <div className="absolute top-3 right-3">
               <div 
                 className={cn(
                   "relative w-7 h-7 rounded-full flex items-center justify-center transition-colors cursor-pointer",
-                  bellNotificationCount > 0 
+                  starNotificationCount > 0 
                     ? "bg-[#bd0449]" 
                     : "bg-slate-900 border border-lime-400"
                 )}
                 onClick={(e) => {
-                  if (bellNotificationCount > 0) {
+                  if (starNotificationCount > 0) {
                     e.preventDefault();
                     e.stopPropagation();
                     onNotificationViewed();
                   }
                 }}
               >
-                <Bell className={cn(
+                <Star className={cn(
                   "w-4 h-4",
-                  bellNotificationCount > 0 ? "text-white" : "text-lime-400"
+                  starNotificationCount > 0 ? "text-white fill-white" : "text-lime-400"
                 )} />
                 {/* Badge numerico bianco con numero nero */}
-                {bellNotificationCount > 0 && (
+                {starNotificationCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-white text-slate-900 text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
-                    {bellNotificationCount > 99 ? '99+' : bellNotificationCount}
+                    {starNotificationCount > 99 ? '99+' : starNotificationCount}
                   </span>
                 )}
               </div>
             </div>
-          )}
+          ) : null}
           
           {Icon && <Icon className={cn("w-8 h-8 mb-3", disabled ? "text-red-400" : accentColor)} />}
           <span className={cn("text-sm font-medium text-center leading-tight break-words w-full px-1", disabled ? "text-red-300" : (isPink || isBlue) ? accentColor : "text-white")}>{title}</span>
