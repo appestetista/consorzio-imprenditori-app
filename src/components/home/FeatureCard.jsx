@@ -23,7 +23,6 @@ export default function FeatureCard({
   
   // SOLO per Calendario Incontri: campanella e glow
   const isCalendar = pageName === 'CalendarioIncontri';
-  const leftBadgeCount = isCalendar ? eventCount : 0;
   const bellNotificationCount = isCalendar ? notificationCount : 0;
   
   // Glow SOLO per calendario - attivo quando ci sono inviti SENZA RISPOSTA (notificationCount > 0)
