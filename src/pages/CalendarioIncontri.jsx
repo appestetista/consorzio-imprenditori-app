@@ -427,8 +427,9 @@ export default function CalendarioIncontri() {
     onSuccess: () => {
       // Chiudi il dialog se aperto
       setChangeResponseEvent(null);
-      // Ricarica la pagina per mostrare la nuova situazione
-      window.location.reload();
+      // Invalida le query per aggiornare la UI
+      queryClient.invalidateQueries({ queryKey: ['partecipazioni-eventi'] });
+      queryClient.invalidateQueries({ queryKey: ['events'] });
     },
     onError: (error) => {
       console.error('Errore risposta evento:', error);
