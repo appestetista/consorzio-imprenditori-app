@@ -140,6 +140,15 @@ export default function FeatureCard({
     return content;
   }
 
+  // Per Video Interviste, usa handler custom che aggiorna lo stato PRIMA della navigazione
+  if (isVideo) {
+    return (
+      <div onClick={handleVideoCardClick} className="cursor-pointer block">
+        {content}
+      </div>
+    );
+  }
+
   return (
     <Link to={createPageUrl(pageName)} className="cursor-pointer block">
       {content}
