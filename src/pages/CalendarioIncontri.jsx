@@ -18,7 +18,6 @@ import BottomNav from '../components/layout/BottomNav';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import InviteEventDialog from '../components/calendario/InviteEventDialog';
 import EventZoneManager from '../components/calendario/EventZoneManager';
-import NotificationBell from '../components/ui/NotificationBell';
 import useNotificationSound from '../components/hooks/useNotificationSound';
 
 export default function CalendarioIncontri() {
