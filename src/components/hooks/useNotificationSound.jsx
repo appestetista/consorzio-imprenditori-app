@@ -10,6 +10,10 @@ export default function useNotificationSound() {
     return localStorage.getItem('soundNotificationsEnabled') === 'true';
   };
 
+  // Controlla se una specifica sezione ha le notifiche abilitate
+  // Le preferenze sono salvate nell'utente, ma per semplicità qui controlliamo solo il suono globale
+  // Il filtro per sezione viene fatto a livello di componente che chiama playSound
+
   // Sblocca AudioContext al primo click/touch dell'utente (solo se suoni abilitati)
   useEffect(() => {
     const unlockAudio = () => {
