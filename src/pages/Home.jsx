@@ -252,21 +252,22 @@ export default function Home() {
     enabled: !!effectiveUser?.email,
   });
 
-  // Conta nuovi video non ancora visti dall'utente + totale video
-  const { data: videosData = { newCount: 0, totalCount: 0, hasVisited: false } } = useQuery({
+  // Conta nuovi video non ancora visti dall'utente + totale video + data ultimo video
+  const { data: videosData = { newCount: 0, totalCount: 0, hasVisited: false, latestVideoDate: null } } = useQuery({
     queryKey: ['videos-data', effectiveUser?.email, effectiveUser?.last_video_view_at],
     queryFn: async () => {
       const allVideos = await base44.entities.Video.list('-created_date');
       const totalCount = allVideos.length;
+      const latestVideoDate = allVideos[0]?.created_date || null;
       const hasVisited = !!effectiveUser?.last_video_view_at;
       
       if (!hasVisited) {
         // Prima visita - tutti i video sono "nuovi"
-        return { newCount: totalCount, totalCount, hasVisited: false };
+        return { newCount: totalCount, totalCount, hasVisited: false, latestVideoDate };
       }
       const lastViewed = new Date(effectiveUser.last_video_view_at);
       const newCount = allVideos.filter(v => new Date(v.created_date) > lastViewed).length;
-      return { newCount, totalCount, hasVisited: true };
+      return { newCount, totalCount, hasVisited: true, latestVideoDate };
     },
     enabled: !!effectiveUser?.email,
   });
