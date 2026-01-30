@@ -140,26 +140,44 @@ export default function EventInvitePopup({ user }) {
           {/* Pulsanti risposta */}
           <div className="grid grid-cols-2 gap-2">
             <Button
-              className="bg-green-600 hover:bg-green-700 text-white py-4 text-xs px-2"
-              onClick={() => respondMutation.mutate({ 
-                partecipazioneId: partecipazione.id, 
-                response: 'accept' 
-              })}
-              disabled={respondMutation.isPending}
+              className={`py-4 text-xs px-2 transition-all duration-300 ${
+                respondingTo === 'accept' && respondMutation.isSuccess
+                  ? 'bg-green-500 scale-105'
+                  : 'bg-green-600 hover:bg-green-700'
+              } text-white`}
+              onClick={() => handleRespond('accept')}
+              disabled={respondMutation.isPending || respondMutation.isSuccess}
             >
-              <Check className="w-4 h-4 mr-1 flex-shrink-0" />
-              <span className="truncate">Parteciperò</span>
+              {respondingTo === 'accept' && respondMutation.isPending ? (
+                <div className="w-4 h-4 mr-1 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : respondingTo === 'accept' && respondMutation.isSuccess ? (
+                <Check className="w-5 h-5 mr-1 flex-shrink-0 animate-bounce" />
+              ) : (
+                <Check className="w-4 h-4 mr-1 flex-shrink-0" />
+              )}
+              <span className="truncate">
+                {respondingTo === 'accept' && respondMutation.isSuccess ? 'Confermato!' : 'Parteciperò'}
+              </span>
             </Button>
             <Button
-              className="bg-red-600 hover:bg-red-700 text-white py-4 text-xs px-2"
-              onClick={() => respondMutation.mutate({ 
-                partecipazioneId: partecipazione.id, 
-                response: 'decline' 
-              })}
-              disabled={respondMutation.isPending}
+              className={`py-4 text-xs px-2 transition-all duration-300 ${
+                respondingTo === 'decline' && respondMutation.isSuccess
+                  ? 'bg-red-500 scale-105'
+                  : 'bg-red-600 hover:bg-red-700'
+              } text-white`}
+              onClick={() => handleRespond('decline')}
+              disabled={respondMutation.isPending || respondMutation.isSuccess}
             >
-              <X className="w-4 h-4 mr-1 flex-shrink-0" />
-              <span className="truncate">Non parteciperò</span>
+              {respondingTo === 'decline' && respondMutation.isPending ? (
+                <div className="w-4 h-4 mr-1 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : respondingTo === 'decline' && respondMutation.isSuccess ? (
+                <Check className="w-5 h-5 mr-1 flex-shrink-0 animate-bounce" />
+              ) : (
+                <X className="w-4 h-4 mr-1 flex-shrink-0" />
+              )}
+              <span className="truncate">
+                {respondingTo === 'decline' && respondMutation.isSuccess ? 'Registrato!' : 'Non parteciperò'}
+              </span>
             </Button>
           </div>
         </div>
