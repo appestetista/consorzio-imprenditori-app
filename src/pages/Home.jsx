@@ -252,6 +252,21 @@ export default function Home() {
     enabled: !!effectiveUser?.email,
   });
 
+  // Conta nuovi video non ancora visti dall'utente
+  const { data: newVideosCount = 0 } = useQuery({
+    queryKey: ['new-videos-count', effectiveUser?.email, effectiveUser?.last_video_view_at],
+    queryFn: async () => {
+      const allVideos = await base44.entities.Video.list('-created_date');
+      if (!effectiveUser?.last_video_view_at) {
+        // Prima visita - tutti i video sono "nuovi"
+        return allVideos.length;
+      }
+      const lastViewed = new Date(effectiveUser.last_video_view_at);
+      return allVideos.filter(v => new Date(v.created_date) > lastViewed).length;
+    },
+    enabled: !!effectiveUser?.email,
+  });
+
   const { data: events = [] } = useQuery({
     queryKey: ['upcoming-events'],
     queryFn: () => base44.entities.Event.list('-date', 1),
