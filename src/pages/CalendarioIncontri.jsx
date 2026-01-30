@@ -706,9 +706,11 @@ export default function CalendarioIncontri() {
                     </div>
                   )}
                   <CardHeader className="pb-3">
-                                            <p className="text-lime-400 text-sm font-bold uppercase mb-1">
-                                              {format(new Date(event.date), 'MMMM', { locale: it })}
-                                            </p>
+                                            {event.date && (
+                                              <p className="text-lime-400 text-sm font-bold uppercase mb-1">
+                                                {format(new Date(event.date), 'MMMM', { locale: it })}
+                                              </p>
+                                            )}
                                             <CardTitle className="text-white text-lg">{event.title}</CardTitle>
                                           </CardHeader>
                   <CardContent className="space-y-3">
