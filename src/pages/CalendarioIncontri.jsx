@@ -365,8 +365,16 @@ export default function CalendarioIncontri() {
 
   const respondToEventMutation = useMutation({
     mutationFn: async ({ eventId, response }) => {
+      // Prendi l'email utente direttamente
+      const userEmail = user?.email;
+      if (!userEmail) {
+        throw new Error('Utente non autenticato');
+      }
+
+      // Cerca l'evento sia in allEvents che in events
+      const evento = allEvents.find(e => e.id === eventId) || events.find(e => e.id === eventId);
+      
       // Verifica server-side: controlla se l'evento è bloccato
-      const evento = events.find(e => e.id === eventId);
       if (evento?.data_blocco_partecipazione) {
         const now = new Date();
         const bloccoDate = new Date(evento.data_blocco_partecipazione);
@@ -376,7 +384,7 @@ export default function CalendarioIncontri() {
       }
 
       const existingParticipations = await base44.entities.PartecipazioniEvento.filter({
-        user_email: user.email,
+        user_email: userEmail,
         evento_id: eventId
       });
 
@@ -391,7 +399,7 @@ export default function CalendarioIncontri() {
       } else {
         // Crea nuova partecipazione
         result = await base44.entities.PartecipazioniEvento.create({
-          user_email: user.email,
+          user_email: userEmail,
           evento_id: eventId,
           stato: newStato
         });
@@ -399,15 +407,16 @@ export default function CalendarioIncontri() {
 
       // Invia notifica agli admin
       const admins = await base44.entities.User.filter({ role: 'admin' });
-      const userName = user.company_name || user.full_name || user.email;
+      const userName = user?.company_name || user?.full_name || userEmail;
       const responseText = response === 'accept' ? 'parteciperà' : 'non parteciperà';
+      const eventoTitle = evento?.title || 'Evento';
       
       for (const admin of admins) {
         await base44.entities.Notification.create({
           user_email: admin.email,
           type: 'event_response',
           title: 'Risposta evento',
-          content: `${userName} ${responseText} a "${evento.title}"`,
+          content: `${userName} ${responseText} a "${eventoTitle}"`,
           reference_id: eventId,
           is_read: false
         });
@@ -420,6 +429,10 @@ export default function CalendarioIncontri() {
       setChangeResponseEvent(null);
       // Ricarica la pagina per mostrare la nuova situazione
       window.location.reload();
+    },
+    onError: (error) => {
+      console.error('Errore risposta evento:', error);
+      alert(error.message || 'Si è verificato un errore');
     }
   });
 
