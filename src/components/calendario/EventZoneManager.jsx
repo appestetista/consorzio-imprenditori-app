@@ -73,6 +73,14 @@ export default function EventZoneManager({ event, open, onClose }) {
     setZoneVisibility({ ...zoneVisibility, [zoneName]: target });
   };
 
+  // Helper per estrarre dati utente (supporta struttura flat o annidata)
+  const getUserData = (u) => {
+    // I dati possono essere direttamente sull'oggetto o annidati in 'data'
+    const zona = u.zona || u.zone || (typeof u.data === 'object' ? u.data?.zona : null) || (typeof u.data === 'object' ? u.data?.zone : null);
+    const userType = u.user_type || (typeof u.data === 'object' ? u.data?.user_type : null);
+    return { zona, userType };
+  };
+
   // Calcola utenti target in base a zone e visibilità
   const getTargetUsers = () => {
     const targetUsers = [];
@@ -81,8 +89,7 @@ export default function EventZoneManager({ event, open, onClose }) {
       // Tutte le zone con tipo globale
       allUsers.forEach(u => {
         if (u.role === 'admin') return;
-        // Supporta sia user_type diretto che annidato in data
-        const userType = u.user_type || u.data?.user_type;
+        const { userType } = getUserData(u);
         const isUser = userType === 'utente' || (u.role === 'user' && !userType);
         const isConsultant = userType === 'consulente';
         
@@ -98,13 +105,10 @@ export default function EventZoneManager({ event, open, onClose }) {
       // Zone specifiche con visibilità per zona
       allUsers.forEach(u => {
         if (u.role === 'admin') return;
-        // Supporta sia zona diretta che annidata in data
-        const userZone = u.zona || u.zone || u.data?.zona || u.data?.zone;
+        const { zona: userZone, userType } = getUserData(u);
         if (!userZone || !selectedZones.includes(userZone)) return;
         
         const zoneTarget = zoneVisibility[userZone] || 'all';
-        // Supporta sia user_type diretto che annidato in data
-        const userType = u.user_type || u.data?.user_type;
         const isUser = userType === 'utente' || (u.role === 'user' && !userType);
         const isConsultant = userType === 'consulente';
         
