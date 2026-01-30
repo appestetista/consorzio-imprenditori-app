@@ -101,7 +101,7 @@ export default function FeatureCard({
             {eventCount} {eventCount === 1 ? 'incontro' : 'incontri'} per te
           </div>
         )}
-        {isVideo && hasUnseenNewVideos && (
+        {isVideo && hasUnseenNewVideos && newVideosCount > 0 && (
           <div className="w-full text-xs font-bold text-center py-1.5 border-t bg-[#bd0449]/20 text-[#bd0449] border-[#bd0449]/30">
             {newVideosCount} {newVideosCount === 1 ? 'nuovo video' : 'nuovi video'}
           </div>
