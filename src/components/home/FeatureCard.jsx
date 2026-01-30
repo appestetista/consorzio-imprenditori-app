@@ -40,6 +40,22 @@ export default function FeatureCard({
   const shouldGlow = (isCalendar && (bellNotificationCount > 0 || hasPendingInvites)) || hasUnseenNewVideos;
   const hasBottomBadge = bottomBadge || (isCalendar && eventCount > 0) || hasUnseenNewVideos;
   
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const handleVideoCardClick = async (e) => {
+    e.preventDefault();
+    // Aggiorna last_video_view_at PRIMA della navigazione
+    try {
+      await base44.auth.updateMe({ last_video_view_at: new Date().toISOString() });
+      // Invalida la query per aggiornare lo stato nella Home
+      queryClient.invalidateQueries({ queryKey: ['videos-data'] });
+    } catch (err) {
+      console.error('[FeatureCard] Errore aggiornamento last_video_view_at:', err);
+    }
+    navigate(createPageUrl(pageName));
+  };
+
   const content = (
     <div className="relative">
       <style>{`
