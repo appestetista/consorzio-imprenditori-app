@@ -416,6 +416,8 @@ export default function CalendarioIncontri() {
       return result;
     },
     onSuccess: () => {
+      // Chiudi il dialog se aperto
+      setChangeResponseEvent(null);
       // Ricarica la pagina per mostrare la nuova situazione
       window.location.reload();
     }
