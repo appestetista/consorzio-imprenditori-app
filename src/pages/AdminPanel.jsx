@@ -229,16 +229,19 @@ export default function AdminPanel() {
     queryFn: () => base44.entities.Event.list('-date'),
   });
 
-  // Conta eventi futuri per le notifiche
+  // Conta eventi futuri approvati (per il badge numerico)
   const futureEventsCount = (() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return allEvents.filter(e => {
       const eventDate = new Date(e.date);
       eventDate.setHours(0, 0, 0, 0);
-      return eventDate >= today && e.approval_status === 'approved';
+      return eventDate >= today && e.approval_status === 'approved' && !e.is_cancelled;
     }).length;
   })();
+
+  // Conta eventi in attesa di approvazione (per campanella admin calendario)
+  const pendingApprovalEventsCount = allEvents.filter(e => e.approval_status === 'pending').length;
 
   // Subscribe real-time agli eventi
   useEffect(() => {
