@@ -26,7 +26,8 @@ export default function FeatureCard({
   const leftBadgeCount = isCalendar ? eventCount : 0;
   const bellNotificationCount = isCalendar ? notificationCount : 0;
   
-  // Glow SOLO per calendario - attivo quando ci sono inviti senza risposta (notificationCount > 0)
+  // Glow SOLO per calendario - attivo quando ci sono inviti SENZA RISPOSTA (notificationCount > 0)
+  // Il bagliore sparisce SOLO quando l'utente risponde (accetta o rifiuta), non quando clicca sulla card
   const shouldGlow = isCalendar && bellNotificationCount > 0;
   
   const content = (
