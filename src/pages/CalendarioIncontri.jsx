@@ -483,12 +483,6 @@ export default function CalendarioIncontri() {
               <span className="text-slate-900 font-bold text-lg">{futureEventsCount}</span>
             </div>
             <h1 className="text-white text-xl font-bold">Calendario Incontri</h1>
-            {/* Campanella notifica a destra del titolo */}
-            <NotificationBell 
-              count={hasNewEvent ? 1 : 0}
-              hasNewNotification={hasNewEvent}
-              onViewed={() => setHasNewEvent(false)}
-            />
           </div>
           
           {isAdmin ? (
