@@ -982,9 +982,8 @@ export default function CalendarioIncontri() {
                             </div>
                             {!isBlocked && (
                               <Button
-                                variant="outline"
                                 size="sm"
-                                className="w-full border-lime-400 text-lime-400 hover:bg-lime-400/20"
+                                className="w-full bg-white hover:bg-slate-100 text-slate-900 font-medium"
                                 onClick={() => setChangeResponseEvent(event)}
                               >
                                 Cambia la tua risposta
