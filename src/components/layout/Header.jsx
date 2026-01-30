@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { Menu, X, LogOut, Settings, Users, User, Eye, XCircle, Bell } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Menu, X, LogOut, Settings, User, Eye, XCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
@@ -7,9 +7,8 @@ import { cn } from '@/lib/utils';
 import { useImpersonation } from '../admin/ImpersonationContext';
 import ImpersonationDialog from '../admin/ImpersonationDialog';
 import { normalizeUser, isUserConsultant } from '../utils/normalizeUser';
-import NotificationBell from '../ui/NotificationBell';
 
-export default function Header({ user, totalNotifications = 0, hasNewNotification = false, onNotificationViewed = () => {} }) {
+export default function Header({ user }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [impersonationDialogOpen, setImpersonationDialogOpen] = useState(false);
   const { impersonation, startImpersonation, stopImpersonation } = useImpersonation();
@@ -95,15 +94,6 @@ export default function Header({ user, totalNotifications = 0, hasNewNotificatio
               Admin
             </button>
           )}
-
-          {/* Notification Bell */}
-          <Link to={createPageUrl('CalendarioIncontri')}>
-            <NotificationBell 
-              count={totalNotifications} 
-              hasNewNotification={hasNewNotification}
-              onViewed={onNotificationViewed}
-            />
-          </Link>
           
           <button 
             onClick={() => setMenuOpen(!menuOpen)}
