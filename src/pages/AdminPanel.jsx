@@ -246,7 +246,8 @@ export default function AdminPanel() {
   // Subscribe real-time agli eventi
   useEffect(() => {
     const unsubscribe = base44.entities.Event.subscribe((event) => {
-      if (event.type === 'create') {
+      // Suona e attiva glow solo se arriva un evento in pending (da approvare)
+      if (event.type === 'create' && event.data?.approval_status === 'pending') {
         playSound();
         setHasNewNotification(true);
       }
@@ -257,13 +258,13 @@ export default function AdminPanel() {
     return unsubscribe;
   }, [queryClient, playSound]);
 
-  // Traccia quando cambiano gli eventi per attivare il glow
+  // Traccia quando arrivano nuovi eventi pending per attivare il glow
   useEffect(() => {
-    if (futureEventsCount > lastEventCount && lastEventCount > 0) {
+    if (pendingApprovalEventsCount > lastEventCount && lastEventCount > 0) {
       setHasNewNotification(true);
     }
-    setLastEventCount(futureEventsCount);
-  }, [futureEventsCount, lastEventCount]);
+    setLastEventCount(pendingApprovalEventsCount);
+  }, [pendingApprovalEventsCount, lastEventCount]);
 
   const [showVideoRequests, setShowVideoRequests] = useState(false);
   const [showAllMessages, setShowAllMessages] = useState(false);
