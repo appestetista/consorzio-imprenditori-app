@@ -148,21 +148,6 @@ export default function Header({ user }) {
             </button>
           )}
           
-          {/* Campanella Notifiche */}
-          <Link 
-            to={createPageUrl('Home')}
-            className="relative p-2"
-          >
-            <div className="w-9 h-9 bg-fuchsia-500 rounded-full flex items-center justify-center">
-              <Bell className="w-5 h-5 text-white" />
-            </div>
-            {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-white text-fuchsia-600 text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center shadow-lg">
-                {unreadCount > 9 ? '9+' : unreadCount}
-              </span>
-            )}
-          </Link>
-          
           <button 
             onClick={() => setMenuOpen(!menuOpen)}
             className="bg-lime-400 p-2 rounded-lg"
