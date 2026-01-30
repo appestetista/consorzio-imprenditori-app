@@ -39,28 +39,40 @@ export default function EventInvitePopup({ user }) {
     }
   }, [partecipazioni, events]);
 
+  const [respondingTo, setRespondingTo] = useState(null); // 'accept' | 'decline' | null
+
   const respondMutation = useMutation({
     mutationFn: async ({ partecipazioneId, response }) => {
       const newStato = response === 'accept' ? 'confermato' : 'non_confermato';
-      console.log('[INVITE POPUP] Updating partecipazione:', partecipazioneId, 'to stato:', newStato);
       const result = await base44.entities.PartecipazioniEvento.update(partecipazioneId, {
         stato: newStato
       });
-      console.log('[INVITE POPUP] Update result:', result);
-      return result;
+      return { result, response };
     },
-    onSuccess: (data) => {
-      console.log('[INVITE POPUP] Mutation success, invalidating queries');
+    onSuccess: ({ response }) => {
       queryClient.invalidateQueries({ queryKey: ['partecipazioni-utente'] });
       queryClient.invalidateQueries({ queryKey: ['partecipazioni-eventi'] });
       queryClient.invalidateQueries({ queryKey: ['partecipazioni-home'] });
       queryClient.invalidateQueries({ queryKey: ['all-future-events-home'] });
-      setPendingInvite(null);
+      // Mostra brevemente il successo prima di chiudere
+      setTimeout(() => {
+        setPendingInvite(null);
+        setRespondingTo(null);
+      }, 800);
     },
     onError: (error) => {
       console.error('[INVITE POPUP] Mutation error:', error);
+      setRespondingTo(null);
     }
   });
+
+  const handleRespond = (response) => {
+    setRespondingTo(response);
+    respondMutation.mutate({ 
+      partecipazioneId: partecipazione.id, 
+      response 
+    });
+  };
 
   const [dismissed, setDismissed] = useState(false);
 
