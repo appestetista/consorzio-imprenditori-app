@@ -81,8 +81,10 @@ export default function EventZoneManager({ event, open, onClose }) {
       // Tutte le zone con tipo globale
       allUsers.forEach(u => {
         if (u.role === 'admin') return;
-        const isUser = u.role === 'user' || u.user_type === 'utente';
-        const isConsultant = u.role === 'consulente' || u.user_type === 'consulente';
+        // Supporta sia user_type diretto che annidato in data
+        const userType = u.user_type || u.data?.user_type;
+        const isUser = userType === 'utente' || (u.role === 'user' && !userType);
+        const isConsultant = userType === 'consulente';
         
         if (globalRecipientType === 'all') {
           targetUsers.push(u);
@@ -96,12 +98,15 @@ export default function EventZoneManager({ event, open, onClose }) {
       // Zone specifiche con visibilità per zona
       allUsers.forEach(u => {
         if (u.role === 'admin') return;
-        const userZone = u.zona || u.zone;
+        // Supporta sia zona diretta che annidata in data
+        const userZone = u.zona || u.zone || u.data?.zona || u.data?.zone;
         if (!userZone || !selectedZones.includes(userZone)) return;
         
         const zoneTarget = zoneVisibility[userZone] || 'all';
-        const isUser = u.role === 'user' || u.user_type === 'utente';
-        const isConsultant = u.role === 'consulente' || u.user_type === 'consulente';
+        // Supporta sia user_type diretto che annidato in data
+        const userType = u.user_type || u.data?.user_type;
+        const isUser = userType === 'utente' || (u.role === 'user' && !userType);
+        const isConsultant = userType === 'consulente';
         
         if (zoneTarget === 'all') {
           targetUsers.push(u);
