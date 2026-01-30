@@ -105,7 +105,7 @@ export default function CalendarioIncontri() {
   useEffect(() => {
     const unsubscribe = base44.entities.Event.subscribe((event) => {
       if (event.type === 'create') {
-        playSound();
+        if (playSound) playSound();
         setHasNewEvent(true);
       }
       queryClient.invalidateQueries({ queryKey: ['events'] });
