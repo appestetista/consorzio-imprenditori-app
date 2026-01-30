@@ -10,44 +10,31 @@ Deno.serve(async (req) => {
             return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
         }
 
-        // Prova diversi metodi per recuperare le conversazioni
+        // Recupera conversazioni con service role
         let conversations = [];
+        let errors = [];
         
-        // Metodo 1: listConversations con agent_name
         try {
-            conversations = await base44.agents.listConversations({
-                agent_name: 'event_notifier'
+            conversations = await base44.asServiceRole.agents.listConversations({
+                agent_name: 'event_notifier',
+                limit: 100
             });
-            console.log(`Method 1 (listConversations): Found ${conversations?.length || 0} conversations`);
+            console.log(`Found ${conversations?.length || 0} conversations`);
         } catch (e) {
-            console.log('Method 1 failed:', e.message);
+            errors.push(`listConversations error: ${e.message}`);
+            console.log('listConversations failed:', e.message);
         }
 
-        // Metodo 2: prova senza parametri
-        if (!conversations || conversations.length === 0) {
-            try {
-                conversations = await base44.agents.listConversations();
-                console.log(`Method 2 (no params): Found ${conversations?.length || 0} conversations`);
-            } catch (e) {
-                console.log('Method 2 failed:', e.message);
-            }
-        }
-
-        // Metodo 3: prova con asServiceRole
-        if (!conversations || conversations.length === 0) {
-            try {
-                conversations = await base44.asServiceRole.agents.listConversations({
-                    agent_name: 'event_notifier'
-                });
-                console.log(`Method 3 (asServiceRole): Found ${conversations?.length || 0} conversations`);
-            } catch (e) {
-                console.log('Method 3 failed:', e.message);
-            }
-        }
-
-        console.log(`Total found: ${conversations?.length || 0} conversations`);
+        // Log dettagliato delle conversazioni trovate
         if (conversations?.length > 0) {
-            console.log('First conversation:', JSON.stringify(conversations[0], null, 2));
+            conversations.forEach((conv, i) => {
+                console.log(`Conv ${i}:`, JSON.stringify({
+                    id: conv.id,
+                    user_email: conv.user_email,
+                    metadata: conv.metadata,
+                    created_date: conv.created_date
+                }));
+            });
         }
 
         // Recupera tutti gli utenti
