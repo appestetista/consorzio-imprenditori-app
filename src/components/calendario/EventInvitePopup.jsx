@@ -42,14 +42,23 @@ export default function EventInvitePopup({ user }) {
   const respondMutation = useMutation({
     mutationFn: async ({ partecipazioneId, response }) => {
       const newStato = response === 'accept' ? 'confermato' : 'non_confermato';
-      return base44.entities.PartecipazioniEvento.update(partecipazioneId, {
+      console.log('[INVITE POPUP] Updating partecipazione:', partecipazioneId, 'to stato:', newStato);
+      const result = await base44.entities.PartecipazioniEvento.update(partecipazioneId, {
         stato: newStato
       });
+      console.log('[INVITE POPUP] Update result:', result);
+      return result;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('[INVITE POPUP] Mutation success, invalidating queries');
       queryClient.invalidateQueries({ queryKey: ['partecipazioni-utente'] });
       queryClient.invalidateQueries({ queryKey: ['partecipazioni-eventi'] });
+      queryClient.invalidateQueries({ queryKey: ['partecipazioni-home'] });
+      queryClient.invalidateQueries({ queryKey: ['all-future-events-home'] });
       setPendingInvite(null);
+    },
+    onError: (error) => {
+      console.error('[INVITE POPUP] Mutation error:', error);
     }
   });
 
