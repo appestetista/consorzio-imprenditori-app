@@ -90,9 +90,9 @@ export default function CalendarioIncontri() {
       if (event.approval_status !== 'approved' && event.approval_status) return false;
       
       // Filtra per zona e tipo utente usando zone_visibility
-      const userZone = user?.zona || user?.zone;
-      const isUserType = user?.user_type === 'utente' || user?.role === 'user';
-      const isConsultantType = user?.user_type === 'consulente' || user?.role === 'consulente';
+      const userZone = (user?.zona || user?.zone || '').toLowerCase();
+      const isUserType = user?.user_type === 'utente' || (user?.role === 'user' && user?.user_type !== 'consulente');
+      const isConsultantType = user?.user_type === 'consulente';
       
       if (event.zone_visibility && event.zone_visibility.length > 0) {
         // Cerca se c'è __all__ (tutte le zone)
@@ -106,8 +106,10 @@ export default function CalendarioIncontri() {
           return false;
         }
         
-        // Cerca la configurazione per la zona dell'utente
-        const zoneConfig = event.zone_visibility.find(zv => zv.zone === userZone);
+        // Cerca la configurazione per la zona dell'utente (case-insensitive)
+        const zoneConfig = event.zone_visibility.find(zv => 
+          zv.zone?.toLowerCase() === userZone
+        );
         if (!zoneConfig) return false; // La zona dell'utente non è nelle zone selezionate
         
         const target = zoneConfig.target || 'all';
@@ -117,9 +119,9 @@ export default function CalendarioIncontri() {
         return false;
       }
       
-      // Retrocompatibilità: se c'è solo visible_to_zones senza zone_visibility
+      // Retrocompatibilità: se c'è solo visible_to_zones senza zone_visibility (case-insensitive)
       if (event.visible_to_zones && event.visible_to_zones.length > 0) {
-        if (!userZone || !event.visible_to_zones.includes(userZone)) return false;
+        if (!userZone || !event.visible_to_zones.some(z => z?.toLowerCase() === userZone)) return false;
       }
       
       return true;
