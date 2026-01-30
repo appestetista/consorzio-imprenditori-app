@@ -594,7 +594,7 @@ export default function Home() {
   const isConsultant = isUserConsultant(effectiveUser);
 
   const features = [
-    { title: 'Calendario\nincontri', icon: Calendar, page: 'CalendarioIncontri', notifications: eventNotifications, permission: 'calendario', eventCount: allFutureEvents.length },
+    { title: 'Calendario\nincontri', icon: Calendar, page: 'CalendarioIncontri', notifications: eventNotifications, permission: 'calendario', eventCount: allFutureEvents.length, pendingInvites: pendingEventInvites },
     { title: 'Video\ninterviste', icon: Video, page: 'VideoInterviste', notifications: videoNotifications, permission: 'video_interviste' },
     { title: 'Academy', icon: BookOpen, page: 'CulturaAziendale', notifications: culturaAziendaleNotifications, permission: 'cultura_aziendale' },
     { title: isConsultant ? 'Richieste di\nConsulenza' : 'Consulenze', icon: Briefcase, page: 'Consulenze', notifications: consultationNotifications, permission: 'consulenze', bottomBadge: isConsultant ? (pendingConsultationRequests > 0 ? pendingConsultationRequests : null) : (freeConsultationsCount > 0 ? freeConsultationsCount : null), bottomBadgeType: isConsultant ? 'requests' : 'consultations' },
@@ -671,6 +671,7 @@ export default function Home() {
                                 bottomBadge={feature.bottomBadge}
                                 bottomBadgeType={feature.bottomBadgeType}
                                 eventCount={feature.eventCount || 0}
+                                pendingInvites={feature.pendingInvites || 0}
                               />
           ))}
         </div>
