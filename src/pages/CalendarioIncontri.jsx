@@ -1272,22 +1272,30 @@ export default function CalendarioIncontri() {
                 <Button
                   className="bg-green-600 hover:bg-green-700 text-white flex items-center justify-center text-sm"
                   disabled={respondToEventMutation.isPending}
-                  onClick={() => {
-                    respondToEventMutation.mutate({ eventId: changeResponseEvent.id, response: 'accept' });
+                  onClick={async () => {
+                    await respondToEventMutation.mutateAsync({ eventId: changeResponseEvent.id, response: 'accept' });
                   }}
                 >
-                  <Check className="w-4 h-4 mr-1 flex-shrink-0" />
-                  <span className="truncate">{respondToEventMutation.isPending ? '...' : 'Parteciperò'}</span>
+                  {respondToEventMutation.isPending ? (
+                    <div className="w-4 h-4 mr-1 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Check className="w-4 h-4 mr-1 flex-shrink-0" />
+                  )}
+                  <span className="truncate">Parteciperò</span>
                 </Button>
                 <Button
                   className="bg-red-600 hover:bg-red-700 text-white flex items-center justify-center text-sm"
                   disabled={respondToEventMutation.isPending}
-                  onClick={() => {
-                    respondToEventMutation.mutate({ eventId: changeResponseEvent.id, response: 'decline' });
+                  onClick={async () => {
+                    await respondToEventMutation.mutateAsync({ eventId: changeResponseEvent.id, response: 'decline' });
                   }}
                 >
-                  <X className="w-4 h-4 mr-1 flex-shrink-0" />
-                  <span className="truncate">{respondToEventMutation.isPending ? '...' : 'Non parteciperò'}</span>
+                  {respondToEventMutation.isPending ? (
+                    <div className="w-4 h-4 mr-1 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <X className="w-4 h-4 mr-1 flex-shrink-0" />
+                  )}
+                  <span className="truncate">Non parteciperò</span>
                 </Button>
               </div>
             </div>
