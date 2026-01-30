@@ -230,6 +230,13 @@ export default function EventZoneManager({ event, open, onClose }) {
         }
       }
 
+      // Invia notifiche WhatsApp
+      try {
+        await base44.functions.invoke('sendEventWhatsAppNotification', { event });
+      } catch (e) {
+        console.error('Errore invio WhatsApp:', e);
+      }
+
       return { notifiedCount: targetUsers.length };
     },
     onSuccess: () => {
