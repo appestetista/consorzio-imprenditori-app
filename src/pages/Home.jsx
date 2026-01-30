@@ -23,6 +23,8 @@ export default function Home() {
   const queryClient = useQueryClient();
   const { playSound } = useNotificationSound();
   const [showChangeResponse, setShowChangeResponse] = useState(false);
+  const [hasNewNotification, setHasNewNotification] = useState(false);
+  const [lastNotificationCount, setLastNotificationCount] = useState(0);
   const navigate = useNavigate();
 
   // DEBUG LOG
