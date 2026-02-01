@@ -600,8 +600,8 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
                         </div>
                         
                         {/* Footer con data e azioni */}
-                        <div className="flex items-center justify-between">
-                          <p className="text-slate-500 text-xs flex items-center gap-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-slate-500 text-xs flex items-center gap-1 flex-shrink-0">
                             <Clock className="w-3 h-3" />
                             {new Date(request.created_date).toLocaleDateString('it-IT', {
                               day: 'numeric',
@@ -609,12 +609,12 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
                               year: 'numeric'
                             })}
                           </p>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 flex-shrink-0">
                             {request.status === 'pending' && (
                               <Button
                                 size="sm"
                                 variant="outline"
-                                className="border-lime-400 text-lime-400 hover:bg-lime-400/20 h-7 text-xs"
+                                className="border-lime-400 text-lime-400 hover:bg-lime-400/20 h-7 text-xs px-2"
                                 onClick={() => markVideoRequestReadMutation.mutate(request.id)}
                               >
                                 <Eye className="w-3 h-3 mr-1" />
@@ -627,7 +627,7 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
                                   deleteVideoRequestMutation.mutate(request.id);
                                 }
                               }}
-                              className="text-red-400 hover:text-red-500 p-1"
+                              className="text-red-400 hover:text-red-500 p-1 flex-shrink-0"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
