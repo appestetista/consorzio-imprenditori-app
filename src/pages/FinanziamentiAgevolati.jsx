@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Sparkles, AlertCircle, Info, Briefcase, XCircle, Building2, CalendarDays, MessageSquare, Mail, Eye, Trash2, User, Phone, Search, Loader2, Plus, Edit, Share2, Archive, ExternalLink, CheckCircle2 } from 'lucide-react';
-import { useAILimits } from '@/components/hooks/useAILimits';
-import UsageCounter from '@/components/common/UsageCounter';
+
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
