@@ -266,7 +266,7 @@ export default function VideoInterviste() {
 
   const requestInterviewMutation = useMutation({
     mutationFn: async () => {
-      if (!requestMessage.trim()) return;
+      if (!requestMessage.trim()) throw new Error('Messaggio vuoto');
       
       // Usa sempre user (l'utente reale loggato), non effectiveUser
       const requestingUser = user;
