@@ -679,8 +679,8 @@ export default function Home() {
   const features = [
     { title: 'Calendario\nincontri', icon: Calendar, page: 'CalendarioIncontri', notifications: eventNotifications, permission: 'calendario', eventCount: totalFutureEventsCount, pendingInvites: pendingEventInvites },
     { title: 'Video\ninterviste', icon: Video, page: 'VideoInterviste', notifications: videoNotifications, permission: 'video_interviste', newVideosCount: videosData.newCount, totalVideosCount: videosData.totalCount, hasVisitedVideos: videosData.hasVisited, latestVideoDate: videosData.latestVideoDate },
-    { title: 'Finanziamenti\nagevolati', icon: Sparkles, page: 'FinanziamentiAgevolati', notifications: isNotAdmin ? newGrantsCount : 0, permission: 'finanziamenti' },
-    { title: 'Risparmio', icon: Euro, page: 'RisparmioEnergetico', notifications: 0, permission: 'risparmio_energetico' },
+    { title: 'Finanziamenti\nagevolati', icon: Euro, page: 'FinanziamentiAgevolati', notifications: isNotAdmin ? newGrantsCount : 0, permission: 'finanziamenti' },
+    { title: 'Risparmio', icon: PiggyBank, page: 'RisparmioEnergetico', notifications: 0, permission: 'risparmio_energetico' },
     { title: 'Consigli da\nImprenditori', icon: Handshake, page: 'Imprenditori', notifications: unviewedPollsCount, permission: 'imprenditori' },
     { title: 'Contatta\nImprenditori', icon: User, page: 'GestioneMembri', notifications: messages.length, permission: 'contatta_membri' },
     { title: isConsultant ? 'Richieste di\nConsulenza' : 'Consulenze', icon: Briefcase, page: 'Consulenze', notifications: consultationNotifications, permission: 'consulenze', bottomBadge: isConsultant ? (pendingConsultationRequests > 0 ? pendingConsultationRequests : null) : (freeConsultationsCount > 0 ? freeConsultationsCount : null), bottomBadgeType: isConsultant ? 'requests' : 'consultations' },
