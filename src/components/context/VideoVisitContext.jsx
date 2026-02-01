@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 const VideoVisitContext = createContext();
 
 export function VideoVisitProvider({ children }) {
-  // Usa timestamp invece di booleano per confronto con nuovi video
+  // Usa timestamp invece di booleano per confronto con nuovi video (sessione corrente)
   const [lastVisitTimestamp, setLastVisitTimestamp] = useState(() => {
     const stored = sessionStorage.getItem('videoVisitTimestamp');
     return stored ? parseInt(stored, 10) : null;
@@ -17,13 +17,19 @@ export function VideoVisitProvider({ children }) {
   }, [lastVisitTimestamp]);
 
   const markVideosAsVisited = () => {
-    setLastVisitTimestamp(Date.now());
+    const now = Date.now();
+    console.log('[VideoVisitContext] markVideosAsVisited - timestamp:', now);
+    setLastVisitTimestamp(now);
   };
 
-  // Controlla se ci sono video nuovi rispetto all'ultima visita
+  // Controlla se ci sono video nuovi rispetto all'ultima visita nella SESSIONE
+  // Ritorna true se il video più recente è stato creato DOPO l'ultima visita (sessione)
   const hasNewVideosSince = (latestVideoDate) => {
     if (!lastVisitTimestamp || !latestVideoDate) return true;
-    return new Date(latestVideoDate).getTime() > lastVisitTimestamp;
+    const videoTime = new Date(latestVideoDate).getTime();
+    const result = videoTime > lastVisitTimestamp;
+    console.log('[VideoVisitContext] hasNewVideosSince:', { latestVideoDate, lastVisitTimestamp, videoTime, result });
+    return result;
   };
 
   const resetVideoVisit = () => {
