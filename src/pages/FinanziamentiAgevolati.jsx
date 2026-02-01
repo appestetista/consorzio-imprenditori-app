@@ -563,8 +563,16 @@ export default function FinanziamentiAgevolati() {
     return true;
   };
 
-  // TUTTI vedono TUTTI i bandi - l'ordinamento per regione/nazione/europa avviene dopo
-  const filteredGrants = allGrants.filter(applyFilters);
+  // Filtra per confidence_level: utenti vedono solo alto/medio, admin vedono tutto
+  const grantsFilteredByConfidence = allGrants.filter(g => {
+    // Admin vede tutti i bandi
+    if (isRealAdmin) return true;
+    // Utenti vedono solo bandi con confidence alto o medio (o null per retrocompatibilità)
+    return !g.confidence_level || g.confidence_level === 'alto' || g.confidence_level === 'medio';
+  });
+
+  // Applica filtri avanzati
+  const filteredGrants = grantsFilteredByConfidence.filter(applyFilters);
 
   // RIMOSSO: AI recommendations automatiche - ora l'utente deve cliccare il pulsante manualmente
 

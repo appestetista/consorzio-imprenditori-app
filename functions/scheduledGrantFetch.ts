@@ -65,36 +65,57 @@ Deno.serve(async (req) => {
                 console.log(`Fetching from: ${url}`);
                 try {
                     const response = await openai.chat.completions.create({
-                        model: "gpt-4o-mini",
-                        messages: [
-                            {
-                                role: "system",
-                                content: "Sei un esperto di bandi e finanziamenti per imprese italiane. Rispondi SOLO con JSON valido."
-                            },
-                            {
-                                role: "user",
-                                content: `Analizza il sito ${url} e estrai i bandi/incentivi APERTI per imprese italiane. Max 10 bandi principali.
+                    model: "gpt-4o-mini",
+                    messages: [
+                    {
+                        role: "system",
+                        content: `Sei un sistema di estrazione dati strutturati da fonti pubbliche istituzionali.
+                    Il tuo compito è estrarre bandi di finanziamento agevolato in modo rigoroso.
 
-Per ogni bando estrai (usa null se non disponibile):
-- title: Titolo
-- description: Descrizione breve (max 200 caratteri)  
-- ente_erogatore: UE/Stato/Regione/Altro
-- livello: Europeo/Nazionale/Regionale
-- grant_type: Digitalizzazione/Innovazione/Ricerca e Sviluppo/Energia/Sostenibilità/Internazionalizzazione/Altro
-- funding_type: Contributo a fondo perduto/Finanziamento agevolato/Credito d'imposta/Misto
-- coverage_percentage: numero 0-100
-- min_amount, max_amount: importi euro
-- status: Aperto/In apertura/Chiuso
-- deadline: YYYY-MM-DD
-- eligible_company_sizes: ["Micro","Piccola","Media","Grande"]
-- eligible_regions: array regioni (vuoto se nazionale)
-- website_url: URL DIRETTO alla pagina ufficiale del bando
+                    NON devi:
+                    - inventare bandi
+                    - completare dati mancanti
+                    - fare supposizioni
 
-Solo bandi REALI e ATTUALI. Rispondi con: {"grants": [...]}`
-                            }
-                        ],
-                        max_tokens: 4096,
-                        temperature: 0.3
+                    DEVI:
+                    - dichiarare ogni incertezza
+                    - restituire solo informazioni esplicitamente presenti nella fonte
+                    - rispondere SOLO con JSON valido`
+                    },
+                    {
+                        role: "user",
+                        content: `Analizza il sito ${url} ed estrai i bandi di finanziamento agevolato.
+
+                    REGOLE DI ESTRAZIONE:
+                    1. Estrai al massimo 10 bandi distinti.
+                    2. Ogni bando deve avere almeno: titolo ufficiale, ente erogatore, stato (Aperto/In apertura/Chiuso).
+                    3. Se una informazione NON è presente o NON è chiara, imposta il campo a null.
+                    4. Se non sei sicuro che un elemento sia un bando, NON estrarlo.
+                    5. NON dedurre deadline, importi o percentuali.
+
+                    Per ogni bando estrai:
+                    - title: Titolo ufficiale completo
+                    - description: Descrizione breve (max 200 caratteri) o null
+                    - ente_erogatore: UE/Stato/Regione/Altro
+                    - livello: Europeo/Nazionale/Regionale
+                    - grant_type: Digitalizzazione/Innovazione/Ricerca e Sviluppo/Energia/Sostenibilità/Internazionalizzazione/Altro
+                    - funding_type: Contributo a fondo perduto/Finanziamento agevolato/Credito d'imposta/Misto
+                    - coverage_percentage: numero 0-100 o null
+                    - min_amount, max_amount: importi euro o null
+                    - status: Aperto/In apertura/Chiuso
+                    - deadline: YYYY-MM-DD o null
+                    - eligible_company_sizes: ["Micro","Piccola","Media","Grande"] o null
+                    - eligible_regions: array regioni o null (null se nazionale)
+                    - website_url: URL DIRETTO alla pagina ufficiale o null
+                    - confidence_level: "alto" (dati certi e verificabili), "medio" (alcuni dati incerti), "basso" (molte incertezze)
+                    - extraction_notes: breve nota su eventuali incertezze o problemi
+
+                    Se NON trovi bandi validi, restituisci: {"grants": []}
+                    Altrimenti: {"grants": [...]}`
+                    }
+                    ],
+                    max_tokens: 4096,
+                    temperature: 0.2
                     });
 
                     const text = response.choices[0].message.content;
@@ -162,12 +183,14 @@ Solo bandi REALI e ATTUALI. Rispondi con: {"grants": [...]}`
                 status: validateEnum(grant.status, ['Aperto', 'In apertura', 'Chiuso'], 'Aperto'),
                 opening_date: grant.opening_date || null,
                 deadline: grant.deadline || null,
-                eligible_company_sizes: grant.eligible_company_sizes || ['Micro', 'Piccola', 'Media', 'Grande'],
-                eligible_regions: grant.eligible_regions || [],
+                eligible_company_sizes: grant.eligible_company_sizes || null,
+                eligible_regions: grant.eligible_regions || null,
                 access_mode: validateEnum(grant.access_mode, ['Sportello', 'Graduatoria'], 'Sportello'),
                 requires_cofinancing: grant.requires_cofinancing || false,
                 website_url: grant.website_url || null,
-                is_archived: false
+                is_archived: false,
+                confidence_level: validateEnum(grant.confidence_level, ['alto', 'medio', 'basso'], 'medio'),
+                extraction_notes: grant.extraction_notes || null
             };
 
             if (existing) {

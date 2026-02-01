@@ -51,36 +51,55 @@ async function fetchAndSaveGrants(base44) {
                 messages: [
                     {
                         role: "system",
-                        content: "Sei un esperto di bandi e finanziamenti per imprese italiane. Rispondi SOLO con JSON valido."
+                        content: `Sei un sistema di estrazione dati strutturati da fonti pubbliche istituzionali.
+Il tuo compito è estrarre bandi di finanziamento agevolato in modo rigoroso.
+
+NON devi:
+- inventare bandi
+- completare dati mancanti
+- fare supposizioni
+
+DEVI:
+- dichiarare ogni incertezza
+- restituire solo informazioni esplicitamente presenti nella fonte
+- rispondere SOLO con JSON valido`
                     },
                     {
                         role: "user",
-                        content: `Analizza il sito ${source.url} e estrai TUTTI i bandi e incentivi attualmente disponibili per le imprese italiane.
+                        content: `Analizza il sito ${source.url} ed estrai i bandi di finanziamento agevolato.
 
-Per ogni bando trovato, estrai:
-1. title: Titolo completo del bando
-2. description: Descrizione dettagliata (cosa finanzia, obiettivi)
-3. ente_erogatore: Chi eroga il finanziamento (UE, Stato, Regione, Altro)
-4. livello: Europeo, Nazionale o Regionale
-5. grant_type: Tipo (Digitalizzazione, Innovazione, Ricerca e Sviluppo, Energia/Sostenibilità, Internazionalizzazione, Altro)
-6. funding_type: Forma agevolazione (Contributo a fondo perduto, Finanziamento agevolato, Credito d'imposta, Misto)
-7. coverage_percentage: Percentuale copertura stimata (numero 0-100)
-8. min_amount: Importo minimo in euro (solo numero)
-9. max_amount: Importo massimo in euro (solo numero)
-10. status: Stato (Aperto, In apertura, Chiuso)
-11. opening_date: Data apertura formato YYYY-MM-DD (se disponibile)
-12. deadline: Scadenza formato YYYY-MM-DD (se disponibile)
-13. eligible_company_sizes: Array con dimensioni ammesse ["Micro", "Piccola", "Media", "Grande"]
-14. eligible_regions: Array regioni ammesse (vuoto se nazionale)
-15. access_mode: Sportello o Graduatoria
-16. requires_cofinancing: true/false se richiede cofinanziamento
+REGOLE DI ESTRAZIONE:
+1. Estrai al massimo 10 bandi distinti.
+2. Ogni bando deve avere almeno: titolo ufficiale, ente erogatore, stato (Aperto/In apertura/Chiuso).
+3. Se una informazione NON è presente o NON è chiara, imposta il campo a null.
+4. Se non sei sicuro che un elemento sia un bando, NON estrarlo.
+5. NON dedurre deadline, importi o percentuali.
 
-Estrai SOLO bandi reali e attuali. Non inventare dati. Se un campo non è disponibile, usa null.
-Rispondi con: {"grants": [...]}`
+Per ogni bando estrai:
+- title: Titolo ufficiale completo
+- description: Descrizione dettagliata (cosa finanzia, obiettivi) o null
+- ente_erogatore: UE/Stato/Regione/Altro
+- livello: Europeo/Nazionale/Regionale
+- grant_type: Digitalizzazione/Innovazione/Ricerca e Sviluppo/Energia/Sostenibilità/Internazionalizzazione/Altro
+- funding_type: Contributo a fondo perduto/Finanziamento agevolato/Credito d'imposta/Misto
+- coverage_percentage: numero 0-100 o null
+- min_amount, max_amount: importi euro o null
+- status: Aperto/In apertura/Chiuso
+- opening_date: YYYY-MM-DD o null
+- deadline: YYYY-MM-DD o null
+- eligible_company_sizes: ["Micro","Piccola","Media","Grande"] o null
+- eligible_regions: array regioni o null (null se nazionale)
+- access_mode: Sportello/Graduatoria o null
+- requires_cofinancing: true/false o null
+- confidence_level: "alto" (dati certi e verificabili), "medio" (alcuni dati incerti), "basso" (molte incertezze)
+- extraction_notes: breve nota su eventuali incertezze o problemi
+
+Se NON trovi bandi validi, restituisci: {"grants": []}
+Altrimenti: {"grants": [...]}`
                     }
                 ],
                 max_tokens: 4096,
-                temperature: 0.3
+                temperature: 0.2
             });
 
             const text = response.choices[0].message.content;
@@ -179,13 +198,15 @@ Rispondi con JSON: {"min_amount": null, "max_amount": null, "coverage_percentage
             status: enrichedGrant.status || 'Aperto',
             opening_date: enrichedGrant.opening_date || null,
             deadline: enrichedGrant.deadline || null,
-            eligible_company_sizes: enrichedGrant.eligible_company_sizes || ['Micro', 'Piccola', 'Media', 'Grande'],
-            eligible_regions: enrichedGrant.eligible_regions || [],
+            eligible_company_sizes: enrichedGrant.eligible_company_sizes || null,
+            eligible_regions: enrichedGrant.eligible_regions || null,
             access_mode: enrichedGrant.access_mode || 'Sportello',
             requires_cofinancing: enrichedGrant.requires_cofinancing || false,
             website_url: enrichedGrant.website_url || null,
             is_archived: false,
-            created_by_email: 'system@auto-import'
+            created_by_email: 'system@auto-import',
+            confidence_level: enrichedGrant.confidence_level || 'medio',
+            extraction_notes: enrichedGrant.extraction_notes || null
         };
 
         if (existing) {
