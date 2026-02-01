@@ -281,25 +281,30 @@ export default function VideoInterviste() {
         status: 'pending'
       });
       
-      // Crea notifica per tutti gli admin
-      const admins = await base44.entities.User.filter({ role: 'admin' });
-      for (const admin of admins) {
-        await base44.entities.Notification.create({
-          user_email: admin.email,
-          type: 'video',
-          title: 'Nuova Richiesta Video Intervista',
-          content: `${requestingUser.company_name || requestingUser.full_name} ha richiesto una video intervista`,
-          reference_id: request.id,
-          is_read: false
-        });
+      // Crea notifica per tutti gli admin (opzionale, non blocca se fallisce)
+      try {
+        const admins = await base44.entities.User.filter({ role: 'admin' });
+        for (const admin of admins) {
+          await base44.entities.Notification.create({
+            user_email: admin.email,
+            type: 'video',
+            title: 'Nuova Richiesta Video Intervista',
+            content: `${requestingUser.company_name || requestingUser.full_name} ha richiesto una video intervista`,
+            reference_id: request.id,
+            is_read: false
+          });
+        }
+      } catch (e) {
+        console.log('Errore creazione notifiche admin:', e);
       }
       
-      // Invia anche email
-      await base44.integrations.Core.SendEmail({
-        from_name: 'Piattaforma Consorzio',
-        to: 'consorzioimprenditori@gmail.com',
-        subject: `Richiesta Video Intervista - ${requestingUser.company_name || requestingUser.full_name}`,
-        body: `
+      // Invia anche email (opzionale, non blocca se fallisce)
+      try {
+        await base44.integrations.Core.SendEmail({
+          from_name: 'Piattaforma Consorzio',
+          to: 'consorzioimprenditori@gmail.com',
+          subject: `Richiesta Video Intervista - ${requestingUser.company_name || requestingUser.full_name}`,
+          body: `
 Nuova richiesta di video intervista dalla piattaforma:
 
 AZIENDA: ${requestingUser.company_name || 'N/A'}
@@ -312,8 +317,13 @@ ${requestMessage}
 
 ---
 Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
-        `
-      });
+          `
+        });
+      } catch (e) {
+        console.log('Errore invio email:', e);
+      }
+      
+      return request;
     },
     onSuccess: () => {
       console.log('[VIDEO] Richiesta inviata con successo, imposto requestSent=true');
