@@ -737,7 +737,7 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
             {requestSent ? (
               <div className="bg-green-500/20 border border-green-500/30 rounded-lg p-4 text-center">
                 <p className="text-green-400 font-medium">✓ Richiesta inviata</p>
-                <p className="text-slate-400 text-sm mt-1">Ti contatteremo al più presto</p>
+                <p className="text-slate-400 text-sm mt-1">Verrai contattato a breve</p>
               </div>
             ) : (
               <>

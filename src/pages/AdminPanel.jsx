@@ -608,8 +608,8 @@ export default function AdminPanel() {
                     {stats?.totalVideos || 0}
                   </span>
                   {pendingVideoRequests.length > 0 ? (
-                    <span className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center">
-                      <Bell className="w-2.5 h-2.5" />
+                    <span className="absolute top-1 right-1 bg-red-500 text-white text-[10px] rounded-full min-w-[16px] h-4 flex items-center justify-center font-bold px-1 border border-white">
+                      {pendingVideoRequests.length}
                     </span>
                   ) : (
                     <span className="absolute top-1 right-1 text-slate-400">
