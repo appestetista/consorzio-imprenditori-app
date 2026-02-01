@@ -261,11 +261,13 @@ export default function Home() {
       const latestVideoDate = allVideos[0]?.created_date || null;
       const hasVisited = !!effectiveUser?.last_video_view_at;
       
-      console.log('[HOME] videosData query:', { 
+      const lastViewAt = effectiveUser?.last_video_view_at;
+      console.log('[HOME] videosData query RAW:', { 
         totalCount, 
         latestVideoDate, 
         hasVisited, 
-        last_video_view_at: effectiveUser?.last_video_view_at 
+        last_video_view_at: lastViewAt,
+        effectiveUserEmail: effectiveUser?.email
       });
       
       if (!hasVisited) {
@@ -273,12 +275,15 @@ export default function Home() {
         console.log('[HOME] Prima visita - tutti i video sono nuovi');
         return { newCount: totalCount, totalCount, hasVisited: false, latestVideoDate };
       }
-      const lastViewed = new Date(effectiveUser.last_video_view_at);
-      const newCount = allVideos.filter(v => {
+      const lastViewed = new Date(lastViewAt);
+      let newCount = 0;
+      allVideos.forEach(v => {
         const videoDate = new Date(v.created_date);
-        return videoDate > lastViewed;
-      }).length;
-      console.log('[HOME] newCount calcolato:', newCount, 'lastViewed:', lastViewed.toISOString());
+        const isNewer = videoDate > lastViewed;
+        console.log('[HOME] Video check:', { title: v.title, created_date: v.created_date, videoDate: videoDate.toISOString(), lastViewed: lastViewed.toISOString(), isNewer });
+        if (isNewer) newCount++;
+      });
+      console.log('[HOME] newCount FINALE:', newCount);
       return { newCount, totalCount, hasVisited: true, latestVideoDate };
     },
     enabled: !!effectiveUser?.email,
