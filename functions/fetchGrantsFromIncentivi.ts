@@ -120,22 +120,17 @@ Altrimenti: {"grants": [...]}`
 
     console.log(`Extracted ${allGrants.length} grants total`);
 
-    // Recupera bandi esistenti per evitare duplicati
-    const existingGrants = await base44.asServiceRole.entities.FinancialGrant.list();
-    const existingTitles = new Set(existingGrants.map(g => g.title?.toLowerCase().trim()));
+    // Recupera solo bandi attivi per deduplicazione (ottimizzazione)
+    const allExistingGrants = await base44.asServiceRole.entities.FinancialGrant.list();
+    const activeGrants = allExistingGrants.filter(g => g.status !== 'Chiuso');
+    console.log(`Active grants for deduplication: ${activeGrants.length}`);
 
     let newGrantsCount = 0;
     let updatedGrantsCount = 0;
+    let skippedCount = 0;
 
     for (const grant of allGrants) {
         if (!grant.title) continue;
-
-        const titleLower = grant.title.toLowerCase().trim();
-        
-        // Controlla se esiste già
-        const existing = existingGrants.find(g => 
-            g.title?.toLowerCase().trim() === titleLower
-        );
 
         // Se mancano dati importanti (importo, copertura), cerca su altre fonti
         let enrichedGrant = { ...grant };
@@ -209,20 +204,37 @@ Rispondi con JSON: {"min_amount": null, "max_amount": null, "coverage_percentage
             extraction_notes: enrichedGrant.extraction_notes || null
         };
 
-        if (existing) {
-            // Aggiorna solo se ci sono cambiamenti significativi (es. status, deadline)
-            if (existing.status !== grantData.status || existing.deadline !== grantData.deadline) {
-                await base44.asServiceRole.entities.FinancialGrant.update(existing.id, {
-                    status: grantData.status,
-                    deadline: grantData.deadline,
-                    last_modified_by_email: 'system@auto-import'
-                });
-                updatedGrantsCount++;
+        // Filtra bandi esistenti per stesso ente erogatore
+        const candidatesForMatch = activeGrants.filter(g => g.ente_erogatore === grantData.ente_erogatore);
+        
+        // Esegui deduplicazione intelligente con LLM
+        const dedupResult = await checkDuplicateWithLLM(enrichedGrant, candidatesForMatch);
+        console.log(`Dedup result for "${grant.title}": ${dedupResult.match_type} (${dedupResult.confidence_score}%)`);
+
+        if (dedupResult.match_type === 'identico' && dedupResult.confidence_score >= 80) {
+            // Bando identico trovato - aggiorna solo se deadline o status sono cambiati
+            const matchedGrant = candidatesForMatch.find(g => g.id === dedupResult.matched_grant_id);
+            if (matchedGrant) {
+                if (matchedGrant.status !== grantData.status || matchedGrant.deadline !== grantData.deadline) {
+                    await base44.asServiceRole.entities.FinancialGrant.update(matchedGrant.id, {
+                        status: grantData.status,
+                        deadline: grantData.deadline,
+                        last_modified_by_email: 'system@auto-import'
+                    });
+                    updatedGrantsCount++;
+                    console.log(`Updated existing grant: ${matchedGrant.title}`);
+                } else {
+                    skippedCount++;
+                    console.log(`Skipped identical grant: ${grant.title}`);
+                }
+            } else {
+                skippedCount++;
             }
         } else {
-            // Crea nuovo bando
+            // Bando nuovo o simile - crea nuovo record
             await base44.asServiceRole.entities.FinancialGrant.create(grantData);
             newGrantsCount++;
+            console.log(`Created new grant: ${grant.title}`);
         }
     }
 
@@ -231,6 +243,7 @@ Rispondi con JSON: {"min_amount": null, "max_amount": null, "coverage_percentage
         totalExtracted: allGrants.length,
         newGrants: newGrantsCount,
         updatedGrants: updatedGrantsCount,
+        skipped: skippedCount,
         timestamp: new Date().toISOString()
     };
 
@@ -272,4 +285,90 @@ function mapFundingType(type) {
     if (typeLower.includes('misto')) return 'Misto';
     
     return 'Contributo a fondo perduto';
+}
+
+// Deduplicazione intelligente con LLM
+async function checkDuplicateWithLLM(newGrant, existingGrants) {
+    // Se non ci sono bandi esistenti, è sicuramente nuovo
+    if (!existingGrants || existingGrants.length === 0) {
+        return { match_type: 'nuovo', matched_grant_id: null, confidence_score: 100, reasoning: 'Nessun bando esistente per confronto' };
+    }
+
+    // Prepara lista bandi esistenti per il prompt (max 20 per evitare token limit)
+    const grantsForComparison = existingGrants.slice(0, 20).map(g => ({
+        id: g.id,
+        title: g.title,
+        ente_erogatore: g.ente_erogatore,
+        description: g.description?.substring(0, 100),
+        deadline: g.deadline,
+        status: g.status,
+        grant_type: g.grant_type
+    }));
+
+    try {
+        const response = await openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            messages: [
+                {
+                    role: "system",
+                    content: `Sei un sistema di confronto e deduplicazione di bandi di finanziamento.
+
+Il tuo compito è stabilire se il nuovo bando è:
+- lo stesso di uno esistente (identico)
+- simile ma distinto
+- completamente nuovo
+
+REGOLE:
+1. Confronta su: ente erogatore, obiettivo del bando, beneficiari, periodo temporale
+2. Il titolo da solo NON è sufficiente
+3. Se il livello di confidenza è < 80%, considera il bando come nuovo
+4. NON eliminare nulla
+5. NON fondere record
+
+Rispondi SOLO con JSON valido.`
+                },
+                {
+                    role: "user",
+                    content: `NUOVO BANDO DA VERIFICARE:
+${JSON.stringify({
+    title: newGrant.title,
+    ente_erogatore: newGrant.ente_erogatore,
+    description: newGrant.description?.substring(0, 200),
+    deadline: newGrant.deadline,
+    grant_type: newGrant.grant_type
+}, null, 2)}
+
+BANDI ESISTENTI NEL DATABASE:
+${JSON.stringify(grantsForComparison, null, 2)}
+
+OUTPUT RICHIESTO (JSON):
+{
+  "match_type": "identico" | "simile" | "nuovo",
+  "matched_grant_id": "string o null",
+  "confidence_score": numero 0-100,
+  "reasoning": "breve spiegazione"
+}`
+                }
+            ],
+            max_tokens: 500,
+            temperature: 0.1
+        });
+
+        const text = response.choices[0].message.content;
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+            const result = JSON.parse(jsonMatch[0]);
+            return {
+                match_type: result.match_type || 'nuovo',
+                matched_grant_id: result.matched_grant_id || null,
+                confidence_score: result.confidence_score || 0,
+                reasoning: result.reasoning || ''
+            };
+        }
+    } catch (err) {
+        console.error('LLM deduplication error:', err.message);
+    }
+
+    // In caso di errore, considera come nuovo (safe default)
+    return { match_type: 'nuovo', matched_grant_id: null, confidence_score: 0, reasoning: 'Errore durante deduplicazione' };
 }
