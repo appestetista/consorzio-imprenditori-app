@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Calendar, Euro, TrendingUp, ExternalLink, Zap, CheckCircle2, Bell, BellOff, Briefcase, Sparkles, Building2, HelpCircle, Users, X } from 'lucide-react';
+import { Calendar, Euro, TrendingUp, ExternalLink, Zap, CheckCircle2, Bell, BellOff, Briefcase, Sparkles, Building2, HelpCircle, Users, X, AlertTriangle, Info, ShieldCheck, ShieldAlert, ShieldQuestion } from 'lucide-react';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -31,7 +31,7 @@ function InfoTooltip({ title, description }) {
   );
 }
 
-export default function GrantCard({ grant, onDetails, userInterest, onToggleAlerts, onRequestConsultation, aiRecommendation, isTopRecommended, userProfile }) {
+export default function GrantCard({ grant, onDetails, userInterest, onToggleAlerts, onRequestConsultation, aiRecommendation, isTopRecommended, userProfile, isAdmin = false }) {
   const getStatusColor = (status) => {
     switch (status) {
       case 'Aperto': return 'bg-green-500';
@@ -60,7 +60,7 @@ export default function GrantCard({ grant, onDetails, userInterest, onToggleAler
       <CardHeader className="pb-3">
         {/* RIGA SUPERIORE: Badge status + data */}
         <div className="flex items-center justify-between gap-2 mb-2">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="text-xl">{getGrantTypeIcon(grant.grant_type)}</span>
             {grant.easy_access && (
               <Badge className="bg-lime-400 text-slate-900 font-bold text-[10px] px-1.5">
@@ -72,6 +72,19 @@ export default function GrantCard({ grant, onDetails, userInterest, onToggleAler
               <Badge className="bg-purple-600 text-white border-0 text-[10px] px-1.5">
                 <Sparkles className="w-3 h-3 mr-0.5" />
                 {aiRecommendation.score}%
+              </Badge>
+            )}
+            {/* Badge confidence_level - solo per admin */}
+            {isAdmin && grant.confidence_level && (
+              <Badge className={`text-[10px] px-1.5 ${
+                grant.confidence_level === 'alto' ? 'bg-green-600 text-white' :
+                grant.confidence_level === 'medio' ? 'bg-yellow-600 text-white' :
+                'bg-red-600 text-white'
+              }`}>
+                {grant.confidence_level === 'alto' && <ShieldCheck className="w-3 h-3 mr-0.5" />}
+                {grant.confidence_level === 'medio' && <ShieldQuestion className="w-3 h-3 mr-0.5" />}
+                {grant.confidence_level === 'basso' && <ShieldAlert className="w-3 h-3 mr-0.5" />}
+                {grant.confidence_level}
               </Badge>
             )}
           </div>
@@ -126,6 +139,16 @@ export default function GrantCard({ grant, onDetails, userInterest, onToggleAler
             <p className="text-purple-300 text-xs flex items-start gap-2">
               <Sparkles className="w-3 h-3 mt-0.5 flex-shrink-0" />
               <span>{aiRecommendation.reason}</span>
+            </p>
+          </div>
+        )}
+        
+        {/* Note estrazione - solo per admin */}
+        {isAdmin && grant.extraction_notes && (
+          <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg px-3 py-2">
+            <p className="text-orange-300 text-xs flex items-start gap-2">
+              <Info className="w-3 h-3 mt-0.5 flex-shrink-0" />
+              <span><strong>Note LLM:</strong> {grant.extraction_notes}</span>
             </p>
           </div>
         )}

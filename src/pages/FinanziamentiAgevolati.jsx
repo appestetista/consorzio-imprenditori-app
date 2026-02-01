@@ -1205,6 +1205,7 @@ Restituisci solo gli ID dei bandi compatibili.`,
                   onToggleAlerts={() => handleToggleAlerts(grant)}
                   onRequestConsultation={() => handleRequestConsultation(grant)}
                   userProfile={user}
+                  isAdmin={isRealAdmin}
                 />
               );
             })}
