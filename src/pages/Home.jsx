@@ -261,13 +261,17 @@ export default function Home() {
       const latestVideoDate = allVideos[0]?.created_date || null;
       const hasVisited = !!effectiveUser?.last_video_view_at;
       
-      const lastViewAt = effectiveUser?.last_video_view_at;
+      // Il campo può essere a livello root o dentro data
+      const lastViewAt = effectiveUser?.last_video_view_at || effectiveUser?.data?.last_video_view_at;
+      const hasVisitedReal = !!lastViewAt;
       console.log('[HOME] videosData query RAW:', { 
         totalCount, 
         latestVideoDate, 
-        hasVisited, 
+        hasVisited: hasVisitedReal, 
         last_video_view_at: lastViewAt,
-        effectiveUserEmail: effectiveUser?.email
+        effectiveUserEmail: effectiveUser?.email,
+        effectiveUserKeys: Object.keys(effectiveUser || {}),
+        dataKeys: Object.keys(effectiveUser?.data || {})
       });
       
       if (!hasVisited) {
