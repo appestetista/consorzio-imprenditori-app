@@ -27,11 +27,6 @@ export default function GrantFilters({ filters, onFilterChange }) {
             <div className="flex items-center gap-2">
               <Filter className="w-4 h-4 text-lime-400" />
               <span className="text-white font-medium text-sm">Ordina e Filtra</span>
-              {activeFiltersCount > 0 && (
-                <span className="bg-lime-400 text-slate-900 text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
-                  {activeFiltersCount}
-                </span>
-              )}
             </div>
             <div className="flex items-center gap-2 text-slate-400">
               <span className="text-xs">
