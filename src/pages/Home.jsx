@@ -259,19 +259,15 @@ export default function Home() {
       const allVideos = await base44.entities.Video.list('-created_date');
       const totalCount = allVideos.length;
       const latestVideoDate = allVideos[0]?.created_date || null;
-      const hasVisited = !!effectiveUser?.last_video_view_at;
       
-      // Il campo può essere a livello root o dentro data
+      // Il campo può essere a livello root o dentro data (normalizeUser dovrebbe già gestirlo)
       const lastViewAt = effectiveUser?.last_video_view_at || effectiveUser?.data?.last_video_view_at;
       const hasVisitedReal = !!lastViewAt;
-      console.log('[HOME] videosData query RAW:', { 
+      console.log('[HOME] videosData query:', { 
         totalCount, 
         latestVideoDate, 
         hasVisited: hasVisitedReal, 
-        last_video_view_at: lastViewAt,
-        effectiveUserEmail: effectiveUser?.email,
-        effectiveUserKeys: Object.keys(effectiveUser || {}),
-        dataKeys: Object.keys(effectiveUser?.data || {})
+        last_video_view_at: lastViewAt
       });
       
       if (!hasVisitedReal) {
@@ -279,18 +275,23 @@ export default function Home() {
         console.log('[HOME] Prima visita - tutti i video sono nuovi');
         return { newCount: totalCount, totalCount, hasVisited: false, latestVideoDate };
       }
+      
       const lastViewed = new Date(lastViewAt);
       let newCount = 0;
       allVideos.forEach(v => {
+        // created_date può essere stringa ISO o oggetto Date
         const videoDate = new Date(v.created_date);
-        const isNewer = videoDate > lastViewed;
-        console.log('[HOME] Video check:', { title: v.title, created_date: v.created_date, videoDate: videoDate.toISOString(), lastViewed: lastViewed.toISOString(), isNewer });
-        if (isNewer) newCount++;
+        const isNewer = videoDate.getTime() > lastViewed.getTime();
+        if (isNewer) {
+          console.log('[HOME] Video NUOVO:', v.title, v.created_date);
+          newCount++;
+        }
       });
       console.log('[HOME] newCount FINALE:', newCount);
       return { newCount, totalCount, hasVisited: true, latestVideoDate };
     },
     enabled: !!effectiveUser?.email,
+    refetchInterval: 30000, // Ricontrolla ogni 30 secondi
   });
 
   const { data: events = [] } = useQuery({
