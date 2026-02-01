@@ -269,7 +269,8 @@ export default function VideoInterviste() {
       if (!requestMessage.trim()) throw new Error('Messaggio vuoto');
       
       // Usa sempre user (l'utente reale loggato), non effectiveUser
-      const requestingUser = user;
+      const requestingUser = user || effectiveUser;
+      if (!requestingUser) throw new Error('Utente non trovato');
       
       // Salva la richiesta nel database
       const request = await base44.entities.VideoInterviewRequest.create({
