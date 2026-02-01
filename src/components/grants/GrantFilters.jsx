@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
-import { Zap, SlidersHorizontal, X } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Zap, Filter, ArrowUpDown, ChevronDown, ChevronUp } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 export default function GrantFilters({ filters, onFilterChange }) {
-  const [showFilters, setShowFilters] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   // Conta filtri attivi
   const activeFiltersCount = [
@@ -12,124 +14,113 @@ export default function GrantFilters({ filters, onFilterChange }) {
     filters.grantType !== 'all',
     filters.fundingType !== 'all',
     filters.status !== 'all',
+    filters.accessMode !== 'all',
     filters.noCofinancing
   ].filter(Boolean).length;
 
-  const resetFilters = () => {
-    onFilterChange('easyAccess', false);
-    onFilterChange('grantType', 'all');
-    onFilterChange('fundingType', 'all');
-    onFilterChange('status', 'all');
-    onFilterChange('noCofinancing', false);
-    onFilterChange('sortBy', 'deadline_asc');
-  };
-
   return (
-    <div className="space-y-3">
-      {/* Barra principale: ordinamento + toggle filtri */}
-      <div className="flex items-center gap-2">
-        {/* Ordinamento sempre visibile */}
-        <Select
-          value={filters.sortBy || 'deadline_asc'}
-          onValueChange={(value) => onFilterChange('sortBy', value)}
-        >
-          <SelectTrigger className="bg-slate-800 border-slate-700 text-white h-9 text-xs flex-1">
-            <SelectValue placeholder="Ordina" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="deadline_asc">⏰ Scadenza vicina</SelectItem>
-            <SelectItem value="created_date_desc">🆕 Più recenti</SelectItem>
-            <SelectItem value="max_amount_desc">💰 Importo alto</SelectItem>
-            <SelectItem value="coverage_desc">📈 Copertura alta</SelectItem>
-          </SelectContent>
-        </Select>
-
-        {/* Toggle filtri */}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setShowFilters(!showFilters)}
-          className={`h-9 px-3 border-slate-700 ${showFilters || activeFiltersCount > 0 ? 'bg-lime-400/20 border-lime-400 text-lime-400' : 'text-slate-400'}`}
-        >
-          <SlidersHorizontal className="w-4 h-4 mr-1.5" />
-          Filtri
-          {activeFiltersCount > 0 && (
-            <span className="ml-1.5 bg-lime-400 text-slate-900 text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
-              {activeFiltersCount}
-            </span>
-          )}
-        </Button>
-      </div>
-
-      {/* Filtri rapidi (chips) sempre visibili */}
-      <div className="flex flex-wrap gap-2">
-        <button
-          onClick={() => onFilterChange('easyAccess', !filters.easyAccess)}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-            filters.easyAccess 
-              ? 'bg-lime-400 text-slate-900' 
-              : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
-          }`}
-        >
-          <Zap className="w-3.5 h-3.5" />
-          Attivabili subito
-        </button>
-        
-        <button
-          onClick={() => onFilterChange('noCofinancing', !filters.noCofinancing)}
-          className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-            filters.noCofinancing 
-              ? 'bg-green-500 text-white' 
-              : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
-          }`}
-        >
-          Senza cofinanziamento
-        </button>
-
-        <button
-          onClick={() => onFilterChange('fundingType', filters.fundingType === 'Contributo a fondo perduto' ? 'all' : 'Contributo a fondo perduto')}
-          className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-            filters.fundingType === 'Contributo a fondo perduto' 
-              ? 'bg-blue-500 text-white' 
-              : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
-          }`}
-        >
-          Fondo perduto
-        </button>
-      </div>
-
-      {/* Pannello filtri avanzati */}
-      {showFilters && (
-        <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-3 space-y-3">
+    <div className="bg-slate-800 border border-slate-700 rounded-lg p-3">
+      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+        {/* Header con toggle */}
+        <CollapsibleTrigger className="w-full">
           <div className="flex items-center justify-between">
-            <span className="text-white text-sm font-medium">Filtri avanzati</span>
-            {activeFiltersCount > 0 && (
-              <button 
-                onClick={resetFilters}
-                className="text-slate-400 hover:text-white text-xs flex items-center gap-1"
-              >
-                <X className="w-3 h-3" />
-                Reset
-              </button>
-            )}
+            <div className="flex items-center gap-2">
+              <Filter className="w-4 h-4 text-lime-400" />
+              <span className="text-white font-medium text-sm">Ordina e Filtra</span>
+              {activeFiltersCount > 0 && (
+                <span className="bg-lime-400 text-slate-900 text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                  {activeFiltersCount}
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-2 text-slate-400">
+              <span className="text-xs">
+                {filters.sortBy === 'created_date_desc' ? 'Più recenti' : 
+                 filters.sortBy === 'created_date_asc' ? 'Meno recenti' :
+                 filters.sortBy === 'deadline_asc' ? 'Scadenza ↑' :
+                 filters.sortBy === 'deadline_desc' ? 'Scadenza ↓' :
+                 filters.sortBy === 'max_amount_desc' ? 'Importo ↓' :
+                 filters.sortBy === 'max_amount_asc' ? 'Importo ↑' :
+                 filters.sortBy === 'coverage_desc' ? 'Copertura ↓' :
+                 filters.sortBy === 'coverage_asc' ? 'Copertura ↑' : 'Più recenti'}
+              </span>
+              {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </div>
+          </div>
+        </CollapsibleTrigger>
+
+        {/* Contenuto espandibile */}
+        <CollapsibleContent className="pt-3 mt-3 border-t border-slate-700 space-y-3">
+          {/* Ordinamento */}
+          <div className="space-y-1.5">
+            <Label className="text-slate-400 text-xs flex items-center gap-1.5">
+              <ArrowUpDown className="w-3 h-3" />
+              Ordina per
+            </Label>
+            <Select
+              value={filters.sortBy || 'created_date_desc'}
+              onValueChange={(value) => onFilterChange('sortBy', value)}
+            >
+              <SelectTrigger className="bg-slate-900 border-slate-700 text-white h-9 text-sm">
+                <SelectValue placeholder="Ordina" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="created_date_desc">Più recenti</SelectItem>
+                <SelectItem value="created_date_asc">Meno recenti</SelectItem>
+                <SelectItem value="deadline_asc">Scadenza (prima i più urgenti)</SelectItem>
+                <SelectItem value="deadline_desc">Scadenza (prima i più lontani)</SelectItem>
+                <SelectItem value="max_amount_desc">Importo (dal più alto)</SelectItem>
+                <SelectItem value="max_amount_asc">Importo (dal più basso)</SelectItem>
+                <SelectItem value="coverage_desc">Copertura % (dal più alto)</SelectItem>
+                <SelectItem value="coverage_asc">Copertura % (dal più basso)</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
+          {/* Switches */}
+          <div className="flex flex-wrap gap-2">
+            <div className="flex items-center gap-2 bg-lime-400/10 rounded-lg px-3 py-1.5 border border-lime-400/30">
+              <Zap className="w-4 h-4 text-lime-400" />
+              <Label className="text-lime-400 text-xs font-bold cursor-pointer" htmlFor="easy-access">
+                Solo Attivabili Subito
+              </Label>
+              <Switch
+                id="easy-access"
+                checked={filters.easyAccess}
+                onCheckedChange={(checked) => onFilterChange('easyAccess', checked)}
+                className="scale-75"
+              />
+            </div>
+            <div className="flex items-center gap-2 bg-slate-900 rounded-lg px-3 py-1.5">
+              <Label className="text-slate-300 text-xs cursor-pointer" htmlFor="no-cofinancing">
+                Senza cofinanziamento
+              </Label>
+              <Switch
+                id="no-cofinancing"
+                checked={filters.noCofinancing}
+                onCheckedChange={(checked) => onFilterChange('noCofinancing', checked)}
+                className="scale-75"
+              />
+            </div>
+          </div>
+
+          {/* Grid filtri */}
           <div className="grid grid-cols-2 gap-2">
             <Select
               value={filters.grantType}
               onValueChange={(value) => onFilterChange('grantType', value)}
             >
-              <SelectTrigger className="bg-slate-900 border-slate-700 text-white h-9 text-xs">
+              <SelectTrigger className="bg-slate-900 border-slate-700 text-white h-8 text-xs">
                 <SelectValue placeholder="Tipologia" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Tutte tipologie</SelectItem>
-                <SelectItem value="Digitalizzazione">💻 Digitalizzazione</SelectItem>
-                <SelectItem value="Innovazione">💡 Innovazione</SelectItem>
-                <SelectItem value="Ricerca e Sviluppo">🔬 R&S</SelectItem>
-                <SelectItem value="Energia/Sostenibilità">🌱 Energia</SelectItem>
-                <SelectItem value="Internazionalizzazione">🌍 Export</SelectItem>
-                <SelectItem value="Altro">📋 Altro</SelectItem>
+                <SelectItem value="Digitalizzazione">Digitalizzazione</SelectItem>
+                <SelectItem value="Innovazione">Innovazione</SelectItem>
+                <SelectItem value="Ricerca e Sviluppo">R&S</SelectItem>
+                <SelectItem value="Energia/Sostenibilità">Energia</SelectItem>
+                <SelectItem value="Internazionalizzazione">Export</SelectItem>
+                <SelectItem value="Altro">Altro</SelectItem>
               </SelectContent>
             </Select>
 
@@ -137,11 +128,11 @@ export default function GrantFilters({ filters, onFilterChange }) {
               value={filters.fundingType}
               onValueChange={(value) => onFilterChange('fundingType', value)}
             >
-              <SelectTrigger className="bg-slate-900 border-slate-700 text-white h-9 text-xs">
-                <SelectValue placeholder="Tipo contributo" />
+              <SelectTrigger className="bg-slate-900 border-slate-700 text-white h-8 text-xs">
+                <SelectValue placeholder="Agevolazione" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Tutti i tipi</SelectItem>
+                <SelectItem value="all">Tutte forme</SelectItem>
                 <SelectItem value="Contributo a fondo perduto">Fondo perduto</SelectItem>
                 <SelectItem value="Finanziamento agevolato">Finanz. agevolato</SelectItem>
                 <SelectItem value="Credito d'imposta">Credito imposta</SelectItem>
@@ -153,32 +144,32 @@ export default function GrantFilters({ filters, onFilterChange }) {
               value={filters.status}
               onValueChange={(value) => onFilterChange('status', value)}
             >
-              <SelectTrigger className="bg-slate-900 border-slate-700 text-white h-9 text-xs">
+              <SelectTrigger className="bg-slate-900 border-slate-700 text-white h-8 text-xs">
                 <SelectValue placeholder="Stato" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Tutti</SelectItem>
-                <SelectItem value="Aperto">🟢 Aperto</SelectItem>
-                <SelectItem value="In apertura">🟡 In apertura</SelectItem>
+                <SelectItem value="all">Tutti stati</SelectItem>
+                <SelectItem value="Aperto">Aperto</SelectItem>
+                <SelectItem value="In apertura">In apertura</SelectItem>
               </SelectContent>
             </Select>
 
             <Select
-              value={filters.accessMode || 'all'}
+              value={filters.accessMode}
               onValueChange={(value) => onFilterChange('accessMode', value)}
             >
-              <SelectTrigger className="bg-slate-900 border-slate-700 text-white h-9 text-xs">
-                <SelectValue placeholder="Modalità" />
+              <SelectTrigger className="bg-slate-900 border-slate-700 text-white h-8 text-xs">
+                <SelectValue placeholder="Accesso" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Tutte</SelectItem>
+                <SelectItem value="all">Tutte modalità</SelectItem>
                 <SelectItem value="Sportello">Sportello</SelectItem>
                 <SelectItem value="Graduatoria">Graduatoria</SelectItem>
               </SelectContent>
             </Select>
           </div>
-        </div>
-      )}
+        </CollapsibleContent>
+      </Collapsible>
     </div>
   );
 }
