@@ -274,7 +274,7 @@ export default function Home() {
         dataKeys: Object.keys(effectiveUser?.data || {})
       });
       
-      if (!hasVisited) {
+      if (!hasVisitedReal) {
         // Prima visita - tutti i video sono "nuovi"
         console.log('[HOME] Prima visita - tutti i video sono nuovi');
         return { newCount: totalCount, totalCount, hasVisited: false, latestVideoDate };
