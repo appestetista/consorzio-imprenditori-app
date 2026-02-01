@@ -351,14 +351,20 @@ export default function GrantCard({ grant, onDetails, userInterest, onToggleAler
           )}
           
           <div className="grid grid-cols-2 gap-2">
-            <Button
-              size="sm"
-              className={`${userInterest?.wants_alerts ? 'bg-lime-400 hover:bg-lime-500 text-slate-900' : 'bg-slate-700 hover:bg-slate-600 text-white'} text-[10px] px-2 h-8`}
-              onClick={onToggleAlerts}
-            >
-              {userInterest?.wants_alerts ? <Bell className="w-3 h-3 mr-1 flex-shrink-0" /> : <BellOff className="w-3 h-3 mr-1 flex-shrink-0" />}
-              <span className="truncate">Avviso 60/30 gg</span>
-            </Button>
+            <div className="flex items-center gap-1">
+              <Button
+                size="sm"
+                className={`flex-1 ${userInterest?.wants_alerts ? 'bg-lime-400 hover:bg-lime-500 text-slate-900' : 'bg-slate-700 hover:bg-slate-600 text-white'} text-[10px] px-2 h-8`}
+                onClick={onToggleAlerts}
+              >
+                {userInterest?.wants_alerts ? <Bell className="w-3 h-3 mr-1 flex-shrink-0" /> : <BellOff className="w-3 h-3 mr-1 flex-shrink-0" />}
+                <span className="truncate">Avviso 60/30 gg</span>
+              </Button>
+              <InfoTooltip 
+                title="Avvisi scadenza" 
+                description="Attivando questa opzione riceverai una notifica automatica via email 60 e 30 giorni prima della scadenza del bando, così non perderai l'opportunità di presentare la domanda in tempo."
+              />
+            </div>
             
             <Button
               size="sm"
