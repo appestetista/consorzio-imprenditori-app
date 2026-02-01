@@ -287,9 +287,13 @@ export default function Home() {
       
       let newCount = 0;
       allVideos.forEach(v => {
-        // created_date è una stringa ISO dal database
-        const videoTs = new Date(v.created_date).getTime();
-        console.log('[HOME] Video:', v.title, 'created_date:', v.created_date, '-> ts:', videoTs, 'isNewer:', videoTs > lastViewedTs);
+        // created_date dal database può non avere timezone, aggiungiamo Z se manca
+        let dateStr = v.created_date;
+        if (typeof dateStr === 'string' && !dateStr.endsWith('Z') && !dateStr.includes('+')) {
+          dateStr = dateStr + 'Z';
+        }
+        const videoTs = new Date(dateStr).getTime();
+        console.log('[HOME] Video:', v.title, 'created_date:', v.created_date, '-> normalized:', dateStr, '-> ts:', videoTs, 'isNewer:', videoTs > lastViewedTs);
         if (videoTs > lastViewedTs) {
           console.log('[HOME] Video NUOVO:', v.title);
           newCount++;
