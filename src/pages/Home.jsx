@@ -263,13 +263,16 @@ export default function Home() {
       const latestVideoDate = allVideos[0]?.created_date || null;
       
       // Il campo può essere a livello root o dentro data (normalizeUser dovrebbe già gestirlo)
-      const lastViewAt = effectiveUser?.last_video_view_at || effectiveUser?.data?.last_video_view_at;
+      // oppure dentro _originalData se normalizeUser non lo trova
+      const lastViewAt = effectiveUser?.last_video_view_at || effectiveUser?._originalData?.last_video_view_at;
       const hasVisitedReal = !!lastViewAt;
       console.log('[HOME] videosData query:', { 
         totalCount, 
         latestVideoDate, 
         hasVisited: hasVisitedReal, 
-        last_video_view_at: lastViewAt
+        last_video_view_at: lastViewAt,
+        effectiveUser_last_video_view_at: effectiveUser?.last_video_view_at,
+        effectiveUser_originalData: effectiveUser?._originalData?.last_video_view_at
       });
       
       if (!hasVisitedReal) {
@@ -278,16 +281,16 @@ export default function Home() {
         return { newCount: totalCount, totalCount, hasVisited: false, latestVideoDate };
       }
       
-      const lastViewed = new Date(lastViewAt);
-      console.log('[HOME] lastViewed timestamp:', lastViewed.toISOString(), lastViewed.getTime());
+      // Converti lastViewAt in timestamp - può essere stringa ISO o già Date
+      const lastViewedTs = new Date(lastViewAt).getTime();
+      console.log('[HOME] lastViewed timestamp:', lastViewAt, '-> ts:', lastViewedTs);
       
       let newCount = 0;
       allVideos.forEach(v => {
-        // created_date può essere stringa ISO o oggetto Date
-        const videoDate = new Date(v.created_date);
-        console.log('[HOME] Video:', v.title, 'created_date raw:', v.created_date, 'parsed:', videoDate.toISOString(), 'ts:', videoDate.getTime());
-        const isNewer = videoDate.getTime() > lastViewed.getTime();
-        if (isNewer) {
+        // created_date è una stringa ISO dal database
+        const videoTs = new Date(v.created_date).getTime();
+        console.log('[HOME] Video:', v.title, 'created_date:', v.created_date, '-> ts:', videoTs, 'isNewer:', videoTs > lastViewedTs);
+        if (videoTs > lastViewedTs) {
           console.log('[HOME] Video NUOVO:', v.title);
           newCount++;
         }
