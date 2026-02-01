@@ -71,6 +71,9 @@ export function normalizeUser(user) {
     annual_revenue: user.annual_revenue || data.annual_revenue,
     employees_count: user.employees_count || data.employees_count,
     
+    // Timestamp video
+    last_video_view_at: user.last_video_view_at || data.last_video_view_at,
+    
     // Mantieni anche l'oggetto data originale per retrocompatibilità
     _originalData: data
   };
