@@ -576,35 +576,30 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
               ) : (
                 <div className="space-y-3">
                   {videoInterviewRequests.map((request) => (
-                    <Card key={request.id} className={`border ${request.status === 'pending' ? 'bg-lime-400/10 border-lime-400/30' : 'bg-slate-800 border-slate-700'}`}>
+                    <Card key={request.id} className={`border ${request.status === 'pending' ? 'bg-slate-800 border-lime-400/50' : 'bg-slate-800 border-slate-700'}`}>
                       <CardContent className="p-4">
-                        <div className="flex items-start justify-between gap-3 mb-2">
-                          <div>
-                            <h3 className="text-white font-bold text-sm">{request.requester_name}</h3>
-                            <p className="text-slate-400 text-xs">{request.requester_email}</p>
-                            {request.requester_phone && (
-                              <p className="text-slate-400 text-xs">{request.requester_phone}</p>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {request.status === 'pending' && (
-                              <span className="bg-lime-400 text-slate-900 text-xs font-bold px-2 py-0.5 rounded">NUOVO</span>
-                            )}
-                            <button
-                              onClick={() => {
-                                if (confirm('Eliminare questa richiesta?')) {
-                                  deleteVideoRequestMutation.mutate(request.id);
-                                }
-                              }}
-                              className="text-red-400 hover:text-red-500"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
+                        {/* Header con nome e badge NUOVO */}
+                        <div className="flex items-center justify-between mb-3">
+                          <h3 className="text-white font-bold">{request.requester_name}</h3>
+                          {request.status === 'pending' && (
+                            <span className="bg-lime-400 text-slate-900 text-xs font-bold px-2 py-1 rounded">NUOVO</span>
+                          )}
                         </div>
-                        <div className="bg-slate-900 rounded-lg p-3 mb-2">
-                          <p className="text-white text-sm whitespace-pre-wrap">{request.message}</p>
+                        
+                        {/* Info contatto */}
+                        <div className="text-slate-400 text-sm mb-3 space-y-1">
+                          <p className="break-all">{request.requester_email}</p>
+                          {request.requester_phone && (
+                            <p>{request.requester_phone}</p>
+                          )}
                         </div>
+                        
+                        {/* Messaggio */}
+                        <div className="bg-slate-900 rounded-lg p-3 mb-3">
+                          <p className="text-white text-sm whitespace-pre-wrap break-words">{request.message}</p>
+                        </div>
+                        
+                        {/* Footer con data e azioni */}
                         <div className="flex items-center justify-between">
                           <p className="text-slate-500 text-xs flex items-center gap-1">
                             <Clock className="w-3 h-3" />
@@ -614,17 +609,29 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
                               year: 'numeric'
                             })}
                           </p>
-                          {request.status === 'pending' && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="border-lime-400 text-lime-400 hover:bg-lime-400/20 h-7 text-xs"
-                              onClick={() => markVideoRequestReadMutation.mutate(request.id)}
+                          <div className="flex items-center gap-2">
+                            {request.status === 'pending' && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="border-lime-400 text-lime-400 hover:bg-lime-400/20 h-7 text-xs"
+                                onClick={() => markVideoRequestReadMutation.mutate(request.id)}
+                              >
+                                <Eye className="w-3 h-3 mr-1" />
+                                Letto
+                              </Button>
+                            )}
+                            <button
+                              onClick={() => {
+                                if (confirm('Eliminare questa richiesta?')) {
+                                  deleteVideoRequestMutation.mutate(request.id);
+                                }
+                              }}
+                              className="text-red-400 hover:text-red-500 p-1"
                             >
-                              <Eye className="w-3 h-3 mr-1" />
-                              Letto
-                            </Button>
-                          )}
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
