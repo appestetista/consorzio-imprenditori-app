@@ -30,7 +30,7 @@ export default function FeatureCard({
   const isCalendar = pageName === 'CalendarioIncontri';
   const isVideo = pageName === 'VideoInterviste';
   
-  // Usa il context con timestamp per confronto con nuovi video
+  // Usa il context con timestamp per confronto con nuovi video (sessione corrente)
   const { lastVisitTimestamp, hasNewVideosSince } = useVideoVisit();
   
   // Calendario: campanella + badge con pendingInvites
@@ -38,13 +38,13 @@ export default function FeatureCard({
   const hasPendingInvites = isCalendar && pendingInvites > 0;
   
   // Video: logica basata su timestamp
-  // Se c'è un nuovo video dopo l'ultima visita (sessione), mostra notifiche
-  const hasNewVideosSinceVisit = isVideo && latestVideoDate && hasNewVideosSince(latestVideoDate);
-  // effectiveHasVisited = true solo se ha visitato E non ci sono nuovi video da allora
-  const effectiveHasVisited = lastVisitTimestamp && !hasNewVideosSinceVisit;
-  const hasUnseenNewVideos = isVideo && newVideosCount > 0 && !effectiveHasVisited;
+  // newVideosCount > 0 significa che ci sono video più recenti di last_video_view_at (dal DB)
+  // Se newVideosCount === 0, l'utente ha già visto tutti i video (non mostrare rosso/fascia/glow)
+  // Se newVideosCount > 0 E ha visitato nella sessione corrente, non mostrare rosso/fascia/glow
+  const hasVisitedThisSession = lastVisitTimestamp && latestVideoDate && !hasNewVideosSince(latestVideoDate);
+  const hasUnseenNewVideos = isVideo && newVideosCount > 0 && !hasVisitedThisSession;
   const showVideoBadge = isVideo && totalVideosCount > 0;
-  const videoBadgeIsRed = isVideo && newVideosCount > 0 && !effectiveHasVisited;
+  const videoBadgeIsRed = hasUnseenNewVideos;
   
   const shouldGlow = (isCalendar && (bellNotificationCount > 0 || hasPendingInvites)) || hasUnseenNewVideos;
   const hasBottomBadge = bottomBadge || (isCalendar && eventCount > 0) || hasUnseenNewVideos;
