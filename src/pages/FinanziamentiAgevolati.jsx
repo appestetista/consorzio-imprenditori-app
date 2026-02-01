@@ -1093,31 +1093,9 @@ export default function FinanziamentiAgevolati() {
           </div>
         )}
 
-        {/* Sezione Ricerca AI con barra progresso - Solo per utenti non admin */}
+        {/* Sezione Ricerca Bandi Compatibili - Solo per utenti non admin */}
         {!isRealAdmin && (
-          <div className="mb-4 space-y-3">
-            {/* Barra di progresso ricerche */}
-            <div className="bg-slate-800 rounded-lg p-3 border border-slate-700">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-slate-400 text-xs">Ricerche AI questo mese</span>
-                <span className="text-lime-400 text-xs font-bold">{grantMatchUsage || 0}/5</span>
-              </div>
-              <div className="w-full bg-slate-700 rounded-full h-2">
-                <div 
-                  className={`h-2 rounded-full transition-all duration-500 ${
-                    grantMatchLimitReached ? 'bg-red-500' : 'bg-lime-400'
-                  }`}
-                  style={{ width: `${Math.min(((grantMatchUsage || 0) / 5) * 100, 100)}%` }}
-                />
-              </div>
-              {grantMatchLimitReached && (
-                <p className="text-red-400 text-xs mt-2 text-center">
-                  Limite mensile raggiunto. Si ricarica il prossimo mese.
-                </p>
-              )}
-            </div>
-
-            {/* Pulsante ricerca AI */}
+          <div className="mb-4">
             <div className="flex gap-2">
               <Button
                 onClick={() => {
@@ -1127,7 +1105,7 @@ export default function FinanziamentiAgevolati() {
                     handleMatchWithProfile();
                   }
                 }}
-                disabled={loadingMatch || grantMatchLimitReached}
+                disabled={loadingMatch}
                 className={`flex-1 ${showOnlyMatching ? 'bg-purple-600 hover:bg-purple-700' : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700'} text-white`}
               >
                 {loadingMatch ? (
@@ -1138,7 +1116,7 @@ export default function FinanziamentiAgevolati() {
                 ) : (
                   <>
                     <Search className="w-4 h-4 mr-2" />
-                    {showOnlyMatching ? `Compatibili: ${matchedGrantIds.length}` : 'Cerca bandi compatibili AI'}
+                    {showOnlyMatching ? `Compatibili: ${matchedGrantIds.length}` : 'Filtra bandi per il mio profilo'}
                   </>
                 )}
               </Button>
