@@ -1033,17 +1033,7 @@ Restituisci solo gli ID dei bandi compatibili.`,
           </div>
         )}
 
-        {hasIncompleteProfile && (
-                        <Alert className="mb-6 bg-yellow-500/20 border-yellow-500/30">
-                          <AlertCircle className="h-4 w-4 text-yellow-500" />
-                          <AlertDescription className="text-yellow-400 text-sm">
-                            ⚠️ Per una ricerca ottimale dei bandi, completa il profilo con: dimensione azienda, regione, settore e codice ATECO.
-                            <Link to={createPageUrl('ProfiloBandi')} className="underline ml-1 font-semibold">
-                              Configura profilo bandi
-                            </Link>
-                          </AlertDescription>
-                        </Alert>
-                      )}
+        {/* Alert profilo incompleto spostato sopra - ora mostrato solo se non admin */}
 
         {/* Stats */}
         {isRealAdmin ? (
