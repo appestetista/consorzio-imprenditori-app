@@ -662,68 +662,62 @@ export default function FinanziamentiAgevolati() {
     }
   });
 
-  // Funzione per eseguire match AI con il profilo
+  // Funzione per eseguire match deterministico con il profilo (senza LLM)
   const handleMatchWithProfile = async () => {
-    if (grantMatchLimitReached) return;
-    
     setLoadingMatch(true);
     try {
-      await trackGrantMatchUsage();
-      
       const effectiveUser = getEffectiveUserProfile();
-      const userProfile = {
-        company_name: effectiveUser?.company_name || 'N/A',
-        company_size: effectiveUser?.company_size || 'N/A',
-        region: effectiveUser?.region || 'N/A',
-        interested_regions: effectiveUser?.interested_regions || [],
-        ateco_code: effectiveUser?.ateco_code || 'N/A',
-        legal_form: effectiveUser?.legal_form || 'N/A',
-        sector: effectiveUser?.sector || effectiveUser?.settore || 'N/A',
-        years_of_activity: effectiveUser?.years_of_activity || 'N/A'
-      };
-
-      const grantsForAnalysis = filteredGrants.slice(0, 30).map(g => ({
-        id: g.id,
-        title: g.title,
-        description: g.description?.substring(0, 200),
-        grant_type: g.grant_type,
-        funding_type: g.funding_type,
-        eligible_company_sizes: g.eligible_company_sizes,
-        eligible_regions: g.eligible_regions,
-        eligible_ateco_codes: g.eligible_ateco_codes,
-        livello: g.livello,
-        min_years_activity: g.min_years_activity
-      }));
-
-      const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `Sei un esperto di finanziamenti agevolati per PMI italiane.
-Analizza il profilo aziendale e confrontalo con i bandi disponibili.
-Restituisci SOLO gli ID dei bandi che sono COMPATIBILI con il profilo aziendale.
-Un bando è compatibile se:
-- La dimensione aziendale rientra tra quelle ammissibili (o non ci sono restrizioni)
-- La regione dell'azienda è tra quelle ammissibili (o è un bando nazionale/europeo)
-- Il settore/codice ATECO è compatibile (o non ci sono restrizioni)
-- Gli anni di attività sono sufficienti (o non ci sono restrizioni)
-
-PROFILO AZIENDALE:
-${JSON.stringify(userProfile, null, 2)}
-
-BANDI DISPONIBILI:
-${JSON.stringify(grantsForAnalysis, null, 2)}
-
-Restituisci solo gli ID dei bandi compatibili.`,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            compatible_grant_ids: {
-              type: "array",
-              items: { type: "string" }
-            }
+      
+      // Matching algoritmico deterministico
+      const compatibleIds = filteredGrants.filter(grant => {
+        // 1. Check dimensione aziendale
+        if (grant.eligible_company_sizes?.length > 0 && effectiveUser?.company_size) {
+          if (!grant.eligible_company_sizes.includes(effectiveUser.company_size)) {
+            return false;
           }
         }
-      });
+        
+        // 2. Check regione - bandi nazionali/europei sono sempre ok
+        const isNationalGrant = grant.is_national === true || 
+                               grant.livello === 'Nazionale' || 
+                               grant.livello === 'Europeo';
+        
+        if (!isNationalGrant && grant.eligible_regions?.length > 0) {
+          const userRegions = effectiveUser?.interested_regions || 
+                             (effectiveUser?.region ? [effectiveUser.region] : []);
+          if (userRegions.length > 0) {
+            const hasRegionMatch = grant.eligible_regions.some(r => userRegions.includes(r));
+            if (!hasRegionMatch) return false;
+          }
+        }
+        
+        // 3. Check codice ATECO
+        if (grant.eligible_ateco_codes?.length > 0 && effectiveUser?.ateco_code) {
+          const hasAtecoMatch = grant.eligible_ateco_codes.some(code => 
+            effectiveUser.ateco_code.startsWith(code) || 
+            code.startsWith(effectiveUser.ateco_code.substring(0, 2))
+          );
+          if (!hasAtecoMatch) return false;
+        }
+        
+        // 4. Check forma giuridica
+        if (grant.eligible_legal_forms?.length > 0 && effectiveUser?.legal_form) {
+          if (!grant.eligible_legal_forms.includes(effectiveUser.legal_form)) {
+            return false;
+          }
+        }
+        
+        // 5. Check anni di attività
+        if (grant.min_years_activity && effectiveUser?.years_of_activity) {
+          if (effectiveUser.years_of_activity < grant.min_years_activity) {
+            return false;
+          }
+        }
+        
+        return true;
+      }).map(g => g.id);
 
-      setMatchedGrantIds(response.compatible_grant_ids || []);
+      setMatchedGrantIds(compatibleIds);
       setShowOnlyMatching(true);
     } catch (error) {
       console.error('Error matching grants:', error);
