@@ -1098,13 +1098,41 @@ Restituisci solo gli ID dei bandi compatibili.`,
           </div>
         )}
 
-        {/* Pulsante Match AI con Profilo - Solo per utenti non admin */}
+        {/* Sezione Ricerca AI con barra progresso - Solo per utenti non admin */}
         {!isRealAdmin && (
-          <div className="mb-4">
+          <div className="mb-4 space-y-3">
+            {/* Barra di progresso ricerche */}
+            <div className="bg-slate-800 rounded-lg p-3 border border-slate-700">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-slate-400 text-xs">Ricerche AI questo mese</span>
+                <span className="text-lime-400 text-xs font-bold">{grantMatchUsage || 0}/5</span>
+              </div>
+              <div className="w-full bg-slate-700 rounded-full h-2">
+                <div 
+                  className={`h-2 rounded-full transition-all duration-500 ${
+                    grantMatchLimitReached ? 'bg-red-500' : 'bg-lime-400'
+                  }`}
+                  style={{ width: `${Math.min(((grantMatchUsage || 0) / 5) * 100, 100)}%` }}
+                />
+              </div>
+              {grantMatchLimitReached && (
+                <p className="text-red-400 text-xs mt-2 text-center">
+                  Limite mensile raggiunto. Si ricarica il prossimo mese.
+                </p>
+              )}
+            </div>
+
+            {/* Pulsante ricerca AI */}
             <div className="flex gap-2">
               <Button
-                onClick={handleMatchWithProfile}
-                disabled={loadingMatch || grantMatchLimitReached || hasIncompleteProfile}
+                onClick={() => {
+                  if (hasIncompleteProfile) {
+                    setShowProfilePopup(true);
+                  } else {
+                    handleMatchWithProfile();
+                  }
+                }}
+                disabled={loadingMatch || grantMatchLimitReached}
                 className={`flex-1 ${showOnlyMatching ? 'bg-purple-600 hover:bg-purple-700' : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700'} text-white`}
               >
                 {loadingMatch ? (
@@ -1132,13 +1160,6 @@ Restituisci solo gli ID dei bandi compatibili.`,
                 </Button>
               )}
             </div>
-            <p className="text-slate-500 text-xs mt-1 text-center">
-              {hasIncompleteProfile 
-                ? '⚠️ Completa il Profilo Bandi per usare la ricerca AI'
-                : grantMatchLimitReached 
-                  ? '⚠️ Limite mensile raggiunto (4 ricerche)' 
-                  : `${grantMatchRemaining} ricerche AI rimanenti questo mese`}
-            </p>
           </div>
         )}
 
