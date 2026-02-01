@@ -261,12 +261,24 @@ export default function Home() {
       const latestVideoDate = allVideos[0]?.created_date || null;
       const hasVisited = !!effectiveUser?.last_video_view_at;
       
+      console.log('[HOME] videosData query:', { 
+        totalCount, 
+        latestVideoDate, 
+        hasVisited, 
+        last_video_view_at: effectiveUser?.last_video_view_at 
+      });
+      
       if (!hasVisited) {
         // Prima visita - tutti i video sono "nuovi"
+        console.log('[HOME] Prima visita - tutti i video sono nuovi');
         return { newCount: totalCount, totalCount, hasVisited: false, latestVideoDate };
       }
       const lastViewed = new Date(effectiveUser.last_video_view_at);
-      const newCount = allVideos.filter(v => new Date(v.created_date) > lastViewed).length;
+      const newCount = allVideos.filter(v => {
+        const videoDate = new Date(v.created_date);
+        return videoDate > lastViewed;
+      }).length;
+      console.log('[HOME] newCount calcolato:', newCount, 'lastViewed:', lastViewed.toISOString());
       return { newCount, totalCount, hasVisited: true, latestVideoDate };
     },
     enabled: !!effectiveUser?.email,
