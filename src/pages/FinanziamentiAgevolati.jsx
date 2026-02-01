@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Sparkles, AlertCircle, Info, Briefcase, XCircle, Building2, CalendarDays, MessageSquare, Mail, Eye, Trash2, User, Phone, Search, Loader2, Plus, Edit, Share2, Archive, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Sparkles, AlertCircle, Info, Briefcase, XCircle, Building2, CalendarDays, MessageSquare, Mail, Eye, Trash2, User, Phone, Search, Loader2, Plus, Edit, Share2, Archive, ExternalLink, CheckCircle2 } from 'lucide-react';
 import { useAILimits } from '@/components/hooks/useAILimits';
 import UsageCounter from '@/components/common/UsageCounter';
 import { toast } from 'sonner';
@@ -59,6 +59,17 @@ export default function FinanziamentiAgevolati() {
   
   // L'admin vede la sezione richieste solo se NON sta impersonificando
   const isRealAdmin = user?.role === 'admin' && !impersonation.active;
+
+  // Gestione autoSearch da URL (dopo compilazione profilo)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('autoSearch') === 'ai' && !hasIncompleteProfile && !loadingMatch && !showOnlyMatching) {
+      // Rimuovi il parametro dall'URL
+      window.history.replaceState({}, '', window.location.pathname);
+      // Avvia automaticamente la ricerca AI
+      handleMatchWithProfile();
+    }
+  }, [hasIncompleteProfile, loadingMatch, showOnlyMatching]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -1189,6 +1200,16 @@ Restituisci solo gli ID dei bandi compatibili.`,
           </Alert>
         )}
 
+        {/* Banner risultati filtrati AI */}
+        {showOnlyMatching && matchedGrantIds.length > 0 && (
+          <Alert className="mb-6 bg-gradient-to-r from-purple-500/20 to-indigo-500/20 border-purple-500/50">
+            <CheckCircle2 className="h-5 w-5 text-purple-400" />
+            <AlertDescription className="text-purple-200 text-sm">
+              <strong className="text-purple-100">🎯 Questi sono i bandi a cui puoi accedere</strong> con le caratteristiche del tuo profilo aziendale. Trovati <span className="font-bold text-lime-400">{matchedGrantIds.length}</span> bandi compatibili.
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Grants List */}
         {isLoading ? (
           <div className="text-center py-12">
@@ -1653,11 +1674,12 @@ Restituisci solo gli ID dei bandi compatibili.`,
           </div>
           <DialogFooter>
             <Link 
-              to={createPageUrl('ProfiloBandi')} 
+              to={createPageUrl('ProfiloBandi') + '?from=ai'} 
               className="w-full"
               onClick={() => setShowProfilePopup(false)}
             >
-              <Button className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 font-semibold">
+              <Button className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold">
+                <Sparkles className="w-4 h-4 mr-2" />
                 Compila il Profilo Bandi
               </Button>
             </Link>
