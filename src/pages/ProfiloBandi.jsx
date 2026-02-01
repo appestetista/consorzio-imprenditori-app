@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation } from '@tanstack/react-query';
-import { ArrowLeft, Building2, MapPin, FileText, Scale, Save, CheckCircle, Euro, Users, Briefcase, Globe, HelpCircle } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { ArrowLeft, Building2, MapPin, FileText, Scale, Save, CheckCircle, Euro, Users, Briefcase, Globe, HelpCircle, Sparkles } from 'lucide-react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -84,6 +84,10 @@ export default function ProfiloBandi() {
   const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  
+  // Verifica se arrivi dal pulsante AI
+  const fromAI = searchParams.get('from') === 'ai';
   
   const [formData, setFormData] = useState({
     // Dati Aziendali Base
@@ -215,7 +219,12 @@ export default function ProfiloBandi() {
     onSuccess: () => {
       setSaved(true);
       setTimeout(() => {
-        navigate(createPageUrl('FinanziamentiAgevolati'));
+        // Se arrivi dal pulsante AI, torna con parametro per attivare la ricerca AI
+        if (fromAI) {
+          navigate(createPageUrl('FinanziamentiAgevolati') + '?autoSearch=ai');
+        } else {
+          navigate(createPageUrl('FinanziamentiAgevolati'));
+        }
       }, 1500);
     }
   });
@@ -252,7 +261,17 @@ export default function ProfiloBandi() {
           <Alert className="mb-6 bg-green-500/20 border-green-500/30">
             <CheckCircle className="h-4 w-4 text-green-500" />
             <AlertDescription className="text-green-400">
-              Profilo salvato! Reindirizzamento ai bandi...
+              Profilo salvato! {fromAI ? 'Avvio ricerca AI bandi...' : 'Reindirizzamento ai bandi...'}
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {/* Alert campi obbligatori AI */}
+        {fromAI && (
+          <Alert className="mb-6 bg-gradient-to-r from-purple-500/20 to-indigo-500/20 border-purple-500/50">
+            <Sparkles className="h-4 w-4 text-purple-400" />
+            <AlertDescription className="text-purple-300">
+              <strong>Compila i campi evidenziati in viola</strong> per attivare la ricerca AI dei bandi compatibili con il tuo profilo aziendale.
             </AlertDescription>
           </Alert>
         )}
@@ -267,8 +286,9 @@ export default function ProfiloBandi() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
-                <Label className="text-slate-300 text-sm flex items-center">
+              <div className={fromAI && !formData.company_size ? 'ring-2 ring-purple-500 rounded-lg p-2 bg-purple-500/10' : ''}>
+                <Label className={`text-sm flex items-center ${fromAI && !formData.company_size ? 'text-purple-400 font-semibold' : 'text-slate-300'}`}>
+                  {fromAI && !formData.company_size && <Sparkles className="w-4 h-4 mr-1 text-purple-400" />}
                   Dimensione Azienda *
                   <HelpTooltip text="La classificazione UE distingue: Micro (meno di 10 dipendenti e fatturato/attivo ≤2M€), Piccola (meno di 50 dip. e fatturato/attivo ≤10M€), Media (meno di 250 dip. e fatturato ≤50M€ o attivo ≤43M€), Grande (oltre questi limiti). Molti bandi sono riservati alle PMI." />
                 </Label>
@@ -276,7 +296,7 @@ export default function ProfiloBandi() {
                   value={formData.company_size}
                   onValueChange={(value) => setFormData({...formData, company_size: value})}
                 >
-                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white mt-1">
+                  <SelectTrigger className={`mt-1 text-white ${fromAI && !formData.company_size ? 'bg-purple-900/50 border-purple-500' : 'bg-slate-900 border-slate-700'}`}>
                     <SelectValue placeholder="Seleziona dimensione" />
                   </SelectTrigger>
                   <SelectContent>
@@ -348,8 +368,9 @@ export default function ProfiloBandi() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
-                <Label className="text-slate-300 text-sm flex items-center">
+              <div className={fromAI && !formData.region ? 'ring-2 ring-purple-500 rounded-lg p-2 bg-purple-500/10' : ''}>
+                <Label className={`text-sm flex items-center ${fromAI && !formData.region ? 'text-purple-400 font-semibold' : 'text-slate-300'}`}>
+                  {fromAI && !formData.region && <Sparkles className="w-4 h-4 mr-1 text-purple-400" />}
                   Regione Sede Legale *
                   <HelpTooltip text="La regione dove ha sede legale l'azienda. I bandi regionali sono accessibili solo alle imprese con sede nella regione. Alcuni bandi nazionali danno priorità a specifiche aree geografiche." />
                 </Label>
@@ -364,7 +385,7 @@ export default function ProfiloBandi() {
                     setFormData({...formData, region: value, interested_regions: newInterested});
                   }}
                 >
-                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white mt-1">
+                  <SelectTrigger className={`mt-1 text-white ${fromAI && !formData.region ? 'bg-purple-900/50 border-purple-500' : 'bg-slate-900 border-slate-700'}`}>
                     <SelectValue placeholder="Seleziona regione" />
                   </SelectTrigger>
                   <SelectContent>
@@ -390,8 +411,9 @@ export default function ProfiloBandi() {
               </div>
 
               {/* Regioni di interesse per bandi */}
-              <div className="pt-4 border-t border-slate-700 mt-4">
-                <Label className="text-slate-300 text-sm flex items-center mb-3">
+              <div className={`pt-4 border-t border-slate-700 mt-4 ${fromAI && (!formData.interested_regions || formData.interested_regions.length === 0) ? 'ring-2 ring-purple-500 rounded-lg p-3 bg-purple-500/10' : ''}`}>
+                <Label className={`text-sm flex items-center mb-3 ${fromAI && (!formData.interested_regions || formData.interested_regions.length === 0) ? 'text-purple-400 font-semibold' : 'text-slate-300'}`}>
+                  {fromAI && (!formData.interested_regions || formData.interested_regions.length === 0) && <Sparkles className="w-4 h-4 mr-2 text-purple-400" />}
                   <MapPin className="w-4 h-4 mr-2 text-lime-400" />
                   Regioni di interesse per bandi *
                   <HelpTooltip text="Seleziona le regioni per cui vuoi ricevere notifiche sui bandi. La regione della tua sede legale è selezionata automaticamente. Puoi aggiungere altre regioni se hai sedi operative o interessi in altre zone." />
@@ -493,8 +515,9 @@ export default function ProfiloBandi() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
-                <Label className="text-slate-300 text-sm flex items-center">
+              <div className={fromAI && !formData.sector ? 'ring-2 ring-purple-500 rounded-lg p-2 bg-purple-500/10' : ''}>
+                <Label className={`text-sm flex items-center ${fromAI && !formData.sector ? 'text-purple-400 font-semibold' : 'text-slate-300'}`}>
+                  {fromAI && !formData.sector && <Sparkles className="w-4 h-4 mr-1 text-purple-400" />}
                   Settore Principale *
                   <HelpTooltip text="Il macro-settore in cui opera prevalentemente l'azienda. Molti bandi sono settoriali (es. solo manifatturiero, solo turismo) o escludono specifici settori." />
                 </Label>
@@ -502,7 +525,7 @@ export default function ProfiloBandi() {
                   value={formData.sector}
                   onValueChange={(value) => setFormData({...formData, sector: value})}
                 >
-                  <SelectTrigger className="bg-slate-900 border-slate-700 text-white mt-1">
+                  <SelectTrigger className={`mt-1 text-white ${fromAI && !formData.sector ? 'bg-purple-900/50 border-purple-500' : 'bg-slate-900 border-slate-700'}`}>
                     <SelectValue placeholder="Seleziona settore" />
                   </SelectTrigger>
                   <SelectContent>
@@ -513,15 +536,16 @@ export default function ProfiloBandi() {
                 </Select>
               </div>
 
-              <div>
-                <Label className="text-slate-300 text-sm flex items-center">
+              <div className={fromAI && !formData.ateco_code ? 'ring-2 ring-purple-500 rounded-lg p-2 bg-purple-500/10' : ''}>
+                <Label className={`text-sm flex items-center ${fromAI && !formData.ateco_code ? 'text-purple-400 font-semibold' : 'text-slate-300'}`}>
+                  {fromAI && !formData.ateco_code && <Sparkles className="w-4 h-4 mr-1 text-purple-400" />}
                   Codice ATECO Principale *
                   <HelpTooltip text="Codice a 6 cifre che identifica l'attività economica (es. 62.01.00 = sviluppo software). Lo trovi sulla visura camerale. È il criterio principale per verificare l'ammissibilità ai bandi." />
                 </Label>
                 <Input
                   value={formData.ateco_code}
                   onChange={(e) => setFormData({...formData, ateco_code: e.target.value})}
-                  className="bg-slate-900 border-slate-700 text-white mt-1"
+                  className={`mt-1 text-white ${fromAI && !formData.ateco_code ? 'bg-purple-900/50 border-purple-500' : 'bg-slate-900 border-slate-700'}`}
                   placeholder="Es: 62.01.00"
                 />
                 <p className="text-slate-500 text-xs mt-1">
@@ -1039,12 +1063,17 @@ export default function ProfiloBandi() {
           <Button
             type="submit"
             disabled={saveMutation.isPending}
-            className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 py-6 text-lg font-bold"
+            className={`w-full py-6 text-lg font-bold ${fromAI ? 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white' : 'bg-lime-400 hover:bg-lime-500 text-slate-900'}`}
           >
             {saveMutation.isPending ? (
               <>
-                <div className="animate-spin w-5 h-5 border-2 border-slate-900 border-t-transparent rounded-full mr-2"></div>
+                <div className="animate-spin w-5 h-5 border-2 border-current border-t-transparent rounded-full mr-2"></div>
                 Salvataggio...
+              </>
+            ) : fromAI ? (
+              <>
+                <Sparkles className="w-5 h-5 mr-2" />
+                Salva e Avvia Ricerca AI Bandi
               </>
             ) : (
               <>
