@@ -315,7 +315,12 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
       });
     },
     onSuccess: () => {
+      console.log('[VIDEO] Richiesta inviata con successo, imposto requestSent=true');
       setRequestSent(true);
+    },
+    onError: (error) => {
+      console.error('[VIDEO] Errore invio richiesta:', error);
+      alert('Errore durante l\'invio della richiesta. Riprova.');
     }
   });
 
