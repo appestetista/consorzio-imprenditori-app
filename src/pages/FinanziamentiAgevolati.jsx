@@ -1630,6 +1630,51 @@ Restituisci solo gli ID dei bandi compatibili.`,
         </DialogContent>
       </Dialog>
 
+      {/* Popup Profilo Incompleto */}
+      <Dialog open={showProfilePopup} onOpenChange={setShowProfilePopup}>
+        <DialogContent className="bg-slate-800 border-slate-700 max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="text-white text-center">⚠️ Profilo Bandi Incompleto</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <p className="text-slate-300 text-sm text-center">
+              Per utilizzare la ricerca AI dei bandi compatibili, devi prima completare il tuo Profilo Bandi con i dati della tua azienda.
+            </p>
+            <div className="bg-slate-900 rounded-lg p-3 space-y-2">
+              <p className="text-slate-400 text-xs">Dati richiesti:</p>
+              <ul className="text-slate-300 text-sm space-y-1">
+                <li className="flex items-center gap-2">
+                  {effectiveUserForProfile?.company_size ? '✅' : '❌'} Dimensione azienda
+                </li>
+                <li className="flex items-center gap-2">
+                  {effectiveUserForProfile?.region ? '✅' : '❌'} Regione sede legale
+                </li>
+                <li className="flex items-center gap-2">
+                  {effectiveUserForProfile?.interested_regions?.length > 0 ? '✅' : '❌'} Regioni di interesse
+                </li>
+                <li className="flex items-center gap-2">
+                  {effectiveUserForProfile?.sector ? '✅' : '❌'} Settore
+                </li>
+                <li className="flex items-center gap-2">
+                  {effectiveUserForProfile?.ateco_code ? '✅' : '❌'} Codice ATECO
+                </li>
+              </ul>
+            </div>
+          </div>
+          <DialogFooter>
+            <Link 
+              to={createPageUrl('ProfiloBandi')} 
+              className="w-full"
+              onClick={() => setShowProfilePopup(false)}
+            >
+              <Button className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 font-semibold">
+                Compila il Profilo Bandi
+              </Button>
+            </Link>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <BottomNav currentPage="FinanziamentiAgevolati" unreadMessages={messages.length} />
     </div>
   );
