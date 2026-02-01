@@ -380,6 +380,18 @@ export default function Home() {
     return unsubscribe;
   }, [queryClient, playSound, effectiveUser?.email]);
 
+  // Subscribe real-time ai Video - quando ne viene creato uno nuovo, aggiorna il conteggio
+  useEffect(() => {
+    const unsubscribe = base44.entities.Video.subscribe((event) => {
+      if (event.type === 'create') {
+        playSound();
+      }
+      queryClient.invalidateQueries({ queryKey: ['videos-data'] });
+    });
+
+    return unsubscribe;
+  }, [queryClient, playSound]);
+
   // Subscribe real-time alle partecipazioni - quando arriva un nuovo invito, suona
   useEffect(() => {
     if (!effectiveUser?.email) return;
