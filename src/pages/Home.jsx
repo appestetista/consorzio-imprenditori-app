@@ -277,13 +277,16 @@ export default function Home() {
       }
       
       const lastViewed = new Date(lastViewAt);
+      console.log('[HOME] lastViewed timestamp:', lastViewed.toISOString(), lastViewed.getTime());
+      
       let newCount = 0;
       allVideos.forEach(v => {
         // created_date può essere stringa ISO o oggetto Date
         const videoDate = new Date(v.created_date);
+        console.log('[HOME] Video:', v.title, 'created_date raw:', v.created_date, 'parsed:', videoDate.toISOString(), 'ts:', videoDate.getTime());
         const isNewer = videoDate.getTime() > lastViewed.getTime();
         if (isNewer) {
-          console.log('[HOME] Video NUOVO:', v.title, v.created_date);
+          console.log('[HOME] Video NUOVO:', v.title);
           newCount++;
         }
       });
