@@ -689,7 +689,7 @@ export default function Home() {
     { title: 'Import /\nExport', icon: Globe, page: 'ImportExport', notifications: 0, permission: 'import_export' },
     { title: 'Market Place', icon: ShoppingBag, page: 'Marketplace', notifications: marketplaceNotifications, permission: 'marketplace' },
     { title: 'Academy', icon: BookOpen, page: 'CulturaAziendale', notifications: culturaAziendaleNotifications, permission: 'cultura_aziendale' },
-    { title: 'Welfare Aziendale\n(Benefit Detassati)', icon: Heart, page: 'WelfareAziendale', notifications: 0, permission: 'welfare_aziendale', variant: 'pink' },
+    { title: 'Welfare\n(Benefit Detassati)', icon: Heart, page: 'WelfareAziendale', notifications: 0, permission: 'welfare_aziendale', variant: 'pink' },
     { title: 'Conformità\nAziendale (Obblighi)', icon: Shield, page: 'ComplianceAziendale', notifications: complianceAlerts, permission: 'compliance', variant: 'blue' },
   ];
 
