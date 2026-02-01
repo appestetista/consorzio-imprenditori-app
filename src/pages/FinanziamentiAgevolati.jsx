@@ -60,17 +60,6 @@ export default function FinanziamentiAgevolati() {
   // L'admin vede la sezione richieste solo se NON sta impersonificando
   const isRealAdmin = user?.role === 'admin' && !impersonation.active;
 
-  // Gestione autoSearch da URL (dopo compilazione profilo)
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('autoSearch') === 'ai' && !hasIncompleteProfile && !loadingMatch && !showOnlyMatching) {
-      // Rimuovi il parametro dall'URL
-      window.history.replaceState({}, '', window.location.pathname);
-      // Avvia automaticamente la ricerca AI
-      handleMatchWithProfile();
-    }
-  }, [hasIncompleteProfile, loadingMatch, showOnlyMatching]);
-
   useEffect(() => {
     window.scrollTo(0, 0);
     const loadUser = async () => {
@@ -786,6 +775,17 @@ Restituisci solo gli ID dei bandi compatibili.`,
                                 !effectiveUserForProfile?.sector || 
                                 !effectiveUserForProfile?.ateco_code ||
                                 !effectiveUserForProfile?.interested_regions?.length;
+
+  // Gestione autoSearch da URL (dopo compilazione profilo)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('autoSearch') === 'ai' && !hasIncompleteProfile && !loadingMatch && !showOnlyMatching && user) {
+      // Rimuovi il parametro dall'URL
+      window.history.replaceState({}, '', window.location.pathname);
+      // Avvia automaticamente la ricerca AI
+      handleMatchWithProfile();
+    }
+  }, [hasIncompleteProfile, loadingMatch, showOnlyMatching, user]);
 
   return (
     <div className="min-h-screen bg-slate-900 pb-24">
