@@ -160,14 +160,7 @@ export default function FinanziamentiAgevolati() {
 
 
 
-  // Limiti AI Match Bandi - NUOVO LIMITE 5 ricerche/mese
-  const { 
-    usageCount: grantMatchUsage, 
-    limit: grantMatchLimit, 
-    isLimitReached: grantMatchLimitReached, 
-    trackUsage: trackGrantMatchUsage,
-    remaining: grantMatchRemaining
-  } = useAILimits(impersonation.active ? impersonation.targetEmail : user?.email, 'grant_match', 5);
+
   
   // Stato per popup profilo incompleto
   const [showProfilePopup, setShowProfilePopup] = useState(false);
