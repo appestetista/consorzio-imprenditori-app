@@ -36,7 +36,9 @@ export default function Home() {
       role: effectiveUser?.role,
       user_type: effectiveUser?.user_type,
       permissions: effectiveUser?.permissions,
-      is_blocked: effectiveUser?.is_blocked
+      is_blocked: effectiveUser?.is_blocked,
+      last_video_view_at: effectiveUser?.last_video_view_at,
+      _originalData_last_video_view_at: effectiveUser?._originalData?.last_video_view_at
     });
   }, [effectiveUser]);
 
