@@ -46,6 +46,19 @@ export default function FeatureCard({
   const showVideoBadge = isVideo && totalVideosCount > 0;
   const videoBadgeIsRed = hasUnseenNewVideos;
   
+  // Debug log per video
+  if (isVideo) {
+    console.log('[FeatureCard Video]', {
+      newVideosCount,
+      totalVideosCount,
+      latestVideoDate,
+      lastVisitTimestamp,
+      hasVisitedThisSession,
+      hasUnseenNewVideos,
+      videoBadgeIsRed
+    });
+  }
+  
   const shouldGlow = (isCalendar && (bellNotificationCount > 0 || hasPendingInvites)) || hasUnseenNewVideos;
   const hasBottomBadge = bottomBadge || (isCalendar && eventCount > 0) || hasUnseenNewVideos;
   
