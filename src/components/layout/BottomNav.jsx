@@ -4,12 +4,12 @@ import { createPageUrl } from '@/utils';
 import { Home, Users, Wrench, Briefcase } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export default function BottomNav({ currentPage, unreadMessages = 0 }) {
+export default function BottomNav({ currentPage, unreadMessages = 0, activeTab = null }) {
   const navItems = [
-    { name: 'home', label: 'Home', icon: Home, page: 'Home' },
-    { name: 'relazioni', label: 'Relazioni', icon: Users, page: 'Home?tab=relazioni' },
-    { name: 'consulenza', label: 'Consulenza', icon: Briefcase, page: 'Home?tab=consulenza' },
-    { name: 'strumenti', label: 'Strumenti', icon: Wrench, page: 'Home?tab=strumenti' },
+    { name: 'home', label: 'Home', icon: Home, page: 'Home', tab: null },
+    { name: 'relazioni', label: 'Relazioni', icon: Users, page: 'Home?tab=relazioni', tab: 'relazioni' },
+    { name: 'consulenza', label: 'Consulenza', icon: Briefcase, page: 'Home?tab=consulenza', tab: 'consulenza' },
+    { name: 'strumenti', label: 'Strumenti', icon: Wrench, page: 'Home?tab=strumenti', tab: 'strumenti' },
   ];
 
   return (
@@ -17,7 +17,11 @@ export default function BottomNav({ currentPage, unreadMessages = 0 }) {
       <div className="max-w-md mx-auto px-6 py-2">
         <div className="flex justify-between items-center">
           {navItems.map((item) => {
-            const isActive = currentPage === item.page;
+            // Home è attivo solo se siamo su Home senza tab
+            // Gli altri sono attivi se il tab corrisponde
+            const isActive = item.tab === null 
+              ? (currentPage === 'Home' && activeTab === null)
+              : activeTab === item.tab;
             return (
               <Link
                 key={item.name}
