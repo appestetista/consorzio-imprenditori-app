@@ -321,14 +321,6 @@ export default function ZoneAssignmentManager() {
                                   <Button
                                     size="sm"
                                     variant="ghost"
-                                    className="h-5 w-5 p-0 text-lime-400 hover:bg-lime-400/20"
-                                    onClick={() => openAssignDialog(u, 'utente')}
-                                  >
-                                    <ArrowRight className="w-3 h-3" />
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="ghost"
                                     className="h-5 w-5 p-0 text-red-400 hover:bg-red-400/20"
                                     onClick={() => removeZoneFromItem(u, zona, false)}
                                   >
@@ -353,14 +345,6 @@ export default function ZoneAssignmentManager() {
                                   <span className="text-slate-400 text-[8px]">{c.category}</span>
                                 </div>
                                 <div className="flex items-center gap-1">
-                                  <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    className="h-5 w-5 p-0 text-lime-400 hover:bg-lime-400/20"
-                                    onClick={() => openAssignDialog(c, 'consulente')}
-                                  >
-                                    <ArrowRight className="w-3 h-3" />
-                                  </Button>
                                   <Button
                                     size="sm"
                                     variant="ghost"
