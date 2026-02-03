@@ -5,8 +5,8 @@ import { Home, Users, Wrench, Briefcase } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function BottomNav({ currentPage, unreadMessages = 0, activeTab = null, isAdmin = false }) {
-  // Non mostrare la nav per admin
-  if (isAdmin) return null;
+  // Non mostrare la nav 3D premium per utenti e consulenti
+  // Admin non vede la nav (gestito da isAdmin=true)
 
   // Versione semplice lime per utenti/consulenti (come da screenshot originale)
   // La versione 3D scura è stata rimossa per tornare allo stile originale
