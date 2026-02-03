@@ -783,7 +783,7 @@ export default function Home() {
         </div>
       </main>
 
-      <BottomNav currentPage="Home" unreadMessages={messages.length} activeTab={activeTab} />
+      <BottomNav currentPage="Home" unreadMessages={messages.length} activeTab={activeTab} isAdmin={effectiveUser?.role === 'admin' && !impersonation.active} />
 
       {/* Popup invito evento - si mostra solo se ci sono inviti in attesa */}
               <EventInvitePopup user={effectiveUser} />
