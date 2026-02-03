@@ -83,19 +83,24 @@ export default function ZoneAssignmentManager() {
     return matchesSearch && matchesZone;
   });
 
+  // Normalizza zona per confronto case-insensitive
+  const normalizeZone = (z) => z?.toLowerCase().trim();
+
   // Conta utenti/consulenti per zona
   const getUsersInZone = (zoneName) => {
+    const zoneNorm = normalizeZone(zoneName);
     return allUsers.filter(u => {
       if (u.role === 'admin' || u.user_type === 'consulente') return false;
       const zones = getZones(u);
-      return zones.includes(zoneName);
+      return zones.some(z => normalizeZone(z) === zoneNorm);
     });
   };
 
   const getConsultantsInZone = (zoneName) => {
+    const zoneNorm = normalizeZone(zoneName);
     return allConsultants.filter(c => {
       const zones = getZones(c, true);
-      return zones.includes(zoneName);
+      return zones.some(z => normalizeZone(z) === zoneNorm);
     });
   };
 
