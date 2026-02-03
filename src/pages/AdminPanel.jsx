@@ -590,7 +590,7 @@ export default function AdminPanel() {
                 >
                   <div 
                     className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden"
-                    style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #2d1020 50%, #3d0a20 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}
+                    style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #0c1730 50%, #0a1225 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}
                   >
                     <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
                     <Calendar className="w-5 h-5 text-[#d4af37] mb-1 relative z-10" />
@@ -614,7 +614,7 @@ export default function AdminPanel() {
             <Link to={createPageUrl('VideoInterviste')}>
               <div className="relative h-20 transition-transform duration-100 active:scale-[0.97]" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}>
                 <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
-                  <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #2d1020 50%, #3d0a20 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
+                  <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #0c1730 50%, #0a1225 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
                     <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
                     <Video className="w-5 h-5 text-[#d4af37] mb-1 relative z-10" />
                     <p className="text-white text-[10px] text-center leading-tight relative z-10">Video<br/>interviste</p>
@@ -631,7 +631,7 @@ export default function AdminPanel() {
             <Link to={createPageUrl('CulturaAziendale')}>
               <div className="relative h-20 transition-transform duration-100 active:scale-[0.97]" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}>
                 <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
-                  <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #2d1020 50%, #3d0a20 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
+                  <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #0c1730 50%, #0a1225 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
                     <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
                     <BookOpen className="w-5 h-5 text-[#d4af37] mb-1 relative z-10" />
                     <p className="text-white text-[10px] text-center leading-tight relative z-10">Academy</p>
@@ -646,7 +646,7 @@ export default function AdminPanel() {
               onClick={() => setShowConsulenzePanel(true)}
             >
               <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
-                <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #2d1020 50%, #3d0a20 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
+                <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #0c1730 50%, #0a1225 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
                   <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
                   <Briefcase className="w-5 h-5 text-[#d4af37] mb-1 relative z-10" />
                   <p className="text-white text-[10px] text-center leading-tight relative z-10">Consulenze</p>
@@ -664,7 +664,7 @@ export default function AdminPanel() {
             <Link to={createPageUrl('FinanziamentiAgevolati')}>
               <div className="relative h-20 transition-transform duration-100 active:scale-[0.97]" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}>
                 <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
-                  <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #2d1020 50%, #3d0a20 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
+                  <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #0c1730 50%, #0a1225 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
                     <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
                     <Sparkles className="w-5 h-5 text-[#d4af37] mb-1 relative z-10" />
                     <p className="text-white text-[10px] text-center leading-tight relative z-10">Finanziamenti<br/>agevolati</p>
@@ -676,7 +676,7 @@ export default function AdminPanel() {
             <Link to={createPageUrl('GestioneMembri')}>
               <div className="relative h-20 transition-transform duration-100 active:scale-[0.97]" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}>
                 <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
-                  <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #2d1020 50%, #3d0a20 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
+                  <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #0c1730 50%, #0a1225 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
                     <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
                     <User className="w-5 h-5 text-[#d4af37] mb-1 relative z-10" />
                     <p className="text-white text-[10px] text-center leading-tight relative z-10">Contatta<br/>Imprenditori</p>
@@ -688,7 +688,7 @@ export default function AdminPanel() {
             <Link to={createPageUrl('RisparmioEnergetico')}>
               <div className="relative h-20 transition-transform duration-100 active:scale-[0.97]" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}>
                 <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
-                  <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #2d1020 50%, #3d0a20 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
+                  <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #0c1730 50%, #0a1225 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
                     <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
                     <Euro className="w-5 h-5 text-[#d4af37] mb-1 relative z-10" />
                     <p className="text-white text-[10px] text-center leading-tight relative z-10">Risparmio</p>
@@ -700,7 +700,7 @@ export default function AdminPanel() {
             <Link to={createPageUrl('Marketplace')}>
               <div className="relative h-20 transition-transform duration-100 active:scale-[0.97]" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}>
                 <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
-                  <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #2d1020 50%, #3d0a20 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
+                  <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #0c1730 50%, #0a1225 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
                     <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
                     <ShoppingBag className="w-5 h-5 text-[#d4af37] mb-1 relative z-10" />
                     <p className="text-white text-[10px] text-center leading-tight relative z-10">Market<br/>place</p>
@@ -712,7 +712,7 @@ export default function AdminPanel() {
             <Link to={createPageUrl('Imprenditori')}>
               <div className="relative h-20 transition-transform duration-100 active:scale-[0.97]" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}>
                 <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
-                  <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #2d1020 50%, #3d0a20 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
+                  <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #0c1730 50%, #0a1225 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
                     <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
                     <Handshake className="w-5 h-5 text-[#d4af37] mb-1 relative z-10" />
                     <p className="text-white text-[10px] text-center leading-tight relative z-10">Consigli da<br/>Imprenditori</p>
@@ -724,7 +724,7 @@ export default function AdminPanel() {
             <Link to={createPageUrl('Fornitori')}>
               <div className="relative h-20 transition-transform duration-100 active:scale-[0.97]" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}>
                 <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
-                  <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #2d1020 50%, #3d0a20 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
+                  <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #0c1730 50%, #0a1225 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
                     <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
                     <Truck className="w-5 h-5 text-[#d4af37] mb-1 relative z-10" />
                     <p className="text-white text-[10px] text-center leading-tight relative z-10">Ricerca<br/>Fornitori</p>
@@ -736,7 +736,7 @@ export default function AdminPanel() {
             <Link to={createPageUrl('WelfareAziendale')}>
               <div className="relative h-20 transition-transform duration-100 active:scale-[0.97]" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}>
                 <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
-                  <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #2d1020 50%, #3d0a20 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
+                  <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #0c1730 50%, #0a1225 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
                     <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
                     <Heart className="w-5 h-5 text-pink-400 mb-1 relative z-10" />
                     <p className="text-white text-[10px] text-center leading-tight relative z-10">Welfare<br/>Aziendale</p>
@@ -748,7 +748,7 @@ export default function AdminPanel() {
             <Link to={createPageUrl('AnalisiContratti')}>
               <div className="relative h-20 transition-transform duration-100 active:scale-[0.97]" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}>
                 <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
-                  <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #2d1020 50%, #3d0a20 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
+                  <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #0c1730 50%, #0a1225 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
                     <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
                     <FileSearch className="w-5 h-5 text-[#d4af37] mb-1 relative z-10" />
                     <p className="text-white text-[10px] text-center leading-tight relative z-10">Analisi<br/>Contratti</p>
@@ -760,7 +760,7 @@ export default function AdminPanel() {
             <Link to={createPageUrl('ImportExport')}>
               <div className="relative h-20 transition-transform duration-100 active:scale-[0.97]" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}>
                 <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
-                  <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #2d1020 50%, #3d0a20 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
+                  <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #0c1730 50%, #0a1225 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
                     <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
                     <Globe className="w-5 h-5 text-[#d4af37] mb-1 relative z-10" />
                     <p className="text-white text-[10px] text-center leading-tight relative z-10">Import /<br/>Export</p>
@@ -772,7 +772,7 @@ export default function AdminPanel() {
             <Link to={createPageUrl('ComplianceAziendale')}>
               <div className="relative h-20 transition-transform duration-100 active:scale-[0.97]" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}>
                 <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
-                  <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #2d1020 50%, #3d0a20 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
+                  <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #0c1730 50%, #0a1225 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
                     <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
                     <Shield className="w-5 h-5 text-blue-400 mb-1 relative z-10" />
                     <p className="text-white text-[10px] text-center leading-tight relative z-10">Compliance<br/>Aziendale</p>
@@ -787,7 +787,7 @@ export default function AdminPanel() {
               onClick={() => setShowAdminMessages(true)}
             >
               <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
-                <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #2d1020 50%, #3d0a20 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
+                <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #0c1730 50%, #0a1225 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
                   <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
                   <MessageSquare className="w-5 h-5 text-[#d4af37] mb-1 relative z-10" />
                   <p className="text-white text-[10px] text-center leading-tight relative z-10">Gestione<br/>Messaggi</p>
