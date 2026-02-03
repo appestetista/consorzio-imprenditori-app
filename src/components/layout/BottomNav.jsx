@@ -19,44 +19,100 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-lime-400 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.15)]">
-      <div className="max-w-md mx-auto px-6 py-2">
-        <div className="flex justify-between items-center">
-          {navItems.map((item) => {
-            const isActive = item.tab === null 
-              ? (currentPage === 'Home' && activeTab === null)
-              : activeTab === item.tab;
-            return (
-              <Link
-                key={item.name}
-                to={createPageUrl(item.page)}
-                className={cn(
-                  "flex flex-col items-center justify-center min-w-[70px] py-2 px-3 rounded-2xl transition-all duration-200",
-                  isActive 
-                    ? "bg-slate-900" 
-                    : "hover:bg-slate-900/10"
-                )}
-              >
-                <div className="relative">
-                  <item.icon className={cn(
-                    "w-5 h-5 mb-1",
-                    isActive ? "text-lime-400 stroke-[2.5px]" : "text-slate-800"
-                  )} />
-                  {item.badge > 0 && (
-                    <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white text-[9px] rounded-full min-w-4 h-4 px-1 flex items-center justify-center font-bold">
-                      {item.badge > 99 ? '99+' : item.badge}
-                    </span>
-                  )}
-                </div>
-                <span className={cn(
-                  "text-[11px] font-semibold",
-                  isActive ? "text-lime-400" : "text-slate-800"
-                )}>
-                  {item.label}
-                </span>
-              </Link>
-            );
-          })}
+    <nav className="fixed bottom-0 left-0 right-0 z-50">
+      <div className="bg-[#1a1a2e] border-t border-[#2a2a3e] py-3 px-4">
+        <div className="max-w-md mx-auto">
+          <div className="flex justify-between items-center gap-2">
+            {navItems.map((item) => {
+              const isActive = item.tab === null 
+                ? (currentPage === 'Home' && activeTab === null)
+                : activeTab === item.tab;
+              return (
+                <Link
+                  key={item.name}
+                  to={createPageUrl(item.page)}
+                  className="flex-1 flex justify-center"
+                >
+                  {/* Pulsante 3D Premium con cornice oro */}
+                  <div 
+                    className={cn(
+                      "relative w-[72px] h-[72px] transition-transform duration-100 ease-out",
+                      "active:scale-[0.96]"
+                    )}
+                  >
+                    {/* Ombra esterna per effetto flottante */}
+                    <div 
+                      className="absolute inset-0 rounded-[18px]"
+                      style={{
+                        boxShadow: '0 6px 20px rgba(0,0,0,0.5), 0 3px 8px rgba(0,0,0,0.3)'
+                      }}
+                    />
+                    
+                    {/* Cornice metallica oro/champagne */}
+                    <div 
+                      className="absolute inset-0 rounded-[18px] p-[3px]"
+                      style={{
+                        background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 25%, #8b7355 50%, #d4af37 75%, #f0e68c 100%)'
+                      }}
+                    >
+                      {/* Superficie interna nero → bordeaux */}
+                      <div 
+                        className="relative w-full h-full rounded-[15px] flex flex-col items-center justify-center overflow-hidden"
+                        style={{
+                          background: isActive 
+                            ? 'linear-gradient(160deg, #2a2a2a 0%, #3d1a2a 50%, #5a1a3a 100%)' 
+                            : 'linear-gradient(160deg, #1a1a1a 0%, #2d1020 50%, #3d0a20 100%)',
+                          boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5), inset 0 -1px 2px rgba(255,255,255,0.05)'
+                        }}
+                      >
+                        {/* Riflesso lucido diagonale (glass effect) */}
+                        <div 
+                          className="absolute top-0 left-0 w-full h-[55%] pointer-events-none"
+                          style={{
+                            background: 'linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.05) 40%, transparent 60%)',
+                            borderRadius: '15px 15px 50% 50%'
+                          }}
+                        />
+                        
+                        {/* Icona */}
+                        <item.icon 
+                          className={cn(
+                            "w-6 h-6 mb-1 relative z-10 transition-all duration-150",
+                            isActive 
+                              ? "text-[#d4af37] stroke-[2px]" 
+                              : "text-[#b8a070]"
+                          )}
+                          style={{
+                            filter: isActive ? 'drop-shadow(0 0 6px rgba(212,175,55,0.5))' : 'none'
+                          }}
+                        />
+                        
+                        {/* Label */}
+                        <span 
+                          className={cn(
+                            "text-[9px] font-semibold relative z-10 tracking-wide",
+                            isActive ? "text-[#d4af37]" : "text-[#a09080]"
+                          )}
+                        >
+                          {item.label}
+                        </span>
+                        
+                        {/* Badge notifiche */}
+                        {item.badge > 0 && (
+                          <span 
+                            className="absolute top-1 right-1 bg-red-500 text-white text-[8px] rounded-full min-w-[16px] h-4 px-1 flex items-center justify-center font-bold z-20"
+                            style={{ boxShadow: '0 2px 4px rgba(0,0,0,0.4)' }}
+                          >
+                            {item.badge > 99 ? '99+' : item.badge}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
         </div>
       </div>
     </nav>
