@@ -612,190 +612,194 @@ export default function AdminPanel() {
               </div>
             </Link>
             <Link to={createPageUrl('VideoInterviste')}>
-              <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20 relative">
-                <CardContent className="p-2 flex flex-col items-center justify-center h-full">
-                  <Video className="w-5 h-5 text-lime-400 mb-1" />
-                  <p className="text-white text-[10px] text-center leading-tight">Video<br/>interviste</p>
-                  <span className="absolute top-1 left-1 bg-lime-400 text-slate-900 text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
-                    {stats?.totalVideos || 0}
-                  </span>
-                  {pendingVideoRequests.length > 0 ? (
-                    <span className="absolute top-1 right-1 bg-red-500 text-white text-[10px] rounded-full min-w-[16px] h-4 flex items-center justify-center font-bold px-1 border border-white">
-                      {pendingVideoRequests.length}
-                    </span>
-                  ) : (
-                    <span className="absolute top-1 right-1 text-slate-400">
-                      <Bell className="w-3 h-3" />
-                    </span>
-                  )}
-                </CardContent>
-              </Card>
+              <div className="relative h-20 transition-transform duration-100 active:scale-[0.97]" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}>
+                <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
+                  <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #2d1020 50%, #3d0a20 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
+                    <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
+                    <Video className="w-5 h-5 text-[#d4af37] mb-1 relative z-10" />
+                    <p className="text-white text-[10px] text-center leading-tight relative z-10">Video<br/>interviste</p>
+                    <span className="absolute top-1 left-1 bg-[#d4af37] text-slate-900 text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold z-20">{stats?.totalVideos || 0}</span>
+                    {pendingVideoRequests.length > 0 ? (
+                      <span className="absolute top-1 right-1 bg-red-500 text-white text-[10px] rounded-full min-w-[16px] h-4 flex items-center justify-center font-bold px-1 z-20">{pendingVideoRequests.length}</span>
+                    ) : (
+                      <span className="absolute top-1 right-1 text-[#d4af37]/60 z-20"><Bell className="w-3 h-3" /></span>
+                    )}
+                  </div>
+                </div>
+              </div>
             </Link>
             <Link to={createPageUrl('CulturaAziendale')}>
-              <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20 relative">
-                <CardContent className="p-2 flex flex-col items-center justify-center h-full">
-                  <BookOpen className="w-5 h-5 text-lime-400 mb-1" />
-                  <p className="text-white text-[10px] text-center leading-tight">Academy</p>
-                  <span className="absolute top-1 right-1 text-slate-400">
-                    <Bell className="w-3 h-3" />
-                  </span>
-                </CardContent>
-              </Card>
+              <div className="relative h-20 transition-transform duration-100 active:scale-[0.97]" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}>
+                <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
+                  <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #2d1020 50%, #3d0a20 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
+                    <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
+                    <BookOpen className="w-5 h-5 text-[#d4af37] mb-1 relative z-10" />
+                    <p className="text-white text-[10px] text-center leading-tight relative z-10">Academy</p>
+                    <span className="absolute top-1 right-1 text-[#d4af37]/60 z-20"><Bell className="w-3 h-3" /></span>
+                  </div>
+                </div>
+              </div>
             </Link>
-            <Card 
-              className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20 relative cursor-pointer"
+            <div 
+              className="relative h-20 transition-transform duration-100 active:scale-[0.97] cursor-pointer"
+              style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}
               onClick={() => setShowConsulenzePanel(true)}
             >
-              <CardContent className="p-2 flex flex-col items-center justify-center h-full">
-                <Briefcase className="w-5 h-5 text-lime-400 mb-1" />
-                <p className="text-white text-[10px] text-center leading-tight">Consulenze</p>
-                {(stats?.totalConsultants || 0) > 0 && (
-                  <span className="absolute top-1 left-1 bg-lime-400 text-slate-900 text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
-                    {stats?.totalConsultants || 0}
-                  </span>
-                )}
-                {pendingConsultationBookings > 0 ? (
-                  <span className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center">
-                    <Bell className="w-2.5 h-2.5" />
-                  </span>
-                ) : (
-                  <span className="absolute top-1 right-1 text-slate-400">
-                    <Bell className="w-3 h-3" />
-                  </span>
-                )}
-              </CardContent>
-            </Card>
+              <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
+                <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #2d1020 50%, #3d0a20 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
+                  <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
+                  <Briefcase className="w-5 h-5 text-[#d4af37] mb-1 relative z-10" />
+                  <p className="text-white text-[10px] text-center leading-tight relative z-10">Consulenze</p>
+                  {(stats?.totalConsultants || 0) > 0 && (
+                    <span className="absolute top-1 left-1 bg-[#d4af37] text-slate-900 text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold z-20">{stats?.totalConsultants || 0}</span>
+                  )}
+                  {pendingConsultationBookings > 0 ? (
+                    <span className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center z-20"><Bell className="w-2.5 h-2.5" /></span>
+                  ) : (
+                    <span className="absolute top-1 right-1 text-[#d4af37]/60 z-20"><Bell className="w-3 h-3" /></span>
+                  )}
+                </div>
+              </div>
+            </div>
             <Link to={createPageUrl('FinanziamentiAgevolati')}>
-              <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20 relative">
-                <CardContent className="p-2 flex flex-col items-center justify-center h-full">
-                  <Sparkles className="w-5 h-5 text-lime-400 mb-1" />
-                  <p className="text-white text-[10px] text-center leading-tight">Finanziamenti<br/>agevolati</p>
-                  <span className="absolute top-1 right-1 text-slate-400">
-                    <Bell className="w-3 h-3" />
-                  </span>
-                </CardContent>
-              </Card>
+              <div className="relative h-20 transition-transform duration-100 active:scale-[0.97]" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}>
+                <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
+                  <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #2d1020 50%, #3d0a20 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
+                    <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
+                    <Sparkles className="w-5 h-5 text-[#d4af37] mb-1 relative z-10" />
+                    <p className="text-white text-[10px] text-center leading-tight relative z-10">Finanziamenti<br/>agevolati</p>
+                    <span className="absolute top-1 right-1 text-[#d4af37]/60 z-20"><Bell className="w-3 h-3" /></span>
+                  </div>
+                </div>
+              </div>
             </Link>
             <Link to={createPageUrl('GestioneMembri')}>
-              <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20 relative">
-                <CardContent className="p-2 flex flex-col items-center justify-center h-full">
-                  <User className="w-5 h-5 text-lime-400 mb-1" />
-                  <p className="text-white text-[10px] text-center leading-tight">Contatta<br/>Imprenditori</p>
-                  <span className="absolute top-1 right-1 text-slate-400">
-                    <Bell className="w-3 h-3" />
-                  </span>
-                </CardContent>
-              </Card>
+              <div className="relative h-20 transition-transform duration-100 active:scale-[0.97]" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}>
+                <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
+                  <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #2d1020 50%, #3d0a20 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
+                    <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
+                    <User className="w-5 h-5 text-[#d4af37] mb-1 relative z-10" />
+                    <p className="text-white text-[10px] text-center leading-tight relative z-10">Contatta<br/>Imprenditori</p>
+                    <span className="absolute top-1 right-1 text-[#d4af37]/60 z-20"><Bell className="w-3 h-3" /></span>
+                  </div>
+                </div>
+              </div>
             </Link>
             <Link to={createPageUrl('RisparmioEnergetico')}>
-              <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20 relative">
-                <CardContent className="p-2 flex flex-col items-center justify-center h-full">
-                  <Euro className="w-5 h-5 text-lime-400 mb-1" />
-                  <p className="text-white text-[10px] text-center leading-tight">Risparmio</p>
-                  <span className="absolute top-1 right-1 text-slate-400">
-                    <Bell className="w-3 h-3" />
-                  </span>
-                </CardContent>
-              </Card>
+              <div className="relative h-20 transition-transform duration-100 active:scale-[0.97]" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}>
+                <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
+                  <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #2d1020 50%, #3d0a20 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
+                    <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
+                    <Euro className="w-5 h-5 text-[#d4af37] mb-1 relative z-10" />
+                    <p className="text-white text-[10px] text-center leading-tight relative z-10">Risparmio</p>
+                    <span className="absolute top-1 right-1 text-[#d4af37]/60 z-20"><Bell className="w-3 h-3" /></span>
+                  </div>
+                </div>
+              </div>
             </Link>
             <Link to={createPageUrl('Marketplace')}>
-              <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20 relative">
-                <CardContent className="p-2 flex flex-col items-center justify-center h-full">
-                  <ShoppingBag className="w-5 h-5 text-lime-400 mb-1" />
-                  <p className="text-white text-[10px] text-center leading-tight">Market<br/>place</p>
-                  <span className="absolute top-1 right-1 text-slate-400">
-                    <Bell className="w-3 h-3" />
-                  </span>
-                </CardContent>
-              </Card>
+              <div className="relative h-20 transition-transform duration-100 active:scale-[0.97]" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}>
+                <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
+                  <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #2d1020 50%, #3d0a20 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
+                    <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
+                    <ShoppingBag className="w-5 h-5 text-[#d4af37] mb-1 relative z-10" />
+                    <p className="text-white text-[10px] text-center leading-tight relative z-10">Market<br/>place</p>
+                    <span className="absolute top-1 right-1 text-[#d4af37]/60 z-20"><Bell className="w-3 h-3" /></span>
+                  </div>
+                </div>
+              </div>
             </Link>
             <Link to={createPageUrl('Imprenditori')}>
-              <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20 relative">
-                <CardContent className="p-2 flex flex-col items-center justify-center h-full">
-                  <Handshake className="w-5 h-5 text-lime-400 mb-1" />
-                  <p className="text-white text-[10px] text-center leading-tight">Consigli da<br/>Imprenditori</p>
-                  <span className="absolute top-1 right-1 text-slate-400">
-                    <Bell className="w-3 h-3" />
-                  </span>
-                </CardContent>
-              </Card>
+              <div className="relative h-20 transition-transform duration-100 active:scale-[0.97]" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}>
+                <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
+                  <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #2d1020 50%, #3d0a20 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
+                    <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
+                    <Handshake className="w-5 h-5 text-[#d4af37] mb-1 relative z-10" />
+                    <p className="text-white text-[10px] text-center leading-tight relative z-10">Consigli da<br/>Imprenditori</p>
+                    <span className="absolute top-1 right-1 text-[#d4af37]/60 z-20"><Bell className="w-3 h-3" /></span>
+                  </div>
+                </div>
+              </div>
             </Link>
             <Link to={createPageUrl('Fornitori')}>
-              <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20 relative">
-                <CardContent className="p-2 flex flex-col items-center justify-center h-full">
-                  <Truck className="w-5 h-5 text-lime-400 mb-1" />
-                  <p className="text-white text-[10px] text-center leading-tight">Ricerca<br/>Fornitori</p>
-                  <span className="absolute top-1 right-1 text-slate-400">
-                    <Bell className="w-3 h-3" />
-                  </span>
-                </CardContent>
-              </Card>
+              <div className="relative h-20 transition-transform duration-100 active:scale-[0.97]" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}>
+                <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
+                  <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #2d1020 50%, #3d0a20 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
+                    <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
+                    <Truck className="w-5 h-5 text-[#d4af37] mb-1 relative z-10" />
+                    <p className="text-white text-[10px] text-center leading-tight relative z-10">Ricerca<br/>Fornitori</p>
+                    <span className="absolute top-1 right-1 text-[#d4af37]/60 z-20"><Bell className="w-3 h-3" /></span>
+                  </div>
+                </div>
+              </div>
             </Link>
             <Link to={createPageUrl('WelfareAziendale')}>
-              <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20 relative">
-                <CardContent className="p-2 flex flex-col items-center justify-center h-full">
-                  <Heart className="w-5 h-5 text-pink-400 mb-1" />
-                  <p className="text-white text-[10px] text-center leading-tight">Welfare<br/>Aziendale</p>
-                  <span className="absolute top-1 right-1 text-slate-400">
-                    <Bell className="w-3 h-3" />
-                  </span>
-                </CardContent>
-              </Card>
+              <div className="relative h-20 transition-transform duration-100 active:scale-[0.97]" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}>
+                <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
+                  <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #2d1020 50%, #3d0a20 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
+                    <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
+                    <Heart className="w-5 h-5 text-pink-400 mb-1 relative z-10" />
+                    <p className="text-white text-[10px] text-center leading-tight relative z-10">Welfare<br/>Aziendale</p>
+                    <span className="absolute top-1 right-1 text-[#d4af37]/60 z-20"><Bell className="w-3 h-3" /></span>
+                  </div>
+                </div>
+              </div>
             </Link>
             <Link to={createPageUrl('AnalisiContratti')}>
-              <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20 relative">
-                <CardContent className="p-2 flex flex-col items-center justify-center h-full">
-                  <FileSearch className="w-5 h-5 text-lime-400 mb-1" />
-                  <p className="text-white text-[10px] text-center leading-tight">Analisi<br/>Contratti</p>
-                  <span className="absolute top-1 right-1 text-slate-400">
-                    <Bell className="w-3 h-3" />
-                  </span>
-                </CardContent>
-              </Card>
+              <div className="relative h-20 transition-transform duration-100 active:scale-[0.97]" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}>
+                <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
+                  <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #2d1020 50%, #3d0a20 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
+                    <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
+                    <FileSearch className="w-5 h-5 text-[#d4af37] mb-1 relative z-10" />
+                    <p className="text-white text-[10px] text-center leading-tight relative z-10">Analisi<br/>Contratti</p>
+                    <span className="absolute top-1 right-1 text-[#d4af37]/60 z-20"><Bell className="w-3 h-3" /></span>
+                  </div>
+                </div>
+              </div>
             </Link>
             <Link to={createPageUrl('ImportExport')}>
-              <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20 relative">
-                <CardContent className="p-2 flex flex-col items-center justify-center h-full">
-                  <Globe className="w-5 h-5 text-lime-400 mb-1" />
-                  <p className="text-white text-[10px] text-center leading-tight">Import /<br/>Export</p>
-                  <span className="absolute top-1 right-1 text-slate-400">
-                    <Bell className="w-3 h-3" />
-                  </span>
-                </CardContent>
-              </Card>
+              <div className="relative h-20 transition-transform duration-100 active:scale-[0.97]" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}>
+                <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
+                  <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #2d1020 50%, #3d0a20 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
+                    <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
+                    <Globe className="w-5 h-5 text-[#d4af37] mb-1 relative z-10" />
+                    <p className="text-white text-[10px] text-center leading-tight relative z-10">Import /<br/>Export</p>
+                    <span className="absolute top-1 right-1 text-[#d4af37]/60 z-20"><Bell className="w-3 h-3" /></span>
+                  </div>
+                </div>
+              </div>
             </Link>
             <Link to={createPageUrl('ComplianceAziendale')}>
-              <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20 relative">
-                <CardContent className="p-2 flex flex-col items-center justify-center h-full">
-                  <Shield className="w-5 h-5 text-blue-400 mb-1" />
-                  <p className="text-white text-[10px] text-center leading-tight">Compliance<br/>Aziendale</p>
-                  <span className="absolute top-1 right-1 text-slate-400">
-                    <Bell className="w-3 h-3" />
-                  </span>
-                </CardContent>
-              </Card>
+              <div className="relative h-20 transition-transform duration-100 active:scale-[0.97]" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}>
+                <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
+                  <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #2d1020 50%, #3d0a20 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
+                    <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
+                    <Shield className="w-5 h-5 text-blue-400 mb-1 relative z-10" />
+                    <p className="text-white text-[10px] text-center leading-tight relative z-10">Compliance<br/>Aziendale</p>
+                    <span className="absolute top-1 right-1 text-[#d4af37]/60 z-20"><Bell className="w-3 h-3" /></span>
+                  </div>
+                </div>
+              </div>
             </Link>
-            <Card 
-              className="bg-slate-700 border-slate-600 hover:bg-slate-600 h-20 cursor-pointer relative"
+            <div 
+              className="relative h-20 transition-transform duration-100 active:scale-[0.97] cursor-pointer"
+              style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}
               onClick={() => setShowAdminMessages(true)}
             >
-              <CardContent className="p-2 flex flex-col items-center justify-center h-full">
-                <MessageSquare className="w-5 h-5 text-lime-400 mb-1" />
-                <p className="text-white text-[10px] text-center leading-tight">Gestione<br/>Messaggi</p>
-                <span className="absolute top-1 left-1 bg-lime-400 text-slate-900 text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
-                  {allAdminMessages.length}
-                </span>
-                {unreadAdminMessages.length > 0 ? (
-                  <span className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center">
-                    <Bell className="w-2.5 h-2.5" />
-                  </span>
-                ) : (
-                  <span className="absolute top-1 right-1 text-slate-400">
-                    <Bell className="w-3 h-3" />
-                  </span>
-                )}
-              </CardContent>
-            </Card>
+              <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
+                <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #2d1020 50%, #3d0a20 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
+                  <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
+                  <MessageSquare className="w-5 h-5 text-[#d4af37] mb-1 relative z-10" />
+                  <p className="text-white text-[10px] text-center leading-tight relative z-10">Gestione<br/>Messaggi</p>
+                  <span className="absolute top-1 left-1 bg-[#d4af37] text-slate-900 text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold z-20">{allAdminMessages.length}</span>
+                  {unreadAdminMessages.length > 0 ? (
+                    <span className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center z-20"><Bell className="w-2.5 h-2.5" /></span>
+                  ) : (
+                    <span className="absolute top-1 right-1 text-[#d4af37]/60 z-20"><Bell className="w-3 h-3" /></span>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
