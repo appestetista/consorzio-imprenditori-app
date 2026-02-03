@@ -575,29 +575,41 @@ export default function AdminPanel() {
         
 
 
-        {/* Sezioni Home - griglia di card linkate */}
+        {/* Sezioni Home - griglia di card linkate con stile premium */}
         <div className="mb-6">
           <h2 className="text-white font-semibold text-sm mb-3">Sezioni Home</h2>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-3 gap-3">
             <Link to={createPageUrl('CalendarioIncontri')}>
-              <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20 relative">
-                <CardContent className="p-2 flex flex-col items-center justify-center h-full">
-                  <Calendar className="w-5 h-5 text-lime-400 mb-1" />
-                  <p className="text-white text-[10px] text-center leading-tight">Calendario<br/>incontri</p>
-                  <span className="absolute top-1 left-1 bg-lime-400 text-slate-900 text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
-                    {stats?.totalEvents || 0}
-                  </span>
-                  {pendingApprovalEventsCount > 0 ? (
-                    <span className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] font-bold">
-                      {pendingApprovalEventsCount}
+              <div 
+                className="relative h-20 transition-transform duration-100 active:scale-[0.97]"
+                style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}
+              >
+                <div 
+                  className="absolute inset-0 rounded-[16px] p-[2px]"
+                  style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}
+                >
+                  <div 
+                    className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden"
+                    style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #2d1020 50%, #3d0a20 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}
+                  >
+                    <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
+                    <Calendar className="w-5 h-5 text-[#d4af37] mb-1 relative z-10" />
+                    <p className="text-white text-[10px] text-center leading-tight relative z-10">Calendario<br/>incontri</p>
+                    <span className="absolute top-1 left-1 bg-[#d4af37] text-slate-900 text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold z-20">
+                      {stats?.totalEvents || 0}
                     </span>
-                  ) : (
-                    <span className="absolute top-1 right-1 text-slate-400">
-                      <Bell className="w-3 h-3" />
-                    </span>
-                  )}
-                </CardContent>
-              </Card>
+                    {pendingApprovalEventsCount > 0 ? (
+                      <span className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[8px] font-bold z-20">
+                        {pendingApprovalEventsCount}
+                      </span>
+                    ) : (
+                      <span className="absolute top-1 right-1 text-[#d4af37]/60 z-20">
+                        <Bell className="w-3 h-3" />
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
             </Link>
             <Link to={createPageUrl('VideoInterviste')}>
               <Card className="bg-slate-800 border-slate-700 hover:bg-slate-700 h-20 relative">
