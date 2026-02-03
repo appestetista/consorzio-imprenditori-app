@@ -44,11 +44,15 @@ export default function ConsultantAssignmentManager() {
     queryFn: () => base44.entities.ConsultantAssignment.list()
   });
 
-  // Filtra per zona selezionata
+  // Filtra per zona selezionata (case-insensitive)
+  const normalizeZone = (z) => z?.toLowerCase().trim();
+  const selectedZoneNorm = normalizeZone(selectedZone);
+  
   const zoneConsultants = consultants.filter(c => 
-    c.zona === selectedZone || c.zone_assegnate?.includes(selectedZone)
+    normalizeZone(c.zona) === selectedZoneNorm || 
+    c.zone_assegnate?.some(z => normalizeZone(z) === selectedZoneNorm)
   );
-  const zoneUsers = users.filter(u => u.zona === selectedZone);
+  const zoneUsers = users.filter(u => normalizeZone(u.zona) === selectedZoneNorm);
 
   // Toggle visibilità: consulente -> utente
   const toggleConsultantUserVisibility = useMutation({
