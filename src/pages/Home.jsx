@@ -744,10 +744,10 @@ export default function Home() {
                       </button>
                     </div>
                   ) : (
-          <div className="bg-lime-400 rounded-xl p-4 mb-6">
+          <div className="mb-6">
             <h2 className="text-slate-900 font-bold text-lg mb-1">Benvenuto nel Consorzio</h2>
             {nextEvent && (
-              <p className="text-slate-800 text-sm">
+              <p className="text-slate-700 text-sm">
                 Prossimo incontro: {new Date(nextEvent.date).toLocaleDateString('it-IT', { day: 'numeric', month: 'long' })} ore {nextEvent.time} - {nextEvent.location}
               </p>
             )}
