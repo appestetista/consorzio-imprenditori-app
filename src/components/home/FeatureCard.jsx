@@ -116,7 +116,7 @@ export default function FeatureCard({
               hasBottomBadge ? "" : ""
             )}
             style={{
-              background: 'linear-gradient(160deg, #1a1a1a 0%, #0c1730 50%, #0a1225 100%)',
+              background: 'linear-gradient(160deg, #1a1a1a 0%, #001d3b 50%, #001530 100%)',
               boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5), inset 0 -1px 2px rgba(255,255,255,0.05)'
             }}
           >

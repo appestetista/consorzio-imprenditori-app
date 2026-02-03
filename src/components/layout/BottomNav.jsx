@@ -20,7 +20,7 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50">
-        <div className="py-3 px-4" style={{ backgroundColor: '#0c1730' }}>
+        <div className="py-3 px-4" style={{ backgroundColor: '#001d3b' }}>
         <div className="max-w-md mx-auto">
           <div className="flex justify-between items-center gap-2">
             {navItems.map((item) => {
@@ -62,8 +62,8 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
                         className="relative w-full h-full rounded-[15px] flex flex-col items-center justify-center overflow-hidden"
                         style={{
                           background: isActive 
-                            ? 'linear-gradient(160deg, #2a2a2a 0%, #152040 50%, #1a2850 100%)' 
-                            : 'linear-gradient(160deg, #1a1a1a 0%, #0c1730 50%, #0a1225 100%)',
+                                                            ? 'linear-gradient(160deg, #2a2a2a 0%, #152040 50%, #1a2850 100%)' 
+                                                            : 'linear-gradient(160deg, #1a1a1a 0%, #001d3b 50%, #001530 100%)',
                           boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5), inset 0 -1px 2px rgba(255,255,255,0.05)'
                         }}
                       >
