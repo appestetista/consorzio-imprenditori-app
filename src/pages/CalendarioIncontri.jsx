@@ -259,6 +259,25 @@ export default function CalendarioIncontri() {
   // Mutation per creare evento utente (richiede approvazione)
   const createUserEventMutation = useMutation({
     mutationFn: async (eventData) => {
+      // Validazione: max 1 evento ogni 30 giorni per utenti/consulenti (admin escluso)
+      const userRole = user?.role;
+      if (userRole !== 'admin') {
+        const userEvents = await base44.entities.Event.filter({ creator_email: user?.email });
+        if (userEvents.length > 0) {
+          // Trova l'evento più recente creato dall'utente
+          const sortedEvents = userEvents.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+          const lastEvent = sortedEvents[0];
+          const lastEventDate = new Date(lastEvent.created_date);
+          const today = new Date();
+          const daysSinceLastEvent = Math.floor((today - lastEventDate) / (1000 * 60 * 60 * 24));
+          
+          if (daysSinceLastEvent < 30) {
+            const daysRemaining = 30 - daysSinceLastEvent;
+            throw new Error(`Puoi creare solo 1 evento ogni 30 giorni. Potrai creare un nuovo evento tra ${daysRemaining} giorni.`);
+          }
+        }
+      }
+
       const event = await base44.entities.Event.create({
         ...eventData,
         event_type: 'utente',
