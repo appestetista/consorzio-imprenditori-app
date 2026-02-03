@@ -708,7 +708,7 @@ export default function Home() {
     : features;
 
   return (
-    <div className="min-h-screen bg-slate-900 pb-24">
+    <div className="min-h-screen pb-24" style={{ backgroundColor: '#ad9c7e' }}>
       <Header user={effectiveUser || user} />
       
       <main className="px-4 py-6 max-w-md mx-auto">
