@@ -150,10 +150,14 @@ export default function Header({ user }) {
           
           {/* Icona Messaggi */}
           <Link
-            to={createPageUrl('Messaggi')}
-            className="relative bg-slate-800 p-2 rounded-lg hover:bg-slate-700 transition-colors"
-          >
-            <Mail className="w-5 h-5 text-lime-400" />
+                            to={createPageUrl('Messaggi')}
+                            className="relative"
+                          >
+                            <img 
+                              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/90e685b06_Immagine2026-02-03182832.png" 
+                              alt="Messaggi" 
+                              className="w-10 h-8 object-contain"
+                            />
             {unreadCount > 0 && (
               <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] rounded-full min-w-4 h-4 px-1 flex items-center justify-center font-bold">
                 {unreadCount > 99 ? '99+' : unreadCount}
