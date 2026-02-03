@@ -48,11 +48,13 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
                       }}
                     />
 
-                    {/* Cornice metallica oro/champagne */}
+                    {/* Cornice metallica argento/oro */}
                     <div 
                       className="absolute inset-0 rounded-[18px] p-[3px]"
                       style={{
-                        background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 25%, #8b7355 50%, #d4af37 75%, #f0e68c 100%)'
+                        background: isActive 
+                          ? 'linear-gradient(145deg, #d4af37 0%, #b8860b 25%, #8b7355 50%, #d4af37 75%, #f0e68c 100%)'
+                          : 'linear-gradient(145deg, #c0c0c0 0%, #a8a8a8 25%, #808080 50%, #c0c0c0 75%, #e8e8e8 100%)'
                       }}
                     >
                       {/* Superficie interna nero → blu scuro */}
@@ -80,7 +82,7 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
                             "w-6 h-6 mb-1 relative z-10 transition-all duration-150",
                             isActive 
                               ? "text-[#d4af37] stroke-[2px]" 
-                              : "text-[#b8a070]"
+                              : "text-[#a0a0a0]"
                           )}
                           style={{
                             filter: isActive ? 'drop-shadow(0 0 6px rgba(212,175,55,0.5))' : 'none'
@@ -91,7 +93,7 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
                         <span 
                           className={cn(
                             "text-[9px] font-semibold relative z-10 tracking-wide",
-                            isActive ? "text-[#d4af37]" : "text-[#a09080]"
+                            isActive ? "text-[#d4af37]" : "text-[#909090]"
                           )}
                         >
                           {item.label}
