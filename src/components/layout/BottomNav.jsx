@@ -8,6 +8,9 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
   // Non mostrare la nav per admin
   if (isAdmin) return null;
 
+  // Versione semplice lime per utenti/consulenti (come da screenshot originale)
+  // La versione 3D scura è stata rimossa per tornare allo stile originale
+
   const navItems = [
     { name: 'home', label: 'Home', icon: Home, page: 'Home', tab: null },
     { name: 'relazioni', label: 'Relazioni', icon: Users, page: 'Home?tab=relazioni', tab: 'relazioni' },
