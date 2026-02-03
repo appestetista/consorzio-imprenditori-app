@@ -708,7 +708,7 @@ export default function Home() {
     : features;
 
   return (
-    <div className="min-h-screen pb-24" style={{ backgroundColor: '#ad9c7e' }}>
+    <div className="min-h-screen pb-24" style={{ backgroundColor: '#0c1730' }}>
       <Header user={effectiveUser || user} />
       
       <main className="px-4 py-6 max-w-md mx-auto">
@@ -745,9 +745,9 @@ export default function Home() {
                     </div>
                   ) : (
           <div className="mb-6">
-            <h2 className="text-slate-900 font-bold text-lg mb-1">Benvenuto nel Consorzio</h2>
+            <h2 className="text-[#d4af37] font-bold text-lg mb-1">Benvenuto nel Consorzio</h2>
             {nextEvent && (
-              <p className="text-slate-700 text-sm">
+              <p className="text-[#b8a070] text-sm">
                 Prossimo incontro: {new Date(nextEvent.date).toLocaleDateString('it-IT', { day: 'numeric', month: 'long' })} ore {nextEvent.time} - {nextEvent.location}
               </p>
             )}
