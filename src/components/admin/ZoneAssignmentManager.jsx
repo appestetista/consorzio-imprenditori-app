@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { MapPin, Plus, X, Users, Briefcase, ArrowRight, Check, Search, ChevronDown, ChevronUp } from 'lucide-react';
+import { MapPin, Users, Briefcase, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -20,8 +20,7 @@ export default function ZoneAssignmentManager() {
   const [selectedZones, setSelectedZones] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterZone, setFilterZone] = useState('all');
-  const [expandedZone, setExpandedZone] = useState(null);
-  const [expandedType, setExpandedType] = useState(null); // 'utenti' o 'consulenti' o null (tutti)
+
   const [activeTab, setActiveTab] = useState('utenti');
   
   const queryClient = useQueryClient();
@@ -181,24 +180,6 @@ export default function ZoneAssignmentManager() {
     }
   };
 
-  const removeZoneFromItem = (item, zoneName, isConsultant) => {
-    const currentZones = getZones(item, isConsultant);
-    const newZones = currentZones.filter(z => z !== zoneName);
-    
-    if (isConsultant) {
-      updateConsultantZonesMutation.mutate({
-        consultantId: item.id,
-        zones: newZones,
-        email: item.email
-      });
-    } else {
-      updateUserZonesMutation.mutate({
-        userId: item.id,
-        zones: newZones
-      });
-    }
-  };
-
   return (
     <Card className="bg-slate-800 border-slate-700">
       <CardContent className="p-3">
@@ -245,98 +226,6 @@ export default function ZoneAssignmentManager() {
                 ))}
               </SelectContent>
             </Select>
-          </div>
-
-          {/* Riepilogo zone con espansione */}
-          <div className="space-y-2 mb-3">
-            {activeZones.map(zona => {
-              const usersCount = getUsersInZone(zona).length;
-              const consultantsCount = getConsultantsInZone(zona).length;
-              const isExpanded = expandedZone === zona;
-              
-              return (
-                <div key={zona} className="bg-slate-900 rounded-lg overflow-hidden">
-                  <button
-                    onClick={() => {
-                      if (isExpanded) {
-                        setExpandedZone(null);
-                        setExpandedType(null);
-                      } else {
-                        setExpandedZone(zona);
-                        setExpandedType(null); // mostra tutti
-                      }
-                    }}
-                    className="w-full flex items-center justify-between p-2 hover:bg-slate-800"
-                  >
-                    <div className="flex items-center gap-2">
-                      <MapPin className="w-3 h-3 text-lime-400" />
-                      <span className="text-white text-xs font-medium">{zona}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-slate-400 text-[10px]">
-                        {usersCount} utenti, {consultantsCount} cons.
-                      </span>
-                      {isExpanded ? <ChevronUp className="w-3 h-3 text-slate-400" /> : <ChevronDown className="w-3 h-3 text-slate-400" />}
-                    </div>
-                  </button>
-                  
-                  {isExpanded && (
-                    <div className="px-2 pb-2 space-y-2">
-                      {/* Utenti nella zona */}
-                      {usersCount > 0 && (
-                        <div>
-                          <p className="text-slate-400 text-[10px] mb-1">Utenti:</p>
-                          <div className="space-y-1">
-                            {getUsersInZone(zona).map(u => (
-                              <div key={u.id} className="flex items-center justify-between bg-slate-800 rounded p-1.5">
-                                <span className="text-white text-[10px] truncate flex-1">{u.company_name || u.full_name}</span>
-                                <div className="flex items-center gap-1">
-                                  <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    className="h-5 w-5 p-0 text-red-400 hover:bg-red-400/20"
-                                    onClick={() => removeZoneFromItem(u, zona, false)}
-                                  >
-                                    <X className="w-3 h-3" />
-                                  </Button>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                      
-                      {/* Consulenti nella zona */}
-                      {consultantsCount > 0 && (
-                        <div>
-                          <p className="text-slate-400 text-[10px] mb-1">Consulenti:</p>
-                          <div className="space-y-1">
-                            {getConsultantsInZone(zona).map(c => (
-                              <div key={c.id} className="flex items-center justify-between bg-slate-800 rounded p-1.5">
-                                <div className="flex-1 min-w-0">
-                                  <span className="text-white text-[10px] truncate block">{c.name}</span>
-                                  <span className="text-slate-400 text-[8px]">{c.category}</span>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    className="h-5 w-5 p-0 text-red-400 hover:bg-red-400/20"
-                                    onClick={() => removeZoneFromItem(c, zona, true)}
-                                  >
-                                    <X className="w-3 h-3" />
-                                  </Button>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
           </div>
 
           {/* TAB UTENTI */}
