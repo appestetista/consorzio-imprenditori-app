@@ -164,34 +164,47 @@ export default function Header({ user }) {
           {/* Pulsante hamburger premium */}
           <button 
             onClick={() => setMenuOpen(!menuOpen)}
-            className="relative w-10 h-10 transition-transform duration-100 active:scale-95"
+            className="relative w-11 h-11 transition-transform duration-100 active:scale-95"
           >
             {/* Ombra soft per pseudo-3D */}
             <div 
               className="absolute inset-0 rounded-xl"
               style={{
-                boxShadow: '0 3px 10px rgba(0,0,0,0.3)'
+                boxShadow: '0 4px 12px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.2)'
               }}
             />
-            {/* Cornice oro sottile */}
+            {/* Cornice oro */}
             <div 
-              className="absolute inset-0 rounded-xl p-[2px]"
+              className="absolute inset-0 rounded-xl p-[2.5px]"
               style={{
-                background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 50%, #8b7355 100%)'
+                background: 'linear-gradient(145deg, #f0e68c 0%, #d4af37 30%, #b8860b 60%, #8b7355 100%)'
               }}
             >
-              {/* Superficie interna scura opaca */}
+              {/* Superficie interna scura con riflesso sottile */}
               <div 
-                className="w-full h-full rounded-[10px] flex items-center justify-center"
+                className="relative w-full h-full rounded-[10px] flex items-center justify-center overflow-hidden"
                 style={{
-                  background: 'linear-gradient(160deg, #2a2a2a 0%, #1f1f1f 100%)',
-                  boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.4)'
+                  background: 'linear-gradient(160deg, #252525 0%, #1a1a1a 100%)',
+                  boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5), inset 0 -1px 1px rgba(255,255,255,0.03)'
                 }}
               >
+                {/* Riflesso sottile */}
+                <div 
+                  className="absolute top-0 left-0 w-full h-[40%] pointer-events-none"
+                  style={{
+                    background: 'linear-gradient(180deg, rgba(255,255,255,0.06) 0%, transparent 100%)',
+                    borderRadius: '10px 10px 50% 50%'
+                  }}
+                />
                 {menuOpen ? (
-                  <X className="w-5 h-5 text-lime-400" />
+                  <X className="w-5 h-5 relative z-10" style={{ color: '#d4af37' }} />
                 ) : (
-                  <Menu className="w-5 h-5 text-lime-400" />
+                  /* Icona hamburger custom con linee oro */
+                  <div className="flex flex-col gap-[5px] relative z-10">
+                    <div className="w-5 h-[2px] rounded-full" style={{ background: 'linear-gradient(90deg, #d4af37, #f0e68c, #d4af37)' }} />
+                    <div className="w-5 h-[2px] rounded-full" style={{ background: 'linear-gradient(90deg, #d4af37, #f0e68c, #d4af37)' }} />
+                    <div className="w-5 h-[2px] rounded-full" style={{ background: 'linear-gradient(90deg, #d4af37, #f0e68c, #d4af37)' }} />
+                  </div>
                 )}
               </div>
             </div>
