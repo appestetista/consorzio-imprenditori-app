@@ -9,6 +9,15 @@ Deno.serve(async (req) => {
             return Response.json({ error: 'Event data required' }, { status: 400 });
         }
 
+        // Gli eventi creati da utenti ricevono solo notifiche interne all'app, non WhatsApp
+        if (event.event_type === 'utente') {
+            return Response.json({ 
+                success: true, 
+                skipped: true,
+                reason: 'Eventi utente: solo notifiche interne app'
+            });
+        }
+
         // Trova tutti gli utenti che devono ricevere la notifica
         const allUsers = await base44.asServiceRole.entities.User.list();
         
