@@ -828,7 +828,7 @@ export default function AdminPanel() {
         )}
       </main>
 
-      <BottomNav currentPage="AdminPanel" unreadMessages={messages.length} />
+      <BottomNav currentPage="AdminPanel" unreadMessages={messages.length} isAdmin={true} />
       
       <ImpersonationDialog
         open={showImpersonationDialog}
