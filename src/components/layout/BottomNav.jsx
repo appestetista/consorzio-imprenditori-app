@@ -20,7 +20,7 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50">
-        <div className="py-3 px-4" style={{ backgroundColor: '#ad9c7e' }}>
+        <div className="py-3 px-4" style={{ backgroundColor: '#0c1730' }}>
         <div className="max-w-md mx-auto">
           <div className="flex justify-between items-center gap-2">
             {navItems.map((item) => {
