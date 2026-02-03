@@ -129,7 +129,7 @@ export default function Header({ user }) {
             className="w-10 h-10 rounded-full object-cover"
           />
           <div>
-            <h1 className="text-lime-400 font-bold text-lg leading-tight">{title}</h1>
+            <h1 className="text-[#d4af37] font-bold text-lg leading-tight">{title}</h1>
             <p className="text-lime-400 text-sm">{subtitle}</p>
           </div>
         </div>
