@@ -67,14 +67,7 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
                           boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5), inset 0 -1px 2px rgba(255,255,255,0.05)'
                         }}
                       >
-                        {/* Riflesso lucido diagonale (glass effect) */}
-                        <div 
-                          className="absolute top-0 left-0 w-full h-[55%] pointer-events-none"
-                          style={{
-                            background: 'linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.05) 40%, transparent 60%)',
-                            borderRadius: '15px 15px 50% 50%'
-                          }}
-                        />
+
 
                         {/* Icona */}
                         <item.icon 

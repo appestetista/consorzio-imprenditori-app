@@ -120,14 +120,7 @@ export default function FeatureCard({
               boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5), inset 0 -1px 2px rgba(255,255,255,0.05)'
             }}
           >
-            {/* Riflesso lucido diagonale */}
-            <div 
-              className="absolute top-0 left-0 w-full h-[50%] pointer-events-none z-10"
-              style={{
-                background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.03) 40%, transparent 60%)',
-                borderRadius: '17px 17px 50% 50%'
-              }}
-            />
+
             
             <div className={cn("flex flex-col items-center justify-center flex-1 relative z-20", hasBottomBadge ? "p-6 pb-3" : "p-6")}>
               {disabled && (
