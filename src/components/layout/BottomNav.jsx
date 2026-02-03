@@ -55,13 +55,13 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
                         background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 25%, #8b7355 50%, #d4af37 75%, #f0e68c 100%)'
                       }}
                     >
-                      {/* Superficie interna nero → bordeaux */}
+                      {/* Superficie interna nero → blu scuro */}
                       <div 
                         className="relative w-full h-full rounded-[15px] flex flex-col items-center justify-center overflow-hidden"
                         style={{
                           background: isActive 
-                            ? 'linear-gradient(160deg, #2a2a2a 0%, #3d1a2a 50%, #5a1a3a 100%)' 
-                            : 'linear-gradient(160deg, #1a1a1a 0%, #2d1020 50%, #3d0a20 100%)',
+                            ? 'linear-gradient(160deg, #2a2a2a 0%, #152040 50%, #1a2850 100%)' 
+                            : 'linear-gradient(160deg, #1a1a1a 0%, #0c1730 50%, #0a1225 100%)',
                           boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5), inset 0 -1px 2px rgba(255,255,255,0.05)'
                         }}
                       >
