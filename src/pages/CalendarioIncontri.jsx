@@ -308,6 +308,9 @@ export default function CalendarioIncontri() {
       setShowUserEventForm(false);
       setNewUserEvent({ title: '', description: '', date: '', time: '', location: '', image_url: '' });
       setShowSuccessPopup(true);
+    },
+    onError: (error) => {
+      alert(error.message || 'Errore durante la creazione dell\'evento');
     }
   });
 
