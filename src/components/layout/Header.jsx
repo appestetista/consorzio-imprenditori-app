@@ -161,11 +161,40 @@ export default function Header({ user }) {
             )}
           </Link>
           
+          {/* Pulsante hamburger premium */}
           <button 
             onClick={() => setMenuOpen(!menuOpen)}
-            className="bg-lime-400 p-2 rounded-lg"
+            className="relative w-10 h-10 transition-transform duration-100 active:scale-95"
           >
-            {menuOpen ? <X className="w-6 h-6 text-slate-900" /> : <Menu className="w-6 h-6 text-slate-900" />}
+            {/* Ombra soft per pseudo-3D */}
+            <div 
+              className="absolute inset-0 rounded-xl"
+              style={{
+                boxShadow: '0 3px 10px rgba(0,0,0,0.3)'
+              }}
+            />
+            {/* Cornice oro sottile */}
+            <div 
+              className="absolute inset-0 rounded-xl p-[2px]"
+              style={{
+                background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 50%, #8b7355 100%)'
+              }}
+            >
+              {/* Superficie interna scura opaca */}
+              <div 
+                className="w-full h-full rounded-[10px] flex items-center justify-center"
+                style={{
+                  background: 'linear-gradient(160deg, #2a2a2a 0%, #1f1f1f 100%)',
+                  boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.4)'
+                }}
+              >
+                {menuOpen ? (
+                  <X className="w-5 h-5 text-lime-400" />
+                ) : (
+                  <Menu className="w-5 h-5 text-lime-400" />
+                )}
+              </div>
+            </div>
           </button>
         </div>
       </header>
