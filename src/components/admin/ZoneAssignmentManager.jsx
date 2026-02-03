@@ -273,36 +273,9 @@ export default function ZoneAssignmentManager() {
                       <span className="text-white text-xs font-medium">{zona}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Badge 
-                        className="bg-blue-500/20 text-blue-400 text-[10px] cursor-pointer hover:bg-blue-500/30"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (expandedZone === zona && expandedType === 'utenti') {
-                            setExpandedZone(null);
-                            setExpandedType(null);
-                          } else {
-                            setExpandedZone(zona);
-                            setExpandedType('utenti');
-                          }
-                        }}
-                      >
-                        {usersCount} utenti
-                      </Badge>
-                      <Badge 
-                        className="bg-purple-500/20 text-purple-400 text-[10px] cursor-pointer hover:bg-purple-500/30"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (expandedZone === zona && expandedType === 'consulenti') {
-                            setExpandedZone(null);
-                            setExpandedType(null);
-                          } else {
-                            setExpandedZone(zona);
-                            setExpandedType('consulenti');
-                          }
-                        }}
-                      >
-                        {consultantsCount} cons.
-                      </Badge>
+                      <span className="text-slate-400 text-[10px]">
+                        {usersCount} utenti, {consultantsCount} cons.
+                      </span>
                       {isExpanded ? <ChevronUp className="w-3 h-3 text-slate-400" /> : <ChevronDown className="w-3 h-3 text-slate-400" />}
                     </div>
                   </button>
@@ -310,7 +283,7 @@ export default function ZoneAssignmentManager() {
                   {isExpanded && (
                     <div className="px-2 pb-2 space-y-2">
                       {/* Utenti nella zona */}
-                      {expandedZone === zona && expandedType !== 'consulenti' && usersCount > 0 && (
+                      {usersCount > 0 && (
                         <div>
                           <p className="text-slate-400 text-[10px] mb-1">Utenti:</p>
                           <div className="space-y-1">
@@ -334,7 +307,7 @@ export default function ZoneAssignmentManager() {
                       )}
                       
                       {/* Consulenti nella zona */}
-                      {expandedZone === zona && expandedType !== 'utenti' && consultantsCount > 0 && (
+                      {consultantsCount > 0 && (
                         <div>
                           <p className="text-slate-400 text-[10px] mb-1">Consulenti:</p>
                           <div className="space-y-1">
