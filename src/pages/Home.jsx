@@ -760,7 +760,12 @@ export default function Home() {
         )}
 
         {/* Feature Grid */}
-        <div className="grid grid-cols-2 gap-4 mb-4">
+        <div 
+          className="grid grid-cols-2 gap-4 mb-4 p-4 rounded-2xl"
+          style={{
+            background: 'radial-gradient(ellipse at center, #c9a227 0%, #a68b1f 30%, #8b7355 60%, #6b5a40 100%)'
+          }}
+        >
           {filteredFeatures.map((feature) => (
             <FeatureCard
                                 key={feature.page}
