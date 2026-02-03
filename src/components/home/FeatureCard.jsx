@@ -92,11 +92,17 @@ export default function FeatureCard({
       <div 
         key={shouldGlow ? 'glow' : 'no-glow'}
         className={cn(
-          "relative bg-slate-800/90 rounded-xl flex flex-col items-center justify-center min-h-[120px] transition-all duration-300 overflow-hidden border",
-          disabled ? "opacity-50 cursor-not-allowed border-red-500/50" : "hover:bg-slate-700/90 hover:scale-105 cursor-pointer border-slate-700/50",
+          "relative rounded-2xl flex flex-col items-center justify-center min-h-[120px] transition-all duration-150 overflow-hidden",
+          disabled ? "opacity-50 cursor-not-allowed" : "active:brightness-110 cursor-pointer",
           hasBottomBadge ? "pb-0" : "p-6"
         )}
-        style={shouldGlow && !disabled ? { animation: 'cardGlow 2s ease-in-out infinite' } : {}}
+        style={{
+          background: 'rgba(30, 41, 59, 0.85)',
+          backdropFilter: 'blur(8px)',
+          border: '1px solid rgba(71, 85, 105, 0.3)',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.15)',
+          ...(shouldGlow && !disabled ? { animation: 'cardGlow 2s ease-in-out infinite' } : {})
+        }}
       >
         <div className={cn("flex flex-col items-center justify-center flex-1", hasBottomBadge ? "p-6 pb-3" : "")}>
           {disabled && (
