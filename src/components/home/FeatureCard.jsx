@@ -104,9 +104,9 @@ export default function FeatureCard({
       >
         {/* Cornice oro/champagne */}
         <div 
-          className="absolute inset-0 rounded-[20px] p-[2px]"
+          className="absolute inset-0 rounded-[20px] p-[2.5px]"
           style={{
-            background: 'linear-gradient(145deg, rgba(212,175,55,0.6) 0%, rgba(184,134,11,0.5) 25%, rgba(139,115,85,0.4) 50%, rgba(212,175,55,0.6) 75%, rgba(240,230,140,0.5) 100%)'
+            background: 'linear-gradient(145deg, rgba(212,175,55,0.8) 0%, rgba(184,134,11,0.7) 25%, rgba(139,115,85,0.6) 50%, rgba(212,175,55,0.8) 75%, rgba(240,230,140,0.7) 100%)'
           }}
         >
           {/* Superficie interna nero → bordeaux */}
