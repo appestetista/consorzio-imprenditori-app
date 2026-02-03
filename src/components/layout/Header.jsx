@@ -130,7 +130,7 @@ export default function Header({ user }) {
           />
           <div>
             <h1 className="text-[#d4af37] font-bold text-lg leading-tight">{title}</h1>
-            <p className="text-lime-400 text-sm">{subtitle}</p>
+            <p className="text-[#d4af37] text-sm">{subtitle}</p>
           </div>
         </div>
         
