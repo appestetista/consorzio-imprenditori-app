@@ -102,11 +102,11 @@ export default function FeatureCard({
           ...(shouldGlow && !disabled ? { animation: 'cardGlow 2s ease-in-out infinite' } : {})
         }}
       >
-        {/* Cornice argento */}
+        {/* Cornice argento sottile */}
         <div 
-          className="absolute inset-0 rounded-[20px] p-[2.5px]"
+          className="absolute inset-0 rounded-[20px] p-[1.5px]"
           style={{
-            background: 'linear-gradient(145deg, #c0c0c0 0%, #a8a8a8 25%, #808080 50%, #c0c0c0 75%, #e8e8e8 100%)'
+            background: 'linear-gradient(145deg, rgba(192,192,192,0.5) 0%, rgba(168,168,168,0.4) 25%, rgba(128,128,128,0.3) 50%, rgba(192,192,192,0.5) 75%, rgba(232,232,232,0.4) 100%)'
           }}
         >
           {/* Superficie interna nero → bordeaux */}
