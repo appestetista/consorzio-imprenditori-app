@@ -102,11 +102,11 @@ export default function FeatureCard({
           ...(shouldGlow && !disabled ? { animation: 'cardGlow 2s ease-in-out infinite' } : {})
         }}
       >
-        {/* Cornice oro/champagne */}
+        {/* Cornice argento */}
         <div 
           className="absolute inset-0 rounded-[20px] p-[2.5px]"
           style={{
-            background: 'linear-gradient(145deg, rgba(212,175,55,0.8) 0%, rgba(184,134,11,0.7) 25%, rgba(139,115,85,0.6) 50%, rgba(212,175,55,0.8) 75%, rgba(240,230,140,0.7) 100%)'
+            background: 'linear-gradient(145deg, #c0c0c0 0%, #a8a8a8 25%, #808080 50%, #c0c0c0 75%, #e8e8e8 100%)'
           }}
         >
           {/* Superficie interna nero → bordeaux */}
@@ -165,7 +165,7 @@ export default function FeatureCard({
                 </div>
               )}
               
-              {Icon && <Icon className={cn("w-8 h-8 mb-3", disabled ? "text-red-400" : "text-[#d4af37]")} style={!disabled ? { filter: 'drop-shadow(0 0 4px rgba(212,175,55,0.3))' } : {}} />}
+              {Icon && <Icon className={cn("w-8 h-8 mb-3", disabled ? "text-red-400" : "text-[#a0a0a0]")} />}
               <span className={cn("text-sm font-medium text-center leading-tight break-words w-full px-1", disabled ? "text-red-300" : "text-white")}>{title}</span>
             </div>
             
