@@ -676,22 +676,36 @@ export default function Home() {
   // Dati già normalizzati
   const isConsultant = isUserConsultant(effectiveUser);
 
+  // Leggi tab da URL per filtrare le features
+  const urlParams = new URLSearchParams(window.location.search);
+  const activeTab = urlParams.get('tab'); // null = tutte, 'relazioni', 'strumenti', 'consulenza'
+
   const features = [
-    { title: 'Calendario\nincontri', icon: Calendar, page: 'CalendarioIncontri', notifications: eventNotifications, permission: 'calendario', eventCount: totalFutureEventsCount, pendingInvites: pendingEventInvites },
-    { title: 'Video\ninterviste', icon: Video, page: 'VideoInterviste', notifications: videoNotifications, permission: 'video_interviste', newVideosCount: videosData.newCount, totalVideosCount: videosData.totalCount, hasVisitedVideos: videosData.hasVisited, latestVideoDate: videosData.latestVideoDate },
-    { title: 'Finanziamenti\nagevolati', icon: Euro, page: 'FinanziamentiAgevolati', notifications: isNotAdmin ? newGrantsCount : 0, permission: 'finanziamenti' },
-    { title: 'Risparmio', icon: PiggyBank, page: 'RisparmioEnergetico', notifications: 0, permission: 'risparmio_energetico' },
-    { title: 'Consigli da\nImprenditori', icon: Handshake, page: 'Imprenditori', notifications: unviewedPollsCount, permission: 'imprenditori' },
-    { title: 'Contatta\nImprenditori', icon: User, page: 'GestioneMembri', notifications: messages.length, permission: 'contatta_membri' },
-    { title: isConsultant ? 'Richieste di\nConsulenza' : 'Consulenze', icon: Briefcase, page: 'Consulenze', notifications: consultationNotifications, permission: 'consulenze', bottomBadge: isConsultant ? (pendingConsultationRequests > 0 ? pendingConsultationRequests : null) : (freeConsultationsCount > 0 ? freeConsultationsCount : null), bottomBadgeType: isConsultant ? 'requests' : 'consultations' },
-    { title: 'Analisi\nContratti', icon: FileSearch, page: 'AnalisiContratti', notifications: contractMessagesCount, permission: 'analisi_contratti' },
-    { title: 'Ricerca\nFornitori', icon: Truck, page: 'Fornitori', notifications: 0, permission: 'fornitori' },
-    { title: 'Import /\nExport', icon: Globe, page: 'ImportExport', notifications: 0, permission: 'import_export' },
-    { title: 'Market Place', icon: ShoppingBag, page: 'Marketplace', notifications: marketplaceNotifications, permission: 'marketplace' },
-    { title: 'Academy', icon: BookOpen, page: 'CulturaAziendale', notifications: culturaAziendaleNotifications, permission: 'cultura_aziendale' },
-    { title: 'Welfare\n(Benefit Detassati)', icon: Heart, page: 'WelfareAziendale', notifications: 0, permission: 'welfare_aziendale', variant: 'pink' },
-    { title: 'Conformità\nAziendale (Obblighi)', icon: Shield, page: 'ComplianceAziendale', notifications: complianceAlerts, permission: 'compliance', variant: 'blue' },
+    // RELAZIONI
+    { title: 'Calendario\nincontri', icon: Calendar, page: 'CalendarioIncontri', notifications: eventNotifications, permission: 'calendario', eventCount: totalFutureEventsCount, pendingInvites: pendingEventInvites, category: 'relazioni' },
+    { title: 'Contatta\nImprenditori', icon: User, page: 'GestioneMembri', notifications: messages.length, permission: 'contatta_membri', category: 'relazioni' },
+    { title: 'Consigli da\nImprenditori', icon: Handshake, page: 'Imprenditori', notifications: unviewedPollsCount, permission: 'imprenditori', category: 'relazioni' },
+    { title: 'Academy', icon: BookOpen, page: 'CulturaAziendale', notifications: culturaAziendaleNotifications, permission: 'cultura_aziendale', category: 'relazioni' },
+    { title: 'Video\ninterviste', icon: Video, page: 'VideoInterviste', notifications: videoNotifications, permission: 'video_interviste', newVideosCount: videosData.newCount, totalVideosCount: videosData.totalCount, hasVisitedVideos: videosData.hasVisited, latestVideoDate: videosData.latestVideoDate, category: 'relazioni' },
+    
+    // STRUMENTI
+    { title: 'Analisi\nContratti', icon: FileSearch, page: 'AnalisiContratti', notifications: contractMessagesCount, permission: 'analisi_contratti', category: 'strumenti' },
+    { title: 'Ricerca\nFornitori', icon: Truck, page: 'Fornitori', notifications: 0, permission: 'fornitori', category: 'strumenti' },
+    { title: 'Market Place', icon: ShoppingBag, page: 'Marketplace', notifications: marketplaceNotifications, permission: 'marketplace', category: 'strumenti' },
+    { title: 'Conformità\nAziendale (Obblighi)', icon: Shield, page: 'ComplianceAziendale', notifications: complianceAlerts, permission: 'compliance', variant: 'blue', category: 'strumenti' },
+    { title: 'Welfare\n(Benefit Detassati)', icon: Heart, page: 'WelfareAziendale', notifications: 0, permission: 'welfare_aziendale', variant: 'pink', category: 'strumenti' },
+    
+    // CONSULENZA
+    { title: isConsultant ? 'Richieste di\nConsulenza' : 'Consulenze', icon: Briefcase, page: 'Consulenze', notifications: consultationNotifications, permission: 'consulenze', bottomBadge: isConsultant ? (pendingConsultationRequests > 0 ? pendingConsultationRequests : null) : (freeConsultationsCount > 0 ? freeConsultationsCount : null), bottomBadgeType: isConsultant ? 'requests' : 'consultations', category: 'consulenza' },
+    { title: 'Import /\nExport', icon: Globe, page: 'ImportExport', notifications: 0, permission: 'import_export', category: 'consulenza' },
+    { title: 'Risparmio', icon: PiggyBank, page: 'RisparmioEnergetico', notifications: 0, permission: 'risparmio_energetico', category: 'consulenza' },
+    { title: 'Finanziamenti\nagevolati', icon: Euro, page: 'FinanziamentiAgevolati', notifications: isNotAdmin ? newGrantsCount : 0, permission: 'finanziamenti', category: 'consulenza' },
   ];
+
+  // Filtra features in base al tab attivo
+  const filteredFeatures = activeTab 
+    ? features.filter(f => f.category === activeTab)
+    : features;
 
   return (
     <div className="min-h-screen bg-slate-900 pb-24">
@@ -740,9 +754,14 @@ export default function Home() {
           </div>
         )}
 
+        {/* Titolo categoria se filtrato */}
+        {activeTab && (
+          <h3 className="text-lime-400 font-bold text-xl mb-4 capitalize">{activeTab}</h3>
+        )}
+
         {/* Feature Grid */}
         <div className="grid grid-cols-2 gap-4 mb-4">
-          {features.map((feature) => (
+          {filteredFeatures.map((feature) => (
             <FeatureCard
                                 key={feature.page}
                                 title={feature.title}
@@ -764,7 +783,7 @@ export default function Home() {
         </div>
       </main>
 
-      <BottomNav currentPage="Home" unreadMessages={messages.length} />
+      <BottomNav currentPage="Home" unreadMessages={messages.length} activeTab={activeTab} />
 
       {/* Popup invito evento - si mostra solo se ci sono inviti in attesa */}
               <EventInvitePopup user={effectiveUser} />
