@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Menu, X, LogOut, Settings, User, Eye, XCircle, Bell } from 'lucide-react';
+import { Menu, X, LogOut, Settings, User, Eye, XCircle, Bell, Mail, Phone } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
@@ -134,7 +134,7 @@ export default function Header({ user }) {
           </div>
         </div>
         
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {impersonation.active && (
             <button
               onClick={() => {
@@ -147,6 +147,19 @@ export default function Header({ user }) {
               Admin
             </button>
           )}
+          
+          {/* Icona Messaggi */}
+          <Link
+            to={createPageUrl('Messaggi')}
+            className="relative bg-slate-800 p-2 rounded-lg hover:bg-slate-700 transition-colors"
+          >
+            <Mail className="w-5 h-5 text-lime-400" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] rounded-full min-w-4 h-4 px-1 flex items-center justify-center font-bold">
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+            )}
+          </Link>
           
           <button 
             onClick={() => setMenuOpen(!menuOpen)}
@@ -236,6 +249,16 @@ export default function Header({ user }) {
                 <span>Il Mio Profilo</span>
               </Link>
             )}
+
+            {/* Contatta Consorzio - nel menu */}
+            <Link
+              to={createPageUrl('ContattaConsorzio')}
+              onClick={() => setMenuOpen(false)}
+              className="flex items-center gap-3 text-white py-3 px-4 rounded-lg hover:bg-slate-800 transition-colors"
+            >
+              <Phone className="w-5 h-5 text-lime-400" />
+              <span>Contatta Consorzio</span>
+            </Link>
 
             <button
               onClick={handleLogout}

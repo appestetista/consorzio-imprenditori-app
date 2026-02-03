@@ -1,15 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Home, Mail, Phone, Crosshair } from 'lucide-react';
+import { Home, Users, Wrench, Briefcase } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function BottomNav({ currentPage, unreadMessages = 0 }) {
   const navItems = [
     { name: 'home', label: 'Home', icon: Home, page: 'Home' },
-    { name: 'messaggi', label: 'Messaggi', icon: Mail, page: 'Messaggi', badge: unreadMessages },
-    { name: 'contatta', label: 'Consorzio', icon: Phone, page: 'ContattaConsorzio' },
-    { name: 'focus', label: 'Focus', icon: Crosshair, page: 'Focus' },
+    { name: 'relazioni', label: 'Relazioni', icon: Users, page: 'Home?tab=relazioni' },
+    { name: 'consulenza', label: 'Consulenza', icon: Briefcase, page: 'Home?tab=consulenza' },
+    { name: 'strumenti', label: 'Strumenti', icon: Wrench, page: 'Home?tab=strumenti' },
   ];
 
   return (
