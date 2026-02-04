@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, FileSearch, Upload, FileText, Loader2, CheckCircle, AlertTriangle, Info, Scale, Send, X, History, ChevronRight, Trash2, Paperclip, Camera, Mail, MessageSquare } from 'lucide-react';
+import { ArrowLeft, FileSearch, Upload, FileText, Loader2, CheckCircle, AlertTriangle, Info, Scale, Send, X, History, ChevronRight, Trash2, Paperclip, Camera, Mail, MessageSquare, GitCompare } from 'lucide-react';
 import { useAILimits } from '@/components/hooks/useAILimits';
 import LimitReachedBanner from '@/components/common/LimitReachedBanner';
 import UsageCounter from '@/components/common/UsageCounter';
@@ -35,6 +35,10 @@ export default function AnalisiContratti() {
   const [followUpAnswers, setFollowUpAnswers] = useState([]);
   const [askingFollowUp, setAskingFollowUp] = useState(false);
   const [followUpCount, setFollowUpCount] = useState(0);
+  const [compareMode, setCompareMode] = useState(false);
+  const [compareFiles, setCompareFiles] = useState({ fileA: null, fileB: null });
+  const [comparing, setComparing] = useState(false);
+  const [comparisonResult, setComparisonResult] = useState(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -266,6 +270,142 @@ Per OGNI clausola problematica rilevata, indica:
     setFollowUpQuestion('');
     setFollowUpAnswers([]);
     setFollowUpCount(0);
+  };
+
+  const handleCompareFileChange = (e, slot) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile && (selectedFile.type === 'application/pdf' || selectedFile.type.startsWith('image/'))) {
+      setCompareFiles(prev => ({ ...prev, [slot]: selectedFile }));
+      setError(null);
+    } else {
+      setError('Per favore carica un file PDF o un\'immagine');
+    }
+    e.target.value = '';
+  };
+
+  const handleCompare = async () => {
+    if (!compareFiles.fileA || !compareFiles.fileB) return;
+
+    if (isLimitReached) {
+      setError('Hai raggiunto il limite mensile di analisi contratti.');
+      return;
+    }
+
+    setComparing(true);
+    setError(null);
+
+    try {
+      await trackUsage();
+
+      // Upload entrambi i file
+      const { file_url: urlA } = await base44.integrations.Core.UploadFile({ file: compareFiles.fileA });
+      const { file_url: urlB } = await base44.integrations.Core.UploadFile({ file: compareFiles.fileB });
+
+      // Confronto con LLM
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `Sei un avvocato civilista italiano esperto in contrattualistica. Ti vengono forniti DUE contratti da confrontare.
+
+COMPITO: Analizza entrambi i documenti e identifica TUTTE le differenze significative tra loro.
+
+STRUTTURA DEL CONFRONTO:
+
+§1. IDENTIFICAZIONE DOCUMENTI
+- Descrivi brevemente il tipo di ciascun contratto (Contratto A e Contratto B)
+- Indica se sono dello stesso tipo o tipologie diverse
+
+§2. DIFFERENZE NELLE PARTI CONTRATTUALI
+- Differenze nei soggetti coinvolti
+- Differenze nei ruoli/qualifiche
+
+§3. DIFFERENZE NELL'OGGETTO E PRESTAZIONI
+- Cosa cambia nell'oggetto del contratto
+- Differenze nelle obbligazioni
+
+§4. DIFFERENZE ECONOMICHE
+- Differenze nei corrispettivi/prezzi
+- Differenze nelle modalità di pagamento
+- Differenze in penali o interessi
+
+§5. DIFFERENZE NELLA DURATA E TERMINI
+- Durata contrattuale
+- Termini di recesso/disdetta
+- Rinnovi automatici
+
+§6. DIFFERENZE NELLE CLAUSOLE CRITICHE
+Per ogni clausola che differisce significativamente:
+- Indica cosa prevede il Contratto A
+- Indica cosa prevede il Contratto B
+- Spiega le IMPLICAZIONI della differenza (quale versione è più favorevole e perché)
+
+§7. CLAUSOLE PRESENTI SOLO IN UNO DEI DUE
+- Clausole presenti solo in A (e perché è rilevante)
+- Clausole presenti solo in B (e perché è rilevante)
+
+§8. VALUTAZIONE COMPARATIVA
+- Quale contratto è complessivamente più favorevole e perché
+- Rischi specifici di ciascuna versione
+
+§9. RACCOMANDAZIONI
+- Cosa negoziare per allineare i contratti
+- Quale versione preferire se si deve scegliere`,
+        file_urls: [urlA, urlB],
+        response_json_schema: {
+          type: "object",
+          properties: {
+            contratto_a: { type: "string", description: "Descrizione breve del Contratto A" },
+            contratto_b: { type: "string", description: "Descrizione breve del Contratto B" },
+            stesso_tipo: { type: "boolean", description: "Se i contratti sono dello stesso tipo" },
+            differenze_parti: { type: "array", items: { type: "string" } },
+            differenze_oggetto: { type: "array", items: { type: "string" } },
+            differenze_economiche: { 
+              type: "array", 
+              items: { 
+                type: "object",
+                properties: {
+                  aspetto: { type: "string" },
+                  contratto_a: { type: "string" },
+                  contratto_b: { type: "string" },
+                  implicazione: { type: "string" }
+                }
+              }
+            },
+            differenze_durata: { type: "array", items: { type: "string" } },
+            differenze_clausole: { 
+              type: "array", 
+              items: { 
+                type: "object",
+                properties: {
+                  clausola: { type: "string" },
+                  versione_a: { type: "string" },
+                  versione_b: { type: "string" },
+                  implicazione: { type: "string" },
+                  piu_favorevole: { type: "string", enum: ["A", "B", "Neutro"] }
+                }
+              }
+            },
+            clausole_solo_a: { type: "array", items: { type: "string" } },
+            clausole_solo_b: { type: "array", items: { type: "string" } },
+            contratto_piu_favorevole: { type: "string", enum: ["A", "B", "Equivalenti"] },
+            motivazione_preferenza: { type: "string" },
+            raccomandazioni: { type: "array", items: { type: "string" } },
+            riepilogo: { type: "string" }
+          }
+        }
+      });
+
+      setComparisonResult({ ...result, fileA_name: compareFiles.fileA.name, fileB_name: compareFiles.fileB.name });
+    } catch (e) {
+      console.error(e);
+      setError('Errore durante il confronto dei contratti. Riprova.');
+    } finally {
+      setComparing(false);
+    }
+  };
+
+  const resetComparison = () => {
+    setCompareFiles({ fileA: null, fileB: null });
+    setComparisonResult(null);
+    setCompareMode(false);
   };
 
   const handleAskFollowUp = async () => {
