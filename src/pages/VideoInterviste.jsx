@@ -33,6 +33,9 @@ export default function VideoInterviste() {
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [requestMessage, setRequestMessage] = useState('');
   const [requestSent, setRequestSent] = useState(false);
+  const [showContactModal, setShowContactModal] = useState(false);
+  const [contactMessage, setContactMessage] = useState('');
+  const [selectedVideoForContact, setSelectedVideoForContact] = useState(null);
   const queryClient = useQueryClient();
   const { impersonation, appMode } = useImpersonation();
   const { playSound } = useNotificationSound();
@@ -73,6 +76,17 @@ export default function VideoInterviste() {
   const { data: messages = [] } = useQuery({
     queryKey: ['unread-messages', effectiveUser?.email],
     queryFn: () => base44.entities.Message.filter({ to_email: effectiveUser?.email, is_read: false }),
+    enabled: !!effectiveUser?.email,
+  });
+
+  // Messaggi video non letti per badge
+  const { data: unreadVideoMessages = [] } = useQuery({
+    queryKey: ['unread-video-messages', effectiveUser?.email],
+    queryFn: () => base44.entities.Message.filter({ 
+      to_email: effectiveUser?.email, 
+      source: 'video',
+      is_read: false 
+    }),
     enabled: !!effectiveUser?.email,
   });
 
@@ -245,24 +259,83 @@ export default function VideoInterviste() {
   });
 
   const sendContactMessageMutation = useMutation({
-    mutationFn: async (video) => {
-      const response = await base44.functions.invoke('contactCompany', {
-        videoId: video.id,
-        companyEmail: video.company_email
+    mutationFn: async ({ video, message }) => {
+      if (!message.trim()) throw new Error('Messaggio vuoto');
+      if (!video.company_email) throw new Error('Email azienda non disponibile');
+      
+      const senderName = effectiveUser?.company_name || effectiveUser?.full_name || 'Utente';
+      
+      // Crea il messaggio in-app
+      const conversationId = `video_${video.id}_${effectiveUser?.email}_${video.company_email}`;
+      await base44.entities.Message.create({
+        from_email: effectiveUser?.email,
+        to_email: video.company_email,
+        content: message,
+        source: 'video',
+        source_reference: video.company_name,
+        conversation_id: conversationId,
+        is_read: false
       });
-      return response.data;
-    },
-    onSuccess: (data) => {
-      if (data.alreadyExists) {
-        alert('Hai già inviato una richiesta di contatto a questa azienda');
-      } else {
-        alert(data.message);
+      
+      // Crea notifica per l'azienda
+      await base44.entities.Notification.create({
+        user_email: video.company_email,
+        type: 'message',
+        title: 'Nuovo messaggio da Video Intervista',
+        content: `${senderName} ti ha contattato dalla tua video intervista`,
+        reference_id: video.id,
+        is_read: false
+      });
+      
+      // Invia email all'azienda
+      try {
+        await base44.integrations.Core.SendEmail({
+          from_name: 'Consorzio Imprenditori',
+          to: video.company_email,
+          subject: `Nuovo contatto dalla tua Video Intervista - ${senderName}`,
+          body: `
+Ciao ${video.company_name},
+
+Hai ricevuto un nuovo messaggio dalla tua video intervista sulla piattaforma del Consorzio.
+
+DA: ${senderName}
+EMAIL: ${effectiveUser?.email}
+${effectiveUser?.phone ? `TELEFONO: ${effectiveUser.phone}` : ''}
+
+MESSAGGIO:
+${message}
+
+---
+Puoi rispondere direttamente accedendo alla sezione Messaggi della piattaforma.
+          `
+        });
+      } catch (e) {
+        console.log('Errore invio email:', e);
       }
+      
+      return { success: true };
+    },
+    onSuccess: () => {
+      setShowContactModal(false);
+      setContactMessage('');
+      setSelectedVideoForContact(null);
+      queryClient.invalidateQueries({ queryKey: ['unread-video-messages'] });
+      alert('Messaggio inviato con successo!');
     },
     onError: (error) => {
-      alert(error.response?.data?.error || 'Errore durante l\'invio della richiesta');
+      alert(error.message || 'Errore durante l\'invio del messaggio');
     }
   });
+
+  const openContactModal = (video) => {
+    if (!video.company_email) {
+      alert('Questa azienda non ha un\'email di contatto configurata');
+      return;
+    }
+    setSelectedVideoForContact(video);
+    setContactMessage('');
+    setShowContactModal(true);
+  };
 
   const requestInterviewMutation = useMutation({
     mutationFn: async () => {
@@ -373,6 +446,15 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
               <ArrowLeft className="w-6 h-6" />
             </Link>
             <h1 className="text-white text-xl font-bold">Video Interviste</h1>
+            {/* Badge messaggi video non letti */}
+            {unreadVideoMessages.length > 0 && (
+              <Link 
+                to={createPageUrl('Messaggi') + '?filter=video'} 
+                className="relative bg-red-500 text-white text-xs font-bold rounded-full min-w-[22px] h-[22px] flex items-center justify-center px-1.5 animate-pulse"
+              >
+                {unreadVideoMessages.length > 99 ? '99+' : unreadVideoMessages.length}
+              </Link>
+            )}
           </div>
           
           {isAdmin && (
@@ -694,9 +776,8 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
                       </div>
                       <CardContent className="p-3 space-y-3">
                         <button
-                          onClick={() => sendContactMessageMutation.mutate(video)}
-                          disabled={sendContactMessageMutation.isPending}
-                          className="w-full h-10 cursor-pointer transition-all duration-150 hover:brightness-110 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-slate-900 font-semibold text-sm"
+                          onClick={() => openContactModal(video)}
+                          className="w-full h-10 cursor-pointer transition-all duration-150 hover:brightness-110 active:scale-[0.98] flex items-center justify-center gap-2 text-slate-900 font-semibold text-sm"
                           style={{
                             background: 'linear-gradient(to bottom, #f7d774 0%, #e6b93d 35%, #c6921b 60%, #9e6f0f 100%)',
                             borderRadius: '16px',
@@ -705,7 +786,7 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
                           }}
                         >
                           <MessageCircle className="w-4 h-4" />
-                          {sendContactMessageMutation.isPending ? 'Invio...' : 'contatta l\'azienda'}
+                          contatta l'azienda
                         </button>
                         
                         <VideoRating 
@@ -789,6 +870,51 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
       </Dialog>
 
       <BottomNav currentPage="VideoInterviste" unreadMessages={messages.length} />
+
+      {/* Modal Contatta Azienda */}
+      <Dialog open={showContactModal} onOpenChange={setShowContactModal}>
+        <DialogContent className="bg-slate-800 border-slate-700">
+          <DialogHeader>
+            <DialogTitle className="text-white">Contatta {selectedVideoForContact?.company_name}</DialogTitle>
+          </DialogHeader>
+          <button
+            onClick={() => setShowContactModal(false)}
+            className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
+          >
+            <X className="h-4 w-4 text-slate-400" />
+          </button>
+          <div className="space-y-4 mt-4">
+            <p className="text-slate-400 text-sm">
+              Scrivi un messaggio all'azienda. Riceveranno una notifica e un'email.
+            </p>
+            
+            <Textarea
+              placeholder="Scrivi il tuo messaggio..."
+              value={contactMessage}
+              onChange={(e) => setContactMessage(e.target.value)}
+              className="bg-slate-900 border-slate-700 text-white min-h-[120px]"
+            />
+            
+            <button
+              onClick={() => sendContactMessageMutation.mutate({ 
+                video: selectedVideoForContact, 
+                message: contactMessage 
+              })}
+              disabled={sendContactMessageMutation.isPending || !contactMessage.trim()}
+              className="w-full h-10 cursor-pointer transition-all duration-150 hover:brightness-110 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-slate-900 font-semibold text-sm"
+              style={{
+                background: 'linear-gradient(to bottom, #f7d774 0%, #e6b93d 35%, #c6921b 60%, #9e6f0f 100%)',
+                borderRadius: '16px',
+                boxShadow: 'inset 0 3px 4px rgba(255,255,255,0.6), inset 0 -6px 8px rgba(0,0,0,0.45), 0 10px 22px rgba(0,0,0,0.6)',
+                border: 'none'
+              }}
+            >
+              <Mail className="w-4 h-4" />
+              {sendContactMessageMutation.isPending ? 'Invio...' : 'Invia all\'azienda'}
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Dialog Modifica Video */}
       <Dialog open={showEditVideo} onOpenChange={setShowEditVideo}>
