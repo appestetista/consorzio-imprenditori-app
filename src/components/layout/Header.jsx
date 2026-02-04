@@ -121,7 +121,7 @@ export default function Header({ user }) {
 
   return (
     <>
-      <header className="bg-slate-900 py-4 px-4 flex items-center justify-between sticky top-0 z-40 border-b border-lime-400/30">
+      <header className="py-4 px-4 flex items-center justify-between sticky top-0 z-40 border-b border-lime-400/30" style={{ backgroundColor: '#0B1E2D' }}>
         <div className="flex items-center gap-3">
           <img 
             src={getUserLogo()} 
