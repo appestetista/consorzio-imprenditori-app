@@ -31,10 +31,12 @@ Deno.serve(async (req) => {
     if (pendingInvites.length === 0) {
       // Controlla se esiste un invito già registrato per questa email
       // (caso in cui l'utente ha già completato la registrazione in precedenza)
-      const registeredInvites = await base44.asServiceRole.entities.PendingInvite.filter({
-        email: user.email.toLowerCase(),
+      const allRegisteredInvites = await base44.asServiceRole.entities.PendingInvite.filter({
         is_registered: true
       });
+      const registeredInvites = allRegisteredInvites.filter(
+        inv => inv.email?.toLowerCase() === user.email.toLowerCase()
+      );
 
       if (registeredInvites.length > 0) {
         // L'utente era già stato autorizzato, non bloccare
