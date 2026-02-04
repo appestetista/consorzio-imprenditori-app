@@ -183,7 +183,22 @@ export default function MemberView({ user, consultants, isLoading }) {
         bookingData.meeting_link = link;
       }
       
-      await base44.entities.ConsultationBooking.create(bookingData);
+      const newBooking = await base44.entities.ConsultationBooking.create(bookingData);
+      
+      // Crea il messaggio iniziale nella sezione consulenze
+      // Così il consulente vedrà il messaggio anche nella pagina Messaggi
+      if (consultant?.email && message) {
+        const conversationId = `consultation_${newBooking.id}`;
+        await base44.entities.Message.create({
+          from_email: user.email,
+          to_email: consultant.email,
+          content: message,
+          conversation_id: conversationId,
+          source: 'consulenze',
+          source_reference: `Consulenza #${newBooking.id.slice(-6)}`,
+          is_read: false
+        });
+      }
       
       // Crea notifica per il consulente
       if (consultant?.email) {
