@@ -99,9 +99,15 @@ export default function Messaggi() {
   const { data: users = [] } = useQuery({
     queryKey: ['users-list'],
     queryFn: async () => {
-      const response = await base44.functions.invoke('listMembers');
-      return response.data?.users || [];
+      try {
+        const response = await base44.functions.invoke('listMembers');
+        return response.data?.users || [];
+      } catch (e) {
+        console.error('Errore caricamento utenti:', e);
+        return [];
+      }
     },
+    enabled: !!effectiveEmail,
   });
 
   // Configurazione sezioni messaggi
