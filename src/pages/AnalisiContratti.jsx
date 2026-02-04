@@ -1208,7 +1208,7 @@ Accedi all'app per visualizzare gli allegati e rispondere direttamente al client
               </Button>
             </div>
           </>
-        ) : !analysis ? (
+        ) : !compareMode && !analysis ? (
           <>
             {/* Upload Area */}
             <Card className="bg-slate-800 border-slate-700 mb-4">
