@@ -462,7 +462,7 @@ export default function Home() {
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   };
   
-  const { data: contractUsageData = { count: 0, limit: 50 } } = useQuery({
+  const { data: contractUsageData = { count: 0, limit: 5 } } = useQuery({
     queryKey: ['contract-usage-home', effectiveUser?.email, getCurrentMonthYear()],
     queryFn: async () => {
       const monthYear = getCurrentMonthYear();
@@ -471,7 +471,7 @@ export default function Home() {
         action_type: 'contract_analysis',
         month_year: monthYear
       });
-      return { count: logs.length, limit: 50 };
+      return { count: logs.length, limit: 5 };
     },
     enabled: !!effectiveUser?.email,
   });
@@ -800,7 +800,7 @@ export default function Home() {
                                 latestVideoDate={feature.latestVideoDate || null}
                                 consulenzeMessagesCount={feature.page === 'Consulenze' ? consultationMessagesCount : 0}
                                 contractUsageCount={feature.contractUsage?.count || 0}
-                                contractUsageLimit={feature.contractUsage?.limit || 50}
+                                contractUsageLimit={feature.contractUsage?.limit || 5}
                               />
           ))}
         </div>

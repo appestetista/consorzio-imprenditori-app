@@ -24,7 +24,7 @@ export default function FeatureCard({
   latestVideoDate = null,
   consulenzeMessagesCount = 0,
   contractUsageCount = 0,
-  contractUsageLimit = 50
+  contractUsageLimit = 5
 }) {
   const isPink = variant === 'pink';
   const isBlue = variant === 'blue';
