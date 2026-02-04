@@ -252,7 +252,7 @@ export default function FeatureCard({
             {bottomBadge && !isCalendar && !isVideo && !isAnalisiContratti && (
                                                 <div className={cn(
                                                   "w-full text-xs font-bold text-center py-1.5 -mt-1 border-t relative z-20",
-                                                  bottomBadgeType === 'requests' ? "bg-amber-400/20 text-amber-400 border-amber-400/30" : "bg-[#d4af37]/20 text-[#d4af37] border-[#d4af37]/30"
+                                                  bottomBadgeType === 'requests' ? "bg-amber-400/20 text-amber-400 border-amber-400/30" : "bg-slate-700/50 text-slate-300 border-slate-600/50"
                                                 )}>
                                                   {bottomBadgeType === 'requests' ? `${bottomBadge} ${bottomBadge === 1 ? 'richiesta' : 'richieste'}` : `${bottomBadge} cons. gratuite`}
                                                 </div>
