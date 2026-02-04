@@ -103,6 +103,9 @@ export default function ContractMessagesSection({ user, avvocati }) {
     mutationFn: async () => {
       const toEmail = selectedConversation.email;
       
+      // Genera conversation_id coerente
+      const conversationId = [user.email, toEmail].sort().join('-') + '_analisi_contratti';
+
       // Crea messaggio
       await base44.entities.Message.create({
         from_email: user.email,
@@ -110,22 +113,36 @@ export default function ContractMessagesSection({ user, avvocati }) {
         content: replyMessage,
         source: 'analisi_contratti',
         source_reference: 'Risposta Analisi Contratti',
+        conversation_id: conversationId,
         attachments: attachments.map(a => ({ url: a.url, name: a.name, type: 'document' }))
       });
 
-      // Crea notifica per il destinatario
+      // Crea UNA SOLA notifica per il destinatario (in-app)
+      // Il messaggio arriverà sia in "Analisi Contratti > Messaggi" che in "Messaggi" generale
       await base44.entities.Notification.create({
         user_email: toEmail,
         type: 'message',
-        title: 'Nuovo messaggio - Analisi Contratti',
-        content: `${user.company_name || user.full_name} ti ha inviato un messaggio`
+        title: 'Risposta - Analisi Contratti',
+        content: `${user.company_name || user.full_name}: ${replyMessage.substring(0, 50)}${replyMessage.length > 50 ? '...' : ''}`,
+        reference_id: conversationId
       });
 
-      // Invia email
+      // Invia email al destinatario
       await base44.integrations.Core.SendEmail({
         to: toEmail,
-        subject: `Nuovo messaggio - Analisi Contratti`,
-        body: `Hai ricevuto un nuovo messaggio da ${user.company_name || user.full_name}.\n\n${replyMessage}\n\nAccedi all'app per rispondere.`
+        subject: `[Analisi Contratti] Risposta da ${user.company_name || user.full_name}`,
+        body: `Hai ricevuto una risposta nella sezione Analisi Contratti.
+
+Da: ${user.company_name || user.full_name}
+Email: ${user.email}
+
+MESSAGGIO:
+${replyMessage}
+
+${attachments.length > 0 ? `\nALLEGATI: ${attachments.length} documento/i` : ''}
+
+---
+Accedi all'app per visualizzare la conversazione completa e rispondere.`
       });
     },
     onSuccess: () => {
