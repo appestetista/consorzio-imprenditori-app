@@ -21,7 +21,8 @@ export default function FeatureCard({
   newVideosCount = 0,
   totalVideosCount = 0,
   hasVisitedVideos = false,
-  latestVideoDate = null
+  latestVideoDate = null,
+  consulenzeMessagesCount = 0
 }) {
   const isPink = variant === 'pink';
   const isBlue = variant === 'blue';
@@ -29,6 +30,7 @@ export default function FeatureCard({
   
   const isCalendar = pageName === 'CalendarioIncontri';
   const isVideo = pageName === 'VideoInterviste';
+  const isConsulenze = pageName === 'Consulenze';
   
   // Usa il context con timestamp per confronto con nuovi video (sessione corrente)
   const { lastVisitTimestamp, hasNewVideosSince } = useVideoVisit();
@@ -59,7 +61,10 @@ export default function FeatureCard({
     });
   }
   
-  const shouldGlow = (isCalendar && (bellNotificationCount > 0 || hasPendingInvites)) || hasUnseenNewVideos;
+  // Consulenze: campanella oro con messaggi non letti
+  const hasConsulenzeMessages = isConsulenze && consulenzeMessagesCount > 0;
+  
+  const shouldGlow = (isCalendar && (bellNotificationCount > 0 || hasPendingInvites)) || hasUnseenNewVideos || hasConsulenzeMessages;
   const hasBottomBadge = bottomBadge || (isCalendar && eventCount > 0) || hasUnseenNewVideos;
   
   const navigate = useNavigate();
@@ -172,6 +177,23 @@ export default function FeatureCard({
                       : "bg-transparent border-2 border-[#d4af37] text-[#d4af37]"
                   )}>
                     {totalVideosCount > 99 ? '99+' : totalVideosCount}
+                  </div>
+                </div>
+              )}
+              
+              {/* Campanella Consulenze */}
+              {!disabled && isConsulenze && (
+                <div className="absolute top-3 right-3">
+                  <div className={cn(
+                    "relative w-8 h-8 rounded-full flex items-center justify-center transition-colors",
+                    hasConsulenzeMessages ? "bg-[#d4af37]" : "bg-slate-900/80 border-2 border-[#d4af37]"
+                  )}>
+                    <Bell className={cn("w-4 h-4", hasConsulenzeMessages ? "text-slate-900 animate-bounce" : "text-[#d4af37]")} />
+                    {hasConsulenzeMessages && (
+                      <span className="absolute -top-2 -right-2 bg-white text-slate-900 text-[11px] font-bold rounded-full min-w-[20px] h-[20px] flex items-center justify-center px-1 shadow-md animate-pulse">
+                        {consulenzeMessagesCount > 99 ? '99+' : consulenzeMessagesCount}
+                      </span>
+                    )}
                   </div>
                 </div>
               )}
