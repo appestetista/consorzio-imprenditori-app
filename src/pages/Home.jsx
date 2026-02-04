@@ -456,6 +456,26 @@ export default function Home() {
     enabled: !!effectiveUser?.email,
   });
 
+  // Conteggio utilizzi Analisi Contratti del mese corrente
+  const getCurrentMonthYear = () => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  };
+  
+  const { data: contractUsageData = { count: 0, limit: 50 } } = useQuery({
+    queryKey: ['contract-usage-home', effectiveUser?.email, getCurrentMonthYear()],
+    queryFn: async () => {
+      const monthYear = getCurrentMonthYear();
+      const logs = await base44.entities.UsageLog.filter({
+        user_email: effectiveUser?.email,
+        action_type: 'contract_analysis',
+        month_year: monthYear
+      });
+      return { count: logs.length, limit: 50 };
+    },
+    enabled: !!effectiveUser?.email,
+  });
+
   // Conta scadenze compliance entro 7 giorni (non disabilitate)
   const { data: complianceAlerts = 0 } = useQuery({
     queryKey: ['compliance-alerts', effectiveUser?.email],
@@ -689,7 +709,7 @@ export default function Home() {
     { title: 'Video\ninterviste', icon: Video, page: 'VideoInterviste', notifications: videoNotifications, permission: 'video_interviste', newVideosCount: videosData.newCount, totalVideosCount: videosData.totalCount, hasVisitedVideos: videosData.hasVisited, latestVideoDate: videosData.latestVideoDate, category: 'relazioni' },
     
     // STRUMENTI
-    { title: 'Analisi\nContratti', icon: FileSearch, page: 'AnalisiContratti', notifications: contractMessagesCount, permission: 'analisi_contratti', category: 'strumenti' },
+    { title: 'Analisi Contratti', icon: FileSearch, page: 'AnalisiContratti', notifications: contractMessagesCount, permission: 'analisi_contratti', category: 'strumenti', contractUsage: contractUsageData },
     { title: 'Ricerca\nFornitori', icon: Truck, page: 'Fornitori', notifications: 0, permission: 'fornitori', category: 'strumenti' },
     { title: 'Market Place', icon: ShoppingBag, page: 'Marketplace', notifications: marketplaceNotifications, permission: 'marketplace', category: 'strumenti' },
     { title: 'Evita\nSanzioni', icon: Shield, page: 'ComplianceAziendale', notifications: complianceAlerts, permission: 'compliance', variant: 'blue', category: 'strumenti' },
@@ -779,6 +799,8 @@ export default function Home() {
                                 hasVisitedVideos={feature.hasVisitedVideos || false}
                                 latestVideoDate={feature.latestVideoDate || null}
                                 consulenzeMessagesCount={feature.page === 'Consulenze' ? consultationMessagesCount : 0}
+                                contractUsageCount={feature.contractUsage?.count || 0}
+                                contractUsageLimit={feature.contractUsage?.limit || 50}
                               />
           ))}
         </div>
