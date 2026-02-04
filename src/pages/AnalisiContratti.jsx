@@ -85,8 +85,8 @@ export default function AnalisiContratti() {
     enabled: !!user?.email,
   });
 
-  // Limiti AI
-  const { usageCount, limit, remaining, isLimitReached, trackUsage } = useAILimits(user?.email, 'contract_analysis');
+  // Limiti AI - solo quando user è disponibile
+  const { usageCount, limit, remaining, isLimitReached, trackUsage } = useAILimits(user?.email || '', 'contract_analysis');
 
   const { data: avvocati = [] } = useQuery({
     queryKey: ['avvocati'],
