@@ -193,9 +193,9 @@ export default function FeatureCard({
                 <div className="absolute top-3 right-3">
                   <div className={cn(
                     "relative w-8 h-8 rounded-full flex items-center justify-center transition-colors",
-                    hasConsulenzeMessages ? "bg-[#d4af37]" : "bg-slate-900/80 border-2 border-[#d4af37]"
+                    hasConsulenzeMessages ? "bg-lime-400" : "bg-slate-900/80 border-2 border-slate-500"
                   )}>
-                    <Bell className={cn("w-4 h-4", hasConsulenzeMessages ? "text-slate-900 animate-bounce" : "text-[#d4af37]")} />
+                    <Bell className={cn("w-4 h-4", hasConsulenzeMessages ? "text-slate-900 animate-bounce" : "text-slate-400")} />
                     {hasConsulenzeMessages && (
                       <span className="absolute -top-2 -right-2 bg-white text-slate-900 text-[11px] font-bold rounded-full min-w-[20px] h-[20px] flex items-center justify-center px-1 shadow-md animate-pulse">
                         {consulenzeMessagesCount > 99 ? '99+' : consulenzeMessagesCount}
