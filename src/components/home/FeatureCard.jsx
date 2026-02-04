@@ -129,10 +129,10 @@ export default function FeatureCard({
                 </div>
               )}
               
-              {/* Angolo Help Video - in basso a sinistra */}
+              {/* Icona Video Help - in basso a sinistra */}
               {!disabled && (
                 <div 
-                  className="absolute bottom-0 left-0 z-30 cursor-pointer"
+                  className="absolute bottom-2 left-2 z-30 cursor-pointer hover:scale-110 transition-transform"
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
@@ -140,20 +140,7 @@ export default function FeatureCard({
                     console.log('Help video clicked for:', pageName);
                   }}
                 >
-                  {/* Triangolo angolo rosso */}
-                  <div 
-                    className="w-0 h-0 relative"
-                    style={{
-                      borderLeft: '32px solid #dc2626',
-                      borderTop: '32px solid transparent',
-                      borderBottomLeftRadius: '17px'
-                    }}
-                  >
-                    {/* Punto interrogativo bianco */}
-                    <span className="absolute text-white font-bold text-sm" style={{ top: '8px', left: '-26px' }}>
-                      ?
-                    </span>
-                  </div>
+                  <Video className="w-5 h-5 text-lime-400" />
                 </div>
               )}
               
