@@ -148,18 +148,14 @@ export default function Header({ user }) {
             </button>
           )}
           
-          {/* Icona Messaggi */}
+          {/* Icona Notifiche */}
           <Link
-                            to={createPageUrl('Messaggi')}
-                            className="relative"
-                          >
-                            <img 
-                              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/ff7fcd1aa_Immagine_2026-02-03_182832-removebg-preview.png" 
-                              alt="Messaggi" 
-                              className="w-9 h-7 object-cover"
-                            />
+            to={createPageUrl('Messaggi')}
+            className="relative p-2"
+          >
+            <Bell className="w-6 h-6 text-[#d4af37]" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] rounded-full min-w-4 h-4 px-1 flex items-center justify-center font-bold">
+              <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] rounded-full min-w-4 h-4 px-1 flex items-center justify-center font-bold">
                 {unreadCount > 99 ? '99+' : unreadCount}
               </span>
             )}
