@@ -104,47 +104,62 @@ export default function RisparmioEnergetico() {
               to={createPageUrl('RisparmioDettaglio') + `?categoria=${encodeURIComponent(service.title)}`}
               className="flex flex-col items-center"
             >
-              {/* Pulsante 3D bianco con icona e testo sovrapposti */}
+              {/* Pulsante 3D super bombato */}
               <div 
-                className="relative w-36 h-36 transition-transform duration-100 active:scale-95 active:translate-y-1"
+                className="relative w-40 h-40 transition-all duration-150 active:scale-95 active:translate-y-2 hover:scale-105 hover:-translate-y-1"
+                style={{
+                  perspective: '500px',
+                  transformStyle: 'preserve-3d'
+                }}
               >
-                {/* Ombra esterna per effetto 3D bombato */}
+                {/* Ombra profonda multi-layer */}
                 <div 
-                  className="absolute inset-0 rounded-3xl"
+                  className="absolute inset-0 rounded-[28px]"
                   style={{
-                    boxShadow: '0 14px 28px rgba(0,0,0,0.5), 0 8px 12px rgba(0,0,0,0.35), 0 4px 6px rgba(0,0,0,0.2)'
+                    boxShadow: '0 20px 40px rgba(0,0,0,0.6), 0 12px 20px rgba(0,0,0,0.4), 0 6px 10px rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.2)'
                   }}
                 />
                 
-                {/* Bordo esterno sfumato più marcato */}
+                {/* Anello esterno metallico */}
                 <div 
-                  className="absolute inset-0 rounded-3xl p-[4px]"
+                  className="absolute inset-0 rounded-[28px] p-[5px]"
                   style={{
-                    background: 'linear-gradient(135deg, #ffffff 0%, #f0f0f0 25%, #d8d8d8 50%, #c0c0c0 75%, #a8a8a8 100%)'
+                    background: 'linear-gradient(145deg, #e8e8e8 0%, #d0d0d0 20%, #a0a0a0 50%, #888888 70%, #a0a0a0 85%, #c0c0c0 100%)',
+                    boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.8), inset 0 -1px 2px rgba(0,0,0,0.3)'
                   }}
                 >
-                  {/* Superficie interna bombata con gradiente più accentuato */}
+                  {/* Corpo del pulsante bombato */}
                   <div 
-                    className="relative w-full h-full rounded-[20px] overflow-hidden flex flex-col items-center justify-center"
+                    className="relative w-full h-full rounded-[23px] overflow-hidden flex flex-col items-center justify-center"
                     style={{
-                      background: 'radial-gradient(ellipse at 30% 20%, #ffffff 0%, #f8f8f8 20%, #ececec 40%, #e0e0e0 60%, #d0d0d0 80%, #c0c0c0 100%)',
-                      boxShadow: 'inset 0 4px 8px rgba(255,255,255,1), inset 0 -4px 8px rgba(0,0,0,0.15), inset 2px 0 4px rgba(255,255,255,0.5), inset -2px 0 4px rgba(0,0,0,0.05)'
+                      background: 'radial-gradient(ellipse 80% 60% at 35% 25%, #ffffff 0%, #fafafa 15%, #f0f0f0 30%, #e4e4e4 50%, #d4d4d4 70%, #c0c0c0 90%, #a8a8a8 100%)',
+                      boxShadow: 'inset 0 8px 16px rgba(255,255,255,1), inset 0 -8px 16px rgba(0,0,0,0.2), inset 4px 0 8px rgba(255,255,255,0.6), inset -4px 0 8px rgba(0,0,0,0.1), inset 0 0 20px rgba(255,255,255,0.5)'
                     }}
                   >
-                    {/* Riflesso superiore più bombato */}
+                    {/* Riflesso superiore a cupola */}
                     <div 
-                      className="absolute top-0 left-[10%] w-[80%] h-[50%] pointer-events-none"
+                      className="absolute top-[5%] left-[15%] w-[70%] h-[45%] pointer-events-none"
                       style={{
-                        background: 'radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.6) 30%, rgba(255,255,255,0.2) 60%, transparent 100%)',
-                        borderRadius: '50% 50% 50% 50%'
+                        background: 'radial-gradient(ellipse 100% 100% at 50% 0%, rgba(255,255,255,1) 0%, rgba(255,255,255,0.8) 20%, rgba(255,255,255,0.4) 50%, transparent 80%)',
+                        borderRadius: '50%',
+                        filter: 'blur(1px)'
+                      }}
+                    />
+                    
+                    {/* Riflesso piccolo highlight */}
+                    <div 
+                      className="absolute top-[12%] left-[22%] w-[20%] h-[15%] pointer-events-none"
+                      style={{
+                        background: 'radial-gradient(ellipse at 50% 50%, rgba(255,255,255,0.9) 0%, transparent 70%)',
+                        borderRadius: '50%'
                       }}
                     />
                     
                     {/* Icona centrata */}
-                    <service.icon className="w-12 h-12 text-blue-600 relative z-10 mb-1" />
+                    <service.icon className="w-14 h-14 text-blue-600 relative z-10 mb-2 drop-shadow-sm" />
                     
                     {/* Titolo dentro il pulsante */}
-                    <span className="text-blue-600 font-bold text-xs text-center leading-tight px-2 relative z-10 max-w-[90%]">
+                    <span className="text-blue-700 font-bold text-sm text-center leading-tight px-3 relative z-10 max-w-[90%] drop-shadow-sm">
                       {service.title}
                     </span>
                   </div>
