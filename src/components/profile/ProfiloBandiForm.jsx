@@ -225,7 +225,7 @@ export default function ProfiloBandiForm({ user, onSaved }) {
               Dimensione Azienda <span className="text-lime-400 ml-1">*</span>
               <HelpTooltip text="Micro (<10 dip., <2M€), Piccola (<50 dip., <10M€), Media (<250 dip., <50M€), Grande (oltre)" />
             </Label>
-            <Select value={formData.company_size} onValueChange={(value) => updateAndSave('company_size', value)}>
+            <Select value={formData.company_size || undefined} onValueChange={(value) => updateAndSave('company_size', value)}>
               <SelectTrigger 
                 className="bg-slate-900 text-white mt-1"
                 style={!formData.company_size ? { border: '3px solid #a3e635' } : { border: '1px solid rgb(51 65 85)' }}
@@ -246,7 +246,7 @@ export default function ProfiloBandiForm({ user, onSaved }) {
               Forma Giuridica <span className="text-lime-400 ml-1">*</span>
               <HelpTooltip text="La forma societaria come risulta dalla visura camerale." />
             </Label>
-            <Select value={formData.legal_form} onValueChange={(value) => updateAndSave('legal_form', value)}>
+            <Select value={formData.legal_form || undefined} onValueChange={(value) => updateAndSave('legal_form', value)}>
               <SelectTrigger 
                 className="bg-slate-900 text-white mt-1"
                 style={!formData.legal_form ? { border: '3px solid #a3e635', boxShadow: '0 0 0 1px #a3e635' } : {}}
@@ -286,7 +286,7 @@ export default function ProfiloBandiForm({ user, onSaved }) {
             <Label className={`text-sm flex items-center ${!formData.region ? 'text-lime-400' : 'text-slate-300'}`}>
               Regione Sede Legale <span className="text-lime-400 ml-1">*</span>
             </Label>
-            <Select value={formData.region} onValueChange={async (value) => {
+            <Select value={formData.region || undefined} onValueChange={async (value) => {
               const currentInterested = formData.interested_regions || [];
               const newInterested = currentInterested.includes(value) 
                 ? currentInterested 
@@ -401,7 +401,7 @@ export default function ProfiloBandiForm({ user, onSaved }) {
             <Label className={`text-sm ${!formData.sector ? 'text-lime-400' : 'text-slate-300'}`}>
               Settore Principale <span className="text-lime-400">*</span>
             </Label>
-            <Select value={formData.sector} onValueChange={(value) => updateAndSave('sector', value)}>
+            <Select value={formData.sector || undefined} onValueChange={(value) => updateAndSave('sector', value)}>
               <SelectTrigger 
                 className="bg-slate-900 text-white mt-1"
                 style={!formData.sector ? { border: '3px solid #a3e635' } : { border: '1px solid rgb(51 65 85)' }}
@@ -462,7 +462,7 @@ export default function ProfiloBandiForm({ user, onSaved }) {
 
           <div>
             <Label className="text-slate-300 text-sm">Classe di Rating</Label>
-            <Select value={formData.rating_class} onValueChange={(value) => updateAndSave('rating_class', value)}>
+            <Select value={formData.rating_class || undefined} onValueChange={(value) => updateAndSave('rating_class', value)}>
               <SelectTrigger className="bg-slate-900 border-slate-700 text-white mt-1">
                 <SelectValue placeholder="Seleziona rating (se noto)" />
               </SelectTrigger>
