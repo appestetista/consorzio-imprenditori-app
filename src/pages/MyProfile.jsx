@@ -29,11 +29,12 @@ function ExtraConsultationsManager({ consultantId, consultantZona }) {
   const [extraAmount, setExtraAmount] = useState(1);
 
   // Carica utenti della zona
-  const { data: zoneUsers = [] } = useQuery({
+  const { data: zoneUsers = [], isLoading: loadingUsers } = useQuery({
     queryKey: ['zone-users-for-extra', consultantZona],
     queryFn: async () => {
       if (!consultantZona) return [];
       const zones = consultantZona.split(',').map(z => z.trim().toLowerCase()).filter(Boolean);
+      if (zones.length === 0) return [];
       const { data } = await base44.functions.invoke('listMembers', {});
       const allUsers = data?.users || [];
       return allUsers.filter(u => {
@@ -44,7 +45,7 @@ function ExtraConsultationsManager({ consultantId, consultantZona }) {
         return isUtente && isNotBlocked && isInZone;
       });
     },
-    enabled: !!consultantZona
+    enabled: !!consultantZona && consultantZona.trim().length > 0
   });
 
   // Carica assegnazioni esistenti per questo consulente
