@@ -125,37 +125,62 @@ export default function FeatureCard({
         }
       `}</style>
       
-      {/* Contenitore con ombra esterna */}
+      {/* Contenitore con effetto glass 3D bombato */}
       <div 
         key={shouldGlow ? 'glow' : 'no-glow'}
         className={cn(
-          "relative min-h-[120px] transition-transform duration-100",
-          disabled ? "opacity-50 cursor-not-allowed" : "active:scale-[0.97] cursor-pointer"
+          "relative min-h-[120px] transition-all duration-150",
+          disabled ? "opacity-50 cursor-not-allowed" : "active:scale-[0.96] cursor-pointer hover:scale-[1.02]"
         )}
         style={{
-          boxShadow: '0 6px 20px rgba(0,0,0,0.5), 0 3px 8px rgba(0,0,0,0.3)',
-          borderRadius: '20px',
+          borderRadius: '24px',
           ...(shouldGlow && !disabled ? { animation: 'cardGlow 2s ease-in-out infinite' } : {})
         }}
       >
-        {/* Cornice argento sottile */}
+        {/* Ombra esterna per profondità 3D */}
         <div 
-          className="absolute inset-0 rounded-[20px] p-[1.5px]"
+          className="absolute inset-0 rounded-[24px]"
           style={{
-            background: 'linear-gradient(145deg, rgba(160,160,160,0.6) 0%, rgba(128,128,128,0.5) 25%, rgba(96,96,96,0.4) 50%, rgba(160,160,160,0.6) 75%, rgba(200,200,200,0.5) 100%)'
+            boxShadow: '0 8px 32px rgba(0,0,0,0.6), 0 4px 16px rgba(0,0,0,0.4), 0 20px 40px rgba(0,50,100,0.2)',
+          }}
+        />
+        
+        {/* Bordo luminoso esterno (effetto vetro) */}
+        <div 
+          className="absolute inset-0 rounded-[24px] p-[1px]"
+          style={{
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.1) 30%, rgba(100,150,255,0.1) 50%, rgba(255,255,255,0.05) 70%, rgba(255,255,255,0.2) 100%)'
           }}
         >
-          {/* Superficie interna nero → bordeaux */}
+          {/* Superficie glass principale */}
           <div 
             className={cn(
-              "relative w-full h-full rounded-[17px] flex flex-col overflow-hidden",
+              "relative w-full h-full rounded-[23px] flex flex-col overflow-hidden",
               hasBottomBadge ? "" : ""
             )}
             style={{
-              background: 'linear-gradient(160deg, #1a1a1a 0%, #001d3b 50%, #001530 100%)',
-              boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5), inset 0 -1px 2px rgba(255,255,255,0.05)'
+              background: 'linear-gradient(145deg, rgba(0,40,80,0.9) 0%, rgba(0,25,60,0.95) 40%, rgba(0,15,45,0.98) 100%)',
+              boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.1), inset 0 -2px 10px rgba(0,0,0,0.3)'
             }}
           >
+            {/* Riflesso superiore bombato (effetto vetro curvo) */}
+            <div 
+              className="absolute top-0 left-0 right-0 h-[55%] pointer-events-none"
+              style={{
+                background: 'linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.08) 30%, rgba(150,200,255,0.05) 60%, transparent 100%)',
+                borderRadius: '23px 23px 50% 50%',
+              }}
+            />
+            
+            {/* Highlight angolo superiore sinistro */}
+            <div 
+              className="absolute top-2 left-3 w-12 h-6 pointer-events-none"
+              style={{
+                background: 'linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 100%)',
+                borderRadius: '50%',
+                filter: 'blur(4px)',
+              }}
+            />
 
             
             <div className={cn("flex flex-col items-center justify-center flex-1 relative z-20", hasBottomBadge ? "p-6 pb-3" : "p-6")}>
