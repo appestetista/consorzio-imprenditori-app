@@ -693,16 +693,20 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
                         )}
                       </div>
                       <CardContent className="p-3 space-y-3">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="w-full bg-[#d4af37] hover:bg-[#b8960c] text-slate-900 border-0"
+                        <button
                           onClick={() => sendContactMessageMutation.mutate(video)}
                           disabled={sendContactMessageMutation.isPending}
+                          className="w-full h-10 cursor-pointer transition-all duration-150 hover:brightness-110 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-slate-900 font-semibold text-sm"
+                          style={{
+                            background: 'linear-gradient(to bottom, #f7d774 0%, #e6b93d 35%, #c6921b 60%, #9e6f0f 100%)',
+                            borderRadius: '16px',
+                            boxShadow: 'inset 0 3px 4px rgba(255,255,255,0.6), inset 0 -6px 8px rgba(0,0,0,0.45), 0 10px 22px rgba(0,0,0,0.6)',
+                            border: 'none'
+                          }}
                         >
-                          <MessageCircle className="w-4 h-4 mr-2" />
+                          <MessageCircle className="w-4 h-4" />
                           {sendContactMessageMutation.isPending ? 'Invio...' : 'contatta l\'azienda'}
-                        </Button>
+                        </button>
                         
                         <VideoRating 
                           video={video}
