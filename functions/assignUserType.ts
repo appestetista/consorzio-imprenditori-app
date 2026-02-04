@@ -186,9 +186,10 @@ Deno.serve(async (req) => {
       }
 
       // Crea anche il record Consultant se non esiste
-      const existingConsultants = await base44.asServiceRole.entities.Consultant.filter({
-        email: user.email.toLowerCase()
-      });
+      const allConsultantsCheck = await base44.asServiceRole.entities.Consultant.filter({});
+      const existingConsultants = allConsultantsCheck.filter(
+        c => c.email?.toLowerCase() === user.email.toLowerCase()
+      );
 
       if (existingConsultants.length === 0 && invite.consultant_category) {
         await base44.asServiceRole.entities.Consultant.create({
