@@ -40,7 +40,7 @@ export default function NotificationPreferences({ user }) {
     setSoundEnabled(soundChoice === 'true');
 
     // Preferenze sezioni dall'utente
-    if (user?.notification_preferences) {
+    if (user?.notification_preferences && typeof user.notification_preferences === 'object') {
       setSectionPrefs(user.notification_preferences);
     } else {
       // Default: tutte le sezioni attive
@@ -51,6 +51,15 @@ export default function NotificationPreferences({ user }) {
       setSectionPrefs(defaultPrefs);
     }
   }, [user]);
+
+  // Se user non è disponibile, mostra loading
+  if (!user) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="animate-spin w-6 h-6 border-2 border-lime-400 border-t-transparent rounded-full"></div>
+      </div>
+    );
+  }
 
   const handleSoundToggle = (checked) => {
     setSoundEnabled(checked);
