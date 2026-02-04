@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Menu, X, LogOut, Settings, User, Eye, XCircle, Bell, Mail, Phone } from 'lucide-react';
+import { Menu, X, LogOut, Settings, User, Eye, XCircle, Mail, Phone } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
@@ -121,7 +121,7 @@ export default function Header({ user }) {
 
   return (
     <>
-      <header className="py-4 px-4 flex items-center justify-between sticky top-0 z-40 border-b border-lime-400/30" style={{ backgroundColor: '#0B1E2D' }}>
+      <header className="py-4 px-4 flex items-center justify-between sticky top-0 z-40 border-b border-lime-400/30" style={{ backgroundColor: '#061018' }}>
         <div className="flex items-center gap-3">
           <img 
             src={getUserLogo()} 
@@ -148,12 +148,12 @@ export default function Header({ user }) {
             </button>
           )}
           
-          {/* Icona Notifiche */}
+          {/* Icona Messaggi */}
           <Link
             to={createPageUrl('Messaggi')}
             className="relative p-2"
           >
-            <Bell className="w-6 h-6 text-[#d4af37]" />
+            <Mail className="w-6 h-6 text-[#d4af37]" />
             {unreadCount > 0 && (
               <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] rounded-full min-w-4 h-4 px-1 flex items-center justify-center font-bold">
                 {unreadCount > 99 ? '99+' : unreadCount}
