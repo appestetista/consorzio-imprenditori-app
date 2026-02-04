@@ -234,6 +234,22 @@ export default function Home() {
     return unsubscribe;
   }, [effectiveUser?.email, queryClient, playSound]);
 
+  // Subscribe real-time ai messaggi analisi contratti
+  useEffect(() => {
+    if (!effectiveUser?.email) return;
+
+    const unsubscribe = base44.entities.Message.subscribe((event) => {
+      if (event.type === 'create' && 
+          event.data?.to_email === effectiveUser.email && 
+          event.data?.source === 'analisi_contratti') {
+        playSound();
+        queryClient.invalidateQueries({ queryKey: ['contract-messages-unread', effectiveUser.email] });
+      }
+    });
+
+    return unsubscribe;
+  }, [effectiveUser?.email, queryClient, playSound]);
+
   const { data: messages = [] } = useQuery({
     queryKey: ['unread-messages', effectiveUser?.email],
     queryFn: () => base44.entities.Message.filter({ to_email: effectiveUser?.email, is_read: false }),
@@ -801,6 +817,7 @@ export default function Home() {
                                 consulenzeMessagesCount={feature.page === 'Consulenze' ? consultationMessagesCount : 0}
                                 contractUsageCount={feature.contractUsage?.count || 0}
                                 contractUsageLimit={feature.contractUsage?.limit || 5}
+                                contractMessagesCount={feature.page === 'AnalisiContratti' ? contractMessagesCount : 0}
                               />
           ))}
         </div>
