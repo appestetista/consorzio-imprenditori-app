@@ -18,7 +18,7 @@ export default function EventNotificationPreferences({ user }) {
   const [hasChanges, setHasChanges] = useState(false);
 
   useEffect(() => {
-    if (user?.event_notification_preferences) {
+    if (user?.event_notification_preferences && typeof user.event_notification_preferences === 'object') {
       setPrefs({
         only_my_city: user.event_notification_preferences.only_my_city ?? false,
         only_my_zone: user.event_notification_preferences.only_my_zone ?? true,
@@ -27,6 +27,11 @@ export default function EventNotificationPreferences({ user }) {
       });
     }
   }, [user]);
+
+  // Se user non è disponibile, non renderizzare
+  if (!user) {
+    return null;
+  }
 
   const handleChange = (key, value) => {
     setPrefs(prev => ({ ...prev, [key]: value }));
