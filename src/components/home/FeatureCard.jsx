@@ -93,8 +93,8 @@ export default function FeatureCard({
                       console.log('Help video clicked for:', pageName);
                     }}
                   >
-                    <div className="w-7 h-7 rounded-full border-2 border-lime-400 flex items-center justify-center bg-slate-900">
-                      <Video className="w-4 h-4 text-lime-400" />
+                    <div className="w-7 h-7 rounded-full border-2 border-[#d4af37] flex items-center justify-center bg-slate-900">
+                                      <Video className="w-4 h-4 text-[#d4af37]" />
                     </div>
                   </div>
                 )}
