@@ -285,7 +285,7 @@ Per OGNI clausola problematica rilevata, indica:
     setAskingFollowUp(true);
     try {
       const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `Sei un avvocato civilista italiano esperto in contrattualistica d'impresa. Hai appena analizzato un contratto per un cliente e questa è stata la tua analisi:
+        prompt: `Sei un assistente legale AI specializzato in contrattualistica d'impresa. Hai appena analizzato un contratto per un cliente e questa è stata la tua analisi:
 
 ANALISI PRECEDENTE:
 - Tipo contratto: ${analysis.tipo_contratto}
@@ -300,12 +300,23 @@ ${analysis.criticita?.length > 0 ? `- Criticità: ${analysis.criticita.join('; '
 Il cliente ti fa questa domanda di approfondimento:
 "${followUpQuestion}"
 
-Rispondi in modo professionale ma comprensibile, citando articoli di legge pertinenti se rilevanti. Sii conciso ma esaustivo. Se la domanda esula dall'analisi contrattuale, indica gentilmente che non puoi rispondere a domande non pertinenti al contratto analizzato.`
+REGOLE DI RISPOSTA:
+1. Rispondi in modo professionale ma comprensibile
+2. Cita articoli di legge pertinenti se rilevanti
+3. Sii conciso ma esaustivo
+4. NON firmarti MAI con un nome (es. "Avv. Rossi", "Cordiali saluti", etc.)
+5. NON concludere con formule di cortesia o firme
+6. Se la domanda esula dall'analisi contrattuale, indica che non puoi rispondere a domande non pertinenti
+
+Rispondi direttamente alla domanda senza preamboli inutili e senza firmarti alla fine.`
       });
+
+      // Aggiungi disclaimer alla risposta
+      const disclaimerText = "\n\n---\n⚠️ Questa è solo un'analisi AI. Per ulteriori dubbi o approfondimenti vi invitiamo a contattare un avvocato del gruppo del Consorzio, potete trovarli qui sotto.";
 
       setFollowUpAnswers(prev => [...prev, {
         question: followUpQuestion,
-        answer: response,
+        answer: response + disclaimerText,
         isLimit: false
       }]);
       setFollowUpCount(prev => prev + 1);
