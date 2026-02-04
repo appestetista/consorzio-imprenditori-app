@@ -714,8 +714,285 @@ Accedi all'app per visualizzare gli allegati e rispondere direttamente al client
           </div>
         )}
 
+        {/* MODALITÀ CONFRONTO */}
+        {compareMode && !comparisonResult && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              {/* Contratto A */}
+              <Card className="bg-slate-800 border-slate-700">
+                <CardContent className="p-4">
+                  <h4 className="text-lime-400 font-semibold text-sm mb-3 text-center">Contratto A</h4>
+                  {compareFiles.fileA ? (
+                    <div className="relative">
+                      <div className="aspect-square rounded bg-slate-900 flex items-center justify-center mb-2">
+                        {compareFiles.fileA.type.startsWith('image/') ? (
+                          <img src={URL.createObjectURL(compareFiles.fileA)} alt="Contratto A" className="w-full h-full object-cover rounded" />
+                        ) : (
+                          <FileText className="w-10 h-10 text-lime-400" />
+                        )}
+                      </div>
+                      <p className="text-white text-xs truncate text-center">{compareFiles.fileA.name}</p>
+                      <button 
+                        onClick={() => setCompareFiles(prev => ({ ...prev, fileA: null }))}
+                        className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="block cursor-pointer">
+                      <div className="border-2 border-dashed border-slate-600 rounded-xl p-4 text-center hover:border-lime-400 transition-colors aspect-square flex flex-col items-center justify-center">
+                        <Upload className="w-8 h-8 text-slate-500 mb-2" />
+                        <p className="text-slate-400 text-xs">Carica PDF/Foto</p>
+                      </div>
+                      <input type="file" accept=".pdf,image/*" onChange={(e) => handleCompareFileChange(e, 'fileA')} className="hidden" />
+                    </label>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Contratto B */}
+              <Card className="bg-slate-800 border-slate-700">
+                <CardContent className="p-4">
+                  <h4 className="text-orange-400 font-semibold text-sm mb-3 text-center">Contratto B</h4>
+                  {compareFiles.fileB ? (
+                    <div className="relative">
+                      <div className="aspect-square rounded bg-slate-900 flex items-center justify-center mb-2">
+                        {compareFiles.fileB.type.startsWith('image/') ? (
+                          <img src={URL.createObjectURL(compareFiles.fileB)} alt="Contratto B" className="w-full h-full object-cover rounded" />
+                        ) : (
+                          <FileText className="w-10 h-10 text-orange-400" />
+                        )}
+                      </div>
+                      <p className="text-white text-xs truncate text-center">{compareFiles.fileB.name}</p>
+                      <button 
+                        onClick={() => setCompareFiles(prev => ({ ...prev, fileB: null }))}
+                        className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="block cursor-pointer">
+                      <div className="border-2 border-dashed border-slate-600 rounded-xl p-4 text-center hover:border-orange-400 transition-colors aspect-square flex flex-col items-center justify-center">
+                        <Upload className="w-8 h-8 text-slate-500 mb-2" />
+                        <p className="text-slate-400 text-xs">Carica PDF/Foto</p>
+                      </div>
+                      <input type="file" accept=".pdf,image/*" onChange={(e) => handleCompareFileChange(e, 'fileB')} className="hidden" />
+                    </label>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            {error && (
+              <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-3">
+                <p className="text-red-400 text-sm">{error}</p>
+              </div>
+            )}
+
+            <Button
+              onClick={handleCompare}
+              disabled={!compareFiles.fileA || !compareFiles.fileB || comparing || isLimitReached}
+              className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 font-semibold h-12"
+            >
+              {comparing ? (
+                <>
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  Confronto in corso...
+                </>
+              ) : (
+                <>
+                  <GitCompare className="w-5 h-5 mr-2" />
+                  Confronta Contratti
+                </>
+              )}
+            </Button>
+          </div>
+        )}
+
+        {/* RISULTATO CONFRONTO */}
+        {compareMode && comparisonResult && (
+          <div className="space-y-4">
+            {/* Header confronto */}
+            <Card className="bg-slate-800 border-slate-700">
+              <CardContent className="p-4">
+                <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+                  <GitCompare className="w-5 h-5 text-lime-400" />
+                  Confronto Completato
+                </h3>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div className="bg-lime-400/10 border border-lime-400/30 rounded-lg p-3">
+                    <p className="text-lime-400 font-semibold text-xs mb-1">Contratto A</p>
+                    <p className="text-white text-xs">{comparisonResult.fileA_name}</p>
+                    <p className="text-slate-400 text-xs mt-1">{comparisonResult.contratto_a}</p>
+                  </div>
+                  <div className="bg-orange-400/10 border border-orange-400/30 rounded-lg p-3">
+                    <p className="text-orange-400 font-semibold text-xs mb-1">Contratto B</p>
+                    <p className="text-white text-xs">{comparisonResult.fileB_name}</p>
+                    <p className="text-slate-400 text-xs mt-1">{comparisonResult.contratto_b}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Riepilogo */}
+            <Card className="bg-slate-800 border-slate-700">
+              <CardContent className="p-4">
+                <h3 className="text-lime-400 font-semibold mb-2 flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5" />
+                  Riepilogo Confronto
+                </h3>
+                <p className="text-slate-300 text-sm">{comparisonResult.riepilogo}</p>
+              </CardContent>
+            </Card>
+
+            {/* Quale è più favorevole */}
+            <Card className={`border ${
+              comparisonResult.contratto_piu_favorevole === 'A' ? 'bg-lime-500/20 border-lime-500/50' :
+              comparisonResult.contratto_piu_favorevole === 'B' ? 'bg-orange-500/20 border-orange-500/50' :
+              'bg-slate-700 border-slate-600'
+            }`}>
+              <CardContent className="p-4">
+                <h3 className={`font-semibold mb-2 flex items-center gap-2 ${
+                  comparisonResult.contratto_piu_favorevole === 'A' ? 'text-lime-400' :
+                  comparisonResult.contratto_piu_favorevole === 'B' ? 'text-orange-400' :
+                  'text-white'
+                }`}>
+                  <Scale className="w-5 h-5" />
+                  Contratto più favorevole: {comparisonResult.contratto_piu_favorevole === 'Equivalenti' ? 'Equivalenti' : `Contratto ${comparisonResult.contratto_piu_favorevole}`}
+                </h3>
+                <p className="text-slate-300 text-sm">{comparisonResult.motivazione_preferenza}</p>
+              </CardContent>
+            </Card>
+
+            {/* Differenze Clausole */}
+            {comparisonResult.differenze_clausole?.length > 0 && (
+              <Card className="bg-slate-800 border-slate-700">
+                <CardContent className="p-4">
+                  <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+                    <AlertTriangle className="w-5 h-5 text-yellow-400" />
+                    Differenze nelle Clausole
+                  </h3>
+                  <div className="space-y-4">
+                    {comparisonResult.differenze_clausole.map((diff, i) => (
+                      <div key={i} className="bg-slate-900 rounded-lg p-3 border border-slate-700">
+                        <p className="text-white font-medium text-sm mb-2">{diff.clausola}</p>
+                        <div className="grid grid-cols-2 gap-2 mb-2">
+                          <div className="bg-lime-400/10 rounded p-2">
+                            <p className="text-lime-400 text-xs font-semibold mb-1">Contratto A</p>
+                            <p className="text-slate-300 text-xs">{diff.versione_a}</p>
+                          </div>
+                          <div className="bg-orange-400/10 rounded p-2">
+                            <p className="text-orange-400 text-xs font-semibold mb-1">Contratto B</p>
+                            <p className="text-slate-300 text-xs">{diff.versione_b}</p>
+                          </div>
+                        </div>
+                        <p className="text-yellow-200 text-xs">💡 {diff.implicazione}</p>
+                        {diff.piu_favorevole && diff.piu_favorevole !== 'Neutro' && (
+                          <p className={`text-xs mt-1 font-semibold ${diff.piu_favorevole === 'A' ? 'text-lime-400' : 'text-orange-400'}`}>
+                            ✓ Più favorevole: Contratto {diff.piu_favorevole}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Differenze Economiche */}
+            {comparisonResult.differenze_economiche?.length > 0 && (
+              <Card className="bg-slate-800 border-slate-700">
+                <CardContent className="p-4">
+                  <h3 className="text-white font-semibold mb-3">💰 Differenze Economiche</h3>
+                  <div className="space-y-3">
+                    {comparisonResult.differenze_economiche.map((diff, i) => (
+                      <div key={i} className="bg-slate-900 rounded-lg p-3">
+                        <p className="text-white font-medium text-sm mb-2">{diff.aspetto}</p>
+                        <div className="grid grid-cols-2 gap-2 text-xs mb-2">
+                          <p className="text-lime-400">A: {diff.contratto_a}</p>
+                          <p className="text-orange-400">B: {diff.contratto_b}</p>
+                        </div>
+                        <p className="text-slate-400 text-xs">{diff.implicazione}</p>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Clausole presenti solo in uno */}
+            {(comparisonResult.clausole_solo_a?.length > 0 || comparisonResult.clausole_solo_b?.length > 0) && (
+              <Card className="bg-yellow-500/20 border-yellow-500/50">
+                <CardContent className="p-4">
+                  <h3 className="text-yellow-400 font-semibold mb-3 flex items-center gap-2">
+                    <Info className="w-5 h-5" />
+                    Clausole Non Comuni
+                  </h3>
+                  {comparisonResult.clausole_solo_a?.length > 0 && (
+                    <div className="mb-3">
+                      <p className="text-lime-400 text-xs font-semibold mb-1">Solo in Contratto A:</p>
+                      <ul className="space-y-1">
+                        {comparisonResult.clausole_solo_a.map((c, i) => (
+                          <li key={i} className="text-yellow-200 text-sm">• {c}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {comparisonResult.clausole_solo_b?.length > 0 && (
+                    <div>
+                      <p className="text-orange-400 text-xs font-semibold mb-1">Solo in Contratto B:</p>
+                      <ul className="space-y-1">
+                        {comparisonResult.clausole_solo_b.map((c, i) => (
+                          <li key={i} className="text-yellow-200 text-sm">• {c}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Raccomandazioni */}
+            {comparisonResult.raccomandazioni?.length > 0 && (
+              <Card className="bg-green-500/20 border-green-500/50">
+                <CardContent className="p-4">
+                  <h3 className="text-green-400 font-semibold mb-2">💡 Raccomandazioni</h3>
+                  <ul className="space-y-1">
+                    {comparisonResult.raccomandazioni.map((r, i) => (
+                      <li key={i} className="text-green-200 text-sm">• {r}</li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Disclaimer */}
+            <Card className="bg-yellow-500/10 border-yellow-500/30">
+              <CardContent className="p-4">
+                <div className="flex items-start gap-3">
+                  <Info className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
+                  <p className="text-yellow-200 text-sm">
+                    <strong>Attenzione:</strong> Questo confronto è generato da AI e potrebbe contenere imprecisioni. 
+                    Per decisioni importanti, consulta un avvocato del Consorzio.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Button
+              onClick={resetComparison}
+              variant="outline"
+              className="w-full border-slate-600 text-slate-400 hover:bg-slate-800"
+            >
+              Confronta altri contratti
+            </Button>
+          </div>
+        )}
+
         {/* Vista dettaglio storico */}
-        {selectedHistory ? (
+        {!compareMode && selectedHistory ? (
           <>
 
             <div className="space-y-4">
