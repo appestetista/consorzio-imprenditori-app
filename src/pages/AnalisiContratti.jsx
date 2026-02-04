@@ -406,6 +406,7 @@ Per ogni clausola che differisce significativamente:
   const resetComparison = () => {
     setCompareFiles({ fileA: null, fileB: null });
     setComparisonResult(null);
+    setError(null);
   };
 
   const handleAskFollowUp = async () => {
