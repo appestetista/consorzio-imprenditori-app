@@ -499,22 +499,9 @@ function ConsultantProfileCard({ consultantData, setConsultantData, savingConsul
         {/* Specializzazione (solo visualizzazione) */}
         <div>
           <Label className="text-slate-400 text-sm mb-1 block">Specializzazione (assegnata dall'admin)</Label>
-          {consultantData?.category ? (
-            <Select value={consultantData.category} disabled>
-              <SelectTrigger className="bg-slate-900 border-slate-600 text-slate-400">
-                <SelectValue placeholder="Nessuna categoria" />
-              </SelectTrigger>
-              <SelectContent>
-                {CONSULTANT_CATEGORIES.map(cat => (
-                  <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          ) : (
-            <div className="bg-slate-900 border border-slate-600 rounded-md px-3 py-2 text-slate-400 text-sm">
-              Nessuna categoria assegnata
-            </div>
-          )}
+          <div className="bg-slate-900 border border-slate-600 rounded-md px-3 py-2 text-slate-400 text-sm">
+            {consultantData?.category || 'Nessuna categoria assegnata'}
+          </div>
         </div>
 
         {/* Telefono */}
