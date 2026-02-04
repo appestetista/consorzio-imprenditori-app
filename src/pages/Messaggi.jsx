@@ -334,6 +334,7 @@ export default function Messaggi() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['all-messages'] });
       queryClient.invalidateQueries({ queryKey: ['unread-messages'] });
+      queryClient.invalidateQueries({ queryKey: ['header-notifications'] });
       setConversationToDelete(null);
       toast.success('Conversazione eliminata');
     },
