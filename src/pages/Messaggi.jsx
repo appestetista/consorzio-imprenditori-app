@@ -275,10 +275,20 @@ export default function Messaggi() {
   const deleteMessageMutation = useMutation({
     mutationFn: async (messageId) => {
       await base44.functions.invoke('deleteMessage', { messageId });
+      // Elimina anche le notifiche correlate a questo messaggio
+      try {
+        const relatedNotifications = await base44.entities.Notification.filter({ reference_id: messageId });
+        for (const notif of relatedNotifications) {
+          await base44.entities.Notification.delete(notif.id);
+        }
+      } catch (e) {
+        console.log('Errore eliminazione notifiche:', e);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['all-messages'] });
       queryClient.invalidateQueries({ queryKey: ['unread-messages'] });
+      queryClient.invalidateQueries({ queryKey: ['header-notifications'] });
       setMessageToDelete(null);
       toast.success('Messaggio eliminato');
     },
