@@ -117,37 +117,46 @@ export default function FeatureCard({
         }
       `}</style>
       
-      {/* Contenitore con ombra esterna */}
+      {/* Contenitore con ombra esterna 3D */}
       <div 
         key={shouldGlow ? 'glow' : 'no-glow'}
         className={cn(
-          "relative min-h-[120px] transition-transform duration-100",
-          disabled ? "opacity-50 cursor-not-allowed" : "active:scale-[0.97] cursor-pointer"
+          "relative min-h-[120px] transition-all duration-150",
+          disabled ? "opacity-50 cursor-not-allowed" : "active:scale-[0.96] active:translate-y-1 hover:scale-[1.03] hover:-translate-y-1 cursor-pointer"
         )}
         style={{
-          boxShadow: '0 6px 20px rgba(0,0,0,0.5), 0 3px 8px rgba(0,0,0,0.3)',
-          borderRadius: '20px',
+          boxShadow: '0 12px 28px rgba(0,0,0,0.6), 0 8px 16px rgba(0,0,0,0.4), 0 4px 8px rgba(0,0,0,0.3)',
+          borderRadius: '22px',
           ...(shouldGlow && !disabled ? { animation: 'cardGlow 2s ease-in-out infinite' } : {})
         }}
       >
-        {/* Cornice argento sottile */}
+        {/* Cornice metallica 3D */}
         <div 
-          className="absolute inset-0 rounded-[20px] p-[1.5px]"
+          className="absolute inset-0 rounded-[22px] p-[3px]"
           style={{
-            background: 'linear-gradient(145deg, rgba(192,192,192,0.7) 0%, rgba(168,168,168,0.6) 25%, rgba(128,128,128,0.5) 50%, rgba(192,192,192,0.7) 75%, rgba(232,232,232,0.6) 100%)'
+            background: 'linear-gradient(145deg, #c0c0c0 0%, #a8a8a8 20%, #808080 50%, #606060 70%, #909090 85%, #b8b8b8 100%)',
+            boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.6), inset 0 -1px 2px rgba(0,0,0,0.4)'
           }}
         >
-          {/* Superficie interna nero → bordeaux */}
+          {/* Superficie interna bombata */}
           <div 
             className={cn(
-              "relative w-full h-full rounded-[17px] flex flex-col overflow-hidden",
+              "relative w-full h-full rounded-[19px] flex flex-col overflow-hidden",
               hasBottomBadge ? "" : ""
             )}
             style={{
-              background: 'linear-gradient(160deg, #1a1a1a 0%, #001d3b 50%, #001530 100%)',
-              boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5), inset 0 -1px 2px rgba(255,255,255,0.05)'
+              background: 'radial-gradient(ellipse 120% 80% at 30% 20%, #2a2a2a 0%, #1a1a1a 20%, #001d3b 50%, #001530 80%, #000d20 100%)',
+              boxShadow: 'inset 0 4px 8px rgba(255,255,255,0.08), inset 0 -4px 8px rgba(0,0,0,0.5), inset 2px 0 4px rgba(255,255,255,0.03), inset -2px 0 4px rgba(0,0,0,0.3)'
             }}
           >
+            {/* Riflesso superiore bombato */}
+            <div 
+              className="absolute top-0 left-[10%] w-[80%] h-[40%] pointer-events-none z-10"
+              style={{
+                background: 'radial-gradient(ellipse 100% 100% at 50% 0%, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.05) 40%, transparent 70%)',
+                borderRadius: '50%'
+              }}
+            />
 
             
             <div className={cn("flex flex-col items-center justify-center flex-1 relative z-20", hasBottomBadge ? "p-6 pb-3" : "p-6")}>
