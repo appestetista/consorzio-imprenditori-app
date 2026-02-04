@@ -1160,6 +1160,62 @@ Accedi all'app per visualizzare gli allegati e rispondere direttamente al client
                 </Card>
               )}
 
+              {/* Sezione Domande all'AI */}
+              <Card className="bg-slate-800 border-lime-400/50">
+                <CardContent className="p-4">
+                  <h3 className="text-lime-400 font-semibold mb-3 flex items-center gap-2">
+                    <MessageSquare className="w-5 h-5" />
+                    Hai domande sull'analisi?
+                  </h3>
+                  <p className="text-slate-400 text-sm mb-3">
+                    Puoi fare fino a 3 domande di approfondimento sul contratto analizzato.
+                    {followUpCount > 0 && <span className="text-lime-400 ml-1">({3 - followUpCount} rimaste)</span>}
+                  </p>
+                  
+                  {/* Storico domande e risposte */}
+                  {followUpAnswers.length > 0 && (
+                    <div className="space-y-3 mb-4">
+                      {followUpAnswers.map((item, idx) => (
+                        <div key={idx} className="space-y-2">
+                          <div className="bg-slate-700 rounded-lg p-3">
+                            <p className="text-white text-sm font-medium">📝 {item.question}</p>
+                          </div>
+                          <div className={`rounded-lg p-3 ${item.isLimit ? 'bg-orange-500/20 border border-orange-500/50' : 'bg-slate-900'}`}>
+                            <p className={`text-sm whitespace-pre-wrap ${item.isLimit ? 'text-orange-300' : 'text-slate-300'}`}>
+                              {item.answer}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Input domanda */}
+                  {followUpCount < 3 && (
+                    <div className="flex gap-2">
+                      <Textarea
+                        placeholder="Es: Cosa rischio se firmo senza modifiche? Posso recedere anticipatamente?"
+                        value={followUpQuestion}
+                        onChange={(e) => setFollowUpQuestion(e.target.value)}
+                        className="bg-slate-900 border-slate-700 text-white min-h-[60px] flex-1"
+                        disabled={askingFollowUp}
+                      />
+                      <Button
+                        onClick={handleAskFollowUp}
+                        disabled={!followUpQuestion.trim() || askingFollowUp}
+                        className="bg-lime-400 hover:bg-lime-500 text-slate-900 px-4"
+                      >
+                        {askingFollowUp ? (
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : (
+                          <Send className="w-5 h-5" />
+                        )}
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
               {/* Disclaimer AI */}
               <Card className="bg-yellow-500/10 border-yellow-500/30">
                 <CardContent className="p-4">
