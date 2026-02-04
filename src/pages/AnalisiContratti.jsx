@@ -213,10 +213,11 @@ Per ogni clausola potenzialmente problematica indica:
 
       setAnalysis(result);
 
-      // Salva nello storico
+      // Salva nello storico con URL dei file
       await base44.entities.ContractAnalysis.create({
         user_email: user.email,
         file_names: files.map(f => f.name),
+        file_urls: uploadedUrls,
         ...result
       });
       queryClient.invalidateQueries({ queryKey: ['contract-analyses', user?.email] });
@@ -475,6 +476,44 @@ Accedi all'app per visualizzare gli allegati e rispondere direttamente al client
           <>
 
             <div className="space-y-4">
+              {/* Documenti caricati */}
+              {selectedHistory.file_urls?.length > 0 && (
+                <Card className="bg-slate-800 border-slate-700">
+                  <CardContent className="p-4">
+                    <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+                      <FileText className="w-5 h-5 text-lime-400" />
+                      Documenti Analizzati
+                    </h3>
+                    <div className="grid grid-cols-3 gap-2">
+                      {selectedHistory.file_urls.map((url, idx) => {
+                        const fileName = selectedHistory.file_names?.[idx] || `File ${idx + 1}`;
+                        const isImage = url.match(/\.(jpg|jpeg|png|gif|webp)$/i) || url.includes('image');
+                        return (
+                          <a 
+                            key={idx} 
+                            href={url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="bg-slate-900 border border-slate-700 rounded-lg p-2 hover:border-lime-400 transition-colors"
+                          >
+                            {isImage ? (
+                              <div className="aspect-square rounded overflow-hidden bg-slate-800 mb-1">
+                                <img src={url} alt={fileName} className="w-full h-full object-cover" />
+                              </div>
+                            ) : (
+                              <div className="aspect-square rounded bg-slate-800 flex items-center justify-center mb-1">
+                                <FileText className="w-8 h-8 text-lime-400" />
+                              </div>
+                            )}
+                            <p className="text-white text-[10px] truncate">{fileName}</p>
+                          </a>
+                        );
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
               {/* Riepilogo */}
               <Card className="bg-slate-800 border-slate-700">
                 <CardContent className="p-4">
