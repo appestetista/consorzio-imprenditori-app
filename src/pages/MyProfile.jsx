@@ -153,17 +153,22 @@ function ExtraConsultationsManager({ consultantId, consultantZona }) {
     <div className="space-y-3">
       {/* Form per aggiungere consulenze extra */}
       <div className="bg-slate-900 rounded-lg p-3 space-y-3">
-        {zoneUsers && zoneUsers.filter(u => u.email).length > 0 ? (
-          <Select value={selectedUser || ""} onValueChange={setSelectedUser}>
+        {zoneUsers && zoneUsers.filter(u => u.email && u.email.trim() !== '').length > 0 ? (
+          <Select 
+            value={selectedUser || undefined} 
+            onValueChange={(val) => val && setSelectedUser(val)}
+          >
             <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
               <SelectValue placeholder="Seleziona utente..." />
             </SelectTrigger>
             <SelectContent>
-              {zoneUsers.filter(u => u.email).map(u => (
-                <SelectItem key={u.email} value={u.email}>
-                  {u.company_name || u.full_name || u.email}
-                </SelectItem>
-              ))}
+              {zoneUsers
+                .filter(u => u.email && u.email.trim() !== '')
+                .map(u => (
+                  <SelectItem key={u.email} value={u.email}>
+                    {u.company_name || u.full_name || u.email}
+                  </SelectItem>
+                ))}
             </SelectContent>
           </Select>
         ) : (
