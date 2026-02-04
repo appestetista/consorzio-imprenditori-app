@@ -633,16 +633,34 @@ Accedi all'app per visualizzare gli allegati e rispondere direttamente al client
                             />
                           )}
 
-                          {/* Hero Card */}
+                          {/* Toggle Analisi / Confronta */}
+            <div className="flex gap-2 mb-4">
+              <Button
+                onClick={() => { setCompareMode(false); resetComparison(); }}
+                className={`flex-1 ${!compareMode ? 'bg-lime-400 text-slate-900' : 'bg-slate-800 text-white'}`}
+              >
+                <FileSearch className="w-4 h-4 mr-2" />
+                Analizza
+              </Button>
+              <Button
+                onClick={() => { setCompareMode(true); resetAnalysis(); }}
+                className={`flex-1 ${compareMode ? 'bg-lime-400 text-slate-900' : 'bg-slate-800 text-white'}`}
+              >
+                <GitCompare className="w-4 h-4 mr-2" />
+                Confronta
+              </Button>
+            </div>
+
+            {/* Hero Card */}
             <Card className="bg-gradient-to-br from-blue-500 to-indigo-600 border-0 mb-6">
               <CardContent className="p-6">
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
-                    <FileSearch className="w-8 h-8 text-white" />
+                    {compareMode ? <GitCompare className="w-8 h-8 text-white" /> : <FileSearch className="w-8 h-8 text-white" />}
                   </div>
                   <div>
-                    <h2 className="text-white text-xl font-bold">Analisi AI</h2>
-                    <p className="text-white/80 text-sm">Carica un contratto PDF per analizzarlo</p>
+                    <h2 className="text-white text-xl font-bold">{compareMode ? 'Confronta Contratti' : 'Analisi AI'}</h2>
+                    <p className="text-white/80 text-sm">{compareMode ? 'Carica due contratti per confrontarli' : 'Carica un contratto PDF per analizzarlo'}</p>
                   </div>
                 </div>
               </CardContent>
