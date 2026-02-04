@@ -279,67 +279,29 @@ export default function VideoInterviste() {
       if (!message.trim()) throw new Error('Messaggio vuoto');
       if (!video.company_email) throw new Error('Email azienda non disponibile');
       
-      const senderName = effectiveUser?.company_name || effectiveUser?.full_name || 'Utente';
-      
-      // Crea il messaggio in-app
-      const conversationId = `video_${video.id}_${effectiveUser?.email}_${video.company_email}`;
-      await base44.entities.Message.create({
-        from_email: effectiveUser?.email,
-        to_email: video.company_email,
-        content: message,
-        source: 'video',
-        source_reference: video.company_name,
-        conversation_id: conversationId,
-        is_read: false
+      // Chiama la backend function che gestisce tutto (email + messaggio in-app)
+      const response = await base44.functions.invoke('contactCompany', {
+        videoId: video.id,
+        companyEmail: video.company_email,
+        customMessage: message,
+        source: 'video'
       });
       
-      // Crea notifica per l'azienda
-      await base44.entities.Notification.create({
-        user_email: video.company_email,
-        type: 'message',
-        title: 'Nuovo messaggio da Video Intervista',
-        content: `${senderName} ti ha contattato dalla tua video intervista`,
-        reference_id: video.id,
-        is_read: false
-      });
-      
-      // Invia email all'azienda
-      try {
-        await base44.integrations.Core.SendEmail({
-          from_name: 'Consorzio Imprenditori',
-          to: video.company_email,
-          subject: `Nuovo contatto dalla tua Video Intervista - ${senderName}`,
-          body: `
-Ciao ${video.company_name},
-
-Hai ricevuto un nuovo messaggio dalla tua video intervista sulla piattaforma del Consorzio.
-
-DA: ${senderName}
-EMAIL: ${effectiveUser?.email}
-${effectiveUser?.phone ? `TELEFONO: ${effectiveUser.phone}` : ''}
-
-MESSAGGIO:
-${message}
-
----
-Puoi rispondere direttamente accedendo alla sezione Messaggi della piattaforma.
-          `
-        });
-      } catch (e) {
-        console.log('Errore invio email:', e);
-      }
-      
-      return { success: true };
+      return response.data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       setShowContactModal(false);
       setContactMessage('');
       setSelectedVideoForContact(null);
       queryClient.invalidateQueries({ queryKey: ['unread-video-messages'] });
-      alert('Messaggio inviato con successo!');
+      if (data.alreadyExists) {
+        alert('Hai già inviato una richiesta di contatto a questa azienda nelle ultime 24 ore');
+      } else {
+        alert('Messaggio inviato con successo!');
+      }
     },
     onError: (error) => {
-      alert(error.message || 'Errore durante l\'invio del messaggio');
+      alert(error.response?.data?.error || error.message || 'Errore durante l\'invio del messaggio');
     }
   });
 

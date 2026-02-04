@@ -11,7 +11,7 @@ Deno.serve(async (req) => {
         }
 
         // 2. Leggi i parametri
-        const { videoId, companyEmail, source = 'video' } = await req.json();
+        const { videoId, companyEmail, source = 'video', customMessage } = await req.json();
 
         if (!companyEmail) {
             return Response.json({ 
@@ -70,17 +70,20 @@ Deno.serve(async (req) => {
 
         // 5. Invia email al referente dell'azienda
         const referenteEmail = targetUser.email || companyEmail;
+        const messageContent = customMessage || `Richiesta di contatto da ${user.company_name || user.full_name}`;
         const emailBody = `Gentile ${targetUser.referente || 'Azienda'},
 
-l'utente ${user.company_name || user.full_name} desidera essere contattato dalla vostra azienda.
+Hai ricevuto un nuovo messaggio dalla tua video intervista sulla piattaforma del Consorzio.
 
-Siete pregati di ricontattarlo al più presto al seguente numero:
-${user.phone || 'Non disponibile'}
+DA: ${user.company_name || user.full_name}
+EMAIL: ${user.email}
+TELEFONO: ${user.phone || 'Non disponibile'}
 
-Referente aziendale:
-${user.full_name || 'Non disponibile'}
+MESSAGGIO:
+${messageContent}
 
-Per rispondere, accedi alla piattaforma Consorzio Imprenditori.
+---
+Puoi rispondere direttamente accedendo alla sezione Messaggi della piattaforma.
 
 Cordiali saluti,
 Consorzio Imprenditori`;
@@ -108,10 +111,21 @@ Consorzio Imprenditori`;
         await base44.asServiceRole.entities.Message.create({
             from_email: user.email,
             to_email: companyEmail,
-            content: `Richiesta di contatto da ${user.company_name || user.full_name}\n\nHo visto la vostra video intervista e vorrei essere contattato.\n\nAzienda: ${user.company_name || 'N/A'}\nReferente: ${user.full_name || 'N/A'}\nTelefono: ${user.phone || 'N/A'}`,
+            content: messageContent,
             conversation_id: conversationId,
             source: 'video',
-            source_reference: targetUser.company_name || 'Video Intervista'
+            source_reference: targetUser.company_name || 'Video Intervista',
+            is_read: false
+        });
+
+        // 9. Crea notifica per l'azienda
+        await base44.asServiceRole.entities.Notification.create({
+            user_email: companyEmail,
+            type: 'message',
+            title: 'Nuovo messaggio da Video Intervista',
+            content: `${user.company_name || user.full_name} ti ha contattato dalla tua video intervista`,
+            reference_id: videoId,
+            is_read: false
         });
 
         return Response.json({ 
