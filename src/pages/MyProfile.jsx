@@ -25,8 +25,9 @@ import { Toaster } from 'sonner';
 
 // Componente per gestire consulenze extra per utenti specifici
 function ExtraConsultationsManager({ consultantId, consultantZona }) {
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedUserEmail, setSelectedUserEmail] = useState('');
   const [extraAmount, setExtraAmount] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Carica utenti della zona
   const { data: zoneUsers = [], isLoading: loadingUsers } = useQuery({
@@ -42,7 +43,8 @@ function ExtraConsultationsManager({ consultantId, consultantZona }) {
         const isNotBlocked = !u.is_blocked;
         const userZona = (u.zona || '').trim().toLowerCase();
         const isInZone = userZona && zones.includes(userZona);
-        return isUtente && isNotBlocked && isInZone;
+        const hasValidEmail = u.email && typeof u.email === 'string' && u.email.trim().length > 0;
+        return isUtente && isNotBlocked && isInZone && hasValidEmail;
       });
     },
     enabled: !!consultantZona && consultantZona.trim().length > 0
@@ -59,34 +61,42 @@ function ExtraConsultationsManager({ consultantId, consultantZona }) {
     enabled: !!consultantId
   });
 
-  const handleAddExtra = async () => {
-    if (!selectedUser || extraAmount < 1) return;
+  // Lista utenti validi per il Select (derivata, non stato)
+  const validUsers = React.useMemo(() => {
+    return zoneUsers.filter(u => u.email && u.email.trim().length > 0);
+  }, [zoneUsers]);
 
+  // Filtra utenti che hanno assegnazioni extra (più di 0)
+  const usersWithExtra = React.useMemo(() => {
+    return existingAssignments.filter(a => a.available_consultations > 0);
+  }, [existingAssignments]);
+
+  const handleAddExtra = async () => {
+    if (!selectedUserEmail || selectedUserEmail.trim() === '' || extraAmount < 1 || isSubmitting) return;
+
+    setIsSubmitting(true);
     try {
-      const existingAssignment = existingAssignments.find(a => a.user_email === selectedUser);
+      const existingAssignment = existingAssignments.find(a => a.user_email === selectedUserEmail);
 
       // Trova i dati del consulente per la notifica
       const consultants = await base44.entities.Consultant.filter({ id: consultantId });
       const consultant = consultants[0];
 
       if (existingAssignment) {
-        // Aggiorna l'assegnazione esistente
         await base44.entities.ConsultantAssignment.update(existingAssignment.id, {
           available_consultations: (existingAssignment.available_consultations || 0) + extraAmount
         });
       } else {
-        // Crea nuova assegnazione
         await base44.entities.ConsultantAssignment.create({
-          user_email: selectedUser,
+          user_email: selectedUserEmail,
           consultant_id: consultantId,
           available_consultations: extraAmount,
           is_assigned: true
         });
       }
 
-      // Invia notifica all'utente
       await base44.entities.Notification.create({
-        user_email: selectedUser,
+        user_email: selectedUserEmail,
         type: 'consultation',
         title: 'Nuove consulenze gratuite assegnate',
         content: `${consultant?.name || 'Un consulente'} (${consultant?.category || ''}) ti ha assegnato ${extraAmount} consulenz${extraAmount > 1 ? 'e' : 'a'} gratuit${extraAmount > 1 ? 'e' : 'a'}!`,
@@ -95,54 +105,65 @@ function ExtraConsultationsManager({ consultantId, consultantZona }) {
       });
 
       toast.success(`Aggiunte ${extraAmount} consulenze gratuite!`);
-      setSelectedUser(null);
+      setSelectedUserEmail('');
       setExtraAmount(1);
       refetchAssignments();
     } catch (error) {
       console.error('[ExtraConsultationsManager] handleAddExtra error:', error);
       toast.error('Errore durante l\'assegnazione delle consulenze');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleRemoveExtra = async (assignmentId, currentAmount) => {
-    if (currentAmount <= 1) {
-      await base44.entities.ConsultantAssignment.delete(assignmentId);
-    } else {
-      await base44.entities.ConsultantAssignment.update(assignmentId, {
-        available_consultations: currentAmount - 1
-      });
+    try {
+      if (currentAmount <= 1) {
+        await base44.entities.ConsultantAssignment.delete(assignmentId);
+      } else {
+        await base44.entities.ConsultantAssignment.update(assignmentId, {
+          available_consultations: currentAmount - 1
+        });
+      }
+      refetchAssignments();
+    } catch (error) {
+      console.error('Error removing extra:', error);
+      toast.error('Errore durante la rimozione');
     }
-    refetchAssignments();
   };
 
-  const handleAddOneMore = async (assignmentId, currentAmount) => {
-    // Trova l'assignment per ottenere l'email dell'utente
-    const assignment = existingAssignments.find(a => a.id === assignmentId);
-    
-    await base44.entities.ConsultantAssignment.update(assignmentId, {
-      available_consultations: currentAmount + 1
-    });
-    
-    // Invia notifica all'utente
-    if (assignment) {
+  const handleAddOneMore = async (assignmentId, currentAmount, userEmail) => {
+    try {
+      await base44.entities.ConsultantAssignment.update(assignmentId, {
+        available_consultations: currentAmount + 1
+      });
+      
       const consultants = await base44.entities.Consultant.filter({ id: consultantId });
       const consultant = consultants[0];
       
       await base44.entities.Notification.create({
-        user_email: assignment.user_email,
+        user_email: userEmail,
         type: 'consultation',
         title: 'Nuova consulenza gratuita assegnata',
         content: `${consultant?.name || 'Un consulente'} (${consultant?.category || ''}) ti ha assegnato 1 consulenza gratuita aggiuntiva!`,
         is_read: false,
         reference_id: consultantId
       });
+      
+      refetchAssignments();
+    } catch (error) {
+      console.error('Error adding one more:', error);
+      toast.error('Errore durante l\'aggiunta');
     }
-    
-    refetchAssignments();
   };
 
-  // Filtra utenti che hanno assegnazioni extra (più di 0)
-  const usersWithExtra = existingAssignments.filter(a => a.available_consultations > 0);
+  // Handler per la selezione - accetta solo valori validi
+  const handleUserSelection = useCallback((value) => {
+    // Radix può passare undefined o stringa vuota in alcuni casi
+    if (value && typeof value === 'string' && value.trim().length > 0) {
+      setSelectedUserEmail(value);
+    }
+  }, []);
 
   // Loading state
   if (loadingUsers) {
@@ -154,33 +175,39 @@ function ExtraConsultationsManager({ consultantId, consultantZona }) {
     );
   }
 
+  // Nessun utente disponibile
+  if (validUsers.length === 0) {
+    return (
+      <div className="space-y-3">
+        <div className="bg-slate-900 rounded-lg p-3">
+          <div className="bg-slate-800 border border-slate-700 rounded-md px-3 py-2 text-slate-400 text-sm">
+            Nessun utente disponibile nella tua zona
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-3">
       {/* Form per aggiungere consulenze extra */}
       <div className="bg-slate-900 rounded-lg p-3 space-y-3">
-        {zoneUsers && zoneUsers.filter(u => u.email && u.email.trim() !== '').length > 0 ? (
-          <Select 
-            value={selectedUser ?? undefined} 
-            onValueChange={(val) => setSelectedUser(val || null)}
-          >
-            <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
-              <SelectValue placeholder="Seleziona utente..." />
-            </SelectTrigger>
-            <SelectContent>
-              {zoneUsers
-                .filter(u => u.email && u.email.trim() !== '')
-                .map(u => (
-                  <SelectItem key={u.email} value={u.email}>
-                    {u.company_name || u.full_name || u.email}
-                  </SelectItem>
-                ))}
-            </SelectContent>
-          </Select>
-        ) : (
-          <div className="bg-slate-800 border border-slate-700 rounded-md px-3 py-2 text-slate-400 text-sm">
-            Nessun utente disponibile nella tua zona
-          </div>
-        )}
+        {/* Select utente - renderizzato solo se ci sono utenti validi */}
+        <Select 
+          value={selectedUserEmail || undefined}
+          onValueChange={handleUserSelection}
+        >
+          <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+            <SelectValue placeholder="Seleziona utente..." />
+          </SelectTrigger>
+          <SelectContent>
+            {validUsers.map(u => (
+              <SelectItem key={`user-${u.id || u.email}`} value={u.email}>
+                {u.company_name || u.full_name || u.email}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         
         <div className="flex items-center gap-2">
           <Label className="text-slate-400 text-sm">Consulenze da aggiungere:</Label>
@@ -189,19 +216,19 @@ function ExtraConsultationsManager({ consultantId, consultantZona }) {
             min="1"
             max="10"
             value={extraAmount}
-            onChange={(e) => setExtraAmount(parseInt(e.target.value) || 1)}
+            onChange={(e) => setExtraAmount(Math.max(1, parseInt(e.target.value) || 1))}
             className="bg-slate-800 border-slate-700 text-white w-20 text-center"
           />
         </div>
         
         <Button
           onClick={handleAddExtra}
-          disabled={!selectedUser}
+          disabled={!selectedUserEmail || selectedUserEmail.trim() === '' || isSubmitting}
           className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900"
           size="sm"
         >
           <UserPlus className="w-4 h-4 mr-2" />
-          Assegna Consulenze Extra
+          {isSubmitting ? 'Assegnazione...' : 'Assegna Consulenze Extra'}
         </Button>
       </div>
 
@@ -211,14 +238,16 @@ function ExtraConsultationsManager({ consultantId, consultantZona }) {
           <p className="text-slate-400 text-xs mb-2">Utenti con consulenze extra assegnate:</p>
           <div className="space-y-2 max-h-40 overflow-y-auto">
             {usersWithExtra.map(assignment => {
-              const user = zoneUsers.find(u => u.email === assignment.user_email);
+              const userData = validUsers.find(u => u.email === assignment.user_email);
+              const displayName = userData?.company_name || userData?.full_name || assignment.user_email;
               return (
-                <div key={assignment.id} className="flex items-center justify-between bg-slate-800 rounded-lg p-2">
+                <div key={`assignment-${assignment.id}`} className="flex items-center justify-between bg-slate-800 rounded-lg p-2">
                   <span className="text-white text-sm truncate flex-1">
-                    {user?.company_name || user?.full_name || assignment.user_email}
+                    {displayName}
                   </span>
                   <div className="flex items-center gap-2">
                     <button
+                      type="button"
                       onClick={() => handleRemoveExtra(assignment.id, assignment.available_consultations)}
                       className="w-6 h-6 rounded bg-red-500/20 text-red-400 flex items-center justify-center hover:bg-red-500/30"
                     >
@@ -228,7 +257,8 @@ function ExtraConsultationsManager({ consultantId, consultantZona }) {
                       {assignment.available_consultations}
                     </span>
                     <button
-                      onClick={() => handleAddOneMore(assignment.id, assignment.available_consultations)}
+                      type="button"
+                      onClick={() => handleAddOneMore(assignment.id, assignment.available_consultations, assignment.user_email)}
                       className="w-6 h-6 rounded bg-lime-500/20 text-lime-400 flex items-center justify-center hover:bg-lime-500/30"
                     >
                       <Plus className="w-3 h-3" />
