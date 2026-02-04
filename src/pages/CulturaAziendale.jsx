@@ -221,11 +221,11 @@ export default function CulturaAziendale() {
       <main className="px-4 py-6 max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <Link to={createPageUrl('Home')} className="text-lime-400">
+            <Link to={createPageUrl('Home')} className="text-[#d4af37]">
               <ArrowLeft className="w-6 h-6" />
             </Link>
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-lime-400 rounded-full flex items-center justify-center">
+              <div className="w-12 h-12 bg-[#d4af37] rounded-full flex items-center justify-center">
                 <BookOpen className="w-6 h-6 text-slate-900" />
               </div>
               <div>
@@ -237,7 +237,7 @@ export default function CulturaAziendale() {
           {isAdmin && (
             <Button
               onClick={() => setShowAddVideo(true)}
-              className="bg-lime-400 hover:bg-lime-500 text-slate-900"
+              className="bg-[#d4af37] hover:bg-[#b8960b] text-slate-900"
               size="sm"
             >
               <Plus className="w-4 h-4 mr-1" />
@@ -249,7 +249,7 @@ export default function CulturaAziendale() {
         {/* Filtri */}
         <Card className="bg-slate-800 border-slate-700 mb-6">
           <CardContent className="p-4 space-y-4">
-            <div className="flex items-center gap-2 text-lime-400 font-semibold">
+            <div className="flex items-center gap-2 text-[#d4af37] font-semibold">
               <Filter className="w-5 h-5" />
               <span>Filtra contenuti</span>
             </div>
@@ -286,7 +286,7 @@ export default function CulturaAziendale() {
               return (
                 <Card key={video.id} className="bg-slate-800 border-slate-700 overflow-hidden">
                   <div className="relative">
-                    <div className="bg-lime-400 text-slate-900 text-sm font-bold px-3 py-1">
+                    <div className="bg-[#d4af37] text-slate-900 text-sm font-bold px-3 py-1">
                       CATEGORIA: {video.categoria?.toUpperCase()}
                     </div>
                     
@@ -299,7 +299,7 @@ export default function CulturaAziendale() {
                               variant="ghost"
                               size="sm"
                               onClick={() => handleEditVideo(video)}
-                              className="text-lime-400 hover:bg-lime-400/20 h-8 w-8 p-0"
+                              className="text-[#d4af37] hover:bg-[#d4af37]/20 h-8 w-8 p-0"
                             >
                               <Pencil className="w-4 h-4" />
                             </Button>
@@ -437,7 +437,7 @@ export default function CulturaAziendale() {
                 <Button
                   type="button"
                   onClick={handleAddCategory}
-                  className="bg-lime-400 hover:bg-lime-500 text-slate-900"
+                  className="bg-[#d4af37] hover:bg-[#b8960b] text-slate-900"
                   size="sm"
                 >
                   <Plus className="w-4 h-4" />
@@ -460,7 +460,7 @@ export default function CulturaAziendale() {
                         />
                         <Button
                           size="sm"
-                          className="h-7 px-2 bg-lime-400 hover:bg-lime-500 text-slate-900"
+                          className="h-7 px-2 bg-[#d4af37] hover:bg-[#b8960b] text-slate-900"
                           onClick={() => handleRenameCategory(cat, editedCategoryName)}
                         >
                           ✓
@@ -476,7 +476,7 @@ export default function CulturaAziendale() {
                       </div>
                     ) : (
                       <Badge 
-                        className={`${CATEGORIE.includes(cat) ? 'bg-slate-700 text-slate-300' : 'bg-lime-400/20 text-lime-400'} flex items-center gap-1 cursor-pointer`}
+                        className={`${CATEGORIE.includes(cat) ? 'bg-slate-700 text-slate-300' : 'bg-[#d4af37]/20 text-[#d4af37]'} flex items-center gap-1 cursor-pointer`}
                         onClick={() => {
                           setEditingCategory(cat);
                           setEditedCategoryName(cat);
@@ -506,7 +506,7 @@ export default function CulturaAziendale() {
             <Button
               onClick={handleSubmit}
               disabled={createVideoMutation.isPending || updateVideoMutation.isPending}
-              className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900"
+              className="w-full bg-[#d4af37] hover:bg-[#b8960b] text-slate-900"
             >
               {(createVideoMutation.isPending || updateVideoMutation.isPending) 
                 ? 'Salvataggio...' 
