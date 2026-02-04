@@ -649,7 +649,11 @@ Accedi all'app per visualizzare gli allegati e rispondere direttamente al client
               <Button
                 onClick={() => { 
                   setCompareMode(true); 
-                  resetAnalysis(); 
+                  // Reset solo analisi, non compareMode
+                  setFiles([]);
+                  setAnalysis(null);
+                  setError(null);
+                  setSelectedHistory(null);
                 }}
                 className={`flex-1 ${compareMode ? 'bg-lime-400 text-slate-900' : 'bg-slate-800 text-white'}`}
               >
