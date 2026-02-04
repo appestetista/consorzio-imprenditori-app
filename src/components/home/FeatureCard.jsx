@@ -24,7 +24,8 @@ export default function FeatureCard({
   latestVideoDate = null,
   consulenzeMessagesCount = 0,
   contractUsageCount = 0,
-  contractUsageLimit = 5
+  contractUsageLimit = 5,
+  contractMessagesCount = 0
 }) {
   const isPink = variant === 'pink';
   const isBlue = variant === 'blue';
@@ -67,7 +68,10 @@ export default function FeatureCard({
   // Consulenze: campanella oro con messaggi non letti
   const hasConsulenzeMessages = isConsulenze && consulenzeMessagesCount > 0;
   
-  const shouldGlow = (isCalendar && (bellNotificationCount > 0 || hasPendingInvites)) || hasUnseenNewVideos || hasConsulenzeMessages;
+  // Analisi Contratti: campanella con messaggi non letti
+  const hasContractMessages = isAnalisiContratti && contractMessagesCount > 0;
+  
+  const shouldGlow = (isCalendar && (bellNotificationCount > 0 || hasPendingInvites)) || hasUnseenNewVideos || hasConsulenzeMessages || hasContractMessages;
   const hasBottomBadge = bottomBadge || (isCalendar && eventCount > 0) || hasUnseenNewVideos;
   
   const navigate = useNavigate();
@@ -195,6 +199,23 @@ export default function FeatureCard({
                     {hasConsulenzeMessages && (
                       <span className="absolute -top-2 -right-2 bg-white text-slate-900 text-[11px] font-bold rounded-full min-w-[20px] h-[20px] flex items-center justify-center px-1 shadow-md animate-pulse">
                         {consulenzeMessagesCount > 99 ? '99+' : consulenzeMessagesCount}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+              
+              {/* Campanella Analisi Contratti */}
+              {!disabled && isAnalisiContratti && (
+                <div className="absolute top-3 right-3">
+                  <div className={cn(
+                    "relative w-8 h-8 rounded-full flex items-center justify-center transition-colors",
+                    hasContractMessages ? "bg-[#d4af37]" : "bg-slate-900/80 border-2 border-[#d4af37]"
+                  )}>
+                    <Bell className={cn("w-4 h-4", hasContractMessages ? "text-slate-900 animate-bounce" : "text-[#d4af37]")} />
+                    {hasContractMessages && (
+                      <span className="absolute -top-2 -right-2 bg-white text-slate-900 text-[11px] font-bold rounded-full min-w-[20px] h-[20px] flex items-center justify-center px-1 shadow-md animate-pulse">
+                        {contractMessagesCount > 99 ? '99+' : contractMessagesCount}
                       </span>
                     )}
                   </div>
