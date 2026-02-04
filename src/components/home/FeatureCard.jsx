@@ -129,6 +129,25 @@ export default function FeatureCard({
                 </div>
               )}
               
+              {/* Icona Help Video - in basso a sinistra */}
+              {!disabled && (
+                <div 
+                  className="absolute bottom-2 left-2 z-30 cursor-pointer"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // TODO: aprire popup video
+                    console.log('Help video clicked for:', pageName);
+                  }}
+                >
+                  <img 
+                    src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/e02b02076_Immagine_2026-02-04_100052-removebg-preview.png"
+                    alt="Aiuto"
+                    className="w-6 h-6 object-contain hover:scale-110 transition-transform"
+                  />
+                </div>
+              )}
+              
               {!disabled && isCalendar && (
                 <div className="absolute top-3 right-3">
                   <div className={cn(
