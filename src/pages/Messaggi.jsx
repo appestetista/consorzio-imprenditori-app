@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { ArrowLeft, Send, User, X, Paperclip, Camera, FileText, Image as ImageIcon, ShoppingBag, Video, Phone, Briefcase, MessageCircle, Filter, TrendingUp, Ship, FileCheck, Zap, Globe, Check, CheckCheck } from 'lucide-react';
+import { ArrowLeft, Send, User, X, Paperclip, Camera, FileText, Image as ImageIcon, ShoppingBag, Video, Phone, Briefcase, MessageCircle, Filter, TrendingUp, Ship, FileCheck, Zap, Globe, Check, CheckCheck, ChevronRight, Star, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -21,6 +21,11 @@ export default function Messaggi() {
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [newMessage, setNewMessage] = useState('');
   const [messageToDelete, setMessageToDelete] = useState(null);
+  const [conversationToDelete, setConversationToDelete] = useState(null);
+  const [starredConversations, setStarredConversations] = useState(() => {
+    const saved = localStorage.getItem('starredConversations');
+    return saved ? JSON.parse(saved) : [];
+  });
   const [uploading, setUploading] = useState(false);
   const [attachments, setAttachments] = useState([]);
   const [activeFilter, setActiveFilter] = useState('all');
@@ -282,6 +287,47 @@ export default function Messaggi() {
       toast.error('Errore durante l\'eliminazione del messaggio');
     }
   });
+
+  const deleteConversationMutation = useMutation({
+    mutationFn: async (conversationKey) => {
+      const conv = conversations[conversationKey];
+      if (!conv) return;
+      // Elimina tutti i messaggi della conversazione
+      for (const msg of conv.messages) {
+        try {
+          await base44.entities.Message.delete(msg.id);
+        } catch (e) {
+          console.log('Errore eliminazione messaggio:', e);
+        }
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['all-messages'] });
+      queryClient.invalidateQueries({ queryKey: ['unread-messages'] });
+      setConversationToDelete(null);
+      toast.success('Conversazione eliminata');
+    },
+    onError: (error) => {
+      console.error('Errore eliminazione conversazione:', error);
+      toast.error('Errore durante l\'eliminazione');
+    }
+  });
+
+  const toggleStarConversation = (conversationKey, e) => {
+    e.stopPropagation();
+    setStarredConversations(prev => {
+      const newStarred = prev.includes(conversationKey)
+        ? prev.filter(k => k !== conversationKey)
+        : [...prev, conversationKey];
+      localStorage.setItem('starredConversations', JSON.stringify(newStarred));
+      return newStarred;
+    });
+  };
+
+  const handleDeleteConversation = (conversationKey, e) => {
+    e.stopPropagation();
+    setConversationToDelete(conversationKey);
+  };
 
   const canDeleteMessage = (msg) => {
     return msg.from_email === effectiveEmail || user?.role === 'admin';
@@ -646,11 +692,18 @@ export default function Messaggi() {
           <div className="space-y-2">
             {Object.entries(filteredConversations)
               .sort((a, b) => {
+                // Prima i preferiti
+                const aStarred = starredConversations.includes(a[0]);
+                const bStarred = starredConversations.includes(b[0]);
+                if (aStarred && !bStarred) return -1;
+                if (!aStarred && bStarred) return 1;
+                // Poi per data
                 const lastA = a[1].messages[a[1].messages.length - 1];
                 const lastB = b[1].messages[b[1].messages.length - 1];
                 return new Date(lastB?.created_date) - new Date(lastA?.created_date);
               })
               .map(([key, conv]) => {
+              const isStarred = starredConversations.includes(key);
               const otherUser = getOtherUser(conv.email);
               const msgs = conv.messages;
               const lastMessage = msgs[msgs.length - 1];
@@ -661,11 +714,19 @@ export default function Messaggi() {
               return (
                 <Card
                   key={key}
-                  className="bg-slate-800 border-slate-700 p-4 cursor-pointer hover:bg-slate-700 transition-colors"
+                  className={`bg-slate-800 border-slate-700 p-4 cursor-pointer hover:bg-slate-700 transition-colors relative ${isStarred ? 'border-l-4 border-l-yellow-500' : ''}`}
                   onClick={() => setSelectedConversation(key)}
                 >
+                  {/* Stellina preferiti */}
+                  <button
+                    onClick={(e) => toggleStarConversation(key, e)}
+                    className="absolute top-2 right-2 p-1.5 hover:bg-slate-600 rounded-full transition-colors"
+                  >
+                    <Star className={`w-4 h-4 ${isStarred ? 'fill-yellow-500 text-yellow-500' : 'text-slate-500'}`} />
+                  </button>
+
                   {/* Etichetta sezione */}
-                  <div className="flex items-center gap-1.5 mb-2">
+                  <div className="flex items-center gap-1.5 mb-2 pr-8">
                     <span className={`${sourceInfo.color} text-white text-[10px] font-semibold px-2 py-0.5 rounded-full flex items-center gap-1`}>
                       <SourceIcon className="w-3 h-3" />
                       {sourceInfo.label}
@@ -697,6 +758,17 @@ export default function Messaggi() {
                         {format(new Date(lastMessage?.created_date), 'd MMM, HH:mm', { locale: it })}
                       </p>
                     </div>
+                    
+                    {/* Azioni: Elimina e Freccia */}
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <button
+                        onClick={(e) => handleDeleteConversation(key, e)}
+                        className="p-2 hover:bg-red-500/20 rounded-full transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4 text-red-400" />
+                      </button>
+                      <ChevronRight className="w-5 h-5 text-lime-400" />
+                    </div>
                   </div>
                 </Card>
               );
@@ -706,6 +778,30 @@ export default function Messaggi() {
       </main>
 
       <BottomNav currentPage="Messaggi" unreadMessages={totalUnreadCount} />
+
+      {/* Delete Conversation Confirmation Dialog */}
+      <AlertDialog open={!!conversationToDelete} onOpenChange={() => setConversationToDelete(null)}>
+        <AlertDialogContent className="bg-slate-800 border-slate-700">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white">Eliminare questa conversazione?</AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-400">
+              Tutti i messaggi di questa conversazione verranno eliminati permanentemente. Questa azione non può essere annullata.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-slate-700 text-slate-400 border-slate-600 hover:bg-slate-600 hover:text-white">
+              Annulla
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => deleteConversationMutation.mutate(conversationToDelete)}
+              disabled={deleteConversationMutation.isPending}
+              className="bg-red-500 hover:bg-red-600 text-white"
+            >
+              {deleteConversationMutation.isPending ? 'Eliminazione...' : 'Elimina'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
