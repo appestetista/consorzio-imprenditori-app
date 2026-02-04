@@ -139,6 +139,16 @@ function ExtraConsultationsManager({ consultantId, consultantZona }) {
   // Filtra utenti che hanno assegnazioni extra (più di 0)
   const usersWithExtra = existingAssignments.filter(a => a.available_consultations > 0);
 
+  // Loading state
+  if (loadingUsers) {
+    return (
+      <div className="bg-slate-900 rounded-lg p-4 flex items-center justify-center">
+        <div className="animate-spin w-5 h-5 border-2 border-lime-400 border-t-transparent rounded-full mr-2"></div>
+        <span className="text-slate-400 text-sm">Caricamento utenti...</span>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-3">
       {/* Form per aggiungere consulenze extra */}
@@ -148,11 +158,15 @@ function ExtraConsultationsManager({ consultantId, consultantZona }) {
             <SelectValue placeholder="Seleziona utente..." />
           </SelectTrigger>
           <SelectContent>
-            {zoneUsers.map(u => (
-              <SelectItem key={u.email} value={u.email}>
-                {u.company_name || u.full_name || u.email}
-              </SelectItem>
-            ))}
+            {zoneUsers && zoneUsers.length > 0 ? (
+              zoneUsers.map(u => (
+                <SelectItem key={u.email} value={u.email || ''}>
+                  {u.company_name || u.full_name || u.email}
+                </SelectItem>
+              ))
+            ) : (
+              <div className="px-2 py-1 text-sm text-slate-400">Nessun utente disponibile</div>
+            )}
           </SelectContent>
         </Select>
         
