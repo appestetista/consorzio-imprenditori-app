@@ -296,9 +296,29 @@ export default function Messaggi() {
       for (const msg of conv.messages) {
         try {
           await base44.entities.Message.delete(msg.id);
+          // Elimina anche le notifiche correlate a questo messaggio
+          const relatedNotifications = await base44.entities.Notification.filter({ reference_id: msg.id });
+          for (const notif of relatedNotifications) {
+            await base44.entities.Notification.delete(notif.id);
+          }
         } catch (e) {
           console.log('Errore eliminazione messaggio:', e);
         }
+      }
+      // Elimina anche eventuali notifiche di tipo message per questa conversazione
+      try {
+        const userNotifications = await base44.entities.Notification.filter({ 
+          user_email: effectiveEmail,
+          type: 'message'
+        });
+        for (const notif of userNotifications) {
+          // Se la notifica è correlata a questa conversazione (stesso source)
+          if (notif.content?.includes(conv.email) || conv.messages.some(m => m.id === notif.reference_id)) {
+            await base44.entities.Notification.delete(notif.id);
+          }
+        }
+      } catch (e) {
+        console.log('Errore eliminazione notifiche:', e);
       }
     },
     onSuccess: () => {
