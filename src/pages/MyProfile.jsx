@@ -1139,7 +1139,7 @@ export default function MyProfile() {
               className="bg-slate-900 border-slate-700 text-white"
             />
             <Select
-              value={formData.company_size}
+              value={formData.company_size || undefined}
               onValueChange={(value) => setFormData({...formData, company_size: value})}
             >
               <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
@@ -1247,7 +1247,7 @@ export default function MyProfile() {
             <div>
               <label className="text-lime-400 text-sm font-medium mb-1 block">Regione (obbligatorio)</label>
               <Select
-                value={formData.region}
+                value={formData.region || undefined}
                 onValueChange={(value) => setFormData({...formData, region: value})}
               >
                 <SelectTrigger className="bg-lime-400/10 border-lime-400 text-white">
