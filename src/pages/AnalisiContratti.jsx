@@ -87,13 +87,22 @@ export default function AnalisiContratti() {
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
-    if (selectedFile && selectedFile.type === 'application/pdf') {
+    if (selectedFile && (selectedFile.type === 'application/pdf' || selectedFile.type.startsWith('image/'))) {
       setFiles(prev => [...prev, selectedFile]);
       setError(null);
       e.target.value = ''; // Reset input per permettere di caricare lo stesso file
     } else {
-      setError('Per favore carica un file PDF');
+      setError('Per favore carica un file PDF o un\'immagine');
     }
+  };
+
+  const handlePhotoCapture = (e) => {
+    const capturedFiles = Array.from(e.target.files || []);
+    if (capturedFiles.length > 0) {
+      setFiles(prev => [...prev, ...capturedFiles]);
+      setError(null);
+    }
+    e.target.value = '';
   };
 
   const removeFile = (index) => {
@@ -645,42 +654,69 @@ Accedi all'app per visualizzare gli allegati e rispondere direttamente al client
             {/* Upload Area */}
             <Card className="bg-slate-800 border-slate-700 mb-4">
               <CardContent className="p-6">
-                <label className="block cursor-pointer">
-                  <div className="border-2 border-dashed border-slate-600 rounded-xl p-6 text-center hover:border-lime-400 transition-colors">
-                    <div className="space-y-2">
-                      <Upload className="w-10 h-10 text-slate-500 mx-auto" />
-                      <p className="text-slate-400">Clicca per caricare un PDF</p>
-                      <p className="text-slate-500 text-sm">Contratti, accordi, documenti legali</p>
+                <div className="grid grid-cols-2 gap-3">
+                  {/* Upload PDF */}
+                  <label className="block cursor-pointer">
+                    <div className="border-2 border-dashed border-slate-600 rounded-xl p-4 text-center hover:border-lime-400 transition-colors h-full flex flex-col items-center justify-center">
+                      <Upload className="w-8 h-8 text-slate-500 mb-2" />
+                      <p className="text-slate-400 text-sm">Carica PDF</p>
+                      <p className="text-slate-500 text-xs">o immagine</p>
                     </div>
-                  </div>
-                  <input
-                    type="file"
-                    accept=".pdf"
-                    onChange={handleFileChange}
-                    className="hidden"
-                  />
-                </label>
+                    <input
+                      type="file"
+                      accept=".pdf,image/*"
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+                  </label>
+
+                  {/* Scatta Foto */}
+                  <label className="block cursor-pointer">
+                    <div className="border-2 border-dashed border-slate-600 rounded-xl p-4 text-center hover:border-lime-400 transition-colors h-full flex flex-col items-center justify-center">
+                      <Camera className="w-8 h-8 text-slate-500 mb-2" />
+                      <p className="text-slate-400 text-sm">Scatta Foto</p>
+                      <p className="text-slate-500 text-xs">al documento</p>
+                    </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      onChange={handlePhotoCapture}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+                <p className="text-slate-500 text-xs text-center mt-3">Puoi caricare più file o scattare più foto</p>
               </CardContent>
             </Card>
 
             {/* File Thumbnails */}
             {files.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-4">
+              <div className="grid grid-cols-3 gap-2 mb-4">
                 {files.map((file, index) => (
                   <div 
                     key={index} 
-                    className="bg-slate-800 border border-slate-700 rounded-lg p-2 flex items-center gap-2 max-w-[180px]"
+                    className="bg-slate-800 border border-slate-700 rounded-lg p-2 relative"
                   >
-                    <FileText className="w-8 h-8 text-lime-400 flex-shrink-0" />
-                    <div className="min-w-0 flex-1">
-                      <p className="text-white text-xs font-medium truncate">{file.name}</p>
-                      <p className="text-slate-400 text-[10px]">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
-                    </div>
+                    {file.type.startsWith('image/') ? (
+                      <div className="aspect-square rounded overflow-hidden bg-slate-900">
+                        <img 
+                          src={URL.createObjectURL(file)} 
+                          alt={file.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className="aspect-square rounded bg-slate-900 flex items-center justify-center">
+                        <FileText className="w-10 h-10 text-lime-400" />
+                      </div>
+                    )}
+                    <p className="text-white text-[10px] font-medium truncate mt-1">{file.name}</p>
                     <button 
                       onClick={() => removeFile(index)}
-                      className="text-red-400 hover:text-red-300 flex-shrink-0"
+                      className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1"
                     >
-                      <X className="w-4 h-4" />
+                      <X className="w-3 h-3" />
                     </button>
                   </div>
                 ))}
