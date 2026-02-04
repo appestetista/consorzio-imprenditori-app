@@ -262,9 +262,19 @@ export default function AdminMessagesView({ onBack }) {
   const deleteMessageMutation = useMutation({
     mutationFn: async (messageId) => {
       await base44.entities.Message.delete(messageId);
+      // Elimina anche le notifiche correlate a questo messaggio
+      try {
+        const relatedNotifications = await base44.entities.Notification.filter({ reference_id: messageId });
+        for (const notif of relatedNotifications) {
+          await base44.entities.Notification.delete(notif.id);
+        }
+      } catch (e) {
+        console.log('Errore eliminazione notifiche:', e);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-all-messages'] });
+      queryClient.invalidateQueries({ queryKey: ['header-notifications'] });
       setMessageToDelete(null);
       toast.success('Messaggio eliminato');
       // Non chiudiamo la conversazione, rimaniamo nella chat
@@ -275,10 +285,20 @@ export default function AdminMessagesView({ onBack }) {
     mutationFn: async (messageIds) => {
       for (const id of messageIds) {
         await base44.entities.Message.delete(id);
+        // Elimina anche le notifiche correlate a questo messaggio
+        try {
+          const relatedNotifications = await base44.entities.Notification.filter({ reference_id: id });
+          for (const notif of relatedNotifications) {
+            await base44.entities.Notification.delete(notif.id);
+          }
+        } catch (e) {
+          console.log('Errore eliminazione notifiche:', e);
+        }
       }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-all-messages'] });
+      queryClient.invalidateQueries({ queryKey: ['header-notifications'] });
       setConversationToDelete(null);
       setSelectedConversation(null);
       toast.success('Conversazione eliminata');
