@@ -294,12 +294,12 @@ export default function FeatureCard({
       
       {/* Popup Video Help */}
       <Dialog open={showHelpVideo} onOpenChange={setShowHelpVideo}>
-        <DialogContent className="sm:max-w-[350px] p-0 bg-black border-slate-700 overflow-hidden">
+        <DialogContent className="sm:max-w-[280px] p-0 bg-black border-slate-700 overflow-hidden">
           <button 
             onClick={() => setShowHelpVideo(false)}
-            className="absolute top-2 right-2 z-50 w-8 h-8 rounded-full bg-black/60 flex items-center justify-center text-white hover:bg-black/80"
+            className="absolute top-2 right-2 z-50 w-7 h-7 rounded-full bg-black/60 flex items-center justify-center text-white hover:bg-black/80"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
           <div className="aspect-[9/16] w-full">
             <iframe
