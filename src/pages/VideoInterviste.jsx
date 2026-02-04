@@ -696,7 +696,7 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
                         <Button
                           variant="outline"
                           size="sm"
-                          className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 border-0"
+                          className="w-full bg-[#d4af37] hover:bg-[#b8960c] text-slate-900 border-0"
                           onClick={() => sendContactMessageMutation.mutate(video)}
                           disabled={sendContactMessageMutation.isPending}
                         >
