@@ -134,7 +134,7 @@ export default function FeatureCard({
         <div 
           className="absolute inset-0 rounded-[20px] p-[1.5px]"
           style={{
-            background: 'linear-gradient(145deg, rgba(192,192,192,0.7) 0%, rgba(168,168,168,0.6) 25%, rgba(128,128,128,0.5) 50%, rgba(192,192,192,0.7) 75%, rgba(232,232,232,0.6) 100%)'
+            background: 'linear-gradient(145deg, rgba(160,160,160,0.6) 0%, rgba(128,128,128,0.5) 25%, rgba(96,96,96,0.4) 50%, rgba(160,160,160,0.6) 75%, rgba(200,200,200,0.5) 100%)'
           }}
         >
           {/* Superficie interna nero → bordeaux */}
