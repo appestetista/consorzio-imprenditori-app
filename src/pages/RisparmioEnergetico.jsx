@@ -104,19 +104,9 @@ export default function RisparmioEnergetico() {
               to={createPageUrl('RisparmioDettaglio') + `?categoria=${encodeURIComponent(service.title)}`}
               className="flex flex-col items-center"
             >
-              {/* Titolo sopra il pulsante */}
-              <span className="mb-2 text-blue-400 font-semibold text-sm text-center leading-tight max-w-[100px]">
-                {service.title}
-              </span>
-              
-              {/* Icona sopra il pulsante */}
-              <div className="mb-3">
-                <service.icon className="w-10 h-10 text-blue-400" />
-              </div>
-              
-              {/* Pulsante 3D bianco */}
+              {/* Pulsante 3D bianco con icona e testo sovrapposti */}
               <div 
-                className="relative w-28 h-28 transition-transform duration-100 active:scale-95 active:translate-y-1"
+                className="relative w-32 h-32 transition-transform duration-100 active:scale-95 active:translate-y-1"
               >
                 {/* Ombra esterna per effetto 3D */}
                 <div 
@@ -135,7 +125,7 @@ export default function RisparmioEnergetico() {
                 >
                   {/* Superficie interna con effetto 3D */}
                   <div 
-                    className="relative w-full h-full rounded-[17px] overflow-hidden"
+                    className="relative w-full h-full rounded-[17px] overflow-hidden flex flex-col items-center justify-center"
                     style={{
                       background: 'linear-gradient(145deg, #ffffff 0%, #f5f5f5 30%, #e8e8e8 70%, #d8d8d8 100%)',
                       boxShadow: 'inset 0 2px 4px rgba(255,255,255,0.9), inset 0 -2px 4px rgba(0,0,0,0.1)'
@@ -149,6 +139,14 @@ export default function RisparmioEnergetico() {
                         borderRadius: '17px 17px 50% 50%'
                       }}
                     />
+                    
+                    {/* Icona centrata */}
+                    <service.icon className="w-10 h-10 text-blue-600 relative z-10 mb-1" />
+                    
+                    {/* Titolo dentro il pulsante */}
+                    <span className="text-blue-600 font-bold text-xs text-center leading-tight px-2 relative z-10 max-w-[90%]">
+                      {service.title}
+                    </span>
                   </div>
                 </div>
               </div>
