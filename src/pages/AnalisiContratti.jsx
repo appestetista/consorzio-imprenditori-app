@@ -275,29 +275,55 @@ Per ogni clausola potenzialmente problematica indica:
         throw new Error('Seleziona un avvocato');
       }
 
+      // Genera conversation_id univoco per raggruppare i messaggi
+      const conversationId = [user.email, avvocato.email].sort().join('-') + '_analisi_contratti';
+
       // Crea messaggio
       await base44.entities.Message.create({
         from_email: user.email,
         to_email: avvocato.email,
-        content: `**Richiesta verifica contratto**\n\nOggetto: ${contactForm.subject}\n\n${contactForm.message}\n\n---\nInviato da: ${user.company_name || user.full_name}\nEmail: ${user.email}`,
+        content: `**Richiesta verifica contratto**\n\nOggetto: ${contactForm.subject}\n\n${contactForm.message}`,
         source: 'analisi_contratti',
-        source_reference: 'Analisi Contratti AI',
+        source_reference: contactForm.subject,
+        conversation_id: conversationId,
         attachments: contactForm.attachments.map(a => ({ url: a.url, name: a.name, type: 'document' }))
       });
 
-      // Invia email all'avvocato
+      // Invia email all'avvocato con tutti i riferimenti del cliente
+      const clientInfo = `
+RIFERIMENTI CLIENTE:
+- Azienda: ${user.company_name || 'Non specificata'}
+- Nome: ${user.full_name || 'Non specificato'}
+- Email: ${user.email}
+- Telefono: ${user.phone || 'Non specificato'}
+- Città: ${user.city || 'Non specificata'}
+`;
+      
       await base44.integrations.Core.SendEmail({
         to: avvocato.email,
-        subject: `Nuova richiesta verifica contratto: ${contactForm.subject}`,
-        body: `Hai ricevuto una nuova richiesta di verifica contratto.\n\nDa: ${user.company_name || user.full_name}\nEmail: ${user.email}\n\nOggetto: ${contactForm.subject}\n\n${contactForm.message}\n\nAccedi all'app per rispondere.`
+        subject: `[Analisi Contratti] Nuova richiesta: ${contactForm.subject}`,
+        body: `Hai ricevuto una nuova richiesta di verifica contratto tramite l'app Consorzio Imprenditori.
+
+${clientInfo}
+---
+OGGETTO RICHIESTA: ${contactForm.subject}
+
+MESSAGGIO:
+${contactForm.message}
+
+${contactForm.attachments.length > 0 ? `\nALLEGATI: ${contactForm.attachments.length} documento/i allegato/i (visualizzabili nell'app)` : ''}
+
+---
+Accedi all'app per visualizzare gli allegati e rispondere direttamente al cliente.`
       });
 
-      // Crea notifica per l'avvocato
+      // Crea UNA SOLA notifica per l'avvocato (in-app)
       await base44.entities.Notification.create({
         user_email: avvocato.email,
-        type: 'consultation',
-        title: 'Nuova richiesta verifica contratto',
-        content: `${user.company_name || user.full_name} richiede verifica contratto: ${contactForm.subject}`
+        type: 'message',
+        title: 'Nuova richiesta - Analisi Contratti',
+        content: `${user.company_name || user.full_name}: ${contactForm.subject}`,
+        reference_id: conversationId
       });
     },
     onSuccess: () => {
