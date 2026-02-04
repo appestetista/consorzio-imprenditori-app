@@ -2,15 +2,16 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import useNotificationSound from '../hooks/useNotificationSound';
-import { Search, MessageCircle, User, Building2, Bell, ArrowLeft, Phone, Send, MapPin, Briefcase } from 'lucide-react';
+import { Search, MessageCircle, User, Building2, Bell, ArrowLeft, Phone, Send, MapPin, Briefcase, Gift, Plus, Minus } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import { toast } from 'sonner';
 
-export default function ZoneUsersList({ consultantEmail, consultantZona, consultantZoneAssegnate, consultantLogo }) {
+export default function ZoneUsersList({ consultantEmail, consultantZona, consultantZoneAssegnate, consultantLogo, consultantId }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUser, setSelectedUser] = useState(null);
   const navigate = useNavigate();
@@ -72,6 +73,17 @@ export default function ZoneUsersList({ consultantEmail, consultantZona, consult
       return messages;
     },
     enabled: !!consultantEmail
+  });
+
+  // Carica assegnazioni extra per questo consulente
+  const { data: extraAssignments = [], refetch: refetchAssignments } = useQuery({
+    queryKey: ['consultant-extra-assignments', consultantId],
+    queryFn: async () => {
+      if (!consultantId) return [];
+      const assignments = await base44.entities.ConsultantAssignment.filter({ consultant_id: consultantId });
+      return assignments;
+    },
+    enabled: !!consultantId
   });
 
   // Subscribe real-time ai messaggi - suono per nuovi messaggi (solo dalla sezione consulenze)
@@ -152,6 +164,81 @@ export default function ZoneUsersList({ consultantEmail, consultantZona, consult
     setSelectedUser(user);
   };
 
+  // Handler per aggiungere consulenze extra
+  const handleAddExtra = async (userEmail) => {
+    if (!consultantId) return;
+    
+    const existingAssignment = extraAssignments.find(a => a.user_email === userEmail);
+    
+    try {
+      // Trova i dati del consulente per la notifica
+      const consultants = await base44.entities.Consultant.filter({ id: consultantId });
+      const consultant = consultants[0];
+
+      if (existingAssignment) {
+        await base44.entities.ConsultantAssignment.update(existingAssignment.id, {
+          available_consultations: (existingAssignment.available_consultations || 0) + 1
+        });
+      } else {
+        await base44.entities.ConsultantAssignment.create({
+          user_email: userEmail,
+          consultant_id: consultantId,
+          available_consultations: 1,
+          is_assigned: true
+        });
+      }
+
+      // Invia notifica all'utente
+      await base44.entities.Notification.create({
+        user_email: userEmail,
+        type: 'consultation',
+        title: 'Nuova consulenza gratuita assegnata',
+        content: `${consultant?.name || 'Un consulente'} (${consultant?.category || ''}) ti ha assegnato 1 consulenza gratuita!`,
+        is_read: false,
+        reference_id: consultantId
+      });
+
+      toast.success('Consulenza extra aggiunta!');
+      refetchAssignments();
+    } catch (error) {
+      console.error('Errore aggiunta consulenza extra:', error);
+      toast.error('Errore durante l\'aggiunta');
+    }
+  };
+
+  // Handler per rimuovere consulenze extra
+  const handleRemoveExtra = async (userEmail) => {
+    if (!consultantId) return;
+    
+    const existingAssignment = extraAssignments.find(a => a.user_email === userEmail);
+    if (!existingAssignment || existingAssignment.available_consultations <= 0) return;
+    
+    try {
+      if (existingAssignment.available_consultations <= 1) {
+        await base44.entities.ConsultantAssignment.delete(existingAssignment.id);
+      } else {
+        await base44.entities.ConsultantAssignment.update(existingAssignment.id, {
+          available_consultations: existingAssignment.available_consultations - 1
+        });
+      }
+
+      toast.success('Consulenza extra rimossa');
+      refetchAssignments();
+    } catch (error) {
+      console.error('Errore rimozione consulenza extra:', error);
+      toast.error('Errore durante la rimozione');
+    }
+  };
+
+  // Mappa per ottenere rapidamente le consulenze extra per ogni utente
+  const extraByEmail = useMemo(() => {
+    const map = {};
+    extraAssignments.forEach(a => {
+      map[a.user_email] = a.available_consultations || 0;
+    });
+    return map;
+  }, [extraAssignments]);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -215,6 +302,10 @@ export default function ZoneUsersList({ consultantEmail, consultantZona, consult
               user={user} 
               onChat={() => handleChat(user)}
               unreadCount={unreadDataByEmail[user.email]?.count || 0}
+              extraConsultations={extraByEmail[user.email] || 0}
+              onAddExtra={handleAddExtra}
+              onRemoveExtra={handleRemoveExtra}
+              consultantId={consultantId}
             />
           ))
         )}
@@ -223,9 +314,30 @@ export default function ZoneUsersList({ consultantEmail, consultantZona, consult
   );
 }
 
-function UserCard({ user, onChat, unreadCount }) {
+function UserCard({ user, onChat, unreadCount, extraConsultations, onAddExtra, onRemoveExtra, consultantId }) {
   const displayName = user.company_name || user.full_name || user.email;
   const hasLogo = user.logo_url || user.company_logo;
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  const handleAddExtra = async () => {
+    if (isUpdating) return;
+    setIsUpdating(true);
+    try {
+      await onAddExtra(user.email);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleRemoveExtra = async () => {
+    if (isUpdating || extraConsultations <= 0) return;
+    setIsUpdating(true);
+    try {
+      await onRemoveExtra(user.email);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
   
   return (
     <Card className={`bg-slate-800 border-slate-700 p-4 ${unreadCount > 0 ? 'border-l-4 border-l-red-500' : ''}`}>
@@ -275,6 +387,34 @@ function UserCard({ user, onChat, unreadCount }) {
             </Badge>
           )}
         </div>
+
+        {/* Consulenze Extra */}
+        <div className="flex flex-col items-center gap-1 flex-shrink-0 mr-2">
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={handleRemoveExtra}
+              disabled={isUpdating || extraConsultations <= 0}
+              className="w-6 h-6 rounded bg-red-500/20 text-red-400 flex items-center justify-center hover:bg-red-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Minus className="w-3 h-3" />
+            </button>
+            <div className="flex items-center gap-1 bg-amber-500/20 rounded px-2 py-1 min-w-[50px] justify-center">
+              <Gift className="w-3 h-3 text-amber-400" />
+              <span className="text-amber-400 font-bold text-sm">{extraConsultations}</span>
+            </div>
+            <button
+              type="button"
+              onClick={handleAddExtra}
+              disabled={isUpdating}
+              className="w-6 h-6 rounded bg-lime-500/20 text-lime-400 flex items-center justify-center hover:bg-lime-500/30 disabled:opacity-50"
+            >
+              <Plus className="w-3 h-3" />
+            </button>
+          </div>
+          <span className="text-slate-500 text-[10px]">Extra</span>
+        </div>
+
         <div className="flex-shrink-0">
           <Button
             onClick={onChat}
