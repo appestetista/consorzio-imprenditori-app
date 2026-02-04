@@ -181,7 +181,7 @@ export default function FeatureCard({
                     "min-w-[28px] h-[28px] rounded-full flex items-center justify-center px-1.5 text-sm font-bold transition-colors",
                     videoBadgeIsRed 
                       ? "bg-[#bd0449] text-white" 
-                      : "bg-transparent border-2 border-[#d4af37] text-[#d4af37]"
+                      : "bg-transparent border-2 border-slate-500 text-slate-400"
                   )}>
                     {totalVideosCount > 99 ? '99+' : totalVideosCount}
                   </div>
