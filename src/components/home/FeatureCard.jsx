@@ -240,9 +240,9 @@ export default function FeatureCard({
             </div>
             
             {isCalendar && eventCount > 0 && (
-              <div className="w-full text-xs font-bold text-center py-1.5 border-t bg-[#d4af37]/20 text-[#d4af37] border-[#d4af37]/30 relative z-20">
-                {eventCount} {eventCount === 1 ? 'incontro' : 'incontri'} per te
-              </div>
+            <div className="w-full text-xs font-bold text-center py-1.5 border-t bg-slate-700/50 text-slate-300 border-slate-600/50 relative z-20">
+              {eventCount} {eventCount === 1 ? 'incontro' : 'incontri'} per te
+            </div>
             )}
             {isVideo && hasUnseenNewVideos && newVideosCount > 0 && (
               <div className="w-full text-xs font-bold text-center py-1.5 border-t bg-[#bd0449]/20 text-[#bd0449] border-[#bd0449]/30 relative z-20">
