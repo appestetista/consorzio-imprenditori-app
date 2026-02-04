@@ -153,21 +153,21 @@ function ExtraConsultationsManager({ consultantId, consultantZona }) {
     <div className="space-y-3">
       {/* Form per aggiungere consulenze extra */}
       <div className="bg-slate-900 rounded-lg p-3 space-y-3">
-        <Select value={selectedUser} onValueChange={setSelectedUser}>
+        <Select value={selectedUser || undefined} onValueChange={(val) => setSelectedUser(val || '')}>
           <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
             <SelectValue placeholder="Seleziona utente..." />
           </SelectTrigger>
           <SelectContent>
-            {zoneUsers && zoneUsers.length > 0 ? (
+            {zoneUsers && zoneUsers.filter(u => u.email).length > 0 ? (
               zoneUsers
-                .filter(u => u.email) // Filtra utenti senza email
+                .filter(u => u.email)
                 .map(u => (
                   <SelectItem key={u.email} value={u.email}>
                     {u.company_name || u.full_name || u.email}
                   </SelectItem>
                 ))
             ) : (
-              <div className="px-2 py-1 text-sm text-slate-400">Nessun utente disponibile</div>
+              <SelectItem value="__no_users__" disabled>Nessun utente disponibile</SelectItem>
             )}
           </SelectContent>
         </Select>
