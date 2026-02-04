@@ -819,13 +819,85 @@ Per ogni clausola potenzialmente problematica indica:
                 </Card>
               )}
 
+              {/* Livello di Rischio */}
+              {analysis.livello_rischio && (
+                <Card className={`border ${
+                  analysis.livello_rischio === 'alto' ? 'bg-red-500/20 border-red-500/50' :
+                  analysis.livello_rischio === 'medio' ? 'bg-orange-500/20 border-orange-500/50' :
+                  'bg-green-500/20 border-green-500/50'
+                }`}>
+                  <CardContent className="p-4">
+                    <h3 className={`font-semibold mb-1 flex items-center gap-2 ${
+                      analysis.livello_rischio === 'alto' ? 'text-red-400' :
+                      analysis.livello_rischio === 'medio' ? 'text-orange-400' :
+                      'text-green-400'
+                    }`}>
+                      <Scale className="w-5 h-5" />
+                      Livello di Rischio: {analysis.livello_rischio.toUpperCase()}
+                    </h3>
+                    <p className={`text-sm ${
+                      analysis.livello_rischio === 'alto' ? 'text-red-200' :
+                      analysis.livello_rischio === 'medio' ? 'text-orange-200' :
+                      'text-green-200'
+                    }`}>
+                      {analysis.livello_rischio === 'alto' && 'Questo contratto presenta criticità significative. Si consiglia vivamente di consultare un avvocato prima di firmare.'}
+                      {analysis.livello_rischio === 'medio' && 'Il contratto presenta alcuni punti da verificare. Valuta attentamente le clausole segnalate.'}
+                      {analysis.livello_rischio === 'basso' && 'Il contratto appare equilibrato. Verifica comunque i punti evidenziati.'}
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Clausole Vessatorie */}
+              {analysis.clausole_vessatorie?.length > 0 && (
+                <Card className="bg-red-500/20 border-red-500/50">
+                  <CardContent className="p-4">
+                    <h3 className="text-red-400 font-semibold mb-3 flex items-center gap-2">
+                      <AlertTriangle className="w-5 h-5" />
+                      ⚠️ Clausole Vessatorie o Sfavorevoli
+                    </h3>
+                    <div className="space-y-4">
+                      {analysis.clausole_vessatorie.map((cv, i) => (
+                        <div key={i} className="bg-red-900/30 rounded-lg p-3 border border-red-500/30">
+                          <p className="text-white text-sm font-medium mb-1">{cv.clausola}</p>
+                          <p className="text-red-200 text-sm mb-2">❌ {cv.problema}</p>
+                          {cv.riferimento_legge && (
+                            <p className="text-red-300 text-xs italic">📜 Rif. normativo: {cv.riferimento_legge}</p>
+                          )}
+                          {cv.richiede_doppia_firma && (
+                            <p className="text-yellow-400 text-xs mt-1 font-semibold">✍️ Richiede doppia sottoscrizione specifica (art. 1341 c.c.)</p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Clausole Mancanti */}
+              {analysis.clausole_mancanti?.length > 0 && (
+                <Card className="bg-yellow-500/20 border-yellow-500/50">
+                  <CardContent className="p-4">
+                    <h3 className="text-yellow-400 font-semibold mb-2 flex items-center gap-2">
+                      <Info className="w-5 h-5" />
+                      Clausole Mancanti o Incomplete
+                    </h3>
+                    <ul className="space-y-1">
+                      {analysis.clausole_mancanti.map((mancante, i) => (
+                        <li key={i} className="text-yellow-200 text-sm">• {mancante}</li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              )}
+
               {/* Criticità */}
               {analysis.criticita?.length > 0 && (
                 <Card className="bg-orange-500/20 border-orange-500/50">
                   <CardContent className="p-4">
                     <h3 className="text-orange-400 font-semibold mb-2 flex items-center gap-2">
                       <AlertTriangle className="w-5 h-5" />
-                      Punti di Attenzione
+                      Altri Punti di Attenzione
                     </h3>
                     <ul className="space-y-1">
                       {analysis.criticita.map((critica, i) => (
@@ -840,7 +912,7 @@ Per ogni clausola potenzialmente problematica indica:
               {analysis.consigli?.length > 0 && (
                 <Card className="bg-green-500/20 border-green-500/50">
                   <CardContent className="p-4">
-                    <h3 className="text-green-400 font-semibold mb-2">💡 Consigli</h3>
+                    <h3 className="text-green-400 font-semibold mb-2">💡 Cosa Fare Prima di Firmare</h3>
                     <ul className="space-y-1">
                       {analysis.consigli.map((consiglio, i) => (
                         <li key={i} className="text-green-200 text-sm">• {consiglio}</li>
