@@ -132,7 +132,7 @@ export default function FeatureCard({
               {/* Icona Video Help - in basso a sinistra con cerchio */}
                   {!disabled && (
                     <div 
-                      className="absolute bottom-3 left-3 z-30 cursor-pointer hover:scale-110 transition-transform"
+                      className="absolute -bottom-1 -left-1 z-30 cursor-pointer hover:scale-110 transition-transform"
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
