@@ -96,21 +96,62 @@ export default function RisparmioEnergetico() {
           </CardContent>
         </Card>
 
-        {/* Services */}
-        <div className="grid grid-cols-2 gap-3">
+        {/* Services - 3D Buttons */}
+        <div className="grid grid-cols-2 gap-6">
           {services.map((service, index) => (
             <Link 
               key={index} 
               to={createPageUrl('RisparmioDettaglio') + `?categoria=${encodeURIComponent(service.title)}`}
+              className="flex flex-col items-center"
             >
-              <Card className="bg-slate-800 border-slate-700 hover:border-lime-400/50 transition-colors h-full">
-              <CardContent className="p-4 flex flex-col items-center text-center">
-                <div className="w-14 h-14 bg-lime-400/20 rounded-xl flex items-center justify-center mb-3">
-                  <service.icon className="w-7 h-7 text-lime-400" />
+              {/* Icona sopra il pulsante */}
+              <div className="mb-2">
+                <service.icon className="w-8 h-8 text-lime-400" />
+              </div>
+              
+              {/* Pulsante 3D bianco */}
+              <div 
+                className="relative w-20 h-20 transition-transform duration-100 active:scale-95 active:translate-y-1"
+              >
+                {/* Ombra esterna per effetto 3D */}
+                <div 
+                  className="absolute inset-0 rounded-2xl"
+                  style={{
+                    boxShadow: '0 8px 16px rgba(0,0,0,0.4), 0 4px 8px rgba(0,0,0,0.3)'
+                  }}
+                />
+                
+                {/* Bordo esterno sfumato */}
+                <div 
+                  className="absolute inset-0 rounded-2xl p-[3px]"
+                  style={{
+                    background: 'linear-gradient(145deg, #ffffff 0%, #e8e8e8 50%, #d0d0d0 100%)'
+                  }}
+                >
+                  {/* Superficie interna con effetto 3D */}
+                  <div 
+                    className="relative w-full h-full rounded-[14px] overflow-hidden"
+                    style={{
+                      background: 'linear-gradient(145deg, #ffffff 0%, #f5f5f5 30%, #e8e8e8 70%, #d8d8d8 100%)',
+                      boxShadow: 'inset 0 2px 4px rgba(255,255,255,0.9), inset 0 -2px 4px rgba(0,0,0,0.1)'
+                    }}
+                  >
+                    {/* Riflesso superiore */}
+                    <div 
+                      className="absolute top-0 left-0 w-full h-[45%] pointer-events-none"
+                      style={{
+                        background: 'linear-gradient(180deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.2) 50%, transparent 100%)',
+                        borderRadius: '14px 14px 50% 50%'
+                      }}
+                    />
+                  </div>
                 </div>
-                <h3 className="text-white font-semibold text-sm">{service.title}</h3>
-              </CardContent>
-              </Card>
+              </div>
+              
+              {/* Titolo sotto il pulsante */}
+              <span className="mt-3 text-white font-semibold text-sm text-center leading-tight max-w-[90px]">
+                {service.title}
+              </span>
             </Link>
           ))}
         </div>
