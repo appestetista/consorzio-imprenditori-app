@@ -426,23 +426,26 @@ Accedi all'app per visualizzare gli allegati e rispondere direttamente al client
               </CardContent>
             </Card>
 
-        {/* Pulsante Storico */}
-        {historyAnalyses.length > 0 && !analysis && !selectedHistory && (
+        {/* Pulsante Storico - sempre visibile */}
+        {!analysis && !selectedHistory && (
           <Button
             onClick={() => setShowHistory(!showHistory)}
             variant="outline"
-            className="w-full bg-sky-200 hover:bg-sky-300 text-black border-0 mb-4"
+            className="w-full bg-[#d4af37] hover:bg-[#c9a432] text-slate-900 border-0 mb-4 h-12 text-base font-bold"
           >
-            <History className="w-4 h-4 mr-2" />
-            Storico Analisi ({historyAnalyses.length})
-            <ChevronRight className={`w-4 h-4 ml-auto transition-transform ${showHistory ? 'rotate-90' : ''}`} />
+            <History className="w-5 h-5 mr-2" />
+            📂 Storico Analisi {historyAnalyses.length > 0 ? `(${historyAnalyses.length})` : '(vuoto)'}
+            <ChevronRight className={`w-5 h-5 ml-auto transition-transform ${showHistory ? 'rotate-90' : ''}`} />
           </Button>
         )}
 
         {/* Lista Storico */}
         {showHistory && (
-          <div className="space-y-2 mb-4">
-
+          <div className="space-y-2 mb-4 bg-slate-800 rounded-xl p-4 border border-[#d4af37]/30">
+            <h3 className="text-[#d4af37] font-semibold mb-3">Le tue analisi salvate:</h3>
+            {historyAnalyses.length === 0 ? (
+              <p className="text-slate-400 text-sm text-center py-4">Nessuna analisi ancora salvata. Carica un contratto per iniziare!</p>
+            ) : null}
             {historyAnalyses.map((item) => (
               <Card key={item.id} className="bg-slate-800 border-slate-700">
                 <CardContent className="p-3 flex items-center gap-3">
