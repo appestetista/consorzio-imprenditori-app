@@ -666,8 +666,8 @@ Accedi all'app per visualizzare gli allegati e rispondere direttamente al client
               </CardContent>
             </Card>
 
-        {/* Pulsante Storico - sempre visibile */}
-        {!analysis && !selectedHistory && (
+        {/* Pulsante Storico - sempre visibile (solo in modalità analisi) */}
+        {!compareMode && !analysis && !selectedHistory && (
           <Button
             onClick={() => setShowHistory(!showHistory)}
             variant="outline"
