@@ -660,21 +660,21 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
                   const youtubeId = getYouTubeId(video.youtube_url);
                   
                   return (
-                    <Card key={video.id} className="bg-slate-800 border-slate-700 overflow-hidden">
+                    <Card key={video.id} className="bg-[#0a2540] border-[#1a3a5c] overflow-hidden">
                       <div className="relative">
-                        <div className="bg-[#d4af37] text-slate-900 text-sm font-bold px-3 py-1">
+                        <div className="bg-[#0d2d4a] text-[#d4af37] text-sm font-bold px-3 py-1">
                           AZIENDA {video.company_name?.toUpperCase()}
                         </div>
                         
                         {video.title && (
-                          <div className="bg-slate-900 px-3 py-2 border-b border-slate-700">
+                          <div className="bg-[#0d2d4a] px-3 py-2 border-b border-[#1a3a5c]">
                             <h3 className="text-white font-semibold text-base">{video.title}</h3>
                           </div>
                         )}
                         
                         {youtubeId ? (
                           <div 
-                            className="relative aspect-video"
+                            className="relative aspect-video bg-[#0d2d4a]"
                             onClick={() => handleVideoPlay(video)}
                           >
                             <iframe
@@ -687,7 +687,7 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
                             />
                           </div>
                         ) : (
-                          <div className="aspect-video bg-slate-700 flex items-center justify-center">
+                          <div className="aspect-video bg-[#0d2d4a] flex items-center justify-center">
                             <Play className="w-16 h-16 text-slate-500" />
                           </div>
                         )}
