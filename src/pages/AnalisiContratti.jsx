@@ -405,7 +405,6 @@ Per ogni clausola che differisce significativamente:
   const resetComparison = () => {
     setCompareFiles({ fileA: null, fileB: null });
     setComparisonResult(null);
-    setCompareMode(false);
   };
 
   const handleAskFollowUp = async () => {
@@ -636,14 +635,21 @@ Accedi all'app per visualizzare gli allegati e rispondere direttamente al client
                           {/* Toggle Analisi / Confronta */}
             <div className="flex gap-2 mb-4">
               <Button
-                onClick={() => { setCompareMode(false); resetComparison(); }}
+                onClick={() => { 
+                  setCompareMode(false); 
+                  setCompareFiles({ fileA: null, fileB: null });
+                  setComparisonResult(null);
+                }}
                 className={`flex-1 ${!compareMode ? 'bg-lime-400 text-slate-900' : 'bg-slate-800 text-white'}`}
               >
                 <FileSearch className="w-4 h-4 mr-2" />
                 Analizza
               </Button>
               <Button
-                onClick={() => { setCompareMode(true); resetAnalysis(); }}
+                onClick={() => { 
+                  setCompareMode(true); 
+                  resetAnalysis(); 
+                }}
                 className={`flex-1 ${compareMode ? 'bg-lime-400 text-slate-900' : 'bg-slate-800 text-white'}`}
               >
                 <GitCompare className="w-4 h-4 mr-2" />
