@@ -778,6 +778,7 @@ export default function Home() {
                                 totalVideosCount={feature.totalVideosCount || 0}
                                 hasVisitedVideos={feature.hasVisitedVideos || false}
                                 latestVideoDate={feature.latestVideoDate || null}
+                                consulenzeMessagesCount={feature.page === 'Consulenze' ? consultationMessagesCount : 0}
                               />
           ))}
         </div>
