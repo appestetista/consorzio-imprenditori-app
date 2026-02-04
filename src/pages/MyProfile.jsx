@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, User, Building2, Phone, MapPin, Save, Upload, X, Image as ImageIcon, LogOut, FileText, AlertTriangle, Briefcase, Bell, Volume2 } from 'lucide-react';
+import { ArrowLeft, User, Building2, Phone, MapPin, Save, Upload, X, Image as ImageIcon, LogOut, FileText, AlertTriangle, Briefcase, Bell, Volume2, History, ChevronRight, Trash2, FileSearch } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import Header from '../components/layout/Header';
@@ -984,10 +984,14 @@ export default function MyProfile() {
        </div>
 
         <Tabs defaultValue="profilo" className="w-full">
-          <TabsList className="w-full bg-slate-800 border border-slate-700 mb-4 grid grid-cols-3">
+          <TabsList className="w-full bg-slate-800 border border-slate-700 mb-4 grid grid-cols-4">
             <TabsTrigger value="profilo" className="data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
               <User className="w-4 h-4 mr-1" />
               <span className="hidden sm:inline">Profilo</span>
+            </TabsTrigger>
+            <TabsTrigger value="contratti" className="data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
+              <FileSearch className="w-4 h-4 mr-1" />
+              <span className="hidden sm:inline">Contratti</span>
             </TabsTrigger>
             <TabsTrigger value="bandi" className="data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
               <FileText className="w-4 h-4 mr-1" />
@@ -1296,6 +1300,10 @@ export default function MyProfile() {
         </Button>
           </>
         )}
+          </TabsContent>
+
+          <TabsContent value="contratti">
+            <ContractHistorySection user={user} />
           </TabsContent>
 
           <TabsContent value="bandi">
