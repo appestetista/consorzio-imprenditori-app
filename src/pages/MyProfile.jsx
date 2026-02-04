@@ -153,24 +153,24 @@ function ExtraConsultationsManager({ consultantId, consultantZona }) {
     <div className="space-y-3">
       {/* Form per aggiungere consulenze extra */}
       <div className="bg-slate-900 rounded-lg p-3 space-y-3">
-        <Select value={selectedUser || undefined} onValueChange={(val) => setSelectedUser(val || '')}>
-          <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
-            <SelectValue placeholder="Seleziona utente..." />
-          </SelectTrigger>
-          <SelectContent>
-            {zoneUsers && zoneUsers.filter(u => u.email).length > 0 ? (
-              zoneUsers
-                .filter(u => u.email)
-                .map(u => (
-                  <SelectItem key={u.email} value={u.email}>
-                    {u.company_name || u.full_name || u.email}
-                  </SelectItem>
-                ))
-            ) : (
-              <SelectItem value="__no_users__" disabled>Nessun utente disponibile</SelectItem>
-            )}
-          </SelectContent>
-        </Select>
+        {zoneUsers && zoneUsers.filter(u => u.email).length > 0 ? (
+          <Select value={selectedUser || ""} onValueChange={setSelectedUser}>
+            <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+              <SelectValue placeholder="Seleziona utente..." />
+            </SelectTrigger>
+            <SelectContent>
+              {zoneUsers.filter(u => u.email).map(u => (
+                <SelectItem key={u.email} value={u.email}>
+                  {u.company_name || u.full_name || u.email}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        ) : (
+          <div className="bg-slate-800 border border-slate-700 rounded-md px-3 py-2 text-slate-400 text-sm">
+            Nessun utente disponibile nella tua zona
+          </div>
+        )}
         
         <div className="flex items-center gap-2">
           <Label className="text-slate-400 text-sm">Consulenze da aggiungere:</Label>
