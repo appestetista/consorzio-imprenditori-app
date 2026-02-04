@@ -27,6 +27,7 @@ export function useAILimits(userEmail, actionType) {
   const { data: usageCount = 0, refetch } = useQuery({
     queryKey: ['ai-usage', userEmail, actionType, monthYear],
     queryFn: async () => {
+      if (!userEmail) return 0;
       const logs = await base44.entities.UsageLog.filter({
         user_email: userEmail,
         action_type: actionType,
@@ -42,7 +43,7 @@ export function useAILimits(userEmail, actionType) {
   const isLimitReached = usageCount >= limit;
 
   const trackUsage = async () => {
-    if (isLimitReached) return false;
+    if (!userEmail || isLimitReached) return false;
     
     await base44.entities.UsageLog.create({
       user_email: userEmail,
