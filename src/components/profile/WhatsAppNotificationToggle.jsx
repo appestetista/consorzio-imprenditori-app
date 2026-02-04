@@ -7,6 +7,12 @@ import { toast } from 'sonner';
 
 export default function WhatsAppNotificationToggle({ user }) {
   const [loading, setLoading] = useState(false);
+  
+  // Se user non è disponibile, non renderizzare
+  if (!user) {
+    return null;
+  }
+  
   const isEnabled = user?.whatsapp_enabled;
   
   // Verifica se la funzione esiste prima di chiamarla
