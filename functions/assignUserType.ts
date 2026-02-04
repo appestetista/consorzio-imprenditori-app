@@ -20,11 +20,13 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Cerca se c'è un invito pendente per questa email
-    const pendingInvites = await base44.asServiceRole.entities.PendingInvite.filter({
-      email: user.email.toLowerCase(),
+    // Cerca se c'è un invito pendente per questa email (case-insensitive)
+    const allPendingInvites = await base44.asServiceRole.entities.PendingInvite.filter({
       is_registered: false
     });
+    const pendingInvites = allPendingInvites.filter(
+      inv => inv.email?.toLowerCase() === user.email.toLowerCase()
+    );
 
     if (pendingInvites.length === 0) {
       // Controlla se esiste un invito già registrato per questa email
