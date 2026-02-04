@@ -678,22 +678,6 @@ function ConsultantProfileCard({ consultantData, setConsultantData, savingConsul
           </div>
         </div>
 
-        {/* Consulenze Extra per Utenti Specifici */}
-        <div className="border-t border-slate-700 pt-4 mt-4">
-          <h3 className="text-white font-medium mb-3 flex items-center gap-2">
-            <UserPlus className="w-4 h-4 text-lime-400" />
-            Consulenze Extra per Utenti Specifici
-          </h3>
-          <p className="text-slate-400 text-xs mb-3">
-            Assegna consulenze gratuite aggiuntive a utenti specifici della tua zona
-          </p>
-          
-          <ExtraConsultationsManager 
-            consultantId={consultantData?.id}
-            consultantZona={consultantData?.zona}
-          />
-        </div>
-
         {/* Gestione Chiamate */}
         <div className="border-t border-slate-700 pt-4 mt-4">
           <h3 className="text-white font-medium mb-3 flex items-center gap-2">
