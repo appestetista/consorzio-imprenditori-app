@@ -97,27 +97,32 @@ export default function RisparmioEnergetico() {
         </Card>
 
         {/* Services - 3D Buttons */}
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-2 gap-6 pt-4">
           {services.map((service, index) => (
             <Link 
               key={index} 
               to={createPageUrl('RisparmioDettaglio') + `?categoria=${encodeURIComponent(service.title)}`}
               className="flex flex-col items-center"
             >
+              {/* Titolo sopra il pulsante */}
+              <span className="mb-2 text-blue-400 font-semibold text-sm text-center leading-tight max-w-[100px]">
+                {service.title}
+              </span>
+              
               {/* Icona sopra il pulsante */}
-              <div className="mb-2">
-                <service.icon className="w-8 h-8 text-lime-400" />
+              <div className="mb-3">
+                <service.icon className="w-10 h-10 text-blue-400" />
               </div>
               
               {/* Pulsante 3D bianco */}
               <div 
-                className="relative w-20 h-20 transition-transform duration-100 active:scale-95 active:translate-y-1"
+                className="relative w-28 h-28 transition-transform duration-100 active:scale-95 active:translate-y-1"
               >
                 {/* Ombra esterna per effetto 3D */}
                 <div 
                   className="absolute inset-0 rounded-2xl"
                   style={{
-                    boxShadow: '0 8px 16px rgba(0,0,0,0.4), 0 4px 8px rgba(0,0,0,0.3)'
+                    boxShadow: '0 10px 20px rgba(0,0,0,0.4), 0 6px 10px rgba(0,0,0,0.3)'
                   }}
                 />
                 
@@ -130,7 +135,7 @@ export default function RisparmioEnergetico() {
                 >
                   {/* Superficie interna con effetto 3D */}
                   <div 
-                    className="relative w-full h-full rounded-[14px] overflow-hidden"
+                    className="relative w-full h-full rounded-[17px] overflow-hidden"
                     style={{
                       background: 'linear-gradient(145deg, #ffffff 0%, #f5f5f5 30%, #e8e8e8 70%, #d8d8d8 100%)',
                       boxShadow: 'inset 0 2px 4px rgba(255,255,255,0.9), inset 0 -2px 4px rgba(0,0,0,0.1)'
@@ -141,17 +146,12 @@ export default function RisparmioEnergetico() {
                       className="absolute top-0 left-0 w-full h-[45%] pointer-events-none"
                       style={{
                         background: 'linear-gradient(180deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.2) 50%, transparent 100%)',
-                        borderRadius: '14px 14px 50% 50%'
+                        borderRadius: '17px 17px 50% 50%'
                       }}
                     />
                   </div>
                 </div>
               </div>
-              
-              {/* Titolo sotto il pulsante */}
-              <span className="mt-3 text-white font-semibold text-sm text-center leading-tight max-w-[90px]">
-                {service.title}
-              </span>
             </Link>
           ))}
         </div>
