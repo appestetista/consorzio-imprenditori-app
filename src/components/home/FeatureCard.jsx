@@ -68,7 +68,7 @@ export default function FeatureCard({
   const hasConsulenzeMessages = isConsulenze && consulenzeMessagesCount > 0;
   
   const shouldGlow = (isCalendar && (bellNotificationCount > 0 || hasPendingInvites)) || hasUnseenNewVideos || hasConsulenzeMessages;
-  const hasBottomBadge = bottomBadge || (isCalendar && eventCount > 0) || hasUnseenNewVideos || isAnalisiContratti;
+  const hasBottomBadge = bottomBadge || (isCalendar && eventCount > 0) || hasUnseenNewVideos;
   
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -201,8 +201,21 @@ export default function FeatureCard({
                 </div>
               )}
               
-              {Icon && <Icon className={cn("w-8 h-8 mb-3", disabled ? "text-red-400" : "text-[#a0a0a0]")} />}
-              <span className={cn("text-sm font-medium text-center leading-tight break-words w-full px-1", disabled ? "text-red-300" : "text-white")}>{title}</span>
+              {Icon && <Icon className={cn("w-8 h-8 mb-2", disabled ? "text-red-400" : "text-[#a0a0a0]")} />}
+              <span className={cn("text-sm font-medium text-center leading-tight break-words w-full px-1", disabled ? "text-red-300" : "text-white", isAnalisiContratti && "whitespace-nowrap")}>{title}</span>
+              
+              {/* Progress bar per Analisi Contratti - sotto il titolo */}
+              {isAnalisiContratti && (
+                <div className="flex items-center justify-center gap-1.5 mt-2">
+                  <div className="w-12 h-1 bg-slate-600 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-[#d4af37] rounded-full transition-all"
+                      style={{ width: `${Math.min(100, (contractUsageCount / contractUsageLimit) * 100)}%` }}
+                    />
+                  </div>
+                  <span className="text-[9px] text-slate-400">{contractUsageCount}/{contractUsageLimit}</span>
+                </div>
+              )}
             </div>
             
             {isCalendar && eventCount > 0 && (
@@ -224,20 +237,7 @@ export default function FeatureCard({
                                                 </div>
                                               )}
                                               
-            {/* Progress bar per Analisi Contratti */}
-            {isAnalisiContratti && (
-              <div className="w-full px-4 pb-2 relative z-20">
-                <div className="flex items-center justify-center gap-1.5">
-                  <div className="w-16 h-1 bg-slate-700 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-[#d4af37] rounded-full transition-all"
-                      style={{ width: `${Math.min(100, (contractUsageCount / contractUsageLimit) * 100)}%` }}
-                    />
-                  </div>
-                  <span className="text-[8px] text-slate-400 whitespace-nowrap">{contractUsageCount}/{contractUsageLimit}</span>
-                </div>
-              </div>
-            )}
+
           </div>
         </div>
       </div>
