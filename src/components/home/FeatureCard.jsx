@@ -78,6 +78,14 @@ export default function FeatureCard({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { markVideosAsVisited } = useVideoVisit();
+  const [showHelpVideo, setShowHelpVideo] = useState(false);
+  
+  // Mappa dei video help per ogni pagina
+  const helpVideos = {
+    'AnalisiContratti': 'https://youtube.com/shorts/ABoFWp_q_Qc'
+  };
+  
+  const hasHelpVideo = helpVideos[pageName];
 
   const handleVideoCardClick = async (e) => {
     e.preventDefault();
