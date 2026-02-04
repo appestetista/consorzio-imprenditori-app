@@ -48,9 +48,10 @@ Deno.serve(async (req) => {
       }
 
       // Controlla se esiste un Consultant con questa email (creato manualmente dall'admin)
-      const existingConsultants = await base44.asServiceRole.entities.Consultant.filter({
-        email: user.email.toLowerCase()
-      });
+      const allConsultants = await base44.asServiceRole.entities.Consultant.filter({});
+      const existingConsultants = allConsultants.filter(
+        c => c.email?.toLowerCase() === user.email.toLowerCase()
+      );
 
       if (existingConsultants.length > 0) {
         // Il consulente esiste già - autorizza e assegna tipo utente
