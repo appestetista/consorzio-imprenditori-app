@@ -369,7 +369,7 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
       <main className="px-4 py-6 max-w-md mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <Link to={createPageUrl('Home')} className="text-lime-400">
+            <Link to={createPageUrl('Home')} className="text-[#d4af37]">
               <ArrowLeft className="w-6 h-6" />
             </Link>
             <h1 className="text-white text-xl font-bold">Video Interviste</h1>
@@ -378,7 +378,7 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
           {isAdmin && (
             <Dialog open={showAddVideo} onOpenChange={setShowAddVideo}>
               <DialogTrigger asChild>
-                <Button className="bg-lime-400 hover:bg-lime-500 text-slate-900">
+                <Button className="bg-[#d4af37] hover:bg-[#b8960c] text-slate-900">
                   <Plus className="w-5 h-5 mr-1" />
                   Nuovo
                 </Button>
@@ -425,7 +425,7 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
                   <Button 
                     onClick={() => createVideoMutation.mutate(newVideo)}
                     disabled={createVideoMutation.isPending || !newVideo.title || !newVideo.company_name || !newVideo.youtube_url}
-                    className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900"
+                    className="w-full bg-[#d4af37] hover:bg-[#b8960c] text-slate-900"
                   >
                     {createVideoMutation.isPending ? 'Caricamento...' : 'Aggiungi Video'}
                   </Button>
@@ -438,7 +438,7 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
         {/* Banner richiesta video - solo per utenti non admin */}
         {!isAdmin && (
           <div 
-            className="bg-lime-400 rounded-xl p-4 mb-6 flex items-center justify-between cursor-pointer hover:bg-lime-500 transition-colors"
+            className="bg-[#d4af37] rounded-xl p-4 mb-6 flex items-center justify-between cursor-pointer hover:bg-[#b8960c] transition-colors"
             onClick={() => setShowRequestModal(true)}
           >
             <div>
@@ -447,7 +447,7 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
             <div className="flex items-center gap-2">
               <span className="text-slate-900 text-xs">clicca qui</span>
               <div className="bg-slate-900 rounded-lg p-2">
-                <Video className="w-6 h-6 text-lime-400" />
+                <Video className="w-6 h-6 text-[#d4af37]" />
               </div>
             </div>
           </div>
@@ -457,11 +457,11 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
         {isAdmin ? (
           <Tabs defaultValue="videos" className="w-full">
             <TabsList className="grid w-full grid-cols-2 bg-slate-800 mb-4">
-              <TabsTrigger value="videos" className="data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
+              <TabsTrigger value="videos" className="data-[state=active]:bg-[#d4af37] data-[state=active]:text-slate-900">
                 <Video className="w-4 h-4 mr-2" />
                 Video ({videos.length})
               </TabsTrigger>
-              <TabsTrigger value="requests" className="data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900 relative">
+              <TabsTrigger value="requests" className="data-[state=active]:bg-[#d4af37] data-[state=active]:text-slate-900 relative">
                 <Mail className="w-4 h-4 mr-2" />
                 Richieste
                 {pendingVideoRequests.length > 0 && (
@@ -475,7 +475,7 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
             <TabsContent value="videos">
               {isLoading ? (
                 <div className="text-center py-12">
-                  <div className="animate-spin w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full mx-auto"></div>
+                  <div className="animate-spin w-8 h-8 border-2 border-[#d4af37] border-t-transparent rounded-full mx-auto"></div>
                 </div>
               ) : videos.length === 0 ? (
                 <div className="text-center py-12">
@@ -576,13 +576,13 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
               ) : (
                 <div className="space-y-3">
                   {videoInterviewRequests.map((request) => (
-                    <Card key={request.id} className={`border ${request.status === 'pending' ? 'bg-slate-800 border-lime-400/50' : 'bg-slate-800 border-slate-700'}`}>
+                    <Card key={request.id} className={`border ${request.status === 'pending' ? 'bg-slate-800 border-[#d4af37]/50' : 'bg-slate-800 border-slate-700'}`}>
                       <CardContent className="p-4">
                         {/* Header con nome e badge NUOVO */}
                         <div className="flex items-center justify-between mb-3">
                           <h3 className="text-white font-bold">{request.requester_name}</h3>
                           {request.status === 'pending' && (
-                            <span className="bg-lime-400 text-slate-900 text-xs font-bold px-2 py-1 rounded">NUOVO</span>
+                            <span className="bg-[#d4af37] text-slate-900 text-xs font-bold px-2 py-1 rounded">NUOVO</span>
                           )}
                         </div>
                         
@@ -614,7 +614,7 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
                               <Button
                                 size="sm"
                                 variant="outline"
-                                className="border-lime-400 text-lime-400 hover:bg-lime-400/20 h-7 text-xs px-2"
+                                className="border-[#d4af37] text-[#d4af37] hover:bg-[#d4af37]/20 h-7 text-xs px-2"
                                 onClick={() => markVideoRequestReadMutation.mutate(request.id)}
                               >
                                 <Eye className="w-3 h-3 mr-1" />
@@ -647,7 +647,7 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
 
             {isLoading ? (
               <div className="text-center py-12">
-                <div className="animate-spin w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full mx-auto"></div>
+                <div className="animate-spin w-8 h-8 border-2 border-[#d4af37] border-t-transparent rounded-full mx-auto"></div>
               </div>
             ) : videos.length === 0 ? (
               <div className="text-center py-12">
@@ -662,7 +662,7 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
                   return (
                     <Card key={video.id} className="bg-slate-800 border-slate-700 overflow-hidden">
                       <div className="relative">
-                        <div className="bg-lime-400 text-slate-900 text-sm font-bold px-3 py-1">
+                        <div className="bg-[#d4af37] text-slate-900 text-sm font-bold px-3 py-1">
                           AZIENDA {video.company_name?.toUpperCase()}
                         </div>
                         
@@ -734,8 +734,8 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
             <X className="h-4 w-4 text-slate-400" />
           </button>
           <div className="space-y-4 mt-4">
-            <div className="bg-lime-400/20 rounded-lg p-4 border border-lime-400/30">
-              <p className="text-lime-400 text-sm font-medium mb-2">Costo del servizio: € 500 + IVA</p>
+            <div className="bg-[#d4af37]/20 rounded-lg p-4 border border-[#d4af37]/30">
+              <p className="text-[#d4af37] text-sm font-medium mb-2">Costo del servizio: € 500 + IVA</p>
               <p className="text-slate-300 text-xs">
                 Intervista + montaggio + pubblicazione nell'app compresa nel prezzo
               </p>
@@ -774,7 +774,7 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
                 <Button 
                   onClick={() => requestInterviewMutation.mutate()}
                   disabled={requestInterviewMutation.isPending || !requestMessage.trim()}
-                  className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900"
+                  className="w-full bg-[#d4af37] hover:bg-[#b8960c] text-slate-900"
                 >
                   {requestInterviewMutation.isPending ? 'Invio...' : 'Invia Richiesta'}
                 </Button>
