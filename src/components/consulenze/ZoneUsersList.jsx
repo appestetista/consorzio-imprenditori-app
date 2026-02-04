@@ -412,7 +412,7 @@ function UserCard({ user, onChat, unreadCount, extraConsultations, onAddExtra, o
               <Plus className="w-3 h-3" />
             </button>
           </div>
-          <span className="text-slate-500 text-[10px]">Extra</span>
+          <span className="text-slate-500 text-[10px] text-center leading-tight">Consulenze<br/>extra gratuite</span>
         </div>
 
         <div className="flex-shrink-0">
