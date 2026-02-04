@@ -72,6 +72,7 @@ export default function Messaggi() {
   const { data: allMessages = [], isLoading } = useQuery({
     queryKey: ['all-messages', effectiveEmail],
     queryFn: async () => {
+      if (!effectiveEmail) return [];
       const sent = await base44.entities.Message.filter({ from_email: effectiveEmail });
       const received = await base44.entities.Message.filter({ to_email: effectiveEmail });
       return [...sent, ...received].sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
