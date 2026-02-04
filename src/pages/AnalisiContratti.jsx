@@ -31,6 +31,10 @@ export default function AnalisiContratti() {
   const [showHistory, setShowHistory] = useState(false);
   const [selectedHistory, setSelectedHistory] = useState(null);
   const [activeTab, setActiveTab] = useState('analisi'); // 'analisi' | 'messaggi'
+  const [followUpQuestion, setFollowUpQuestion] = useState('');
+  const [followUpAnswers, setFollowUpAnswers] = useState([]);
+  const [askingFollowUp, setAskingFollowUp] = useState(false);
+  const [followUpCount, setFollowUpCount] = useState(0);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -135,50 +139,60 @@ export default function AnalisiContratti() {
       setUploading(false);
       setAnalyzing(true);
 
-      // Analisi con LLM - consulenza legale approfondita
+      // Analisi con LLM - consulenza legale approfondita da avvocato esperto
       const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Sei un avvocato italiano esperto in diritto civile e commerciale. Il tuo compito è analizzare ${files.length > 1 ? 'questi contratti' : 'questo contratto'} come se stessi fornendo una consulenza legale professionale a un cliente imprenditore.
+        prompt: `Sei un avvocato civilista italiano con 20 anni di esperienza in diritto commerciale e contrattualistica d'impresa. Stai fornendo una consulenza legale professionale a un imprenditore che ti ha portato ${files.length > 1 ? 'questi documenti contrattuali' : 'questo documento contrattuale'}.
 
-ISTRUZIONI FONDAMENTALI:
-- Basa ESCLUSIVAMENTE la tua analisi sul testo del contratto e sulla normativa italiana vigente (Codice Civile, Codice del Consumo, normative specifiche di settore)
-- NON INVENTARE nulla: se qualcosa non è chiaro o mancante nel contratto, segnalalo esplicitamente
-- Cita gli articoli di legge pertinenti quando rilevi clausole problematiche
-- Usa un linguaggio chiaro ma professionale, come faresti con un cliente in studio
+REGOLE FONDAMENTALI DI ANALISI:
+1. DETERMINISMO: La tua analisi deve essere oggettiva e basata esclusivamente sul testo. Se analizzi lo stesso documento più volte, l'esito deve essere identico.
+2. SOLO FATTI: Analizza SOLO ciò che è scritto nel documento. Non ipotizzare, non inventare, non aggiungere informazioni non presenti.
+3. CITAZIONI NORMATIVE: Per ogni criticità, cita l'articolo di legge specifico (Codice Civile, Codice del Consumo D.Lgs. 206/2005, normative di settore).
+4. LINGUAGGIO PROFESSIONALE: Scrivi come un avvocato che spiega al cliente, chiaro ma tecnicamente preciso.
 
-ANALIZZA IN PARTICOLARE:
+STRUTTURA DELL'ANALISI LEGALE:
 
-1. TIPO E NATURA DEL CONTRATTO
-- Qualifica giuridica del contratto
-- Normativa applicabile (es. artt. del Codice Civile, D.Lgs. specifici)
+§1. QUALIFICAZIONE GIURIDICA
+- Tipo contrattuale (vendita, appalto, somministrazione, locazione, prestazione d'opera, mandato, agenzia, franchising, etc.)
+- Normativa di riferimento con articoli specifici
+- Schema negoziale adottato
 
-2. PARTI CONTRATTUALI
-- Identificazione delle parti
-- Eventuali asimmetrie contrattuali (impresa vs consumatore, grande impresa vs PMI)
+§2. SOGGETTI CONTRATTUALI
+- Identificazione precisa delle parti come risulta dal documento
+- Analisi dell'eventuale squilibrio contrattuale (B2B, B2C, rapporto tra imprese di diversa dimensione)
+- Verifica requisiti soggettivi se rilevanti
 
-3. OGGETTO E CORRISPETTIVO
-- Chiarezza nella definizione delle prestazioni
-- Determinatezza/determinabilità del prezzo (art. 1346 c.c.)
+§3. OGGETTO E PRESTAZIONI
+- Determinatezza dell'oggetto (art. 1346 c.c.)
+- Chiarezza delle obbligazioni reciproche
+- Corrispettivo e modalità di pagamento
 
-4. CLAUSOLE VESSATORIE O SFAVOREVOLI (SEZIONE CRITICA)
-Per ogni clausola potenzialmente problematica indica:
-- Il testo o contenuto della clausola
-- Perché è sfavorevole o rischiosa per il cliente
-- Il riferimento normativo (es. art. 33 D.Lgs. 206/2005 per clausole vessatorie, art. 1341 c.c. per clausole onerose)
-- Se richiede doppia sottoscrizione specifica
+§4. CLAUSOLE CRITICHE E VESSATORIE (SEZIONE PRIORITARIA)
+Per OGNI clausola problematica rilevata, indica:
+- Contenuto testuale o parafrasi fedele della clausola
+- Motivazione giuridica della criticità
+- Norma violata o di riferimento (es. art. 1341 comma 2 c.c., artt. 33-38 Codice del Consumo)
+- Se necessita doppia sottoscrizione ai sensi dell'art. 1341 c.c.
+- Conseguenze pratiche per il cliente
 
-5. CLAUSOLE MANCANTI O INCOMPLETE
-- Cosa manca che dovrebbe essere previsto
-- Rischi derivanti dall'assenza
+§5. LACUNE CONTRATTUALI
+- Clausole assenti che la prassi o la legge consigliano
+- Rischi derivanti dalle omissioni
+- Integrazioni suggerite
 
-6. TERMINI E SCADENZE CRITICHE
-- Durata del contratto
-- Termini di recesso e disdetta (attenzione a penali eccessive)
-- Rinnovi automatici
+§6. TERMINI, DURATA E RECESSO
+- Durata contrattuale
+- Modalità e termini di recesso/disdetta
+- Rinnovi taciti (attenzione all'art. 1899 c.c. per assicurazioni, normative specifiche)
+- Penali: verifica proporzionalità
 
-7. CONSIGLI OPERATIVI
-- Cosa negoziare prima di firmare
-- Clausole da far modificare o eliminare
-- Integrazioni da richiedere`,
+§7. VALUTAZIONE DEL RISCHIO
+- Livello di rischio complessivo (basso/medio/alto) con motivazione
+- Raccomandazione: procedere, negoziare modifiche, o non firmare
+
+§8. AZIONI CONSIGLIATE PRIMA DELLA FIRMA
+- Modifiche specifiche da richiedere alla controparte
+- Clausole da eliminare o rinegoziare
+- Integrazioni necessarie`,
         file_urls: uploadedUrls,
         response_json_schema: {
           type: "object",
@@ -249,6 +263,63 @@ Per ogni clausola potenzialmente problematica indica:
     setError(null);
     setContactForm({ subject: '', message: '', avvocatoId: '', attachments: [] });
     setContactSent(false);
+    setFollowUpQuestion('');
+    setFollowUpAnswers([]);
+    setFollowUpCount(0);
+  };
+
+  const handleAskFollowUp = async () => {
+    if (!followUpQuestion.trim() || !analysis) return;
+
+    // Verifica limite domande
+    if (followUpCount >= 3) {
+      setFollowUpAnswers(prev => [...prev, {
+        question: followUpQuestion,
+        answer: "⚠️ Il tuo piano non prevede un approfondimento ulteriore. Se vuoi un piano superiore con domande illimitate, contatta il Consorzio.",
+        isLimit: true
+      }]);
+      setFollowUpQuestion('');
+      return;
+    }
+
+    setAskingFollowUp(true);
+    try {
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt: `Sei un avvocato civilista italiano esperto in contrattualistica d'impresa. Hai appena analizzato un contratto per un cliente e questa è stata la tua analisi:
+
+ANALISI PRECEDENTE:
+- Tipo contratto: ${analysis.tipo_contratto}
+- Oggetto: ${analysis.oggetto}
+- Parti: ${analysis.parti_coinvolte?.join(', ')}
+- Durata: ${analysis.durata}
+- Livello rischio: ${analysis.livello_rischio}
+- Riepilogo: ${analysis.riepilogo}
+${analysis.clausole_vessatorie?.length > 0 ? `- Clausole vessatorie rilevate: ${analysis.clausole_vessatorie.map(c => c.clausola).join('; ')}` : ''}
+${analysis.criticita?.length > 0 ? `- Criticità: ${analysis.criticita.join('; ')}` : ''}
+
+Il cliente ti fa questa domanda di approfondimento:
+"${followUpQuestion}"
+
+Rispondi in modo professionale ma comprensibile, citando articoli di legge pertinenti se rilevanti. Sii conciso ma esaustivo. Se la domanda esula dall'analisi contrattuale, indica gentilmente che non puoi rispondere a domande non pertinenti al contratto analizzato.`
+      });
+
+      setFollowUpAnswers(prev => [...prev, {
+        question: followUpQuestion,
+        answer: response,
+        isLimit: false
+      }]);
+      setFollowUpCount(prev => prev + 1);
+      setFollowUpQuestion('');
+    } catch (err) {
+      console.error('Errore follow-up:', err);
+      setFollowUpAnswers(prev => [...prev, {
+        question: followUpQuestion,
+        answer: "Mi dispiace, si è verificato un errore. Riprova.",
+        isLimit: false
+      }]);
+    } finally {
+      setAskingFollowUp(false);
+    }
   };
 
   const handleAttachmentUpload = async (e) => {
