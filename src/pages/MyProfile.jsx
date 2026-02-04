@@ -159,11 +159,13 @@ function ExtraConsultationsManager({ consultantId, consultantZona }) {
           </SelectTrigger>
           <SelectContent>
             {zoneUsers && zoneUsers.length > 0 ? (
-              zoneUsers.map(u => (
-                <SelectItem key={u.email} value={u.email || ''}>
-                  {u.company_name || u.full_name || u.email}
-                </SelectItem>
-              ))
+              zoneUsers
+                .filter(u => u.email) // Filtra utenti senza email
+                .map(u => (
+                  <SelectItem key={u.email} value={u.email}>
+                    {u.company_name || u.full_name || u.email}
+                  </SelectItem>
+                ))
             ) : (
               <div className="px-2 py-1 text-sm text-slate-400">Nessun utente disponibile</div>
             )}
