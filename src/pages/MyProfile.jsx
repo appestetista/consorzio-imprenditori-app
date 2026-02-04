@@ -25,7 +25,7 @@ import { Toaster } from 'sonner';
 
 // Componente per gestire consulenze extra per utenti specifici
 function ExtraConsultationsManager({ consultantId, consultantZona }) {
-  const [selectedUser, setSelectedUser] = useState('');
+  const [selectedUser, setSelectedUser] = useState(null);
   const [extraAmount, setExtraAmount] = useState(1);
 
   // Carica utenti della zona
@@ -95,7 +95,7 @@ function ExtraConsultationsManager({ consultantId, consultantZona }) {
       });
 
       toast.success(`Aggiunte ${extraAmount} consulenze gratuite!`);
-      setSelectedUser('');
+      setSelectedUser(null);
       setExtraAmount(1);
       refetchAssignments();
     } catch (error) {
@@ -160,8 +160,8 @@ function ExtraConsultationsManager({ consultantId, consultantZona }) {
       <div className="bg-slate-900 rounded-lg p-3 space-y-3">
         {zoneUsers && zoneUsers.filter(u => u.email && u.email.trim() !== '').length > 0 ? (
           <Select 
-            value={selectedUser || undefined} 
-            onValueChange={(val) => val && setSelectedUser(val)}
+            value={selectedUser ?? undefined} 
+            onValueChange={(val) => setSelectedUser(val || null)}
           >
             <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
               <SelectValue placeholder="Seleziona utente..." />
