@@ -703,6 +703,7 @@ export default function ConsultantView({ user }) {
           consultantZona={myConsultantProfile?.zona}
           consultantZoneAssegnate={myConsultantProfile?.zone_assegnate}
           consultantLogo={myConsultantProfile?.logo_url}
+          consultantId={myConsultantProfile?.id}
         />
       </TabsContent>
 
