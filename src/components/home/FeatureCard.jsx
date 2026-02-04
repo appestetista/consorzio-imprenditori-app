@@ -104,18 +104,17 @@ export default function FeatureCard({
   const content = (
     <div className="relative">
                 {/* Icona Video Help - posizionata sull'angolo esterno in basso a sinistra */}
-                {!disabled && (
+                {!disabled && hasHelpVideo && (
                   <div 
                     className="absolute -bottom-2 -left-2 z-40 cursor-pointer hover:scale-110 transition-transform"
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      // TODO: aprire popup video
-                      console.log('Help video clicked for:', pageName);
+                      setShowHelpVideo(true);
                     }}
                   >
                     <div className="w-7 h-7 rounded-full border-2 border-[#a0a0a0] flex items-center justify-center bg-slate-900">
-                                      <Video className="w-4 h-4 text-[#a0a0a0]" />
+                      <Video className="w-4 h-4 text-[#a0a0a0]" />
                     </div>
                   </div>
                 )}
