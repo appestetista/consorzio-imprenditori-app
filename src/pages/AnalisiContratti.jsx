@@ -87,6 +87,7 @@ export default function AnalisiContratti() {
 
   // Limiti AI - solo quando user è disponibile
   const { usageCount, limit, remaining, isLimitReached, trackUsage } = useAILimits(user?.email || '', 'contract_analysis');
+  const { usageCount: compareUsageCount, limit: compareLimit, isLimitReached: isCompareLimitReached, trackUsage: trackCompareUsage } = useAILimits(user?.email || '', 'contract_comparison');
 
   const { data: avvocati = [] } = useQuery({
     queryKey: ['avvocati'],
@@ -286,8 +287,8 @@ Per OGNI clausola problematica rilevata, indica:
   const handleCompare = async () => {
     if (!compareFiles.fileA || !compareFiles.fileB) return;
 
-    if (isLimitReached) {
-      setError('Hai raggiunto il limite mensile di analisi contratti.');
+    if (isCompareLimitReached) {
+      setError('Hai raggiunto il limite mensile di confronti contratti (2/mese).');
       return;
     }
 
@@ -295,7 +296,7 @@ Per OGNI clausola problematica rilevata, indica:
     setError(null);
 
     try {
-      await trackUsage();
+      await trackCompareUsage();
 
       // Upload entrambi i file
       const { file_url: urlA } = await base44.integrations.Core.UploadFile({ file: compareFiles.fileA });
@@ -797,9 +798,21 @@ Accedi all'app per visualizzare gli allegati e rispondere direttamente al client
               </div>
             )}
 
+            {/* Contatore confronti */}
+            {!isCompareLimitReached && user && (
+              <div className="text-center text-slate-400 text-sm mb-2">
+                Confronti disponibili: {compareLimit - compareUsageCount}/{compareLimit}
+              </div>
+            )}
+            {isCompareLimitReached && (
+              <div className="bg-orange-500/20 border border-orange-500/50 rounded-lg p-3 mb-2 text-center">
+                <p className="text-orange-400 text-sm">Hai raggiunto il limite mensile di confronti (2/mese)</p>
+              </div>
+            )}
+
             <Button
               onClick={handleCompare}
-              disabled={!compareFiles.fileA || !compareFiles.fileB || comparing || isLimitReached}
+              disabled={!compareFiles.fileA || !compareFiles.fileB || comparing || isCompareLimitReached}
               className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 font-semibold h-12"
             >
               {comparing ? (

@@ -4,6 +4,7 @@ import { base44 } from '@/api/base44Client';
 // Limiti mensili per tipo di azione
 export const AI_LIMITS = {
   contract_analysis: 5,
+  contract_comparison: 2,
   export_analysis: 20,
   import_analysis: 20,
   grant_match: 5
@@ -11,6 +12,7 @@ export const AI_LIMITS = {
 
 export const AI_LIMIT_LABELS = {
   contract_analysis: 'Analisi Contratti',
+  contract_comparison: 'Confronto Contratti',
   export_analysis: 'Analisi Export',
   import_analysis: 'Analisi Import',
   grant_match: 'Match Bandi Profilo'
