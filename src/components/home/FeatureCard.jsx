@@ -22,7 +22,9 @@ export default function FeatureCard({
   totalVideosCount = 0,
   hasVisitedVideos = false,
   latestVideoDate = null,
-  consulenzeMessagesCount = 0
+  consulenzeMessagesCount = 0,
+  contractUsageCount = 0,
+  contractUsageLimit = 50
 }) {
   const isPink = variant === 'pink';
   const isBlue = variant === 'blue';
@@ -31,6 +33,7 @@ export default function FeatureCard({
   const isCalendar = pageName === 'CalendarioIncontri';
   const isVideo = pageName === 'VideoInterviste';
   const isConsulenze = pageName === 'Consulenze';
+  const isAnalisiContratti = pageName === 'AnalisiContratti';
   
   // Usa il context con timestamp per confronto con nuovi video (sessione corrente)
   const { lastVisitTimestamp, hasNewVideosSince } = useVideoVisit();
@@ -65,7 +68,7 @@ export default function FeatureCard({
   const hasConsulenzeMessages = isConsulenze && consulenzeMessagesCount > 0;
   
   const shouldGlow = (isCalendar && (bellNotificationCount > 0 || hasPendingInvites)) || hasUnseenNewVideos || hasConsulenzeMessages;
-  const hasBottomBadge = bottomBadge || (isCalendar && eventCount > 0) || hasUnseenNewVideos;
+  const hasBottomBadge = bottomBadge || (isCalendar && eventCount > 0) || hasUnseenNewVideos || isAnalisiContratti;
   
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -212,7 +215,7 @@ export default function FeatureCard({
                 {newVideosCount} {newVideosCount === 1 ? 'nuovo video' : 'nuovi video'}
               </div>
             )}
-            {bottomBadge && !isCalendar && !isVideo && (
+            {bottomBadge && !isCalendar && !isVideo && !isAnalisiContratti && (
                                                 <div className={cn(
                                                   "w-full text-xs font-bold text-center py-1.5 -mt-1 border-t relative z-20",
                                                   bottomBadgeType === 'requests' ? "bg-amber-400/20 text-amber-400 border-amber-400/30" : "bg-[#d4af37]/20 text-[#d4af37] border-[#d4af37]/30"
@@ -220,6 +223,21 @@ export default function FeatureCard({
                                                   {bottomBadgeType === 'requests' ? `${bottomBadge} ${bottomBadge === 1 ? 'richiesta' : 'richieste'}` : `${bottomBadge} cons. gratuite`}
                                                 </div>
                                               )}
+                                              
+            {/* Progress bar per Analisi Contratti */}
+            {isAnalisiContratti && (
+              <div className="w-full px-2 pb-1.5 pt-0.5 relative z-20">
+                <div className="flex items-center justify-between text-[9px] text-slate-400 mb-0.5">
+                  <span>{contractUsageCount}/{contractUsageLimit}</span>
+                </div>
+                <div className="w-full h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-[#d4af37] rounded-full transition-all"
+                    style={{ width: `${Math.min(100, (contractUsageCount / contractUsageLimit) * 100)}%` }}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
