@@ -82,7 +82,23 @@ export default function FeatureCard({
 
   const content = (
     <div className="relative">
-      <style>{`
+                {/* Icona Video Help - posizionata sull'angolo esterno in basso a sinistra */}
+                {!disabled && (
+                  <div 
+                    className="absolute -bottom-2 -left-2 z-40 cursor-pointer hover:scale-110 transition-transform"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      // TODO: aprire popup video
+                      console.log('Help video clicked for:', pageName);
+                    }}
+                  >
+                    <div className="w-7 h-7 rounded-full border-2 border-lime-400 flex items-center justify-center bg-slate-900">
+                      <Video className="w-4 h-4 text-lime-400" />
+                    </div>
+                  </div>
+                )}
+                <style>{`
         @keyframes cardGlow {
           0%, 100% { box-shadow: 0 0 10px 3px rgba(212, 175, 55, 0.4), 0 0 20px 6px rgba(212, 175, 55, 0.2); }
           50% { box-shadow: 0 0 15px 5px rgba(212, 175, 55, 0.6), 0 0 30px 10px rgba(212, 175, 55, 0.3); }
@@ -129,22 +145,7 @@ export default function FeatureCard({
                 </div>
               )}
               
-              {/* Icona Video Help - in basso a sinistra con cerchio */}
-                  {!disabled && (
-                    <div 
-                      className="absolute -bottom-1 -left-1 z-30 cursor-pointer hover:scale-110 transition-transform"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        // TODO: aprire popup video
-                        console.log('Help video clicked for:', pageName);
-                      }}
-                    >
-                      <div className="w-7 h-7 rounded-full border-2 border-lime-400 flex items-center justify-center bg-slate-900/80">
-                        <Video className="w-4 h-4 text-lime-400" />
-                      </div>
-                    </div>
-                  )}
+              {/* Icona Video Help - in basso a sinistra con cerchio, fuori dal contenuto */}
               
               {!disabled && isCalendar && (
                 <div className="absolute top-3 right-3">
