@@ -226,15 +226,15 @@ export default function FeatureCard({
                                               
             {/* Progress bar per Analisi Contratti */}
             {isAnalisiContratti && (
-              <div className="w-full px-2 pb-1.5 pt-0.5 relative z-20">
-                <div className="flex items-center justify-between text-[9px] text-slate-400 mb-0.5">
-                  <span>{contractUsageCount}/{contractUsageLimit}</span>
-                </div>
-                <div className="w-full h-1.5 bg-slate-700 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-[#d4af37] rounded-full transition-all"
-                    style={{ width: `${Math.min(100, (contractUsageCount / contractUsageLimit) * 100)}%` }}
-                  />
+              <div className="w-full px-3 pb-2 relative z-20">
+                <div className="flex items-center gap-1.5">
+                  <div className="flex-1 h-1 bg-slate-700 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-[#d4af37] rounded-full transition-all"
+                      style={{ width: `${Math.min(100, (contractUsageCount / contractUsageLimit) * 100)}%` }}
+                    />
+                  </div>
+                  <span className="text-[8px] text-slate-400 whitespace-nowrap">{contractUsageCount}/{contractUsageLimit}</span>
                 </div>
               </div>
             )}
