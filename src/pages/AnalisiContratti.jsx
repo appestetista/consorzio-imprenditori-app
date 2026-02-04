@@ -126,31 +126,78 @@ export default function AnalisiContratti() {
       setUploading(false);
       setAnalyzing(true);
 
-      // Analisi con LLM
+      // Analisi con LLM - consulenza legale approfondita
       const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Sei un esperto legale italiano. Analizza ${files.length > 1 ? 'questi contratti' : 'questo contratto'} e fornisci:
-1. Tipo di contratto
-2. Parti coinvolte
-3. Oggetto del contratto
-4. Durata e scadenze importanti
-5. Clausole principali
-6. Eventuali criticità o punti di attenzione
-7. Consigli per il cliente
+        prompt: `Sei un avvocato italiano esperto in diritto civile e commerciale. Il tuo compito è analizzare ${files.length > 1 ? 'questi contratti' : 'questo contratto'} come se stessi fornendo una consulenza legale professionale a un cliente imprenditore.
 
-Sii dettagliato ma chiaro, usando un linguaggio comprensibile.`,
+ISTRUZIONI FONDAMENTALI:
+- Basa ESCLUSIVAMENTE la tua analisi sul testo del contratto e sulla normativa italiana vigente (Codice Civile, Codice del Consumo, normative specifiche di settore)
+- NON INVENTARE nulla: se qualcosa non è chiaro o mancante nel contratto, segnalalo esplicitamente
+- Cita gli articoli di legge pertinenti quando rilevi clausole problematiche
+- Usa un linguaggio chiaro ma professionale, come faresti con un cliente in studio
+
+ANALIZZA IN PARTICOLARE:
+
+1. TIPO E NATURA DEL CONTRATTO
+- Qualifica giuridica del contratto
+- Normativa applicabile (es. artt. del Codice Civile, D.Lgs. specifici)
+
+2. PARTI CONTRATTUALI
+- Identificazione delle parti
+- Eventuali asimmetrie contrattuali (impresa vs consumatore, grande impresa vs PMI)
+
+3. OGGETTO E CORRISPETTIVO
+- Chiarezza nella definizione delle prestazioni
+- Determinatezza/determinabilità del prezzo (art. 1346 c.c.)
+
+4. CLAUSOLE VESSATORIE O SFAVOREVOLI (SEZIONE CRITICA)
+Per ogni clausola potenzialmente problematica indica:
+- Il testo o contenuto della clausola
+- Perché è sfavorevole o rischiosa per il cliente
+- Il riferimento normativo (es. art. 33 D.Lgs. 206/2005 per clausole vessatorie, art. 1341 c.c. per clausole onerose)
+- Se richiede doppia sottoscrizione specifica
+
+5. CLAUSOLE MANCANTI O INCOMPLETE
+- Cosa manca che dovrebbe essere previsto
+- Rischi derivanti dall'assenza
+
+6. TERMINI E SCADENZE CRITICHE
+- Durata del contratto
+- Termini di recesso e disdetta (attenzione a penali eccessive)
+- Rinnovi automatici
+
+7. CONSIGLI OPERATIVI
+- Cosa negoziare prima di firmare
+- Clausole da far modificare o eliminare
+- Integrazioni da richiedere`,
         file_urls: uploadedUrls,
         response_json_schema: {
           type: "object",
           properties: {
-            tipo_contratto: { type: "string" },
+            tipo_contratto: { type: "string", description: "Qualifica giuridica e normativa applicabile" },
             parti_coinvolte: { type: "array", items: { type: "string" } },
             oggetto: { type: "string" },
             durata: { type: "string" },
-            scadenze: { type: "array", items: { type: "string" } },
+            scadenze: { type: "array", items: { type: "string" }, description: "Termini e scadenze critiche con date se presenti" },
             clausole_principali: { type: "array", items: { type: "string" } },
-            criticita: { type: "array", items: { type: "string" } },
-            consigli: { type: "array", items: { type: "string" } },
-            riepilogo: { type: "string" }
+            clausole_vessatorie: { 
+              type: "array", 
+              items: { 
+                type: "object",
+                properties: {
+                  clausola: { type: "string", description: "Testo o descrizione della clausola" },
+                  problema: { type: "string", description: "Perché è sfavorevole o rischiosa" },
+                  riferimento_legge: { type: "string", description: "Articolo di legge pertinente" },
+                  richiede_doppia_firma: { type: "boolean" }
+                }
+              },
+              description: "Clausole vessatorie, abusive o particolarmente sfavorevoli" 
+            },
+            clausole_mancanti: { type: "array", items: { type: "string" }, description: "Elementi che dovrebbero essere presenti ma mancano" },
+            criticita: { type: "array", items: { type: "string" }, description: "Altri punti di attenzione con riferimenti normativi" },
+            livello_rischio: { type: "string", enum: ["basso", "medio", "alto"], description: "Valutazione complessiva del rischio" },
+            consigli: { type: "array", items: { type: "string" }, description: "Azioni concrete da intraprendere prima di firmare" },
+            riepilogo: { type: "string", description: "Sintesi della consulenza in 3-4 frasi" }
           }
         }
       });
