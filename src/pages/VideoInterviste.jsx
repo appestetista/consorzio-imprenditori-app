@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
@@ -27,7 +28,7 @@ export default function VideoInterviste() {
   const [user, setUser] = useState(null);
   const [effectiveUser, setEffectiveUser] = useState(null);
   const [showAddVideo, setShowAddVideo] = useState(false);
-  const [newVideo, setNewVideo] = useState({ title: '', company_name: '', youtube_url: '', company_email: '' });
+  const [newVideo, setNewVideo] = useState({ title: '', company_name: '', youtube_url: '', company_email: '', selected_user_id: '' });
   const [editingVideo, setEditingVideo] = useState(null);
   const [showEditVideo, setShowEditVideo] = useState(false);
   const [showRequestModal, setShowRequestModal] = useState(false);
@@ -121,6 +122,21 @@ export default function VideoInterviste() {
     queryFn: () => base44.entities.User.list(),
   });
 
+  // Lista aziende per menu a tendina (utenti con company_name)
+  const companyUsers = allUsers.filter(u => u.company_name && u.role !== 'admin');
+
+  const handleSelectCompany = (userId) => {
+    const selectedUser = companyUsers.find(u => u.id === userId);
+    if (selectedUser) {
+      setNewVideo({
+        ...newVideo,
+        selected_user_id: userId,
+        company_name: selectedUser.company_name,
+        company_email: selectedUser.email
+      });
+    }
+  };
+
   const { data: videoInterviewRequests = [] } = useQuery({
     queryKey: ['video-interview-requests'],
     queryFn: () => base44.entities.VideoInterviewRequest.list('-created_date'),
@@ -179,7 +195,7 @@ export default function VideoInterviste() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['videos'] });
       setShowAddVideo(false);
-      setNewVideo({ title: '', company_name: '', youtube_url: '', company_email: '' });
+      setNewVideo({ title: '', company_name: '', youtube_url: '', company_email: '', selected_user_id: '' });
     }
   });
 
@@ -483,13 +499,26 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
                     className="bg-slate-900 border-slate-700 text-white"
                     required
                   />
-                  <Input
-                    placeholder="Nome Azienda *"
-                    value={newVideo.company_name}
-                    onChange={(e) => setNewVideo({...newVideo, company_name: e.target.value})}
-                    className="bg-slate-900 border-slate-700 text-white"
-                    required
-                  />
+                  
+                  <div className="space-y-2">
+                    <label className="text-slate-400 text-sm">Seleziona Azienda *</label>
+                    <Select value={newVideo.selected_user_id} onValueChange={handleSelectCompany}>
+                      <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                        <SelectValue placeholder="Scegli un'azienda..." />
+                      </SelectTrigger>
+                      <SelectContent className="bg-slate-800 border-slate-700">
+                        {companyUsers.map(u => (
+                          <SelectItem key={u.id} value={u.id} className="text-white hover:bg-slate-700">
+                            {u.company_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {newVideo.company_email && (
+                      <p className="text-slate-500 text-xs">Email: {newVideo.company_email}</p>
+                    )}
+                  </div>
+                  
                   <Input
                     placeholder="Link YouTube *"
                     value={newVideo.youtube_url}
@@ -497,13 +526,7 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
                     className="bg-slate-900 border-slate-700 text-white"
                     required
                   />
-                  <Input
-                    placeholder="Email Azienda (per contatti)"
-                    type="email"
-                    value={newVideo.company_email}
-                    onChange={(e) => setNewVideo({...newVideo, company_email: e.target.value})}
-                    className="bg-slate-900 border-slate-700 text-white"
-                  />
+                  
                   <Button 
                     onClick={() => createVideoMutation.mutate(newVideo)}
                     disabled={createVideoMutation.isPending || !newVideo.title || !newVideo.company_name || !newVideo.youtube_url}
