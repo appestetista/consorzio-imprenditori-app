@@ -113,8 +113,8 @@ export default function FeatureCard({
                       setShowHelpVideo(true);
                     }}
                   >
-                    <div className="w-7 h-7 rounded-full border-2 border-[#a0a0a0] flex items-center justify-center bg-slate-900">
-                      <Video className="w-4 h-4 text-[#a0a0a0]" />
+                    <div className="w-8 h-8 rounded-full border-2 border-[#a0a0a0] flex items-center justify-center bg-slate-900">
+                      <Video className="w-5 h-5 text-[#a0a0a0]" />
                     </div>
                   </div>
                 )}
