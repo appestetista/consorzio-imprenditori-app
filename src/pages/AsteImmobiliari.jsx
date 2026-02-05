@@ -484,7 +484,7 @@ export default function AsteImmobiliari() {
               onClick={() => setFiltroScadenza(filtroScadenza === 'immediate' ? 'tutte' : 'immediate')}
             >
               <CardContent className="p-3 text-center">
-                <p className={`text-xl font-bold ${filtroScadenza === 'immediate' ? 'text-red-300' : 'text-red-400'}`}>{asteImmediateCount}</p>
+                <p className={`text-xl font-bold ${filtroScadenza === 'immediate' ? 'text-red-300' : 'text-red-400'}`}>{conteggioScadenze.immediate}</p>
                 <p className={`text-xs font-medium ${filtroScadenza === 'immediate' ? 'text-red-200' : 'text-red-300'}`}>⚡ &lt;30gg</p>
               </CardContent>
             </Card>
@@ -493,7 +493,7 @@ export default function AsteImmobiliari() {
               onClick={() => setFiltroScadenza(filtroScadenza === 'normali' ? 'tutte' : 'normali')}
             >
               <CardContent className="p-3 text-center">
-                <p className={`text-xl font-bold ${filtroScadenza === 'normali' ? 'text-lime-400' : 'text-white'}`}>{asteNormaliCount}</p>
+                <p className={`text-xl font-bold ${filtroScadenza === 'normali' ? 'text-lime-400' : 'text-white'}`}>{conteggioScadenze.normali}</p>
                 <p className={`text-xs font-medium ${filtroScadenza === 'normali' ? 'text-lime-300' : 'text-slate-400'}`}>📅 30-90gg</p>
               </CardContent>
             </Card>
@@ -502,7 +502,7 @@ export default function AsteImmobiliari() {
               onClick={() => setFiltroScadenza(filtroScadenza === 'oltre90' ? 'tutte' : 'oltre90')}
             >
               <CardContent className="p-3 text-center">
-                <p className={`text-xl font-bold ${filtroScadenza === 'oltre90' ? 'text-blue-400' : 'text-white'}`}>{asteOltre90Count}</p>
+                <p className={`text-xl font-bold ${filtroScadenza === 'oltre90' ? 'text-blue-400' : 'text-white'}`}>{conteggioScadenze.oltre90}</p>
                 <p className={`text-xs font-medium ${filtroScadenza === 'oltre90' ? 'text-blue-300' : 'text-slate-400'}`}>📆 &gt;90gg</p>
               </CardContent>
             </Card>
