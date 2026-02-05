@@ -125,9 +125,20 @@ export default function AsteImmobiliari() {
       return ordineInteresse[a.livello_interesse] - ordineInteresse[b.livello_interesse];
     });
 
+  // Applica filtro scadenza
+  const asteFiltrate = asteFiltrateBase.filter(asta => {
+    const giorni = giorniAllaAsta(asta.data_asta);
+    if (filtroScadenza === 'immediate') return giorni >= 0 && giorni < 30;
+    if (filtroScadenza === 'normali') return giorni >= 30 && giorni <= 90;
+    if (filtroScadenza === 'oltre90') return giorni > 90;
+    return true; // 'tutte'
+  });
+
   // Conteggi per stats
   const totaleAste = aste.length;
   const asteImmediateCount = aste.filter(a => giorniAllaAsta(a.data_asta) < 30 && giorniAllaAsta(a.data_asta) >= 0).length;
+  const asteNormaliCount = aste.filter(a => giorniAllaAsta(a.data_asta) >= 30 && giorniAllaAsta(a.data_asta) <= 90).length;
+  const asteOltre90Count = aste.filter(a => giorniAllaAsta(a.data_asta) > 90).length;
 
   const formatPrezzo = (prezzo) => {
     return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(prezzo);
