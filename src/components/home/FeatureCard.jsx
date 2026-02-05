@@ -157,7 +157,7 @@ export default function FeatureCard({
           >
 
             
-            <div className={cn("flex flex-col items-center justify-center flex-1 relative z-20", hasBottomBadge ? "p-6 pb-3" : "p-6")}>
+            <div className={cn("flex flex-col items-center justify-center flex-1 relative z-10", hasBottomBadge ? "p-6 pb-3" : "p-6")}>
               {disabled && (
                 <div className="absolute top-3 right-3">
                   <Lock className="w-4 h-4 text-red-400" />
