@@ -107,14 +107,11 @@ export default function AsteImmobiliari() {
     return Math.ceil((dataAsta - oggi) / (1000 * 60 * 60 * 24));
   };
 
-  // Funzione per verificare se un'asta corrisponde al filtro località (cerca in localita, titolo, provincia)
+  // Funzione per verificare se un'asta corrisponde al filtro località
   const matchLocalita = (asta, filtro) => {
     if (filtro === 'tutte') return true;
-    const searchTerm = filtro.toLowerCase();
-    const localita = (asta.localita || '').toLowerCase();
-    const titolo = (asta.titolo || '').toLowerCase();
-    const provincia = (asta.provincia || '').toLowerCase();
-    return localita.includes(searchTerm) || titolo.includes(searchTerm) || provincia.includes(searchTerm);
+    // Il filtro è una provincia (es. "Pesaro-Urbino"), verifica match esatto sulla provincia
+    return asta.provincia === filtro;
   };
 
   // Funzione per applicare filtri base (budget, categoria, località) - usata per conteggi
