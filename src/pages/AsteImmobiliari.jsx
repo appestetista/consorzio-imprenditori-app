@@ -49,7 +49,7 @@ export default function AsteImmobiliari() {
   const [budgetMax, setBudgetMax] = useState('');
   const [categoriaAttiva, setCategoriaAttiva] = useState('tutte');
   const [filtroScadenza, setFiltroScadenza] = useState('tutte'); // 'tutte', 'immediate', 'normali', 'oltre90'
-  const [filtroProvincia, setFiltroProvincia] = useState('tutte'); // 'tutte' o nome provincia
+  const [filtroLocalita, setFiltroLocalita] = useState('tutte'); // 'tutte' o nome località
 
   useEffect(() => {
     const loadUser = async () => {
@@ -58,6 +58,31 @@ export default function AsteImmobiliari() {
     };
     loadUser();
   }, []);
+
+  // Carica mappa tribunali -> località
+  const { data: tribunaliLocalita = [] } = useQuery({
+    queryKey: ['tribunali-localita'],
+    queryFn: () => base44.entities.TribunaleLocalita.list(),
+  });
+
+  // Mappa tribunale -> località per lookup rapido
+  const tribunaleToLocalita = React.useMemo(() => {
+    const map = {};
+    tribunaliLocalita.forEach(t => {
+      map[t.tribunale] = t.localita;
+    });
+    return map;
+  }, [tribunaliLocalita]);
+
+  // Mappa località -> lista tribunali (per filtro inverso)
+  const localitaToTribunali = React.useMemo(() => {
+    const map = {};
+    tribunaliLocalita.forEach(t => {
+      if (!map[t.localita]) map[t.localita] = [];
+      map[t.localita].push(t.tribunale);
+    });
+    return map;
+  }, [tribunaliLocalita]);
 
   // Carica aste e normalizza i dati (i campi sono sempre in .data)
   const { data: aste = [], isLoading } = useQuery({
