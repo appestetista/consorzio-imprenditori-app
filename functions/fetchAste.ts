@@ -62,7 +62,8 @@ function determinaTipologia(titolo, isMobile = false, isMezzo = false) {
   if (t.includes('attrezzatura') || t.includes('macchinario')) return 'Attrezzatura';
   if (t.includes('arredamento') || t.includes('mobili') || t.includes('arredi')) return 'Arredamento attività';
   if (t.includes('terreno')) return 'Terreno';
-  if (t.includes('box') || t.includes('garage') || t.includes('posto auto') || t.includes('autorimessa')) return 'Box/Garage';
+  // Box/Garage esclusi dal filtro deveEssereEsclusa, questa riga non dovrebbe mai matchare
+  // if (t.includes('box') || t.includes('garage') || t.includes('posto auto') || t.includes('autorimessa')) return 'Box/Garage';
   return 'Altro';
 }
 
