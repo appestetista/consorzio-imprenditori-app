@@ -378,40 +378,27 @@ export default function AsteImmobiliari() {
           </Card>
         </div>
 
-        {/* SEZIONE ASTE IMMEDIATE */}
-        {asteImmediate.length > 0 && (
-          <div className="mb-6">
-            <div className="flex items-center gap-2 mb-3">
-              <Zap className="w-5 h-5 text-red-400" />
-              <h2 className="text-red-400 font-bold text-lg">Aste Immediate</h2>
-              <Badge className="bg-red-500 text-white text-xs">&lt; 30 giorni</Badge>
-            </div>
-            <div className="space-y-3">
-              {asteImmediate.map(asta => (
-                <AstaCard key={asta.id} asta={asta} isImmediate={true} />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* SEZIONE ASTE NORMALI */}
+        {/* LISTA ASTE FILTRATE */}
         <div>
           <div className="flex items-center gap-2 mb-3">
-            <Calendar className="w-5 h-5 text-lime-400" />
-            <h2 className="text-white font-bold text-lg">Aste 30-90 giorni</h2>
+            {filtroScadenza === 'immediate' && <><Zap className="w-5 h-5 text-red-400" /><h2 className="text-red-400 font-bold text-lg">Aste Immediate (&lt;30gg)</h2></>}
+            {filtroScadenza === 'normali' && <><Calendar className="w-5 h-5 text-lime-400" /><h2 className="text-lime-400 font-bold text-lg">Aste 30-90 giorni</h2></>}
+            {filtroScadenza === 'oltre90' && <><Calendar className="w-5 h-5 text-blue-400" /><h2 className="text-blue-400 font-bold text-lg">Aste oltre 90 giorni</h2></>}
+            {filtroScadenza === 'tutte' && <><Building2 className="w-5 h-5 text-white" /><h2 className="text-white font-bold text-lg">Tutte le aste</h2></>}
+            <Badge variant="outline" className="text-slate-400 ml-auto">{asteOrdinate.length} risultati</Badge>
           </div>
           <div className="space-y-3">
-            {asteNormali.length === 0 ? (
+            {asteOrdinate.length === 0 ? (
               <Card className="bg-slate-800 border-slate-700">
                 <CardContent className="p-6 text-center">
                   <Building2 className="w-12 h-12 text-slate-600 mx-auto mb-3" />
                   <p className="text-white font-medium">Nessuna asta trovata</p>
-                  <p className="text-slate-400 text-sm">Prova a modificare il budget o la categoria</p>
+                  <p className="text-slate-400 text-sm">Prova a modificare i filtri</p>
                 </CardContent>
               </Card>
             ) : (
-              asteNormali.map(asta => (
-                <AstaCard key={asta.id} asta={asta} />
+              asteOrdinate.map(asta => (
+                <AstaCard key={asta.id} asta={asta} isImmediate={giorniAllaAsta(asta.data_asta) < 30} />
               ))
             )}
           </div>
