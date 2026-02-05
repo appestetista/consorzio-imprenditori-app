@@ -931,25 +931,25 @@ export default function Home() {
       <BottomNav currentPage="Home" unreadMessages={messages.length} activeTab={activeTab} isAdmin={effectiveUser?.role === 'admin' && !impersonation.active} />
 
       {/* Popup invito evento - si mostra solo se ci sono inviti in attesa */}
-              <EventInvitePopup user={effectiveUser} />
+      <EventInvitePopup user={effectiveUser} />
 
-              {/* Popup cambio risposta */}
-              {showChangeResponse && nextEvent && (
-                            <ChangeResponsePopup 
-                              event={nextEvent}
-                              user={effectiveUser}
-                              onClose={() => setShowChangeResponse(false)}
-                            />
-                          )}
+      {/* Popup cambio risposta */}
+      {showChangeResponse && nextEvent && (
+        <ChangeResponsePopup 
+          event={nextEvent}
+          user={effectiveUser}
+          onClose={() => setShowChangeResponse(false)}
+        />
+      )}
 
-                  {/* Modal obbligatorio per completare il profilo */}
-                          <ProfileCompletionModal 
-                            user={effectiveUser} 
-                            onProfileComplete={() => window.location.reload()}
-                          />
+      {/* Modal obbligatorio per completare il profilo */}
+      <ProfileCompletionModal 
+        user={effectiveUser} 
+        onProfileComplete={() => window.location.reload()}
+      />
 
-                          {/* Popup per abilitare notifiche sonore al primo accesso */}
-                          <SoundPermissionPopup />
-                        </div>
-                      );
-                      }
+      {/* Popup per abilitare notifiche sonore al primo accesso */}
+      <SoundPermissionPopup />
+    </div>
+  );
+}
