@@ -59,7 +59,7 @@ export default function AsteImmobiliari() {
     loadUser();
   }, []);
 
-  // Carica aste attive e normalizza i dati (rimuove duplicati per external_id)
+  // Carica aste attive e normalizza i dati
   const { data: aste = [], isLoading } = useQuery({
     queryKey: ['aste-immobiliari'],
     queryFn: async () => {
@@ -76,17 +76,9 @@ export default function AsteImmobiliari() {
         }
         return a;
       });
-      
-      // Rimuovi duplicati per external_id (tiene solo la prima occorrenza)
-      const seen = new Set();
-      const deduplicated = normalized.filter(a => {
-        if (!a.external_id || seen.has(a.external_id)) return false;
-        seen.add(a.external_id);
-        return true;
-      });
-      
-      console.log('[AsteImmobiliari] Caricate:', deduplicated.length, 'aste (deduplicate da', normalized.length, '). Tribunali:', [...new Set(deduplicated.map(a => a.provincia))]);
-      return deduplicated;
+
+      console.log('[AsteImmobiliari] Caricate:', normalized.length, 'aste. Tipologie:', [...new Set(normalized.map(a => a.tipologia))]);
+      return normalized;
     },
   });
 
