@@ -138,7 +138,7 @@ export default function AsteImmobiliari() {
   };
 
   // Funzione filtro principale - applica TUTTI i filtri in AND
-  const applicaTuttiFiltri = React.useCallback((listaAste, { skipBudget, skipCategoria, skipProvincia, skipScadenza } = {}) => {
+  const applicaTuttiFiltri = React.useCallback((listaAste, { skipBudget, skipCategoria, skipLocalita, skipScadenza } = {}) => {
     return listaAste.filter(asta => {
       // Filtro BUDGET
       if (!skipBudget && budgetMax && parseInt(budgetMax) > 0) {
@@ -148,9 +148,12 @@ export default function AsteImmobiliari() {
       if (!skipCategoria && categoriaAttiva !== 'tutte') {
         if (asta.tipologia !== categoriaAttiva) return false;
       }
-      // Filtro TRIBUNALE (campo provincia)
-      if (!skipProvincia && filtroProvincia !== 'tutte') {
-        if (asta.provincia !== filtroProvincia) return false;
+      // Filtro LOCALITÀ (derivato dal Tribunale)
+      if (!skipLocalita && filtroLocalita !== 'tutte') {
+        // Recupera i tribunali associati alla località selezionata
+        const tribunaliDellaLocalita = localitaToTribunali[filtroLocalita] || [];
+        // Il campo provincia contiene il tribunale
+        if (!tribunaliDellaLocalita.includes(asta.provincia)) return false;
       }
       // Filtro SCADENZA
       if (!skipScadenza && filtroScadenza !== 'tutte') {
@@ -161,7 +164,7 @@ export default function AsteImmobiliari() {
       }
       return true;
     });
-  }, [budgetMax, categoriaAttiva, filtroProvincia, filtroScadenza]);
+  }, [budgetMax, categoriaAttiva, filtroLocalita, filtroScadenza, localitaToTribunali]);
 
   // Lista aste filtrate finali (tutti i filtri attivi)
   const asteFiltrate = React.useMemo(() => applicaTuttiFiltri(aste), [aste, applicaTuttiFiltri]);
@@ -182,7 +185,7 @@ export default function AsteImmobiliari() {
       }
     });
     return conteggi;
-  }, [aste, budgetMax, filtroProvincia, filtroScadenza]);
+  }, [aste, budgetMax, filtroLocalita, filtroScadenza, applicaTuttiFiltri]);
 
   // Conteggi per SCADENZA (skip filtro scadenza per vedere quante ce ne sono per ogni fascia)
   const conteggioScadenze = React.useMemo(() => {
@@ -198,7 +201,7 @@ export default function AsteImmobiliari() {
       }).length,
       oltre90: astePerConteggio.filter(a => giorniAllaAsta(a.data_asta) > 90).length
     };
-  }, [aste, budgetMax, categoriaAttiva, filtroProvincia]);
+  }, [aste, budgetMax, categoriaAttiva, filtroLocalita, applicaTuttiFiltri]);
 
   // Conteggi per TRIBUNALE (skip filtro provincia per vedere quante ce ne sono per ogni tribunale)
   // Il campo 'provincia' nei dati corrisponde al tribunale di competenza
