@@ -3,8 +3,8 @@ import * as cheerio from 'npm:cheerio@1.0.0';
 
 // Configurazione
 const CONFIG = {
-  giorniMassimiAllaAsta: 180,
-  maxPaginePerPortale: 10,
+  giorniMassimiAllaAsta: 365,
+  maxPaginePerPortale: 5,
 };
 
 // Parole chiave per ESCLUDERE
@@ -24,55 +24,47 @@ function deveEssereEsclusa(titolo) {
 function determinaTipologia(titolo, categoria = '') {
   const t = (titolo + ' ' + categoria).toLowerCase();
   
-  // Casa/Abitativo
   if (t.includes('abitazione') || t.includes('appartamento') || t.includes('villa') || 
       t.includes('casa') || t.includes('villino') || t.includes('villetta') ||
       t.includes('bilocale') || t.includes('trilocale') || t.includes('monolocale')) {
     return 'Casa';
   }
   
-  // Capannone/Industriale
   if (t.includes('capannone') || t.includes('industriale') || t.includes('magazzino') || 
       t.includes('opificio') || t.includes('laboratorio') || t.includes('deposito')) {
     return 'Capannone';
   }
   
-  // Azienda
   if (t.includes('azienda') || t.includes('attività commerciale') || t.includes('ramo d\'azienda') ||
       t.includes('complesso aziendale')) {
     return 'Azienda';
   }
   
-  // Commerciale
   if (t.includes('negozio') || t.includes('ufficio') || t.includes('locale commerciale') || 
       t.includes('commerciale') || t.includes('bottega') || t.includes('bar') || t.includes('ristorante')) {
     return 'Commerciale';
   }
   
-  // Macchinario industriale
   if (t.includes('macchinario') || t.includes('macchina industriale') || t.includes('impianto') ||
       t.includes('tornio') || t.includes('fresa') || t.includes('pressa') || t.includes('cnc') ||
-      t.includes('linea di produzione') || t.includes('macchinari per')) {
+      t.includes('linea di produzione') || t.includes('macchinari per') || t.includes('cella frigorifera')) {
     return 'Macchinario industriale';
   }
   
-  // Mezzo/Veicolo
   if (t.includes('autocarro') || t.includes('furgone') || t.includes('camion') || 
       t.includes('trattore') || t.includes('escavatore') || t.includes('muletto') ||
-      t.includes('carrello elevatore') || t.includes('veicolo') || t.includes('auto') ||
-      t.includes('rimorchio') || t.includes('semirimorchio') || t.includes('gru')) {
+      t.includes('carrello elevatore') || t.includes('veicolo') || t.includes('iveco') ||
+      t.includes('rimorchio') || t.includes('semirimorchio') || t.includes('gru') || t.includes('scania')) {
     return 'Mezzo';
   }
   
-  // Attrezzatura
   if (t.includes('attrezzatura') || t.includes('attrezzi') || t.includes('utensili') ||
-      t.includes('strumenti') || t.includes('apparecchiature')) {
+      t.includes('strumenti') || t.includes('apparecchiature') || t.includes('pulizia')) {
     return 'Attrezzatura';
   }
   
-  // Arredo negozio
   if (t.includes('arredamento') || t.includes('arredi') || t.includes('mobili') ||
-      t.includes('scaffalature') || t.includes('bancone') || t.includes('vetrina')) {
+      t.includes('scaffalature') || t.includes('bancone') || t.includes('vetrina') || t.includes('benessere')) {
     return 'Arredo negozio';
   }
   
@@ -83,9 +75,11 @@ function determinaTipologia(titolo, categoria = '') {
 function calcolaInteresse(asta) {
   let punteggio = 0;
   
-  if (asta.prezzo_base < 30000) punteggio += 3;
-  else if (asta.prezzo_base < 70000) punteggio += 2;
-  else if (asta.prezzo_base < 150000) punteggio += 1;
+  if (asta.prezzo_base > 0) {
+    if (asta.prezzo_base < 30000) punteggio += 3;
+    else if (asta.prezzo_base < 70000) punteggio += 2;
+    else if (asta.prezzo_base < 150000) punteggio += 1;
+  }
   
   if (asta.giorni_alla_asta >= 30 && asta.giorni_alla_asta <= 90) punteggio += 2;
   else if (asta.giorni_alla_asta > 90) punteggio += 1;
@@ -101,127 +95,214 @@ function calcolaInteresse(asta) {
 function generaMotivoInteresse(asta) {
   const motivi = [];
   
-  if (asta.prezzo_base < 30000) motivi.push('💰 Prezzo molto basso');
-  else if (asta.prezzo_base < 70000) motivi.push('💰 Prezzo contenuto');
-  else if (asta.prezzo_base < 150000) motivi.push('💰 Prezzo accessibile');
+  if (asta.prezzo_base > 0) {
+    if (asta.prezzo_base < 30000) motivi.push('💰 Prezzo molto basso');
+    else if (asta.prezzo_base < 70000) motivi.push('💰 Prezzo contenuto');
+    else if (asta.prezzo_base < 150000) motivi.push('💰 Prezzo accessibile');
+  }
   
   if (asta.tipologia === 'Casa') motivi.push('🏠 Immobile residenziale');
   else if (asta.tipologia === 'Commerciale') motivi.push('🏪 Potenziale reddito');
   else if (asta.tipologia === 'Capannone') motivi.push('🏭 Spazio industriale');
   else if (asta.tipologia === 'Macchinario industriale') motivi.push('⚙️ Macchinario');
   else if (asta.tipologia === 'Mezzo') motivi.push('🚚 Veicolo/Mezzo');
+  else if (asta.tipologia === 'Attrezzatura') motivi.push('🔧 Attrezzatura');
+  else if (asta.tipologia === 'Arredo negozio') motivi.push('🪑 Arredamento');
   
   if (asta.giorni_alla_asta >= 45) motivi.push('⏰ Tempo per analisi');
   
   return motivi.length > 0 ? motivi.join(' • ') : 'Opportunità da valutare';
 }
 
-// ============================================
-// SCRAPER ASTEANNUNCI.IT
-// ============================================
-async function fetchAsteAnnunci(regione = 'Marche') {
-  const aste = [];
-  let pagina = 1;
+// Parsa data italiana (es: "mar 21/10/2025 ore 15:00")
+function parsaDataItaliana(dataText) {
+  if (!dataText) return null;
   
-  while (pagina <= CONFIG.maxPaginePerPortale) {
+  // Formato: "mar 21/10/2025 ore 15:00" o "21/10/2025"
+  const match = dataText.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (match) {
+    const [_, giorno, mese, anno] = match;
+    return `${anno}-${mese.padStart(2, '0')}-${giorno.padStart(2, '0')}`;
+  }
+  return null;
+}
+
+// ============================================
+// SCRAPER GOBID.IT - Pagina principale aste
+// ============================================
+async function fetchGobid() {
+  const aste = [];
+  
+  try {
+    // Fetch pagina principale con tutte le aste
+    const url = 'https://www.gobid.it/it/aste/';
+    console.log(`[Gobid] Fetching: ${url}`);
+    
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'it-IT,it;q=0.9',
+      }
+    });
+    
+    if (!response.ok) {
+      console.log(`[Gobid] Response error: ${response.status}`);
+      return aste;
+    }
+    
+    const html = await response.text();
+    const $ = cheerio.load(html);
+    
+    // Selettore preciso per le card asta
+    $('article.card-asta').each((i, el) => {
+      try {
+        const $el = $(el);
+        
+        // ID asta dal data attribute
+        const astaId = $el.attr('data-id');
+        if (!astaId) return;
+        
+        // Link
+        const linkEl = $el.find('a[href*="/aste/"]').first();
+        let link = linkEl.attr('href') || '';
+        if (!link) return;
+        if (!link.startsWith('http')) link = `https://www.gobid.it${link}`;
+        
+        // Titolo
+        const titolo = $el.find('h2.h1, .titolo h2').first().text().trim();
+        if (!titolo || deveEssereEsclusa(titolo)) return;
+        
+        // Tribunale e info procedura
+        const h4Text = $el.find('h4').text().trim();
+        const tribunaleMatch = h4Text.match(/Tribunale\s+di\s+([^\s-]+)/i);
+        const tribunale = tribunaleMatch ? tribunaleMatch[1] : '';
+        
+        // Data fine asta
+        const dataFineText = $el.find('.absTime.fine span').text().trim();
+        const dataAsta = parsaDataItaliana(dataFineText);
+        
+        // Numero asta
+        const h3Text = $el.find('h3.h2').text().trim();
+        const astaNumero = h3Text.match(/Asta\s+(\d+)/i)?.[1] || astaId;
+        
+        const externalId = `gobid_${astaId}`;
+        
+        aste.push({
+          titolo: titolo.substring(0, 200),
+          localita: tribunale || 'Italia',
+          provincia: tribunale || '',
+          regione: '',
+          prezzo_base: 0, // Gobid non mostra prezzo in lista
+          data_asta: dataAsta,
+          link_ufficiale: link,
+          fonte: 'gobid',
+          external_id: externalId,
+          tribunale: tribunale,
+          procedura: h4Text.substring(0, 100)
+        });
+        
+      } catch (e) {
+        console.log('[Gobid] Parse error:', e.message);
+      }
+    });
+    
+    console.log(`[Gobid] Trovate: ${aste.length} aste`);
+    
+  } catch (e) {
+    console.log(`[Gobid] Error:`, e.message);
+  }
+  
+  return aste;
+}
+
+// ============================================
+// SCRAPER ASTEANNUNCI.IT - Lista immobili Marche
+// ============================================
+async function fetchAsteAnnunci() {
+  const aste = [];
+  
+  // URL diretto per regione Marche
+  const regioni = [
+    { nome: 'Marche', url: 'https://www.asteannunci.it/aste-immobiliari/marche' },
+    { nome: 'Emilia Romagna', url: 'https://www.asteannunci.it/aste-immobiliari/emilia-romagna' },
+  ];
+  
+  for (const regione of regioni) {
     try {
-      // AsteAnnunci richiede POST per la ricerca
-      const url = `https://www.asteannunci.it/ricerca`;
-      console.log(`[AsteAnnunci] Fetching page ${pagina} for ${regione}`);
+      console.log(`[AsteAnnunci] Fetching: ${regione.url}`);
       
-      const formData = new URLSearchParams();
-      formData.append('regione', regione);
-      formData.append('page', pagina.toString());
-      
-      const response = await fetch(url, {
-        method: 'POST',
+      const response = await fetch(regione.url, {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
           'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
           'Accept-Language': 'it-IT,it;q=0.9',
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: formData.toString()
+        }
       });
       
       if (!response.ok) {
-        console.log(`[AsteAnnunci] Response not ok: ${response.status}`);
-        break;
+        console.log(`[AsteAnnunci] ${regione.nome} - Error: ${response.status}`);
+        continue;
       }
       
       const html = await response.text();
       const $ = cheerio.load(html);
       
-      const risultatiPagina = [];
-      
-      // Cerca i risultati - adatta i selettori al sito
-      $('article, .card, .tile-result, .annuncio, .risultato, [class*="result"], [class*="listing"]').each((i, el) => {
+      // Cerca gli annunci - vari selettori possibili
+      $('.card, article, .annuncio, [class*="listing"], [class*="result"]').each((i, el) => {
         try {
           const $el = $(el);
           
-          // Cerca link
-          const linkEl = $el.find('a[href*="/asta/"], a[href*="/annuncio/"], a[href*="/dettaglio/"]').first();
+          // Cerca link dettaglio
+          const linkEl = $el.find('a[href*="/asta/"], a[href*="/dettaglio/"], a[href*="/annuncio/"]').first();
           let link = linkEl.attr('href') || $el.find('a').first().attr('href') || '';
           
-          if (!link || link === '#') return;
+          if (!link || link === '#' || link.length < 10) return;
           if (!link.startsWith('http')) {
             link = link.startsWith('/') ? `https://www.asteannunci.it${link}` : `https://www.asteannunci.it/${link}`;
           }
           
-          // Cerca titolo
-          const titolo = $el.find('h2, h3, h4, .titolo, .title, [class*="title"]').first().text().trim() ||
-                        linkEl.text().trim() ||
-                        $el.find('a').first().text().trim();
+          // Titolo
+          const titolo = $el.find('h2, h3, h4, .titolo, .title').first().text().trim() ||
+                        linkEl.attr('title') || linkEl.text().trim();
           
-          if (!titolo || titolo.length < 5) return;
-          if (deveEssereEsclusa(titolo)) return;
+          if (!titolo || titolo.length < 5 || deveEssereEsclusa(titolo)) return;
           
-          // Cerca prezzo
-          const prezzoText = $el.find('.prezzo, .price, [class*="price"], [class*="prezzo"]').text() ||
-                            $el.text().match(/€\s*[\d.,]+|[\d.,]+\s*€/)?.[0] || '';
-          const prezzoMatch = prezzoText.match(/[\d.,]+/);
+          // Prezzo
           let prezzoNum = 0;
+          const prezzoText = $el.text();
+          const prezzoMatch = prezzoText.match(/€\s*([\d.,]+)|prezzo[:\s]*([\d.,]+)/i);
           if (prezzoMatch) {
-            prezzoNum = parseFloat(prezzoMatch[0].replace(/\./g, '').replace(',', '.')) || 0;
+            const prezzoStr = (prezzoMatch[1] || prezzoMatch[2] || '').replace(/\./g, '').replace(',', '.');
+            prezzoNum = parseFloat(prezzoStr) || 0;
           }
           
-          // Cerca data
-          const dataText = $el.find('.data, .date, [class*="data"]').text() ||
-                          $el.text().match(/\d{2}\/\d{2}\/\d{4}/)?.[0] || '';
+          // Data
+          const dataMatch = $el.text().match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
           let dataAsta = null;
-          const dateMatch = dataText.match(/(\d{2})\/(\d{2})\/(\d{4})/);
-          if (dateMatch) {
-            dataAsta = `${dateMatch[3]}-${dateMatch[2]}-${dateMatch[1]}`;
+          if (dataMatch) {
+            dataAsta = `${dataMatch[3]}-${dataMatch[2].padStart(2, '0')}-${dataMatch[1].padStart(2, '0')}`;
           }
           
-          // Cerca località
-          const localitaText = $el.find('.localita, .location, [class*="location"], [class*="citta"]').text().trim() ||
-                              $el.find('small, .small').text().trim();
-          const localita = localitaText.split(',')[0]?.trim() || regione;
-          
-          // Cerca tribunale
-          const tribunaleMatch = $el.text().match(/Tribunale\s+di\s+(\w+)/i);
-          const tribunale = tribunaleMatch ? tribunaleMatch[1] : '';
+          // Località
+          const localitaMatch = $el.text().match(/(?:a|in)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/);
+          const localita = localitaMatch ? localitaMatch[1] : regione.nome;
           
           // ID univoco
-          const idMatch = link.match(/\/(\d+)(?:\/|$|\?)|id[=\/](\d+)/i);
-          const externalId = `asteannunci_${idMatch ? (idMatch[1] || idMatch[2]) : Date.now()}_${i}`;
+          const idMatch = link.match(/\/(\d+)(?:\/|$|\?)|[-_](\d+)(?:\.|\?|$)/);
+          const externalId = `asteannunci_${idMatch ? (idMatch[1] || idMatch[2]) : i}_${Date.now()}`;
           
-          // Immagine
-          const imgUrl = $el.find('img').first().attr('src') || $el.find('img').first().attr('data-src') || '';
-          
-          risultatiPagina.push({
+          aste.push({
             titolo: titolo.substring(0, 200),
             localita,
-            provincia: tribunale || localita,
-            regione,
+            provincia: localita,
+            regione: regione.nome,
             prezzo_base: prezzoNum,
-            data_asta: dataAsta || new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            data_asta: dataAsta,
             link_ufficiale: link,
             fonte: 'asteannunci',
             external_id: externalId,
-            tribunale,
-            immagine_url: imgUrl.startsWith('http') ? imgUrl : ''
+            tribunale: ''
           });
           
         } catch (e) {
@@ -229,118 +310,15 @@ async function fetchAsteAnnunci(regione = 'Marche') {
         }
       });
       
-      console.log(`[AsteAnnunci] Pag ${pagina}: ${risultatiPagina.length} risultati`);
+      console.log(`[AsteAnnunci] ${regione.nome}: ${aste.filter(a => a.regione === regione.nome).length} aste`);
       
-      if (risultatiPagina.length === 0) break;
-      
-      aste.push(...risultatiPagina);
-      pagina++;
       await new Promise(r => setTimeout(r, 1000));
       
     } catch (e) {
-      console.log(`[AsteAnnunci] Error:`, e.message);
-      break;
+      console.log(`[AsteAnnunci] Error ${regione.nome}:`, e.message);
     }
   }
   
-  return aste;
-}
-
-// ============================================
-// SCRAPER GOBID.IT (Beni mobili)
-// ============================================
-async function fetchGobid() {
-  const aste = [];
-  
-  // Categorie interessanti su Gobid
-  const categorie = [
-    'Meccanica',
-    'Logistica', 
-    'Trasporti',
-    'Edilizia',
-    'Movimento-terra',
-    'Arredi-e-ufficio',
-    'Alimentare-e-ristorazione',
-    'Legno',
-    'Plastica',
-    'Immobili'
-  ];
-  
-  for (const categoria of categorie) {
-    try {
-      const url = `https://www.gobid.it/it/categorie/${categoria}/`;
-      console.log(`[Gobid] Fetching: ${url}`);
-      
-      const response = await fetch(url, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        }
-      });
-      
-      if (!response.ok) continue;
-      
-      const html = await response.text();
-      const $ = cheerio.load(html);
-      
-      // Gobid usa card-asta
-      $('article.card-asta, .card-asta, article.card').each((i, el) => {
-        try {
-          const $el = $(el);
-          
-          const linkEl = $el.find('a[href*="/aste/"]').first();
-          let link = linkEl.attr('href') || '';
-          if (!link) return;
-          if (!link.startsWith('http')) link = `https://www.gobid.it${link}`;
-          
-          const titolo = $el.find('h1, h2, .h1, .h2').first().text().trim();
-          if (!titolo || deveEssereEsclusa(titolo)) return;
-          
-          // Estrai tribunale/info
-          const tribunaleText = $el.find('h4').text().trim();
-          const tribunaleMatch = tribunaleText.match(/Tribunale\s+di\s+(\w+)/i);
-          const tribunale = tribunaleMatch ? tribunaleMatch[1] : '';
-          
-          // Estrai data fine asta
-          const dataText = $el.find('.absTime.fine span, [class*="fine"] span').text().trim();
-          let dataAsta = null;
-          const dateMatch = dataText.match(/(\d{2})\/(\d{2})\/(\d{4})/);
-          if (dateMatch) {
-            dataAsta = `${dateMatch[3]}-${dateMatch[2]}-${dateMatch[1]}`;
-          }
-          
-          // ID asta
-          const astaId = $el.attr('data-id') || '';
-          const externalId = `gobid_${astaId || Date.now()}_${i}`;
-          
-          // Su Gobid il prezzo è spesso nel dettaglio, mettiamo 0 e si aggiorna dopo
-          aste.push({
-            titolo: titolo.substring(0, 200),
-            localita: tribunale || 'Italia',
-            provincia: tribunale || '',
-            regione: '',
-            prezzo_base: 0,
-            data_asta: dataAsta || new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-            link_ufficiale: link,
-            fonte: 'gobid',
-            external_id: externalId,
-            tribunale,
-            categoria_originale: categoria
-          });
-          
-        } catch (e) {
-          console.log('[Gobid] Parse error:', e.message);
-        }
-      });
-      
-      await new Promise(r => setTimeout(r, 800));
-      
-    } catch (e) {
-      console.log(`[Gobid] Error ${categoria}:`, e.message);
-    }
-  }
-  
-  console.log(`[Gobid] Totale: ${aste.length} aste`);
   return aste;
 }
 
@@ -351,45 +329,56 @@ function processaAste(aste) {
   const oggi = new Date();
   oggi.setHours(0, 0, 0, 0);
   
-  // Deduplica
+  // Deduplica per external_id
   const seen = new Map();
   const deduplicate = aste.filter(a => {
+    if (!a.external_id) return false;
     if (seen.has(a.external_id)) return false;
     seen.set(a.external_id, true);
     return true;
   });
   
   return deduplicate
-    .filter(asta => {
-      // Ricalcola giorni
-      if (asta.data_asta) {
-        const dataAsta = new Date(asta.data_asta);
-        const giorni = Math.ceil((dataAsta - oggi) / (1000 * 60 * 60 * 24));
-        if (giorni < -7 || giorni > CONFIG.giorniMassimiAllaAsta) return false;
-      }
-      return true;
-    })
     .map(asta => {
-      const tipologia = determinaTipologia(asta.titolo, asta.categoria_originale || '');
+      // Data default se mancante
+      if (!asta.data_asta) {
+        asta.data_asta = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+      }
+      
+      const tipologia = determinaTipologia(asta.titolo, asta.procedura || '');
       const dataAsta = new Date(asta.data_asta);
       const giorniAllaAsta = Math.ceil((dataAsta - oggi) / (1000 * 60 * 60 * 24));
+      
+      // Filtra date troppo passate o troppo future
+      if (giorniAllaAsta < -30 || giorniAllaAsta > CONFIG.giorniMassimiAllaAsta) {
+        return null;
+      }
+      
       const cauzioneStimata = Math.round(asta.prezzo_base * 0.10);
       
       const astaArricchita = {
-        ...asta,
+        titolo: asta.titolo,
+        localita: asta.localita,
+        provincia: asta.provincia,
+        regione: asta.regione,
         tipologia,
+        prezzo_base: asta.prezzo_base,
+        data_asta: asta.data_asta,
+        link_ufficiale: asta.link_ufficiale,
+        fonte: asta.fonte,
+        external_id: asta.external_id,
         cauzione_stimata: cauzioneStimata,
         giorni_alla_asta: giorniAllaAsta,
-        is_active: true
+        is_active: true,
+        tribunale: asta.tribunale || ''
       };
-      
-      delete astaArricchita.categoria_originale;
       
       astaArricchita.livello_interesse = calcolaInteresse(astaArricchita);
       astaArricchita.motivo_interesse = generaMotivoInteresse(astaArricchita);
       
       return astaArricchita;
-    });
+    })
+    .filter(a => a !== null);
 }
 
 // ============================================
@@ -406,15 +395,15 @@ Deno.serve(async (req) => {
     
     console.log('[fetchAste] Avvio scraping multi-portale...');
     
-    // Fetch in parallelo da tutti i portali
+    // Fetch in parallelo
     const [asteAnnunci, asteGobid] = await Promise.all([
-      fetchAsteAnnunci('Marche'),
+      fetchAsteAnnunci(),
       fetchGobid()
     ]);
     
     console.log(`[fetchAste] AsteAnnunci: ${asteAnnunci.length}, Gobid: ${asteGobid.length}`);
     
-    // Combina tutto
+    // Combina
     const tutteAste = [...asteAnnunci, ...asteGobid];
     console.log(`[fetchAste] Totale raw: ${tutteAste.length}`);
     
@@ -426,7 +415,7 @@ Deno.serve(async (req) => {
     const asteEsistenti = await base44.asServiceRole.entities.AstaImmobiliare.list();
     const externalIdsEsistenti = new Set(asteEsistenti.map(a => a.external_id));
     
-    // Disattiva vecchie
+    // Disattiva vecchie non più presenti
     const externalIdsNuovi = new Set(asteProcessate.map(a => a.external_id));
     let disattivate = 0;
     for (const astaEsistente of asteEsistenti) {
@@ -448,16 +437,16 @@ Deno.serve(async (req) => {
       }
     }
     
-    // Statistiche per fonte
+    // Stats
     const statsFonte = {};
+    const statsTipologia = {};
+    const statsLocalita = {};
+    
     asteProcessate.forEach(a => {
       statsFonte[a.fonte] = (statsFonte[a.fonte] || 0) + 1;
-    });
-    
-    // Statistiche per tipologia
-    const statsTipologia = {};
-    asteProcessate.forEach(a => {
       statsTipologia[a.tipologia] = (statsTipologia[a.tipologia] || 0) + 1;
+      const loc = a.localita || 'Sconosciuta';
+      statsLocalita[loc] = (statsLocalita[loc] || 0) + 1;
     });
     
     console.log(`[fetchAste] Completato: ${inserite} nuove, ${disattivate} disattivate`);
@@ -472,7 +461,8 @@ Deno.serve(async (req) => {
         gia_presenti: asteProcessate.length - inserite
       },
       per_fonte: statsFonte,
-      per_tipologia: statsTipologia
+      per_tipologia: statsTipologia,
+      per_localita: statsLocalita
     });
     
   } catch (error) {
