@@ -247,19 +247,19 @@ export default function FeatureCard({
             </div>
             
             {isCalendar && eventCount > 0 && (
-            <div className="w-full text-xs font-bold text-center py-1.5 border-t bg-slate-700/50 text-slate-300 border-slate-600/50 relative z-20">
+            <div className="w-full text-xs font-bold text-center py-1.5 border-t bg-white/5 text-white/80 border-white/10 relative z-10">
               {eventCount} {eventCount === 1 ? 'incontro' : 'incontri'} per te
             </div>
             )}
             {isVideo && hasUnseenNewVideos && newVideosCount > 0 && (
-              <div className="w-full text-xs font-bold text-center py-1.5 border-t bg-[#bd0449]/20 text-[#bd0449] border-[#bd0449]/30 relative z-20">
+              <div className="w-full text-xs font-bold text-center py-1.5 border-t bg-[#bd0449]/20 text-[#bd0449] border-[#bd0449]/30 relative z-10">
                 {newVideosCount} {newVideosCount === 1 ? 'nuovo video' : 'nuovi video'}
               </div>
             )}
             {bottomBadge && !isCalendar && !isVideo && !isAnalisiContratti && (
                                                 <div className={cn(
-                                                  "w-full text-xs font-bold text-center py-1.5 -mt-1 border-t relative z-20",
-                                                  bottomBadgeType === 'requests' ? "bg-amber-400/20 text-amber-400 border-amber-400/30" : "bg-slate-700/50 text-slate-300 border-slate-600/50"
+                                                  "w-full text-xs font-bold text-center py-1.5 -mt-1 border-t relative z-10",
+                                                  bottomBadgeType === 'requests' ? "bg-amber-400/15 text-amber-300 border-amber-400/20" : "bg-white/5 text-white/80 border-white/10"
                                                 )}>
                                                   {bottomBadgeType === 'requests' ? `${bottomBadge} ${bottomBadge === 1 ? 'richiesta' : 'richieste'}` : `${bottomBadge} cons. gratuite`}
                                                 </div>
