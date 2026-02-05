@@ -469,7 +469,7 @@ export default function AsteImmobiliari() {
                   <CardContent className="p-3 text-center">
                     <p className={`text-xl font-bold ${isActive ? 'text-amber-400' : 'text-white'}`}>{prov.count}</p>
                     <p className={`text-xs font-medium ${isActive ? 'text-amber-300' : 'text-slate-400'}`}>
-                      {prov.isUser ? '📍' : ''}{prov.nome.split('-')[0]}
+                      {prov.isUser && isActive ? '📍' : ''}{prov.nome.split('-')[0]}
                     </p>
                   </CardContent>
                 </Card>
