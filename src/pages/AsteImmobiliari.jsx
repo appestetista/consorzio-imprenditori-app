@@ -48,6 +48,7 @@ export default function AsteImmobiliari() {
   // Filtri
   const [budgetMax, setBudgetMax] = useState('');
   const [categoriaAttiva, setCategoriaAttiva] = useState('tutte');
+  const [filtroScadenza, setFiltroScadenza] = useState('tutte'); // 'tutte', 'immediate', 'normali', 'oltre90'
 
   useEffect(() => {
     const loadUser = async () => {
