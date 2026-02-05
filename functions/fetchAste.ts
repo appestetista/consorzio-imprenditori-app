@@ -3,58 +3,48 @@ import * as cheerio from 'npm:cheerio@1.0.0';
 
 // Configurazione soglie di filtraggio
 const CONFIG = {
-  // Esclude beni sotto questo prezzo (probabilmente box/micro-unità)
   prezzoMinimo: 10000,
-  // Esclude beni sopra questo prezzo
   prezzoMassimo: 2000000,
-  // Esclude aste che scadono entro X giorni (troppo poco tempo per decidere)
   giorniMinimiAllaAsta: 3,
-  // Massimo giorni in avanti per considerare l'asta
   giorniMassimiAllaAsta: 90,
-  // Tipologie da escludere automaticamente
   tipologieEscluse: ['Terreno', 'Box/Garage'],
+  // Province Marche da includere
+  provinceMarche: ['Pesaro', 'Ancona', 'Macerata', 'Fermo', 'Ascoli Piceno', 'Ascoli-Piceno'],
 };
 
-// Determina la tipologia dal titolo
 function determinaTipologia(titolo) {
   const t = titolo.toLowerCase();
-  if (t.includes('appartamento') || t.includes('abitazione') || t.includes('villa') || t.includes('casa')) return 'Abitativo';
-  if (t.includes('negozio') || t.includes('ufficio') || t.includes('locale commerciale')) return 'Commerciale';
-  if (t.includes('capannone') || t.includes('industriale') || t.includes('magazzino')) return 'Industriale';
-  if (t.includes('camion') || t.includes('furgone') || t.includes('ruspa') || t.includes('escavatore') || t.includes('veicolo') || t.includes('auto')) return 'Mezzi';
+  if (t.includes('abitazione') || t.includes('appartamento') || t.includes('villa') || t.includes('casa')) return 'Abitativo';
+  if (t.includes('negozio') || t.includes('ufficio') || t.includes('locale commerciale') || t.includes('commerciale')) return 'Commerciale';
+  if (t.includes('capannone') || t.includes('industriale') || t.includes('magazzino') || t.includes('opifici') || t.includes('laboratorio')) return 'Industriale';
+  if (t.includes('camion') || t.includes('furgone') || t.includes('veicolo') || t.includes('auto') || t.includes('moto')) return 'Mezzi';
   if (t.includes('attrezzatura') || t.includes('macchinario')) return 'Attrezzatura';
   if (t.includes('arredamento') || t.includes('mobili') || t.includes('arredi')) return 'Arredamento attività';
   if (t.includes('terreno')) return 'Terreno';
-  if (t.includes('box') || t.includes('garage') || t.includes('posto auto')) return 'Box/Garage';
+  if (t.includes('box') || t.includes('garage') || t.includes('posto auto') || t.includes('autorimessa')) return 'Box/Garage';
   return 'Altro';
 }
 
-// Calcola livello di interesse
 function calcolaInteresse(asta) {
   let punteggio = 0;
   const oggi = new Date();
   const dataAsta = new Date(asta.data_asta);
   const giorniAllaAsta = Math.ceil((dataAsta - oggi) / (1000 * 60 * 60 * 24));
 
-  // Prezzo vantaggioso
   if (asta.prezzo_base < 50000) punteggio += 3;
   else if (asta.prezzo_base < 100000) punteggio += 2;
   else if (asta.prezzo_base < 200000) punteggio += 1;
 
-  // Tempistica ideale (15-45 giorni = tempo per valutare senza fretta)
   if (giorniAllaAsta >= 15 && giorniAllaAsta <= 45) punteggio += 2;
   else if (giorniAllaAsta > 45) punteggio += 1;
 
-  // Tipologia preferita
   if (['Abitativo', 'Commerciale', 'Industriale'].includes(asta.tipologia)) punteggio += 1;
 
-  // Determina livello
   if (punteggio >= 5) return 'Molto interessante';
   if (punteggio >= 3) return 'Interessante';
   return 'Da valutare';
 }
 
-// Genera motivo interesse
 function generaMotivoInteresse(asta) {
   const motivi = [];
   const oggi = new Date();
@@ -64,7 +54,7 @@ function generaMotivoInteresse(asta) {
   if (asta.prezzo_base < 50000) motivi.push('Prezzo molto accessibile');
   else if (asta.prezzo_base < 100000) motivi.push('Prezzo contenuto');
 
-  if (giorniAllaAsta >= 15 && giorniAllaAsta <= 45) motivi.push('Tempistica ideale per valutazione');
+  if (giorniAllaAsta >= 15 && giorniAllaAsta <= 45) motivi.push('Tempistica ideale');
   else if (giorniAllaAsta > 45) motivi.push('Ampio tempo per decidere');
 
   if (['Abitativo', 'Commerciale'].includes(asta.tipologia)) motivi.push(`${asta.tipologia} - alta domanda`);
@@ -72,14 +62,27 @@ function generaMotivoInteresse(asta) {
   return motivi.length > 0 ? motivi.join(' • ') : 'Opportunità da analizzare';
 }
 
-// Parsing IVG Marche
+function normalizzaProvincia(tribunale) {
+  const t = tribunale.toLowerCase();
+  if (t.includes('pesaro')) return 'Pesaro-Urbino';
+  if (t.includes('urbino')) return 'Pesaro-Urbino';
+  if (t.includes('ancona')) return 'Ancona';
+  if (t.includes('macerata')) return 'Macerata';
+  if (t.includes('fermo')) return 'Fermo';
+  if (t.includes('ascoli')) return 'Ascoli Piceno';
+  if (t.includes('rimini')) return 'Rimini';
+  return null; // Non nelle Marche/Rimini
+}
+
+// Parsing IVG Marche - URL: https://www.ivgmarche.it/Beni/Immobili
 async function fetchIVGMarche() {
   const aste = [];
   try {
-    // Pagina principale aste
-    const response = await fetch('https://www.ivgmarche.it/vendite-all/?_paged=1', {
+    const response = await fetch('https://www.ivgmarche.it/Beni/Immobili', {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Language': 'it-IT,it;q=0.9,en;q=0.8',
       }
     });
     
@@ -91,54 +94,75 @@ async function fetchIVGMarche() {
     const html = await response.text();
     const $ = cheerio.load(html);
 
-    // Parsing degli elementi asta (struttura da verificare sul sito reale)
-    $('.vendita-item, .asta-item, article.vendita').each((i, el) => {
+    // Struttura trovata: div.tile-result con link, h2 per titolo, .tile-price, .tile-data
+    $('.tile-result').each((i, el) => {
       try {
-        const titolo = $(el).find('.titolo, h2, h3').first().text().trim();
-        const prezzo = $(el).find('.prezzo, .price').first().text().trim();
-        const localita = $(el).find('.localita, .location, .comune').first().text().trim();
-        const dataText = $(el).find('.data, .date, .data-asta').first().text().trim();
-        const link = $(el).find('a').first().attr('href');
+        const link = $(el).find('a.tile-url-container').attr('href') || '';
+        const titolo = $(el).find('h2.font-size-larger').text().trim();
+        const prezzoText = $(el).find('.tile-price strong').text().trim();
+        const dataAstaText = $(el).find('.tile-data strong').first().text().trim();
+        const tribunaleText = $(el).find('.tile-data').text();
 
-        if (titolo && link) {
-          // Estrai prezzo numerico
-          const prezzoNum = parseFloat(prezzo.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
-          
-          // Estrai data
-          let dataAsta = null;
-          const dateMatch = dataText.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
-          if (dateMatch) {
-            dataAsta = `${dateMatch[3]}-${dateMatch[2].padStart(2, '0')}-${dateMatch[1].padStart(2, '0')}`;
-          }
+        if (!titolo || !link) return;
 
-          aste.push({
-            titolo,
-            localita: localita || 'Marche',
-            provincia: determinaProvincia(localita, 'marche'),
-            prezzo_base: prezzoNum,
-            data_asta: dataAsta || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-            link_ufficiale: link.startsWith('http') ? link : `https://www.ivgmarche.it${link}`,
-            fonte: 'ivgmarche',
-            external_id: `marche_${link.split('/').pop() || i}`
-          });
+        // Estrai prezzo - formato "€ € 216.352,00"
+        const prezzoMatch = prezzoText.match(/[\d.,]+/);
+        let prezzoNum = 0;
+        if (prezzoMatch) {
+          prezzoNum = parseFloat(prezzoMatch[0].replace(/\./g, '').replace(',', '.')) || 0;
         }
+
+        // Estrai data asta - formato "04/02/2026 - 09:00"
+        let dataAsta = null;
+        const dateMatch = dataAstaText.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+        if (dateMatch) {
+          dataAsta = `${dateMatch[3]}-${dateMatch[2]}-${dateMatch[1]}`;
+        }
+
+        // Estrai tribunale per determinare provincia
+        const tribunaleMatch = tribunaleText.match(/Tribunale di ([^\n]+)/);
+        const tribunale = tribunaleMatch ? tribunaleMatch[1].trim() : '';
+        const provincia = normalizzaProvincia(tribunale);
+
+        // Se non è nelle province target, skip
+        if (!provincia) return;
+
+        // ID univoco dal link (es: B2386177)
+        const idMatch = link.match(/Detail\/([A-Z0-9]+)/i);
+        const externalId = idMatch ? `marche_${idMatch[1]}` : `marche_${i}_${Date.now()}`;
+
+        aste.push({
+          titolo,
+          localita: titolo.split(' - ')[1] || tribunale,
+          provincia,
+          prezzo_base: prezzoNum,
+          data_asta: dataAsta || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          link_ufficiale: link.startsWith('http') ? link : `https://www.ivgmarche.it${link}`,
+          fonte: 'ivgmarche',
+          external_id: externalId
+        });
       } catch (e) {
         console.log('[fetchAste] Error parsing IVG Marche item:', e.message);
       }
     });
+    
+    console.log(`[fetchAste] IVG Marche parsed ${aste.length} items`);
   } catch (e) {
     console.log('[fetchAste] Error fetching IVG Marche:', e.message);
   }
   return aste;
 }
 
-// Parsing IVG Rimini
+// Parsing IVG Rimini - URL: https://www.ivgrimini.it/ricerca/immobili
+// Il sito usa Nuxt.js con SSR, i dati potrebbero essere in JSON dentro la pagina
 async function fetchIVGRimini() {
   const aste = [];
   try {
-    const response = await fetch('https://www.ivgrimini.it/vendite-all/?_paged=1', {
+    const response = await fetch('https://www.ivgrimini.it/ricerca/immobili', {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Language': 'it-IT,it;q=0.9,en;q=0.8',
       }
     });
     
@@ -148,78 +172,118 @@ async function fetchIVGRimini() {
     }
 
     const html = await response.text();
-    const $ = cheerio.load(html);
-
-    $('.vendita-item, .asta-item, article.vendita').each((i, el) => {
+    
+    // IVG Rimini usa Nuxt.js - i dati sono spesso in window.__NUXT__ o caricati via API
+    // Proviamo a estrarre i dati dal JSON embedded
+    const nuxtDataMatch = html.match(/window\.__NUXT__\s*=\s*(\{[\s\S]*?\});?\s*<\/script>/);
+    
+    if (nuxtDataMatch) {
       try {
-        const titolo = $(el).find('.titolo, h2, h3').first().text().trim();
-        const prezzo = $(el).find('.prezzo, .price').first().text().trim();
-        const localita = $(el).find('.localita, .location, .comune').first().text().trim();
-        const dataText = $(el).find('.data, .date, .data-asta').first().text().trim();
-        const link = $(el).find('a').first().attr('href');
+        // Prova a parsare i dati Nuxt
+        const nuxtStr = nuxtDataMatch[1];
+        // Il formato Nuxt è complesso, cerchiamo i lotti direttamente nel testo
+        console.log('[fetchAste] Found Nuxt data, attempting extraction...');
+      } catch (e) {
+        console.log('[fetchAste] Could not parse Nuxt data:', e.message);
+      }
+    }
 
-        if (titolo && link) {
-          const prezzoNum = parseFloat(prezzo.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
-          
-          let dataAsta = null;
-          const dateMatch = dataText.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
-          if (dateMatch) {
-            dataAsta = `${dateMatch[3]}-${dateMatch[2].padStart(2, '0')}-${dateMatch[1].padStart(2, '0')}`;
-          }
-
-          aste.push({
-            titolo,
-            localita: localita || 'Rimini',
-            provincia: 'Rimini',
-            prezzo_base: prezzoNum,
-            data_asta: dataAsta || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-            link_ufficiale: link.startsWith('http') ? link : `https://www.ivgrimini.it${link}`,
-            fonte: 'ivgrimini',
-            external_id: `rimini_${link.split('/').pop() || i}`
+    // Alternativa: prova con API diretta di IVG Rimini
+    // Basandosi sulla struttura, potrebbero esserci API REST
+    const apiResponse = await fetch('https://www.ivgrimini.it/api/search?type=immobili&page=1&limit=50', {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Accept': 'application/json',
+      }
+    });
+    
+    if (apiResponse.ok) {
+      try {
+        const data = await apiResponse.json();
+        console.log('[fetchAste] IVG Rimini API response:', JSON.stringify(data).substring(0, 200));
+        
+        if (data.items || data.data || data.results) {
+          const items = data.items || data.data || data.results || [];
+          items.forEach((item, i) => {
+            aste.push({
+              titolo: item.title || item.titolo || item.nome || 'Immobile Rimini',
+              localita: item.location || item.comune || 'Rimini',
+              provincia: 'Rimini',
+              prezzo_base: item.price || item.prezzo || item.prezzo_base || 0,
+              data_asta: item.date || item.data_asta || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+              link_ufficiale: item.url || item.link || `https://www.ivgrimini.it/inserzioni/${item.id || item.slug || i}`,
+              fonte: 'ivgrimini',
+              external_id: `rimini_${item.id || item.slug || i}`
+            });
           });
         }
       } catch (e) {
-        console.log('[fetchAste] Error parsing IVG Rimini item:', e.message);
+        console.log('[fetchAste] IVG Rimini API parse error:', e.message);
       }
-    });
+    }
+
+    // Se API non funziona, parsing HTML standard
+    if (aste.length === 0) {
+      const $ = cheerio.load(html);
+      
+      // Cerca card/tile degli immobili nella pagina
+      $('[class*="card"], [class*="item"], [class*="inserzione"]').each((i, el) => {
+        try {
+          const link = $(el).find('a[href*="inserzioni"]').attr('href') || '';
+          if (!link) return;
+          
+          const titolo = $(el).find('h2, h3, h4, .title, .titolo').first().text().trim();
+          const prezzoText = $(el).find('[class*="prezzo"], [class*="price"]').first().text().trim();
+          
+          if (!titolo) return;
+
+          const prezzoMatch = prezzoText.match(/[\d.,]+/);
+          const prezzoNum = prezzoMatch ? parseFloat(prezzoMatch[0].replace(/\./g, '').replace(',', '.')) : 0;
+
+          const idMatch = link.match(/inserzioni\/([^/]+)/);
+          const externalId = idMatch ? `rimini_${idMatch[1]}` : `rimini_${i}_${Date.now()}`;
+
+          aste.push({
+            titolo,
+            localita: 'Rimini',
+            provincia: 'Rimini',
+            prezzo_base: prezzoNum,
+            data_asta: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            link_ufficiale: link.startsWith('http') ? link : `https://www.ivgrimini.it${link}`,
+            fonte: 'ivgrimini',
+            external_id: externalId
+          });
+        } catch (e) {
+          console.log('[fetchAste] Error parsing IVG Rimini item:', e.message);
+        }
+      });
+    }
+
+    console.log(`[fetchAste] IVG Rimini parsed ${aste.length} items`);
   } catch (e) {
     console.log('[fetchAste] Error fetching IVG Rimini:', e.message);
   }
   return aste;
 }
 
-// Determina provincia dalla località
-function determinaProvincia(localita, fonte) {
-  const loc = localita.toLowerCase();
-  if (fonte === 'ivgrimini' || loc.includes('rimini')) return 'Rimini';
-  if (loc.includes('pesaro') || loc.includes('urbino') || loc.includes('fano')) return 'Pesaro-Urbino';
-  if (loc.includes('ancona') || loc.includes('jesi') || loc.includes('senigallia')) return 'Ancona';
-  if (loc.includes('macerata') || loc.includes('civitanova') || loc.includes('tolentino')) return 'Macerata';
-  if (loc.includes('fermo') || loc.includes('porto san giorgio')) return 'Fermo';
-  if (loc.includes('ascoli') || loc.includes('san benedetto')) return 'Ascoli Piceno';
-  return 'Ancona'; // Default per Marche
-}
-
-// Filtra aste secondo le regole
 function filtraAste(aste) {
   const oggi = new Date();
   oggi.setHours(0, 0, 0, 0);
 
   return aste.filter(asta => {
-    // Prezzo nei limiti
     if (asta.prezzo_base < CONFIG.prezzoMinimo || asta.prezzo_base > CONFIG.prezzoMassimo) {
       return false;
     }
 
-    // Data asta valida
-    const dataAsta = new Date(asta.data_asta);
-    const giorniAllaAsta = Math.ceil((dataAsta - oggi) / (1000 * 60 * 60 * 24));
-    
-    if (giorniAllaAsta < CONFIG.giorniMinimiAllaAsta || giorniAllaAsta > CONFIG.giorniMassimiAllaAsta) {
-      return false;
+    if (asta.data_asta) {
+      const dataAsta = new Date(asta.data_asta);
+      const giorniAllaAsta = Math.ceil((dataAsta - oggi) / (1000 * 60 * 60 * 24));
+      
+      if (giorniAllaAsta < CONFIG.giorniMinimiAllaAsta || giorniAllaAsta > CONFIG.giorniMassimiAllaAsta) {
+        return false;
+      }
     }
 
-    // Tipologia non esclusa
     const tipologia = determinaTipologia(asta.titolo);
     if (CONFIG.tipologieEscluse.includes(tipologia)) {
       return false;
@@ -229,7 +293,6 @@ function filtraAste(aste) {
   });
 }
 
-// Arricchisci aste con analisi
 function arricchisciAste(aste) {
   return aste.map(asta => {
     const tipologia = determinaTipologia(asta.titolo);
@@ -305,7 +368,11 @@ Deno.serve(async (req) => {
       totali_trovate: tutteLeAste.length,
       dopo_filtro: asteArricchite.length,
       nuove_inserite: inserite,
-      gia_presenti: asteArricchite.length - inserite
+      gia_presenti: asteArricchite.length - inserite,
+      dettaglio: {
+        marche_raw: asteMarche.length,
+        rimini_raw: asteRimini.length
+      }
     });
 
   } catch (error) {
