@@ -123,20 +123,25 @@ async function fetchAsteAnnunci(regione = 'Marche') {
   const aste = [];
   let pagina = 1;
   
-  const regioneSlug = regione.toLowerCase().replace(/\s+/g, '-').replace(/'/g, '-');
-  
   while (pagina <= CONFIG.maxPaginePerPortale) {
     try {
-      // Prova prima la ricerca per regione
-      const url = `https://www.asteannunci.it/ricerca?regione=${encodeURIComponent(regione)}&page=${pagina}`;
-      console.log(`[AsteAnnunci] Fetching: ${url}`);
+      // AsteAnnunci richiede POST per la ricerca
+      const url = `https://www.asteannunci.it/ricerca`;
+      console.log(`[AsteAnnunci] Fetching page ${pagina} for ${regione}`);
+      
+      const formData = new URLSearchParams();
+      formData.append('regione', regione);
+      formData.append('page', pagina.toString());
       
       const response = await fetch(url, {
+        method: 'POST',
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
           'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
           'Accept-Language': 'it-IT,it;q=0.9',
-        }
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formData.toString()
       });
       
       if (!response.ok) {
