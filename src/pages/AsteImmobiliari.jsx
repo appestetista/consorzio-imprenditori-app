@@ -410,19 +410,7 @@ export default function AsteImmobiliari() {
           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
             {CATEGORIE_FILTRO.map(cat => {
               const isActive = categoriaAttiva === cat.id;
-              const countCat = aste.filter(a => {
-                if (budgetMax && parseInt(budgetMax) > 0 && a.prezzo_base > parseInt(budgetMax)) return false;
-                if (!matchLocalita(a, filtroProvincia)) return false;
-                if (filtroScadenza !== 'tutte') {
-                  const g = giorniAllaAsta(a.data_asta);
-                  if (filtroScadenza === 'immediate' && (g < 0 || g >= 30)) return false;
-                  if (filtroScadenza === 'normali' && (g < 30 || g > 90)) return false;
-                  if (filtroScadenza === 'oltre90' && g <= 90) return false;
-                }
-                if (cat.id !== 'tutte' && a.tipologia !== cat.id) return false;
-                return true;
-              }).length;
-              const emoji = cat.id === 'Abitativo' ? '🏠' : cat.id === 'Commerciale' ? '🏢' : cat.id === 'Industriale' ? '🏭' : cat.id === 'Mezzi' ? '🚚' : cat.id === 'Attrezzatura' ? '🔧' : '📋';
+              const countCat = conteggioCategorie[cat.id] || 0;
               
               return (
                 <Card 
@@ -436,7 +424,7 @@ export default function AsteImmobiliari() {
                 >
                   <CardContent className="p-3 text-center">
                     <p className={`text-xl font-bold ${isActive ? 'text-lime-400' : 'text-white'}`}>{countCat}</p>
-                    <p className={`text-xs font-medium ${isActive ? 'text-lime-300' : 'text-slate-400'}`}>{emoji} {cat.label}</p>
+                    <p className={`text-xs font-medium ${isActive ? 'text-lime-300' : 'text-slate-400'}`}>{cat.emoji} {cat.label}</p>
                   </CardContent>
                 </Card>
               );
