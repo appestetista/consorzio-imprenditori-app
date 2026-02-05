@@ -59,13 +59,26 @@ export default function AsteImmobiliari() {
     loadUser();
   }, []);
 
-  // Carica aste attive
+  // Carica aste attive e normalizza i dati
   const { data: aste = [], isLoading } = useQuery({
     queryKey: ['aste-immobiliari'],
     queryFn: async () => {
       const allAste = await base44.entities.AstaImmobiliare.filter({ is_active: true });
-      console.log('[AsteImmobiliari] Caricate:', allAste.length, 'aste. Tribunali trovati:', [...new Set(allAste.map(a => a.provincia))]);
-      return allAste;
+      // Normalizza: i dati utili possono essere in a.data (raw) o direttamente in a (SDK normalizzato)
+      const normalized = allAste.map(a => {
+        // Se esiste a.data con i campi, usa quelli, altrimenti usa i campi diretti
+        const hasDataWrapper = a.data && typeof a.data === 'object' && a.data.titolo;
+        if (hasDataWrapper) {
+          return {
+            id: a.id,
+            created_date: a.created_date,
+            ...a.data
+          };
+        }
+        return a;
+      });
+      console.log('[AsteImmobiliari] Caricate:', normalized.length, 'aste. Tribunali trovati:', [...new Set(normalized.map(a => a.provincia))]);
+      return normalized;
     },
   });
 
