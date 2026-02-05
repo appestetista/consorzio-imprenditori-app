@@ -351,40 +351,57 @@ export default function AsteImmobiliari() {
                     </div>
                   </div>
 
-                  {/* Motivo interesse */}
-                  {asta.motivo_interesse && (
-                    <p className="text-lime-400 text-sm mb-3 flex items-center gap-1">
-                      <TrendingUp className="w-3 h-3" />
-                      {asta.motivo_interesse}
-                    </p>
-                  )}
 
-                  {/* Info principali */}
-                  <div className="grid grid-cols-2 gap-2 mb-3">
-                    <div className="flex items-center gap-2 text-slate-300 text-sm">
-                      <MapPin className="w-4 h-4 text-slate-500" />
-                      <span>{asta.localita}</span>
+
+                  {/* Le 3 domande chiave */}
+                  <div className="bg-slate-900/50 rounded-lg p-3 mb-3 space-y-2">
+                    {/* Quando devo decidere? */}
+                    <div className="flex items-start gap-2">
+                      <Calendar className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-amber-400 text-xs font-semibold">Quando devo decidere?</p>
+                        <p className="text-white text-sm">
+                          Asta il <span className="font-bold">{formatData(asta.data_asta)}</span> — 
+                          <span className={giorniAllaAsta(asta.data_asta) < 40 ? 'text-red-400' : 'text-lime-400'}>
+                            {' '}{giorniAllaAsta(asta.data_asta)} giorni
+                          </span> per analizzare
+                        </p>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 text-slate-300 text-sm">
-                      <Building2 className="w-4 h-4 text-slate-500" />
-                      <span>{asta.tipologia}</span>
+
+                    {/* Quanti soldi devo immobilizzare? */}
+                    <div className="flex items-start gap-2">
+                      <Euro className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-green-400 text-xs font-semibold">Quanti soldi devo immobilizzare?</p>
+                        <p className="text-white text-sm">
+                          Prezzo base: <span className="font-bold">{formatPrezzo(asta.prezzo_base)}</span>
+                        </p>
+                        <p className="text-slate-400 text-xs">
+                          Cauzione (10%): <span className="text-white font-medium">{formatPrezzo(asta.cauzione_stimata || asta.prezzo_base * 0.1)}</span> da versare per partecipare
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Perché dovrei aprirla? */}
+                    <div className="flex items-start gap-2">
+                      <TrendingUp className="w-4 h-4 text-lime-400 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-lime-400 text-xs font-semibold">Perché dovrei aprirla?</p>
+                        <p className="text-white text-sm">{asta.motivo_interesse || 'Opportunità da analizzare'}</p>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Prezzo e data */}
-                  <div className="flex items-center justify-between bg-slate-900/50 rounded-lg p-3">
-                    <div>
-                      <p className="text-slate-400 text-xs">Prezzo base</p>
-                      <p className="text-white font-bold text-lg">{formatPrezzo(asta.prezzo_base)}</p>
+                  {/* Info rapide */}
+                  <div className="flex items-center justify-between text-sm mb-3">
+                    <div className="flex items-center gap-2 text-slate-300">
+                      <MapPin className="w-4 h-4 text-slate-500" />
+                      <span>{asta.localita} ({asta.provincia})</span>
                     </div>
-                    <div className="text-right">
-                      <p className="text-slate-400 text-xs">Data asta</p>
-                      <p className="text-white font-medium">{formatData(asta.data_asta)}</p>
-                      <p className={`text-xs ${giorniAllaAsta(asta.data_asta) < 7 ? 'text-red-400' : 'text-slate-400'}`}>
-                        <Clock className="w-3 h-3 inline mr-1" />
-                        {giorniAllaAsta(asta.data_asta)} giorni
-                      </p>
-                    </div>
+                    <Badge variant="outline" className="text-slate-400">
+                      {asta.tipologia}
+                    </Badge>
                   </div>
 
                   {/* CTA */}
@@ -424,15 +441,15 @@ export default function AsteImmobiliari() {
 }
 
 function PreferencesDialog({ open, onClose, preferenze, onSave, saving }) {
+  const [budgetMassimo, setBudgetMassimo] = useState(preferenze?.budget_massimo || '');
   const [zoneInteresse, setZoneInteresse] = useState(preferenze?.zone_interesse || []);
   const [tipologieInteresse, setTipologieInteresse] = useState(preferenze?.tipologie_interesse || []);
-  const [prezzoMax, setPrezzoMax] = useState(preferenze?.prezzo_max || '');
 
   useEffect(() => {
     if (preferenze) {
+      setBudgetMassimo(preferenze.budget_massimo || '');
       setZoneInteresse(preferenze.zone_interesse || []);
       setTipologieInteresse(preferenze.tipologie_interesse || []);
-      setPrezzoMax(preferenze.prezzo_max || '');
     }
   }, [preferenze]);
 
@@ -449,10 +466,14 @@ function PreferencesDialog({ open, onClose, preferenze, onSave, saving }) {
   };
 
   const handleSave = () => {
+    if (!budgetMassimo || parseInt(budgetMassimo) <= 0) {
+      toast.error('Inserisci il tuo budget massimo per continuare');
+      return;
+    }
     onSave({
+      budget_massimo: parseInt(budgetMassimo),
       zone_interesse: zoneInteresse,
       tipologie_interesse: tipologieInteresse,
-      prezzo_max: prezzoMax ? parseInt(prezzoMax) : null,
     });
   };
 
@@ -502,16 +523,25 @@ function PreferencesDialog({ open, onClose, preferenze, onSave, saving }) {
             </div>
           </div>
 
-          {/* Prezzo max */}
+          {/* Budget massimo - OBBLIGATORIO */}
           <div>
-            <Label className="text-slate-300 mb-2 block">Budget massimo (€)</Label>
+            <Label className="text-slate-300 mb-2 block">
+              Budget massimo di investimento (€) <span className="text-red-400">*</span>
+            </Label>
+            <p className="text-slate-500 text-xs mb-2">
+              Indica quanto sei disposto a investire (max €200.000). Vedrai solo aste nel tuo budget.
+            </p>
             <Input
               type="number"
-              placeholder="Es. 300000"
-              value={prezzoMax}
-              onChange={(e) => setPrezzoMax(e.target.value)}
+              placeholder="Es. 80000"
+              value={budgetMassimo}
+              onChange={(e) => setBudgetMassimo(e.target.value)}
+              max={200000}
               className="bg-slate-900 border-slate-600 text-white"
             />
+            {budgetMassimo && parseInt(budgetMassimo) > 200000 && (
+              <p className="text-amber-400 text-xs mt-1">Il sistema mostra aste fino a €200.000</p>
+            )}
           </div>
 
           <Button
