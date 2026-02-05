@@ -101,14 +101,71 @@ export default function AsteImmobiliari() {
     return Math.ceil((dataAsta - oggi) / (1000 * 60 * 60 * 24));
   };
 
-  // Province disponibili basate sulle aste + provincia utente in testa
-  const provinceDisponibili = React.useMemo(() => {
-    const provinceSet = new Set(aste.map(a => a.provincia).filter(Boolean));
-    const provinceArray = Array.from(provinceSet).sort();
-    
-    // Determina la provincia dell'utente dal profilo (city o province)
+  // Funzione per applicare filtri base (budget, categoria, provincia) - usata per conteggi
+  const applicaFiltriBudgetCatProv = (listaAste) => {
+    return listaAste.filter(asta => {
+      if (budgetMax && parseInt(budgetMax) > 0 && asta.prezzo_base > parseInt(budgetMax)) return false;
+      if (categoriaAttiva !== 'tutte' && asta.tipologia !== categoriaAttiva) return false;
+      if (filtroProvincia !== 'tutte' && asta.provincia !== filtroProvincia) return false;
+      return true;
+    });
+  };
+
+  // Aste filtrate per budget, categoria e provincia (senza filtro scadenza - per calcolare i conteggi scadenza)
+  const asteFiltrateBase = applicaFiltriBudgetCatProv(aste);
+
+  // Applica filtro scadenza
+  const asteFiltrate = asteFiltrateBase.filter(asta => {
+    const giorni = giorniAllaAsta(asta.data_asta);
+    if (filtroScadenza === 'immediate') return giorni >= 0 && giorni < 30;
+    if (filtroScadenza === 'normali') return giorni >= 30 && giorni <= 90;
+    if (filtroScadenza === 'oltre90') return giorni > 90;
+    return true;
+  });
+
+  // Lista aste ordinate per interesse
+  const asteOrdinate = [...asteFiltrate].sort((a, b) => {
+    const ordineInteresse = { 'Molto interessante': 0, 'Interessante': 1, 'Da valutare': 2 };
+    return ordineInteresse[a.livello_interesse] - ordineInteresse[b.livello_interesse];
+  });
+
+  // Conteggi scadenze (basati su filtri attivi budget/categoria/provincia)
+  const asteImmediateCount = asteFiltrateBase.filter(a => {
+    const g = giorniAllaAsta(a.data_asta);
+    return g >= 0 && g < 30;
+  }).length;
+  const asteNormaliCount = asteFiltrateBase.filter(a => {
+    const g = giorniAllaAsta(a.data_asta);
+    return g >= 30 && g <= 90;
+  }).length;
+  const asteOltre90Count = asteFiltrateBase.filter(a => giorniAllaAsta(a.data_asta) > 90).length;
+
+  // Province disponibili con conteggi (basati su filtri attivi budget/categoria/scadenza)
+  const provinceConConteggi = React.useMemo(() => {
+    // Applica filtri budget e categoria per il conteggio province
+    let astePerConteggio = aste.filter(asta => {
+      if (budgetMax && parseInt(budgetMax) > 0 && asta.prezzo_base > parseInt(budgetMax)) return false;
+      if (categoriaAttiva !== 'tutte' && asta.tipologia !== categoriaAttiva) return false;
+      // Applica anche filtro scadenza per i conteggi
+      if (filtroScadenza !== 'tutte') {
+        const giorni = giorniAllaAsta(asta.data_asta);
+        if (filtroScadenza === 'immediate' && (giorni < 0 || giorni >= 30)) return false;
+        if (filtroScadenza === 'normali' && (giorni < 30 || giorni > 90)) return false;
+        if (filtroScadenza === 'oltre90' && giorni <= 90) return false;
+      }
+      return true;
+    });
+
+    // Conta per provincia
+    const conteggi = {};
+    astePerConteggio.forEach(a => {
+      if (a.provincia) {
+        conteggi[a.provincia] = (conteggi[a.provincia] || 0) + 1;
+      }
+    });
+
+    // Ordina province: prima quella dell'utente, poi le altre in ordine alfabetico
     const userProvince = user?.province || user?.city || '';
-    // Mappa città comuni -> provincia
     const cittaToProvinciaMap = {
       'pesaro': 'Pesaro-Urbino', 'urbino': 'Pesaro-Urbino', 'fano': 'Pesaro-Urbino',
       'ancona': 'Ancona', 'senigallia': 'Ancona', 'jesi': 'Ancona', 'fabriano': 'Ancona',
@@ -118,52 +175,20 @@ export default function AsteImmobiliari() {
       'rimini': 'Rimini', 'riccione': 'Rimini', 'cattolica': 'Rimini'
     };
     const userProvinceMapped = cittaToProvinciaMap[userProvince.toLowerCase()] || userProvince;
+
+    const provinceArray = Object.keys(conteggi).sort();
     
-    // Se la provincia utente è tra quelle disponibili, mettila in testa
+    // Metti provincia utente in testa se esiste
     if (userProvinceMapped && provinceArray.includes(userProvinceMapped)) {
       const filtered = provinceArray.filter(p => p !== userProvinceMapped);
-      return [userProvinceMapped, ...filtered];
+      return [{ nome: userProvinceMapped, count: conteggi[userProvinceMapped], isUser: true }, 
+              ...filtered.map(p => ({ nome: p, count: conteggi[p], isUser: false }))];
     }
-    return provinceArray;
-  }, [aste, user?.province, user?.city]);
+    return provinceArray.map(p => ({ nome: p, count: conteggi[p], isUser: false }));
+  }, [aste, budgetMax, categoriaAttiva, filtroScadenza, user?.province, user?.city]);
 
-  // Filtra aste
-  const asteFiltrateBase = aste.filter(asta => {
-    // Filtro budget (se inserito)
-    if (budgetMax && parseInt(budgetMax) > 0 && asta.prezzo_base > parseInt(budgetMax)) {
-      return false;
-    }
-    // Filtro categoria
-    if (categoriaAttiva !== 'tutte' && asta.tipologia !== categoriaAttiva) {
-      return false;
-    }
-    // Filtro provincia
-    if (filtroProvincia !== 'tutte' && asta.provincia !== filtroProvincia) {
-      return false;
-    }
-    return true;
-  });
-
-  // Applica filtro scadenza
-  const asteFiltrate = asteFiltrateBase.filter(asta => {
-    const giorni = giorniAllaAsta(asta.data_asta);
-    if (filtroScadenza === 'immediate') return giorni >= 0 && giorni < 30;
-    if (filtroScadenza === 'normali') return giorni >= 30 && giorni <= 90;
-    if (filtroScadenza === 'oltre90') return giorni > 90;
-    return true; // 'tutte'
-  });
-
-  // Lista aste ordinate per interesse
-  const asteOrdinate = [...asteFiltrate].sort((a, b) => {
-    const ordineInteresse = { 'Molto interessante': 0, 'Interessante': 1, 'Da valutare': 2 };
-    return ordineInteresse[a.livello_interesse] - ordineInteresse[b.livello_interesse];
-  });
-
-  // Conteggi per stats
-  const totaleAste = aste.length;
-  const asteImmediateCount = aste.filter(a => giorniAllaAsta(a.data_asta) < 30 && giorniAllaAsta(a.data_asta) >= 0).length;
-  const asteNormaliCount = aste.filter(a => giorniAllaAsta(a.data_asta) >= 30 && giorniAllaAsta(a.data_asta) <= 90).length;
-  const asteOltre90Count = aste.filter(a => giorniAllaAsta(a.data_asta) > 90).length;
+  // Totale aste filtrate (per header)
+  const totaleAsteFiltrate = asteOrdinate.length;
 
   const formatPrezzo = (prezzo) => {
     return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(prezzo);
@@ -310,7 +335,7 @@ export default function AsteImmobiliari() {
           </Link>
           <div className="flex-1">
             <h1 className="text-white text-xl font-bold">Aste Immobiliari</h1>
-            <p className="text-slate-400 text-sm">{totaleAste} aste disponibili</p>
+            <p className="text-slate-400 text-sm">{totaleAsteFiltrate} aste trovate</p>
           </div>
           <Link to={createPageUrl('AsteSalvate')}>
             <Button variant="outline" size="sm" className="border-amber-400 text-amber-400">
@@ -378,7 +403,7 @@ export default function AsteImmobiliari() {
           })}
         </div>
 
-        {/* FILTRI PROVINCIA - Pulsanti località */}
+        {/* FILTRI PROVINCIA - Pulsanti località con conteggi */}
         <div className="flex gap-2 overflow-x-auto pb-2 mb-4 scrollbar-hide">
           <Button
             variant={filtroProvincia === 'tutte' ? "default" : "outline"}
@@ -393,25 +418,25 @@ export default function AsteImmobiliari() {
             <MapPin className="w-4 h-4 mr-1" />
             Tutte
           </Button>
-          {provinceDisponibili.map((prov, idx) => {
-            const isActive = filtroProvincia === prov;
-            const isUserProvince = idx === 0 && provinceDisponibili.length > 1;
+          {provinceConConteggi.map((prov) => {
+            const isActive = filtroProvincia === prov.nome;
             return (
               <Button
-                key={prov}
+                key={prov.nome}
                 variant={isActive ? "default" : "outline"}
                 size="sm"
-                onClick={() => setFiltroProvincia(prov)}
+                onClick={() => setFiltroProvincia(prov.nome)}
                 className={`flex-shrink-0 ${
                   isActive 
                     ? 'bg-amber-400 text-slate-900 hover:bg-amber-500' 
-                    : isUserProvince
+                    : prov.isUser
                     ? 'border-amber-400/50 text-amber-300 hover:border-amber-400 hover:text-amber-400'
                     : 'border-slate-600 text-slate-300 hover:border-amber-400 hover:text-amber-400'
                 }`}
               >
-                {isUserProvince && <span className="mr-1">📍</span>}
-                {prov}
+                {prov.isUser && <span className="mr-1">📍</span>}
+                {prov.nome}
+                <span className="ml-1.5 bg-slate-700/80 text-slate-300 text-xs px-1.5 py-0.5 rounded-full">{prov.count}</span>
               </Button>
             );
           })}
