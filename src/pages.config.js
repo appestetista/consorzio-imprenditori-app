@@ -82,6 +82,7 @@ import WelfareOrdina from './pages/WelfareOrdina';
 import WelfareStorico from './pages/WelfareStorico';
 import WelfareTipologie from './pages/WelfareTipologie';
 import AsteImmobiliari from './pages/AsteImmobiliari';
+import AsteSalvate from './pages/AsteSalvate';
 import __Layout from './Layout.jsx';
 
 
@@ -121,6 +122,7 @@ export const PAGES = {
     "WelfareStorico": WelfareStorico,
     "WelfareTipologie": WelfareTipologie,
     "AsteImmobiliari": AsteImmobiliari,
+    "AsteSalvate": AsteSalvate,
 }
 
 export const pagesConfig = {

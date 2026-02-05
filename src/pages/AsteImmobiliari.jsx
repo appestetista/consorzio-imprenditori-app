@@ -22,7 +22,9 @@ import {
   Sparkles,
   AlertCircle,
   CheckCircle2,
-  X
+  X,
+  Bookmark,
+  BookmarkCheck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -92,6 +94,32 @@ export default function AsteImmobiliari() {
       queryClient.invalidateQueries({ queryKey: ['asta-preferenze'] });
       toast.success('Preferenze salvate!');
       setShowPreferences(false);
+    },
+  });
+
+  // Carica aste salvate
+  const { data: asteSalvate = [] } = useQuery({
+    queryKey: ['aste-salvate', user?.email],
+    queryFn: () => base44.entities.AstaSalvata.filter({ user_email: user.email }),
+    enabled: !!user?.email,
+  });
+
+  const asteSalvateIds = new Set(asteSalvate.map(s => s.asta_id));
+
+  // Salva/Rimuovi asta
+  const toggleSalvaMutation = useMutation({
+    mutationFn: async (astaId) => {
+      const esistente = asteSalvate.find(s => s.asta_id === astaId);
+      if (esistente) {
+        await base44.entities.AstaSalvata.delete(esistente.id);
+      } else {
+        await base44.entities.AstaSalvata.create({ user_email: user.email, asta_id: astaId });
+      }
+    },
+    onSuccess: (_, astaId) => {
+      queryClient.invalidateQueries({ queryKey: ['aste-salvate'] });
+      const wasRemoved = asteSalvateIds.has(astaId);
+      toast.success(wasRemoved ? 'Rimossa dai salvati' : 'Asta salvata!');
     },
   });
 
@@ -184,6 +212,16 @@ export default function AsteImmobiliari() {
             <h1 className="text-white text-xl font-bold">Aste Immobiliari</h1>
             <p className="text-slate-400 text-sm">Opportunità selezionate per te</p>
           </div>
+          <Link to={createPageUrl('AsteSalvate')}>
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-amber-400 text-amber-400 mr-2"
+            >
+              <Bookmark className="w-4 h-4" />
+              {asteSalvate.length > 0 && <span className="ml-1">{asteSalvate.length}</span>}
+            </Button>
+          </Link>
           <Button
             variant="outline"
             size="sm"
@@ -427,15 +465,33 @@ export default function AsteImmobiliari() {
                   </div>
 
                   {/* CTA */}
-                  <a
-                    href={asta.link_ufficiale}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-3 w-full flex items-center justify-center gap-2 bg-lime-400 hover:bg-lime-500 text-slate-900 font-medium py-2 rounded-lg transition-colors"
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                    Vedi dettagli ufficiali
-                  </a>
+                  <div className="flex gap-2 mt-3">
+                    <Button
+                      variant="outline"
+                      onClick={() => toggleSalvaMutation.mutate(asta.id)}
+                      disabled={toggleSalvaMutation.isPending}
+                      className={`flex-shrink-0 ${
+                        asteSalvateIds.has(asta.id) 
+                          ? 'bg-amber-400/20 border-amber-400 text-amber-400' 
+                          : 'border-slate-600 text-slate-300 hover:border-lime-400 hover:text-lime-400'
+                      }`}
+                    >
+                      {asteSalvateIds.has(asta.id) ? (
+                        <BookmarkCheck className="w-4 h-4" />
+                      ) : (
+                        <Bookmark className="w-4 h-4" />
+                      )}
+                    </Button>
+                    <a
+                      href={asta.link_ufficiale}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 flex items-center justify-center gap-2 bg-lime-400 hover:bg-lime-500 text-slate-900 font-medium py-2 rounded-lg transition-colors"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                      Vedi dettagli
+                    </a>
+                  </div>
                 </CardContent>
               </Card>
             ))
