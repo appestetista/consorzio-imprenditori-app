@@ -267,12 +267,12 @@ export default function FeatureCard({
                                               
 
           </div>
-        </div>
-      </div>
-    </div>
-  );
+          </div>
+          </div>
+          </div>
+          );
 
-  if (disabled) {
+          if (disabled) {
     return content;
   }
 
