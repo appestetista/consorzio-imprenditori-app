@@ -203,48 +203,41 @@ export default function AsteImmobiliari() {
     };
   }, [aste, budgetMax, categoriaAttiva, filtroLocalita, applicaTuttiFiltri]);
 
-  // Conteggi per TRIBUNALE (skip filtro provincia per vedere quante ce ne sono per ogni tribunale)
-  // Il campo 'provincia' nei dati corrisponde al tribunale di competenza
-  const provinceConConteggi = React.useMemo(() => {
-    const astePerConteggio = applicaTuttiFiltri(aste, { skipProvincia: true });
+  // Conteggi per LOCALITÀ (derivata dal Tribunale tramite tabella tribunali_localita)
+  const localitaConConteggi = React.useMemo(() => {
+    const astePerConteggio = applicaTuttiFiltri(aste, { skipLocalita: true });
 
-    // Conta per tribunale (campo provincia)
+    // Conta per località (derivata dal tribunale)
     const conteggi = {};
     astePerConteggio.forEach(a => {
       if (a.provincia) {
-        conteggi[a.provincia] = (conteggi[a.provincia] || 0) + 1;
+        const localita = tribunaleToLocalita[a.provincia];
+        if (localita) {
+          conteggi[localita] = (conteggi[localita] || 0) + 1;
+        }
       }
     });
 
     // Totale per "Tutte"
     const totale = astePerConteggio.length;
 
-    // Ordina tribunali: prima quello dell'utente, poi gli altri in ordine alfabetico
-    const userProvince = user?.province || user?.city || '';
-    const cittaToTribunaleMap = {
-      'pesaro': 'Pesaro-Urbino', 'urbino': 'Pesaro-Urbino', 'fano': 'Pesaro-Urbino',
-      'ancona': 'Ancona', 'senigallia': 'Ancona', 'jesi': 'Ancona', 'fabriano': 'Ancona',
-      'macerata': 'Macerata', 'civitanova': 'Macerata', 'tolentino': 'Macerata',
-      'fermo': 'Fermo', 'porto san giorgio': 'Fermo',
-      'ascoli piceno': 'Ascoli Piceno', 'san benedetto': 'Ascoli Piceno',
-      'rimini': 'Rimini', 'riccione': 'Rimini', 'cattolica': 'Rimini'
-    };
-    const userTribunaleMapped = cittaToTribunaleMap[userProvince.toLowerCase()] || userProvince;
+    // Ordina località: prima quella dell'utente, poi le altre in ordine alfabetico
+    const userCity = user?.city || user?.province || '';
+    const localitaArray = Object.keys(conteggi).sort();
 
-    const tribunaliArray = Object.keys(conteggi).sort();
-
-    // Metti tribunale utente in testa se esiste
+    // Metti località utente in testa se esiste
     let result;
-    if (userTribunaleMapped && tribunaliArray.includes(userTribunaleMapped)) {
-      const filtered = tribunaliArray.filter(p => p !== userTribunaleMapped);
-      result = [{ nome: userTribunaleMapped, count: conteggi[userTribunaleMapped], isUser: true }, 
-              ...filtered.map(p => ({ nome: p, count: conteggi[p], isUser: false }))];
+    const userLocalitaMatch = localitaArray.find(l => l.toLowerCase() === userCity.toLowerCase());
+    if (userLocalitaMatch) {
+      const filtered = localitaArray.filter(l => l !== userLocalitaMatch);
+      result = [{ nome: userLocalitaMatch, count: conteggi[userLocalitaMatch], isUser: true }, 
+              ...filtered.map(l => ({ nome: l, count: conteggi[l], isUser: false }))];
     } else {
-      result = tribunaliArray.map(p => ({ nome: p, count: conteggi[p], isUser: false }));
+      result = localitaArray.map(l => ({ nome: l, count: conteggi[l], isUser: false }));
     }
 
-    return { province: result, totale };
-  }, [aste, budgetMax, categoriaAttiva, filtroScadenza, user?.province, user?.city]);
+    return { localita: result, totale };
+  }, [aste, budgetMax, categoriaAttiva, filtroScadenza, user?.city, user?.province, tribunaleToLocalita, applicaTuttiFiltri]);
 
   // Totale aste filtrate (per header)
   const totaleAsteFiltrate = asteOrdinate.length;
