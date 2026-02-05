@@ -3,33 +3,42 @@ import * as cheerio from 'npm:cheerio@1.0.0';
 
 // Configurazione soglie di filtraggio
 const CONFIG = {
-  prezzoMassimo: 200000, // Default, può essere sovrascritto dal budget utente
-  giorniMinimiAllaAsta: 30,
-  giorniMassimiAllaAsta: 90,
+  giorniMassimiAllaAsta: 90, // Max 90 giorni dalla data corrente
   // Province Marche + Rimini
   provinceTarget: ['Pesaro-Urbino', 'Ancona', 'Macerata', 'Fermo', 'Ascoli Piceno', 'Rimini'],
 };
 
-// Parole chiave per escludere aste problematiche
+// Parole chiave per escludere aste NON a proprietà intera o terreni agricoli
 const ESCLUSIONI = {
   titolo: [
-    'terreno agricolo',
-    'terreno seminativo', 
-    'terreno boschivo',
-    'usufrutto',
-    'nuda proprietà',
+    // Quote frazionate - NO proprietà intera
     'quota indivisa',
     'quota di',
+    'quota pari',
     '1/2 di',
     '1/3 di',
     '1/4 di',
-    'box singolo',
-    'posto auto scoperto',
-    'cantina',
-    'soffitta',
-    'ripostiglio'
+    '1/5 di',
+    '1/6 di',
+    '1/8 di',
+    '1/10 di',
+    '50% di',
+    '50 % di',
+    '33% di',
+    '25% di',
+    'pro quota',
+    'comproprietà',
+    'usufrutto',
+    'nuda proprietà',
+    'diritto di',
+    // Terreni agricoli
+    'terreno agricolo',
+    'terreno seminativo', 
+    'terreno boschivo',
+    'fondo agricolo',
+    'fondo rustico',
+    'appezzamento',
   ],
-  superficie: 20, // mq minimi per evitare micro-unità
 };
 
 function determinaTipologia(titolo) {
@@ -305,28 +314,24 @@ async function fetchIVGRimini() {
   return aste;
 }
 
-function filtraAste(aste, budgetMassimo = CONFIG.prezzoMassimo) {
+function filtraAste(aste) {
   const oggi = new Date();
   oggi.setHours(0, 0, 0, 0);
 
   return aste.filter(asta => {
-    // Escludi per parole chiave problematiche
+    // Escludi per parole chiave problematiche (quote frazionate, terreni agricoli)
     if (deveEssereEsclusa(asta.titolo, asta.descrizione)) {
       console.log(`[fetchAste] Esclusa per keyword: ${asta.titolo.substring(0, 50)}`);
       return false;
     }
 
-    // Filtra per prezzo (sotto budget utente)
-    if (asta.prezzo_base > budgetMassimo) {
-      return false;
-    }
-
-    // Filtra per data asta (30-90 giorni)
+    // Filtra per data asta (max 90 giorni, incluse immediate <30)
     if (asta.data_asta) {
       const dataAsta = new Date(asta.data_asta);
       const giorniAllaAsta = Math.ceil((dataAsta - oggi) / (1000 * 60 * 60 * 24));
       
-      if (giorniAllaAsta < CONFIG.giorniMinimiAllaAsta || giorniAllaAsta > CONFIG.giorniMassimiAllaAsta) {
+      // Escludi aste già passate o oltre 90 giorni
+      if (giorniAllaAsta < 0 || giorniAllaAsta > CONFIG.giorniMassimiAllaAsta) {
         return false;
       }
     }
