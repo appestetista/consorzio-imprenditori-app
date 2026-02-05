@@ -109,7 +109,8 @@ export default function AsteImmobiliari() {
       if (preferenze?.tipologie_interesse?.length > 0 && !preferenze.tipologie_interesse.includes(asta.tipologia)) {
         return false;
       }
-      if (preferenze?.prezzo_max && asta.prezzo_base > preferenze.prezzo_max) {
+      // Filtra per budget utente
+      if (preferenze?.budget_massimo && asta.prezzo_base > preferenze.budget_massimo) {
         return false;
       }
       
@@ -191,6 +192,26 @@ export default function AsteImmobiliari() {
             <Settings className="w-4 h-4" />
           </Button>
         </div>
+
+        {/* Banner budget non impostato */}
+        {!preferenze?.budget_massimo && (
+          <Card className="bg-amber-500/20 border-amber-500/30 mb-4">
+            <CardContent className="p-4 flex items-center gap-3">
+              <AlertCircle className="w-6 h-6 text-amber-400 flex-shrink-0" />
+              <div className="flex-1">
+                <p className="text-white font-medium">Imposta il tuo budget</p>
+                <p className="text-amber-200 text-sm">Per vedere aste personalizzate, indica quanto vuoi investire</p>
+              </div>
+              <Button
+                size="sm"
+                onClick={() => setShowPreferences(true)}
+                className="bg-amber-400 hover:bg-amber-500 text-slate-900"
+              >
+                Imposta
+              </Button>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Stats rapide */}
         <div className="grid grid-cols-3 gap-3 mb-6">
