@@ -353,18 +353,33 @@ export default function AsteImmobiliari() {
           })}
         </div>
 
-        {/* Stats rapide */}
-        <div className="grid grid-cols-2 gap-3 mb-6">
-          <Card className="bg-red-500/20 border-red-500/30">
+        {/* Stats rapide - CLICCABILI */}
+        <div className="grid grid-cols-3 gap-2 mb-6">
+          <Card 
+            className={`cursor-pointer transition-all ${filtroScadenza === 'immediate' ? 'bg-red-500/40 border-red-400 ring-2 ring-red-400' : 'bg-red-500/20 border-red-500/30 hover:bg-red-500/30'}`}
+            onClick={() => setFiltroScadenza(filtroScadenza === 'immediate' ? 'tutte' : 'immediate')}
+          >
             <CardContent className="p-3 text-center">
-              <p className="text-red-400 text-2xl font-bold">{asteImmediate.length}</p>
-              <p className="text-red-300 text-xs">⚡ Immediate (&lt;30gg)</p>
+              <p className="text-red-400 text-xl font-bold">{asteImmediateCount}</p>
+              <p className="text-red-300 text-xs">⚡ &lt;30gg</p>
             </CardContent>
           </Card>
-          <Card className="bg-slate-700/50 border-slate-600">
+          <Card 
+            className={`cursor-pointer transition-all ${filtroScadenza === 'normali' ? 'bg-lime-500/40 border-lime-400 ring-2 ring-lime-400' : 'bg-slate-700/50 border-slate-600 hover:bg-slate-600/50'}`}
+            onClick={() => setFiltroScadenza(filtroScadenza === 'normali' ? 'tutte' : 'normali')}
+          >
             <CardContent className="p-3 text-center">
-              <p className="text-white text-2xl font-bold">{asteNormali.length}</p>
-              <p className="text-slate-400 text-xs">📅 Normali (30-90gg)</p>
+              <p className="text-white text-xl font-bold">{asteNormaliCount}</p>
+              <p className="text-slate-400 text-xs">📅 30-90gg</p>
+            </CardContent>
+          </Card>
+          <Card 
+            className={`cursor-pointer transition-all ${filtroScadenza === 'oltre90' ? 'bg-blue-500/40 border-blue-400 ring-2 ring-blue-400' : 'bg-slate-700/50 border-slate-600 hover:bg-slate-600/50'}`}
+            onClick={() => setFiltroScadenza(filtroScadenza === 'oltre90' ? 'tutte' : 'oltre90')}
+          >
+            <CardContent className="p-3 text-center">
+              <p className="text-white text-xl font-bold">{asteOltre90Count}</p>
+              <p className="text-slate-400 text-xs">📆 &gt;90gg</p>
             </CardContent>
           </Card>
         </div>
