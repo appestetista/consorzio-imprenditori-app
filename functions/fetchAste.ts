@@ -43,9 +43,9 @@ function determinaTipologia(titolo) {
     return 'Commerciale';
   }
   
-  if (t.includes('macchinario') || t.includes('macchina industriale') || t.includes('impianto') ||
+  if (t.includes('macchinario') || t.includes('macchina') || t.includes('impianto') ||
       t.includes('tornio') || t.includes('fresa') || t.includes('pressa') || t.includes('cnc') ||
-      t.includes('linea di produzione') || t.includes('macchinari per') || t.includes('cella frigorifera')) {
+      t.includes('linea di produzione') || t.includes('cella frigorifera')) {
     return 'Macchinario industriale';
   }
   
@@ -113,37 +113,25 @@ function generaMotivoInteresse(asta) {
 }
 
 // ============================================
-// FETCH CON LLM - Estrae dati da internet
+// FETCH CON LLM - Estrae dati singolarmente
 // ============================================
-async function fetchAsteConLLM(base44) {
-  console.log('[fetchAste] Usando LLM per estrarre dati da portali aste...');
+async function fetchAsteConLLM(base44, fonte) {
+  console.log(`[fetchAste] Cercando aste da ${fonte}...`);
   
-  const prompt = `Cerca su internet le aste giudiziarie attive in Italia dai portali:
-- gobid.it
-- asteannunci.it
+  const prompt = `Cerca su ${fonte} le aste giudiziarie attive in Italia.
+Trova aste di: case, appartamenti, capannoni, locali commerciali, macchinari, veicoli, attrezzature, arredi.
+ESCLUDI: moto, terreni, quote indivise.
 
-Estrai SOLO aste di:
-- Case/appartamenti
-- Capannoni industriali
-- Locali commerciali
-- Macchinari industriali
-- Veicoli/mezzi (camion, furgoni, escavatori)
-- Attrezzature
-- Arredi per attività
+Per ogni asta trovata fornisci:
+- titolo: descrizione breve del bene
+- localita: città
+- provincia: provincia italiana  
+- prezzo_base: prezzo in euro (solo numero)
+- data_asta: formato YYYY-MM-DD
+- link_ufficiale: URL completo
+- tribunale: tribunale di riferimento
 
-ESCLUDI: moto, terreni agricoli, terreni edificabili, quote indivise.
-
-Per ogni asta trovata, estrai:
-- titolo: descrizione del bene
-- localita: città o comune
-- provincia: provincia italiana
-- prezzo_base: prezzo in euro (numero)
-- data_asta: data in formato YYYY-MM-DD
-- link_ufficiale: URL completo della pagina asta
-- fonte: "gobid" o "asteannunci"
-- tribunale: tribunale di riferimento se presente
-
-Trova almeno 30-50 aste reali e attive.`;
+Cerca 15-20 aste reali attualmente online.`;
 
   try {
     const result = await base44.integrations.Core.InvokeLLM({
@@ -163,22 +151,20 @@ Trova almeno 30-50 aste reali e attive.`;
                 prezzo_base: { type: "number" },
                 data_asta: { type: "string" },
                 link_ufficiale: { type: "string" },
-                fonte: { type: "string" },
                 tribunale: { type: "string" }
-              },
-              required: ["titolo", "link_ufficiale", "fonte"]
+              }
             }
           }
-        },
-        required: ["aste"]
+        }
       }
     });
     
-    console.log(`[fetchAste] LLM ha restituito ${result?.aste?.length || 0} aste`);
-    return result?.aste || [];
+    const aste = (result?.aste || []).map(a => ({ ...a, fonte }));
+    console.log(`[fetchAste] ${fonte}: trovate ${aste.length} aste`);
+    return aste;
     
   } catch (e) {
-    console.log('[fetchAste] LLM error:', e.message);
+    console.log(`[fetchAste] ${fonte} error:`, e.message);
     return [];
   }
 }
@@ -201,18 +187,17 @@ function processaAste(aste) {
   });
   
   return deduplicate
-    .filter(a => !deveEssereEsclusa(a.titolo || ''))
+    .filter(a => a.titolo && !deveEssereEsclusa(a.titolo))
     .map((asta, idx) => {
       // Data default se mancante
       if (!asta.data_asta) {
         asta.data_asta = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
       }
       
-      const tipologia = determinaTipologia(asta.titolo || '');
+      const tipologia = determinaTipologia(asta.titolo);
       const dataAsta = new Date(asta.data_asta);
       const giorniAllaAsta = Math.ceil((dataAsta - oggi) / (1000 * 60 * 60 * 24));
       
-      // Filtra date troppo passate o troppo future
       if (giorniAllaAsta < -30 || giorniAllaAsta > CONFIG.giorniMassimiAllaAsta) {
         return null;
       }
@@ -220,9 +205,8 @@ function processaAste(aste) {
       const prezzoBase = Number(asta.prezzo_base) || 0;
       const cauzioneStimata = Math.round(prezzoBase * 0.10);
       
-      // Genera external_id univoco
-      const urlHash = asta.link_ufficiale.split('/').pop() || '';
-      const externalId = `${asta.fonte || 'unknown'}_${urlHash}_${idx}`;
+      const urlPart = (asta.link_ufficiale || '').split('/').filter(p => p).pop() || String(Date.now());
+      const externalId = `${asta.fonte}_${urlPart.substring(0,30)}_${idx}`;
       
       const astaArricchita = {
         titolo: (asta.titolo || '').substring(0, 200),
@@ -233,7 +217,7 @@ function processaAste(aste) {
         prezzo_base: prezzoBase,
         data_asta: asta.data_asta,
         link_ufficiale: asta.link_ufficiale,
-        fonte: asta.fonte || 'unknown',
+        fonte: asta.fonte,
         external_id: externalId,
         cauzione_stimata: cauzioneStimata,
         giorni_alla_asta: giorniAllaAsta,
@@ -263,31 +247,38 @@ Deno.serve(async (req) => {
     
     console.log('[fetchAste] Avvio ricerca aste con AI...');
     
-    // Usa LLM con ricerca internet
-    const asteRaw = await fetchAsteConLLM(base44);
-    console.log(`[fetchAste] Totale raw: ${asteRaw.length}`);
+    // Fetch da ogni fonte separatamente
+    const fonti = ['gobid.it', 'asteannunci.it'];
+    const tutteAste = [];
+    
+    for (const fonte of fonti) {
+      const aste = await fetchAsteConLLM(base44, fonte);
+      tutteAste.push(...aste);
+      // Pausa tra le chiamate
+      await new Promise(r => setTimeout(r, 2000));
+    }
+    
+    console.log(`[fetchAste] Totale raw: ${tutteAste.length}`);
     
     // Processa
-    const asteProcessate = processaAste(asteRaw);
+    const asteProcessate = processaAste(tutteAste);
     console.log(`[fetchAste] Dopo processing: ${asteProcessate.length}`);
     
     if (asteProcessate.length === 0) {
       return Response.json({
         success: false,
-        message: 'Nessuna asta trovata. I portali potrebbero avere protezioni anti-scraping.',
-        suggerimento: 'Prova inserimento manuale dalla pagina Aste Immobiliari.'
+        message: 'Nessuna asta trovata dai portali.',
+        totale_raw: tutteAste.length
       });
     }
     
     // Recupera esistenti
     const asteEsistenti = await base44.asServiceRole.entities.AstaImmobiliare.list();
-    const externalIdsEsistenti = new Set(asteEsistenti.map(a => a.external_id));
-    const linksEsistenti = new Set(asteEsistenti.map(a => a.link_ufficiale?.toLowerCase()));
+    const linksEsistenti = new Set(asteEsistenti.map(a => (a.link_ufficiale || '').toLowerCase()));
     
-    // Inserisci nuove (check sia external_id che link)
+    // Inserisci nuove
     const nuoveAste = asteProcessate.filter(a => 
-      !externalIdsEsistenti.has(a.external_id) && 
-      !linksEsistenti.has(a.link_ufficiale?.toLowerCase())
+      !linksEsistenti.has((a.link_ufficiale || '').toLowerCase())
     );
     
     let inserite = 0;
@@ -308,8 +299,7 @@ Deno.serve(async (req) => {
     asteProcessate.forEach(a => {
       statsFonte[a.fonte] = (statsFonte[a.fonte] || 0) + 1;
       statsTipologia[a.tipologia] = (statsTipologia[a.tipologia] || 0) + 1;
-      const loc = a.localita || 'Sconosciuta';
-      statsLocalita[loc] = (statsLocalita[loc] || 0) + 1;
+      if (a.localita) statsLocalita[a.localita] = (statsLocalita[a.localita] || 0) + 1;
     });
     
     console.log(`[fetchAste] Completato: ${inserite} nuove inserite`);
@@ -317,7 +307,7 @@ Deno.serve(async (req) => {
     return Response.json({
       success: true,
       riepilogo: {
-        totali_raw: asteRaw.length,
+        totali_raw: tutteAste.length,
         dopo_processing: asteProcessate.length,
         nuove_inserite: inserite,
         gia_presenti: asteProcessate.length - inserite
