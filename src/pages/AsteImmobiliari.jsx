@@ -64,6 +64,7 @@ export default function AsteImmobiliari() {
     queryKey: ['aste-immobiliari'],
     queryFn: async () => {
       const allAste = await base44.entities.AstaImmobiliare.filter({ is_active: true });
+      console.log('[AsteImmobiliari] Raw data sample:', allAste[0]);
       return allAste;
     },
   });
