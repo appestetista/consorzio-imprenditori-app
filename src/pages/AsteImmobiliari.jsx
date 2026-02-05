@@ -379,14 +379,12 @@ export default function AsteImmobiliari() {
           </CardContent>
         </Card>
 
-        {/* FILTRI CATEGORIA - Card stile uniforme */}
-        <div className="mb-4">
+        {/* FILTRI CATEGORIA - Scorrevoli */}
+        <div className="mb-3">
           <p className="text-slate-400 text-xs font-medium mb-2 uppercase tracking-wide">🏠 Tipologia</p>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
             {CATEGORIE_FILTRO.map(cat => {
-              const Icon = cat.icon;
               const isActive = categoriaAttiva === cat.id;
-              // Conta aste per questa categoria (con filtri attivi)
               const countCat = aste.filter(a => {
                 if (budgetMax && parseInt(budgetMax) > 0 && a.prezzo_base > parseInt(budgetMax)) return false;
                 if (filtroProvincia !== 'tutte' && a.provincia !== filtroProvincia) return false;
@@ -399,11 +397,12 @@ export default function AsteImmobiliari() {
                 if (cat.id !== 'tutte' && a.tipologia !== cat.id) return false;
                 return true;
               }).length;
+              const emoji = cat.id === 'Abitativo' ? '🏠' : cat.id === 'Commerciale' ? '🏢' : cat.id === 'Industriale' ? '🏭' : cat.id === 'Mezzi' ? '🚚' : cat.id === 'Attrezzatura' ? '🔧' : '📋';
               
               return (
                 <Card 
                   key={cat.id}
-                  className={`cursor-pointer transition-all ${
+                  className={`cursor-pointer transition-all flex-shrink-0 min-w-[90px] ${
                     isActive 
                       ? 'bg-lime-500/40 border-lime-400 ring-2 ring-lime-400' 
                       : 'bg-slate-700/50 border-slate-600 hover:bg-slate-600/50'
@@ -412,10 +411,7 @@ export default function AsteImmobiliari() {
                 >
                   <CardContent className="p-3 text-center">
                     <p className={`text-xl font-bold ${isActive ? 'text-lime-400' : 'text-white'}`}>{countCat}</p>
-                    <p className={`text-xs font-medium ${isActive ? 'text-lime-300' : 'text-slate-400'}`}>
-                      {Icon && <span className="inline-block mr-1">{cat.id === 'Abitativo' ? '🏠' : cat.id === 'Commerciale' ? '🏢' : cat.id === 'Industriale' ? '🏭' : cat.id === 'Mezzi' ? '🚚' : cat.id === 'Attrezzatura' ? '🔧' : '📋'}</span>}
-                      {cat.label}
-                    </p>
+                    <p className={`text-xs font-medium ${isActive ? 'text-lime-300' : 'text-slate-400'}`}>{emoji} {cat.label}</p>
                   </CardContent>
                 </Card>
               );
@@ -423,12 +419,12 @@ export default function AsteImmobiliari() {
           </div>
         </div>
 
-        {/* FILTRI PROVINCIA - Card stile uniforme */}
-        <div className="mb-4">
+        {/* FILTRI PROVINCIA - Scorrevoli */}
+        <div className="mb-3">
           <p className="text-slate-400 text-xs font-medium mb-2 uppercase tracking-wide">📍 Località</p>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
             <Card 
-              className={`cursor-pointer transition-all ${
+              className={`cursor-pointer transition-all flex-shrink-0 min-w-[90px] ${
                 filtroProvincia === 'tutte' 
                   ? 'bg-amber-500/40 border-amber-400 ring-2 ring-amber-400' 
                   : 'bg-slate-700/50 border-slate-600 hover:bg-slate-600/50'
@@ -457,7 +453,7 @@ export default function AsteImmobiliari() {
               return (
                 <Card 
                   key={prov.nome}
-                  className={`cursor-pointer transition-all ${
+                  className={`cursor-pointer transition-all flex-shrink-0 min-w-[90px] ${
                     isActive 
                       ? 'bg-amber-500/40 border-amber-400 ring-2 ring-amber-400' 
                       : prov.isUser
@@ -468,8 +464,8 @@ export default function AsteImmobiliari() {
                 >
                   <CardContent className="p-3 text-center">
                     <p className={`text-xl font-bold ${isActive ? 'text-amber-400' : 'text-white'}`}>{prov.count}</p>
-                    <p className={`text-xs font-medium truncate ${isActive ? 'text-amber-300' : 'text-slate-400'}`}>
-                      {prov.isUser ? '📍 ' : ''}{prov.nome.replace('-', ' ').split(' ')[0]}
+                    <p className={`text-xs font-medium ${isActive ? 'text-amber-300' : 'text-slate-400'}`}>
+                      {prov.isUser ? '📍' : ''}{prov.nome.split('-')[0]}
                     </p>
                   </CardContent>
                 </Card>
@@ -478,12 +474,12 @@ export default function AsteImmobiliari() {
           </div>
         </div>
 
-        {/* FILTRI SCADENZA - Card stile uniforme */}
-        <div className="mb-6">
+        {/* FILTRI SCADENZA - Scorrevoli */}
+        <div className="mb-5">
           <p className="text-slate-400 text-xs font-medium mb-2 uppercase tracking-wide">⏰ Scadenza asta</p>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
             <Card 
-              className={`cursor-pointer transition-all ${filtroScadenza === 'immediate' ? 'bg-red-500/40 border-red-400 ring-2 ring-red-400' : 'bg-red-500/20 border-red-500/30 hover:bg-red-500/30'}`}
+              className={`cursor-pointer transition-all flex-shrink-0 min-w-[90px] ${filtroScadenza === 'immediate' ? 'bg-red-500/40 border-red-400 ring-2 ring-red-400' : 'bg-red-500/20 border-red-500/30 hover:bg-red-500/30'}`}
               onClick={() => setFiltroScadenza(filtroScadenza === 'immediate' ? 'tutte' : 'immediate')}
             >
               <CardContent className="p-3 text-center">
@@ -492,7 +488,7 @@ export default function AsteImmobiliari() {
               </CardContent>
             </Card>
             <Card 
-              className={`cursor-pointer transition-all ${filtroScadenza === 'normali' ? 'bg-lime-500/40 border-lime-400 ring-2 ring-lime-400' : 'bg-slate-700/50 border-slate-600 hover:bg-slate-600/50'}`}
+              className={`cursor-pointer transition-all flex-shrink-0 min-w-[90px] ${filtroScadenza === 'normali' ? 'bg-lime-500/40 border-lime-400 ring-2 ring-lime-400' : 'bg-slate-700/50 border-slate-600 hover:bg-slate-600/50'}`}
               onClick={() => setFiltroScadenza(filtroScadenza === 'normali' ? 'tutte' : 'normali')}
             >
               <CardContent className="p-3 text-center">
@@ -501,7 +497,7 @@ export default function AsteImmobiliari() {
               </CardContent>
             </Card>
             <Card 
-              className={`cursor-pointer transition-all ${filtroScadenza === 'oltre90' ? 'bg-blue-500/40 border-blue-400 ring-2 ring-blue-400' : 'bg-slate-700/50 border-slate-600 hover:bg-slate-600/50'}`}
+              className={`cursor-pointer transition-all flex-shrink-0 min-w-[90px] ${filtroScadenza === 'oltre90' ? 'bg-blue-500/40 border-blue-400 ring-2 ring-blue-400' : 'bg-slate-700/50 border-slate-600 hover:bg-slate-600/50'}`}
               onClick={() => setFiltroScadenza(filtroScadenza === 'oltre90' ? 'tutte' : 'oltre90')}
             >
               <CardContent className="p-3 text-center">
