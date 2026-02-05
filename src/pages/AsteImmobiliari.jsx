@@ -178,47 +178,30 @@ export default function AsteImmobiliari() {
     };
   }, [aste, budgetMax, categoriaAttiva, filtroTribunale, applicaTuttiFiltri]);
 
-  // Conteggi per TRIBUNALE (campo provincia)
-  const tribunaliConConteggi = React.useMemo(() => {
-    const astePerConteggio = applicaTuttiFiltri(aste, { skipTribunale: true });
+  // Conteggi per TRIBUNALE (campo provincia) - ora usa solo le province Marche
+    const tribunaliConConteggi = React.useMemo(() => {
+      const astePerConteggio = applicaTuttiFiltri(aste, { skipTribunale: true });
 
-    // Conta per tribunale (campo provincia)
-    const conteggi = {};
-    astePerConteggio.forEach(a => {
-      if (a.provincia) {
-        conteggi[a.provincia] = (conteggi[a.provincia] || 0) + 1;
-      }
-    });
+      // Lista province ammesse
+      const provinceAmmesse = ['Pesaro-Urbino', 'Ancona', 'Macerata', 'Fermo', 'Ascoli Piceno'];
 
-    // Totale per "Tutte"
-    const totale = astePerConteggio.length;
+      // Conta per tribunale (campo provincia), solo province ammesse
+      const conteggi = {};
+      astePerConteggio.forEach(a => {
+        if (a.provincia && provinceAmmesse.includes(a.provincia)) {
+          conteggi[a.provincia] = (conteggi[a.provincia] || 0) + 1;
+        }
+      });
 
-    // Ordina tribunali: prima quello dell'utente, poi gli altri in ordine alfabetico
-    const userProvince = user?.province || user?.city || '';
-    const cittaToTribunaleMap = {
-      'pesaro': 'Pesaro-Urbino', 'urbino': 'Pesaro-Urbino', 'fano': 'Pesaro-Urbino',
-      'ancona': 'Ancona', 'senigallia': 'Ancona', 'jesi': 'Ancona', 'fabriano': 'Ancona',
-      'macerata': 'Macerata', 'civitanova': 'Macerata', 'tolentino': 'Macerata',
-      'fermo': 'Fermo', 'porto san giorgio': 'Fermo',
-      'ascoli piceno': 'Ascoli Piceno', 'san benedetto': 'Ascoli Piceno',
-      'rimini': 'Rimini', 'riccione': 'Rimini', 'cattolica': 'Rimini'
-    };
-    const userTribunaleMapped = cittaToTribunaleMap[userProvince.toLowerCase()] || userProvince;
+      // Totale per "Tutte" (solo province ammesse)
+      const totale = astePerConteggio.filter(a => provinceAmmesse.includes(a.provincia)).length;
 
-    const tribunaliArray = Object.keys(conteggi).sort();
+      // Ordina tribunali nell'ordine definito
+      const tribunaliOrdinati = provinceAmmesse.filter(p => conteggi[p] > 0);
+      const result = tribunaliOrdinati.map(t => ({ nome: t, count: conteggi[t], isUser: false }));
 
-    // Metti tribunale utente in testa se esiste
-    let result;
-    if (userTribunaleMapped && tribunaliArray.includes(userTribunaleMapped)) {
-      const filtered = tribunaliArray.filter(t => t !== userTribunaleMapped);
-      result = [{ nome: userTribunaleMapped, count: conteggi[userTribunaleMapped], isUser: true }, 
-              ...filtered.map(t => ({ nome: t, count: conteggi[t], isUser: false }))];
-    } else {
-      result = tribunaliArray.map(t => ({ nome: t, count: conteggi[t], isUser: false }));
-    }
-
-    return { tribunali: result, totale };
-  }, [aste, budgetMax, categoriaAttiva, filtroScadenza, user?.province, user?.city, applicaTuttiFiltri]);
+      return { tribunali: result, totale };
+    }, [aste, budgetMax, categoriaAttiva, filtroScadenza, applicaTuttiFiltri]);
 
   // Totale aste filtrate (per header)
   const totaleAsteFiltrate = asteOrdinate.length;
