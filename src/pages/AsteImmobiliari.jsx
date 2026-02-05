@@ -433,9 +433,9 @@ export default function AsteImmobiliari() {
           </div>
         </div>
 
-        {/* FILTRI PROVINCIA - Scorrevoli */}
+        {/* FILTRI TRIBUNALE - Scorrevoli */}
         <div className="mb-3">
-          <p className="text-slate-400 text-xs font-medium mb-2 uppercase tracking-wide">📍 Località</p>
+          <p className="text-slate-400 text-xs font-medium mb-2 uppercase tracking-wide">⚖️ Tribunale</p>
           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
             <Card 
               className={`cursor-pointer transition-all flex-shrink-0 min-w-[90px] ${
