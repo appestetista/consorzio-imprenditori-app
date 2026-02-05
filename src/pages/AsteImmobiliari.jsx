@@ -446,22 +446,12 @@ export default function AsteImmobiliari() {
             >
               <CardContent className="p-3 text-center">
                 <p className={`text-xl font-bold ${filtroProvincia === 'tutte' ? 'text-amber-400' : 'text-white'}`}>
-                  {aste.filter(a => {
-                    if (budgetMax && parseInt(budgetMax) > 0 && a.prezzo_base > parseInt(budgetMax)) return false;
-                    if (categoriaAttiva !== 'tutte' && a.tipologia !== categoriaAttiva) return false;
-                    if (filtroScadenza !== 'tutte') {
-                      const g = giorniAllaAsta(a.data_asta);
-                      if (filtroScadenza === 'immediate' && (g < 0 || g >= 30)) return false;
-                      if (filtroScadenza === 'normali' && (g < 30 || g > 90)) return false;
-                      if (filtroScadenza === 'oltre90' && g <= 90) return false;
-                    }
-                    return true;
-                  }).length}
+                  {provinceConConteggi.totale}
                 </p>
                 <p className={`text-xs font-medium ${filtroProvincia === 'tutte' ? 'text-amber-300' : 'text-slate-400'}`}>🗺️ Tutte</p>
               </CardContent>
             </Card>
-            {provinceConConteggi.map((prov) => {
+            {provinceConConteggi.province.map((prov) => {
               const isActive = filtroProvincia === prov.nome;
               return (
                 <Card 
