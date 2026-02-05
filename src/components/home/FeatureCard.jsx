@@ -229,8 +229,8 @@ export default function FeatureCard({
                 </div>
               )}
               
-              {Icon && <Icon className={cn("w-8 h-8 mb-2", disabled ? "text-red-400" : "text-[#a0a0a0]")} />}
-              <span className={cn("text-sm font-medium text-center leading-tight break-words w-full px-1", disabled ? "text-red-300" : "text-white", isAnalisiContratti && "whitespace-nowrap")}>{title}</span>
+              {Icon && <Icon className={cn("w-8 h-8 mb-2", disabled ? "text-red-400" : "text-white/90")} />}
+              <span className={cn("text-sm font-medium text-center leading-tight break-words w-full px-1", disabled ? "text-red-300" : "text-white/95", isAnalisiContratti && "whitespace-nowrap")}>{title}</span>
               
               {/* Progress bar per Analisi Contratti - sotto il titolo */}
               {isAnalisiContratti && (
