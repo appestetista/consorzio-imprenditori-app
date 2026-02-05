@@ -537,7 +537,7 @@ export default function AsteImmobiliari() {
               </Card>
             ) : (
               asteOrdinate.map((asta, index) => (
-                <AstaCard key={`${asta.id}-${index}`} asta={asta} isImmediate={giorniAllaAsta(asta.data_asta) < 30} />
+                <AstaCard key={`asta-${index}`} asta={asta} isImmediate={giorniAllaAsta(asta.data_asta) < 30} />
               ))
             )}
           </div>
