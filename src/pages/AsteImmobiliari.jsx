@@ -403,7 +403,7 @@ export default function AsteImmobiliari() {
               const isActive = categoriaAttiva === cat.id;
               const countCat = aste.filter(a => {
                 if (budgetMax && parseInt(budgetMax) > 0 && a.prezzo_base > parseInt(budgetMax)) return false;
-                if (filtroProvincia !== 'tutte' && a.provincia !== filtroProvincia) return false;
+                if (!matchLocalita(a, filtroProvincia)) return false;
                 if (filtroScadenza !== 'tutte') {
                   const g = giorniAllaAsta(a.data_asta);
                   if (filtroScadenza === 'immediate' && (g < 0 || g >= 30)) return false;
