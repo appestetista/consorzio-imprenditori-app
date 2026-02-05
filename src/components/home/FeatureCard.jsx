@@ -125,7 +125,7 @@ export default function FeatureCard({
         }
       `}</style>
       
-      {/* Contenitore con effetto glassmorphism trasparente */}
+      {/* Contenitore con effetto glassmorphism trasparente + 3D */}
       <div 
         key={shouldGlow ? 'glow' : 'no-glow'}
         className={cn(
@@ -134,14 +134,15 @@ export default function FeatureCard({
         )}
         style={{
           borderRadius: '20px',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.3), 0 4px 8px rgba(0,0,0,0.2)',
           ...(shouldGlow && !disabled ? { animation: 'cardGlow 2s ease-in-out infinite' } : {})
         }}
       >
-        {/* Bordo sottile vetro */}
+        {/* Bordo sottile vetro con riflesso superiore */}
         <div 
           className="absolute inset-0 rounded-[20px] p-[1px]"
           style={{
-            background: 'linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(180,210,255,0.15) 50%, rgba(255,255,255,0.1) 100%)'
+            background: 'linear-gradient(145deg, rgba(255,255,255,0.35) 0%, rgba(180,210,255,0.2) 30%, rgba(255,255,255,0.08) 70%, rgba(150,180,220,0.15) 100%)'
           }}
         >
           {/* Superficie glass trasparente */}
@@ -151,8 +152,8 @@ export default function FeatureCard({
               hasBottomBadge ? "" : ""
             )}
             style={{
-              background: 'rgba(20, 40, 80, 0.25)',
-              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1)'
+              background: 'rgba(20, 40, 80, 0.28)',
+              boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.15), inset 0 -1px 2px rgba(0,0,0,0.1)'
             }}
           >
 
