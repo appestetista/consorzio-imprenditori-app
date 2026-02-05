@@ -522,6 +522,12 @@ function filtraAste(aste) {
       return false;
     }
 
+    // Se è bene mobile, escludi auto/moto/furgoni
+    if (asta._isMobile && isAutoMoto(asta.titolo, asta._descrizione)) {
+      console.log(`[fetchAste] Esclusa auto/moto: ${asta.titolo.substring(0, 50)}`);
+      return false;
+    }
+
     // Filtra per data asta (max 90 giorni, incluse immediate <30)
     if (asta.data_asta) {
       const dataAsta = new Date(asta.data_asta);
