@@ -65,12 +65,18 @@ export default function AsteImmobiliari() {
     queryFn: async () => {
       const allAste = await base44.entities.AstaImmobiliare.filter({ is_active: true });
       // Normalizza: se i campi sono in .data, estrai tutto al primo livello
-      return allAste.map(a => {
+      const normalized = allAste.map(a => {
         if (a.data && typeof a.data === 'object') {
-          return { ...a, ...a.data };
+          // Spread a.data DOPO a per sovrascrivere eventuali campi duplicati
+          const result = { ...a, ...a.data };
+          // Rimuovi il campo data nidificato per evitare confusione
+          delete result.data;
+          return result;
         }
         return a;
       });
+      console.log('[AsteImmobiliari] Normalizzate:', normalized.length, 'aste. Province trovate:', [...new Set(normalized.map(a => a.provincia))]);
+      return normalized;
     },
   });
 
