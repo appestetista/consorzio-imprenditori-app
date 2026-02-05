@@ -416,13 +416,13 @@ export default function AsteImmobiliari() {
         <div className="mb-3">
           <p className="text-slate-400 text-xs font-medium mb-2 uppercase tracking-wide">🏠 Tipologia</p>
           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-            {CATEGORIE_FILTRO.map(cat => {
+            {CATEGORIE_FILTRO.map((cat, catIndex) => {
               const isActive = categoriaAttiva === cat.id;
               const countCat = conteggioCategorie[cat.id] || 0;
               
               return (
                 <Card 
-                  key={cat.id}
+                  key={`cat-${catIndex}`}
                   className={`cursor-pointer transition-all flex-shrink-0 min-w-[90px] ${
                     isActive 
                       ? 'bg-lime-500/40 border-lime-400 ring-2 ring-lime-400' 
