@@ -41,10 +41,15 @@ const ESCLUSIONI = {
   ],
 };
 
-function determinaTipologia(titolo, isMobile = false) {
+function determinaTipologia(titolo, isMobile = false, isMezzo = false) {
   const t = titolo.toLowerCase();
   
-  // Se è un bene mobile, va tutto sotto "Attrezzatura" (escludiamo auto/moto nel filtro)
+  // Se è un mezzo da lavoro, categoria Mezzi
+  if (isMezzo) {
+    return 'Mezzi';
+  }
+  
+  // Se è un bene mobile generico, va sotto "Attrezzatura"
   if (isMobile) {
     return 'Attrezzatura';
   }
@@ -61,16 +66,43 @@ function determinaTipologia(titolo, isMobile = false) {
   return 'Altro';
 }
 
-// Verifica se un bene mobile è auto/moto (da escludere)
+// Verifica se un bene mobile è auto/moto (da escludere dalla categoria Attrezzatura)
 function isAutoMoto(titolo, descrizione = '') {
   const testo = `${titolo} ${descrizione}`.toLowerCase();
   const keywords = [
     'autovettura', 'autovetture', 'automobile', 'auto ',
     'motoveicolo', 'motociclo', 'moto ', 'scooter', 'ciclomotore',
     'furgone', 'furgoni', 'camion', 'autocarro', 'autocarri',
-    'automezzo', 'automezzi', 'veicolo', 'veicoli'
+    'automezzo', 'automezzi', 'veicolo', 'veicoli',
+    'ruspa', 'escavatore', 'trattore', 'carrello elevatore'
   ];
   return keywords.some(kw => testo.includes(kw));
+}
+
+// Verifica se è un mezzo da lavoro (da INCLUDERE in categoria Mezzi)
+function isMezzoDaLavoro(titolo, descrizione = '') {
+  const testo = `${titolo} ${descrizione}`.toLowerCase();
+  // Keywords INCLUSE (mezzi da lavoro)
+  const includeKeywords = [
+    'furgone', 'furgoni', 'camion', 'autocarro', 'autocarri',
+    'automezzo commerciale', 'automezzi commerciali',
+    'ruspa', 'escavatore', 'escavatrici', 'pala meccanica',
+    'trattore', 'carrello elevatore', 'muletto',
+    'rimorchio', 'semirimorchio', 'motrice',
+    'betoniera', 'gru', 'sollevatore', 'piattaforma elevatrice',
+    'minipala', 'terna', 'dumper', 'rullo compressore'
+  ];
+  // Keywords ESCLUSE (auto, moto, posti auto)
+  const excludeKeywords = [
+    'autovettura', 'autovetture', 'automobile', 'auto ',
+    'motoveicolo', 'motociclo', 'moto ', 'scooter', 'ciclomotore',
+    'posto auto', 'posti auto', 'box auto', 'garage'
+  ];
+  
+  const hasInclude = includeKeywords.some(kw => testo.includes(kw));
+  const hasExclude = excludeKeywords.some(kw => testo.includes(kw));
+  
+  return hasInclude && !hasExclude;
 }
 
 // Verifica se l'asta contiene parole chiave da escludere
@@ -387,15 +419,125 @@ async function fetchIVGMarcheMobili() {
   return tutteLeAste;
 }
 
+// Parsing IVG Marche - Beni MOBILI categoria AUTOMEZZI (mezzi da lavoro)
+async function fetchIVGMarcheMezziSingoloTribunale(tribunaleSlug, provinciaNome) {
+  const aste = [];
+  let pagina = 1;
+  const maxPagine = 3;
+  
+  while (pagina <= maxPagine) {
+    try {
+      // Categoria automezzi-commerciali
+      const url = `https://www.ivgmarche.it/Beni/Mobili?SelectedTribunaleId=${tribunaleSlug}&SelectedCategoriaId=automezzi-commerciali&page=${pagina}`;
+      console.log(`[fetchAste] Fetching Mezzi: ${url}`);
+      
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+          'Accept-Language': 'it-IT,it;q=0.9,en;q=0.8',
+        }
+      });
+      
+      if (!response.ok) break;
+
+      const html = await response.text();
+      const $ = cheerio.load(html);
+      
+      const risultatiPagina = [];
+
+      $('.tile-result').each((i, el) => {
+        try {
+          const link = $(el).find('a.tile-url-container').attr('href') || '';
+          const titolo = $(el).find('h2.font-size-larger').text().trim();
+          const prezzoText = $(el).find('.tile-price strong').text().trim();
+          const dataAstaText = $(el).find('.tile-data strong').first().text().trim();
+          const descrizione = $(el).find('.tile-desc-desc').text().trim();
+
+          if (!titolo || !link) return;
+
+          let prezzoNum = 0;
+          if (!prezzoText.toLowerCase().includes('offerta libera')) {
+            const prezzoMatch = prezzoText.match(/[\d.,]+/);
+            if (prezzoMatch) {
+              prezzoNum = parseFloat(prezzoMatch[0].replace(/\./g, '').replace(',', '.')) || 0;
+            }
+          }
+
+          let dataAsta = null;
+          const dateMatch = dataAstaText.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+          if (dateMatch) {
+            dataAsta = `${dateMatch[3]}-${dateMatch[2]}-${dateMatch[1]}`;
+          }
+
+          const idMatch = link.match(/Detail\/([A-Z0-9]+)/i);
+          const externalId = idMatch ? `marche_mezzi_${idMatch[1]}` : `marche_mezzi_${tribunaleSlug}_${i}_${Date.now()}`;
+
+          risultatiPagina.push({
+            titolo,
+            localita: provinciaNome,
+            provincia: provinciaNome,
+            prezzo_base: prezzoNum,
+            data_asta: dataAsta || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            link_ufficiale: link.startsWith('http') ? link : `https://www.ivgmarche.it${link}`,
+            fonte: 'ivgmarche',
+            external_id: externalId,
+            _isMezzo: true,
+            _descrizione: descrizione
+          });
+        } catch (e) {
+          console.log('[fetchAste] Error parsing Mezzi item:', e.message);
+        }
+      });
+
+      if (risultatiPagina.length === 0) break;
+
+      aste.push(...risultatiPagina);
+      console.log(`[fetchAste] Mezzi ${tribunaleSlug} pagina ${pagina}: ${risultatiPagina.length}`);
+      
+      pagina++;
+      await new Promise(r => setTimeout(r, 300));
+      
+    } catch (e) {
+      console.log(`[fetchAste] Error fetching Mezzi ${tribunaleSlug}:`, e.message);
+      break;
+    }
+  }
+  
+  return aste;
+}
+
+// Parsing IVG Marche - Tutti i tribunali (MEZZI DA LAVORO)
+async function fetchIVGMarcheMezzi() {
+  const tribunaliMarche = [
+    { slug: 'pesaro', provincia: 'Pesaro-Urbino' },
+    { slug: 'ancona', provincia: 'Ancona' },
+    { slug: 'macerata', provincia: 'Macerata' },
+    { slug: 'fermo', provincia: 'Fermo' },
+    { slug: 'ascoli-piceno', provincia: 'Ascoli Piceno' },
+  ];
+
+  const tutteLeAste = [];
+
+  for (const tribunale of tribunaliMarche) {
+    const asteT = await fetchIVGMarcheMezziSingoloTribunale(tribunale.slug, tribunale.provincia);
+    tutteLeAste.push(...asteT);
+  }
+
+  console.log(`[fetchAste] IVG Marche MEZZI TOTALE: ${tutteLeAste.length}`);
+  return tutteLeAste;
+}
+
 // Funzione combinata per tutti i beni IVG Marche
 async function fetchIVGMarche() {
-  const [immobili, mobili] = await Promise.all([
+  const [immobili, mobili, mezzi] = await Promise.all([
     fetchIVGMarcheImmobili(),
-    fetchIVGMarcheMobili()
+    fetchIVGMarcheMobili(),
+    fetchIVGMarcheMezzi()
   ]);
   
-  console.log(`[fetchAste] IVG Marche TOTALE: ${immobili.length} immobili + ${mobili.length} mobili`);
-  return [...immobili, ...mobili];
+  console.log(`[fetchAste] IVG Marche TOTALE: ${immobili.length} immobili + ${mobili.length} mobili + ${mezzi.length} mezzi`);
+  return [...immobili, ...mobili, ...mezzi];
 }
 
 // Parsing IVG Rimini - URL: https://www.ivgrimini.it/ricerca/immobili
@@ -522,9 +664,15 @@ function filtraAste(aste) {
       return false;
     }
 
-    // Se è bene mobile, escludi auto/moto/furgoni
-    if (asta._isMobile && isAutoMoto(asta.titolo, asta._descrizione)) {
+    // Se è bene mobile (non mezzo), escludi auto/moto/furgoni
+    if (asta._isMobile && !asta._isMezzo && isAutoMoto(asta.titolo, asta._descrizione)) {
       console.log(`[fetchAste] Esclusa auto/moto: ${asta.titolo.substring(0, 50)}`);
+      return false;
+    }
+
+    // Se è mezzo, escludi auto/moto/posti auto ma includi furgoni/camion/ruspe
+    if (asta._isMezzo && !isMezzoDaLavoro(asta.titolo, asta._descrizione)) {
+      console.log(`[fetchAste] Escluso non-mezzo-lavoro: ${asta.titolo.substring(0, 50)}`);
       return false;
     }
 
@@ -548,7 +696,7 @@ function arricchisciAste(aste) {
   oggi.setHours(0, 0, 0, 0);
 
   return aste.map(asta => {
-    const tipologia = determinaTipologia(asta.titolo, asta._isMobile);
+    const tipologia = determinaTipologia(asta.titolo, asta._isMobile, asta._isMezzo);
     const dataAsta = new Date(asta.data_asta);
     const giorniAllaAsta = Math.ceil((dataAsta - oggi) / (1000 * 60 * 60 * 24));
     
@@ -556,7 +704,7 @@ function arricchisciAste(aste) {
     const cauzioneStimata = Math.round(asta.prezzo_base * 0.10);
 
     // Rimuovi campi interni prima di salvare
-    const { _isMobile, _descrizione, ...astaClean } = asta;
+    const { _isMobile, _isMezzo, _descrizione, ...astaClean } = asta;
 
     const astaArricchita = {
       ...astaClean,
