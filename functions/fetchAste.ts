@@ -548,15 +548,18 @@ function arricchisciAste(aste) {
   oggi.setHours(0, 0, 0, 0);
 
   return aste.map(asta => {
-    const tipologia = determinaTipologia(asta.titolo);
+    const tipologia = determinaTipologia(asta.titolo, asta._isMobile);
     const dataAsta = new Date(asta.data_asta);
     const giorniAllaAsta = Math.ceil((dataAsta - oggi) / (1000 * 60 * 60 * 24));
     
     // Calcola cauzione stimata (solitamente 10% del prezzo base)
     const cauzioneStimata = Math.round(asta.prezzo_base * 0.10);
 
+    // Rimuovi campi interni prima di salvare
+    const { _isMobile, _descrizione, ...astaClean } = asta;
+
     const astaArricchita = {
-      ...asta,
+      ...astaClean,
       tipologia,
       cauzione_stimata: cauzioneStimata,
       giorni_alla_asta: giorniAllaAsta
