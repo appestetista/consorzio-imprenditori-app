@@ -235,13 +235,13 @@ export default function FeatureCard({
               {/* Progress bar per Analisi Contratti - sotto il titolo */}
               {isAnalisiContratti && (
                 <div className="flex items-center justify-center gap-2 mt-2">
-                  <div className="w-24 h-1.5 bg-slate-600 rounded-full overflow-hidden">
+                  <div className="w-24 h-1.5 bg-white/20 rounded-full overflow-hidden">
                     <div 
-                      className="h-full bg-lime-400 rounded-full transition-all"
+                      className="h-full bg-sky-300 rounded-full transition-all"
                       style={{ width: `${Math.min(100, (contractUsageCount / contractUsageLimit) * 100)}%` }}
                     />
                   </div>
-                  <span className="text-[11px] text-slate-400 font-medium">{contractUsageCount}/{contractUsageLimit}</span>
+                  <span className="text-[11px] text-white/70 font-medium">{contractUsageCount}/{contractUsageLimit}</span>
                 </div>
               )}
             </div>
