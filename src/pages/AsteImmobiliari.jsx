@@ -49,6 +49,7 @@ export default function AsteImmobiliari() {
   const [budgetMax, setBudgetMax] = useState('');
   const [categoriaAttiva, setCategoriaAttiva] = useState('tutte');
   const [filtroScadenza, setFiltroScadenza] = useState('tutte'); // 'tutte', 'immediate', 'normali', 'oltre90'
+  const [filtroProvincia, setFiltroProvincia] = useState('tutte'); // 'tutte' o nome provincia
 
   useEffect(() => {
     const loadUser = async () => {
@@ -100,6 +101,32 @@ export default function AsteImmobiliari() {
     return Math.ceil((dataAsta - oggi) / (1000 * 60 * 60 * 24));
   };
 
+  // Province disponibili basate sulle aste + provincia utente in testa
+  const provinceDisponibili = React.useMemo(() => {
+    const provinceSet = new Set(aste.map(a => a.provincia).filter(Boolean));
+    const provinceArray = Array.from(provinceSet).sort();
+    
+    // Determina la provincia dell'utente dal profilo (city o province)
+    const userProvince = user?.province || user?.city || '';
+    // Mappa città comuni -> provincia
+    const cittaToProvinciaMap = {
+      'pesaro': 'Pesaro-Urbino', 'urbino': 'Pesaro-Urbino', 'fano': 'Pesaro-Urbino',
+      'ancona': 'Ancona', 'senigallia': 'Ancona', 'jesi': 'Ancona', 'fabriano': 'Ancona',
+      'macerata': 'Macerata', 'civitanova': 'Macerata', 'tolentino': 'Macerata',
+      'fermo': 'Fermo', 'porto san giorgio': 'Fermo',
+      'ascoli piceno': 'Ascoli Piceno', 'san benedetto': 'Ascoli Piceno',
+      'rimini': 'Rimini', 'riccione': 'Rimini', 'cattolica': 'Rimini'
+    };
+    const userProvinceMapped = cittaToProvinciaMap[userProvince.toLowerCase()] || userProvince;
+    
+    // Se la provincia utente è tra quelle disponibili, mettila in testa
+    if (userProvinceMapped && provinceArray.includes(userProvinceMapped)) {
+      const filtered = provinceArray.filter(p => p !== userProvinceMapped);
+      return [userProvinceMapped, ...filtered];
+    }
+    return provinceArray;
+  }, [aste, user?.province, user?.city]);
+
   // Filtra aste
   const asteFiltrateBase = aste.filter(asta => {
     // Filtro budget (se inserito)
@@ -108,6 +135,10 @@ export default function AsteImmobiliari() {
     }
     // Filtro categoria
     if (categoriaAttiva !== 'tutte' && asta.tipologia !== categoriaAttiva) {
+      return false;
+    }
+    // Filtro provincia
+    if (filtroProvincia !== 'tutte' && asta.provincia !== filtroProvincia) {
       return false;
     }
     return true;
@@ -324,7 +355,7 @@ export default function AsteImmobiliari() {
         </Card>
 
         {/* FILTRI CATEGORIA - Pulsanti con icone */}
-        <div className="flex gap-2 overflow-x-auto pb-2 mb-4 scrollbar-hide">
+        <div className="flex gap-2 overflow-x-auto pb-2 mb-2 scrollbar-hide">
           {CATEGORIE_FILTRO.map(cat => {
             const Icon = cat.icon;
             const isActive = categoriaAttiva === cat.id;
@@ -342,6 +373,45 @@ export default function AsteImmobiliari() {
               >
                 {Icon && <Icon className="w-4 h-4 mr-1" />}
                 {cat.label}
+              </Button>
+            );
+          })}
+        </div>
+
+        {/* FILTRI PROVINCIA - Pulsanti località */}
+        <div className="flex gap-2 overflow-x-auto pb-2 mb-4 scrollbar-hide">
+          <Button
+            variant={filtroProvincia === 'tutte' ? "default" : "outline"}
+            size="sm"
+            onClick={() => setFiltroProvincia('tutte')}
+            className={`flex-shrink-0 ${
+              filtroProvincia === 'tutte' 
+                ? 'bg-amber-400 text-slate-900 hover:bg-amber-500' 
+                : 'border-slate-600 text-slate-300 hover:border-amber-400 hover:text-amber-400'
+            }`}
+          >
+            <MapPin className="w-4 h-4 mr-1" />
+            Tutte
+          </Button>
+          {provinceDisponibili.map((prov, idx) => {
+            const isActive = filtroProvincia === prov;
+            const isUserProvince = idx === 0 && provinceDisponibili.length > 1;
+            return (
+              <Button
+                key={prov}
+                variant={isActive ? "default" : "outline"}
+                size="sm"
+                onClick={() => setFiltroProvincia(prov)}
+                className={`flex-shrink-0 ${
+                  isActive 
+                    ? 'bg-amber-400 text-slate-900 hover:bg-amber-500' 
+                    : isUserProvince
+                    ? 'border-amber-400/50 text-amber-300 hover:border-amber-400 hover:text-amber-400'
+                    : 'border-slate-600 text-slate-300 hover:border-amber-400 hover:text-amber-400'
+                }`}
+              >
+                {isUserProvince && <span className="mr-1">📍</span>}
+                {prov}
               </Button>
             );
           })}
