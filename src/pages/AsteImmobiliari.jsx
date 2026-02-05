@@ -108,7 +108,7 @@ export default function AsteImmobiliari() {
   };
 
   // Funzione filtro principale - applica TUTTI i filtri in AND
-  const applicaTuttiFiltri = (listaAste, { skipBudget, skipCategoria, skipProvincia, skipScadenza } = {}) => {
+  const applicaTuttiFiltri = React.useCallback((listaAste, { skipBudget, skipCategoria, skipProvincia, skipScadenza } = {}) => {
     return listaAste.filter(asta => {
       // Filtro BUDGET
       if (!skipBudget && budgetMax && parseInt(budgetMax) > 0) {
@@ -118,7 +118,7 @@ export default function AsteImmobiliari() {
       if (!skipCategoria && categoriaAttiva !== 'tutte') {
         if (asta.tipologia !== categoriaAttiva) return false;
       }
-      // Filtro PROVINCIA
+      // Filtro TRIBUNALE (campo provincia)
       if (!skipProvincia && filtroProvincia !== 'tutte') {
         if (asta.provincia !== filtroProvincia) return false;
       }
@@ -131,10 +131,10 @@ export default function AsteImmobiliari() {
       }
       return true;
     });
-  };
+  }, [budgetMax, categoriaAttiva, filtroProvincia, filtroScadenza]);
 
   // Lista aste filtrate finali (tutti i filtri attivi)
-  const asteFiltrate = applicaTuttiFiltri(aste);
+  const asteFiltrate = React.useMemo(() => applicaTuttiFiltri(aste), [aste, applicaTuttiFiltri]);
 
   // Lista aste ordinate per interesse
   const asteOrdinate = [...asteFiltrate].sort((a, b) => {
