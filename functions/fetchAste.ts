@@ -108,6 +108,15 @@ function isMezzoDaLavoro(titolo, descrizione = '') {
 // Verifica se l'asta contiene parole chiave da escludere
 function deveEssereEsclusa(titolo, descrizione = '') {
   const testo = `${titolo} ${descrizione}`.toLowerCase();
+  
+  // Esclusione globale: posti auto, garage, autorimesse
+  const escludiSempre = [
+    'posto auto', 'posti auto', 'box auto', 'garage', 'autorimessa', 'autorimesse'
+  ];
+  if (escludiSempre.some(kw => testo.includes(kw))) {
+    return true;
+  }
+  
   return ESCLUSIONI.titolo.some(keyword => testo.includes(keyword.toLowerCase()));
 }
 
