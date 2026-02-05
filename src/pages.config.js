@@ -49,6 +49,8 @@
  */
 import AdminPanel from './pages/AdminPanel';
 import AnalisiContratti from './pages/AnalisiContratti';
+import AsteImmobiliari from './pages/AsteImmobiliari';
+import AsteSalvate from './pages/AsteSalvate';
 import CalendarioIncontri from './pages/CalendarioIncontri';
 import CatalogoBuoniPasto from './pages/CatalogoBuoniPasto';
 import CompleteProfile from './pages/CompleteProfile';
@@ -81,14 +83,14 @@ import WelfareNormativa from './pages/WelfareNormativa';
 import WelfareOrdina from './pages/WelfareOrdina';
 import WelfareStorico from './pages/WelfareStorico';
 import WelfareTipologie from './pages/WelfareTipologie';
-import AsteImmobiliari from './pages/AsteImmobiliari';
-import AsteSalvate from './pages/AsteSalvate';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "AdminPanel": AdminPanel,
     "AnalisiContratti": AnalisiContratti,
+    "AsteImmobiliari": AsteImmobiliari,
+    "AsteSalvate": AsteSalvate,
     "CalendarioIncontri": CalendarioIncontri,
     "CatalogoBuoniPasto": CatalogoBuoniPasto,
     "CompleteProfile": CompleteProfile,
@@ -121,8 +123,6 @@ export const PAGES = {
     "WelfareOrdina": WelfareOrdina,
     "WelfareStorico": WelfareStorico,
     "WelfareTipologie": WelfareTipologie,
-    "AsteImmobiliari": AsteImmobiliari,
-    "AsteSalvate": AsteSalvate,
 }
 
 export const pagesConfig = {

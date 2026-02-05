@@ -31,7 +31,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 
-// Categorie con icone per filtri rapidi
+// Categorie con icone per filtri rapidi (Box/Garage rimosso - esclusi dal fetch)
 const CATEGORIE_FILTRO = [
   { id: 'tutte', label: 'Tutte', icon: null },
   { id: 'Abitativo', label: 'Casa', icon: Home },
