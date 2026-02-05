@@ -459,11 +459,11 @@ export default function AsteImmobiliari() {
                 <p className={`text-xs font-medium ${filtroTribunale === 'tutte' ? 'text-amber-300' : 'text-slate-400'}`}>🗺️ Tutte</p>
               </CardContent>
             </Card>
-            {tribunaliConConteggi.tribunali.map((trib) => {
+            {tribunaliConConteggi.tribunali.map((trib, tribIndex) => {
               const isActive = filtroTribunale === trib.nome;
               return (
                 <Card 
-                  key={trib.nome}
+                  key={`trib-${tribIndex}`}
                   className={`cursor-pointer transition-all flex-shrink-0 min-w-[90px] ${
                     isActive 
                       ? 'bg-amber-500/40 border-amber-400 ring-2 ring-amber-400' 
