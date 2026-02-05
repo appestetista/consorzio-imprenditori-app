@@ -922,11 +922,11 @@ export default function Home() {
                   contractUsageLimit={feature.contractUsage?.limit || 5}
                   contractMessagesCount={feature.page === 'AnalisiContratti' ? contractMessagesCount : 0}
                 />
-                ))}
-                </div>
-                </>
-                )}
-                </main>
+              ))}
+            </div>
+          </>
+        )}
+      </main>
 
       <BottomNav currentPage="Home" unreadMessages={messages.length} activeTab={activeTab} isAdmin={effectiveUser?.role === 'admin' && !impersonation.active} />
 
