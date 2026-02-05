@@ -41,8 +41,15 @@ const ESCLUSIONI = {
   ],
 };
 
-function determinaTipologia(titolo) {
+function determinaTipologia(titolo, isMobile = false) {
   const t = titolo.toLowerCase();
+  
+  // Se è un bene mobile, va tutto sotto "Attrezzatura" (escludiamo auto/moto nel filtro)
+  if (isMobile) {
+    return 'Attrezzatura';
+  }
+  
+  // Immobili
   if (t.includes('abitazione') || t.includes('appartamento') || t.includes('villa') || t.includes('casa')) return 'Abitativo';
   if (t.includes('negozio') || t.includes('ufficio') || t.includes('locale commerciale') || t.includes('commerciale')) return 'Commerciale';
   if (t.includes('capannone') || t.includes('industriale') || t.includes('magazzino') || t.includes('opifici') || t.includes('laboratorio')) return 'Industriale';
@@ -52,6 +59,18 @@ function determinaTipologia(titolo) {
   if (t.includes('terreno')) return 'Terreno';
   if (t.includes('box') || t.includes('garage') || t.includes('posto auto') || t.includes('autorimessa')) return 'Box/Garage';
   return 'Altro';
+}
+
+// Verifica se un bene mobile è auto/moto (da escludere)
+function isAutoMoto(titolo, descrizione = '') {
+  const testo = `${titolo} ${descrizione}`.toLowerCase();
+  const keywords = [
+    'autovettura', 'autovetture', 'automobile', 'auto ',
+    'motoveicolo', 'motociclo', 'moto ', 'scooter', 'ciclomotore',
+    'furgone', 'furgoni', 'camion', 'autocarro', 'autocarri',
+    'automezzo', 'automezzi', 'veicolo', 'veicoli'
+  ];
+  return keywords.some(kw => testo.includes(kw));
 }
 
 // Verifica se l'asta contiene parole chiave da escludere
