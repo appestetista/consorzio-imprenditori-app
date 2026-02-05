@@ -33,12 +33,12 @@ import { toast } from 'sonner';
 
 // Categorie con icone per filtri rapidi (Box/Garage rimosso - esclusi dal fetch)
 const CATEGORIE_FILTRO = [
-  { id: 'tutte', label: 'Tutte', icon: null },
-  { id: 'Abitativo', label: 'Casa', icon: Home },
-  { id: 'Commerciale', label: 'Azienda', icon: Building2 },
-  { id: 'Industriale', label: 'Industriale', icon: Factory },
-  { id: 'Mezzi', label: 'Mezzi', icon: Truck },
-  { id: 'Attrezzatura', label: 'Attrezzatura', icon: Wrench },
+  { id: 'tutte', label: 'Tutte', icon: null, emoji: '📋' },
+  { id: 'Abitativo', label: 'Casa', icon: Home, emoji: '🏠' },
+  { id: 'Commerciale', label: 'Azienda', icon: Building2, emoji: '🏢' },
+  { id: 'Industriale', label: 'Industriale', icon: Factory, emoji: '🏭' },
+  { id: 'Mezzi', label: 'Mezzi', icon: Truck, emoji: '🚚' },
+  { id: 'Attrezzatura', label: 'Attrezzatura', icon: Wrench, emoji: '🔧' },
 ];
 
 export default function AsteImmobiliari() {
