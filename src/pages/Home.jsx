@@ -790,15 +790,118 @@ export default function Home() {
           </div>
         )}
 
-        {/* Titolo categoria se filtrato */}
-        {activeTab && (
-          <h3 className="text-lime-400 font-bold text-xl mb-4 capitalize">{activeTab}</h3>
-        )}
+        {/* Feature Grid organizzato per categorie */}
+        {activeTab ? (
+          // Vista filtrata - mostra solo la categoria selezionata
+          <>
+            <h3 className="text-[#d4af37] font-bold text-lg mb-4 capitalize flex items-center gap-2">
+              {activeTab === 'relazioni' && <span>👥</span>}
+              {activeTab === 'consulenza' && <span>💼</span>}
+              {activeTab === 'strumenti' && <span>🔧</span>}
+              {activeTab}
+            </h3>
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              {filteredFeatures.map((feature) => (
+                <FeatureCard
+                  key={feature.page}
+                  title={feature.title}
+                  icon={feature.icon}
+                  pageName={feature.page}
+                  notificationCount={feature.notifications}
+                  disabled={permissions[feature.permission] === false}
+                  variant={feature.variant}
+                  bottomBadge={feature.bottomBadge}
+                  bottomBadgeType={feature.bottomBadgeType}
+                  eventCount={feature.eventCount || 0}
+                  pendingInvites={feature.pendingInvites || 0}
+                  newVideosCount={feature.newVideosCount || 0}
+                  totalVideosCount={feature.totalVideosCount || 0}
+                  hasVisitedVideos={feature.hasVisitedVideos || false}
+                  latestVideoDate={feature.latestVideoDate || null}
+                  consulenzeMessagesCount={feature.page === 'Consulenze' ? consultationMessagesCount : 0}
+                  contractUsageCount={feature.contractUsage?.count || 0}
+                  contractUsageLimit={feature.contractUsage?.limit || 5}
+                  contractMessagesCount={feature.page === 'AnalisiContratti' ? contractMessagesCount : 0}
+                />
+              ))}
+            </div>
+          </>
+        ) : (
+          // Vista completa con sezioni
+          <>
+            {/* RELAZIONI */}
+            <div className="flex items-center gap-2 mb-3 mt-2">
+              <span className="text-lg">👥</span>
+              <h3 className="text-[#d4af37] font-bold text-base tracking-wide">RELAZIONI</h3>
+              <div className="flex-1 h-px bg-gradient-to-r from-[#d4af37]/40 to-transparent ml-2"></div>
+            </div>
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              {features.filter(f => f.category === 'relazioni').map((feature) => (
+                <FeatureCard
+                  key={feature.page}
+                  title={feature.title}
+                  icon={feature.icon}
+                  pageName={feature.page}
+                  notificationCount={feature.notifications}
+                  disabled={permissions[feature.permission] === false}
+                  variant={feature.variant}
+                  bottomBadge={feature.bottomBadge}
+                  bottomBadgeType={feature.bottomBadgeType}
+                  eventCount={feature.eventCount || 0}
+                  pendingInvites={feature.pendingInvites || 0}
+                  newVideosCount={feature.newVideosCount || 0}
+                  totalVideosCount={feature.totalVideosCount || 0}
+                  hasVisitedVideos={feature.hasVisitedVideos || false}
+                  latestVideoDate={feature.latestVideoDate || null}
+                  consulenzeMessagesCount={feature.page === 'Consulenze' ? consultationMessagesCount : 0}
+                  contractUsageCount={feature.contractUsage?.count || 0}
+                  contractUsageLimit={feature.contractUsage?.limit || 5}
+                  contractMessagesCount={feature.page === 'AnalisiContratti' ? contractMessagesCount : 0}
+                />
+              ))}
+            </div>
 
-        {/* Feature Grid */}
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          {filteredFeatures.map((feature) => (
-            <FeatureCard
+            {/* CONSULENZA */}
+            <div className="flex items-center gap-2 mb-3 mt-4">
+              <span className="text-lg">💼</span>
+              <h3 className="text-[#d4af37] font-bold text-base tracking-wide">CONSULENZA</h3>
+              <div className="flex-1 h-px bg-gradient-to-r from-[#d4af37]/40 to-transparent ml-2"></div>
+            </div>
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              {features.filter(f => f.category === 'consulenza').map((feature) => (
+                <FeatureCard
+                  key={feature.page}
+                  title={feature.title}
+                  icon={feature.icon}
+                  pageName={feature.page}
+                  notificationCount={feature.notifications}
+                  disabled={permissions[feature.permission] === false}
+                  variant={feature.variant}
+                  bottomBadge={feature.bottomBadge}
+                  bottomBadgeType={feature.bottomBadgeType}
+                  eventCount={feature.eventCount || 0}
+                  pendingInvites={feature.pendingInvites || 0}
+                  newVideosCount={feature.newVideosCount || 0}
+                  totalVideosCount={feature.totalVideosCount || 0}
+                  hasVisitedVideos={feature.hasVisitedVideos || false}
+                  latestVideoDate={feature.latestVideoDate || null}
+                  consulenzeMessagesCount={feature.page === 'Consulenze' ? consultationMessagesCount : 0}
+                  contractUsageCount={feature.contractUsage?.count || 0}
+                  contractUsageLimit={feature.contractUsage?.limit || 5}
+                  contractMessagesCount={feature.page === 'AnalisiContratti' ? contractMessagesCount : 0}
+                />
+              ))}
+            </div>
+
+            {/* STRUMENTI */}
+            <div className="flex items-center gap-2 mb-3 mt-4">
+              <span className="text-lg">🔧</span>
+              <h3 className="text-[#d4af37] font-bold text-base tracking-wide">STRUMENTI</h3>
+              <div className="flex-1 h-px bg-gradient-to-r from-[#d4af37]/40 to-transparent ml-2"></div>
+            </div>
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              {features.filter(f => f.category === 'strumenti').map((feature) => (
+                <FeatureCard
                                 key={feature.page}
                                 title={feature.title}
                                 icon={feature.icon}
