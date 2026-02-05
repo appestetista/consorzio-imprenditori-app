@@ -107,60 +107,23 @@ export default function AsteImmobiliari() {
     return Math.ceil((dataAsta - oggi) / (1000 * 60 * 60 * 24));
   };
 
-  // Funzione per verificare se un'asta corrisponde al filtro località
-  const matchLocalita = (asta, filtro) => {
-    if (filtro === 'tutte') return true;
-    // Il filtro è una provincia (es. "Pesaro-Urbino"), verifica match esatto sulla provincia
-    return asta.provincia === filtro;
-  };
-
-  // Funzione per applicare filtri base (budget, categoria, località) - usata per conteggi
-  const applicaFiltriBudgetCatProv = (listaAste) => {
+  // Funzione filtro principale - applica TUTTI i filtri in AND
+  const applicaTuttiFiltri = (listaAste, { skipBudget, skipCategoria, skipProvincia, skipScadenza } = {}) => {
     return listaAste.filter(asta => {
-      if (budgetMax && parseInt(budgetMax) > 0 && asta.prezzo_base > parseInt(budgetMax)) return false;
-      if (categoriaAttiva !== 'tutte' && asta.tipologia !== categoriaAttiva) return false;
-      if (!matchLocalita(asta, filtroProvincia)) return false;
-      return true;
-    });
-  };
-
-  // Aste filtrate per budget, categoria e provincia (senza filtro scadenza - per calcolare i conteggi scadenza)
-  const asteFiltrateBase = applicaFiltriBudgetCatProv(aste);
-
-  // Applica filtro scadenza
-  const asteFiltrate = asteFiltrateBase.filter(asta => {
-    const giorni = giorniAllaAsta(asta.data_asta);
-    if (filtroScadenza === 'immediate') return giorni >= 0 && giorni < 30;
-    if (filtroScadenza === 'normali') return giorni >= 30 && giorni <= 90;
-    if (filtroScadenza === 'oltre90') return giorni > 90;
-    return true;
-  });
-
-  // Lista aste ordinate per interesse
-  const asteOrdinate = [...asteFiltrate].sort((a, b) => {
-    const ordineInteresse = { 'Molto interessante': 0, 'Interessante': 1, 'Da valutare': 2 };
-    return ordineInteresse[a.livello_interesse] - ordineInteresse[b.livello_interesse];
-  });
-
-  // Conteggi scadenze (basati su filtri attivi budget/categoria/provincia)
-  const asteImmediateCount = asteFiltrateBase.filter(a => {
-    const g = giorniAllaAsta(a.data_asta);
-    return g >= 0 && g < 30;
-  }).length;
-  const asteNormaliCount = asteFiltrateBase.filter(a => {
-    const g = giorniAllaAsta(a.data_asta);
-    return g >= 30 && g <= 90;
-  }).length;
-  const asteOltre90Count = asteFiltrateBase.filter(a => giorniAllaAsta(a.data_asta) > 90).length;
-
-  // Province disponibili con conteggi (basati su filtri attivi budget/categoria/scadenza)
-  const provinceConConteggi = React.useMemo(() => {
-    // Applica filtri budget e categoria per il conteggio province
-    let astePerConteggio = aste.filter(asta => {
-      if (budgetMax && parseInt(budgetMax) > 0 && asta.prezzo_base > parseInt(budgetMax)) return false;
-      if (categoriaAttiva !== 'tutte' && asta.tipologia !== categoriaAttiva) return false;
-      // Applica anche filtro scadenza per i conteggi
-      if (filtroScadenza !== 'tutte') {
+      // Filtro BUDGET
+      if (!skipBudget && budgetMax && parseInt(budgetMax) > 0) {
+        if (asta.prezzo_base > parseInt(budgetMax)) return false;
+      }
+      // Filtro TIPOLOGIA
+      if (!skipCategoria && categoriaAttiva !== 'tutte') {
+        if (asta.tipologia !== categoriaAttiva) return false;
+      }
+      // Filtro PROVINCIA
+      if (!skipProvincia && filtroProvincia !== 'tutte') {
+        if (asta.provincia !== filtroProvincia) return false;
+      }
+      // Filtro SCADENZA
+      if (!skipScadenza && filtroScadenza !== 'tutte') {
         const giorni = giorniAllaAsta(asta.data_asta);
         if (filtroScadenza === 'immediate' && (giorni < 0 || giorni >= 30)) return false;
         if (filtroScadenza === 'normali' && (giorni < 30 || giorni > 90)) return false;
@@ -168,7 +131,49 @@ export default function AsteImmobiliari() {
       }
       return true;
     });
+  };
 
+  // Lista aste filtrate finali (tutti i filtri attivi)
+  const asteFiltrate = applicaTuttiFiltri(aste);
+
+  // Lista aste ordinate per interesse
+  const asteOrdinate = [...asteFiltrate].sort((a, b) => {
+    const ordineInteresse = { 'Molto interessante': 0, 'Interessante': 1, 'Da valutare': 2 };
+    return (ordineInteresse[a.livello_interesse] ?? 3) - (ordineInteresse[b.livello_interesse] ?? 3);
+  });
+
+  // Conteggi per TIPOLOGIA (skip filtro categoria per vedere quante ce ne sono per ogni tipo)
+  const conteggioCategorie = React.useMemo(() => {
+    const astePerConteggio = applicaTuttiFiltri(aste, { skipCategoria: true });
+    const conteggi = { tutte: astePerConteggio.length };
+    CATEGORIE_FILTRO.forEach(cat => {
+      if (cat.id !== 'tutte') {
+        conteggi[cat.id] = astePerConteggio.filter(a => a.tipologia === cat.id).length;
+      }
+    });
+    return conteggi;
+  }, [aste, budgetMax, filtroProvincia, filtroScadenza]);
+
+  // Conteggi per SCADENZA (skip filtro scadenza per vedere quante ce ne sono per ogni fascia)
+  const conteggioScadenze = React.useMemo(() => {
+    const astePerConteggio = applicaTuttiFiltri(aste, { skipScadenza: true });
+    return {
+      immediate: astePerConteggio.filter(a => {
+        const g = giorniAllaAsta(a.data_asta);
+        return g >= 0 && g < 30;
+      }).length,
+      normali: astePerConteggio.filter(a => {
+        const g = giorniAllaAsta(a.data_asta);
+        return g >= 30 && g <= 90;
+      }).length,
+      oltre90: astePerConteggio.filter(a => giorniAllaAsta(a.data_asta) > 90).length
+    };
+  }, [aste, budgetMax, categoriaAttiva, filtroProvincia]);
+
+  // Conteggi per PROVINCIA (skip filtro provincia per vedere quante ce ne sono per ogni provincia)
+  const provinceConConteggi = React.useMemo(() => {
+    const astePerConteggio = applicaTuttiFiltri(aste, { skipProvincia: true });
+    
     // Conta per provincia
     const conteggi = {};
     astePerConteggio.forEach(a => {
@@ -176,6 +181,9 @@ export default function AsteImmobiliari() {
         conteggi[a.provincia] = (conteggi[a.provincia] || 0) + 1;
       }
     });
+
+    // Totale per "Tutte"
+    const totale = astePerConteggio.length;
 
     // Ordina province: prima quella dell'utente, poi le altre in ordine alfabetico
     const userProvince = user?.province || user?.city || '';
@@ -192,12 +200,16 @@ export default function AsteImmobiliari() {
     const provinceArray = Object.keys(conteggi).sort();
     
     // Metti provincia utente in testa se esiste
+    let result;
     if (userProvinceMapped && provinceArray.includes(userProvinceMapped)) {
       const filtered = provinceArray.filter(p => p !== userProvinceMapped);
-      return [{ nome: userProvinceMapped, count: conteggi[userProvinceMapped], isUser: true }, 
+      result = [{ nome: userProvinceMapped, count: conteggi[userProvinceMapped], isUser: true }, 
               ...filtered.map(p => ({ nome: p, count: conteggi[p], isUser: false }))];
+    } else {
+      result = provinceArray.map(p => ({ nome: p, count: conteggi[p], isUser: false }));
     }
-    return provinceArray.map(p => ({ nome: p, count: conteggi[p], isUser: false }));
+    
+    return { province: result, totale };
   }, [aste, budgetMax, categoriaAttiva, filtroScadenza, user?.province, user?.city]);
 
   // Totale aste filtrate (per header)
