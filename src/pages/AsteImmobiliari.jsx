@@ -157,7 +157,7 @@ export default function AsteImmobiliari() {
       }
     });
     return conteggi;
-  }, [aste, budgetMax, filtroLocalita, filtroScadenza, applicaTuttiFiltri]);
+  }, [aste, budgetMax, filtroTribunale, filtroScadenza, applicaTuttiFiltri]);
 
   // Conteggi per SCADENZA (skip filtro scadenza per vedere quante ce ne sono per ogni fascia)
   const conteggioScadenze = React.useMemo(() => {
@@ -173,43 +173,49 @@ export default function AsteImmobiliari() {
       }).length,
       oltre90: astePerConteggio.filter(a => giorniAllaAsta(a.data_asta) > 90).length
     };
-  }, [aste, budgetMax, categoriaAttiva, filtroLocalita, applicaTuttiFiltri]);
+  }, [aste, budgetMax, categoriaAttiva, filtroTribunale, applicaTuttiFiltri]);
 
-  // Conteggi per LOCALITÀ (derivata dal Tribunale tramite tabella tribunali_localita)
-  const localitaConConteggi = React.useMemo(() => {
-    const astePerConteggio = applicaTuttiFiltri(aste, { skipLocalita: true });
+  // Conteggi per TRIBUNALE (campo provincia)
+  const tribunaliConConteggi = React.useMemo(() => {
+    const astePerConteggio = applicaTuttiFiltri(aste, { skipTribunale: true });
 
-    // Conta per località (derivata dal tribunale)
+    // Conta per tribunale (campo provincia)
     const conteggi = {};
     astePerConteggio.forEach(a => {
       if (a.provincia) {
-        const localita = tribunaleToLocalita[a.provincia];
-        if (localita) {
-          conteggi[localita] = (conteggi[localita] || 0) + 1;
-        }
+        conteggi[a.provincia] = (conteggi[a.provincia] || 0) + 1;
       }
     });
 
     // Totale per "Tutte"
     const totale = astePerConteggio.length;
 
-    // Ordina località: prima quella dell'utente, poi le altre in ordine alfabetico
-    const userCity = user?.city || user?.province || '';
-    const localitaArray = Object.keys(conteggi).sort();
+    // Ordina tribunali: prima quello dell'utente, poi gli altri in ordine alfabetico
+    const userProvince = user?.province || user?.city || '';
+    const cittaToTribunaleMap = {
+      'pesaro': 'Pesaro-Urbino', 'urbino': 'Pesaro-Urbino', 'fano': 'Pesaro-Urbino',
+      'ancona': 'Ancona', 'senigallia': 'Ancona', 'jesi': 'Ancona', 'fabriano': 'Ancona',
+      'macerata': 'Macerata', 'civitanova': 'Macerata', 'tolentino': 'Macerata',
+      'fermo': 'Fermo', 'porto san giorgio': 'Fermo',
+      'ascoli piceno': 'Ascoli Piceno', 'san benedetto': 'Ascoli Piceno',
+      'rimini': 'Rimini', 'riccione': 'Rimini', 'cattolica': 'Rimini'
+    };
+    const userTribunaleMapped = cittaToTribunaleMap[userProvince.toLowerCase()] || userProvince;
 
-    // Metti località utente in testa se esiste
+    const tribunaliArray = Object.keys(conteggi).sort();
+
+    // Metti tribunale utente in testa se esiste
     let result;
-    const userLocalitaMatch = localitaArray.find(l => l.toLowerCase() === userCity.toLowerCase());
-    if (userLocalitaMatch) {
-      const filtered = localitaArray.filter(l => l !== userLocalitaMatch);
-      result = [{ nome: userLocalitaMatch, count: conteggi[userLocalitaMatch], isUser: true }, 
-              ...filtered.map(l => ({ nome: l, count: conteggi[l], isUser: false }))];
+    if (userTribunaleMapped && tribunaliArray.includes(userTribunaleMapped)) {
+      const filtered = tribunaliArray.filter(t => t !== userTribunaleMapped);
+      result = [{ nome: userTribunaleMapped, count: conteggi[userTribunaleMapped], isUser: true }, 
+              ...filtered.map(t => ({ nome: t, count: conteggi[t], isUser: false }))];
     } else {
-      result = localitaArray.map(l => ({ nome: l, count: conteggi[l], isUser: false }));
+      result = tribunaliArray.map(t => ({ nome: t, count: conteggi[t], isUser: false }));
     }
 
-    return { localita: result, totale };
-  }, [aste, budgetMax, categoriaAttiva, filtroScadenza, user?.city, user?.province, tribunaleToLocalita, applicaTuttiFiltri]);
+    return { tribunali: result, totale };
+  }, [aste, budgetMax, categoriaAttiva, filtroScadenza, user?.province, user?.city, applicaTuttiFiltri]);
 
   // Totale aste filtrate (per header)
   const totaleAsteFiltrate = asteOrdinate.length;
@@ -431,41 +437,41 @@ export default function AsteImmobiliari() {
           </div>
         </div>
 
-        {/* FILTRI LOCALITÀ - Scorrevoli (derivata dal Tribunale) */}
+        {/* FILTRI TRIBUNALE - Scorrevoli */}
         <div className="mb-3">
-          <p className="text-slate-400 text-xs font-medium mb-2 uppercase tracking-wide">📍 Località</p>
+          <p className="text-slate-400 text-xs font-medium mb-2 uppercase tracking-wide">⚖️ Tribunale</p>
           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
             <Card 
               className={`cursor-pointer transition-all flex-shrink-0 min-w-[90px] ${
-                filtroLocalita === 'tutte' 
+                filtroTribunale === 'tutte' 
                   ? 'bg-amber-500/40 border-amber-400 ring-2 ring-amber-400' 
                   : 'bg-slate-700/50 border-slate-600 hover:bg-slate-600/50'
               }`}
-              onClick={() => setFiltroLocalita('tutte')}
+              onClick={() => setFiltroTribunale('tutte')}
             >
               <CardContent className="p-3 text-center">
-                <p className={`text-xl font-bold ${filtroLocalita === 'tutte' ? 'text-amber-400' : 'text-white'}`}>
-                  {localitaConConteggi.totale}
+                <p className={`text-xl font-bold ${filtroTribunale === 'tutte' ? 'text-amber-400' : 'text-white'}`}>
+                  {tribunaliConConteggi.totale}
                 </p>
-                <p className={`text-xs font-medium ${filtroLocalita === 'tutte' ? 'text-amber-300' : 'text-slate-400'}`}>🗺️ Tutte</p>
+                <p className={`text-xs font-medium ${filtroTribunale === 'tutte' ? 'text-amber-300' : 'text-slate-400'}`}>🗺️ Tutte</p>
               </CardContent>
             </Card>
-            {localitaConConteggi.localita.map((loc) => {
-              const isActive = filtroLocalita === loc.nome;
+            {tribunaliConConteggi.tribunali.map((trib) => {
+              const isActive = filtroTribunale === trib.nome;
               return (
                 <Card 
-                  key={loc.nome}
+                  key={trib.nome}
                   className={`cursor-pointer transition-all flex-shrink-0 min-w-[90px] ${
                     isActive 
                       ? 'bg-amber-500/40 border-amber-400 ring-2 ring-amber-400' 
                       : 'bg-slate-700/50 border-slate-600 hover:bg-slate-600/50'
                   }`}
-                  onClick={() => setFiltroLocalita(loc.nome)}
+                  onClick={() => setFiltroTribunale(trib.nome)}
                 >
                   <CardContent className="p-3 text-center">
-                    <p className={`text-xl font-bold ${isActive ? 'text-amber-400' : 'text-white'}`}>{loc.count}</p>
+                    <p className={`text-xl font-bold ${isActive ? 'text-amber-400' : 'text-white'}`}>{trib.count}</p>
                     <p className={`text-xs font-medium ${isActive ? 'text-amber-300' : 'text-slate-400'}`}>
-                      {loc.isUser && isActive ? '📍' : ''}{loc.nome}
+                      {trib.isUser && isActive ? '📍' : ''}{trib.nome.split('-')[0]}
                     </p>
                   </CardContent>
                 </Card>
