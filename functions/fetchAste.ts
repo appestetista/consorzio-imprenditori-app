@@ -3,13 +3,33 @@ import * as cheerio from 'npm:cheerio@1.0.0';
 
 // Configurazione soglie di filtraggio
 const CONFIG = {
-  prezzoMinimo: 10000,
-  prezzoMassimo: 2000000,
-  giorniMinimiAllaAsta: 3,
+  prezzoMassimo: 200000, // Default, può essere sovrascritto dal budget utente
+  giorniMinimiAllaAsta: 30,
   giorniMassimiAllaAsta: 90,
-  tipologieEscluse: ['Terreno', 'Box/Garage'],
-  // Province Marche da includere
-  provinceMarche: ['Pesaro', 'Ancona', 'Macerata', 'Fermo', 'Ascoli Piceno', 'Ascoli-Piceno'],
+  // Province Marche + Rimini
+  provinceTarget: ['Pesaro-Urbino', 'Ancona', 'Macerata', 'Fermo', 'Ascoli Piceno', 'Rimini'],
+};
+
+// Parole chiave per escludere aste problematiche
+const ESCLUSIONI = {
+  titolo: [
+    'terreno agricolo',
+    'terreno seminativo', 
+    'terreno boschivo',
+    'usufrutto',
+    'nuda proprietà',
+    'quota indivisa',
+    'quota di',
+    '1/2 di',
+    '1/3 di',
+    '1/4 di',
+    'box singolo',
+    'posto auto scoperto',
+    'cantina',
+    'soffitta',
+    'ripostiglio'
+  ],
+  superficie: 20, // mq minimi per evitare micro-unità
 };
 
 function determinaTipologia(titolo) {
@@ -25,20 +45,30 @@ function determinaTipologia(titolo) {
   return 'Altro';
 }
 
+// Verifica se l'asta contiene parole chiave da escludere
+function deveEssereEsclusa(titolo, descrizione = '') {
+  const testo = `${titolo} ${descrizione}`.toLowerCase();
+  return ESCLUSIONI.titolo.some(keyword => testo.includes(keyword.toLowerCase()));
+}
+
 function calcolaInteresse(asta) {
   let punteggio = 0;
   const oggi = new Date();
   const dataAsta = new Date(asta.data_asta);
   const giorniAllaAsta = Math.ceil((dataAsta - oggi) / (1000 * 60 * 60 * 24));
 
-  if (asta.prezzo_base < 50000) punteggio += 3;
-  else if (asta.prezzo_base < 100000) punteggio += 2;
-  else if (asta.prezzo_base < 200000) punteggio += 1;
+  // Prezzo accessibile
+  if (asta.prezzo_base < 30000) punteggio += 3;
+  else if (asta.prezzo_base < 70000) punteggio += 2;
+  else if (asta.prezzo_base < 120000) punteggio += 1;
 
-  if (giorniAllaAsta >= 15 && giorniAllaAsta <= 45) punteggio += 2;
-  else if (giorniAllaAsta > 45) punteggio += 1;
+  // Tempistica ideale (più tempo = meglio per analizzare)
+  if (giorniAllaAsta >= 45 && giorniAllaAsta <= 70) punteggio += 2;
+  else if (giorniAllaAsta > 70) punteggio += 1;
 
-  if (['Abitativo', 'Commerciale', 'Industriale'].includes(asta.tipologia)) punteggio += 1;
+  // Tipologia appetibile
+  if (['Abitativo', 'Commerciale'].includes(asta.tipologia)) punteggio += 2;
+  if (asta.tipologia === 'Industriale') punteggio += 1;
 
   if (punteggio >= 5) return 'Molto interessante';
   if (punteggio >= 3) return 'Interessante';
@@ -51,15 +81,24 @@ function generaMotivoInteresse(asta) {
   const dataAsta = new Date(asta.data_asta);
   const giorniAllaAsta = Math.ceil((dataAsta - oggi) / (1000 * 60 * 60 * 24));
 
-  if (asta.prezzo_base < 50000) motivi.push('Prezzo molto accessibile');
-  else if (asta.prezzo_base < 100000) motivi.push('Prezzo contenuto');
+  // Perché aprirla?
+  if (asta.prezzo_base < 50000) {
+    motivi.push('💰 Investimento contenuto');
+  } else if (asta.prezzo_base < 100000) {
+    motivi.push('💰 Prezzo sotto i 100k');
+  }
 
-  if (giorniAllaAsta >= 15 && giorniAllaAsta <= 45) motivi.push('Tempistica ideale');
-  else if (giorniAllaAsta > 45) motivi.push('Ampio tempo per decidere');
+  if (['Abitativo'].includes(asta.tipologia)) {
+    motivi.push('🏠 Immobile residenziale - alta domanda affitto/vendita');
+  } else if (asta.tipologia === 'Commerciale') {
+    motivi.push('🏪 Locale commerciale - potenziale reddito');
+  }
 
-  if (['Abitativo', 'Commerciale'].includes(asta.tipologia)) motivi.push(`${asta.tipologia} - alta domanda`);
+  if (giorniAllaAsta >= 50) {
+    motivi.push('⏰ Tempo sufficiente per perizia e sopralluogo');
+  }
 
-  return motivi.length > 0 ? motivi.join(' • ') : 'Opportunità da analizzare';
+  return motivi.length > 0 ? motivi.join(' • ') : 'Opportunità da analizzare con attenzione';
 }
 
 function normalizzaProvincia(tribunale) {
@@ -266,15 +305,23 @@ async function fetchIVGRimini() {
   return aste;
 }
 
-function filtraAste(aste) {
+function filtraAste(aste, budgetMassimo = CONFIG.prezzoMassimo) {
   const oggi = new Date();
   oggi.setHours(0, 0, 0, 0);
 
   return aste.filter(asta => {
-    if (asta.prezzo_base < CONFIG.prezzoMinimo || asta.prezzo_base > CONFIG.prezzoMassimo) {
+    // Escludi per parole chiave problematiche
+    if (deveEssereEsclusa(asta.titolo, asta.descrizione)) {
+      console.log(`[fetchAste] Esclusa per keyword: ${asta.titolo.substring(0, 50)}`);
       return false;
     }
 
+    // Filtra per prezzo (sotto budget utente)
+    if (asta.prezzo_base > budgetMassimo) {
+      return false;
+    }
+
+    // Filtra per data asta (30-90 giorni)
     if (asta.data_asta) {
       const dataAsta = new Date(asta.data_asta);
       const giorniAllaAsta = Math.ceil((dataAsta - oggi) / (1000 * 60 * 60 * 24));
@@ -282,11 +329,6 @@ function filtraAste(aste) {
       if (giorniAllaAsta < CONFIG.giorniMinimiAllaAsta || giorniAllaAsta > CONFIG.giorniMassimiAllaAsta) {
         return false;
       }
-    }
-
-    const tipologia = determinaTipologia(asta.titolo);
-    if (CONFIG.tipologieEscluse.includes(tipologia)) {
-      return false;
     }
 
     return true;
