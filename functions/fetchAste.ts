@@ -221,8 +221,8 @@ async function fetchIVGMarcheSingoloTribunale(tribunaleSlug, provinciaNome) {
   return aste;
 }
 
-// Parsing IVG Marche - Tutti i tribunali delle Marche
-async function fetchIVGMarche() {
+// Parsing IVG Marche - Tutti i tribunali delle Marche (IMMOBILI)
+async function fetchIVGMarcheImmobili() {
   const tribunaliMarche = [
     { slug: 'pesaro', provincia: 'Pesaro-Urbino' },
     { slug: 'ancona', provincia: 'Ancona' },
@@ -236,11 +236,147 @@ async function fetchIVGMarche() {
   for (const tribunale of tribunaliMarche) {
     const asteT = await fetchIVGMarcheSingoloTribunale(tribunale.slug, tribunale.provincia);
     tutteLeAste.push(...asteT);
-    console.log(`[fetchAste] Totale ${tribunale.provincia}: ${asteT.length}`);
+    console.log(`[fetchAste] Immobili ${tribunale.provincia}: ${asteT.length}`);
   }
 
-  console.log(`[fetchAste] IVG Marche TOTALE: ${tutteLeAste.length} aste`);
+  console.log(`[fetchAste] IVG Marche IMMOBILI TOTALE: ${tutteLeAste.length} aste`);
   return tutteLeAste;
+}
+
+// Categorie mobili da ESCLUDERE (auto e moto)
+const CATEGORIE_MOBILI_ESCLUSE = [
+  'autovetture',
+  'motoveicolo-o-ciclomotore',
+  'automezzi-commerciali' // anche furgoni/camion escludiamo
+];
+
+// Parsing IVG Marche - Beni MOBILI (attrezzature, macchinari, arredi, etc.)
+async function fetchIVGMarcheMobiliSingoloTribunale(tribunaleSlug, provinciaNome) {
+  const aste = [];
+  let pagina = 1;
+  const maxPagine = 5; // Meno pagine per mobili
+  
+  while (pagina <= maxPagine) {
+    try {
+      const url = `https://www.ivgmarche.it/Beni/Mobili?SelectedTribunaleId=${tribunaleSlug}&page=${pagina}`;
+      console.log(`[fetchAste] Fetching Mobili: ${url}`);
+      
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+          'Accept-Language': 'it-IT,it;q=0.9,en;q=0.8',
+        }
+      });
+      
+      if (!response.ok) {
+        console.log(`[fetchAste] Mobili ${tribunaleSlug} page ${pagina} not ok:`, response.status);
+        break;
+      }
+
+      const html = await response.text();
+      const $ = cheerio.load(html);
+      
+      const risultatiPagina = [];
+
+      $('.tile-result').each((i, el) => {
+        try {
+          const link = $(el).find('a.tile-url-container').attr('href') || '';
+          const titolo = $(el).find('h2.font-size-larger').text().trim();
+          const prezzoText = $(el).find('.tile-price strong').text().trim();
+          const dataAstaText = $(el).find('.tile-data strong').first().text().trim();
+          const descrizione = $(el).find('.tile-desc-desc').text().trim();
+
+          if (!titolo || !link) return;
+
+          // Estrai prezzo - gestisci "OFFERTA LIBERA"
+          let prezzoNum = 0;
+          if (!prezzoText.toLowerCase().includes('offerta libera')) {
+            const prezzoMatch = prezzoText.match(/[\d.,]+/);
+            if (prezzoMatch) {
+              prezzoNum = parseFloat(prezzoMatch[0].replace(/\./g, '').replace(',', '.')) || 0;
+            }
+          }
+
+          // Estrai data asta
+          let dataAsta = null;
+          const dateMatch = dataAstaText.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+          if (dateMatch) {
+            dataAsta = `${dateMatch[3]}-${dateMatch[2]}-${dateMatch[1]}`;
+          }
+
+          // ID univoco dal link
+          const idMatch = link.match(/Detail\/([A-Z0-9]+)/i);
+          const externalId = idMatch ? `marche_mob_${idMatch[1]}` : `marche_mob_${tribunaleSlug}_${i}_${Date.now()}`;
+
+          risultatiPagina.push({
+            titolo,
+            localita: provinciaNome,
+            provincia: provinciaNome,
+            prezzo_base: prezzoNum,
+            data_asta: dataAsta || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            link_ufficiale: link.startsWith('http') ? link : `https://www.ivgmarche.it${link}`,
+            fonte: 'ivgmarche',
+            external_id: externalId,
+            _isMobile: true, // Flag per identificare beni mobili
+            _descrizione: descrizione
+          });
+        } catch (e) {
+          console.log('[fetchAste] Error parsing IVG Marche Mobili item:', e.message);
+        }
+      });
+
+      if (risultatiPagina.length === 0) {
+        console.log(`[fetchAste] Mobili ${tribunaleSlug} - nessun risultato a pagina ${pagina}, stop`);
+        break;
+      }
+
+      aste.push(...risultatiPagina);
+      console.log(`[fetchAste] Mobili ${tribunaleSlug} pagina ${pagina}: ${risultatiPagina.length} aste`);
+      
+      pagina++;
+      await new Promise(r => setTimeout(r, 300));
+      
+    } catch (e) {
+      console.log(`[fetchAste] Error fetching Mobili ${tribunaleSlug} page ${pagina}:`, e.message);
+      break;
+    }
+  }
+  
+  return aste;
+}
+
+// Parsing IVG Marche - Tutti i tribunali delle Marche (MOBILI)
+async function fetchIVGMarcheMobili() {
+  const tribunaliMarche = [
+    { slug: 'pesaro', provincia: 'Pesaro-Urbino' },
+    { slug: 'ancona', provincia: 'Ancona' },
+    { slug: 'macerata', provincia: 'Macerata' },
+    { slug: 'fermo', provincia: 'Fermo' },
+    { slug: 'ascoli-piceno', provincia: 'Ascoli Piceno' },
+  ];
+
+  const tutteLeAste = [];
+
+  for (const tribunale of tribunaliMarche) {
+    const asteT = await fetchIVGMarcheMobiliSingoloTribunale(tribunale.slug, tribunale.provincia);
+    tutteLeAste.push(...asteT);
+    console.log(`[fetchAste] Mobili ${tribunale.provincia}: ${asteT.length}`);
+  }
+
+  console.log(`[fetchAste] IVG Marche MOBILI TOTALE: ${tutteLeAste.length} aste`);
+  return tutteLeAste;
+}
+
+// Funzione combinata per tutti i beni IVG Marche
+async function fetchIVGMarche() {
+  const [immobili, mobili] = await Promise.all([
+    fetchIVGMarcheImmobili(),
+    fetchIVGMarcheMobili()
+  ]);
+  
+  console.log(`[fetchAste] IVG Marche TOTALE: ${immobili.length} immobili + ${mobili.length} mobili`);
+  return [...immobili, ...mobili];
 }
 
 // Parsing IVG Rimini - URL: https://www.ivgrimini.it/ricerca/immobili
