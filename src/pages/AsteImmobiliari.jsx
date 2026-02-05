@@ -113,17 +113,11 @@ export default function AsteImmobiliari() {
     return true;
   });
 
-  // Separa immediate (<30 giorni) da normali (30-90 giorni)
-  const asteImmediate = asteFiltrateBase
-    .filter(a => giorniAllaAsta(a.data_asta) < 30 && giorniAllaAsta(a.data_asta) >= 0)
-    .sort((a, b) => new Date(a.data_asta) - new Date(b.data_asta));
-
-  const asteNormali = asteFiltrateBase
-    .filter(a => giorniAllaAsta(a.data_asta) >= 30)
-    .sort((a, b) => {
-      const ordineInteresse = { 'Molto interessante': 0, 'Interessante': 1, 'Da valutare': 2 };
-      return ordineInteresse[a.livello_interesse] - ordineInteresse[b.livello_interesse];
-    });
+  // Lista aste ordinate per interesse
+  const asteOrdinate = asteFiltrate.sort((a, b) => {
+    const ordineInteresse = { 'Molto interessante': 0, 'Interessante': 1, 'Da valutare': 2 };
+    return ordineInteresse[a.livello_interesse] - ordineInteresse[b.livello_interesse];
+  });
 
   // Applica filtro scadenza
   const asteFiltrate = asteFiltrateBase.filter(asta => {
