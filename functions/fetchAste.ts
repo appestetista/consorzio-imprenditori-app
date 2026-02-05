@@ -122,83 +122,125 @@ function normalizzaProvincia(tribunale) {
   return null; // Non nelle Marche/Rimini
 }
 
-// Parsing IVG Marche - URL: https://www.ivgmarche.it/Beni/Immobili
-async function fetchIVGMarche() {
+// Parsing IVG Marche - URL con filtro per tribunale specifico
+// Tribunali Marche: pesaro, ancona, macerata, fermo, ascoli-piceno
+async function fetchIVGMarcheSingoloTribunale(tribunaleSlug, provinciaNome) {
   const aste = [];
-  try {
-    const response = await fetch('https://www.ivgmarche.it/Beni/Immobili', {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-        'Accept-Language': 'it-IT,it;q=0.9,en;q=0.8',
+  let pagina = 1;
+  const maxPagine = 10; // Massimo 10 pagine per tribunale
+  
+  while (pagina <= maxPagine) {
+    try {
+      const url = `https://www.ivgmarche.it/Beni/Immobili?SelectedTribunaleId=${tribunaleSlug}&page=${pagina}`;
+      console.log(`[fetchAste] Fetching: ${url}`);
+      
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+          'Accept-Language': 'it-IT,it;q=0.9,en;q=0.8',
+        }
+      });
+      
+      if (!response.ok) {
+        console.log(`[fetchAste] ${tribunaleSlug} page ${pagina} not ok:`, response.status);
+        break;
       }
-    });
-    
-    if (!response.ok) {
-      console.log('[fetchAste] IVG Marche response not ok:', response.status);
-      return aste;
+
+      const html = await response.text();
+      const $ = cheerio.load(html);
+      
+      const risultatiPagina = [];
+
+      $('.tile-result').each((i, el) => {
+        try {
+          const link = $(el).find('a.tile-url-container').attr('href') || '';
+          const titolo = $(el).find('h2.font-size-larger').text().trim();
+          const prezzoText = $(el).find('.tile-price strong').text().trim();
+          const dataAstaText = $(el).find('.tile-data strong').first().text().trim();
+
+          if (!titolo || !link) return;
+
+          // Estrai prezzo - formato "€ € 216.352,00"
+          const prezzoMatch = prezzoText.match(/[\d.,]+/);
+          let prezzoNum = 0;
+          if (prezzoMatch) {
+            prezzoNum = parseFloat(prezzoMatch[0].replace(/\./g, '').replace(',', '.')) || 0;
+          }
+
+          // Estrai data asta - formato "04/02/2026 - 09:00"
+          let dataAsta = null;
+          const dateMatch = dataAstaText.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+          if (dateMatch) {
+            dataAsta = `${dateMatch[3]}-${dateMatch[2]}-${dateMatch[1]}`;
+          }
+
+          // Estrai località dal titolo (secondo segmento)
+          const titoloParti = titolo.split(' - ');
+          const localita = titoloParti[1] || provinciaNome;
+
+          // ID univoco dal link (es: B2386177)
+          const idMatch = link.match(/Detail\/([A-Z0-9]+)/i);
+          const externalId = idMatch ? `marche_${idMatch[1]}` : `marche_${tribunaleSlug}_${i}_${Date.now()}`;
+
+          risultatiPagina.push({
+            titolo,
+            localita,
+            provincia: provinciaNome,
+            prezzo_base: prezzoNum,
+            data_asta: dataAsta || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            link_ufficiale: link.startsWith('http') ? link : `https://www.ivgmarche.it${link}`,
+            fonte: 'ivgmarche',
+            external_id: externalId
+          });
+        } catch (e) {
+          console.log('[fetchAste] Error parsing IVG Marche item:', e.message);
+        }
+      });
+
+      // Se non ci sono risultati, abbiamo finito le pagine
+      if (risultatiPagina.length === 0) {
+        console.log(`[fetchAste] ${tribunaleSlug} - nessun risultato a pagina ${pagina}, stop`);
+        break;
+      }
+
+      aste.push(...risultatiPagina);
+      console.log(`[fetchAste] ${tribunaleSlug} pagina ${pagina}: ${risultatiPagina.length} aste`);
+      
+      pagina++;
+      
+      // Piccola pausa per non sovraccaricare il server
+      await new Promise(r => setTimeout(r, 300));
+      
+    } catch (e) {
+      console.log(`[fetchAste] Error fetching ${tribunaleSlug} page ${pagina}:`, e.message);
+      break;
     }
-
-    const html = await response.text();
-    const $ = cheerio.load(html);
-
-    // Struttura trovata: div.tile-result con link, h2 per titolo, .tile-price, .tile-data
-    $('.tile-result').each((i, el) => {
-      try {
-        const link = $(el).find('a.tile-url-container').attr('href') || '';
-        const titolo = $(el).find('h2.font-size-larger').text().trim();
-        const prezzoText = $(el).find('.tile-price strong').text().trim();
-        const dataAstaText = $(el).find('.tile-data strong').first().text().trim();
-        const tribunaleText = $(el).find('.tile-data').text();
-
-        if (!titolo || !link) return;
-
-        // Estrai prezzo - formato "€ € 216.352,00"
-        const prezzoMatch = prezzoText.match(/[\d.,]+/);
-        let prezzoNum = 0;
-        if (prezzoMatch) {
-          prezzoNum = parseFloat(prezzoMatch[0].replace(/\./g, '').replace(',', '.')) || 0;
-        }
-
-        // Estrai data asta - formato "04/02/2026 - 09:00"
-        let dataAsta = null;
-        const dateMatch = dataAstaText.match(/(\d{2})\/(\d{2})\/(\d{4})/);
-        if (dateMatch) {
-          dataAsta = `${dateMatch[3]}-${dateMatch[2]}-${dateMatch[1]}`;
-        }
-
-        // Estrai tribunale per determinare provincia
-        const tribunaleMatch = tribunaleText.match(/Tribunale di ([^\n]+)/);
-        const tribunale = tribunaleMatch ? tribunaleMatch[1].trim() : '';
-        const provincia = normalizzaProvincia(tribunale);
-
-        // Se non è nelle province target, skip
-        if (!provincia) return;
-
-        // ID univoco dal link (es: B2386177)
-        const idMatch = link.match(/Detail\/([A-Z0-9]+)/i);
-        const externalId = idMatch ? `marche_${idMatch[1]}` : `marche_${i}_${Date.now()}`;
-
-        aste.push({
-          titolo,
-          localita: titolo.split(' - ')[1] || tribunale,
-          provincia,
-          prezzo_base: prezzoNum,
-          data_asta: dataAsta || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          link_ufficiale: link.startsWith('http') ? link : `https://www.ivgmarche.it${link}`,
-          fonte: 'ivgmarche',
-          external_id: externalId
-        });
-      } catch (e) {
-        console.log('[fetchAste] Error parsing IVG Marche item:', e.message);
-      }
-    });
-    
-    console.log(`[fetchAste] IVG Marche parsed ${aste.length} items`);
-  } catch (e) {
-    console.log('[fetchAste] Error fetching IVG Marche:', e.message);
   }
+  
   return aste;
+}
+
+// Parsing IVG Marche - Tutti i tribunali delle Marche
+async function fetchIVGMarche() {
+  const tribunaliMarche = [
+    { slug: 'pesaro', provincia: 'Pesaro-Urbino' },
+    { slug: 'ancona', provincia: 'Ancona' },
+    { slug: 'macerata', provincia: 'Macerata' },
+    { slug: 'fermo', provincia: 'Fermo' },
+    { slug: 'ascoli-piceno', provincia: 'Ascoli Piceno' },
+  ];
+
+  const tutteLeAste = [];
+
+  for (const tribunale of tribunaliMarche) {
+    const asteT = await fetchIVGMarcheSingoloTribunale(tribunale.slug, tribunale.provincia);
+    tutteLeAste.push(...asteT);
+    console.log(`[fetchAste] Totale ${tribunale.provincia}: ${asteT.length}`);
+  }
+
+  console.log(`[fetchAste] IVG Marche TOTALE: ${tutteLeAste.length} aste`);
+  return tutteLeAste;
 }
 
 // Parsing IVG Rimini - URL: https://www.ivgrimini.it/ricerca/immobili
