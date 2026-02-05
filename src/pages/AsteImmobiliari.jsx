@@ -379,98 +379,137 @@ export default function AsteImmobiliari() {
           </CardContent>
         </Card>
 
-        {/* FILTRI CATEGORIA - Pulsanti con icone */}
-        <div className="flex gap-2 overflow-x-auto pb-2 mb-2 scrollbar-hide">
-          {CATEGORIE_FILTRO.map(cat => {
-            const Icon = cat.icon;
-            const isActive = categoriaAttiva === cat.id;
-            return (
-              <Button
-                key={cat.id}
-                variant={isActive ? "default" : "outline"}
-                size="sm"
-                onClick={() => setCategoriaAttiva(cat.id)}
-                className={`flex-shrink-0 ${
-                  isActive 
-                    ? 'bg-lime-400 text-slate-900 hover:bg-lime-500' 
-                    : 'border-slate-600 text-slate-300 hover:border-lime-400 hover:text-lime-400'
-                }`}
-              >
-                {Icon && <Icon className="w-4 h-4 mr-1" />}
-                {cat.label}
-              </Button>
-            );
-          })}
+        {/* FILTRI CATEGORIA - Card stile uniforme */}
+        <div className="mb-4">
+          <p className="text-slate-400 text-xs font-medium mb-2 uppercase tracking-wide">🏠 Tipologia</p>
+          <div className="grid grid-cols-3 gap-2">
+            {CATEGORIE_FILTRO.map(cat => {
+              const Icon = cat.icon;
+              const isActive = categoriaAttiva === cat.id;
+              // Conta aste per questa categoria (con filtri attivi)
+              const countCat = aste.filter(a => {
+                if (budgetMax && parseInt(budgetMax) > 0 && a.prezzo_base > parseInt(budgetMax)) return false;
+                if (filtroProvincia !== 'tutte' && a.provincia !== filtroProvincia) return false;
+                if (filtroScadenza !== 'tutte') {
+                  const g = giorniAllaAsta(a.data_asta);
+                  if (filtroScadenza === 'immediate' && (g < 0 || g >= 30)) return false;
+                  if (filtroScadenza === 'normali' && (g < 30 || g > 90)) return false;
+                  if (filtroScadenza === 'oltre90' && g <= 90) return false;
+                }
+                if (cat.id !== 'tutte' && a.tipologia !== cat.id) return false;
+                return true;
+              }).length;
+              
+              return (
+                <Card 
+                  key={cat.id}
+                  className={`cursor-pointer transition-all ${
+                    isActive 
+                      ? 'bg-lime-500/40 border-lime-400 ring-2 ring-lime-400' 
+                      : 'bg-slate-700/50 border-slate-600 hover:bg-slate-600/50'
+                  }`}
+                  onClick={() => setCategoriaAttiva(cat.id)}
+                >
+                  <CardContent className="p-3 text-center">
+                    <p className={`text-xl font-bold ${isActive ? 'text-lime-400' : 'text-white'}`}>{countCat}</p>
+                    <p className={`text-xs font-medium ${isActive ? 'text-lime-300' : 'text-slate-400'}`}>
+                      {Icon && <span className="inline-block mr-1">{cat.id === 'Abitativo' ? '🏠' : cat.id === 'Commerciale' ? '🏢' : cat.id === 'Industriale' ? '🏭' : cat.id === 'Mezzi' ? '🚚' : cat.id === 'Attrezzatura' ? '🔧' : '📋'}</span>}
+                      {cat.label}
+                    </p>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
         </div>
 
-        {/* FILTRI PROVINCIA - Pulsanti località con conteggi */}
-        <div className="flex gap-2 overflow-x-auto pb-2 mb-4 scrollbar-hide">
-          <Button
-            variant={filtroProvincia === 'tutte' ? "default" : "outline"}
-            size="sm"
-            onClick={() => setFiltroProvincia('tutte')}
-            className={`flex-shrink-0 ${
-              filtroProvincia === 'tutte' 
-                ? 'bg-amber-400 text-slate-900 hover:bg-amber-500' 
-                : 'border-slate-600 text-slate-300 hover:border-amber-400 hover:text-amber-400'
-            }`}
-          >
-            <MapPin className="w-4 h-4 mr-1" />
-            Tutte
-          </Button>
-          {provinceConConteggi.map((prov) => {
-            const isActive = filtroProvincia === prov.nome;
-            return (
-              <Button
-                key={prov.nome}
-                variant={isActive ? "default" : "outline"}
-                size="sm"
-                onClick={() => setFiltroProvincia(prov.nome)}
-                className={`flex-shrink-0 ${
-                  isActive 
-                    ? 'bg-amber-400 text-slate-900 hover:bg-amber-500' 
-                    : prov.isUser
-                    ? 'border-amber-400/50 text-amber-300 hover:border-amber-400 hover:text-amber-400'
-                    : 'border-slate-600 text-slate-300 hover:border-amber-400 hover:text-amber-400'
-                }`}
-              >
-                {prov.isUser && <span className="mr-1">📍</span>}
-                {prov.nome}
-                <span className="ml-1.5 bg-slate-700/80 text-slate-300 text-xs px-1.5 py-0.5 rounded-full">{prov.count}</span>
-              </Button>
-            );
-          })}
+        {/* FILTRI PROVINCIA - Card stile uniforme */}
+        <div className="mb-4">
+          <p className="text-slate-400 text-xs font-medium mb-2 uppercase tracking-wide">📍 Località</p>
+          <div className="grid grid-cols-3 gap-2">
+            <Card 
+              className={`cursor-pointer transition-all ${
+                filtroProvincia === 'tutte' 
+                  ? 'bg-amber-500/40 border-amber-400 ring-2 ring-amber-400' 
+                  : 'bg-slate-700/50 border-slate-600 hover:bg-slate-600/50'
+              }`}
+              onClick={() => setFiltroProvincia('tutte')}
+            >
+              <CardContent className="p-3 text-center">
+                <p className={`text-xl font-bold ${filtroProvincia === 'tutte' ? 'text-amber-400' : 'text-white'}`}>
+                  {aste.filter(a => {
+                    if (budgetMax && parseInt(budgetMax) > 0 && a.prezzo_base > parseInt(budgetMax)) return false;
+                    if (categoriaAttiva !== 'tutte' && a.tipologia !== categoriaAttiva) return false;
+                    if (filtroScadenza !== 'tutte') {
+                      const g = giorniAllaAsta(a.data_asta);
+                      if (filtroScadenza === 'immediate' && (g < 0 || g >= 30)) return false;
+                      if (filtroScadenza === 'normali' && (g < 30 || g > 90)) return false;
+                      if (filtroScadenza === 'oltre90' && g <= 90) return false;
+                    }
+                    return true;
+                  }).length}
+                </p>
+                <p className={`text-xs font-medium ${filtroProvincia === 'tutte' ? 'text-amber-300' : 'text-slate-400'}`}>🗺️ Tutte</p>
+              </CardContent>
+            </Card>
+            {provinceConConteggi.map((prov) => {
+              const isActive = filtroProvincia === prov.nome;
+              return (
+                <Card 
+                  key={prov.nome}
+                  className={`cursor-pointer transition-all ${
+                    isActive 
+                      ? 'bg-amber-500/40 border-amber-400 ring-2 ring-amber-400' 
+                      : prov.isUser
+                      ? 'bg-amber-500/20 border-amber-400/50 hover:bg-amber-500/30'
+                      : 'bg-slate-700/50 border-slate-600 hover:bg-slate-600/50'
+                  }`}
+                  onClick={() => setFiltroProvincia(prov.nome)}
+                >
+                  <CardContent className="p-3 text-center">
+                    <p className={`text-xl font-bold ${isActive ? 'text-amber-400' : 'text-white'}`}>{prov.count}</p>
+                    <p className={`text-xs font-medium truncate ${isActive ? 'text-amber-300' : 'text-slate-400'}`}>
+                      {prov.isUser ? '📍 ' : ''}{prov.nome.replace('-', ' ').split(' ')[0]}
+                    </p>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
         </div>
 
-        {/* Stats rapide - CLICCABILI */}
-        <div className="grid grid-cols-3 gap-2 mb-6">
-          <Card 
-            className={`cursor-pointer transition-all ${filtroScadenza === 'immediate' ? 'bg-red-500/40 border-red-400 ring-2 ring-red-400' : 'bg-red-500/20 border-red-500/30 hover:bg-red-500/30'}`}
-            onClick={() => setFiltroScadenza(filtroScadenza === 'immediate' ? 'tutte' : 'immediate')}
-          >
-            <CardContent className="p-3 text-center">
-              <p className="text-red-400 text-xl font-bold">{asteImmediateCount}</p>
-              <p className="text-red-300 text-xs">⚡ &lt;30gg</p>
-            </CardContent>
-          </Card>
-          <Card 
-            className={`cursor-pointer transition-all ${filtroScadenza === 'normali' ? 'bg-lime-500/40 border-lime-400 ring-2 ring-lime-400' : 'bg-slate-700/50 border-slate-600 hover:bg-slate-600/50'}`}
-            onClick={() => setFiltroScadenza(filtroScadenza === 'normali' ? 'tutte' : 'normali')}
-          >
-            <CardContent className="p-3 text-center">
-              <p className="text-white text-xl font-bold">{asteNormaliCount}</p>
-              <p className="text-slate-400 text-xs">📅 30-90gg</p>
-            </CardContent>
-          </Card>
-          <Card 
-            className={`cursor-pointer transition-all ${filtroScadenza === 'oltre90' ? 'bg-blue-500/40 border-blue-400 ring-2 ring-blue-400' : 'bg-slate-700/50 border-slate-600 hover:bg-slate-600/50'}`}
-            onClick={() => setFiltroScadenza(filtroScadenza === 'oltre90' ? 'tutte' : 'oltre90')}
-          >
-            <CardContent className="p-3 text-center">
-              <p className="text-white text-xl font-bold">{asteOltre90Count}</p>
-              <p className="text-slate-400 text-xs">📆 &gt;90gg</p>
-            </CardContent>
-          </Card>
+        {/* FILTRI SCADENZA - Card stile uniforme */}
+        <div className="mb-6">
+          <p className="text-slate-400 text-xs font-medium mb-2 uppercase tracking-wide">⏰ Scadenza asta</p>
+          <div className="grid grid-cols-3 gap-2">
+            <Card 
+              className={`cursor-pointer transition-all ${filtroScadenza === 'immediate' ? 'bg-red-500/40 border-red-400 ring-2 ring-red-400' : 'bg-red-500/20 border-red-500/30 hover:bg-red-500/30'}`}
+              onClick={() => setFiltroScadenza(filtroScadenza === 'immediate' ? 'tutte' : 'immediate')}
+            >
+              <CardContent className="p-3 text-center">
+                <p className={`text-xl font-bold ${filtroScadenza === 'immediate' ? 'text-red-300' : 'text-red-400'}`}>{asteImmediateCount}</p>
+                <p className={`text-xs font-medium ${filtroScadenza === 'immediate' ? 'text-red-200' : 'text-red-300'}`}>⚡ &lt;30gg</p>
+              </CardContent>
+            </Card>
+            <Card 
+              className={`cursor-pointer transition-all ${filtroScadenza === 'normali' ? 'bg-lime-500/40 border-lime-400 ring-2 ring-lime-400' : 'bg-slate-700/50 border-slate-600 hover:bg-slate-600/50'}`}
+              onClick={() => setFiltroScadenza(filtroScadenza === 'normali' ? 'tutte' : 'normali')}
+            >
+              <CardContent className="p-3 text-center">
+                <p className={`text-xl font-bold ${filtroScadenza === 'normali' ? 'text-lime-400' : 'text-white'}`}>{asteNormaliCount}</p>
+                <p className={`text-xs font-medium ${filtroScadenza === 'normali' ? 'text-lime-300' : 'text-slate-400'}`}>📅 30-90gg</p>
+              </CardContent>
+            </Card>
+            <Card 
+              className={`cursor-pointer transition-all ${filtroScadenza === 'oltre90' ? 'bg-blue-500/40 border-blue-400 ring-2 ring-blue-400' : 'bg-slate-700/50 border-slate-600 hover:bg-slate-600/50'}`}
+              onClick={() => setFiltroScadenza(filtroScadenza === 'oltre90' ? 'tutte' : 'oltre90')}
+            >
+              <CardContent className="p-3 text-center">
+                <p className={`text-xl font-bold ${filtroScadenza === 'oltre90' ? 'text-blue-400' : 'text-white'}`}>{asteOltre90Count}</p>
+                <p className={`text-xs font-medium ${filtroScadenza === 'oltre90' ? 'text-blue-300' : 'text-slate-400'}`}>📆 &gt;90gg</p>
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
         {/* LISTA ASTE FILTRATE */}
