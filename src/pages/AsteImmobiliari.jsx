@@ -456,8 +456,6 @@ export default function AsteImmobiliari() {
                   className={`cursor-pointer transition-all flex-shrink-0 min-w-[90px] ${
                     isActive 
                       ? 'bg-amber-500/40 border-amber-400 ring-2 ring-amber-400' 
-                      : prov.isUser
-                      ? 'bg-amber-500/20 border-amber-400/50 hover:bg-amber-500/30'
                       : 'bg-slate-700/50 border-slate-600 hover:bg-slate-600/50'
                   }`}
                   onClick={() => setFiltroProvincia(prov.nome)}
