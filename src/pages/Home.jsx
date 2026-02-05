@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Calendar, Video, Briefcase, User, Euro, ShoppingBag, BookOpen, Handshake, Truck, Heart, FileSearch, Globe, Shield, PiggyBank } from 'lucide-react';
+import { Calendar, Video, Briefcase, User, Euro, ShoppingBag, BookOpen, Handshake, Truck, Heart, FileSearch, Globe, Shield, PiggyBank, Gavel } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import Header from '../components/layout/Header';
@@ -736,6 +736,9 @@ export default function Home() {
     { title: 'Import /\nExport', icon: Globe, page: 'ImportExport', notifications: 0, permission: 'import_export', category: 'consulenza' },
     { title: 'Risparmio', icon: PiggyBank, page: 'RisparmioEnergetico', notifications: 0, permission: 'risparmio_energetico', category: 'consulenza' },
     { title: 'Finanziamenti\nagevolati', icon: Euro, page: 'FinanziamentiAgevolati', notifications: isNotAdmin ? newGrantsCount : 0, permission: 'finanziamenti', category: 'consulenza' },
+    
+    // INVESTIMENTI
+    { title: 'Aste\nImmobiliari', icon: Gavel, page: 'AsteImmobiliari', notifications: 0, permission: 'aste_immobiliari', category: 'investimenti' },
   ];
 
   // Filtra features in base al tab attivo
@@ -899,8 +902,40 @@ export default function Home() {
               <h3 className="text-[#d4af37] font-bold text-base tracking-wide">STRUMENTI</h3>
               <div className="flex-1 h-px bg-gradient-to-r from-[#d4af37]/40 to-transparent ml-2"></div>
             </div>
-            <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="grid grid-cols-2 gap-4 mb-6">
               {features.filter(f => f.category === 'strumenti').map((feature) => (
+                <FeatureCard
+                  key={feature.page}
+                  title={feature.title}
+                  icon={feature.icon}
+                  pageName={feature.page}
+                  notificationCount={feature.notifications}
+                  disabled={permissions[feature.permission] === false}
+                  variant={feature.variant}
+                  bottomBadge={feature.bottomBadge}
+                  bottomBadgeType={feature.bottomBadgeType}
+                  eventCount={feature.eventCount || 0}
+                  pendingInvites={feature.pendingInvites || 0}
+                  newVideosCount={feature.newVideosCount || 0}
+                  totalVideosCount={feature.totalVideosCount || 0}
+                  hasVisitedVideos={feature.hasVisitedVideos || false}
+                  latestVideoDate={feature.latestVideoDate || null}
+                  consulenzeMessagesCount={feature.page === 'Consulenze' ? consultationMessagesCount : 0}
+                  contractUsageCount={feature.contractUsage?.count || 0}
+                  contractUsageLimit={feature.contractUsage?.limit || 5}
+                  contractMessagesCount={feature.page === 'AnalisiContratti' ? contractMessagesCount : 0}
+                />
+              ))}
+            </div>
+
+            {/* INVESTIMENTI */}
+            <div className="flex items-center gap-2 mb-3 mt-4">
+              <span className="text-lg">📈</span>
+              <h3 className="text-[#d4af37] font-bold text-base tracking-wide">INVESTIMENTI</h3>
+              <div className="flex-1 h-px bg-gradient-to-r from-[#d4af37]/40 to-transparent ml-2"></div>
+            </div>
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              {features.filter(f => f.category === 'investimenti').map((feature) => (
                 <FeatureCard
                   key={feature.page}
                   title={feature.title}
