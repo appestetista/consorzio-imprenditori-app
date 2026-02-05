@@ -115,9 +115,15 @@ export default function AsteImmobiliari() {
     return Math.ceil((dataAsta - oggi) / (1000 * 60 * 60 * 24));
   };
 
+  // Province ammesse (Marche)
+  const PROVINCE_AMMESSE = ['Pesaro-Urbino', 'Ancona', 'Macerata', 'Fermo', 'Ascoli Piceno'];
+
   // Funzione filtro principale - applica TUTTI i filtri in AND
   const applicaTuttiFiltri = React.useCallback((listaAste, { skipBudget, skipCategoria, skipTribunale, skipScadenza } = {}) => {
     return listaAste.filter(asta => {
+      // Filtro PROVINCE AMMESSE (sempre attivo)
+      if (!PROVINCE_AMMESSE.includes(asta.provincia)) return false;
+
       // Filtro BUDGET
       if (!skipBudget && budgetMax && parseInt(budgetMax) > 0) {
         if (asta.prezzo_base > parseInt(budgetMax)) return false;
