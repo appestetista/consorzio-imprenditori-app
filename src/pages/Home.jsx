@@ -902,29 +902,31 @@ export default function Home() {
             <div className="grid grid-cols-2 gap-4 mb-4">
               {features.filter(f => f.category === 'strumenti').map((feature) => (
                 <FeatureCard
-                                key={feature.page}
-                                title={feature.title}
-                                icon={feature.icon}
-                                pageName={feature.page}
-                                notificationCount={feature.notifications}
-                                disabled={permissions[feature.permission] === false}
-                                variant={feature.variant}
-                                bottomBadge={feature.bottomBadge}
-                                bottomBadgeType={feature.bottomBadgeType}
-                                eventCount={feature.eventCount || 0}
-                                pendingInvites={feature.pendingInvites || 0}
-                                newVideosCount={feature.newVideosCount || 0}
-                                totalVideosCount={feature.totalVideosCount || 0}
-                                hasVisitedVideos={feature.hasVisitedVideos || false}
-                                latestVideoDate={feature.latestVideoDate || null}
-                                consulenzeMessagesCount={feature.page === 'Consulenze' ? consultationMessagesCount : 0}
-                                contractUsageCount={feature.contractUsage?.count || 0}
-                                contractUsageLimit={feature.contractUsage?.limit || 5}
-                                contractMessagesCount={feature.page === 'AnalisiContratti' ? contractMessagesCount : 0}
-                              />
-          ))}
-        </div>
-      </main>
+                  key={feature.page}
+                  title={feature.title}
+                  icon={feature.icon}
+                  pageName={feature.page}
+                  notificationCount={feature.notifications}
+                  disabled={permissions[feature.permission] === false}
+                  variant={feature.variant}
+                  bottomBadge={feature.bottomBadge}
+                  bottomBadgeType={feature.bottomBadgeType}
+                  eventCount={feature.eventCount || 0}
+                  pendingInvites={feature.pendingInvites || 0}
+                  newVideosCount={feature.newVideosCount || 0}
+                  totalVideosCount={feature.totalVideosCount || 0}
+                  hasVisitedVideos={feature.hasVisitedVideos || false}
+                  latestVideoDate={feature.latestVideoDate || null}
+                  consulenzeMessagesCount={feature.page === 'Consulenze' ? consultationMessagesCount : 0}
+                  contractUsageCount={feature.contractUsage?.count || 0}
+                  contractUsageLimit={feature.contractUsage?.limit || 5}
+                  contractMessagesCount={feature.page === 'AnalisiContratti' ? contractMessagesCount : 0}
+                />
+                ))}
+                </div>
+                </>
+                )}
+                </main>
 
       <BottomNav currentPage="Home" unreadMessages={messages.length} activeTab={activeTab} isAdmin={effectiveUser?.role === 'admin' && !impersonation.active} />
 
