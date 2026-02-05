@@ -170,11 +170,12 @@ export default function AsteImmobiliari() {
     };
   }, [aste, budgetMax, categoriaAttiva, filtroProvincia]);
 
-  // Conteggi per PROVINCIA (skip filtro provincia per vedere quante ce ne sono per ogni provincia)
+  // Conteggi per TRIBUNALE (skip filtro provincia per vedere quante ce ne sono per ogni tribunale)
+  // Il campo 'provincia' nei dati corrisponde al tribunale di competenza
   const provinceConConteggi = React.useMemo(() => {
     const astePerConteggio = applicaTuttiFiltri(aste, { skipProvincia: true });
-    
-    // Conta per provincia
+
+    // Conta per tribunale (campo provincia)
     const conteggi = {};
     astePerConteggio.forEach(a => {
       if (a.provincia) {
@@ -185,9 +186,9 @@ export default function AsteImmobiliari() {
     // Totale per "Tutte"
     const totale = astePerConteggio.length;
 
-    // Ordina province: prima quella dell'utente, poi le altre in ordine alfabetico
+    // Ordina tribunali: prima quello dell'utente, poi gli altri in ordine alfabetico
     const userProvince = user?.province || user?.city || '';
-    const cittaToProvinciaMap = {
+    const cittaToTribunaleMap = {
       'pesaro': 'Pesaro-Urbino', 'urbino': 'Pesaro-Urbino', 'fano': 'Pesaro-Urbino',
       'ancona': 'Ancona', 'senigallia': 'Ancona', 'jesi': 'Ancona', 'fabriano': 'Ancona',
       'macerata': 'Macerata', 'civitanova': 'Macerata', 'tolentino': 'Macerata',
@@ -195,20 +196,20 @@ export default function AsteImmobiliari() {
       'ascoli piceno': 'Ascoli Piceno', 'san benedetto': 'Ascoli Piceno',
       'rimini': 'Rimini', 'riccione': 'Rimini', 'cattolica': 'Rimini'
     };
-    const userProvinceMapped = cittaToProvinciaMap[userProvince.toLowerCase()] || userProvince;
+    const userTribunaleMapped = cittaToTribunaleMap[userProvince.toLowerCase()] || userProvince;
 
-    const provinceArray = Object.keys(conteggi).sort();
-    
-    // Metti provincia utente in testa se esiste
+    const tribunaliArray = Object.keys(conteggi).sort();
+
+    // Metti tribunale utente in testa se esiste
     let result;
-    if (userProvinceMapped && provinceArray.includes(userProvinceMapped)) {
-      const filtered = provinceArray.filter(p => p !== userProvinceMapped);
-      result = [{ nome: userProvinceMapped, count: conteggi[userProvinceMapped], isUser: true }, 
+    if (userTribunaleMapped && tribunaliArray.includes(userTribunaleMapped)) {
+      const filtered = tribunaliArray.filter(p => p !== userTribunaleMapped);
+      result = [{ nome: userTribunaleMapped, count: conteggi[userTribunaleMapped], isUser: true }, 
               ...filtered.map(p => ({ nome: p, count: conteggi[p], isUser: false }))];
     } else {
-      result = provinceArray.map(p => ({ nome: p, count: conteggi[p], isUser: false }));
+      result = tribunaliArray.map(p => ({ nome: p, count: conteggi[p], isUser: false }));
     }
-    
+
     return { province: result, totale };
   }, [aste, budgetMax, categoriaAttiva, filtroScadenza, user?.province, user?.city]);
 
