@@ -459,41 +459,41 @@ export default function AsteImmobiliari() {
           </div>
         </div>
 
-        {/* FILTRI TRIBUNALE - Scorrevoli */}
+        {/* FILTRI LOCALITÀ - Scorrevoli (derivata dal Tribunale) */}
         <div className="mb-3">
-          <p className="text-slate-400 text-xs font-medium mb-2 uppercase tracking-wide">⚖️ Tribunale</p>
+          <p className="text-slate-400 text-xs font-medium mb-2 uppercase tracking-wide">📍 Località</p>
           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
             <Card 
               className={`cursor-pointer transition-all flex-shrink-0 min-w-[90px] ${
-                filtroProvincia === 'tutte' 
+                filtroLocalita === 'tutte' 
                   ? 'bg-amber-500/40 border-amber-400 ring-2 ring-amber-400' 
                   : 'bg-slate-700/50 border-slate-600 hover:bg-slate-600/50'
               }`}
-              onClick={() => setFiltroProvincia('tutte')}
+              onClick={() => setFiltroLocalita('tutte')}
             >
               <CardContent className="p-3 text-center">
-                <p className={`text-xl font-bold ${filtroProvincia === 'tutte' ? 'text-amber-400' : 'text-white'}`}>
-                  {provinceConConteggi.totale}
+                <p className={`text-xl font-bold ${filtroLocalita === 'tutte' ? 'text-amber-400' : 'text-white'}`}>
+                  {localitaConConteggi.totale}
                 </p>
-                <p className={`text-xs font-medium ${filtroProvincia === 'tutte' ? 'text-amber-300' : 'text-slate-400'}`}>🗺️ Tutte</p>
+                <p className={`text-xs font-medium ${filtroLocalita === 'tutte' ? 'text-amber-300' : 'text-slate-400'}`}>🗺️ Tutte</p>
               </CardContent>
             </Card>
-            {provinceConConteggi.province.map((prov) => {
-              const isActive = filtroProvincia === prov.nome;
+            {localitaConConteggi.localita.map((loc) => {
+              const isActive = filtroLocalita === loc.nome;
               return (
                 <Card 
-                  key={prov.nome}
+                  key={loc.nome}
                   className={`cursor-pointer transition-all flex-shrink-0 min-w-[90px] ${
                     isActive 
                       ? 'bg-amber-500/40 border-amber-400 ring-2 ring-amber-400' 
                       : 'bg-slate-700/50 border-slate-600 hover:bg-slate-600/50'
                   }`}
-                  onClick={() => setFiltroProvincia(prov.nome)}
+                  onClick={() => setFiltroLocalita(loc.nome)}
                 >
                   <CardContent className="p-3 text-center">
-                    <p className={`text-xl font-bold ${isActive ? 'text-amber-400' : 'text-white'}`}>{prov.count}</p>
+                    <p className={`text-xl font-bold ${isActive ? 'text-amber-400' : 'text-white'}`}>{loc.count}</p>
                     <p className={`text-xs font-medium ${isActive ? 'text-amber-300' : 'text-slate-400'}`}>
-                      {prov.isUser && isActive ? '📍' : ''}{prov.nome.split('-')[0]}
+                      {loc.isUser && isActive ? '📍' : ''}{loc.nome}
                     </p>
                   </CardContent>
                 </Card>
