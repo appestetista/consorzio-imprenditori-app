@@ -294,8 +294,8 @@ export default function AsteImmobiliari() {
           {/* Info rapide */}
           <div className="flex items-center justify-between text-sm mb-3">
             <div className="flex items-center gap-2 text-slate-300">
-              <MapPin className="w-4 h-4 text-slate-500" />
-              <span>{asta.localita} ({asta.provincia})</span>
+              <MapPin className="w-4 h-4 text-amber-400" />
+              <span>{asta.localita}</span>
             </div>
             <Badge variant="outline" className="text-slate-400">
               {asta.tipologia}
