@@ -36,6 +36,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 
 const PROVINCE = ['Pesaro-Urbino', 'Ancona', 'Macerata', 'Fermo', 'Ascoli Piceno', 'Rimini'];
+const BUDGET_PRESETS = [30000, 50000, 80000, 100000, 150000, 200000];
 const TIPOLOGIE = ['Abitativo', 'Commerciale', 'Industriale', 'Attrezzatura', 'Mezzi', 'Arredamento attività'];
 
 export default function AsteImmobiliari() {
@@ -547,22 +548,35 @@ function PreferencesDialog({ open, onClose, preferenze, onSave, saving }) {
           {/* Budget massimo - OBBLIGATORIO */}
           <div>
             <Label className="text-slate-300 mb-2 block">
-              Budget massimo di investimento (€) <span className="text-red-400">*</span>
+              Qual è il tuo budget massimo? <span className="text-red-400">*</span>
             </Label>
             <p className="text-slate-500 text-xs mb-2">
-              Indica quanto sei disposto a investire (max €200.000). Vedrai solo aste nel tuo budget.
+              Seleziona o inserisci quanto sei disposto a investire. Vedrai solo aste nel tuo budget.
             </p>
+            <div className="grid grid-cols-3 gap-2 mb-2">
+              {BUDGET_PRESETS.map(preset => (
+                <Button
+                  key={preset}
+                  type="button"
+                  variant={parseInt(budgetMassimo) === preset ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setBudgetMassimo(preset)}
+                  className={parseInt(budgetMassimo) === preset 
+                    ? "bg-lime-400 text-slate-900" 
+                    : "border-slate-600 text-slate-300 hover:bg-slate-700"}
+                >
+                  {preset >= 1000 ? `${preset/1000}k` : preset}€
+                </Button>
+              ))}
+            </div>
             <Input
               type="number"
-              placeholder="Es. 80000"
+              placeholder="Oppure inserisci importo..."
               value={budgetMassimo}
               onChange={(e) => setBudgetMassimo(e.target.value)}
               max={200000}
               className="bg-slate-900 border-slate-600 text-white"
             />
-            {budgetMassimo && parseInt(budgetMassimo) > 200000 && (
-              <p className="text-amber-400 text-xs mt-1">Il sistema mostra aste fino a €200.000</p>
-            )}
           </div>
 
           <Button
