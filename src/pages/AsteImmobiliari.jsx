@@ -49,7 +49,7 @@ export default function AsteImmobiliari() {
   const [budgetMax, setBudgetMax] = useState('');
   const [categoriaAttiva, setCategoriaAttiva] = useState('tutte');
   const [filtroScadenza, setFiltroScadenza] = useState('tutte'); // 'tutte', 'immediate', 'normali', 'oltre90'
-  const [filtroLocalita, setFiltroLocalita] = useState('tutte'); // 'tutte' o nome località
+  const [filtroTribunale, setFiltroTribunale] = useState('tutte'); // 'tutte' o nome tribunale
 
   useEffect(() => {
     const loadUser = async () => {
@@ -58,31 +58,6 @@ export default function AsteImmobiliari() {
     };
     loadUser();
   }, []);
-
-  // Carica mappa tribunali -> località
-  const { data: tribunaliLocalita = [] } = useQuery({
-    queryKey: ['tribunali-localita'],
-    queryFn: () => base44.entities.TribunaleLocalita.list(),
-  });
-
-  // Mappa tribunale -> località per lookup rapido
-  const tribunaleToLocalita = React.useMemo(() => {
-    const map = {};
-    tribunaliLocalita.forEach(t => {
-      map[t.tribunale] = t.localita;
-    });
-    return map;
-  }, [tribunaliLocalita]);
-
-  // Mappa località -> lista tribunali (per filtro inverso)
-  const localitaToTribunali = React.useMemo(() => {
-    const map = {};
-    tribunaliLocalita.forEach(t => {
-      if (!map[t.localita]) map[t.localita] = [];
-      map[t.localita].push(t.tribunale);
-    });
-    return map;
-  }, [tribunaliLocalita]);
 
   // Carica aste e normalizza i dati (i campi sono sempre in .data)
   const { data: aste = [], isLoading } = useQuery({
@@ -138,7 +113,7 @@ export default function AsteImmobiliari() {
   };
 
   // Funzione filtro principale - applica TUTTI i filtri in AND
-  const applicaTuttiFiltri = React.useCallback((listaAste, { skipBudget, skipCategoria, skipLocalita, skipScadenza } = {}) => {
+  const applicaTuttiFiltri = React.useCallback((listaAste, { skipBudget, skipCategoria, skipTribunale, skipScadenza } = {}) => {
     return listaAste.filter(asta => {
       // Filtro BUDGET
       if (!skipBudget && budgetMax && parseInt(budgetMax) > 0) {
@@ -148,12 +123,9 @@ export default function AsteImmobiliari() {
       if (!skipCategoria && categoriaAttiva !== 'tutte') {
         if (asta.tipologia !== categoriaAttiva) return false;
       }
-      // Filtro LOCALITÀ (derivato dal Tribunale)
-      if (!skipLocalita && filtroLocalita !== 'tutte') {
-        // Recupera i tribunali associati alla località selezionata
-        const tribunaliDellaLocalita = localitaToTribunali[filtroLocalita] || [];
-        // Il campo provincia contiene il tribunale
-        if (!tribunaliDellaLocalita.includes(asta.provincia)) return false;
+      // Filtro TRIBUNALE (campo provincia)
+      if (!skipTribunale && filtroTribunale !== 'tutte') {
+        if (asta.provincia !== filtroTribunale) return false;
       }
       // Filtro SCADENZA
       if (!skipScadenza && filtroScadenza !== 'tutte') {
@@ -164,7 +136,7 @@ export default function AsteImmobiliari() {
       }
       return true;
     });
-  }, [budgetMax, categoriaAttiva, filtroLocalita, filtroScadenza, localitaToTribunali]);
+  }, [budgetMax, categoriaAttiva, filtroTribunale, filtroScadenza]);
 
   // Lista aste filtrate finali (tutti i filtri attivi)
   const asteFiltrate = React.useMemo(() => applicaTuttiFiltri(aste), [aste, applicaTuttiFiltri]);
