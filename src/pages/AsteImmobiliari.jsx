@@ -544,9 +544,9 @@ export default function AsteImmobiliari() {
         </div>
 
         {/* Info aggiornamento */}
-        <p className="text-slate-500 text-xs text-center mt-6">
-          Dati aggiornati quotidianamente • Fonte: IVG Marche e IVG Rimini
-        </p>
+                <p className="text-slate-500 text-xs text-center mt-6">
+                  Dati aggiornati quotidianamente • Fonte: IVG Marche
+                </p>
       </main>
 
       <BottomNav currentPage="AsteImmobiliari" />
