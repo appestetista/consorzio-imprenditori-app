@@ -484,6 +484,16 @@ export default function AsteImmobiliari() {
                           </div>
                         )}
 
+                        {/* Delegato alla vendita */}
+                        {(asta.raw_data?.delegate_name_0 || asta.raw_data?.delegate_surname_0) && (
+                          <div className="flex items-center gap-2 text-xs">
+                            <span className="text-slate-500">Delegato:</span>
+                            <span className="text-slate-300 font-medium">
+                              {[asta.raw_data?.delegate_name_0, asta.raw_data?.delegate_surname_0].filter(Boolean).join(' ')}
+                            </span>
+                          </div>
+                        )}
+
                       {/* Offerta minima e rilancio minimo */}
                       <div className="grid grid-cols-2 gap-3 text-xs">
                         {asta.offerta_minima > 0 && (
