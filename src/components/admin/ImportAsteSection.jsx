@@ -224,7 +224,8 @@ export default function ImportAsteSection() {
         external_id: `pvp_${externalId}`,
         lotto: row['Lot_Number_0'] || '',
         fonte: 'pvp.giustizia.it',
-        cauzione_stimata: prezzo * 0.1
+        cauzione_stimata: prezzo * 0.1,
+        raw_data: row // Salva tutti i dati originali dal CSV
       };
     }).filter(a => {
       const valid = a.external_id && a.prezzo_base > 0;

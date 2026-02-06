@@ -115,7 +115,7 @@ Deno.serve(async (req) => {
         // Supporta sia formato "pronto" (già processato dal frontend) che formato raw
         let externalId, prezzoBase, dataAsta, localita, titolo, linkUfficiale, lotto, tipologia;
         
-        let offertaMinima = 0, rilancioMinimo = 0, dataOraVendita = '';
+        let offertaMinima = 0, rilancioMinimo = 0, dataOraVendita = '', rawData = null;
 
         // Se l'asta ha già external_id, è stata pre-processata dal frontend
         if (asta.external_id) {
@@ -130,6 +130,7 @@ Deno.serve(async (req) => {
           linkUfficiale = asta.link_ufficiale || '';
           lotto = asta.lotto || 'Lotto unico';
           tipologia = asta.tipologia || 'Altra Categoria';
+          rawData = asta.raw_data || null; // Dati grezzi dal CSV
         } else {
           // Formato vecchio (legacy)
           externalId = estraiExternalId(asta['URL Annuncio']);
@@ -174,7 +175,8 @@ Deno.serve(async (req) => {
           cauzione_stimata: Math.round(prezzoBase * 0.10),
           livello_interesse: calcolaInteresse(prezzoBase, giorniAllaAsta, tipologia),
           motivo_interesse: generaMotivoInteresse(prezzoBase, tipologia, giorniAllaAsta),
-          is_active: giorniAllaAsta >= 0
+          is_active: giorniAllaAsta >= 0,
+          raw_data: rawData // Salva tutti i dati originali dal CSV
         };
         
         console.log('[importAste] Processando:', externalId, 'prezzo:', prezzoBase, 'data:', dataAsta);
