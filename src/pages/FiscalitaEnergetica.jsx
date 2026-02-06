@@ -53,13 +53,33 @@ const SETTORI = [
   'Altro'
 ];
 
-const SPESE_RANGE = [
-  'Fino a 5.000€/anno',
-  '5.000€ - 15.000€/anno',
-  '15.000€ - 50.000€/anno',
-  '50.000€ - 100.000€/anno',
-  'Oltre 100.000€/anno',
-  'Non so'
+const CONSUMI_ELETTRICI = [
+  'Fino a 10.000 kWh/anno',
+  '10.000 - 50.000 kWh/anno',
+  '50.000 - 200.000 kWh/anno',
+  '200.000 - 1.000.000 kWh/anno',
+  'Oltre 1.000.000 kWh/anno',
+  'Non conosco il dato'
+];
+
+const CONSUMI_GAS = [
+  'Fino a 5.000 Smc/anno',
+  '5.000 - 25.000 Smc/anno',
+  '25.000 - 100.000 Smc/anno',
+  '100.000 - 500.000 Smc/anno',
+  'Oltre 500.000 Smc/anno',
+  'Non conosco il dato',
+  'Non utilizzo gas'
+];
+
+const RUOLI_AZIENDALI = [
+  'Titolare/Amministratore',
+  'Direttore Operativo',
+  'Responsabile Acquisti',
+  'Responsabile Produzione',
+  'CFO/Direttore Amministrativo',
+  'Energy Manager',
+  'Altro'
 ];
 
 // Dati per il grafico del potenziale risparmio
