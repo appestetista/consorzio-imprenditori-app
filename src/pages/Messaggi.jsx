@@ -683,21 +683,21 @@ export default function Messaggi() {
           <h1 className="text-white text-xl font-bold">Messaggi</h1>
         </div>
 
-        {/* Filtri per sezione */}
-        <div className="mb-4 overflow-x-auto pb-2 -mx-4 px-4">
-          <div className="flex gap-2 min-w-max">
+        {/* Filtri per sezione - Scroll verticale */}
+        <div className="mb-4 max-h-40 overflow-y-auto rounded-xl bg-slate-800/50 p-2">
+          <div className="grid grid-cols-3 gap-1.5">
             <button
               onClick={() => setActiveFilter('all')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+              className={`flex items-center justify-center gap-1 px-2 py-2 rounded-lg text-[10px] font-semibold transition-colors ${
                 activeFilter === 'all' 
                   ? 'bg-lime-400 text-slate-900' 
-                  : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+                  : 'bg-slate-700 text-slate-400 hover:bg-slate-600'
               }`}
             >
               <Filter className="w-3 h-3" />
-              Tutti
+              <span className="truncate">Tutti</span>
               {unreadBySource.all > 0 && (
-                <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] ${
+                <span className={`px-1 py-0.5 rounded-full text-[9px] ${
                   activeFilter === 'all' ? 'bg-slate-900 text-lime-400' : 'bg-red-500 text-white'
                 }`}>
                   {unreadBySource.all}
@@ -711,16 +711,16 @@ export default function Messaggi() {
                 <button
                   key={source.key}
                   onClick={() => setActiveFilter(source.key)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors whitespace-nowrap ${
+                  className={`flex items-center justify-center gap-1 px-2 py-2 rounded-lg text-[10px] font-semibold transition-colors ${
                     activeFilter === source.key 
                       ? `${source.color} text-white` 
-                      : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
+                      : 'bg-slate-700 text-slate-400 hover:bg-slate-600'
                   }`}
                 >
-                  <SourceIcon className="w-3 h-3" />
-                  {source.label}
+                  <SourceIcon className="w-3 h-3 flex-shrink-0" />
+                  <span className="truncate">{source.label}</span>
                   {count > 0 && (
-                    <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] ${
+                    <span className={`px-1 py-0.5 rounded-full text-[9px] flex-shrink-0 ${
                       activeFilter === source.key ? 'bg-white/20 text-white' : 'bg-red-500 text-white'
                     }`}>
                       {count}
