@@ -90,31 +90,113 @@ export default function ImportAsteSection() {
     }
   });
 
-  // Parsing CSV
-  const parseCSV = (text) => {
+  // Parsing CSV generico
+  const parseCSVGeneric = (text) => {
     const lines = text.trim().split('\n');
     if (lines.length < 2) throw new Error('CSV vuoto o senza dati');
     
+    // Rileva separatore (virgola o punto e virgola)
+    const firstLine = lines[0];
+    const separator = firstLine.includes(';') ? ';' : ',';
+    
     // Prima riga = intestazioni
-    const headers = lines[0].split(';').map(h => h.trim().replace(/"/g, ''));
+    const headers = lines[0].split(separator).map(h => h.trim().replace(/"/g, '').replace(/^\ufeff/, ''));
     
     const data = [];
     for (let i = 1; i < lines.length; i++) {
-      const values = lines[i].split(';').map(v => v.trim().replace(/"/g, ''));
+      const values = lines[i].split(separator).map(v => v.trim().replace(/"/g, ''));
       if (values.length !== headers.length) continue;
       
       const row = {};
       headers.forEach((h, idx) => {
-        let val = values[idx];
-        // Converti numeri
-        if (['prezzo_base', 'cauzione_stimata'].includes(h)) {
-          val = parseFloat(val.replace(',', '.')) || 0;
-        }
-        row[h] = val;
+        row[h] = values[idx];
       });
       data.push(row);
     }
     return data;
+  };
+
+  // Converte formato web scraper PVP al formato interno
+  const convertWebScraperFormat = (rows) => {
+    return rows.map(row => {
+      // Estrai prezzo (rimuovi € e spazi)
+      let prezzo = 0;
+      if (row.price_0) {
+        prezzo = parseFloat(row.price_0.replace(/[€\s.]/g, '').replace(',', '.')) || 0;
+      }
+      
+      // Estrai data asta (formato DD/MM/YYYY -> YYYY-MM-DD)
+      let dataAsta = '';
+      if (row.Auction_Date_0) {
+        const parts = row.Auction_Date_0.split('/');
+        if (parts.length === 3) {
+          dataAsta = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+        }
+      }
+      
+      // Estrai provincia dalla località
+      let provincia = 'Pesaro-Urbino';
+      const localita = row.data_2 || '';
+      if (localita.includes('Pesaro')) provincia = 'Pesaro-Urbino';
+      else if (localita.includes('Ancona')) provincia = 'Ancona';
+      else if (localita.includes('Rimini')) provincia = 'Rimini';
+      else if (localita.includes('Fano')) provincia = 'Pesaro-Urbino';
+      
+      // External ID dall'URL o Insertion_Number
+      let externalId = row.Insertion_Number_0 || '';
+      if (row['data-page-selector']) {
+        const match = row['data-page-selector'].match(/idAnnuncio=(\d+)/);
+        if (match) externalId = match[1];
+      }
+      
+      // Link ufficiale
+      const linkUfficiale = row['data-page-selector'] || `https://pvp.giustizia.it/pvp/it/detail_annuncio.page?idAnnuncio=${externalId}`;
+      
+      // Titolo dalla descrizione
+      let titolo = row.data_3 || row.Property_Included_in_Lot_-_Description_0 || 'Asta immobiliare';
+      if (titolo.length > 200) titolo = titolo.substring(0, 200) + '...';
+      
+      return {
+        titolo,
+        localita,
+        provincia,
+        prezzo_base: prezzo,
+        data_asta: dataAsta,
+        link_ufficiale: linkUfficiale,
+        external_id: `pvp_${externalId}`,
+        lotto: row.Lot_Number_0 || '',
+        fonte: 'pvp.giustizia.it',
+        cauzione_stimata: prezzo * 0.1
+      };
+    }).filter(a => a.external_id && a.prezzo_base > 0);
+  };
+
+  // Rileva se è formato web scraper
+  const isWebScraperFormat = (headers) => {
+    return headers.includes('Insertion_Number_0') || headers.includes('data-page-selector') || headers.includes('Auction_Date_0');
+  };
+
+  // Parsing CSV con auto-detect formato
+  const parseCSV = (text) => {
+    const rows = parseCSVGeneric(text);
+    if (rows.length === 0) throw new Error('CSV vuoto o senza dati');
+    
+    // Controlla se è formato web scraper
+    const headers = Object.keys(rows[0]);
+    if (isWebScraperFormat(headers)) {
+      return convertWebScraperFormat(rows);
+    }
+    
+    // Formato standard - converti numeri
+    return rows.map(row => {
+      if (row.prezzo_base) {
+        row.prezzo_base = parseFloat(String(row.prezzo_base).replace(',', '.')) || 0;
+      }
+      if (row.cauzione_stimata) {
+        row.cauzione_stimata = parseFloat(String(row.cauzione_stimata).replace(',', '.')) || 0;
+      }
+      return row;
+    });
   };
 
   // Gestisce import file per tipologia specifica
