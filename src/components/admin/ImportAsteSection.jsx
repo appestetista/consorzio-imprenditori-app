@@ -200,7 +200,13 @@ export default function ImportAsteSection() {
         fonte: 'pvp.giustizia.it',
         cauzione_stimata: prezzo * 0.1
       };
-    }).filter(a => a.external_id && a.prezzo_base > 0);
+    }).filter(a => {
+      const valid = a.external_id && a.prezzo_base > 0;
+      if (!valid) {
+        console.log('Asta SCARTATA:', { external_id: a.external_id, prezzo: a.prezzo_base, titolo: a.titolo?.substring(0, 50) });
+      }
+      return valid;
+    });
   };
 
   // Rileva se è formato web scraper
