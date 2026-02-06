@@ -428,17 +428,17 @@ export default function AsteImmobiliari() {
                         
                         {/* Info rapide sotto il titolo */}
                         <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1 text-xs text-slate-400">
-                          {asta.raw_data?.typology_0 && (
-                            <span><span className="text-slate-500">Tipologia:</span> {asta.raw_data.typology_0}</span>
+                          {asta.raw_data?.['property_included_in_lot_-_category_0'] && (
+                            <span><span className="text-slate-500">Tipologia:</span> {asta.raw_data['property_included_in_lot_-_category_0'].replace('Tipologia', '')}</span>
                           )}
-                          {asta.raw_data?.availability_0 && (
-                            <span><span className="text-slate-500">Disponibilità:</span> {asta.raw_data.availability_0}</span>
+                          {asta.raw_data?.sale_mode_0 && (
+                            <span><span className="text-slate-500">Modalità:</span> {asta.raw_data.sale_mode_0}</span>
                           )}
                           {(asta.superficie || asta.raw_data?.data_3?.match(/(\d+[\.,]?\d*)\s*mq/i)) && (
                             <span><span className="text-slate-500">Superficie:</span> {asta.superficie || asta.raw_data?.data_3?.match(/(\d+[\.,]?\d*)\s*mq/i)?.[0]}</span>
                           )}
-                          {asta.raw_data?.rooms_0 && (
-                            <span><span className="text-slate-500">Vani:</span> {asta.raw_data.rooms_0}</span>
+                          {asta.raw_data?.sale_type_0 && (
+                            <span><span className="text-slate-500">Vendita:</span> {asta.raw_data.sale_type_0.replace('Tipologia', '').trim()}</span>
                           )}
                         </div>
                       </div>
