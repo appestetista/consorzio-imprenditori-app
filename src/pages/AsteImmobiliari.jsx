@@ -425,6 +425,22 @@ export default function AsteImmobiliari() {
                           )}
                         </div>
                         <h3 className="text-white font-medium line-clamp-2">{asta.titolo}</h3>
+                        
+                        {/* Info rapide sotto il titolo */}
+                        <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1 text-xs text-slate-400">
+                          {asta.raw_data?.typology_0 && (
+                            <span><span className="text-slate-500">Tipologia:</span> {asta.raw_data.typology_0}</span>
+                          )}
+                          {asta.raw_data?.availability_0 && (
+                            <span><span className="text-slate-500">Disponibilità:</span> {asta.raw_data.availability_0}</span>
+                          )}
+                          {(asta.superficie || asta.raw_data?.data_3?.match(/(\d+[\.,]?\d*)\s*mq/i)) && (
+                            <span><span className="text-slate-500">Superficie:</span> {asta.superficie || asta.raw_data?.data_3?.match(/(\d+[\.,]?\d*)\s*mq/i)?.[0]}</span>
+                          )}
+                          {asta.raw_data?.rooms_0 && (
+                            <span><span className="text-slate-500">Vani:</span> {asta.raw_data.rooms_0}</span>
+                          )}
+                        </div>
                       </div>
                       <button
                         onClick={() => toggleSalvaMutation.mutate(asta.id)}
