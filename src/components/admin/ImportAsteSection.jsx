@@ -181,7 +181,7 @@ export default function ImportAsteSection() {
       const linkUfficiale = row['data-page-selector'] || `https://pvp.giustizia.it/pvp/it/detail_annuncio.page?idAnnuncio=${externalId}`;
       
       // Titolo dalla descrizione
-      let titolo = row.data_3 || row.Property_Included_in_Lot_-_Description_0 || 'Asta immobiliare';
+      let titolo = row.data_3 || row['Property_Included_in_Lot_-_Description_0'] || 'Asta immobiliare';
       if (titolo.length > 200) titolo = titolo.substring(0, 200) + '...';
       
       return {
