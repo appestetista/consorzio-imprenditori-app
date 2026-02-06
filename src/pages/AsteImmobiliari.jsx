@@ -31,14 +31,13 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 
-// Categorie con icone per filtri rapidi
+// Categorie con icone per filtri rapidi (allineate al nuovo schema)
 const CATEGORIE_FILTRO = [
   { id: 'tutte', label: 'Tutte', icon: null, emoji: '📋' },
-  { id: 'Abitativo', label: 'Casa', icon: Home, emoji: '🏠' },
-  { id: 'Commerciale', label: 'Commerciale', icon: Building2, emoji: '🏢' },
-  { id: 'Industriale', label: 'Industriale', icon: Factory, emoji: '🏭' },
-  { id: 'Terreno', label: 'Terreno', icon: null, emoji: '🌳' },
-  { id: 'Altro', label: 'Altro', icon: null, emoji: '📦' },
+  { id: 'Immobile Residenziale', label: 'Residenziale', icon: Home, emoji: '🏠' },
+  { id: 'Immobile Commerciale', label: 'Commerciale', icon: Building2, emoji: '🏢' },
+  { id: 'Immobile Industriale', label: 'Industriale', icon: Factory, emoji: '🏭' },
+  { id: 'Altra Categoria', label: 'Altro', icon: null, emoji: '📦' },
 ];
 
 export default function AsteImmobiliari() {
@@ -59,26 +58,13 @@ export default function AsteImmobiliari() {
     loadUser();
   }, []);
 
-  // Carica aste attive e normalizza i dati
+  // Carica aste attive
   const { data: aste = [], isLoading } = useQuery({
     queryKey: ['aste-immobiliari'],
     queryFn: async () => {
       const allAste = await base44.entities.AstaImmobiliare.filter({ is_active: true });
-      // Normalizza: i dati utili possono essere in a.data (raw) o direttamente in a (SDK normalizzato)
-      const normalized = allAste.map(a => {
-        const hasDataWrapper = a.data && typeof a.data === 'object' && a.data.titolo;
-        if (hasDataWrapper) {
-          return {
-            id: a.id,
-            created_date: a.created_date,
-            ...a.data
-          };
-        }
-        return a;
-      });
-
-      console.log('[AsteImmobiliari] Caricate:', normalized.length, 'aste. Tipologie:', [...new Set(normalized.map(a => a.tipologia))]);
-      return normalized;
+      console.log('[AsteImmobiliari] Caricate:', allAste.length, 'aste. Tipologie:', [...new Set(allAste.map(a => a.tipologia))]);
+      return allAste;
     },
   });
 
@@ -534,7 +520,7 @@ export default function AsteImmobiliari() {
 
         {/* Info aggiornamento */}
                 <p className="text-slate-500 text-xs text-center mt-6">
-                  Dati aggiornati quotidianamente • Fonte: IVG Marche
+                  Dati aggiornati settimanalmente • Fonte: PVP Ministero Giustizia
                 </p>
       </main>
 
