@@ -509,6 +509,23 @@ export default function AsteImmobiliari() {
                       <p className="text-xs text-slate-500 mb-3">{asta.motivo_interesse}</p>
                     )}
 
+                    {/* RAW DATA - Tutti i dati originali dal CSV */}
+                    {asta.raw_data && Object.keys(asta.raw_data).length > 0 && (
+                      <div className="bg-slate-900/80 rounded-lg p-3 mb-3 text-xs">
+                        <p className="text-amber-400 font-semibold mb-2">📋 Dati originali CSV:</p>
+                        <div className="space-y-1 max-h-48 overflow-y-auto">
+                          {Object.entries(asta.raw_data).map(([key, value]) => (
+                            value && String(value).trim() !== '' && (
+                              <div key={key} className="flex gap-2">
+                                <span className="text-slate-500 min-w-[140px] truncate">{key}:</span>
+                                <span className="text-slate-300 break-all">{String(value)}</span>
+                              </div>
+                            )
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     {/* CTA */}
                     <a
                       href={asta.link_ufficiale}
