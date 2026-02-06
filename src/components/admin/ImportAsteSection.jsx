@@ -147,10 +147,13 @@ export default function ImportAsteSection() {
   // Converte formato web scraper PVP al formato interno
   const convertWebScraperFormat = (rows) => {
     return rows.map(row => {
-      // Estrai prezzo (rimuovi € e spazi)
+      // Estrai prezzo (formato italiano: 22.068,00 € -> 22068.00)
       let prezzo = 0;
       if (row.price_0) {
-        prezzo = parseFloat(row.price_0.replace(/[€\s.]/g, '').replace(',', '.')) || 0;
+        // Rimuovi € e spazi, poi rimuovi i punti (separatore migliaia), poi sostituisci virgola con punto
+        const prezzoStr = row.price_0.replace(/[€\s\u00a0]/g, '').replace(/\./g, '').replace(',', '.');
+        prezzo = parseFloat(prezzoStr) || 0;
+        console.log('Prezzo raw:', row.price_0, '-> parsed:', prezzo);
       }
       
       // Estrai data asta (formato DD/MM/YYYY -> YYYY-MM-DD)
