@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -12,32 +12,40 @@ import {
   Calendar, 
   Euro, 
   ExternalLink, 
-  Clock, 
-  TrendingUp,
-  Sparkles,
-  AlertCircle,
-  Star,
   Bookmark,
   BookmarkCheck,
+  Car,
+  Ship,
+  Monitor,
+  Sofa,
+  Wrench,
   Home,
   Factory,
-  Truck,
-  Wrench,
-  Zap
+  Store,
+  Package,
+  ChevronDown,
+  ChevronUp,
+  Filter,
+  X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 
-// Categorie con icone per filtri rapidi (allineate al nuovo schema)
-const CATEGORIE_FILTRO = [
-  { id: 'tutte', label: 'Tutte', icon: null, emoji: '📋' },
-  { id: 'Immobile Residenziale', label: 'Residenziale', icon: Home, emoji: '🏠' },
-  { id: 'Immobile Commerciale', label: 'Commerciale', icon: Building2, emoji: '🏢' },
-  { id: 'Immobile Industriale', label: 'Industriale', icon: Factory, emoji: '🏭' },
-  { id: 'Altra Categoria', label: 'Altro', icon: null, emoji: '📦' },
+// CATEGORIE PRINCIPALI
+const CATEGORIE_MOBILI = [
+  { id: 'Nautica', label: 'Nautica', icon: Ship },
+  { id: 'Informatica E Elettronica', label: 'Informatica', icon: Monitor },
+  { id: 'Autoveicoli', label: 'Autoveicoli', icon: Car },
+  { id: 'Arredamento ed Elettrodomestici', label: 'Arredamento', icon: Sofa },
+  { id: 'Macchinari, Utensili, Materie Prime', label: 'Macchinari', icon: Wrench },
+];
+
+const CATEGORIE_IMMOBILI = [
+  { id: 'Immobile Residenziale', label: 'Residenziale', icon: Home },
+  { id: 'Immobile Commerciale', label: 'Commerciale', icon: Store },
+  { id: 'Immobile Industriale', label: 'Industriale', icon: Factory },
 ];
 
 export default function AsteImmobiliari() {
@@ -45,10 +53,11 @@ export default function AsteImmobiliari() {
   const queryClient = useQueryClient();
 
   // Filtri
-  const [budgetMax, setBudgetMax] = useState('');
-  const [categoriaAttiva, setCategoriaAttiva] = useState('tutte');
-  const [filtroScadenza, setFiltroScadenza] = useState('tutte'); // 'tutte', 'immediate', 'normali', 'oltre90'
-  const [filtroTribunale, setFiltroTribunale] = useState('tutte'); // 'tutte' o nome tribunale
+  const [macroCategoria, setMacroCategoria] = useState('tutti'); // 'tutti', 'mobili', 'immobili'
+  const [categoriaAttiva, setCategoriaAttiva] = useState(null);
+  const [zonaAttiva, setZonaAttiva] = useState(null);
+  const [filtroScadenza, setFiltroScadenza] = useState('tutte');
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -63,7 +72,6 @@ export default function AsteImmobiliari() {
     queryKey: ['aste-immobiliari'],
     queryFn: async () => {
       const allAste = await base44.entities.AstaImmobiliare.filter({ is_active: true });
-      console.log('[AsteImmobiliari] Caricate:', allAste.length, 'aste. Tipologie:', [...new Set(allAste.map(a => a.tipologia))]);
       return allAste;
     },
   });
@@ -96,232 +104,85 @@ export default function AsteImmobiliari() {
 
   // Calcola giorni alla asta
   const giorniAllaAsta = (data) => {
+    if (!data) return 999;
     const oggi = new Date();
     const dataAsta = new Date(data);
     return Math.ceil((dataAsta - oggi) / (1000 * 60 * 60 * 24));
   };
 
-  // Province ammesse (Marche)
-  const PROVINCE_AMMESSE = ['Pesaro-Urbino', 'Ancona', 'Macerata', 'Fermo', 'Ascoli Piceno'];
+  // Estrai zone uniche dagli annunci
+  const zoneDisponibili = useMemo(() => {
+    const zoneSet = new Set();
+    aste.forEach(a => {
+      if (a.provincia && a.provincia !== 'Altra') {
+        zoneSet.add(a.provincia);
+      }
+    });
+    return Array.from(zoneSet).sort();
+  }, [aste]);
 
-  // Funzione filtro principale - applica TUTTI i filtri in AND
-  const applicaTuttiFiltri = React.useCallback((listaAste, { skipBudget, skipCategoria, skipTribunale, skipScadenza } = {}) => {
-    return listaAste.filter(asta => {
-      // Filtro PROVINCE AMMESSE (sempre attivo)
-      if (!PROVINCE_AMMESSE.includes(asta.provincia)) return false;
+  // Determina se una tipologia è mobile o immobile
+  const isMobile = (tipologia) => {
+    return CATEGORIE_MOBILI.some(c => c.id === tipologia);
+  };
 
-      // Filtro BUDGET
-      if (!skipBudget && budgetMax && parseInt(budgetMax) > 0) {
-        if (asta.prezzo_base > parseInt(budgetMax)) return false;
-      }
-      // Filtro TIPOLOGIA
-      if (!skipCategoria && categoriaAttiva !== 'tutte') {
-        if (asta.tipologia !== categoriaAttiva) return false;
-      }
-      // Filtro TRIBUNALE (campo provincia)
-      if (!skipTribunale && filtroTribunale !== 'tutte') {
-        if (asta.provincia !== filtroTribunale) return false;
-      }
-      // Filtro SCADENZA
-      if (!skipScadenza && filtroScadenza !== 'tutte') {
+  const isImmobile = (tipologia) => {
+    return CATEGORIE_IMMOBILI.some(c => c.id === tipologia);
+  };
+
+  // Filtra aste
+  const asteFiltrate = useMemo(() => {
+    return aste.filter(asta => {
+      // Filtro macro categoria
+      if (macroCategoria === 'mobili' && !isMobile(asta.tipologia)) return false;
+      if (macroCategoria === 'immobili' && !isImmobile(asta.tipologia)) return false;
+      
+      // Filtro categoria specifica
+      if (categoriaAttiva && asta.tipologia !== categoriaAttiva) return false;
+      
+      // Filtro zona
+      if (zonaAttiva && asta.provincia !== zonaAttiva) return false;
+      
+      // Filtro scadenza
+      if (filtroScadenza !== 'tutte') {
         const giorni = giorniAllaAsta(asta.data_asta);
-        if (filtroScadenza === 'immediate' && (giorni < 0 || giorni >= 30)) return false;
+        if (filtroScadenza === 'immediate' && giorni >= 30) return false;
         if (filtroScadenza === 'normali' && (giorni < 30 || giorni > 90)) return false;
         if (filtroScadenza === 'oltre90' && giorni <= 90) return false;
       }
+      
       return true;
     });
-  }, [budgetMax, categoriaAttiva, filtroTribunale, filtroScadenza]);
+  }, [aste, macroCategoria, categoriaAttiva, zonaAttiva, filtroScadenza]);
 
-  // Lista aste filtrate finali (tutti i filtri attivi)
-  const asteFiltrate = React.useMemo(() => applicaTuttiFiltri(aste), [aste, applicaTuttiFiltri]);
-
-  // Lista aste ordinate per interesse
+  // Ordina per interesse
   const asteOrdinate = [...asteFiltrate].sort((a, b) => {
-    const ordineInteresse = { 'Molto interessante': 0, 'Interessante': 1, 'Da valutare': 2 };
-    return (ordineInteresse[a.livello_interesse] ?? 3) - (ordineInteresse[b.livello_interesse] ?? 3);
+    const ordine = { 'Molto interessante': 0, 'Interessante': 1, 'Da valutare': 2 };
+    return (ordine[a.livello_interesse] ?? 3) - (ordine[b.livello_interesse] ?? 3);
   });
 
-  // Conteggi per TIPOLOGIA (skip filtro categoria per vedere quante ce ne sono per ogni tipo)
-  const conteggioCategorie = React.useMemo(() => {
-    const astePerConteggio = applicaTuttiFiltri(aste, { skipCategoria: true });
-    const conteggi = { tutte: astePerConteggio.length };
-    CATEGORIE_FILTRO.forEach(cat => {
-      if (cat.id !== 'tutte') {
-        conteggi[cat.id] = astePerConteggio.filter(a => a.tipologia === cat.id).length;
-      }
-    });
-    return conteggi;
-  }, [aste, budgetMax, filtroTribunale, filtroScadenza, applicaTuttiFiltri]);
-
-  // Conteggi per SCADENZA (skip filtro scadenza per vedere quante ce ne sono per ogni fascia)
-  const conteggioScadenze = React.useMemo(() => {
-    const astePerConteggio = applicaTuttiFiltri(aste, { skipScadenza: true });
-    return {
-      immediate: astePerConteggio.filter(a => {
-        const g = giorniAllaAsta(a.data_asta);
-        return g >= 0 && g < 30;
-      }).length,
-      normali: astePerConteggio.filter(a => {
-        const g = giorniAllaAsta(a.data_asta);
-        return g >= 30 && g <= 90;
-      }).length,
-      oltre90: astePerConteggio.filter(a => giorniAllaAsta(a.data_asta) > 90).length
-    };
-  }, [aste, budgetMax, categoriaAttiva, filtroTribunale, applicaTuttiFiltri]);
-
-  // Conteggi per TRIBUNALE (campo provincia) - ora usa solo le province Marche
-    const tribunaliConConteggi = React.useMemo(() => {
-      const astePerConteggio = applicaTuttiFiltri(aste, { skipTribunale: true });
-
-      // Lista province ammesse
-      const provinceAmmesse = ['Pesaro-Urbino', 'Ancona', 'Macerata', 'Fermo', 'Ascoli Piceno'];
-
-      // Conta per tribunale (campo provincia), solo province ammesse
-      const conteggi = {};
-      astePerConteggio.forEach(a => {
-        if (a.provincia && provinceAmmesse.includes(a.provincia)) {
-          conteggi[a.provincia] = (conteggi[a.provincia] || 0) + 1;
-        }
-      });
-
-      // Totale per "Tutte" (solo province ammesse)
-      const totale = astePerConteggio.filter(a => provinceAmmesse.includes(a.provincia)).length;
-
-      // Ordina tribunali nell'ordine definito
-      const tribunaliOrdinati = provinceAmmesse.filter(p => conteggi[p] > 0);
-      const result = tribunaliOrdinati.map(t => ({ nome: t, count: conteggi[t], isUser: false }));
-
-      return { tribunali: result, totale };
-    }, [aste, budgetMax, categoriaAttiva, filtroScadenza, applicaTuttiFiltri]);
-
-  // Totale aste filtrate (per header)
-  const totaleAsteFiltrate = asteOrdinate.length;
+  // Conteggi
+  const countMobili = aste.filter(a => isMobile(a.tipologia)).length;
+  const countImmobili = aste.filter(a => isImmobile(a.tipologia)).length;
 
   const formatPrezzo = (prezzo) => {
+    if (!prezzo) return '€ 0';
     return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(prezzo);
   };
 
   const formatData = (data) => {
+    if (!data) return 'N/D';
     return new Date(data).toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' });
   };
 
-  const getInteresseBadge = (livello) => {
-    switch (livello) {
-      case 'Molto interessante':
-        return <Badge className="bg-green-500 text-white"><Sparkles className="w-3 h-3 mr-1" /> Top</Badge>;
-      case 'Interessante':
-        return <Badge className="bg-amber-500 text-white"><Star className="w-3 h-3 mr-1" /> Buona</Badge>;
-      default:
-        return <Badge variant="outline" className="text-slate-400"><AlertCircle className="w-3 h-3 mr-1" /> Valutare</Badge>;
-    }
+  const resetFiltri = () => {
+    setMacroCategoria('tutti');
+    setCategoriaAttiva(null);
+    setZonaAttiva(null);
+    setFiltroScadenza('tutte');
   };
 
-  // Card singola asta
-  const AstaCard = ({ asta, isImmediate = false }) => {
-    const giorni = giorniAllaAsta(asta.data_asta);
-    
-    return (
-      <Card 
-        className={`border transition-all ${
-          isImmediate 
-            ? 'bg-gradient-to-r from-red-900/30 to-slate-800 border-red-500/30'
-            : asta.livello_interesse === 'Molto interessante' 
-            ? 'bg-gradient-to-r from-green-900/30 to-slate-800 border-green-500/30' 
-            : asta.livello_interesse === 'Interessante'
-            ? 'bg-gradient-to-r from-amber-900/20 to-slate-800 border-amber-500/30'
-            : 'bg-slate-800 border-slate-700'
-        }`}
-      >
-        <CardContent className="p-4">
-          {/* Header */}
-          <div className="flex items-start justify-between mb-3">
-            <div className="flex-1">
-              {isImmediate ? (
-                <Badge className="bg-red-500 text-white"><Zap className="w-3 h-3 mr-1" /> Immediata</Badge>
-              ) : (
-                getInteresseBadge(asta.livello_interesse)
-              )}
-              <h3 className="text-white font-medium mt-2 line-clamp-2">{asta.titolo}</h3>
-            </div>
-          </div>
-
-          {/* Le 3 domande chiave */}
-          <div className="bg-slate-900/50 rounded-lg p-3 mb-3 space-y-2">
-            <div className="flex items-start gap-2">
-              <Calendar className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="text-amber-400 text-xs font-semibold">Quando devo decidere?</p>
-                <p className="text-white text-sm">
-                  Asta il <span className="font-bold">{formatData(asta.data_asta)}</span> — 
-                  <span className={giorni < 30 ? 'text-red-400 font-bold' : 'text-lime-400'}>
-                    {' '}{giorni} giorni
-                  </span>
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-2">
-              <Euro className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="text-green-400 text-xs font-semibold">Quanti soldi devo immobilizzare?</p>
-                <p className="text-white text-sm">
-                  Prezzo base: <span className="font-bold">{formatPrezzo(asta.prezzo_base)}</span>
-                </p>
-                <p className="text-slate-400 text-xs">
-                  Cauzione (10%): <span className="text-white font-medium">{formatPrezzo(asta.cauzione_stimata || asta.prezzo_base * 0.1)}</span>
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-2">
-              <TrendingUp className="w-4 h-4 text-lime-400 mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="text-lime-400 text-xs font-semibold">Perché dovrei aprirla?</p>
-                <p className="text-white text-sm">{asta.motivo_interesse || 'Opportunità da analizzare'}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Info rapide */}
-          <div className="flex items-center justify-between text-sm mb-3">
-            <div className="flex items-center gap-2 text-slate-300">
-              <MapPin className="w-4 h-4 text-amber-400" />
-              <span>{asta.localita}</span>
-            </div>
-            <Badge variant="outline" className="text-slate-400">
-              {asta.tipologia}
-            </Badge>
-          </div>
-
-          {/* CTA */}
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              onClick={() => toggleSalvaMutation.mutate(asta.id)}
-              disabled={toggleSalvaMutation.isPending}
-              className={`flex-shrink-0 ${
-                asteSalvateIds.has(asta.id) 
-                  ? 'bg-amber-400/20 border-amber-400 text-amber-400' 
-                  : 'border-slate-600 text-slate-300 hover:border-lime-400 hover:text-lime-400'
-              }`}
-            >
-              {asteSalvateIds.has(asta.id) ? <BookmarkCheck className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}
-            </Button>
-            <a
-              href={asta.link_ufficiale}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 flex items-center justify-center gap-2 bg-lime-400 hover:bg-lime-500 text-slate-900 font-medium py-2 rounded-lg transition-colors"
-            >
-              <ExternalLink className="w-4 h-4" />
-              Vedi dettagli
-            </a>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  };
+  const hasActiveFilters = macroCategoria !== 'tutti' || categoriaAttiva || zonaAttiva || filtroScadenza !== 'tutte';
 
   if (isLoading || !user) {
     return (
@@ -335,15 +196,15 @@ export default function AsteImmobiliari() {
     <div className="min-h-screen pb-24" style={{ backgroundColor: '#001d3b' }}>
       <Header user={user} />
 
-      <main className="px-4 py-6 max-w-2xl mx-auto">
+      <main className="px-4 py-4 max-w-2xl mx-auto">
         {/* Header */}
         <div className="flex items-center gap-3 mb-4">
           <Link to={createPageUrl('Home')} className="text-lime-400">
             <ArrowLeft className="w-6 h-6" />
           </Link>
           <div className="flex-1">
-            <h1 className="text-white text-xl font-bold">Aste Immobiliari</h1>
-            <p className="text-slate-400 text-sm">{totaleAsteFiltrate} aste trovate</p>
+            <h1 className="text-white text-xl font-bold">Aste Giudiziarie</h1>
+            <p className="text-slate-400 text-sm">{asteOrdinate.length} annunci</p>
           </div>
           <Link to={createPageUrl('AsteSalvate')}>
             <Button variant="outline" size="sm" className="border-amber-400 text-amber-400">
@@ -353,175 +214,295 @@ export default function AsteImmobiliari() {
           </Link>
         </div>
 
-        {/* BUDGET - Campo prominente */}
-        <Card className="bg-slate-800 border-lime-400/50 mb-4">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <Euro className="w-6 h-6 text-lime-400 flex-shrink-0" />
-              <div className="flex-1">
-                <label className="text-white font-medium block mb-1">Il tuo budget massimo</label>
-                <Input
-                  type="number"
-                  placeholder="Inserisci importo... (vuoto = mostra tutto)"
-                  value={budgetMax}
-                  onChange={(e) => setBudgetMax(e.target.value)}
-                  className="bg-slate-900 border-slate-600 text-white text-lg h-12"
-                />
+        {/* MACRO FILTRI - Mobili / Immobili */}
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <button
+            onClick={() => {
+              setMacroCategoria(macroCategoria === 'mobili' ? 'tutti' : 'mobili');
+              setCategoriaAttiva(null);
+            }}
+            className={`p-4 rounded-xl border-2 transition-all ${
+              macroCategoria === 'mobili'
+                ? 'bg-lime-400/20 border-lime-400 text-lime-400'
+                : 'bg-slate-800/50 border-slate-700 text-white hover:border-slate-500'
+            }`}
+          >
+            <Package className="w-8 h-8 mx-auto mb-2" />
+            <p className="font-bold text-lg">{countMobili}</p>
+            <p className="text-sm opacity-80">Beni Mobili</p>
+          </button>
+          
+          <button
+            onClick={() => {
+              setMacroCategoria(macroCategoria === 'immobili' ? 'tutti' : 'immobili');
+              setCategoriaAttiva(null);
+            }}
+            className={`p-4 rounded-xl border-2 transition-all ${
+              macroCategoria === 'immobili'
+                ? 'bg-amber-400/20 border-amber-400 text-amber-400'
+                : 'bg-slate-800/50 border-slate-700 text-white hover:border-slate-500'
+            }`}
+          >
+            <Building2 className="w-8 h-8 mx-auto mb-2" />
+            <p className="font-bold text-lg">{countImmobili}</p>
+            <p className="text-sm opacity-80">Immobili</p>
+          </button>
+        </div>
+
+        {/* SOTTO-CATEGORIE */}
+        {macroCategoria === 'mobili' && (
+          <div className="mb-4">
+            <p className="text-slate-400 text-xs uppercase tracking-wide mb-2">Tipologia bene mobile</p>
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+              {CATEGORIE_MOBILI.map(cat => {
+                const Icon = cat.icon;
+                const count = aste.filter(a => a.tipologia === cat.id).length;
+                const isActive = categoriaAttiva === cat.id;
+                return (
+                  <button
+                    key={cat.id}
+                    onClick={() => setCategoriaAttiva(isActive ? null : cat.id)}
+                    className={`flex-shrink-0 px-3 py-2 rounded-lg border transition-all flex items-center gap-2 ${
+                      isActive
+                        ? 'bg-lime-400/20 border-lime-400 text-lime-400'
+                        : 'bg-slate-800/50 border-slate-700 text-slate-300 hover:border-slate-500'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span className="text-sm">{cat.label}</span>
+                    <Badge variant="outline" className={`text-xs ${isActive ? 'border-lime-400 text-lime-400' : 'border-slate-600 text-slate-400'}`}>
+                      {count}
+                    </Badge>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {macroCategoria === 'immobili' && (
+          <div className="mb-4">
+            <p className="text-slate-400 text-xs uppercase tracking-wide mb-2">Tipologia immobile</p>
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+              {CATEGORIE_IMMOBILI.map(cat => {
+                const Icon = cat.icon;
+                const count = aste.filter(a => a.tipologia === cat.id).length;
+                const isActive = categoriaAttiva === cat.id;
+                return (
+                  <button
+                    key={cat.id}
+                    onClick={() => setCategoriaAttiva(isActive ? null : cat.id)}
+                    className={`flex-shrink-0 px-3 py-2 rounded-lg border transition-all flex items-center gap-2 ${
+                      isActive
+                        ? 'bg-amber-400/20 border-amber-400 text-amber-400'
+                        : 'bg-slate-800/50 border-slate-700 text-slate-300 hover:border-slate-500'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span className="text-sm">{cat.label}</span>
+                    <Badge variant="outline" className={`text-xs ${isActive ? 'border-amber-400 text-amber-400' : 'border-slate-600 text-slate-400'}`}>
+                      {count}
+                    </Badge>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* ALTRI FILTRI (Zone e Scadenza) */}
+        <button 
+          onClick={() => setShowFilters(!showFilters)}
+          className="w-full mb-3 flex items-center justify-between px-4 py-2 bg-slate-800/50 rounded-lg border border-slate-700 text-slate-300"
+        >
+          <div className="flex items-center gap-2">
+            <Filter className="w-4 h-4" />
+            <span className="text-sm">Altri filtri</span>
+            {hasActiveFilters && (
+              <Badge className="bg-lime-400 text-slate-900 text-xs">Attivi</Badge>
+            )}
+          </div>
+          {showFilters ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+        </button>
+
+        {showFilters && (
+          <Card className="bg-slate-800/50 border-slate-700 mb-4">
+            <CardContent className="p-4 space-y-4">
+              {/* Filtro Zone */}
+              <div>
+                <p className="text-slate-400 text-xs uppercase tracking-wide mb-2">📍 Zona</p>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => setZonaAttiva(null)}
+                    className={`px-3 py-1.5 rounded-full text-sm transition-all ${
+                      !zonaAttiva
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                    }`}
+                  >
+                    Tutte
+                  </button>
+                  {zoneDisponibili.map(zona => (
+                    <button
+                      key={zona}
+                      onClick={() => setZonaAttiva(zonaAttiva === zona ? null : zona)}
+                      className={`px-3 py-1.5 rounded-full text-sm transition-all ${
+                        zonaAttiva === zona
+                          ? 'bg-blue-500 text-white'
+                          : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                      }`}
+                    >
+                      {zona}
+                    </button>
+                  ))}
+                </div>
               </div>
-              {budgetMax && (
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  onClick={() => setBudgetMax('')}
-                  className="text-slate-400 hover:text-white"
+
+              {/* Filtro Scadenza */}
+              <div>
+                <p className="text-slate-400 text-xs uppercase tracking-wide mb-2">⏰ Scadenza</p>
+                <div className="flex flex-wrap gap-2">
+                  {[
+                    { id: 'tutte', label: 'Tutte' },
+                    { id: 'immediate', label: '< 30 giorni' },
+                    { id: 'normali', label: '30-90 giorni' },
+                    { id: 'oltre90', label: '> 90 giorni' },
+                  ].map(opt => (
+                    <button
+                      key={opt.id}
+                      onClick={() => setFiltroScadenza(opt.id)}
+                      className={`px-3 py-1.5 rounded-full text-sm transition-all ${
+                        filtroScadenza === opt.id
+                          ? 'bg-purple-500 text-white'
+                          : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Reset */}
+              {hasActiveFilters && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={resetFiltri}
+                  className="w-full border-red-500/50 text-red-400 hover:bg-red-500/10"
                 >
-                  Reset
+                  <X className="w-4 h-4 mr-2" />
+                  Rimuovi tutti i filtri
                 </Button>
               )}
-            </div>
-            {budgetMax && (
-              <p className="text-lime-400 text-sm mt-2">
-                Mostrando aste fino a {formatPrezzo(parseInt(budgetMax))}
-              </p>
-            )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
 
-        {/* FILTRI CATEGORIA - Scorrevoli */}
-        <div className="mb-3">
-          <p className="text-slate-400 text-xs font-medium mb-2 uppercase tracking-wide">🏠 Tipologia</p>
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-            {CATEGORIE_FILTRO.map((cat, catIndex) => {
-              const isActive = categoriaAttiva === cat.id;
-              const countCat = conteggioCategorie[cat.id] || 0;
+        {/* LISTA ASTE */}
+        <div className="space-y-3">
+          {asteOrdinate.length === 0 ? (
+            <Card className="bg-slate-800 border-slate-700">
+              <CardContent className="p-8 text-center">
+                <Package className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+                <p className="text-white font-medium">Nessuna asta trovata</p>
+                <p className="text-slate-400 text-sm mt-1">Prova a modificare i filtri</p>
+              </CardContent>
+            </Card>
+          ) : (
+            asteOrdinate.map((asta) => {
+              const giorni = giorniAllaAsta(asta.data_asta);
+              const isScaduta = giorni < 0;
               
               return (
                 <Card 
-                  key={`cat-${catIndex}`}
-                  className={`cursor-pointer transition-all flex-shrink-0 min-w-[90px] ${
-                    isActive 
-                      ? 'bg-lime-500/40 border-lime-400 ring-2 ring-lime-400' 
-                      : 'bg-slate-700/50 border-slate-600 hover:bg-slate-600/50'
+                  key={asta.id}
+                  className={`border transition-all overflow-hidden ${
+                    isScaduta 
+                      ? 'bg-slate-800/50 border-slate-700 opacity-60'
+                      : asta.livello_interesse === 'Molto interessante'
+                      ? 'bg-gradient-to-r from-green-900/30 to-slate-800 border-green-500/30'
+                      : asta.livello_interesse === 'Interessante'
+                      ? 'bg-gradient-to-r from-amber-900/20 to-slate-800 border-amber-500/30'
+                      : 'bg-slate-800 border-slate-700'
                   }`}
-                  onClick={() => setCategoriaAttiva(cat.id)}
                 >
-                  <CardContent className="p-3 text-center">
-                    <p className={`text-xl font-bold ${isActive ? 'text-lime-400' : 'text-white'}`}>{countCat}</p>
-                    <p className={`text-xs font-medium ${isActive ? 'text-lime-300' : 'text-slate-400'}`}>{cat.emoji} {cat.label}</p>
+                  <CardContent className="p-4">
+                    {/* Header con badge */}
+                    <div className="flex items-start justify-between gap-2 mb-3">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <Badge variant="outline" className="text-xs text-slate-400 border-slate-600">
+                            {asta.tipologia || 'Altro'}
+                          </Badge>
+                          {!isScaduta && asta.livello_interesse === 'Molto interessante' && (
+                            <Badge className="bg-green-500 text-white text-xs">⭐ Top</Badge>
+                          )}
+                          {isScaduta && (
+                            <Badge className="bg-red-500/50 text-red-200 text-xs">Scaduta</Badge>
+                          )}
+                        </div>
+                        <h3 className="text-white font-medium line-clamp-2">{asta.titolo}</h3>
+                      </div>
+                      <button
+                        onClick={() => toggleSalvaMutation.mutate(asta.id)}
+                        disabled={toggleSalvaMutation.isPending}
+                        className={`p-2 rounded-lg transition-colors ${
+                          asteSalvateIds.has(asta.id)
+                            ? 'bg-amber-400/20 text-amber-400'
+                            : 'bg-slate-700 text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        {asteSalvateIds.has(asta.id) ? <BookmarkCheck className="w-5 h-5" /> : <Bookmark className="w-5 h-5" />}
+                      </button>
+                    </div>
+
+                    {/* Info principali */}
+                    <div className="grid grid-cols-2 gap-3 mb-3">
+                      <div className="flex items-center gap-2">
+                        <Euro className="w-4 h-4 text-green-400" />
+                        <span className="text-green-400 font-bold">{formatPrezzo(asta.prezzo_base)}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Calendar className="w-4 h-4 text-amber-400" />
+                        <span className={`text-sm ${isScaduta ? 'text-red-400' : giorni < 30 ? 'text-amber-400' : 'text-slate-300'}`}>
+                          {isScaduta ? 'Scaduta' : `${giorni} giorni`}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Località */}
+                    <div className="flex items-start gap-2 mb-3">
+                      <MapPin className="w-4 h-4 text-slate-500 mt-0.5 flex-shrink-0" />
+                      <span className="text-slate-400 text-sm line-clamp-1">{asta.localita}</span>
+                    </div>
+
+                    {/* Motivo interesse */}
+                    {asta.motivo_interesse && (
+                      <p className="text-xs text-slate-500 mb-3">{asta.motivo_interesse}</p>
+                    )}
+
+                    {/* CTA */}
+                    <a
+                      href={asta.link_ufficiale}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 w-full py-2.5 bg-lime-400 hover:bg-lime-500 text-slate-900 font-medium rounded-lg transition-colors"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                      Vedi su PVP
+                    </a>
                   </CardContent>
                 </Card>
               );
-            })}
-          </div>
+            })
+          )}
         </div>
 
-        {/* FILTRI TRIBUNALE - Scorrevoli */}
-        <div className="mb-3">
-          <p className="text-slate-400 text-xs font-medium mb-2 uppercase tracking-wide">⚖️ Tribunale</p>
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-            <Card 
-              className={`cursor-pointer transition-all flex-shrink-0 min-w-[90px] ${
-                filtroTribunale === 'tutte' 
-                  ? 'bg-amber-500/40 border-amber-400 ring-2 ring-amber-400' 
-                  : 'bg-slate-700/50 border-slate-600 hover:bg-slate-600/50'
-              }`}
-              onClick={() => setFiltroTribunale('tutte')}
-            >
-              <CardContent className="p-3 text-center">
-                <p className={`text-xl font-bold ${filtroTribunale === 'tutte' ? 'text-amber-400' : 'text-white'}`}>
-                  {tribunaliConConteggi.totale}
-                </p>
-                <p className={`text-xs font-medium ${filtroTribunale === 'tutte' ? 'text-amber-300' : 'text-slate-400'}`}>🗺️ Tutte</p>
-              </CardContent>
-            </Card>
-            {tribunaliConConteggi.tribunali.map((trib, tribIndex) => {
-              const isActive = filtroTribunale === trib.nome;
-              return (
-                <Card 
-                  key={`trib-${tribIndex}`}
-                  className={`cursor-pointer transition-all flex-shrink-0 min-w-[90px] ${
-                    isActive 
-                      ? 'bg-amber-500/40 border-amber-400 ring-2 ring-amber-400' 
-                      : 'bg-slate-700/50 border-slate-600 hover:bg-slate-600/50'
-                  }`}
-                  onClick={() => setFiltroTribunale(trib.nome)}
-                >
-                  <CardContent className="p-3 text-center">
-                    <p className={`text-xl font-bold ${isActive ? 'text-amber-400' : 'text-white'}`}>{trib.count}</p>
-                    <p className={`text-xs font-medium ${isActive ? 'text-amber-300' : 'text-slate-400'}`}>
-                      {trib.isUser && isActive ? '📍' : ''}{trib.nome.split('-')[0]}
-                    </p>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* FILTRI SCADENZA - Scorrevoli */}
-        <div className="mb-5">
-          <p className="text-slate-400 text-xs font-medium mb-2 uppercase tracking-wide">⏰ Scadenza asta</p>
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-            <Card 
-              className={`cursor-pointer transition-all flex-shrink-0 min-w-[90px] ${filtroScadenza === 'immediate' ? 'bg-red-500/40 border-red-400 ring-2 ring-red-400' : 'bg-red-500/20 border-red-500/30 hover:bg-red-500/30'}`}
-              onClick={() => setFiltroScadenza(filtroScadenza === 'immediate' ? 'tutte' : 'immediate')}
-            >
-              <CardContent className="p-3 text-center">
-                <p className={`text-xl font-bold ${filtroScadenza === 'immediate' ? 'text-red-300' : 'text-red-400'}`}>{conteggioScadenze.immediate}</p>
-                <p className={`text-xs font-medium ${filtroScadenza === 'immediate' ? 'text-red-200' : 'text-red-300'}`}>⚡ &lt;30gg</p>
-              </CardContent>
-            </Card>
-            <Card 
-              className={`cursor-pointer transition-all flex-shrink-0 min-w-[90px] ${filtroScadenza === 'normali' ? 'bg-lime-500/40 border-lime-400 ring-2 ring-lime-400' : 'bg-slate-700/50 border-slate-600 hover:bg-slate-600/50'}`}
-              onClick={() => setFiltroScadenza(filtroScadenza === 'normali' ? 'tutte' : 'normali')}
-            >
-              <CardContent className="p-3 text-center">
-                <p className={`text-xl font-bold ${filtroScadenza === 'normali' ? 'text-lime-400' : 'text-white'}`}>{conteggioScadenze.normali}</p>
-                <p className={`text-xs font-medium ${filtroScadenza === 'normali' ? 'text-lime-300' : 'text-slate-400'}`}>📅 30-90gg</p>
-              </CardContent>
-            </Card>
-            <Card 
-              className={`cursor-pointer transition-all flex-shrink-0 min-w-[90px] ${filtroScadenza === 'oltre90' ? 'bg-blue-500/40 border-blue-400 ring-2 ring-blue-400' : 'bg-slate-700/50 border-slate-600 hover:bg-slate-600/50'}`}
-              onClick={() => setFiltroScadenza(filtroScadenza === 'oltre90' ? 'tutte' : 'oltre90')}
-            >
-              <CardContent className="p-3 text-center">
-                <p className={`text-xl font-bold ${filtroScadenza === 'oltre90' ? 'text-blue-400' : 'text-white'}`}>{conteggioScadenze.oltre90}</p>
-                <p className={`text-xs font-medium ${filtroScadenza === 'oltre90' ? 'text-blue-300' : 'text-slate-400'}`}>📆 &gt;90gg</p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-
-        {/* LISTA ASTE FILTRATE */}
-        <div>
-          <div className="flex items-center gap-2 mb-3">
-            {filtroScadenza === 'immediate' && <><Zap className="w-5 h-5 text-red-400" /><h2 className="text-red-400 font-bold text-lg">Aste Immediate (&lt;30gg)</h2></>}
-            {filtroScadenza === 'normali' && <><Calendar className="w-5 h-5 text-lime-400" /><h2 className="text-lime-400 font-bold text-lg">Aste 30-90 giorni</h2></>}
-            {filtroScadenza === 'oltre90' && <><Calendar className="w-5 h-5 text-blue-400" /><h2 className="text-blue-400 font-bold text-lg">Aste oltre 90 giorni</h2></>}
-            {filtroScadenza === 'tutte' && <><Building2 className="w-5 h-5 text-white" /><h2 className="text-white font-bold text-lg">Tutte le aste</h2></>}
-            <Badge variant="outline" className="text-slate-400 ml-auto">{asteOrdinate.length} risultati</Badge>
-          </div>
-          <div className="space-y-3">
-            {asteOrdinate.length === 0 ? (
-              <Card className="bg-slate-800 border-slate-700">
-                <CardContent className="p-6 text-center">
-                  <Building2 className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-                  <p className="text-white font-medium">Nessuna asta trovata</p>
-                  <p className="text-slate-400 text-sm">Prova a modificare i filtri</p>
-                </CardContent>
-              </Card>
-            ) : (
-              asteOrdinate.map((asta, index) => (
-                <AstaCard key={`asta-${index}`} asta={asta} isImmediate={giorniAllaAsta(asta.data_asta) < 30} />
-              ))
-            )}
-          </div>
-        </div>
-
-        {/* Info aggiornamento */}
-                <p className="text-slate-500 text-xs text-center mt-6">
-                  Dati aggiornati settimanalmente • Fonte: PVP Ministero Giustizia
-                </p>
+        {/* Footer */}
+        <p className="text-slate-500 text-xs text-center mt-6">
+          Dati aggiornati settimanalmente • Fonte: PVP Giustizia
+        </p>
       </main>
 
       <BottomNav currentPage="AsteImmobiliari" />
