@@ -462,14 +462,27 @@ export default function AsteImmobiliari() {
                       </div>
                       
                       {/* Termine presentazione offerte */}
-                      {(asta.termine_presentazione_offerte || asta.raw_data?.offer_submission_deadline_0) && (
-                        <div className="flex items-center gap-2 text-xs">
-                          <span className="text-slate-500">Termine presentazione offerte:</span>
-                          <span className="text-orange-400 font-medium">
-                            {asta.termine_presentazione_offerte || asta.raw_data?.offer_submission_deadline_0}
-                          </span>
-                        </div>
-                      )}
+                        {(asta.termine_presentazione_offerte || asta.raw_data?.offer_submission_deadline_0) && (
+                          <div className="flex items-center gap-2 text-xs">
+                            <span className="text-slate-500">Termine presentazione offerte:</span>
+                            <span className="text-orange-400 font-medium">
+                              {asta.termine_presentazione_offerte || asta.raw_data?.offer_submission_deadline_0}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Superficie */}
+                        {(asta.superficie || asta.raw_data?.data_3?.match(/(\d+[\.,]?\d*)\s*mq/i)) && (
+                          <div className="flex items-center gap-2 text-xs">
+                            <span className="text-slate-500">Superficie:</span>
+                            <span className="text-cyan-400 font-medium">
+                              {asta.superficie || (() => {
+                                const match = asta.raw_data?.data_3?.match(/(\d+[\.,]?\d*)\s*mq/i);
+                                return match ? `${match[1]} mq` : null;
+                              })()}
+                            </span>
+                          </div>
+                        )}
 
                       {/* Offerta minima e rilancio minimo */}
                       <div className="grid grid-cols-2 gap-3 text-xs">
