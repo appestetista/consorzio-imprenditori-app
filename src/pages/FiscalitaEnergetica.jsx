@@ -187,15 +187,47 @@ export default function FiscalitaEnergetica() {
   });
 
   const handleSubmit = () => {
-    if (!formData.settore_attivita || !formData.spesa_energetica_range) {
-      toast.error('Compila almeno settore e spesa energetica');
+    // Validazione campi obbligatori
+    if (!formData.ragione_sociale || !formData.settore_attivita) {
+      toast.error('Compila i dati aziendali');
       return;
     }
-    if (!formData.preferenza_contatto) {
-      toast.error('Seleziona una preferenza di contatto');
+    if (!formData.tipo_energia) {
+      toast.error('Indica il tipo di energia utilizzata');
+      return;
+    }
+    if (!formData.nome_referente || !formData.telefono_referente) {
+      toast.error('Compila i dati di contatto');
       return;
     }
     createRichiestaMutation.mutate(formData);
+  };
+  
+  const validateSection = (section) => {
+    switch(section) {
+      case 1:
+        return formData.ragione_sociale && formData.settore_attivita;
+      case 2:
+        return formData.tipo_energia;
+      case 3:
+        return true; // Sezione opzionale ma utile
+      case 4:
+        return formData.nome_referente && formData.telefono_referente;
+      default:
+        return false;
+    }
+  };
+  
+  const nextFormSection = () => {
+    if (formSection < 4) {
+      setFormSection(formSection + 1);
+    }
+  };
+  
+  const prevFormSection = () => {
+    if (formSection > 1) {
+      setFormSection(formSection - 1);
+    }
   };
 
   const updateForm = (field, value) => {
