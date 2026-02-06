@@ -550,7 +550,7 @@ export default function AsteImmobiliari() {
                       className="flex items-center justify-center gap-2 w-full py-2.5 bg-lime-400 hover:bg-lime-500 text-slate-900 font-medium rounded-lg transition-colors"
                     >
                       <ExternalLink className="w-4 h-4" />
-                      Vedi su PVP
+                      Vedi annuncio
                     </a>
                   </CardContent>
                 </Card>
