@@ -27,12 +27,12 @@ function estraiExternalId(url) {
   return match ? `pvp_${match[1]}` : null;
 }
 
-// Converte data da MM/DD/YYYY a YYYY-MM-DD
+// Converte data da DD/MM/YYYY a YYYY-MM-DD
 function convertiData(dataStr) {
   if (!dataStr) return null;
-  const parts = dataStr.split('/');
+  const parts = dataStr.trim().split('/');
   if (parts.length !== 3) return null;
-  const [month, day, year] = parts;
+  const [day, month, year] = parts; // Formato italiano DD/MM/YYYY
   return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
 }
 
@@ -112,36 +112,64 @@ Deno.serve(async (req) => {
     
     for (const asta of asteRaw) {
       try {
-        const externalId = estraiExternalId(asta['URL Annuncio']);
+        // Supporta sia formato "pronto" (già processato dal frontend) che formato raw
+        let externalId, prezzoBase, dataAsta, localita, titolo, linkUfficiale, lotto, tipologia;
+        
+        // Se l'asta ha già external_id, è stata pre-processata dal frontend
+        if (asta.external_id) {
+          externalId = asta.external_id;
+          prezzoBase = asta.prezzo_base || 0;
+          dataAsta = asta.data_asta || null;
+          localita = asta.localita || '';
+          titolo = asta.titolo || 'Asta immobiliare';
+          linkUfficiale = asta.link_ufficiale || '';
+          lotto = asta.lotto || 'Lotto unico';
+          tipologia = asta.tipologia || 'Altra Categoria';
+        } else {
+          // Formato vecchio (legacy)
+          externalId = estraiExternalId(asta['URL Annuncio']);
+          prezzoBase = parseFloat(asta['Prezzo Base d\'Asta (EUR)']) || 0;
+          dataAsta = convertiData(asta['Data Vendita']);
+          localita = asta['Indirizzo'] || '';
+          titolo = asta['Descrizione Breve'] || asta['Lotto'] || 'Asta immobiliare';
+          linkUfficiale = asta['URL Annuncio'] || '';
+          lotto = asta['Lotto'] || 'Lotto unico';
+          tipologia = asta['Tipo Immobile'] || asta.tipologia || 'Altra Categoria';
+        }
+        
         if (!externalId) {
+          console.log('[importAste] Scartata - no external_id:', JSON.stringify(asta).substring(0, 200));
+          scartate++;
+          continue;
+        }
+
+        if (prezzoBase <= 0) {
+          console.log('[importAste] Scartata - prezzo <= 0:', externalId, prezzoBase);
           scartate++;
           continue;
         }
         
-        const prezzoBase = parseFloat(asta['Prezzo Base d\'Asta (EUR)']) || 0;
-        const dataAsta = convertiData(asta['Data Vendita']);
-        const dataPubblicazione = convertiData(asta['Data Pubblicazione']);
         const giorniAllaAsta = calcolaGiorniAllaAsta(dataAsta);
-        const tipologia = asta['Tipo Immobile'] || 'Altra Categoria';
         
         const astaProcessata = {
-          titolo: asta['Descrizione Breve'] || asta['Lotto'] || 'Asta immobiliare',
+          titolo: titolo,
           tipologia: tipologia,
-          localita: asta['Indirizzo'] || '',
-          provincia: estraiProvincia(asta['Indirizzo']),
+          localita: localita,
+          provincia: estraiProvincia(localita),
           prezzo_base: prezzoBase,
           data_asta: dataAsta,
-          data_pubblicazione: dataPubblicazione,
-          link_ufficiale: asta['URL Annuncio'],
-          lotto: asta['Lotto'] || 'Lotto unico',
+          data_pubblicazione: null,
+          link_ufficiale: linkUfficiale,
+          lotto: lotto,
           external_id: externalId,
           fonte: 'pvp.giustizia.it',
           cauzione_stimata: Math.round(prezzoBase * 0.10),
-          giorni_alla_asta: giorniAllaAsta,
           livello_interesse: calcolaInteresse(prezzoBase, giorniAllaAsta, tipologia),
           motivo_interesse: generaMotivoInteresse(prezzoBase, tipologia, giorniAllaAsta),
           is_active: giorniAllaAsta >= 0
         };
+        
+        console.log('[importAste] Processando:', externalId, 'prezzo:', prezzoBase, 'data:', dataAsta);
         
         if (externalIdsEsistenti.has(externalId)) {
           // Aggiorna esistente
@@ -158,7 +186,8 @@ Deno.serve(async (req) => {
         }
         
       } catch (e) {
-        errori.push({ asta: asta['URL Annuncio'], errore: e.message });
+        console.log('[importAste] Errore su asta:', e.message);
+        errori.push({ asta: asta.external_id || 'unknown', errore: e.message });
         scartate++;
       }
     }
