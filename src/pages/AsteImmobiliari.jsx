@@ -252,7 +252,10 @@ export default function AsteImmobiliari() {
         {/* SOTTO-CATEGORIE */}
         {macroCategoria === 'mobili' && (
           <div className="mb-4">
-            <p className="text-slate-400 text-xs uppercase tracking-wide mb-2">Tipologia bene mobile</p>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-slate-400 text-xs uppercase tracking-wide">Tipologia bene mobile</p>
+              <p className="text-lime-400 text-xs animate-pulse">← scorri →</p>
+            </div>
             <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
               {CATEGORIE_MOBILI.map(cat => {
                 const Icon = cat.icon;
@@ -282,7 +285,10 @@ export default function AsteImmobiliari() {
 
         {macroCategoria === 'immobili' && (
           <div className="mb-4">
-            <p className="text-slate-400 text-xs uppercase tracking-wide mb-2">Tipologia immobile</p>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-slate-400 text-xs uppercase tracking-wide">Tipologia immobile</p>
+              <p className="text-amber-400 text-xs animate-pulse">← scorri →</p>
+            </div>
             <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
               {CATEGORIE_IMMOBILI.map(cat => {
                 const Icon = cat.icon;
