@@ -863,8 +863,12 @@ export default function FiscalitaEnergetica() {
                         >
                           {['Sì', 'No'].map(opt => (
                             <div key={opt} className="flex items-center gap-2">
-                              <RadioGroupItem value={opt} id={`imp-${opt}`} className="border-slate-600" />
-                              <Label htmlFor={`imp-${opt}`} className="text-slate-300 text-sm">{opt}</Label>
+                              <RadioGroupItem 
+                                value={opt} 
+                                id={`imp-${opt}`} 
+                                className="border-slate-500 text-lime-400 data-[state=checked]:border-lime-400 data-[state=checked]:bg-lime-400" 
+                              />
+                              <Label htmlFor={`imp-${opt}`} className="text-slate-300 text-sm cursor-pointer">{opt}</Label>
                             </div>
                           ))}
                         </RadioGroup>
@@ -877,12 +881,16 @@ export default function FiscalitaEnergetica() {
                         <RadioGroup 
                           value={formData.ha_fotovoltaico} 
                           onValueChange={v => updateForm('ha_fotovoltaico', v)}
-                          className="flex gap-4"
+                          className="flex gap-4 flex-wrap"
                         >
                           {['Sì', 'No', 'In valutazione'].map(opt => (
                             <div key={opt} className="flex items-center gap-2">
-                              <RadioGroupItem value={opt} id={`fv-${opt}`} className="border-slate-600" />
-                              <Label htmlFor={`fv-${opt}`} className="text-slate-300 text-sm">{opt}</Label>
+                              <RadioGroupItem 
+                                value={opt} 
+                                id={`fv-${opt}`} 
+                                className="border-slate-500 text-lime-400 data-[state=checked]:border-lime-400 data-[state=checked]:bg-lime-400" 
+                              />
+                              <Label htmlFor={`fv-${opt}`} className="text-slate-300 text-sm cursor-pointer">{opt}</Label>
                             </div>
                           ))}
                         </RadioGroup>
@@ -961,10 +969,14 @@ export default function FiscalitaEnergetica() {
                             { value: 'stagionale', label: 'Stagionale', desc: 'Picchi in certi periodi' },
                             { value: 'non_produttivo', label: 'Non ho produzione', desc: 'Solo uffici/servizi' }
                           ].map(opt => (
-                            <div key={opt.value} className="flex items-start gap-3 p-2 rounded-lg hover:bg-slate-800/50">
-                              <RadioGroupItem value={opt.value} id={`ciclo-${opt.value}`} className="border-slate-600 mt-0.5" />
-                              <div>
-                                <Label htmlFor={`ciclo-${opt.value}`} className="text-slate-300 text-sm font-medium">{opt.label}</Label>
+                            <div key={opt.value} className="flex items-start gap-3 p-2 rounded-lg hover:bg-slate-800/50 cursor-pointer">
+                              <RadioGroupItem 
+                                value={opt.value} 
+                                id={`ciclo-${opt.value}`} 
+                                className="border-slate-500 text-lime-400 mt-0.5 data-[state=checked]:border-lime-400 data-[state=checked]:bg-lime-400" 
+                              />
+                              <div className="flex-1">
+                                <Label htmlFor={`ciclo-${opt.value}`} className="text-slate-300 text-sm font-medium cursor-pointer">{opt.label}</Label>
                                 <p className="text-slate-500 text-xs">{opt.desc}</p>
                               </div>
                             </div>
