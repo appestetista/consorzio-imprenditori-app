@@ -688,12 +688,12 @@ export default function Messaggi() {
         <div className="flex gap-2" style={{ height: 'calc(100vh - 180px)' }}>
           
           {/* Colonna sinistra - Filtri */}
-          <div className="w-40 flex-shrink-0 overflow-y-auto bg-slate-800/50 rounded-xl p-2">
+          <div className="w-44 flex-shrink-0 overflow-y-auto bg-slate-800/50 rounded-xl p-2">
             <div className="flex flex-col gap-1.5">
               {/* Filtro Tutti */}
               <button
                 onClick={() => setActiveFilter('all')}
-                className={`flex items-center gap-2 px-3 py-3 rounded-lg text-[11px] font-semibold transition-colors ${
+                className={`flex items-center gap-2 px-3 py-3 rounded-lg text-xs font-semibold transition-colors ${
                   activeFilter === 'all' 
                     ? 'bg-lime-400 text-slate-900' 
                     : 'bg-slate-700 text-slate-400 hover:bg-slate-600'
@@ -716,7 +716,7 @@ export default function Messaggi() {
                   <button
                     key={source.key}
                     onClick={() => setActiveFilter(source.key)}
-                    className={`flex items-center gap-2 px-3 py-3 rounded-lg text-[11px] font-semibold transition-colors ${
+                    className={`flex items-center gap-2 px-3 py-3 rounded-lg text-xs font-semibold transition-colors ${
                       activeFilter === source.key 
                         ? `${source.color} text-white` 
                         : 'bg-slate-700 text-slate-400 hover:bg-slate-600'
