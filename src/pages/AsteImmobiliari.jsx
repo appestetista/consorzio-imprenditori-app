@@ -494,6 +494,30 @@ export default function AsteImmobiliari() {
                           </div>
                         )}
 
+                        {/* Tipologia specifica */}
+                        {asta.raw_data?.typology_0 && (
+                          <div className="flex items-center gap-2 text-xs">
+                            <span className="text-slate-500">Tipologia:</span>
+                            <span className="text-slate-300 font-medium">{asta.raw_data.typology_0}</span>
+                          </div>
+                        )}
+
+                        {/* Disponibilità */}
+                        {asta.raw_data?.availability_0 && (
+                          <div className="flex items-center gap-2 text-xs">
+                            <span className="text-slate-500">Disponibilità:</span>
+                            <span className="text-slate-300 font-medium">{asta.raw_data.availability_0}</span>
+                          </div>
+                        )}
+
+                        {/* Numero vani */}
+                        {asta.raw_data?.rooms_0 && (
+                          <div className="flex items-center gap-2 text-xs">
+                            <span className="text-slate-500">Vani:</span>
+                            <span className="text-slate-300 font-medium">{asta.raw_data.rooms_0}</span>
+                          </div>
+                        )}
+
                       {/* Offerta minima e rilancio minimo */}
                       <div className="grid grid-cols-2 gap-3 text-xs">
                         {asta.offerta_minima > 0 && (
