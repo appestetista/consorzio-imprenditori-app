@@ -473,25 +473,28 @@ export default function AsteImmobiliari() {
                           <Euro className="w-4 h-4 text-green-400" />
                           <span className="text-green-400 font-bold">{formatPrezzo(asta.prezzo_base)}</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-amber-400" />
-                          <span className={`text-sm ${isScaduta ? 'text-red-400' : giorni < 30 ? 'text-amber-400' : 'text-slate-300'}`}>
-                            {asta.data_ora_vendita || (isScaduta ? 'Scaduta' : `${giorni} giorni`)}
-                          </span>
+                        <div className="flex flex-col">
+                          <span className="text-slate-500 text-xs">Data vendita</span>
+                          <div className="flex items-center gap-2">
+                            <Calendar className="w-4 h-4 text-amber-400" />
+                            <span className={`text-sm ${isScaduta ? 'text-red-400' : giorni < 30 ? 'text-amber-400' : 'text-slate-300'}`}>
+                              {asta.data_ora_vendita || (isScaduta ? 'Scaduta' : `${giorni} giorni`)}
+                            </span>
+                          </div>
                         </div>
                       </div>
                       
-                      {/* Offerta minima e rilancio */}
+                      {/* Offerta minima e rilancio minimo */}
                       <div className="grid grid-cols-2 gap-3 text-xs">
                         {asta.offerta_minima > 0 && (
                           <div className="flex items-center gap-1 text-slate-400">
-                            <span className="text-slate-500">Min:</span>
+                            <span className="text-slate-500">Offerta minima:</span>
                             <span className="text-blue-400 font-medium">{formatPrezzo(asta.offerta_minima)}</span>
                           </div>
                         )}
                         {asta.rilancio_minimo > 0 && (
                           <div className="flex items-center gap-1 text-slate-400">
-                            <span className="text-slate-500">Rilancio:</span>
+                            <span className="text-slate-500">Rilancio minimo:</span>
                             <span className="text-purple-400 font-medium">{formatPrezzo(asta.rilancio_minimo)}</span>
                           </div>
                         )}
