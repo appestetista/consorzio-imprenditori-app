@@ -487,19 +487,6 @@ export default function AsteImmobiliari() {
                           </div>
                         )}
 
-                        {/* Superficie */}
-                        {(asta.superficie || asta.raw_data?.data_3?.match(/(\d+[\.,]?\d*)\s*mq/i)) && (
-                          <div className="flex items-center gap-2 text-xs">
-                            <span className="text-slate-500">Superficie:</span>
-                            <span className="text-cyan-400 font-medium">
-                              {asta.superficie || (() => {
-                                const match = asta.raw_data?.data_3?.match(/(\d+[\.,]?\d*)\s*mq/i);
-                                return match ? `${match[1]} mq` : null;
-                              })()}
-                            </span>
-                          </div>
-                        )}
-
                         {/* Delegato alla vendita */}
                         {(asta.raw_data?.delegate_name_0 || asta.raw_data?.delegate_surname_0) && (
                           <div className="flex items-center gap-2 text-xs">
@@ -507,30 +494,6 @@ export default function AsteImmobiliari() {
                             <span className="text-slate-300 font-medium">
                               {[asta.raw_data?.delegate_name_0, asta.raw_data?.delegate_surname_0].filter(Boolean).join(' ')}
                             </span>
-                          </div>
-                        )}
-
-                        {/* Tipologia specifica */}
-                        {asta.raw_data?.typology_0 && (
-                          <div className="flex items-center gap-2 text-xs">
-                            <span className="text-slate-500">Tipologia:</span>
-                            <span className="text-slate-300 font-medium">{asta.raw_data.typology_0}</span>
-                          </div>
-                        )}
-
-                        {/* Disponibilità */}
-                        {asta.raw_data?.availability_0 && (
-                          <div className="flex items-center gap-2 text-xs">
-                            <span className="text-slate-500">Disponibilità:</span>
-                            <span className="text-slate-300 font-medium">{asta.raw_data.availability_0}</span>
-                          </div>
-                        )}
-
-                        {/* Numero vani */}
-                        {asta.raw_data?.rooms_0 && (
-                          <div className="flex items-center gap-2 text-xs">
-                            <span className="text-slate-500">Vani:</span>
-                            <span className="text-slate-300 font-medium">{asta.raw_data.rooms_0}</span>
                           </div>
                         )}
 
