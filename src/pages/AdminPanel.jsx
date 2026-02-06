@@ -25,6 +25,7 @@ import InviteConsultantForm from '../components/admin/InviteConsultantForm';
 import AdminMessagesView from '../components/admin/AdminMessagesView';
 import ZoneManagerSimple from '../components/admin/ZoneManagerSimple';
 import ImportAsteSection from '../components/admin/ImportAsteSection';
+import RisparmioAdminPanel from '../components/admin/RisparmioAdminPanel';
 
 const CONSULTANT_CATEGORIES = [
   "Stampa Digitale e Cataloghi",
@@ -275,6 +276,8 @@ export default function AdminPanel() {
   const [showAdminMessages, setShowAdminMessages] = useState(false);
   const [showImportAste, setShowImportAste] = useState(false);
   const [selectedConsulenzaConversation, setSelectedConsulenzaConversation] = useState(null);
+  const [showRisparmioPanel, setShowRisparmioPanel] = useState(false);
+  const [selectedRisparmioCategory, setSelectedRisparmioCategory] = useState(null);
 
   const markVideoRequestReadMutation = useMutation({
     mutationFn: async (requestId) => {
@@ -687,92 +690,127 @@ export default function AdminPanel() {
                 </div>
               </div>
             </Link>
-            {/* SEZIONE RISPARMIO - 8 pulsanti separati */}
-            <Link to={createPageUrl('RisparmioDettaglio') + '?categoria=Assicurazioni'}>
-              <div className="relative h-20 transition-transform duration-100 active:scale-[0.97]" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}>
-                <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
+          </div>
+        </div>
+
+        {/* SEZIONE RISPARMIO - Riquadro separato con bordino verde */}
+        <div className="mb-6">
+          <div className="border-2 border-green-500/50 rounded-xl p-3 bg-green-500/5">
+            <h2 className="text-green-400 font-semibold text-sm mb-3 flex items-center gap-2">
+              <Euro className="w-4 h-4" />
+              Risparmio Energetico
+            </h2>
+            <div className="grid grid-cols-4 gap-2">
+              {/* Assicurazioni */}
+              <div 
+                className="relative h-20 transition-transform duration-100 active:scale-[0.97] cursor-pointer"
+                style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}
+                onClick={() => { setSelectedRisparmioCategory('assicurazioni'); setShowRisparmioPanel(true); }}
+              >
+                <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #22c55e 0%, #16a34a 30%, #15803d 60%, #22c55e 100%)' }}>
                   <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #0c1730 50%, #0a1225 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
                     <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
-                    <Shield className="w-5 h-5 text-[#d4af37] mb-1 relative z-10" />
+                    <Shield className="w-5 h-5 text-green-400 mb-1 relative z-10" />
                     <p className="text-white text-[10px] text-center leading-tight relative z-10">Assicurazioni</p>
-                    <span className="absolute top-1 right-1 text-[#d4af37]/60 z-20"><Bell className="w-3 h-3" /></span>
+                    <span className="absolute top-1 right-1 text-green-400/60 z-20"><Bell className="w-3 h-3" /></span>
                   </div>
                 </div>
               </div>
-            </Link>
-            <Link to={createPageUrl('RisparmioDettaglio') + '?categoria=Luce'}>
-              <div className="relative h-20 transition-transform duration-100 active:scale-[0.97]" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}>
-                <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
+              {/* Luce */}
+              <div 
+                className="relative h-20 transition-transform duration-100 active:scale-[0.97] cursor-pointer"
+                style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}
+                onClick={() => { setSelectedRisparmioCategory('luce'); setShowRisparmioPanel(true); }}
+              >
+                <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #22c55e 0%, #16a34a 30%, #15803d 60%, #22c55e 100%)' }}>
                   <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #0c1730 50%, #0a1225 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
                     <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
-                    <Zap className="w-5 h-5 text-[#d4af37] mb-1 relative z-10" />
+                    <Zap className="w-5 h-5 text-yellow-400 mb-1 relative z-10" />
                     <p className="text-white text-[10px] text-center leading-tight relative z-10">Luce</p>
-                    <span className="absolute top-1 right-1 text-[#d4af37]/60 z-20"><Bell className="w-3 h-3" /></span>
+                    <span className="absolute top-1 right-1 text-green-400/60 z-20"><Bell className="w-3 h-3" /></span>
                   </div>
                 </div>
               </div>
-            </Link>
-            <Link to={createPageUrl('RisparmioDettaglio') + '?categoria=Gas'}>
-              <div className="relative h-20 transition-transform duration-100 active:scale-[0.97]" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}>
-                <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
+              {/* Gas */}
+              <div 
+                className="relative h-20 transition-transform duration-100 active:scale-[0.97] cursor-pointer"
+                style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}
+                onClick={() => { setSelectedRisparmioCategory('gas'); setShowRisparmioPanel(true); }}
+              >
+                <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #22c55e 0%, #16a34a 30%, #15803d 60%, #22c55e 100%)' }}>
                   <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #0c1730 50%, #0a1225 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
                     <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
                     <Flame className="w-5 h-5 text-orange-400 mb-1 relative z-10" />
                     <p className="text-white text-[10px] text-center leading-tight relative z-10">Gas</p>
-                    <span className="absolute top-1 right-1 text-[#d4af37]/60 z-20"><Bell className="w-3 h-3" /></span>
+                    <span className="absolute top-1 right-1 text-green-400/60 z-20"><Bell className="w-3 h-3" /></span>
                   </div>
                 </div>
               </div>
-            </Link>
-            <Link to={createPageUrl('RisparmioDettaglio') + '?categoria=Efficientamento%20Energetico'}>
-              <div className="relative h-20 transition-transform duration-100 active:scale-[0.97]" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}>
-                <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
+              {/* Efficientamento */}
+              <div 
+                className="relative h-20 transition-transform duration-100 active:scale-[0.97] cursor-pointer"
+                style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}
+                onClick={() => { setSelectedRisparmioCategory('efficientamento'); setShowRisparmioPanel(true); }}
+              >
+                <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #22c55e 0%, #16a34a 30%, #15803d 60%, #22c55e 100%)' }}>
                   <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #0c1730 50%, #0a1225 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
                     <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
                     <Leaf className="w-5 h-5 text-green-400 mb-1 relative z-10" />
-                    <p className="text-white text-[10px] text-center leading-tight relative z-10">Efficientam.<br/>Energetico</p>
-                    <span className="absolute top-1 right-1 text-[#d4af37]/60 z-20"><Bell className="w-3 h-3" /></span>
+                    <p className="text-white text-[9px] text-center leading-tight relative z-10">Efficientam.</p>
+                    <span className="absolute top-1 right-1 text-green-400/60 z-20"><Bell className="w-3 h-3" /></span>
                   </div>
                 </div>
               </div>
-            </Link>
-            <Link to={createPageUrl('RisparmioDettaglio') + '?categoria=Fotovoltaico'}>
-              <div className="relative h-20 transition-transform duration-100 active:scale-[0.97]" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}>
-                <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
+              {/* Fotovoltaico */}
+              <div 
+                className="relative h-20 transition-transform duration-100 active:scale-[0.97] cursor-pointer"
+                style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}
+                onClick={() => { setSelectedRisparmioCategory('fotovoltaico'); setShowRisparmioPanel(true); }}
+              >
+                <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #22c55e 0%, #16a34a 30%, #15803d 60%, #22c55e 100%)' }}>
                   <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #0c1730 50%, #0a1225 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
                     <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
                     <Sun className="w-5 h-5 text-yellow-400 mb-1 relative z-10" />
                     <p className="text-white text-[10px] text-center leading-tight relative z-10">Fotovoltaico</p>
-                    <span className="absolute top-1 right-1 text-[#d4af37]/60 z-20"><Bell className="w-3 h-3" /></span>
+                    <span className="absolute top-1 right-1 text-green-400/60 z-20"><Bell className="w-3 h-3" /></span>
                   </div>
                 </div>
               </div>
-            </Link>
-            <Link to={createPageUrl('RisparmioDettaglio') + '?categoria=Spesa%20Telefonica'}>
-              <div className="relative h-20 transition-transform duration-100 active:scale-[0.97]" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}>
-                <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
+              {/* Telefonia */}
+              <div 
+                className="relative h-20 transition-transform duration-100 active:scale-[0.97] cursor-pointer"
+                style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}
+                onClick={() => { setSelectedRisparmioCategory('telefonia'); setShowRisparmioPanel(true); }}
+              >
+                <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #22c55e 0%, #16a34a 30%, #15803d 60%, #22c55e 100%)' }}>
                   <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #0c1730 50%, #0a1225 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
                     <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
-                    <Phone className="w-5 h-5 text-[#d4af37] mb-1 relative z-10" />
-                    <p className="text-white text-[10px] text-center leading-tight relative z-10">Spesa<br/>Telefonica</p>
-                    <span className="absolute top-1 right-1 text-[#d4af37]/60 z-20"><Bell className="w-3 h-3" /></span>
+                    <Phone className="w-5 h-5 text-green-400 mb-1 relative z-10" />
+                    <p className="text-white text-[10px] text-center leading-tight relative z-10">Telefonia</p>
+                    <span className="absolute top-1 right-1 text-green-400/60 z-20"><Bell className="w-3 h-3" /></span>
                   </div>
                 </div>
               </div>
-            </Link>
-            <Link to={createPageUrl('RisparmioDettaglio') + '?categoria=Internet'}>
-              <div className="relative h-20 transition-transform duration-100 active:scale-[0.97]" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}>
-                <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
+              {/* Internet */}
+              <div 
+                className="relative h-20 transition-transform duration-100 active:scale-[0.97] cursor-pointer"
+                style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}
+                onClick={() => { setSelectedRisparmioCategory('internet'); setShowRisparmioPanel(true); }}
+              >
+                <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #22c55e 0%, #16a34a 30%, #15803d 60%, #22c55e 100%)' }}>
                   <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #0c1730 50%, #0a1225 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
                     <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
-                    <Wifi className="w-5 h-5 text-[#d4af37] mb-1 relative z-10" />
+                    <Wifi className="w-5 h-5 text-green-400 mb-1 relative z-10" />
                     <p className="text-white text-[10px] text-center leading-tight relative z-10">Internet</p>
-                    <span className="absolute top-1 right-1 text-[#d4af37]/60 z-20"><Bell className="w-3 h-3" /></span>
+                    <span className="absolute top-1 right-1 text-green-400/60 z-20"><Bell className="w-3 h-3" /></span>
                   </div>
                 </div>
               </div>
-            </Link>
-            <Link to={createPageUrl('FiscalitaEnergetica')}>
+              {/* Fiscalità Energetica */}
+              <div 
+                className="relative h-20 transition-transform duration-100 active:scale-[0.97] cursor-pointer"
+                style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}
+                onClick={() => { setSelectedRisparmioCategory('fiscalita'); setShowRisparmioPanel(true); }}
               <div className="relative h-20 transition-transform duration-100 active:scale-[0.97]" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}>
                 <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #22c55e 0%, #16a34a 30%, #15803d 60%, #22c55e 100%)' }}>
                   <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #15803d 0%, #166534 50%, #14532d 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
