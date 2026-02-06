@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
-  Upload, FileJson, CheckCircle2, AlertCircle, Loader2, RefreshCw, 
+  Upload, FileSpreadsheet, CheckCircle2, AlertCircle, Loader2, RefreshCw, 
   Building2, Package, Ship, Monitor, Car, Sofa, Wrench, Home, Store, Factory, Trash2
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -90,12 +90,42 @@ export default function ImportAsteSection() {
     }
   });
 
+  // Parsing CSV
+  const parseCSV = (text) => {
+    const lines = text.trim().split('\n');
+    if (lines.length < 2) throw new Error('CSV vuoto o senza dati');
+    
+    // Prima riga = intestazioni
+    const headers = lines[0].split(';').map(h => h.trim().replace(/"/g, ''));
+    
+    const data = [];
+    for (let i = 1; i < lines.length; i++) {
+      const values = lines[i].split(';').map(v => v.trim().replace(/"/g, ''));
+      if (values.length !== headers.length) continue;
+      
+      const row = {};
+      headers.forEach((h, idx) => {
+        let val = values[idx];
+        // Converti numeri
+        if (['prezzo_base', 'cauzione_stimata'].includes(h)) {
+          val = parseFloat(val.replace(',', '.')) || 0;
+        }
+        row[h] = val;
+      });
+      data.push(row);
+    }
+    return data;
+  };
+
   // Gestisce import file per tipologia specifica
   const handleFile = async (file, tipologia) => {
     if (!file) return;
     
-    if (!file.name.endsWith('.json')) {
-      toast.error('Formato non valido. Carica un file JSON.');
+    const isCSV = file.name.endsWith('.csv');
+    const isJSON = file.name.endsWith('.json');
+    
+    if (!isCSV && !isJSON) {
+      toast.error('Formato non valido. Carica un file CSV o JSON.');
       return;
     }
     
@@ -104,7 +134,13 @@ export default function ImportAsteSection() {
     
     try {
       const text = await file.text();
-      const aste = JSON.parse(text);
+      let aste;
+      
+      if (isCSV) {
+        aste = parseCSV(text);
+      } else {
+        aste = JSON.parse(text);
+      }
       
       if (!Array.isArray(aste)) {
         throw new Error('Il file deve contenere un array di aste');
@@ -213,11 +249,11 @@ export default function ImportAsteSection() {
               </div>
             ) : (
               <div className="flex flex-col items-center gap-2">
-                <FileJson className="w-8 h-8 text-slate-500" />
-                <p className="text-slate-400 text-xs">Trascina JSON o</p>
+                <FileSpreadsheet className="w-8 h-8 text-slate-500" />
+                <p className="text-slate-400 text-xs">Trascina CSV o</p>
                 <input
                   type="file"
-                  accept=".json"
+                  accept=".csv,.json"
                   onChange={(e) => {
                     setActiveTipologia(tipologia.id);
                     handleFile(e.target.files[0], tipologia.id);
@@ -359,9 +395,9 @@ export default function ImportAsteSection() {
         <CardContent className="p-4">
           <h3 className="text-blue-400 font-medium mb-2">ℹ️ Come funziona</h3>
           <ul className="text-slate-400 text-sm space-y-1">
-            <li>• Carica un file JSON per ogni tipologia di asta</li>
+            <li>• Carica un file <strong className="text-white">CSV</strong> (separatore: punto e virgola) per ogni tipologia</li>
+            <li>• Colonne: titolo, localita, provincia, prezzo_base, data_asta, link_ufficiale, external_id</li>
             <li>• Le aste con <strong className="text-white">data passata</strong> vengono automaticamente nascoste agli utenti</li>
-            <li>• Puoi eliminare le aste scadute con il pulsante dedicato</li>
             <li>• Le aste esistenti (stesso external_id) vengono aggiornate, non duplicate</li>
           </ul>
         </CardContent>
