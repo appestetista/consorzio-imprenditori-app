@@ -148,6 +148,7 @@ export default function FiscalitaEnergetica() {
   });
   
   const [formSection, setFormSection] = useState(1); // 1-4 per le sezioni del form
+  const [showErrors, setShowErrors] = useState(false); // Per mostrare errori di validazione
 
   useEffect(() => {
     const loadUser = async () => {
@@ -229,17 +230,21 @@ export default function FiscalitaEnergetica() {
   });
 
   const handleSubmit = () => {
+    setShowErrors(true);
     // Validazione campi obbligatori
     if (!formData.ragione_sociale || !formData.settore_attivita) {
       toast.error('Compila i dati aziendali');
+      setFormSection(1);
       return;
     }
     if (!formData.tipo_energia) {
       toast.error('Indica il tipo di energia utilizzata');
+      setFormSection(2);
       return;
     }
     if (!formData.nome_referente || !formData.telefono_referente) {
       toast.error('Compila i dati di contatto');
+      setFormSection(4);
       return;
     }
     createRichiestaMutation.mutate(formData);
@@ -727,8 +732,15 @@ export default function FiscalitaEnergetica() {
                           value={formData.ragione_sociale}
                           onChange={e => updateForm('ragione_sociale', e.target.value)}
                           placeholder="Es. Mario Rossi Srl"
-                          className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:border-lime-400 focus:outline-none"
+                          className={`w-full bg-slate-900 border rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none ${
+                            showErrors && !formData.ragione_sociale 
+                              ? 'border-red-500 focus:border-red-500' 
+                              : 'border-slate-700 focus:border-lime-400'
+                          }`}
                         />
+                        {showErrors && !formData.ragione_sociale && (
+                          <p className="text-red-400 text-xs">Campo obbligatorio</p>
+                        )}
                         <p className="text-slate-500 text-xs">Per identificare l'azienda nelle comunicazioni</p>
                       </div>
                       
@@ -763,7 +775,11 @@ export default function FiscalitaEnergetica() {
                       <div className="space-y-2">
                         <Label className="text-slate-300 text-sm">Settore di attività *</Label>
                         <Select value={formData.settore_attivita} onValueChange={v => updateForm('settore_attivita', v)}>
-                          <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                          <SelectTrigger className={`bg-slate-900 text-white ${
+                            showErrors && !formData.settore_attivita 
+                              ? 'border-red-500' 
+                              : 'border-slate-700'
+                          }`}>
                             <SelectValue placeholder="Seleziona settore" />
                           </SelectTrigger>
                           <SelectContent>
@@ -772,6 +788,9 @@ export default function FiscalitaEnergetica() {
                             ))}
                           </SelectContent>
                         </Select>
+                        {showErrors && !formData.settore_attivita && (
+                          <p className="text-red-400 text-xs">Campo obbligatorio</p>
+                        )}
                         <p className="text-slate-500 text-xs">Alcuni settori hanno diritto a riduzioni specifiche</p>
                       </div>
                     </div>
@@ -794,7 +813,7 @@ export default function FiscalitaEnergetica() {
                       {/* Tipo energia */}
                       <div className="space-y-2">
                         <Label className="text-slate-300 text-sm">Tipo di energia utilizzata *</Label>
-                        <div className="grid grid-cols-3 gap-2">
+                        <div className={`grid grid-cols-3 gap-2 ${showErrors && !formData.tipo_energia ? 'ring-2 ring-red-500 rounded-xl p-1' : ''}`}>
                           {[
                             { value: 'elettrica', label: 'Solo elettrica', icon: Zap },
                             { value: 'gas', label: 'Solo gas', icon: Factory },
@@ -814,6 +833,9 @@ export default function FiscalitaEnergetica() {
                             </button>
                           ))}
                         </div>
+                        {showErrors && !formData.tipo_energia && (
+                          <p className="text-red-400 text-xs">Campo obbligatorio</p>
+                        )}
                         <p className="text-slate-500 text-xs">Le agevolazioni variano in base al vettore energetico</p>
                       </div>
                       
@@ -1009,8 +1031,15 @@ export default function FiscalitaEnergetica() {
                           value={formData.nome_referente}
                           onChange={e => updateForm('nome_referente', e.target.value)}
                           placeholder="Es. Mario Rossi"
-                          className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:border-lime-400 focus:outline-none"
+                          className={`w-full bg-slate-900 border rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none ${
+                            showErrors && !formData.nome_referente 
+                              ? 'border-red-500 focus:border-red-500' 
+                              : 'border-slate-700 focus:border-lime-400'
+                          }`}
                         />
+                        {showErrors && !formData.nome_referente && (
+                          <p className="text-red-400 text-xs">Campo obbligatorio</p>
+                        )}
                       </div>
                       
                       {/* Ruolo */}
@@ -1037,8 +1066,15 @@ export default function FiscalitaEnergetica() {
                           value={formData.telefono_referente}
                           onChange={e => updateForm('telefono_referente', e.target.value)}
                           placeholder="Es. 333 1234567"
-                          className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:border-lime-400 focus:outline-none"
+                          className={`w-full bg-slate-900 border rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none ${
+                            showErrors && !formData.telefono_referente 
+                              ? 'border-red-500 focus:border-red-500' 
+                              : 'border-slate-700 focus:border-lime-400'
+                          }`}
                         />
+                        {showErrors && !formData.telefono_referente && (
+                          <p className="text-red-400 text-xs">Campo obbligatorio</p>
+                        )}
                       </div>
                       
                       {/* Email */}
