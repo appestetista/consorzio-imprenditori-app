@@ -115,19 +115,24 @@ export default function ImportAsteSection() {
   // Parsing CSV generico
   const parseCSVGeneric = (text) => {
     const lines = text.trim().split('\n').filter(l => l.trim());
+    console.log('CSV lines count:', lines.length);
+    console.log('First line:', lines[0]?.substring(0, 200));
+    
     if (lines.length < 2) throw new Error('CSV vuoto o senza dati');
     
     // Rileva separatore (virgola o punto e virgola)
     const firstLine = lines[0];
     const separator = firstLine.includes(';') ? ';' : ',';
+    console.log('Separator detected:', separator);
     
     // Prima riga = intestazioni
-    const headers = parseCSVLine(lines[0], separator).map(h => h.replace(/^\ufeff/, ''));
+    const headers = parseCSVLine(lines[0], separator).map(h => h.replace(/^\ufeff/, '').trim());
+    console.log('Headers found:', headers.length, headers.slice(0, 5));
     
     const data = [];
     for (let i = 1; i < lines.length; i++) {
       const values = parseCSVLine(lines[i], separator);
-      if (values.length < 5) continue; // Skip righe incomplete
+      if (values.length < 3) continue; // Skip righe con meno di 3 valori
       
       const row = {};
       headers.forEach((h, idx) => {
@@ -135,6 +140,7 @@ export default function ImportAsteSection() {
       });
       data.push(row);
     }
+    console.log('Rows parsed:', data.length);
     return data;
   };
 
