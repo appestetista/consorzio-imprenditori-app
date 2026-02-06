@@ -24,6 +24,7 @@ import RisparmioRequestsAdmin from '../components/admin/RisparmioRequestsAdmin';
 import InviteConsultantForm from '../components/admin/InviteConsultantForm';
 import AdminMessagesView from '../components/admin/AdminMessagesView';
 import ZoneManagerSimple from '../components/admin/ZoneManagerSimple';
+import ImportAsteSection from '../components/admin/ImportAsteSection';
 
 const CONSULTANT_CATEGORIES = [
   "Stampa Digitale e Cataloghi",
@@ -272,6 +273,7 @@ export default function AdminPanel() {
   const [activeTab, setActiveTab] = useState('richieste');
   const [showConsulenzePanel, setShowConsulenzePanel] = useState(false);
   const [showAdminMessages, setShowAdminMessages] = useState(false);
+  const [showImportAste, setShowImportAste] = useState(false);
   const [selectedConsulenzaConversation, setSelectedConsulenzaConversation] = useState(null);
 
   const markVideoRequestReadMutation = useMutation({
@@ -781,18 +783,20 @@ export default function AdminPanel() {
                 </div>
               </div>
             </Link>
-            <Link to={createPageUrl('AsteImmobiliari')}>
-              <div className="relative h-20 transition-transform duration-100 active:scale-[0.97]" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}>
-                <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
-                  <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #0c1730 50%, #0a1225 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
-                    <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
-                    <Gavel className="w-5 h-5 text-[#d4af37] mb-1 relative z-10" />
-                    <p className="text-white text-[10px] text-center leading-tight relative z-10">Aste<br/>Immobiliari</p>
-                    <span className="absolute top-1 right-1 text-[#d4af37]/60 z-20"><Bell className="w-3 h-3" /></span>
-                  </div>
+            <div 
+              className="relative h-20 transition-transform duration-100 active:scale-[0.97] cursor-pointer"
+              style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}
+              onClick={() => setShowImportAste(true)}
+            >
+              <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
+                <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #0c1730 50%, #0a1225 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
+                  <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
+                  <Gavel className="w-5 h-5 text-[#d4af37] mb-1 relative z-10" />
+                  <p className="text-white text-[10px] text-center leading-tight relative z-10">Aste<br/>Immobiliari</p>
+                  <span className="absolute top-1 right-1 text-[#d4af37]/60 z-20"><Bell className="w-3 h-3" /></span>
                 </div>
               </div>
-            </Link>
+            </div>
             <div 
               className="relative h-20 transition-transform duration-100 active:scale-[0.97] cursor-pointer"
               style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}
@@ -1499,6 +1503,13 @@ export default function AdminPanel() {
       <Dialog open={showAdminMessages} onOpenChange={setShowAdminMessages}>
         <DialogContent className="bg-slate-900 border-slate-700 max-w-lg max-h-[90vh] overflow-y-auto p-4">
           <AdminMessagesView onBack={() => setShowAdminMessages(false)} />
+        </DialogContent>
+      </Dialog>
+
+      {/* Pannello Import Aste */}
+      <Dialog open={showImportAste} onOpenChange={setShowImportAste}>
+        <DialogContent className="bg-slate-900 border-slate-700 max-w-lg max-h-[90vh] overflow-y-auto p-4">
+          <ImportAsteSection />
         </DialogContent>
       </Dialog>
 
