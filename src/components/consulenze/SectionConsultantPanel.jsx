@@ -59,12 +59,12 @@ export default function SectionConsultantPanel({ sectionId, sectionLabel, user }
   // Mutation per inviare messaggio
   const sendMessageMutation = useMutation({
     mutationFn: async ({ consultantEmail, content }) => {
-      // Crea il messaggio
+      // Crea il messaggio con source specifica per la sezione
       await base44.entities.Message.create({
         from_email: user.email,
         to_email: consultantEmail,
         content: content,
-        source: 'consulenze',
+        source: sectionId, // Usa l'ID della sezione come source (es: 'fiscalita_energetica', 'risparmio_luce', etc.)
         source_reference: sectionLabel,
         conversation_id: `${sectionId}_${user.email}_${consultantEmail}`
       });
