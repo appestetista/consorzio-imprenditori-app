@@ -469,9 +469,12 @@ export default function AsteImmobiliari() {
                     <div className="space-y-2 mb-3">
                       {/* Prezzo base e data/ora */}
                       <div className="grid grid-cols-2 gap-3">
-                        <div className="flex items-center gap-2">
-                          <Euro className="w-4 h-4 text-green-400" />
-                          <span className="text-green-400 font-bold">{formatPrezzo(asta.prezzo_base)}</span>
+                        <div className="flex flex-col">
+                          <span className="text-slate-500 text-xs">Valore del tribunale</span>
+                          <div className="flex items-center gap-2">
+                            <Euro className="w-4 h-4 text-green-400" />
+                            <span className="text-green-400 font-bold">{formatPrezzo(asta.prezzo_base)}</span>
+                          </div>
                         </div>
                         <div className="flex flex-col">
                           <span className="text-slate-500 text-xs">Data vendita</span>
