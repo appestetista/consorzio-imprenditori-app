@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { ArrowLeft, Send, User, X, Paperclip, Camera, FileText, Image as ImageIcon, ShoppingBag, Video, Phone, Briefcase, MessageCircle, Filter, TrendingUp, Ship, FileCheck, Zap, Globe, Check, CheckCheck, ChevronRight, Star, Trash2 } from 'lucide-react';
+import { ArrowLeft, Send, User, X, Paperclip, Camera, FileText, Image as ImageIcon, ShoppingBag, Video, Phone, Briefcase, MessageCircle, Filter, TrendingUp, Ship, FileCheck, Zap, Globe, Check, CheckCheck, ChevronRight, Star, Trash2, Shield, Flame, Leaf, Sun, Wifi, Euro, Heart, Handshake, Truck, Calendar, BookOpen, Gavel } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -112,13 +112,30 @@ export default function Messaggi() {
 
   // Configurazione sezioni messaggi
   const sourceConfig = {
+    diretto: { label: 'Diretto', icon: MessageCircle, color: 'bg-slate-500', key: 'diretto' },
     marketplace: { label: 'Marketplace', icon: ShoppingBag, color: 'bg-purple-500', key: 'marketplace' },
     video: { label: 'Video Interviste', icon: Video, color: 'bg-blue-500', key: 'video' },
     contatta_consorzio: { label: 'Contatta Consorzio', icon: Phone, color: 'bg-green-500', key: 'contatta_consorzio' },
     consulenze: { label: 'Consulenze', icon: Briefcase, color: 'bg-orange-500', key: 'consulenze' },
     import_export: { label: 'Import/Export', icon: Globe, color: 'bg-teal-500', key: 'import_export' },
     analisi_contratti: { label: 'Analisi Contratti', icon: FileCheck, color: 'bg-indigo-500', key: 'analisi_contratti' },
-    diretto: { label: 'Messaggio Diretto', icon: MessageCircle, color: 'bg-slate-500', key: 'diretto' }
+    calendario: { label: 'Calendario', icon: Calendar, color: 'bg-pink-500', key: 'calendario' },
+    cultura_aziendale: { label: 'Academy', icon: BookOpen, color: 'bg-amber-500', key: 'cultura_aziendale' },
+    finanziamenti: { label: 'Finanziamenti', icon: TrendingUp, color: 'bg-emerald-500', key: 'finanziamenti' },
+    imprenditori: { label: 'Imprenditori', icon: Handshake, color: 'bg-cyan-500', key: 'imprenditori' },
+    fornitori: { label: 'Fornitori', icon: Truck, color: 'bg-rose-500', key: 'fornitori' },
+    welfare: { label: 'Welfare', icon: Heart, color: 'bg-red-500', key: 'welfare' },
+    compliance: { label: 'Compliance', icon: Shield, color: 'bg-sky-500', key: 'compliance' },
+    aste: { label: 'Aste', icon: Gavel, color: 'bg-violet-500', key: 'aste' },
+    // Risparmio Energetico - categorie separate
+    risparmio_assicurazioni: { label: 'Risparmio Assicurazioni', icon: Shield, color: 'bg-green-600', key: 'risparmio_assicurazioni' },
+    risparmio_luce: { label: 'Risparmio Luce', icon: Zap, color: 'bg-yellow-500', key: 'risparmio_luce' },
+    risparmio_gas: { label: 'Risparmio Gas', icon: Flame, color: 'bg-orange-600', key: 'risparmio_gas' },
+    risparmio_efficientamento: { label: 'Efficientamento', icon: Leaf, color: 'bg-green-500', key: 'risparmio_efficientamento' },
+    risparmio_fotovoltaico: { label: 'Fotovoltaico', icon: Sun, color: 'bg-yellow-600', key: 'risparmio_fotovoltaico' },
+    risparmio_telefonia: { label: 'Risparmio Telefonia', icon: Phone, color: 'bg-green-700', key: 'risparmio_telefonia' },
+    risparmio_internet: { label: 'Risparmio Internet', icon: Wifi, color: 'bg-green-600', key: 'risparmio_internet' },
+    fiscalita_energetica: { label: 'Fiscalità Energetica', icon: Euro, color: 'bg-green-800', key: 'fiscalita_energetica' }
   };
 
   // Group messages by conversation (con chiave che include source per separare conversazioni)
