@@ -626,111 +626,487 @@ export default function FiscalitaEnergetica() {
           </div>
         )}
 
-        {/* STEP 2: AUTO-VALUTAZIONE */}
+        {/* STEP 2: MODULO VALUTAZIONE - 4 SEZIONI */}
         {step === 2 && !richiestaEsistente && (
           <div className="space-y-6">
+            
+            {/* Header sezione con progress */}
             <div>
-              <h2 className="text-white font-bold text-lg mb-1">La tua situazione attuale</h2>
-              <p className="text-slate-400 text-sm">Rispondi a queste domande per preparare l'analisi</p>
-            </div>
-
-            {/* Settore */}
-            <div className="space-y-2">
-              <Label className="text-slate-300">Settore di attività *</Label>
-              <Select value={formData.settore_attivita} onValueChange={v => updateForm('settore_attivita', v)}>
-                <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
-                  <SelectValue placeholder="Seleziona settore" />
-                </SelectTrigger>
-                <SelectContent>
-                  {SETTORI.map(s => (
-                    <SelectItem key={s} value={s}>{s}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Spesa energetica */}
-            <div className="space-y-2">
-              <Label className="text-slate-300">Spesa energetica annua indicativa *</Label>
-              <Select value={formData.spesa_energetica_range} onValueChange={v => updateForm('spesa_energetica_range', v)}>
-                <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
-                  <SelectValue placeholder="Seleziona range" />
-                </SelectTrigger>
-                <SelectContent>
-                  {SPESE_RANGE.map(s => (
-                    <SelectItem key={s} value={s}>{s}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Domande Sì/No */}
-            <div className="space-y-4">
-              <div className="bg-slate-800/50 rounded-xl p-4 space-y-3">
-                <p className="text-white text-sm">Hai già fatto interventi di efficientamento?</p>
-                <RadioGroup 
-                  value={formData.ha_fatto_efficientamento} 
-                  onValueChange={v => updateForm('ha_fatto_efficientamento', v)}
-                  className="flex gap-4"
-                >
-                  {['Sì', 'No', 'Non so'].map(opt => (
-                    <div key={opt} className="flex items-center gap-2">
-                      <RadioGroupItem value={opt} id={`eff-${opt}`} className="border-slate-600" />
-                      <Label htmlFor={`eff-${opt}`} className="text-slate-300 text-sm">{opt}</Label>
-                    </div>
-                  ))}
-                </RadioGroup>
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="text-white font-bold text-lg">Scheda di valutazione</h2>
+                <Badge className="bg-slate-700 text-slate-300">
+                  {formSection}/4
+                </Badge>
               </div>
-
-              <div className="bg-slate-800/50 rounded-xl p-4 space-y-3">
-                <p className="text-white text-sm">Hai impianti fotovoltaici?</p>
-                <RadioGroup 
-                  value={formData.ha_fotovoltaico} 
-                  onValueChange={v => updateForm('ha_fotovoltaico', v)}
-                  className="flex gap-4"
-                >
-                  {['Sì', 'No', 'In valutazione'].map(opt => (
-                    <div key={opt} className="flex items-center gap-2">
-                      <RadioGroupItem value={opt} id={`fv-${opt}`} className="border-slate-600" />
-                      <Label htmlFor={`fv-${opt}`} className="text-slate-300 text-sm">{opt}</Label>
-                    </div>
-                  ))}
-                </RadioGroup>
-              </div>
-
-              <div className="bg-slate-800/50 rounded-xl p-4 space-y-3">
-                <p className="text-white text-sm">Conosci le agevolazioni disponibili per la tua azienda?</p>
-                <RadioGroup 
-                  value={formData.conosce_agevolazioni} 
-                  onValueChange={v => updateForm('conosce_agevolazioni', v)}
-                  className="flex gap-4"
-                >
-                  {['Sì', 'No', 'Parzialmente'].map(opt => (
-                    <div key={opt} className="flex items-center gap-2">
-                      <RadioGroupItem value={opt} id={`ag-${opt}`} className="border-slate-600" />
-                      <Label htmlFor={`ag-${opt}`} className="text-slate-300 text-sm">{opt}</Label>
-                    </div>
-                  ))}
-                </RadioGroup>
+              <p className="text-slate-400 text-sm">Compila i dati per ricevere un'analisi personalizzata</p>
+              
+              {/* Progress sezioni */}
+              <div className="flex gap-1 mt-4">
+                {[
+                  { num: 1, label: 'Azienda' },
+                  { num: 2, label: 'Energia' },
+                  { num: 3, label: 'Utilizzo' },
+                  { num: 4, label: 'Contatto' }
+                ].map(s => (
+                  <button
+                    key={s.num}
+                    onClick={() => setFormSection(s.num)}
+                    className={`flex-1 py-2 px-2 rounded-lg text-xs font-medium transition-all ${
+                      formSection === s.num 
+                        ? 'bg-lime-400 text-slate-900' 
+                        : validateSection(s.num)
+                          ? 'bg-green-600/30 text-green-400 border border-green-500/30'
+                          : 'bg-slate-800 text-slate-400'
+                    }`}
+                  >
+                    {s.label}
+                  </button>
+                ))}
               </div>
             </div>
+
+            {/* SEZIONE 1 - AZIENDA */}
+            {formSection === 1 && (
+              <div className="space-y-4">
+                <Card className="bg-slate-800/50 border-slate-700">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Building2 className="w-5 h-5 text-blue-400" />
+                      <h3 className="text-white font-semibold">Dati aziendali</h3>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      {/* Ragione sociale */}
+                      <div className="space-y-2">
+                        <Label className="text-slate-300 text-sm">Ragione sociale *</Label>
+                        <input
+                          type="text"
+                          value={formData.ragione_sociale}
+                          onChange={e => updateForm('ragione_sociale', e.target.value)}
+                          placeholder="Es. Mario Rossi Srl"
+                          className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:border-lime-400 focus:outline-none"
+                        />
+                        <p className="text-slate-500 text-xs">Per identificare l'azienda nelle comunicazioni</p>
+                      </div>
+                      
+                      {/* Partita IVA */}
+                      <div className="space-y-2">
+                        <Label className="text-slate-300 text-sm">Partita IVA</Label>
+                        <input
+                          type="text"
+                          value={formData.partita_iva}
+                          onChange={e => updateForm('partita_iva', e.target.value)}
+                          placeholder="Es. 01234567890"
+                          maxLength={11}
+                          className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:border-lime-400 focus:outline-none"
+                        />
+                        <p className="text-slate-500 text-xs">Per verificare la posizione fiscale e i requisiti</p>
+                      </div>
+                      
+                      {/* Codice ATECO */}
+                      <div className="space-y-2">
+                        <Label className="text-slate-300 text-sm">Codice ATECO</Label>
+                        <input
+                          type="text"
+                          value={formData.codice_ateco}
+                          onChange={e => updateForm('codice_ateco', e.target.value)}
+                          placeholder="Es. 25.11.00"
+                          className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:border-lime-400 focus:outline-none"
+                        />
+                        <p className="text-slate-500 text-xs">Determina le agevolazioni accessibili per settore</p>
+                      </div>
+                      
+                      {/* Settore */}
+                      <div className="space-y-2">
+                        <Label className="text-slate-300 text-sm">Settore di attività *</Label>
+                        <Select value={formData.settore_attivita} onValueChange={v => updateForm('settore_attivita', v)}>
+                          <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                            <SelectValue placeholder="Seleziona settore" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {SETTORI.map(s => (
+                              <SelectItem key={s} value={s}>{s}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <p className="text-slate-500 text-xs">Alcuni settori hanno diritto a riduzioni specifiche</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {/* SEZIONE 2 - ENERGIA */}
+            {formSection === 2 && (
+              <div className="space-y-4">
+                <Card className="bg-slate-800/50 border-slate-700">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Zap className="w-5 h-5 text-yellow-400" />
+                      <h3 className="text-white font-semibold">Profilo energetico</h3>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      {/* Tipo energia */}
+                      <div className="space-y-2">
+                        <Label className="text-slate-300 text-sm">Tipo di energia utilizzata *</Label>
+                        <div className="grid grid-cols-3 gap-2">
+                          {[
+                            { value: 'elettrica', label: 'Solo elettrica', icon: Zap },
+                            { value: 'gas', label: 'Solo gas', icon: Factory },
+                            { value: 'entrambe', label: 'Entrambe', icon: Sparkles }
+                          ].map(opt => (
+                            <button
+                              key={opt.value}
+                              onClick={() => updateForm('tipo_energia', opt.value)}
+                              className={`p-3 rounded-xl border-2 transition-all flex flex-col items-center gap-1 ${
+                                formData.tipo_energia === opt.value
+                                  ? 'bg-lime-400/20 border-lime-400 text-lime-400'
+                                  : 'bg-slate-900 border-slate-700 text-slate-400 hover:border-slate-500'
+                              }`}
+                            >
+                              <opt.icon className="w-5 h-5" />
+                              <span className="text-xs text-center">{opt.label}</span>
+                            </button>
+                          ))}
+                        </div>
+                        <p className="text-slate-500 text-xs">Le agevolazioni variano in base al vettore energetico</p>
+                      </div>
+                      
+                      {/* Consumo elettrico */}
+                      {(formData.tipo_energia === 'elettrica' || formData.tipo_energia === 'entrambe') && (
+                        <div className="space-y-2">
+                          <Label className="text-slate-300 text-sm">Consumo elettrico annuo</Label>
+                          <Select value={formData.consumo_elettrico} onValueChange={v => updateForm('consumo_elettrico', v)}>
+                            <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                              <SelectValue placeholder="Seleziona fascia" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {CONSUMI_ELETTRICI.map(s => (
+                                <SelectItem key={s} value={s}>{s}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <p className="text-slate-500 text-xs">Sopra certe soglie si accede a riduzioni maggiori</p>
+                        </div>
+                      )}
+                      
+                      {/* Consumo gas */}
+                      {(formData.tipo_energia === 'gas' || formData.tipo_energia === 'entrambe') && (
+                        <div className="space-y-2">
+                          <Label className="text-slate-300 text-sm">Consumo gas annuo</Label>
+                          <Select value={formData.consumo_gas} onValueChange={v => updateForm('consumo_gas', v)}>
+                            <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                              <SelectValue placeholder="Seleziona fascia" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {CONSUMI_GAS.map(s => (
+                                <SelectItem key={s} value={s}>{s}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <p className="text-slate-500 text-xs">Il gas per uso industriale ha regime fiscale diverso</p>
+                        </div>
+                      )}
+                      
+                      {/* Impianti produttivi */}
+                      <div className="bg-slate-900/50 rounded-xl p-4 space-y-3">
+                        <p className="text-white text-sm">Hai impianti produttivi (macchinari, linee di produzione)?</p>
+                        <RadioGroup 
+                          value={formData.ha_impianti_produttivi} 
+                          onValueChange={v => updateForm('ha_impianti_produttivi', v)}
+                          className="flex gap-4"
+                        >
+                          {['Sì', 'No'].map(opt => (
+                            <div key={opt} className="flex items-center gap-2">
+                              <RadioGroupItem value={opt} id={`imp-${opt}`} className="border-slate-600" />
+                              <Label htmlFor={`imp-${opt}`} className="text-slate-300 text-sm">{opt}</Label>
+                            </div>
+                          ))}
+                        </RadioGroup>
+                        <p className="text-slate-500 text-xs">L'energia per uso produttivo può essere tassata diversamente</p>
+                      </div>
+                      
+                      {/* Fotovoltaico */}
+                      <div className="bg-slate-900/50 rounded-xl p-4 space-y-3">
+                        <p className="text-white text-sm">Hai impianti fotovoltaici o di autoproduzione?</p>
+                        <RadioGroup 
+                          value={formData.ha_fotovoltaico} 
+                          onValueChange={v => updateForm('ha_fotovoltaico', v)}
+                          className="flex gap-4"
+                        >
+                          {['Sì', 'No', 'In valutazione'].map(opt => (
+                            <div key={opt} className="flex items-center gap-2">
+                              <RadioGroupItem value={opt} id={`fv-${opt}`} className="border-slate-600" />
+                              <Label htmlFor={`fv-${opt}`} className="text-slate-300 text-sm">{opt}</Label>
+                            </div>
+                          ))}
+                        </RadioGroup>
+                        <p className="text-slate-500 text-xs">L'autoconsumo ha un trattamento fiscale specifico</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {/* SEZIONE 3 - USO ENERGIA */}
+            {formSection === 3 && (
+              <div className="space-y-4">
+                <Card className="bg-slate-800/50 border-slate-700">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Factory className="w-5 h-5 text-purple-400" />
+                      <h3 className="text-white font-semibold">Come utilizzi l'energia</h3>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      {/* Percentuale produzione */}
+                      <div className="space-y-2">
+                        <Label className="text-slate-300 text-sm">Quanta energia va alla produzione?</Label>
+                        <div className="grid grid-cols-4 gap-2">
+                          {['< 25%', '25-50%', '50-75%', '> 75%'].map(opt => (
+                            <button
+                              key={opt}
+                              onClick={() => updateForm('percentuale_produzione', opt)}
+                              className={`p-3 rounded-xl border-2 transition-all text-center ${
+                                formData.percentuale_produzione === opt
+                                  ? 'bg-lime-400/20 border-lime-400 text-lime-400'
+                                  : 'bg-slate-900 border-slate-700 text-slate-400 hover:border-slate-500'
+                              }`}
+                            >
+                              <span className="text-sm font-medium">{opt}</span>
+                            </button>
+                          ))}
+                        </div>
+                        <p className="text-slate-500 text-xs">L'energia per processi produttivi può avere aliquote ridotte</p>
+                      </div>
+                      
+                      {/* Percentuale uffici */}
+                      <div className="space-y-2">
+                        <Label className="text-slate-300 text-sm">Quanta energia va a uffici e servizi?</Label>
+                        <div className="grid grid-cols-4 gap-2">
+                          {['< 25%', '25-50%', '50-75%', '> 75%'].map(opt => (
+                            <button
+                              key={opt}
+                              onClick={() => updateForm('percentuale_uffici', opt)}
+                              className={`p-3 rounded-xl border-2 transition-all text-center ${
+                                formData.percentuale_uffici === opt
+                                  ? 'bg-lime-400/20 border-lime-400 text-lime-400'
+                                  : 'bg-slate-900 border-slate-700 text-slate-400 hover:border-slate-500'
+                              }`}
+                            >
+                              <span className="text-sm font-medium">{opt}</span>
+                            </button>
+                          ))}
+                        </div>
+                        <p className="text-slate-500 text-xs">L'uso civile ha un trattamento fiscale diverso</p>
+                      </div>
+                      
+                      {/* Ciclo produttivo */}
+                      <div className="bg-slate-900/50 rounded-xl p-4 space-y-3">
+                        <p className="text-white text-sm">Il tuo ciclo produttivo è:</p>
+                        <RadioGroup 
+                          value={formData.ciclo_produttivo} 
+                          onValueChange={v => updateForm('ciclo_produttivo', v)}
+                          className="space-y-2"
+                        >
+                          {[
+                            { value: 'continuo', label: 'Continuo (h24 o quasi)', desc: 'Produzione costante' },
+                            { value: 'discontinuo', label: 'Discontinuo (turni/orari)', desc: 'Con pause significative' },
+                            { value: 'stagionale', label: 'Stagionale', desc: 'Picchi in certi periodi' },
+                            { value: 'non_produttivo', label: 'Non ho produzione', desc: 'Solo uffici/servizi' }
+                          ].map(opt => (
+                            <div key={opt.value} className="flex items-start gap-3 p-2 rounded-lg hover:bg-slate-800/50">
+                              <RadioGroupItem value={opt.value} id={`ciclo-${opt.value}`} className="border-slate-600 mt-0.5" />
+                              <div>
+                                <Label htmlFor={`ciclo-${opt.value}`} className="text-slate-300 text-sm font-medium">{opt.label}</Label>
+                                <p className="text-slate-500 text-xs">{opt.desc}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </RadioGroup>
+                        <p className="text-slate-500 text-xs mt-2">Il profilo di carico influisce sulle opportunità di ottimizzazione</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {/* SEZIONE 4 - CONTATTO */}
+            {formSection === 4 && (
+              <div className="space-y-4">
+                <Card className="bg-slate-800/50 border-slate-700">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Phone className="w-5 h-5 text-green-400" />
+                      <h3 className="text-white font-semibold">Riferimenti per il contatto</h3>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      {/* Nome referente */}
+                      <div className="space-y-2">
+                        <Label className="text-slate-300 text-sm">Nome e cognome referente *</Label>
+                        <input
+                          type="text"
+                          value={formData.nome_referente}
+                          onChange={e => updateForm('nome_referente', e.target.value)}
+                          placeholder="Es. Mario Rossi"
+                          className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:border-lime-400 focus:outline-none"
+                        />
+                      </div>
+                      
+                      {/* Ruolo */}
+                      <div className="space-y-2">
+                        <Label className="text-slate-300 text-sm">Ruolo in azienda</Label>
+                        <Select value={formData.ruolo_referente} onValueChange={v => updateForm('ruolo_referente', v)}>
+                          <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                            <SelectValue placeholder="Seleziona ruolo" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {RUOLI_AZIENDALI.map(s => (
+                              <SelectItem key={s} value={s}>{s}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <p className="text-slate-500 text-xs">Per capire chi ha visibilità sui dati necessari</p>
+                      </div>
+                      
+                      {/* Telefono */}
+                      <div className="space-y-2">
+                        <Label className="text-slate-300 text-sm">Telefono *</Label>
+                        <input
+                          type="tel"
+                          value={formData.telefono_referente}
+                          onChange={e => updateForm('telefono_referente', e.target.value)}
+                          placeholder="Es. 333 1234567"
+                          className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:border-lime-400 focus:outline-none"
+                        />
+                      </div>
+                      
+                      {/* Email */}
+                      <div className="space-y-2">
+                        <Label className="text-slate-300 text-sm">Email</Label>
+                        <input
+                          type="email"
+                          value={formData.email_referente}
+                          onChange={e => updateForm('email_referente', e.target.value)}
+                          placeholder="Es. mario.rossi@azienda.it"
+                          className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:border-lime-400 focus:outline-none"
+                        />
+                      </div>
+                      
+                      {/* Preferenza contatto */}
+                      <div className="space-y-2">
+                        <Label className="text-slate-300 text-sm">Preferenza di contatto</Label>
+                        <div className="grid grid-cols-3 gap-2">
+                          {[
+                            { value: 'Telefono', icon: Phone, label: 'Telefono' },
+                            { value: 'Email', icon: Mail, label: 'Email' },
+                            { value: 'Videochiamata', icon: Video, label: 'Video' }
+                          ].map(opt => (
+                            <button
+                              key={opt.value}
+                              onClick={() => updateForm('preferenza_contatto', opt.value)}
+                              className={`p-3 rounded-xl border-2 transition-all flex flex-col items-center gap-1 ${
+                                formData.preferenza_contatto === opt.value
+                                  ? 'bg-lime-400/20 border-lime-400 text-lime-400'
+                                  : 'bg-slate-900 border-slate-700 text-slate-400 hover:border-slate-500'
+                              }`}
+                            >
+                              <opt.icon className="w-4 h-4" />
+                              <span className="text-xs">{opt.label}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      {/* Disponibilità */}
+                      <div className="space-y-2">
+                        <Label className="text-slate-300 text-sm flex items-center gap-2">
+                          <Clock className="w-4 h-4" />
+                          Disponibilità oraria
+                        </Label>
+                        <Select value={formData.disponibilita_oraria} onValueChange={v => updateForm('disponibilita_oraria', v)}>
+                          <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                            <SelectValue placeholder="Seleziona fascia oraria" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {['Mattina (9-12)', 'Pranzo (12-14)', 'Pomeriggio (14-18)', 'Qualsiasi orario'].map(s => (
+                              <SelectItem key={s} value={s}>{s}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      {/* Note */}
+                      <div className="space-y-2">
+                        <Label className="text-slate-300 text-sm">Note aggiuntive</Label>
+                        <Textarea
+                          value={formData.note}
+                          onChange={e => updateForm('note', e.target.value)}
+                          placeholder="Informazioni aggiuntive che ritieni utili..."
+                          className="bg-slate-900 border-slate-700 text-white min-h-[80px]"
+                        />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
 
             {/* Navigation */}
             <div className="flex gap-3">
-              <Button 
-                variant="outline" 
-                onClick={() => setStep(1)}
-                className="flex-1 border-slate-600 text-slate-300"
-              >
-                Indietro
-              </Button>
-              <Button 
-                onClick={() => setStep(3)}
-                className="flex-1 bg-lime-400 hover:bg-lime-500 text-slate-900 font-semibold"
-              >
-                Continua
-              </Button>
+              {formSection > 1 ? (
+                <Button 
+                  variant="outline" 
+                  onClick={prevFormSection}
+                  className="flex-1 border-slate-600 text-slate-300"
+                >
+                  Indietro
+                </Button>
+              ) : (
+                <Button 
+                  variant="outline" 
+                  onClick={() => setStep(1)}
+                  className="flex-1 border-slate-600 text-slate-300"
+                >
+                  Annulla
+                </Button>
+              )}
+              
+              {formSection < 4 ? (
+                <Button 
+                  onClick={nextFormSection}
+                  className="flex-1 bg-lime-400 hover:bg-lime-500 text-slate-900 font-semibold"
+                >
+                  Continua
+                  <ChevronRight className="w-4 h-4 ml-1" />
+                </Button>
+              ) : (
+                <Button 
+                  onClick={handleSubmit}
+                  disabled={createRichiestaMutation.isPending}
+                  className="flex-1 bg-gradient-to-r from-lime-400 to-emerald-400 hover:from-lime-500 hover:to-emerald-500 text-slate-900 font-semibold"
+                >
+                  {createRichiestaMutation.isPending ? (
+                    <div className="animate-spin w-5 h-5 border-2 border-slate-900 border-t-transparent rounded-full" />
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4 mr-2" />
+                      Invia richiesta
+                    </>
+                  )}
+                </Button>
+              )}
             </div>
+            
+            {/* Tempo stimato */}
+            <p className="text-center text-slate-500 text-xs">
+              ⏱️ Tempo di compilazione: circa 3-5 minuti
+            </p>
           </div>
         )}
 
