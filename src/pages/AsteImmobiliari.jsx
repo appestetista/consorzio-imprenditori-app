@@ -67,12 +67,14 @@ export default function AsteImmobiliari() {
     loadUser();
   }, []);
 
-  // Carica aste attive
+  // Carica aste attive (escludi quelle con data passata)
   const { data: aste = [], isLoading } = useQuery({
     queryKey: ['aste-immobiliari'],
     queryFn: async () => {
       const allAste = await base44.entities.AstaImmobiliare.filter({ is_active: true });
-      return allAste;
+      // Filtra solo aste con data futura o odierna
+      const oggi = new Date().toISOString().split('T')[0];
+      return allAste.filter(a => !a.data_asta || a.data_asta >= oggi);
     },
   });
 
