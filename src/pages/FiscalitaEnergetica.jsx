@@ -120,15 +120,33 @@ export default function FiscalitaEnergetica() {
   const queryClient = useQueryClient();
 
   const [formData, setFormData] = useState({
+    // Sezione 1 - Azienda
+    ragione_sociale: '',
+    partita_iva: '',
+    codice_ateco: '',
     settore_attivita: '',
-    spesa_energetica_range: '',
-    ha_fatto_efficientamento: '',
+    // Sezione 2 - Energia
+    tipo_energia: '', // elettrica, gas, entrambe
+    consumo_elettrico: '',
+    consumo_gas: '',
+    ha_impianti_produttivi: '',
     ha_fotovoltaico: '',
-    conosce_agevolazioni: '',
+    // Sezione 3 - Uso energia
+    percentuale_produzione: '',
+    percentuale_uffici: '',
+    ciclo_produttivo: '',
+    // Sezione 4 - Contatto
+    nome_referente: '',
+    ruolo_referente: '',
+    email_referente: '',
+    telefono_referente: '',
+    // Extra
     note: '',
     preferenza_contatto: '',
     disponibilita_oraria: ''
   });
+  
+  const [formSection, setFormSection] = useState(1); // 1-4 per le sezioni del form
 
   useEffect(() => {
     const loadUser = async () => {
