@@ -56,7 +56,7 @@ export default function AsteImmobiliari() {
   const [macroCategoria, setMacroCategoria] = useState('tutti'); // 'tutti', 'mobili', 'immobili'
   const [categoriaAttiva, setCategoriaAttiva] = useState(null);
   const [zonaAttiva, setZonaAttiva] = useState(null);
-  const [filtroScadenza, setFiltroScadenza] = useState('tutte');
+
   const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
@@ -145,23 +145,22 @@ export default function AsteImmobiliari() {
       // Filtro zona
       if (zonaAttiva && asta.provincia !== zonaAttiva) return false;
       
-      // Filtro scadenza
-      if (filtroScadenza !== 'tutte') {
-        const giorni = giorniAllaAsta(asta.data_asta);
-        if (filtroScadenza === 'immediate' && giorni >= 30) return false;
-        if (filtroScadenza === 'normali' && (giorni < 30 || giorni > 90)) return false;
-        if (filtroScadenza === 'oltre90' && giorni <= 90) return false;
-      }
-      
       return true;
     });
   }, [aste, macroCategoria, categoriaAttiva, zonaAttiva, filtroScadenza]);
 
-  // Ordina per interesse
-  const asteOrdinate = [...asteFiltrate].sort((a, b) => {
-    const ordine = { 'Molto interessante': 0, 'Interessante': 1, 'Da valutare': 2 };
-    return (ordine[a.livello_interesse] ?? 3) - (ordine[b.livello_interesse] ?? 3);
-  });
+  // Ordina per termine presentazione offerte (dal più vicino al più lontano)
+      const asteOrdinate = [...asteFiltrate].sort((a, b) => {
+        const getTermineDate = (asta) => {
+          const termine = asta.termine_presentazione_offerte || asta.raw_data?.offer_submission_deadline_0;
+          if (!termine) return new Date('2099-12-31');
+          // Formato: "17/03/2026 13:00"
+          const [datePart, timePart] = termine.split(' ');
+          const [day, month, year] = datePart.split('/');
+          return new Date(`${year}-${month}-${day}T${timePart || '00:00'}`);
+        };
+        return getTermineDate(a) - getTermineDate(b);
+      });
 
   // Conteggi
   const countMobili = aste.filter(a => isMobile(a.tipologia)).length;
@@ -181,10 +180,10 @@ export default function AsteImmobiliari() {
     setMacroCategoria('tutti');
     setCategoriaAttiva(null);
     setZonaAttiva(null);
-    setFiltroScadenza('tutte');
+
   };
 
-  const hasActiveFilters = macroCategoria !== 'tutti' || categoriaAttiva || zonaAttiva || filtroScadenza !== 'tutte';
+  const hasActiveFilters = macroCategoria !== 'tutti' || categoriaAttiva || zonaAttiva;
 
   if (isLoading || !user) {
     return (
@@ -361,31 +360,6 @@ export default function AsteImmobiliari() {
                       }`}
                     >
                       {zona}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Filtro Scadenza */}
-              <div>
-                <p className="text-slate-400 text-xs uppercase tracking-wide mb-2">⏰ Scadenza</p>
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    { id: 'tutte', label: 'Tutte' },
-                    { id: 'immediate', label: '< 30 giorni' },
-                    { id: 'normali', label: '30-90 giorni' },
-                    { id: 'oltre90', label: '> 90 giorni' },
-                  ].map(opt => (
-                    <button
-                      key={opt.id}
-                      onClick={() => setFiltroScadenza(opt.id)}
-                      className={`px-3 py-1.5 rounded-full text-sm transition-all ${
-                        filtroScadenza === opt.id
-                          ? 'bg-purple-500 text-white'
-                          : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
-                      }`}
-                    >
-                      {opt.label}
                     </button>
                   ))}
                 </div>
