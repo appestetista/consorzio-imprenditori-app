@@ -127,12 +127,12 @@ export default function RisparmioEnergetico() {
                   }}
                 />
                 
-                {/* Anello esterno metallico - azzurro per bottoni speciali */}
+                {/* Anello esterno metallico - verde scuro per bottoni speciali */}
                 <div 
                   className="absolute inset-0 rounded-[28px] p-[5px]"
                   style={{
                     background: service.isSpecial 
-                      ? 'linear-gradient(145deg, #86efac 0%, #4ade80 20%, #22c55e 50%, #16a34a 70%, #22c55e 85%, #4ade80 100%)'
+                      ? 'linear-gradient(145deg, #22c55e 0%, #16a34a 20%, #15803d 50%, #166534 70%, #15803d 85%, #16a34a 100%)'
                       : 'linear-gradient(145deg, #e8e8e8 0%, #d0d0d0 20%, #a0a0a0 50%, #888888 70%, #a0a0a0 85%, #c0c0c0 100%)',
                     boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.8), inset 0 -1px 2px rgba(0,0,0,0.3)'
                   }}
@@ -142,9 +142,9 @@ export default function RisparmioEnergetico() {
                     className="relative w-full h-full rounded-[23px] overflow-hidden flex flex-col items-center justify-center"
                     style={{
                       background: service.isSpecial
-                        ? 'radial-gradient(ellipse 80% 60% at 35% 25%, #dcfce7 0%, #bbf7d0 15%, #86efac 30%, #4ade80 50%, #22c55e 70%, #16a34a 90%, #15803d 100%)'
+                        ? 'radial-gradient(ellipse 80% 60% at 35% 25%, #4ade80 0%, #22c55e 15%, #16a34a 30%, #15803d 50%, #166534 70%, #14532d 90%, #052e16 100%)'
                         : 'radial-gradient(ellipse 80% 60% at 35% 25%, #ffffff 0%, #fafafa 15%, #f0f0f0 30%, #e4e4e4 50%, #d4d4d4 70%, #c0c0c0 90%, #a8a8a8 100%)',
-                      boxShadow: 'inset 0 8px 16px rgba(255,255,255,1), inset 0 -8px 16px rgba(0,0,0,0.2), inset 4px 0 8px rgba(255,255,255,0.6), inset -4px 0 8px rgba(0,0,0,0.1), inset 0 0 20px rgba(255,255,255,0.5)'
+                      boxShadow: 'inset 0 8px 16px rgba(255,255,255,0.5), inset 0 -8px 16px rgba(0,0,0,0.3), inset 4px 0 8px rgba(255,255,255,0.3), inset -4px 0 8px rgba(0,0,0,0.2), inset 0 0 20px rgba(255,255,255,0.2)'
                     }}
                   >
                     {/* Riflesso superiore a cupola */}
