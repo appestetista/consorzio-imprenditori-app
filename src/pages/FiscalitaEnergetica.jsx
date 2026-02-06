@@ -210,7 +210,7 @@ export default function FiscalitaEnergetica() {
         });
       }
 
-      return await base44.entities.RichiestaFiscalitaEnergetica.create({
+      const richiesta = await base44.entities.RichiestaFiscalitaEnergetica.create({
         ...data,
         user_email: user.email,
         consultant_id: consultantData?.id || null,
@@ -218,6 +218,23 @@ export default function FiscalitaEnergetica() {
         history: initialHistory,
         documents: []
       });
+      
+      // Crea messaggio all'admin con source fiscalita_energetica
+      const adminUsers = await base44.entities.User.filter({ role: 'admin' });
+      if (adminUsers.length > 0) {
+        const adminEmail = adminUsers[0].email;
+        
+        await base44.entities.Message.create({
+          from_email: user.email,
+          to_email: adminEmail,
+          content: `Nuova richiesta Fiscalità Energetica da ${data.ragione_sociale}`,
+          source: 'fiscalita_energetica',
+          source_reference: 'Fiscalità Energetica',
+          conversation_id: `fiscalita_energetica_${user.email}_${adminEmail}`
+        });
+      }
+      
+      return richiesta;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['richiesta-fiscalita'] });

@@ -368,8 +368,35 @@ ${note || 'Nessuna'}
         status: 'pending'
       });
 
-      // Notifica admin
+      // Crea messaggio diretto all'admin con source specifica
       const adminUsers = await base44.entities.User.filter({ role: 'admin' });
+      if (adminUsers.length > 0) {
+        const adminEmail = adminUsers[0].email;
+        
+        // Mappa categoria a source per messaggi
+        const categoriaToSource = {
+          'Assicurazioni': 'risparmio_assicurazioni',
+          'Luce': 'risparmio_luce',
+          'Gas': 'risparmio_gas',
+          'Efficientamento Energetico': 'risparmio_efficientamento',
+          'Fotovoltaico': 'risparmio_fotovoltaico',
+          'Spesa Telefonica': 'risparmio_telefonia',
+          'Internet': 'risparmio_internet'
+        };
+        
+        const source = categoriaToSource[categoria] || 'diretto';
+        
+        await base44.entities.Message.create({
+          from_email: user.email,
+          to_email: adminEmail,
+          content: `Nuova richiesta per ${categoria}`,
+          source: source,
+          source_reference: categoria,
+          conversation_id: `${source}_${user.email}_${adminEmail}`
+        });
+      }
+      
+      // Notifica admin
       await Promise.all(adminUsers.map(admin =>
         base44.entities.Notification.create({
           user_email: admin.email,
