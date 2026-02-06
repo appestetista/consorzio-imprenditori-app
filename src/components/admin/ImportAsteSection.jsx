@@ -194,15 +194,35 @@ export default function ImportAsteSection() {
       }
       if (titolo && titolo.length > 200) titolo = titolo.substring(0, 200) + '...';
       
+      // Offerta minima (formato italiano: 16.551,00 € -> 16551.00)
+      let offertaMinima = 0;
+      if (row['Minimum_Offer_0']) {
+        const offertaStr = row['Minimum_Offer_0'].replace(/[€\s\u00a0]/g, '').replace(/\./g, '').replace(',', '.');
+        offertaMinima = parseFloat(offertaStr) || 0;
+      }
+
+      // Rilancio minimo
+      let rilancioMinimo = 0;
+      if (row['Minimum_Raise_0']) {
+        const rilancioStr = row['Minimum_Raise_0'].replace(/[€\s\u00a0]/g, '').replace(/\./g, '').replace(',', '.');
+        rilancioMinimo = parseFloat(rilancioStr) || 0;
+      }
+
+      // Data e ora vendita (da data_0, es. "18/03/2026 16:30")
+      const dataOraVendita = row['data_0'] || '';
+
       return {
         titolo,
         localita,
         provincia,
         prezzo_base: prezzo,
+        offerta_minima: offertaMinima,
+        rilancio_minimo: rilancioMinimo,
+        data_ora_vendita: dataOraVendita,
         data_asta: dataAsta,
         link_ufficiale: linkUfficiale,
         external_id: `pvp_${externalId}`,
-        lotto: row.Lot_Number_0 || '',
+        lotto: row['Lot_Number_0'] || '',
         fonte: 'pvp.giustizia.it',
         cauzione_stimata: prezzo * 0.1
       };
