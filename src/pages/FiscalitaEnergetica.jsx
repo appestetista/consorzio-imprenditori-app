@@ -411,6 +411,113 @@ export default function FiscalitaEnergetica() {
               </CardContent>
             </Card>
 
+            {/* BLOCCO 7: Il consulente di efficientamento energetico */}
+            <Card className="bg-slate-800/70 border-slate-700 overflow-hidden">
+              <div className="bg-gradient-to-r from-indigo-600/20 to-purple-600/20 px-5 py-4 border-b border-slate-700">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-indigo-500/20 rounded-lg">
+                    <Target className="w-6 h-6 text-indigo-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-white font-bold">Il consulente di efficientamento energetico</h3>
+                    <p className="text-slate-400 text-xs">La figura chiave per intercettare il risparmio fiscale</p>
+                  </div>
+                </div>
+              </div>
+              <CardContent className="p-5 space-y-5">
+                {/* Chi è */}
+                <div>
+                  <h4 className="text-indigo-300 font-semibold text-sm mb-2 flex items-center gap-2">
+                    <span className="w-5 h-5 rounded-full bg-indigo-500/20 flex items-center justify-center text-xs">1</span>
+                    Chi è
+                  </h4>
+                  <p className="text-slate-300 text-sm leading-relaxed">
+                    È un tecnico specializzato nell'analisi dei consumi energetici aziendali. 
+                    Conosce le tecnologie, i processi produttivi e le normative che regolano 
+                    l'uso dell'energia nelle imprese. Il suo compito è individuare dove si 
+                    spreca, dove si può ottimizzare e dove esistono opportunità fiscali non sfruttate.
+                  </p>
+                </div>
+
+                {/* Perché è centrale */}
+                <div>
+                  <h4 className="text-indigo-300 font-semibold text-sm mb-2 flex items-center gap-2">
+                    <span className="w-5 h-5 rounded-full bg-indigo-500/20 flex items-center justify-center text-xs">2</span>
+                    Perché è centrale per la fiscalità energetica
+                  </h4>
+                  <p className="text-slate-300 text-sm leading-relaxed">
+                    Le agevolazioni fiscali sull'energia non si applicano automaticamente: 
+                    richiedono la dimostrazione tecnica dell'uso che l'azienda fa dell'energia. 
+                    Solo chi conosce i processi produttivi può classificare correttamente i consumi, 
+                    identificare le soglie di accesso ai benefici e documentare il diritto alle riduzioni.
+                  </p>
+                </div>
+
+                {/* Come analizza */}
+                <div>
+                  <h4 className="text-indigo-300 font-semibold text-sm mb-2 flex items-center gap-2">
+                    <span className="w-5 h-5 rounded-full bg-indigo-500/20 flex items-center justify-center text-xs">3</span>
+                    Come analizza consumi e impianti
+                  </h4>
+                  <div className="bg-slate-700/30 rounded-lg p-3 space-y-2">
+                    {[
+                      'Esamina le bollette per verificare la corretta applicazione di accise e oneri',
+                      'Analizza i contratti di fornitura e le condizioni economiche applicate',
+                      'Studia il ciclo produttivo per capire come viene impiegata l\'energia',
+                      'Verifica la classificazione dell\'utenza presso il fornitore e l\'Agenzia delle Dogane',
+                      'Misura i consumi reali degli impianti per identificare inefficienze'
+                    ].map((item, i) => (
+                      <div key={i} className="flex items-start gap-2 text-slate-300 text-sm">
+                        <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 mt-2 flex-shrink-0" />
+                        <span>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Complementare al commercialista */}
+                <div>
+                  <h4 className="text-indigo-300 font-semibold text-sm mb-2 flex items-center gap-2">
+                    <span className="w-5 h-5 rounded-full bg-indigo-500/20 flex items-center justify-center text-xs">4</span>
+                    Complementare al commercialista, non alternativo
+                  </h4>
+                  <p className="text-slate-300 text-sm leading-relaxed mb-3">
+                    Il commercialista gestisce la contabilità e gli adempimenti fiscali ordinari, 
+                    ma raramente ha competenze tecniche sulle accise energetiche o sui requisiti 
+                    per accedere ai benefici. Il consulente energetico fornisce l'analisi tecnica, 
+                    il commercialista la traduce in dichiarazioni e adempimenti.
+                  </p>
+                  <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-lg p-3">
+                    <p className="text-indigo-200 text-sm text-center">
+                      Insieme coprono l'intera catena: <span className="font-medium">analisi tecnica → documentazione → beneficio fiscale</span>
+                    </p>
+                  </div>
+                </div>
+
+                {/* Accompagnamento nel tempo */}
+                <div>
+                  <h4 className="text-indigo-300 font-semibold text-sm mb-2 flex items-center gap-2">
+                    <span className="w-5 h-5 rounded-full bg-indigo-500/20 flex items-center justify-center text-xs">5</span>
+                    Un accompagnamento nel tempo
+                  </h4>
+                  <p className="text-slate-300 text-sm leading-relaxed">
+                    La fiscalità energetica non è un intervento una tantum. Le normative cambiano, 
+                    i consumi evolvono, gli impianti si modificano. Il consulente monitora nel tempo 
+                    la situazione dell'azienda, verifica che i benefici restino applicabili e 
+                    segnala nuove opportunità quando emergono.
+                  </p>
+                </div>
+
+                {/* Conclusione forte */}
+                <div className="bg-gradient-to-r from-indigo-600/20 to-purple-600/20 rounded-lg p-4 border border-indigo-500/20">
+                  <p className="text-white text-sm text-center font-medium">
+                    Senza un'analisi tecnica dei consumi, il risparmio fiscale sull'energia 
+                    resta invisibile. È il consulente di efficientamento che lo rende accessibile.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* VISUAL SUMMARY - Impatto finale */}
             <div className="bg-gradient-to-r from-emerald-600/20 via-lime-500/20 to-green-600/20 rounded-2xl p-5 border border-lime-500/30">
               <div className="text-center mb-4">
