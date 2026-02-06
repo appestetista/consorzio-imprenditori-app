@@ -156,24 +156,65 @@ export default function FiscalitaEnergetica() {
     loadUser();
   }, []);
 
+  // Cerca richieste esistenti (non completate o annullate)
   const { data: richiestaEsistente } = useQuery({
     queryKey: ['richiesta-fiscalita', user?.email],
     queryFn: async () => {
       const richieste = await base44.entities.RichiestaFiscalitaEnergetica.filter({ 
-        user_email: user.email,
-        status: 'pending'
-      });
-      return richieste[0] || null;
+        user_email: user.email
+      }, '-created_date');
+      // Restituisci la prima richiesta non conclusa
+      const attiva = richieste.find(r => !['completed', 'cancelled'].includes(r.status));
+      return attiva || null;
     },
     enabled: !!user?.email
   });
 
+  // Fetch consulente di efficientamento energetico assegnato
+  const { data: consultantData } = useQuery({
+    queryKey: ['consultant-efficientamento'],
+    queryFn: async () => {
+      // Cerca il consulente con categoria "Efficientamento Energetico/Centralini"
+      const consultants = await base44.entities.Consultant.filter({
+        category: 'Efficientamento Energetico/Centralini'
+      });
+      return consultants[0] || null;
+    }
+  });
+
   const createRichiestaMutation = useMutation({
     mutationFn: async (data) => {
+      // Crea evento storico iniziale
+      const initialHistory = [{
+        timestamp: new Date().toISOString(),
+        action: 'status_change',
+        from_status: null,
+        to_status: 'pending',
+        actor_email: user.email,
+        actor_role: 'system',
+        note: 'Richiesta creata'
+      }];
+
+      // Se c'è un consulente assegnato, aggiungi evento di assegnazione
+      if (consultantData?.id) {
+        initialHistory.push({
+          timestamp: new Date().toISOString(),
+          action: 'status_change',
+          from_status: 'pending',
+          to_status: 'assigned',
+          actor_email: 'system',
+          actor_role: 'system',
+          note: `Assegnata automaticamente a ${consultantData.name}`
+        });
+      }
+
       return await base44.entities.RichiestaFiscalitaEnergetica.create({
         ...data,
         user_email: user.email,
-        status: 'pending'
+        consultant_id: consultantData?.id || null,
+        status: consultantData?.id ? 'assigned' : 'pending',
+        history: initialHistory,
+        documents: []
       });
     },
     onSuccess: () => {
