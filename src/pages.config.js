@@ -83,6 +83,8 @@ import WelfareNormativa from './pages/WelfareNormativa';
 import WelfareOrdina from './pages/WelfareOrdina';
 import WelfareStorico from './pages/WelfareStorico';
 import WelfareTipologie from './pages/WelfareTipologie';
+import FiscalitaEnergetica from './pages/FiscalitaEnergetica';
+import FiscalitaEnergeticaon from './pages/FiscalitaEnergeticaon';
 import __Layout from './Layout.jsx';
 
 
@@ -123,6 +125,8 @@ export const PAGES = {
     "WelfareOrdina": WelfareOrdina,
     "WelfareStorico": WelfareStorico,
     "WelfareTipologie": WelfareTipologie,
+    "FiscalitaEnergetica": FiscalitaEnergetica,
+    "FiscalitaEnergeticaon": FiscalitaEnergeticaon,
 }
 
 export const pagesConfig = {
