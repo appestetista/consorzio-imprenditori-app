@@ -688,7 +688,7 @@ export default function Messaggi() {
         <div className="flex gap-2" style={{ height: 'calc(100vh - 180px)' }}>
           
           {/* Colonna sinistra - Filtri */}
-          <div className="w-20 flex-shrink-0 overflow-y-auto bg-slate-800/50 rounded-xl p-1.5">
+          <div className="w-28 flex-shrink-0 overflow-y-auto bg-slate-800/50 rounded-xl p-1.5">
             <div className="flex flex-col gap-1">
               {/* Filtro Tutti */}
               <button
