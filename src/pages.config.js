@@ -63,6 +63,7 @@ import ContattaMembriAdmin from './pages/ContattaMembriAdmin';
 import CulturaAziendale from './pages/CulturaAziendale';
 import DirectoryUtenti from './pages/DirectoryUtenti';
 import FinanziamentiAgevolati from './pages/FinanziamentiAgevolati';
+import FiscalitaEnergetica from './pages/FiscalitaEnergetica';
 import Fornitori from './pages/Fornitori';
 import GestioneCostiAI from './pages/GestioneCostiAI';
 import GestioneMembri from './pages/GestioneMembri';
@@ -103,6 +104,7 @@ export const PAGES = {
     "CulturaAziendale": CulturaAziendale,
     "DirectoryUtenti": DirectoryUtenti,
     "FinanziamentiAgevolati": FinanziamentiAgevolati,
+    "FiscalitaEnergetica": FiscalitaEnergetica,
     "Fornitori": Fornitori,
     "GestioneCostiAI": GestioneCostiAI,
     "GestioneMembri": GestioneMembri,

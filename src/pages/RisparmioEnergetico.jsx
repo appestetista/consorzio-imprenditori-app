@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Zap, Lightbulb, Leaf, Shield, Flame, Sun, Phone, Wifi } from 'lucide-react';
+import { ArrowLeft, Zap, Lightbulb, Leaf, Shield, Flame, Sun, Phone, Wifi, Receipt } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -66,6 +66,13 @@ export default function RisparmioEnergetico() {
       icon: Wifi,
       title: 'Internet',
       description: 'Connettività fibra e ADSL a tariffe dedicate'
+    },
+    {
+      icon: Receipt,
+      title: 'Fiscalità Energetica',
+      description: 'Scopri le agevolazioni fiscali per l\'efficientamento',
+      isSpecial: true,
+      specialPage: 'FiscalitaEnergetica'
     }
   ];
 
@@ -101,7 +108,7 @@ export default function RisparmioEnergetico() {
           {services.map((service, index) => (
             <Link 
               key={index} 
-              to={createPageUrl('RisparmioDettaglio') + `?categoria=${encodeURIComponent(service.title)}`}
+              to={service.specialPage ? createPageUrl(service.specialPage) : createPageUrl('RisparmioDettaglio') + `?categoria=${encodeURIComponent(service.title)}`}
               className="flex flex-col items-center"
             >
               {/* Pulsante 3D super bombato */}
@@ -120,11 +127,13 @@ export default function RisparmioEnergetico() {
                   }}
                 />
                 
-                {/* Anello esterno metallico */}
+                {/* Anello esterno metallico - azzurro per bottoni speciali */}
                 <div 
                   className="absolute inset-0 rounded-[28px] p-[5px]"
                   style={{
-                    background: 'linear-gradient(145deg, #e8e8e8 0%, #d0d0d0 20%, #a0a0a0 50%, #888888 70%, #a0a0a0 85%, #c0c0c0 100%)',
+                    background: service.isSpecial 
+                      ? 'linear-gradient(145deg, #7dd3fc 0%, #38bdf8 20%, #0ea5e9 50%, #0284c7 70%, #0ea5e9 85%, #38bdf8 100%)'
+                      : 'linear-gradient(145deg, #e8e8e8 0%, #d0d0d0 20%, #a0a0a0 50%, #888888 70%, #a0a0a0 85%, #c0c0c0 100%)',
                     boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.8), inset 0 -1px 2px rgba(0,0,0,0.3)'
                   }}
                 >
@@ -132,7 +141,9 @@ export default function RisparmioEnergetico() {
                   <div 
                     className="relative w-full h-full rounded-[23px] overflow-hidden flex flex-col items-center justify-center"
                     style={{
-                      background: 'radial-gradient(ellipse 80% 60% at 35% 25%, #ffffff 0%, #fafafa 15%, #f0f0f0 30%, #e4e4e4 50%, #d4d4d4 70%, #c0c0c0 90%, #a8a8a8 100%)',
+                      background: service.isSpecial
+                        ? 'radial-gradient(ellipse 80% 60% at 35% 25%, #e0f2fe 0%, #bae6fd 15%, #7dd3fc 30%, #38bdf8 50%, #0ea5e9 70%, #0284c7 90%, #0369a1 100%)'
+                        : 'radial-gradient(ellipse 80% 60% at 35% 25%, #ffffff 0%, #fafafa 15%, #f0f0f0 30%, #e4e4e4 50%, #d4d4d4 70%, #c0c0c0 90%, #a8a8a8 100%)',
                       boxShadow: 'inset 0 8px 16px rgba(255,255,255,1), inset 0 -8px 16px rgba(0,0,0,0.2), inset 4px 0 8px rgba(255,255,255,0.6), inset -4px 0 8px rgba(0,0,0,0.1), inset 0 0 20px rgba(255,255,255,0.5)'
                     }}
                   >
@@ -156,10 +167,10 @@ export default function RisparmioEnergetico() {
                     />
                     
                     {/* Icona centrata */}
-                    <service.icon className="w-14 h-14 text-blue-600 relative z-10 mb-2 drop-shadow-sm" />
+                    <service.icon className={`w-14 h-14 relative z-10 mb-2 drop-shadow-sm ${service.isSpecial ? 'text-white' : 'text-blue-600'}`} />
                     
                     {/* Titolo dentro il pulsante */}
-                    <span className="text-blue-700 font-bold text-sm text-center leading-tight px-3 relative z-10 max-w-[90%] drop-shadow-sm">
+                    <span className={`font-bold text-sm text-center leading-tight px-3 relative z-10 max-w-[90%] drop-shadow-sm ${service.isSpecial ? 'text-white' : 'text-blue-700'}`}>
                       {service.title}
                     </span>
                   </div>
