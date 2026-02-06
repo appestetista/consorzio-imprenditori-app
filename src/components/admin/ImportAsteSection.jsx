@@ -43,6 +43,7 @@ export default function ImportAsteSection() {
   const [isUploading, setIsUploading] = useState(false);
   const [lastResult, setLastResult] = useState(null);
   const [dragActive, setDragActive] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState({}); // {tipologia: {name, rows}}
   const queryClient = useQueryClient();
 
   // Carica statistiche per tipologia
@@ -184,9 +185,14 @@ export default function ImportAsteSection() {
       // Link ufficiale
       const linkUfficiale = row['data-page-selector'] || `https://pvp.giustizia.it/pvp/it/detail_annuncio.page?idAnnuncio=${externalId}`;
       
-      // Titolo dalla descrizione
-      let titolo = row.data_3 || row['Property_Included_in_Lot_-_Description_0'] || 'Asta immobiliare';
-      if (titolo.length > 200) titolo = titolo.substring(0, 200) + '...';
+      // Titolo dalla descrizione - prova varie chiavi possibili
+      let titolo = row['data_3'] || row['Property_Included_in_Lot_-_Description_0'] || 'Asta immobiliare';
+      // Se ancora vuoto, cerca la chiave che contiene "Description"
+      if (titolo === 'Asta immobiliare') {
+        const descKey = Object.keys(row).find(k => k.includes('Description'));
+        if (descKey) titolo = row[descKey];
+      }
+      if (titolo && titolo.length > 200) titolo = titolo.substring(0, 200) + '...';
       
       return {
         titolo,
@@ -209,9 +215,10 @@ export default function ImportAsteSection() {
     });
   };
 
-  // Rileva se è formato web scraper
+  // Rileva se è formato web scraper (cerca anche con BOM)
   const isWebScraperFormat = (headers) => {
-    return headers.includes('Insertion_Number_0') || headers.includes('data-page-selector') || headers.includes('Auction_Date_0');
+    const headerStr = headers.join(',');
+    return headerStr.includes('Insertion_Number_0') || headerStr.includes('data-page-selector') || headerStr.includes('Auction_Date_0');
   };
 
   // Parsing CSV con auto-detect formato
@@ -265,12 +272,22 @@ export default function ImportAsteSection() {
       if (!Array.isArray(aste)) {
         throw new Error('Il file deve contenere un array di aste');
       }
+
+      console.log('Aste parsate:', aste.length, 'Prima asta:', aste[0]);
+      
+      // Salva info file caricato
+      setUploadedFiles(prev => ({
+        ...prev,
+        [tipologia]: { name: file.name, rows: aste.length }
+      }));
       
       // Aggiungi tipologia forzata a ogni asta
       const asteConTipologia = aste.map(a => ({
         ...a,
         tipologia: tipologia
       }));
+
+      console.log('Aste con tipologia:', asteConTipologia.length, 'Prima:', asteConTipologia[0]);
       
       toast.info(`Importazione ${aste.length} aste "${tipologia}" in corso...`);
       
@@ -408,6 +425,27 @@ export default function ImportAsteSection() {
             </Button>
           )}
 
+          {/* File caricato */}
+          {uploadedFiles[tipologia.id] && (
+            <div className="flex items-center justify-between p-2 bg-slate-700/50 rounded-lg text-xs">
+              <div className="flex items-center gap-2 text-slate-300">
+                <FileSpreadsheet className="w-4 h-4 text-blue-400" />
+                <span className="truncate max-w-[150px]">{uploadedFiles[tipologia.id].name}</span>
+                <Badge variant="outline" className="text-xs">{uploadedFiles[tipologia.id].rows} righe</Badge>
+              </div>
+              <button 
+                onClick={() => setUploadedFiles(prev => {
+                  const newFiles = {...prev};
+                  delete newFiles[tipologia.id];
+                  return newFiles;
+                })}
+                className="text-red-400 hover:text-red-300 p-1"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
           {/* Risultato ultimo import per questa tipologia */}
           {lastResult && lastResult.tipologia === tipologia.id && (
             <div className={`p-2 rounded-lg text-xs ${lastResult.success ? 'bg-green-900/20 text-green-400' : 'bg-red-900/20 text-red-400'}`}>
@@ -424,8 +462,8 @@ export default function ImportAsteSection() {
               )}
             </div>
           )}
-        </CardContent>
-      </Card>
+          </CardContent>
+          </Card>
     );
   };
 
