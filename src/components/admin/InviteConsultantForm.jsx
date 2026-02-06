@@ -20,7 +20,8 @@ const CONSULTANT_CATEGORIES = [
   "Avvocato",
   "Bandi Europei",
   "Affitto Stampanti/Cyber Sicurezza",
-  "Efficientamento Energetico/Centralini"
+  "Efficientamento Energetico/Centralini",
+  "Fiscalità Energetica"
 ];
 
 const SECTIONS = [

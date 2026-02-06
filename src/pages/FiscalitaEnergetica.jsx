@@ -172,13 +172,13 @@ export default function FiscalitaEnergetica() {
     enabled: !!user?.email
   });
 
-  // Fetch consulente di efficientamento energetico assegnato
+  // Fetch consulente di fiscalità energetica assegnato
   const { data: consultantData } = useQuery({
-    queryKey: ['consultant-efficientamento'],
+    queryKey: ['consultant-fiscalita-energetica'],
     queryFn: async () => {
-      // Cerca il consulente con categoria "Efficientamento Energetico/Centralini"
+      // Cerca il consulente con categoria "Fiscalità Energetica"
       const consultants = await base44.entities.Consultant.filter({
-        category: 'Efficientamento Energetico/Centralini'
+        category: 'Fiscalità Energetica'
       });
       return consultants[0] || null;
     }
