@@ -688,21 +688,21 @@ export default function Messaggi() {
         <div className="flex gap-2" style={{ height: 'calc(100vh - 180px)' }}>
           
           {/* Colonna sinistra - Filtri */}
-          <div className="w-28 flex-shrink-0 overflow-y-auto bg-slate-800/50 rounded-xl p-1.5">
-            <div className="flex flex-col gap-1">
+          <div className="w-36 flex-shrink-0 overflow-y-auto bg-slate-800/50 rounded-xl p-2">
+            <div className="flex flex-col gap-1.5">
               {/* Filtro Tutti */}
               <button
                 onClick={() => setActiveFilter('all')}
-                className={`flex flex-col items-center justify-center gap-0.5 p-2 rounded-lg text-[9px] font-semibold transition-colors ${
+                className={`flex items-center gap-2 px-3 py-2.5 rounded-lg text-xs font-semibold transition-colors ${
                   activeFilter === 'all' 
                     ? 'bg-lime-400 text-slate-900' 
                     : 'bg-slate-700 text-slate-400 hover:bg-slate-600'
                 }`}
               >
-                <Filter className="w-4 h-4" />
-                <span>Tutti</span>
+                <Filter className="w-4 h-4 flex-shrink-0" />
+                <span className="flex-1 text-left">Tutti</span>
                 {unreadBySource.all > 0 && (
-                  <span className={`px-1.5 py-0.5 rounded-full text-[8px] ${
+                  <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${
                     activeFilter === 'all' ? 'bg-slate-900 text-lime-400' : 'bg-red-500 text-white'
                   }`}>
                     {unreadBySource.all}
@@ -718,16 +718,16 @@ export default function Messaggi() {
                   <button
                     key={source.key}
                     onClick={() => setActiveFilter(source.key)}
-                    className={`flex flex-col items-center justify-center gap-0.5 p-2 rounded-lg text-[9px] font-semibold transition-colors ${
+                    className={`flex items-center gap-2 px-3 py-2.5 rounded-lg text-xs font-semibold transition-colors ${
                       activeFilter === source.key 
                         ? `${source.color} text-white` 
                         : 'bg-slate-700 text-slate-400 hover:bg-slate-600'
                     }`}
                   >
-                    <SourceIcon className="w-4 h-4" />
-                    <span className="text-center leading-tight">{source.label}</span>
+                    <SourceIcon className="w-4 h-4 flex-shrink-0" />
+                    <span className="flex-1 text-left truncate">{source.label}</span>
                     {count > 0 && (
-                      <span className={`px-1.5 py-0.5 rounded-full text-[8px] ${
+                      <span className={`px-1.5 py-0.5 rounded-full text-[10px] flex-shrink-0 ${
                         activeFilter === source.key ? 'bg-white/20 text-white' : 'bg-red-500 text-white'
                       }`}>
                         {count}
