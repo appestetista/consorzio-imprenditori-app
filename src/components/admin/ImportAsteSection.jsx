@@ -159,10 +159,11 @@ export default function ImportAsteSection() {
       // Estrai data asta (formato DD/MM/YYYY -> YYYY-MM-DD)
       let dataAsta = '';
       if (row.Auction_Date_0) {
-        const parts = row.Auction_Date_0.split('/');
+        const parts = row.Auction_Date_0.trim().split('/');
         if (parts.length === 3) {
           dataAsta = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
         }
+        console.log('Data raw:', row.Auction_Date_0, '-> parsed:', dataAsta);
       }
       
       // Estrai provincia dalla località
