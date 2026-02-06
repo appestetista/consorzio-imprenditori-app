@@ -147,7 +147,7 @@ export default function AsteImmobiliari() {
       
       return true;
     });
-  }, [aste, macroCategoria, categoriaAttiva, zonaAttiva, filtroScadenza]);
+  }, [aste, macroCategoria, categoriaAttiva, zonaAttiva]);
 
   // Ordina per termine presentazione offerte (dal più vicino al più lontano)
       const asteOrdinate = [...asteFiltrate].sort((a, b) => {
