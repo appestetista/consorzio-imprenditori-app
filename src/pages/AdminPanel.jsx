@@ -811,7 +811,7 @@ export default function AdminPanel() {
                 className="relative h-20 transition-transform duration-100 active:scale-[0.97] cursor-pointer"
                 style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}
                 onClick={() => { setSelectedRisparmioCategory('fiscalita'); setShowRisparmioPanel(true); }}
-              <div className="relative h-20 transition-transform duration-100 active:scale-[0.97]" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}>
+              >
                 <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #22c55e 0%, #16a34a 30%, #15803d 60%, #22c55e 100%)' }}>
                   <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #15803d 0%, #166534 50%, #14532d 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
                     <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
@@ -821,7 +821,14 @@ export default function AdminPanel() {
                   </div>
                 </div>
               </div>
-            </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Altre Sezioni */}
+        <div className="mb-6">
+          <h2 className="text-white font-semibold text-sm mb-3">Altre Sezioni</h2>
+          <div className="grid grid-cols-3 gap-3">
             <Link to={createPageUrl('Marketplace')}>
               <div className="relative h-20 transition-transform duration-100 active:scale-[0.97]" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}>
                 <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
@@ -1633,6 +1640,16 @@ export default function AdminPanel() {
       <Dialog open={showImportAste} onOpenChange={setShowImportAste}>
         <DialogContent className="bg-slate-900 border-slate-700 max-w-lg max-h-[90vh] overflow-y-auto p-4">
           <ImportAsteSection />
+        </DialogContent>
+      </Dialog>
+
+      {/* Pannello Risparmio Admin */}
+      <Dialog open={showRisparmioPanel} onOpenChange={setShowRisparmioPanel}>
+        <DialogContent className="bg-slate-900 border-slate-700 max-w-lg max-h-[90vh] overflow-y-auto p-4">
+          <RisparmioAdminPanel 
+            category={selectedRisparmioCategory} 
+            onBack={() => setShowRisparmioPanel(false)} 
+          />
         </DialogContent>
       </Dialog>
 
