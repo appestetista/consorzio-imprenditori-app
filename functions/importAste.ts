@@ -115,10 +115,15 @@ Deno.serve(async (req) => {
         // Supporta sia formato "pronto" (già processato dal frontend) che formato raw
         let externalId, prezzoBase, dataAsta, localita, titolo, linkUfficiale, lotto, tipologia;
         
+        let offertaMinima = 0, rilancioMinimo = 0, dataOraVendita = '';
+
         // Se l'asta ha già external_id, è stata pre-processata dal frontend
         if (asta.external_id) {
           externalId = asta.external_id;
           prezzoBase = asta.prezzo_base || 0;
+          offertaMinima = asta.offerta_minima || 0;
+          rilancioMinimo = asta.rilancio_minimo || 0;
+          dataOraVendita = asta.data_ora_vendita || '';
           dataAsta = asta.data_asta || null;
           localita = asta.localita || '';
           titolo = asta.titolo || 'Asta immobiliare';
@@ -157,6 +162,9 @@ Deno.serve(async (req) => {
           localita: localita,
           provincia: estraiProvincia(localita),
           prezzo_base: prezzoBase,
+          offerta_minima: offertaMinima,
+          rilancio_minimo: rilancioMinimo,
+          data_ora_vendita: dataOraVendita,
           data_asta: dataAsta,
           data_pubblicazione: null,
           link_ufficiale: linkUfficiale,
