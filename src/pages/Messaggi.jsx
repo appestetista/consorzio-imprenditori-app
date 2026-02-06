@@ -679,9 +679,6 @@ export default function Messaggi() {
       <main className="px-2 py-4">
         {/* Header */}
         <div className="flex items-center gap-3 mb-4 px-2">
-          <Link to={createPageUrl('Home')} className="text-lime-400">
-            <ArrowLeft className="w-6 h-6" />
-          </Link>
           <h1 className="text-white text-xl font-bold">Messaggi</h1>
         </div>
 
@@ -690,13 +687,13 @@ export default function Messaggi() {
           
           {/* Colonna sinistra - Filtri con animazione slide */}
           <div 
-            className={`flex-shrink-0 overflow-y-auto bg-slate-800/50 rounded-xl p-2 transition-all duration-300 ease-in-out ${
-              filtersCollapsed ? 'w-3 cursor-pointer hover:w-5' : 'w-44'
+            className={`flex-shrink-0 overflow-hidden bg-slate-800/50 rounded-xl p-2 transition-all duration-300 ease-in-out cursor-pointer ${
+              filtersCollapsed ? 'w-14' : 'w-44'
             }`}
             onClick={() => filtersCollapsed && setFiltersCollapsed(false)}
           >
-            {/* Contenuto filtri - visibile solo quando espanso */}
-            <div className={`flex flex-col gap-1.5 transition-opacity duration-200 ${filtersCollapsed ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+            {/* Contenuto filtri */}
+            <div className={`flex flex-col gap-1.5 transition-all duration-300 ${filtersCollapsed ? '-translate-x-[7.5rem]' : 'translate-x-0'}`}>
               {/* Filtro Tutti */}
               <button
                 onClick={() => {
@@ -747,12 +744,7 @@ export default function Messaggi() {
               })}
             </div>
             
-            {/* Indicatore visivo quando collassato */}
-            {filtersCollapsed && (
-              <div className="h-full flex items-center justify-center">
-                <div className="w-1 h-16 bg-lime-400/50 rounded-full" />
-              </div>
-            )}
+
           </div>
 
           {/* Colonna destra - Lista messaggi */}
