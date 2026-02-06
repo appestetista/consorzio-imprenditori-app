@@ -685,15 +685,27 @@ export default function Messaggi() {
           <h1 className="text-white text-xl font-bold">Messaggi</h1>
         </div>
 
-        {/* Layout a 2 colonne */}
-        <div className="flex gap-2" style={{ height: 'calc(100vh - 180px)' }}>
+        {/* Layout a 2 colonne con animazione */}
+        <div className="flex gap-2 relative" style={{ height: 'calc(100vh - 180px)' }}>
           
-          {/* Colonna sinistra - Filtri */}
-          <div className="w-44 flex-shrink-0 overflow-y-auto bg-slate-800/50 rounded-xl p-2">
-            <div className="flex flex-col gap-1.5">
+          {/* Colonna sinistra - Filtri con animazione slide */}
+          <div 
+            className={`flex-shrink-0 overflow-y-auto bg-slate-800/50 rounded-xl p-2 transition-all duration-300 ease-in-out ${
+              filtersCollapsed ? 'w-3 cursor-pointer hover:w-5' : 'w-44'
+            }`}
+            onClick={() => filtersCollapsed && setFiltersCollapsed(false)}
+          >
+            {/* Contenuto filtri - visibile solo quando espanso */}
+            <div className={`flex flex-col gap-1.5 transition-opacity duration-200 ${filtersCollapsed ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
               {/* Filtro Tutti */}
               <button
-                onClick={() => setActiveFilter('all')}
+                onClick={() => {
+                  if (activeFilter === 'all') {
+                    setFiltersCollapsed(true);
+                  } else {
+                    setActiveFilter('all');
+                  }
+                }}
                 className={`flex items-center gap-2 px-3 py-3 rounded-lg text-xs font-semibold transition-colors ${
                   activeFilter === 'all' 
                     ? 'bg-lime-400 text-slate-900' 
@@ -716,7 +728,13 @@ export default function Messaggi() {
                 return (
                   <button
                     key={source.key}
-                    onClick={() => setActiveFilter(source.key)}
+                    onClick={() => {
+                      if (activeFilter === source.key) {
+                        setFiltersCollapsed(true);
+                      } else {
+                        setActiveFilter(source.key);
+                      }
+                    }}
                     className={`flex items-center gap-2 px-3 py-3 rounded-lg text-xs font-semibold transition-colors ${
                       activeFilter === source.key 
                         ? `${source.color} text-white` 
@@ -734,6 +752,13 @@ export default function Messaggi() {
                 );
               })}
             </div>
+            
+            {/* Indicatore visivo quando collassato */}
+            {filtersCollapsed && (
+              <div className="h-full flex items-center justify-center">
+                <div className="w-1 h-16 bg-lime-400/50 rounded-full" />
+              </div>
+            )}
           </div>
 
           {/* Colonna destra - Lista messaggi */}
