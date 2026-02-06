@@ -90,9 +90,31 @@ export default function ImportAsteSection() {
     }
   });
 
+  // Parsing CSV con supporto per campi tra virgolette
+  const parseCSVLine = (line, separator) => {
+    const result = [];
+    let current = '';
+    let inQuotes = false;
+    
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      
+      if (char === '"') {
+        inQuotes = !inQuotes;
+      } else if (char === separator && !inQuotes) {
+        result.push(current.trim().replace(/^"|"$/g, ''));
+        current = '';
+      } else {
+        current += char;
+      }
+    }
+    result.push(current.trim().replace(/^"|"$/g, ''));
+    return result;
+  };
+
   // Parsing CSV generico
   const parseCSVGeneric = (text) => {
-    const lines = text.trim().split('\n');
+    const lines = text.trim().split('\n').filter(l => l.trim());
     if (lines.length < 2) throw new Error('CSV vuoto o senza dati');
     
     // Rileva separatore (virgola o punto e virgola)
@@ -100,16 +122,16 @@ export default function ImportAsteSection() {
     const separator = firstLine.includes(';') ? ';' : ',';
     
     // Prima riga = intestazioni
-    const headers = lines[0].split(separator).map(h => h.trim().replace(/"/g, '').replace(/^\ufeff/, ''));
+    const headers = parseCSVLine(lines[0], separator).map(h => h.replace(/^\ufeff/, ''));
     
     const data = [];
     for (let i = 1; i < lines.length; i++) {
-      const values = lines[i].split(separator).map(v => v.trim().replace(/"/g, ''));
-      if (values.length !== headers.length) continue;
+      const values = parseCSVLine(lines[i], separator);
+      if (values.length < 5) continue; // Skip righe incomplete
       
       const row = {};
       headers.forEach((h, idx) => {
-        row[h] = values[idx];
+        row[h] = values[idx] || '';
       });
       data.push(row);
     }
