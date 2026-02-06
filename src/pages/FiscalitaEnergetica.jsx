@@ -1114,19 +1114,66 @@ export default function FiscalitaEnergetica() {
 
         {/* STEP 4: CONFERMA */}
         {(step === 4 || richiestaEsistente) && (
-          <div className="text-center py-12">
-            <div className="w-20 h-20 bg-lime-400/20 rounded-full flex items-center justify-center mx-auto mb-6">
-              <CheckCircle2 className="w-10 h-10 text-lime-400" />
+          <div className="py-8">
+            <div className="w-16 h-16 bg-lime-400/20 rounded-full flex items-center justify-center mx-auto mb-6">
+              <CheckCircle2 className="w-8 h-8 text-lime-400" />
             </div>
-            <h2 className="text-white font-bold text-xl mb-2">Richiesta inviata!</h2>
-            <p className="text-slate-400 mb-8">
-              Un consulente specializzato ti contatterà entro 48 ore per una prima analisi gratuita.
-            </p>
-            <Link to={createPageUrl('RisparmioEnergetico')}>
-              <Button variant="outline" className="border-lime-400 text-lime-400">
-                Torna a Risparmio
-              </Button>
-            </Link>
+            
+            <h2 className="text-white font-bold text-xl mb-4 text-center">Scheda ricevuta</h2>
+            
+            <Card className="bg-slate-800/50 border-slate-700 mb-6">
+              <CardContent className="p-5">
+                <p className="text-slate-300 text-sm leading-relaxed mb-4">
+                  Abbiamo ricevuto la tua scheda di valutazione. Un consulente di efficientamento energetico 
+                  esaminerà i dati che hai fornito per verificare la presenza di opportunità fiscali 
+                  applicabili alla tua situazione.
+                </p>
+                
+                <div className="space-y-3 mb-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-lime-400 text-xs font-bold">1</span>
+                    </div>
+                    <p className="text-slate-400 text-sm">
+                      <span className="text-white font-medium">Analisi preliminare</span> – Verifica dei requisiti 
+                      in base a settore, consumi e utilizzo dell'energia
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-lime-400 text-xs font-bold">2</span>
+                    </div>
+                    <p className="text-slate-400 text-sm">
+                      <span className="text-white font-medium">Contatto</span> – Sarai ricontattato entro 
+                      48 ore lavorative per approfondire e richiedere eventuale documentazione
+                    </p>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-lime-400 text-xs font-bold">3</span>
+                    </div>
+                    <p className="text-slate-400 text-sm">
+                      <span className="text-white font-medium">Report</span> – Riceverai un riscontro tecnico 
+                      con l'indicazione delle agevolazioni accessibili e del potenziale risparmio
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="bg-slate-900/50 rounded-lg p-3 border border-slate-700">
+                  <p className="text-slate-400 text-xs text-center">
+                    I tuoi dati sono trattati con riservatezza e utilizzati esclusivamente per la valutazione richiesta.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <div className="text-center">
+              <Link to={createPageUrl('RisparmioEnergetico')}>
+                <Button variant="outline" className="border-slate-600 text-slate-300 hover:bg-slate-800">
+                  Torna a Risparmio
+                </Button>
+              </Link>
+            </div>
           </div>
         )}
       </main>
