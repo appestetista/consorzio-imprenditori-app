@@ -390,6 +390,33 @@ export default function FiscalitaEnergetica() {
               </div>
             </div>
 
+            {/* VISUAL SUMMARY - Il tuo potenziale risparmio */}
+            <div className="bg-gradient-to-r from-emerald-600/20 via-lime-500/20 to-green-600/20 rounded-2xl p-5 border border-lime-500/30">
+              <div className="text-center mb-4">
+                <PiggyBank className="w-10 h-10 text-lime-400 mx-auto mb-2" />
+                <h3 className="text-white font-bold text-lg">Il tuo potenziale risparmio</h3>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-3 text-center">
+                <div className="bg-slate-800/50 rounded-xl p-3">
+                  <p className="text-2xl font-bold text-lime-400">5-30%</p>
+                  <p className="text-slate-400 text-xs">sulla bolletta</p>
+                </div>
+                <div className="bg-slate-800/50 rounded-xl p-3">
+                  <p className="text-2xl font-bold text-amber-400">5 anni</p>
+                  <p className="text-slate-400 text-xs">recuperabili</p>
+                </div>
+                <div className="bg-slate-800/50 rounded-xl p-3">
+                  <p className="text-2xl font-bold text-emerald-400">0€</p>
+                  <p className="text-slate-400 text-xs">anticipo</p>
+                </div>
+              </div>
+              
+              <p className="text-center text-slate-300 text-sm mt-4">
+                La prima analisi è gratuita. Paghi solo a risultato ottenuto.
+              </p>
+            </div>
+
             {/* BLOCCO 2: Perché si paga troppo */}
             <Card className="bg-amber-500/10 border-amber-500/30">
               <CardContent className="p-5">
@@ -629,33 +656,6 @@ export default function FiscalitaEnergetica() {
                 </div>
               </CardContent>
             </Card>
-
-            {/* VISUAL SUMMARY - Impatto finale */}
-            <div className="bg-gradient-to-r from-emerald-600/20 via-lime-500/20 to-green-600/20 rounded-2xl p-5 border border-lime-500/30">
-              <div className="text-center mb-4">
-                <PiggyBank className="w-10 h-10 text-lime-400 mx-auto mb-2" />
-                <h3 className="text-white font-bold text-lg">Il tuo potenziale risparmio</h3>
-              </div>
-              
-              <div className="grid grid-cols-3 gap-3 text-center">
-                <div className="bg-slate-800/50 rounded-xl p-3">
-                  <p className="text-2xl font-bold text-lime-400">5-30%</p>
-                  <p className="text-slate-400 text-xs">sulla bolletta</p>
-                </div>
-                <div className="bg-slate-800/50 rounded-xl p-3">
-                  <p className="text-2xl font-bold text-amber-400">5 anni</p>
-                  <p className="text-slate-400 text-xs">recuperabili</p>
-                </div>
-                <div className="bg-slate-800/50 rounded-xl p-3">
-                  <p className="text-2xl font-bold text-emerald-400">0€</p>
-                  <p className="text-slate-400 text-xs">anticipo</p>
-                </div>
-              </div>
-              
-              <p className="text-center text-slate-300 text-sm mt-4">
-                La prima analisi è gratuita. Paghi solo a risultato ottenuto.
-              </p>
-            </div>
 
             {/* CTA */}
             <Button 
