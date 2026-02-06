@@ -415,6 +415,15 @@ export default function FiscalitaEnergetica() {
               <p className="text-center text-slate-300 text-sm mt-4">
                 La prima analisi è gratuita. Paghi solo a risultato ottenuto.
               </p>
+              
+              {/* CTA - Verifica il tuo risparmio */}
+              <Button 
+                onClick={() => setStep(2)}
+                className="w-full mt-4 bg-gradient-to-r from-lime-400 to-emerald-400 hover:from-lime-500 hover:to-emerald-500 text-slate-900 font-bold py-6 text-base shadow-lg shadow-lime-500/25"
+              >
+                Verifica il tuo risparmio
+                <ChevronRight className="w-5 h-5 ml-2" />
+              </Button>
             </div>
 
             {/* BLOCCO 2: Perché si paga troppo */}
@@ -657,14 +666,6 @@ export default function FiscalitaEnergetica() {
               </CardContent>
             </Card>
 
-            {/* CTA */}
-            <Button 
-              onClick={() => setStep(2)}
-              className="w-full bg-gradient-to-r from-lime-400 to-emerald-400 hover:from-lime-500 hover:to-emerald-500 text-slate-900 font-bold py-6 text-base shadow-lg shadow-lime-500/25"
-            >
-              Verifica il tuo risparmio
-              <ChevronRight className="w-5 h-5 ml-2" />
-            </Button>
           </div>
         )}
 
