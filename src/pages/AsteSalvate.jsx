@@ -212,9 +212,16 @@ export default function AsteSalvate() {
                       <div>
                         <p className="text-amber-400 text-xs font-semibold">Quando devo decidere?</p>
                         <p className="text-white text-sm">
-                          Asta il <span className="font-bold">{formatData(asta.data_asta)}</span> — 
+                          {asta.data_ora_vendita ? (
+                            <span className="font-bold">{asta.data_ora_vendita}</span>
+                          ) : (
+                            <>
+                              Asta il <span className="font-bold">{formatData(asta.data_asta)}</span>
+                            </>
+                          )}
+                          {' — '}
                           <span className={giorniAllaAsta(asta.data_asta) < 40 ? 'text-red-400' : 'text-lime-400'}>
-                            {' '}{giorniAllaAsta(asta.data_asta)} giorni
+                            {giorniAllaAsta(asta.data_asta)} giorni
                           </span>
                         </p>
                       </div>
@@ -230,6 +237,17 @@ export default function AsteSalvate() {
                             (Cauzione: {formatPrezzo(asta.cauzione_stimata || asta.prezzo_base * 0.1)})
                           </span>
                         </p>
+                        {(asta.offerta_minima > 0 || asta.rilancio_minimo > 0) && (
+                          <p className="text-slate-300 text-xs mt-1">
+                            {asta.offerta_minima > 0 && (
+                              <span>Min: <span className="text-blue-400 font-medium">{formatPrezzo(asta.offerta_minima)}</span></span>
+                            )}
+                            {asta.offerta_minima > 0 && asta.rilancio_minimo > 0 && ' • '}
+                            {asta.rilancio_minimo > 0 && (
+                              <span>Rilancio: <span className="text-purple-400 font-medium">{formatPrezzo(asta.rilancio_minimo)}</span></span>
+                            )}
+                          </p>
+                        )}
                       </div>
                     </div>
 
