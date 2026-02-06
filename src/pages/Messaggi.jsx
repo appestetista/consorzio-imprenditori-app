@@ -700,11 +700,8 @@ export default function Messaggi() {
               {/* Filtro Tutti */}
               <button
                 onClick={() => {
-                  if (activeFilter === 'all') {
-                    setFiltersCollapsed(true);
-                  } else {
-                    setActiveFilter('all');
-                  }
+                  setActiveFilter('all');
+                  setFiltersCollapsed(true);
                 }}
                 className={`flex items-center gap-2 px-3 py-3 rounded-lg text-xs font-semibold transition-colors ${
                   activeFilter === 'all' 
@@ -729,11 +726,8 @@ export default function Messaggi() {
                   <button
                     key={source.key}
                     onClick={() => {
-                      if (activeFilter === source.key) {
-                        setFiltersCollapsed(true);
-                      } else {
-                        setActiveFilter(source.key);
-                      }
+                      setActiveFilter(source.key);
+                      setFiltersCollapsed(true);
                     }}
                     className={`flex items-center gap-2 px-3 py-3 rounded-lg text-xs font-semibold transition-colors ${
                       activeFilter === source.key 
