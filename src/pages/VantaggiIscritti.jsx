@@ -280,11 +280,29 @@ export default function VantaggiIscritti() {
           <h1 className="text-white text-xl font-bold">Vantaggi per gli Iscritti</h1>
         </div>
 
+        {/* Pulsanti fissi in alto */}
+        <div className="grid grid-cols-3 gap-2 mb-4">
+          <Link to={createPageUrl('MioQRCode')}>
+            <Button variant="outline" className="w-full border-lime-400 text-lime-400 hover:bg-lime-400/10 text-xs h-10">
+              Il Mio QR
+            </Button>
+          </Link>
+          <Link to={createPageUrl('MiePrenotazioniVantaggi')}>
+            <Button variant="outline" className="w-full border-amber-400 text-amber-400 hover:bg-amber-400/10 text-xs h-10">
+              Prenotazioni
+            </Button>
+          </Link>
+          <Link to={createPageUrl('GestioneVantaggi')}>
+            <Button variant="outline" className="w-full border-purple-400 text-purple-400 hover:bg-purple-400/10 text-xs h-10">
+              I Miei Vantaggi
+            </Button>
+          </Link>
+        </div>
+
         {/* Info box */}
-        <div className="bg-lime-400/10 border border-lime-400/30 rounded-xl p-4 mb-6">
-          <p className="text-lime-300 text-sm">
-            💡 Questi sono vantaggi esclusivi riservati ai membri del Consorzio. 
-            Prenota il vantaggio e mostra il tuo QR code in negozio per utilizzarlo!
+        <div className="bg-lime-400/10 border border-lime-400/30 rounded-xl p-3 mb-4">
+          <p className="text-lime-300 text-xs">
+            💡 Prenota un vantaggio e mostra il tuo QR code in negozio per utilizzarlo!
           </p>
         </div>
 
@@ -404,19 +422,7 @@ export default function VantaggiIscritti() {
           </div>
         )}
 
-        {/* Link al mio QR e prenotazioni */}
-        <div className="mt-6 grid grid-cols-2 gap-3">
-          <Link to={createPageUrl('MioQRCode')}>
-            <Button variant="outline" className="w-full border-lime-400 text-lime-400 hover:bg-lime-400/10">
-              Il Mio QR Code
-            </Button>
-          </Link>
-          <Link to={createPageUrl('MiePrenotazioniVantaggi')}>
-            <Button variant="outline" className="w-full border-amber-400 text-amber-400 hover:bg-amber-400/10">
-              Le Mie Prenotazioni
-            </Button>
-          </Link>
-        </div>
+
       </main>
 
       <BottomNav currentPage="VantaggiIscritti" />
