@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, User, Building2, Phone, MapPin, Save, Upload, X, Image as ImageIcon, LogOut, FileText, AlertTriangle, Briefcase, Bell, Volume2, History, ChevronRight, Trash2, FileSearch } from 'lucide-react';
+import { ArrowLeft, User, Building2, Phone, MapPin, Save, Upload, X, Image as ImageIcon, LogOut, FileText, AlertTriangle, Briefcase, Bell, Volume2, History, ChevronRight, Trash2, FileSearch, Gift, QrCode } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import Header from '../components/layout/Header';
@@ -1008,12 +1008,42 @@ export default function MyProfile() {
 
         {/* Profilo Consulente */}
         {user?.user_type === 'consulente' && consultantData && (
-          <ConsultantProfileCard 
-            consultantData={consultantData}
-            setConsultantData={setConsultantData}
-            savingConsultant={savingConsultant}
-            setSavingConsultant={setSavingConsultant}
-          />
+          <>
+            <ConsultantProfileCard 
+              consultantData={consultantData}
+              setConsultantData={setConsultantData}
+              savingConsultant={savingConsultant}
+              setSavingConsultant={setSavingConsultant}
+            />
+            
+            {/* Sezione Vantaggi che Offro */}
+            <Card className="bg-slate-800 border-[#d4af37]/30 mb-4">
+              <CardHeader>
+                <CardTitle className="text-white flex items-center gap-2">
+                  <Gift className="w-5 h-5 text-[#d4af37]" />
+                  Vantaggi che Offro
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-slate-400 text-sm mb-4">
+                  Crea vantaggi promozionali esclusivi per i membri del Consorzio.
+                </p>
+                <div className="flex gap-2">
+                  <Link to={createPageUrl('GestioneVantaggi')} className="flex-1">
+                    <Button className="w-full bg-[#d4af37] hover:bg-[#b8960b] text-slate-900">
+                      <Gift className="w-4 h-4 mr-2" />
+                      Gestisci Vantaggi
+                    </Button>
+                  </Link>
+                  <Link to={createPageUrl('ScannerQRVantaggi')}>
+                    <Button variant="outline" className="border-[#d4af37] text-[#d4af37] hover:bg-[#d4af37]/10">
+                      <QrCode className="w-4 h-4" />
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          </>
         )}
 
 {/* Se consulente, mostra solo Profilo Studio, altrimenti mostra form azienda */}
