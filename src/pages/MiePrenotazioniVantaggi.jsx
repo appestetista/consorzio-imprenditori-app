@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { ArrowLeft, Gift, Clock, Check, X, Calendar, Building2, User } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -15,6 +15,7 @@ export default function MiePrenotazioniVantaggi() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const { impersonation } = useImpersonation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -68,13 +69,19 @@ export default function MiePrenotazioniVantaggi() {
   };
 
   const getCreatorInfo = (vantaggio) => {
-    if (!vantaggio) return { name: '-', logo: null };
+    if (!vantaggio) return { name: '-', logo: null, email: null };
     if (vantaggio.creator_type === 'consulente') {
       const consultant = consultants.find(c => c.email === vantaggio.creator_email);
-      return { name: consultant?.name || 'Consulente', logo: consultant?.logo_url };
+      return { name: consultant?.name || 'Consulente', logo: consultant?.logo_url, email: vantaggio.creator_email };
     } else {
       const azienda = allUsers.find(u => u.email === vantaggio.creator_email);
-      return { name: azienda?.company_name || 'Azienda', logo: azienda?.logo_url };
+      return { name: azienda?.company_name || 'Azienda', logo: azienda?.logo_url, email: vantaggio.creator_email };
+    }
+  };
+
+  const handleContactCreator = (email) => {
+    if (email) {
+      navigate(createPageUrl('Messaggi') + `?contact=${email}`);
     }
   };
 
@@ -138,14 +145,17 @@ export default function MiePrenotazioniVantaggi() {
                 <p className="text-lime-400 font-bold">{vantaggio.valore}</p>
               )}
 
-              <div className="flex items-center gap-1 text-slate-400 text-xs mt-1">
+              <button 
+                onClick={() => handleContactCreator(creator.email)}
+                className="flex items-center gap-1 text-slate-400 text-xs mt-1 hover:text-lime-400 transition-colors"
+              >
                 {creator.logo ? (
                   <img src={creator.logo} alt="" className="w-4 h-4 rounded-full" />
                 ) : (
                   <Building2 className="w-3 h-3" />
                 )}
-                <span>{creator.name}</span>
-              </div>
+                <span className="underline">{creator.name}</span>
+              </button>
 
               <div className="flex items-center gap-1 text-slate-500 text-xs mt-1">
                 <Calendar className="w-3 h-3" />
