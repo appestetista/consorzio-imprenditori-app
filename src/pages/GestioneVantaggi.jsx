@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { ArrowLeft, Gift, Plus, Edit, Trash2, QrCode, Eye, EyeOff, Calendar, Upload, X, Check } from 'lucide-react';
+import { ArrowLeft, Gift, Plus, Edit, Trash2, QrCode, Eye, EyeOff, Calendar, Upload, X, Check, TrendingUp, Clock, Minus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -25,6 +25,7 @@ const TIPI_VANTAGGIO = [
   "Omaggio",
   "Promozione speciale",
   "Prova gratuita",
+  "Vantaggio progressivo",
   "Altro"
 ];
 
@@ -43,8 +44,15 @@ export default function GestioneVantaggi() {
     descrizione: '',
     foto_url: '',
     valore: '',
+    valore_sconto: '',
+    omaggio_descrizione: '',
+    durata_consulenza: '',
+    durata_prova: '',
+    is_progressivo: false,
+    step_progressivi: [{ step: 1, valore: '', descrizione: '', giorni_validita: 30 }],
     utilizzi_massimi: '',
     data_scadenza: '',
+    giorni_validita_utilizzo: '',
     richiede_prenotazione: true,
     is_active: true
   });
@@ -89,13 +97,18 @@ export default function GestioneVantaggi() {
   // Mutations
   const createMutation = useMutation({
     mutationFn: async (data) => {
-      await base44.entities.Vantaggio.create({
+      const cleanData = {
         ...data,
         creator_email: user.email,
         creator_type: isConsulente ? 'consulente' : 'azienda',
         utilizzi_massimi: data.utilizzi_massimi ? parseInt(data.utilizzi_massimi) : null,
-        utilizzi_effettuati: 0
-      });
+        utilizzi_effettuati: 0,
+        valore_sconto: data.valore_sconto ? parseFloat(data.valore_sconto) : null,
+        giorni_validita_utilizzo: data.giorni_validita_utilizzo ? parseInt(data.giorni_validita_utilizzo) : null,
+        is_progressivo: data.tipo_vantaggio === 'Vantaggio progressivo',
+        step_progressivi: data.tipo_vantaggio === 'Vantaggio progressivo' ? data.step_progressivi : null
+      };
+      await base44.entities.Vantaggio.create(cleanData);
     },
     onSuccess: () => {
       toast.success('Vantaggio creato!');
@@ -107,10 +120,15 @@ export default function GestioneVantaggi() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }) => {
-      await base44.entities.Vantaggio.update(id, {
+      const cleanData = {
         ...data,
-        utilizzi_massimi: data.utilizzi_massimi ? parseInt(data.utilizzi_massimi) : null
-      });
+        utilizzi_massimi: data.utilizzi_massimi ? parseInt(data.utilizzi_massimi) : null,
+        valore_sconto: data.valore_sconto ? parseFloat(data.valore_sconto) : null,
+        giorni_validita_utilizzo: data.giorni_validita_utilizzo ? parseInt(data.giorni_validita_utilizzo) : null,
+        is_progressivo: data.tipo_vantaggio === 'Vantaggio progressivo',
+        step_progressivi: data.tipo_vantaggio === 'Vantaggio progressivo' ? data.step_progressivi : null
+      };
+      await base44.entities.Vantaggio.update(id, cleanData);
     },
     onSuccess: () => {
       toast.success('Vantaggio aggiornato!');
@@ -136,8 +154,15 @@ export default function GestioneVantaggi() {
       descrizione: '',
       foto_url: '',
       valore: '',
+      valore_sconto: '',
+      omaggio_descrizione: '',
+      durata_consulenza: '',
+      durata_prova: '',
+      is_progressivo: false,
+      step_progressivi: [{ step: 1, valore: '', descrizione: '', giorni_validita: 30 }],
       utilizzi_massimi: '',
       data_scadenza: '',
+      giorni_validita_utilizzo: '',
       richiede_prenotazione: true,
       is_active: true
     });
@@ -152,8 +177,17 @@ export default function GestioneVantaggi() {
       descrizione: vantaggio.descrizione || '',
       foto_url: vantaggio.foto_url || '',
       valore: vantaggio.valore || '',
+      valore_sconto: vantaggio.valore_sconto?.toString() || '',
+      omaggio_descrizione: vantaggio.omaggio_descrizione || '',
+      durata_consulenza: vantaggio.durata_consulenza || '',
+      durata_prova: vantaggio.durata_prova || '',
+      is_progressivo: vantaggio.is_progressivo || false,
+      step_progressivi: vantaggio.step_progressivi?.length > 0 
+        ? vantaggio.step_progressivi 
+        : [{ step: 1, valore: '', descrizione: '', giorni_validita: 30 }],
       utilizzi_massimi: vantaggio.utilizzi_massimi?.toString() || '',
       data_scadenza: vantaggio.data_scadenza || '',
+      giorni_validita_utilizzo: vantaggio.giorni_validita_utilizzo?.toString() || '',
       richiede_prenotazione: vantaggio.richiede_prenotazione ?? true,
       is_active: vantaggio.is_active ?? true
     });
