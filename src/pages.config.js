@@ -67,29 +67,29 @@ import FiscalitaEnergetica from './pages/FiscalitaEnergetica';
 import Fornitori from './pages/Fornitori';
 import GestioneCostiAI from './pages/GestioneCostiAI';
 import GestioneMembri from './pages/GestioneMembri';
+import GestioneVantaggi from './pages/GestioneVantaggi';
 import GestioneZone from './pages/GestioneZone';
 import Home from './pages/Home';
 import ImportExport from './pages/ImportExport';
 import Imprenditori from './pages/Imprenditori';
 import Marketplace from './pages/Marketplace';
 import Messaggi from './pages/Messaggi';
+import MiePrenotazioniVantaggi from './pages/MiePrenotazioniVantaggi';
+import MioQRCode from './pages/MioQRCode';
 import MyProfile from './pages/MyProfile';
 import ProfiloBandi from './pages/ProfiloBandi';
 import PromemoriaAste from './pages/PromemoriaAste';
 import RichiestaWelfare from './pages/RichiestaWelfare';
 import RisparmioDettaglio from './pages/RisparmioDettaglio';
 import RisparmioEnergetico from './pages/RisparmioEnergetico';
+import ScannerQRVantaggi from './pages/ScannerQRVantaggi';
+import VantaggiIscritti from './pages/VantaggiIscritti';
 import VideoInterviste from './pages/VideoInterviste';
 import WelfareAziendale from './pages/WelfareAziendale';
 import WelfareNormativa from './pages/WelfareNormativa';
 import WelfareOrdina from './pages/WelfareOrdina';
 import WelfareStorico from './pages/WelfareStorico';
 import WelfareTipologie from './pages/WelfareTipologie';
-import VantaggiIscritti from './pages/VantaggiIscritti';
-import MioQRCode from './pages/MioQRCode';
-import MiePrenotazioniVantaggi from './pages/MiePrenotazioniVantaggi';
-import ScannerQRVantaggi from './pages/ScannerQRVantaggi';
-import GestioneVantaggi from './pages/GestioneVantaggi';
 import __Layout from './Layout.jsx';
 
 
@@ -114,29 +114,29 @@ export const PAGES = {
     "Fornitori": Fornitori,
     "GestioneCostiAI": GestioneCostiAI,
     "GestioneMembri": GestioneMembri,
+    "GestioneVantaggi": GestioneVantaggi,
     "GestioneZone": GestioneZone,
     "Home": Home,
     "ImportExport": ImportExport,
     "Imprenditori": Imprenditori,
     "Marketplace": Marketplace,
     "Messaggi": Messaggi,
+    "MiePrenotazioniVantaggi": MiePrenotazioniVantaggi,
+    "MioQRCode": MioQRCode,
     "MyProfile": MyProfile,
     "ProfiloBandi": ProfiloBandi,
     "PromemoriaAste": PromemoriaAste,
     "RichiestaWelfare": RichiestaWelfare,
     "RisparmioDettaglio": RisparmioDettaglio,
     "RisparmioEnergetico": RisparmioEnergetico,
+    "ScannerQRVantaggi": ScannerQRVantaggi,
+    "VantaggiIscritti": VantaggiIscritti,
     "VideoInterviste": VideoInterviste,
     "WelfareAziendale": WelfareAziendale,
     "WelfareNormativa": WelfareNormativa,
     "WelfareOrdina": WelfareOrdina,
     "WelfareStorico": WelfareStorico,
     "WelfareTipologie": WelfareTipologie,
-    "VantaggiIscritti": VantaggiIscritti,
-    "MioQRCode": MioQRCode,
-    "MiePrenotazioniVantaggi": MiePrenotazioniVantaggi,
-    "ScannerQRVantaggi": ScannerQRVantaggi,
-    "GestioneVantaggi": GestioneVantaggi,
 }
 
 export const pagesConfig = {

@@ -111,24 +111,24 @@ export default function Messaggi() {
     enabled: !!effectiveEmail,
   });
 
-  // Configurazione sezioni messaggi
+  // Configurazione sezioni messaggi - ALLINEATE con i nomi delle card in Home
   const sourceConfig = {
     diretto: { label: 'Diretto', icon: MessageCircle, color: 'bg-slate-500', key: 'diretto' },
-    marketplace: { label: 'Marketplace', icon: ShoppingBag, color: 'bg-purple-500', key: 'marketplace' },
-    video: { label: 'Video Interviste', icon: Video, color: 'bg-blue-500', key: 'video' },
+    marketplace: { label: 'Market Place', icon: ShoppingBag, color: 'bg-purple-500', key: 'marketplace' },
+    video: { label: 'Video interviste', icon: Video, color: 'bg-blue-500', key: 'video' },
     contatta_consorzio: { label: 'Contatta Consorzio', icon: Phone, color: 'bg-green-500', key: 'contatta_consorzio' },
     consulenze: { label: 'Consulenze', icon: Briefcase, color: 'bg-orange-500', key: 'consulenze' },
-    import_export: { label: 'Import/Export', icon: Globe, color: 'bg-teal-500', key: 'import_export' },
+    import_export: { label: 'Import / Export', icon: Globe, color: 'bg-teal-500', key: 'import_export' },
     analisi_contratti: { label: 'Analisi Contratti', icon: FileCheck, color: 'bg-indigo-500', key: 'analisi_contratti' },
-    calendario: { label: 'Calendario', icon: Calendar, color: 'bg-pink-500', key: 'calendario' },
+    calendario: { label: 'Calendario incontri', icon: Calendar, color: 'bg-pink-500', key: 'calendario' },
     cultura_aziendale: { label: 'Academy', icon: BookOpen, color: 'bg-amber-500', key: 'cultura_aziendale' },
-    finanziamenti: { label: 'Finanziamenti', icon: TrendingUp, color: 'bg-emerald-500', key: 'finanziamenti' },
-    imprenditori: { label: 'Imprenditori', icon: Handshake, color: 'bg-cyan-500', key: 'imprenditori' },
-    fornitori: { label: 'Fornitori', icon: Truck, color: 'bg-rose-500', key: 'fornitori' },
-    welfare: { label: 'Welfare', icon: Heart, color: 'bg-red-500', key: 'welfare' },
-    compliance: { label: 'Compliance', icon: Shield, color: 'bg-sky-500', key: 'compliance' },
-    aste: { label: 'Aste', icon: Gavel, color: 'bg-violet-500', key: 'aste' },
-    vantaggi: { label: 'Vantaggi', icon: Gift, color: 'bg-amber-500', key: 'vantaggi' },
+    finanziamenti: { label: 'Finanziamenti agevolati', icon: TrendingUp, color: 'bg-emerald-500', key: 'finanziamenti' },
+    imprenditori: { label: 'Consigli da Imprenditori', icon: Handshake, color: 'bg-cyan-500', key: 'imprenditori' },
+    fornitori: { label: 'Ricerca Fornitori', icon: Truck, color: 'bg-rose-500', key: 'fornitori' },
+    welfare: { label: 'Benefit Dipendenti', icon: Heart, color: 'bg-red-500', key: 'welfare' },
+    compliance: { label: 'Evita Sanzioni', icon: Shield, color: 'bg-sky-500', key: 'compliance' },
+    aste: { label: 'Aste Immobiliari', icon: Gavel, color: 'bg-violet-500', key: 'aste' },
+    vantaggi: { label: 'Vantaggi Iscritti', icon: Gift, color: 'bg-amber-500', key: 'vantaggi' },
     // Risparmio Energetico - categorie separate
     risparmio_assicurazioni: { label: 'Risparmio Assicurazioni', icon: Shield, color: 'bg-green-600', key: 'risparmio_assicurazioni' },
     risparmio_luce: { label: 'Risparmio Luce', icon: Zap, color: 'bg-yellow-500', key: 'risparmio_luce' },
@@ -691,9 +691,9 @@ export default function Messaggi() {
     <div className="min-h-screen bg-slate-900 pb-24">
       <Header user={user} />
       
-      <main className="px-2 py-4">
-        {/* Header fisso con sezione attiva */}
-        <div className="flex items-center gap-2 mb-4 px-2 sticky top-0 z-10 bg-slate-900 py-2">
+      <main className="px-2 flex flex-col" style={{ height: 'calc(100vh - 160px)' }}>
+        {/* Header fisso con sezione attiva - SEMPRE VISIBILE */}
+        <div className="flex items-center gap-2 px-2 py-3 bg-slate-900 flex-shrink-0">
           <h1 className="text-white text-xl font-bold">Messaggi</h1>
           {activeFilter !== 'all' && (
             <>
@@ -708,7 +708,7 @@ export default function Messaggi() {
         </div>
 
         {/* Layout a 2 colonne con animazione */}
-        <div className="flex gap-2 relative" style={{ height: 'calc(100vh - 200px)' }}>
+        <div className="flex gap-2 relative flex-1 min-h-0">
           
           {/* Colonna sinistra - Filtri con animazione slide */}
           <div 
