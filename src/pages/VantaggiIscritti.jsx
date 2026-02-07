@@ -3,18 +3,51 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { ArrowLeft, Gift, Tag, Calendar, MapPin, Check, Clock, Building2, User } from 'lucide-react';
+import { ArrowLeft, Gift, Tag, Calendar, MapPin, Check, Clock, Building2, User, Plus, X, Upload, TrendingUp, Minus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import { toast } from 'sonner';
 
+const TIPI_VANTAGGIO = [
+  "Sconto percentuale",
+  "Sconto fisso",
+  "Consulenza gratuita",
+  "Omaggio",
+  "Promozione speciale",
+  "Prova gratuita",
+  "Vantaggio progressivo",
+  "Altro"
+];
+
 export default function VantaggiIscritti() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showCreatePanel, setShowCreatePanel] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [formData, setFormData] = useState({
+    tipo_vantaggio: '',
+    titolo: '',
+    descrizione: '',
+    foto_url: '',
+    valore: '',
+    is_progressivo: false,
+    step_progressivi: [{ step: 1, valore: '', descrizione: '', giorni_validita: 30 }],
+    utilizzi_massimi: '',
+    data_scadenza: '',
+    giorni_validita_utilizzo: '',
+    richiede_prenotazione: true,
+    is_active: true
+  });
   const { impersonation } = useImpersonation();
   const queryClient = useQueryClient();
 
@@ -73,6 +106,9 @@ export default function VantaggiIscritti() {
     queryFn: () => base44.entities.Consultant.list(),
   });
 
+  // Verifica se utente è consulente
+  const isConsulente = consultants.some(c => c.email === user?.email);
+
   // Utenti (per aziende)
   const { data: allUsers = [] } = useQuery({
     queryKey: ['users-vantaggi'],
@@ -99,6 +135,69 @@ export default function VantaggiIscritti() {
       toast.error('Errore durante la prenotazione');
     }
   });
+
+  // Mutation per creare vantaggio
+  const createVantaggioMutation = useMutation({
+    mutationFn: async (data) => {
+      const cleanData = {
+        ...data,
+        creator_email: user.email,
+        creator_type: isConsulente ? 'consulente' : 'utente',
+        utilizzi_massimi: data.utilizzi_massimi ? parseInt(data.utilizzi_massimi) : null,
+        utilizzi_effettuati: 0,
+        giorni_validita_utilizzo: data.giorni_validita_utilizzo ? parseInt(data.giorni_validita_utilizzo) : null,
+        is_progressivo: data.tipo_vantaggio === 'Vantaggio progressivo',
+        step_progressivi: data.tipo_vantaggio === 'Vantaggio progressivo' ? data.step_progressivi : null
+      };
+      await base44.entities.Vantaggio.create(cleanData);
+    },
+    onSuccess: () => {
+      toast.success('Vantaggio creato!');
+      queryClient.invalidateQueries({ queryKey: ['vantaggi-attivi'] });
+      resetForm();
+      setShowCreatePanel(false);
+    },
+    onError: () => toast.error('Errore durante la creazione')
+  });
+
+  const resetForm = () => {
+    setFormData({
+      tipo_vantaggio: '',
+      titolo: '',
+      descrizione: '',
+      foto_url: '',
+      valore: '',
+      is_progressivo: false,
+      step_progressivi: [{ step: 1, valore: '', descrizione: '', giorni_validita: 30 }],
+      utilizzi_massimi: '',
+      data_scadenza: '',
+      giorni_validita_utilizzo: '',
+      richiede_prenotazione: true,
+      is_active: true
+    });
+  };
+
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingPhoto(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setFormData({ ...formData, foto_url: file_url });
+    } catch (error) {
+      toast.error('Errore durante il caricamento');
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
+
+  const handleSubmitVantaggio = () => {
+    if (!formData.tipo_vantaggio || !formData.titolo) {
+      toast.error('Compila tipo e titolo');
+      return;
+    }
+    createVantaggioMutation.mutate(formData);
+  };
 
   const getCreatorInfo = (vantaggio) => {
     if (vantaggio.creator_type === 'consulente') {
@@ -130,6 +229,7 @@ export default function VantaggiIscritti() {
       case 'Omaggio': return 'bg-pink-500';
       case 'Promozione speciale': return 'bg-amber-500';
       case 'Prova gratuita': return 'bg-cyan-500';
+      case 'Vantaggio progressivo': return 'bg-purple-600';
       default: return 'bg-slate-500';
     }
   };
@@ -295,6 +395,286 @@ export default function VantaggiIscritti() {
       </main>
 
       <BottomNav currentPage="VantaggiIscritti" />
+
+      {/* FAB Crea Vantaggio */}
+      <button
+        onClick={() => setShowCreatePanel(true)}
+        className="fixed bottom-28 right-4 w-14 h-14 rounded-2xl shadow-lg flex items-center justify-center z-40 transition-transform active:scale-95"
+        style={{
+          background: 'linear-gradient(145deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%)',
+          boxShadow: '0 4px 15px rgba(251, 191, 36, 0.4), 0 2px 6px rgba(0,0,0,0.2)'
+        }}
+      >
+        <Plus className="w-7 h-7 text-white" strokeWidth={2.5} />
+      </button>
+
+      {/* Sheet Crea Vantaggio */}
+      <Sheet open={showCreatePanel} onOpenChange={setShowCreatePanel}>
+        <SheetContent side="right" className="w-full sm:max-w-md bg-slate-800 border-slate-700 overflow-y-auto">
+          <SheetHeader>
+            <SheetTitle className="text-white flex items-center gap-2">
+              <Gift className="w-5 h-5 text-lime-400" />
+              Crea Nuovo Vantaggio
+            </SheetTitle>
+          </SheetHeader>
+
+          <div className="space-y-4 mt-6">
+            {/* Tipo */}
+            <div>
+              <Label className="text-lime-400">Tipo Vantaggio *</Label>
+              <Select
+                value={formData.tipo_vantaggio}
+                onValueChange={(value) => setFormData({ ...formData, tipo_vantaggio: value })}
+              >
+                <SelectTrigger className="bg-slate-900 border-slate-600 text-white">
+                  <SelectValue placeholder="Seleziona tipo..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {TIPI_VANTAGGIO.map(tipo => (
+                    <SelectItem key={tipo} value={tipo}>{tipo}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Titolo */}
+            <div>
+              <Label className="text-lime-400">Titolo *</Label>
+              <Input
+                value={formData.titolo}
+                onChange={(e) => setFormData({ ...formData, titolo: e.target.value })}
+                placeholder="Es: 10% di sconto su tutti i servizi"
+                className="bg-slate-900 border-slate-600 text-white"
+              />
+            </div>
+
+            {/* Descrizione */}
+            <div>
+              <Label className="text-slate-400">Descrizione</Label>
+              <Textarea
+                value={formData.descrizione}
+                onChange={(e) => setFormData({ ...formData, descrizione: e.target.value })}
+                placeholder="Descrizione dettagliata del vantaggio..."
+                className="bg-slate-900 border-slate-600 text-white"
+              />
+            </div>
+
+            {/* Foto */}
+            <div>
+              <Label className="text-slate-400">Foto</Label>
+              {formData.foto_url ? (
+                <div className="flex items-center gap-3 bg-slate-900 rounded-lg p-3">
+                  <img src={formData.foto_url} alt="" className="w-16 h-16 object-cover rounded" />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setFormData({ ...formData, foto_url: '' })}
+                    className="border-red-600 text-red-400"
+                  >
+                    <X className="w-4 h-4 mr-1" />
+                    Rimuovi
+                  </Button>
+                </div>
+              ) : (
+                <label className="flex items-center justify-center gap-2 bg-slate-900 border-2 border-dashed border-slate-700 rounded-lg p-4 cursor-pointer hover:border-lime-400">
+                  <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" disabled={uploadingPhoto} />
+                  {uploadingPhoto ? (
+                    <div className="animate-spin w-5 h-5 border-2 border-lime-400 border-t-transparent rounded-full" />
+                  ) : (
+                    <>
+                      <Upload className="w-5 h-5 text-lime-400" />
+                      <span className="text-slate-300">Carica foto</span>
+                    </>
+                  )}
+                </label>
+              )}
+            </div>
+
+            {/* Campo valore - visibile per tutti tranne progressivo */}
+            {formData.tipo_vantaggio && formData.tipo_vantaggio !== 'Vantaggio progressivo' && (
+              <div>
+                <Label className="text-lime-400">Valore del Vantaggio *</Label>
+                <Input
+                  value={formData.valore}
+                  onChange={(e) => setFormData({ ...formData, valore: e.target.value })}
+                  placeholder={
+                    formData.tipo_vantaggio === 'Sconto percentuale' ? "Es: 20%, 15% su tutto..." :
+                    formData.tipo_vantaggio === 'Sconto fisso' ? "Es: €50, €100 di sconto..." :
+                    formData.tipo_vantaggio === 'Consulenza gratuita' ? "Es: 1 consulenza 30 min..." :
+                    formData.tipo_vantaggio === 'Omaggio' ? "Es: Gadget aziendale..." :
+                    formData.tipo_vantaggio === 'Prova gratuita' ? "Es: 7 giorni gratis..." :
+                    "Es: 2x1, Spedizione gratuita..."
+                  }
+                  className="bg-slate-900 border-slate-600 text-white"
+                />
+              </div>
+            )}
+
+            {/* Vantaggio Progressivo */}
+            {formData.tipo_vantaggio === 'Vantaggio progressivo' && (
+              <div className="bg-slate-700/50 rounded-lg p-4 space-y-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <TrendingUp className="w-5 h-5 text-lime-400" />
+                  <Label className="text-lime-400 text-base">Step Progressivi</Label>
+                </div>
+                <p className="text-slate-400 text-xs mb-3">
+                  Crea sconti crescenti: ogni scansione QR sblocca lo step successivo.
+                </p>
+
+                {formData.step_progressivi.map((step, index) => (
+                  <div key={index} className="bg-slate-800 rounded-lg p-3 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-lime-400 font-bold text-sm">Step {step.step}</span>
+                      {formData.step_progressivi.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 w-6 p-0 text-red-400 hover:text-red-300"
+                          onClick={() => {
+                            const newSteps = formData.step_progressivi.filter((_, i) => i !== index);
+                            setFormData({ ...formData, step_progressivi: newSteps.map((s, i) => ({ ...s, step: i + 1 })) });
+                          }}
+                        >
+                          <Minus className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </div>
+                    <Input
+                      value={step.valore}
+                      onChange={(e) => {
+                        const newSteps = [...formData.step_progressivi];
+                        newSteps[index].valore = e.target.value;
+                        setFormData({ ...formData, step_progressivi: newSteps });
+                      }}
+                      placeholder="Es: 5%, 10%, €20..."
+                      className="bg-slate-900 border-slate-600 text-white text-sm"
+                    />
+                    <Input
+                      value={step.descrizione}
+                      onChange={(e) => {
+                        const newSteps = [...formData.step_progressivi];
+                        newSteps[index].descrizione = e.target.value;
+                        setFormData({ ...formData, step_progressivi: newSteps });
+                      }}
+                      placeholder="Descrizione (opzionale)"
+                      className="bg-slate-900 border-slate-600 text-white text-sm"
+                    />
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-slate-500" />
+                      <Input
+                        type="number"
+                        value={step.giorni_validita}
+                        onChange={(e) => {
+                          const newSteps = [...formData.step_progressivi];
+                          newSteps[index].giorni_validita = parseInt(e.target.value) || 30;
+                          setFormData({ ...formData, step_progressivi: newSteps });
+                        }}
+                        className="bg-slate-900 border-slate-600 text-white text-sm flex-1"
+                      />
+                      <span className="text-slate-400 text-xs">giorni per usarlo</span>
+                    </div>
+                  </div>
+                ))}
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="w-full border-lime-400 text-lime-400"
+                  onClick={() => {
+                    const newStep = {
+                      step: formData.step_progressivi.length + 1,
+                      valore: '',
+                      descrizione: '',
+                      giorni_validita: 30
+                    };
+                    setFormData({ ...formData, step_progressivi: [...formData.step_progressivi, newStep] });
+                  }}
+                >
+                  <Plus className="w-4 h-4 mr-1" />
+                  Aggiungi Step
+                </Button>
+              </div>
+            )}
+
+            {/* Utilizzi massimi - solo per non progressivi */}
+            {formData.tipo_vantaggio !== 'Vantaggio progressivo' && (
+              <div>
+                <Label className="text-slate-400">Numero utilizzi massimi (opzionale)</Label>
+                <Input
+                  type="number"
+                  value={formData.utilizzi_massimi}
+                  onChange={(e) => setFormData({ ...formData, utilizzi_massimi: e.target.value })}
+                  placeholder="Lascia vuoto per illimitato"
+                  className="bg-slate-900 border-slate-600 text-white"
+                />
+              </div>
+            )}
+
+            {/* Giorni validità utilizzo */}
+            <div>
+              <Label className="text-slate-400">Giorni per utilizzare dopo prenotazione</Label>
+              <Input
+                type="number"
+                value={formData.giorni_validita_utilizzo}
+                onChange={(e) => setFormData({ ...formData, giorni_validita_utilizzo: e.target.value })}
+                placeholder="Es: 30 (lascia vuoto per nessun limite)"
+                className="bg-slate-900 border-slate-600 text-white"
+              />
+              <p className="text-slate-500 text-xs mt-1">Se scade, il QR non sarà più valido</p>
+            </div>
+
+            {/* Scadenza */}
+            <div>
+              <Label className="text-slate-400">Data scadenza offerta (opzionale)</Label>
+              <Input
+                type="date"
+                value={formData.data_scadenza}
+                onChange={(e) => setFormData({ ...formData, data_scadenza: e.target.value })}
+                className="bg-slate-900 border-slate-600 text-white"
+              />
+            </div>
+
+            {/* Richiede prenotazione */}
+            <div className="flex items-center justify-between bg-slate-900 rounded-lg p-3">
+              <div>
+                <p className="text-white text-sm font-medium">Richiede prenotazione</p>
+                <p className="text-slate-400 text-xs">L'utente deve prenotare prima di usarlo</p>
+              </div>
+              <Switch
+                checked={formData.richiede_prenotazione}
+                onCheckedChange={(checked) => setFormData({ ...formData, richiede_prenotazione: checked })}
+              />
+            </div>
+
+            {/* Bottoni */}
+            <div className="flex gap-3 pt-4">
+              <Button 
+                variant="outline" 
+                onClick={() => { resetForm(); setShowCreatePanel(false); }} 
+                className="flex-1 border-slate-600 text-slate-400"
+              >
+                Annulla
+              </Button>
+              <Button 
+                onClick={handleSubmitVantaggio} 
+                disabled={createVantaggioMutation.isPending}
+                className="flex-1 bg-lime-400 hover:bg-lime-500 text-slate-900"
+              >
+                {createVantaggioMutation.isPending ? (
+                  <div className="animate-spin w-4 h-4 border-2 border-slate-900 border-t-transparent rounded-full" />
+                ) : (
+                  <>
+                    <Check className="w-4 h-4 mr-1" />
+                    Crea
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
