@@ -75,7 +75,7 @@ Deno.serve(async (req) => {
                     <p style="margin: 5px 0;"><strong>💰 Prezzo base:</strong> ${new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(asta.prezzo_base)}</p>
                   </div>
                   <p style="margin-top: 20px;">
-                    <a href="${appUrl}/AsteSalvate" style="background: #d4af37; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Vai alle Aste</a>
+                    <a href="https://695e2f74bb7d2636b5606a98.base44.app/AsteSalvate" style="background: #d4af37; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Vai alle Aste</a>
                   </p>
                   <p style="color: #888; font-size: 12px; margin-top: 30px;">Questa email è stata inviata automaticamente dal sistema di notifiche del Consorzio Imprenditori.</p>
                 </div>
