@@ -3,7 +3,8 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { ArrowLeft, QrCode, Search, Check, X, Gift, User, AlertTriangle, Camera, TrendingUp, Clock } from 'lucide-react';
+import { ArrowLeft, QrCode, Search, Check, X, Gift, User, AlertTriangle, Camera, TrendingUp, Clock, ScanLine } from 'lucide-react';
+import { Html5QrcodeScanner } from 'html5-qrcode';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,6 +22,8 @@ export default function ScannerQRVantaggi() {
   const [searchResult, setSearchResult] = useState(null);
   const [searching, setSearching] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState({ open: false, prenotazione: null, vantaggio: null });
+  const [scannerActive, setScannerActive] = useState(false);
+  const scannerRef = useRef(null);
   const { impersonation } = useImpersonation();
   const queryClient = useQueryClient();
 
@@ -43,6 +46,57 @@ export default function ScannerQRVantaggi() {
     };
     loadUser();
   }, [impersonation]);
+
+  // Gestione scanner QR con fotocamera
+  useEffect(() => {
+    if (scannerActive && !scannerRef.current) {
+      const scanner = new Html5QrcodeScanner(
+        "qr-reader",
+        { 
+          fps: 10, 
+          qrbox: { width: 250, height: 250 },
+          rememberLastUsedCamera: true,
+          aspectRatio: 1.0
+        },
+        false
+      );
+
+      scanner.render(
+        (decodedText) => {
+          // Successo scansione
+          setManualCode(decodedText.toUpperCase());
+          scanner.clear();
+          scannerRef.current = null;
+          setScannerActive(false);
+          // Avvia automaticamente la ricerca
+          setTimeout(() => {
+            document.getElementById('search-btn')?.click();
+          }, 100);
+        },
+        (error) => {
+          // Errore silenzioso durante scansione
+        }
+      );
+      
+      scannerRef.current = scanner;
+    }
+
+    return () => {
+      if (scannerRef.current) {
+        scannerRef.current.clear().catch(() => {});
+        scannerRef.current = null;
+      }
+    };
+  }, [scannerActive]);
+
+  // Cleanup quando si chiude lo scanner
+  const closeScanner = () => {
+    if (scannerRef.current) {
+      scannerRef.current.clear().catch(() => {});
+      scannerRef.current = null;
+    }
+    setScannerActive(false);
+  };
 
   // I miei vantaggi (per chi sta usando lo scanner)
   const { data: mieVantaggi = [] } = useQuery({
@@ -199,22 +253,65 @@ export default function ScannerQRVantaggi() {
         {/* Info */}
         <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-4 mb-6">
           <p className="text-slate-300 text-sm">
-            Inserisci il codice QR dell'utente per validare l'utilizzo di un vantaggio.
+            Scansiona il QR code dell'utente con la fotocamera oppure inserisci il codice manualmente.
           </p>
+        </div>
+
+        {/* Scanner con fotocamera */}
+        {scannerActive ? (
+          <Card className="bg-slate-800 border-lime-400 mb-6 overflow-hidden">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2 text-lime-400">
+                  <ScanLine className="w-5 h-5 animate-pulse" />
+                  <span className="font-medium">Scansiona QR Code</span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={closeScanner}
+                  className="text-slate-400 hover:text-white"
+                >
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
+              <div id="qr-reader" className="rounded-lg overflow-hidden" />
+              <p className="text-slate-400 text-xs text-center mt-3">
+                Inquadra il QR code dell'utente
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <Button
+            onClick={() => setScannerActive(true)}
+            className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 font-bold h-14 mb-4"
+          >
+            <Camera className="w-6 h-6 mr-2" />
+            Apri Fotocamera per Scansionare
+          </Button>
+        )}
+
+        {/* Divisore */}
+        <div className="flex items-center gap-3 mb-4">
+          <div className="flex-1 h-px bg-slate-700"></div>
+          <span className="text-slate-500 text-sm">oppure</span>
+          <div className="flex-1 h-px bg-slate-700"></div>
         </div>
 
         {/* Input manuale */}
         <Card className="bg-slate-800 border-slate-700 mb-6">
           <CardContent className="p-4">
+            <p className="text-slate-400 text-xs mb-2">Inserisci codice manualmente:</p>
             <div className="flex gap-2">
               <Input
-                placeholder="Inserisci codice QR..."
+                placeholder="Es: ABC123XY..."
                 value={manualCode}
                 onChange={(e) => setManualCode(e.target.value.toUpperCase())}
                 className="bg-slate-900 border-slate-600 text-white font-mono"
                 onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
               />
               <Button
+                id="search-btn"
                 onClick={handleSearch}
                 disabled={searching || !manualCode.trim()}
                 className="bg-lime-400 hover:bg-lime-500 text-slate-900"
