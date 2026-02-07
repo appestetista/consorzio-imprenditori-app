@@ -688,12 +688,12 @@ export default function Messaggi() {
           {/* Colonna sinistra - Filtri con animazione slide */}
           <div 
             className={`flex-shrink-0 overflow-hidden bg-slate-800/50 rounded-xl p-2 transition-all duration-300 ease-in-out cursor-pointer ${
-              filtersCollapsed ? 'w-14' : 'w-44'
+              filtersCollapsed ? 'w-[72px]' : 'w-44'
             }`}
             onClick={() => filtersCollapsed && setFiltersCollapsed(false)}
           >
             {/* Contenuto filtri */}
-            <div className={`flex flex-col gap-1.5 transition-all duration-300 ${filtersCollapsed ? '-translate-x-[7.5rem]' : 'translate-x-0'}`}>
+            <div className={`flex flex-col gap-1.5 transition-all duration-300 ${filtersCollapsed ? '-translate-x-[104px]' : 'translate-x-0'}`}>
               {/* Filtro Tutti */}
               <button
                 onClick={() => {
