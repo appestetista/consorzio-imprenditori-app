@@ -1046,6 +1046,36 @@ export default function MyProfile() {
           </>
         )}
 
+{/* Sezione Vantaggi per utenti normali */}
+        {user?.user_type !== 'consulente' && (
+          <Card className="bg-slate-800 border-[#d4af37]/30 mb-4">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center gap-2">
+                <Gift className="w-5 h-5 text-[#d4af37]" />
+                I Miei Vantaggi
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-slate-400 text-sm mb-4">
+                Visualizza e utilizza i vantaggi esclusivi riservati ai membri del Consorzio.
+              </p>
+              <div className="flex gap-2">
+                <Link to={createPageUrl('MiePrenotazioniVantaggi')} className="flex-1">
+                  <Button variant="outline" className="w-full border-[#d4af37] text-[#d4af37] hover:bg-[#d4af37]/10">
+                    <Gift className="w-4 h-4 mr-2" />
+                    Le Mie Prenotazioni
+                  </Button>
+                </Link>
+                <Link to={createPageUrl('MioQRCode')}>
+                  <Button className="bg-[#d4af37] hover:bg-[#b8960b] text-slate-900">
+                    <QrCode className="w-4 h-4" />
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
 {/* Se consulente, mostra solo Profilo Studio, altrimenti mostra form azienda */}
         {user?.user_type !== 'consulente' && (
           <>
