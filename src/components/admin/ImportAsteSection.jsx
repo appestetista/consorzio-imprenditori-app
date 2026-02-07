@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Upload, FileSpreadsheet, CheckCircle2, AlertCircle, Loader2, RefreshCw, 
-  Building2, Package, Ship, Monitor, Car, Sofa, Wrench, Home, Store, Factory, Trash2
+  Building2, Package, Ship, Monitor, Car, Sofa, Wrench, Home, Store, Factory, Trash2, Bell
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -570,6 +570,19 @@ export default function ImportAsteSection() {
         </TabsContent>
       </Tabs>
 
+      {/* Pulsante Notifica Nuove Aste */}
+      <Card className="bg-amber-900/20 border-amber-500/30">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-amber-400 font-medium">🔔 Notifica Nuove Aste</h3>
+              <p className="text-slate-400 text-sm mt-1">Invia una notifica a tutti gli utenti per avvisarli delle nuove aste caricate</p>
+            </div>
+            <NotifyNewAsteButton />
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Info box */}
       <Card className="bg-blue-900/20 border-blue-500/30">
         <CardContent className="p-4">
@@ -583,5 +596,44 @@ export default function ImportAsteSection() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+// Componente per il pulsante notifica
+function NotifyNewAsteButton() {
+  const [isSending, setIsSending] = useState(false);
+  
+  const handleNotify = async () => {
+    setIsSending(true);
+    try {
+      const response = await base44.functions.invoke('notifyNewAste', {
+        message: 'Sono state caricate nuove aste giudiziarie. Consulta la sezione Aste per scoprirle!'
+      });
+      
+      if (response.data?.success) {
+        toast.success(response.data.message);
+      } else {
+        toast.error(response.data?.error || 'Errore durante l\'invio');
+      }
+    } catch (error) {
+      toast.error(`Errore: ${error.message}`);
+    } finally {
+      setIsSending(false);
+    }
+  };
+  
+  return (
+    <Button
+      onClick={handleNotify}
+      disabled={isSending}
+      className="bg-amber-500 hover:bg-amber-600 text-white"
+    >
+      {isSending ? (
+        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+      ) : (
+        <Bell className="w-4 h-4 mr-2" />
+      )}
+      {isSending ? 'Invio...' : 'Invia Notifica'}
+    </Button>
   );
 }
