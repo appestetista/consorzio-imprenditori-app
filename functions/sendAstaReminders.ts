@@ -53,21 +53,31 @@ Deno.serve(async (req) => {
           });
           
           // Invia email
+          const appUrl = Deno.env.get('APP_URL') || '';
           try {
             await base44.asServiceRole.integrations.Core.SendEmail({
               to: salvata.user_email,
-              subject: titolo,
+              subject: `⏰ Promemoria Asta - Scadenza tra ${giorni} ${giorni === 1 ? 'giorno' : 'giorni'}`,
               body: `
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                   <h2 style="color: #d4af37;">⏰ Promemoria Asta</h2>
-                  <p style="font-size: 16px; color: #333;">${contenuto}</p>
+                  <p style="font-size: 16px; color: #333;">
+                    Si sta avvicinando la scadenza dell'asta immobiliare da te salvata nel pannello aste dentro il <strong>Consorzio Imprenditori</strong>.
+                  </p>
+                  <p style="font-size: 16px; color: #333;">
+                    Se sei interessato a partecipare, attivati per la partecipazione guardando i documenti necessari.
+                  </p>
                   <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                    <p style="margin: 5px 0;"><strong>🏠 Asta:</strong> ${asta.titolo}</p>
                     <p style="margin: 5px 0;"><strong>📍 Località:</strong> ${asta.localita || 'N/D'}</p>
                     <p style="margin: 5px 0;"><strong>📅 Data asta:</strong> ${new Date(asta.data_asta).toLocaleDateString('it-IT')}</p>
+                    <p style="margin: 5px 0;"><strong>⏳ Giorni rimanenti:</strong> ${giorni}</p>
                     <p style="margin: 5px 0;"><strong>💰 Prezzo base:</strong> ${new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(asta.prezzo_base)}</p>
                   </div>
-                  ${asta.link_ufficiale ? `<p><a href="${asta.link_ufficiale}" style="background: #d4af37; color: #000; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Vedi annuncio</a></p>` : ''}
-                  <p style="color: #888; font-size: 12px; margin-top: 30px;">Questa email è stata inviata automaticamente dal sistema di notifiche.</p>
+                  <p style="margin-top: 20px;">
+                    <a href="${appUrl}/AsteSalvate" style="background: #d4af37; color: #000; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">Vai alle Aste</a>
+                  </p>
+                  <p style="color: #888; font-size: 12px; margin-top: 30px;">Questa email è stata inviata automaticamente dal sistema di notifiche del Consorzio Imprenditori.</p>
                 </div>
               `
             });
