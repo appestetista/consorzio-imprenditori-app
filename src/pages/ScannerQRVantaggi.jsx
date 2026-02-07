@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { ArrowLeft, QrCode, Search, Check, X, Gift, User, AlertTriangle, Camera, TrendingUp, Clock, ScanLine } from 'lucide-react';
-import { Html5QrcodeScanner } from 'html5-qrcode';
+import { Html5Qrcode } from 'html5-qrcode';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -49,43 +49,46 @@ export default function ScannerQRVantaggi() {
     loadUser();
   }, [impersonation]);
 
-  // Gestione scanner QR con fotocamera
+  // Gestione scanner QR con fotocamera - avvio diretto senza UI di selezione
   useEffect(() => {
     if (scannerActive && !scannerRef.current) {
-      const scanner = new Html5QrcodeScanner(
-        "qr-reader",
-        { 
-          fps: 10, 
+      const html5Qrcode = new Html5Qrcode("qr-reader");
+      scannerRef.current = html5Qrcode;
+
+      // Avvia direttamente la fotocamera posteriore
+      html5Qrcode.start(
+        { facingMode: "environment" }, // Usa fotocamera posteriore
+        {
+          fps: 10,
           qrbox: { width: 250, height: 250 },
-          rememberLastUsedCamera: true,
           aspectRatio: 1.0
         },
-        false
-      );
-
-      scanner.render(
         (decodedText) => {
           // Successo scansione
           setManualCode(decodedText.toUpperCase());
-          scanner.clear();
-          scannerRef.current = null;
-          setScannerActive(false);
-          // Avvia automaticamente la ricerca
-          setTimeout(() => {
-            document.getElementById('search-btn')?.click();
-          }, 100);
+          html5Qrcode.stop().then(() => {
+            scannerRef.current = null;
+            setScannerActive(false);
+            // Avvia automaticamente la ricerca
+            setTimeout(() => {
+              document.getElementById('search-btn')?.click();
+            }, 100);
+          }).catch(() => {});
         },
-        (error) => {
+        () => {
           // Errore silenzioso durante scansione
         }
-      );
-      
-      scannerRef.current = scanner;
+      ).catch((err) => {
+        console.error("Errore avvio fotocamera:", err);
+        toast.error("Impossibile accedere alla fotocamera");
+        setScannerActive(false);
+        scannerRef.current = null;
+      });
     }
 
     return () => {
       if (scannerRef.current) {
-        scannerRef.current.clear().catch(() => {});
+        scannerRef.current.stop().catch(() => {});
         scannerRef.current = null;
       }
     };
@@ -94,7 +97,7 @@ export default function ScannerQRVantaggi() {
   // Cleanup quando si chiude lo scanner
   const closeScanner = () => {
     if (scannerRef.current) {
-      scannerRef.current.clear().catch(() => {});
+      scannerRef.current.stop().catch(() => {});
       scannerRef.current = null;
     }
     setScannerActive(false);
