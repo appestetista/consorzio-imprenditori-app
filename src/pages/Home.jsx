@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Calendar, Video, Briefcase, User, Euro, ShoppingBag, BookOpen, Handshake, Truck, Heart, FileSearch, Globe, Shield, PiggyBank, Gavel } from 'lucide-react';
+import { Calendar, Video, Briefcase, User, Euro, ShoppingBag, BookOpen, Handshake, Truck, Heart, FileSearch, Globe, Shield, PiggyBank, Gavel, Gift } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import Header from '../components/layout/Header';
@@ -739,6 +739,9 @@ export default function Home() {
     
     // INVESTIMENTI
     { title: 'Aste\nImmobiliari', icon: Gavel, page: 'AsteImmobiliari', notifications: 0, permission: 'aste_immobiliari', category: 'investimenti' },
+    
+    // VANTAGGI
+    { title: 'Vantaggi\nIscritti', icon: Gift, page: 'VantaggiIscritti', notifications: 0, permission: 'vantaggi_iscritti', category: 'relazioni', variant: 'gold' },
   ];
 
   // Filtra features in base al tab attivo
