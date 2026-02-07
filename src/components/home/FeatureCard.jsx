@@ -26,7 +26,8 @@ export default function FeatureCard({
   consulenzeMessagesCount = 0,
   contractUsageCount = 0,
   contractUsageLimit = 5,
-  contractMessagesCount = 0
+  contractMessagesCount = 0,
+  vantaggiNotifications = 0
 }) {
   const isPink = variant === 'pink';
   const isBlue = variant === 'blue';
@@ -37,6 +38,11 @@ export default function FeatureCard({
   const isVideo = pageName === 'VideoInterviste';
   const isConsulenze = pageName === 'Consulenze';
   const isAnalisiContratti = pageName === 'AnalisiContratti';
+  const isVantaggi = pageName === 'VantaggiIscritti';
+  
+  // Vantaggi: campanella oro con notifiche prenotazioni
+  const hasVantaggiNotifications = isVantaggi && (vantaggiNotifications > 0 || notificationCount > 0);
+  const vantaggiNotifCount = vantaggiNotifications || notificationCount;
   
   // Usa il context con timestamp per confronto con nuovi video (sessione corrente)
   const { lastVisitTimestamp, hasNewVideosSince } = useVideoVisit();
@@ -73,7 +79,7 @@ export default function FeatureCard({
   // Analisi Contratti: campanella con messaggi non letti
   const hasContractMessages = isAnalisiContratti && contractMessagesCount > 0;
   
-  const shouldGlow = (isCalendar && (bellNotificationCount > 0 || hasPendingInvites)) || hasUnseenNewVideos || hasConsulenzeMessages || hasContractMessages;
+  const shouldGlow = (isCalendar && (bellNotificationCount > 0 || hasPendingInvites)) || hasUnseenNewVideos || hasConsulenzeMessages || hasContractMessages || hasVantaggiNotifications;
   const hasBottomBadge = bottomBadge || (isCalendar && eventCount > 0) || hasUnseenNewVideos;
   
   const navigate = useNavigate();
@@ -225,6 +231,23 @@ export default function FeatureCard({
                     {hasContractMessages && (
                       <span className="absolute -top-2 -right-2 bg-white text-slate-900 text-[11px] font-bold rounded-full min-w-[20px] h-[20px] flex items-center justify-center px-1 shadow-md animate-pulse">
                         {contractMessagesCount > 99 ? '99+' : contractMessagesCount}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+              
+              {/* Campanella Vantaggi Iscritti */}
+              {!disabled && isVantaggi && (
+                <div className="absolute top-3 right-3">
+                  <div className={cn(
+                    "relative w-8 h-8 rounded-full flex items-center justify-center transition-colors",
+                    hasVantaggiNotifications ? "bg-[#d4af37]" : "bg-slate-900/80 border-2 border-slate-500"
+                  )}>
+                    <Bell className={cn("w-4 h-4", hasVantaggiNotifications ? "text-slate-900 animate-bounce" : "text-slate-400")} />
+                    {hasVantaggiNotifications && (
+                      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-[11px] font-bold rounded-full min-w-[20px] h-[20px] flex items-center justify-center px-1 shadow-md animate-pulse">
+                        {vantaggiNotifCount > 99 ? '99+' : vantaggiNotifCount}
                       </span>
                     )}
                   </div>

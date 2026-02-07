@@ -524,6 +524,24 @@ export default function Home() {
     enabled: !!effectiveUser?.email && !isUserConsultant(effectiveUser),
   });
 
+  // Conta notifiche Vantaggi (prenotazioni ricevute per i propri vantaggi)
+  const { data: vantaggiNotificationsCount = 0 } = useQuery({
+    queryKey: ['vantaggi-notifications', effectiveUser?.email],
+    queryFn: async () => {
+      // Conta notifiche non lette relative ai vantaggi
+      const notifs = await base44.entities.Notification.filter({
+        user_email: effectiveUser?.email,
+        is_read: false
+      });
+      // Filtra solo quelle che contengono "vantaggio" nel titolo o content
+      return notifs.filter(n => 
+        n.title?.toLowerCase().includes('vantaggio') || 
+        n.content?.toLowerCase().includes('vantaggio')
+      ).length;
+    },
+    enabled: !!effectiveUser?.email,
+  });
+
   // Conta richieste di consulenza in attesa per i consulenti
   const { data: pendingConsultationRequests = 0 } = useQuery({
     queryKey: ['pending-consultation-requests', effectiveUser?.email],
@@ -741,7 +759,7 @@ export default function Home() {
     { title: 'Aste\nImmobiliari', icon: Gavel, page: 'AsteImmobiliari', notifications: 0, permission: 'aste_immobiliari', category: 'investimenti' },
     
     // VANTAGGI
-    { title: 'Vantaggi\nIscritti', icon: Gift, page: 'VantaggiIscritti', notifications: 0, permission: 'vantaggi_iscritti', category: 'relazioni', variant: 'gold' },
+    { title: 'Vantaggi\nIscritti', icon: Gift, page: 'VantaggiIscritti', notifications: vantaggiNotificationsCount, permission: 'vantaggi_iscritti', category: 'relazioni', variant: 'gold' },
   ];
 
   // Filtra features in base al tab attivo
@@ -828,6 +846,7 @@ export default function Home() {
                   contractUsageCount={feature.contractUsage?.count || 0}
                   contractUsageLimit={feature.contractUsage?.limit || 5}
                   contractMessagesCount={feature.page === 'AnalisiContratti' ? contractMessagesCount : 0}
+                  vantaggiNotifications={feature.page === 'VantaggiIscritti' ? vantaggiNotificationsCount : 0}
                 />
               ))}
             </div>
@@ -863,6 +882,7 @@ export default function Home() {
                   contractUsageCount={feature.contractUsage?.count || 0}
                   contractUsageLimit={feature.contractUsage?.limit || 5}
                   contractMessagesCount={feature.page === 'AnalisiContratti' ? contractMessagesCount : 0}
+                  vantaggiNotifications={feature.page === 'VantaggiIscritti' ? vantaggiNotificationsCount : 0}
                 />
               ))}
             </div>
@@ -895,6 +915,7 @@ export default function Home() {
                   contractUsageCount={feature.contractUsage?.count || 0}
                   contractUsageLimit={feature.contractUsage?.limit || 5}
                   contractMessagesCount={feature.page === 'AnalisiContratti' ? contractMessagesCount : 0}
+                  vantaggiNotifications={feature.page === 'VantaggiIscritti' ? vantaggiNotificationsCount : 0}
                 />
               ))}
             </div>
@@ -927,6 +948,7 @@ export default function Home() {
                   contractUsageCount={feature.contractUsage?.count || 0}
                   contractUsageLimit={feature.contractUsage?.limit || 5}
                   contractMessagesCount={feature.page === 'AnalisiContratti' ? contractMessagesCount : 0}
+                  vantaggiNotifications={feature.page === 'VantaggiIscritti' ? vantaggiNotificationsCount : 0}
                 />
               ))}
             </div>
@@ -959,6 +981,7 @@ export default function Home() {
                   contractUsageCount={feature.contractUsage?.count || 0}
                   contractUsageLimit={feature.contractUsage?.limit || 5}
                   contractMessagesCount={feature.page === 'AnalisiContratti' ? contractMessagesCount : 0}
+                  vantaggiNotifications={feature.page === 'VantaggiIscritti' ? vantaggiNotificationsCount : 0}
                 />
               ))}
             </div>
