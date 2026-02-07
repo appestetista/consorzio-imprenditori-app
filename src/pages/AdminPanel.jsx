@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import useNotificationSound from '../components/hooks/useNotificationSound';
-import { ArrowLeft, Users, Video, Calendar, Briefcase, Settings, Bell, CheckCircle, XCircle, Clock, Trash2, Mail, Eye, MessageSquare, CalendarDays, MapPin, DollarSign, Sparkles, Euro, ShoppingBag, BookOpen, Handshake, Truck, Heart, FileSearch, Globe, Shield, User, UserPlus, Search, Edit, Phone, PhoneOff, Save, Plus, Upload, X, Image as ImageIcon, ChevronRight, Gavel, Zap, Flame, Leaf, Sun, Wifi } from 'lucide-react';
+import { ArrowLeft, Users, Video, Calendar, Briefcase, Settings, Bell, CheckCircle, XCircle, Clock, Trash2, Mail, Eye, MessageSquare, CalendarDays, MapPin, DollarSign, Sparkles, Euro, ShoppingBag, BookOpen, Handshake, Truck, Heart, FileSearch, Globe, Shield, User, UserPlus, Search, Edit, Phone, PhoneOff, Save, Plus, Upload, X, Image as ImageIcon, ChevronRight, Gavel, Zap, Flame, Leaf, Sun, Wifi, Gift } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -26,6 +26,7 @@ import AdminMessagesView from '../components/admin/AdminMessagesView';
 import ZoneManagerSimple from '../components/admin/ZoneManagerSimple';
 import ImportAsteSection from '../components/admin/ImportAsteSection';
 import RisparmioAdminPanel from '../components/admin/RisparmioAdminPanel';
+import VantaggiAdminPanel from '../components/admin/VantaggiAdminPanel';
 
 const CONSULTANT_CATEGORIES = [
   "Stampa Digitale e Cataloghi",
@@ -102,11 +103,12 @@ export default function AdminPanel() {
   const { data: stats } = useQuery({
     queryKey: ['admin-stats'],
     queryFn: async () => {
-      const [users, events, videos, consultants] = await Promise.all([
+      const [users, events, videos, consultants, vantaggi] = await Promise.all([
         base44.entities.User.list(),
         base44.entities.Event.list(),
         base44.entities.Video.list(),
-        base44.entities.Consultant.list()
+        base44.entities.Consultant.list(),
+        base44.entities.Vantaggio.list()
       ]);
       console.log('[AdminPanel] Tutti gli utenti dal database:', users);
       const filteredUsers = users;
@@ -127,7 +129,8 @@ export default function AdminPanel() {
         activeUsers: filteredUsers.filter(u => !u.is_blocked).length,
         totalEvents: validFutureEvents.length,
         totalVideos: videos.length,
-        totalConsultants: consultants.length
+        totalConsultants: consultants.length,
+        totalVantaggi: vantaggi.filter(v => v.is_active).length
       };
     }
   });
@@ -278,6 +281,7 @@ export default function AdminPanel() {
   const [selectedConsulenzaConversation, setSelectedConsulenzaConversation] = useState(null);
   const [showRisparmioPanel, setShowRisparmioPanel] = useState(false);
   const [selectedRisparmioCategory, setSelectedRisparmioCategory] = useState(null);
+  const [showVantaggiPanel, setShowVantaggiPanel] = useState(false);
 
   const markVideoRequestReadMutation = useMutation({
     mutationFn: async (requestId) => {
@@ -690,6 +694,23 @@ export default function AdminPanel() {
                 </div>
               </div>
             </Link>
+            <div 
+              className="relative h-20 transition-transform duration-100 active:scale-[0.97] cursor-pointer"
+              style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}
+              onClick={() => setShowVantaggiPanel(true)}
+            >
+              <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #f59e0b 0%, #d97706 30%, #b45309 60%, #f59e0b 100%)' }}>
+                <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #0c1730 50%, #0a1225 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
+                  <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
+                  <Gift className="w-5 h-5 text-amber-400 mb-1 relative z-10" />
+                  <p className="text-white text-[10px] text-center leading-tight relative z-10">Vantaggi<br/>Iscritti</p>
+                  {(stats?.totalVantaggi || 0) > 0 && (
+                    <span className="absolute top-1 left-1 bg-amber-500 text-slate-900 text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold z-20">{stats?.totalVantaggi || 0}</span>
+                  )}
+                  <span className="absolute top-1 right-1 text-amber-400/60 z-20"><Bell className="w-3 h-3" /></span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1650,6 +1671,13 @@ export default function AdminPanel() {
             category={selectedRisparmioCategory} 
             onBack={() => setShowRisparmioPanel(false)} 
           />
+        </DialogContent>
+      </Dialog>
+
+      {/* Pannello Vantaggi Admin */}
+      <Dialog open={showVantaggiPanel} onOpenChange={setShowVantaggiPanel}>
+        <DialogContent className="bg-slate-900 border-slate-700 max-w-lg max-h-[90vh] overflow-y-auto p-4">
+          <VantaggiAdminPanel onBack={() => setShowVantaggiPanel(false)} />
         </DialogContent>
       </Dialog>
 
