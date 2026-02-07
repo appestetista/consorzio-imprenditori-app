@@ -100,6 +100,13 @@ export default function VantaggiIscritti() {
     enabled: !!user?.email,
   });
 
+  // Tutte le prenotazioni dell'utente (per vedere quelle già consumate)
+  const { data: tuttePrenotazioni = [] } = useQuery({
+    queryKey: ['tutte-mie-prenotazioni', user?.email],
+    queryFn: () => base44.entities.PrenotazioneVantaggio.filter({ user_email: user?.email }),
+    enabled: !!user?.email,
+  });
+
   // Consulenti (per nome/logo)
   const { data: consultants = [] } = useQuery({
     queryKey: ['consultants-vantaggi'],
@@ -246,6 +253,28 @@ export default function VantaggiIscritti() {
     return miePrenotazioni.some(p => p.vantaggio_id === vantaggioId);
   };
 
+  // Verifica se l'utente ha già consumato questo vantaggio
+  const isConsumato = (vantaggioId) => {
+    return tuttePrenotazioni.some(p => p.vantaggio_id === vantaggioId && p.status === 'utilizzata');
+  };
+
+  // Conta quante volte l'utente può ancora usare questo vantaggio
+  const getUtilizziRimanentiPerUtente = (vantaggio) => {
+    if (!vantaggio.utilizzi_massimi) return null; // Illimitato
+    
+    const prenotazioniUtente = tuttePrenotazioni.filter(p => 
+      p.vantaggio_id === vantaggio.id && 
+      (p.status === 'utilizzata' || p.status === 'attiva')
+    );
+    
+    // Se il vantaggio è "1 per utente" e l'utente l'ha già usato/prenotato
+    if (vantaggio.utilizzi_massimi === 1 && prenotazioniUtente.length > 0) {
+      return 0;
+    }
+    
+    return null; // Per altri casi, non limitiamo per utente
+  };
+
   const getTipoVantaggioColor = (tipo) => {
     switch (tipo) {
       case 'Sconto percentuale': return 'bg-green-500';
@@ -323,28 +352,38 @@ export default function VantaggiIscritti() {
             {vantaggi.map((vantaggio) => {
               const creator = getCreatorInfo(vantaggio);
               const prenotato = isPrenotato(vantaggio.id);
+              const consumato = isConsumato(vantaggio.id);
               const utilizziRimasti = vantaggio.utilizzi_massimi 
                 ? vantaggio.utilizzi_massimi - (vantaggio.utilizzi_effettuati || 0)
                 : null;
+              // Vantaggio esaurito per questo utente (già consumato e era solo 1 utilizzo)
+              const esauritoPerUtente = consumato && vantaggio.utilizzi_massimi === 1;
 
               return (
-                <Card key={vantaggio.id} className="bg-slate-800 border-slate-700 overflow-hidden">
+                <Card key={vantaggio.id} className={`overflow-hidden relative ${esauritoPerUtente ? 'border-red-500/50' : 'border-slate-700'} ${esauritoPerUtente ? 'bg-red-900/30' : 'bg-slate-800'}`}>
                   <CardContent className="p-0">
                     <div className="flex">
-                      {/* Foto */}
-                      {vantaggio.foto_url ? (
-                        <div className="w-28 h-28 flex-shrink-0">
+                      {/* Foto con overlay se consumato */}
+                      <div className="relative w-28 h-28 flex-shrink-0">
+                        {vantaggio.foto_url ? (
                           <img 
                             src={vantaggio.foto_url} 
                             alt={vantaggio.titolo}
-                            className="w-full h-full object-cover"
+                            className={`w-full h-full object-cover ${esauritoPerUtente ? 'opacity-40 grayscale' : ''}`}
                           />
-                        </div>
-                      ) : (
-                        <div className="w-28 h-28 flex-shrink-0 bg-slate-700 flex items-center justify-center">
-                          <Gift className="w-10 h-10 text-slate-500" />
-                        </div>
-                      )}
+                        ) : (
+                          <div className={`w-full h-full flex items-center justify-center ${esauritoPerUtente ? 'bg-red-900/50' : 'bg-slate-700'}`}>
+                            <Gift className={`w-10 h-10 ${esauritoPerUtente ? 'text-red-400' : 'text-slate-500'}`} />
+                          </div>
+                        )}
+                        {esauritoPerUtente && (
+                          <div className="absolute inset-0 flex items-center justify-center bg-red-900/70">
+                            <span className="text-red-300 font-bold text-xs text-center px-2 rotate-[-15deg]">
+                              CONSUMATO
+                            </span>
+                          </div>
+                        )}
+                      </div>
 
                       {/* Contenuto */}
                       <div className="flex-1 p-3">
@@ -394,7 +433,12 @@ export default function VantaggiIscritti() {
 
                     {/* Footer con azione */}
                     <div className="px-3 pb-3">
-                      {prenotato ? (
+                      {esauritoPerUtente ? (
+                        <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-2 flex items-center justify-center gap-2">
+                          <X className="w-4 h-4 text-red-400" />
+                          <span className="text-red-400 text-sm font-medium">Già utilizzato</span>
+                        </div>
+                      ) : prenotato ? (
                         <div className="bg-green-500/20 border border-green-500/50 rounded-lg p-2 flex items-center justify-center gap-2">
                           <Check className="w-4 h-4 text-green-400" />
                           <span className="text-green-400 text-sm font-medium">Prenotato</span>
@@ -402,7 +446,7 @@ export default function VantaggiIscritti() {
                       ) : vantaggio.richiede_prenotazione ? (
                         <Button
                           onClick={() => prenotaMutation.mutate(vantaggio.id)}
-                          disabled={prenotaMutation.isPending}
+                          disabled={prenotaMutation.isPending || consumato}
                           className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 font-bold"
                           size="sm"
                         >
