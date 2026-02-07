@@ -701,7 +701,7 @@ export default function Messaggi() {
           
           {/* Colonna sinistra - Filtri con animazione slide */}
           <div 
-            className={`flex-shrink-0 overflow-hidden bg-slate-800/50 rounded-xl p-2 transition-all duration-300 ease-in-out cursor-pointer`}
+            className={`flex-shrink-0 overflow-y-auto overflow-x-hidden bg-slate-800/50 rounded-xl p-2 transition-all duration-300 ease-in-out cursor-pointer`}
             style={{ width: filtersCollapsed ? '52px' : '176px' }}
             onClick={() => filtersCollapsed && setFiltersCollapsed(false)}
           >
