@@ -452,102 +452,21 @@ export default function GestioneVantaggi() {
               )}
             </div>
 
-            {/* Campi dinamici in base al tipo */}
-            {formData.tipo_vantaggio === 'Sconto percentuale' && (
+            {/* Campo valore - visibile per tutti tranne progressivo */}
+            {formData.tipo_vantaggio && formData.tipo_vantaggio !== 'Vantaggio progressivo' && (
               <div>
-                <Label className="text-lime-400">Percentuale Sconto *</Label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    type="number"
-                    value={formData.valore_sconto}
-                    onChange={(e) => setFormData({ ...formData, valore_sconto: e.target.value, valore: `${e.target.value}%` })}
-                    placeholder="Es: 20"
-                    className="bg-slate-900 border-slate-600 text-white"
-                  />
-                  <span className="text-white text-lg">%</span>
-                </div>
-              </div>
-            )}
-
-            {formData.tipo_vantaggio === 'Sconto fisso' && (
-              <div>
-                <Label className="text-lime-400">Valore Sconto *</Label>
-                <div className="flex items-center gap-2">
-                  <span className="text-white text-lg">€</span>
-                  <Input
-                    type="number"
-                    value={formData.valore_sconto}
-                    onChange={(e) => setFormData({ ...formData, valore_sconto: e.target.value, valore: `€${e.target.value}` })}
-                    placeholder="Es: 50"
-                    className="bg-slate-900 border-slate-600 text-white"
-                  />
-                </div>
-              </div>
-            )}
-
-            {formData.tipo_vantaggio === 'Consulenza gratuita' && (
-              <div>
-                <Label className="text-lime-400">Durata Consulenza</Label>
-                <Select
-                  value={formData.durata_consulenza}
-                  onValueChange={(value) => setFormData({ ...formData, durata_consulenza: value, valore: `Consulenza ${value}` })}
-                >
-                  <SelectTrigger className="bg-slate-900 border-slate-600 text-white">
-                    <SelectValue placeholder="Seleziona durata..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="15 min">15 minuti</SelectItem>
-                    <SelectItem value="30 min">30 minuti</SelectItem>
-                    <SelectItem value="45 min">45 minuti</SelectItem>
-                    <SelectItem value="1 ora">1 ora</SelectItem>
-                    <SelectItem value="1.5 ore">1 ora e 30 min</SelectItem>
-                    <SelectItem value="2 ore">2 ore</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-
-            {formData.tipo_vantaggio === 'Omaggio' && (
-              <div>
-                <Label className="text-lime-400">Descrizione Omaggio *</Label>
-                <Input
-                  value={formData.omaggio_descrizione}
-                  onChange={(e) => setFormData({ ...formData, omaggio_descrizione: e.target.value, valore: e.target.value })}
-                  placeholder="Es: Gadget aziendale, Prodotto campione..."
-                  className="bg-slate-900 border-slate-600 text-white"
-                />
-              </div>
-            )}
-
-            {formData.tipo_vantaggio === 'Prova gratuita' && (
-              <div>
-                <Label className="text-lime-400">Durata Periodo di Prova</Label>
-                <Select
-                  value={formData.durata_prova}
-                  onValueChange={(value) => setFormData({ ...formData, durata_prova: value, valore: `Prova gratuita ${value}` })}
-                >
-                  <SelectTrigger className="bg-slate-900 border-slate-600 text-white">
-                    <SelectValue placeholder="Seleziona durata..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="3 giorni">3 giorni</SelectItem>
-                    <SelectItem value="7 giorni">7 giorni</SelectItem>
-                    <SelectItem value="14 giorni">14 giorni</SelectItem>
-                    <SelectItem value="1 mese">1 mese</SelectItem>
-                    <SelectItem value="2 mesi">2 mesi</SelectItem>
-                    <SelectItem value="3 mesi">3 mesi</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-
-            {(formData.tipo_vantaggio === 'Promozione speciale' || formData.tipo_vantaggio === 'Altro') && (
-              <div>
-                <Label className="text-lime-400">Valore/Descrizione *</Label>
+                <Label className="text-lime-400">Valore del Vantaggio *</Label>
                 <Input
                   value={formData.valore}
                   onChange={(e) => setFormData({ ...formData, valore: e.target.value })}
-                  placeholder="Es: 2x1, Spedizione gratuita..."
+                  placeholder={
+                    formData.tipo_vantaggio === 'Sconto percentuale' ? "Es: 20%, 15% su tutto..." :
+                    formData.tipo_vantaggio === 'Sconto fisso' ? "Es: €50, €100 di sconto..." :
+                    formData.tipo_vantaggio === 'Consulenza gratuita' ? "Es: 1 consulenza 30 min, 2 ore gratis..." :
+                    formData.tipo_vantaggio === 'Omaggio' ? "Es: Gadget aziendale, Prodotto campione..." :
+                    formData.tipo_vantaggio === 'Prova gratuita' ? "Es: 7 giorni gratis, 1 mese prova..." :
+                    "Es: 2x1, Spedizione gratuita..."
+                  }
                   className="bg-slate-900 border-slate-600 text-white"
                 />
               </div>
