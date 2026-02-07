@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
@@ -35,6 +36,7 @@ export default function GestioneVantaggi() {
   const [showForm, setShowForm] = useState(false);
   const [editingVantaggio, setEditingVantaggio] = useState(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [deleteDialog, setDeleteDialog] = useState({ open: false, vantaggio: null, prenotazioniAttive: 0 });
   const { impersonation } = useImpersonation();
   const queryClient = useQueryClient();
 
@@ -146,6 +148,27 @@ export default function GestioneVantaggi() {
       queryClient.invalidateQueries({ queryKey: ['miei-vantaggi'] });
     }
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id) => {
+      await base44.entities.Vantaggio.delete(id);
+    },
+    onSuccess: () => {
+      toast.success('Vantaggio eliminato');
+      queryClient.invalidateQueries({ queryKey: ['miei-vantaggi'] });
+      setDeleteDialog({ open: false, vantaggio: null, prenotazioniAttive: 0 });
+    },
+    onError: () => toast.error('Errore durante l\'eliminazione')
+  });
+
+  const handleDeleteClick = async (vantaggio) => {
+    // Conta prenotazioni attive per questo vantaggio
+    const prenotazioni = await base44.entities.PrenotazioneVantaggio.filter({
+      vantaggio_id: vantaggio.id,
+      status: 'attiva'
+    });
+    setDeleteDialog({ open: true, vantaggio, prenotazioniAttive: prenotazioni.length });
+  };
 
   const resetForm = () => {
     setFormData({
@@ -314,10 +337,18 @@ export default function GestioneVantaggi() {
                             <Button 
                               variant="ghost" 
                               size="sm" 
-                              className="h-8 w-8 p-0 text-slate-400 hover:text-red-400"
+                              className="h-8 w-8 p-0 text-slate-400 hover:text-amber-400"
                               onClick={() => toggleActiveMutation.mutate({ id: vantaggio.id, is_active: false })}
                             >
                               <EyeOff className="w-4 h-4" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="h-8 w-8 p-0 text-slate-400 hover:text-red-400"
+                              onClick={() => handleDeleteClick(vantaggio)}
+                            >
+                              <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
                         </div>
@@ -351,15 +382,25 @@ export default function GestioneVantaggi() {
                       <p className="text-slate-400 text-sm">{vantaggio.titolo}</p>
                       <p className="text-slate-500 text-xs">{vantaggio.tipo_vantaggio}</p>
                     </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="border-lime-400 text-lime-400"
-                      onClick={() => toggleActiveMutation.mutate({ id: vantaggio.id, is_active: true })}
-                    >
-                      <Eye className="w-4 h-4 mr-1" />
-                      Attiva
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-lime-400 text-lime-400"
+                        onClick={() => toggleActiveMutation.mutate({ id: vantaggio.id, is_active: true })}
+                      >
+                        <Eye className="w-4 h-4 mr-1" />
+                        Attiva
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="border-red-500 text-red-400"
+                        onClick={() => handleDeleteClick(vantaggio)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
@@ -633,6 +674,55 @@ export default function GestioneVantaggi() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Dialog conferma eliminazione */}
+      <AlertDialog open={deleteDialog.open} onOpenChange={(open) => !open && setDeleteDialog({ open: false, vantaggio: null, prenotazioniAttive: 0 })}>
+        <AlertDialogContent className="bg-slate-800 border-slate-700">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white flex items-center gap-2">
+              {deleteDialog.prenotazioniAttive > 0 ? (
+                <AlertTriangle className="w-5 h-5 text-amber-400" />
+              ) : (
+                <Trash2 className="w-5 h-5 text-red-400" />
+              )}
+              Elimina Vantaggio
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-300">
+              {deleteDialog.prenotazioniAttive > 0 ? (
+                <>
+                  <span className="text-amber-400 font-bold">Attenzione!</span> Ci sono{' '}
+                  <span className="text-white font-bold">{deleteDialog.prenotazioniAttive} utenti</span> che hanno già prenotato questo vantaggio.
+                  <br /><br />
+                  Se elimini il vantaggio, questi utenti potranno comunque consumarlo mostrando il loro QR code.
+                  <br /><br />
+                  Vuoi procedere con l'eliminazione di <span className="text-lime-400 font-bold">"{deleteDialog.vantaggio?.titolo}"</span>?
+                </>
+              ) : (
+                <>
+                  Sei sicuro di voler eliminare il vantaggio <span className="text-lime-400 font-bold">"{deleteDialog.vantaggio?.titolo}"</span>?
+                  <br /><br />
+                  Questa azione non può essere annullata.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-slate-700 text-white hover:bg-slate-600 border-slate-600">
+              Annulla
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-500 text-white hover:bg-red-600"
+              onClick={() => deleteMutation.mutate(deleteDialog.vantaggio?.id)}
+            >
+              {deleteMutation.isPending ? (
+                <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+              ) : (
+                <>Elimina</>
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
