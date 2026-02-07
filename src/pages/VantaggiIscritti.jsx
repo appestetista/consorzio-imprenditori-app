@@ -264,6 +264,20 @@ export default function VantaggiIscritti() {
     return tuttePrenotazioni.some(p => p.vantaggio_id === vantaggioId && p.status === 'utilizzata');
   };
 
+  // Combina vantaggi attivi + vantaggi prenotati dall'utente (anche se eliminati/disattivati)
+  const vantaggi = React.useMemo(() => {
+    // IDs dei vantaggi prenotati dall'utente (solo prenotazioni attive, non ancora consumate)
+    const prenotatiIds = miePrenotazioni.map(p => p.vantaggio_id);
+    
+    // Vantaggi prenotati ma non più attivi (eliminati o disattivati)
+    const vantaggiPrenotatiNonAttivi = tuttiVantaggi.filter(v => 
+      prenotatiIds.includes(v.id) && !vantaggiAttivi.some(va => va.id === v.id)
+    );
+    
+    // Combina: vantaggi attivi + vantaggi prenotati non più attivi
+    return [...vantaggiAttivi, ...vantaggiPrenotatiNonAttivi];
+  }, [vantaggiAttivi, tuttiVantaggi, miePrenotazioni]);
+
   // Conta quante volte l'utente può ancora usare questo vantaggio
   const getUtilizziRimanentiPerUtente = (vantaggio) => {
     if (!vantaggio.utilizzi_massimi) return null; // Illimitato
