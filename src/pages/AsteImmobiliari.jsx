@@ -57,6 +57,7 @@ export default function AsteImmobiliari() {
   const [macroCategoria, setMacroCategoria] = useState('tutti'); // 'tutti', 'mobili', 'immobili'
   const [categoriaAttiva, setCategoriaAttiva] = useState(null);
   const [zonaAttiva, setZonaAttiva] = useState(null);
+  const [budgetMassimo, setBudgetMassimo] = useState('');
 
   const [showFilters, setShowFilters] = useState(false);
 
@@ -146,9 +147,15 @@ export default function AsteImmobiliari() {
       // Filtro zona
       if (zonaAttiva && asta.provincia !== zonaAttiva) return false;
       
+      // Filtro budget massimo
+      if (budgetMassimo) {
+        const budget = parseFloat(budgetMassimo);
+        if (!isNaN(budget) && asta.prezzo_base > budget) return false;
+      }
+      
       return true;
     });
-  }, [aste, macroCategoria, categoriaAttiva, zonaAttiva]);
+  }, [aste, macroCategoria, categoriaAttiva, zonaAttiva, budgetMassimo]);
 
   // Ordina per termine presentazione offerte (dal più vicino al più lontano)
       const asteOrdinate = [...asteFiltrate].sort((a, b) => {
@@ -181,10 +188,10 @@ export default function AsteImmobiliari() {
     setMacroCategoria('tutti');
     setCategoriaAttiva(null);
     setZonaAttiva(null);
-
+    setBudgetMassimo('');
   };
 
-  const hasActiveFilters = macroCategoria !== 'tutti' || categoriaAttiva || zonaAttiva;
+  const hasActiveFilters = macroCategoria !== 'tutti' || categoriaAttiva || zonaAttiva || budgetMassimo;
 
   if (isLoading || !user) {
     return (
@@ -333,68 +340,81 @@ export default function AsteImmobiliari() {
           </div>
         )}
 
-        {/* ALTRI FILTRI (Zone e Scadenza) */}
-        <button 
-          onClick={() => setShowFilters(!showFilters)}
-          className="w-full mb-3 flex items-center justify-between px-4 py-2 bg-slate-800/50 rounded-lg border border-slate-700 text-slate-300"
-        >
+        {/* FILTRO LOCALITÀ - sempre visibile */}
+        <div className="mb-4">
+          <p className="text-slate-400 text-xs uppercase tracking-wide mb-2 flex items-center gap-1">
+            <MapPin className="w-3.5 h-3.5" /> Località
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setZonaAttiva(null)}
+              className={`px-3 py-1.5 rounded-full text-sm transition-all ${
+                !zonaAttiva
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+              }`}
+            >
+              Tutte
+            </button>
+            {zoneDisponibili.map(zona => (
+              <button
+                key={zona}
+                onClick={() => setZonaAttiva(zonaAttiva === zona ? null : zona)}
+                className={`px-3 py-1.5 rounded-full text-sm transition-all ${
+                  zonaAttiva === zona
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                }`}
+              >
+                {zona}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* FILTRO INVESTIMENTO MASSIMO */}
+        <div className="mb-4">
+          <p className="text-slate-400 text-xs uppercase tracking-wide mb-2 flex items-center gap-1">
+            <Euro className="w-3.5 h-3.5" /> Investimento massimo
+          </p>
           <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4" />
-            <span className="text-sm">Altri filtri</span>
-            {hasActiveFilters && (
-              <Badge className="bg-lime-400 text-slate-900 text-xs">Attivi</Badge>
+            <div className="relative flex-1">
+              <Euro className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+              <input
+                type="number"
+                placeholder="es. 100000"
+                value={budgetMassimo}
+                onChange={(e) => setBudgetMassimo(e.target.value)}
+                className="w-full pl-9 pr-4 py-2.5 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:border-lime-400 focus:outline-none"
+              />
+            </div>
+            {budgetMassimo && (
+              <button
+                onClick={() => setBudgetMassimo('')}
+                className="p-2.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-slate-400"
+              >
+                <X className="w-4 h-4" />
+              </button>
             )}
           </div>
-          {showFilters ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-        </button>
+          {budgetMassimo && (
+            <p className="text-lime-400 text-xs mt-1">
+              Mostrando aste fino a {new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(parseFloat(budgetMassimo))}
+            </p>
+          )}
+        </div>
 
-        {showFilters && (
-          <Card className="bg-slate-800/50 border-slate-700 mb-4">
-            <CardContent className="p-4 space-y-4">
-              {/* Filtro Zone */}
-              <div>
-                <p className="text-slate-400 text-xs uppercase tracking-wide mb-2">📍 Zona</p>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    onClick={() => setZonaAttiva(null)}
-                    className={`px-3 py-1.5 rounded-full text-sm transition-all ${
-                      !zonaAttiva
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
-                    }`}
-                  >
-                    Tutte
-                  </button>
-                  {zoneDisponibili.map(zona => (
-                    <button
-                      key={zona}
-                      onClick={() => setZonaAttiva(zonaAttiva === zona ? null : zona)}
-                      className={`px-3 py-1.5 rounded-full text-sm transition-all ${
-                        zonaAttiva === zona
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
-                      }`}
-                    >
-                      {zona}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Reset */}
-              {hasActiveFilters && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={resetFiltri}
-                  className="w-full border-red-500/50 text-red-400 hover:bg-red-500/10"
-                >
-                  <X className="w-4 h-4 mr-2" />
-                  Rimuovi tutti i filtri
-                </Button>
-              )}
-            </CardContent>
-          </Card>
+        {/* Reset filtri */}
+        {hasActiveFilters && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={resetFiltri}
+            className="w-full mb-4 border-red-500/50 text-red-400 hover:bg-red-500/10"
+          >
+            <X className="w-4 h-4 mr-2" />
+            Rimuovi tutti i filtri
+          </Button>
         )}
 
         {/* LISTA ASTE */}
