@@ -286,7 +286,7 @@ export default function GestioneVantaggi() {
       <main className="px-4 py-6 max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <Link to={createPageUrl('MyProfile')} className="text-lime-400">
+            <Link to={createPageUrl('VantaggiIscritti')} className="text-lime-400">
               <ArrowLeft className="w-6 h-6" />
             </Link>
             <Gift className="w-6 h-6 text-lime-400" />
