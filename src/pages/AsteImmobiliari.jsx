@@ -215,27 +215,36 @@ export default function AsteImmobiliari() {
             <h1 className="text-white text-xl font-bold">Aste Giudiziarie</h1>
             <p className="text-slate-400 text-sm">{asteOrdinate.length} annunci</p>
           </div>
-          <Link to={createPageUrl('AsteSalvate')}>
-            <Button 
-              size="sm" 
-              className={`relative ${
-                asteSalvate.length > 0 
-                  ? 'bg-amber-500 hover:bg-amber-600 text-white' 
-                  : 'bg-slate-700 hover:bg-slate-600 text-slate-300'
-              }`}
-            >
-              <Bookmark className="w-4 h-4" />
-              <span className="ml-1.5 font-bold">Salvate</span>
-              {asteSalvate.length > 0 && (
-                <span className="ml-1.5 bg-white text-amber-600 rounded-full px-1.5 py-0.5 text-xs font-bold min-w-[20px]">
-                  {asteSalvate.length}
-                </span>
-              )}
-              {asteSalvate.length > 0 && (
-                <Bell className="w-3.5 h-3.5 ml-1 animate-pulse" />
-              )}
-            </Button>
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link to={createPageUrl('AsteSalvate')}>
+              <Button 
+                size="sm" 
+                className={`relative ${
+                  asteSalvate.length > 0 
+                    ? 'bg-amber-500 hover:bg-amber-600 text-white' 
+                    : 'bg-slate-700 hover:bg-slate-600 text-slate-300'
+                }`}
+              >
+                <Bookmark className="w-4 h-4" />
+                <span className="ml-1.5 font-bold">Salvate</span>
+                {asteSalvate.length > 0 && (
+                  <span className="ml-1.5 bg-white text-amber-600 rounded-full px-1.5 py-0.5 text-xs font-bold min-w-[20px]">
+                    {asteSalvate.length}
+                  </span>
+                )}
+              </Button>
+            </Link>
+            {asteSalvate.length > 0 && (
+              <Link to={createPageUrl('PromemoriaAste')}>
+                <Button 
+                  size="sm" 
+                  className="bg-blue-500 hover:bg-blue-600 text-white"
+                >
+                  <Bell className="w-4 h-4 animate-pulse" />
+                </Button>
+              </Link>
+            )}
+          </div>
         </div>
 
         {/* MACRO FILTRI - Mobili / Immobili */}
