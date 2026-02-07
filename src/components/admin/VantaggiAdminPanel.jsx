@@ -214,9 +214,8 @@ export default function VantaggiAdminPanel({ onBack }) {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Tutti</SelectItem>
-                  <SelectItem value="utente">Utenti</SelectItem>
+                  <SelectItem value="utente">Aziende</SelectItem>
                   <SelectItem value="consulente">Consulenti</SelectItem>
-                  <SelectItem value="azienda">Aziende</SelectItem>
                 </SelectContent>
               </Select>
               <Select value={filterTipoVantaggio} onValueChange={setFilterTipoVantaggio}>
