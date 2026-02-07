@@ -75,6 +75,7 @@ import Marketplace from './pages/Marketplace';
 import Messaggi from './pages/Messaggi';
 import MyProfile from './pages/MyProfile';
 import ProfiloBandi from './pages/ProfiloBandi';
+import PromemoriaAste from './pages/PromemoriaAste';
 import RichiestaWelfare from './pages/RichiestaWelfare';
 import RisparmioDettaglio from './pages/RisparmioDettaglio';
 import RisparmioEnergetico from './pages/RisparmioEnergetico';
@@ -84,7 +85,11 @@ import WelfareNormativa from './pages/WelfareNormativa';
 import WelfareOrdina from './pages/WelfareOrdina';
 import WelfareStorico from './pages/WelfareStorico';
 import WelfareTipologie from './pages/WelfareTipologie';
-import PromemoriaAste from './pages/PromemoriaAste';
+import VantaggiIscritti from './pages/VantaggiIscritti';
+import MioQRCode from './pages/MioQRCode';
+import MiePrenotazioniVantaggi from './pages/MiePrenotazioniVantaggi';
+import ScannerQRVantaggi from './pages/ScannerQRVantaggi';
+import GestioneVantaggi from './pages/GestioneVantaggi';
 import __Layout from './Layout.jsx';
 
 
@@ -117,6 +122,7 @@ export const PAGES = {
     "Messaggi": Messaggi,
     "MyProfile": MyProfile,
     "ProfiloBandi": ProfiloBandi,
+    "PromemoriaAste": PromemoriaAste,
     "RichiestaWelfare": RichiestaWelfare,
     "RisparmioDettaglio": RisparmioDettaglio,
     "RisparmioEnergetico": RisparmioEnergetico,
@@ -126,7 +132,11 @@ export const PAGES = {
     "WelfareOrdina": WelfareOrdina,
     "WelfareStorico": WelfareStorico,
     "WelfareTipologie": WelfareTipologie,
-    "PromemoriaAste": PromemoriaAste,
+    "VantaggiIscritti": VantaggiIscritti,
+    "MioQRCode": MioQRCode,
+    "MiePrenotazioniVantaggi": MiePrenotazioniVantaggi,
+    "ScannerQRVantaggi": ScannerQRVantaggi,
+    "GestioneVantaggi": GestioneVantaggi,
 }
 
 export const pagesConfig = {
