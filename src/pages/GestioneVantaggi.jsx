@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { ArrowLeft, Gift, Plus, Edit, Trash2, QrCode, Eye, EyeOff, Calendar, Upload, X, Check, TrendingUp, Clock, Minus, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Gift, Plus, Edit, Trash2, QrCode, Eye, EyeOff, Calendar, Upload, X, Check, TrendingUp, Clock, Minus, AlertTriangle, Mail, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -84,6 +84,28 @@ export default function GestioneVantaggi() {
     queryKey: ['miei-vantaggi', user?.email],
     queryFn: () => base44.entities.Vantaggio.filter({ creator_email: user?.email }),
     enabled: !!user?.email,
+  });
+
+  // Prenotazioni ricevute sui miei vantaggi
+  const { data: prenotazioniRicevute = [], isLoading: loadingPrenotazioni } = useQuery({
+    queryKey: ['prenotazioni-ricevute', mieVantaggi],
+    queryFn: async () => {
+      if (mieVantaggi.length === 0) return [];
+      const vantaggiIds = mieVantaggi.map(v => v.id);
+      const allPrenotazioni = await base44.entities.PrenotazioneVantaggio.filter({ status: 'attiva' });
+      return allPrenotazioni.filter(p => vantaggiIds.includes(p.vantaggio_id));
+    },
+    enabled: mieVantaggi.length > 0,
+  });
+
+  // Utenti per mostrare i nomi
+  const { data: allUsers = [] } = useQuery({
+    queryKey: ['users-prenotazioni'],
+    queryFn: async () => {
+      const response = await base44.functions.invoke('listMembers');
+      return response.data?.users || [];
+    },
+    enabled: prenotazioniRicevute.length > 0,
   });
 
   // Determina tipo creatore
@@ -286,6 +308,48 @@ export default function GestioneVantaggi() {
           <Plus className="w-5 h-5 mr-2" />
           Crea Nuovo Vantaggio
         </Button>
+
+        {/* Prenotazioni Ricevute */}
+        {prenotazioniRicevute.length > 0 && (
+          <div className="mb-6">
+            <h2 className="text-white font-bold mb-3 flex items-center gap-2">
+              <Mail className="w-4 h-4 text-amber-400" />
+              Prenotazioni Ricevute ({prenotazioniRicevute.length})
+            </h2>
+            <div className="space-y-2">
+              {prenotazioniRicevute.slice(0, 5).map(prenotazione => {
+                const vantaggio = mieVantaggi.find(v => v.id === prenotazione.vantaggio_id);
+                const utente = allUsers.find(u => u.email === prenotazione.user_email);
+                return (
+                  <Card key={prenotazione.id} className="bg-amber-500/10 border-amber-500/30">
+                    <CardContent className="p-3 flex items-center gap-3">
+                      <div className="w-10 h-10 bg-amber-500/20 rounded-full flex items-center justify-center">
+                        <User className="w-5 h-5 text-amber-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-white text-sm font-medium truncate">
+                          {utente?.company_name || utente?.full_name || prenotazione.user_email}
+                        </p>
+                        <p className="text-amber-400 text-xs truncate">
+                          ha prenotato: {vantaggio?.titolo || 'Vantaggio'}
+                        </p>
+                        <p className="text-slate-500 text-[10px]">
+                          {new Date(prenotazione.created_date).toLocaleDateString('it-IT')}
+                        </p>
+                      </div>
+                      <Badge className="bg-amber-500 text-white text-[10px]">Attiva</Badge>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+              {prenotazioniRicevute.length > 5 && (
+                <p className="text-slate-500 text-xs text-center">
+                  +{prenotazioniRicevute.length - 5} altre prenotazioni
+                </p>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Lista vantaggi attivi */}
         <div className="mb-6">
