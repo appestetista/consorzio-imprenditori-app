@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
-import { ArrowLeft, Send, User, X, Paperclip, Camera, FileText, Image as ImageIcon, ShoppingBag, Video, Phone, Briefcase, MessageCircle, Filter, TrendingUp, Ship, FileCheck, Zap, Globe, Check, CheckCheck, ChevronRight, Star, Trash2, Shield, Flame, Leaf, Sun, Wifi, Euro, Heart, Handshake, Truck, Calendar, BookOpen, Gavel } from 'lucide-react';
+import { ArrowLeft, Send, User, X, Paperclip, Camera, FileText, Image as ImageIcon, ShoppingBag, Video, Phone, Briefcase, MessageCircle, Filter, TrendingUp, Ship, FileCheck, Zap, Globe, Check, CheckCheck, ChevronRight, Star, Trash2, Shield, Flame, Leaf, Sun, Wifi, Euro, Heart, Handshake, Truck, Calendar, BookOpen, Gavel, Gift } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -128,6 +128,7 @@ export default function Messaggi() {
     welfare: { label: 'Welfare', icon: Heart, color: 'bg-red-500', key: 'welfare' },
     compliance: { label: 'Compliance', icon: Shield, color: 'bg-sky-500', key: 'compliance' },
     aste: { label: 'Aste', icon: Gavel, color: 'bg-violet-500', key: 'aste' },
+    vantaggi: { label: 'Vantaggi', icon: Gift, color: 'bg-amber-500', key: 'vantaggi' },
     // Risparmio Energetico - categorie separate
     risparmio_assicurazioni: { label: 'Risparmio Assicurazioni', icon: Shield, color: 'bg-green-600', key: 'risparmio_assicurazioni' },
     risparmio_luce: { label: 'Risparmio Luce', icon: Zap, color: 'bg-yellow-500', key: 'risparmio_luce' },
