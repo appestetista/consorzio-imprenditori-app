@@ -687,20 +687,28 @@ export default function Messaggi() {
           
           {/* Colonna sinistra - Filtri con animazione slide */}
           <div 
-            className={`flex-shrink-0 overflow-hidden bg-slate-800/50 rounded-xl p-2 transition-all duration-300 ease-in-out cursor-pointer ${
-              filtersCollapsed ? 'w-[72px]' : 'w-44'
-            }`}
+            className={`flex-shrink-0 overflow-hidden bg-slate-800/50 rounded-xl p-2 transition-all duration-300 ease-in-out cursor-pointer`}
+            style={{ width: filtersCollapsed ? '52px' : '176px' }}
             onClick={() => filtersCollapsed && setFiltersCollapsed(false)}
           >
             {/* Contenuto filtri */}
-            <div className={`flex flex-col gap-1.5 transition-all duration-300 ${filtersCollapsed ? '-translate-x-[104px]' : 'translate-x-0'}`}>
+            <div 
+              className="flex flex-col gap-1.5 transition-all duration-300 ease-in-out"
+              style={{ 
+                transform: filtersCollapsed ? 'translateX(-124px)' : 'translateX(0)',
+                width: '160px'
+              }}
+            >
               {/* Filtro Tutti */}
               <button
-                onClick={() => {
-                  setActiveFilter('all');
-                  setFiltersCollapsed(true);
+                onClick={(e) => {
+                  if (!filtersCollapsed) {
+                    e.stopPropagation();
+                    setActiveFilter('all');
+                    setFiltersCollapsed(true);
+                  }
                 }}
-                className={`flex items-center gap-2 px-3 py-3 rounded-lg text-xs font-semibold transition-colors ${
+                className={`flex items-center gap-2 px-3 py-3 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap ${
                   activeFilter === 'all' 
                     ? 'bg-lime-400 text-slate-900' 
                     : 'bg-slate-700 text-slate-400 hover:bg-slate-600'
@@ -708,7 +716,7 @@ export default function Messaggi() {
               >
                 <Filter className="w-4 h-4 flex-shrink-0" />
                 <span className="flex-1 text-left">Tutti</span>
-                <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${
+                <span className={`px-1.5 py-0.5 rounded-full text-[10px] ml-auto ${
                   activeFilter === 'all' ? 'bg-slate-900 text-lime-400' : unreadBySource.all > 0 ? 'bg-red-500 text-white' : 'bg-slate-600 text-slate-400'
                 }`}>
                   {unreadBySource.all || 0}
@@ -722,19 +730,22 @@ export default function Messaggi() {
                 return (
                   <button
                     key={source.key}
-                    onClick={() => {
-                      setActiveFilter(source.key);
-                      setFiltersCollapsed(true);
+                    onClick={(e) => {
+                      if (!filtersCollapsed) {
+                        e.stopPropagation();
+                        setActiveFilter(source.key);
+                        setFiltersCollapsed(true);
+                      }
                     }}
-                    className={`flex items-center gap-2 px-3 py-3 rounded-lg text-xs font-semibold transition-colors ${
+                    className={`flex items-center gap-2 px-3 py-3 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap ${
                       activeFilter === source.key 
                         ? `${source.color} text-white` 
                         : 'bg-slate-700 text-slate-400 hover:bg-slate-600'
                     }`}
                   >
                     <SourceIcon className="w-4 h-4 flex-shrink-0" />
-                    <span className="flex-1 text-left truncate">{source.label}</span>
-                    <span className={`px-1.5 py-0.5 rounded-full text-[10px] flex-shrink-0 ${
+                    <span className="flex-1 text-left">{source.label}</span>
+                    <span className={`px-1.5 py-0.5 rounded-full text-[10px] ml-auto ${
                       activeFilter === source.key ? 'bg-white/20 text-white' : count > 0 ? 'bg-red-500 text-white' : 'bg-slate-600 text-slate-400'
                     }`}>
                       {count}
