@@ -128,7 +128,7 @@ export default function Messaggi() {
     welfare: { label: 'Benefit Dipendenti', icon: Heart, color: 'bg-red-500', key: 'welfare' },
     compliance: { label: 'Evita Sanzioni', icon: Shield, color: 'bg-sky-500', key: 'compliance' },
     aste: { label: 'Aste Immobiliari', icon: Gavel, color: 'bg-violet-500', key: 'aste' },
-    vantaggi: { label: 'Vantaggi Iscritti', icon: Gift, color: 'bg-amber-500', key: 'vantaggi' },
+    vantaggi: { label: 'Vantaggi Iscritti', icon: Gift, color: 'bg-yellow-600', key: 'vantaggi' },
     // Risparmio Energetico - categorie separate
     risparmio_assicurazioni: { label: 'Risparmio Assicurazioni', icon: Shield, color: 'bg-green-600', key: 'risparmio_assicurazioni' },
     risparmio_luce: { label: 'Risparmio Luce', icon: Zap, color: 'bg-yellow-500', key: 'risparmio_luce' },
