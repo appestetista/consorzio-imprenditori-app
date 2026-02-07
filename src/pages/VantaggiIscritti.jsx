@@ -121,11 +121,36 @@ export default function VantaggiIscritti() {
   // Mutation per prenotare
   const prenotaMutation = useMutation({
     mutationFn: async (vantaggioId) => {
+      // Crea la prenotazione
       await base44.entities.PrenotazioneVantaggio.create({
         user_email: user.email,
         vantaggio_id: vantaggioId,
         status: 'attiva'
       });
+      
+      // Trova il vantaggio per notificare il creatore
+      const vantaggio = vantaggi.find(v => v.id === vantaggioId);
+      if (vantaggio && vantaggio.creator_email) {
+        // Crea notifica per il creatore del vantaggio
+        const userName = user?.company_name || user?.full_name || user?.email;
+        await base44.entities.Notification.create({
+          user_email: vantaggio.creator_email,
+          type: 'message',
+          title: '🎁 Nuova prenotazione vantaggio',
+          content: `${userName} ha prenotato il tuo vantaggio "${vantaggio.titolo}"`,
+          reference_id: vantaggioId,
+          is_read: false
+        });
+        
+        // Crea messaggio per il creatore
+        await base44.entities.Message.create({
+          from_email: user.email,
+          to_email: vantaggio.creator_email,
+          content: `Ho prenotato il vantaggio "${vantaggio.titolo}". Verrò in negozio per utilizzarlo!`,
+          source: 'vantaggi',
+          source_reference: vantaggio.titolo
+        });
+      }
     },
     onSuccess: () => {
       toast.success('Vantaggio prenotato! Mostra il tuo QR in negozio per utilizzarlo.');
