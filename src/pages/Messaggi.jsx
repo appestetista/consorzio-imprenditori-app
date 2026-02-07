@@ -269,13 +269,27 @@ export default function Messaggi() {
       const toEmail = conv?.email || selectedConversation;
       const source = conv?.source || 'diretto';
       const conversationId = [effectiveEmail, toEmail].sort().join('-') + '_' + source;
-      await base44.entities.Message.create({
+      
+      // Crea il messaggio
+      const message = await base44.entities.Message.create({
         from_email: effectiveEmail,
         to_email: toEmail,
         content: newMessage,
         conversation_id: conversationId,
         source: source,
         attachments: attachments.length > 0 ? attachments : undefined
+      });
+      
+      // Crea notifica per il destinatario
+      const sourceInfo = sourceConfig[source] || sourceConfig.diretto;
+      const senderName = effectiveUser?.company_name || effectiveUser?.full_name || effectiveEmail;
+      await base44.entities.Notification.create({
+        user_email: toEmail,
+        type: 'message',
+        title: `Nuovo messaggio - ${sourceInfo.label}`,
+        content: `${senderName}: ${newMessage.substring(0, 100)}${newMessage.length > 100 ? '...' : ''}`,
+        reference_id: message.id,
+        is_read: false
       });
     },
     onSuccess: () => {
