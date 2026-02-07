@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Calendar, Video, Briefcase, User, Euro, ShoppingBag, BookOpen, Handshake, Truck, Heart, FileSearch, Globe, Shield, PiggyBank, Gavel, Gift, QrCode } from 'lucide-react';
+import { Calendar, Video, Briefcase, User, Euro, ShoppingBag, BookOpen, Handshake, Truck, Heart, FileSearch, Globe, Shield, PiggyBank, Gavel, Gift, QrCode, ScanLine } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import Header from '../components/layout/Header';
@@ -807,9 +807,14 @@ export default function Home() {
           <div className="mb-6">
             <div className="flex items-center justify-between">
               <h2 className="text-[#d4af37] font-bold text-lg mb-1">Benvenuto nel Consorzio</h2>
-              <Link to={createPageUrl('MioQRCode')} className="p-2 rounded-lg bg-[#d4af37]/10 hover:bg-[#d4af37]/20 transition-colors">
-                <QrCode className="w-6 h-6 text-[#d4af37]" />
-              </Link>
+              <div className="flex items-center gap-2">
+                <Link to={createPageUrl('ScannerQRVantaggi')} className="p-2 rounded-lg bg-[#d4af37]/10 hover:bg-[#d4af37]/20 transition-colors" title="Scansiona QR">
+                  <ScanLine className="w-6 h-6 text-[#d4af37]" />
+                </Link>
+                <Link to={createPageUrl('MioQRCode')} className="p-2 rounded-lg bg-[#d4af37]/10 hover:bg-[#d4af37]/20 transition-colors" title="Il mio QR">
+                  <QrCode className="w-6 h-6 text-[#d4af37]" />
+                </Link>
+              </div>
             </div>
             {nextEvent && (
               <p className="text-[#b8a070] text-sm">
