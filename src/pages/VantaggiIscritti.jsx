@@ -72,7 +72,7 @@ export default function VantaggiIscritti() {
   }, [impersonation]);
 
   // Vantaggi attivi
-  const { data: vantaggi = [], isLoading: loadingVantaggi } = useQuery({
+  const { data: vantaggiAttivi = [], isLoading: loadingVantaggi } = useQuery({
     queryKey: ['vantaggi-attivi'],
     queryFn: async () => {
       const all = await base44.entities.Vantaggio.filter({ is_active: true });
@@ -88,6 +88,12 @@ export default function VantaggiIscritti() {
         return true;
       });
     },
+  });
+
+  // Tutti i vantaggi (inclusi eliminati) per recuperare quelli prenotati dall'utente
+  const { data: tuttiVantaggi = [] } = useQuery({
+    queryKey: ['tutti-vantaggi'],
+    queryFn: () => base44.entities.Vantaggio.list(),
   });
 
   // Prenotazioni attive dell'utente
