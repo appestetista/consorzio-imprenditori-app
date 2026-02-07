@@ -18,7 +18,7 @@ import NotificationPreferences from '../components/profile/NotificationPreferenc
 import ContractHistorySection from '../components/profile/ContractHistorySection';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
-import { PhoneOff, PhoneCall, Gift, AlertTriangle as AlertTriangleIcon, EyeOff, UserPlus, Minus, Plus } from 'lucide-react';
+import { PhoneOff, PhoneCall, AlertTriangle as AlertTriangleIcon, EyeOff, UserPlus, Minus, Plus } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
