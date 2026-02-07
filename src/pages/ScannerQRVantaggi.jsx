@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { ArrowLeft, QrCode, Search, Check, X, Gift, User, AlertTriangle, Camera } from 'lucide-react';
+import { ArrowLeft, QrCode, Search, Check, X, Gift, User, AlertTriangle, Camera, TrendingUp, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -53,18 +53,62 @@ export default function ScannerQRVantaggi() {
 
   // Mutation per validare utilizzo
   const validateMutation = useMutation({
-    mutationFn: async ({ prenotazioneId, vantaggioId }) => {
-      // Aggiorna prenotazione
-      await base44.entities.PrenotazioneVantaggio.update(prenotazioneId, {
-        status: 'utilizzata',
-        data_utilizzo: new Date().toISOString(),
-        validato_da: user.email
-      });
+    mutationFn: async ({ prenotazioneId, vantaggioId, isProgressivo }) => {
+      const prenotazioni = await base44.entities.PrenotazioneVantaggio.filter({ id: prenotazioneId });
+      const prenotazione = prenotazioni[0];
+      const vantaggi = await base44.entities.Vantaggio.filter({ id: vantaggioId });
+      const vantaggio = vantaggi[0];
+
+      if (isProgressivo && vantaggio?.step_progressivi?.length > 0) {
+        // Vantaggio progressivo: avanza allo step successivo
+        const currentStep = prenotazione.step_corrente || 1;
+        const maxSteps = vantaggio.step_progressivi.length;
+        const stepData = vantaggio.step_progressivi[currentStep - 1];
+        
+        const newStoricoStep = [
+          ...(prenotazione.storico_step || []),
+          {
+            step: currentStep,
+            data_utilizzo: new Date().toISOString(),
+            validato_da: user.email
+          }
+        ];
+
+        if (currentStep >= maxSteps) {
+          // Ultimo step: segna come completato
+          await base44.entities.PrenotazioneVantaggio.update(prenotazioneId, {
+            status: 'utilizzata',
+            data_utilizzo: new Date().toISOString(),
+            validato_da: user.email,
+            storico_step: newStoricoStep
+          });
+        } else {
+          // Avanza allo step successivo
+          const nextStep = vantaggio.step_progressivi[currentStep];
+          const giorniValidita = nextStep?.giorni_validita || 30;
+          const scadenzaStep = new Date();
+          scadenzaStep.setDate(scadenzaStep.getDate() + giorniValidita);
+
+          await base44.entities.PrenotazioneVantaggio.update(prenotazioneId, {
+            step_corrente: currentStep + 1,
+            step_sbloccato_il: new Date().toISOString(),
+            data_scadenza_utilizzo: scadenzaStep.toISOString(),
+            storico_step: newStoricoStep
+          });
+        }
+      } else {
+        // Vantaggio normale
+        await base44.entities.PrenotazioneVantaggio.update(prenotazioneId, {
+          status: 'utilizzata',
+          data_utilizzo: new Date().toISOString(),
+          validato_da: user.email
+        });
+      }
+
       // Incrementa utilizzi sul vantaggio
-      const vantaggio = await base44.entities.Vantaggio.filter({ id: vantaggioId });
-      if (vantaggio.length > 0) {
+      if (vantaggio) {
         await base44.entities.Vantaggio.update(vantaggioId, {
-          utilizzi_effettuati: (vantaggio[0].utilizzi_effettuati || 0) + 1
+          utilizzi_effettuati: (vantaggio.utilizzi_effettuati || 0) + 1
         });
       }
     },
@@ -230,22 +274,65 @@ export default function ScannerQRVantaggi() {
                       <p className="text-lime-400 text-xs font-medium">Prenotazioni da validare:</p>
                       {searchResult.prenotazioni.map(pren => {
                         const vantaggio = mieVantaggi.find(v => v.id === pren.vantaggio_id);
+                        const isProgressivo = vantaggio?.is_progressivo && vantaggio?.step_progressivi?.length > 0;
+                        const currentStep = pren.step_corrente || 1;
+                        const stepData = isProgressivo ? vantaggio.step_progressivi[currentStep - 1] : null;
+                        
+                        // Verifica scadenza
+                        const isScaduto = pren.data_scadenza_utilizzo && new Date(pren.data_scadenza_utilizzo) < new Date();
+                        
                         return (
-                          <div key={pren.id} className="bg-slate-700/50 rounded-lg p-3 flex items-center justify-between">
-                            <div>
-                              <p className="text-white font-bold text-sm">{vantaggio?.titolo}</p>
-                              {vantaggio?.valore && (
-                                <p className="text-lime-400 text-sm">{vantaggio.valore}</p>
+                          <div key={pren.id} className={`rounded-lg p-3 ${isScaduto ? 'bg-red-500/20 border border-red-500/50' : 'bg-slate-700/50'}`}>
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2">
+                                  <p className="text-white font-bold text-sm">{vantaggio?.titolo}</p>
+                                  {isProgressivo && (
+                                    <Badge className="bg-purple-500 text-white text-[10px]">
+                                      <TrendingUp className="w-3 h-3 mr-1" />
+                                      Step {currentStep}/{vantaggio.step_progressivi.length}
+                                    </Badge>
+                                  )}
+                                </div>
+                                
+                                {isProgressivo && stepData ? (
+                                  <p className="text-lime-400 text-sm font-bold">{stepData.valore}</p>
+                                ) : vantaggio?.valore && (
+                                  <p className="text-lime-400 text-sm">{vantaggio.valore}</p>
+                                )}
+                                
+                                {isProgressivo && stepData?.descrizione && (
+                                  <p className="text-slate-400 text-xs mt-1">{stepData.descrizione}</p>
+                                )}
+
+                                {pren.data_scadenza_utilizzo && (
+                                  <div className={`flex items-center gap-1 mt-2 text-xs ${isScaduto ? 'text-red-400' : 'text-slate-500'}`}>
+                                    <Clock className="w-3 h-3" />
+                                    {isScaduto ? (
+                                      <span>Scaduto il {new Date(pren.data_scadenza_utilizzo).toLocaleDateString('it-IT')}</span>
+                                    ) : (
+                                      <span>Scade il {new Date(pren.data_scadenza_utilizzo).toLocaleDateString('it-IT')}</span>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                              
+                              {isScaduto ? (
+                                <Badge className="bg-red-500 text-white">
+                                  <X className="w-3 h-3 mr-1" />
+                                  Scaduto
+                                </Badge>
+                              ) : (
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleValidate(pren)}
+                                  className="bg-green-500 hover:bg-green-600 text-white"
+                                >
+                                  <Check className="w-4 h-4 mr-1" />
+                                  {isProgressivo ? 'Sblocca' : 'Valida'}
+                                </Button>
                               )}
                             </div>
-                            <Button
-                              size="sm"
-                              onClick={() => handleValidate(pren)}
-                              className="bg-green-500 hover:bg-green-600 text-white"
-                            >
-                              <Check className="w-4 h-4 mr-1" />
-                              Valida
-                            </Button>
                           </div>
                         );
                       })}
@@ -304,7 +391,8 @@ export default function ScannerQRVantaggi() {
               className="bg-green-500 text-white hover:bg-green-600"
               onClick={() => validateMutation.mutate({ 
                 prenotazioneId: confirmDialog.prenotazione?.id, 
-                vantaggioId: confirmDialog.prenotazione?.vantaggio_id 
+                vantaggioId: confirmDialog.prenotazione?.vantaggio_id,
+                isProgressivo: confirmDialog.vantaggio?.is_progressivo 
               })}
             >
               Conferma Utilizzo
