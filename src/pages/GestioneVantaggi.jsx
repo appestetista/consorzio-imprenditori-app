@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { ArrowLeft, Gift, Plus, Edit, Trash2, QrCode, Eye, EyeOff, Calendar, Upload, X, Check, TrendingUp, Clock, Minus } from 'lucide-react';
+import { ArrowLeft, Gift, Plus, Edit, Trash2, QrCode, Eye, EyeOff, Calendar, Upload, X, Check, TrendingUp, Clock, Minus, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
