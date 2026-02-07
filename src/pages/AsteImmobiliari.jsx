@@ -26,7 +26,8 @@ import {
   ChevronDown,
   ChevronUp,
   Filter,
-  X
+  X,
+  Bell
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -208,9 +209,24 @@ export default function AsteImmobiliari() {
             <p className="text-slate-400 text-sm">{asteOrdinate.length} annunci</p>
           </div>
           <Link to={createPageUrl('AsteSalvate')}>
-            <Button variant="outline" size="sm" className="border-amber-400 text-amber-400">
+            <Button 
+              size="sm" 
+              className={`relative ${
+                asteSalvate.length > 0 
+                  ? 'bg-amber-500 hover:bg-amber-600 text-white' 
+                  : 'bg-slate-700 hover:bg-slate-600 text-slate-300'
+              }`}
+            >
               <Bookmark className="w-4 h-4" />
-              {asteSalvate.length > 0 && <span className="ml-1">{asteSalvate.length}</span>}
+              <span className="ml-1.5 font-bold">Salvate</span>
+              {asteSalvate.length > 0 && (
+                <span className="ml-1.5 bg-white text-amber-600 rounded-full px-1.5 py-0.5 text-xs font-bold min-w-[20px]">
+                  {asteSalvate.length}
+                </span>
+              )}
+              {asteSalvate.length > 0 && (
+                <Bell className="w-3.5 h-3.5 ml-1 animate-pulse" />
+              )}
             </Button>
           </Link>
         </div>
