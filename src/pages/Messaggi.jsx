@@ -691,13 +691,23 @@ export default function Messaggi() {
       <Header user={user} />
       
       <main className="px-2 py-4">
-        {/* Header */}
-        <div className="flex items-center gap-3 mb-4 px-2">
+        {/* Header fisso con sezione attiva */}
+        <div className="flex items-center gap-2 mb-4 px-2 sticky top-0 z-10 bg-slate-900 py-2">
           <h1 className="text-white text-xl font-bold">Messaggi</h1>
+          {activeFilter !== 'all' && (
+            <>
+              <span className="text-slate-500">›</span>
+              <span 
+                className={`text-sm font-semibold px-2 py-0.5 rounded-full ${sourceConfig[activeFilter]?.color || 'bg-lime-400'} text-white`}
+              >
+                {sourceConfig[activeFilter]?.label || 'Tutti'}
+              </span>
+            </>
+          )}
         </div>
 
         {/* Layout a 2 colonne con animazione */}
-        <div className="flex gap-2 relative" style={{ height: 'calc(100vh - 180px)' }}>
+        <div className="flex gap-2 relative" style={{ height: 'calc(100vh - 200px)' }}>
           
           {/* Colonna sinistra - Filtri con animazione slide */}
           <div 
