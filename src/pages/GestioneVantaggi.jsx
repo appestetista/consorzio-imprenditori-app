@@ -452,32 +452,225 @@ export default function GestioneVantaggi() {
               )}
             </div>
 
-            {/* Valore */}
-            <div>
-              <Label className="text-slate-400">Valore/Quantità</Label>
-              <Input
-                value={formData.valore}
-                onChange={(e) => setFormData({ ...formData, valore: e.target.value })}
-                placeholder="Es: 20%, €50, 1 consulenza gratuita"
-                className="bg-slate-900 border-slate-600 text-white"
-              />
-            </div>
+            {/* Campi dinamici in base al tipo */}
+            {formData.tipo_vantaggio === 'Sconto percentuale' && (
+              <div>
+                <Label className="text-lime-400">Percentuale Sconto *</Label>
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    value={formData.valore_sconto}
+                    onChange={(e) => setFormData({ ...formData, valore_sconto: e.target.value, valore: `${e.target.value}%` })}
+                    placeholder="Es: 20"
+                    className="bg-slate-900 border-slate-600 text-white"
+                  />
+                  <span className="text-white text-lg">%</span>
+                </div>
+              </div>
+            )}
 
-            {/* Utilizzi massimi */}
+            {formData.tipo_vantaggio === 'Sconto fisso' && (
+              <div>
+                <Label className="text-lime-400">Valore Sconto *</Label>
+                <div className="flex items-center gap-2">
+                  <span className="text-white text-lg">€</span>
+                  <Input
+                    type="number"
+                    value={formData.valore_sconto}
+                    onChange={(e) => setFormData({ ...formData, valore_sconto: e.target.value, valore: `€${e.target.value}` })}
+                    placeholder="Es: 50"
+                    className="bg-slate-900 border-slate-600 text-white"
+                  />
+                </div>
+              </div>
+            )}
+
+            {formData.tipo_vantaggio === 'Consulenza gratuita' && (
+              <div>
+                <Label className="text-lime-400">Durata Consulenza</Label>
+                <Select
+                  value={formData.durata_consulenza}
+                  onValueChange={(value) => setFormData({ ...formData, durata_consulenza: value, valore: `Consulenza ${value}` })}
+                >
+                  <SelectTrigger className="bg-slate-900 border-slate-600 text-white">
+                    <SelectValue placeholder="Seleziona durata..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="15 min">15 minuti</SelectItem>
+                    <SelectItem value="30 min">30 minuti</SelectItem>
+                    <SelectItem value="45 min">45 minuti</SelectItem>
+                    <SelectItem value="1 ora">1 ora</SelectItem>
+                    <SelectItem value="1.5 ore">1 ora e 30 min</SelectItem>
+                    <SelectItem value="2 ore">2 ore</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {formData.tipo_vantaggio === 'Omaggio' && (
+              <div>
+                <Label className="text-lime-400">Descrizione Omaggio *</Label>
+                <Input
+                  value={formData.omaggio_descrizione}
+                  onChange={(e) => setFormData({ ...formData, omaggio_descrizione: e.target.value, valore: e.target.value })}
+                  placeholder="Es: Gadget aziendale, Prodotto campione..."
+                  className="bg-slate-900 border-slate-600 text-white"
+                />
+              </div>
+            )}
+
+            {formData.tipo_vantaggio === 'Prova gratuita' && (
+              <div>
+                <Label className="text-lime-400">Durata Periodo di Prova</Label>
+                <Select
+                  value={formData.durata_prova}
+                  onValueChange={(value) => setFormData({ ...formData, durata_prova: value, valore: `Prova gratuita ${value}` })}
+                >
+                  <SelectTrigger className="bg-slate-900 border-slate-600 text-white">
+                    <SelectValue placeholder="Seleziona durata..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="3 giorni">3 giorni</SelectItem>
+                    <SelectItem value="7 giorni">7 giorni</SelectItem>
+                    <SelectItem value="14 giorni">14 giorni</SelectItem>
+                    <SelectItem value="1 mese">1 mese</SelectItem>
+                    <SelectItem value="2 mesi">2 mesi</SelectItem>
+                    <SelectItem value="3 mesi">3 mesi</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {(formData.tipo_vantaggio === 'Promozione speciale' || formData.tipo_vantaggio === 'Altro') && (
+              <div>
+                <Label className="text-lime-400">Valore/Descrizione *</Label>
+                <Input
+                  value={formData.valore}
+                  onChange={(e) => setFormData({ ...formData, valore: e.target.value })}
+                  placeholder="Es: 2x1, Spedizione gratuita..."
+                  className="bg-slate-900 border-slate-600 text-white"
+                />
+              </div>
+            )}
+
+            {/* Vantaggio Progressivo */}
+            {formData.tipo_vantaggio === 'Vantaggio progressivo' && (
+              <div className="bg-slate-700/50 rounded-lg p-4 space-y-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <TrendingUp className="w-5 h-5 text-lime-400" />
+                  <Label className="text-lime-400 text-base">Step Progressivi</Label>
+                </div>
+                <p className="text-slate-400 text-xs mb-3">
+                  Crea sconti crescenti: ogni volta che l'utente scansiona il QR sblocca lo step successivo.
+                </p>
+
+                {formData.step_progressivi.map((step, index) => (
+                  <div key={index} className="bg-slate-800 rounded-lg p-3 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-lime-400 font-bold text-sm">Step {step.step}</span>
+                      {formData.step_progressivi.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 w-6 p-0 text-red-400 hover:text-red-300"
+                          onClick={() => {
+                            const newSteps = formData.step_progressivi.filter((_, i) => i !== index);
+                            setFormData({ ...formData, step_progressivi: newSteps.map((s, i) => ({ ...s, step: i + 1 })) });
+                          }}
+                        >
+                          <Minus className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </div>
+                    <Input
+                      value={step.valore}
+                      onChange={(e) => {
+                        const newSteps = [...formData.step_progressivi];
+                        newSteps[index].valore = e.target.value;
+                        setFormData({ ...formData, step_progressivi: newSteps });
+                      }}
+                      placeholder="Es: 5%, 10%, €20..."
+                      className="bg-slate-900 border-slate-600 text-white text-sm"
+                    />
+                    <Input
+                      value={step.descrizione}
+                      onChange={(e) => {
+                        const newSteps = [...formData.step_progressivi];
+                        newSteps[index].descrizione = e.target.value;
+                        setFormData({ ...formData, step_progressivi: newSteps });
+                      }}
+                      placeholder="Descrizione (opzionale)"
+                      className="bg-slate-900 border-slate-600 text-white text-sm"
+                    />
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-slate-500" />
+                      <Input
+                        type="number"
+                        value={step.giorni_validita}
+                        onChange={(e) => {
+                          const newSteps = [...formData.step_progressivi];
+                          newSteps[index].giorni_validita = parseInt(e.target.value) || 30;
+                          setFormData({ ...formData, step_progressivi: newSteps });
+                        }}
+                        className="bg-slate-900 border-slate-600 text-white text-sm flex-1"
+                      />
+                      <span className="text-slate-400 text-xs">giorni per usarlo</span>
+                    </div>
+                  </div>
+                ))}
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="w-full border-lime-400 text-lime-400"
+                  onClick={() => {
+                    const newStep = {
+                      step: formData.step_progressivi.length + 1,
+                      valore: '',
+                      descrizione: '',
+                      giorni_validita: 30
+                    };
+                    setFormData({ ...formData, step_progressivi: [...formData.step_progressivi, newStep] });
+                  }}
+                >
+                  <Plus className="w-4 h-4 mr-1" />
+                  Aggiungi Step
+                </Button>
+              </div>
+            )}
+
+            {/* Utilizzi massimi - solo per non progressivi */}
+            {formData.tipo_vantaggio !== 'Vantaggio progressivo' && (
+              <div>
+                <Label className="text-slate-400">Numero utilizzi massimi (opzionale)</Label>
+                <Input
+                  type="number"
+                  value={formData.utilizzi_massimi}
+                  onChange={(e) => setFormData({ ...formData, utilizzi_massimi: e.target.value })}
+                  placeholder="Lascia vuoto per illimitato"
+                  className="bg-slate-900 border-slate-600 text-white"
+                />
+              </div>
+            )}
+
+            {/* Giorni validità utilizzo */}
             <div>
-              <Label className="text-slate-400">Numero utilizzi massimi (opzionale)</Label>
+              <Label className="text-slate-400">Giorni per utilizzare dopo prenotazione</Label>
               <Input
                 type="number"
-                value={formData.utilizzi_massimi}
-                onChange={(e) => setFormData({ ...formData, utilizzi_massimi: e.target.value })}
-                placeholder="Lascia vuoto per illimitato"
+                value={formData.giorni_validita_utilizzo}
+                onChange={(e) => setFormData({ ...formData, giorni_validita_utilizzo: e.target.value })}
+                placeholder="Es: 30 (lascia vuoto per nessun limite)"
                 className="bg-slate-900 border-slate-600 text-white"
               />
+              <p className="text-slate-500 text-xs mt-1">Se scade, il QR non sarà più valido</p>
             </div>
 
             {/* Scadenza */}
             <div>
-              <Label className="text-slate-400">Data scadenza (opzionale)</Label>
+              <Label className="text-slate-400">Data scadenza offerta (opzionale)</Label>
               <Input
                 type="date"
                 value={formData.data_scadenza}
