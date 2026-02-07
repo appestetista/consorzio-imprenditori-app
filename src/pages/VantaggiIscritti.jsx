@@ -131,7 +131,7 @@ export default function VantaggiIscritti() {
       // Trova il vantaggio per notificare il creatore
       const vantaggio = vantaggi.find(v => v.id === vantaggioId);
       if (vantaggio && vantaggio.creator_email) {
-        // Crea notifica per il creatore del vantaggio
+        // Crea notifica per il creatore del vantaggio (il suono viene gestito automaticamente dalla subscription real-time nell'Header)
         const userName = user?.company_name || user?.full_name || user?.email;
         await base44.entities.Notification.create({
           user_email: vantaggio.creator_email,
