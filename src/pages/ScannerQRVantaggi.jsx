@@ -42,6 +42,8 @@ export default function ScannerQRVantaggi() {
         console.error(e);
       } finally {
         setLoading(false);
+        // Apri automaticamente lo scanner all'avvio
+        setTimeout(() => setScannerActive(true), 300);
       }
     };
     loadUser();
