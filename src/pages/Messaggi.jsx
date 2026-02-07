@@ -708,15 +708,15 @@ export default function Messaggi() {
                     setFiltersCollapsed(true);
                   }
                 }}
-                className={`flex items-center gap-2 px-3 py-3 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap ${
+                className={`flex items-center px-3 py-3 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap ${
                   activeFilter === 'all' 
                     ? 'bg-lime-400 text-slate-900' 
                     : 'bg-slate-700 text-slate-400 hover:bg-slate-600'
                 }`}
               >
-                <Filter className="w-4 h-4 flex-shrink-0" />
-                <span className="flex-1 text-left">Tutti</span>
-                <span className={`px-1.5 py-0.5 rounded-full text-[10px] ml-auto ${
+                <Filter className="w-4 h-4 flex-shrink-0 mr-2" />
+                <span className="w-[80px] text-left truncate">Tutti</span>
+                <span className={`w-6 h-5 flex items-center justify-center rounded-full text-[10px] ${
                   activeFilter === 'all' ? 'bg-slate-900 text-lime-400' : unreadBySource.all > 0 ? 'bg-red-500 text-white' : 'bg-slate-600 text-slate-400'
                 }`}>
                   {unreadBySource.all || 0}
@@ -737,15 +737,15 @@ export default function Messaggi() {
                         setFiltersCollapsed(true);
                       }
                     }}
-                    className={`flex items-center gap-2 px-3 py-3 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap ${
+                    className={`flex items-center px-3 py-3 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap ${
                       activeFilter === source.key 
                         ? `${source.color} text-white` 
                         : 'bg-slate-700 text-slate-400 hover:bg-slate-600'
                     }`}
                   >
-                    <SourceIcon className="w-4 h-4 flex-shrink-0" />
-                    <span className="flex-1 text-left">{source.label}</span>
-                    <span className={`px-1.5 py-0.5 rounded-full text-[10px] ml-auto ${
+                    <SourceIcon className="w-4 h-4 flex-shrink-0 mr-2" />
+                    <span className="w-[80px] text-left truncate">{source.label}</span>
+                    <span className={`w-6 h-5 flex items-center justify-center rounded-full text-[10px] ${
                       activeFilter === source.key ? 'bg-white/20 text-white' : count > 0 ? 'bg-red-500 text-white' : 'bg-slate-600 text-slate-400'
                     }`}>
                       {count}
