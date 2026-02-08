@@ -85,9 +85,9 @@ export default function CalendarioIncontri() {
       }
       
       if (isAdmin) return true;
-      // Mostra sempre i propri eventi
+      // Mostra sempre i propri eventi (anche se pending o rejected) - il creatore vede subito il suo evento
       if (event.creator_email === user?.email) return true;
-      // Eventi non approvati non visibili
+      // Per gli altri utenti: eventi non approvati non sono visibili
       if (event.approval_status !== 'approved' && event.approval_status) return false;
       
       // Filtra per zona e tipo utente usando zone_visibility
