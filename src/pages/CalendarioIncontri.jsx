@@ -1370,10 +1370,10 @@ export default function CalendarioIncontri() {
             <div className="w-16 h-16 bg-lime-400/20 rounded-full flex items-center justify-center mx-auto mb-4">
               <Check className="w-8 h-8 text-lime-400" />
             </div>
-            <h3 className="text-white text-lg font-bold mb-2">Evento inviato!</h3>
+            <h3 className="text-white text-lg font-bold mb-2">Evento creato!</h3>
             <p className="text-slate-400 text-sm">
-              Il tuo evento è in fase di approvazione.<br />
-              Riceverai un messaggio quando sarà pubblicato.
+              Il tuo evento è ora visibile nel tuo calendario.<br />
+              Gli altri utenti lo vedranno dopo l'approvazione del Consorzio.
             </p>
             <Button 
               className="mt-6 bg-lime-400 hover:bg-lime-500 text-slate-900"
