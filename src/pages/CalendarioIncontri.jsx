@@ -1183,7 +1183,7 @@ export default function CalendarioIncontri() {
             <X className="h-4 w-4 text-slate-400" />
           </button>
           <p className="text-slate-400 text-sm mb-4">
-            Il tuo evento sarà visibile dopo l'approvazione del Consorzio.
+            Il tuo evento sarà subito visibile a te nel calendario. Gli altri utenti lo vedranno dopo l'approvazione del Consorzio.
           </p>
           <div className="space-y-4">
             <Input
