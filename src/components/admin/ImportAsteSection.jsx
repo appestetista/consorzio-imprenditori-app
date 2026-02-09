@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Upload, FileSpreadsheet, CheckCircle2, AlertCircle, Loader2, RefreshCw, 
-  Building2, Package, Ship, Monitor, Car, Sofa, Wrench, Home, Store, Factory, Trash2, Bell
+  Building2, Package, Ship, Monitor, Car, Sofa, Wrench, Home, Store, Factory, Trash2, Bell, Mountain
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -34,6 +34,7 @@ const CATEGORIE = {
       { id: 'Immobile Residenziale', label: 'Residenziale', icon: Home },
       { id: 'Immobile Commerciale', label: 'Commerciale', icon: Store },
       { id: 'Immobile Industriale', label: 'Industriale', icon: Factory },
+      { id: 'Terreni', label: 'Terreni', icon: Mountain },
     ]
   }
 };
@@ -327,11 +328,53 @@ export default function ImportAsteSection() {
 
       console.log('Aste parsate:', aste.length, 'Prima asta:', aste[0]);
       
-      // Aggiungi tipologia forzata a ogni asta
-      const asteConTipologia = aste.map(a => ({
-        ...a,
-        tipologia: tipologia
-      }));
+      // Funzione per auto-categorizzare immobili basata su parole chiave
+      const autoCategorizzaImmobile = (asta) => {
+        const testo = `${asta.titolo || ''} ${asta.raw_data?.data_3 || ''} ${asta.raw_data?.['Property_Included_in_Lot_-_Description_0'] || ''}`.toLowerCase();
+        
+        // Terreni
+        if (/\bterreno\b|\bterreni\b|\bterreno agricolo\b|\bterreno edificabile\b/.test(testo)) {
+          return 'Terreni';
+        }
+        
+        // Industriale
+        if (/\bindustriale\b|\bcapannone\b|\bcapannoni\b|\bmagazzino\b|\bmagazzini\b|\bopificio\b|\bfabbricato industriale\b/.test(testo)) {
+          return 'Immobile Industriale';
+        }
+        
+        // Commerciale
+        if (/\bnegozio\b|\bnegozi\b|\battività\b|\battivita\b|\bcommerciale\b|\bpunto vendita\b|\bbar\b|\bristorante\b|\bhotel\b|\balbergo\b|\buffalo\b|\buffici\b/.test(testo)) {
+          return 'Immobile Commerciale';
+        }
+        
+        // Residenziale
+        if (/\bappartamento\b|\bappartamenti\b|\bvilletta\b|\bvillette\b|\bcasa a schiera\b|\babitazione\b|\babitazioni\b|\bcasa singola\b|\bcomplesso residenziale\b|\bresidenziale\b|\bvilla\b|\bville\b|\bbilocale\b|\btrilocale\b|\bquadrilocale\b|\bmansarda\b|\battico\b|\bloft\b|\bmonolocale\b/.test(testo)) {
+          return 'Immobile Residenziale';
+        }
+        
+        // Default: mantieni la tipologia specificata o usa Residenziale
+        return null;
+      };
+      
+      // Aggiungi tipologia a ogni asta (auto-categorizza per immobili, usa tipologia specificata per mobili)
+      const isImmobiliCategory = ['Immobile Residenziale', 'Immobile Commerciale', 'Immobile Industriale', 'Terreni'].includes(tipologia);
+      
+      const asteConTipologia = aste.map(a => {
+        let tipologiaFinale = tipologia;
+        
+        // Se è un immobile, prova ad auto-categorizzare
+        if (isImmobiliCategory) {
+          const autoCategoria = autoCategorizzaImmobile(a);
+          if (autoCategoria) {
+            tipologiaFinale = autoCategoria;
+          }
+        }
+        
+        return {
+          ...a,
+          tipologia: tipologiaFinale
+        };
+      });
 
       // Filtra aste scadute (data_ora_vendita < oggi)
       const adesso = new Date();
