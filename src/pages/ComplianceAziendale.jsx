@@ -230,13 +230,14 @@ export default function ComplianceAziendale() {
   };
   
   const generateNormsForBranch = async (branchId, tipoAttivita, numeroDipendenti, dataAttivazione, codiceAteco) => {
-    if (!tipoAttivita.trim()) return;
+    if (!tipoAttivita || !tipoAttivita.trim()) return;
     
     // Trova il branch per ottenere il codice ATECO se non passato
     const branch = branches.find(b => b.id === branchId);
     const ateco = codiceAteco || branch?.codice_ateco || '';
     
     try {
+      console.log('[ComplianceAziendale] Generazione adempimenti per:', { branchId, tipoAttivita, numeroDipendenti, dataAttivazione, ateco });
       const prompt = `SEI UN CONSULENTE LEGALE ESPERTO IN COMPLIANCE AZIENDALE ITALIANA CON 30 ANNI DI ESPERIENZA.
 
 COMPITO CRITICO: Genera l'elenco COMPLETO e DETTAGLIATO di TUTTI gli adempimenti OBBLIGATORI PER LEGGE per questa attività. NON OMETTERE NULLA.
