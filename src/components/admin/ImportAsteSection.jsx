@@ -351,6 +351,30 @@ export default function ImportAsteSection() {
     }
   };
 
+  // Elimina TUTTE le aste per tipologia
+  const handleDeleteTutte = async (tipologia) => {
+    if (!confirm(`Sei sicuro di voler eliminare TUTTE le aste della categoria "${tipologia}"? Questa azione è irreversibile.`)) {
+      return;
+    }
+    
+    try {
+      toast.info(`Eliminazione di tutte le aste "${tipologia}"...`);
+      
+      const aste = await base44.entities.AstaImmobiliare.filter({ tipologia });
+      
+      for (const asta of aste) {
+        await base44.entities.AstaImmobiliare.delete(asta.id);
+      }
+      
+      toast.success(`Eliminate ${aste.length} aste`);
+      queryClient.invalidateQueries({ queryKey: ['aste-stats-admin'] });
+      queryClient.invalidateQueries({ queryKey: ['aste-immobiliari'] });
+      
+    } catch (error) {
+      toast.error(`Errore: ${error.message}`);
+    }
+  };
+
   const handleDrop = (e, tipologia) => {
     e.preventDefault();
     setDragActive(false);
