@@ -750,7 +750,7 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
           <div className="mb-4">
             <Label className="text-slate-400 text-xs mb-2 block">Filtra per Ramo Aziendale</Label>
             <div className="flex gap-2">
-              <Select value={selectedBranch || 'all'} onValueChange={(val) => setSelectedBranch(val || 'all')}>
+              <Select value={selectedBranch || 'all'} onValueChange={handleBranchChange}>
                 <SelectTrigger className="bg-slate-800 border-slate-700 text-white flex-1">
                   <SelectValue placeholder="Seleziona un ramo" />
                 </SelectTrigger>
