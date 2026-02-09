@@ -487,7 +487,7 @@ Rispondi SOLO se trovi aggiornamenti concreti e verificati. Se non ci sono modif
       }
     } catch (error) {
       console.error('Errore generazione adempimenti:', error);
-      alert('Errore nella generazione degli adempimenti. Riprova.');
+      throw error; // Rilancia l'errore per gestirlo nel chiamante
     }
   };
 
