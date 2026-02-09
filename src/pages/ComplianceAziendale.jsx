@@ -63,6 +63,8 @@ export default function ComplianceAziendale() {
   
   // Handler per cambio branch con protezione da undefined
   const handleBranchChange = (value) => {
+    // Ignora se il valore è uguale a quello corrente (previene bug Radix)
+    if (value === selectedBranch) return;
     if (value === undefined || value === null || value === '') {
       setSelectedBranch('all');
     } else {
