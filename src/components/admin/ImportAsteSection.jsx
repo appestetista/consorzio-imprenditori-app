@@ -348,15 +348,18 @@ export default function ImportAsteSection() {
     }
   };
 
-  // Elimina aste scadute per tipologia
+  // Elimina aste scadute per tipologia (usa data_ora_vendita / data_0)
   const handleDeleteScadute = async (tipologia) => {
-    const oggi = new Date().toISOString().split('T')[0];
+    const adesso = new Date();
     
     try {
       toast.info(`Eliminazione aste scadute "${tipologia}"...`);
       
       const aste = await base44.entities.AstaImmobiliare.filter({ tipologia });
-      const scadute = aste.filter(a => a.data_asta && a.data_asta < oggi);
+      const scadute = aste.filter(a => {
+        const dataVendita = parseDataOraVendita(a.data_ora_vendita);
+        return dataVendita && dataVendita < adesso;
+      });
       
       for (const asta of scadute) {
         await base44.entities.AstaImmobiliare.delete(asta.id);
