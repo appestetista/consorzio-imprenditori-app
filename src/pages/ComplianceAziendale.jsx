@@ -1119,17 +1119,49 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
                       {editingBranch?.id === branch.id ? (
                         <div className="space-y-2">
                           <Input
-                            value={editingBranch.nome}
+                            value={editingBranch.nome || ''}
                             onChange={(e) => setEditingBranch({...editingBranch, nome: e.target.value})}
                             className="bg-slate-800 border-slate-600 text-white"
                             placeholder="Nome ramo"
                           />
-                          <Input
-                            value={editingBranch.tipo_attivita}
+                          <Textarea
+                            value={editingBranch.tipo_attivita || ''}
                             onChange={(e) => setEditingBranch({...editingBranch, tipo_attivita: e.target.value})}
                             className="bg-slate-800 border-slate-600 text-white"
                             placeholder="Tipo attività"
+                            rows={2}
                           />
+                          <div className="grid grid-cols-2 gap-2">
+                            <Input
+                              value={editingBranch.codice_ateco || ''}
+                              onChange={(e) => setEditingBranch({...editingBranch, codice_ateco: e.target.value})}
+                              className="bg-slate-800 border-slate-600 text-white"
+                              placeholder="Codice ATECO"
+                            />
+                            <Input
+                              type="number"
+                              value={editingBranch.numero_dipendenti || ''}
+                              onChange={(e) => setEditingBranch({...editingBranch, numero_dipendenti: e.target.value ? parseInt(e.target.value) : null})}
+                              className="bg-slate-800 border-slate-600 text-white"
+                              placeholder="N° dipendenti"
+                              min="0"
+                            />
+                          </div>
+                          <Input
+                            value={editingBranch.indirizzo || ''}
+                            onChange={(e) => setEditingBranch({...editingBranch, indirizzo: e.target.value})}
+                            className="bg-slate-800 border-slate-600 text-white"
+                            placeholder="Indirizzo"
+                          />
+                          <div>
+                            <Label className="text-slate-400 text-xs mb-1 block">Data attivazione</Label>
+                            <Input
+                              type="date"
+                              value={editingBranch.data_attivazione || ''}
+                              onChange={(e) => setEditingBranch({...editingBranch, data_attivazione: e.target.value})}
+                              className="bg-slate-800 border-slate-600 text-white"
+                            />
+                          </div>
                           <div className="flex gap-2">
                             <Button size="sm" onClick={() => updateBranchMutation.mutate({ id: branch.id, data: editingBranch })} className="bg-lime-400 text-slate-900">
                               Salva
@@ -1144,8 +1176,19 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
                           <div>
                             <p className="text-white font-medium">{branch.nome}</p>
                             <p className="text-slate-400 text-sm">{branch.tipo_attivita}</p>
-                            {branch.numero_dipendenti && (
-                              <p className="text-slate-500 text-xs">{branch.numero_dipendenti} dipendenti</p>
+                            <div className="flex flex-wrap gap-2 mt-1">
+                              {branch.codice_ateco && (
+                                <span className="text-slate-500 text-xs bg-slate-800 px-2 py-0.5 rounded">ATECO: {branch.codice_ateco}</span>
+                              )}
+                              {branch.numero_dipendenti && (
+                                <span className="text-slate-500 text-xs bg-slate-800 px-2 py-0.5 rounded">{branch.numero_dipendenti} dip.</span>
+                              )}
+                              {branch.data_attivazione && (
+                                <span className="text-slate-500 text-xs bg-slate-800 px-2 py-0.5 rounded">Dal: {new Date(branch.data_attivazione).toLocaleDateString('it-IT')}</span>
+                              )}
+                            </div>
+                            {branch.indirizzo && (
+                              <p className="text-slate-500 text-xs mt-1">{branch.indirizzo}</p>
                             )}
                           </div>
                           <div className="flex gap-1">
