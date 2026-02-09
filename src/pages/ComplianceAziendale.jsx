@@ -63,7 +63,22 @@ export default function ComplianceAziendale() {
   const [editingNorm, setEditingNorm] = useState(null);
   
 
-  const [newBranch, setNewBranch] = useState({ nome: '', tipo_attivita: '', codice_ateco: '', indirizzo: '', numero_dipendenti: '', data_attivazione: '' });
+  const [newBranch, setNewBranch] = useState({ 
+    nome: '', 
+    tipo_attivita: '', 
+    codice_ateco: '', 
+    indirizzo: '', 
+    numero_dipendenti: '', 
+    data_attivazione: '',
+    // Campi aggiuntivi per compliance
+    tipo_attivita_categoria: 'produttiva', // produttiva / servizi / commerciale
+    presenza_lavoratori: true,
+    presenza_sostanze_chimiche: false,
+    presenza_rifiuti_speciali: false,
+    presenza_emissioni_atmosfera: false,
+    presenza_scarichi_industriali: false,
+    presenza_rischio_incendio_non_basso: false
+  });
   const { impersonation, appMode } = useImpersonation();
   const queryClient = useQueryClient();
 
