@@ -60,6 +60,7 @@ export default function ComplianceAziendale() {
   const [showBranchManager, setShowBranchManager] = useState(false);
   const [editingBranch, setEditingBranch] = useState(null);
   const [selectedBranch, setSelectedBranch] = useState('all');
+  const [editingNorm, setEditingNorm] = useState(null);
   
 
   const [newBranch, setNewBranch] = useState({ nome: '', tipo_attivita: '', codice_ateco: '', indirizzo: '', numero_dipendenti: '', data_attivazione: '' });
