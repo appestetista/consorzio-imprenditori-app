@@ -746,6 +746,9 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
                   <SelectValue placeholder="Seleziona un ramo" />
                 </SelectTrigger>
                 <SelectContent className="bg-slate-800 border-slate-700">
+                  <SelectItem value="all" className="text-white">
+                    Tutti i rami
+                  </SelectItem>
                   {branches.map(branch => (
                     <SelectItem key={branch.id} value={branch.id} className="text-white">
                       {branch.nome}
