@@ -227,101 +227,127 @@ export default function ComplianceAziendale() {
     }
   };
   
-  const generateNormsForBranch = async (branchId, tipoAttivita, numeroDipendenti, dataAttivazione) => {
+  const generateNormsForBranch = async (branchId, tipoAttivita, numeroDipendenti, dataAttivazione, codiceAteco) => {
     if (!tipoAttivita.trim()) return;
     
+    // Trova il branch per ottenere il codice ATECO se non passato
+    const branch = branches.find(b => b.id === branchId);
+    const ateco = codiceAteco || branch?.codice_ateco || '';
+    
     try {
-      const prompt = `SEI UN CONSULENTE LEGALE ESPERTO IN COMPLIANCE AZIENDALE ITALIANA.
+      const prompt = `SEI UN CONSULENTE LEGALE ESPERTO IN COMPLIANCE AZIENDALE ITALIANA CON 30 ANNI DI ESPERIENZA.
 
-COMPITO: Genera l'elenco COMPLETO e ACCURATO di TUTTI gli adempimenti OBBLIGATORI PER LEGGE per questa attività.
+COMPITO CRITICO: Genera l'elenco COMPLETO e DETTAGLIATO di TUTTI gli adempimenti OBBLIGATORI PER LEGGE per questa attività. NON OMETTERE NULLA.
 
 DATI AZIENDA:
 - Tipo di attività: ${tipoAttivita}
+- Codice ATECO: ${ateco || 'non specificato'}
 - Numero dipendenti: ${numeroDipendenti || 'non specificato'}
 - Data attivazione attività: ${dataAttivazione || 'non specificata'}
 
-ISTRUZIONI CRITICHE - LEGGI ATTENTAMENTE:
+ISTRUZIONI CRITICHE - LEGGI CON MASSIMA ATTENZIONE:
 
-1. VERIFICA OGNI NORMATIVA: Per ogni adempimento, verifica mentalmente:
-   - Quale legge/decreto lo impone (D.Lgs. 81/08, Reg. CE 852/2004, GDPR, ecc.)
-   - Se si applica REALMENTE a questo tipo di attività
-   - Se il numero di dipendenti influisce sull'obbligo
+IMPORTANTE: Devi generare ALMENO 25-40 adempimenti per un'attività industriale/produttiva. Se ne generi meno di 20, stai sicuramente omettendo qualcosa di importante.
 
-2. CATEGORIE DI ADEMPIMENTI DA VERIFICARE OBBLIGATORIAMENTE:
+1. ANALIZZA IL CODICE ATECO: Il codice ATECO determina obblighi specifici:
+   - Codici 20.xx (chimica): REACH, CLP, rischio chimico, ATEX, emissioni COV, AUA
+   - Codici 10.xx-11.xx (alimentare): HACCP, tracciabilità, allergeni, notifica OSA
+   - Codici 25.xx-28.xx (metalmeccanica): rumore, vibrazioni, movimentazione carichi
+   - Codici 41.xx-43.xx (edilizia): POS, PSC, ponteggi, DPI specifici
 
-   A) SICUREZZA SUL LAVORO (D.Lgs. 81/2008):
-      - DVR (Documento Valutazione Rischi) - SEMPRE obbligatorio con dipendenti
-      - DUVRI (se ci sono interferenze con altre aziende)
-      - Nomina RSPP (Responsabile Servizio Prevenzione Protezione)
-      - Nomina RLS (Rappresentante Lavoratori Sicurezza) - se >15 dipendenti eletto, altrimenti territoriale
+2. CATEGORIE DI ADEMPIMENTI - VERIFICA OGNI SINGOLA VOCE:
+
+   A) SICUREZZA SUL LAVORO (D.Lgs. 81/2008) - OBBLIGATORI:
+      - DVR (Documento Valutazione Rischi) - SEMPRE
+      - DUVRI (se interferenze con terzi)
+      - Nomina RSPP 
+      - Nomina RLS
       - Nomina Medico Competente (se rischi specifici)
       - Nomina Addetti Antincendio
       - Nomina Addetti Primo Soccorso
       - Cassetta Primo Soccorso
-      - Sorveglianza Sanitaria (se prevista)
+      - Sorveglianza Sanitaria periodica
+      - Valutazione rischio chimico (se sostanze pericolose)
+      - Valutazione rischio ATEX (se atmosfere esplosive/vapori infiammabili)
+      - Valutazione rischio rumore
+      - Valutazione rischio vibrazioni
+      - Valutazione rischio stress lavoro-correlato
+      - Valutazione rischio MMC (movimentazione manuale carichi)
 
-   B) ANTINCENDIO (DM 10/03/1998, DM 02/09/2021):
-      - CPI (Certificato Prevenzione Incendi) - verificare se l'attività rientra nell'Allegato I DPR 151/2011
+   B) ANTINCENDIO (DPR 151/2011, DM 02/09/2021):
+      - CPI (Certificato Prevenzione Incendi) - se attività in Allegato I
       - SCIA Antincendio
-      - Piano di Emergenza ed Evacuazione - OBBLIGATORIO se >10 lavoratori o attività soggette a CPI
-      - Estintori e loro manutenzione
-      - Vie di esodo e segnaletica
+      - Piano di Emergenza ed Evacuazione
+      - Valutazione rischio incendio
+      - Presidi antincendio (estintori, idranti)
+      - Manutenzione presidi antincendio
+      - Segnaletica di sicurezza
       - Illuminazione di emergenza
+      - Prove evacuazione periodiche
 
    C) FORMAZIONE OBBLIGATORIA (Accordo Stato-Regioni):
       - Formazione generale lavoratori (4 ore)
-      - Formazione specifica lavoratori (4-8-12 ore in base al rischio)
-      - Formazione Preposti
-      - Formazione Dirigenti
+      - Formazione specifica lavoratori (4-8-12 ore)
+      - Formazione Preposti (8 ore)
+      - Formazione Dirigenti (16 ore)
       - Formazione Addetti Antincendio
       - Formazione Addetti Primo Soccorso
-      - Formazione HACCP (per alimentaristi)
-      - Aggiornamenti periodici
+      - Formazione rischio chimico (se applicabile)
+      - Formazione ATEX (se applicabile)
+      - Formazione carrellisti/mulettisti (se presenti)
+      - Aggiornamenti periodici (ogni 5 anni)
 
-   D) IGIENE E SANITÀ (per attività alimentari - Reg. CE 852/2004, 853/2004):
-      - SCIA Sanitaria / Notifica ASL
-      - Piano HACCP (Autocontrollo)
-      - Attestato Alimentarista per tutti gli operatori
-      - Registrazione/Riconoscimento stabilimento
-      - Tracciabilità alimentare
-      - Gestione allergeni
+   D) AMBIENTALE (D.Lgs. 152/2006) - CRITICO PER INDUSTRIA:
+      - AUA - Autorizzazione Unica Ambientale
+      - Autorizzazione emissioni in atmosfera (COV, polveri)
+      - Registro carico/scarico rifiuti
+      - Classificazione rifiuti (codici EER/CER)
+      - Formulari Identificazione Rifiuti (FIR)
+      - MUD - Dichiarazione annuale rifiuti
+      - Autorizzazione scarichi idrici
+      - Piano gestione solventi (se COV)
+      - SISTRI/RENTRI (tracciabilità rifiuti)
 
-   E) PRIVACY E GDPR (Reg. UE 679/2016):
-      - Registro dei Trattamenti - SEMPRE obbligatorio per aziende con dipendenti
-      - Informativa Privacy clienti
+   E) CHIMICA - REACH/CLP (se sostanze pericolose):
+      - Schede di Sicurezza (SDS) aggiornate
+      - Etichettatura CLP
+      - Registrazione REACH (se produttore/importatore)
+      - Procedure stoccaggio sostanze pericolose
+      - Registro esposizione agenti chimici
+
+   F) PRIVACY - GDPR (Reg. UE 679/2016):
+      - Registro dei Trattamenti
       - Informativa Privacy dipendenti
+      - Informativa Privacy clienti/fornitori
       - Nomina Responsabili Trattamento
-      - DPO (se trattamento dati su larga scala)
+      - DPO (se obbligatorio)
+      - Misure sicurezza informatiche
       - Videosorveglianza (se presente): informativa + autorizzazione ITL
 
-   F) AMBIENTALE (D.Lgs. 152/2006):
-      - Autorizzazione scarichi
-      - Gestione rifiuti (registro carico/scarico, MUD)
-      - Emissioni in atmosfera (se cucina professionale)
-
-   G) FISCALE E AMMINISTRATIVO:
-      - SCIA Commerciale
-      - Licenze specifiche (somministrazione, vendita, ecc.)
-      - Registro corrispettivi / Registratore telematico
+   G) AMMINISTRATIVO/URBANISTICO:
+      - SCIA produttiva (SUAP)
+      - Conformità urbanistica
+      - Agibilità locali
+      - Licenze specifiche settore
       - Libro Unico del Lavoro
+      - Registratore telematico (se vendita)
 
-3. OUTPUT RICHIESTO per ogni adempimento:
-   - nome: Nome ufficiale dell'adempimento
-   - descrizione: Cosa richiede concretamente e riferimento normativo
-   - categoria: Una tra le categorie indicate
-   - frequenza_rinnovo_mesi: Frequenza aggiornamento (es: DVR quando cambiano condizioni, formazione ogni 5 anni = 60 mesi)
-   - sanzione_prevista: Sanzione REALE prevista dalla normativa (con importi se possibile)
-   - priorita: "alta" se sanzione penale o chiusura attività, "media" se sanzione amministrativa significativa, "bassa" altri casi
-   - riferimento_normativo: Legge/Decreto che lo impone
-   - data_scadenza: Data di scadenza in formato YYYY-MM-DD calcolata dalla data di attivazione (${dataAttivazione || 'oggi'}) + frequenza rinnovo. Se adempimento una tantum senza scadenza, lasciare null
+3. OUTPUT per ogni adempimento:
+   - nome: Nome ufficiale
+   - descrizione: Cosa richiede + riferimento normativo specifico
+   - categoria: Una tra [Sicurezza sul lavoro, Privacy e GDPR, Ambientale, Fiscale, Igiene e Sanità, Antincendio, Formazione obbligatoria, Altro]
+   - frequenza_rinnovo_mesi: Frequenza (es: 60 per formazione quinquennale, 12 per annuale, 0 per una tantum)
+   - sanzione_prevista: Sanzione con importi specifici
+   - priorita: "alta" (penale/chiusura), "media" (amministrativa), "bassa"
+   - data_scadenza: YYYY-MM-DD calcolata da ${dataAttivazione || 'oggi'} + frequenza. Null se una tantum.
 
-4. REGOLE FONDAMENTALI:
-   - NON INVENTARE: Se non sei sicuro che un adempimento sia obbligatorio, NON includerlo
-   - NON OMETTERE: Se un adempimento è sicuramente obbligatorio, DEVE essere incluso
-   - ESSERE SPECIFICI: Adatta gli adempimenti al tipo specifico di attività
-   - Per un RISTORANTE: Piano Emergenza Evacuazione è OBBLIGATORIO (>10 persone presenti inclusi clienti)
+4. REGOLE:
+   - GENERA TUTTI GLI ADEMPIMENTI APPLICABILI - meglio uno in più che uno in meno
+   - Per attività industriali/chimiche: MINIMO 30 adempimenti
+   - NON RAGGRUPPARE: ogni adempimento è una voce separata
+   - Includi SEMPRE gli adempimenti ambientali per attività produttive
 
-GENERA ORA L'ELENCO COMPLETO PER: ${tipoAttivita} con ${numeroDipendenti || 'numero non specificato di'} dipendenti.`;
+GENERA ORA L'ELENCO COMPLETO PER: ${tipoAttivita} (ATECO: ${ateco || 'N/A'}) con ${numeroDipendenti || 'N/A'} dipendenti.`;
 
       const result = await base44.integrations.Core.InvokeLLM({
         prompt,
