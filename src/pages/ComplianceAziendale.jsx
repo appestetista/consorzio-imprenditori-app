@@ -455,72 +455,9 @@ GENERA ORA L'ELENCO COMPLETO PER: ${tipoAttivita} (ATECO: ${ateco || 'N/A'}) con
         console.log('[ComplianceAziendale] Generati', result.adempimenti.length, 'adempimenti per branch', branchId);
         queryClient.invalidateQueries({ queryKey: ['compliance-norms'] });
 
-        // Seconda fase: verifica aggiornamenti normativi con ricerca web
-        const updatePrompt = `Verifica se ci sono aggiornamenti normativi recenti (2024-2025) per i seguenti adempimenti italiani:
-
-${result.adempimenti.map(a => `- ${a.nome}`).join('\n')}
-
-Per ogni adempimento, cerca sul web se ci sono:
-- Modifiche legislative recenti
-- Nuove scadenze o tempistiche
-- Aggiornamenti alle sanzioni
-- Nuovi obblighi aggiunti
-
-Rispondi SOLO se trovi aggiornamenti concreti e verificati. Se non ci sono modifiche, restituisci un array vuoto.`;
-
-        const updateResult = await base44.integrations.Core.InvokeLLM({
-          prompt: updatePrompt,
-          add_context_from_internet: true,
-          response_json_schema: {
-            type: "object",
-            properties: {
-              aggiornamenti: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    nome_adempimento: { type: "string" },
-                    nuova_descrizione: { type: "string" },
-                    nuova_sanzione: { type: "string" },
-                    nota_aggiornamento: { type: "string" }
-                  }
-                }
-              }
-            }
-          }
-        });
-
-        if (updateResult?.aggiornamenti && updateResult.aggiornamenti.length > 0) {
-          console.log('[ComplianceAziendale] Trovati', updateResult.aggiornamenti.length, 'aggiornamenti normativi');
-
-          for (const aggiornamento of updateResult.aggiornamenti) {
-            const normToUpdate = createdNormIds.find(n => 
-              n.nome.toLowerCase().includes(aggiornamento.nome_adempimento.toLowerCase()) ||
-              aggiornamento.nome_adempimento.toLowerCase().includes(n.nome.toLowerCase())
-            );
-
-            if (normToUpdate) {
-              const updateData = {};
-              if (aggiornamento.nuova_descrizione) {
-                updateData.descrizione = aggiornamento.nuova_descrizione;
-              }
-              if (aggiornamento.nuova_sanzione) {
-                updateData.sanzione_prevista = aggiornamento.nuova_sanzione;
-              }
-              if (aggiornamento.nota_aggiornamento) {
-                updateData.note = `⚠️ Aggiornamento normativo: ${aggiornamento.nota_aggiornamento}`;
-              }
-
-              if (Object.keys(updateData).length > 0) {
-                await base44.entities.ComplianceNorm.update(normToUpdate.id, updateData);
-                console.log('[ComplianceAziendale] Aggiornato adempimento:', normToUpdate.nome);
-              }
-            }
-          }
-
-          queryClient.invalidateQueries({ queryKey: ['compliance-norms'] });
+        // Skip seconda fase per velocizzare
+        console.log('[ComplianceAziendale] Generazione completata con successo');
         }
-      }
     } catch (error) {
       console.error('[ComplianceAziendale] ERRORE COMPLETO generazione adempimenti:', error);
       console.error('[ComplianceAziendale] Error name:', error?.name);
