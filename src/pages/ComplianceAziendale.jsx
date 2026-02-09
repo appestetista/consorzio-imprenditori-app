@@ -1012,21 +1012,136 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
 
                       {isExpanded && (
                         <div className="px-4 pb-4 border-t border-slate-700 pt-4 space-y-4">
-                          {norm.descrizione && (
-                            <div>
-                              <p className="text-slate-400 text-xs mb-1">Descrizione</p>
-                              <p className="text-white text-sm">{norm.descrizione}</p>
-                            </div>
-                          )}
-
-                          {norm.sanzione_prevista && (
-                            <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3">
-                              <div className="flex items-center gap-2 mb-1">
-                                <AlertTriangle className="w-4 h-4 text-red-400" />
-                                <p className="text-red-400 text-xs font-medium">Sanzione prevista</p>
+                          {/* Mostra form di modifica o dettagli */}
+                          {editingNorm?.id === norm.id ? (
+                            <div className="space-y-3 bg-slate-900/50 rounded-lg p-3">
+                              <div>
+                                <Label className="text-slate-400 text-xs">Nome adempimento</Label>
+                                <Input
+                                  value={editingNorm.nome || ''}
+                                  onChange={(e) => setEditingNorm({...editingNorm, nome: e.target.value})}
+                                  className="bg-slate-800 border-slate-600 text-white mt-1"
+                                />
                               </div>
-                              <p className="text-red-300 text-sm">{norm.sanzione_prevista}</p>
+                              <div>
+                                <Label className="text-slate-400 text-xs">Descrizione</Label>
+                                <Textarea
+                                  value={editingNorm.descrizione || ''}
+                                  onChange={(e) => setEditingNorm({...editingNorm, descrizione: e.target.value})}
+                                  className="bg-slate-800 border-slate-600 text-white mt-1"
+                                  rows={3}
+                                />
+                              </div>
+                              <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                  <Label className="text-slate-400 text-xs">Data scadenza</Label>
+                                  <Input
+                                    type="date"
+                                    value={editingNorm.data_scadenza || ''}
+                                    onChange={(e) => setEditingNorm({...editingNorm, data_scadenza: e.target.value})}
+                                    className="bg-slate-800 border-slate-600 text-white mt-1"
+                                  />
+                                </div>
+                                <div>
+                                  <Label className="text-slate-400 text-xs">Frequenza rinnovo (mesi)</Label>
+                                  <Input
+                                    type="number"
+                                    value={editingNorm.frequenza_rinnovo_mesi || ''}
+                                    onChange={(e) => setEditingNorm({...editingNorm, frequenza_rinnovo_mesi: parseInt(e.target.value) || 0})}
+                                    className="bg-slate-800 border-slate-600 text-white mt-1"
+                                    min="0"
+                                  />
+                                </div>
+                              </div>
+                              <div>
+                                <Label className="text-slate-400 text-xs">Stato</Label>
+                                <Select
+                                  value={editingNorm.stato || 'non_verificato'}
+                                  onValueChange={(value) => setEditingNorm({...editingNorm, stato: value})}
+                                >
+                                  <SelectTrigger className="bg-slate-800 border-slate-600 text-white mt-1">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent className="bg-slate-800 border-slate-700">
+                                    <SelectItem value="conforme" className="text-green-400">✅ Conforme</SelectItem>
+                                    <SelectItem value="da_migliorare" className="text-orange-400">🟠 Da migliorare</SelectItem>
+                                    <SelectItem value="non_conforme" className="text-red-400">🔴 Non conforme</SelectItem>
+                                    <SelectItem value="non_verificato" className="text-slate-400">⚪ Non verificato</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                              <div>
+                                <Label className="text-slate-400 text-xs">Note</Label>
+                                <Textarea
+                                  value={editingNorm.note || ''}
+                                  onChange={(e) => setEditingNorm({...editingNorm, note: e.target.value})}
+                                  className="bg-slate-800 border-slate-600 text-white mt-1"
+                                  rows={2}
+                                  placeholder="Aggiungi note..."
+                                />
+                              </div>
+                              <div className="flex gap-2 pt-2">
+                                <Button
+                                  size="sm"
+                                  onClick={async () => {
+                                    await updateNormMutation.mutateAsync({ 
+                                      id: norm.id, 
+                                      data: {
+                                        nome: editingNorm.nome,
+                                        descrizione: editingNorm.descrizione,
+                                        data_scadenza: editingNorm.data_scadenza || null,
+                                        frequenza_rinnovo_mesi: editingNorm.frequenza_rinnovo_mesi,
+                                        stato: editingNorm.stato,
+                                        note: editingNorm.note
+                                      }
+                                    });
+                                    setEditingNorm(null);
+                                  }}
+                                  className="bg-lime-400 text-slate-900 hover:bg-lime-500"
+                                >
+                                  <CheckCircle className="w-4 h-4 mr-1" />
+                                  Salva modifiche
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => setEditingNorm(null)}
+                                  className="border-slate-600 text-slate-300"
+                                >
+                                  Annulla
+                                </Button>
+                              </div>
                             </div>
+                          ) : (
+                            <>
+                              {/* Pulsante modifica */}
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => setEditingNorm({...norm})}
+                                className="w-full border-lime-500/50 text-lime-400 hover:bg-lime-500/20 mb-3"
+                              >
+                                <Pencil className="w-4 h-4 mr-2" />
+                                Modifica adempimento
+                              </Button>
+
+                              {norm.descrizione && (
+                                <div>
+                                  <p className="text-slate-400 text-xs mb-1">Descrizione</p>
+                                  <p className="text-white text-sm">{norm.descrizione}</p>
+                                </div>
+                              )}
+
+                              {norm.sanzione_prevista && (
+                                <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <AlertTriangle className="w-4 h-4 text-red-400" />
+                                    <p className="text-red-400 text-xs font-medium">Sanzione prevista</p>
+                                  </div>
+                                  <p className="text-red-300 text-sm">{norm.sanzione_prevista}</p>
+                                </div>
+                              )}
+                            </>
                           )}
 
                           <div>
