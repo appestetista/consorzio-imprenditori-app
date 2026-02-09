@@ -1475,18 +1475,103 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
                                       />
 
                                       <div>
-                                        <Label className="text-slate-400 text-xs mb-1 block">Data di attivazione attività *</Label>
-                                        <Input
-                                          type="date"
-                                          value={newBranch.data_attivazione}
-                                          onChange={(e) => setNewBranch({...newBranch, data_attivazione: e.target.value})}
-                                          className="bg-slate-900 border-slate-700 text-white"
-                                          required
-                                        />
-                                        <p className="text-slate-500 text-xs mt-1">Data in cui è iniziata l'attività (per calcolare le scadenze)</p>
-                                      </div>
+                                          <Label className="text-slate-400 text-xs mb-1 block">Data di attivazione attività *</Label>
+                                          <Input
+                                            type="date"
+                                            value={newBranch.data_attivazione}
+                                            onChange={(e) => setNewBranch({...newBranch, data_attivazione: e.target.value})}
+                                            className="bg-slate-900 border-slate-700 text-white"
+                                            required
+                                          />
+                                          <p className="text-slate-500 text-xs mt-1">Data in cui è iniziata l'attività (per calcolare le scadenze)</p>
+                                        </div>
 
-                                      {generatingNorms ? (
+                                        {/* Tipo attività */}
+                                        <div>
+                                          <Label className="text-slate-400 text-xs mb-1 block">Tipologia attività</Label>
+                                          <Select
+                                            value={newBranch.tipo_attivita_categoria}
+                                            onValueChange={(value) => setNewBranch({...newBranch, tipo_attivita_categoria: value})}
+                                          >
+                                            <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                                              <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent className="bg-slate-800 border-slate-700">
+                                              <SelectItem value="produttiva" className="text-white">Produttiva (manifattura, industria)</SelectItem>
+                                              <SelectItem value="servizi" className="text-white">Servizi (uffici, consulenza)</SelectItem>
+                                              <SelectItem value="commerciale" className="text-white">Commerciale (vendita, negozio)</SelectItem>
+                                            </SelectContent>
+                                          </Select>
+                                        </div>
+
+                                        {/* Caratteristiche per compliance */}
+                                        <div className="space-y-3 pt-2">
+                                          <Label className="text-slate-400 text-xs">Caratteristiche dell'attività (per adempimenti specifici)</Label>
+
+                                          <div className="grid grid-cols-1 gap-2">
+                                            <label className="flex items-center gap-2 text-white text-sm cursor-pointer">
+                                              <input
+                                                type="checkbox"
+                                                checked={newBranch.presenza_lavoratori}
+                                                onChange={(e) => setNewBranch({...newBranch, presenza_lavoratori: e.target.checked})}
+                                                className="rounded border-slate-600 bg-slate-800"
+                                              />
+                                              Presenza lavoratori dipendenti
+                                            </label>
+
+                                            <label className="flex items-center gap-2 text-white text-sm cursor-pointer">
+                                              <input
+                                                type="checkbox"
+                                                checked={newBranch.presenza_sostanze_chimiche}
+                                                onChange={(e) => setNewBranch({...newBranch, presenza_sostanze_chimiche: e.target.checked})}
+                                                className="rounded border-slate-600 bg-slate-800"
+                                              />
+                                              Uso/stoccaggio sostanze chimiche pericolose
+                                            </label>
+
+                                            <label className="flex items-center gap-2 text-white text-sm cursor-pointer">
+                                              <input
+                                                type="checkbox"
+                                                checked={newBranch.presenza_rifiuti_speciali}
+                                                onChange={(e) => setNewBranch({...newBranch, presenza_rifiuti_speciali: e.target.checked})}
+                                                className="rounded border-slate-600 bg-slate-800"
+                                              />
+                                              Produzione rifiuti speciali/pericolosi
+                                            </label>
+
+                                            <label className="flex items-center gap-2 text-white text-sm cursor-pointer">
+                                              <input
+                                                type="checkbox"
+                                                checked={newBranch.presenza_emissioni_atmosfera}
+                                                onChange={(e) => setNewBranch({...newBranch, presenza_emissioni_atmosfera: e.target.checked})}
+                                                className="rounded border-slate-600 bg-slate-800"
+                                              />
+                                              Emissioni in atmosfera (fumi, vapori, COV)
+                                            </label>
+
+                                            <label className="flex items-center gap-2 text-white text-sm cursor-pointer">
+                                              <input
+                                                type="checkbox"
+                                                checked={newBranch.presenza_scarichi_industriali}
+                                                onChange={(e) => setNewBranch({...newBranch, presenza_scarichi_industriali: e.target.checked})}
+                                                className="rounded border-slate-600 bg-slate-800"
+                                              />
+                                              Scarichi industriali (acque reflue di processo)
+                                            </label>
+
+                                            <label className="flex items-center gap-2 text-white text-sm cursor-pointer">
+                                              <input
+                                                type="checkbox"
+                                                checked={newBranch.presenza_rischio_incendio_non_basso}
+                                                onChange={(e) => setNewBranch({...newBranch, presenza_rischio_incendio_non_basso: e.target.checked})}
+                                                className="rounded border-slate-600 bg-slate-800"
+                                              />
+                                              Rischio incendio medio/alto (DPR 151/2011)
+                                            </label>
+                                          </div>
+                                        </div>
+
+                                        {generatingNorms ? (
                                                               <div className="bg-gradient-to-r from-purple-500/20 to-blue-500/20 border border-purple-500/30 rounded-xl p-6 text-center">
                                                                 <div className="relative w-16 h-16 mx-auto mb-4">
                                                                   <div className="absolute inset-0 bg-purple-500/30 rounded-full animate-ping"></div>
