@@ -491,24 +491,54 @@ export default function ImportAsteSection() {
             </Button>
           )}
 
-          {/* File caricato */}
+          {/* File caricato e pulsante Pubblica */}
           {uploadedFiles[tipologia.id] && (
-            <div className="flex items-center justify-between p-2 bg-slate-700/50 rounded-lg text-xs">
-              <div className="flex items-center gap-2 text-slate-300">
-                <FileSpreadsheet className="w-4 h-4 text-blue-400" />
-                <span className="truncate max-w-[150px]">{uploadedFiles[tipologia.id].name}</span>
-                <Badge variant="outline" className="text-xs">{uploadedFiles[tipologia.id].rows} righe</Badge>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between p-2 bg-slate-700/50 rounded-lg text-xs">
+                <div className="flex items-center gap-2 text-slate-300">
+                  <FileSpreadsheet className="w-4 h-4 text-blue-400" />
+                  <span className="truncate max-w-[150px]">{uploadedFiles[tipologia.id].name}</span>
+                  <Badge variant="outline" className="text-xs">{uploadedFiles[tipologia.id].rows} righe</Badge>
+                </div>
+                <button 
+                  onClick={() => {
+                    setUploadedFiles(prev => {
+                      const newFiles = {...prev};
+                      delete newFiles[tipologia.id];
+                      return newFiles;
+                    });
+                    setPendingAste(prev => {
+                      const newPending = {...prev};
+                      delete newPending[tipologia.id];
+                      return newPending;
+                    });
+                  }}
+                  className="text-red-400 hover:text-red-300 p-1"
+                >
+                  ✕
+                </button>
               </div>
-              <button 
-                onClick={() => setUploadedFiles(prev => {
-                  const newFiles = {...prev};
-                  delete newFiles[tipologia.id];
-                  return newFiles;
-                })}
-                className="text-red-400 hover:text-red-300 p-1"
-              >
-                ✕
-              </button>
+              
+              {/* Pulsante Pubblica */}
+              {pendingAste[tipologia.id] && pendingAste[tipologia.id].length > 0 && (
+                <Button
+                  onClick={() => handlePublish(tipologia.id)}
+                  disabled={isPublishing && activeTipologia === tipologia.id}
+                  className={`w-full bg-${colorClass}-500 hover:bg-${colorClass}-600 text-slate-900 font-bold`}
+                >
+                  {isPublishing && activeTipologia === tipologia.id ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Pubblicazione...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="w-4 h-4 mr-2" />
+                      Pubblica {pendingAste[tipologia.id].length} aste
+                    </>
+                  )}
+                </Button>
+              )}
             </div>
           )}
 
