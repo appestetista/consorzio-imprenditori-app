@@ -223,12 +223,13 @@ export default function ComplianceAziendale() {
       // Seleziona automaticamente il ramo appena creato per mostrare gli adempimenti
       setSelectedBranch(createdBranch.id);
     } catch (error) {
-      console.error('Errore creazione ramo:', error);
-      alert('Errore nella creazione del ramo. Riprova.');
+      console.error('[ComplianceAziendale] Errore creazione ramo:', error);
+      console.error('[ComplianceAziendale] Error message:', error?.message);
+      alert('Errore nella generazione degli adempimenti: ' + (error?.message || 'Errore sconosciuto. Riprova.'));
     } finally {
       setGeneratingNorms(false);
     }
-  };
+    };
   
   const generateNormsForBranch = async (branchId, tipoAttivita, numeroDipendenti, dataAttivazione, codiceAteco) => {
         if (!tipoAttivita || !tipoAttivita.trim()) {
