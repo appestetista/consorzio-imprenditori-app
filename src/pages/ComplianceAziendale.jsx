@@ -302,15 +302,42 @@ export default function ComplianceAziendale() {
         const ateco = codiceAteco || branch?.codice_ateco || '';
         const dataBase = dataAttivazione || new Date().toISOString().split('T')[0];
         
-        const caratteristiche = {
+        // RISCHI REALI dichiarati dall'utente
+        const rischi = {
+          // Base
           tipo_categoria: branchData.tipo_attivita_categoria || 'produttiva',
           lavoratori: branchData.presenza_lavoratori !== false,
+          numero_dipendenti: numeroDipendenti || 0,
+          superficie_mq: branchData.superficie_mq || 0,
+          // Sicurezza sul lavoro
+          macchinari: branchData.presenza_macchinari || false,
+          rumore: branchData.presenza_rumore || false,
+          vibrazioni: branchData.presenza_vibrazioni || false,
           sostanze_chimiche: branchData.presenza_sostanze_chimiche || false,
+          movimentazione_carichi: branchData.presenza_movimentazione_carichi || false,
+          videoterminali: branchData.presenza_videoterminali || false,
+          lavori_quota: branchData.presenza_lavori_quota || false,
+          spazi_confinati: branchData.presenza_spazi_confinati || false,
+          rischio_biologico: branchData.presenza_rischio_biologico || false,
+          campi_elettromagnetici: branchData.presenza_campi_elettromagnetici || false,
+          radiazioni_ottiche: branchData.presenza_radiazioni_ottiche || false,
+          microclima_severo: branchData.presenza_microclima_severo || false,
+          atmosfere_esplosive: branchData.presenza_atmosfere_esplosive || false,
+          // Ambientale
           rifiuti_speciali: branchData.presenza_rifiuti_speciali || false,
           emissioni_atmosfera: branchData.presenza_emissioni_atmosfera || false,
           scarichi_industriali: branchData.presenza_scarichi_industriali || false,
-          rischio_incendio_non_basso: branchData.presenza_rischio_incendio_non_basso || false
+          // Antincendio
+          rischio_incendio_non_basso: branchData.presenza_rischio_incendio_non_basso || false,
+          // Privacy/IT
+          sistemi_it_cloud: branchData.presenza_sistemi_it_cloud || false,
+          dati_sensibili: branchData.trattamento_dati_sensibili || false
         };
+
+        // Verifica dati minimi obbligatori
+        if (!rischi.lavoratori && rischi.numero_dipendenti > 0) {
+          rischi.lavoratori = true;
+        }
 
         // Calcola data scadenza da oggi + mesi
         const calcolaScadenza = (mesi) => {
