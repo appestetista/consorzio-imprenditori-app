@@ -69,15 +69,34 @@ export default function ComplianceAziendale() {
     codice_ateco: '', 
     indirizzo: '', 
     numero_dipendenti: '', 
+    superficie_mq: '',
     data_attivazione: '',
-    // Campi aggiuntivi per compliance
+    // Categoria attività
     tipo_attivita_categoria: 'produttiva', // produttiva / servizi / commerciale
+    // Rischi REALI dichiarati
     presenza_lavoratori: true,
+    presenza_macchinari: false,
+    presenza_rumore: false,
+    presenza_vibrazioni: false,
     presenza_sostanze_chimiche: false,
+    presenza_movimentazione_carichi: false,
+    presenza_videoterminali: false,
+    presenza_lavori_quota: false,
+    presenza_spazi_confinati: false,
+    presenza_rischio_biologico: false,
+    presenza_campi_elettromagnetici: false,
+    presenza_radiazioni_ottiche: false,
+    presenza_microclima_severo: false,
+    presenza_atmosfere_esplosive: false,
+    // Ambientale
     presenza_rifiuti_speciali: false,
     presenza_emissioni_atmosfera: false,
     presenza_scarichi_industriali: false,
-    presenza_rischio_incendio_non_basso: false
+    // Antincendio
+    presenza_rischio_incendio_non_basso: false,
+    // Privacy/IT
+    presenza_sistemi_it_cloud: false,
+    trattamento_dati_sensibili: false
   });
   const { impersonation, appMode } = useImpersonation();
   const queryClient = useQueryClient();
