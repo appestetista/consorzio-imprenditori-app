@@ -375,51 +375,55 @@ Output SOLO adempimenti certi. Per ogni adempimento:
           // FASE 2: Adempimenti Ambientali (D.Lgs. 152/06)
           console.log('[ComplianceAziendale] FASE 2: Ambientale...');
           const ambientaleResult = await base44.integrations.Core.InvokeLLM({
-            prompt: `Agisci come consulente senior di compliance aziendale italiana specializzato in Ambiente (D.Lgs. 152/06 - Testo Unico Ambiente).
-Anno di riferimento: 2026. Usa ESCLUSIVAMENTE normativa italiana ed europea vigente. NO esempi esteri, NO buone pratiche volontarie, NO certificazioni facoltative.
+            prompt: `Sei un consulente di compliance aziendale italiana. Genera adempimenti D.Lgs. 152/06.
 
 DATI AZIENDA:
 - Attività: ${tipoAttivita}
-- Data inizio attività: ${dataBase}
+- Data inizio: ${dataBase}
 ${caratteristichePrompt}
 
-ANALIZZA E CLASSIFICA gli adempimenti ambientali:
+REGOLE TASSATIVE:
+- NON inventare obblighi
+- NON usare termini vaghi
+- NON includere attività di vigilanza
+- NON confondere adempimenti con attività gestionali
+- NON usare "consigliato"
+- Ogni voce = un documento o atto REALE
 
-1. OBBLIGHI CERTAMENTE OBBLIGATORI per questa specifica attività:
-   Basati ESCLUSIVAMENTE sulle caratteristiche indicate (rifiuti speciali SÌ/NO, emissioni SÌ/NO, scarichi SÌ/NO).
-   Se "Presenza rifiuti speciali: NO" → NON includere obblighi sui rifiuti speciali.
-   Se "Presenza emissioni in atmosfera: NO" → NON includere autorizzazioni emissioni.
-   Se "Presenza scarichi industriali: NO" → NON includere autorizzazioni scarichi.
+LOGICA DI APPLICABILITÀ RIGOROSA:
 
-2. OBBLIGHI CONDIZIONATI (da verificare):
-   Adempimenti che si applicano SOLO al superamento di soglie specifiche.
+SE presenza_rifiuti_speciali = SÌ:
+- Registro carico/scarico rifiuti (Art. 190) - vidimato CCIAA
+- Formulario FIR (Art. 193) - per ogni trasporto
+- MUD - Dichiarazione annuale (L. 70/94) - scadenza 30 aprile
+- Iscrizione RENTRI (DM 04/04/2023) - dal 2025
 
-3. CONTROLLI CRITICI:
-   ARPA, Provincia, Comune - specificare su cosa.
+SE presenza_rifiuti_speciali = NO:
+→ NON includere NESSUN obbligo rifiuti
 
-NORMATIVA D.Lgs. 152/06:
-RIFIUTI (Parte IV):
-- Registro carico/scarico (Art. 190) - SOLO produttori rifiuti pericolosi o >10 dip con rifiuti speciali
-- FIR (Art. 193) - SOLO se si producono rifiuti da trasportare
-- MUD (L. 70/94) - SOLO soggetti obbligati, scadenza 30 aprile
-- RENTRI (dal 2025) - sostitutivo digitale
+SE presenza_emissioni_atmosfera = SÌ:
+- Autorizzazione emissioni (Art. 269) o AUA (DPR 59/2013)
 
-EMISSIONI (Parte V):
-- Autorizzazione emissioni (Art. 269) - SOLO se emissioni in atmosfera
-- AUA (DPR 59/2013) - SOLO PMI con almeno un titolo ambientale
+SE presenza_emissioni_atmosfera = NO:
+→ NON includere autorizzazioni emissioni
 
-SCARICHI (Parte III):
-- Autorizzazione scarico (Art. 124-127) - SOLO se scarichi industriali
+SE presenza_scarichi_industriali = SÌ:
+- Autorizzazione allo scarico (Art. 124)
 
-IMPORTANTE: Genera SOLO adempimenti "certamente obbligatori" in base alle caratteristiche indicate. NON assumere rischi non dichiarati.
+SE presenza_scarichi_industriali = NO:
+→ NON includere autorizzazioni scarichi
 
-Per ogni adempimento CERTAMENTE OBBLIGATORIO indica:
-- nome: denominazione ufficiale
-- descrizione: "Art. X D.Lgs. 152/06 - [documento richiesto]"
-- frequenza_rinnovo_mesi: 12=MUD, 0=una tantum, 60=AUA, 180=15 anni
-- sanzione_prevista: articolo e range sanzione
+VERIFICA COMPLETEZZA:
+Se almeno un flag ambientale = SÌ, verifica che ci siano gli adempimenti corrispondenti.
+Se TUTTI i flag ambientali = NO, restituire array VUOTO per questa categoria.
+
+Output SOLO adempimenti certi. Per ogni adempimento:
+- nome: denominazione ufficiale esatta
+- descrizione: "Art. X D.Lgs. 152/06 - [documento specifico]"
+- frequenza_rinnovo_mesi: 12=MUD, 0=una tantum, 60=AUA 5 anni, 180=15 anni
+- sanzione_prevista: "Art. X: [sanzione]"
 - priorita: alta/media/bassa
-- data_scadenza: YYYY-MM-DD calcolata da ${dataBase} (null se una tantum)`,
+- data_scadenza: YYYY-MM-DD (null se una tantum)`,
             add_context_from_internet: false,
             response_json_schema: {
               type: "object",
