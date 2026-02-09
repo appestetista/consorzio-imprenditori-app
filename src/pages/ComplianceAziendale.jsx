@@ -61,16 +61,7 @@ export default function ComplianceAziendale() {
   const [editingBranch, setEditingBranch] = useState(null);
   const [selectedBranch, setSelectedBranch] = useState('all');
   
-  // Handler per cambio branch con protezione da undefined
-  const handleBranchChange = (value) => {
-    // Ignora se il valore è uguale a quello corrente (previene bug Radix)
-    if (value === selectedBranch) return;
-    if (value === undefined || value === null || value === '') {
-      setSelectedBranch('all');
-    } else {
-      setSelectedBranch(value);
-    }
-  };
+
   const [newBranch, setNewBranch] = useState({ nome: '', tipo_attivita: '', codice_ateco: '', indirizzo: '', numero_dipendenti: '', data_attivazione: '' });
   const { impersonation, appMode } = useImpersonation();
   const queryClient = useQueryClient();
