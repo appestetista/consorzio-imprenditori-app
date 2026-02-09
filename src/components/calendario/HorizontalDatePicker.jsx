@@ -105,7 +105,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onClo
       {/* Calendario orizzontale scrollabile */}
       <div 
         ref={scrollRef}
-        className="flex overflow-x-auto py-3 px-2 gap-1 scrollbar-hide"
+        className="flex overflow-x-auto py-3 px-2 scrollbar-hide items-end"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {days.map((dayData, idx) => (
@@ -114,26 +114,40 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onClo
             ref={dayData.isToday ? todayRef : null}
             onClick={() => handleDayClick(dayData)}
             className={cn(
-              "flex flex-col items-center justify-center min-w-[44px] h-[60px] rounded-lg cursor-pointer transition-all border-l border-slate-700/50",
-              dayData.isToday && "bg-lime-400 text-slate-900",
-              dayData.isSelected && !dayData.isToday && "bg-blue-500 text-white",
-              !dayData.isToday && !dayData.isSelected && "hover:bg-slate-700",
-              dayData.isWeekend && !dayData.isToday && !dayData.isSelected && "bg-slate-700/50"
+              "flex flex-col items-center justify-end cursor-pointer transition-all",
+              "border-r border-slate-600",
+              "px-1.5 pb-1"
             )}
+            style={{ minWidth: '28px' }}
           >
+            {/* Linea verticale */}
+            <div 
+              className={cn(
+                "w-[2px] mb-1 rounded-full transition-all",
+                dayData.isToday ? "bg-lime-400" : 
+                dayData.isSelected ? "bg-blue-400" :
+                dayData.isWeekend ? "bg-orange-400/70" : "bg-slate-500"
+              )}
+              style={{ 
+                height: dayData.isWeekend ? '40px' : '24px'
+              }}
+            />
+            
             {/* Numero del giorno */}
             <span className={cn(
-              "text-lg font-bold",
-              dayData.isToday ? "text-slate-900" : dayData.isSelected ? "text-white" : "text-white"
+              "text-sm font-bold leading-tight",
+              dayData.isToday ? "text-lime-400" : 
+              dayData.isSelected ? "text-blue-400" : 
+              dayData.isWeekend ? "text-orange-400" : "text-white"
             )}>
               {dayData.day}
             </span>
             
             {/* Lettera del giorno della settimana */}
             <span className={cn(
-              "text-xs font-medium",
-              dayData.isToday ? "text-slate-700" : 
-              dayData.isSelected ? "text-white/80" :
+              "text-[10px] font-medium leading-tight",
+              dayData.isToday ? "text-lime-400" : 
+              dayData.isSelected ? "text-blue-400" :
               dayData.isWeekend ? "text-orange-400" : "text-slate-400"
             )}>
               {DAYS_SHORT[dayData.dayOfWeek]}
