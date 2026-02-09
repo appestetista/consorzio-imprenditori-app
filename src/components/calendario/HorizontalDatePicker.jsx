@@ -33,36 +33,50 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onClo
     return days;
   };
 
-  const days = getDaysInMonth(currentMonth, currentYear);
+  // Genera 12 mesi (6 prima e 6 dopo il mese corrente)
+  const generateMonthsData = () => {
+    const months = [];
+    for (let i = -6; i <= 6; i++) {
+      let month = currentMonth + i;
+      let year = currentYear;
+      
+      while (month < 0) {
+        month += 12;
+        year -= 1;
+      }
+      while (month > 11) {
+        month -= 12;
+        year += 1;
+      }
+      
+      const daysInMonth = getDaysInMonth(month, year);
+      months.push({
+        month,
+        year,
+        monthName: MONTHS[month],
+        days: daysInMonth
+      });
+    }
+    return months;
+  };
+
+  const monthsData = generateMonthsData();
 
   // Scroll al giorno corrente quando si apre
   useEffect(() => {
-    if (todayRef.current && currentMonth === today.getMonth() && currentYear === today.getFullYear()) {
-      todayRef.current.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    if (todayRef.current) {
+      setTimeout(() => {
+        todayRef.current?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      }, 100);
     }
-  }, [currentMonth, currentYear]);
-
-  const goToPrevMonth = () => {
-    if (currentMonth === 0) {
-      setCurrentMonth(11);
-      setCurrentYear(currentYear - 1);
-    } else {
-      setCurrentMonth(currentMonth - 1);
-    }
-  };
-
-  const goToNextMonth = () => {
-    if (currentMonth === 11) {
-      setCurrentMonth(0);
-      setCurrentYear(currentYear + 1);
-    } else {
-      setCurrentMonth(currentMonth + 1);
-    }
-  };
+  }, []);
 
   const goToToday = () => {
     setCurrentMonth(today.getMonth());
     setCurrentYear(today.getFullYear());
+    setTimeout(() => {
+      todayRef.current?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }, 100);
   };
 
   const handleDayClick = (dayData) => {
@@ -73,86 +87,98 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onClo
 
   return (
     <div className="bg-slate-800 border-t border-slate-700 overflow-hidden">
-      {/* Header con mese/anno e navigazione */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-slate-700">
-        <button 
-          onClick={goToPrevMonth}
-          className="p-1.5 rounded-lg hover:bg-slate-700 transition-colors"
+      {/* Header con pulsante oggi */}
+      <div className="flex items-center justify-center px-4 py-2 border-b border-slate-700">
+        <button
+          onClick={goToToday}
+          className="text-xs bg-lime-400/20 text-lime-400 px-3 py-1.5 rounded-md hover:bg-lime-400/30 transition-colors font-semibold"
         >
-          <ChevronLeft className="w-5 h-5 text-slate-400" />
-        </button>
-        
-        <div className="flex items-center gap-3">
-          <span className="text-white font-semibold">
-            {MONTHS[currentMonth]} {currentYear}
-          </span>
-          <button
-            onClick={goToToday}
-            className="text-xs bg-lime-400/20 text-lime-400 px-2 py-1 rounded-md hover:bg-lime-400/30 transition-colors"
-          >
-            Oggi
-          </button>
-        </div>
-        
-        <button 
-          onClick={goToNextMonth}
-          className="p-1.5 rounded-lg hover:bg-slate-700 transition-colors"
-        >
-          <ChevronRight className="w-5 h-5 text-slate-400" />
+          Vai a Oggi
         </button>
       </div>
 
-      {/* Calendario orizzontale scrollabile */}
+      {/* Calendario orizzontale scrollabile continuo */}
       <div 
         ref={scrollRef}
         className="flex overflow-x-auto py-3 px-2 scrollbar-hide items-end"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
-        {days.map((dayData, idx) => (
-          <div
-            key={idx}
-            ref={dayData.isToday ? todayRef : null}
-            onClick={() => handleDayClick(dayData)}
-            className={cn(
-              "flex flex-col items-center justify-end cursor-pointer transition-all",
-              "border-r border-slate-600",
-              "px-1.5 pb-1"
+        {monthsData.map((monthData, monthIdx) => (
+          <React.Fragment key={`${monthData.year}-${monthData.month}`}>
+            {/* Separatore mese con nome */}
+            {monthIdx > 0 && (
+              <div className="flex flex-col items-center justify-end px-2 min-w-[50px]">
+                <div className="w-[3px] h-[50px] bg-lime-400/50 rounded-full mb-1" />
+                <span className="text-lime-400 text-[10px] font-bold whitespace-nowrap">
+                  {monthData.monthName}
+                </span>
+                <span className="text-slate-500 text-[8px]">
+                  {monthData.year}
+                </span>
+              </div>
             )}
-            style={{ minWidth: '28px' }}
-          >
-            {/* Linea verticale */}
-            <div 
-              className={cn(
-                "w-[2px] mb-1 rounded-full transition-all",
-                dayData.isToday ? "bg-lime-400" : 
-                dayData.isSelected ? "bg-blue-400" :
-                dayData.isWeekend ? "bg-orange-400/70" : "bg-slate-500"
-              )}
-              style={{ 
-                height: dayData.isWeekend ? '40px' : '24px'
-              }}
-            />
             
-            {/* Numero del giorno */}
-            <span className={cn(
-              "text-sm font-bold leading-tight",
-              dayData.isToday ? "text-lime-400" : 
-              dayData.isSelected ? "text-blue-400" : 
-              dayData.isWeekend ? "text-orange-400" : "text-white"
-            )}>
-              {dayData.day}
-            </span>
+            {/* Primo mese - mostra nome */}
+            {monthIdx === 0 && (
+              <div className="flex flex-col items-center justify-end px-2 min-w-[50px]">
+                <div className="w-[3px] h-[50px] bg-lime-400/50 rounded-full mb-1" />
+                <span className="text-lime-400 text-[10px] font-bold whitespace-nowrap">
+                  {monthData.monthName}
+                </span>
+                <span className="text-slate-500 text-[8px]">
+                  {monthData.year}
+                </span>
+              </div>
+            )}
             
-            {/* Lettera del giorno della settimana */}
-            <span className={cn(
-              "text-[10px] font-medium leading-tight",
-              dayData.isToday ? "text-lime-400" : 
-              dayData.isSelected ? "text-blue-400" :
-              dayData.isWeekend ? "text-orange-400" : "text-slate-400"
-            )}>
-              {DAYS_SHORT[dayData.dayOfWeek]}
-            </span>
-          </div>
+            {/* Giorni del mese */}
+            {monthData.days.map((dayData, idx) => (
+              <div
+                key={`${monthData.year}-${monthData.month}-${idx}`}
+                ref={dayData.isToday ? todayRef : null}
+                onClick={() => handleDayClick(dayData)}
+                className={cn(
+                  "flex flex-col items-center justify-end cursor-pointer transition-all",
+                  "border-r border-slate-700/30",
+                  "px-1 pb-1"
+                )}
+                style={{ minWidth: '24px' }}
+              >
+                {/* Linea verticale */}
+                <div 
+                  className={cn(
+                    "w-[2px] mb-1 rounded-full transition-all",
+                    dayData.isToday ? "bg-lime-400" : 
+                    dayData.isSelected ? "bg-blue-400" :
+                    dayData.isWeekend ? "bg-orange-400/70" : "bg-slate-500"
+                  )}
+                  style={{ 
+                    height: dayData.isWeekend ? '40px' : '24px'
+                  }}
+                />
+                
+                {/* Numero del giorno */}
+                <span className={cn(
+                  "text-xs font-bold leading-tight",
+                  dayData.isToday ? "text-lime-400" : 
+                  dayData.isSelected ? "text-blue-400" : 
+                  dayData.isWeekend ? "text-orange-400" : "text-white"
+                )}>
+                  {dayData.day}
+                </span>
+                
+                {/* Lettera del giorno della settimana */}
+                <span className={cn(
+                  "text-[9px] font-medium leading-tight",
+                  dayData.isToday ? "text-lime-400" : 
+                  dayData.isSelected ? "text-blue-400" :
+                  dayData.isWeekend ? "text-orange-400" : "text-slate-400"
+                )}>
+                  {DAYS_SHORT[dayData.dayOfWeek]}
+                </span>
+              </div>
+            ))}
+          </React.Fragment>
         ))}
       </div>
 
