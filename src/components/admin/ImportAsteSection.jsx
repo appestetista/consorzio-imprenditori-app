@@ -397,20 +397,34 @@ export default function ImportAsteSection() {
       
       const asteEscluse = asteConTipologia.length - asteNonEscluse.length;
       
+      // Rimuovi duplicati (stesso indirizzo + stesso prezzo)
+      const viste = new Set();
+      const asteSenzaDuplicati = asteNonEscluse.filter(a => {
+        const chiave = `${(a.localita || '').toLowerCase().trim()}_${a.prezzo_base || 0}`;
+        if (viste.has(chiave)) {
+          console.log('Asta DUPLICATA:', a.titolo?.substring(0, 50), '| chiave:', chiave);
+          return false;
+        }
+        viste.add(chiave);
+        return true;
+      });
+      
+      const asteDuplicate = asteNonEscluse.length - asteSenzaDuplicati.length;
+      
       // Poi filtra le scadute
-      const asteAttive = asteNonEscluse.filter(a => {
+      const asteAttive = asteSenzaDuplicati.filter(a => {
         const dataVendita = parseDataOraVendita(a.data_ora_vendita);
         console.log('Asta:', a.titolo?.substring(0, 30), '| data_ora_vendita:', a.data_ora_vendita, '| parsed:', dataVendita?.toISOString(), '| attiva:', dataVendita ? dataVendita >= adesso : 'no data');
         if (!dataVendita) return true; // Se non ha data, la consideriamo attiva
         return dataVendita >= adesso;
       });
       
-      const asteScadute = asteNonEscluse.length - asteAttive.length;
+      const asteScadute = asteSenzaDuplicati.length - asteAttive.length;
 
       // Salva info file caricato e aste in attesa di pubblicazione
       setUploadedFiles(prev => ({
         ...prev,
-        [tipologia]: { name: file.name, rows: aste.length, scadute: asteScadute, attive: asteAttive.length, escluse: asteEscluse }
+        [tipologia]: { name: file.name, rows: aste.length, scadute: asteScadute, attive: asteAttive.length, escluse: asteEscluse, duplicate: asteDuplicate }
       }));
       
       setPendingAste(prev => ({
@@ -418,10 +432,10 @@ export default function ImportAsteSection() {
         [tipologia]: asteAttive // Solo aste attive
       }));
 
-      console.log('Aste totali:', asteConTipologia.length, 'Attive:', asteAttive.length, 'Scadute:', asteScadute, 'Escluse (garage/posto auto):', asteEscluse);
+      console.log('Aste totali:', asteConTipologia.length, 'Attive:', asteAttive.length, 'Scadute:', asteScadute, 'Escluse (garage/posto auto):', asteEscluse, 'Duplicate:', asteDuplicate);
       
-      if (asteScadute > 0 || asteEscluse > 0) {
-        toast.warning(`File caricato: ${asteAttive.length} aste attive. ${asteScadute > 0 ? `${asteScadute} scadute.` : ''} ${asteEscluse > 0 ? `${asteEscluse} escluse (garage/posto auto).` : ''}`);
+      if (asteScadute > 0 || asteEscluse > 0 || asteDuplicate > 0) {
+        toast.warning(`File caricato: ${asteAttive.length} aste attive. ${asteScadute > 0 ? `${asteScadute} scadute.` : ''} ${asteEscluse > 0 ? `${asteEscluse} escluse.` : ''} ${asteDuplicate > 0 ? `${asteDuplicate} duplicate.` : ''}`);
       } else {
         toast.success(`File caricato: ${asteAttive.length} aste pronte per la pubblicazione.`);
       }
@@ -670,6 +684,9 @@ export default function ImportAsteSection() {
                   )}
                   {uploadedFiles[tipologia.id].escluse > 0 && (
                     <Badge className="bg-gray-500/20 text-gray-400 text-xs">{uploadedFiles[tipologia.id].escluse} escluse</Badge>
+                  )}
+                  {uploadedFiles[tipologia.id].duplicate > 0 && (
+                    <Badge className="bg-purple-500/20 text-purple-400 text-xs">{uploadedFiles[tipologia.id].duplicate} duplicate</Badge>
                   )}
                 </div>
                 <button 
