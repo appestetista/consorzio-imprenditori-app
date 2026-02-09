@@ -358,6 +358,56 @@ export default function ImportAsteSection() {
     handleFile(file, tipologia);
   };
 
+  // Pubblica le aste caricate per una tipologia
+  const handlePublish = async (tipologia) => {
+    const asteToPublish = pendingAste[tipologia];
+    if (!asteToPublish || asteToPublish.length === 0) {
+      toast.error('Nessuna asta da pubblicare');
+      return;
+    }
+
+    setIsPublishing(true);
+    setActiveTipologia(tipologia);
+    
+    try {
+      toast.info(`Pubblicazione ${asteToPublish.length} aste "${tipologia}" in corso...`);
+      
+      const response = await base44.functions.invoke('importAste', { aste: asteToPublish });
+      
+      setLastResult({ ...response.data, tipologia });
+      
+      if (response.data.success) {
+        toast.success(`${tipologia}: ${response.data.riepilogo.nuove_inserite} nuove, ${response.data.riepilogo.aggiornate} aggiornate`);
+        
+        // Rimuovi le aste pubblicate dalla lista pending
+        setPendingAste(prev => {
+          const newPending = { ...prev };
+          delete newPending[tipologia];
+          return newPending;
+        });
+        
+        // Rimuovi il file dalla lista
+        setUploadedFiles(prev => {
+          const newFiles = { ...prev };
+          delete newFiles[tipologia];
+          return newFiles;
+        });
+        
+        queryClient.invalidateQueries({ queryKey: ['aste-stats-admin'] });
+        queryClient.invalidateQueries({ queryKey: ['aste-immobiliari'] });
+      } else {
+        toast.error(response.data.error || 'Errore durante la pubblicazione');
+      }
+    } catch (error) {
+      console.error('Errore pubblicazione:', error);
+      toast.error(`Errore: ${error.message}`);
+      setLastResult({ success: false, error: error.message, tipologia });
+    } finally {
+      setIsPublishing(false);
+      setActiveTipologia(null);
+    }
+  };
+
   const renderTipologiaCard = (tipologia, categoria) => {
     const Icon = tipologia.icon;
     const statsData = stats?.perTipologia[tipologia.id] || { attive: 0, scadute: 0, totale: 0 };
