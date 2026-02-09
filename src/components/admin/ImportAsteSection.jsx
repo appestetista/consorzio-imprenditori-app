@@ -49,14 +49,37 @@ export default function ImportAsteSection() {
   const [pendingAste, setPendingAste] = useState({}); // {tipologia: [aste array]}
   const queryClient = useQueryClient();
 
+  // Helper per parsare data_ora_vendita (formato "DD/MM/YYYY HH:MM" da data_0)
+  const parseDataOraVendita = (dataOraStr) => {
+    if (!dataOraStr) return null;
+    // Formato: "18/03/2026 16:30"
+    const parts = dataOraStr.trim().split(' ');
+    if (parts.length < 1) return null;
+    
+    const dateParts = parts[0].split('/');
+    if (dateParts.length !== 3) return null;
+    
+    const day = parseInt(dateParts[0], 10);
+    const month = parseInt(dateParts[1], 10) - 1; // mesi 0-indexed
+    const year = parseInt(dateParts[2], 10);
+    
+    let hours = 0, minutes = 0;
+    if (parts[1]) {
+      const timeParts = parts[1].split(':');
+      hours = parseInt(timeParts[0], 10) || 0;
+      minutes = parseInt(timeParts[1], 10) || 0;
+    }
+    
+    return new Date(year, month, day, hours, minutes);
+  };
+
   // Carica statistiche per tipologia
   const { data: stats, isLoading: loadingStats, refetch: refetchStats } = useQuery({
     queryKey: ['aste-stats-admin'],
     queryFn: async () => {
       const aste = await base44.entities.AstaImmobiliare.list();
       
-      const oggi = new Date();
-      oggi.setHours(0, 0, 0, 0);
+      const adesso = new Date();
       
       const perTipologia = {};
       let totaleAttive = 0;
@@ -70,15 +93,12 @@ export default function ImportAsteSection() {
         
         perTipologia[tip].totale++;
         
-        if (a.data_asta) {
-          const dataAsta = new Date(a.data_asta);
-          if (dataAsta < oggi) {
-            perTipologia[tip].scadute++;
-            totaleScadute++;
-          } else {
-            perTipologia[tip].attive++;
-            totaleAttive++;
-          }
+        // Usa data_ora_vendita (campo data_0 dal CSV) per determinare se scaduta
+        const dataVendita = parseDataOraVendita(a.data_ora_vendita);
+        
+        if (dataVendita && dataVendita < adesso) {
+          perTipologia[tip].scadute++;
+          totaleScadute++;
         } else {
           perTipologia[tip].attive++;
           totaleAttive++;
