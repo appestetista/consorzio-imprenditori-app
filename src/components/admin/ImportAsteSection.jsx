@@ -42,9 +42,11 @@ export default function ImportAsteSection() {
   const [activeTab, setActiveTab] = useState('mobili');
   const [activeTipologia, setActiveTipologia] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
   const [lastResult, setLastResult] = useState(null);
   const [dragActive, setDragActive] = useState(false);
-  const [uploadedFiles, setUploadedFiles] = useState({}); // {tipologia: {name, rows}}
+  const [uploadedFiles, setUploadedFiles] = useState({}); // {tipologia: {name, rows, data}}
+  const [pendingAste, setPendingAste] = useState({}); // {tipologia: [aste array]}
   const queryClient = useQueryClient();
 
   // Carica statistiche per tipologia
