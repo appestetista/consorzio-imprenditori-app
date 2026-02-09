@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const DAYS_SHORT = ['D', 'L', 'M', 'M', 'G', 'V', 'S'];
-const MONTHS = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
+const MONTHS = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
 
 export default function HorizontalDatePicker({ selectedDate, onDateSelect, onClose }) {
   const today = new Date();
@@ -13,6 +13,8 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onClo
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const scrollRef = useRef(null);
   const todayRef = useRef(null);
+  const [visibleMonth, setVisibleMonth] = useState({ name: MONTHS[today.getMonth()], year: today.getFullYear() });
+  const monthRefs = useRef({});
 
   // Genera tutti i giorni del mese corrente
   const getDaysInMonth = (month, year) => {
@@ -71,6 +73,30 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onClo
     }
   }, []);
 
+  // Observer per rilevare il mese visibile durante lo scroll
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
+            const [year, month] = entry.target.dataset.month.split('-');
+            setVisibleMonth({ name: MONTHS[parseInt(month)], year: parseInt(year) });
+          }
+        });
+      },
+      {
+        root: scrollRef.current,
+        threshold: 0.5
+      }
+    );
+
+    Object.values(monthRefs.current).forEach((ref) => {
+      if (ref) observer.observe(ref);
+    });
+
+    return () => observer.disconnect();
+  }, [monthsData]);
+
   const goToToday = () => {
     setCurrentMonth(today.getMonth());
     setCurrentYear(today.getFullYear());
@@ -104,33 +130,12 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onClo
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {monthsData.map((monthData, monthIdx) => (
-          <React.Fragment key={`${monthData.year}-${monthData.month}`}>
-            {/* Separatore mese con nome */}
-            {monthIdx > 0 && (
-              <div className="flex flex-col items-center justify-end px-2 min-w-[50px]">
-                <div className="w-[3px] h-[50px] bg-lime-400/50 rounded-full mb-1" />
-                <span className="text-lime-400 text-[10px] font-bold whitespace-nowrap">
-                  {monthData.monthName}
-                </span>
-                <span className="text-slate-500 text-[8px]">
-                  {monthData.year}
-                </span>
-              </div>
-            )}
-            
-            {/* Primo mese - mostra nome */}
-            {monthIdx === 0 && (
-              <div className="flex flex-col items-center justify-end px-2 min-w-[50px]">
-                <div className="w-[3px] h-[50px] bg-lime-400/50 rounded-full mb-1" />
-                <span className="text-lime-400 text-[10px] font-bold whitespace-nowrap">
-                  {monthData.monthName}
-                </span>
-                <span className="text-slate-500 text-[8px]">
-                  {monthData.year}
-                </span>
-              </div>
-            )}
-            
+          <div 
+            key={`${monthData.year}-${monthData.month}`}
+            ref={(el) => monthRefs.current[`${monthData.year}-${monthData.month}`] = el}
+            data-month={`${monthData.year}-${monthData.month}`}
+            className="flex items-end"
+          >
             {/* Giorni del mese */}
             {monthData.days.map((dayData, idx) => (
               <div
@@ -178,12 +183,16 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onClo
                 </span>
               </div>
             ))}
-          </React.Fragment>
+          </div>
         ))}
       </div>
 
-      {/* Linea indicatore sotto */}
-      <div className="h-1 bg-gradient-to-r from-slate-800 via-lime-400/30 to-slate-800" />
+      {/* Nome mese corrente visibile */}
+      <div className="bg-slate-900 border-t border-slate-700 py-2 text-center">
+        <span className="text-lime-400 font-bold text-sm">
+          {visibleMonth.name} {visibleMonth.year}
+        </span>
+      </div>
     </div>
   );
 }
