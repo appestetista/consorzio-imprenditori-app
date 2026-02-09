@@ -268,7 +268,6 @@ export default function ComplianceAziendale() {
         const ateco = codiceAteco || branch?.codice_ateco || '';
         const dataBase = dataAttivazione || new Date().toISOString().split('T')[0];
         
-        // Estrai le caratteristiche per il prompt
         const caratteristiche = {
           tipo_categoria: branchData.tipo_attivita_categoria || 'produttiva',
           lavoratori: branchData.presenza_lavoratori !== false,
@@ -278,238 +277,328 @@ export default function ComplianceAziendale() {
           scarichi_industriali: branchData.presenza_scarichi_industriali || false,
           rischio_incendio_non_basso: branchData.presenza_rischio_incendio_non_basso || false
         };
-        
-        const caratteristichePrompt = `
-CARATTERISTICHE SPECIFICHE DELL'ATTIVITÀ:
-- ATECO: ${ateco || 'non specificato'}
-- Tipo attività: ${caratteristiche.tipo_categoria}
-- Presenza lavoratori: ${caratteristiche.lavoratori ? 'SÌ' : 'NO'}
-- Presenza sostanze chimiche: ${caratteristiche.sostanze_chimiche ? 'SÌ' : 'NO'}
-- Presenza rifiuti speciali: ${caratteristiche.rifiuti_speciali ? 'SÌ' : 'NO'}
-- Presenza emissioni in atmosfera: ${caratteristiche.emissioni_atmosfera ? 'SÌ' : 'NO'}
-- Presenza scarichi industriali: ${caratteristiche.scarichi_industriali ? 'SÌ' : 'NO'}
-- Presenza rischio incendio non basso: ${caratteristiche.rischio_incendio_non_basso ? 'SÌ' : 'NO'}`;
+
+        // Calcola data scadenza da oggi + mesi
+        const calcolaScadenza = (mesi) => {
+          if (!mesi || mesi === 0) return null;
+          const data = new Date(dataBase);
+          data.setMonth(data.getMonth() + mesi);
+          return data.toISOString().split('T')[0];
+        };
 
         try {
           console.log('[ComplianceAziendale] START Generazione adempimenti per:', { branchId, tipoAttivita, numeroDipendenti, dataAttivazione, ateco });
 
           const allAdempimenti = [];
 
-          // FASE 1: Adempimenti Sicurezza sul Lavoro (D.Lgs. 81/08)
-          console.log('[ComplianceAziendale] FASE 1: Sicurezza sul lavoro...');
-          const sicurezzaResult = await base44.integrations.Core.InvokeLLM({
-            prompt: `Sei un consulente di compliance aziendale italiana. Genera adempimenti D.Lgs. 81/08.
+          // ========================================
+          // FASE 1: ADEMPIMENTI FISSI (SEMPRE OBBLIGATORI)
+          // ========================================
+          console.log('[ComplianceAziendale] FASE 1: Adempimenti FISSI...');
+
+          if (caratteristiche.lavoratori) {
+            // SICUREZZA SUL LAVORO - SEMPRE OBBLIGATORI
+            const adempimentiFissiSicurezza = [
+              {
+                nome: "DVR - Documento di Valutazione dei Rischi",
+                descrizione: "Art. 17, 28 D.Lgs. 81/08 - Documento obbligatorio che analizza tutti i rischi presenti in azienda e le misure di prevenzione adottate",
+                categoria: "Sicurezza sul lavoro",
+                frequenza_rinnovo_mesi: 0,
+                sanzione_prevista: "Art. 55 D.Lgs. 81/08: Arresto da 3 a 6 mesi o ammenda da €3.071 a €7.862",
+                priorita: "alta",
+                data_scadenza: null
+              },
+              {
+                nome: "Nomina RSPP - Responsabile Servizio Prevenzione e Protezione",
+                descrizione: "Art. 17, 31-34 D.Lgs. 81/08 - Nomina formale del responsabile della sicurezza aziendale",
+                categoria: "Sicurezza sul lavoro",
+                frequenza_rinnovo_mesi: 0,
+                sanzione_prevista: "Art. 55 D.Lgs. 81/08: Arresto da 3 a 6 mesi o ammenda da €3.071 a €7.862",
+                priorita: "alta",
+                data_scadenza: null
+              },
+              {
+                nome: "Nomina RLS - Rappresentante dei Lavoratori per la Sicurezza",
+                descrizione: "Art. 47-50 D.Lgs. 81/08 - Elezione/designazione del rappresentante dei lavoratori o adesione a RLST territoriale",
+                categoria: "Sicurezza sul lavoro",
+                frequenza_rinnovo_mesi: 0,
+                sanzione_prevista: "Art. 55 D.Lgs. 81/08: Ammenda da €2.740 a €7.014",
+                priorita: "alta",
+                data_scadenza: null
+              },
+              {
+                nome: "Formazione Generale Lavoratori",
+                descrizione: "Art. 37 D.Lgs. 81/08 - Formazione base 4 ore su concetti generali di sicurezza",
+                categoria: "Formazione obbligatoria",
+                frequenza_rinnovo_mesi: 0,
+                sanzione_prevista: "Art. 55 D.Lgs. 81/08: Arresto da 2 a 4 mesi o ammenda da €1.474 a €6.388",
+                priorita: "alta",
+                data_scadenza: null
+              },
+              {
+                nome: "Formazione Specifica Lavoratori",
+                descrizione: "Art. 37 D.Lgs. 81/08 - Formazione specifica in base al rischio (basso 4h, medio 8h, alto 12h)",
+                categoria: "Formazione obbligatoria",
+                frequenza_rinnovo_mesi: 60,
+                sanzione_prevista: "Art. 55 D.Lgs. 81/08: Arresto da 2 a 4 mesi o ammenda da €1.474 a €6.388",
+                priorita: "alta",
+                data_scadenza: calcolaScadenza(60)
+              },
+              {
+                nome: "Designazione e Formazione Addetti Primo Soccorso",
+                descrizione: "Art. 45 D.Lgs. 81/08 + DM 388/03 - Designazione addetti e corso 12/16 ore in base al gruppo aziendale",
+                categoria: "Formazione obbligatoria",
+                frequenza_rinnovo_mesi: 36,
+                sanzione_prevista: "Art. 55 D.Lgs. 81/08: Arresto da 2 a 4 mesi o ammenda da €1.474 a €6.388",
+                priorita: "alta",
+                data_scadenza: calcolaScadenza(36)
+              },
+              {
+                nome: "Designazione e Formazione Addetti Antincendio",
+                descrizione: "Art. 46 D.Lgs. 81/08 + DM 02/09/2021 - Designazione addetti e corso in base al livello di rischio",
+                categoria: "Formazione obbligatoria",
+                frequenza_rinnovo_mesi: 60,
+                sanzione_prevista: "Art. 55 D.Lgs. 81/08: Arresto da 2 a 4 mesi o ammenda da €1.474 a €6.388",
+                priorita: "alta",
+                data_scadenza: calcolaScadenza(60)
+              },
+              {
+                nome: "Piano di Emergenza ed Evacuazione",
+                descrizione: "Art. 43-46 D.Lgs. 81/08 + DM 02/09/2021 - Piano scritto delle procedure di emergenza e evacuazione",
+                categoria: "Sicurezza sul lavoro",
+                frequenza_rinnovo_mesi: 0,
+                sanzione_prevista: "Art. 55 D.Lgs. 81/08: Ammenda da €2.740 a €7.014",
+                priorita: "alta",
+                data_scadenza: null
+              },
+              {
+                nome: "Valutazione Stress Lavoro-Correlato",
+                descrizione: "Art. 28 D.Lgs. 81/08 - Valutazione OBBLIGATORIA per TUTTE le aziende con lavoratori",
+                categoria: "Sicurezza sul lavoro",
+                frequenza_rinnovo_mesi: 24,
+                sanzione_prevista: "Art. 55 D.Lgs. 81/08: Ammenda da €2.740 a €7.014",
+                priorita: "media",
+                data_scadenza: calcolaScadenza(24)
+              },
+              {
+                nome: "Registro Controlli Antincendio",
+                descrizione: "DM 02/09/2021 - Registro delle verifiche periodiche su estintori, idranti, uscite emergenza",
+                categoria: "Antincendio",
+                frequenza_rinnovo_mesi: 0,
+                sanzione_prevista: "DPR 151/2011: Sanzioni amministrative e penali",
+                priorita: "media",
+                data_scadenza: null
+              },
+              // PRIVACY - SEMPRE OBBLIGATORI
+              {
+                nome: "Registro dei Trattamenti Dati",
+                descrizione: "Art. 30 GDPR (Reg. UE 2016/679) - Registro obbligatorio dei trattamenti dati personali effettuati",
+                categoria: "Privacy e GDPR",
+                frequenza_rinnovo_mesi: 0,
+                sanzione_prevista: "Art. 83 GDPR: Sanzioni fino a €10.000.000 o 2% fatturato",
+                priorita: "alta",
+                data_scadenza: null
+              },
+              {
+                nome: "Informativa Privacy Dipendenti",
+                descrizione: "Art. 13 GDPR - Informativa sul trattamento dati personali da consegnare ai dipendenti",
+                categoria: "Privacy e GDPR",
+                frequenza_rinnovo_mesi: 0,
+                sanzione_prevista: "Art. 83 GDPR: Sanzioni fino a €20.000.000 o 4% fatturato",
+                priorita: "alta",
+                data_scadenza: null
+              },
+              {
+                nome: "Nomina Autorizzati al Trattamento Dati",
+                descrizione: "Art. 29 GDPR + Art. 2-quaterdecies D.Lgs. 196/03 - Nomina formale dei soggetti autorizzati a trattare dati",
+                categoria: "Privacy e GDPR",
+                frequenza_rinnovo_mesi: 0,
+                sanzione_prevista: "Art. 83 GDPR: Sanzioni amministrative",
+                priorita: "media",
+                data_scadenza: null
+              }
+            ];
+
+            adempimentiFissiSicurezza.forEach(a => allAdempimenti.push(a));
+            console.log('[ComplianceAziendale] Aggiunti', adempimentiFissiSicurezza.length, 'adempimenti FISSI sicurezza/privacy');
+          }
+
+          // ANTINCENDIO - Se rischio non basso
+          if (caratteristiche.rischio_incendio_non_basso) {
+            allAdempimenti.push({
+              nome: "SCIA Antincendio / CPI",
+              descrizione: "DPR 151/2011 - Segnalazione Certificata Inizio Attività o Certificato Prevenzione Incendi",
+              categoria: "Antincendio",
+              frequenza_rinnovo_mesi: 60,
+              sanzione_prevista: "Art. 20 D.Lgs. 139/2006: Arresto fino a 1 anno o ammenda da €258 a €2.582",
+              priorita: "alta",
+              data_scadenza: calcolaScadenza(60)
+            });
+          }
+
+          // AMBIENTALE - Adempimenti fissi se flag attivi
+          if (caratteristiche.rifiuti_speciali) {
+            const adempimentiRifiuti = [
+              {
+                nome: "Registro Carico/Scarico Rifiuti",
+                descrizione: "Art. 190 D.Lgs. 152/06 - Registro vidimato CCIAA per tracciabilità rifiuti speciali",
+                categoria: "Ambientale",
+                frequenza_rinnovo_mesi: 0,
+                sanzione_prevista: "Art. 258 D.Lgs. 152/06: Sanzione da €2.600 a €15.500",
+                priorita: "alta",
+                data_scadenza: null
+              },
+              {
+                nome: "Formulario Identificazione Rifiuti (FIR)",
+                descrizione: "Art. 193 D.Lgs. 152/06 - Documento di accompagnamento per ogni trasporto rifiuti",
+                categoria: "Ambientale",
+                frequenza_rinnovo_mesi: 0,
+                sanzione_prevista: "Art. 258 D.Lgs. 152/06: Sanzione da €1.600 a €9.300",
+                priorita: "alta",
+                data_scadenza: null
+              },
+              {
+                nome: "MUD - Modello Unico Dichiarazione Ambientale",
+                descrizione: "L. 70/94 - Dichiarazione annuale rifiuti, scadenza 30 aprile",
+                categoria: "Ambientale",
+                frequenza_rinnovo_mesi: 12,
+                sanzione_prevista: "Art. 258 D.Lgs. 152/06: Sanzione da €2.600 a €15.500",
+                priorita: "alta",
+                data_scadenza: calcolaScadenza(12)
+              },
+              {
+                nome: "Iscrizione RENTRI",
+                descrizione: "DM 04/04/2023 - Registro Elettronico Nazionale Tracciabilità Rifiuti (obbligatorio dal 2025)",
+                categoria: "Ambientale",
+                frequenza_rinnovo_mesi: 0,
+                sanzione_prevista: "Sanzioni amministrative previste dal DM",
+                priorita: "alta",
+                data_scadenza: null
+              }
+            ];
+            adempimentiRifiuti.forEach(a => allAdempimenti.push(a));
+          }
+
+          if (caratteristiche.emissioni_atmosfera) {
+            allAdempimenti.push({
+              nome: "Autorizzazione Emissioni in Atmosfera",
+              descrizione: "Art. 269 D.Lgs. 152/06 o AUA (DPR 59/2013) - Autorizzazione per emissioni in atmosfera",
+              categoria: "Ambientale",
+              frequenza_rinnovo_mesi: 180,
+              sanzione_prevista: "Art. 279 D.Lgs. 152/06: Arresto fino a 1 anno o ammenda fino a €10.000",
+              priorita: "alta",
+              data_scadenza: calcolaScadenza(180)
+            });
+          }
+
+          if (caratteristiche.scarichi_industriali) {
+            allAdempimenti.push({
+              nome: "Autorizzazione allo Scarico",
+              descrizione: "Art. 124 D.Lgs. 152/06 - Autorizzazione per scarichi acque reflue industriali",
+              categoria: "Ambientale",
+              frequenza_rinnovo_mesi: 48,
+              sanzione_prevista: "Art. 137 D.Lgs. 152/06: Arresto fino a 3 anni o ammenda da €5.000 a €52.000",
+              priorita: "alta",
+              data_scadenza: calcolaScadenza(48)
+            });
+          }
+
+          if (caratteristiche.sostanze_chimiche) {
+            allAdempimenti.push({
+              nome: "Schede Dati di Sicurezza (SDS)",
+              descrizione: "Reg. UE 2020/878 (REACH/CLP) - Raccolta e aggiornamento SDS per tutte le sostanze chimiche",
+              categoria: "Sicurezza sul lavoro",
+              frequenza_rinnovo_mesi: 0,
+              sanzione_prevista: "D.Lgs. 133/2009: Sanzioni da €10.000 a €60.000",
+              priorita: "alta",
+              data_scadenza: null
+            });
+            allAdempimenti.push({
+              nome: "Valutazione Rischio Chimico",
+              descrizione: "Titolo IX D.Lgs. 81/08 - Valutazione specifica del rischio da agenti chimici",
+              categoria: "Sicurezza sul lavoro",
+              frequenza_rinnovo_mesi: 36,
+              sanzione_prevista: "Art. 55 D.Lgs. 81/08: Arresto da 3 a 6 mesi o ammenda da €3.071 a €7.862",
+              priorita: "alta",
+              data_scadenza: calcolaScadenza(36)
+            });
+          }
+
+          console.log('[ComplianceAziendale] Totale adempimenti FISSI:', allAdempimenti.length);
+
+          // ========================================
+          // FASE 2: AI PER ADEMPIMENTI SPECIFICI ATECO
+          // ========================================
+          console.log('[ComplianceAziendale] FASE 2: AI per adempimenti specifici ATECO...');
+
+          const atecoPrompt = ateco ? `Codice ATECO: ${ateco}` : 'Codice ATECO: non specificato';
+
+          const aiResult = await base44.integrations.Core.InvokeLLM({
+            prompt: `Sei un RSPP / consulente HSE esperto di normativa italiana 2025.
 
 DATI AZIENDA:
 - Attività: ${tipoAttivita}
+- ${atecoPrompt}
 - Dipendenti: ${numeroDipendenti || 'non specificato'}
-- Data inizio: ${dataBase}
-${caratteristichePrompt}
+- Tipo: ${caratteristiche.tipo_categoria}
 
-REGOLE TASSATIVE:
-- NON inventare obblighi
-- NON usare termini vaghi ("documentazione varia", "varie certificazioni")
-- NON includere attività di vigilanza degli enti
-- NON confondere adempimenti con attività gestionali
-- NON usare "consigliato" - solo OBBLIGATORIO o NON APPLICABILE
-- Ogni voce = un documento o atto amministrativo REALE e VERIFICABILE
+ADEMPIMENTI GIÀ INSERITI (NON RIPETERE):
+- DVR, RSPP, RLS, Formazione base, Primo Soccorso, Antincendio, Piano Emergenza
+- Stress lavoro-correlato, Registro controlli antincendio
+- Privacy (Registro trattamenti, Informativa, Nomine)
+${caratteristiche.rifiuti_speciali ? '- Registro rifiuti, FIR, MUD, RENTRI' : ''}
+${caratteristiche.emissioni_atmosfera ? '- Autorizzazione emissioni' : ''}
+${caratteristiche.scarichi_industriali ? '- Autorizzazione scarichi' : ''}
+${caratteristiche.sostanze_chimiche ? '- SDS, Valutazione rischio chimico' : ''}
+${caratteristiche.rischio_incendio_non_basso ? '- SCIA/CPI Antincendio' : ''}
 
-OBBLIGHI STRUTTURALI (SEMPRE se presenza_lavoratori=SÌ):
-1. DVR - Documento Valutazione Rischi (Art. 17, 28)
-2. Nomina RSPP (Art. 17, 31-34) 
-3. Nomina RLS o RLST (Art. 47-50)
-4. Formazione generale + specifica lavoratori (Art. 37)
-5. Designazione addetti Primo Soccorso + formazione DM 388/03
-6. Designazione addetti Antincendio + formazione DM 02/09/2021
-7. Piano Emergenza ed Evacuazione (Art. 43-46)
+CERCA SU INTERNET gli obblighi SPECIFICI per il codice ATECO ${ateco || tipoAttivita} e rispondi alla seguente CHECKLIST.
+Per ogni voce rispondi OBBLIGATORIO / NON APPLICABILE / GIÀ PRESENTE:
 
-OBBLIGHI CONDIZIONATI (solo se caratteristica = SÌ):
-- Valutazione rischio chimico (Titolo IX) → presenza_sostanze_chimiche=SÌ
-- Nomina Medico Competente + Sorveglianza sanitaria → rischi che lo richiedono
-- Valutazione rumore/vibrazioni/MMC → attività produttive specifiche
+CHECKLIST VALUTAZIONI RISCHI SPECIFICHE:
+1. Valutazione Movimentazione Manuale Carichi (MMC) - se sollevano/spostano pesi
+2. Valutazione Rischio Meccanico - se usano macchinari (presse, torni, frese, ecc.)
+3. Valutazione Rischio ATEX (atmosfere esplosive) - se polveri/vapori infiammabili
+4. Valutazione Rischio Microclima - se ambienti caldi/freddi (forni, celle, ecc.)
+5. Valutazione Rumore - se macchinari rumorosi
+6. Valutazione Vibrazioni - se utensili vibranti o mezzi
+7. Valutazione Rischio Biologico - se contatto con agenti biologici
+8. Valutazione Campi Elettromagnetici (CEM) - se saldatura, forni induzione
+9. Valutazione Radiazioni Ottiche Artificiali (ROA) - se saldatura, laser
 
-VERIFICA COMPLETEZZA prima di rispondere:
-□ DVR presente?
-□ RSPP presente?
-□ RLS presente?
-□ Formazione lavoratori presente?
-□ Addetti emergenze presenti?
-Se manca un obbligo strutturale obbligatorio, AGGIUNGILO.
+CHECKLIST SORVEGLIANZA SANITARIA:
+10. Nomina Medico Competente - se presente almeno un rischio che lo richiede
+11. Protocollo Sanitario - documento del medico
+12. Giudizi di Idoneità - per ogni lavoratore
 
-Output SOLO adempimenti certi. Per ogni adempimento:
-- nome: denominazione ufficiale esatta
-- descrizione: "Art. X D.Lgs. 81/08 - [documento specifico richiesto]"
-- frequenza_rinnovo_mesi: 0=una tantum, 60=quinquennale formazione
-- sanzione_prevista: "Art. X: [tipo sanzione e importo]"
-- priorita: alta/media/bassa
-- data_scadenza: YYYY-MM-DD da ${dataBase} (null se una tantum)`,
-            add_context_from_internet: false,
-            response_json_schema: {
-              type: "object",
-              properties: {
-                adempimenti: {
-                  type: "array",
-                  items: {
-                    type: "object",
-                    properties: {
-                      nome: { type: "string" },
-                      descrizione: { type: "string" },
-                      frequenza_rinnovo_mesi: { type: "number" },
-                      sanzione_prevista: { type: "string" },
-                      priorita: { type: "string" },
-                      data_scadenza: { type: "string" }
-                    }
-                  }
-                }
-              }
-            }
-          });
-          
-          if (sicurezzaResult?.adempimenti) {
-            sicurezzaResult.adempimenti.forEach(a => allAdempimenti.push({ ...a, categoria: 'Sicurezza sul lavoro' }));
-            console.log('[ComplianceAziendale] Sicurezza:', sicurezzaResult.adempimenti.length, 'adempimenti');
-          }
+CHECKLIST MACCHINE E ATTREZZATURE:
+13. Registro Manutenzione Macchine - se presenti macchinari
+14. Dichiarazioni CE Macchine - marcatura CE obbligatoria
+15. Libretti Uso e Manutenzione - per ogni macchina
 
-          // FASE 2: Adempimenti Ambientali (D.Lgs. 152/06)
-          console.log('[ComplianceAziendale] FASE 2: Ambientale...');
-          const ambientaleResult = await base44.integrations.Core.InvokeLLM({
-            prompt: `Sei un consulente di compliance aziendale italiana. Genera adempimenti D.Lgs. 152/06.
+CHECKLIST FORMAZIONE SPECIFICA:
+16. Formazione Carrelli Elevatori - se usano muletti
+17. Formazione Gru/Carroponte - se presenti
+18. Formazione PLE (piattaforme elevabili) - se presenti
+19. Formazione Lavori in Quota - se lavori sopra 2 metri
+20. Formazione Spazi Confinati - se presenti
 
-DATI AZIENDA:
-- Attività: ${tipoAttivita}
-- Data inizio: ${dataBase}
-${caratteristichePrompt}
+CHECKLIST IGIENE ALIMENTARE (solo se ATECO alimentare 10.xx, 11.xx, 47.2x, 55.xx, 56.xx):
+21. Registrazione OSA alla ASL
+22. Manuale HACCP
+23. Formazione Alimentaristi
 
-REGOLE TASSATIVE:
-- NON inventare obblighi
-- NON usare termini vaghi
-- NON includere attività di vigilanza
-- NON confondere adempimenti con attività gestionali
-- NON usare "consigliato"
-- Ogni voce = un documento o atto REALE
+Genera SOLO gli adempimenti marcati come OBBLIGATORIO.
+NON includere quelli GIÀ PRESENTI o NON APPLICABILE.
 
-LOGICA DI APPLICABILITÀ RIGOROSA:
-
-SE presenza_rifiuti_speciali = SÌ:
-- Registro carico/scarico rifiuti (Art. 190) - vidimato CCIAA
-- Formulario FIR (Art. 193) - per ogni trasporto
-- MUD - Dichiarazione annuale (L. 70/94) - scadenza 30 aprile
-- Iscrizione RENTRI (DM 04/04/2023) - dal 2025
-
-SE presenza_rifiuti_speciali = NO:
-→ NON includere NESSUN obbligo rifiuti
-
-SE presenza_emissioni_atmosfera = SÌ:
-- Autorizzazione emissioni (Art. 269) o AUA (DPR 59/2013)
-
-SE presenza_emissioni_atmosfera = NO:
-→ NON includere autorizzazioni emissioni
-
-SE presenza_scarichi_industriali = SÌ:
-- Autorizzazione allo scarico (Art. 124)
-
-SE presenza_scarichi_industriali = NO:
-→ NON includere autorizzazioni scarichi
-
-VERIFICA COMPLETEZZA:
-Se almeno un flag ambientale = SÌ, verifica che ci siano gli adempimenti corrispondenti.
-Se TUTTI i flag ambientali = NO, restituire array VUOTO per questa categoria.
-
-Output SOLO adempimenti certi. Per ogni adempimento:
-- nome: denominazione ufficiale esatta
-- descrizione: "Art. X D.Lgs. 152/06 - [documento specifico]"
-- frequenza_rinnovo_mesi: 12=MUD, 0=una tantum, 60=AUA 5 anni, 180=15 anni
-- sanzione_prevista: "Art. X: [sanzione]"
-- priorita: alta/media/bassa
-- data_scadenza: YYYY-MM-DD (null se una tantum)`,
-            add_context_from_internet: false,
-            response_json_schema: {
-              type: "object",
-              properties: {
-                adempimenti: {
-                  type: "array",
-                  items: {
-                    type: "object",
-                    properties: {
-                      nome: { type: "string" },
-                      descrizione: { type: "string" },
-                      frequenza_rinnovo_mesi: { type: "number" },
-                      sanzione_prevista: { type: "string" },
-                      priorita: { type: "string" },
-                      data_scadenza: { type: "string" }
-                    }
-                  }
-                }
-              }
-            }
-          });
-          
-          if (ambientaleResult?.adempimenti) {
-            ambientaleResult.adempimenti.forEach(a => allAdempimenti.push({ ...a, categoria: 'Ambientale' }));
-            console.log('[ComplianceAziendale] Ambientale:', ambientaleResult.adempimenti.length, 'adempimenti');
-          }
-
-          // FASE 3: Chimica REACH/CLP + Privacy + Antincendio + Amministrativo + Igiene
-          console.log('[ComplianceAziendale] FASE 3: Chimica, Privacy, Antincendio, SUAP, Igiene...');
-          const altroResult = await base44.integrations.Core.InvokeLLM({
-            prompt: `Sei un consulente di compliance aziendale italiana. Genera adempimenti per: Privacy, Antincendio, Chimica, SUAP, Igiene.
-
-DATI AZIENDA:
-- Attività: ${tipoAttivita}
-- Data inizio: ${dataBase}
-${caratteristichePrompt}
-
-REGOLE TASSATIVE:
-- NON inventare obblighi
-- NON usare termini vaghi
-- NON includere attività di vigilanza
-- NON confondere adempimenti con attività gestionali
-- NON usare "consigliato"
-- Ogni voce = un documento o atto REALE
-
-LOGICA DI APPLICABILITÀ RIGOROSA:
-
-PRIVACY (SEMPRE se presenza_lavoratori = SÌ):
-- Informativa privacy dipendenti (Art. 13 GDPR) - categoria "Privacy e GDPR"
-- Registro trattamenti dati (Art. 30 GDPR) - categoria "Privacy e GDPR"
-- Nomina autorizzati al trattamento - categoria "Privacy e GDPR"
-
-ANTINCENDIO:
-SE presenza_rischio_incendio_non_basso = SÌ:
-- SCIA Antincendio o CPI (DPR 151/2011) - categoria "Antincendio"
-- Rinnovo periodico CPI 5 anni - categoria "Antincendio"
-SE presenza_lavoratori = SÌ (SEMPRE):
-- Registro controlli antincendio (DM 02/09/2021) - categoria "Antincendio"
-
-CHIMICA:
-SE presenza_sostanze_chimiche = SÌ:
-- Schede Dati di Sicurezza SDS (Reg. 2020/878) - categoria "Altro"
-- Registro sostanze pericolose - categoria "Altro"
-SE presenza_sostanze_chimiche = NO:
-→ NON includere obblighi chimici
-
-IGIENE ALIMENTARE (SOLO se attività alimentare - ATECO 10.xx, 11.xx, 47.2x, 55.xx, 56.xx):
-- Registrazione OSA alla ASL (Reg. CE 852/2004) - categoria "Igiene e Sanità"
-- Manuale HACCP - categoria "Igiene e Sanità"
-- Formazione alimentaristi - categoria "Igiene e Sanità"
-SE attività NON alimentare:
-→ NON includere HACCP, OSA, alimentaristi
-
-VERIFICA COMPLETEZZA:
-□ Privacy/GDPR presente se ci sono lavoratori?
-□ Registro controlli antincendio presente?
-□ Adempimenti coerenti con le caratteristiche indicate?
-Se manca un obbligo strutturale, AGGIUNGILO.
-
-Output SOLO adempimenti certi. Per ogni adempimento:
-- nome: denominazione ufficiale esatta
-- descrizione: "Norma - [documento specifico]"
-- categoria: "Privacy e GDPR" / "Antincendio" / "Igiene e Sanità" / "Altro"
-- frequenza_rinnovo_mesi: 0=una tantum, 60=CPI 5 anni
-- sanzione_prevista: "Norma Art. X: [sanzione]"
-- priorita: alta/media/bassa
-- data_scadenza: YYYY-MM-DD (null se una tantum)`,
-            add_context_from_internet: false,
+Per ogni adempimento obbligatorio:
+- nome: denominazione esatta
+- descrizione: riferimento normativo + cosa prevede
+- categoria: "Sicurezza sul lavoro" / "Formazione obbligatoria" / "Igiene e Sanità"
+- frequenza_rinnovo_mesi: 0=una tantum, oppure mesi
+- sanzione_prevista: riferimento e importo
+- priorita: alta/media/bassa`,
+            add_context_from_internet: true,
             response_json_schema: {
               type: "object",
               properties: {
@@ -523,22 +612,42 @@ Output SOLO adempimenti certi. Per ogni adempimento:
                       categoria: { type: "string" },
                       frequenza_rinnovo_mesi: { type: "number" },
                       sanzione_prevista: { type: "string" },
-                      priorita: { type: "string" },
-                      data_scadenza: { type: "string" }
+                      priorita: { type: "string" }
                     }
                   }
                 }
               }
             }
           });
-          
-          if (altroResult?.adempimenti) {
-            altroResult.adempimenti.forEach(a => allAdempimenti.push(a));
-            console.log('[ComplianceAziendale] Altro:', altroResult.adempimenti.length, 'adempimenti');
+
+          if (aiResult?.adempimenti) {
+            // Filtra duplicati
+            const nomiEsistenti = allAdempimenti.map(a => a.nome.toLowerCase());
+            const nuoviAdempimenti = aiResult.adempimenti.filter(a => {
+              const nomeLower = a.nome.toLowerCase();
+              // Evita duplicati
+              return !nomiEsistenti.some(n => 
+                n.includes(nomeLower) || nomeLower.includes(n) ||
+                (nomeLower.includes('dvr') && n.includes('dvr')) ||
+                (nomeLower.includes('rspp') && n.includes('rspp')) ||
+                (nomeLower.includes('rls') && n.includes('rls')) ||
+                (nomeLower.includes('stress') && n.includes('stress'))
+              );
+            });
+
+            nuoviAdempimenti.forEach(a => {
+              allAdempimenti.push({
+                ...a,
+                data_scadenza: a.frequenza_rinnovo_mesi ? calcolaScadenza(a.frequenza_rinnovo_mesi) : null
+              });
+            });
+            console.log('[ComplianceAziendale] AI ha aggiunto', nuoviAdempimenti.length, 'adempimenti specifici');
           }
 
-          // Salva tutti gli adempimenti
-          console.log('[ComplianceAziendale] Totale adempimenti generati:', allAdempimenti.length);
+          // ========================================
+          // FASE 3: SALVATAGGIO
+          // ========================================
+          console.log('[ComplianceAziendale] Totale adempimenti da salvare:', allAdempimenti.length);
           
           if (allAdempimenti.length === 0) {
             throw new Error('Nessun adempimento generato. Riprova.');
@@ -565,7 +674,7 @@ Output SOLO adempimenti certi. Per ogni adempimento:
               nome: adempimento.nome,
               descrizione: adempimento.descrizione,
               categoria: categoria,
-              frequenza_rinnovo_mesi: adempimento.frequenza_rinnovo_mesi || 12,
+              frequenza_rinnovo_mesi: adempimento.frequenza_rinnovo_mesi || 0,
               sanzione_prevista: adempimento.sanzione_prevista,
               priorita: adempimento.priorita || 'media',
               stato: 'non_verificato',
