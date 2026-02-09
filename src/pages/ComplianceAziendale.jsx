@@ -348,16 +348,16 @@ export default function ComplianceAziendale() {
         };
 
         try {
-          console.log('[ComplianceAziendale] START Generazione adempimenti per:', { branchId, tipoAttivita, numeroDipendenti, dataAttivazione, ateco });
+          console.log('[ComplianceAziendale] START Generazione adempimenti per:', { branchId, tipoAttivita, numeroDipendenti, dataAttivazione, ateco, rischi });
 
           const allAdempimenti = [];
 
           // ========================================
-          // FASE 1: ADEMPIMENTI FISSI (SEMPRE OBBLIGATORI)
+          // FASE 1: ADEMPIMENTI FISSI (SEMPRE OBBLIGATORI SE CI SONO LAVORATORI)
           // ========================================
-          console.log('[ComplianceAziendale] FASE 1: Adempimenti FISSI...');
+          console.log('[ComplianceAziendale] FASE 1: Adempimenti FISSI base...');
 
-          if (caratteristiche.lavoratori) {
+          if (rischi.lavoratori) {
             // SICUREZZA SUL LAVORO - SEMPRE OBBLIGATORI
             const adempimentiFissiSicurezza = [
               {
