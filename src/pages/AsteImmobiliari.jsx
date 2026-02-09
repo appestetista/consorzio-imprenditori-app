@@ -27,7 +27,8 @@ import {
   ChevronUp,
   Filter,
   X,
-  Bell
+  Bell,
+  Mountain
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -47,6 +48,7 @@ const CATEGORIE_IMMOBILI = [
   { id: 'Immobile Residenziale', label: 'Residenziale', icon: Home },
   { id: 'Immobile Commerciale', label: 'Commerciale', icon: Store },
   { id: 'Immobile Industriale', label: 'Industriale', icon: Factory },
+  { id: 'Terreni', label: 'Terreni', icon: Mountain },
 ];
 
 export default function AsteImmobiliari() {
