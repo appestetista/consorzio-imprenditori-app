@@ -256,14 +256,29 @@ export default function ComplianceAziendale() {
               codice_ateco: '', 
               indirizzo: '', 
               numero_dipendenti: '', 
+              superficie_mq: '',
               data_attivazione: '',
               tipo_attivita_categoria: 'produttiva',
               presenza_lavoratori: true,
+              presenza_macchinari: false,
+              presenza_rumore: false,
+              presenza_vibrazioni: false,
               presenza_sostanze_chimiche: false,
+              presenza_movimentazione_carichi: false,
+              presenza_videoterminali: false,
+              presenza_lavori_quota: false,
+              presenza_spazi_confinati: false,
+              presenza_rischio_biologico: false,
+              presenza_campi_elettromagnetici: false,
+              presenza_radiazioni_ottiche: false,
+              presenza_microclima_severo: false,
+              presenza_atmosfere_esplosive: false,
               presenza_rifiuti_speciali: false,
               presenza_emissioni_atmosfera: false,
               presenza_scarichi_industriali: false,
-              presenza_rischio_incendio_non_basso: false
+              presenza_rischio_incendio_non_basso: false,
+              presenza_sistemi_it_cloud: false,
+              trattamento_dati_sensibili: false
             });
       setShowBranchManager(false);
       // Seleziona automaticamente il ramo appena creato per mostrare gli adempimenti
