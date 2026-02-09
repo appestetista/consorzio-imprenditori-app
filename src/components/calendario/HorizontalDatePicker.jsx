@@ -190,7 +190,10 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onClo
       {/* Nome mese corrente visibile */}
       <div className="bg-slate-900 border-t border-slate-700 py-2 text-center">
         <span className="text-lime-400 font-bold text-sm">
-          {visibleMonth.name} {visibleMonth.year}
+          {visibleMonth.name}
+        </span>
+        <span className="text-slate-400 font-medium text-sm ml-2">
+          {visibleMonth.year}
         </span>
       </div>
     </div>
