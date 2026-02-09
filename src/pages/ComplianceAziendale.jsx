@@ -378,36 +378,41 @@ DATI AZIENDA:
 - Data inizio attività: ${dataBase}
 ${caratteristichePrompt}
 
-GENERA GLI ADEMPIMENTI AMBIENTALI OBBLIGATORI:
+ANALIZZA E CLASSIFICA gli adempimenti ambientali:
 
-RIFIUTI (Parte IV D.Lgs. 152/06, Art. 188-266):
-- Registro cronologico carico/scarico rifiuti (Art. 190) - produttori rifiuti pericolosi o >10 dipendenti
-- Formulario Identificazione Rifiuti FIR (Art. 193)
-- MUD - Modello Unico Dichiarazione ambientale (L. 70/94) - scadenza 30 aprile annuale
-- Iscrizione RENTRI (nuovo dal 2025) - sostitutivo registro/FIR
-- Classificazione rifiuti secondo Decisione 2014/955/UE (codici EER)
-- Deposito temporaneo conforme (Art. 183, lett. bb)
+1. OBBLIGHI CERTAMENTE OBBLIGATORI per questa specifica attività:
+   Basati ESCLUSIVAMENTE sulle caratteristiche indicate (rifiuti speciali SÌ/NO, emissioni SÌ/NO, scarichi SÌ/NO).
+   Se "Presenza rifiuti speciali: NO" → NON includere obblighi sui rifiuti speciali.
+   Se "Presenza emissioni in atmosfera: NO" → NON includere autorizzazioni emissioni.
+   Se "Presenza scarichi industriali: NO" → NON includere autorizzazioni scarichi.
 
-EMISSIONI IN ATMOSFERA (Parte V D.Lgs. 152/06, Art. 267-281):
-- Autorizzazione emissioni (Art. 269) - attività in deroga o ordinaria
-- Autorizzazione Unica Ambientale AUA (DPR 59/2013) - PMI
-- Piano Gestione Solventi (Art. 275) - se COV > soglie Allegato III Parte V
+2. OBBLIGHI CONDIZIONATI (da verificare):
+   Adempimenti che si applicano SOLO al superamento di soglie specifiche.
 
-SCARICHI IDRICI (Parte III D.Lgs. 152/06):
-- Autorizzazione allo scarico (Art. 124-127) - se scarichi in fognatura/acque superficiali
+3. CONTROLLI CRITICI:
+   ARPA, Provincia, Comune - specificare su cosa.
 
-APPLICABILITÀ PER SETTORE:
-- ATECO 20.xx (Chimica/Vernici): TUTTI gli adempimenti sopra + Piano Gestione Solventi
-- ATECO 25.xx-28.xx (Metalmeccanica): Rifiuti + Emissioni (se verniciatura)
-- ATECO 10.xx-11.xx (Alimentare): Rifiuti + Scarichi
-- ATECO 45.xx (Autoriparazione): Rifiuti pericolosi (oli, batterie, filtri)
-- ATECO 41.xx-43.xx (Edilizia): Rifiuti speciali cantiere
+NORMATIVA D.Lgs. 152/06:
+RIFIUTI (Parte IV):
+- Registro carico/scarico (Art. 190) - SOLO produttori rifiuti pericolosi o >10 dip con rifiuti speciali
+- FIR (Art. 193) - SOLO se si producono rifiuti da trasportare
+- MUD (L. 70/94) - SOLO soggetti obbligati, scadenza 30 aprile
+- RENTRI (dal 2025) - sostitutivo digitale
 
-Per ogni adempimento OBBLIGATORIO indica:
+EMISSIONI (Parte V):
+- Autorizzazione emissioni (Art. 269) - SOLO se emissioni in atmosfera
+- AUA (DPR 59/2013) - SOLO PMI con almeno un titolo ambientale
+
+SCARICHI (Parte III):
+- Autorizzazione scarico (Art. 124-127) - SOLO se scarichi industriali
+
+IMPORTANTE: Genera SOLO adempimenti "certamente obbligatori" in base alle caratteristiche indicate. NON assumere rischi non dichiarati.
+
+Per ogni adempimento CERTAMENTE OBBLIGATORIO indica:
 - nome: denominazione ufficiale
-- descrizione: articolo di legge specifico
-- frequenza_rinnovo_mesi: 12=MUD, 0=una tantum, 60=AUA, 180=autorizzazione 15 anni
-- sanzione_prevista: Art. 255-260 D.Lgs. 152/06
+- descrizione: "Art. X D.Lgs. 152/06 - [documento richiesto]"
+- frequenza_rinnovo_mesi: 12=MUD, 0=una tantum, 60=AUA, 180=15 anni
+- sanzione_prevista: articolo e range sanzione
 - priorita: alta/media/bassa
 - data_scadenza: YYYY-MM-DD calcolata da ${dataBase} (null se una tantum)`,
             add_context_from_internet: false,
