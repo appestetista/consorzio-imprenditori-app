@@ -328,6 +328,12 @@ export default function ImportAsteSection() {
 
       console.log('Aste parsate:', aste.length, 'Prima asta:', aste[0]);
       
+      // Funzione per verificare se l'annuncio deve essere escluso (posto auto, garage)
+      const deveEssereEscluso = (asta) => {
+        const testo = `${asta.titolo || ''} ${asta.raw_data?.data_3 || ''} ${asta.raw_data?.['Property_Included_in_Lot_-_Description_0'] || ''}`.toLowerCase();
+        return /\bposto auto\b|\bposti auto\b|\bgarage\b|\bbox auto\b|\bautorimessa\b/.test(testo);
+      };
+      
       // Funzione per auto-categorizzare immobili basata su parole chiave
       const autoCategorizzaImmobile = (asta) => {
         const testo = `${asta.titolo || ''} ${asta.raw_data?.data_3 || ''} ${asta.raw_data?.['Property_Included_in_Lot_-_Description_0'] || ''}`.toLowerCase();
@@ -376,23 +382,35 @@ export default function ImportAsteSection() {
         };
       });
 
-      // Filtra aste scadute (data_ora_vendita < oggi)
+      // Filtra aste: escludi posto auto/garage e scadute
       const adesso = new Date();
       console.log('Data attuale per confronto:', adesso.toISOString());
       
-      const asteAttive = asteConTipologia.filter(a => {
+      // Prima escludi posto auto e garage
+      const asteNonEscluse = asteConTipologia.filter(a => {
+        const escluso = deveEssereEscluso(a);
+        if (escluso) {
+          console.log('Asta ESCLUSA (posto auto/garage):', a.titolo?.substring(0, 50));
+        }
+        return !escluso;
+      });
+      
+      const asteEscluse = asteConTipologia.length - asteNonEscluse.length;
+      
+      // Poi filtra le scadute
+      const asteAttive = asteNonEscluse.filter(a => {
         const dataVendita = parseDataOraVendita(a.data_ora_vendita);
         console.log('Asta:', a.titolo?.substring(0, 30), '| data_ora_vendita:', a.data_ora_vendita, '| parsed:', dataVendita?.toISOString(), '| attiva:', dataVendita ? dataVendita >= adesso : 'no data');
         if (!dataVendita) return true; // Se non ha data, la consideriamo attiva
         return dataVendita >= adesso;
       });
       
-      const asteScadute = asteConTipologia.length - asteAttive.length;
+      const asteScadute = asteNonEscluse.length - asteAttive.length;
 
       // Salva info file caricato e aste in attesa di pubblicazione
       setUploadedFiles(prev => ({
         ...prev,
-        [tipologia]: { name: file.name, rows: aste.length, scadute: asteScadute, attive: asteAttive.length }
+        [tipologia]: { name: file.name, rows: aste.length, scadute: asteScadute, attive: asteAttive.length, escluse: asteEscluse }
       }));
       
       setPendingAste(prev => ({
@@ -400,10 +418,10 @@ export default function ImportAsteSection() {
         [tipologia]: asteAttive // Solo aste attive
       }));
 
-      console.log('Aste totali:', asteConTipologia.length, 'Attive:', asteAttive.length, 'Scadute:', asteScadute);
+      console.log('Aste totali:', asteConTipologia.length, 'Attive:', asteAttive.length, 'Scadute:', asteScadute, 'Escluse (garage/posto auto):', asteEscluse);
       
-      if (asteScadute > 0) {
-        toast.warning(`File caricato: ${asteAttive.length} aste attive pronte per la pubblicazione. ${asteScadute} aste scadute escluse.`);
+      if (asteScadute > 0 || asteEscluse > 0) {
+        toast.warning(`File caricato: ${asteAttive.length} aste attive. ${asteScadute > 0 ? `${asteScadute} scadute.` : ''} ${asteEscluse > 0 ? `${asteEscluse} escluse (garage/posto auto).` : ''}`);
       } else {
         toast.success(`File caricato: ${asteAttive.length} aste pronte per la pubblicazione.`);
       }
@@ -649,6 +667,9 @@ export default function ImportAsteSection() {
                   <Badge className="bg-green-500/20 text-green-400 text-xs">{uploadedFiles[tipologia.id].attive || 0} attive</Badge>
                   {uploadedFiles[tipologia.id].scadute > 0 && (
                     <Badge className="bg-red-500/20 text-red-400 text-xs">{uploadedFiles[tipologia.id].scadute} scadute</Badge>
+                  )}
+                  {uploadedFiles[tipologia.id].escluse > 0 && (
+                    <Badge className="bg-gray-500/20 text-gray-400 text-xs">{uploadedFiles[tipologia.id].escluse} escluse</Badge>
                   )}
                 </div>
                 <button 
