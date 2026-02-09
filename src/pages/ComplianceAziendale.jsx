@@ -237,126 +237,226 @@ export default function ComplianceAziendale() {
           throw new Error('Tipo attività mancante');
         }
 
-        // Trova il branch per ottenere il codice ATECO se non passato
         const branch = branches.find(b => b.id === branchId);
         const ateco = codiceAteco || branch?.codice_ateco || '';
+        const dataBase = dataAttivazione || new Date().toISOString().split('T')[0];
 
         try {
           console.log('[ComplianceAziendale] START Generazione adempimenti per:', { branchId, tipoAttivita, numeroDipendenti, dataAttivazione, ateco });
 
-      // Prompt semplificato per evitare timeout
-      const shortPrompt = `Genera gli adempimenti obbligatori per legge italiana per questa attività:
-- Tipo: ${tipoAttivita}
+          const allAdempimenti = [];
+
+          // FASE 1: Adempimenti Sicurezza sul Lavoro (D.Lgs. 81/08)
+          console.log('[ComplianceAziendale] FASE 1: Sicurezza sul lavoro...');
+          const sicurezzaResult = await base44.integrations.Core.InvokeLLM({
+            prompt: `Sei un consulente sicurezza sul lavoro. Genera SOLO gli adempimenti D.Lgs. 81/08 per:
+- Attività: ${tipoAttivita}
 - ATECO: ${ateco || 'non specificato'}
 - Dipendenti: ${numeroDipendenti || 'non specificato'}
-- Data attivazione: ${dataAttivazione || new Date().toISOString().split('T')[0]}
 
-Genera 15-25 adempimenti principali. Per ogni adempimento indica:
+ADEMPIMENTI OBBLIGATORI DA INCLUDERE (verifica applicabilità):
+- DVR (Documento Valutazione Rischi) - SEMPRE obbligatorio
+- Valutazione rischio chimico (se sostanze pericolose)
+- Valutazione rischio ATEX (se atmosfere esplosive)
+- Valutazione rischio incendio
+- Nomina RSPP
+- Nomina RLS
+- Nomina Medico Competente
+- Sorveglianza sanitaria periodica
+- Formazione lavoratori (generale 4h + specifica)
+- Addetti Primo Soccorso + formazione
+- Addetti Antincendio + formazione
+- Piano Emergenza ed Evacuazione
+
+Per ogni adempimento indica:
 - nome: nome ufficiale
-- descrizione: cosa richiede (breve)
-- categoria: una tra [Sicurezza sul lavoro, Privacy e GDPR, Ambientale, Fiscale, Igiene e Sanità, Antincendio, Formazione obbligatoria, Altro]
-- frequenza_rinnovo_mesi: ogni quanti mesi rinnovare (0 se una tantum)
-- sanzione_prevista: sanzione in caso di violazione
+- descrizione: riferimento normativo specifico (articolo D.Lgs. 81/08)
+- frequenza_rinnovo_mesi: 0=una tantum, 12=annuale, 36=triennale, 60=quinquennale
+- sanzione_prevista: importo specifico
 - priorita: alta/media/bassa
-- data_scadenza: YYYY-MM-DD (calcolata dalla data attivazione)`;
-
-      let result;
-      try {
-        console.log('[ComplianceAziendale] Invio richiesta a InvokeLLM...');
-        result = await base44.integrations.Core.InvokeLLM({
-          prompt: shortPrompt,
-          add_context_from_internet: false,
-          response_json_schema: {
-            type: "object",
-            properties: {
-              adempimenti: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    nome: { type: "string" },
-                    descrizione: { type: "string" },
-                    categoria: { type: "string" },
-                    frequenza_rinnovo_mesi: { type: "number" },
-                    sanzione_prevista: { type: "string" },
-                    priorita: { type: "string" },
-                    data_scadenza: { type: "string" }
+- data_scadenza: calcola da ${dataBase} + frequenza (formato YYYY-MM-DD, null se una tantum)`,
+            add_context_from_internet: false,
+            response_json_schema: {
+              type: "object",
+              properties: {
+                adempimenti: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      nome: { type: "string" },
+                      descrizione: { type: "string" },
+                      frequenza_rinnovo_mesi: { type: "number" },
+                      sanzione_prevista: { type: "string" },
+                      priorita: { type: "string" },
+                      data_scadenza: { type: "string" }
+                    }
                   }
                 }
               }
             }
-          }
-        });
-        console.log('[ComplianceAziendale] Risposta LLM ricevuta:', result?.adempimenti?.length || 0, 'adempimenti');
-      } catch (llmError) {
-        console.error('[ComplianceAziendale] Errore chiamata LLM:', llmError);
-        throw new Error('Errore AI temporaneo. Riprova tra qualche secondo.');
-      }
-
-      if (!result || !result.adempimenti || result.adempimenti.length === 0) {
-        console.error('[ComplianceAziendale] Risposta LLM non valida:', result);
-        throw new Error('Nessun adempimento generato. Riprova.');
-      }
-
-      if (result?.adempimenti && result.adempimenti.length > 0) {
-        const createdNormIds = [];
-
-        for (const adempimento of result.adempimenti) {
-          // Valida la categoria con normalizzazione (case-insensitive)
-          const validCategorie = ["Sicurezza sul lavoro", "Privacy e GDPR", "Ambientale", "Fiscale", "Igiene e Sanità", "Antincendio", "Formazione obbligatoria", "Altro"];
-          let categoria = adempimento.categoria || 'Altro';
-
-          // Normalizza la categoria confrontando in lowercase
-          const categoriaLower = categoria.toLowerCase().trim();
-          const matchedCategoria = validCategorie.find(c => c.toLowerCase() === categoriaLower);
-          if (matchedCategoria) {
-            categoria = matchedCategoria;
-          } else {
-            // Prova match parziale
-            const partialMatch = validCategorie.find(c => 
-              categoriaLower.includes(c.toLowerCase()) || c.toLowerCase().includes(categoriaLower)
-            );
-            categoria = partialMatch || 'Altro';
-          }
-
-          const created = await base44.entities.ComplianceNorm.create({
-            user_email: effectiveUser?.email,
-            branch_id: branchId,
-            nome: adempimento.nome,
-            descrizione: adempimento.descrizione,
-            categoria: categoria,
-            frequenza_rinnovo_mesi: adempimento.frequenza_rinnovo_mesi || 12,
-            sanzione_prevista: adempimento.sanzione_prevista,
-            priorita: adempimento.priorita || 'media',
-            stato: 'non_verificato',
-            data_scadenza: adempimento.data_scadenza || null,
-            is_locked: true,
-            documenti_urls: [],
-            documenti_nomi: []
           });
-          createdNormIds.push({ id: created.id, nome: adempimento.nome });
-        }
+          
+          if (sicurezzaResult?.adempimenti) {
+            sicurezzaResult.adempimenti.forEach(a => allAdempimenti.push({ ...a, categoria: 'Sicurezza sul lavoro' }));
+            console.log('[ComplianceAziendale] Sicurezza:', sicurezzaResult.adempimenti.length, 'adempimenti');
+          }
 
-        console.log('[ComplianceAziendale] Generati', result.adempimenti.length, 'adempimenti per branch', branchId);
-        
-        // Invalida le query in modo sicuro
-        try {
-          queryClient.invalidateQueries({ queryKey: ['compliance-norms'] });
-        } catch (qcError) {
-          console.warn('[ComplianceAziendale] Errore invalidazione query (non critico):', qcError);
-        }
+          // FASE 2: Adempimenti Ambientali (D.Lgs. 152/06)
+          console.log('[ComplianceAziendale] FASE 2: Ambientale...');
+          const ambientaleResult = await base44.integrations.Core.InvokeLLM({
+            prompt: `Sei un consulente ambientale. Genera SOLO gli adempimenti D.Lgs. 152/06 per:
+- Attività: ${tipoAttivita}
+- ATECO: ${ateco || 'non specificato'}
 
-        // Skip seconda fase per velocizzare
-        console.log('[ComplianceAziendale] Generazione completata con successo');
+ADEMPIMENTI DA VERIFICARE (includi solo quelli applicabili):
+- Registro carico/scarico rifiuti
+- Classificazione rifiuti EER/CER
+- Formulari FIR (Formulario Identificazione Rifiuti)
+- Deposito temporaneo conforme
+- MUD annuale (Modello Unico Dichiarazione ambientale)
+- Autorizzazione emissioni in atmosfera
+- AUA – Autorizzazione Unica Ambientale
+- Autorizzazione allo scarico (se scarichi idrici)
+
+Per ogni adempimento:
+- nome: nome ufficiale
+- descrizione: riferimento normativo
+- frequenza_rinnovo_mesi: 0=una tantum, 12=annuale, etc.
+- sanzione_prevista: importo
+- priorita: alta/media/bassa
+- data_scadenza: YYYY-MM-DD da ${dataBase} (null se una tantum)`,
+            add_context_from_internet: false,
+            response_json_schema: {
+              type: "object",
+              properties: {
+                adempimenti: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      nome: { type: "string" },
+                      descrizione: { type: "string" },
+                      frequenza_rinnovo_mesi: { type: "number" },
+                      sanzione_prevista: { type: "string" },
+                      priorita: { type: "string" },
+                      data_scadenza: { type: "string" }
+                    }
+                  }
+                }
+              }
+            }
+          });
+          
+          if (ambientaleResult?.adempimenti) {
+            ambientaleResult.adempimenti.forEach(a => allAdempimenti.push({ ...a, categoria: 'Ambientale' }));
+            console.log('[ComplianceAziendale] Ambientale:', ambientaleResult.adempimenti.length, 'adempimenti');
+          }
+
+          // FASE 3: Chimica REACH/CLP + Privacy + Amministrativo
+          console.log('[ComplianceAziendale] FASE 3: Chimica, Privacy, Amministrativo...');
+          const altroResult = await base44.integrations.Core.InvokeLLM({
+            prompt: `Genera adempimenti per attività ${tipoAttivita} (ATECO: ${ateco || 'N/A'}):
+
+CHIMICA (REACH/CLP) - se applicabile:
+- Schede di Sicurezza (SDS) aggiornate
+- Etichettatura CLP
+- Obblighi REACH (se produttore/importatore)
+
+PRIVACY (GDPR):
+- Informativa dipendenti
+- Registro trattamenti
+- Nomine autorizzati al trattamento
+
+AMMINISTRATIVO:
+- SCIA produttiva (SUAP)
+- Conformità urbanistica
+- CPI (Certificato Prevenzione Incendi) - se soglie superate
+
+Per ogni adempimento indica categoria tra: "Privacy e GDPR", "Antincendio", "Altro"
+- nome, descrizione, frequenza_rinnovo_mesi, sanzione_prevista, priorita, data_scadenza (da ${dataBase}), categoria`,
+            add_context_from_internet: false,
+            response_json_schema: {
+              type: "object",
+              properties: {
+                adempimenti: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      nome: { type: "string" },
+                      descrizione: { type: "string" },
+                      categoria: { type: "string" },
+                      frequenza_rinnovo_mesi: { type: "number" },
+                      sanzione_prevista: { type: "string" },
+                      priorita: { type: "string" },
+                      data_scadenza: { type: "string" }
+                    }
+                  }
+                }
+              }
+            }
+          });
+          
+          if (altroResult?.adempimenti) {
+            altroResult.adempimenti.forEach(a => allAdempimenti.push(a));
+            console.log('[ComplianceAziendale] Altro:', altroResult.adempimenti.length, 'adempimenti');
+          }
+
+          // Salva tutti gli adempimenti
+          console.log('[ComplianceAziendale] Totale adempimenti generati:', allAdempimenti.length);
+          
+          if (allAdempimenti.length === 0) {
+            throw new Error('Nessun adempimento generato. Riprova.');
+          }
+
+          const validCategorie = ["Sicurezza sul lavoro", "Privacy e GDPR", "Ambientale", "Fiscale", "Igiene e Sanità", "Antincendio", "Formazione obbligatoria", "Altro"];
+
+          for (const adempimento of allAdempimenti) {
+            let categoria = adempimento.categoria || 'Altro';
+            const categoriaLower = categoria.toLowerCase().trim();
+            const matchedCategoria = validCategorie.find(c => c.toLowerCase() === categoriaLower);
+            if (matchedCategoria) {
+              categoria = matchedCategoria;
+            } else {
+              const partialMatch = validCategorie.find(c => 
+                categoriaLower.includes(c.toLowerCase()) || c.toLowerCase().includes(categoriaLower)
+              );
+              categoria = partialMatch || 'Altro';
+            }
+
+            await base44.entities.ComplianceNorm.create({
+              user_email: effectiveUser?.email,
+              branch_id: branchId,
+              nome: adempimento.nome,
+              descrizione: adempimento.descrizione,
+              categoria: categoria,
+              frequenza_rinnovo_mesi: adempimento.frequenza_rinnovo_mesi || 12,
+              sanzione_prevista: adempimento.sanzione_prevista,
+              priorita: adempimento.priorita || 'media',
+              stato: 'non_verificato',
+              data_scadenza: adempimento.data_scadenza || null,
+              is_locked: true,
+              documenti_urls: [],
+              documenti_nomi: []
+            });
+          }
+
+          console.log('[ComplianceAziendale] Salvati', allAdempimenti.length, 'adempimenti per branch', branchId);
+          
+          try {
+            queryClient.invalidateQueries({ queryKey: ['compliance-norms'] });
+          } catch (qcError) {
+            console.warn('[ComplianceAziendale] Errore invalidazione query (non critico):', qcError);
+          }
+
+          console.log('[ComplianceAziendale] Generazione completata con successo');
+
+        } catch (error) {
+          console.error('[ComplianceAziendale] ERRORE generazione:', error);
+          throw error;
         }
-    } catch (error) {
-      console.error('[ComplianceAziendale] ERRORE COMPLETO generazione adempimenti:', error);
-      console.error('[ComplianceAziendale] Error name:', error?.name);
-      console.error('[ComplianceAziendale] Error message:', error?.message);
-      console.error('[ComplianceAziendale] Error stack:', error?.stack);
-      throw error; // Rilancia l'errore per gestirlo nel chiamante
-    }
-    };
+      };
 
   const handleDocumentUpload = async (e, normId) => {
     const file = e.target.files?.[0];
