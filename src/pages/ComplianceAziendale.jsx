@@ -454,52 +454,63 @@ Output SOLO adempimenti certi. Per ogni adempimento:
           // FASE 3: Chimica REACH/CLP + Privacy + Antincendio + Amministrativo + Igiene
           console.log('[ComplianceAziendale] FASE 3: Chimica, Privacy, Antincendio, SUAP, Igiene...');
           const altroResult = await base44.integrations.Core.InvokeLLM({
-            prompt: `Agisci come consulente senior di compliance aziendale italiana specializzato in: Chimica (REACH/CLP), Privacy (GDPR), Antincendio (VVF), Amministrativo-produttivo (SUAP), Igiene alimentare.
-Anno di riferimento: 2026. Usa ESCLUSIVAMENTE normativa italiana ed europea vigente. NO esempi esteri, NO buone pratiche volontarie, NO certificazioni facoltative (ISO, ESG).
+            prompt: `Sei un consulente di compliance aziendale italiana. Genera adempimenti per: Privacy, Antincendio, Chimica, SUAP, Igiene.
 
 DATI AZIENDA:
 - Attività: ${tipoAttivita}
-- Data inizio attività: ${dataBase}
+- Data inizio: ${dataBase}
 ${caratteristichePrompt}
 
-ANALIZZA E CLASSIFICA gli adempimenti:
+REGOLE TASSATIVE:
+- NON inventare obblighi
+- NON usare termini vaghi
+- NON includere attività di vigilanza
+- NON confondere adempimenti con attività gestionali
+- NON usare "consigliato"
+- Ogni voce = un documento o atto REALE
 
-1. OBBLIGHI CERTAMENTE OBBLIGATORI per questa specifica attività
-2. OBBLIGHI CONDIZIONATI (da verificare)
-3. CONTROLLI CRITICI per questo settore
+LOGICA DI APPLICABILITÀ RIGOROSA:
 
-REGOLE DI APPLICABILITÀ STRETTE:
+PRIVACY (SEMPRE se presenza_lavoratori = SÌ):
+- Informativa privacy dipendenti (Art. 13 GDPR) - categoria "Privacy e GDPR"
+- Registro trattamenti dati (Art. 30 GDPR) - categoria "Privacy e GDPR"
+- Nomina autorizzati al trattamento - categoria "Privacy e GDPR"
 
-CHIMICA - REACH/CLP:
-- SDS e gestione chimici → SOLO SE "Presenza sostanze chimiche: SÌ"
-- Se "Presenza sostanze chimiche: NO" → NON includere alcun obbligo chimico
+ANTINCENDIO:
+SE presenza_rischio_incendio_non_basso = SÌ:
+- SCIA Antincendio o CPI (DPR 151/2011) - categoria "Antincendio"
+- Rinnovo periodico CPI 5 anni - categoria "Antincendio"
+SE presenza_lavoratori = SÌ (SEMPRE):
+- Registro controlli antincendio (DM 02/09/2021) - categoria "Antincendio"
 
-PRIVACY - GDPR:
-- Informativa e Registro trattamenti → SEMPRE obbligatorio se ci sono dipendenti
-- DPO → SOLO se >250 dipendenti o trattamenti particolari (sanitario, genetico, biometrico)
+CHIMICA:
+SE presenza_sostanze_chimiche = SÌ:
+- Schede Dati di Sicurezza SDS (Reg. 2020/878) - categoria "Altro"
+- Registro sostanze pericolose - categoria "Altro"
+SE presenza_sostanze_chimiche = NO:
+→ NON includere obblighi chimici
 
-ANTINCENDIO - VVF (DPR 151/2011):
-- SCIA/CPI → SOLO SE "Presenza rischio incendio non basso: SÌ" o attività in Allegato I DPR 151/2011
-- Registro controlli → SEMPRE obbligatorio se ci sono estintori/impianti
+IGIENE ALIMENTARE (SOLO se attività alimentare - ATECO 10.xx, 11.xx, 47.2x, 55.xx, 56.xx):
+- Registrazione OSA alla ASL (Reg. CE 852/2004) - categoria "Igiene e Sanità"
+- Manuale HACCP - categoria "Igiene e Sanità"
+- Formazione alimentaristi - categoria "Igiene e Sanità"
+SE attività NON alimentare:
+→ NON includere HACCP, OSA, alimentaristi
 
-AMMINISTRATIVO - SUAP:
-- SCIA produttiva → valuta se necessaria per il tipo di attività
-- NON per attività puramente commerciali/uffici
+VERIFICA COMPLETEZZA:
+□ Privacy/GDPR presente se ci sono lavoratori?
+□ Registro controlli antincendio presente?
+□ Adempimenti coerenti con le caratteristiche indicate?
+Se manca un obbligo strutturale, AGGIUNGILO.
 
-IGIENE ALIMENTARE:
-- SOLO se l'attività riguarda alimenti (produzione, somministrazione, vendita)
-- Se non è attività alimentare → NON includere HACCP, OSA, etc.
-
-IMPORTANTE: Genera SOLO adempimenti "certamente obbligatori" basandoti RIGOROSAMENTE sulle caratteristiche indicate. NON assumere rischi non dichiarati.
-
-Per ogni adempimento CERTAMENTE OBBLIGATORIO indica:
-- nome: denominazione ufficiale
-- descrizione: "Norma - [documento richiesto]"
-- categoria: una tra "Privacy e GDPR", "Antincendio", "Igiene e Sanità", "Altro"
-- frequenza_rinnovo_mesi: 0=una tantum, 60=CPI 5 anni, etc.
-- sanzione_prevista: articolo e range sanzione
+Output SOLO adempimenti certi. Per ogni adempimento:
+- nome: denominazione ufficiale esatta
+- descrizione: "Norma - [documento specifico]"
+- categoria: "Privacy e GDPR" / "Antincendio" / "Igiene e Sanità" / "Altro"
+- frequenza_rinnovo_mesi: 0=una tantum, 60=CPI 5 anni
+- sanzione_prevista: "Norma Art. X: [sanzione]"
 - priorita: alta/media/bassa
-- data_scadenza: YYYY-MM-DD calcolata da ${dataBase} (null se una tantum)`,
+- data_scadenza: YYYY-MM-DD (null se una tantum)`,
             add_context_from_internet: false,
             response_json_schema: {
               type: "object",
