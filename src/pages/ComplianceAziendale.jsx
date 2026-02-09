@@ -730,22 +730,6 @@ VERIFICA:
         seconda: secondAnalysis.stato_conformita,
         finale: analysisResult.stato_conformita
       });
-        response_json_schema: {
-          type: "object",
-          properties: {
-            documento_pertinente: { type: "boolean" },
-            motivo_non_pertinente: { type: "string" },
-            documento_appartiene_azienda: { type: "boolean" },
-            motivo_azienda_diversa: { type: "string" },
-            dati_azienda_trovati: { type: "string", description: "Ragione sociale/P.IVA trovati nel documento" },
-            documento_conforme: { type: "boolean" },
-            stato_conformita: { type: "string", enum: ["conforme", "da_migliorare", "non_conforme"] },
-            data_scadenza: { type: "string", description: "Data in formato YYYY-MM-DD se trovata" },
-            criticita: { type: "array", items: { type: "string" } },
-            note_analisi: { type: "string" }
-          }
-        }
-      });
 
       if (!analysisResult.documento_pertinente) {
         alert(`⚠️ Documento non valido!\n\n${analysisResult.motivo_non_pertinente || 'Il documento caricato non corrisponde all\'adempimento richiesto. Assicurati di caricare il documento corretto per: ' + norm.nome}`);
