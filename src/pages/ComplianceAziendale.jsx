@@ -453,47 +453,42 @@ DATI AZIENDA:
 - Data inizio attività: ${dataBase}
 ${caratteristichePrompt}
 
-GENERA ADEMPIMENTI OBBLIGATORI PER LE SEGUENTI AREE:
+ANALIZZA E CLASSIFICA gli adempimenti:
 
-1. CHIMICA - REACH/CLP (Reg. CE 1907/2006 e Reg. CE 1272/2008):
-Se l'attività usa/produce sostanze chimiche (ATECO 20.xx, 21.xx, o utilizzatori a valle):
-- Schede Dati di Sicurezza SDS conformi Reg. 2020/878 - categoria "Altro"
-- Etichettatura CLP conforme Reg. 1272/2008 - categoria "Altro"
-- Scenari di esposizione (se sostanze SVHC) - categoria "Altro"
-- Notifica SCIP (Art. 9 Direttiva 2008/98/CE) - se articoli con SVHC >0,1%
+1. OBBLIGHI CERTAMENTE OBBLIGATORI per questa specifica attività
+2. OBBLIGHI CONDIZIONATI (da verificare)
+3. CONTROLLI CRITICI per questo settore
 
-2. PRIVACY - GDPR (Reg. UE 2016/679 + D.Lgs. 196/03 novellato):
-OBBLIGATORIO per TUTTE le attività con dipendenti:
-- Informativa privacy dipendenti Art. 13 GDPR - categoria "Privacy e GDPR"
-- Registro trattamenti Art. 30 GDPR - categoria "Privacy e GDPR"
-- Nomina autorizzati al trattamento - categoria "Privacy e GDPR"
-- Nomina Responsabili esterni Art. 28 GDPR - categoria "Privacy e GDPR"
-- DPO (se >250 dip. o trattamenti particolari) - categoria "Privacy e GDPR"
+REGOLE DI APPLICABILITÀ STRETTE:
 
-3. ANTINCENDIO - VVF (DPR 151/2011, DM 03/08/2015):
-Se attività in Allegato I DPR 151/2011:
-- SCIA Antincendio o CPI (cat. A/B/C) - categoria "Antincendio"
-- Rinnovo periodico CPI (5 anni) - categoria "Antincendio"
-- Registro controlli antincendio DM 02/09/2021 - categoria "Antincendio"
+CHIMICA - REACH/CLP:
+- SDS e gestione chimici → SOLO SE "Presenza sostanze chimiche: SÌ"
+- Se "Presenza sostanze chimiche: NO" → NON includere alcun obbligo chimico
 
-4. AMMINISTRATIVO - SUAP (DPR 160/2010):
-- SCIA produttiva al SUAP - categoria "Altro"
-- Agibilità/conformità urbanistica - categoria "Altro"
-- Autorizzazione commercio (se ATECO 47.xx alimentari) - categoria "Altro"
+PRIVACY - GDPR:
+- Informativa e Registro trattamenti → SEMPRE obbligatorio se ci sono dipendenti
+- DPO → SOLO se >250 dipendenti o trattamenti particolari (sanitario, genetico, biometrico)
 
-5. IGIENE ALIMENTARE (Reg. CE 852/2004, 178/2002):
-Se ATECO 10.xx, 11.xx, 47.xx alimentari, 55.xx, 56.xx:
-- Registrazione/Notifica OSA alla ASL - categoria "Igiene e Sanità"
-- Manuale autocontrollo HACCP - categoria "Igiene e Sanità"
-- Tracciabilità Reg. CE 178/2002 - categoria "Igiene e Sanità"
-- Formazione alimentaristi (Reg. CE 852/2004) - categoria "Igiene e Sanità"
+ANTINCENDIO - VVF (DPR 151/2011):
+- SCIA/CPI → SOLO SE "Presenza rischio incendio non basso: SÌ" o attività in Allegato I DPR 151/2011
+- Registro controlli → SEMPRE obbligatorio se ci sono estintori/impianti
 
-Per ogni adempimento OBBLIGATORIO indica:
+AMMINISTRATIVO - SUAP:
+- SCIA produttiva → valuta se necessaria per il tipo di attività
+- NON per attività puramente commerciali/uffici
+
+IGIENE ALIMENTARE:
+- SOLO se l'attività riguarda alimenti (produzione, somministrazione, vendita)
+- Se non è attività alimentare → NON includere HACCP, OSA, etc.
+
+IMPORTANTE: Genera SOLO adempimenti "certamente obbligatori" basandoti RIGOROSAMENTE sulle caratteristiche indicate. NON assumere rischi non dichiarati.
+
+Per ogni adempimento CERTAMENTE OBBLIGATORIO indica:
 - nome: denominazione ufficiale
-- descrizione: norma di riferimento specifica
+- descrizione: "Norma - [documento richiesto]"
 - categoria: una tra "Privacy e GDPR", "Antincendio", "Igiene e Sanità", "Altro"
 - frequenza_rinnovo_mesi: 0=una tantum, 60=CPI 5 anni, etc.
-- sanzione_prevista: riferimento normativo sanzioni
+- sanzione_prevista: articolo e range sanzione
 - priorita: alta/media/bassa
 - data_scadenza: YYYY-MM-DD calcolata da ${dataBase} (null se una tantum)`,
             add_context_from_internet: false,
