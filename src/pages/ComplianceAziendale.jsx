@@ -352,30 +352,43 @@ IMPORTANTE: Devi generare ALMENO 25-40 adempimenti per un'attività industriale/
 
 GENERA ORA L'ELENCO COMPLETO PER: ${tipoAttivita} (ATECO: ${ateco || 'N/A'}) con ${numeroDipendenti || 'N/A'} dipendenti.`;
 
-      const result = await base44.integrations.Core.InvokeLLM({
-        prompt,
-        add_context_from_internet: true,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            adempimenti: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  nome: { type: "string" },
-                  descrizione: { type: "string" },
-                  categoria: { type: "string" },
-                  frequenza_rinnovo_mesi: { type: "number" },
-                  sanzione_prevista: { type: "string" },
-                  priorita: { type: "string" },
-                  data_scadenza: { type: "string" }
+      console.log('[ComplianceAziendale] Chiamata LLM per generazione adempimenti...');
+      
+      let result;
+      try {
+        result = await base44.integrations.Core.InvokeLLM({
+          prompt,
+          add_context_from_internet: true,
+          response_json_schema: {
+            type: "object",
+            properties: {
+              adempimenti: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    nome: { type: "string" },
+                    descrizione: { type: "string" },
+                    categoria: { type: "string" },
+                    frequenza_rinnovo_mesi: { type: "number" },
+                    sanzione_prevista: { type: "string" },
+                    priorita: { type: "string" },
+                    data_scadenza: { type: "string" }
+                  }
                 }
               }
             }
           }
-        }
-      });
+        });
+        console.log('[ComplianceAziendale] Risposta LLM ricevuta:', result);
+      } catch (llmError) {
+        console.error('[ComplianceAziendale] Errore chiamata LLM:', llmError);
+        throw new Error('Errore nella generazione AI: ' + (llmError.message || 'Riprova tra qualche secondo'));
+      }
+      
+      if (!result) {
+        throw new Error('Nessuna risposta dal sistema AI');
+      }
 
       if (result?.adempimenti && result.adempimenti.length > 0) {
         const createdNormIds = [];
