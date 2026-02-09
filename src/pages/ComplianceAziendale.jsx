@@ -249,40 +249,50 @@ export default function ComplianceAziendale() {
           // FASE 1: Adempimenti Sicurezza sul Lavoro (D.Lgs. 81/08)
           console.log('[ComplianceAziendale] FASE 1: Sicurezza sul lavoro...');
           const sicurezzaResult = await base44.integrations.Core.InvokeLLM({
-            prompt: `Sei un consulente sicurezza sul lavoro ESPERTO. Genera gli adempimenti D.Lgs. 81/08 per:
+            prompt: `Agisci come consulente senior di compliance aziendale italiana specializzato in Sicurezza sul lavoro (D.Lgs. 81/08).
+Anno di riferimento: 2026. Usa ESCLUSIVAMENTE normativa italiana vigente. NO esempi esteri, NO buone pratiche volontarie, NO certificazioni facoltative (ISO, ESG).
+
+DATI AZIENDA:
 - Attività: ${tipoAttivita}
-- ATECO: ${ateco || 'non specificato'}
-- Dipendenti: ${numeroDipendenti || 'non specificato'}
+- Codice ATECO: ${ateco || 'non specificato'}
+- Numero dipendenti: ${numeroDipendenti || 'non specificato'}
+- Data inizio attività: ${dataBase}
 
-ADEMPIMENTI BASE (SEMPRE OBBLIGATORI):
-- DVR (Documento Valutazione Rischi)
-- Valutazione rischio incendio
-- Nomina RSPP
-- Nomina RLS
-- Formazione lavoratori generale (4h) + specifica
-- Addetti Primo Soccorso + formazione
-- Addetti Antincendio + formazione
-- Piano Emergenza ed Evacuazione
+GENERA GLI ADEMPIMENTI OBBLIGATORI PER LEGGE (D.Lgs. 81/08 e s.m.i.):
 
-ADEMPIMENTI PER SETTORE ATECO:
-- ATECO 10.xx-11.xx (Alimentare): HACCP, Manuale autocontrollo, Tracciabilità, Formazione alimentaristi
-- ATECO 20.xx (Chimica/Vernici): Valutazione rischio chimico, Valutazione ATEX, Nomina Medico Competente, Sorveglianza sanitaria
-- ATECO 25.xx-28.xx (Metalmeccanica): Valutazione rumore, Valutazione vibrazioni, Valutazione MMC, Sorveglianza sanitaria
-- ATECO 41.xx-43.xx (Edilizia): POS, PSC, Ponteggi, Formazione specifica cantieri, Sorveglianza sanitaria
-- ATECO 45.xx (Autoriparazione): Valutazione rischio chimico, ATEX (se carburanti), Sorveglianza sanitaria
-- ATECO 47.xx (Commercio): Formazione base, Cassetta primo soccorso
-- ATECO 55.xx-56.xx (Ristorazione/Alberghi): HACCP, Formazione alimentaristi, Sorveglianza sanitaria
-- ATECO 86.xx (Sanità): Rischio biologico, Sorveglianza sanitaria obbligatoria
+OBBLIGHI GENERALI (Art. 17, 18, 28, 36, 37):
+- DVR - Documento Valutazione Rischi (Art. 17, 28)
+- Nomina RSPP (Art. 17, 31-34)
+- Nomina RLS o RLST (Art. 47-50)
+- Formazione lavoratori Art. 37 - generale 4h + specifica (4/8/12h per rischio)
+- Informazione lavoratori Art. 36
+- Addetti Primo Soccorso + formazione DM 388/03
+- Addetti Antincendio + formazione DM 02/09/2021
+- Piano Emergenza ed Evacuazione (Art. 43-46)
 
-INCLUDI SOLO gli adempimenti APPLICABILI al codice ATECO indicato.
+OBBLIGHI SPECIFICI PER RISCHIO (se applicabili al codice ATECO):
+- Valutazione rischio chimico (Titolo IX, Capo I) - ATECO 20.xx, 21.xx, 25.xx
+- Valutazione rischio cancerogeno/mutageno (Titolo IX, Capo II)
+- Valutazione ATEX (Titolo XI) - ATECO 20.xx, 45.xx (carburanti)
+- Valutazione rumore (Titolo VIII, Capo II) - ATECO 25.xx-28.xx, 41.xx-43.xx
+- Valutazione vibrazioni (Titolo VIII, Capo III)
+- Valutazione MMC (Titolo VI) - movimentazione manuale carichi
+- Valutazione VDT (Titolo VII) - videoterminali
+- Valutazione rischio biologico (Titolo X) - ATECO 86.xx, 10.xx
+- Nomina Medico Competente (Art. 18, 38-42) - obbligatorio se rischi specifici
+- Sorveglianza sanitaria periodica (Art. 41)
 
-Per ogni adempimento:
-- nome: nome ufficiale
-- descrizione: riferimento normativo (articolo D.Lgs. 81/08 o altra norma)
-- frequenza_rinnovo_mesi: 0=una tantum, 12=annuale, 36=triennale, 60=quinquennale
-- sanzione_prevista: importo specifico (es. "da €2.500 a €6.400")
+FORMAZIONE SPECIFICA SETTORIALE:
+- ATECO 41.xx-43.xx: Formazione ponteggi (Art. 136), POS, PSC
+- ATECO 45.xx: Formazione attrezzature specifiche
+
+Per ogni adempimento OBBLIGATORIO indica:
+- nome: denominazione ufficiale
+- descrizione: articolo di legge specifico (es. "Art. 28 D.Lgs. 81/08")
+- frequenza_rinnovo_mesi: 0=una tantum, 12=annuale, 60=quinquennale, etc.
+- sanzione_prevista: range sanzione (Art. 55-60 D.Lgs. 81/08)
 - priorita: alta/media/bassa
-- data_scadenza: calcola da ${dataBase} + frequenza (YYYY-MM-DD, null se una tantum)`,
+- data_scadenza: ${dataBase} + frequenza in formato YYYY-MM-DD (null se una tantum)`,
             add_context_from_internet: false,
             response_json_schema: {
               type: "object",
