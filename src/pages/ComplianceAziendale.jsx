@@ -233,7 +233,21 @@ export default function ComplianceAziendale() {
       
       await generateNormsForBranch(createdBranch.id, tipoAttivita, numeroDipendenti, newBranch.data_attivazione, newBranch.codice_ateco, newBranch);
       
-      setNewBranch({ nome: '', tipo_attivita: '', codice_ateco: '', indirizzo: '', numero_dipendenti: '', data_attivazione: '' });
+      setNewBranch({ 
+              nome: '', 
+              tipo_attivita: '', 
+              codice_ateco: '', 
+              indirizzo: '', 
+              numero_dipendenti: '', 
+              data_attivazione: '',
+              tipo_attivita_categoria: 'produttiva',
+              presenza_lavoratori: true,
+              presenza_sostanze_chimiche: false,
+              presenza_rifiuti_speciali: false,
+              presenza_emissioni_atmosfera: false,
+              presenza_scarichi_industriali: false,
+              presenza_rischio_incendio_non_basso: false
+            });
       setShowBranchManager(false);
       // Seleziona automaticamente il ramo appena creato per mostrare gli adempimenti
       setSelectedBranch(createdBranch.id);
