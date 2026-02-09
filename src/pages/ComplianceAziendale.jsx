@@ -808,7 +808,7 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
             <Link to={createPageUrl('Home')} className="text-lime-400">
               <ArrowLeft className="w-6 h-6" />
             </Link>
-            <h1 className="text-lime-400 text-xl font-bold">Compliance Aziendale</h1>
+            <h1 className="text-lime-400 text-xl font-bold">Evita Sanzioni</h1>
           </div>
           <Button 
             onClick={() => setShowBranchManager(true)}
