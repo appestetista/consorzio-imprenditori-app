@@ -327,8 +327,11 @@ export default function ImportAsteSection() {
 
       // Filtra aste scadute (data_ora_vendita < oggi)
       const adesso = new Date();
+      console.log('Data attuale per confronto:', adesso.toISOString());
+      
       const asteAttive = asteConTipologia.filter(a => {
         const dataVendita = parseDataOraVendita(a.data_ora_vendita);
+        console.log('Asta:', a.titolo?.substring(0, 30), '| data_ora_vendita:', a.data_ora_vendita, '| parsed:', dataVendita?.toISOString(), '| attiva:', dataVendita ? dataVendita >= adesso : 'no data');
         if (!dataVendita) return true; // Se non ha data, la consideriamo attiva
         return dataVendita >= adesso;
       });
