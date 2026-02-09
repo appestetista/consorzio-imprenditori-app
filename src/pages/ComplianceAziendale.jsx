@@ -246,7 +246,7 @@ export default function ComplianceAziendale() {
     }
     };
   
-  const generateNormsForBranch = async (branchId, tipoAttivita, numeroDipendenti, dataAttivazione, codiceAteco) => {
+  const generateNormsForBranch = async (branchId, tipoAttivita, numeroDipendenti, dataAttivazione, codiceAteco, branchData = {}) => {
         if (!tipoAttivita || !tipoAttivita.trim()) {
           console.error('[ComplianceAziendale] tipoAttivita mancante');
           throw new Error('Tipo attività mancante');
@@ -255,6 +255,28 @@ export default function ComplianceAziendale() {
         const branch = branches.find(b => b.id === branchId);
         const ateco = codiceAteco || branch?.codice_ateco || '';
         const dataBase = dataAttivazione || new Date().toISOString().split('T')[0];
+        
+        // Estrai le caratteristiche per il prompt
+        const caratteristiche = {
+          tipo_categoria: branchData.tipo_attivita_categoria || 'produttiva',
+          lavoratori: branchData.presenza_lavoratori !== false,
+          sostanze_chimiche: branchData.presenza_sostanze_chimiche || false,
+          rifiuti_speciali: branchData.presenza_rifiuti_speciali || false,
+          emissioni_atmosfera: branchData.presenza_emissioni_atmosfera || false,
+          scarichi_industriali: branchData.presenza_scarichi_industriali || false,
+          rischio_incendio_non_basso: branchData.presenza_rischio_incendio_non_basso || false
+        };
+        
+        const caratteristichePrompt = `
+CARATTERISTICHE SPECIFICHE DELL'ATTIVITÀ:
+- ATECO: ${ateco || 'non specificato'}
+- Tipo attività: ${caratteristiche.tipo_categoria}
+- Presenza lavoratori: ${caratteristiche.lavoratori ? 'SÌ' : 'NO'}
+- Presenza sostanze chimiche: ${caratteristiche.sostanze_chimiche ? 'SÌ' : 'NO'}
+- Presenza rifiuti speciali: ${caratteristiche.rifiuti_speciali ? 'SÌ' : 'NO'}
+- Presenza emissioni in atmosfera: ${caratteristiche.emissioni_atmosfera ? 'SÌ' : 'NO'}
+- Presenza scarichi industriali: ${caratteristiche.scarichi_industriali ? 'SÌ' : 'NO'}
+- Presenza rischio incendio non basso: ${caratteristiche.rischio_incendio_non_basso ? 'SÌ' : 'NO'}`;
 
         try {
           console.log('[ComplianceAziendale] START Generazione adempimenti per:', { branchId, tipoAttivita, numeroDipendenti, dataAttivazione, ateco });
