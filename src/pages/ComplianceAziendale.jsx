@@ -956,7 +956,7 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
                           className="w-4 h-4 rounded-full flex-shrink-0 mt-1"
                           style={{ backgroundColor: STATO_COLORS[norm.stato] }}
                         />
-                        
+
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center justify-between gap-2">
                             <h4 className="text-white font-medium truncate">{norm.nome}</h4>
@@ -970,6 +970,12 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
                           <p className="text-xs mt-1" style={{ color: STATO_COLORS[norm.stato] }}>
                             {STATO_LABELS[norm.stato]}
                           </p>
+                          {!isExpanded && (!norm.documenti_urls || norm.documenti_urls.length === 0) && (
+                            <p className="text-xs mt-2 text-lime-400/80 flex items-center gap-1">
+                              <Upload className="w-3 h-3" />
+                              Tocca per caricare documenti
+                            </p>
+                          )}
                         </div>
                       </button>
 
