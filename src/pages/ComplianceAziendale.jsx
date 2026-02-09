@@ -243,137 +243,22 @@ export default function ComplianceAziendale() {
 
         try {
           console.log('[ComplianceAziendale] START Generazione adempimenti per:', { branchId, tipoAttivita, numeroDipendenti, dataAttivazione, ateco });
-      const prompt = `SEI UN CONSULENTE LEGALE ESPERTO IN COMPLIANCE AZIENDALE ITALIANA CON 30 ANNI DI ESPERIENZA.
-
-COMPITO CRITICO: Genera l'elenco COMPLETO e DETTAGLIATO di TUTTI gli adempimenti OBBLIGATORI PER LEGGE per questa attività. NON OMETTERE NULLA.
-
-DATI AZIENDA:
-- Tipo di attività: ${tipoAttivita}
-- Codice ATECO: ${ateco || 'non specificato'}
-- Numero dipendenti: ${numeroDipendenti || 'non specificato'}
-- Data attivazione attività: ${dataAttivazione || 'non specificata'}
-
-ISTRUZIONI CRITICHE - LEGGI CON MASSIMA ATTENZIONE:
-
-IMPORTANTE: Devi generare ALMENO 25-40 adempimenti per un'attività industriale/produttiva. Se ne generi meno di 20, stai sicuramente omettendo qualcosa di importante.
-
-1. ANALIZZA IL CODICE ATECO: Il codice ATECO determina obblighi specifici:
-   - Codici 20.xx (chimica): REACH, CLP, rischio chimico, ATEX, emissioni COV, AUA
-   - Codici 10.xx-11.xx (alimentare): HACCP, tracciabilità, allergeni, notifica OSA
-   - Codici 25.xx-28.xx (metalmeccanica): rumore, vibrazioni, movimentazione carichi
-   - Codici 41.xx-43.xx (edilizia): POS, PSC, ponteggi, DPI specifici
-
-2. CATEGORIE DI ADEMPIMENTI - VERIFICA OGNI SINGOLA VOCE:
-
-   A) SICUREZZA SUL LAVORO (D.Lgs. 81/2008) - OBBLIGATORI:
-      - DVR (Documento Valutazione Rischi) - SEMPRE
-      - DUVRI (se interferenze con terzi)
-      - Nomina RSPP 
-      - Nomina RLS
-      - Nomina Medico Competente (se rischi specifici)
-      - Nomina Addetti Antincendio
-      - Nomina Addetti Primo Soccorso
-      - Cassetta Primo Soccorso
-      - Sorveglianza Sanitaria periodica
-      - Valutazione rischio chimico (se sostanze pericolose)
-      - Valutazione rischio ATEX (se atmosfere esplosive/vapori infiammabili)
-      - Valutazione rischio rumore
-      - Valutazione rischio vibrazioni
-      - Valutazione rischio stress lavoro-correlato
-      - Valutazione rischio MMC (movimentazione manuale carichi)
-
-   B) ANTINCENDIO (DPR 151/2011, DM 02/09/2021):
-      - CPI (Certificato Prevenzione Incendi) - se attività in Allegato I
-      - SCIA Antincendio
-      - Piano di Emergenza ed Evacuazione
-      - Valutazione rischio incendio
-      - Presidi antincendio (estintori, idranti)
-      - Manutenzione presidi antincendio
-      - Segnaletica di sicurezza
-      - Illuminazione di emergenza
-      - Prove evacuazione periodiche
-
-   C) FORMAZIONE OBBLIGATORIA (Accordo Stato-Regioni):
-      - Formazione generale lavoratori (4 ore)
-      - Formazione specifica lavoratori (4-8-12 ore)
-      - Formazione Preposti (8 ore)
-      - Formazione Dirigenti (16 ore)
-      - Formazione Addetti Antincendio
-      - Formazione Addetti Primo Soccorso
-      - Formazione rischio chimico (se applicabile)
-      - Formazione ATEX (se applicabile)
-      - Formazione carrellisti/mulettisti (se presenti)
-      - Aggiornamenti periodici (ogni 5 anni)
-
-   D) AMBIENTALE (D.Lgs. 152/2006) - CRITICO PER INDUSTRIA:
-      - AUA - Autorizzazione Unica Ambientale
-      - Autorizzazione emissioni in atmosfera (COV, polveri)
-      - Registro carico/scarico rifiuti
-      - Classificazione rifiuti (codici EER/CER)
-      - Formulari Identificazione Rifiuti (FIR)
-      - MUD - Dichiarazione annuale rifiuti
-      - Autorizzazione scarichi idrici
-      - Piano gestione solventi (se COV)
-      - SISTRI/RENTRI (tracciabilità rifiuti)
-
-   E) CHIMICA - REACH/CLP (se sostanze pericolose):
-      - Schede di Sicurezza (SDS) aggiornate
-      - Etichettatura CLP
-      - Registrazione REACH (se produttore/importatore)
-      - Procedure stoccaggio sostanze pericolose
-      - Registro esposizione agenti chimici
-
-   F) PRIVACY - GDPR (Reg. UE 679/2016):
-      - Registro dei Trattamenti
-      - Informativa Privacy dipendenti
-      - Informativa Privacy clienti/fornitori
-      - Nomina Responsabili Trattamento
-      - DPO (se obbligatorio)
-      - Misure sicurezza informatiche
-      - Videosorveglianza (se presente): informativa + autorizzazione ITL
-
-   G) AMMINISTRATIVO/URBANISTICO:
-      - SCIA produttiva (SUAP)
-      - Conformità urbanistica
-      - Agibilità locali
-      - Licenze specifiche settore
-      - Libro Unico del Lavoro
-      - Registratore telematico (se vendita)
-
-3. OUTPUT per ogni adempimento:
-   - nome: Nome ufficiale
-   - descrizione: Cosa richiede + riferimento normativo specifico
-   - categoria: Una tra [Sicurezza sul lavoro, Privacy e GDPR, Ambientale, Fiscale, Igiene e Sanità, Antincendio, Formazione obbligatoria, Altro]
-   - frequenza_rinnovo_mesi: Frequenza (es: 60 per formazione quinquennale, 12 per annuale, 0 per una tantum)
-   - sanzione_prevista: Sanzione con importi specifici
-   - priorita: "alta" (penale/chiusura), "media" (amministrativa), "bassa"
-   - data_scadenza: YYYY-MM-DD calcolata da ${dataAttivazione || 'oggi'} + frequenza. Null se una tantum.
-
-4. REGOLE:
-   - GENERA TUTTI GLI ADEMPIMENTI APPLICABILI - meglio uno in più che uno in meno
-   - Per attività industriali/chimiche: MINIMO 30 adempimenti
-   - NON RAGGRUPPARE: ogni adempimento è una voce separata
-   - Includi SEMPRE gli adempimenti ambientali per attività produttive
-
-GENERA ORA L'ELENCO COMPLETO PER: ${tipoAttivita} (ATECO: ${ateco || 'N/A'}) con ${numeroDipendenti || 'N/A'} dipendenti.`;
-
-      console.log('[ComplianceAziendale] Chiamata LLM per generazione adempimenti...');
 
       // Prompt semplificato per evitare timeout
       const shortPrompt = `Genera gli adempimenti obbligatori per legge italiana per questa attività:
-      - Tipo: ${tipoAttivita}
-      - ATECO: ${ateco || 'non specificato'}
-      - Dipendenti: ${numeroDipendenti || 'non specificato'}
-      - Data attivazione: ${dataAttivazione || new Date().toISOString().split('T')[0]}
+- Tipo: ${tipoAttivita}
+- ATECO: ${ateco || 'non specificato'}
+- Dipendenti: ${numeroDipendenti || 'non specificato'}
+- Data attivazione: ${dataAttivazione || new Date().toISOString().split('T')[0]}
 
-      Genera 15-25 adempimenti principali. Per ogni adempimento indica:
-      - nome: nome ufficiale
-      - descrizione: cosa richiede (breve)
-      - categoria: una tra [Sicurezza sul lavoro, Privacy e GDPR, Ambientale, Fiscale, Igiene e Sanità, Antincendio, Formazione obbligatoria, Altro]
-      - frequenza_rinnovo_mesi: ogni quanti mesi rinnovare (0 se una tantum)
-      - sanzione_prevista: sanzione in caso di violazione
-      - priorita: alta/media/bassa
-      - data_scadenza: YYYY-MM-DD (calcolata dalla data attivazione)`;
+Genera 15-25 adempimenti principali. Per ogni adempimento indica:
+- nome: nome ufficiale
+- descrizione: cosa richiede (breve)
+- categoria: una tra [Sicurezza sul lavoro, Privacy e GDPR, Ambientale, Fiscale, Igiene e Sanità, Antincendio, Formazione obbligatoria, Altro]
+- frequenza_rinnovo_mesi: ogni quanti mesi rinnovare (0 se una tantum)
+- sanzione_prevista: sanzione in caso di violazione
+- priorita: alta/media/bassa
+- data_scadenza: YYYY-MM-DD (calcolata dalla data attivazione)`;
 
       let result;
       try {
