@@ -1758,23 +1758,88 @@ VERIFICA:
                                         {/* Tipo attività */}
                                         <div>
                                           <Label className="text-slate-400 text-xs mb-1 block">Tipologia attività</Label>
-                                          <Select
-                                            value={newBranch.tipo_attivita_categoria || 'produttiva'}
-                                            onValueChange={(value) => {
-                                              if (value) {
-                                                setNewBranch({...newBranch, tipo_attivita_categoria: value});
-                                              }
-                                            }}
-                                          >
-                                            <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
-                                              <SelectValue placeholder="Seleziona tipologia" />
-                                            </SelectTrigger>
-                                            <SelectContent className="bg-slate-800 border-slate-700 z-[100]">
-                                              <SelectItem value="produttiva" className="text-white hover:bg-slate-700 cursor-pointer">Produttiva (manifattura, industria)</SelectItem>
-                                              <SelectItem value="servizi" className="text-white hover:bg-slate-700 cursor-pointer">Servizi (uffici, consulenza)</SelectItem>
-                                              <SelectItem value="commerciale" className="text-white hover:bg-slate-700 cursor-pointer">Commerciale (vendita, negozio)</SelectItem>
-                                            </SelectContent>
-                                          </Select>
+                                          <div className="grid grid-cols-1 gap-2 mt-2">
+                                            <label 
+                                              className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+                                                newBranch.tipo_attivita_categoria === 'produttiva' 
+                                                  ? 'border-lime-400 bg-lime-400/10' 
+                                                  : 'border-slate-600 hover:border-slate-500'
+                                              }`}
+                                            >
+                                              <input
+                                                type="radio"
+                                                name="tipo_attivita_categoria"
+                                                value="produttiva"
+                                                checked={newBranch.tipo_attivita_categoria === 'produttiva'}
+                                                onChange={(e) => setNewBranch({...newBranch, tipo_attivita_categoria: e.target.value})}
+                                                className="sr-only"
+                                              />
+                                              <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                                                newBranch.tipo_attivita_categoria === 'produttiva' 
+                                                  ? 'border-lime-400' 
+                                                  : 'border-slate-500'
+                                              }`}>
+                                                {newBranch.tipo_attivita_categoria === 'produttiva' && (
+                                                  <div className="w-2 h-2 rounded-full bg-lime-400" />
+                                                )}
+                                              </div>
+                                              <span className="text-white text-sm">Produttiva (manifattura, industria)</span>
+                                            </label>
+                                            
+                                            <label 
+                                              className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+                                                newBranch.tipo_attivita_categoria === 'servizi' 
+                                                  ? 'border-lime-400 bg-lime-400/10' 
+                                                  : 'border-slate-600 hover:border-slate-500'
+                                              }`}
+                                            >
+                                              <input
+                                                type="radio"
+                                                name="tipo_attivita_categoria"
+                                                value="servizi"
+                                                checked={newBranch.tipo_attivita_categoria === 'servizi'}
+                                                onChange={(e) => setNewBranch({...newBranch, tipo_attivita_categoria: e.target.value})}
+                                                className="sr-only"
+                                              />
+                                              <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                                                newBranch.tipo_attivita_categoria === 'servizi' 
+                                                  ? 'border-lime-400' 
+                                                  : 'border-slate-500'
+                                              }`}>
+                                                {newBranch.tipo_attivita_categoria === 'servizi' && (
+                                                  <div className="w-2 h-2 rounded-full bg-lime-400" />
+                                                )}
+                                              </div>
+                                              <span className="text-white text-sm">Servizi (uffici, consulenza)</span>
+                                            </label>
+                                            
+                                            <label 
+                                              className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+                                                newBranch.tipo_attivita_categoria === 'commerciale' 
+                                                  ? 'border-lime-400 bg-lime-400/10' 
+                                                  : 'border-slate-600 hover:border-slate-500'
+                                              }`}
+                                            >
+                                              <input
+                                                type="radio"
+                                                name="tipo_attivita_categoria"
+                                                value="commerciale"
+                                                checked={newBranch.tipo_attivita_categoria === 'commerciale'}
+                                                onChange={(e) => setNewBranch({...newBranch, tipo_attivita_categoria: e.target.value})}
+                                                className="sr-only"
+                                              />
+                                              <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                                                newBranch.tipo_attivita_categoria === 'commerciale' 
+                                                  ? 'border-lime-400' 
+                                                  : 'border-slate-500'
+                                              }`}>
+                                                {newBranch.tipo_attivita_categoria === 'commerciale' && (
+                                                  <div className="w-2 h-2 rounded-full bg-lime-400" />
+                                                )}
+                                              </div>
+                                              <span className="text-white text-sm">Commerciale (vendita, negozio)</span>
+                                            </label>
+                                          </div>
                                         </div>
 
                                         {/* Caratteristiche per compliance */}
