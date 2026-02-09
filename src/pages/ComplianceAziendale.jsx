@@ -309,41 +309,37 @@ DATI AZIENDA:
 - Data inizio attività: ${dataBase}
 ${caratteristichePrompt}
 
-GENERA GLI ADEMPIMENTI OBBLIGATORI PER LEGGE (D.Lgs. 81/08 e s.m.i.):
+ANALIZZA E CLASSIFICA gli adempimenti in 3 categorie:
 
-OBBLIGHI GENERALI (Art. 17, 18, 28, 36, 37):
-- DVR - Documento Valutazione Rischi (Art. 17, 28)
-- Nomina RSPP (Art. 17, 31-34)
-- Nomina RLS o RLST (Art. 47-50)
-- Formazione lavoratori Art. 37 - generale 4h + specifica (4/8/12h per rischio)
-- Informazione lavoratori Art. 36
-- Addetti Primo Soccorso + formazione DM 388/03
-- Addetti Antincendio + formazione DM 02/09/2021
-- Piano Emergenza ed Evacuazione (Art. 43-46)
+1. OBBLIGHI CERTAMENTE OBBLIGATORI per questa specifica attività:
+   Includi SOLO se l'obbligo è CERTO dato il tipo di attività e le caratteristiche indicate.
+   Per ciascuno specifica: base normativa esatta, documento richiesto, scadenza, sanzione.
 
-OBBLIGHI SPECIFICI PER RISCHIO (se applicabili al codice ATECO):
-- Valutazione rischio chimico (Titolo IX, Capo I) - ATECO 20.xx, 21.xx, 25.xx
-- Valutazione rischio cancerogeno/mutageno (Titolo IX, Capo II)
-- Valutazione ATEX (Titolo XI) - ATECO 20.xx, 45.xx (carburanti)
-- Valutazione rumore (Titolo VIII, Capo II) - ATECO 25.xx-28.xx, 41.xx-43.xx
-- Valutazione vibrazioni (Titolo VIII, Capo III)
-- Valutazione MMC (Titolo VI) - movimentazione manuale carichi
-- Valutazione VDT (Titolo VII) - videoterminali
-- Valutazione rischio biologico (Titolo X) - ATECO 86.xx, 10.xx
-- Nomina Medico Competente (Art. 18, 38-42) - obbligatorio se rischi specifici
-- Sorveglianza sanitaria periodica (Art. 41)
+2. OBBLIGHI CONDIZIONATI (da verificare):
+   Adempimenti che POTREBBERO applicarsi ma richiedono verifica delle condizioni specifiche.
+   Specifica QUANDO diventano obbligatori.
 
-FORMAZIONE SPECIFICA SETTORIALE:
-- ATECO 41.xx-43.xx: Formazione ponteggi (Art. 136), POS, PSC
-- ATECO 45.xx: Formazione attrezzature specifiche
+3. CONTROLLI CRITICI per questo settore:
+   Indica quali enti (ASL, ARPA, VVF, INAIL, Ispettorato Lavoro) effettuano controlli e su cosa.
 
-Per ogni adempimento OBBLIGATORIO indica:
+NORMATIVA DI RIFERIMENTO D.Lgs. 81/08:
+- DVR (Art. 17, 28) - SEMPRE obbligatorio se ci sono lavoratori
+- RSPP (Art. 17, 31-34) - SEMPRE obbligatorio
+- RLS/RLST (Art. 47-50) - SEMPRE obbligatorio
+- Formazione lavoratori Art. 37
+- Addetti Primo Soccorso DM 388/03
+- Addetti Antincendio DM 02/09/2021
+- Valutazioni rischi specifici (chimico, rumore, vibrazioni, MMC, VDT, biologico) - SOLO SE il rischio è presente
+
+IMPORTANTE: Genera SOLO adempimenti della categoria "certamente obbligatori". Gli altri servono solo per l'analisi.
+
+Per ogni adempimento CERTAMENTE OBBLIGATORIO indica:
 - nome: denominazione ufficiale
-- descrizione: articolo di legge specifico (es. "Art. 28 D.Lgs. 81/08")
-- frequenza_rinnovo_mesi: 0=una tantum, 12=annuale, 60=quinquennale, etc.
-- sanzione_prevista: range sanzione (Art. 55-60 D.Lgs. 81/08)
+- descrizione: "Art. X D.Lgs. 81/08 - [documento richiesto]"
+- frequenza_rinnovo_mesi: 0=una tantum, 12=annuale, 60=quinquennale
+- sanzione_prevista: range sanzione con articolo (es. "Art. 55 c.5 lett.c: arresto 2-4 mesi o ammenda €1.500-6.000")
 - priorita: alta/media/bassa
-- data_scadenza: ${dataBase} + frequenza in formato YYYY-MM-DD (null se una tantum)`,
+- data_scadenza: calcola da ${dataBase} in formato YYYY-MM-DD (null se una tantum)`,
             add_context_from_internet: false,
             response_json_schema: {
               type: "object",
