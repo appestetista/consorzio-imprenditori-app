@@ -323,50 +323,46 @@ Per ogni adempimento OBBLIGATORIO indica:
           // FASE 2: Adempimenti Ambientali (D.Lgs. 152/06)
           console.log('[ComplianceAziendale] FASE 2: Ambientale...');
           const ambientaleResult = await base44.integrations.Core.InvokeLLM({
-            prompt: `Sei un consulente ambientale ESPERTO. Genera adempimenti D.Lgs. 152/06 per:
+            prompt: `Agisci come consulente senior di compliance aziendale italiana specializzato in Ambiente (D.Lgs. 152/06 - Testo Unico Ambiente).
+Anno di riferimento: 2026. Usa ESCLUSIVAMENTE normativa italiana ed europea vigente. NO esempi esteri, NO buone pratiche volontarie, NO certificazioni facoltative.
+
+DATI AZIENDA:
 - Attività: ${tipoAttivita}
-- ATECO: ${ateco || 'non specificato'}
+- Codice ATECO: ${ateco || 'non specificato'}
+- Data inizio attività: ${dataBase}
 
-ADEMPIMENTI AMBIENTALI PER SETTORE ATECO:
+GENERA GLI ADEMPIMENTI AMBIENTALI OBBLIGATORI:
 
-PRODUTTORI DI RIFIUTI (tutte le attività produttive):
-- Registro carico/scarico rifiuti
-- Classificazione rifiuti EER/CER
-- Formulari FIR
-- Deposito temporaneo conforme
+RIFIUTI (Parte IV D.Lgs. 152/06, Art. 188-266):
+- Registro cronologico carico/scarico rifiuti (Art. 190) - produttori rifiuti pericolosi o >10 dipendenti
+- Formulario Identificazione Rifiuti FIR (Art. 193)
+- MUD - Modello Unico Dichiarazione ambientale (L. 70/94) - scadenza 30 aprile annuale
+- Iscrizione RENTRI (nuovo dal 2025) - sostitutivo registro/FIR
+- Classificazione rifiuti secondo Decisione 2014/955/UE (codici EER)
+- Deposito temporaneo conforme (Art. 183, lett. bb)
 
-ATECO 10.xx-11.xx (Alimentare):
-- MUD annuale, Autorizzazione scarichi (se reflui produttivi)
+EMISSIONI IN ATMOSFERA (Parte V D.Lgs. 152/06, Art. 267-281):
+- Autorizzazione emissioni (Art. 269) - attività in deroga o ordinaria
+- Autorizzazione Unica Ambientale AUA (DPR 59/2013) - PMI
+- Piano Gestione Solventi (Art. 275) - se COV > soglie Allegato III Parte V
 
-ATECO 20.xx (Chimica/Vernici/Pitture):
-- MUD annuale OBBLIGATORIO
-- Autorizzazione emissioni in atmosfera (COV)
-- AUA – Autorizzazione Unica Ambientale
-- Autorizzazione allo scarico
-- Piano gestione solventi (se COV > soglie)
+SCARICHI IDRICI (Parte III D.Lgs. 152/06):
+- Autorizzazione allo scarico (Art. 124-127) - se scarichi in fognatura/acque superficiali
 
-ATECO 25.xx-28.xx (Metalmeccanica):
-- MUD annuale, Autorizzazione emissioni (se verniciatura/saldatura)
+APPLICABILITÀ PER SETTORE:
+- ATECO 20.xx (Chimica/Vernici): TUTTI gli adempimenti sopra + Piano Gestione Solventi
+- ATECO 25.xx-28.xx (Metalmeccanica): Rifiuti + Emissioni (se verniciatura)
+- ATECO 10.xx-11.xx (Alimentare): Rifiuti + Scarichi
+- ATECO 45.xx (Autoriparazione): Rifiuti pericolosi (oli, batterie, filtri)
+- ATECO 41.xx-43.xx (Edilizia): Rifiuti speciali cantiere
 
-ATECO 41.xx-43.xx (Edilizia):
-- Gestione rifiuti cantiere, MUD (se produttore)
-
-ATECO 45.xx (Autoriparazione):
-- MUD annuale, Gestione oli esausti, Batterie
-
-ATECO 47.xx (Commercio): Solo rifiuti imballaggi (semplificato)
-
-ATECO 55.xx-56.xx (Ristorazione): Oli esausti alimentari
-
-INCLUDI SOLO adempimenti APPLICABILI al settore indicato.
-
-Per ogni adempimento:
-- nome: nome ufficiale
-- descrizione: riferimento normativo D.Lgs. 152/06
-- frequenza_rinnovo_mesi: 12=MUD annuale, 0=una tantum, 60=AUA quinquennale
-- sanzione_prevista: importo specifico
+Per ogni adempimento OBBLIGATORIO indica:
+- nome: denominazione ufficiale
+- descrizione: articolo di legge specifico
+- frequenza_rinnovo_mesi: 12=MUD, 0=una tantum, 60=AUA, 180=autorizzazione 15 anni
+- sanzione_prevista: Art. 255-260 D.Lgs. 152/06
 - priorita: alta/media/bassa
-- data_scadenza: YYYY-MM-DD da ${dataBase} (null se una tantum)`,
+- data_scadenza: YYYY-MM-DD calcolata da ${dataBase} (null se una tantum)`,
             add_context_from_internet: false,
             response_json_schema: {
               type: "object",
