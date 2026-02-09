@@ -1077,6 +1077,27 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
                             )}
                           </div>
                           <p className="text-slate-400 text-sm">{norm.categoria}</p>
+
+                          {/* Preview 3 righe con spiegazione e ente accertatore */}
+                          {!isExpanded && (
+                            <div className="mt-2 text-xs space-y-1">
+                              <p className="text-slate-300 line-clamp-2">{norm.descrizione || 'Adempimento normativo obbligatorio'}</p>
+                              <p className="text-amber-400 flex items-center gap-1">
+                                <AlertTriangle className="w-3 h-3" />
+                                <span className="font-medium">
+                                  Ente accertatore: {
+                                    norm.categoria === 'Sicurezza sul lavoro' ? 'ASL/Ispettorato del Lavoro' :
+                                    norm.categoria === 'Ambientale' ? 'ARPA/Provincia' :
+                                    norm.categoria === 'Antincendio' ? 'Vigili del Fuoco (VVF)' :
+                                    norm.categoria === 'Privacy e GDPR' ? 'Garante Privacy' :
+                                    norm.categoria === 'Igiene e Sanità' ? 'ASL/NAS' :
+                                    'Autorità competente'
+                                  }
+                                </span>
+                              </p>
+                            </div>
+                          )}
+
                           <p className="text-xs mt-1" style={{ color: STATO_COLORS[norm.stato] }}>
                             {STATO_LABELS[norm.stato]}
                           </p>
