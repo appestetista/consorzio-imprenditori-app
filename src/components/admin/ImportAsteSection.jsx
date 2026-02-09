@@ -479,17 +479,30 @@ export default function ImportAsteSection() {
           </div>
 
           {/* Azioni */}
-          {statsData.scadute > 0 && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleDeleteScadute(tipologia.id)}
-              className="w-full border-red-500/50 text-red-400 hover:bg-red-500/10"
-            >
-              <Trash2 className="w-3 h-3 mr-1" />
-              Elimina {statsData.scadute} scadute
-            </Button>
-          )}
+          <div className="flex gap-2">
+            {statsData.scadute > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleDeleteScadute(tipologia.id)}
+                className="flex-1 border-red-500/50 text-red-400 hover:bg-red-500/10"
+              >
+                <Trash2 className="w-3 h-3 mr-1" />
+                Elimina {statsData.scadute} scadute
+              </Button>
+            )}
+            {statsData.totale > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleDeleteTutte(tipologia.id)}
+                className="flex-1 border-red-600 text-red-500 hover:bg-red-600/20"
+              >
+                <Trash2 className="w-3 h-3 mr-1" />
+                Elimina tutte ({statsData.totale})
+              </Button>
+            )}
+          </div>
 
           {/* File caricato e pulsante Pubblica */}
           {uploadedFiles[tipologia.id] && (
