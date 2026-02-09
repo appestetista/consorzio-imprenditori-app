@@ -1220,39 +1220,43 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
                             </div>
                           )}
 
-                          {norm.data_scadenza && timeline && timeline.giorniMancanti <= 7 && timeline.giorniMancanti >= 0 && !norm.notifica_disabilitata && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => updateNormMutation.mutate({ id: norm.id, data: { notifica_disabilitata: true }})}
-                              className="w-full border-orange-500/50 text-orange-400 hover:bg-orange-500/20"
-                            >
-                              <CheckCircle className="w-4 h-4 mr-2" />
-                              Ho preso visione - Disabilita notifica
-                            </Button>
-                          )}
+                          {editingNorm?.id !== norm.id && (
+                            <>
+                              {norm.data_scadenza && timeline && timeline.giorniMancanti <= 7 && timeline.giorniMancanti >= 0 && !norm.notifica_disabilitata && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => updateNormMutation.mutate({ id: norm.id, data: { notifica_disabilitata: true }})}
+                                  className="w-full border-orange-500/50 text-orange-400 hover:bg-orange-500/20"
+                                >
+                                  <CheckCircle className="w-4 h-4 mr-2" />
+                                  Ho preso visione - Disabilita notifica
+                                </Button>
+                              )}
 
-                          {!norm.is_locked && (
-                            <div className="flex gap-2 pt-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => {
-                                  if (confirm('Eliminare questa normativa?')) {
-                                    deleteNormMutation.mutate(norm.id);
-                                  }
-                                }}
-                                className="border-red-500/50 text-red-400 hover:bg-red-500/20"
-                              >
-                                <Trash2 className="w-4 h-4 mr-1" />
-                                Elimina
-                              </Button>
-                            </div>
-                          )}
-                          {norm.is_locked && (
-                            <p className="text-slate-500 text-xs italic pt-2">
-                              🔒 Adempimento obbligatorio per legge - non eliminabile
-                            </p>
+                              {!norm.is_locked && (
+                                <div className="flex gap-2 pt-2">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                      if (confirm('Eliminare questa normativa?')) {
+                                        deleteNormMutation.mutate(norm.id);
+                                      }
+                                    }}
+                                    className="border-red-500/50 text-red-400 hover:bg-red-500/20"
+                                  >
+                                    <Trash2 className="w-4 h-4 mr-1" />
+                                    Elimina
+                                  </Button>
+                                </div>
+                              )}
+                              {norm.is_locked && (
+                                <p className="text-slate-500 text-xs italic pt-2">
+                                  🔒 Adempimento obbligatorio - puoi modificare date e stato
+                                </p>
+                              )}
+                            </>
                           )}
                         </div>
                       )}
