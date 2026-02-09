@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Shield, Upload, FileText, AlertTriangle, CheckCircle, Clock, Plus, X, ChevronDown, ChevronUp, Trash2, Calendar, Sparkles, Loader2, Building2, MoreVertical, Pencil } from 'lucide-react';
+import { ArrowLeft, Shield, Upload, FileText, AlertTriangle, CheckCircle, Clock, Plus, X, ChevronDown, ChevronUp, Trash2, Calendar, Sparkles, Loader2, Building2, MoreVertical, Pencil, Camera, Image, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -1172,9 +1172,33 @@ VERIFICA:
                           </p>
                           {!isExpanded && (!norm.documenti_urls || norm.documenti_urls.length === 0) && (
                             <p className="text-xs mt-2 text-lime-400/80 flex items-center gap-1">
-                              <Upload className="w-3 h-3" />
-                              Tocca per caricare documenti
+                              <Camera className="w-3 h-3" />
+                              Tocca per scattare o caricare documenti
                             </p>
+                          )}
+                          {!isExpanded && norm.documenti_urls?.length > 0 && (
+                            <div className="flex items-center gap-2 mt-2">
+                              <div className="flex -space-x-2">
+                                {norm.documenti_urls.slice(0, 3).map((url, idx) => {
+                                  const fileName = norm.documenti_nomi?.[idx] || '';
+                                  const isImage = /\.(jpg|jpeg|png|gif|webp|bmp)$/i.test(url) || /\.(jpg|jpeg|png|gif|webp|bmp)$/i.test(fileName);
+                                  return (
+                                    <div key={idx} className="w-8 h-8 rounded-md border-2 border-slate-800 overflow-hidden bg-slate-700">
+                                      {isImage ? (
+                                        <img src={url} alt="" className="w-full h-full object-cover" />
+                                      ) : (
+                                        <div className="w-full h-full flex items-center justify-center">
+                                          <FileText className="w-4 h-4 text-lime-400/60" />
+                                        </div>
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                              <span className="text-xs text-slate-400">
+                                {norm.documenti_urls.length} {norm.documenti_urls.length === 1 ? 'documento' : 'documenti'}
+                              </span>
+                            </div>
                           )}
                         </div>
                       </button>
@@ -1355,24 +1379,43 @@ VERIFICA:
                           )}
 
                           <div>
-                            <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center justify-between mb-3">
                               <Label className="text-slate-400 text-xs">Documenti allegati</Label>
-                              <label className="cursor-pointer">
-                                <input
-                                  type="file"
-                                  className="hidden"
-                                  onChange={(e) => handleDocumentUpload(e, norm.id)}
-                                  disabled={uploadingDoc || analyzingDoc === norm.id}
-                                />
-                                <span className="text-lime-400 text-xs flex items-center gap-1 hover:underline">
-                                  <Upload className="w-3 h-3" />
-                                  {analyzingDoc === norm.id ? 'Analisi AI in corso...' : uploadingDoc ? 'Caricamento...' : 'Carica documento'}
-                                </span>
-                              </label>
+                              <div className="flex items-center gap-2">
+                                {/* Pulsante Fotocamera */}
+                                <label className="cursor-pointer">
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    capture="environment"
+                                    className="hidden"
+                                    onChange={(e) => handleDocumentUpload(e, norm.id)}
+                                    disabled={uploadingDoc || analyzingDoc === norm.id}
+                                  />
+                                  <span className="bg-blue-500/20 text-blue-400 text-xs flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-blue-500/30 transition-colors">
+                                    <Camera className="w-3 h-3" />
+                                    Scatta
+                                  </span>
+                                </label>
+                                {/* Pulsante Carica File */}
+                                <label className="cursor-pointer">
+                                  <input
+                                    type="file"
+                                    accept="image/*,.pdf,.doc,.docx"
+                                    className="hidden"
+                                    onChange={(e) => handleDocumentUpload(e, norm.id)}
+                                    disabled={uploadingDoc || analyzingDoc === norm.id}
+                                  />
+                                  <span className="bg-lime-500/20 text-lime-400 text-xs flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-lime-500/30 transition-colors">
+                                    <Upload className="w-3 h-3" />
+                                    Carica
+                                  </span>
+                                </label>
+                              </div>
                             </div>
 
                             {analyzingDoc === norm.id && (
-                              <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 mb-2">
+                              <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3 mb-3">
                                 <div className="flex items-center gap-2">
                                   <Loader2 className="w-4 h-4 text-blue-400 animate-spin" />
                                   <p className="text-blue-300 text-sm">L'AI sta analizzando il documento...</p>
@@ -1381,29 +1424,87 @@ VERIFICA:
                             )}
                             
                             {norm.documenti_urls?.length > 0 ? (
-                              <div className="space-y-2">
-                                {norm.documenti_urls.map((url, idx) => (
-                                  <div key={idx} className="flex items-center justify-between bg-slate-900 rounded-lg p-2">
-                                    <a 
-                                      href={url} 
-                                      target="_blank" 
-                                      rel="noopener noreferrer"
-                                      className="text-lime-400 text-sm flex items-center gap-2 truncate hover:underline"
-                                    >
-                                      <FileText className="w-4 h-4 flex-shrink-0" />
-                                      <span className="truncate">{norm.documenti_nomi?.[idx] || `Documento ${idx + 1}`}</span>
-                                    </a>
-                                    <button
-                                      onClick={() => removeDocument(idx, norm.id)}
-                                      className="text-red-400 hover:text-red-300 p-1"
-                                    >
-                                      <X className="w-4 h-4" />
-                                    </button>
-                                  </div>
-                                ))}
+                              <div className="grid grid-cols-2 gap-2">
+                                {norm.documenti_urls.map((url, idx) => {
+                                  const fileName = norm.documenti_nomi?.[idx] || `Documento ${idx + 1}`;
+                                  const isImage = /\.(jpg|jpeg|png|gif|webp|bmp)$/i.test(url) || /\.(jpg|jpeg|png|gif|webp|bmp)$/i.test(fileName);
+                                  
+                                  return (
+                                    <div key={idx} className="relative group bg-slate-900 rounded-lg overflow-hidden border border-slate-700">
+                                      {/* Miniatura o icona */}
+                                      <a 
+                                        href={url} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="block"
+                                      >
+                                        {isImage ? (
+                                          <div className="aspect-square relative">
+                                            <img 
+                                              src={url} 
+                                              alt={fileName}
+                                              className="w-full h-full object-cover"
+                                              onError={(e) => {
+                                                e.target.style.display = 'none';
+                                                e.target.nextSibling.style.display = 'flex';
+                                              }}
+                                            />
+                                            <div className="hidden w-full h-full items-center justify-center bg-slate-800">
+                                              <FileText className="w-8 h-8 text-slate-500" />
+                                            </div>
+                                          </div>
+                                        ) : (
+                                          <div className="aspect-square flex items-center justify-center bg-slate-800">
+                                            <FileText className="w-10 h-10 text-lime-400/60" />
+                                          </div>
+                                        )}
+                                      </a>
+                                      
+                                      {/* Nome file */}
+                                      <div className="p-2">
+                                        <p className="text-slate-300 text-xs truncate" title={fileName}>
+                                          {fileName}
+                                        </p>
+                                      </div>
+                                      
+                                      {/* Pulsanti azione overlay */}
+                                      <div className="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        {/* Pulsante Sostituisci */}
+                                        <label className="cursor-pointer">
+                                          <input
+                                            type="file"
+                                            accept="image/*,.pdf,.doc,.docx"
+                                            className="hidden"
+                                            onChange={(e) => {
+                                              if (e.target.files?.[0]) {
+                                                removeDocument(idx, norm.id);
+                                                handleDocumentUpload(e, norm.id);
+                                              }
+                                            }}
+                                            disabled={uploadingDoc || analyzingDoc === norm.id}
+                                          />
+                                          <span className="bg-blue-500 text-white p-1.5 rounded-md flex items-center justify-center hover:bg-blue-600 transition-colors">
+                                            <RefreshCw className="w-3 h-3" />
+                                          </span>
+                                        </label>
+                                        {/* Pulsante Elimina */}
+                                        <button
+                                          onClick={() => removeDocument(idx, norm.id)}
+                                          className="bg-red-500 text-white p-1.5 rounded-md hover:bg-red-600 transition-colors"
+                                        >
+                                          <Trash2 className="w-3 h-3" />
+                                        </button>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
                               </div>
                             ) : (
-                              <p className="text-slate-500 text-sm">Nessun documento caricato</p>
+                              <div className="bg-slate-900/50 border border-dashed border-slate-700 rounded-lg p-6 text-center">
+                                <Image className="w-10 h-10 text-slate-600 mx-auto mb-2" />
+                                <p className="text-slate-500 text-sm">Nessun documento caricato</p>
+                                <p className="text-slate-600 text-xs mt-1">Usa i pulsanti sopra per scattare una foto o caricare un file</p>
+                              </div>
                             )}
                           </div>
 
