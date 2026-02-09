@@ -338,7 +338,13 @@ Genera 15-25 adempimenti principali. Per ogni adempimento indica:
         }
 
         console.log('[ComplianceAziendale] Generati', result.adempimenti.length, 'adempimenti per branch', branchId);
-        queryClient.invalidateQueries({ queryKey: ['compliance-norms'] });
+        
+        // Invalida le query in modo sicuro
+        try {
+          queryClient.invalidateQueries({ queryKey: ['compliance-norms'] });
+        } catch (qcError) {
+          console.warn('[ComplianceAziendale] Errore invalidazione query (non critico):', qcError);
+        }
 
         // Skip seconda fase per velocizzare
         console.log('[ComplianceAziendale] Generazione completata con successo');
