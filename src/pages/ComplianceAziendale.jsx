@@ -291,9 +291,9 @@ Anno di riferimento: 2026. Usa ESCLUSIVAMENTE normativa italiana vigente. NO ese
 
 DATI AZIENDA:
 - Attività: ${tipoAttivita}
-- Codice ATECO: ${ateco || 'non specificato'}
 - Numero dipendenti: ${numeroDipendenti || 'non specificato'}
 - Data inizio attività: ${dataBase}
+${caratteristichePrompt}
 
 GENERA GLI ADEMPIMENTI OBBLIGATORI PER LEGGE (D.Lgs. 81/08 e s.m.i.):
 
