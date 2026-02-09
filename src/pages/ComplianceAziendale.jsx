@@ -854,122 +854,82 @@ export default function ComplianceAziendale() {
           console.log('[ComplianceAziendale] Totale adempimenti FISSI + CONDIZIONATI:', allAdempimenti.length);
 
           // ========================================
-          // FASE 2: AI PER ADEMPIMENTI SPECIFICI ATECO
+          // FASE 3: VERIFICA SETTORE SPECIFICO (HACCP, Edilizia, ecc.)
           // ========================================
-          console.log('[ComplianceAziendale] FASE 2: AI per adempimenti specifici ATECO...');
+          console.log('[ComplianceAziendale] FASE 3: Verifica settore specifico ATECO...');
 
-          const atecoPrompt = ateco ? `Codice ATECO: ${ateco}` : 'Codice ATECO: non specificato';
+          // Determina se settore alimentare
+          const isAlimentare = ateco && (
+            ateco.startsWith('10.') || ateco.startsWith('11.') || 
+            ateco.startsWith('47.2') || ateco.startsWith('55.') || ateco.startsWith('56.')
+          );
 
-          const aiResult = await base44.integrations.Core.InvokeLLM({
-            prompt: `Sei un RSPP / consulente HSE esperto di normativa italiana 2025.
-
-DATI AZIENDA:
-- Attività: ${tipoAttivita}
-- ${atecoPrompt}
-- Dipendenti: ${numeroDipendenti || 'non specificato'}
-- Tipo: ${caratteristiche.tipo_categoria}
-
-ADEMPIMENTI GIÀ INSERITI (NON RIPETERE):
-- DVR, RSPP, RLS, Formazione base, Primo Soccorso, Antincendio, Piano Emergenza
-- Stress lavoro-correlato, Registro controlli antincendio
-- Privacy (Registro trattamenti, Informativa, Nomine)
-${caratteristiche.rifiuti_speciali ? '- Registro rifiuti, FIR, MUD, RENTRI' : ''}
-${caratteristiche.emissioni_atmosfera ? '- Autorizzazione emissioni' : ''}
-${caratteristiche.scarichi_industriali ? '- Autorizzazione scarichi' : ''}
-${caratteristiche.sostanze_chimiche ? '- SDS, Valutazione rischio chimico' : ''}
-${caratteristiche.rischio_incendio_non_basso ? '- SCIA/CPI Antincendio' : ''}
-
-CERCA SU INTERNET gli obblighi SPECIFICI per il codice ATECO ${ateco || tipoAttivita} e rispondi alla seguente CHECKLIST.
-Per ogni voce rispondi OBBLIGATORIO / NON APPLICABILE / GIÀ PRESENTE:
-
-CHECKLIST VALUTAZIONI RISCHI SPECIFICHE:
-1. Valutazione Movimentazione Manuale Carichi (MMC) - se sollevano/spostano pesi
-2. Valutazione Rischio Meccanico - se usano macchinari (presse, torni, frese, ecc.)
-3. Valutazione Rischio ATEX (atmosfere esplosive) - se polveri/vapori infiammabili
-4. Valutazione Rischio Microclima - se ambienti caldi/freddi (forni, celle, ecc.)
-5. Valutazione Rumore - se macchinari rumorosi
-6. Valutazione Vibrazioni - se utensili vibranti o mezzi
-7. Valutazione Rischio Biologico - se contatto con agenti biologici
-8. Valutazione Campi Elettromagnetici (CEM) - se saldatura, forni induzione
-9. Valutazione Radiazioni Ottiche Artificiali (ROA) - se saldatura, laser
-
-CHECKLIST SORVEGLIANZA SANITARIA:
-10. Nomina Medico Competente - se presente almeno un rischio che lo richiede
-11. Protocollo Sanitario - documento del medico
-12. Giudizi di Idoneità - per ogni lavoratore
-
-CHECKLIST MACCHINE E ATTREZZATURE:
-13. Registro Manutenzione Macchine - se presenti macchinari
-14. Dichiarazioni CE Macchine - marcatura CE obbligatoria
-15. Libretti Uso e Manutenzione - per ogni macchina
-
-CHECKLIST FORMAZIONE SPECIFICA:
-16. Formazione Carrelli Elevatori - se usano muletti
-17. Formazione Gru/Carroponte - se presenti
-18. Formazione PLE (piattaforme elevabili) - se presenti
-19. Formazione Lavori in Quota - se lavori sopra 2 metri
-20. Formazione Spazi Confinati - se presenti
-
-CHECKLIST IGIENE ALIMENTARE (solo se ATECO alimentare 10.xx, 11.xx, 47.2x, 55.xx, 56.xx):
-21. Registrazione OSA alla ASL
-22. Manuale HACCP
-23. Formazione Alimentaristi
-
-Genera SOLO gli adempimenti marcati come OBBLIGATORIO.
-NON includere quelli GIÀ PRESENTI o NON APPLICABILE.
-
-Per ogni adempimento obbligatorio:
-- nome: denominazione esatta
-- descrizione: riferimento normativo + cosa prevede
-- categoria: "Sicurezza sul lavoro" / "Formazione obbligatoria" / "Igiene e Sanità"
-- frequenza_rinnovo_mesi: 0=una tantum, oppure mesi
-- sanzione_prevista: riferimento e importo
-- priorita: alta/media/bassa`,
-            add_context_from_internet: true,
-            response_json_schema: {
-              type: "object",
-              properties: {
-                adempimenti: {
-                  type: "array",
-                  items: {
-                    type: "object",
-                    properties: {
-                      nome: { type: "string" },
-                      descrizione: { type: "string" },
-                      categoria: { type: "string" },
-                      frequenza_rinnovo_mesi: { type: "number" },
-                      sanzione_prevista: { type: "string" },
-                      priorita: { type: "string" }
-                    }
-                  }
-                }
-              }
-            }
-          });
-
-          if (aiResult?.adempimenti) {
-            // Filtra duplicati
-            const nomiEsistenti = allAdempimenti.map(a => a.nome.toLowerCase());
-            const nuoviAdempimenti = aiResult.adempimenti.filter(a => {
-              const nomeLower = a.nome.toLowerCase();
-              // Evita duplicati
-              return !nomiEsistenti.some(n => 
-                n.includes(nomeLower) || nomeLower.includes(n) ||
-                (nomeLower.includes('dvr') && n.includes('dvr')) ||
-                (nomeLower.includes('rspp') && n.includes('rspp')) ||
-                (nomeLower.includes('rls') && n.includes('rls')) ||
-                (nomeLower.includes('stress') && n.includes('stress'))
-              );
+          if (isAlimentare) {
+            allAdempimenti.push({
+              nome: "Registrazione OSA alla ASL",
+              descrizione: "Reg. CE 852/2004 - Registrazione come Operatore del Settore Alimentare",
+              categoria: "Igiene e Sanità",
+              frequenza_rinnovo_mesi: 0,
+              sanzione_prevista: "D.Lgs. 193/2007: Sanzione da €1.000 a €6.000",
+              priorita: "alta",
+              data_scadenza: null
             });
-
-            nuoviAdempimenti.forEach(a => {
-              allAdempimenti.push({
-                ...a,
-                data_scadenza: a.frequenza_rinnovo_mesi ? calcolaScadenza(a.frequenza_rinnovo_mesi) : null
-              });
+            allAdempimenti.push({
+              nome: "Manuale HACCP",
+              descrizione: "Reg. CE 852/2004 - Sistema di autocontrollo igienico-sanitario",
+              categoria: "Igiene e Sanità",
+              frequenza_rinnovo_mesi: 12,
+              sanzione_prevista: "D.Lgs. 193/2007: Sanzione da €1.000 a €6.000",
+              priorita: "alta",
+              data_scadenza: calcolaScadenza(12)
             });
-            console.log('[ComplianceAziendale] AI ha aggiunto', nuoviAdempimenti.length, 'adempimenti specifici');
+            allAdempimenti.push({
+              nome: "Formazione Alimentaristi (ex Libretto Sanitario)",
+              descrizione: "Reg. CE 852/2004 - Formazione obbligatoria per chi manipola alimenti",
+              categoria: "Formazione obbligatoria",
+              frequenza_rinnovo_mesi: 36,
+              sanzione_prevista: "Normativa regionale: Sanzioni variabili",
+              priorita: "alta",
+              data_scadenza: calcolaScadenza(36)
+            });
           }
+
+          // Determina se settore edilizia/cantieri
+          const isEdilizia = ateco && (
+            ateco.startsWith('41.') || ateco.startsWith('42.') || ateco.startsWith('43.')
+          );
+
+          if (isEdilizia) {
+            allAdempimenti.push({
+              nome: "POS - Piano Operativo di Sicurezza",
+              descrizione: "Art. 89 D.Lgs. 81/08 - Piano obbligatorio per ogni cantiere",
+              categoria: "Sicurezza sul lavoro",
+              frequenza_rinnovo_mesi: 0,
+              sanzione_prevista: "Art. 159 D.Lgs. 81/08: Arresto da 2 a 4 mesi o ammenda da €1.096 a €5.260",
+              priorita: "alta",
+              data_scadenza: null
+            });
+            allAdempimenti.push({
+              nome: "Notifica Preliminare Cantiere",
+              descrizione: "Art. 99 D.Lgs. 81/08 - Notifica ASL/Ispettorato per cantieri > 200 uomini-giorno",
+              categoria: "Sicurezza sul lavoro",
+              frequenza_rinnovo_mesi: 0,
+              sanzione_prevista: "Art. 159 D.Lgs. 81/08: Sanzione amministrativa da €614 a €2.211",
+              priorita: "media",
+              data_scadenza: null
+            });
+            allAdempimenti.push({
+              nome: "Formazione Ponteggi",
+              descrizione: "Art. 136 D.Lgs. 81/08 - Formazione per montaggio/smontaggio ponteggi",
+              categoria: "Formazione obbligatoria",
+              frequenza_rinnovo_mesi: 48,
+              sanzione_prevista: "Art. 159 D.Lgs. 81/08: Arresto da 2 a 4 mesi o ammenda da €1.474 a €6.388",
+              priorita: "alta",
+              data_scadenza: calcolaScadenza(48)
+            });
+          }
+
+          console.log('[ComplianceAziendale] Adempimenti totali generati:', allAdempimenti.length);
 
           // ========================================
           // FASE 3: SALVATAGGIO
