@@ -435,8 +435,8 @@ Anno di riferimento: 2026. Usa ESCLUSIVAMENTE normativa italiana ed europea vige
 
 DATI AZIENDA:
 - Attività: ${tipoAttivita}
-- Codice ATECO: ${ateco || 'non specificato'}
 - Data inizio attività: ${dataBase}
+${caratteristichePrompt}
 
 GENERA ADEMPIMENTI OBBLIGATORI PER LE SEGUENTI AREE:
 
