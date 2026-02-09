@@ -4,6 +4,20 @@ import { cn } from '@/lib/utils';
 
 const DAYS_SHORT = ['D', 'L', 'M', 'M', 'G', 'V', 'S'];
 const MONTHS = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
+const MONTH_COLORS = [
+  '#3b82f6', // Gennaio - blu
+  '#8b5cf6', // Febbraio - viola
+  '#ec4899', // Marzo - rosa
+  '#14b8a6', // Aprile - teal
+  '#22c55e', // Maggio - verde
+  '#eab308', // Giugno - giallo
+  '#f97316', // Luglio - arancione
+  '#ef4444', // Agosto - rosso
+  '#06b6d4', // Settembre - cyan
+  '#a855f7', // Ottobre - purple
+  '#6366f1', // Novembre - indigo
+  '#0ea5e9', // Dicembre - sky
+];
 
 export default function HorizontalDatePicker({ selectedDate, onDateSelect, onClose }) {
   const today = new Date();
@@ -13,7 +27,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onClo
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const scrollRef = useRef(null);
   const todayRef = useRef(null);
-  const [visibleMonth, setVisibleMonth] = useState({ name: MONTHS[today.getMonth()], year: today.getFullYear() });
+  const [visibleMonth, setVisibleMonth] = useState({ name: MONTHS[today.getMonth()], year: today.getFullYear(), color: MONTH_COLORS[today.getMonth()] });
   const monthRefs = useRef({});
 
   // Genera tutti i giorni del mese corrente
@@ -56,6 +70,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onClo
         month,
         year,
         monthName: MONTHS[month],
+        color: MONTH_COLORS[month],
         days: daysInMonth
       });
     }
@@ -80,7 +95,8 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onClo
         entries.forEach((entry) => {
           if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
             const [year, month] = entry.target.dataset.month.split('-');
-            setVisibleMonth({ name: MONTHS[parseInt(month)], year: parseInt(year) });
+            const monthIdx = parseInt(month);
+            setVisibleMonth({ name: MONTHS[monthIdx], year: parseInt(year), color: MONTH_COLORS[monthIdx] });
           }
         });
       },
@@ -151,34 +167,37 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onClo
               >
                 {/* Linea verticale */}
                 <div 
-                  className={cn(
-                    "w-[2px] mb-1 rounded-full transition-all",
-                    dayData.isToday ? "bg-lime-400" : 
-                    dayData.isSelected ? "bg-blue-400" :
-                    dayData.isWeekend ? "bg-orange-400/70" : "bg-slate-500"
-                  )}
+                  className="w-[2px] mb-1 rounded-full transition-all"
                   style={{ 
-                    height: dayData.isWeekend ? '40px' : '24px'
+                    height: dayData.isWeekend ? '40px' : '24px',
+                    backgroundColor: dayData.isToday ? '#a3e635' : monthData.color
                   }}
                 />
                 
+                {/* Puntino rosso per weekend */}
+                {dayData.isWeekend && !dayData.isToday && (
+                  <div className="w-[4px] h-[4px] rounded-full bg-red-500 mb-0.5" />
+                )}
+                
                 {/* Numero del giorno */}
-                <span className={cn(
-                  "text-xs font-bold leading-tight",
-                  dayData.isToday ? "text-lime-400" : 
-                  dayData.isSelected ? "text-blue-400" : 
-                  dayData.isWeekend ? "text-orange-400" : "text-white"
-                )}>
+                <span 
+                  className="text-xs font-bold leading-tight"
+                  style={{ 
+                    color: dayData.isToday ? '#a3e635' : 
+                           dayData.isWeekend ? '#ef4444' : '#ffffff'
+                  }}
+                >
                   {dayData.day}
                 </span>
                 
                 {/* Lettera del giorno della settimana */}
-                <span className={cn(
-                  "text-[9px] font-medium leading-tight",
-                  dayData.isToday ? "text-lime-400" : 
-                  dayData.isSelected ? "text-blue-400" :
-                  dayData.isWeekend ? "text-orange-400" : "text-slate-400"
-                )}>
+                <span 
+                  className="text-[9px] font-medium leading-tight"
+                  style={{ 
+                    color: dayData.isToday ? '#a3e635' : 
+                           dayData.isWeekend ? '#ef4444' : '#94a3b8'
+                  }}
+                >
                   {DAYS_SHORT[dayData.dayOfWeek]}
                 </span>
               </div>
@@ -189,10 +208,10 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onClo
 
       {/* Nome mese corrente visibile */}
       <div className="bg-slate-900 border-t border-slate-700 py-2 text-center">
-        <span className="text-lime-400 font-bold text-sm">
+        <span className="font-bold text-sm" style={{ color: visibleMonth.color }}>
           {visibleMonth.name}
         </span>
-        <span className="text-slate-400 font-medium text-sm ml-2">
+        <span className="font-medium text-sm ml-2" style={{ color: visibleMonth.color }}>
           {visibleMonth.year}
         </span>
       </div>
