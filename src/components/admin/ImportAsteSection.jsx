@@ -325,19 +325,34 @@ export default function ImportAsteSection() {
         tipologia: tipologia
       }));
 
+      // Filtra aste scadute (data_ora_vendita < oggi)
+      const adesso = new Date();
+      const asteAttive = asteConTipologia.filter(a => {
+        const dataVendita = parseDataOraVendita(a.data_ora_vendita);
+        if (!dataVendita) return true; // Se non ha data, la consideriamo attiva
+        return dataVendita >= adesso;
+      });
+      
+      const asteScadute = asteConTipologia.length - asteAttive.length;
+
       // Salva info file caricato e aste in attesa di pubblicazione
       setUploadedFiles(prev => ({
         ...prev,
-        [tipologia]: { name: file.name, rows: aste.length }
+        [tipologia]: { name: file.name, rows: aste.length, scadute: asteScadute, attive: asteAttive.length }
       }));
       
       setPendingAste(prev => ({
         ...prev,
-        [tipologia]: asteConTipologia
+        [tipologia]: asteAttive // Solo aste attive
       }));
 
-      console.log('Aste pronte per pubblicazione:', asteConTipologia.length);
-      toast.success(`File caricato: ${aste.length} aste pronte per la pubblicazione. Clicca "Pubblica" per inserirle nel database.`)
+      console.log('Aste totali:', asteConTipologia.length, 'Attive:', asteAttive.length, 'Scadute:', asteScadute);
+      
+      if (asteScadute > 0) {
+        toast.warning(`File caricato: ${asteAttive.length} aste attive pronte per la pubblicazione. ${asteScadute} aste scadute escluse.`);
+      } else {
+        toast.success(`File caricato: ${asteAttive.length} aste pronte per la pubblicazione.`);
+      }
       
     } catch (error) {
       console.error('Errore import:', error);
