@@ -821,6 +821,31 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
           </Button>
         </div>
 
+        {/* Barra riempimento rami aziendali */}
+        <Card className="bg-slate-800 border-slate-700 mb-4">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-slate-400 text-sm">Rami Aziendali</span>
+              <span className="text-lime-400 text-sm font-medium">{branches.length}/5</span>
+            </div>
+            <div className="flex gap-1">
+              {[...Array(5)].map((_, i) => (
+                <div 
+                  key={i}
+                  className={`h-2 flex-1 rounded-full transition-all ${
+                    i < branches.length 
+                      ? 'bg-lime-400' 
+                      : 'bg-slate-700'
+                  }`}
+                />
+              ))}
+            </div>
+            {branches.length >= 5 && (
+              <p className="text-amber-400 text-xs mt-2">⚠️ Limite massimo raggiunto</p>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Banner Aggiungi primo ramo */}
         {branches.length === 0 && (
           <Card 
