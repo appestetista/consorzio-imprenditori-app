@@ -357,9 +357,10 @@ IMPORTANTE: Devi generare ALMENO 25-40 adempimenti per un'attività industriale/
 GENERA ORA L'ELENCO COMPLETO PER: ${tipoAttivita} (ATECO: ${ateco || 'N/A'}) con ${numeroDipendenti || 'N/A'} dipendenti.`;
 
       console.log('[ComplianceAziendale] Chiamata LLM per generazione adempimenti...');
-      
+
       let result;
       try {
+        console.log('[ComplianceAziendale] Invio richiesta a InvokeLLM...');
         result = await base44.integrations.Core.InvokeLLM({
           prompt,
           add_context_from_internet: true,
@@ -384,14 +385,22 @@ GENERA ORA L'ELENCO COMPLETO PER: ${tipoAttivita} (ATECO: ${ateco || 'N/A'}) con
             }
           }
         });
-        console.log('[ComplianceAziendale] Risposta LLM ricevuta:', result);
+        console.log('[ComplianceAziendale] Risposta LLM ricevuta:', JSON.stringify(result).substring(0, 500));
       } catch (llmError) {
         console.error('[ComplianceAziendale] Errore chiamata LLM:', llmError);
-        throw new Error('Errore nella generazione AI: ' + (llmError.message || 'Riprova tra qualche secondo'));
+        console.error('[ComplianceAziendale] LLM Error message:', llmError?.message);
+        console.error('[ComplianceAziendale] LLM Error response:', llmError?.response?.data);
+        throw new Error('Errore nella generazione AI: ' + (llmError?.message || 'Riprova tra qualche secondo'));
       }
-      
+
       if (!result) {
+        console.error('[ComplianceAziendale] Risultato LLM nullo o undefined');
         throw new Error('Nessuna risposta dal sistema AI');
+      }
+
+      if (!result.adempimenti) {
+        console.error('[ComplianceAziendale] Risposta LLM senza adempimenti:', result);
+        throw new Error('Risposta AI non valida - nessun adempimento generato');
       }
 
       if (result?.adempimenti && result.adempimenti.length > 0) {
