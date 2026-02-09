@@ -1588,16 +1588,20 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
                                         <div>
                                           <Label className="text-slate-400 text-xs mb-1 block">Tipologia attività</Label>
                                           <Select
-                                            value={newBranch.tipo_attivita_categoria}
-                                            onValueChange={(value) => setNewBranch({...newBranch, tipo_attivita_categoria: value})}
+                                            value={newBranch.tipo_attivita_categoria || 'produttiva'}
+                                            onValueChange={(value) => {
+                                              if (value) {
+                                                setNewBranch({...newBranch, tipo_attivita_categoria: value});
+                                              }
+                                            }}
                                           >
                                             <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
-                                              <SelectValue />
+                                              <SelectValue placeholder="Seleziona tipologia" />
                                             </SelectTrigger>
-                                            <SelectContent className="bg-slate-800 border-slate-700">
-                                              <SelectItem value="produttiva" className="text-white">Produttiva (manifattura, industria)</SelectItem>
-                                              <SelectItem value="servizi" className="text-white">Servizi (uffici, consulenza)</SelectItem>
-                                              <SelectItem value="commerciale" className="text-white">Commerciale (vendita, negozio)</SelectItem>
+                                            <SelectContent className="bg-slate-800 border-slate-700 z-[100]">
+                                              <SelectItem value="produttiva" className="text-white hover:bg-slate-700 cursor-pointer">Produttiva (manifattura, industria)</SelectItem>
+                                              <SelectItem value="servizi" className="text-white hover:bg-slate-700 cursor-pointer">Servizi (uffici, consulenza)</SelectItem>
+                                              <SelectItem value="commerciale" className="text-white hover:bg-slate-700 cursor-pointer">Commerciale (vendita, negozio)</SelectItem>
                                             </SelectContent>
                                           </Select>
                                         </div>
