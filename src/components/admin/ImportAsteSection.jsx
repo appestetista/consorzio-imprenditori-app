@@ -494,14 +494,32 @@ export default function ImportAsteSection() {
               <Icon className={`w-5 h-5 text-${colorClass}-400`} />
               <span className="text-sm">{tipologia.label}</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
-                {statsData.attive} attive
-              </Badge>
-              {statsData.scadute > 0 && (
-                <Badge className="bg-red-500/20 text-red-400 border-red-500/30">
-                  {statsData.scadute} scadute
-                </Badge>
+            <div className="flex items-center gap-2 flex-wrap justify-end">
+              {/* Badge dal file caricato (se presente) */}
+              {uploadedFiles[tipologia.id] && (
+                <>
+                  <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
+                    📁 {uploadedFiles[tipologia.id].attive || 0} attive
+                  </Badge>
+                  {uploadedFiles[tipologia.id].scadute > 0 && (
+                    <Badge className="bg-orange-500/20 text-orange-400 border-orange-500/30">
+                      {uploadedFiles[tipologia.id].scadute} scadute
+                    </Badge>
+                  )}
+                </>
+              )}
+              {/* Badge dal database (se non c'è file caricato) */}
+              {!uploadedFiles[tipologia.id] && (
+                <>
+                  <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
+                    {statsData.attive} attive
+                  </Badge>
+                  {statsData.scadute > 0 && (
+                    <Badge className="bg-red-500/20 text-red-400 border-red-500/30">
+                      {statsData.scadute} scadute
+                    </Badge>
+                  )}
+                </>
               )}
             </div>
           </CardTitle>
