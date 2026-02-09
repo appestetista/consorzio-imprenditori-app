@@ -619,7 +619,10 @@ DATI AZIENDA REGISTRATA:
 - Forma giuridica: ${effectiveUser?.legal_form || 'Non specificata'}`;
 
       const currentYear = new Date().getFullYear();
-      const analysisResult = await base44.integrations.Core.InvokeLLM({
+      const todayDate = new Date().toISOString().split('T')[0];
+      
+      // PRIMA ANALISI
+      const firstAnalysis = await base44.integrations.Core.InvokeLLM({
         prompt: `Sei un esperto di compliance aziendale italiana. Analizza questo documento e verifica LA CONFORMITÀ SECONDO LA NORMATIVA VIGENTE AGGIORNATA AL ${currentYear}.
 
 ADEMPIMENTO RICHIESTO: "${norm.nome}"
@@ -628,33 +631,105 @@ CATEGORIA: "${norm.categoria}"
 
 ${aziendaInfo}
 
-IMPORTANTE: Utilizza le tue conoscenze aggiornate sulla normativa italiana vigente al ${currentYear} per verificare:
-- D.Lgs. 81/08 e s.m.i. per sicurezza sul lavoro
-- GDPR e D.Lgs. 196/03 per privacy
-- D.Lgs. 152/06 e s.m.i. per ambiente
-- DPR 151/2011 e DM 02/09/2021 per antincendio
-- Reg. CE 852/2004 e normativa HACCP per igiene alimentare
-- Qualsiasi altra normativa pertinente alla categoria "${norm.categoria}"
+DATA DI OGGI: ${todayDate}
 
-CONTROLLI DA EFFETTUARE IN ORDINE:
+REGOLE FONDAMENTALI:
+- NON INVENTARE MAI informazioni non presenti nel documento
+- Se non riesci a leggere o estrarre un dato, indica "non rilevabile" 
+- Basa le tue conclusioni SOLO su ciò che è effettivamente scritto nel documento
+
+CONTROLLI DA EFFETTUARE:
 
 1. PERTINENZA: Il documento è pertinente a questo adempimento? (es: se serve un DVR e l'utente carica una fattura, NON è pertinente)
 
-2. COERENZA AZIENDA: Se il documento è pertinente, verifica che i dati aziendali nel documento (ragione sociale, P.IVA, CF, indirizzo) corrispondano ai dati dell'azienda registrata sopra. 
-   - Se trovi una ragione sociale diversa, P.IVA diversa, o dati di un'altra azienda → il documento NON appartiene a questa azienda
-   - Sii rigoroso: anche piccole discrepanze nei dati identificativi (P.IVA, CF) indicano un documento di un'altra azienda
+2. COERENZA AZIENDA: I dati aziendali nel documento corrispondono a quelli dell'azienda registrata?
 
-3. CONFORMITÀ NORMATIVA ${currentYear}: Se passa i controlli 1 e 2, verifica se il documento è conforme ai requisiti di legge AGGIORNATI
-   - Verifica che il documento rispetti i requisiti della normativa vigente al ${currentYear}
-   - IMPORTANTE: Se il documento ha una data di scadenza e questa è PASSATA (nel passato rispetto ad oggi ${new Date().toISOString().split('T')[0]}), il documento è SCADUTO e quindi lo stato DEVE essere "non_conforme" (rosso)
-   - Se il documento è valido e non scaduto → "conforme"
-   - Se ci sono piccole mancanze ma non è scaduto → "da_migliorare"
+3. CONFORMITÀ: Il documento rispetta i requisiti normativi vigenti al ${currentYear}?
+   - Se ha data scadenza PASSATA rispetto a ${todayDate} → "non_conforme"
+   - Se valido e non scaduto → "conforme"
+   - Se mancanze minori → "da_migliorare"
 
-4. SCADENZA: Cerca la data di scadenza/rinnovo nel documento (formato YYYY-MM-DD)
+4. SCADENZA: Estrai la data di scadenza se presente (YYYY-MM-DD)
 
-IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non importa se era valido prima.`,
+5. CRITICITÀ: Elenca eventuali problemi riscontrati`,
         file_urls: [file_url],
         add_context_from_internet: true,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            documento_pertinente: { type: "boolean" },
+            motivo_non_pertinente: { type: "string" },
+            documento_appartiene_azienda: { type: "boolean" },
+            motivo_azienda_diversa: { type: "string" },
+            dati_azienda_trovati: { type: "string" },
+            stato_conformita: { type: "string", enum: ["conforme", "da_migliorare", "non_conforme"] },
+            data_scadenza: { type: "string" },
+            criticita: { type: "array", items: { type: "string" } },
+            note_analisi: { type: "string" }
+          }
+        }
+      });
+
+      // SECONDA ANALISI (VERIFICA)
+      const secondAnalysis = await base44.integrations.Core.InvokeLLM({
+        prompt: `Sei un revisore di compliance aziendale italiana. VERIFICA INDIPENDENTEMENTE questo documento.
+
+ADEMPIMENTO RICHIESTO: "${norm.nome}"
+CATEGORIA: "${norm.categoria}"
+
+${aziendaInfo}
+
+DATA DI OGGI: ${todayDate}
+
+ISTRUZIONI CRITICHE:
+- Questa è una SECONDA VERIFICA indipendente
+- NON INVENTARE informazioni non presenti nel documento
+- Se un dato non è leggibile/presente, scrivi "non rilevabile"
+- Sii CONSERVATIVO: nel dubbio, indica "da_migliorare" invece di "conforme"
+
+VERIFICA:
+1. Il documento è pertinente all'adempimento "${norm.nome}"?
+2. I dati aziendali corrispondono?
+3. Il documento è conforme alla normativa ${currentYear}?
+4. C'è una data di scadenza? Se sì, è passata rispetto a ${todayDate}?`,
+        file_urls: [file_url],
+        add_context_from_internet: true,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            documento_pertinente: { type: "boolean" },
+            documento_appartiene_azienda: { type: "boolean" },
+            stato_conformita: { type: "string", enum: ["conforme", "da_migliorare", "non_conforme"] },
+            data_scadenza: { type: "string" },
+            criticita: { type: "array", items: { type: "string" } }
+          }
+        }
+      });
+
+      // CONFRONTO RISULTATI - usa il più conservativo
+      const analysisResult = {
+        documento_pertinente: firstAnalysis.documento_pertinente && secondAnalysis.documento_pertinente,
+        motivo_non_pertinente: firstAnalysis.motivo_non_pertinente || '',
+        documento_appartiene_azienda: firstAnalysis.documento_appartiene_azienda && secondAnalysis.documento_appartiene_azienda,
+        motivo_azienda_diversa: firstAnalysis.motivo_azienda_diversa || '',
+        dati_azienda_trovati: firstAnalysis.dati_azienda_trovati || '',
+        // Stato: prendi il più conservativo (non_conforme > da_migliorare > conforme)
+        stato_conformita: (() => {
+          const stati = [firstAnalysis.stato_conformita, secondAnalysis.stato_conformita];
+          if (stati.includes('non_conforme')) return 'non_conforme';
+          if (stati.includes('da_migliorare')) return 'da_migliorare';
+          return 'conforme';
+        })(),
+        data_scadenza: firstAnalysis.data_scadenza || secondAnalysis.data_scadenza || null,
+        criticita: [...new Set([...(firstAnalysis.criticita || []), ...(secondAnalysis.criticita || [])])],
+        note_analisi: firstAnalysis.note_analisi || ''
+      };
+
+      console.log('[ComplianceAziendale] Doppia verifica completata:', {
+        prima: firstAnalysis.stato_conformita,
+        seconda: secondAnalysis.stato_conformita,
+        finale: analysisResult.stato_conformita
+      });
         response_json_schema: {
           type: "object",
           properties: {
