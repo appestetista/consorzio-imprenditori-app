@@ -618,14 +618,23 @@ DATI AZIENDA REGISTRATA:
 - Codice ATECO: ${effectiveUser?.ateco_code || 'Non specificato'}
 - Forma giuridica: ${effectiveUser?.legal_form || 'Non specificata'}`;
 
+      const currentYear = new Date().getFullYear();
       const analysisResult = await base44.integrations.Core.InvokeLLM({
-        prompt: `Sei un esperto di compliance aziendale italiana. Analizza questo documento e verifica:
+        prompt: `Sei un esperto di compliance aziendale italiana. Analizza questo documento e verifica LA CONFORMITÀ SECONDO LA NORMATIVA VIGENTE AGGIORNATA AL ${currentYear}.
 
 ADEMPIMENTO RICHIESTO: "${norm.nome}"
 DESCRIZIONE: "${norm.descrizione || 'Non specificata'}"
 CATEGORIA: "${norm.categoria}"
 
 ${aziendaInfo}
+
+IMPORTANTE: Utilizza le tue conoscenze aggiornate sulla normativa italiana vigente al ${currentYear} per verificare:
+- D.Lgs. 81/08 e s.m.i. per sicurezza sul lavoro
+- GDPR e D.Lgs. 196/03 per privacy
+- D.Lgs. 152/06 e s.m.i. per ambiente
+- DPR 151/2011 e DM 02/09/2021 per antincendio
+- Reg. CE 852/2004 e normativa HACCP per igiene alimentare
+- Qualsiasi altra normativa pertinente alla categoria "${norm.categoria}"
 
 CONTROLLI DA EFFETTUARE IN ORDINE:
 
@@ -635,7 +644,8 @@ CONTROLLI DA EFFETTUARE IN ORDINE:
    - Se trovi una ragione sociale diversa, P.IVA diversa, o dati di un'altra azienda → il documento NON appartiene a questa azienda
    - Sii rigoroso: anche piccole discrepanze nei dati identificativi (P.IVA, CF) indicano un documento di un'altra azienda
 
-3. CONFORMITÀ: Se passa i controlli 1 e 2, verifica se il documento è conforme ai requisiti di legge
+3. CONFORMITÀ NORMATIVA ${currentYear}: Se passa i controlli 1 e 2, verifica se il documento è conforme ai requisiti di legge AGGIORNATI
+   - Verifica che il documento rispetti i requisiti della normativa vigente al ${currentYear}
    - IMPORTANTE: Se il documento ha una data di scadenza e questa è PASSATA (nel passato rispetto ad oggi ${new Date().toISOString().split('T')[0]}), il documento è SCADUTO e quindi lo stato DEVE essere "non_conforme" (rosso)
    - Se il documento è valido e non scaduto → "conforme"
    - Se ci sono piccole mancanze ma non è scaduto → "da_migliorare"
@@ -644,6 +654,7 @@ CONTROLLI DA EFFETTUARE IN ORDINE:
 
 IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non importa se era valido prima.`,
         file_urls: [file_url],
+        add_context_from_internet: true,
         response_json_schema: {
           type: "object",
           properties: {
