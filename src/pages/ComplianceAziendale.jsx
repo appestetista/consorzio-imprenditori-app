@@ -747,36 +747,39 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
           </Card>
         )}
 
-        {/* Selezione Ramo */}
+        {/* Selezione Ramo con bottoni */}
         {branches.length > 0 && (
           <div className="mb-4">
             <Label className="text-slate-400 text-xs mb-2 block">Filtra per Ramo Aziendale</Label>
-            <div className="flex gap-2">
-              <Select 
-                key={`branch-select-${branches.length}`}
-                value={selectedBranch || 'all'} 
-                onValueChange={handleBranchChange}
+            <div className="flex flex-wrap gap-2">
+              <Button
+                variant={selectedBranch === 'all' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setSelectedBranch('all')}
+                className={selectedBranch === 'all' ? 'bg-lime-400 text-slate-900 hover:bg-lime-500' : 'border-slate-600 text-slate-300 hover:bg-slate-700'}
               >
-                <SelectTrigger className="bg-slate-800 border-slate-700 text-white flex-1">
-                  <SelectValue placeholder="Seleziona un ramo" />
-                </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-700 z-50">
-                  <SelectItem value="all" className="text-white">
-                    Tutti i rami
-                  </SelectItem>
-                  {branches.map(branch => (
-                    <SelectItem key={branch.id} value={branch.id} className="text-white">
-                      {branch.nome}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              
-              {selectedBranch !== 'all' && (
+                Tutti i rami
+              </Button>
+              {branches.map(branch => (
+                <Button
+                  key={branch.id}
+                  variant={selectedBranch === branch.id ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setSelectedBranch(branch.id)}
+                  className={selectedBranch === branch.id ? 'bg-lime-400 text-slate-900 hover:bg-lime-500' : 'border-slate-600 text-slate-300 hover:bg-slate-700'}
+                >
+                  {branch.nome}
+                </Button>
+              ))}
+            </div>
+            
+            {selectedBranch !== 'all' && (
+              <div className="mt-2">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="icon" className="border-slate-700 text-slate-300 hover:bg-slate-700">
-                      <MoreVertical className="w-4 h-4" />
+                    <Button variant="outline" size="sm" className="border-slate-700 text-slate-300 hover:bg-slate-700">
+                      <MoreVertical className="w-4 h-4 mr-1" />
+                      Gestisci ramo
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="bg-slate-800 border-slate-700">
@@ -807,8 +810,8 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         )}
 
