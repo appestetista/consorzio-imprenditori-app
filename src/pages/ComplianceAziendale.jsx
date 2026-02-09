@@ -816,8 +816,9 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
             onClick={() => setShowBranchManager(true)}
             className="bg-lime-400 text-slate-900 hover:bg-lime-500"
             size="sm"
+            disabled={branches.length >= 5}
           >
-            <Building2 className="w-4 h-4 mr-1" /> Rami Azienda
+            <Building2 className="w-4 h-4 mr-1" /> Rami Azienda ({branches.length}/5)
           </Button>
         </div>
 
