@@ -231,7 +231,7 @@ export default function ComplianceAziendale() {
       
       queryClient.invalidateQueries({ queryKey: ['company-branches'] });
       
-      await generateNormsForBranch(createdBranch.id, tipoAttivita, numeroDipendenti, newBranch.data_attivazione, newBranch.codice_ateco);
+      await generateNormsForBranch(createdBranch.id, tipoAttivita, numeroDipendenti, newBranch.data_attivazione, newBranch.codice_ateco, newBranch);
       
       setNewBranch({ nome: '', tipo_attivita: '', codice_ateco: '', indirizzo: '', numero_dipendenti: '', data_attivazione: '' });
       setShowBranchManager(false);
