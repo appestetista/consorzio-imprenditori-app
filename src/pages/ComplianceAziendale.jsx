@@ -313,25 +313,48 @@ Per ogni adempimento:
           // FASE 2: Adempimenti Ambientali (D.Lgs. 152/06)
           console.log('[ComplianceAziendale] FASE 2: Ambientale...');
           const ambientaleResult = await base44.integrations.Core.InvokeLLM({
-            prompt: `Sei un consulente ambientale. Genera SOLO gli adempimenti D.Lgs. 152/06 per:
+            prompt: `Sei un consulente ambientale ESPERTO. Genera adempimenti D.Lgs. 152/06 per:
 - Attività: ${tipoAttivita}
 - ATECO: ${ateco || 'non specificato'}
 
-ADEMPIMENTI DA VERIFICARE (includi solo quelli applicabili):
+ADEMPIMENTI AMBIENTALI PER SETTORE ATECO:
+
+PRODUTTORI DI RIFIUTI (tutte le attività produttive):
 - Registro carico/scarico rifiuti
 - Classificazione rifiuti EER/CER
-- Formulari FIR (Formulario Identificazione Rifiuti)
+- Formulari FIR
 - Deposito temporaneo conforme
-- MUD annuale (Modello Unico Dichiarazione ambientale)
-- Autorizzazione emissioni in atmosfera
+
+ATECO 10.xx-11.xx (Alimentare):
+- MUD annuale, Autorizzazione scarichi (se reflui produttivi)
+
+ATECO 20.xx (Chimica/Vernici/Pitture):
+- MUD annuale OBBLIGATORIO
+- Autorizzazione emissioni in atmosfera (COV)
 - AUA – Autorizzazione Unica Ambientale
-- Autorizzazione allo scarico (se scarichi idrici)
+- Autorizzazione allo scarico
+- Piano gestione solventi (se COV > soglie)
+
+ATECO 25.xx-28.xx (Metalmeccanica):
+- MUD annuale, Autorizzazione emissioni (se verniciatura/saldatura)
+
+ATECO 41.xx-43.xx (Edilizia):
+- Gestione rifiuti cantiere, MUD (se produttore)
+
+ATECO 45.xx (Autoriparazione):
+- MUD annuale, Gestione oli esausti, Batterie
+
+ATECO 47.xx (Commercio): Solo rifiuti imballaggi (semplificato)
+
+ATECO 55.xx-56.xx (Ristorazione): Oli esausti alimentari
+
+INCLUDI SOLO adempimenti APPLICABILI al settore indicato.
 
 Per ogni adempimento:
 - nome: nome ufficiale
-- descrizione: riferimento normativo
-- frequenza_rinnovo_mesi: 0=una tantum, 12=annuale, etc.
-- sanzione_prevista: importo
+- descrizione: riferimento normativo D.Lgs. 152/06
+- frequenza_rinnovo_mesi: 12=MUD annuale, 0=una tantum, 60=AUA quinquennale
+- sanzione_prevista: importo specifico
 - priorita: alta/media/bassa
 - data_scadenza: YYYY-MM-DD da ${dataBase} (null se una tantum)`,
             add_context_from_internet: false,
