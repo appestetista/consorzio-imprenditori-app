@@ -170,10 +170,8 @@ export default function ComplianceAziendale() {
           await base44.entities.CompanyBranch.delete(branchId);
         },
         onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: ['company-branches'] });
-          queryClient.invalidateQueries({ queryKey: ['compliance-norms'] });
-          // Se il ramo eliminato era selezionato, resetta la selezione
-          setSelectedBranch('all');
+          // Ricarica la pagina per pulire lo stato
+          window.location.reload();
         }
       });
 
