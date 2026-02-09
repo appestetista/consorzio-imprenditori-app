@@ -384,28 +384,48 @@ Per ogni adempimento:
             console.log('[ComplianceAziendale] Ambientale:', ambientaleResult.adempimenti.length, 'adempimenti');
           }
 
-          // FASE 3: Chimica REACH/CLP + Privacy + Amministrativo
-          console.log('[ComplianceAziendale] FASE 3: Chimica, Privacy, Amministrativo...');
+          // FASE 3: Chimica REACH/CLP + Privacy + Amministrativo + Settore specifico
+          console.log('[ComplianceAziendale] FASE 3: Chimica, Privacy, Amministrativo, Settoriale...');
           const altroResult = await base44.integrations.Core.InvokeLLM({
-            prompt: `Genera adempimenti per attività ${tipoAttivita} (ATECO: ${ateco || 'N/A'}):
+            prompt: `Genera adempimenti per ${tipoAttivita} (ATECO: ${ateco || 'N/A'}):
 
-CHIMICA (REACH/CLP) - se applicabile:
-- Schede di Sicurezza (SDS) aggiornate
-- Etichettatura CLP
-- Obblighi REACH (se produttore/importatore)
+CHIMICA REACH/CLP (ATECO 20.xx, 21.xx, o chi usa sostanze chimiche):
+- Schede di Sicurezza (SDS) aggiornate - Reg. CE 1907/2006
+- Etichettatura CLP - Reg. CE 1272/2008
+- Obblighi REACH (se produttore/importatore >1 ton/anno)
 
-PRIVACY (GDPR):
-- Informativa dipendenti
-- Registro trattamenti
+PRIVACY GDPR (TUTTE LE ATTIVITÀ):
+- Informativa dipendenti - Art. 13 GDPR
+- Registro trattamenti - Art. 30 GDPR
 - Nomine autorizzati al trattamento
 
-AMMINISTRATIVO:
-- SCIA produttiva (SUAP)
+AMMINISTRATIVO/ANTINCENDIO:
+- SCIA produttiva SUAP
 - Conformità urbanistica
-- CPI (Certificato Prevenzione Incendi) - se soglie superate
+- CPI (se attività in DPR 151/2011 Allegato I)
 
-Per ogni adempimento indica categoria tra: "Privacy e GDPR", "Antincendio", "Altro"
-- nome, descrizione, frequenza_rinnovo_mesi, sanzione_prevista, priorita, data_scadenza (da ${dataBase}), categoria`,
+ADEMPIMENTI SETTORIALI SPECIFICI:
+
+ATECO 10.xx-11.xx (Alimentare):
+- Notifica OSA (Operatore Settore Alimentare) - categoria "Igiene e Sanità"
+- Manuale HACCP - categoria "Igiene e Sanità"
+- Tracciabilità alimenti Reg. CE 178/2002 - categoria "Igiene e Sanità"
+
+ATECO 47.xx (Commercio):
+- Licenza commercio (se alimentari/tabacchi)
+- Registratore telematico
+
+ATECO 55.xx-56.xx (Ristorazione/Alberghi):
+- SCIA sanitaria - categoria "Igiene e Sanità"
+- Notifica OSA - categoria "Igiene e Sanità"
+- Manuale HACCP - categoria "Igiene e Sanità"
+
+ATECO 86.xx (Sanità):
+- Autorizzazione sanitaria regionale - categoria "Igiene e Sanità"
+
+INCLUDI SOLO adempimenti applicabili. Per ogni adempimento:
+- nome, descrizione (con norma), categoria (Privacy e GDPR/Antincendio/Igiene e Sanità/Altro)
+- frequenza_rinnovo_mesi, sanzione_prevista, priorita, data_scadenza (da ${dataBase})`,
             add_context_from_internet: false,
             response_json_schema: {
               type: "object",
