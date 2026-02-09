@@ -300,46 +300,51 @@ CARATTERISTICHE SPECIFICHE DELL'ATTIVITÀ:
           // FASE 1: Adempimenti Sicurezza sul Lavoro (D.Lgs. 81/08)
           console.log('[ComplianceAziendale] FASE 1: Sicurezza sul lavoro...');
           const sicurezzaResult = await base44.integrations.Core.InvokeLLM({
-            prompt: `Agisci come consulente senior di compliance aziendale italiana specializzato in Sicurezza sul lavoro (D.Lgs. 81/08).
-Anno di riferimento: 2026. Usa ESCLUSIVAMENTE normativa italiana vigente. NO esempi esteri, NO buone pratiche volontarie, NO certificazioni facoltative (ISO, ESG).
+            prompt: `Sei un consulente di compliance aziendale italiana. Genera adempimenti D.Lgs. 81/08.
 
 DATI AZIENDA:
 - Attività: ${tipoAttivita}
-- Numero dipendenti: ${numeroDipendenti || 'non specificato'}
-- Data inizio attività: ${dataBase}
+- Dipendenti: ${numeroDipendenti || 'non specificato'}
+- Data inizio: ${dataBase}
 ${caratteristichePrompt}
 
-ANALIZZA E CLASSIFICA gli adempimenti in 3 categorie:
+REGOLE TASSATIVE:
+- NON inventare obblighi
+- NON usare termini vaghi ("documentazione varia", "varie certificazioni")
+- NON includere attività di vigilanza degli enti
+- NON confondere adempimenti con attività gestionali
+- NON usare "consigliato" - solo OBBLIGATORIO o NON APPLICABILE
+- Ogni voce = un documento o atto amministrativo REALE e VERIFICABILE
 
-1. OBBLIGHI CERTAMENTE OBBLIGATORI per questa specifica attività:
-   Includi SOLO se l'obbligo è CERTO dato il tipo di attività e le caratteristiche indicate.
-   Per ciascuno specifica: base normativa esatta, documento richiesto, scadenza, sanzione.
+OBBLIGHI STRUTTURALI (SEMPRE se presenza_lavoratori=SÌ):
+1. DVR - Documento Valutazione Rischi (Art. 17, 28)
+2. Nomina RSPP (Art. 17, 31-34) 
+3. Nomina RLS o RLST (Art. 47-50)
+4. Formazione generale + specifica lavoratori (Art. 37)
+5. Designazione addetti Primo Soccorso + formazione DM 388/03
+6. Designazione addetti Antincendio + formazione DM 02/09/2021
+7. Piano Emergenza ed Evacuazione (Art. 43-46)
 
-2. OBBLIGHI CONDIZIONATI (da verificare):
-   Adempimenti che POTREBBERO applicarsi ma richiedono verifica delle condizioni specifiche.
-   Specifica QUANDO diventano obbligatori.
+OBBLIGHI CONDIZIONATI (solo se caratteristica = SÌ):
+- Valutazione rischio chimico (Titolo IX) → presenza_sostanze_chimiche=SÌ
+- Nomina Medico Competente + Sorveglianza sanitaria → rischi che lo richiedono
+- Valutazione rumore/vibrazioni/MMC → attività produttive specifiche
 
-3. CONTROLLI CRITICI per questo settore:
-   Indica quali enti (ASL, ARPA, VVF, INAIL, Ispettorato Lavoro) effettuano controlli e su cosa.
+VERIFICA COMPLETEZZA prima di rispondere:
+□ DVR presente?
+□ RSPP presente?
+□ RLS presente?
+□ Formazione lavoratori presente?
+□ Addetti emergenze presenti?
+Se manca un obbligo strutturale obbligatorio, AGGIUNGILO.
 
-NORMATIVA DI RIFERIMENTO D.Lgs. 81/08:
-- DVR (Art. 17, 28) - SEMPRE obbligatorio se ci sono lavoratori
-- RSPP (Art. 17, 31-34) - SEMPRE obbligatorio
-- RLS/RLST (Art. 47-50) - SEMPRE obbligatorio
-- Formazione lavoratori Art. 37
-- Addetti Primo Soccorso DM 388/03
-- Addetti Antincendio DM 02/09/2021
-- Valutazioni rischi specifici (chimico, rumore, vibrazioni, MMC, VDT, biologico) - SOLO SE il rischio è presente
-
-IMPORTANTE: Genera SOLO adempimenti della categoria "certamente obbligatori". Gli altri servono solo per l'analisi.
-
-Per ogni adempimento CERTAMENTE OBBLIGATORIO indica:
-- nome: denominazione ufficiale
-- descrizione: "Art. X D.Lgs. 81/08 - [documento richiesto]"
-- frequenza_rinnovo_mesi: 0=una tantum, 12=annuale, 60=quinquennale
-- sanzione_prevista: range sanzione con articolo (es. "Art. 55 c.5 lett.c: arresto 2-4 mesi o ammenda €1.500-6.000")
+Output SOLO adempimenti certi. Per ogni adempimento:
+- nome: denominazione ufficiale esatta
+- descrizione: "Art. X D.Lgs. 81/08 - [documento specifico richiesto]"
+- frequenza_rinnovo_mesi: 0=una tantum, 60=quinquennale formazione
+- sanzione_prevista: "Art. X: [tipo sanzione e importo]"
 - priorita: alta/media/bassa
-- data_scadenza: calcola da ${dataBase} in formato YYYY-MM-DD (null se una tantum)`,
+- data_scadenza: YYYY-MM-DD da ${dataBase} (null se una tantum)`,
             add_context_from_internet: false,
             response_json_schema: {
               type: "object",
