@@ -2238,69 +2238,140 @@ VERIFICA:
                                           </div>
                                         </div>
 
-                                        {/* Caratteristiche per compliance */}
-                                        <div className="space-y-3 pt-2">
-                                          <Label className="text-slate-400 text-xs">Caratteristiche dell'attività (per adempimenti specifici)</Label>
+                                        {/* Superficie */}
+                                        <div>
+                                          <Label className="text-slate-400 text-xs mb-1 block">Superficie stabilimento (mq)</Label>
+                                          <Input
+                                            type="number"
+                                            value={newBranch.superficie_mq}
+                                            onChange={(e) => setNewBranch({...newBranch, superficie_mq: e.target.value})}
+                                            className="bg-slate-900 border-slate-700 text-white"
+                                            placeholder="es: 500"
+                                            min="0"
+                                          />
+                                        </div>
 
-                                          <div className="grid grid-cols-1 gap-2">
+                                        {/* RISCHI REALI - Sezione completa */}
+                                        <div className="space-y-4 pt-2">
+                                          <Label className="text-slate-400 text-sm font-medium">RISCHI PRESENTI (dichiara solo quelli effettivi)</Label>
+                                          
+                                          {/* Sezione Base */}
+                                          <div className="bg-slate-900/50 rounded-lg p-3 space-y-2">
+                                            <p className="text-lime-400 text-xs font-semibold mb-2">👷 SICUREZZA LAVORO</p>
+                                            
                                             <label className="flex items-center gap-2 text-white text-sm cursor-pointer">
-                                              <input
-                                                type="checkbox"
-                                                checked={newBranch.presenza_lavoratori}
-                                                onChange={(e) => setNewBranch({...newBranch, presenza_lavoratori: e.target.checked})}
-                                                className="rounded border-slate-600 bg-slate-800"
-                                              />
+                                              <input type="checkbox" checked={newBranch.presenza_lavoratori} onChange={(e) => setNewBranch({...newBranch, presenza_lavoratori: e.target.checked})} className="rounded border-slate-600 bg-slate-800" />
                                               Presenza lavoratori dipendenti
                                             </label>
-
+                                            
                                             <label className="flex items-center gap-2 text-white text-sm cursor-pointer">
-                                              <input
-                                                type="checkbox"
-                                                checked={newBranch.presenza_sostanze_chimiche}
-                                                onChange={(e) => setNewBranch({...newBranch, presenza_sostanze_chimiche: e.target.checked})}
-                                                className="rounded border-slate-600 bg-slate-800"
-                                              />
-                                              Uso/stoccaggio sostanze chimiche pericolose
+                                              <input type="checkbox" checked={newBranch.presenza_macchinari} onChange={(e) => setNewBranch({...newBranch, presenza_macchinari: e.target.checked})} className="rounded border-slate-600 bg-slate-800" />
+                                              Presenza macchinari (presse, torni, frese, ecc.)
                                             </label>
-
+                                            
                                             <label className="flex items-center gap-2 text-white text-sm cursor-pointer">
-                                              <input
-                                                type="checkbox"
-                                                checked={newBranch.presenza_rifiuti_speciali}
-                                                onChange={(e) => setNewBranch({...newBranch, presenza_rifiuti_speciali: e.target.checked})}
-                                                className="rounded border-slate-600 bg-slate-800"
-                                              />
+                                              <input type="checkbox" checked={newBranch.presenza_rumore} onChange={(e) => setNewBranch({...newBranch, presenza_rumore: e.target.checked})} className="rounded border-slate-600 bg-slate-800" />
+                                              Presenza rumore elevato
+                                            </label>
+                                            
+                                            <label className="flex items-center gap-2 text-white text-sm cursor-pointer">
+                                              <input type="checkbox" checked={newBranch.presenza_vibrazioni} onChange={(e) => setNewBranch({...newBranch, presenza_vibrazioni: e.target.checked})} className="rounded border-slate-600 bg-slate-800" />
+                                              Uso utensili vibranti o mezzi
+                                            </label>
+                                            
+                                            <label className="flex items-center gap-2 text-white text-sm cursor-pointer">
+                                              <input type="checkbox" checked={newBranch.presenza_sostanze_chimiche} onChange={(e) => setNewBranch({...newBranch, presenza_sostanze_chimiche: e.target.checked})} className="rounded border-slate-600 bg-slate-800" />
+                                              Uso/stoccaggio sostanze chimiche
+                                            </label>
+                                            
+                                            <label className="flex items-center gap-2 text-white text-sm cursor-pointer">
+                                              <input type="checkbox" checked={newBranch.presenza_movimentazione_carichi} onChange={(e) => setNewBranch({...newBranch, presenza_movimentazione_carichi: e.target.checked})} className="rounded border-slate-600 bg-slate-800" />
+                                              Movimentazione manuale carichi
+                                            </label>
+                                            
+                                            <label className="flex items-center gap-2 text-white text-sm cursor-pointer">
+                                              <input type="checkbox" checked={newBranch.presenza_videoterminali} onChange={(e) => setNewBranch({...newBranch, presenza_videoterminali: e.target.checked})} className="rounded border-slate-600 bg-slate-800" />
+                                              Uso videoterminali (&gt;20 ore/sett.)
+                                            </label>
+                                            
+                                            <label className="flex items-center gap-2 text-white text-sm cursor-pointer">
+                                              <input type="checkbox" checked={newBranch.presenza_lavori_quota} onChange={(e) => setNewBranch({...newBranch, presenza_lavori_quota: e.target.checked})} className="rounded border-slate-600 bg-slate-800" />
+                                              Lavori in quota (&gt;2 metri)
+                                            </label>
+                                            
+                                            <label className="flex items-center gap-2 text-white text-sm cursor-pointer">
+                                              <input type="checkbox" checked={newBranch.presenza_spazi_confinati} onChange={(e) => setNewBranch({...newBranch, presenza_spazi_confinati: e.target.checked})} className="rounded border-slate-600 bg-slate-800" />
+                                              Spazi confinati/sospetti inquinamento
+                                            </label>
+                                            
+                                            <label className="flex items-center gap-2 text-white text-sm cursor-pointer">
+                                              <input type="checkbox" checked={newBranch.presenza_rischio_biologico} onChange={(e) => setNewBranch({...newBranch, presenza_rischio_biologico: e.target.checked})} className="rounded border-slate-600 bg-slate-800" />
+                                              Rischio biologico
+                                            </label>
+                                            
+                                            <label className="flex items-center gap-2 text-white text-sm cursor-pointer">
+                                              <input type="checkbox" checked={newBranch.presenza_campi_elettromagnetici} onChange={(e) => setNewBranch({...newBranch, presenza_campi_elettromagnetici: e.target.checked})} className="rounded border-slate-600 bg-slate-800" />
+                                              Campi elettromagnetici (saldatura, forni induzione)
+                                            </label>
+                                            
+                                            <label className="flex items-center gap-2 text-white text-sm cursor-pointer">
+                                              <input type="checkbox" checked={newBranch.presenza_radiazioni_ottiche} onChange={(e) => setNewBranch({...newBranch, presenza_radiazioni_ottiche: e.target.checked})} className="rounded border-slate-600 bg-slate-800" />
+                                              Radiazioni ottiche (saldatura, laser)
+                                            </label>
+                                            
+                                            <label className="flex items-center gap-2 text-white text-sm cursor-pointer">
+                                              <input type="checkbox" checked={newBranch.presenza_microclima_severo} onChange={(e) => setNewBranch({...newBranch, presenza_microclima_severo: e.target.checked})} className="rounded border-slate-600 bg-slate-800" />
+                                              Microclima severo (caldo/freddo)
+                                            </label>
+                                            
+                                            <label className="flex items-center gap-2 text-white text-sm cursor-pointer">
+                                              <input type="checkbox" checked={newBranch.presenza_atmosfere_esplosive} onChange={(e) => setNewBranch({...newBranch, presenza_atmosfere_esplosive: e.target.checked})} className="rounded border-slate-600 bg-slate-800" />
+                                              Atmosfere esplosive (ATEX)
+                                            </label>
+                                          </div>
+                                          
+                                          {/* Sezione Ambientale */}
+                                          <div className="bg-slate-900/50 rounded-lg p-3 space-y-2">
+                                            <p className="text-green-400 text-xs font-semibold mb-2">🌿 AMBIENTALE</p>
+                                            
+                                            <label className="flex items-center gap-2 text-white text-sm cursor-pointer">
+                                              <input type="checkbox" checked={newBranch.presenza_rifiuti_speciali} onChange={(e) => setNewBranch({...newBranch, presenza_rifiuti_speciali: e.target.checked})} className="rounded border-slate-600 bg-slate-800" />
                                               Produzione rifiuti speciali/pericolosi
                                             </label>
-
+                                            
                                             <label className="flex items-center gap-2 text-white text-sm cursor-pointer">
-                                              <input
-                                                type="checkbox"
-                                                checked={newBranch.presenza_emissioni_atmosfera}
-                                                onChange={(e) => setNewBranch({...newBranch, presenza_emissioni_atmosfera: e.target.checked})}
-                                                className="rounded border-slate-600 bg-slate-800"
-                                              />
+                                              <input type="checkbox" checked={newBranch.presenza_emissioni_atmosfera} onChange={(e) => setNewBranch({...newBranch, presenza_emissioni_atmosfera: e.target.checked})} className="rounded border-slate-600 bg-slate-800" />
                                               Emissioni in atmosfera (fumi, vapori, COV)
                                             </label>
-
+                                            
                                             <label className="flex items-center gap-2 text-white text-sm cursor-pointer">
-                                              <input
-                                                type="checkbox"
-                                                checked={newBranch.presenza_scarichi_industriali}
-                                                onChange={(e) => setNewBranch({...newBranch, presenza_scarichi_industriali: e.target.checked})}
-                                                className="rounded border-slate-600 bg-slate-800"
-                                              />
-                                              Scarichi industriali (acque reflue di processo)
+                                              <input type="checkbox" checked={newBranch.presenza_scarichi_industriali} onChange={(e) => setNewBranch({...newBranch, presenza_scarichi_industriali: e.target.checked})} className="rounded border-slate-600 bg-slate-800" />
+                                              Scarichi industriali (acque reflue)
                                             </label>
-
+                                          </div>
+                                          
+                                          {/* Sezione Antincendio */}
+                                          <div className="bg-slate-900/50 rounded-lg p-3 space-y-2">
+                                            <p className="text-orange-400 text-xs font-semibold mb-2">🔥 ANTINCENDIO</p>
+                                            
                                             <label className="flex items-center gap-2 text-white text-sm cursor-pointer">
-                                              <input
-                                                type="checkbox"
-                                                checked={newBranch.presenza_rischio_incendio_non_basso}
-                                                onChange={(e) => setNewBranch({...newBranch, presenza_rischio_incendio_non_basso: e.target.checked})}
-                                                className="rounded border-slate-600 bg-slate-800"
-                                              />
+                                              <input type="checkbox" checked={newBranch.presenza_rischio_incendio_non_basso} onChange={(e) => setNewBranch({...newBranch, presenza_rischio_incendio_non_basso: e.target.checked})} className="rounded border-slate-600 bg-slate-800" />
                                               Rischio incendio medio/alto (DPR 151/2011)
+                                            </label>
+                                          </div>
+                                          
+                                          {/* Sezione Privacy/IT */}
+                                          <div className="bg-slate-900/50 rounded-lg p-3 space-y-2">
+                                            <p className="text-blue-400 text-xs font-semibold mb-2">🔐 PRIVACY / IT</p>
+                                            
+                                            <label className="flex items-center gap-2 text-white text-sm cursor-pointer">
+                                              <input type="checkbox" checked={newBranch.presenza_sistemi_it_cloud} onChange={(e) => setNewBranch({...newBranch, presenza_sistemi_it_cloud: e.target.checked})} className="rounded border-slate-600 bg-slate-800" />
+                                              Uso sistemi informatici / cloud / fornitori esterni
+                                            </label>
+                                            
+                                            <label className="flex items-center gap-2 text-white text-sm cursor-pointer">
+                                              <input type="checkbox" checked={newBranch.trattamento_dati_sensibili} onChange={(e) => setNewBranch({...newBranch, trattamento_dati_sensibili: e.target.checked})} className="rounded border-slate-600 bg-slate-800" />
+                                              Trattamento dati sensibili/particolari su larga scala
                                             </label>
                                           </div>
                                         </div>
