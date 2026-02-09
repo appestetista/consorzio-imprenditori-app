@@ -512,10 +512,13 @@ Rispondi SOLO se trovi aggiornamenti concreti e verificati. Se non ci sono modif
         }
       }
     } catch (error) {
-      console.error('Errore generazione adempimenti:', error);
+      console.error('[ComplianceAziendale] ERRORE COMPLETO generazione adempimenti:', error);
+      console.error('[ComplianceAziendale] Error name:', error?.name);
+      console.error('[ComplianceAziendale] Error message:', error?.message);
+      console.error('[ComplianceAziendale] Error stack:', error?.stack);
       throw error; // Rilancia l'errore per gestirlo nel chiamante
     }
-  };
+    };
 
   const handleDocumentUpload = async (e, normId) => {
     const file = e.target.files?.[0];
