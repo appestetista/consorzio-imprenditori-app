@@ -249,32 +249,40 @@ export default function ComplianceAziendale() {
           // FASE 1: Adempimenti Sicurezza sul Lavoro (D.Lgs. 81/08)
           console.log('[ComplianceAziendale] FASE 1: Sicurezza sul lavoro...');
           const sicurezzaResult = await base44.integrations.Core.InvokeLLM({
-            prompt: `Sei un consulente sicurezza sul lavoro. Genera SOLO gli adempimenti D.Lgs. 81/08 per:
+            prompt: `Sei un consulente sicurezza sul lavoro ESPERTO. Genera gli adempimenti D.Lgs. 81/08 per:
 - Attività: ${tipoAttivita}
 - ATECO: ${ateco || 'non specificato'}
 - Dipendenti: ${numeroDipendenti || 'non specificato'}
 
-ADEMPIMENTI OBBLIGATORI DA INCLUDERE (verifica applicabilità):
-- DVR (Documento Valutazione Rischi) - SEMPRE obbligatorio
-- Valutazione rischio chimico (se sostanze pericolose)
-- Valutazione rischio ATEX (se atmosfere esplosive)
+ADEMPIMENTI BASE (SEMPRE OBBLIGATORI):
+- DVR (Documento Valutazione Rischi)
 - Valutazione rischio incendio
 - Nomina RSPP
 - Nomina RLS
-- Nomina Medico Competente
-- Sorveglianza sanitaria periodica
-- Formazione lavoratori (generale 4h + specifica)
+- Formazione lavoratori generale (4h) + specifica
 - Addetti Primo Soccorso + formazione
 - Addetti Antincendio + formazione
 - Piano Emergenza ed Evacuazione
 
-Per ogni adempimento indica:
+ADEMPIMENTI PER SETTORE ATECO:
+- ATECO 10.xx-11.xx (Alimentare): HACCP, Manuale autocontrollo, Tracciabilità, Formazione alimentaristi
+- ATECO 20.xx (Chimica/Vernici): Valutazione rischio chimico, Valutazione ATEX, Nomina Medico Competente, Sorveglianza sanitaria
+- ATECO 25.xx-28.xx (Metalmeccanica): Valutazione rumore, Valutazione vibrazioni, Valutazione MMC, Sorveglianza sanitaria
+- ATECO 41.xx-43.xx (Edilizia): POS, PSC, Ponteggi, Formazione specifica cantieri, Sorveglianza sanitaria
+- ATECO 45.xx (Autoriparazione): Valutazione rischio chimico, ATEX (se carburanti), Sorveglianza sanitaria
+- ATECO 47.xx (Commercio): Formazione base, Cassetta primo soccorso
+- ATECO 55.xx-56.xx (Ristorazione/Alberghi): HACCP, Formazione alimentaristi, Sorveglianza sanitaria
+- ATECO 86.xx (Sanità): Rischio biologico, Sorveglianza sanitaria obbligatoria
+
+INCLUDI SOLO gli adempimenti APPLICABILI al codice ATECO indicato.
+
+Per ogni adempimento:
 - nome: nome ufficiale
-- descrizione: riferimento normativo specifico (articolo D.Lgs. 81/08)
+- descrizione: riferimento normativo (articolo D.Lgs. 81/08 o altra norma)
 - frequenza_rinnovo_mesi: 0=una tantum, 12=annuale, 36=triennale, 60=quinquennale
-- sanzione_prevista: importo specifico
+- sanzione_prevista: importo specifico (es. "da €2.500 a €6.400")
 - priorita: alta/media/bassa
-- data_scadenza: calcola da ${dataBase} + frequenza (formato YYYY-MM-DD, null se una tantum)`,
+- data_scadenza: calcola da ${dataBase} + frequenza (YYYY-MM-DD, null se una tantum)`,
             add_context_from_internet: false,
             response_json_schema: {
               type: "object",
