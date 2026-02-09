@@ -49,11 +49,16 @@ export default function ImportAsteSection() {
   const [pendingAste, setPendingAste] = useState({}); // {tipologia: [aste array]}
   const queryClient = useQueryClient();
 
-  // Helper per parsare data_ora_vendita (formato "DD/MM/YYYY HH:MM" da data_0)
+  // Helper per parsare data_ora_vendita (formato "DD/MM/YYYY" o "DD/MM/YYYY HH:MM" da data_0)
   const parseDataOraVendita = (dataOraStr) => {
     if (!dataOraStr) return null;
-    // Formato: "18/03/2026 16:30"
-    const parts = dataOraStr.trim().split(' ');
+    
+    // Rimuovi virgolette se presenti
+    const cleanStr = dataOraStr.trim().replace(/^"|"$/g, '');
+    if (!cleanStr) return null;
+    
+    // Formato: "18/03/2026" o "18/03/2026 16:30"
+    const parts = cleanStr.split(' ');
     if (parts.length < 1) return null;
     
     const dateParts = parts[0].split('/');
@@ -63,7 +68,10 @@ export default function ImportAsteSection() {
     const month = parseInt(dateParts[1], 10) - 1; // mesi 0-indexed
     const year = parseInt(dateParts[2], 10);
     
-    let hours = 0, minutes = 0;
+    // Validazione base
+    if (isNaN(day) || isNaN(month) || isNaN(year)) return null;
+    
+    let hours = 23, minutes = 59; // Default a fine giornata se non c'è ora
     if (parts[1]) {
       const timeParts = parts[1].split(':');
       hours = parseInt(timeParts[0], 10) || 0;
