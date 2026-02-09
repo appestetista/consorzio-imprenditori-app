@@ -570,10 +570,14 @@ export default function ImportAsteSection() {
           {uploadedFiles[tipologia.id] && (
             <div className="space-y-2">
               <div className="flex items-center justify-between p-2 bg-slate-700/50 rounded-lg text-xs">
-                <div className="flex items-center gap-2 text-slate-300">
+                <div className="flex items-center gap-2 text-slate-300 flex-wrap">
                   <FileSpreadsheet className="w-4 h-4 text-blue-400" />
-                  <span className="truncate max-w-[150px]">{uploadedFiles[tipologia.id].name}</span>
+                  <span className="truncate max-w-[120px]">{uploadedFiles[tipologia.id].name}</span>
                   <Badge variant="outline" className="text-xs">{uploadedFiles[tipologia.id].rows} righe</Badge>
+                  <Badge className="bg-green-500/20 text-green-400 text-xs">{uploadedFiles[tipologia.id].attive || 0} attive</Badge>
+                  {uploadedFiles[tipologia.id].scadute > 0 && (
+                    <Badge className="bg-red-500/20 text-red-400 text-xs">{uploadedFiles[tipologia.id].scadute} scadute</Badge>
+                  )}
                 </div>
                 <button 
                   onClick={() => {
