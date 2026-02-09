@@ -1530,8 +1530,9 @@ IMPORTANTE: Sii molto rigoroso. Un documento scaduto è SEMPRE non_conforme, non
               )}
             </div>
 
+            {branches.length < 5 && (
             <div className="border-t border-slate-700 pt-4">
-              <Label className="text-slate-300 mb-2 block">Aggiungi nuovo ramo</Label>
+              <Label className="text-slate-300 mb-2 block">Aggiungi nuovo ramo ({branches.length}/5)</Label>
               
               <div className="space-y-3">
                 <Input
