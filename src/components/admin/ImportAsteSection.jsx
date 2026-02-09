@@ -299,33 +299,25 @@ export default function ImportAsteSection() {
 
       console.log('Aste parsate:', aste.length, 'Prima asta:', aste[0]);
       
-      // Salva info file caricato
-      setUploadedFiles(prev => ({
-        ...prev,
-        [tipologia]: { name: file.name, rows: aste.length }
-      }));
-      
       // Aggiungi tipologia forzata a ogni asta
       const asteConTipologia = aste.map(a => ({
         ...a,
         tipologia: tipologia
       }));
 
-      console.log('Aste con tipologia:', asteConTipologia.length, 'Prima:', asteConTipologia[0]);
+      // Salva info file caricato e aste in attesa di pubblicazione
+      setUploadedFiles(prev => ({
+        ...prev,
+        [tipologia]: { name: file.name, rows: aste.length }
+      }));
       
-      toast.info(`Importazione ${aste.length} aste "${tipologia}" in corso...`);
-      
-      const response = await base44.functions.invoke('importAste', { aste: asteConTipologia });
-      
-      setLastResult({ ...response.data, tipologia });
-      
-      if (response.data.success) {
-        toast.success(`${tipologia}: ${response.data.riepilogo.nuove_inserite} nuove, ${response.data.riepilogo.aggiornate} aggiornate`);
-        queryClient.invalidateQueries({ queryKey: ['aste-stats-admin'] });
-        queryClient.invalidateQueries({ queryKey: ['aste-immobiliari'] });
-      } else {
-        toast.error(response.data.error || 'Errore durante l\'importazione');
-      }
+      setPendingAste(prev => ({
+        ...prev,
+        [tipologia]: asteConTipologia
+      }));
+
+      console.log('Aste pronte per pubblicazione:', asteConTipologia.length);
+      toast.success(`File caricato: ${aste.length} aste pronte per la pubblicazione. Clicca "Pubblica" per inserirle nel database.`)
       
     } catch (error) {
       console.error('Errore import:', error);
