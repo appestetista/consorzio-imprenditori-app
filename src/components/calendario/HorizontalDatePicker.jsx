@@ -31,6 +31,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
   const todayRef = useRef(null);
   const [visibleMonth, setVisibleMonth] = useState({ name: MONTHS[today.getMonth()], year: today.getFullYear(), color: MONTH_COLORS[today.getMonth()] });
   const monthRefs = useRef({});
+  const [selectedMonthIdx, setSelectedMonthIdx] = useState(null); // Mese selezionato dalla barra in basso
 
   // Genera tutti i giorni del mese corrente
   const getDaysInMonth = (month, year) => {
@@ -286,22 +287,37 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
         {/* Etichette mesi sopra la barra */}
         <div className="flex items-center mb-1">
           {MONTHS_SHORT.map((m, idx) => {
-            // Determina il colore: passato = grigio scuro, futuro = grigio chiaro, selezionato = colore mese
+            // Determina il colore:
+            // - passato = grigio scuro
+            // - mese attuale = lime
+            // - futuro = bianco
+            // - selezionato (cliccato) = colore del mese
             const isPast = idx < currentMonthIdx;
-            const isCurrentOrSelected = idx === currentMonthIdx;
+            const isCurrent = idx === currentMonthIdx;
+            const isSelected = selectedMonthIdx === idx;
+            
+            let color;
+            if (isSelected) {
+              color = MONTH_COLORS[idx]; // Colore del mese quando cliccato
+            } else if (isCurrent) {
+              color = '#a3e635'; // Lime per mese attuale
+            } else if (isPast) {
+              color = '#334155'; // Grigio scuro per passati
+            } else {
+              color = '#ffffff'; // Bianco per futuri
+            }
             
             return (
               <button
                 key={idx}
                 onClick={() => {
+                  setSelectedMonthIdx(idx);
                   if (onGoToToday?.scrollToMonth) {
                     onGoToToday.scrollToMonth(idx);
                   }
                 }}
                 className="flex-1 text-[10px] font-semibold text-center hover:opacity-70 transition-all"
-                style={{
-                  color: isCurrentOrSelected ? MONTH_COLORS[idx] : (isPast ? '#334155' : '#64748b')
-                }}
+                style={{ color }}
               >
                 {m}
               </button>
