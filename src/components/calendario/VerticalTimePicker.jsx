@@ -58,20 +58,14 @@ export default function VerticalTimePicker({ selectedDate, onClose, onTimeSelect
   // Colore da usare: lime se oggi, colore del mese altrimenti
   const activeColor = isToday ? '#a3e635' : currentMonthColor;
 
-  // Scroll all'ora corrente (se oggi) o alle 8:00 (se giorno futuro)
+  // Scroll all'ora corrente solo se oggi (all'apertura iniziale)
   useEffect(() => {
-    setTimeout(() => {
-      if (isToday && currentHourRef.current) {
+    if (isToday && currentHourRef.current) {
+      setTimeout(() => {
         currentHourRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      } else {
-        // Scroll alle 8:00 per giorni futuri
-        const slot8am = scrollRef.current?.querySelector('[data-time="08:00"]');
-        if (slot8am) {
-          slot8am.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }
-    }, 100);
-  }, [isToday, selectedDate]);
+      }, 100);
+    }
+  }, []);
 
   // Gestisce il ciclo continuo: quando si raggiunge il top o il bottom, cambia giorno
   useEffect(() => {
