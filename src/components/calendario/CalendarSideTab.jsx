@@ -106,62 +106,62 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           </div>
         )}
 
-        {/* Etichette come tab attaccate al contenuto sotto - spazio minimo */}
-        {selectedDate && (
-          <div className="flex justify-between items-end px-2 -mb-3">
-            {/* Torna Oggi a sinistra - solo se NON è oggi */}
-            {new Date(selectedDate).toDateString() !== new Date().toDateString() ? (
-              <button
-                onClick={() => {
-                  const today = new Date();
-                  today.setHours(0, 0, 0, 0);
-                  if (onDateSelect) {
-                    onDateSelect(today);
-                  }
-                  goToTodayRef.current?.();
-                }}
-                className="px-3 py-1 rounded-t-lg text-[11px] font-semibold bg-lime-400/20 text-lime-400"
-              >
-                torna oggi
-              </button>
-            ) : (
-              <div />
-            )}
-            
-            {/* Mese/anno a destra + X chiudi */}
-            <div className="flex items-end gap-1">
-              <span 
-                className="px-3 py-1 rounded-t-lg text-[11px] font-semibold"
-                style={{ 
-                  backgroundColor: new Date(selectedDate).toDateString() === new Date().toDateString() ? 'rgba(163, 230, 53, 0.2)' : `${currentMonthColor}20`,
-                  color: new Date(selectedDate).toDateString() === new Date().toDateString() ? '#a3e635' : currentMonthColor
-                }}
-              >
-                {new Date(visibleMonthLabel.year, visibleMonthLabel.month).toLocaleDateString('it-IT', { month: 'short' }).toLowerCase()} {visibleMonthLabel.year}
-              </span>
-              <button
-                onClick={() => {
-                  setIsOpen(false);
-                  setShowTimePicker(false);
-                }}
-                className="px-2 py-1 rounded-t-lg bg-slate-700/50 hover:bg-slate-700"
-              >
-                <X className="w-5 h-5 text-slate-400" />
-              </button>
+        {/* Calendario orizzontale con pulsanti sovrapposti */}
+        <div className="relative">
+          {/* Pulsanti in sovrimpressione */}
+          {selectedDate && (
+            <div className="absolute top-1 left-0 right-0 z-10 flex justify-between items-start px-2">
+              {/* Torna Oggi a sinistra - solo se NON è oggi */}
+              {new Date(selectedDate).toDateString() !== new Date().toDateString() ? (
+                <button
+                  onClick={() => {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    if (onDateSelect) {
+                      onDateSelect(today);
+                    }
+                    goToTodayRef.current?.();
+                  }}
+                  className="px-2 py-0.5 rounded text-[10px] font-semibold bg-lime-400/90 text-slate-900"
+                >
+                  oggi
+                </button>
+              ) : (
+                <div />
+              )}
+              
+              {/* Mese/anno a destra + X chiudi */}
+              <div className="flex items-start gap-1">
+                <span 
+                  className="px-2 py-0.5 rounded text-[10px] font-semibold"
+                  style={{ 
+                    backgroundColor: new Date(selectedDate).toDateString() === new Date().toDateString() ? 'rgba(163, 230, 53, 0.9)' : currentMonthColor,
+                    color: '#0f172a'
+                  }}
+                >
+                  {new Date(visibleMonthLabel.year, visibleMonthLabel.month).toLocaleDateString('it-IT', { month: 'short' }).toLowerCase()} {visibleMonthLabel.year}
+                </span>
+                <button
+                  onClick={() => {
+                    setIsOpen(false);
+                    setShowTimePicker(false);
+                  }}
+                  className="p-0.5 rounded bg-slate-700/80 hover:bg-slate-600"
+                >
+                  <X className="w-4 h-4 text-slate-300" />
+                </button>
+              </div>
             </div>
-          </div>
-        )}
-
-        {/* Calendario orizzontale */}
-        <HorizontalDatePicker 
+          )}
+          
+          <HorizontalDatePicker 
           selectedDate={selectedDate}
           onDateSelect={handleDateSelect}
           onGoToToday={goToTodayRef}
           onMonthColorChange={setCurrentMonthColor}
           onVisibleMonthChange={(month, year) => setVisibleMonthLabel({ month, year })}
         />
-
-
+        </div>
       </div>
 
       {/* Pannello orari - copre tutto lo spazio sopra il calendario */}
