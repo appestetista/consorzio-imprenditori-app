@@ -356,10 +356,10 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
         {/* Percentuali - più visibili */}
         <div className="flex justify-between items-center mt-0.5">
           <span className="text-[10px] text-lime-400 font-bold">
-            {yearProgress.toFixed(0)}% trascorso
+            {yearProgress.toFixed(0)}% anno trascorso
           </span>
           <span className="text-[10px] text-slate-300 font-bold">
-            {yearRemaining.toFixed(0)}% rimane
+            {yearRemaining.toFixed(0)}% anno che rimane
           </span>
         </div>
       </div>
