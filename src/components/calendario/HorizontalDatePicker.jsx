@@ -282,25 +282,31 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
       </div>
 
       {/* Barra mesi dell'anno con progress - in basso */}
-      <div className="px-3 pb-2 pt-1">
+      <div className="px-3 pb-3 pt-1">
         {/* Etichette mesi sopra la barra */}
         <div className="flex items-center mb-1">
-          {MONTHS_SHORT.map((m, idx) => (
-            <button
-              key={idx}
-              onClick={() => {
-                if (onGoToToday?.scrollToMonth) {
-                  onGoToToday.scrollToMonth(idx);
-                }
-              }}
-              className="flex-1 text-[10px] font-semibold text-center hover:opacity-70 transition-opacity"
-              style={{
-                color: idx <= currentMonthIdx ? '#a3e635' : '#64748b'
-              }}
-            >
-              {m}
-            </button>
-          ))}
+          {MONTHS_SHORT.map((m, idx) => {
+            // Determina il colore: passato = grigio scuro, futuro = grigio chiaro, selezionato = colore mese
+            const isPast = idx < currentMonthIdx;
+            const isCurrentOrSelected = idx === currentMonthIdx;
+            
+            return (
+              <button
+                key={idx}
+                onClick={() => {
+                  if (onGoToToday?.scrollToMonth) {
+                    onGoToToday.scrollToMonth(idx);
+                  }
+                }}
+                className="flex-1 text-[10px] font-semibold text-center hover:opacity-70 transition-all"
+                style={{
+                  color: isCurrentOrSelected ? MONTH_COLORS[idx] : (isPast ? '#334155' : '#64748b')
+                }}
+              >
+                {m}
+              </button>
+            );
+          })}
         </div>
         
         {/* Barra di riempimento sottile */}
@@ -311,12 +317,12 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
           />
         </div>
         
-        {/* Percentuali */}
-        <div className="flex justify-between items-center mt-1">
-          <span className="text-[10px] text-lime-400 font-semibold">
+        {/* Percentuali - più visibili */}
+        <div className="flex justify-between items-center mt-2">
+          <span className="text-xs text-lime-400 font-bold">
             {yearProgress.toFixed(0)}% trascorso
           </span>
-          <span className="text-[10px] text-slate-400 font-semibold">
+          <span className="text-xs text-slate-300 font-bold">
             {yearRemaining.toFixed(0)}% rimane
           </span>
         </div>
