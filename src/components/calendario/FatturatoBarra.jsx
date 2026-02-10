@@ -126,18 +126,22 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
     const fatturato = fatturatiMese.find(f => f.data === dateStr);
     const importo = fatturato?.importo || 0;
     cumulative += importo;
+    // Obiettivo giornaliero proporzionale
+    const obiettivoGiornaliero = obiettivo > 0 ? (obiettivo / daysInMonth) * d : 0;
     days.push({
       day: d,
       date: dateStr,
       importo,
       cumulative,
+      obiettivoGiornaliero,
       hasData: !!fatturato?.importo,
       isToday: d === todayDay,
-      isPast: todayDay ? d <= todayDay : false
+      isPast: todayDay ? d <= todayDay : true // Permetti modifica anche giorni passati
     });
   }
 
-  const maxCumulative = Math.max(obiettivo, cumulative, 1);
+  // L'obiettivo è sempre il tetto massimo del grafico
+  const maxValue = obiettivo > 0 ? obiettivo : Math.max(cumulative, 1);
 
   const handleDayClick = (day) => {
     setEditingDay(day.date);
@@ -172,40 +176,44 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
     return val.toFixed(0);
   };
 
-  // Genera path SVG per il grafico a linea
+  // Genera path SVG per il grafico a linea (fatturato cumulativo)
   const generateLinePath = () => {
-    const width = daysInMonth * 20;
-    const height = 32;
-    const padding = 2;
+    const width = daysInMonth * 24;
+    const height = 40;
+    const padding = 4;
     
     let path = '';
-    let lastValidIndex = -1;
+    let hasStarted = false;
     
     days.forEach((day, i) => {
-      if (!day.isPast && !day.isToday) return;
+      if (day.cumulative === 0 && !hasStarted) return;
+      hasStarted = true;
       
       const x = (i / (daysInMonth - 1)) * (width - padding * 2) + padding;
-      const y = height - padding - ((day.cumulative / maxCumulative) * (height - padding * 2));
+      const y = height - padding - ((day.cumulative / maxValue) * (height - padding * 2));
       
-      if (lastValidIndex === -1) {
-        path += `M ${x} ${y}`;
+      if (path === '') {
+        // Parti da 0 sul primo giorno con dati
+        const startX = (i / (daysInMonth - 1)) * (width - padding * 2) + padding;
+        path += `M ${startX} ${height - padding} L ${x} ${y}`;
       } else {
         path += ` L ${x} ${y}`;
       }
-      lastValidIndex = i;
     });
     
-    return path;
+    return path || `M ${padding} ${height - padding}`;
   };
 
-  // Genera path per linea obiettivo
+  // Genera path per linea obiettivo (diagonale da 0 all'obiettivo)
   const generateObjectivePath = () => {
     if (obiettivo <= 0) return '';
-    const width = daysInMonth * 20;
-    const height = 32;
-    const padding = 2;
-    const y = height - padding - ((obiettivo / maxCumulative) * (height - padding * 2));
-    return `M ${padding} ${y} L ${width - padding} ${y}`;
+    const width = daysInMonth * 24;
+    const height = 40;
+    const padding = 4;
+    // Linea diagonale da (0,0) a (fine mese, obiettivo)
+    const startY = height - padding;
+    const endY = padding;
+    return `M ${padding} ${startY} L ${width - padding} ${endY}`;
   };
 
   return (
@@ -216,22 +224,22 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
         className="overflow-x-auto scrollbar-hide"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
-        <div style={{ width: `${daysInMonth * 20}px`, minWidth: '100%' }}>
+        <div style={{ width: `${daysInMonth * 24}px`, minWidth: '100%' }}>
           {/* SVG Grafico a linea */}
           <svg 
-            width={daysInMonth * 20} 
-            height={32} 
+            width={daysInMonth * 24} 
+            height={40} 
             className="block"
           >
-            {/* Linea obiettivo tratteggiata */}
+            {/* Linea obiettivo tratteggiata (diagonale) */}
             {obiettivo > 0 && (
               <path
                 d={generateObjectivePath()}
                 stroke="#4ade80"
-                strokeWidth="1"
-                strokeDasharray="4 2"
+                strokeWidth="1.5"
+                strokeDasharray="4 3"
                 fill="none"
-                opacity="0.5"
+                opacity="0.6"
               />
             )}
             
@@ -239,7 +247,7 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
             <path
               d={generateLinePath()}
               stroke={monthColor}
-              strokeWidth="2"
+              strokeWidth="2.5"
               fill="none"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -249,52 +257,64 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
             {todayDay && days[todayDay - 1] && (
               <>
                 <circle
-                  cx={(todayDay - 1) / (daysInMonth - 1) * (daysInMonth * 20 - 4) + 2}
-                  cy={32 - 2 - ((days[todayDay - 1].cumulative / maxCumulative) * 28)}
-                  r="5"
+                  cx={(todayDay - 1) / (daysInMonth - 1) * (daysInMonth * 24 - 8) + 4}
+                  cy={40 - 4 - ((days[todayDay - 1].cumulative / maxValue) * 32)}
+                  r="6"
                   fill={monthColor}
                   opacity="0.3"
                   className="animate-ping"
                 />
                 <circle
-                  cx={(todayDay - 1) / (daysInMonth - 1) * (daysInMonth * 20 - 4) + 2}
-                  cy={32 - 2 - ((days[todayDay - 1].cumulative / maxCumulative) * 28)}
-                  r="4"
+                  cx={(todayDay - 1) / (daysInMonth - 1) * (daysInMonth * 24 - 8) + 4}
+                  cy={40 - 4 - ((days[todayDay - 1].cumulative / maxValue) * 32)}
+                  r="5"
                   fill={monthColor}
+                  stroke="#0f172a"
+                  strokeWidth="1"
                 />
               </>
             )}
           </svg>
 
-          {/* Puntini giorni */}
+          {/* Puntini giorni - PIÙ GRANDI */}
           <div className="flex">
             {days.map((day) => {
               const isSelected = selectedDate && new Date(selectedDate).getDate() === day.day;
+              const isEditing = editingDay === day.date;
               
               return (
                 <div
                   key={day.day}
                   data-fatturato-day={day.day}
                   onClick={() => handleDayClick(day)}
-                  className="flex flex-col items-center cursor-pointer min-w-[20px]"
+                  className={cn(
+                    "flex flex-col items-center cursor-pointer min-w-[24px] py-1 rounded transition-all",
+                    isSelected && "bg-slate-800",
+                    isEditing && "bg-slate-700"
+                  )}
                 >
-                  {/* Puntino */}
+                  {/* Puntino GRANDE */}
                   <div 
                     className={cn(
-                      "w-2 h-2 rounded-full transition-all",
-                      day.isToday && "animate-pulse",
-                      isSelected && "ring-1 ring-white ring-offset-1 ring-offset-slate-900"
+                      "w-4 h-4 rounded-full transition-all flex items-center justify-center",
+                      day.isToday && "animate-pulse ring-2 ring-lime-400/50",
+                      isSelected && "ring-2 ring-white"
                     )}
                     style={{ 
-                      backgroundColor: day.hasData ? monthColor : (day.isPast ? '#475569' : '#1e293b')
+                      backgroundColor: day.hasData ? monthColor : '#334155',
+                      boxShadow: day.hasData ? `0 0 6px ${monthColor}50` : 'none'
                     }}
-                  />
+                  >
+                    {day.hasData && (
+                      <div className="w-1.5 h-1.5 rounded-full bg-white/80" />
+                    )}
+                  </div>
                   {/* Numero giorno */}
                   <span 
                     className={cn(
-                      "text-[7px] leading-tight",
+                      "text-[8px] leading-tight mt-0.5",
                       day.hasData ? "font-bold" : "font-normal",
-                      day.isToday ? "text-lime-400" : (isSelected ? "text-white" : "text-slate-600")
+                      day.isToday ? "text-lime-400 font-bold" : (isSelected ? "text-white" : "text-slate-500")
                     )}
                     style={{ color: day.hasData && !day.isToday ? monthColor : undefined }}
                   >
@@ -335,65 +355,67 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
         </div>
       )}
 
-      {/* Riga info: obiettivo + totale + comparazioni */}
-      <div className="flex items-center justify-between px-2 py-1 border-t border-slate-800">
-        {/* Obiettivo */}
+      {/* Riga info: fatturato + obiettivo + comparazioni */}
+      <div className="flex items-center justify-between px-2 py-1.5 border-t border-slate-800">
+        {/* Fatturato attuale */}
+        <div className="flex flex-col">
+          <span className="text-[8px] text-slate-500 uppercase">Fatturato</span>
+          <span className="text-sm font-bold" style={{ color: monthColor }}>
+            €{formatCurrency(totaleMese)}
+          </span>
+        </div>
+
+        {/* Obiettivo - cliccabile */}
         <div 
-          className="flex items-center gap-1 cursor-pointer"
+          className="flex flex-col items-center cursor-pointer px-2 py-1 rounded hover:bg-slate-800 transition-colors"
           onClick={() => setShowObjectiveInput(true)}
         >
-          <Target className="w-3 h-3 text-slate-500" />
+          <span className="text-[8px] text-slate-500 uppercase flex items-center gap-1">
+            <Target className="w-2.5 h-2.5" />
+            Obiettivo
+          </span>
           {obiettivo > 0 ? (
-            <span className="text-[9px] text-slate-400">
-              {formatCurrency(totaleMese)}/{formatCurrency(obiettivo)}€
+            <span className="text-sm font-bold text-green-400">
+              €{formatCurrency(obiettivo)}
             </span>
           ) : (
-            <span className="text-[9px] text-slate-500">+obiettivo</span>
+            <span className="text-xs text-slate-400">+ imposta</span>
           )}
         </div>
 
-        {/* Barra progresso obiettivo mini */}
-        {obiettivo > 0 && (
-          <div className="flex-1 mx-2 h-1.5 bg-slate-700 rounded-full overflow-hidden max-w-[80px]">
-            <div 
-              className="h-full rounded-full transition-all"
-              style={{ width: `${progressoObiettivo}%`, backgroundColor: monthColor }}
-            />
-          </div>
-        )}
-
         {/* Comparazioni */}
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col items-end">
           {/* vs mese precedente */}
-          {totaleMesePrecedente > 0 && (
-            <div className="flex items-center gap-0.5">
+          {totaleMesePrecedente > 0 ? (
+            <div className="flex items-center gap-1">
               {varMesePrecedente > 0 ? (
                 <TrendingUp className="w-3 h-3 text-green-400" />
               ) : varMesePrecedente < 0 ? (
                 <TrendingDown className="w-3 h-3 text-red-400" />
-              ) : (
-                <Minus className="w-3 h-3 text-slate-400" />
-              )}
+              ) : null}
               <span className={cn(
-                "text-[9px] font-semibold",
+                "text-[10px] font-semibold",
                 varMesePrecedente > 0 ? "text-green-400" : varMesePrecedente < 0 ? "text-red-400" : "text-slate-400"
               )}>
-                {varMesePrecedente > 0 ? '+' : ''}{varMesePrecedente.toFixed(0)}%
+                {varMesePrecedente > 0 ? '+' : ''}{varMesePrecedente.toFixed(0)}% mese
               </span>
             </div>
+          ) : (
+            <span className="text-[9px] text-slate-600">vs mese -</span>
           )}
-
+          
           {/* vs anno scorso */}
-          {totaleAnnoScorso > 0 && (
-            <div className="flex items-center gap-0.5 border-l border-slate-700 pl-2">
-              <span className="text-[8px] text-slate-500">YoY</span>
+          {totaleAnnoScorso > 0 ? (
+            <div className="flex items-center gap-1">
               <span className={cn(
-                "text-[9px] font-semibold",
+                "text-[9px] font-medium",
                 varAnnoScorso > 0 ? "text-green-400" : varAnnoScorso < 0 ? "text-red-400" : "text-slate-400"
               )}>
-                {varAnnoScorso > 0 ? '+' : ''}{varAnnoScorso.toFixed(0)}%
+                {varAnnoScorso > 0 ? '+' : ''}{varAnnoScorso.toFixed(0)}% YoY
               </span>
             </div>
+          ) : (
+            <span className="text-[8px] text-slate-600">vs anno -</span>
           )}
         </div>
       </div>
