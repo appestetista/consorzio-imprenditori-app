@@ -178,12 +178,10 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
 
         {/* Barra fatturato */}
         {userEmail && (
-          <div className="relative">
-            <FatturatoBarra 
-              selectedDate={selectedDate}
-              userEmail={userEmail}
-            />
-          </div>
+          <FatturatoBarra 
+            selectedDate={selectedDate}
+            userEmail={userEmail}
+          />
         )}
       </div>
 

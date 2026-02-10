@@ -193,20 +193,16 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
 
   return (
     <div className="bg-slate-900">
-      {/* Barre verticali per ogni giorno */}
+      {/* Puntini giorni */}
       <div 
         ref={scrollRef}
         className="overflow-x-auto scrollbar-hide"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
-        <div className="flex items-end px-1" style={{ width: `${daysInMonth * 20}px`, minWidth: '100%', height: '50px' }}>
+        <div className="flex px-1" style={{ width: `${daysInMonth * 22}px`, minWidth: '100%' }}>
           {days.map((day) => {
             const isSelected = selectedDate && new Date(selectedDate).getDate() === day.day;
             const isPastOrToday = !day.isFuture;
-            // Altezza barra proporzionale all'incasso giornaliero
-            const barHeight = isPastOrToday && day.importo > 0 
-              ? Math.max(8, (day.importo / maxDailyAmount) * 40) 
-              : 4;
             
             return (
               <div
@@ -214,28 +210,31 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
                 data-fatturato-day={day.day}
                 onClick={() => handleDayClick(day)}
                 className={cn(
-                  "flex flex-col items-center justify-end min-w-[20px] h-full",
+                  "flex flex-col items-center min-w-[22px] py-1",
                   isPastOrToday && "cursor-pointer",
-                  day.isFuture && "cursor-not-allowed"
+                  day.isFuture && "cursor-not-allowed opacity-40"
                 )}
               >
-                {/* Barra verticale */}
+                {/* Puntino grande - giallo fluo per passati/oggi, grigio per futuri */}
                 <div 
                   className={cn(
-                    "w-3 rounded-t transition-all",
-                    day.isToday && "ring-1 ring-white",
+                    "w-4 h-4 rounded-full transition-all flex items-center justify-center",
+                    day.isToday && "ring-2 ring-lime-400/50",
                     isSelected && "ring-2 ring-white"
                   )}
                   style={{ 
-                    height: `${barHeight}px`,
-                    backgroundColor: day.isFuture ? '#334155' : (day.importo > 0 ? '#a3e635' : '#475569'),
-                    opacity: day.isFuture ? 0.3 : 1
+                    backgroundColor: isPastOrToday ? '#a3e635' : '#334155'
                   }}
-                />
+                >
+                  {/* Puntino nero interno solo se ha dati */}
+                  {isPastOrToday && day.hasData && (
+                    <div className="w-2 h-2 rounded-full bg-slate-900" />
+                  )}
+                </div>
                 {/* Numero giorno */}
                 <span 
                   className={cn(
-                    "text-[7px] leading-tight mt-0.5 font-semibold",
+                    "text-[8px] leading-tight mt-0.5 font-semibold",
                     day.isToday ? "text-lime-400" : (isPastOrToday ? "text-slate-400" : "text-slate-600")
                   )}
                 >
@@ -248,7 +247,7 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
       </div>
 
       {/* Input inline: incasso giorno + mese + obiettivo */}
-      <div className="flex items-stretch gap-1 px-2 py-1">
+      <div className="flex items-stretch gap-1 px-2">
         {/* Incasso giorno - input diretto */}
         <div 
           className={cn(
