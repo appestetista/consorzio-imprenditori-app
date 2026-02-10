@@ -19,7 +19,7 @@ const MONTH_COLORS = [
   '#0ea5e9', // Dicembre - sky
 ];
 
-export default function HorizontalDatePicker({ selectedDate, onDateSelect, onClose }) {
+export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoToToday }) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   
@@ -137,7 +137,15 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onClo
     setTimeout(() => {
       todayRef.current?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
     }, 100);
+    if (onGoToToday) onGoToToday();
   };
+
+  // Esponi la funzione goToToday
+  React.useEffect(() => {
+    if (onGoToToday) {
+      onGoToToday.current = goToToday;
+    }
+  }, []);
 
   const handleDayClick = (dayData) => {
     if (onDateSelect) {
@@ -147,15 +155,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onClo
 
   return (
     <div className="bg-slate-800 border-t border-slate-700 overflow-hidden">
-      {/* Header con pulsante oggi */}
-      <div className="flex items-center justify-center px-4 py-2 border-b border-slate-700">
-        <button
-          onClick={goToToday}
-          className="text-xs bg-lime-400/20 text-lime-400 px-3 py-1.5 rounded-md hover:bg-lime-400/30 transition-colors font-semibold"
-        >
-          Vai a Oggi
-        </button>
-      </div>
+
 
       {/* Calendario orizzontale scrollabile continuo */}
       <div 
@@ -192,12 +192,12 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onClo
                     backgroundColor: dayData.isToday ? '#a3e635' : monthData.color
                   }}
                 />
-                
+
                 {/* Puntino rosso per weekend */}
                 {dayData.isWeekend && !dayData.isToday && (
                   <div className="w-[4px] h-[4px] rounded-full bg-red-500 mb-0.5" />
                 )}
-                
+
                 {/* Numero del giorno */}
                 <span 
                   className="text-xs font-bold leading-tight"
@@ -208,7 +208,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onClo
                 >
                   {dayData.day}
                 </span>
-                
+
                 {/* Lettera del giorno della settimana */}
                 <span 
                   className="text-[9px] font-medium leading-tight"
@@ -219,6 +219,20 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onClo
                 >
                   {DAYS_SHORT[dayData.dayOfWeek]}
                 </span>
+
+                {/* Pulsante/indicatore selezionabile */}
+                <div 
+                  className={cn(
+                    "w-5 h-5 mt-1 rounded-full flex items-center justify-center transition-all",
+                    dayData.isSelected 
+                      ? "bg-lime-400 scale-110" 
+                      : "bg-slate-700 hover:bg-slate-600"
+                  )}
+                >
+                  {dayData.isSelected && (
+                    <div className="w-2 h-2 rounded-full bg-slate-900" />
+                  )}
+                </div>
               </div>
             ))}
           </div>

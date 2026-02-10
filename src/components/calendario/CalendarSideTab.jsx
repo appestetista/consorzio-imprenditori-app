@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Calendar, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import HorizontalDatePicker from './HorizontalDatePicker';
@@ -7,6 +7,7 @@ import VerticalTimePicker from './VerticalTimePicker';
 export default function CalendarSideTab({ selectedDate, onDateSelect }) {
   const [isOpen, setIsOpen] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
+  const goToTodayRef = useRef(null);
 
   const toggleCalendar = () => {
     setIsOpen(!isOpen);
@@ -96,9 +97,10 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
         <HorizontalDatePicker 
           selectedDate={selectedDate}
           onDateSelect={handleDateSelect}
+          onGoToToday={goToTodayRef}
         />
 
-        {/* Data selezionata con X in basso a destra */}
+        {/* Data selezionata con Vai a Oggi e X in basso a destra */}
         {selectedDate && (
           <div className="px-4 py-3 bg-slate-800/50 border-t border-slate-700 flex items-center justify-between">
             <div>
@@ -112,14 +114,22 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                 })}
               </p>
             </div>
-            {showTimePicker && (
+            <div className="flex items-center gap-2">
               <button
-                onClick={() => setShowTimePicker(false)}
-                className="p-2 rounded-lg hover:bg-slate-700 transition-colors"
+                onClick={() => goToTodayRef.current?.()}
+                className="text-xs bg-lime-400/20 text-lime-400 px-3 py-1.5 rounded-md hover:bg-lime-400/30 transition-colors font-semibold"
               >
-                <X className="w-5 h-5 text-slate-400" />
+                Oggi
               </button>
-            )}
+              {showTimePicker && (
+                <button
+                  onClick={() => setShowTimePicker(false)}
+                  className="p-2 rounded-lg hover:bg-slate-700 transition-colors"
+                >
+                  <X className="w-5 h-5 text-slate-400" />
+                </button>
+              )}
+            </div>
           </div>
         )}
       </div>
