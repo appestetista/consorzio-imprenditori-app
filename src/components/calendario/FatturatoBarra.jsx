@@ -241,37 +241,41 @@ export default function FatturatoBarra({ selectedDate, userEmail, onScrollSync, 
                   >
                     {/* Barra verticale proporzionale all'incasso */}
                     <div 
-                      className="w-2 rounded-t transition-all mb-1"
+                      className={cn(
+                        "w-2 rounded-t transition-all mb-1",
+                        day.isToday && "animate-pulse"
+                      )}
                       style={{ 
                         height: `${barHeight}px`,
                         minHeight: isPastOrToday && day.importo > 0 ? '4px' : '0px',
                         backgroundColor: day.isToday ? '#a3e635' : (isPastOrToday ? monthData.color : '#334155')
                       }}
                     />
-                    
-                    {/* Puntino - stessa dimensione del calendario sopra (w-4 h-4) */}
-                    <div 
-                      className={cn(
-                        "w-4 h-4 rounded-full transition-all flex items-center justify-center",
-                        day.isToday && "ring-2 ring-lime-400/50",
-                        isClickedDay && "ring-2 ring-white shadow-lg scale-110"
-                      )}
-                      style={{ 
-                        backgroundColor: isPastOrToday ? '#94a3b8' : '#334155',
-                        border: `2px solid ${day.isToday ? '#a3e635' : monthData.color}`
-                      }}
-                    >
-                      {/* Puntino nero interno solo se ha dati */}
-                      {isPastOrToday && day.hasData && (
-                        <div className="w-1.5 h-1.5 rounded-full bg-slate-900" />
-                      )}
-                    </div>
+
+                    {/* Puntino - SOLO per oggi (lime pulsante) o selezionato (colore mese) */}
+                    {(day.isToday || isClickedDay) && (
+                      <div 
+                        className={cn(
+                          "w-4 h-4 rounded-full transition-all flex items-center justify-center",
+                          day.isToday && "animate-pulse",
+                          isClickedDay && !day.isToday && "ring-2 ring-white shadow-lg scale-110"
+                        )}
+                        style={{ 
+                          backgroundColor: day.isToday ? '#a3e635' : monthData.color
+                        }}
+                      >
+                        {/* Puntino nero interno solo se ha dati */}
+                        {isPastOrToday && day.hasData && (
+                          <div className="w-1.5 h-1.5 rounded-full bg-slate-900" />
+                        )}
+                      </div>
+                    )}
                     {/* Numero giorno */}
                     <span 
                       className={cn(
                         "text-[10px] leading-tight mt-0.5 font-bold transition-all",
-                        day.isToday ? "text-lime-400" : (isPastOrToday ? "text-slate-300" : "text-slate-600"),
-                        isClickedDay && "text-white"
+                        day.isToday ? "text-lime-400 animate-pulse" : (isPastOrToday ? "text-slate-300" : "text-slate-600"),
+                        isClickedDay && !day.isToday && "text-white"
                       )}
                     >
                       {day.day}
