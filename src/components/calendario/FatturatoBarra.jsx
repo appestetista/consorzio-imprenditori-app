@@ -248,11 +248,11 @@ export default function FatturatoBarra({ selectedDate, userEmail, onScrollSync, 
                       style={{ 
                         height: `${barHeight}px`,
                         minHeight: isPastOrToday && day.importo > 0 ? '4px' : '0px',
-                        backgroundColor: day.isToday ? '#a3e635' : (isPastOrToday ? monthData.color : '#334155')
+                        backgroundColor: (day.isToday || isClickedDay) ? monthData.color : (isPastOrToday ? monthData.color : '#334155')
                       }}
                     />
 
-                    {/* Puntino - SOLO per oggi (lime pulsante) o selezionato (colore mese) */}
+                    {/* Puntino - SOLO per oggi (pulsante) o selezionato (colore mese) */}
                     {(day.isToday || isClickedDay) && (
                       <div 
                         className={cn(
@@ -261,7 +261,7 @@ export default function FatturatoBarra({ selectedDate, userEmail, onScrollSync, 
                           isClickedDay && !day.isToday && "ring-2 ring-white shadow-lg scale-110"
                         )}
                         style={{ 
-                          backgroundColor: day.isToday ? '#a3e635' : monthData.color
+                          backgroundColor: monthData.color
                         }}
                       >
                         {/* Puntino nero interno solo se ha dati */}
@@ -274,9 +274,12 @@ export default function FatturatoBarra({ selectedDate, userEmail, onScrollSync, 
                     <span 
                       className={cn(
                         "text-[10px] leading-tight mt-0.5 font-bold transition-all",
-                        day.isToday ? "text-lime-400 animate-pulse" : (isPastOrToday ? "text-slate-300" : "text-slate-600"),
-                        isClickedDay && !day.isToday && "text-white"
+                        day.isToday && "animate-pulse",
+                        (day.isToday || isClickedDay) ? "" : (isPastOrToday ? "text-slate-300" : "text-slate-600")
                       )}
+                      style={{
+                        color: (day.isToday || isClickedDay) ? monthData.color : undefined
+                      }}
                     >
                       {day.day}
                     </span>

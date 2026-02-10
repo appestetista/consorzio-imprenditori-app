@@ -127,7 +127,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           "fixed left-0 right-0 bottom-0 transition-all duration-300 ease-out",
           "bg-slate-900 shadow-2xl",
           isOpen ? "translate-y-0" : "translate-y-full",
-          showTimePicker ? "z-30" : "z-50"
+          showTimePicker ? "z-[55]" : "z-50"
         )}
         style={{ height: showFatturato ? 'auto' : 'auto' }}
       >
@@ -166,7 +166,8 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                     }
                     goToTodayRef.current?.();
                   }}
-                  className="px-2 py-0.5 rounded text-[10px] font-semibold bg-lime-400/90 text-slate-900 animate-pulse"
+                  className="px-2 py-0.5 rounded text-[10px] font-semibold text-slate-900 animate-pulse"
+                  style={{ backgroundColor: currentMonthColor }}
                 >
                   oggi
                 </button>
@@ -267,7 +268,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
       {/* Pannello orari - copre TUTTO lo spazio sopra il calendario fino in fondo */}
       {isOpen && showTimePicker && selectedDate && (
         <div 
-          className="fixed left-0 right-0 top-0 z-50 bg-slate-900 flex flex-col"
+          className="fixed inset-0 z-[60] bg-slate-900 flex flex-col"
           style={{ bottom: showFatturato ? '340px' : '220px' }}
         >
           <VerticalTimePicker 

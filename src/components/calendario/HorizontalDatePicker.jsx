@@ -272,7 +272,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                 )}
                 style={{ minWidth: '22px' }}
               >
-                {/* Linea verticale - lime per oggi, colore mese se selezionato, bianco per altri */}
+                {/* Linea verticale - colore mese per oggi e selezionato, bianco per altri */}
                 <div 
                   className={cn(
                     "w-[2px] mb-0.5 rounded-full transition-all",
@@ -280,8 +280,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                   )}
                   style={{ 
                     height: dayData.isWeekend ? '32px' : '18px',
-                    backgroundColor: dayData.isToday ? '#a3e635' : 
-                      (dayData.isSelected && !dayData.isToday) ? monthData.color : '#ffffff'
+                    backgroundColor: (dayData.isToday || dayData.isSelected) ? monthData.color : '#ffffff'
                   }}
                 />
 
@@ -292,8 +291,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                     dayData.isToday && "animate-pulse"
                   )}
                   style={{ 
-                    color: dayData.isToday ? '#a3e635' : 
-                      (dayData.isSelected && !dayData.isToday) ? monthData.color : '#ffffff'
+                    color: (dayData.isToday || dayData.isSelected) ? monthData.color : '#ffffff'
                   }}
                 >
                   {dayData.day}
@@ -307,14 +305,13 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                   )}
                   style={{ 
                     color: dayData.isWeekend ? '#ef4444' :
-                      dayData.isToday ? '#a3e635' : 
-                      (dayData.isSelected && !dayData.isToday) ? monthData.color : '#94a3b8'
+                      (dayData.isToday || dayData.isSelected) ? monthData.color : '#94a3b8'
                   }}
                 >
                   {DAYS_SHORT[dayData.dayOfWeek]}
                 </span>
 
-                {/* Pulsante/indicatore - SOLO per oggi (lime pulsante) o selezionato (colore mese) */}
+                {/* Pulsante/indicatore - SOLO per oggi (pulsante) o selezionato (colore mese) */}
                 {(dayData.isToday || dayData.isSelected) && (
                   <div 
                     className={cn(
@@ -322,7 +319,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                       dayData.isToday && "animate-pulse"
                     )}
                     style={{
-                      backgroundColor: dayData.isToday ? '#a3e635' : monthData.color
+                      backgroundColor: monthData.color
                     }}
                   >
                     {dayData.isSelected && (
