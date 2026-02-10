@@ -124,9 +124,10 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
       {/* Pannello calendario - si apre dal basso */}
       <div
         className={cn(
-          "fixed left-0 right-0 bottom-0 z-50 transition-all duration-300 ease-out",
+          "fixed left-0 right-0 bottom-0 transition-all duration-300 ease-out",
           "bg-slate-900 shadow-2xl",
-          isOpen ? "translate-y-0" : "translate-y-full"
+          isOpen ? "translate-y-0" : "translate-y-full",
+          showTimePicker ? "z-30" : "z-50"
         )}
         style={{ height: showFatturato ? 'auto' : 'auto' }}
       >
