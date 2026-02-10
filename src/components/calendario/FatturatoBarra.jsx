@@ -179,8 +179,8 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
   // Genera path SVG per il grafico a linea (fatturato cumulativo)
   const generateLinePath = () => {
     const width = daysInMonth * 24;
-    const height = 28;
-    const padding = 4;
+    const height = 22;
+    const padding = 3;
     
     let path = '';
     let hasStarted = false;
@@ -208,8 +208,8 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
   const generateObjectivePath = () => {
     if (obiettivo <= 0) return '';
     const width = daysInMonth * 24;
-    const height = 28;
-    const padding = 4;
+    const height = 22;
+    const padding = 3;
     // Linea diagonale da (0,0) a (fine mese, obiettivo)
     const startY = height - padding;
     const endY = padding;
@@ -228,7 +228,7 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
           {/* SVG Grafico a linea */}
           <svg 
             width={daysInMonth * 24} 
-            height={28} 
+            height={22} 
             className="block"
           >
             {/* Linea obiettivo tratteggiata (diagonale) */}
@@ -258,16 +258,16 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
               <>
                 <circle
                   cx={(todayDay - 1) / (daysInMonth - 1) * (daysInMonth * 24 - 8) + 4}
-                  cy={28 - 4 - ((days[todayDay - 1].cumulative / maxValue) * 20)}
-                  r="6"
+                  cy={22 - 3 - ((days[todayDay - 1].cumulative / maxValue) * 16)}
+                  r="5"
                   fill="#a3e635"
                   opacity="0.3"
                   className="animate-ping"
                 />
                 <circle
                   cx={(todayDay - 1) / (daysInMonth - 1) * (daysInMonth * 24 - 8) + 4}
-                  cy={28 - 4 - ((days[todayDay - 1].cumulative / maxValue) * 20)}
-                  r="5"
+                  cy={22 - 3 - ((days[todayDay - 1].cumulative / maxValue) * 16)}
+                  r="4"
                   fill="#a3e635"
                   stroke="#0f172a"
                   strokeWidth="1"
