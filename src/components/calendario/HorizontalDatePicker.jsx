@@ -242,7 +242,8 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                 <span 
                   className="text-[8px] font-medium leading-tight"
                   style={{ 
-                    color: dayData.isToday ? '#a3e635' : 
+                    color: dayData.isWeekend ? '#ef4444' :
+                      dayData.isToday ? '#a3e635' : 
                       (dayData.isSelected && !dayData.isToday) ? monthData.color : '#94a3b8'
                   }}
                 >
