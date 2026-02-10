@@ -21,7 +21,7 @@ const MONTH_COLORS = [
 
 const MONTHS_SHORT = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
 
-export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoToToday, onMonthColorChange, onScrollToMonth }) {
+export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoToToday, onMonthColorChange, onVisibleMonthChange }) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   
@@ -124,12 +124,16 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
     return () => scrollContainer.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Notifica il colore al parent quando cambia visibleMonth (fuori dal rendering)
+  // Notifica il colore e il mese al parent quando cambia visibleMonth (fuori dal rendering)
   useEffect(() => {
     if (onMonthColorChange) {
       onMonthColorChange(visibleMonth.color);
     }
-  }, [visibleMonth.color, onMonthColorChange]);
+    if (onVisibleMonthChange) {
+      const monthIdx = MONTHS.indexOf(visibleMonth.name);
+      onVisibleMonthChange(monthIdx, visibleMonth.year);
+    }
+  }, [visibleMonth, onMonthColorChange, onVisibleMonthChange]);
 
   const goToToday = () => {
     setCurrentMonth(today.getMonth());

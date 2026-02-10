@@ -24,6 +24,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
   const [showTimePicker, setShowTimePicker] = useState(false);
   const goToTodayRef = useRef(null);
   const [currentMonthColor, setCurrentMonthColor] = useState(MONTH_COLORS[new Date().getMonth()]);
+  const [visibleMonthLabel, setVisibleMonthLabel] = useState({ month: new Date().getMonth(), year: new Date().getFullYear() });
 
   const toggleCalendar = () => {
     if (!isOpen) {
@@ -136,7 +137,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                   color: new Date(selectedDate).toDateString() === new Date().toDateString() ? '#a3e635' : currentMonthColor
                 }}
               >
-                {new Date(selectedDate).toLocaleDateString('it-IT', { month: 'short' }).toLowerCase()} {new Date(selectedDate).getFullYear()}
+                {new Date(visibleMonthLabel.year, visibleMonthLabel.month).toLocaleDateString('it-IT', { month: 'short' }).toLowerCase()} {visibleMonthLabel.year}
               </span>
               <button
                 onClick={() => {
@@ -157,6 +158,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           onDateSelect={handleDateSelect}
           onGoToToday={goToTodayRef}
           onMonthColorChange={setCurrentMonthColor}
+          onVisibleMonthChange={(month, year) => setVisibleMonthLabel({ month, year })}
         />
 
 
