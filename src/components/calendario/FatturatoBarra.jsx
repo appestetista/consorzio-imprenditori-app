@@ -80,13 +80,14 @@ export default function FatturatoBarra({ selectedDate, userEmail, onScrollSync, 
     }
   });
 
-  // Calcoli per il mese visibile
-  const fatturatiMeseVisibile = fatturatiAnno.filter(f => {
+  // Calcoli per il mese del giorno SELEZIONATO (non visibile)
+  const selectedMonthForCalc = selectedDate ? new Date(selectedDate).getMonth() : currentMonth;
+  const fatturatiMeseSelezionato = fatturatiAnno.filter(f => {
     const d = new Date(f.data);
-    return d.getMonth() === currentMonth;
+    return d.getMonth() === selectedMonthForCalc;
   });
-  const totaleMese = fatturatiMeseVisibile.reduce((sum, f) => sum + (f.importo || 0), 0);
-  const obiettivo = fatturatiMeseVisibile.find(f => f.obiettivo_mese)?.obiettivo_mese || 0;
+  const totaleMese = fatturatiMeseSelezionato.reduce((sum, f) => sum + (f.importo || 0), 0);
+  const obiettivo = fatturatiMeseSelezionato.find(f => f.obiettivo_mese)?.obiettivo_mese || 0;
 
   // Fatturato del giorno selezionato
   const selectedDayStr = selectedDate 
