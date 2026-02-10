@@ -105,9 +105,9 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           </div>
         )}
 
-        {/* Etichette esposte sopra la barra - come pill/badge */}
+        {/* Etichette come tab attaccate al contenuto sotto */}
         {selectedDate && (
-          <div className="flex justify-between items-center px-2 py-0.5">
+          <div className="flex justify-between items-end px-2">
             {/* Torna Oggi a sinistra - solo se NON è oggi */}
             {new Date(selectedDate).toDateString() !== new Date().toDateString() ? (
               <button
@@ -119,7 +119,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                   }
                   goToTodayRef.current?.();
                 }}
-                className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-lime-400/20 text-lime-400"
+                className="px-3 py-1 rounded-t-lg text-[11px] font-semibold bg-lime-400/20 text-lime-400"
               >
                 torna oggi
               </button>
@@ -128,9 +128,9 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
             )}
             
             {/* Mese/anno a destra + X chiudi */}
-            <div className="flex items-center gap-1">
+            <div className="flex items-end gap-1">
               <span 
-                className="px-2 py-0.5 rounded-full text-[10px] font-semibold"
+                className="px-3 py-1 rounded-t-lg text-[11px] font-semibold"
                 style={{ 
                   backgroundColor: new Date(selectedDate).toDateString() === new Date().toDateString() ? 'rgba(163, 230, 53, 0.2)' : `${currentMonthColor}20`,
                   color: new Date(selectedDate).toDateString() === new Date().toDateString() ? '#a3e635' : currentMonthColor
@@ -143,7 +143,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                   setIsOpen(false);
                   setShowTimePicker(false);
                 }}
-                className="p-0.5 rounded-full hover:bg-slate-700"
+                className="px-2 py-1 rounded-t-lg bg-slate-700/50 hover:bg-slate-700"
               >
                 <X className="w-3 h-3 text-slate-400" />
               </button>

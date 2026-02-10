@@ -293,7 +293,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                   onGoToToday.scrollToMonth(idx);
                 }
               }}
-              className="flex-1 text-[8px] font-medium text-center hover:opacity-70 transition-opacity"
+              className="flex-1 text-[10px] font-semibold text-center hover:opacity-70 transition-opacity"
               style={{
                 color: idx <= currentMonthIdx ? '#a3e635' : '#64748b'
               }}
