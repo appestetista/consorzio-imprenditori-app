@@ -117,6 +117,9 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
           }
           return prev;
         });
+
+        // Aggiorna anche la selezione del mese nella barra in basso (sincronizzazione)
+        setSelectedMonthIdx(monthIdx);
       }
     };
 
