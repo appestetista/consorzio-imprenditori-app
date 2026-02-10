@@ -221,6 +221,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
             visibleMonth={visibleMonthLabel.month}
             visibleYear={visibleMonthLabel.year}
             monthColor={currentMonthColor}
+            onDateSelect={handleDateSelect}
           />
         )}
       </div>

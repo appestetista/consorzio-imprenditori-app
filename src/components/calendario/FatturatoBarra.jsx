@@ -9,7 +9,7 @@ const MONTH_COLORS = [
   '#f97316', '#ef4444', '#06b6d4', '#a855f7', '#6366f1', '#0ea5e9'
 ];
 
-export default function FatturatoBarra({ selectedDate, userEmail, onScrollSync, scrollRef: externalScrollRef, visibleMonth, visibleYear, monthColor: externalMonthColor }) {
+export default function FatturatoBarra({ selectedDate, userEmail, onScrollSync, scrollRef: externalScrollRef, visibleMonth, visibleYear, monthColor: externalMonthColor, onDateSelect }) {
   const [editingDay, setEditingDay] = useState(null);
   const [inputValue, setInputValue] = useState('');
   const [showObjectiveInput, setShowObjectiveInput] = useState(false);
@@ -146,8 +146,13 @@ export default function FatturatoBarra({ selectedDate, userEmail, onScrollSync, 
 
   const handleDayClick = (day) => {
     if (day.isFuture) return;
+    // Aggiorna la data selezionata nel parent
+    if (onDateSelect) {
+      const newDate = new Date(displayYear, day.month, day.day);
+      onDateSelect(newDate);
+    }
     setEditingDay(day.date);
-    setInputValue(day.importo > 0 ? String(day.importo) : '');
+    setInputValue('');
   };
 
   const handleSave = () => {
