@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { LayoutGrid, Plus, AudioLines } from 'lucide-react';
+import { Plus } from 'lucide-react';
+import NoteEditor from './NoteEditor';
 
 export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMonth, visibleYear, onClose, onTimeSelect, onDateChange, monthColor = '#a3e635' }) {
   const scrollRef = useRef(null);
@@ -8,6 +9,7 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
   const isScrollingRef = useRef(false);
   const lastScrollTop = useRef(0);
   const [selectedTime, setSelectedTime] = useState(null);
+  const [showNoteEditor, setShowNoteEditor] = useState(false);
 
   // Genera tutte le ore del giorno con intervalli di 5 minuti
   const generateTimeSlots = () => {
@@ -169,6 +171,23 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
       year: 'numeric' 
     })} ( ${displayDate.toLocaleDateString('it-IT', { weekday: 'long' })} )`;
 
+  const handleNoteSave = (noteData) => {
+    console.log('Nota salvata:', noteData);
+    // TODO: salvare la nota nel database
+    setSelectedTime(null);
+  };
+
+  if (showNoteEditor) {
+    return (
+      <NoteEditor 
+        selectedDate={selectedDate}
+        selectedTime={selectedTime}
+        onClose={() => setShowNoteEditor(false)}
+        onSave={handleNoteSave}
+      />
+    );
+  }
+
   return (
     <div className="bg-slate-900 w-full flex h-full">
       {/* Fascia verticale con data completa ruotata */}
@@ -225,8 +244,7 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
                   className="w-6 h-6 rounded-full bg-amber-500 hover:bg-amber-400 flex items-center justify-center mr-2 transition-colors"
                   onClick={(e) => {
                     e.stopPropagation();
-                    // TODO: navigare alla schermata successiva
-                    console.log('Crea evento per:', slot.timeString);
+                    setShowNoteEditor(true);
                   }}
                 >
                   <Plus className="w-4 h-4 text-white" />
