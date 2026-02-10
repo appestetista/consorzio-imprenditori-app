@@ -124,6 +124,21 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
     return () => scrollContainer.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Aggiorna l'etichetta quando selectedDate cambia (es. dal VerticalTimePicker)
+  useEffect(() => {
+    if (selectedDate) {
+      const d = new Date(selectedDate);
+      const newMonth = d.getMonth();
+      const newYear = d.getFullYear();
+      setVisibleMonth(prev => {
+        if (prev.name !== MONTHS[newMonth] || prev.year !== newYear) {
+          return { name: MONTHS[newMonth], year: newYear, color: MONTH_COLORS[newMonth] };
+        }
+        return prev;
+      });
+    }
+  }, [selectedDate]);
+
   // Notifica il colore e il mese al parent quando cambia visibleMonth (fuori dal rendering)
   useEffect(() => {
     if (onMonthColorChange) {
@@ -173,10 +188,18 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
     }
   }, [selectedDate, currentYear]);
 
-  const handleDayClick = (dayData) => {
+  const handleDayClick = (dayData, monthData) => {
     if (onDateSelect) {
       onDateSelect(dayData.date);
     }
+    // Aggiorna immediatamente l'etichetta del mese quando si clicca su un giorno
+    const newMonth = dayData.date.getMonth();
+    const newYear = dayData.date.getFullYear();
+    setVisibleMonth({ 
+      name: MONTHS[newMonth], 
+      year: newYear, 
+      color: MONTH_COLORS[newMonth] 
+    });
   };
 
   // Calcola percentuale anno trascorso
@@ -209,7 +232,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                 ref={dayData.isToday ? todayRef : null}
                 data-day-info={`${monthData.year}-${monthData.month}`}
                 data-date={`${monthData.year}-${monthData.month}-${dayData.day}`}
-                onClick={() => handleDayClick(dayData)}
+                onClick={() => handleDayClick(dayData, monthData)}
                 className={cn(
                   "flex flex-col items-center justify-end cursor-pointer transition-all",
                   "border-r border-slate-700/30",
