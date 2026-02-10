@@ -1,5 +1,4 @@
 import React, { useRef, useEffect } from 'react';
-import { X, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function VerticalTimePicker({ selectedDate, onClose, onTimeSelect, onDateChange, monthColor = '#a3e635' }) {
