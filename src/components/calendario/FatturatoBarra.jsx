@@ -151,8 +151,8 @@ export default function FatturatoBarra({ selectedDate, userEmail, onScrollSync, 
   };
 
   const handleSave = () => {
-    if (editingDay && inputValue) {
-      saveMutation.mutate({ data: editingDay, importo: parseFloat(inputValue) });
+    if (editingDay && inputValue !== '') {
+      saveMutation.mutate({ data: editingDay, importo: parseFloat(inputValue) || 0 });
     }
   };
 
@@ -291,12 +291,12 @@ export default function FatturatoBarra({ selectedDate, userEmail, onScrollSync, 
                 setInputValue(e.target.value);
               }}
               onBlur={() => {
-                if (editingDay && inputValue) {
+                if (editingDay && inputValue !== '') {
                   handleSave();
                 }
               }}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' && editingDay && inputValue) {
+                if (e.key === 'Enter' && editingDay && inputValue !== '') {
                   handleSave();
                 }
               }}
