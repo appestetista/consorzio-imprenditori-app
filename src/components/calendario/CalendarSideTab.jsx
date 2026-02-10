@@ -124,21 +124,27 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <button
-                onClick={() => {
-                  // Seleziona oggi come data
-                  const today = new Date();
-                  today.setHours(0, 0, 0, 0);
-                  if (onDateSelect) {
-                    onDateSelect(today);
-                  }
-                  // Scrolla al giorno di oggi
-                  goToTodayRef.current?.();
-                }}
-                className="text-xs bg-lime-400/20 text-lime-400 px-3 py-1.5 rounded-md hover:bg-lime-400/30 transition-colors font-semibold"
-              >
-                Oggi
-              </button>
+              {/* Divisorio verticale */}
+              <div className="w-px h-10 bg-slate-600 mx-1" />
+
+              <div className="flex flex-col items-center">
+                <span className="text-[9px] text-slate-500 uppercase tracking-wider mb-0.5">torna a</span>
+                <button
+                  onClick={() => {
+                    // Seleziona oggi come data
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    if (onDateSelect) {
+                      onDateSelect(today);
+                    }
+                    // Scrolla al giorno di oggi
+                    goToTodayRef.current?.();
+                  }}
+                  className="text-xs bg-lime-400/20 text-lime-400 px-3 py-1.5 rounded-md hover:bg-lime-400/30 transition-colors font-semibold"
+                >
+                  Oggi
+                </button>
+              </div>
               {showTimePicker && (
                 <button
                   onClick={() => setShowTimePicker(false)}
