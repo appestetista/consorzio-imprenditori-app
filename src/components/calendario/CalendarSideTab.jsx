@@ -105,9 +105,9 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           </div>
         )}
 
-        {/* Etichette come tab attaccate al contenuto sotto */}
+        {/* Etichette come tab attaccate al contenuto sotto - spazio minimo */}
         {selectedDate && (
-          <div className="flex justify-between items-end px-2 pb-0">
+          <div className="flex justify-between items-end px-2 -mb-1">
             {/* Torna Oggi a sinistra - solo se NON è oggi */}
             {new Date(selectedDate).toDateString() !== new Date().toDateString() ? (
               <button
