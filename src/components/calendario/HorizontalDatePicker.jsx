@@ -19,7 +19,9 @@ const MONTH_COLORS = [
   '#0ea5e9', // Dicembre - sky
 ];
 
-export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoToToday, onMonthColorChange }) {
+const MONTHS_SHORT = ['G', 'F', 'M', 'A', 'M', 'G', 'L', 'A', 'S', 'O', 'N', 'D'];
+
+export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoToToday, onMonthColorChange, onScrollToMonth }) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   
@@ -157,13 +159,24 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
     }
   };
 
+  const scrollToMonth = (monthIdx) => {
+    if (!scrollRef.current) return;
+    // Trova il primo giorno del mese richiesto nell'anno corrente visualizzato
+    const targetYear = visibleMonth.year;
+    const monthElement = scrollRef.current.querySelector(`[data-month="${targetYear}-${monthIdx}"]`);
+    if (monthElement) {
+      monthElement.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+    }
+  };
+
   // Esponi la funzione goToToday e scrollToDate
   React.useEffect(() => {
     if (onGoToToday) {
       onGoToToday.current = goToToday;
       onGoToToday.scrollToDate = scrollToDate;
+      onGoToToday.scrollToMonth = scrollToMonth;
     }
-  }, []);
+  }, [visibleMonth.year]);
 
   const handleDayClick = (dayData) => {
     if (onDateSelect) {
@@ -171,14 +184,50 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
     }
   };
 
+  // Calcola percentuale anno trascorso
+  const now = new Date();
+  const startOfYear = new Date(now.getFullYear(), 0, 1);
+  const endOfYear = new Date(now.getFullYear() + 1, 0, 1);
+  const yearProgress = ((now - startOfYear) / (endOfYear - startOfYear)) * 100;
+  const currentMonthIdx = now.getMonth();
+
   return (
     <div className="bg-slate-800 border-t border-slate-700 overflow-hidden">
-
+      {/* Barra mesi dell'anno con progress */}
+      <div className="px-2 pt-1 pb-0.5">
+        <div className="flex items-center gap-0.5 relative">
+          {MONTHS_SHORT.map((m, idx) => {
+            const isCurrentMonth = idx === currentMonthIdx;
+            const isPast = idx < currentMonthIdx;
+            return (
+              <button
+                key={idx}
+                onClick={() => {
+                  if (onGoToToday?.scrollToMonth) {
+                    onGoToToday.scrollToMonth(idx);
+                  }
+                }}
+                className="flex-1 py-0.5 text-[8px] font-bold rounded-sm transition-all"
+                style={{
+                  backgroundColor: isPast || isCurrentMonth ? MONTH_COLORS[idx] : 'transparent',
+                  color: isPast || isCurrentMonth ? '#0f172a' : MONTH_COLORS[idx],
+                  opacity: isPast ? 0.6 : 1
+                }}
+              >
+                {m}
+              </button>
+            );
+          })}
+        </div>
+        <div className="text-center text-[9px] text-slate-500 mt-0.5">
+          {yearProgress.toFixed(0)}% dell'anno
+        </div>
+      </div>
 
       {/* Calendario orizzontale scrollabile continuo */}
       <div 
         ref={scrollRef}
-        className="flex overflow-x-auto py-3 px-2 scrollbar-hide items-end"
+        className="flex overflow-x-auto py-1 px-1 scrollbar-hide items-end"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {monthsData.map((monthData, monthIdx) => (
@@ -199,24 +248,26 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                 className={cn(
                   "flex flex-col items-center justify-end cursor-pointer transition-all",
                   "border-r border-slate-700/30",
-                  "px-1 pb-1"
+                  "px-0.5 pb-0.5"
                 )}
-                style={{ minWidth: '24px' }}
+                style={{ minWidth: '22px' }}
               >
-                {/* Linea verticale - lime per oggi, bianco per altri */}
+                {/* Linea verticale - lime per oggi, colore mese se selezionato, bianco per altri */}
                 <div 
-                  className="w-[2px] mb-1 rounded-full transition-all"
+                  className="w-[2px] mb-0.5 rounded-full transition-all"
                   style={{ 
-                    height: dayData.isWeekend ? '40px' : '24px',
-                    backgroundColor: dayData.isToday ? '#a3e635' : '#ffffff'
+                    height: dayData.isWeekend ? '32px' : '18px',
+                    backgroundColor: dayData.isToday ? '#a3e635' : 
+                      (dayData.isSelected && !dayData.isToday) ? monthData.color : '#ffffff'
                   }}
                 />
 
                 {/* Numero del giorno */}
                 <span 
-                  className="text-xs font-bold leading-tight"
+                  className="text-[10px] font-bold leading-tight"
                   style={{ 
-                    color: dayData.isToday ? '#a3e635' : '#ffffff'
+                    color: dayData.isToday ? '#a3e635' : 
+                      (dayData.isSelected && !dayData.isToday) ? monthData.color : '#ffffff'
                   }}
                 >
                   {dayData.day}
@@ -224,9 +275,10 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
 
                 {/* Lettera del giorno della settimana */}
                 <span 
-                  className="text-[9px] font-medium leading-tight"
+                  className="text-[8px] font-medium leading-tight"
                   style={{ 
-                    color: dayData.isToday ? '#a3e635' : '#94a3b8'
+                    color: dayData.isToday ? '#a3e635' : 
+                      (dayData.isSelected && !dayData.isToday) ? monthData.color : '#94a3b8'
                   }}
                 >
                   {DAYS_SHORT[dayData.dayOfWeek]}
@@ -235,7 +287,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                 {/* Pulsante/indicatore selezionabile - lime per oggi, colore mese per altri */}
                 <div 
                   className={cn(
-                    "w-5 h-5 mt-1 rounded-full flex items-center justify-center transition-all",
+                    "w-4 h-4 mt-0.5 rounded-full flex items-center justify-center transition-all",
                     dayData.isSelected 
                       ? "scale-110" 
                       : "opacity-50 hover:opacity-80"
@@ -245,13 +297,13 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                   }}
                 >
                   {dayData.isSelected && (
-                    <div className="w-2 h-2 rounded-full bg-slate-900" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-slate-900" />
                   )}
                 </div>
 
                 {/* Trattino fisso sotto il puntino SOLO per oggi */}
                 {dayData.isToday && (
-                  <div className="w-4 h-[3px] mt-1 rounded-full bg-lime-400" />
+                  <div className="w-3 h-[2px] mt-0.5 rounded-full bg-lime-400" />
                 )}
               </div>
             ))}

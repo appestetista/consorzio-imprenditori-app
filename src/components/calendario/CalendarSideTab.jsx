@@ -105,18 +105,18 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           </div>
         )}
 
-        {/* Etichette esposte sopra la barra (posizionate fuori dal pannello) */}
+        {/* Etichette esposte sopra il pannello */}
         {selectedDate && (
           <>
-            {/* X per chiudere - triangolo in alto a destra */}
+            {/* X per chiudere - in alto a destra */}
             <button
               onClick={() => {
                 setIsOpen(false);
                 setShowTimePicker(false);
               }}
-              className="absolute -top-6 right-2 px-2 py-0.5 rounded-t-md bg-slate-800 border border-b-0 border-slate-600"
+              className="absolute -top-5 right-1 px-1.5 py-0.5 rounded-t-md bg-slate-700 border border-b-0 border-slate-600"
             >
-              <X className="w-3 h-3 text-slate-400" />
+              <X className="w-2.5 h-2.5 text-slate-400" />
             </button>
 
             {/* Torna Oggi a sinistra - solo se NON è oggi */}
@@ -130,15 +130,15 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                   }
                   goToTodayRef.current?.();
                 }}
-                className="absolute -top-6 left-2 px-2 py-0.5 rounded-t-md text-xs font-semibold bg-lime-400/20 text-lime-400 border border-b-0 border-lime-400/30"
+                className="absolute -top-5 left-1 px-1.5 py-0.5 rounded-t-md text-[10px] font-semibold bg-lime-400/20 text-lime-400 border border-b-0 border-lime-400/30"
               >
-                torna oggi
+                oggi
               </button>
             )}
             
-            {/* Mese/anno a destra */}
+            {/* Mese/anno a destra della X */}
             <div 
-              className="absolute -top-6 right-12 px-2 py-0.5 rounded-t-md text-xs font-semibold border border-b-0"
+              className="absolute -top-5 right-8 px-1.5 py-0.5 rounded-t-md text-[10px] font-semibold border border-b-0"
               style={{ 
                 backgroundColor: new Date(selectedDate).toDateString() === new Date().toDateString() ? 'rgba(163, 230, 53, 0.2)' : `${currentMonthColor}20`,
                 color: new Date(selectedDate).toDateString() === new Date().toDateString() ? '#a3e635' : currentMonthColor,
