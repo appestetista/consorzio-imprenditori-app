@@ -71,6 +71,15 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
             selectedDate={selectedDate}
             onClose={() => setShowTimePicker(false)}
             onTimeSelect={handleTimeSelect}
+            onDateChange={(newDate) => {
+              if (onDateSelect) {
+                onDateSelect(newDate);
+              }
+              // Scrolla anche il calendario orizzontale alla nuova data
+              setTimeout(() => {
+                goToTodayRef.current?.();
+              }, 100);
+            }}
           />
         </div>
       )}
