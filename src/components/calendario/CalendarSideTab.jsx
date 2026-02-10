@@ -51,11 +51,11 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
         </div>
       </button>
 
-      {/* Pannello orari - copre tutto lo spazio sopra il calendario */}
+      {/* Pannello orari - copre tutto lo spazio sopra il calendario, congiunto */}
       {isOpen && showTimePicker && selectedDate && (
         <div 
-          className="fixed left-0 right-0 top-0 z-50 bg-slate-900"
-          style={{ bottom: '280px' }}
+          className="fixed left-0 right-0 top-0 z-50 bg-slate-900 border-b border-slate-700"
+          style={{ bottom: '220px' }}
         >
           <VerticalTimePicker 
             selectedDate={selectedDate}
@@ -98,18 +98,28 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           onDateSelect={handleDateSelect}
         />
 
-        {/* Data selezionata */}
+        {/* Data selezionata con X in basso a destra */}
         {selectedDate && (
-          <div className="px-4 py-3 bg-slate-800/50 border-t border-slate-700">
-            <p className="text-slate-400 text-xs">Data selezionata:</p>
-            <p className="text-lime-400 font-semibold">
-              {new Date(selectedDate).toLocaleDateString('it-IT', { 
-                weekday: 'long', 
-                day: 'numeric', 
-                month: 'long', 
-                year: 'numeric' 
-              })}
-            </p>
+          <div className="px-4 py-3 bg-slate-800/50 border-t border-slate-700 flex items-center justify-between">
+            <div>
+              <p className="text-slate-400 text-xs">Data selezionata:</p>
+              <p className="text-lime-400 font-semibold">
+                {new Date(selectedDate).toLocaleDateString('it-IT', { 
+                  weekday: 'long', 
+                  day: 'numeric', 
+                  month: 'long', 
+                  year: 'numeric' 
+                })}
+              </p>
+            </div>
+            {showTimePicker && (
+              <button
+                onClick={() => setShowTimePicker(false)}
+                className="p-2 rounded-lg hover:bg-slate-700 transition-colors"
+              >
+                <X className="w-5 h-5 text-slate-400" />
+              </button>
+            )}
           </div>
         )}
       </div>

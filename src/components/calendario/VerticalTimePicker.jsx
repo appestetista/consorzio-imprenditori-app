@@ -74,12 +74,22 @@ export default function VerticalTimePicker({ selectedDate, onClose, onTimeSelect
               ref={isCurrentTime ? currentHourRef : null}
               onClick={() => handleTimeClick(slot)}
               className={cn(
-                "flex items-center justify-between cursor-pointer transition-all hover:bg-slate-700 rounded px-2",
+                "flex items-center cursor-pointer transition-all hover:bg-slate-700 rounded px-2",
                 isCurrentTime && "bg-lime-400/20",
                 slot.isFullHour ? "h-8" : "h-5"
               )}
             >
-              {/* Orario a sinistra */}
+              {/* Linea a sinistra */}
+              <div 
+                className="h-[2px] w-4 rounded-full mr-2"
+                style={{ 
+                  backgroundColor: isCurrentTime ? '#a3e635' : 
+                    slot.isFullHour ? '#a3e635' : 
+                    slot.isHalfHour ? '#64748b' : '#475569'
+                }}
+              />
+
+              {/* Orario a destra */}
               <span 
                 className={cn(
                   "font-mono",
@@ -90,29 +100,9 @@ export default function VerticalTimePicker({ selectedDate, onClose, onTimeSelect
               >
                 {slot.timeString}
               </span>
-
-              {/* Linea a destra */}
-              <div 
-                className="h-[2px] w-4 rounded-full"
-                style={{ 
-                  backgroundColor: isCurrentTime ? '#a3e635' : 
-                    slot.isFullHour ? '#a3e635' : 
-                    slot.isHalfHour ? '#64748b' : '#475569'
-                }}
-              />
             </div>
           );
         })}
-      </div>
-
-      {/* Pulsante chiudi in basso */}
-      <div className="px-4 py-2 border-t border-slate-700 flex justify-end">
-        <button
-          onClick={onClose}
-          className="p-2 rounded-lg hover:bg-slate-700 transition-colors"
-        >
-          <X className="w-5 h-5 text-slate-400" />
-        </button>
       </div>
     </div>
   );
