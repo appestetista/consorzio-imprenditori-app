@@ -152,8 +152,8 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
 
   const scrollToMonth = (monthIdx) => {
     if (!scrollRef.current) return;
-    // Trova il primo giorno del mese richiesto nell'anno corrente visualizzato
-    const targetYear = visibleMonth.year;
+    // Usa l'anno della data selezionata o l'anno corrente
+    const targetYear = selectedDate ? new Date(selectedDate).getFullYear() : currentYear;
     const monthElement = scrollRef.current.querySelector(`[data-month="${targetYear}-${monthIdx}"]`);
     if (monthElement) {
       monthElement.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
@@ -167,7 +167,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
       onGoToToday.scrollToDate = scrollToDate;
       onGoToToday.scrollToMonth = scrollToMonth;
     }
-  }, [visibleMonth.year]);
+  }, [selectedDate, currentYear]);
 
   const handleDayClick = (dayData) => {
     if (onDateSelect) {
@@ -302,9 +302,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                 key={idx}
                 onClick={() => {
                   setSelectedMonthIdx(idx);
-                  if (onGoToToday?.scrollToMonth) {
-                    onGoToToday.scrollToMonth(idx);
-                  }
+                  scrollToMonth(idx);
                 }}
                 className="flex-1 text-[10px] font-semibold text-center hover:opacity-70 transition-all"
                 style={{ color }}
