@@ -101,33 +101,6 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
         </div>
       )}
 
-      {/* Pannello orari - copre tutto lo spazio sopra il calendario, congiunto */}
-      {isOpen && showTimePicker && selectedDate && (
-        <div 
-          className="fixed left-0 right-0 top-0 z-50 bg-slate-900 border-b border-slate-700"
-          style={{ bottom: '220px' }}
-        >
-          <VerticalTimePicker 
-            selectedDate={selectedDate}
-            onClose={() => {
-              setShowTimePicker(false);
-              setIsOpen(false);
-            }}
-            onTimeSelect={handleTimeSelect}
-            onDateChange={(newDate) => {
-              if (onDateSelect) {
-                onDateSelect(newDate);
-              }
-              // Scrolla anche il calendario orizzontale alla nuova data
-              setTimeout(() => {
-                goToTodayRef.current?.();
-              }, 100);
-            }}
-            monthColor={currentMonthColor}
-          />
-        </div>
-      )}
-
       {/* Pannello calendario - si apre dal basso */}
       <div
         className={cn(
@@ -136,6 +109,21 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           isOpen ? "translate-y-0" : "translate-y-full"
         )}
       >
+        {/* Etichetta mese/anno in alto a destra */}
+        {selectedDate && (
+          <div className="absolute top-0 right-0 z-10">
+            <div 
+              className="px-2 py-1 rounded-bl-lg text-xs font-semibold"
+              style={{ 
+                backgroundColor: new Date(selectedDate).toDateString() === new Date().toDateString() ? 'rgba(163, 230, 53, 0.2)' : `${currentMonthColor}20`,
+                color: new Date(selectedDate).toDateString() === new Date().toDateString() ? '#a3e635' : currentMonthColor
+              }}
+            >
+              {new Date(selectedDate).toLocaleDateString('it-IT', { month: 'short' }).toLowerCase()} {new Date(selectedDate).getFullYear()}
+            </div>
+          </div>
+        )}
+
         {/* Header del pannello - visibile solo se NON c'è il time picker */}
         {!showTimePicker && (
           <div className="flex items-center justify-between p-4 border-b border-slate-700">
