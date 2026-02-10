@@ -96,6 +96,12 @@ export default function FatturatoBarra({ selectedDate, userEmail, onScrollSync, 
     ? fatturatiAnno.find(f => f.data === selectedDayStr)?.importo || 0 
     : 0;
 
+  // Resetta inputValue quando cambia il giorno selezionato
+  useEffect(() => {
+    setInputValue('');
+    setEditingDay(null);
+  }, [selectedDayStr]);
+
   // Genera tutti i mesi dell'anno con i loro giorni (come il calendario sopra)
   const generateYearData = () => {
     const months = [];
@@ -271,13 +277,15 @@ export default function FatturatoBarra({ selectedDate, userEmail, onScrollSync, 
             isSelectedDayFuture && "opacity-40"
           )}
         >
-          <span className="text-[7px] text-white uppercase">Incasso giorno</span>
+          <span className="text-[9px] text-white uppercase">
+            Incasso del giorno {selectedDayNum || ''}
+          </span>
           {isSelectedDayFuture ? (
-            <span className="text-[9px] text-red-400">Futuro</span>
+            <span className="text-[10px] text-red-400">Futuro</span>
           ) : (
             <input
               type="number"
-              value={editingDay === selectedDayStr ? inputValue : (fatturatoGiornoSelezionato > 0 ? fatturatoGiornoSelezionato : '')}
+              value={inputValue}
               onChange={(e) => {
                 setEditingDay(selectedDayStr);
                 setInputValue(e.target.value);
@@ -292,8 +300,8 @@ export default function FatturatoBarra({ selectedDate, userEmail, onScrollSync, 
                   handleSave();
                 }
               }}
-              placeholder="€0"
-              className="bg-transparent text-lime-400 text-sm font-bold w-full outline-none"
+              placeholder={fatturatoGiornoSelezionato > 0 ? `€${fatturatoGiornoSelezionato}` : '€0'}
+              className="bg-transparent text-lime-400 text-base font-bold w-full outline-none"
               disabled={isSelectedDayFuture}
             />
           )}
@@ -301,8 +309,8 @@ export default function FatturatoBarra({ selectedDate, userEmail, onScrollSync, 
 
         {/* Totale mese al centro */}
         <div className="flex flex-col items-center justify-center bg-slate-800 rounded px-3 py-1">
-          <span className="text-[7px] text-white uppercase">Incasso attuale mese</span>
-          <span className="text-sm font-bold" style={{ color: monthColor }}>
+          <span className="text-[9px] text-white uppercase">Incasso mese</span>
+          <span className="text-base font-bold" style={{ color: monthColor }}>
             €{formatCurrency(totaleMese)}
           </span>
         </div>
@@ -311,8 +319,8 @@ export default function FatturatoBarra({ selectedDate, userEmail, onScrollSync, 
         <div 
           className="flex-1 flex flex-col items-end bg-slate-800 rounded px-2 py-1"
         >
-          <span className="text-[7px] text-white uppercase flex items-center gap-0.5">
-            <Target className="w-2 h-2" />
+          <span className="text-[9px] text-white uppercase flex items-center gap-0.5">
+            <Target className="w-2.5 h-2.5" />
             Obiettivo mese
           </span>
           <input
@@ -333,7 +341,7 @@ export default function FatturatoBarra({ selectedDate, userEmail, onScrollSync, 
               }
             }}
             placeholder="€0"
-            className="bg-transparent text-lime-400 text-sm font-bold w-full text-right outline-none"
+            className="bg-transparent text-lime-400 text-base font-bold w-full text-right outline-none"
           />
         </div>
       </div>
