@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { Calendar, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import HorizontalDatePicker from './HorizontalDatePicker';
+import VerticalTimePicker from './VerticalTimePicker';
 
 export default function CalendarSideTab({ selectedDate, onDateSelect }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
 
   const toggleCalendar = () => {
     setIsOpen(!isOpen);
@@ -14,6 +16,13 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
     if (onDateSelect) {
       onDateSelect(date);
     }
+    // Mostra il time picker quando si seleziona una data
+    setShowTimePicker(true);
+  };
+
+  const handleTimeSelect = (time) => {
+    console.log('Orario selezionato:', time);
+    // Qui puoi gestire la selezione dell'orario
   };
 
   return (
@@ -45,10 +54,11 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
       {/* Pannello calendario - si apre dal basso */}
       <div
         className={cn(
-          "fixed left-0 right-0 bottom-0 z-50 transition-transform duration-300 ease-out",
+          "fixed left-0 bottom-0 z-50 transition-transform duration-300 ease-out",
           "bg-slate-900 border-t border-lime-400/30 shadow-2xl",
           isOpen ? "translate-y-0" : "translate-y-full"
         )}
+        style={{ right: showTimePicker && selectedDate ? '100px' : '0' }}
       >
         {/* Header del pannello */}
         <div className="flex items-center justify-between p-4 border-b border-slate-700">
@@ -57,7 +67,10 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
             <span className="text-white font-semibold">Seleziona Data</span>
           </div>
           <button
-            onClick={() => setIsOpen(false)}
+            onClick={() => {
+              setIsOpen(false);
+              setShowTimePicker(false);
+            }}
             className="p-2 rounded-lg hover:bg-slate-800 transition-colors"
           >
             <X className="w-5 h-5 text-slate-400" />
@@ -85,6 +98,20 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           </div>
         )}
       </div>
+
+      {/* Pannello orari verticale sulla destra */}
+      {isOpen && showTimePicker && selectedDate && (
+        <div 
+          className="fixed right-0 bottom-0 z-50 transition-all duration-300"
+          style={{ height: '280px' }}
+        >
+          <VerticalTimePicker 
+            selectedDate={selectedDate}
+            onClose={() => setShowTimePicker(false)}
+            onTimeSelect={handleTimeSelect}
+          />
+        </div>
+      )}
 
       {/* Overlay scuro quando aperto */}
       {isOpen && (
