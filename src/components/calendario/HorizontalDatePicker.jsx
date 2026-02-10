@@ -52,26 +52,16 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
     return days;
   };
 
-  // Genera 12 mesi (6 prima e 6 dopo il mese corrente)
+  // Genera tutti i mesi dell'anno corrente (1 gen - 31 dic)
   const generateMonthsData = () => {
     const months = [];
-    for (let i = -6; i <= 6; i++) {
-      let month = currentMonth + i;
-      let year = currentYear;
-      
-      while (month < 0) {
-        month += 12;
-        year -= 1;
-      }
-      while (month > 11) {
-        month -= 12;
-        year += 1;
-      }
-      
-      const daysInMonth = getDaysInMonth(month, year);
+    const displayYear = selectedDate ? new Date(selectedDate).getFullYear() : currentYear;
+    
+    for (let month = 0; month < 12; month++) {
+      const daysInMonth = getDaysInMonth(month, displayYear);
       months.push({
         month,
-        year,
+        year: displayYear,
         monthName: MONTHS[month],
         color: MONTH_COLORS[month],
         days: daysInMonth
@@ -198,7 +188,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
       {/* Calendario orizzontale scrollabile continuo - in alto */}
       <div 
         ref={scrollRef}
-        className="flex overflow-x-auto py-1 px-1 scrollbar-hide items-end flex-1"
+        className="flex overflow-x-auto px-1 scrollbar-hide items-end flex-1"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {monthsData.map((monthData, monthIdx) => (
