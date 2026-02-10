@@ -9,7 +9,7 @@ const MONTH_COLORS = [
   '#f97316', '#ef4444', '#06b6d4', '#a855f7', '#6366f1', '#0ea5e9'
 ];
 
-export default function FatturatoBarra({ selectedDate, userEmail, onScrollSync, scrollRef: externalScrollRef, visibleMonth, visibleYear }) {
+export default function FatturatoBarra({ selectedDate, userEmail, onScrollSync, scrollRef: externalScrollRef, visibleMonth, visibleYear, monthColor: externalMonthColor }) {
   const [editingDay, setEditingDay] = useState(null);
   const [inputValue, setInputValue] = useState('');
   const [showObjectiveInput, setShowObjectiveInput] = useState(false);
@@ -24,7 +24,8 @@ export default function FatturatoBarra({ selectedDate, userEmail, onScrollSync, 
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
   // Giorno di oggi nel mese visualizzato (null se mese diverso)
   const todayDay = today.getMonth() === currentMonth && today.getFullYear() === currentYear ? today.getDate() : null;
-  const monthColor = MONTH_COLORS[currentMonth];
+  // Usa il colore passato dal parent (sincronizzato col calendario) oppure quello del mese corrente
+  const monthColor = externalMonthColor || MONTH_COLORS[currentMonth];
 
   // Fetch fatturati del mese corrente
   const { data: fatturatiMese = [] } = useQuery({

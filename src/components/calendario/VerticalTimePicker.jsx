@@ -49,11 +49,15 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
   ];
 
   // Determina se è oggi
-  const isToday = selectedDate && new Date(selectedDate).toDateString() === new Date().toDateString();
+  const today = new Date();
+  const displayDay = visibleDay || (selectedDate ? new Date(selectedDate).getDate() : today.getDate());
+  const displayMonth = visibleMonth !== undefined ? visibleMonth : (selectedDate ? new Date(selectedDate).getMonth() : today.getMonth());
+  const displayYear = visibleYear || (selectedDate ? new Date(selectedDate).getFullYear() : today.getFullYear());
   
-  // Colore basato sul mese della data selezionata
-  const selectedMonth = selectedDate ? new Date(selectedDate).getMonth() : new Date().getMonth();
-  const currentMonthColor = MONTH_COLORS[selectedMonth];
+  const isToday = displayDay === today.getDate() && displayMonth === today.getMonth() && displayYear === today.getFullYear();
+  
+  // Colore basato sul mese visibile (non selezionato)
+  const currentMonthColor = MONTH_COLORS[displayMonth];
   
   // Colore da usare: lime se oggi, colore del mese altrimenti
   const activeColor = isToday ? '#a3e635' : currentMonthColor;
@@ -148,10 +152,7 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
   const formattedDayNumber = selectedDate ? new Date(selectedDate).getDate() : '';
   const formattedMonth = selectedDate ? new Date(selectedDate).toLocaleDateString('it-IT', { month: 'short' }).toLowerCase() : '';
 
-  // Formatta la data completa per la fascia laterale - usa visibleDay/Month/Year per sincronizzazione
-  const displayDay = visibleDay || (selectedDate ? new Date(selectedDate).getDate() : new Date().getDate());
-  const displayMonth = visibleMonth !== undefined ? visibleMonth : (selectedDate ? new Date(selectedDate).getMonth() : new Date().getMonth());
-  const displayYear = visibleYear || (selectedDate ? new Date(selectedDate).getFullYear() : new Date().getFullYear());
+  // Formatta la data completa per la fascia laterale
   const displayDate = new Date(displayYear, displayMonth, displayDay);
 
   const formattedFullDate = `${displayDate.toLocaleDateString('it-IT', { 

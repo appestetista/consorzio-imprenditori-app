@@ -177,7 +177,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                 <span 
                   className="px-2 py-0.5 rounded text-[10px] font-semibold"
                   style={{ 
-                    backgroundColor: new Date(selectedDate).toDateString() === new Date().toDateString() ? 'rgba(163, 230, 53, 0.9)' : currentMonthColor,
+                    backgroundColor: currentMonthColor,
                     color: '#0f172a'
                   }}
                 >
@@ -220,6 +220,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
             scrollRef={fatturatoScrollRef}
             visibleMonth={visibleMonthLabel.month}
             visibleYear={visibleMonthLabel.year}
+            monthColor={currentMonthColor}
           />
         )}
       </div>
