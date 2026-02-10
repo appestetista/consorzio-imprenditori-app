@@ -32,11 +32,31 @@ export default function VerticalTimePicker({ selectedDate, onClose, onTimeSelect
 
   const timeSlots = generateTimeSlots();
 
+  // Colori per mese
+  const MONTH_COLORS = [
+    '#3b82f6', // Gennaio - blu
+    '#8b5cf6', // Febbraio - viola
+    '#ec4899', // Marzo - rosa
+    '#14b8a6', // Aprile - teal
+    '#22c55e', // Maggio - verde
+    '#eab308', // Giugno - giallo
+    '#f97316', // Luglio - arancione
+    '#ef4444', // Agosto - rosso
+    '#06b6d4', // Settembre - cyan
+    '#a855f7', // Ottobre - purple
+    '#6366f1', // Novembre - indigo
+    '#0ea5e9', // Dicembre - sky
+  ];
+
   // Determina se è oggi
   const isToday = selectedDate && new Date(selectedDate).toDateString() === new Date().toDateString();
   
+  // Colore basato sul mese della data selezionata
+  const selectedMonth = selectedDate ? new Date(selectedDate).getMonth() : new Date().getMonth();
+  const currentMonthColor = MONTH_COLORS[selectedMonth];
+  
   // Colore da usare: lime se oggi, colore del mese altrimenti
-  const activeColor = isToday ? '#a3e635' : monthColor;
+  const activeColor = isToday ? '#a3e635' : currentMonthColor;
 
   // Scroll all'ora corrente (se oggi) o alle 8:00 (se giorno futuro)
   useEffect(() => {
