@@ -21,7 +21,7 @@ const MONTH_COLORS = [
 
 const MONTHS_SHORT = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
 
-export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoToToday, onMonthColorChange, onVisibleMonthChange, onVisibleDayChange }) {
+export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoToToday, onMonthColorChange, onVisibleMonthChange, onVisibleDayChange, onScrollSync, scrollRef: externalScrollRef }) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   
@@ -81,12 +81,23 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
     }
   }, []);
 
+  // Esponi il ref dello scroll al parent per sincronizzazione
+  useEffect(() => {
+    if (externalScrollRef) {
+      externalScrollRef.current = scrollRef.current;
+    }
+  }, [externalScrollRef]);
+
   // Observer per rilevare il mese visibile durante lo scroll - più reattivo
   useEffect(() => {
     const scrollContainer = scrollRef.current;
     if (!scrollContainer) return;
 
     const handleScroll = () => {
+      // Notifica il parent dello scroll per sincronizzazione
+      if (onScrollSync) {
+        onScrollSync(scrollContainer.scrollLeft);
+      }
       const containerRect = scrollContainer.getBoundingClientRect();
       const centerX = containerRect.left + containerRect.width / 2;
 
