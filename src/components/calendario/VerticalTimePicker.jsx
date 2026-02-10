@@ -7,6 +7,7 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
   const currentHourRef = useRef(null);
   const isScrollingRef = useRef(false);
   const lastScrollTop = useRef(0);
+  const [selectedTime, setSelectedTime] = useState(null);
 
   // Genera tutte le ore del giorno con intervalli di 5 minuti
   const generateTimeSlots = () => {
@@ -136,6 +137,12 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
   const currentSlotMinute = Math.floor(currentMinute / 5) * 5;
 
   const handleTimeClick = (slot) => {
+    // Toggle selezione: se clicco sullo stesso, deseleziono
+    if (selectedTime === slot.timeString) {
+      setSelectedTime(null);
+    } else {
+      setSelectedTime(slot.timeString);
+    }
     if (onTimeSelect) {
       onTimeSelect(slot.timeString);
     }
@@ -194,6 +201,8 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
           const isCurrentTime = slot.hour === currentHour && 
             slot.minute === currentSlotMinute;
 
+          const isSelected = selectedTime === slot.timeString;
+
           return (
             <div
               key={idx}
@@ -202,21 +211,36 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
               onClick={() => handleTimeClick(slot)}
               className={cn(
                 "flex items-center cursor-pointer transition-all hover:bg-slate-700 rounded px-2",
-                slot.isFullHour ? "h-8" : "h-6"
+                slot.isFullHour ? "h-8" : "h-6",
+                isSelected && "bg-slate-700/50"
               )}
               style={{
-                backgroundColor: isCurrentTime && isToday ? 'rgba(163, 230, 53, 0.2)' : undefined
+                backgroundColor: isSelected ? 'rgba(100, 100, 100, 0.3)' : 
+                  (isCurrentTime && isToday) ? 'rgba(163, 230, 53, 0.2)' : undefined
               }}
             >
-              {/* Linea a sinistra */}
-              <div 
-                className="h-[2px] rounded-full mr-2"
-                style={{ 
-                  width: slot.isFullHour ? '20px' : '10px',
-                  backgroundColor: (isCurrentTime && isToday) ? '#a3e635' : 
-                    slot.isFullHour ? activeColor : '#475569'
-                }}
-              />
+              {/* Pulsante + giallo se selezionato, altrimenti linea */}
+              {isSelected ? (
+                <button 
+                  className="w-6 h-6 rounded-full bg-amber-500 hover:bg-amber-400 flex items-center justify-center mr-2 transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    // TODO: navigare alla schermata successiva
+                    console.log('Crea evento per:', slot.timeString);
+                  }}
+                >
+                  <Plus className="w-4 h-4 text-white" />
+                </button>
+              ) : (
+                <div 
+                  className="h-[2px] rounded-full mr-2"
+                  style={{ 
+                    width: slot.isFullHour ? '20px' : '10px',
+                    backgroundColor: (isCurrentTime && isToday) ? '#a3e635' : 
+                      slot.isFullHour ? activeColor : '#475569'
+                  }}
+                />
+              )}
 
               {/* Orario a destra */}
               <span 
