@@ -29,6 +29,11 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
   const [visibleMonthLabel, setVisibleMonthLabel] = useState({ month: new Date().getMonth(), year: new Date().getFullYear() });
   const [visibleDay, setVisibleDay] = useState(new Date().getDate());
   const [userEmail, setUserEmail] = useState(null);
+  
+  // Refs per sincronizzazione scroll
+  const calendarScrollRef = useRef(null);
+  const fatturatoScrollRef = useRef(null);
+  const isSyncingRef = useRef(false);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -64,6 +69,29 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
   const handleTimeSelect = (time) => {
     console.log('Orario selezionato:', time);
     // Qui puoi gestire la selezione dell'orario
+  };
+
+  // Sincronizza scroll tra calendario e fatturato
+  const handleCalendarScroll = (scrollLeft) => {
+    if (isSyncingRef.current) return;
+    isSyncingRef.current = true;
+    if (fatturatoScrollRef.current) {
+      fatturatoScrollRef.current.scrollLeft = scrollLeft;
+    }
+    requestAnimationFrame(() => {
+      isSyncingRef.current = false;
+    });
+  };
+
+  const handleFatturatoScroll = (scrollLeft) => {
+    if (isSyncingRef.current) return;
+    isSyncingRef.current = true;
+    if (calendarScrollRef.current) {
+      calendarScrollRef.current.scrollLeft = scrollLeft;
+    }
+    requestAnimationFrame(() => {
+      isSyncingRef.current = false;
+    });
   };
 
   return (
@@ -178,6 +206,8 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
               setVisibleDay(day);
               setVisibleMonthLabel({ month, year });
             }}
+            onScrollSync={handleCalendarScroll}
+            scrollRef={calendarScrollRef}
           />
         </div>
 
@@ -186,6 +216,8 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           <FatturatoBarra 
             selectedDate={selectedDate}
             userEmail={userEmail}
+            onScrollSync={handleFatturatoScroll}
+            scrollRef={fatturatoScrollRef}
           />
         )}
       </div>
