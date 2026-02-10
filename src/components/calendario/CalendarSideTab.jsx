@@ -77,37 +77,14 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
         </div>
       </button>
 
-      {/* Pannello orari - copre tutto lo spazio sopra il calendario, congiunto */}
-      {isOpen && showTimePicker && selectedDate && (
-        <div 
-          className="fixed left-0 right-0 top-0 z-50 bg-slate-900 border-b border-slate-700"
-          style={{ bottom: '220px' }}
-        >
-          <VerticalTimePicker 
-            selectedDate={selectedDate}
-            onClose={() => setShowTimePicker(false)}
-            onTimeSelect={handleTimeSelect}
-            onDateChange={(newDate) => {
-              if (onDateSelect) {
-                onDateSelect(newDate);
-              }
-              // Scrolla anche il calendario orizzontale alla nuova data
-              setTimeout(() => {
-                goToTodayRef.current?.();
-              }, 100);
-            }}
-            monthColor={currentMonthColor}
-          />
-        </div>
-      )}
-
       {/* Pannello calendario - si apre dal basso */}
       <div
         className={cn(
           "fixed left-0 right-0 bottom-0 z-50 transition-transform duration-300 ease-out",
-          "bg-slate-900 border-t border-lime-400/30 shadow-2xl relative",
+          "bg-slate-900 border-t border-lime-400/30 shadow-2xl",
           isOpen ? "translate-y-0" : "translate-y-full"
         )}
+        style={{ height: '220px' }}
       >
         {/* Etichetta mese/anno in alto a destra */}
         {selectedDate && (
@@ -200,6 +177,30 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           </div>
         )}
       </div>
+
+      {/* Pannello orari - copre tutto lo spazio sopra il calendario */}
+      {isOpen && showTimePicker && selectedDate && (
+        <div 
+          className="fixed left-0 right-0 top-0 z-50 bg-slate-900"
+          style={{ bottom: '220px' }}
+        >
+          <VerticalTimePicker 
+            selectedDate={selectedDate}
+            onClose={() => setShowTimePicker(false)}
+            onTimeSelect={handleTimeSelect}
+            onDateChange={(newDate) => {
+              if (onDateSelect) {
+                onDateSelect(newDate);
+              }
+              // Scrolla anche il calendario orizzontale alla nuova data
+              setTimeout(() => {
+                goToTodayRef.current?.();
+              }, 100);
+            }}
+            monthColor={currentMonthColor}
+          />
+        </div>
+      )}
 
       {/* Overlay scuro quando aperto */}
       {isOpen && (
