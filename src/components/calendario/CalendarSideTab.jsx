@@ -84,7 +84,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           "bg-slate-900 border-t border-lime-400/30 shadow-2xl",
           isOpen ? "translate-y-0" : "translate-y-full"
         )}
-        style={{ height: '220px' }}
+        style={{ height: 'min(220px, 35vh)' }}
       >
         {/* Etichetta mese/anno in alto a destra */}
         {selectedDate && (
@@ -182,7 +182,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
       {isOpen && showTimePicker && selectedDate && (
         <div 
           className="fixed left-0 right-0 top-0 z-50 bg-slate-900"
-          style={{ bottom: '220px' }}
+          style={{ bottom: 'min(220px, 35vh)' }}
         >
           <VerticalTimePicker 
             selectedDate={selectedDate}
