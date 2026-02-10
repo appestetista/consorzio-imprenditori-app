@@ -51,10 +51,10 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
         </div>
       </button>
 
-      {/* Pannello orari SOPRA il calendario */}
+      {/* Pannello orari - copre tutto lo spazio sopra il calendario */}
       {isOpen && showTimePicker && selectedDate && (
         <div 
-          className="fixed left-0 right-0 z-50 transition-all duration-300 ease-out"
+          className="fixed left-0 right-0 top-0 z-50 bg-slate-900"
           style={{ bottom: '280px' }}
         >
           <VerticalTimePicker 
@@ -73,22 +73,24 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           isOpen ? "translate-y-0" : "translate-y-full"
         )}
       >
-        {/* Header del pannello */}
-        <div className="flex items-center justify-between p-4 border-b border-slate-700">
-          <div className="flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-lime-400" />
-            <span className="text-white font-semibold">Seleziona Data</span>
+        {/* Header del pannello - visibile solo se NON c'è il time picker */}
+        {!showTimePicker && (
+          <div className="flex items-center justify-between p-4 border-b border-slate-700">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-lime-400" />
+              <span className="text-white font-semibold">Seleziona Data</span>
+            </div>
+            <button
+              onClick={() => {
+                setIsOpen(false);
+                setShowTimePicker(false);
+              }}
+              className="p-2 rounded-lg hover:bg-slate-800 transition-colors"
+            >
+              <X className="w-5 h-5 text-slate-400" />
+            </button>
           </div>
-          <button
-            onClick={() => {
-              setIsOpen(false);
-              setShowTimePicker(false);
-            }}
-            className="p-2 rounded-lg hover:bg-slate-800 transition-colors"
-          >
-            <X className="w-5 h-5 text-slate-400" />
-          </button>
-        </div>
+        )}
 
         {/* Calendario orizzontale */}
         <HorizontalDatePicker 

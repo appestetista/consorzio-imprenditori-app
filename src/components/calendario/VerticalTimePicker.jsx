@@ -56,21 +56,7 @@ export default function VerticalTimePicker({ selectedDate, onClose, onTimeSelect
     : '';
 
   return (
-    <div className="bg-slate-800 border-b border-slate-700 w-full flex flex-col" style={{ height: '200px' }}>
-      {/* Header */}
-      <div className="px-4 py-2 border-b border-slate-700 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Clock className="w-4 h-4 text-lime-400" />
-          <span className="text-white text-sm font-semibold">{formattedDate}</span>
-        </div>
-        <button
-          onClick={onClose}
-          className="p-1 rounded hover:bg-slate-700 transition-colors"
-        >
-          <X className="w-4 h-4 text-slate-400" />
-        </button>
-      </div>
-
+    <div className="bg-slate-900 w-full flex flex-col h-full">
       {/* Lista orari scrollabile verticale */}
       <div 
         ref={scrollRef}
@@ -117,6 +103,16 @@ export default function VerticalTimePicker({ selectedDate, onClose, onTimeSelect
             </div>
           );
         })}
+      </div>
+
+      {/* Pulsante chiudi in basso */}
+      <div className="px-4 py-2 border-t border-slate-700 flex justify-end">
+        <button
+          onClick={onClose}
+          className="p-2 rounded-lg hover:bg-slate-700 transition-colors"
+        >
+          <X className="w-5 h-5 text-slate-400" />
+        </button>
       </div>
     </div>
   );
