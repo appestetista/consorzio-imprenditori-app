@@ -294,7 +294,7 @@ export default function FatturatoBarra({ selectedDate, userEmail, onScrollSync, 
           )}
         >
           <span className="text-[9px] text-white uppercase">
-            Incasso del giorno {selectedDayNum || ''}
+            Vendite / € giorno {selectedDayNum || ''}
           </span>
           {isSelectedDayFuture ? (
             <span className="text-[10px] text-red-400">Futuro</span>
@@ -325,7 +325,7 @@ export default function FatturatoBarra({ selectedDate, userEmail, onScrollSync, 
 
         {/* Totale mese al centro */}
         <div className="flex flex-col items-center justify-center bg-slate-800 rounded px-3 py-1">
-          <span className="text-[9px] text-white uppercase">Incasso mese</span>
+          <span className="text-[9px] text-white uppercase">Vendite / € mese</span>
           <span className="text-base font-bold" style={{ color: monthColor }}>
             €{formatCurrency(totaleMese)}
           </span>
