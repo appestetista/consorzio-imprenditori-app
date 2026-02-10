@@ -133,11 +133,10 @@ export default function VerticalTimePicker({ selectedDate, onClose, onTimeSelect
 
   // Formatta la data per la fascia laterale
   const formattedDayNumber = selectedDate ? new Date(selectedDate).getDate() : '';
-  const formattedMonth = selectedDate ? new Date(selectedDate).toLocaleDateString('it-IT', { month: 'short' }).toUpperCase() : '';
 
   return (
     <div className="bg-slate-900 w-full flex h-full">
-      {/* Fascia verticale con la data */}
+      {/* Fascia verticale con il giorno */}
       <div 
         className="flex flex-col items-center justify-center px-3 border-r border-slate-700"
         style={{ 
@@ -150,12 +149,6 @@ export default function VerticalTimePicker({ selectedDate, onClose, onTimeSelect
           style={{ color: activeColor }}
         >
           {formattedDayNumber}
-        </span>
-        <span 
-          className="text-xs font-semibold tracking-wider"
-          style={{ color: activeColor }}
-        >
-          {formattedMonth}
         </span>
       </div>
 

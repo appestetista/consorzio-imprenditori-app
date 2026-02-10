@@ -105,7 +105,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
       <div
         className={cn(
           "fixed left-0 right-0 bottom-0 z-50 transition-transform duration-300 ease-out",
-          "bg-slate-900 border-t border-lime-400/30 shadow-2xl",
+          "bg-slate-900 border-t border-lime-400/30 shadow-2xl relative",
           isOpen ? "translate-y-0" : "translate-y-full"
         )}
       >
@@ -125,6 +125,21 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
             >
               <X className="w-5 h-5 text-slate-400" />
             </button>
+          </div>
+        )}
+
+        {/* Etichetta mese/anno in alto a destra */}
+        {selectedDate && (
+          <div className="absolute top-0 right-0 z-10">
+            <div 
+              className="px-2 py-1 rounded-bl-lg text-xs font-semibold"
+              style={{ 
+                backgroundColor: new Date(selectedDate).toDateString() === new Date().toDateString() ? 'rgba(163, 230, 53, 0.2)' : `${currentMonthColor}20`,
+                color: new Date(selectedDate).toDateString() === new Date().toDateString() ? '#a3e635' : currentMonthColor
+              }}
+            >
+              {new Date(selectedDate).toLocaleDateString('it-IT', { month: 'short' }).toLowerCase()} {new Date(selectedDate).getFullYear()}
+            </div>
           </div>
         )}
 
