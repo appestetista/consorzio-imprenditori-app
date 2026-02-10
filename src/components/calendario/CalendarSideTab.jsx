@@ -105,9 +105,29 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           </div>
         )}
 
-        {/* Etichetta mese/anno sopra la barra */}
+        {/* Etichette sopra la barra: Torna Oggi a sinistra, mese/anno a destra */}
         {selectedDate && (
-          <div className="flex justify-end px-2 pt-1">
+          <div className="flex justify-between items-center px-2 pt-1">
+            {/* Torna Oggi a sinistra */}
+            <button
+              onClick={() => {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                if (onDateSelect) {
+                  onDateSelect(today);
+                }
+                goToTodayRef.current?.();
+              }}
+              className="px-2 py-0.5 rounded-md text-xs font-semibold"
+              style={{ 
+                backgroundColor: 'rgba(163, 230, 53, 0.2)',
+                color: '#a3e635'
+              }}
+            >
+              torna oggi
+            </button>
+            
+            {/* Mese/anno a destra */}
             <div 
               className="px-2 py-0.5 rounded-md text-xs font-semibold"
               style={{ 
@@ -128,54 +148,18 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           onMonthColorChange={setCurrentMonthColor}
         />
 
-        {/* Data selezionata con Vai a Oggi e X in basso a destra */}
-        {selectedDate && (
-          <div className="px-4 py-3 bg-slate-800/50 border-t border-slate-700 flex items-center justify-between">
-            <div>
-              <p className="text-slate-400 text-xs">Data selezionata:</p>
-              <p className="font-semibold" style={{ color: selectedDate && new Date(selectedDate).toDateString() === new Date().toDateString() ? '#a3e635' : currentMonthColor }}>
-                {new Date(selectedDate).toLocaleDateString('it-IT', { 
-                  weekday: 'long', 
-                  day: 'numeric', 
-                  month: 'long', 
-                  year: 'numeric' 
-                })}
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              {/* Divisorio verticale */}
-              <div className="w-px h-10 bg-slate-600 mx-1" />
-
-              <div className="flex flex-col items-center">
-                <span className="text-[9px] text-slate-500 uppercase tracking-wider mb-0.5">torna a</span>
-                <button
-                  onClick={() => {
-                    // Seleziona oggi come data
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
-                    if (onDateSelect) {
-                      onDateSelect(today);
-                    }
-                    // Scrolla al giorno di oggi
-                    goToTodayRef.current?.();
-                  }}
-                  className="text-xs bg-lime-400/20 text-lime-400 px-3 py-1.5 rounded-md hover:bg-lime-400/30 transition-colors font-semibold"
-                >
-                  Oggi
-                </button>
-              </div>
-              <button
-                onClick={() => {
-                  setIsOpen(false);
-                  setShowTimePicker(false);
-                }}
-                className="p-2 rounded-lg hover:bg-slate-700 transition-colors"
-              >
-                <X className="w-5 h-5 text-slate-400" />
-              </button>
-            </div>
-          </div>
-        )}
+        {/* Solo X per chiudere */}
+        <div className="flex justify-end px-2 py-1">
+          <button
+            onClick={() => {
+              setIsOpen(false);
+              setShowTimePicker(false);
+            }}
+            className="p-1.5 rounded-lg hover:bg-slate-700 transition-colors"
+          >
+            <X className="w-4 h-4 text-slate-400" />
+          </button>
+        </div>
       </div>
 
       {/* Pannello orari - copre tutto lo spazio sopra il calendario */}

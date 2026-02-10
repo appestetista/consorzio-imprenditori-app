@@ -154,26 +154,34 @@ export default function VerticalTimePicker({ selectedDate, onClose, onTimeSelect
   const formattedDayNumber = selectedDate ? new Date(selectedDate).getDate() : '';
   const formattedMonth = selectedDate ? new Date(selectedDate).toLocaleDateString('it-IT', { month: 'short' }).toLowerCase() : '';
 
+  // Formatta la data completa per la fascia laterale (es. "7 marzo 2026")
+  const formattedFullDate = selectedDate 
+    ? new Date(selectedDate).toLocaleDateString('it-IT', { 
+        day: 'numeric', 
+        month: 'long', 
+        year: 'numeric' 
+      })
+    : '';
+
   return (
     <div className="bg-slate-900 w-full flex h-full">
-      {/* Fascia verticale con giorno e mese ruotati */}
+      {/* Fascia verticale con data completa ruotata */}
       <div 
         className="flex items-center justify-center border-r border-slate-700"
         style={{ 
-          backgroundColor: isToday ? 'rgba(163, 230, 53, 0.1)' : `${monthColor}15`,
-          minWidth: '28px'
+          backgroundColor: isToday ? 'rgba(163, 230, 53, 0.1)' : `${currentMonthColor}15`,
+          minWidth: '32px'
         }}
       >
         <div 
-          className="flex items-center gap-1 text-sm font-bold whitespace-nowrap"
+          className="text-sm font-bold whitespace-nowrap"
           style={{ 
             color: activeColor,
             writingMode: 'vertical-rl',
             transform: 'rotate(180deg)'
           }}
         >
-          <span>{formattedDayNumber}</span>
-          <span className="text-xs font-medium">{formattedMonth}</span>
+          {formattedFullDate}
         </div>
       </div>
 
