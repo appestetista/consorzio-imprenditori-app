@@ -9,7 +9,7 @@ const MONTH_COLORS = [
   '#f97316', '#ef4444', '#06b6d4', '#a855f7', '#6366f1', '#0ea5e9'
 ];
 
-export default function FatturatoBarra({ selectedDate, userEmail }) {
+export default function FatturatoBarra({ selectedDate, userEmail, onScrollSync, scrollRef: externalScrollRef }) {
   const [editingDay, setEditingDay] = useState(null);
   const [inputValue, setInputValue] = useState('');
   const [showObjectiveInput, setShowObjectiveInput] = useState(false);
@@ -179,6 +179,20 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
     }
   }, [selectedDate]);
 
+  // Esponi il ref dello scroll al parent per sincronizzazione
+  useEffect(() => {
+    if (externalScrollRef) {
+      externalScrollRef.current = scrollRef.current;
+    }
+  }, [externalScrollRef]);
+
+  // Gestisci scroll e notifica il parent
+  const handleScroll = () => {
+    if (onScrollSync && scrollRef.current) {
+      onScrollSync(scrollRef.current.scrollLeft);
+    }
+  };
+
   const formatCurrency = (val) => {
     if (val >= 1000) return `${(val / 1000).toFixed(1)}k`;
     return val.toFixed(0);
@@ -198,6 +212,7 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
         ref={scrollRef}
         className="overflow-x-auto scrollbar-hide"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        onScroll={handleScroll}
       >
         <div className="flex items-end px-1" style={{ width: `${daysInMonth * 24}px`, minWidth: '100%' }}>
           {days.map((day) => {
@@ -229,7 +244,7 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
                   }}
                 />
                 
-                {/* Puntino - si ingrandisce quando selezionato */}
+                {/* Puntino - si ingrandisce quando selezionato, bordo colore mese */}
                 <div 
                   className={cn(
                     "rounded-full transition-all flex items-center justify-center",
@@ -238,7 +253,8 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
                     isClickedDay && "ring-2 ring-white shadow-lg"
                   )}
                   style={{ 
-                    backgroundColor: isPastOrToday ? '#94a3b8' : '#334155'
+                    backgroundColor: isPastOrToday ? '#94a3b8' : '#334155',
+                    border: `2px solid ${day.isToday ? '#a3e635' : monthColor}`
                   }}
                 >
                   {/* Puntino nero interno solo se ha dati */}
