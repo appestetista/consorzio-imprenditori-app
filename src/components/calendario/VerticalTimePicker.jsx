@@ -6,21 +6,23 @@ export default function VerticalTimePicker({ selectedDate, onClose, onTimeSelect
   const scrollRef = useRef(null);
   const currentHourRef = useRef(null);
 
-  // Genera tutte le ore del giorno con intervalli di 15 minuti
+  // Genera tutte le ore del giorno con intervalli di 5 minuti
   const generateTimeSlots = () => {
     const slots = [];
     for (let hour = 0; hour < 24; hour++) {
-      for (let minute = 0; minute < 60; minute += 15) {
+      for (let minute = 0; minute < 60; minute += 5) {
         const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
         const isFullHour = minute === 0;
         const isHalfHour = minute === 30;
+        const isQuarterHour = minute === 15 || minute === 45;
         
         slots.push({
           hour,
           minute,
           timeString,
           isFullHour,
-          isHalfHour
+          isHalfHour,
+          isQuarterHour
         });
       }
     }
@@ -49,6 +51,9 @@ export default function VerticalTimePicker({ selectedDate, onClose, onTimeSelect
 
   const currentHour = new Date().getHours();
   const currentMinute = new Date().getMinutes();
+  
+  // Trova lo slot corrente (arrotondato ai 5 minuti)
+  const currentSlotMinute = Math.floor(currentMinute / 5) * 5;
 
   const handleTimeClick = (slot) => {
     if (onTimeSelect) {
@@ -74,8 +79,7 @@ export default function VerticalTimePicker({ selectedDate, onClose, onTimeSelect
       >
         {timeSlots.map((slot, idx) => {
           const isCurrentTime = slot.hour === currentHour && 
-            currentMinute >= slot.minute && 
-            currentMinute < slot.minute + 15;
+            slot.minute === currentSlotMinute;
 
           return (
             <div
@@ -86,16 +90,18 @@ export default function VerticalTimePicker({ selectedDate, onClose, onTimeSelect
               className={cn(
                 "flex items-center cursor-pointer transition-all hover:bg-slate-700 rounded px-2",
                 isCurrentTime && "bg-lime-400/20",
-                slot.isFullHour ? "h-8" : "h-5"
+                slot.isFullHour ? "h-8" : slot.isHalfHour ? "h-6" : slot.isQuarterHour ? "h-5" : "h-4"
               )}
             >
               {/* Linea a sinistra */}
               <div 
-                className="h-[2px] w-4 rounded-full mr-2"
+                className="h-[2px] rounded-full mr-2"
                 style={{ 
+                  width: slot.isFullHour ? '20px' : slot.isHalfHour ? '14px' : slot.isQuarterHour ? '10px' : '6px',
                   backgroundColor: isCurrentTime ? '#a3e635' : 
                     slot.isFullHour ? '#a3e635' : 
-                    slot.isHalfHour ? '#64748b' : '#475569'
+                    slot.isHalfHour ? '#64748b' : 
+                    slot.isQuarterHour ? '#475569' : '#334155'
                 }}
               />
 
@@ -103,9 +109,12 @@ export default function VerticalTimePicker({ selectedDate, onClose, onTimeSelect
               <span 
                 className={cn(
                   "font-mono",
-                  slot.isFullHour ? "text-sm font-bold" : "text-[10px]",
+                  slot.isFullHour ? "text-sm font-bold" : 
+                    slot.isHalfHour ? "text-xs" : 
+                    slot.isQuarterHour ? "text-[10px]" : "text-[9px]",
                   isCurrentTime ? "text-lime-400" : 
-                    slot.isFullHour ? "text-white" : "text-slate-500"
+                    slot.isFullHour ? "text-white" : 
+                    slot.isHalfHour ? "text-slate-400" : "text-slate-500"
                 )}
               >
                 {slot.timeString}
