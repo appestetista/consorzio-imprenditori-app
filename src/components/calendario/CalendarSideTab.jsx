@@ -18,29 +18,17 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
 
   return (
     <>
-      {/* Linguetta laterale */}
-      <button
-        onClick={toggleCalendar}
-        className={cn(
-          "fixed right-0 top-1/2 -translate-y-1/2 z-40 transition-all duration-300",
-          "bg-gradient-to-l from-lime-400 to-lime-500 text-slate-900",
-          "rounded-l-xl shadow-lg shadow-lime-400/20",
-          "flex items-center justify-center",
-          "hover:pr-2 active:scale-95",
-          isOpen ? "opacity-0 pointer-events-none" : "opacity-100"
-        )}
-        style={{
-          width: '32px',
-          height: '80px',
-          writingMode: 'vertical-rl',
-          textOrientation: 'mixed'
-        }}
-      >
-        <div className="flex items-center gap-1 rotate-180">
-          <Calendar className="w-4 h-4" />
-          <span className="text-xs font-bold tracking-wider">DATA</span>
-        </div>
-      </button>
+      {/* Barra calendario orizzontale in basso, sopra il footer */}
+      {!isOpen && (
+        <button
+          onClick={toggleCalendar}
+          className="fixed left-0 right-0 z-40 bg-gradient-to-r from-lime-500 to-lime-400 text-slate-900 flex items-center justify-center gap-2 py-2.5 shadow-lg"
+          style={{ bottom: '88px' }}
+        >
+          <Calendar className="w-5 h-5" />
+          <span className="text-sm font-bold tracking-wider">APRI CALENDARIO</span>
+        </button>
+      )}
 
       {/* Pannello calendario */}
       <div
