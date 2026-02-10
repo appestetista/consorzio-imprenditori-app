@@ -175,6 +175,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onClo
               <div
                 key={`${monthData.year}-${monthData.month}-${idx}`}
                 ref={dayData.isToday ? todayRef : null}
+                data-day-info={`${monthData.year}-${monthData.month}`}
                 onClick={() => handleDayClick(dayData)}
                 className={cn(
                   "flex flex-col items-center justify-end cursor-pointer transition-all",
