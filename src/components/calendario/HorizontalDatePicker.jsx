@@ -192,7 +192,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
       {/* Calendario orizzontale scrollabile continuo - in alto */}
       <div 
         ref={scrollRef}
-        className="flex overflow-x-auto px-1 scrollbar-hide items-end flex-1"
+        className="flex overflow-x-auto px-1 pt-6 scrollbar-hide items-end flex-1"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {monthsData.map((monthData, monthIdx) => (
@@ -278,7 +278,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
       </div>
 
       {/* Barra mesi dell'anno con progress - in basso */}
-      <div className="px-3 pb-2 pt-2">
+      <div className="px-3 pb-0 pt-1">
         {/* Etichette mesi sopra la barra */}
         <div className="flex items-center mb-1">
           {MONTHS_SHORT.map((m, idx) => {
@@ -327,15 +327,15 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
         </div>
         
         {/* Percentuali - più visibili */}
-        <div className="flex justify-between items-center mt-1">
-          <span className="text-xs text-lime-400 font-bold">
+        <div className="flex justify-between items-center mt-0.5 pb-1">
+          <span className="text-[10px] text-lime-400 font-bold">
             {yearProgress.toFixed(0)}% trascorso
           </span>
-          <span className="text-xs text-slate-300 font-bold">
+          <span className="text-[10px] text-slate-300 font-bold">
             {yearRemaining.toFixed(0)}% rimane
           </span>
         </div>
-        </div>
-        </div>
-        );
-        }
+      </div>
+    </div>
+  );
+}
