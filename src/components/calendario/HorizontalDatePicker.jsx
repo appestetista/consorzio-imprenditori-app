@@ -274,7 +274,10 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
               >
                 {/* Linea verticale - lime per oggi, colore mese se selezionato, bianco per altri */}
                 <div 
-                  className="w-[2px] mb-0.5 rounded-full transition-all"
+                  className={cn(
+                    "w-[2px] mb-0.5 rounded-full transition-all",
+                    dayData.isToday && "animate-pulse"
+                  )}
                   style={{ 
                     height: dayData.isWeekend ? '32px' : '18px',
                     backgroundColor: dayData.isToday ? '#a3e635' : 
@@ -284,7 +287,10 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
 
                 {/* Numero del giorno */}
                 <span 
-                  className="text-[10px] font-bold leading-tight"
+                  className={cn(
+                    "text-[10px] font-bold leading-tight",
+                    dayData.isToday && "animate-pulse"
+                  )}
                   style={{ 
                     color: dayData.isToday ? '#a3e635' : 
                       (dayData.isSelected && !dayData.isToday) ? monthData.color : '#ffffff'
@@ -295,7 +301,10 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
 
                 {/* Lettera del giorno della settimana */}
                 <span 
-                  className="text-[8px] font-medium leading-tight"
+                  className={cn(
+                    "text-[8px] font-medium leading-tight",
+                    dayData.isToday && "animate-pulse"
+                  )}
                   style={{ 
                     color: dayData.isWeekend ? '#ef4444' :
                       dayData.isToday ? '#a3e635' : 
@@ -305,26 +314,21 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                   {DAYS_SHORT[dayData.dayOfWeek]}
                 </span>
 
-                {/* Pulsante/indicatore selezionabile - lime per oggi, colore mese per altri */}
-                <div 
-                  className={cn(
-                    "w-4 h-4 mt-0.5 rounded-full flex items-center justify-center transition-all",
-                    dayData.isSelected 
-                      ? "scale-110" 
-                      : "opacity-50 hover:opacity-80"
-                  )}
-                  style={{
-                    backgroundColor: dayData.isToday ? '#a3e635' : monthData.color
-                  }}
-                >
-                  {dayData.isSelected && (
-                    <div className="w-1.5 h-1.5 rounded-full bg-slate-900" />
-                  )}
-                </div>
-
-                {/* Trattino fisso sotto il puntino SOLO per oggi */}
-                {dayData.isToday && (
-                  <div className="w-3 h-[2px] mt-0.5 rounded-full bg-lime-400" />
+                {/* Pulsante/indicatore - SOLO per oggi (lime pulsante) o selezionato (colore mese) */}
+                {(dayData.isToday || dayData.isSelected) && (
+                  <div 
+                    className={cn(
+                      "w-4 h-4 mt-0.5 rounded-full flex items-center justify-center transition-all",
+                      dayData.isToday && "animate-pulse"
+                    )}
+                    style={{
+                      backgroundColor: dayData.isToday ? '#a3e635' : monthData.color
+                    }}
+                  >
+                    {dayData.isSelected && (
+                      <div className="w-1.5 h-1.5 rounded-full bg-slate-900" />
+                    )}
+                  </div>
                 )}
               </div>
             ))}

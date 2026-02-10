@@ -166,7 +166,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                     }
                     goToTodayRef.current?.();
                   }}
-                  className="px-2 py-0.5 rounded text-[10px] font-semibold bg-lime-400/90 text-slate-900"
+                  className="px-2 py-0.5 rounded text-[10px] font-semibold bg-lime-400/90 text-slate-900 animate-pulse"
                 >
                   oggi
                 </button>
