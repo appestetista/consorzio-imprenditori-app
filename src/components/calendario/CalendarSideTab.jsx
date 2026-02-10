@@ -101,6 +101,24 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
         </div>
       )}
 
+      {/* Etichetta mese/anno sopra il pannello calendario */}
+      {isOpen && selectedDate && (
+        <div 
+          className="fixed right-0 z-50 transition-all duration-300"
+          style={{ bottom: '220px' }}
+        >
+          <div 
+            className="px-2 py-1 rounded-tl-lg text-xs font-semibold"
+            style={{ 
+              backgroundColor: new Date(selectedDate).toDateString() === new Date().toDateString() ? 'rgba(163, 230, 53, 0.2)' : `${currentMonthColor}20`,
+              color: new Date(selectedDate).toDateString() === new Date().toDateString() ? '#a3e635' : currentMonthColor
+            }}
+          >
+            {new Date(selectedDate).toLocaleDateString('it-IT', { month: 'short' }).toLowerCase()} {new Date(selectedDate).getFullYear()}
+          </div>
+        </div>
+      )}
+
       {/* Pannello calendario - si apre dal basso */}
       <div
         className={cn(
@@ -125,21 +143,6 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
             >
               <X className="w-5 h-5 text-slate-400" />
             </button>
-          </div>
-        )}
-
-        {/* Etichetta mese/anno in alto a destra */}
-        {selectedDate && (
-          <div className="absolute top-0 right-0 z-10">
-            <div 
-              className="px-2 py-1 rounded-bl-lg text-xs font-semibold"
-              style={{ 
-                backgroundColor: new Date(selectedDate).toDateString() === new Date().toDateString() ? 'rgba(163, 230, 53, 0.2)' : `${currentMonthColor}20`,
-                color: new Date(selectedDate).toDateString() === new Date().toDateString() ? '#a3e635' : currentMonthColor
-              }}
-            >
-              {new Date(selectedDate).toLocaleDateString('it-IT', { month: 'short' }).toLowerCase()} {new Date(selectedDate).getFullYear()}
-            </div>
           </div>
         )}
 

@@ -133,23 +133,29 @@ export default function VerticalTimePicker({ selectedDate, onClose, onTimeSelect
 
   // Formatta la data per la fascia laterale
   const formattedDayNumber = selectedDate ? new Date(selectedDate).getDate() : '';
+  const formattedMonth = selectedDate ? new Date(selectedDate).toLocaleDateString('it-IT', { month: 'short' }).toLowerCase() : '';
 
   return (
     <div className="bg-slate-900 w-full flex h-full">
-      {/* Fascia verticale con il giorno */}
+      {/* Fascia verticale con giorno e mese ruotati */}
       <div 
-        className="flex flex-col items-center justify-center px-3 border-r border-slate-700"
+        className="flex items-center justify-center border-r border-slate-700"
         style={{ 
           backgroundColor: isToday ? 'rgba(163, 230, 53, 0.1)' : `${monthColor}15`,
-          minWidth: '50px'
+          minWidth: '28px'
         }}
       >
-        <span 
-          className="text-3xl font-bold"
-          style={{ color: activeColor }}
+        <div 
+          className="flex items-center gap-1 text-sm font-bold whitespace-nowrap"
+          style={{ 
+            color: activeColor,
+            writingMode: 'vertical-rl',
+            transform: 'rotate(180deg)'
+          }}
         >
-          {formattedDayNumber}
-        </span>
+          <span>{formattedDayNumber}</span>
+          <span className="text-xs font-medium">{formattedMonth}</span>
+        </div>
       </div>
 
       {/* Lista orari scrollabile verticale */}

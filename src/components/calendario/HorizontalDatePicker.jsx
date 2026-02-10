@@ -252,15 +252,6 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
         ))}
       </div>
 
-      {/* Nome mese corrente visibile */}
-      <div className="bg-slate-900 border-t border-slate-700 py-2 text-center">
-        <span className="font-bold text-sm" style={{ color: visibleMonth.color }}>
-          {visibleMonth.name}
-        </span>
-        <span className="font-medium text-sm ml-2" style={{ color: visibleMonth.color }}>
-          {visibleMonth.year}
-        </span>
       </div>
-    </div>
-  );
-}
+      );
+      }
