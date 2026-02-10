@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import { X, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export default function VerticalTimePicker({ selectedDate, onClose, onTimeSelect, onDateChange }) {
+export default function VerticalTimePicker({ selectedDate, onClose, onTimeSelect, onDateChange, monthColor = '#a3e635' }) {
   const scrollRef = useRef(null);
   const currentHourRef = useRef(null);
   const isScrollingRef = useRef(false);
@@ -35,6 +35,9 @@ export default function VerticalTimePicker({ selectedDate, onClose, onTimeSelect
 
   // Determina se è oggi
   const isToday = selectedDate && new Date(selectedDate).toDateString() === new Date().toDateString();
+  
+  // Colore da usare: lime se oggi, colore del mese altrimenti
+  const activeColor = isToday ? '#a3e635' : monthColor;
 
   // Scroll all'ora corrente (se oggi) o alle 8:00 (se giorno futuro)
   useEffect(() => {
@@ -148,17 +151,19 @@ export default function VerticalTimePicker({ selectedDate, onClose, onTimeSelect
               onClick={() => handleTimeClick(slot)}
               className={cn(
                 "flex items-center cursor-pointer transition-all hover:bg-slate-700 rounded px-2",
-                isCurrentTime && "bg-lime-400/20",
                 slot.isFullHour ? "h-8" : "h-6"
               )}
+              style={{
+                backgroundColor: isCurrentTime && isToday ? 'rgba(163, 230, 53, 0.2)' : undefined
+              }}
             >
               {/* Linea a sinistra */}
               <div 
                 className="h-[2px] rounded-full mr-2"
                 style={{ 
                   width: slot.isFullHour ? '20px' : '10px',
-                  backgroundColor: isCurrentTime ? '#a3e635' : 
-                    slot.isFullHour ? '#a3e635' : '#475569'
+                  backgroundColor: (isCurrentTime && isToday) ? '#a3e635' : 
+                    slot.isFullHour ? activeColor : '#475569'
                 }}
               />
 
@@ -166,10 +171,12 @@ export default function VerticalTimePicker({ selectedDate, onClose, onTimeSelect
               <span 
                 className={cn(
                   "font-mono text-xs",
-                  slot.isFullHour && "font-bold",
-                  isCurrentTime ? "text-lime-400" : 
-                    slot.isFullHour ? "text-white" : "text-slate-400"
+                  slot.isFullHour && "font-bold"
                 )}
+                style={{
+                  color: (isCurrentTime && isToday) ? '#a3e635' : 
+                    slot.isFullHour ? activeColor : '#94a3b8'
+                }}
               >
                 {slot.timeString}
               </span>

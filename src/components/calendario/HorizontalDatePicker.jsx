@@ -19,7 +19,7 @@ const MONTH_COLORS = [
   '#0ea5e9', // Dicembre - sky
 ];
 
-export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoToToday }) {
+export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoToToday, onMonthColorChange }) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   
@@ -120,7 +120,12 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
         // Aggiorna solo se cambiato
         setVisibleMonth(prev => {
           if (prev.name !== MONTHS[monthIdx] || prev.year !== yearInt) {
-            return { name: MONTHS[monthIdx], year: yearInt, color: MONTH_COLORS[monthIdx] };
+            const newMonth = { name: MONTHS[monthIdx], year: yearInt, color: MONTH_COLORS[monthIdx] };
+            // Notifica il colore al parent
+            if (onMonthColorChange) {
+              onMonthColorChange(newMonth.color);
+            }
+            return newMonth;
           }
           return prev;
         });

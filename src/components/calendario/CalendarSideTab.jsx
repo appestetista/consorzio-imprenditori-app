@@ -4,10 +4,26 @@ import { cn } from '@/lib/utils';
 import HorizontalDatePicker from './HorizontalDatePicker';
 import VerticalTimePicker from './VerticalTimePicker';
 
+const MONTH_COLORS = [
+  '#3b82f6', // Gennaio - blu
+  '#8b5cf6', // Febbraio - viola
+  '#ec4899', // Marzo - rosa
+  '#14b8a6', // Aprile - teal
+  '#22c55e', // Maggio - verde
+  '#eab308', // Giugno - giallo
+  '#f97316', // Luglio - arancione
+  '#ef4444', // Agosto - rosso
+  '#06b6d4', // Settembre - cyan
+  '#a855f7', // Ottobre - purple
+  '#6366f1', // Novembre - indigo
+  '#0ea5e9', // Dicembre - sky
+];
+
 export default function CalendarSideTab({ selectedDate, onDateSelect }) {
   const [isOpen, setIsOpen] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   const goToTodayRef = useRef(null);
+  const [currentMonthColor, setCurrentMonthColor] = useState(MONTH_COLORS[new Date().getMonth()]);
 
   const toggleCalendar = () => {
     if (!isOpen) {
@@ -80,6 +96,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                 goToTodayRef.current?.();
               }, 100);
             }}
+            monthColor={currentMonthColor}
           />
         </div>
       )}
@@ -116,6 +133,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           selectedDate={selectedDate}
           onDateSelect={handleDateSelect}
           onGoToToday={goToTodayRef}
+          onMonthColorChange={setCurrentMonthColor}
         />
 
         {/* Data selezionata con Vai a Oggi e X in basso a destra */}
@@ -123,7 +141,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           <div className="px-4 py-3 bg-slate-800/50 border-t border-slate-700 flex items-center justify-between">
             <div>
               <p className="text-slate-400 text-xs">Data selezionata:</p>
-              <p className="text-lime-400 font-semibold">
+              <p className="font-semibold" style={{ color: selectedDate && new Date(selectedDate).toDateString() === new Date().toDateString() ? '#a3e635' : currentMonthColor }}>
                 {new Date(selectedDate).toLocaleDateString('it-IT', { 
                   weekday: 'long', 
                   day: 'numeric', 
