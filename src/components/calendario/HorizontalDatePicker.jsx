@@ -88,30 +88,48 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onClo
     }
   }, []);
 
-  // Observer per rilevare il mese visibile durante lo scroll
+  // Observer per rilevare il mese visibile durante lo scroll - più reattivo
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
-            const [year, month] = entry.target.dataset.month.split('-');
-            const monthIdx = parseInt(month);
-            setVisibleMonth({ name: MONTHS[monthIdx], year: parseInt(year), color: MONTH_COLORS[monthIdx] });
+    const scrollContainer = scrollRef.current;
+    if (!scrollContainer) return;
+
+    const handleScroll = () => {
+      const containerRect = scrollContainer.getBoundingClientRect();
+      const centerX = containerRect.left + containerRect.width / 2;
+
+      // Trova il giorno più vicino al centro dello scroll
+      const dayElements = scrollContainer.querySelectorAll('[data-day-info]');
+      let closestElement = null;
+      let closestDistance = Infinity;
+
+      dayElements.forEach((el) => {
+        const rect = el.getBoundingClientRect();
+        const elCenterX = rect.left + rect.width / 2;
+        const distance = Math.abs(elCenterX - centerX);
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestElement = el;
+        }
+      });
+
+      if (closestElement) {
+        const [year, month] = closestElement.dataset.dayInfo.split('-');
+        const monthIdx = parseInt(month);
+        const yearInt = parseInt(year);
+
+        // Aggiorna solo se cambiato
+        setVisibleMonth(prev => {
+          if (prev.name !== MONTHS[monthIdx] || prev.year !== yearInt) {
+            return { name: MONTHS[monthIdx], year: yearInt, color: MONTH_COLORS[monthIdx] };
           }
+          return prev;
         });
-      },
-      {
-        root: scrollRef.current,
-        threshold: 0.5
       }
-    );
+    };
 
-    Object.values(monthRefs.current).forEach((ref) => {
-      if (ref) observer.observe(ref);
-    });
-
-    return () => observer.disconnect();
-  }, [monthsData]);
+    scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+    return () => scrollContainer.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const goToToday = () => {
     setCurrentMonth(today.getMonth());
