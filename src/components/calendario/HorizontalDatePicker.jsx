@@ -184,12 +184,12 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                 )}
                 style={{ minWidth: '24px' }}
               >
-                {/* Linea verticale */}
+                {/* Linea verticale - colore del mese (non più lime per oggi) */}
                 <div 
                   className="w-[2px] mb-1 rounded-full transition-all"
                   style={{ 
                     height: dayData.isWeekend ? '40px' : '24px',
-                    backgroundColor: dayData.isToday ? '#a3e635' : monthData.color
+                    backgroundColor: monthData.color
                   }}
                 />
 
@@ -220,19 +220,27 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                   {DAYS_SHORT[dayData.dayOfWeek]}
                 </span>
 
-                {/* Pulsante/indicatore selezionabile */}
+                {/* Pulsante/indicatore selezionabile - colore del mese */}
                 <div 
                   className={cn(
                     "w-5 h-5 mt-1 rounded-full flex items-center justify-center transition-all",
                     dayData.isSelected 
-                      ? "bg-lime-400 scale-110" 
-                      : "bg-slate-700 hover:bg-slate-600"
+                      ? "scale-110" 
+                      : "opacity-50 hover:opacity-80"
                   )}
+                  style={{
+                    backgroundColor: dayData.isSelected ? monthData.color : monthData.color
+                  }}
                 >
                   {dayData.isSelected && (
                     <div className="w-2 h-2 rounded-full bg-slate-900" />
                   )}
                 </div>
+
+                {/* Trattino fisso sotto il puntino SOLO per oggi */}
+                {dayData.isToday && (
+                  <div className="w-4 h-[3px] mt-1 rounded-full bg-lime-400" />
+                )}
               </div>
             ))}
           </div>
