@@ -213,8 +213,18 @@ export default function FatturatoBarra({ selectedDate, userEmail, onScrollSync, 
                 const isPastOrToday = !day.isFuture;
                 const isClickedDay = editingDay === day.date || isSelected;
                 
-                // Calcola altezza barra proporzionale all'incasso del giorno
-                const barHeight = day.importo > 0 ? Math.max(4, (day.importo / maxDailyAmount) * 40) : 0;
+                // Calcola altezza barra proporzionale alla quota giornaliera per raggiungere il target
+                                  // quota_giornaliera = target_mensile / giorni_mese
+                                  // Se non c'è obiettivo, usa il max giornaliero come riferimento
+                                  const daysInThisMonth = new Date(displayYear, day.month + 1, 0).getDate();
+                                  const monthObjective = fatturatiAnno.find(f => {
+                                    const d = new Date(f.data);
+                                    return d.getMonth() === day.month && f.obiettivo_mese;
+                                  })?.obiettivo_mese || 0;
+
+                                  const dailyQuota = monthObjective > 0 ? monthObjective / daysInThisMonth : maxDailyAmount;
+                                  const barRatio = dailyQuota > 0 ? Math.min(day.importo / dailyQuota, 1) : 0;
+                                  const barHeight = day.importo > 0 ? Math.max(4, barRatio * 40) : 0;
                 
                 return (
                   <div
