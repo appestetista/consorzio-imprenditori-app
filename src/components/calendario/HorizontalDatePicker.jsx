@@ -19,7 +19,7 @@ const MONTH_COLORS = [
   '#0ea5e9', // Dicembre - sky
 ];
 
-const MONTHS_SHORT = ['G', 'F', 'M', 'A', 'M', 'G', 'L', 'A', 'S', 'O', 'N', 'D'];
+const MONTHS_SHORT = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
 
 export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoToToday, onMonthColorChange, onScrollToMonth }) {
   const today = new Date();
@@ -189,45 +189,15 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
   const startOfYear = new Date(now.getFullYear(), 0, 1);
   const endOfYear = new Date(now.getFullYear() + 1, 0, 1);
   const yearProgress = ((now - startOfYear) / (endOfYear - startOfYear)) * 100;
+  const yearRemaining = 100 - yearProgress;
   const currentMonthIdx = now.getMonth();
 
   return (
-    <div className="bg-slate-800 border-t border-slate-700 overflow-hidden">
-      {/* Barra mesi dell'anno con progress */}
-      <div className="px-2 pt-1 pb-0.5">
-        <div className="flex items-center gap-0.5 relative">
-          {MONTHS_SHORT.map((m, idx) => {
-            const isCurrentMonth = idx === currentMonthIdx;
-            const isPast = idx < currentMonthIdx;
-            return (
-              <button
-                key={idx}
-                onClick={() => {
-                  if (onGoToToday?.scrollToMonth) {
-                    onGoToToday.scrollToMonth(idx);
-                  }
-                }}
-                className="flex-1 py-0.5 text-[8px] font-bold rounded-sm transition-all"
-                style={{
-                  backgroundColor: isPast || isCurrentMonth ? MONTH_COLORS[idx] : 'transparent',
-                  color: isPast || isCurrentMonth ? '#0f172a' : MONTH_COLORS[idx],
-                  opacity: isPast ? 0.6 : 1
-                }}
-              >
-                {m}
-              </button>
-            );
-          })}
-        </div>
-        <div className="text-center text-[9px] text-slate-500 mt-0.5">
-          {yearProgress.toFixed(0)}% dell'anno
-        </div>
-      </div>
-
-      {/* Calendario orizzontale scrollabile continuo */}
+    <div className="bg-slate-800 border-t border-slate-700 overflow-hidden flex flex-col h-full">
+      {/* Calendario orizzontale scrollabile continuo - in alto */}
       <div 
         ref={scrollRef}
-        className="flex overflow-x-auto py-1 px-1 scrollbar-hide items-end"
+        className="flex overflow-x-auto py-1 px-1 scrollbar-hide items-end flex-1"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {monthsData.map((monthData, monthIdx) => (
@@ -309,6 +279,44 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
             ))}
           </div>
         ))}
+      </div>
+
+      {/* Barra mesi dell'anno con progress - in basso */}
+      <div className="px-2 pb-2 pt-1 border-t border-slate-700/50">
+        {/* Barra di riempimento */}
+        <div className="flex items-center h-6 rounded-md overflow-hidden bg-slate-900">
+          {MONTHS_SHORT.map((m, idx) => {
+            const isCurrentMonth = idx === currentMonthIdx;
+            const isPast = idx < currentMonthIdx;
+            const isFuture = idx > currentMonthIdx;
+            return (
+              <button
+                key={idx}
+                onClick={() => {
+                  if (onGoToToday?.scrollToMonth) {
+                    onGoToToday.scrollToMonth(idx);
+                  }
+                }}
+                className="flex-1 h-full text-[9px] font-bold transition-all hover:opacity-80"
+                style={{
+                  backgroundColor: isPast ? MONTH_COLORS[idx] : isCurrentMonth ? MONTH_COLORS[idx] : 'transparent',
+                  color: isPast || isCurrentMonth ? '#0f172a' : '#475569',
+                  opacity: isPast ? 0.7 : 1
+                }}
+              >
+                {m}
+              </button>
+            );
+          })}
+        </div>
+        {/* Percentuale */}
+        <div className="text-center mt-1">
+          <span className="text-sm font-bold text-white">{yearProgress.toFixed(0)}%</span>
+          <span className="text-xs text-slate-400 ml-1">trascorso</span>
+          <span className="text-slate-600 mx-2">•</span>
+          <span className="text-sm font-bold text-lime-400">{yearRemaining.toFixed(0)}%</span>
+          <span className="text-xs text-slate-400 ml-1">rimane</span>
+        </div>
       </div>
     </div>
   );

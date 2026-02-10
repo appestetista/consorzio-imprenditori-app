@@ -105,22 +105,11 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           </div>
         )}
 
-        {/* Etichette esposte sopra il pannello */}
+        {/* Etichette esposte sopra la barra */}
         {selectedDate && (
-          <>
-            {/* X per chiudere - in alto a destra */}
-            <button
-              onClick={() => {
-                setIsOpen(false);
-                setShowTimePicker(false);
-              }}
-              className="absolute -top-5 right-1 px-1.5 py-0.5 rounded-t-md bg-slate-700 border border-b-0 border-slate-600"
-            >
-              <X className="w-2.5 h-2.5 text-slate-400" />
-            </button>
-
+          <div className="flex justify-between items-center px-2 pt-1">
             {/* Torna Oggi a sinistra - solo se NON è oggi */}
-            {new Date(selectedDate).toDateString() !== new Date().toDateString() && (
+            {new Date(selectedDate).toDateString() !== new Date().toDateString() ? (
               <button
                 onClick={() => {
                   const today = new Date();
@@ -130,24 +119,35 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                   }
                   goToTodayRef.current?.();
                 }}
-                className="absolute -top-5 left-1 px-1.5 py-0.5 rounded-t-md text-[10px] font-semibold bg-lime-400/20 text-lime-400 border border-b-0 border-lime-400/30"
+                className="text-xs font-semibold text-lime-400"
               >
-                oggi
+                torna oggi
               </button>
+            ) : (
+              <div />
             )}
             
-            {/* Mese/anno a destra della X */}
-            <div 
-              className="absolute -top-5 right-8 px-1.5 py-0.5 rounded-t-md text-[10px] font-semibold border border-b-0"
-              style={{ 
-                backgroundColor: new Date(selectedDate).toDateString() === new Date().toDateString() ? 'rgba(163, 230, 53, 0.2)' : `${currentMonthColor}20`,
-                color: new Date(selectedDate).toDateString() === new Date().toDateString() ? '#a3e635' : currentMonthColor,
-                borderColor: new Date(selectedDate).toDateString() === new Date().toDateString() ? 'rgba(163, 230, 53, 0.3)' : `${currentMonthColor}30`
-              }}
-            >
-              {new Date(selectedDate).toLocaleDateString('it-IT', { month: 'short' }).toLowerCase()} {new Date(selectedDate).getFullYear()}
+            {/* Mese/anno a destra */}
+            <div className="flex items-center gap-2">
+              <span 
+                className="text-xs font-semibold"
+                style={{ 
+                  color: new Date(selectedDate).toDateString() === new Date().toDateString() ? '#a3e635' : currentMonthColor
+                }}
+              >
+                {new Date(selectedDate).toLocaleDateString('it-IT', { month: 'short' }).toLowerCase()} {new Date(selectedDate).getFullYear()}
+              </span>
+              <button
+                onClick={() => {
+                  setIsOpen(false);
+                  setShowTimePicker(false);
+                }}
+                className="p-1 rounded hover:bg-slate-700"
+              >
+                <X className="w-4 h-4 text-slate-400" />
+              </button>
             </div>
-          </>
+          </div>
         )}
 
         {/* Calendario orizzontale */}
