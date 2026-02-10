@@ -210,12 +210,12 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
                 data-fatturato-day={day.day}
                 onClick={() => handleDayClick(day)}
                 className={cn(
-                  "flex flex-col items-center min-w-[22px] py-1",
-                  isPastOrToday && "cursor-pointer",
-                  day.isFuture && "cursor-not-allowed opacity-40"
+                  "flex flex-col items-center min-w-[22px] py-1 transition-all",
+                  isPastOrToday && "cursor-pointer hover:bg-slate-700/50 rounded",
+                  day.isFuture && "cursor-not-allowed"
                 )}
               >
-                {/* Puntino grande - giallo fluo per passati/oggi, grigio per futuri */}
+                {/* Puntino grande - grigio chiaro per passati/oggi, grigio scuro per futuri */}
                 <div 
                   className={cn(
                     "w-4 h-4 rounded-full transition-all flex items-center justify-center",
@@ -223,7 +223,7 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
                     isSelected && "ring-2 ring-white"
                   )}
                   style={{ 
-                    backgroundColor: isPastOrToday ? '#a3e635' : '#334155'
+                    backgroundColor: isPastOrToday ? '#94a3b8' : '#334155'
                   }}
                 >
                   {/* Puntino nero interno solo se ha dati */}
@@ -231,11 +231,11 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
                     <div className="w-2 h-2 rounded-full bg-slate-900" />
                   )}
                 </div>
-                {/* Numero giorno */}
+                {/* Numero giorno - più grande e cliccabile */}
                 <span 
                   className={cn(
-                    "text-[8px] leading-tight mt-0.5 font-semibold",
-                    day.isToday ? "text-lime-400" : (isPastOrToday ? "text-slate-400" : "text-slate-600")
+                    "text-[10px] leading-tight mt-0.5 font-bold",
+                    day.isToday ? "text-lime-400" : (isPastOrToday ? "text-slate-300" : "text-slate-600")
                   )}
                 >
                   {day.day}
