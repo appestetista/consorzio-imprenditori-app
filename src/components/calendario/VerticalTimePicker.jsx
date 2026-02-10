@@ -2,9 +2,11 @@ import React, { useRef, useEffect } from 'react';
 import { X, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export default function VerticalTimePicker({ selectedDate, onClose, onTimeSelect }) {
+export default function VerticalTimePicker({ selectedDate, onClose, onTimeSelect, onDateChange }) {
   const scrollRef = useRef(null);
   const currentHourRef = useRef(null);
+  const isScrollingRef = useRef(false);
+  const lastScrollTop = useRef(0);
 
   // Genera tutte le ore del giorno con intervalli di 5 minuti
   const generateTimeSlots = () => {
@@ -48,6 +50,63 @@ export default function VerticalTimePicker({ selectedDate, onClose, onTimeSelect
       }
     }, 100);
   }, [isToday, selectedDate]);
+
+  // Gestisce il ciclo continuo: quando si raggiunge il top o il bottom, cambia giorno
+  useEffect(() => {
+    const scrollContainer = scrollRef.current;
+    if (!scrollContainer) return;
+
+    const handleScroll = () => {
+      if (isScrollingRef.current) return;
+      
+      const { scrollTop, scrollHeight, clientHeight } = scrollContainer;
+      const scrollBottom = scrollHeight - scrollTop - clientHeight;
+      
+      // Se siamo arrivati in fondo (scrollando verso il basso)
+      if (scrollBottom < 10 && scrollTop > lastScrollTop.current) {
+        isScrollingRef.current = true;
+        
+        // Passa al giorno successivo
+        if (onDateChange && selectedDate) {
+          const nextDay = new Date(selectedDate);
+          nextDay.setDate(nextDay.getDate() + 1);
+          onDateChange(nextDay);
+          
+          // Riposiziona in alto dopo il cambio data
+          setTimeout(() => {
+            scrollContainer.scrollTop = 50;
+            isScrollingRef.current = false;
+          }, 50);
+        } else {
+          isScrollingRef.current = false;
+        }
+      }
+      // Se siamo arrivati in cima (scrollando verso l'alto)
+      else if (scrollTop < 10 && scrollTop < lastScrollTop.current) {
+        isScrollingRef.current = true;
+        
+        // Passa al giorno precedente
+        if (onDateChange && selectedDate) {
+          const prevDay = new Date(selectedDate);
+          prevDay.setDate(prevDay.getDate() - 1);
+          onDateChange(prevDay);
+          
+          // Riposiziona in basso dopo il cambio data
+          setTimeout(() => {
+            scrollContainer.scrollTop = scrollHeight - clientHeight - 50;
+            isScrollingRef.current = false;
+          }, 50);
+        } else {
+          isScrollingRef.current = false;
+        }
+      }
+      
+      lastScrollTop.current = scrollTop;
+    };
+
+    scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+    return () => scrollContainer.removeEventListener('scroll', handleScroll);
+  }, [selectedDate, onDateChange]);
 
   const currentHour = new Date().getHours();
   const currentMinute = new Date().getMinutes();
