@@ -189,7 +189,7 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
   }
 
   return (
-    <div className="bg-slate-900 w-full flex h-full">
+    <div className="bg-slate-900 w-full flex h-full overflow-hidden">
       {/* Fascia verticale con data completa ruotata */}
       <div 
         className="flex items-center justify-center border-r border-slate-700"
@@ -213,7 +213,7 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
       {/* Lista orari scrollabile verticale */}
       <div 
         ref={scrollRef}
-        className="flex-1 overflow-y-auto scrollbar-hide px-4 py-2"
+        className="flex-1 overflow-y-auto scrollbar-hide px-4 py-2 min-h-0"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {timeSlots.map((slot, idx) => {
