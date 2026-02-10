@@ -199,10 +199,11 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
         className="overflow-x-auto scrollbar-hide"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
-        <div className="flex px-1" style={{ width: `${daysInMonth * 22}px`, minWidth: '100%' }}>
+        <div className="flex px-1" style={{ width: `${daysInMonth * 24}px`, minWidth: '100%' }}>
           {days.map((day) => {
             const isSelected = selectedDate && new Date(selectedDate).getDate() === day.day;
             const isPastOrToday = !day.isFuture;
+            const isClickedDay = editingDay === day.date || isSelected;
             
             return (
               <div
@@ -210,17 +211,18 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
                 data-fatturato-day={day.day}
                 onClick={() => handleDayClick(day)}
                 className={cn(
-                  "flex flex-col items-center min-w-[22px] py-1 transition-all",
+                  "flex flex-col items-center min-w-[24px] py-1 transition-all",
                   isPastOrToday && "cursor-pointer hover:bg-slate-700/50 rounded",
                   day.isFuture && "cursor-not-allowed"
                 )}
               >
-                {/* Puntino grande - grigio chiaro per passati/oggi, grigio scuro per futuri */}
+                {/* Puntino - si ingrandisce quando selezionato */}
                 <div 
                   className={cn(
-                    "w-4 h-4 rounded-full transition-all flex items-center justify-center",
+                    "rounded-full transition-all flex items-center justify-center",
+                    isClickedDay ? "w-6 h-6 scale-110" : "w-4 h-4",
                     day.isToday && "ring-2 ring-lime-400/50",
-                    isSelected && "ring-2 ring-white"
+                    isClickedDay && "ring-2 ring-white shadow-lg"
                   )}
                   style={{ 
                     backgroundColor: isPastOrToday ? '#94a3b8' : '#334155'
@@ -228,14 +230,18 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
                 >
                   {/* Puntino nero interno solo se ha dati */}
                   {isPastOrToday && day.hasData && (
-                    <div className="w-2 h-2 rounded-full bg-slate-900" />
+                    <div className={cn(
+                      "rounded-full bg-slate-900 transition-all",
+                      isClickedDay ? "w-3 h-3" : "w-2 h-2"
+                    )} />
                   )}
                 </div>
-                {/* Numero giorno - più grande e cliccabile */}
+                {/* Numero giorno - più grande */}
                 <span 
                   className={cn(
-                    "text-[10px] leading-tight mt-0.5 font-bold",
-                    day.isToday ? "text-lime-400" : (isPastOrToday ? "text-slate-300" : "text-slate-600")
+                    "text-xs leading-tight mt-0.5 font-bold transition-all",
+                    day.isToday ? "text-lime-400" : (isPastOrToday ? "text-slate-300" : "text-slate-600"),
+                    isClickedDay && "text-white scale-110"
                   )}
                 >
                   {day.day}
