@@ -292,10 +292,10 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
         </div>
       )}
 
-      {/* Overlay scuro quando aperto */}
-      {isOpen && (
+      {/* Overlay scuro quando aperto - solo se NON c'è il time picker */}
+      {isOpen && !showTimePicker && (
         <div 
-          className="fixed inset-0 bg-black/50 z-40"
+          className="fixed inset-0 bg-black/50 z-30"
           onClick={() => setIsOpen(false)}
         />
       )}
