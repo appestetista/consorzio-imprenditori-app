@@ -278,7 +278,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
       </div>
 
       {/* Barra mesi dell'anno con progress - in basso */}
-      <div className="px-3 pb-6 pt-2">
+      <div className="px-3 pb-2 pt-2">
         {/* Etichette mesi sopra la barra */}
         <div className="flex items-center mb-1">
           {MONTHS_SHORT.map((m, idx) => {
@@ -327,7 +327,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
         </div>
         
         {/* Percentuali - più visibili */}
-        <div className="flex justify-between items-center mt-2">
+        <div className="flex justify-between items-center mt-1">
           <span className="text-xs text-lime-400 font-bold">
             {yearProgress.toFixed(0)}% trascorso
           </span>
@@ -335,7 +335,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
             {yearRemaining.toFixed(0)}% rimane
           </span>
         </div>
-      </div>
-    </div>
-  );
-}
+        </div>
+        </div>
+        );
+        }
