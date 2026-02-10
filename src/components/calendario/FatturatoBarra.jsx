@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Target, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { Target, TrendingUp, TrendingDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const MONTH_COLORS = [
@@ -17,10 +17,12 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
   const scrollRef = useRef(null);
   const queryClient = useQueryClient();
 
-  const currentDate = selectedDate ? new Date(selectedDate) : new Date();
+  const today = new Date();
+  const currentDate = selectedDate ? new Date(selectedDate) : today;
   const currentMonth = currentDate.getMonth();
   const currentYear = currentDate.getFullYear();
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const todayDay = today.getMonth() === currentMonth && today.getFullYear() === currentYear ? today.getDate() : null;
   const monthColor = MONTH_COLORS[currentMonth];
 
   // Fetch fatturati del mese corrente
@@ -116,18 +118,26 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
   const varMesePrecedente = totaleMesePrecedente > 0 ? ((totaleMese - totaleMesePrecedente) / totaleMesePrecedente) * 100 : 0;
   const varAnnoScorso = totaleAnnoScorso > 0 ? ((totaleMese - totaleAnnoScorso) / totaleAnnoScorso) * 100 : 0;
 
-  // Genera giorni del mese
+  // Genera giorni del mese con fatturato cumulativo
   const days = [];
+  let cumulative = 0;
   for (let d = 1; d <= daysInMonth; d++) {
     const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
     const fatturato = fatturatiMese.find(f => f.data === dateStr);
+    const importo = fatturato?.importo || 0;
+    cumulative += importo;
     days.push({
       day: d,
       date: dateStr,
-      importo: fatturato?.importo || 0,
-      hasData: !!fatturato?.importo
+      importo,
+      cumulative,
+      hasData: !!fatturato?.importo,
+      isToday: d === todayDay,
+      isPast: todayDay ? d <= todayDay : false
     });
   }
+
+  const maxCumulative = Math.max(obiettivo, cumulative, 1);
 
   const handleDayClick = (day) => {
     setEditingDay(day.date);
@@ -162,54 +172,139 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
     return val.toFixed(0);
   };
 
+  // Genera path SVG per il grafico a linea
+  const generateLinePath = () => {
+    const width = daysInMonth * 20;
+    const height = 32;
+    const padding = 2;
+    
+    let path = '';
+    let lastValidIndex = -1;
+    
+    days.forEach((day, i) => {
+      if (!day.isPast && !day.isToday) return;
+      
+      const x = (i / (daysInMonth - 1)) * (width - padding * 2) + padding;
+      const y = height - padding - ((day.cumulative / maxCumulative) * (height - padding * 2));
+      
+      if (lastValidIndex === -1) {
+        path += `M ${x} ${y}`;
+      } else {
+        path += ` L ${x} ${y}`;
+      }
+      lastValidIndex = i;
+    });
+    
+    return path;
+  };
+
+  // Genera path per linea obiettivo
+  const generateObjectivePath = () => {
+    if (obiettivo <= 0) return '';
+    const width = daysInMonth * 20;
+    const height = 32;
+    const padding = 2;
+    const y = height - padding - ((obiettivo / maxCumulative) * (height - padding * 2));
+    return `M ${padding} ${y} L ${width - padding} ${y}`;
+  };
+
   return (
     <div className="bg-slate-900 border-t border-slate-700">
-      {/* Barra giorni fatturato */}
+      {/* Grafico + puntini giorni */}
       <div 
         ref={scrollRef}
-        className="flex overflow-x-auto scrollbar-hide"
+        className="overflow-x-auto scrollbar-hide"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
-        {days.map((day) => {
-          const isSelected = selectedDate && new Date(selectedDate).getDate() === day.day;
-          const barHeight = obiettivo > 0 ? Math.min((day.importo / obiettivo) * 100, 100) : (day.importo > 0 ? 50 : 0);
-          
-          return (
-            <div
-              key={day.day}
-              data-fatturato-day={day.day}
-              onClick={() => handleDayClick(day)}
-              className={cn(
-                "flex flex-col items-center cursor-pointer transition-all min-w-[20px] px-0.5 py-1",
-                isSelected && "bg-slate-800"
-              )}
-            >
-              {/* Mini barra fatturato */}
-              <div className="h-6 w-3 bg-slate-700 rounded-sm overflow-hidden flex flex-col justify-end">
-                {day.importo > 0 && (
+        <div style={{ width: `${daysInMonth * 20}px`, minWidth: '100%' }}>
+          {/* SVG Grafico a linea */}
+          <svg 
+            width={daysInMonth * 20} 
+            height={32} 
+            className="block"
+          >
+            {/* Linea obiettivo tratteggiata */}
+            {obiettivo > 0 && (
+              <path
+                d={generateObjectivePath()}
+                stroke="#4ade80"
+                strokeWidth="1"
+                strokeDasharray="4 2"
+                fill="none"
+                opacity="0.5"
+              />
+            )}
+            
+            {/* Linea fatturato cumulativo */}
+            <path
+              d={generateLinePath()}
+              stroke={monthColor}
+              strokeWidth="2"
+              fill="none"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            
+            {/* Punto oggi che pulsa */}
+            {todayDay && days[todayDay - 1] && (
+              <>
+                <circle
+                  cx={(todayDay - 1) / (daysInMonth - 1) * (daysInMonth * 20 - 4) + 2}
+                  cy={32 - 2 - ((days[todayDay - 1].cumulative / maxCumulative) * 28)}
+                  r="5"
+                  fill={monthColor}
+                  opacity="0.3"
+                  className="animate-ping"
+                />
+                <circle
+                  cx={(todayDay - 1) / (daysInMonth - 1) * (daysInMonth * 20 - 4) + 2}
+                  cy={32 - 2 - ((days[todayDay - 1].cumulative / maxCumulative) * 28)}
+                  r="4"
+                  fill={monthColor}
+                />
+              </>
+            )}
+          </svg>
+
+          {/* Puntini giorni */}
+          <div className="flex">
+            {days.map((day) => {
+              const isSelected = selectedDate && new Date(selectedDate).getDate() === day.day;
+              
+              return (
+                <div
+                  key={day.day}
+                  data-fatturato-day={day.day}
+                  onClick={() => handleDayClick(day)}
+                  className="flex flex-col items-center cursor-pointer min-w-[20px]"
+                >
+                  {/* Puntino */}
                   <div 
-                    className="w-full rounded-sm transition-all"
+                    className={cn(
+                      "w-2 h-2 rounded-full transition-all",
+                      day.isToday && "animate-pulse",
+                      isSelected && "ring-1 ring-white ring-offset-1 ring-offset-slate-900"
+                    )}
                     style={{ 
-                      height: `${barHeight}%`,
-                      backgroundColor: monthColor
+                      backgroundColor: day.hasData ? monthColor : (day.isPast ? '#475569' : '#1e293b')
                     }}
                   />
-                )}
-              </div>
-              {/* Numero giorno */}
-              <span 
-                className={cn(
-                  "text-[8px] mt-0.5",
-                  day.hasData ? "font-bold" : "font-normal",
-                  isSelected ? "text-white" : "text-slate-500"
-                )}
-                style={{ color: day.hasData ? monthColor : undefined }}
-              >
-                {day.day}
-              </span>
-            </div>
-          );
-        })}
+                  {/* Numero giorno */}
+                  <span 
+                    className={cn(
+                      "text-[7px] leading-tight",
+                      day.hasData ? "font-bold" : "font-normal",
+                      day.isToday ? "text-lime-400" : (isSelected ? "text-white" : "text-slate-600")
+                    )}
+                    style={{ color: day.hasData && !day.isToday ? monthColor : undefined }}
+                  >
+                    {day.day}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       {/* Input editing overlay */}
