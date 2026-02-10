@@ -193,17 +193,20 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
 
   return (
     <div className="bg-slate-900">
-      {/* Puntini giorni */}
+      {/* Barre + Puntini giorni */}
       <div 
         ref={scrollRef}
         className="overflow-x-auto scrollbar-hide"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
-        <div className="flex px-1" style={{ width: `${daysInMonth * 24}px`, minWidth: '100%' }}>
+        <div className="flex items-end px-1" style={{ width: `${daysInMonth * 24}px`, minWidth: '100%' }}>
           {days.map((day) => {
             const isSelected = selectedDate && new Date(selectedDate).getDate() === day.day;
             const isPastOrToday = !day.isFuture;
             const isClickedDay = editingDay === day.date || isSelected;
+            
+            // Calcola altezza barra proporzionale all'incasso del giorno
+            const barHeight = day.importo > 0 ? Math.max(4, (day.importo / maxDailyAmount) * 40) : 0;
             
             return (
               <div
@@ -211,11 +214,21 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
                 data-fatturato-day={day.day}
                 onClick={() => handleDayClick(day)}
                 className={cn(
-                  "flex flex-col items-center min-w-[24px] py-1 transition-all",
+                  "flex flex-col items-center min-w-[24px] transition-all",
                   isPastOrToday && "cursor-pointer hover:bg-slate-700/50 rounded",
                   day.isFuture && "cursor-not-allowed"
                 )}
               >
+                {/* Barra verticale proporzionale all'incasso */}
+                <div 
+                  className="w-2 rounded-t transition-all mb-1"
+                  style={{ 
+                    height: `${barHeight}px`,
+                    minHeight: isPastOrToday && day.importo > 0 ? '4px' : '0px',
+                    backgroundColor: day.isToday ? '#a3e635' : (isPastOrToday ? monthColor : '#334155')
+                  }}
+                />
+                
                 {/* Puntino - si ingrandisce quando selezionato */}
                 <div 
                   className={cn(
