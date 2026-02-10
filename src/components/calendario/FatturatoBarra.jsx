@@ -255,7 +255,7 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
             isSelectedDayFuture && "opacity-40"
           )}
         >
-          <span className="text-[7px] text-slate-500 uppercase">Incasso {selectedDayNum || '-'}</span>
+          <span className="text-[7px] text-white uppercase">Incasso giorno</span>
           {isSelectedDayFuture ? (
             <span className="text-[9px] text-red-400">Futuro</span>
           ) : (
@@ -285,7 +285,7 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
 
         {/* Totale mese al centro */}
         <div className="flex flex-col items-center justify-center bg-slate-800 rounded px-3 py-1">
-          <span className="text-[7px] text-slate-500 uppercase">Mese</span>
+          <span className="text-[7px] text-white uppercase">Incasso attuale mese</span>
           <span className="text-sm font-bold" style={{ color: monthColor }}>
             €{formatCurrency(totaleMese)}
           </span>
@@ -295,9 +295,9 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
         <div 
           className="flex-1 flex flex-col items-end bg-slate-800 rounded px-2 py-1"
         >
-          <span className="text-[7px] text-slate-500 uppercase flex items-center gap-0.5">
+          <span className="text-[7px] text-white uppercase flex items-center gap-0.5">
             <Target className="w-2 h-2" />
-            Obiettivo
+            Obiettivo mese
           </span>
           <input
             type="number"
