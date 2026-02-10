@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
+import { LayoutGrid, Plus, AudioLines } from 'lucide-react';
 
 export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMonth, visibleYear, onClose, onTimeSelect, onDateChange, monthColor = '#a3e635' }) {
   const scrollRef = useRef(null);

@@ -173,18 +173,6 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                 <div />
               )}
               
-              {/* Menu centrale */}
-              <div className="flex items-center gap-0.5 bg-slate-800/90 rounded-full px-1.5 py-0.5">
-                <button className="p-1.5 rounded-full hover:bg-slate-700 transition-colors">
-                  <LayoutGrid className="w-4 h-4 text-slate-300" />
-                </button>
-                <button className="p-2 rounded-full bg-amber-500 hover:bg-amber-400 transition-colors">
-                  <Plus className="w-5 h-5 text-white" />
-                </button>
-                <button className="p-1.5 rounded-full hover:bg-slate-700 transition-colors">
-                  <AudioLines className="w-4 h-4 text-amber-400" />
-                </button>
-              </div>
               
               {/* Mese/anno a destra + X chiudi */}
               <div className="flex items-start gap-1">
