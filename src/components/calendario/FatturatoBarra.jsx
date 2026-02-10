@@ -179,7 +179,7 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
   // Genera path SVG per il grafico a linea (fatturato cumulativo)
   const generateLinePath = () => {
     const width = daysInMonth * 24;
-    const height = 40;
+    const height = 28;
     const padding = 4;
     
     let path = '';
@@ -208,7 +208,7 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
   const generateObjectivePath = () => {
     if (obiettivo <= 0) return '';
     const width = daysInMonth * 24;
-    const height = 40;
+    const height = 28;
     const padding = 4;
     // Linea diagonale da (0,0) a (fine mese, obiettivo)
     const startY = height - padding;
@@ -228,14 +228,14 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
           {/* SVG Grafico a linea */}
           <svg 
             width={daysInMonth * 24} 
-            height={40} 
+            height={28} 
             className="block"
           >
             {/* Linea obiettivo tratteggiata (diagonale) */}
             {obiettivo > 0 && (
               <path
                 d={generateObjectivePath()}
-                stroke="#4ade80"
+                stroke="#a3e635"
                 strokeWidth="1.5"
                 strokeDasharray="4 3"
                 fill="none"
@@ -258,17 +258,17 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
               <>
                 <circle
                   cx={(todayDay - 1) / (daysInMonth - 1) * (daysInMonth * 24 - 8) + 4}
-                  cy={40 - 4 - ((days[todayDay - 1].cumulative / maxValue) * 32)}
+                  cy={28 - 4 - ((days[todayDay - 1].cumulative / maxValue) * 20)}
                   r="6"
-                  fill={monthColor}
+                  fill="#a3e635"
                   opacity="0.3"
                   className="animate-ping"
                 />
                 <circle
                   cx={(todayDay - 1) / (daysInMonth - 1) * (daysInMonth * 24 - 8) + 4}
-                  cy={40 - 4 - ((days[todayDay - 1].cumulative / maxValue) * 32)}
+                  cy={28 - 4 - ((days[todayDay - 1].cumulative / maxValue) * 20)}
                   r="5"
-                  fill={monthColor}
+                  fill="#a3e635"
                   stroke="#0f172a"
                   strokeWidth="1"
                 />
@@ -298,16 +298,18 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
                     className={cn(
                       "w-4 h-4 rounded-full transition-all flex items-center justify-center",
                       day.isToday && "animate-pulse ring-2 ring-lime-400/50",
-                      isSelected && "ring-2 ring-white"
+                      isSelected && !day.isToday && "ring-2 ring-white"
                     )}
                     style={{ 
-                      backgroundColor: day.hasData ? monthColor : '#334155',
-                      boxShadow: day.hasData ? `0 0 6px ${monthColor}50` : 'none'
+                      backgroundColor: day.isToday ? '#a3e635' : (day.hasData ? monthColor : '#334155'),
+                      boxShadow: day.isToday ? '0 0 8px #a3e635' : (day.hasData ? `0 0 6px ${monthColor}50` : 'none')
                     }}
                   >
-                    {day.hasData && (
+                    {day.isToday ? (
+                      <div className="w-1.5 h-1.5 rounded-full bg-slate-900" />
+                    ) : day.hasData ? (
                       <div className="w-1.5 h-1.5 rounded-full bg-white/80" />
-                    )}
+                    ) : null}
                   </div>
                   {/* Numero giorno */}
                   <span 
