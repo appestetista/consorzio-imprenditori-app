@@ -188,7 +188,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
   const currentMonthIdx = now.getMonth();
 
   return (
-    <div className="bg-slate-800 overflow-hidden flex flex-col h-full">
+    <div className="bg-slate-800 overflow-hidden flex flex-col">
       {/* Calendario orizzontale scrollabile continuo - in alto */}
       <div 
         ref={scrollRef}
@@ -327,7 +327,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
         </div>
         
         {/* Percentuali - più visibili */}
-        <div className="flex justify-between items-center mt-0.5 pb-1">
+        <div className="flex justify-between items-center mt-0.5">
           <span className="text-[10px] text-lime-400 font-bold">
             {yearProgress.toFixed(0)}% trascorso
           </span>

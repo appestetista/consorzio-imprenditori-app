@@ -85,7 +85,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           "bg-slate-900 shadow-2xl",
           isOpen ? "translate-y-0" : "translate-y-full"
         )}
-        style={{ height: 'min(220px, 35vh)' }}
+        style={{ height: 'auto' }}
       >
         {/* Header del pannello - visibile solo se NON c'è il time picker */}
         {!showTimePicker && (
@@ -168,7 +168,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
       {isOpen && showTimePicker && selectedDate && (
         <div 
           className="fixed left-0 right-0 top-0 z-50 bg-slate-900"
-          style={{ bottom: 'min(220px, 35vh)' }}
+          style={{ bottom: 'auto' }}
         >
           <VerticalTimePicker 
             selectedDate={selectedDate}
