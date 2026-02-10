@@ -214,6 +214,10 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
     return path || '';
   };
 
+  // Verifica se il giorno selezionato è futuro
+  const selectedDayNum = selectedDate ? new Date(selectedDate).getDate() : null;
+  const isSelectedDayFuture = selectedDayNum && todayDay ? selectedDayNum > todayDay : false;
+
   return (
     <div className="bg-slate-900">
       {/* Grafico + puntini giorni */}
@@ -267,6 +271,8 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
             {days.map((day) => {
               const isSelected = selectedDate && new Date(selectedDate).getDate() === day.day;
               const isEditing = editingDay === day.date;
+              // Giorni passati o oggi = giallo fluo (#a3e635), con puntino nero se ha dati
+              const isPastOrToday = !day.isFuture;
               
               return (
                 <div
@@ -275,38 +281,35 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
                   onClick={() => handleDayClick(day)}
                   className={cn(
                     "flex flex-col items-center min-w-[24px] py-0.5 rounded transition-all",
-                    !day.isFuture && "cursor-pointer",
+                    isPastOrToday && "cursor-pointer",
                     day.isFuture && "opacity-40 cursor-not-allowed",
-                    isSelected && !day.isFuture && "bg-slate-800",
+                    isSelected && isPastOrToday && "bg-slate-800",
                     isEditing && "bg-slate-700"
                   )}
                 >
-                  {/* Puntino */}
+                  {/* Puntino - giallo fluo per giorni passati/oggi, grigio per futuri */}
                   <div 
                     className={cn(
                       "w-3.5 h-3.5 rounded-full transition-all flex items-center justify-center",
                       day.isToday && "animate-pulse ring-2 ring-lime-400/50",
-                      isSelected && !day.isToday && !day.isFuture && "ring-2 ring-white"
+                      isSelected && isPastOrToday && "ring-2 ring-white"
                     )}
                     style={{ 
-                      backgroundColor: day.isToday ? '#a3e635' : (day.hasData ? monthColor : '#334155'),
-                      boxShadow: day.isToday ? '0 0 8px #a3e635' : (day.hasData ? `0 0 4px ${monthColor}50` : 'none')
+                      backgroundColor: isPastOrToday ? '#a3e635' : '#334155',
+                      boxShadow: isPastOrToday ? '0 0 6px #a3e635' : 'none'
                     }}
                   >
-                    {day.isToday ? (
-                      <div className="w-1 h-1 rounded-full bg-slate-900" />
-                    ) : day.hasData ? (
-                      <div className="w-1 h-1 rounded-full bg-white/80" />
-                    ) : null}
+                    {/* Puntino nero GROSSO solo se ha dati inseriti */}
+                    {isPastOrToday && day.hasData && (
+                      <div className="w-2 h-2 rounded-full bg-slate-900" />
+                    )}
                   </div>
                   {/* Numero giorno */}
                   <span 
                     className={cn(
-                      "text-[7px] leading-tight mt-0.5",
-                      day.hasData ? "font-bold" : "font-normal",
-                      day.isToday ? "text-lime-400 font-bold" : (day.isFuture ? "text-slate-600" : (isSelected ? "text-white" : "text-slate-500"))
+                      "text-[7px] leading-tight mt-0.5 font-semibold",
+                      isPastOrToday ? "text-lime-400" : "text-slate-600"
                     )}
-                    style={{ color: day.hasData && !day.isToday ? monthColor : undefined }}
                   >
                     {day.day}
                   </span>
@@ -314,6 +317,59 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
               );
             })}
           </div>
+        </div>
+      </div>
+
+      {/* Riga info: incasso giorno + obiettivo - SEMPRE VISIBILI */}
+      <div className="flex items-center justify-between px-2 py-1 gap-2">
+        {/* Incasso giorno - cliccabile per inserire */}
+        <div 
+          className={cn(
+            "flex-1 flex flex-col px-2 py-1 rounded transition-colors",
+            !isSelectedDayFuture && "cursor-pointer hover:bg-slate-800",
+            isSelectedDayFuture && "opacity-50"
+          )}
+          onClick={() => {
+            if (!isSelectedDayFuture && selectedDayStr) {
+              setEditingDay(selectedDayStr);
+              setInputValue(fatturatoGiornoSelezionato > 0 ? String(fatturatoGiornoSelezionato) : '');
+            }
+          }}
+        >
+          <span className="text-[8px] text-slate-500 uppercase">Incasso giorno</span>
+          {isSelectedDayFuture ? (
+            <span className="text-[10px] text-red-400">Giorno futuro</span>
+          ) : (
+            <span className="text-sm font-bold" style={{ color: '#a3e635' }}>
+              €{formatCurrency(fatturatoGiornoSelezionato)}
+            </span>
+          )}
+        </div>
+
+        {/* Totale mese al centro */}
+        <div className="flex flex-col items-center">
+          <span className="text-[8px] text-slate-500 uppercase">Mese</span>
+          <span className="text-sm font-bold" style={{ color: monthColor }}>
+            €{formatCurrency(totaleMese)}
+          </span>
+        </div>
+
+        {/* Obiettivo a destra - cliccabile */}
+        <div 
+          className="flex-1 flex flex-col items-end cursor-pointer px-2 py-1 rounded hover:bg-slate-800 transition-colors"
+          onClick={() => setShowObjectiveInput(true)}
+        >
+          <span className="text-[8px] text-slate-500 uppercase flex items-center gap-1">
+            <Target className="w-2.5 h-2.5" />
+            Obiettivo
+          </span>
+          {obiettivo > 0 ? (
+            <span className="text-sm font-bold text-lime-400">
+              €{formatCurrency(obiettivo)}
+            </span>
+          ) : (
+            <span className="text-[10px] text-slate-400">+ imposta</span>
+          )}
         </div>
       </div>
 
@@ -325,14 +381,13 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
             type="number"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            placeholder="Fatturato"
+            placeholder="Incasso giorno"
             className="flex-1 bg-slate-700 text-white text-sm px-2 py-1 rounded border-none outline-none"
             autoFocus
           />
           <button 
             onClick={handleSave}
-            className="px-2 py-1 text-xs font-semibold rounded"
-            style={{ backgroundColor: monthColor, color: '#0f172a' }}
+            className="px-2 py-1 text-xs font-semibold rounded bg-lime-400 text-slate-900"
           >
             Salva
           </button>
@@ -344,34 +399,6 @@ export default function FatturatoBarra({ selectedDate, userEmail }) {
           </button>
         </div>
       )}
-
-      {/* Riga info: fatturato a sinistra + fatturato giorno | obiettivo a destra */}
-      <div className="flex items-center justify-between px-2 py-1">
-        {/* Fatturato mese + giorno */}
-        <div className="flex flex-col">
-          <span className="text-[9px] text-slate-400">Mese: <span className="font-bold" style={{ color: monthColor }}>€{formatCurrency(totaleMese)}</span></span>
-          {selectedDate && (
-            <span className="text-[8px] text-slate-500">
-              Oggi: €{formatCurrency(fatturatoGiornoSelezionato)}
-            </span>
-          )}
-        </div>
-
-        {/* Obiettivo a destra - cliccabile */}
-        <div 
-          className="flex items-center gap-1 cursor-pointer px-2 py-0.5 rounded hover:bg-slate-800 transition-colors"
-          onClick={() => setShowObjectiveInput(true)}
-        >
-          <Target className="w-3 h-3 text-lime-400" />
-          {obiettivo > 0 ? (
-            <span className="text-[10px] font-bold text-lime-400">
-              €{formatCurrency(obiettivo)}
-            </span>
-          ) : (
-            <span className="text-[9px] text-slate-400">+ obiettivo</span>
-          )}
-        </div>
-      </div>
 
       {/* Input obiettivo overlay */}
       {showObjectiveInput && (
