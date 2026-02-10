@@ -105,39 +105,49 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           </div>
         )}
 
-        {/* Etichette sopra la barra: Torna Oggi a sinistra, mese/anno a destra */}
+        {/* Etichette esposte sopra la barra (posizionate fuori dal pannello) */}
         {selectedDate && (
-          <div className="flex justify-between items-center px-2 pt-1">
-            {/* Torna Oggi a sinistra */}
+          <>
+            {/* X per chiudere - triangolo in alto a destra */}
             <button
               onClick={() => {
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                if (onDateSelect) {
-                  onDateSelect(today);
-                }
-                goToTodayRef.current?.();
+                setIsOpen(false);
+                setShowTimePicker(false);
               }}
-              className="px-2 py-0.5 rounded-md text-xs font-semibold"
-              style={{ 
-                backgroundColor: 'rgba(163, 230, 53, 0.2)',
-                color: '#a3e635'
-              }}
+              className="absolute -top-6 right-2 px-2 py-0.5 rounded-t-md bg-slate-800 border border-b-0 border-slate-600"
             >
-              torna oggi
+              <X className="w-3 h-3 text-slate-400" />
             </button>
+
+            {/* Torna Oggi a sinistra - solo se NON è oggi */}
+            {new Date(selectedDate).toDateString() !== new Date().toDateString() && (
+              <button
+                onClick={() => {
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+                  if (onDateSelect) {
+                    onDateSelect(today);
+                  }
+                  goToTodayRef.current?.();
+                }}
+                className="absolute -top-6 left-2 px-2 py-0.5 rounded-t-md text-xs font-semibold bg-lime-400/20 text-lime-400 border border-b-0 border-lime-400/30"
+              >
+                torna oggi
+              </button>
+            )}
             
             {/* Mese/anno a destra */}
             <div 
-              className="px-2 py-0.5 rounded-md text-xs font-semibold"
+              className="absolute -top-6 right-12 px-2 py-0.5 rounded-t-md text-xs font-semibold border border-b-0"
               style={{ 
                 backgroundColor: new Date(selectedDate).toDateString() === new Date().toDateString() ? 'rgba(163, 230, 53, 0.2)' : `${currentMonthColor}20`,
-                color: new Date(selectedDate).toDateString() === new Date().toDateString() ? '#a3e635' : currentMonthColor
+                color: new Date(selectedDate).toDateString() === new Date().toDateString() ? '#a3e635' : currentMonthColor,
+                borderColor: new Date(selectedDate).toDateString() === new Date().toDateString() ? 'rgba(163, 230, 53, 0.3)' : `${currentMonthColor}30`
               }}
             >
               {new Date(selectedDate).toLocaleDateString('it-IT', { month: 'short' }).toLowerCase()} {new Date(selectedDate).getFullYear()}
             </div>
-          </div>
+          </>
         )}
 
         {/* Calendario orizzontale */}
@@ -148,18 +158,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           onMonthColorChange={setCurrentMonthColor}
         />
 
-        {/* Solo X per chiudere */}
-        <div className="flex justify-end px-2 py-1">
-          <button
-            onClick={() => {
-              setIsOpen(false);
-              setShowTimePicker(false);
-            }}
-            className="p-1.5 rounded-lg hover:bg-slate-700 transition-colors"
-          >
-            <X className="w-4 h-4 text-slate-400" />
-          </button>
-        </div>
+
       </div>
 
       {/* Pannello orari - copre tutto lo spazio sopra il calendario */}
