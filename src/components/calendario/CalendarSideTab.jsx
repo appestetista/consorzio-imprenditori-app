@@ -215,7 +215,18 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
         {/* Linguetta per mostrare/nascondere fatturato */}
         <div className="relative">
           <button
-            onClick={() => setShowFatturato(!showFatturato)}
+            onClick={() => {
+              const newShowFatturato = !showFatturato;
+              setShowFatturato(newShowFatturato);
+              // Sincronizza lo scroll quando si apre
+              if (newShowFatturato && calendarScrollRef.current) {
+                setTimeout(() => {
+                  if (fatturatoScrollRef.current) {
+                    fatturatoScrollRef.current.scrollLeft = calendarScrollRef.current.scrollLeft;
+                  }
+                }, 50);
+              }
+            }}
             className={cn(
               "w-full flex items-center justify-center py-1 transition-all",
               "bg-slate-800 hover:bg-slate-700 border-t border-slate-700"
