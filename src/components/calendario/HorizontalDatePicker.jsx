@@ -120,12 +120,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
         // Aggiorna solo se cambiato
         setVisibleMonth(prev => {
           if (prev.name !== MONTHS[monthIdx] || prev.year !== yearInt) {
-            const newMonth = { name: MONTHS[monthIdx], year: yearInt, color: MONTH_COLORS[monthIdx] };
-            // Notifica il colore al parent
-            if (onMonthColorChange) {
-              onMonthColorChange(newMonth.color);
-            }
-            return newMonth;
+            return { name: MONTHS[monthIdx], year: yearInt, color: MONTH_COLORS[monthIdx] };
           }
           return prev;
         });
@@ -135,6 +130,13 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
     scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
     return () => scrollContainer.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Notifica il colore al parent quando cambia visibleMonth (fuori dal rendering)
+  useEffect(() => {
+    if (onMonthColorChange) {
+      onMonthColorChange(visibleMonth.color);
+    }
+  }, [visibleMonth.color, onMonthColorChange]);
 
   const goToToday = () => {
     setCurrentMonth(today.getMonth());
