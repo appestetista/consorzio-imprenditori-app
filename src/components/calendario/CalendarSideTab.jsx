@@ -218,6 +218,8 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
             userEmail={userEmail}
             onScrollSync={handleFatturatoScroll}
             scrollRef={fatturatoScrollRef}
+            visibleMonth={visibleMonthLabel.month}
+            visibleYear={visibleMonthLabel.year}
           />
         )}
       </div>

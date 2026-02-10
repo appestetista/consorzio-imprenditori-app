@@ -227,6 +227,11 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
     });
     // Aggiorna anche la selezione del mese nella barra in basso
     setSelectedMonthIdx(newMonth);
+
+    // Notifica il giorno visibile per sincronizzazione con fatturato
+    if (onVisibleDayChange) {
+      onVisibleDayChange(dayData.day, newMonth, newYear);
+    }
   };
 
   // Calcola percentuale anno trascorso

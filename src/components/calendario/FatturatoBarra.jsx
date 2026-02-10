@@ -9,7 +9,7 @@ const MONTH_COLORS = [
   '#f97316', '#ef4444', '#06b6d4', '#a855f7', '#6366f1', '#0ea5e9'
 ];
 
-export default function FatturatoBarra({ selectedDate, userEmail, onScrollSync, scrollRef: externalScrollRef }) {
+export default function FatturatoBarra({ selectedDate, userEmail, onScrollSync, scrollRef: externalScrollRef, visibleMonth, visibleYear }) {
   const [editingDay, setEditingDay] = useState(null);
   const [inputValue, setInputValue] = useState('');
   const [showObjectiveInput, setShowObjectiveInput] = useState(false);
@@ -18,9 +18,9 @@ export default function FatturatoBarra({ selectedDate, userEmail, onScrollSync, 
   const queryClient = useQueryClient();
 
   const today = new Date();
-  const currentDate = selectedDate ? new Date(selectedDate) : today;
-  const currentMonth = currentDate.getMonth();
-  const currentYear = currentDate.getFullYear();
+  // Usa visibleMonth/Year se disponibili, altrimenti selectedDate
+  const currentMonth = visibleMonth !== undefined ? visibleMonth : (selectedDate ? new Date(selectedDate).getMonth() : today.getMonth());
+  const currentYear = visibleYear !== undefined ? visibleYear : (selectedDate ? new Date(selectedDate).getFullYear() : today.getFullYear());
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
   // Giorno di oggi nel mese visualizzato (null se mese diverso)
   const todayDay = today.getMonth() === currentMonth && today.getFullYear() === currentYear ? today.getDate() : null;
