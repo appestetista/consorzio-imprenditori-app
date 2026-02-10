@@ -279,7 +279,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
       {isOpen && showTimePicker && selectedDate && (
         <div 
           className="fixed left-0 right-0 top-0 z-50 bg-slate-900"
-          style={{ bottom: 'min(290px, 45vh)' }}
+          style={{ bottom: showFatturato ? '340px' : '220px' }}
         >
           <VerticalTimePicker 
             selectedDate={selectedDate}
