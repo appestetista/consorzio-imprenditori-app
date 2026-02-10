@@ -148,13 +148,13 @@ export default function VerticalTimePicker({ selectedDate, onClose, onTimeSelect
   const formattedDayNumber = selectedDate ? new Date(selectedDate).getDate() : '';
   const formattedMonth = selectedDate ? new Date(selectedDate).toLocaleDateString('it-IT', { month: 'short' }).toLowerCase() : '';
 
-  // Formatta la data completa per la fascia laterale (es. "7 marzo 2026 (lunedì)")
+  // Formatta la data completa per la fascia laterale (es. "7 marzo 2026 ( lunedì )")
   const formattedFullDate = selectedDate 
     ? `${new Date(selectedDate).toLocaleDateString('it-IT', { 
         day: 'numeric', 
         month: 'long', 
         year: 'numeric' 
-      })} (${new Date(selectedDate).toLocaleDateString('it-IT', { weekday: 'long' })})`
+      })} ( ${new Date(selectedDate).toLocaleDateString('it-IT', { weekday: 'long' })} )`
     : '';
 
   return (
@@ -168,7 +168,7 @@ export default function VerticalTimePicker({ selectedDate, onClose, onTimeSelect
         }}
       >
         <div 
-          className="text-sm font-bold whitespace-nowrap"
+          className="text-base font-bold whitespace-nowrap"
           style={{ 
             color: activeColor,
             writingMode: 'vertical-rl',
