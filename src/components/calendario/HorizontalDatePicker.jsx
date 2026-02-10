@@ -219,7 +219,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
       {/* Calendario orizzontale scrollabile continuo - in alto */}
       <div 
         ref={scrollRef}
-        className="flex overflow-x-auto px-1 pt-6 scrollbar-hide items-end flex-1"
+        className="flex overflow-x-auto px-1 pt-7 scrollbar-hide items-end flex-1"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {monthsData.map((monthData, monthIdx) => (
@@ -305,7 +305,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
       </div>
 
       {/* Barra mesi dell'anno con progress - in basso */}
-      <div className="px-3 py-1">
+      <div className="px-2 py-0.5">
         {/* Etichette mesi sopra la barra */}
         <div className="flex items-center mb-1">
           {MONTHS_SHORT.map((m, idx) => {
