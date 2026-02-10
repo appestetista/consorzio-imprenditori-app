@@ -125,7 +125,16 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
             </div>
             <div className="flex items-center gap-2">
               <button
-                onClick={() => goToTodayRef.current?.()}
+                onClick={() => {
+                  // Seleziona oggi come data
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+                  if (onDateSelect) {
+                    onDateSelect(today);
+                  }
+                  // Scrolla al giorno di oggi
+                  goToTodayRef.current?.();
+                }}
                 className="text-xs bg-lime-400/20 text-lime-400 px-3 py-1.5 rounded-md hover:bg-lime-400/30 transition-colors font-semibold"
               >
                 Oggi
