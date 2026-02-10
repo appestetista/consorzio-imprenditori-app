@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Target } from 'lucide-react';
+import { Target, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const MONTH_COLORS = [
@@ -293,9 +293,25 @@ export default function FatturatoBarra({ selectedDate, userEmail, onScrollSync, 
             isSelectedDayFuture && "opacity-40"
           )}
         >
-          <span className="text-[9px] text-white uppercase">
-            Vendite / € giorno {selectedDayNum || ''}
-          </span>
+          <div className="flex items-center justify-between">
+            <span className="text-[9px] text-white uppercase">
+              Vendite / € giorno{selectedDayNum ? ` ${selectedDayNum}` : ''}
+            </span>
+            {/* X per azzerare */}
+            {(inputValue !== '' || fatturatoGiornoSelezionato > 0) && selectedDayNum && !isSelectedDayFuture && (
+              <button
+                onClick={() => {
+                  setInputValue('0');
+                  if (selectedDayStr) {
+                    saveMutation.mutate({ data: selectedDayStr, importo: 0 });
+                  }
+                }}
+                className="p-0.5 rounded hover:bg-slate-700"
+              >
+                <X className="w-3 h-3 text-slate-400" />
+              </button>
+            )}
+          </div>
           {isSelectedDayFuture ? (
             <span className="text-[10px] text-red-400">Futuro</span>
           ) : (
