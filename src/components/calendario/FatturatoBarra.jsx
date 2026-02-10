@@ -27,41 +27,13 @@ export default function FatturatoBarra({ selectedDate, userEmail, onScrollSync, 
   // Usa il colore passato dal parent (sincronizzato col calendario) oppure quello del mese corrente
   const monthColor = externalMonthColor || MONTH_COLORS[currentMonth];
 
-  // Fetch fatturati del mese corrente
-  const { data: fatturatiMese = [] } = useQuery({
-    queryKey: ['fatturato', userEmail, currentYear, currentMonth],
+  // Fetch fatturati di tutto l'anno
+  const displayYear = selectedDate ? new Date(selectedDate).getFullYear() : currentYear;
+  const { data: fatturatiAnno = [] } = useQuery({
+    queryKey: ['fatturato', userEmail, displayYear],
     queryFn: async () => {
-      const startDate = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`;
-      const endDate = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${daysInMonth}`;
-      const all = await base44.entities.FatturatoGiornaliero.filter({ user_email: userEmail });
-      return all.filter(f => f.data >= startDate && f.data <= endDate);
-    },
-    enabled: !!userEmail
-  });
-
-  // Fetch fatturati mese precedente
-  const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
-  const prevYear = currentMonth === 0 ? currentYear - 1 : currentYear;
-  const { data: fatturatiMesePrecedente = [] } = useQuery({
-    queryKey: ['fatturato', userEmail, prevYear, prevMonth],
-    queryFn: async () => {
-      const daysInPrevMonth = new Date(prevYear, prevMonth + 1, 0).getDate();
-      const startDate = `${prevYear}-${String(prevMonth + 1).padStart(2, '0')}-01`;
-      const endDate = `${prevYear}-${String(prevMonth + 1).padStart(2, '0')}-${daysInPrevMonth}`;
-      const all = await base44.entities.FatturatoGiornaliero.filter({ user_email: userEmail });
-      return all.filter(f => f.data >= startDate && f.data <= endDate);
-    },
-    enabled: !!userEmail
-  });
-
-  // Fetch fatturati stesso mese anno scorso
-  const { data: fatturatiAnnoScorso = [] } = useQuery({
-    queryKey: ['fatturato', userEmail, currentYear - 1, currentMonth],
-    queryFn: async () => {
-      const lastYear = currentYear - 1;
-      const daysInMonthLastYear = new Date(lastYear, currentMonth + 1, 0).getDate();
-      const startDate = `${lastYear}-${String(currentMonth + 1).padStart(2, '0')}-01`;
-      const endDate = `${lastYear}-${String(currentMonth + 1).padStart(2, '0')}-${daysInMonthLastYear}`;
+      const startDate = `${displayYear}-01-01`;
+      const endDate = `${displayYear}-12-31`;
       const all = await base44.entities.FatturatoGiornaliero.filter({ user_email: userEmail });
       return all.filter(f => f.data >= startDate && f.data <= endDate);
     },
@@ -71,7 +43,7 @@ export default function FatturatoBarra({ selectedDate, userEmail, onScrollSync, 
   // Mutation per salvare fatturato
   const saveMutation = useMutation({
     mutationFn: async ({ data, importo }) => {
-      const existing = fatturatiMese.find(f => f.data === data);
+      const existing = fatturatiAnno.find(f => f.data === data);
       if (existing) {
         return base44.entities.FatturatoGiornaliero.update(existing.id, { importo });
       } else {
@@ -88,9 +60,8 @@ export default function FatturatoBarra({ selectedDate, userEmail, onScrollSync, 
   // Mutation per salvare obiettivo
   const saveObjectiveMutation = useMutation({
     mutationFn: async (obiettivo) => {
-      // Salva obiettivo su tutti i giorni del mese (o sul primo)
-      const firstDayData = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`;
-      const existing = fatturatiMese.find(f => f.data === firstDayData);
+      const firstDayData = `${displayYear}-${String(currentMonth + 1).padStart(2, '0')}-01`;
+      const existing = fatturatiAnno.find(f => f.data === firstDayData);
       if (existing) {
         return base44.entities.FatturatoGiornaliero.update(existing.id, { obiettivo_mese: obiettivo });
       } else {
@@ -109,49 +80,65 @@ export default function FatturatoBarra({ selectedDate, userEmail, onScrollSync, 
     }
   });
 
-  // Calcoli
-  const totaleMese = fatturatiMese.reduce((sum, f) => sum + (f.importo || 0), 0);
-  const obiettivo = fatturatiMese.find(f => f.obiettivo_mese)?.obiettivo_mese || 0;
+  // Calcoli per il mese visibile
+  const fatturatiMeseVisibile = fatturatiAnno.filter(f => {
+    const d = new Date(f.data);
+    return d.getMonth() === currentMonth;
+  });
+  const totaleMese = fatturatiMeseVisibile.reduce((sum, f) => sum + (f.importo || 0), 0);
+  const obiettivo = fatturatiMeseVisibile.find(f => f.obiettivo_mese)?.obiettivo_mese || 0;
 
   // Fatturato del giorno selezionato
   const selectedDayStr = selectedDate 
     ? `${new Date(selectedDate).getFullYear()}-${String(new Date(selectedDate).getMonth() + 1).padStart(2, '0')}-${String(new Date(selectedDate).getDate()).padStart(2, '0')}`
     : null;
   const fatturatoGiornoSelezionato = selectedDayStr 
-    ? fatturatiMese.find(f => f.data === selectedDayStr)?.importo || 0 
+    ? fatturatiAnno.find(f => f.data === selectedDayStr)?.importo || 0 
     : 0;
 
-  // Genera giorni del mese con fatturato cumulativo (solo fino a oggi)
-  const days = [];
-  let cumulative = 0;
-  for (let d = 1; d <= daysInMonth; d++) {
-    const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-    const fatturato = fatturatiMese.find(f => f.data === dateStr);
-    const importo = fatturato?.importo || 0;
-    
-    // Solo giorni passati o oggi contribuiscono al cumulativo
-    const isPastOrToday = todayDay ? d <= todayDay : false;
-    if (isPastOrToday) {
-      cumulative += importo;
+  // Genera tutti i mesi dell'anno con i loro giorni (come il calendario sopra)
+  const generateYearData = () => {
+    const months = [];
+    for (let month = 0; month < 12; month++) {
+      const daysInMonth = new Date(displayYear, month + 1, 0).getDate();
+      const monthDays = [];
+      const todayInMonth = today.getMonth() === month && today.getFullYear() === displayYear ? today.getDate() : null;
+      
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dateStr = `${displayYear}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const fatturato = fatturatiAnno.find(f => f.data === dateStr);
+        const importo = fatturato?.importo || 0;
+        const isPastOrToday = todayInMonth ? d <= todayInMonth : (month < today.getMonth() || displayYear < today.getFullYear());
+        
+        monthDays.push({
+          day: d,
+          month,
+          date: dateStr,
+          importo,
+          hasData: !!fatturato?.importo && isPastOrToday,
+          isToday: d === todayInMonth,
+          isPast: todayInMonth ? d < todayInMonth : (month < today.getMonth() || displayYear < today.getFullYear()),
+          isFuture: todayInMonth ? d > todayInMonth : (month > today.getMonth() && displayYear >= today.getFullYear())
+        });
+      }
+      
+      months.push({
+        month,
+        year: displayYear,
+        color: MONTH_COLORS[month],
+        days: monthDays
+      });
     }
-    
-    days.push({
-      day: d,
-      date: dateStr,
-      importo,
-      cumulative: isPastOrToday ? cumulative : null, // null per giorni futuri
-      hasData: !!fatturato?.importo && isPastOrToday,
-      isToday: d === todayDay,
-      isPast: todayDay ? d < todayDay : false,
-      isFuture: todayDay ? d > todayDay : true
-    });
-  }
+    return months;
+  };
 
-  // Il massimo per il grafico è l'obiettivo o il cumulativo attuale
-  const maxValue = obiettivo > 0 ? Math.max(obiettivo, cumulative) : Math.max(cumulative, 1);
+  const yearData = generateYearData();
+
+  // Calcola il massimo incasso giornaliero di tutto l'anno per le barre
+  const allDays = yearData.flatMap(m => m.days);
+  const maxDailyAmount = Math.max(...allDays.filter(d => !d.isFuture).map(d => d.importo), 1);
 
   const handleDayClick = (day) => {
-    // Solo giorni passati o oggi possono essere modificati
     if (day.isFuture) return;
     setEditingDay(day.date);
     setInputValue(day.importo > 0 ? String(day.importo) : '');
@@ -168,17 +155,6 @@ export default function FatturatoBarra({ selectedDate, userEmail, onScrollSync, 
       saveObjectiveMutation.mutate(parseFloat(objectiveValue));
     }
   };
-
-  // Scroll al giorno selezionato
-  useEffect(() => {
-    if (scrollRef.current && selectedDate) {
-      const dayNum = new Date(selectedDate).getDate();
-      const el = scrollRef.current.querySelector(`[data-fatturato-day="${dayNum}"]`);
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-      }
-    }
-  }, [selectedDate]);
 
   // Esponi il ref dello scroll al parent per sincronizzazione
   useEffect(() => {
@@ -199,83 +175,90 @@ export default function FatturatoBarra({ selectedDate, userEmail, onScrollSync, 
     return val.toFixed(0);
   };
 
-  // Calcola il massimo incasso giornaliero (non cumulativo) per le barre
-  const maxDailyAmount = Math.max(...days.filter(d => !d.isFuture).map(d => d.importo), 1);
-
   // Verifica se il giorno selezionato è futuro
   const selectedDayNum = selectedDate ? new Date(selectedDate).getDate() : null;
-  const isSelectedDayFuture = selectedDayNum && todayDay ? selectedDayNum > todayDay : false;
+  const selectedMonthNum = selectedDate ? new Date(selectedDate).getMonth() : null;
+  const isSelectedDayFuture = selectedDate ? (
+    selectedMonthNum > today.getMonth() || 
+    (selectedMonthNum === today.getMonth() && selectedDayNum > today.getDate())
+  ) : false;
 
   return (
     <div className="bg-slate-900">
-      {/* Barre + Puntini giorni */}
+      {/* Barre + Puntini giorni - tutto l'anno */}
       <div 
         ref={scrollRef}
         className="overflow-x-auto scrollbar-hide"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         onScroll={handleScroll}
       >
-        <div className="flex items-end px-1" style={{ width: `${daysInMonth * 22}px`, minWidth: '100%' }}>
-          {days.map((day) => {
-            const isSelected = selectedDate && new Date(selectedDate).getDate() === day.day;
-            const isPastOrToday = !day.isFuture;
-            const isClickedDay = editingDay === day.date || isSelected;
-            
-            // Calcola altezza barra proporzionale all'incasso del giorno
-            const barHeight = day.importo > 0 ? Math.max(4, (day.importo / maxDailyAmount) * 40) : 0;
-            
-            return (
-              <div
-                key={day.day}
-                data-fatturato-day={day.day}
-                onClick={() => handleDayClick(day)}
-                className={cn(
-                  "flex flex-col items-center transition-all",
-                  isPastOrToday && "cursor-pointer hover:bg-slate-700/50 rounded",
-                  day.isFuture && "cursor-not-allowed"
-                )}
-                style={{ minWidth: '22px' }}
-              >
-                {/* Barra verticale proporzionale all'incasso */}
-                <div 
-                  className="w-2 rounded-t transition-all mb-1"
-                  style={{ 
-                    height: `${barHeight}px`,
-                    minHeight: isPastOrToday && day.importo > 0 ? '4px' : '0px',
-                    backgroundColor: day.isToday ? '#a3e635' : (isPastOrToday ? monthColor : '#334155')
-                  }}
-                />
+        <div className="flex items-end px-1">
+          {yearData.map((monthData) => (
+            <div key={monthData.month} className="flex items-end">
+              {monthData.days.map((day) => {
+                const isSelected = selectedDate && 
+                  new Date(selectedDate).getDate() === day.day && 
+                  new Date(selectedDate).getMonth() === day.month;
+                const isPastOrToday = !day.isFuture;
+                const isClickedDay = editingDay === day.date || isSelected;
                 
-                {/* Puntino - stessa dimensione del calendario sopra (w-4 h-4) */}
-                <div 
-                  className={cn(
-                    "w-4 h-4 rounded-full transition-all flex items-center justify-center",
-                    day.isToday && "ring-2 ring-lime-400/50",
-                    isClickedDay && "ring-2 ring-white shadow-lg scale-110"
-                  )}
-                  style={{ 
-                    backgroundColor: isPastOrToday ? '#94a3b8' : '#334155',
-                    border: `2px solid ${day.isToday ? '#a3e635' : monthColor}`
-                  }}
-                >
-                  {/* Puntino nero interno solo se ha dati */}
-                  {isPastOrToday && day.hasData && (
-                    <div className="w-1.5 h-1.5 rounded-full bg-slate-900" />
-                  )}
-                </div>
-                {/* Numero giorno */}
-                <span 
-                  className={cn(
-                    "text-[10px] leading-tight mt-0.5 font-bold transition-all",
-                    day.isToday ? "text-lime-400" : (isPastOrToday ? "text-slate-300" : "text-slate-600"),
-                    isClickedDay && "text-white"
-                  )}
-                >
-                  {day.day}
-                </span>
-              </div>
-            );
-          })}
+                // Calcola altezza barra proporzionale all'incasso del giorno
+                const barHeight = day.importo > 0 ? Math.max(4, (day.importo / maxDailyAmount) * 40) : 0;
+                
+                return (
+                  <div
+                    key={day.date}
+                    data-fatturato-day={`${day.month}-${day.day}`}
+                    onClick={() => handleDayClick(day)}
+                    className={cn(
+                      "flex flex-col items-center transition-all",
+                      isPastOrToday && "cursor-pointer hover:bg-slate-700/50 rounded",
+                      day.isFuture && "cursor-not-allowed"
+                    )}
+                    style={{ minWidth: '22px' }}
+                  >
+                    {/* Barra verticale proporzionale all'incasso */}
+                    <div 
+                      className="w-2 rounded-t transition-all mb-1"
+                      style={{ 
+                        height: `${barHeight}px`,
+                        minHeight: isPastOrToday && day.importo > 0 ? '4px' : '0px',
+                        backgroundColor: day.isToday ? '#a3e635' : (isPastOrToday ? monthData.color : '#334155')
+                      }}
+                    />
+                    
+                    {/* Puntino - stessa dimensione del calendario sopra (w-4 h-4) */}
+                    <div 
+                      className={cn(
+                        "w-4 h-4 rounded-full transition-all flex items-center justify-center",
+                        day.isToday && "ring-2 ring-lime-400/50",
+                        isClickedDay && "ring-2 ring-white shadow-lg scale-110"
+                      )}
+                      style={{ 
+                        backgroundColor: isPastOrToday ? '#94a3b8' : '#334155',
+                        border: `2px solid ${day.isToday ? '#a3e635' : monthData.color}`
+                      }}
+                    >
+                      {/* Puntino nero interno solo se ha dati */}
+                      {isPastOrToday && day.hasData && (
+                        <div className="w-1.5 h-1.5 rounded-full bg-slate-900" />
+                      )}
+                    </div>
+                    {/* Numero giorno */}
+                    <span 
+                      className={cn(
+                        "text-[10px] leading-tight mt-0.5 font-bold transition-all",
+                        day.isToday ? "text-lime-400" : (isPastOrToday ? "text-slate-300" : "text-slate-600"),
+                        isClickedDay && "text-white"
+                      )}
+                    >
+                      {day.day}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          ))}
         </div>
       </div>
 
