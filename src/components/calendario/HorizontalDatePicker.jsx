@@ -124,7 +124,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
     return () => scrollContainer.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Aggiorna l'etichetta quando selectedDate cambia (es. dal VerticalTimePicker)
+  // Aggiorna l'etichetta e la barra mesi quando selectedDate cambia (es. dal VerticalTimePicker)
   useEffect(() => {
     if (selectedDate) {
       const d = new Date(selectedDate);
@@ -136,6 +136,8 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
         }
         return prev;
       });
+      // Sincronizza anche la barra mesi in basso
+      setSelectedMonthIdx(newMonth);
     }
   }, [selectedDate]);
 
@@ -200,6 +202,8 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
       year: newYear, 
       color: MONTH_COLORS[newMonth] 
     });
+    // Aggiorna anche la selezione del mese nella barra in basso
+    setSelectedMonthIdx(newMonth);
   };
 
   // Calcola percentuale anno trascorso
