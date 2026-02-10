@@ -293,11 +293,11 @@ export default function FatturatoBarra({ selectedDate, userEmail, onScrollSync, 
             isSelectedDayFuture && "opacity-40"
           )}
         >
-          <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1">
             <span className="text-[9px] text-white uppercase">
               Vendite / € giorno{selectedDayNum ? ` ${selectedDayNum}` : ''}
             </span>
-            {/* X per azzerare */}
+            {/* X per azzerare - più grande e vicina */}
             {(inputValue !== '' || fatturatoGiornoSelezionato > 0) && selectedDayNum && !isSelectedDayFuture && (
               <button
                 onClick={() => {
@@ -306,9 +306,9 @@ export default function FatturatoBarra({ selectedDate, userEmail, onScrollSync, 
                     saveMutation.mutate({ data: selectedDayStr, importo: 0 });
                   }
                 }}
-                className="p-0.5 rounded hover:bg-slate-700"
+                className="p-0.5 rounded hover:bg-slate-700 ml-1"
               >
-                <X className="w-3 h-3 text-slate-400" />
+                <X className="w-4 h-4 text-slate-400" />
               </button>
             )}
           </div>

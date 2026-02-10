@@ -213,7 +213,8 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
         </div>
 
         {/* Linguetta per mostrare/nascondere fatturato */}
-        <div className="relative">
+        <div className="relative flex flex-col items-center">
+          {/* Linguetta come tab */}
           <button
             onClick={() => {
               const newShowFatturato = !showFatturato;
@@ -228,33 +229,35 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
               }
             }}
             className={cn(
-              "w-full flex items-center justify-center py-1 transition-all",
-              "bg-slate-800 hover:bg-slate-700 border-t border-slate-700"
+              "px-4 py-1 transition-all",
+              "bg-slate-800 hover:bg-slate-700",
+              "rounded-b-lg",
+              "flex items-center gap-2"
             )}
           >
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] text-slate-400 font-semibold uppercase">
-                Vendite / €
-              </span>
-              <ChevronUp className={cn(
-                "w-4 h-4 text-slate-400 transition-transform",
-                showFatturato && "rotate-180"
-              )} />
-            </div>
+            <span className="text-[10px] text-slate-400 font-semibold uppercase">
+              Vendite / €
+            </span>
+            <ChevronUp className={cn(
+              "w-4 h-4 text-slate-400 transition-transform",
+              showFatturato && "rotate-180"
+            )} />
           </button>
 
           {/* Barra fatturato - espandibile */}
           {showFatturato && userEmail && (
-            <FatturatoBarra 
-              selectedDate={selectedDate}
-              userEmail={userEmail}
-              onScrollSync={handleFatturatoScroll}
-              scrollRef={fatturatoScrollRef}
-              visibleMonth={visibleMonthLabel.month}
-              visibleYear={visibleMonthLabel.year}
-              monthColor={currentMonthColor}
-              onDateSelect={handleDateSelect}
-            />
+            <div className="w-full">
+              <FatturatoBarra 
+                selectedDate={selectedDate}
+                userEmail={userEmail}
+                onScrollSync={handleFatturatoScroll}
+                scrollRef={fatturatoScrollRef}
+                visibleMonth={visibleMonthLabel.month}
+                visibleYear={visibleMonthLabel.year}
+                monthColor={currentMonthColor}
+                onDateSelect={handleDateSelect}
+              />
+            </div>
           )}
         </div>
       </div>
