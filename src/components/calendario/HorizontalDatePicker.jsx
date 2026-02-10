@@ -145,10 +145,21 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
     if (onGoToToday) onGoToToday();
   };
 
-  // Esponi la funzione goToToday
+  const scrollToDate = (date) => {
+    if (!scrollRef.current || !date) return;
+    const d = new Date(date);
+    const dateStr = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+    const dayElement = scrollRef.current.querySelector(`[data-date="${dateStr}"]`);
+    if (dayElement) {
+      dayElement.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
+  };
+
+  // Esponi la funzione goToToday e scrollToDate
   React.useEffect(() => {
     if (onGoToToday) {
       onGoToToday.current = goToToday;
+      onGoToToday.scrollToDate = scrollToDate;
     }
   }, []);
 
@@ -181,6 +192,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                 key={`${monthData.year}-${monthData.month}-${idx}`}
                 ref={dayData.isToday ? todayRef : null}
                 data-day-info={`${monthData.year}-${monthData.month}`}
+                data-date={`${monthData.year}-${monthData.month}-${dayData.day}`}
                 onClick={() => handleDayClick(dayData)}
                 className={cn(
                   "flex flex-col items-center justify-end cursor-pointer transition-all",
@@ -189,26 +201,20 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                 )}
                 style={{ minWidth: '24px' }}
               >
-                {/* Linea verticale - lime per oggi, colore mese per altri */}
+                {/* Linea verticale - lime per oggi, bianco per altri */}
                 <div 
                   className="w-[2px] mb-1 rounded-full transition-all"
                   style={{ 
                     height: dayData.isWeekend ? '40px' : '24px',
-                    backgroundColor: dayData.isToday ? '#a3e635' : monthData.color
+                    backgroundColor: dayData.isToday ? '#a3e635' : '#ffffff'
                   }}
                 />
-
-                {/* Puntino rosso per weekend */}
-                {dayData.isWeekend && !dayData.isToday && (
-                  <div className="w-[4px] h-[4px] rounded-full bg-red-500 mb-0.5" />
-                )}
 
                 {/* Numero del giorno */}
                 <span 
                   className="text-xs font-bold leading-tight"
                   style={{ 
-                    color: dayData.isToday ? '#a3e635' : 
-                           dayData.isWeekend ? '#ef4444' : '#ffffff'
+                    color: dayData.isToday ? '#a3e635' : '#ffffff'
                   }}
                 >
                   {dayData.day}
@@ -218,8 +224,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                 <span 
                   className="text-[9px] font-medium leading-tight"
                   style={{ 
-                    color: dayData.isToday ? '#a3e635' : 
-                           dayData.isWeekend ? '#ef4444' : '#94a3b8'
+                    color: dayData.isToday ? '#a3e635' : '#94a3b8'
                   }}
                 >
                   {DAYS_SHORT[dayData.dayOfWeek]}
