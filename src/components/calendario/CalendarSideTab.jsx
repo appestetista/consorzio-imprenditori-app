@@ -154,14 +154,15 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                   Oggi
                 </button>
               </div>
-              {showTimePicker && (
-                <button
-                  onClick={() => setShowTimePicker(false)}
-                  className="p-2 rounded-lg hover:bg-slate-700 transition-colors"
-                >
-                  <X className="w-5 h-5 text-slate-400" />
-                </button>
-              )}
+              <button
+                onClick={() => {
+                  setIsOpen(false);
+                  setShowTimePicker(false);
+                }}
+                className="p-2 rounded-lg hover:bg-slate-700 transition-colors"
+              >
+                <X className="w-5 h-5 text-slate-400" />
+              </button>
             </div>
           </div>
         )}

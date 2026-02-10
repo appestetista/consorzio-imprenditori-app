@@ -149,31 +149,26 @@ export default function VerticalTimePicker({ selectedDate, onClose, onTimeSelect
               className={cn(
                 "flex items-center cursor-pointer transition-all hover:bg-slate-700 rounded px-2",
                 isCurrentTime && "bg-lime-400/20",
-                slot.isFullHour ? "h-8" : slot.isHalfHour ? "h-6" : slot.isQuarterHour ? "h-5" : "h-4"
+                slot.isFullHour ? "h-8" : "h-6"
               )}
             >
               {/* Linea a sinistra */}
               <div 
                 className="h-[2px] rounded-full mr-2"
                 style={{ 
-                  width: slot.isFullHour ? '20px' : slot.isHalfHour ? '14px' : slot.isQuarterHour ? '10px' : '6px',
+                  width: slot.isFullHour ? '20px' : '10px',
                   backgroundColor: isCurrentTime ? '#a3e635' : 
-                    slot.isFullHour ? '#a3e635' : 
-                    slot.isHalfHour ? '#64748b' : 
-                    slot.isQuarterHour ? '#475569' : '#334155'
+                    slot.isFullHour ? '#a3e635' : '#475569'
                 }}
               />
 
               {/* Orario a destra */}
               <span 
                 className={cn(
-                  "font-mono",
-                  slot.isFullHour ? "text-sm font-bold" : 
-                    slot.isHalfHour ? "text-xs" : 
-                    slot.isQuarterHour ? "text-[10px]" : "text-[9px]",
+                  "font-mono text-xs",
+                  slot.isFullHour && "font-bold",
                   isCurrentTime ? "text-lime-400" : 
-                    slot.isFullHour ? "text-white" : 
-                    slot.isHalfHour ? "text-slate-400" : "text-slate-500"
+                    slot.isFullHour ? "text-white" : "text-slate-400"
                 )}
               >
                 {slot.timeString}
