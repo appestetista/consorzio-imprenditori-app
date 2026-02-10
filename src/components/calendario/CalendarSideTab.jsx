@@ -105,9 +105,9 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           </div>
         )}
 
-        {/* Etichette esposte sopra la barra */}
+        {/* Etichette esposte sopra la barra - come pill/badge */}
         {selectedDate && (
-          <div className="flex justify-between items-center px-2 pt-1">
+          <div className="flex justify-between items-center px-2 py-0.5">
             {/* Torna Oggi a sinistra - solo se NON è oggi */}
             {new Date(selectedDate).toDateString() !== new Date().toDateString() ? (
               <button
@@ -119,7 +119,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                   }
                   goToTodayRef.current?.();
                 }}
-                className="text-xs font-semibold text-lime-400"
+                className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-lime-400/20 text-lime-400"
               >
                 torna oggi
               </button>
@@ -127,11 +127,12 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
               <div />
             )}
             
-            {/* Mese/anno a destra */}
-            <div className="flex items-center gap-2">
+            {/* Mese/anno a destra + X chiudi */}
+            <div className="flex items-center gap-1">
               <span 
-                className="text-xs font-semibold"
+                className="px-2 py-0.5 rounded-full text-[10px] font-semibold"
                 style={{ 
+                  backgroundColor: new Date(selectedDate).toDateString() === new Date().toDateString() ? 'rgba(163, 230, 53, 0.2)' : `${currentMonthColor}20`,
                   color: new Date(selectedDate).toDateString() === new Date().toDateString() ? '#a3e635' : currentMonthColor
                 }}
               >
@@ -142,9 +143,9 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                   setIsOpen(false);
                   setShowTimePicker(false);
                 }}
-                className="p-1 rounded hover:bg-slate-700"
+                className="p-0.5 rounded-full hover:bg-slate-700"
               >
-                <X className="w-4 h-4 text-slate-400" />
+                <X className="w-3 h-3 text-slate-400" />
               </button>
             </div>
           </div>

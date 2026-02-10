@@ -282,40 +282,43 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
       </div>
 
       {/* Barra mesi dell'anno con progress - in basso */}
-      <div className="px-2 pb-2 pt-1 border-t border-slate-700/50">
-        {/* Barra di riempimento */}
-        <div className="flex items-center h-6 rounded-md overflow-hidden bg-slate-900">
-          {MONTHS_SHORT.map((m, idx) => {
-            const isCurrentMonth = idx === currentMonthIdx;
-            const isPast = idx < currentMonthIdx;
-            const isFuture = idx > currentMonthIdx;
-            return (
-              <button
-                key={idx}
-                onClick={() => {
-                  if (onGoToToday?.scrollToMonth) {
-                    onGoToToday.scrollToMonth(idx);
-                  }
-                }}
-                className="flex-1 h-full text-[9px] font-bold transition-all hover:opacity-80"
-                style={{
-                  backgroundColor: isPast ? MONTH_COLORS[idx] : isCurrentMonth ? MONTH_COLORS[idx] : 'transparent',
-                  color: isPast || isCurrentMonth ? '#0f172a' : '#475569',
-                  opacity: isPast ? 0.7 : 1
-                }}
-              >
-                {m}
-              </button>
-            );
-          })}
+      <div className="px-3 pb-2 pt-1">
+        {/* Etichette mesi sopra la barra */}
+        <div className="flex items-center mb-1">
+          {MONTHS_SHORT.map((m, idx) => (
+            <button
+              key={idx}
+              onClick={() => {
+                if (onGoToToday?.scrollToMonth) {
+                  onGoToToday.scrollToMonth(idx);
+                }
+              }}
+              className="flex-1 text-[8px] font-medium text-center hover:opacity-70 transition-opacity"
+              style={{
+                color: idx <= currentMonthIdx ? '#a3e635' : '#64748b'
+              }}
+            >
+              {m}
+            </button>
+          ))}
         </div>
-        {/* Percentuale */}
-        <div className="text-center mt-1">
-          <span className="text-sm font-bold text-white">{yearProgress.toFixed(0)}%</span>
-          <span className="text-xs text-slate-400 ml-1">trascorso</span>
-          <span className="text-slate-600 mx-2">•</span>
-          <span className="text-sm font-bold text-lime-400">{yearRemaining.toFixed(0)}%</span>
-          <span className="text-xs text-slate-400 ml-1">rimane</span>
+        
+        {/* Barra di riempimento sottile */}
+        <div className="h-2 rounded-full bg-slate-700 overflow-hidden">
+          <div 
+            className="h-full rounded-full bg-gradient-to-r from-lime-500 to-lime-400 transition-all"
+            style={{ width: `${yearProgress}%` }}
+          />
+        </div>
+        
+        {/* Percentuali */}
+        <div className="flex justify-between items-center mt-1">
+          <span className="text-[10px] text-lime-400 font-semibold">
+            {yearProgress.toFixed(0)}% trascorso
+          </span>
+          <span className="text-[10px] text-slate-400 font-semibold">
+            {yearRemaining.toFixed(0)}% rimane
+          </span>
         </div>
       </div>
     </div>
