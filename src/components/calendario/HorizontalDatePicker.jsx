@@ -381,13 +381,10 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
           />
         </div>
         
-        {/* Percentuali + etichetta VENDITA / € */}
+        {/* Percentuali */}
         <div className="flex justify-between items-center mt-0.5">
           <span className="text-[10px] text-lime-400 font-bold">
             {yearProgress.toFixed(0)}% anno trascorso
-          </span>
-          <span className="text-[9px] text-slate-400 font-semibold uppercase">
-            Vendite / €
           </span>
           <span className="text-[10px] text-slate-300 font-bold">
             {yearRemaining.toFixed(0)}% anno che rimane

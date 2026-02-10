@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Calendar, X } from 'lucide-react';
+import { Calendar, X, ChevronUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { base44 } from '@/api/base44Client';
 import HorizontalDatePicker from './HorizontalDatePicker';
@@ -24,6 +24,7 @@ const MONTH_COLORS = [
 export default function CalendarSideTab({ selectedDate, onDateSelect }) {
   const [isOpen, setIsOpen] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
+  const [showFatturato, setShowFatturato] = useState(false);
   const goToTodayRef = useRef(null);
   const [currentMonthColor, setCurrentMonthColor] = useState(MONTH_COLORS[new Date().getMonth()]);
   const [visibleMonthLabel, setVisibleMonthLabel] = useState({ month: new Date().getMonth(), year: new Date().getFullYear() });
@@ -211,19 +212,40 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           />
         </div>
 
-        {/* Barra fatturato */}
-        {userEmail && (
-          <FatturatoBarra 
-            selectedDate={selectedDate}
-            userEmail={userEmail}
-            onScrollSync={handleFatturatoScroll}
-            scrollRef={fatturatoScrollRef}
-            visibleMonth={visibleMonthLabel.month}
-            visibleYear={visibleMonthLabel.year}
-            monthColor={currentMonthColor}
-            onDateSelect={handleDateSelect}
-          />
-        )}
+        {/* Linguetta per mostrare/nascondere fatturato */}
+        <div className="relative">
+          <button
+            onClick={() => setShowFatturato(!showFatturato)}
+            className={cn(
+              "w-full flex items-center justify-center py-1 transition-all",
+              "bg-slate-800 hover:bg-slate-700 border-t border-slate-700"
+            )}
+          >
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-slate-400 font-semibold uppercase">
+                Vendite / €
+              </span>
+              <ChevronUp className={cn(
+                "w-4 h-4 text-slate-400 transition-transform",
+                showFatturato && "rotate-180"
+              )} />
+            </div>
+          </button>
+
+          {/* Barra fatturato - espandibile */}
+          {showFatturato && userEmail && (
+            <FatturatoBarra 
+              selectedDate={selectedDate}
+              userEmail={userEmail}
+              onScrollSync={handleFatturatoScroll}
+              scrollRef={fatturatoScrollRef}
+              visibleMonth={visibleMonthLabel.month}
+              visibleYear={visibleMonthLabel.year}
+              monthColor={currentMonthColor}
+              onDateSelect={handleDateSelect}
+            />
+          )}
+        </div>
       </div>
 
       {/* Pannello orari - copre tutto lo spazio sopra il calendario */}
