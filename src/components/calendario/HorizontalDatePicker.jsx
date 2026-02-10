@@ -251,7 +251,6 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
           </div>
         ))}
       </div>
-
-      </div>
-      );
-      }
+    </div>
+  );
+}
