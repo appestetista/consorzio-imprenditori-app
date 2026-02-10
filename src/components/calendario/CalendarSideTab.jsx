@@ -1,8 +1,10 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Calendar, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { base44 } from '@/api/base44Client';
 import HorizontalDatePicker from './HorizontalDatePicker';
 import VerticalTimePicker from './VerticalTimePicker';
+import FatturatoBarra from './FatturatoBarra';
 
 const MONTH_COLORS = [
   '#3b82f6', // Gennaio - blu
@@ -25,6 +27,17 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
   const goToTodayRef = useRef(null);
   const [currentMonthColor, setCurrentMonthColor] = useState(MONTH_COLORS[new Date().getMonth()]);
   const [visibleMonthLabel, setVisibleMonthLabel] = useState({ month: new Date().getMonth(), year: new Date().getFullYear() });
+  const [userEmail, setUserEmail] = useState(null);
+
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const user = await base44.auth.me();
+        setUserEmail(user?.email);
+      } catch (e) {}
+    };
+    loadUser();
+  }, []);
 
   const toggleCalendar = () => {
     if (!isOpen) {
@@ -85,7 +98,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           "bg-slate-900 shadow-2xl",
           isOpen ? "translate-y-0" : "translate-y-full"
         )}
-        style={{ height: 'min(180px, 30vh)' }}
+        style={{ height: 'min(240px, 38vh)' }}
       >
         {/* Header del pannello - visibile solo se NON c'è il time picker */}
         {!showTimePicker && (
@@ -155,20 +168,30 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           )}
           
           <HorizontalDatePicker 
-          selectedDate={selectedDate}
-          onDateSelect={handleDateSelect}
-          onGoToToday={goToTodayRef}
-          onMonthColorChange={setCurrentMonthColor}
-          onVisibleMonthChange={(month, year) => setVisibleMonthLabel({ month, year })}
-        />
+            selectedDate={selectedDate}
+            onDateSelect={handleDateSelect}
+            onGoToToday={goToTodayRef}
+            onMonthColorChange={setCurrentMonthColor}
+            onVisibleMonthChange={(month, year) => setVisibleMonthLabel({ month, year })}
+          />
         </div>
+
+        {/* Barra fatturato */}
+        {userEmail && (
+          <div className="relative">
+            <FatturatoBarra 
+              selectedDate={selectedDate}
+              userEmail={userEmail}
+            />
+          </div>
+        )}
       </div>
 
       {/* Pannello orari - copre tutto lo spazio sopra il calendario */}
       {isOpen && showTimePicker && selectedDate && (
         <div 
           className="fixed left-0 right-0 top-0 z-50 bg-slate-900"
-          style={{ bottom: 'min(180px, 30vh)' }}
+          style={{ bottom: 'min(240px, 38vh)' }}
         >
           <VerticalTimePicker 
             selectedDate={selectedDate}
