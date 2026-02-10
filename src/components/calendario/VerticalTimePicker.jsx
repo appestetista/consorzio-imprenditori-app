@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 
-export default function VerticalTimePicker({ selectedDate, onClose, onTimeSelect, onDateChange, monthColor = '#a3e635' }) {
+export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMonth, visibleYear, onClose, onTimeSelect, onDateChange, monthColor = '#a3e635' }) {
   const scrollRef = useRef(null);
   const currentHourRef = useRef(null);
   const isScrollingRef = useRef(false);
@@ -148,14 +148,17 @@ export default function VerticalTimePicker({ selectedDate, onClose, onTimeSelect
   const formattedDayNumber = selectedDate ? new Date(selectedDate).getDate() : '';
   const formattedMonth = selectedDate ? new Date(selectedDate).toLocaleDateString('it-IT', { month: 'short' }).toLowerCase() : '';
 
-  // Formatta la data completa per la fascia laterale (es. "7 marzo 2026 ( lunedì )")
-  const formattedFullDate = selectedDate 
-    ? `${new Date(selectedDate).toLocaleDateString('it-IT', { 
-        day: 'numeric', 
-        month: 'long', 
-        year: 'numeric' 
-      })} ( ${new Date(selectedDate).toLocaleDateString('it-IT', { weekday: 'long' })} )`
-    : '';
+  // Formatta la data completa per la fascia laterale - usa visibleDay/Month/Year per sincronizzazione
+  const displayDay = visibleDay || (selectedDate ? new Date(selectedDate).getDate() : new Date().getDate());
+  const displayMonth = visibleMonth !== undefined ? visibleMonth : (selectedDate ? new Date(selectedDate).getMonth() : new Date().getMonth());
+  const displayYear = visibleYear || (selectedDate ? new Date(selectedDate).getFullYear() : new Date().getFullYear());
+  const displayDate = new Date(displayYear, displayMonth, displayDay);
+
+  const formattedFullDate = `${displayDate.toLocaleDateString('it-IT', { 
+      day: 'numeric', 
+      month: 'long', 
+      year: 'numeric' 
+    })} ( ${displayDate.toLocaleDateString('it-IT', { weekday: 'long' })} )`;
 
   return (
     <div className="bg-slate-900 w-full flex h-full">

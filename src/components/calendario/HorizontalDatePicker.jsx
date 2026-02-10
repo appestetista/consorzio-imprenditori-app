@@ -21,7 +21,7 @@ const MONTH_COLORS = [
 
 const MONTHS_SHORT = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
 
-export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoToToday, onMonthColorChange, onVisibleMonthChange }) {
+export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoToToday, onMonthColorChange, onVisibleMonthChange, onVisibleDayChange }) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   
@@ -110,6 +110,10 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
         const monthIdx = parseInt(month);
         const yearInt = parseInt(year);
 
+        // Estrai anche il giorno
+        const dayMatch = closestElement.dataset.date?.split('-')[2];
+        const dayNum = dayMatch ? parseInt(dayMatch) : 1;
+
         // Aggiorna solo se cambiato
         setVisibleMonth(prev => {
           if (prev.name !== MONTHS[monthIdx] || prev.year !== yearInt) {
@@ -120,6 +124,11 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
 
         // Aggiorna anche la selezione del mese nella barra in basso (sincronizzazione)
         setSelectedMonthIdx(monthIdx);
+
+        // Notifica il giorno visibile al parent per la barra laterale
+        if (onVisibleDayChange) {
+          onVisibleDayChange(dayNum, monthIdx, yearInt);
+        }
       }
     };
 

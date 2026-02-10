@@ -27,6 +27,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
   const goToTodayRef = useRef(null);
   const [currentMonthColor, setCurrentMonthColor] = useState(MONTH_COLORS[new Date().getMonth()]);
   const [visibleMonthLabel, setVisibleMonthLabel] = useState({ month: new Date().getMonth(), year: new Date().getFullYear() });
+  const [visibleDay, setVisibleDay] = useState(new Date().getDate());
   const [userEmail, setUserEmail] = useState(null);
 
   useEffect(() => {
@@ -173,6 +174,10 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
             onGoToToday={goToTodayRef}
             onMonthColorChange={setCurrentMonthColor}
             onVisibleMonthChange={(month, year) => setVisibleMonthLabel({ month, year })}
+            onVisibleDayChange={(day, month, year) => {
+              setVisibleDay(day);
+              setVisibleMonthLabel({ month, year });
+            }}
           />
         </div>
 
@@ -193,6 +198,9 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
         >
           <VerticalTimePicker 
             selectedDate={selectedDate}
+            visibleDay={visibleDay}
+            visibleMonth={visibleMonthLabel.month}
+            visibleYear={visibleMonthLabel.year}
             onClose={() => setShowTimePicker(false)}
             onTimeSelect={handleTimeSelect}
             onDateChange={(newDate) => {
