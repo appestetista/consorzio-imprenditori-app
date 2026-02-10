@@ -10,6 +10,15 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
   const goToTodayRef = useRef(null);
 
   const toggleCalendar = () => {
+    if (!isOpen) {
+      // Quando apro il calendario, seleziono automaticamente oggi
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (onDateSelect) {
+        onDateSelect(today);
+      }
+      setShowTimePicker(true);
+    }
     setIsOpen(!isOpen);
   };
 

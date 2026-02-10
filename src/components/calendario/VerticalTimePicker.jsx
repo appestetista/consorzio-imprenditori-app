@@ -29,14 +29,23 @@ export default function VerticalTimePicker({ selectedDate, onClose, onTimeSelect
 
   const timeSlots = generateTimeSlots();
 
-  // Scroll all'ora corrente
+  // Determina se è oggi
+  const isToday = selectedDate && new Date(selectedDate).toDateString() === new Date().toDateString();
+
+  // Scroll all'ora corrente (se oggi) o alle 8:00 (se giorno futuro)
   useEffect(() => {
-    if (currentHourRef.current) {
-      setTimeout(() => {
+    setTimeout(() => {
+      if (isToday && currentHourRef.current) {
         currentHourRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 100);
-    }
-  }, []);
+      } else {
+        // Scroll alle 8:00 per giorni futuri
+        const slot8am = scrollRef.current?.querySelector('[data-time="08:00"]');
+        if (slot8am) {
+          slot8am.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }
+    }, 100);
+  }, [isToday, selectedDate]);
 
   const currentHour = new Date().getHours();
   const currentMinute = new Date().getMinutes();
@@ -72,6 +81,7 @@ export default function VerticalTimePicker({ selectedDate, onClose, onTimeSelect
             <div
               key={idx}
               ref={isCurrentTime ? currentHourRef : null}
+              data-time={slot.timeString}
               onClick={() => handleTimeClick(slot)}
               className={cn(
                 "flex items-center cursor-pointer transition-all hover:bg-slate-700 rounded px-2",
