@@ -18,24 +18,36 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
 
   return (
     <>
-      {/* Barra calendario orizzontale in basso, sopra il footer */}
-      {!isOpen && (
-        <button
-          onClick={toggleCalendar}
-          className="fixed left-0 right-0 z-40 bg-gradient-to-r from-lime-500 to-lime-400 text-slate-900 flex items-center justify-center gap-2 py-2.5 shadow-lg"
-          style={{ bottom: '88px' }}
-        >
-          <Calendar className="w-5 h-5" />
-          <span className="text-sm font-bold tracking-wider">APRI CALENDARIO</span>
-        </button>
-      )}
+      {/* Linguetta laterale */}
+      <button
+        onClick={toggleCalendar}
+        className={cn(
+          "fixed right-0 top-1/2 -translate-y-1/2 z-40 transition-all duration-300",
+          "bg-gradient-to-l from-lime-400 to-lime-500 text-slate-900",
+          "rounded-l-xl shadow-lg shadow-lime-400/20",
+          "flex items-center justify-center",
+          "hover:pr-2 active:scale-95",
+          isOpen ? "opacity-0 pointer-events-none" : "opacity-100"
+        )}
+        style={{
+          width: '32px',
+          height: '80px',
+          writingMode: 'vertical-rl',
+          textOrientation: 'mixed'
+        }}
+      >
+        <div className="flex items-center gap-1 rotate-180">
+          <Calendar className="w-4 h-4" />
+          <span className="text-xs font-bold tracking-wider">DATA</span>
+        </div>
+      </button>
 
-      {/* Pannello calendario */}
+      {/* Pannello calendario - si apre dal basso */}
       <div
         className={cn(
-          "fixed right-0 top-0 bottom-0 z-50 transition-transform duration-300 ease-out",
-          "w-full max-w-md bg-slate-900 border-l border-lime-400/30 shadow-2xl",
-          isOpen ? "translate-x-0" : "translate-x-full"
+          "fixed left-0 right-0 bottom-0 z-50 transition-transform duration-300 ease-out",
+          "bg-slate-900 border-t border-lime-400/30 shadow-2xl",
+          isOpen ? "translate-y-0" : "translate-y-full"
         )}
       >
         {/* Header del pannello */}
@@ -52,9 +64,15 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           </button>
         </div>
 
+        {/* Calendario orizzontale */}
+        <HorizontalDatePicker 
+          selectedDate={selectedDate}
+          onDateSelect={handleDateSelect}
+        />
+
         {/* Data selezionata */}
         {selectedDate && (
-          <div className="px-4 py-3 bg-slate-800/50 border-b border-slate-700">
+          <div className="px-4 py-3 bg-slate-800/50 border-t border-slate-700">
             <p className="text-slate-400 text-xs">Data selezionata:</p>
             <p className="text-lime-400 font-semibold">
               {new Date(selectedDate).toLocaleDateString('it-IT', { 
@@ -66,21 +84,6 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
             </p>
           </div>
         )}
-
-        {/* Calendario */}
-        <HorizontalDatePicker 
-          selectedDate={selectedDate}
-          onDateSelect={handleDateSelect}
-        />
-
-        {/* Istruzioni */}
-        <div className="p-4 text-center">
-          <p className="text-slate-500 text-sm">
-            Scorri orizzontalmente per vedere tutti i giorni del mese.
-            <br />
-            Usa le frecce per cambiare mese.
-          </p>
-        </div>
       </div>
 
       {/* Overlay scuro quando aperto */}
