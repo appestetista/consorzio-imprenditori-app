@@ -422,17 +422,18 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
       {showNoteEditor && (
         <div className="flex-1 border-l border-slate-700 overflow-hidden">
           <NoteEditor 
-            key={selectedTime}
-            selectedDate={selectedDate}
-            selectedTime={selectedTime}
-            onClose={() => { setShowNoteEditor(false); setSelectedTime(null); }}
-            onSave={handleNoteSave}
-            inline={true}
-            existingNote={savedNotes[selectedTime] ? {
-              ...savedNotes[selectedTime],
-              checklistItems: savedNotes[selectedTime].checklist_items || []
-            } : null}
-          />
+              key={selectedTime}
+              selectedDate={selectedDate}
+              selectedTime={selectedTime}
+              onClose={() => { setShowNoteEditor(false); setSelectedTime(null); }}
+              onSave={handleNoteSave}
+              inline={true}
+              existingNote={savedNotes[selectedTime] ? {
+                ...savedNotes[selectedTime],
+                checklistItems: savedNotes[selectedTime].checklist_items || []
+              } : null}
+              onRegisterSave={(saveFn) => { noteEditorSaveRef.current = saveFn; }}
+            />
         </div>
       )}
     </div>
