@@ -174,19 +174,8 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
   const handleNoteSave = (noteData) => {
     console.log('Nota salvata:', noteData);
     // TODO: salvare la nota nel database
-    setSelectedTime(null);
+    setShowNoteEditor(false);
   };
-
-  if (showNoteEditor) {
-    return (
-      <NoteEditor 
-        selectedDate={selectedDate}
-        selectedTime={selectedTime}
-        onClose={() => setShowNoteEditor(false)}
-        onSave={handleNoteSave}
-      />
-    );
-  }
 
   return (
     <div className="bg-slate-900 w-full flex h-full overflow-hidden">
@@ -213,7 +202,10 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
       {/* Lista orari scrollabile verticale */}
       <div 
         ref={scrollRef}
-        className="flex-1 overflow-y-auto scrollbar-hide px-4 py-2 min-h-0"
+        className={cn(
+          "overflow-y-auto scrollbar-hide px-4 py-2 min-h-0 transition-all",
+          showNoteEditor ? "w-[100px] flex-shrink-0" : "flex-1"
+        )}
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {timeSlots.map((slot, idx) => {
@@ -277,6 +269,19 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
           );
         })}
       </div>
+
+      {/* Pannello NoteEditor affiancato a destra */}
+      {showNoteEditor && (
+        <div className="flex-1 border-l border-slate-700 overflow-hidden">
+          <NoteEditor 
+            selectedDate={selectedDate}
+            selectedTime={selectedTime}
+            onClose={() => setShowNoteEditor(false)}
+            onSave={handleNoteSave}
+            inline={true}
+          />
+        </div>
+      )}
     </div>
   );
 }
