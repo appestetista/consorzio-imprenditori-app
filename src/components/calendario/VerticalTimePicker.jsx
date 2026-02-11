@@ -65,6 +65,32 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
     enabled: !!userEmail && !!dateForQuery
   });
 
+  // Query file delle cartelle con data corrispondente
+  const { data: fileDelGiorno = [] } = useQuery({
+    queryKey: ['fileCartella-day', userEmail, dateForQuery],
+    queryFn: () => base44.entities.FileCartella.filter({ user_email: userEmail, data: dateForQuery }),
+    enabled: !!userEmail && !!dateForQuery
+  });
+
+  // Query cartelle per mostrare nome/colore
+  const { data: cartelle = [] } = useQuery({
+    queryKey: ['cartelle', userEmail],
+    queryFn: () => base44.entities.Cartella.filter({ user_email: userEmail }),
+    enabled: !!userEmail
+  });
+
+  // Mappa file cartella per orario
+  const cartellaFiles = {};
+  fileDelGiorno.forEach(f => {
+    const t = f.time || '00:00';
+    if (!cartellaFiles[t]) cartellaFiles[t] = [];
+    cartellaFiles[t].push(f);
+  });
+
+  // Mappa cartelle per id
+  const cartelleMap = {};
+  cartelle.forEach(c => { cartelleMap[c.id] = c; });
+
   // Mappa note per orario
   const savedNotes = {};
   noteDelGiorno.forEach(nota => {
