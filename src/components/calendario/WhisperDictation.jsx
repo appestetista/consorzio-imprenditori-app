@@ -3,104 +3,65 @@ import { Mic, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { base44 } from '@/api/base44Client';
 
-const CHUNK_INTERVAL = 5000;
-const SILENCE_THRESHOLD = 0.015; // soglia RMS sotto la quale è silenzio
-
 export default function WhisperDictation({ onTranscription, isDictating, setIsDictating }) {
   const [isTranscribing, setIsTranscribing] = useState(false);
   const streamRef = useRef(null);
   const mediaRecorderRef = useRef(null);
   const chunksRef = useRef([]);
-  const intervalRef = useRef(null);
-  const activeRef = useRef(false);
-  const pendingRequests = useRef(0);
-  const hadSpeechRef = useRef(false);
-  const analyserRef = useRef(null);
-  const speechCheckRef = useRef(null);
 
-  // Cleanup on unmount
   useEffect(() => {
-    return () => {
-      stopDictation();
-    };
+    return () => stopDictation();
   }, []);
-
-  const sendChunk = useCallback(async (blob) => {
-    if (blob.size < 1000) return; // skip chunk troppo piccoli (silenzio)
-    
-    pendingRequests.current += 1;
-    setIsTranscribing(true);
-
-    // Upload audio blob as file, then pass URL to Whisper backend
-    const file = new File([blob], 'dictation_chunk.webm', { type: 'audio/webm' });
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    const response = await base44.functions.invoke('transcribeAudio', { file_url });
-    const text = response?.data?.text?.trim();
-    
-    if (text && text.length > 0) {
-      onTranscription(text);
-    }
-
-    pendingRequests.current -= 1;
-    if (pendingRequests.current <= 0) {
-      pendingRequests.current = 0;
-      setIsTranscribing(false);
-    }
-  }, [onTranscription]);
 
   const startDictation = useCallback(async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     streamRef.current = stream;
-    activeRef.current = true;
-    setIsDictating(true);
-    if (navigator.vibrate) navigator.vibrate(80);
+    chunksRef.current = [];
 
-    const startNewRecorder = () => {
-      if (!activeRef.current) return;
+    const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm;codecs=opus' });
+    mediaRecorderRef.current = recorder;
 
-      const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm;codecs=opus' });
-      chunksRef.current = [];
-
-      recorder.ondataavailable = (e) => {
-        if (e.data.size > 0) chunksRef.current.push(e.data);
-      };
-
-      recorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
-        sendChunk(blob);
-        // Avvia il prossimo recorder se ancora attivo
-        if (activeRef.current) {
-          startNewRecorder();
-        }
-      };
-
-      mediaRecorderRef.current = recorder;
-      recorder.start();
-
-      // Stop dopo CHUNK_INTERVAL per inviare il chunk
-      intervalRef.current = setTimeout(() => {
-        if (recorder.state === 'recording') {
-          recorder.stop();
-        }
-      }, CHUNK_INTERVAL);
+    recorder.ondataavailable = (e) => {
+      if (e.data.size > 0) chunksRef.current.push(e.data);
     };
 
-    startNewRecorder();
-  }, [sendChunk, setIsDictating]);
+    recorder.onstop = async () => {
+      // Ferma microfono
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(t => t.stop());
+        streamRef.current = null;
+      }
+
+      const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+      if (blob.size < 1000) return; // niente audio utile
+
+      // Una sola trascrizione alla fine
+      setIsTranscribing(true);
+      const file = new File([blob], 'dictation.webm', { type: 'audio/webm' });
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const response = await base44.functions.invoke('transcribeAudio', { file_url });
+      const text = response?.data?.text?.trim();
+
+      if (text && text.length > 0) {
+        onTranscription(text);
+      }
+      setIsTranscribing(false);
+    };
+
+    recorder.start();
+    setIsDictating(true);
+    if (navigator.vibrate) navigator.vibrate(80);
+  }, [onTranscription, setIsDictating]);
 
   const stopDictation = useCallback(() => {
-    activeRef.current = false;
-    clearTimeout(intervalRef.current);
-    
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
-      mediaRecorderRef.current.stop();
+      mediaRecorderRef.current.stop(); // trigger onstop → trascrizione
+    } else {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(t => t.stop());
+        streamRef.current = null;
+      }
     }
-    
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(t => t.stop());
-      streamRef.current = null;
-    }
-    
     setIsDictating(false);
     if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
   }, [setIsDictating]);
@@ -116,7 +77,6 @@ export default function WhisperDictation({ onTranscription, isDictating, setIsDi
 
   return (
     <>
-      {/* Bottone microfono */}
       <button 
         onTouchEnd={toggle}
         onClick={toggle}
@@ -131,7 +91,6 @@ export default function WhisperDictation({ onTranscription, isDictating, setIsDi
         )} />
       </button>
 
-      {/* Indicatore trascrizione in corso sotto la toolbar */}
       {(isDictating || isTranscribing) && (
         <div className="absolute left-0 right-0 -bottom-7 flex items-center justify-center gap-1.5">
           {isTranscribing ? (

@@ -27,20 +27,8 @@ Deno.serve(async (req) => {
     file: file,
     model: 'whisper-1',
     language: 'it',
-    response_format: 'verbose_json',
+    response_format: 'text',
   });
 
-  // Filtra aggressivamente segmenti dove Whisper ha inventato testo dal silenzio
-  const validSegments = (transcription.segments || []).filter(seg => {
-    // no_speech_prob alta = silenzio, Whisper allucina
-    if (seg.no_speech_prob > 0.5) return false;
-    // avg_logprob troppo basso = testo poco affidabile / allucinato
-    if (seg.avg_logprob < -0.8) return false;
-    // compression_ratio troppo alto = testo ripetitivo inventato
-    if (seg.compression_ratio > 2.2) return false;
-    return true;
-  });
-
-  const cleanText = validSegments.map(s => s.text).join(' ').trim();
-  return Response.json({ text: cleanText });
+  return Response.json({ text: transcription || '' });
 });
