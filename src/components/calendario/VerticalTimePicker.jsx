@@ -267,7 +267,8 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
       <div 
         className="flex flex-col items-center border-r border-slate-700"
         style={{ 
-          backgroundColor: isToday ? 'rgba(163, 230, 53, 0.1)' : `${currentMonthColor}15`,
+          backgroundColor: `color-mix(in srgb, ${currentMonthColor} 6%, #0f172a)`,
+          transition: 'background-color 1.2s ease',
           minWidth: '32px'
         }}
       >
