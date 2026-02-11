@@ -135,11 +135,9 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
 
         {/* Calendario orizzontale con pulsanti sovrapposti */}
         <div className="relative">
-          {/* Pulsanti in sovrimpressione - posizionati sopra il calendario */}
-          {selectedDate && (
-            <div className="absolute top-0 left-0 right-0 z-10 flex justify-between items-start px-2">
-              {/* Torna Oggi a sinistra - solo se NON è oggi */}
-              {new Date(selectedDate).toDateString() !== new Date().toDateString() ? (
+          <HorizontalDatePicker
+            goToTodayButton={
+              new Date(selectedDate).toDateString() !== new Date().toDateString() ? (
                 <button
                   onClick={() => {
                     const today = new Date();
@@ -154,12 +152,9 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                 >
                   oggi
                 </button>
-              ) : (
-                <div />
-              )}
-              
-              
-              {/* Mese/anno a destra + X chiudi */}
+              ) : null
+            }
+            monthLabelButton={
               <div className="flex items-start gap-1">
                 <span 
                   className="px-2 py-0.5 rounded text-[10px] font-semibold"
@@ -180,10 +175,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                   <X className="w-4 h-4 text-slate-300" />
                 </button>
               </div>
-            </div>
-          )}
-          
-          <HorizontalDatePicker 
+            } 
             selectedDate={selectedDate}
             onDateSelect={handleDateSelect}
             onGoToToday={goToTodayRef}
