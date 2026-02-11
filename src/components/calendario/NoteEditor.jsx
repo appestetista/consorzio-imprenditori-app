@@ -101,6 +101,7 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
     if (isDictating) {
       // Stop manuale: disattiva il flag per impedire il riavvio
       dictationActiveRef.current = false;
+      window.__dictationActive = false;
       recognitionRef.current?.stop();
       setIsDictating(false);
       return;
@@ -168,6 +169,7 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
 
     recognitionRef.current = recognition;
     dictationActiveRef.current = true;
+    window.__dictationActive = true;
     recognition.start();
     setIsDictating(true);
   };
