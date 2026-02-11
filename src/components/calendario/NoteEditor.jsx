@@ -99,9 +99,9 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
   const toggleDictation = (e) => {
     e.preventDefault();
     if (isDictating) {
-      const rec = recognitionRef.current;
-      recognitionRef.current = null; // impedisce il riavvio automatico
-      rec?.stop();
+      // Stop manuale: disattiva il flag per impedire il riavvio
+      dictationActiveRef.current = false;
+      recognitionRef.current?.stop();
       setIsDictating(false);
       return;
     }
@@ -116,6 +116,7 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
     recognition.lang = 'it-IT';
     recognition.continuous = true;
     recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
 
     recognition.onresult = (event) => {
       for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -128,17 +129,29 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
       }
     };
 
-    recognition.onerror = () => {
+    recognition.onerror = (ev) => {
+      // "no-speech" e "aborted" non sono errori reali, riprova silenziosamente
+      if (ev.error === 'no-speech' || ev.error === 'aborted') return;
+      dictationActiveRef.current = false;
       setIsDictating(false);
     };
 
     recognition.onend = () => {
-      // Non riavviare — il bip di sistema si sentirebbe ad ogni start()
+      // Se l'utente vuole ancora dettare, riavvia senza che l'utente se ne accorga
+      if (dictationActiveRef.current) {
+        try {
+          recognition.start();
+        } catch {
+          dictationActiveRef.current = false;
+          setIsDictating(false);
+        }
+        return;
+      }
       setIsDictating(false);
-      recognitionRef.current = null;
     };
 
     recognitionRef.current = recognition;
+    dictationActiveRef.current = true;
     recognition.start();
     setIsDictating(true);
   };
