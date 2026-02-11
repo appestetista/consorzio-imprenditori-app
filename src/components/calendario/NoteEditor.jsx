@@ -4,12 +4,12 @@ import { cn } from '@/lib/utils';
 import { base44 } from '@/api/base44Client';
 import ChecklistEditor from './ChecklistEditor';
 
-export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave, inline = false }) {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [attachments, setAttachments] = useState([]);
-  const [checklistItems, setChecklistItems] = useState([]);
-  const [showChecklist, setShowChecklist] = useState(false);
+export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave, inline = false, existingNote = null }) {
+  const [title, setTitle] = useState(existingNote?.title || '');
+  const [content, setContent] = useState(existingNote?.content || '');
+  const [attachments, setAttachments] = useState(existingNote?.attachments || []);
+  const [checklistItems, setChecklistItems] = useState(existingNote?.checklistItems || []);
+  const [showChecklist, setShowChecklist] = useState(existingNote?.checklistItems?.length > 0 || false);
   const [isUploading, setIsUploading] = useState(false);
   const [titleError, setTitleError] = useState(false);
   
@@ -101,8 +101,11 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
         <div className="text-slate-400 text-xs font-mono">
           {formattedDate} • {currentTime}
         </div>
-        <button onClick={handleSave} className="p-1">
-          <Check className="w-5 h-5 text-slate-400" />
+        <button 
+          onClick={handleSave} 
+          className="w-8 h-8 rounded-full bg-lime-500 active:bg-lime-600 active:scale-90 flex items-center justify-center transition-all"
+        >
+          <Check className="w-5 h-5 text-slate-900" strokeWidth={3} />
         </button>
       </div>
 

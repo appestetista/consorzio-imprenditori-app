@@ -140,6 +140,13 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
   const currentSlotMinute = Math.floor(currentMinute / 5) * 5;
 
   const handleTimeClick = (slot) => {
+    const note = savedNotes[slot.timeString];
+    // Se c'è una nota salvata, aprila direttamente
+    if (note) {
+      setSelectedTime(slot.timeString);
+      setShowNoteEditor(true);
+      return;
+    }
     // Toggle selezione: se clicco sullo stesso, deseleziono
     if (selectedTime === slot.timeString) {
       setSelectedTime(null);
@@ -174,12 +181,12 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
 
   const handleNoteSave = (noteData) => {
     console.log('Nota salvata:', noteData);
-    // Salva la nota nello state locale, associata all'orario
     setSavedNotes(prev => ({
       ...prev,
       [noteData.time]: noteData
     }));
     setShowNoteEditor(false);
+    setSelectedTime(null);
   };
 
   return (
@@ -305,11 +312,13 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
       {showNoteEditor && (
         <div className="flex-1 border-l border-slate-700 overflow-hidden">
           <NoteEditor 
+            key={selectedTime}
             selectedDate={selectedDate}
             selectedTime={selectedTime}
-            onClose={() => setShowNoteEditor(false)}
+            onClose={() => { setShowNoteEditor(false); setSelectedTime(null); }}
             onSave={handleNoteSave}
             inline={true}
+            existingNote={savedNotes[selectedTime] || null}
           />
         </div>
       )}
