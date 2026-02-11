@@ -383,6 +383,35 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
         })}
       </div>
 
+      {/* Popup conferma eliminazione */}
+      {deleteConfirm && savedNotes[deleteConfirm] && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/70" onClick={() => setDeleteConfirm(null)}>
+          <div className="bg-slate-800 rounded-xl p-5 w-72 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-white font-semibold text-base mb-2">⚠️ Eliminare nota?</h3>
+            <p className="text-slate-300 text-sm mb-1">
+              <span className="font-semibold text-lime-400">{savedNotes[deleteConfirm].title}</span>
+            </p>
+            <p className="text-slate-400 text-xs mb-5">
+              Questa azione non può essere annullata.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setDeleteConfirm(null)}
+                className="flex-1 px-4 py-2 rounded-lg bg-slate-600 hover:bg-slate-500 text-white text-sm"
+              >
+                Annulla
+              </button>
+              <button
+                onClick={() => deleteNoteMutation.mutate(savedNotes[deleteConfirm].id)}
+                className="flex-1 px-4 py-2 rounded-lg bg-red-500 hover:bg-red-400 text-white text-sm font-semibold"
+              >
+                Elimina
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Pannello NoteEditor affiancato a destra */}
       {showNoteEditor && (
         <div className="flex-1 border-l border-slate-700 overflow-hidden">
@@ -393,7 +422,10 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
             onClose={() => { setShowNoteEditor(false); setSelectedTime(null); }}
             onSave={handleNoteSave}
             inline={true}
-            existingNote={savedNotes[selectedTime] || null}
+            existingNote={savedNotes[selectedTime] ? {
+              ...savedNotes[selectedTime],
+              checklistItems: savedNotes[selectedTime].checklist_items || []
+            } : null}
           />
         </div>
       )}
