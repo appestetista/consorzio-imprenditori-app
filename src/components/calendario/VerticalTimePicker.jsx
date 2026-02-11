@@ -1,6 +1,8 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { Plus, FileText } from 'lucide-react';
+import { Plus, FileText, X } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import NoteEditor from './NoteEditor';
 
 export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMonth, visibleYear, onClose, onTimeSelect, onDateChange, monthColor = '#a3e635' }) {
@@ -10,7 +12,20 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
   const lastScrollTop = useRef(0);
   const [selectedTime, setSelectedTime] = useState(null);
   const [showNoteEditor, setShowNoteEditor] = useState(false);
-  const [savedNotes, setSavedNotes] = useState({}); // { "HH:MM": noteData }
+  const [userEmail, setUserEmail] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState(null); // timeString della nota da eliminare
+  const queryClient = useQueryClient();
+
+  // Carica utente
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const user = await base44.auth.me();
+        setUserEmail(user?.email);
+      } catch (e) {}
+    };
+    loadUser();
+  }, []);
 
   // Genera tutte le ore del giorno con intervalli di 5 minuti
   const generateTimeSlots = () => {
@@ -36,6 +51,61 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
   };
 
   const timeSlots = generateTimeSlots();
+
+  // Data corrente per query
+  const dateForQuery = selectedDate 
+    ? `${new Date(selectedDate).getFullYear()}-${String(new Date(selectedDate).getMonth() + 1).padStart(2, '0')}-${String(new Date(selectedDate).getDate()).padStart(2, '0')}`
+    : null;
+
+  // Query note dal database per il giorno selezionato
+  const { data: noteDelGiorno = [] } = useQuery({
+    queryKey: ['note', userEmail, dateForQuery],
+    queryFn: () => base44.entities.Nota.filter({ user_email: userEmail, data: dateForQuery }),
+    enabled: !!userEmail && !!dateForQuery
+  });
+
+  // Mappa note per orario
+  const savedNotes = {};
+  noteDelGiorno.forEach(nota => {
+    savedNotes[nota.time] = nota;
+  });
+
+  // Mutation salva nota
+  const saveNoteMutation = useMutation({
+    mutationFn: async (noteData) => {
+      const existing = noteDelGiorno.find(n => n.time === noteData.time);
+      if (existing) {
+        return base44.entities.Nota.update(existing.id, {
+          title: noteData.title,
+          content: noteData.content || '',
+          attachments: noteData.attachments || [],
+          checklist_items: noteData.checklistItems || []
+        });
+      } else {
+        return base44.entities.Nota.create({
+          user_email: userEmail,
+          data: dateForQuery,
+          time: noteData.time,
+          title: noteData.title,
+          content: noteData.content || '',
+          attachments: noteData.attachments || [],
+          checklist_items: noteData.checklistItems || []
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['note', userEmail, dateForQuery] });
+    }
+  });
+
+  // Mutation elimina nota
+  const deleteNoteMutation = useMutation({
+    mutationFn: (notaId) => base44.entities.Nota.delete(notaId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['note', userEmail, dateForQuery] });
+      setDeleteConfirm(null);
+    }
+  });
 
   // Colori per mese
   const MONTH_COLORS = [
@@ -180,11 +250,7 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
     })} ( ${displayDate.toLocaleDateString('it-IT', { weekday: 'long' })} )`;
 
   const handleNoteSave = (noteData) => {
-    console.log('Nota salvata:', noteData);
-    setSavedNotes(prev => ({
-      ...prev,
-      [noteData.time]: noteData
-    }));
+    saveNoteMutation.mutate(noteData);
     setShowNoteEditor(false);
     setSelectedTime(null);
   };
@@ -294,14 +360,23 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
                 {slot.timeString}
               </span>
 
-              {/* Titolo nota salvata */}
+              {/* Titolo nota salvata + X per eliminare */}
               {hasNote && (
-                <span className="ml-2 text-xs text-lime-300 truncate">
-                  {note.title}
-                  {(note.content || note.checklistItems?.length > 0 || note.attachments?.length > 0) && (
-                    <span className="text-lime-500 ml-1">•••</span>
-                  )}
-                </span>
+                <div className="ml-2 flex items-center gap-1 flex-1 min-w-0">
+                  <span className="text-xs text-lime-300 truncate">
+                    📄 {note.title}
+                    {(note.content || note.checklist_items?.length > 0 || note.attachments?.length > 0) && (
+                      <span className="text-lime-500 ml-1">•••</span>
+                    )}
+                  </span>
+                  <button
+                    onTouchStart={(e) => { e.stopPropagation(); setDeleteConfirm(slot.timeString); }}
+                    onClick={(e) => { e.stopPropagation(); setDeleteConfirm(slot.timeString); }}
+                    className="flex-shrink-0 w-5 h-5 rounded-full bg-red-500/20 hover:bg-red-500/40 flex items-center justify-center ml-auto touch-manipulation"
+                  >
+                    <X className="w-3 h-3 text-red-400" />
+                  </button>
+                </div>
               )}
             </div>
           );
