@@ -115,17 +115,33 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
     const recognition = new SpeechRecognition();
     recognition.lang = 'it-IT';
     recognition.continuous = true;
-    recognition.interimResults = false;
+    recognition.interimResults = true;
     recognition.maxAlternatives = 1;
 
+    // Testo base prima dell'inizio della dettatura corrente
+    let baseText = contentRef.current || '';
+
     recognition.onresult = (event) => {
+      let finalText = '';
+      let interimText = '';
       for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
         if (event.results[i].isFinal) {
-          const transcript = event.results[i][0].transcript.trim();
-          if (transcript) {
-            setContent(prev => prev ? prev + ' ' + transcript : transcript);
-          }
+          finalText += transcript;
+        } else {
+          interimText += transcript;
         }
+      }
+
+      if (finalText) {
+        // Aggiorna la base con il testo confermato
+        baseText = baseText ? baseText + ' ' + finalText.trim() : finalText.trim();
+        setContent(baseText);
+      }
+
+      if (interimText) {
+        // Mostra provvisorio dopo la base (verrà sostituito dal finale)
+        setContent(baseText ? baseText + ' ' + interimText.trim() : interimText.trim());
       }
     };
 
