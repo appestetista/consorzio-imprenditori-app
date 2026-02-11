@@ -27,8 +27,22 @@ Deno.serve(async (req) => {
     file: file,
     model: 'whisper-1',
     language: 'it',
-    response_format: 'text',
+    response_format: 'verbose_json',
+    prompt: "Questa è una dettatura vocale in italiano di appunti e note personali.",
   });
 
-  return Response.json({ text: transcription });
+  // Filtra segmenti con probabilità troppo bassa o che Whisper ha inventato
+  const validSegments = (transcription.segments || []).filter(seg => {
+    // no_speech_prob alta = probabilmente silenzio
+    if (seg.no_speech_prob > 0.8) return false;
+    // avg_logprob troppo basso = testo inventato/allucinato  
+    if (seg.avg_logprob < -1.0) return false;
+    // Compression ratio troppo alto = testo ripetitivo/inventato
+    if (seg.compression_ratio > 2.4) return false;
+    return true;
+  });
+
+  const cleanText = validSegments.map(s => s.text).join(' ').trim();
+
+  return Response.json({ text: cleanText });
 });
