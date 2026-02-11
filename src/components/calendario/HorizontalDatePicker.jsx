@@ -470,7 +470,8 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Pulsanti oggi e mese/chiudi */}
