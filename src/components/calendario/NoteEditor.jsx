@@ -208,6 +208,66 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
           </div>
         </div>
 
+        {/* Selettore cartella sotto SALVA */}
+        <div className="relative py-1.5 border-b border-slate-800/50">
+          <button
+            onClick={() => setShowCartellaDropdown(!showCartellaDropdown)}
+            className="flex items-center gap-1.5 px-2 py-1 rounded-lg hover:bg-slate-800 transition-colors w-full"
+          >
+            {selectedCartella ? (
+              <>
+                <div 
+                  className="w-3 h-3 rounded-sm flex-shrink-0"
+                  style={{ backgroundColor: cartelle.find(c => c.id === selectedCartella)?.colore || '#64748b' }}
+                />
+                <span className="text-xs text-slate-300 truncate">
+                  {cartelle.find(c => c.id === selectedCartella)?.nome || 'Cartella'}
+                </span>
+              </>
+            ) : (
+              <>
+                <Folder className="w-3.5 h-3.5 text-slate-500" />
+                <span className="text-xs text-slate-500">Nessuna cartella</span>
+              </>
+            )}
+            <ChevronDown className={cn(
+              "w-3 h-3 text-slate-500 ml-auto transition-transform",
+              showCartellaDropdown && "rotate-180"
+            )} />
+          </button>
+
+          {showCartellaDropdown && (
+            <div className="absolute left-0 right-0 top-full z-50 bg-slate-800 border border-slate-700 rounded-lg shadow-xl overflow-hidden">
+              <button
+                onClick={() => { setSelectedCartella(''); setShowCartellaDropdown(false); }}
+                className={cn(
+                  "w-full flex items-center gap-2 px-3 py-2 text-xs hover:bg-slate-700 transition-colors",
+                  !selectedCartella ? "text-white" : "text-slate-400"
+                )}
+              >
+                <Folder className="w-3.5 h-3.5" />
+                Nessuna cartella
+              </button>
+              {cartelle.map((c) => (
+                <button
+                  key={c.id}
+                  onClick={() => { setSelectedCartella(c.id); setShowCartellaDropdown(false); }}
+                  className={cn(
+                    "w-full flex items-center gap-2 px-3 py-2 text-xs hover:bg-slate-700 transition-colors",
+                    selectedCartella === c.id ? "text-white" : "text-slate-400"
+                  )}
+                >
+                  <div 
+                    className="w-3 h-3 rounded-sm flex-shrink-0"
+                    style={{ backgroundColor: c.colore }}
+                  />
+                  {c.nome}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
         {/* Riga 2: Microfono sotto 📷, Registratore sotto 📎+✅, niente sotto SALVA */}
         <div className="flex items-center gap-1 py-1.5 mb-4">
           {/* Microfono - allineato sotto la fotocamera */}
