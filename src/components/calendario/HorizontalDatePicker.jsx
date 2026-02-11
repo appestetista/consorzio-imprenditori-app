@@ -24,7 +24,7 @@ const MONTH_COLORS = [
 
 const MONTHS_SHORT = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
 
-export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoToToday, onMonthColorChange, onVisibleMonthChange, onVisibleDayChange, onScrollSync, scrollRef: externalScrollRef, goToTodayButton, monthLabelButton, showFatturato, onToggleFatturato }) {
+export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoToToday, onMonthColorChange, onVisibleMonthChange, onVisibleDayChange, onScrollSync, scrollRef: externalScrollRef, goToTodayButton, monthLabelButton, showFatturato, onToggleFatturato, currentMonthColor }) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   
@@ -358,7 +358,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
   return (
     <div className="bg-slate-900 overflow-hidden flex flex-col relative">
       {/* Fascia cartelle scrollabile */}
-      <div className="flex items-center gap-2 px-2 pt-4 pb-2 overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+      <div className="flex items-center gap-2 px-2 pt-5 pb-2 overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {/* Pulsante nuova cartella */}
         <button 
           onClick={() => setShowNewFolderPopup(true)}
@@ -766,17 +766,18 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
             {yearProgress.toFixed(2).replace('.', ',')}% anno trascorso
           </span>
           
-          {/* Pulsante Vendite/€ centrato */}
+          {/* Pulsante Vendite/€ centrato - pulsante con colore mese */}
           {onToggleFatturato && (
             <button
               onClick={onToggleFatturato}
-              className="px-3 py-0.5 bg-slate-800 hover:bg-slate-700 rounded-full flex items-center gap-1 transition-all"
+              className="px-3 py-0.5 rounded-full flex items-center gap-1 transition-all animate-pulse"
+              style={{ backgroundColor: currentMonthColor || '#a3e635' }}
             >
-              <span className="text-[10px] text-slate-400 font-semibold uppercase">
+              <span className="text-[10px] text-slate-900 font-semibold uppercase">
                 Vendite / €
               </span>
               <ChevronDown className={cn(
-                "w-3 h-3 text-slate-400 transition-transform",
+                "w-3 h-3 text-slate-900 transition-transform",
                 showFatturato && "rotate-180"
               )} />
             </button>

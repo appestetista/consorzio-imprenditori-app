@@ -185,6 +185,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
             onScrollSync={handleCalendarScroll}
             scrollRef={calendarScrollRef}
             showFatturato={showFatturato}
+            currentMonthColor={currentMonthColor}
             onToggleFatturato={() => {
               const newShowFatturato = !showFatturato;
               setShowFatturato(newShowFatturato);
