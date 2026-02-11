@@ -81,6 +81,28 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
     enabled: !!userEmail
   });
 
+  // Query conteggio file per cartella
+  const { data: tuttiFile = [] } = useQuery({
+    queryKey: ['allFileCartella', userEmail],
+    queryFn: () => base44.entities.FileCartella.filter({ user_email: userEmail }),
+    enabled: !!userEmail
+  });
+
+  const { data: tutteNote = [] } = useQuery({
+    queryKey: ['allNoteCartella', userEmail],
+    queryFn: () => base44.entities.Nota.filter({ user_email: userEmail }),
+    enabled: !!userEmail
+  });
+
+  // Mappa conteggio per cartella_id
+  const fileCountMap = {};
+  tuttiFile.forEach(f => {
+    if (f.cartella_id) fileCountMap[f.cartella_id] = (fileCountMap[f.cartella_id] || 0) + 1;
+  });
+  tutteNote.forEach(n => {
+    if (n.cartella_id) fileCountMap[n.cartella_id] = (fileCountMap[n.cartella_id] || 0) + 1;
+  });
+
   // Mutation crea cartella
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Cartella.create(data),
