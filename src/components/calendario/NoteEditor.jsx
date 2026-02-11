@@ -211,17 +211,17 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
               <ListChecks className={cn("w-5 h-5", showChecklist ? "text-lime-400" : "text-slate-400")} />
             </button>
             <button 
+              onTouchEnd={toggleDictation}
               onClick={toggleDictation}
               className={cn(
-                "p-1.5 rounded-lg transition-colors",
-                isDictating ? "bg-red-500/20" : "hover:bg-slate-800"
+                "p-1.5 rounded-full transition-colors",
+                isDictating ? "bg-cyan-500/20 ring-2 ring-cyan-400" : "hover:bg-slate-800"
               )}
             >
-              {isDictating ? (
-                <MicOff className="w-5 h-5 text-red-400 animate-pulse" />
-              ) : (
-                <Mic className="w-5 h-5 text-slate-400" />
-              )}
+              <Mic className={cn(
+                "w-5 h-5 transition-colors",
+                isDictating ? "text-cyan-400 animate-pulse" : "text-slate-400"
+              )} />
             </button>
           </div>
           <div className="ml-auto pl-2">
