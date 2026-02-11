@@ -29,6 +29,23 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
   const contentRef = useRef(content);
   const attachmentsRef = useRef(attachments);
   const checklistItemsRef = useRef(checklistItems);
+  const cartellaRef = useRef(selectedCartella);
+
+  // Carica utente
+  useEffect(() => {
+    const loadUser = async () => {
+      const user = await base44.auth.me();
+      setUserEmail(user?.email);
+    };
+    loadUser();
+  }, []);
+
+  // Query cartelle
+  const { data: cartelle = [] } = useQuery({
+    queryKey: ['cartelle', userEmail],
+    queryFn: () => base44.entities.Cartella.filter({ user_email: userEmail }),
+    enabled: !!userEmail
+  });
 
   // Tieni aggiornati i ref
   titleRef.current = title;
