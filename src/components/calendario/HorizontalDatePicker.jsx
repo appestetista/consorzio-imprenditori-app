@@ -244,9 +244,9 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
 
   return (
     <div className="bg-slate-900 overflow-hidden flex flex-col relative">
-      {/* Pulsanti sopra le linee weekend - FUORI dallo scroll, senza padding top */}
+      {/* Pulsanti sopra le linee weekend - FUORI dallo scroll, ZERO padding/margin */}
       {(goToTodayButton || monthLabelButton) && (
-        <div className="flex justify-between items-center px-2 pb-1">
+        <div className="flex justify-between items-center px-2">
           <div>
             {goToTodayButton}
           </div>

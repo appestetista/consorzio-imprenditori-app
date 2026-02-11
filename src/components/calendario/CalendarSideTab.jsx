@@ -129,10 +129,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           isOpen ? "translate-y-0" : "translate-y-full",
           showTimePicker ? "z-[55]" : "z-50"
         )}
-        style={{ height: showFatturato ? 'auto' : 'auto' }}
       >
-
-
         {/* Calendario orizzontale - senza spazio sopra */}
         <div>
           <HorizontalDatePicker
