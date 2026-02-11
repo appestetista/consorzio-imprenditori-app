@@ -223,21 +223,12 @@ export default function AudioRecorder({ onAudioSaved, onTranscription }) {
         </span>
       </div>
 
-      {/* Pulsante trascrivi - solo se c'è audio registrato */}
-      {audioURL && !isRecording && (
-        <button
-          onClick={saveAndTranscribe}
-          disabled={isTranscribing}
-          className={cn(
-            "mt-1.5 w-full py-1.5 rounded-lg text-[11px] font-semibold transition-all",
-            isTranscribing 
-              ? "bg-slate-700 text-slate-400 animate-pulse" 
-              : "bg-lime-500/20 text-lime-400 hover:bg-lime-500/30 active:bg-lime-500/40"
+      {/* Indicatore trascrizione automatica */}
+          {isTranscribing && (
+            <div className="mt-1.5 w-full py-1.5 rounded-lg text-[11px] font-semibold text-center bg-slate-700 text-slate-400 animate-pulse">
+              Trascrizione in corso...
+            </div>
           )}
-        >
-          {isTranscribing ? "Trascrizione in corso..." : "💬 Salva e Trascrivi"}
-        </button>
-      )}
     </div>
   );
 }
