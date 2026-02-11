@@ -132,14 +132,9 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
     };
 
     recognition.onend = () => {
-      // Riavvia automaticamente se l'utente non ha fermato manualmente
-      if (recognitionRef.current === recognition) {
-        try {
-          recognition.start();
-        } catch {
-          setIsDictating(false);
-        }
-      }
+      // Non riavviare — il bip di sistema si sentirebbe ad ogni start()
+      setIsDictating(false);
+      recognitionRef.current = null;
     };
 
     recognitionRef.current = recognition;
