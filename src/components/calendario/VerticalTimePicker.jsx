@@ -350,12 +350,14 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
                 "flex items-center cursor-pointer transition-all hover:bg-slate-700 rounded px-2",
                 slot.isFullHour ? "h-10" : "h-6",
                 isSelected && "bg-slate-700/50",
-                hasNote && "bg-slate-800/60"
-              )}
-              style={{
+                hasNote && "bg-slate-800/60",
+                hasCartellaFile && "bg-slate-800/40"
+                )}
+                style={{
                 backgroundColor: isSelected ? 'rgba(100, 100, 100, 0.3)' : 
-                  hasNote ? 'rgba(163, 230, 53, 0.08)' : undefined
-              }}
+                  hasNote ? 'rgba(163, 230, 53, 0.08)' : 
+                  hasCartellaFile ? `color-mix(in srgb, ${cartelleMap[cartellaFiles[slot.timeString]?.[0]?.cartella_id]?.colore || '#64748b'} 8%, transparent)` : undefined
+                }}
             >
               {/* Pulsante + giallo se selezionato, altrimenti linea o icona nota */}
               {isSelected && !hasNote ? (
