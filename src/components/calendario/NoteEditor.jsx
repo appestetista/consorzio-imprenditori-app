@@ -263,8 +263,8 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
               <ListChecks className={cn("w-5 h-5", showChecklist ? "text-lime-400" : "text-slate-400")} />
             </button>
             <button 
-              onTouchEnd={toggleDictation}
-              onClick={toggleDictation}
+              onTouchEnd={(e) => toggleDictation(e)}
+              onClick={(e) => toggleDictation(e)}
               className={cn(
                 "p-1.5 rounded-full transition-colors",
                 isDictating ? "bg-cyan-500/20 ring-2 ring-cyan-400" : "hover:bg-slate-800"
