@@ -20,6 +20,9 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
   
   const [isDictating, setIsDictating] = useState(false);
   const [viewingAttachment, setViewingAttachment] = useState(null);
+  const [selectedCartella, setSelectedCartella] = useState(existingNote?.cartella_id || '');
+  const [showCartellaDropdown, setShowCartellaDropdown] = useState(false);
+  const [userEmail, setUserEmail] = useState(null);
   const cameraInputRef = useRef(null);
   const fileInputRef = useRef(null);
   const titleRef = useRef(title);
