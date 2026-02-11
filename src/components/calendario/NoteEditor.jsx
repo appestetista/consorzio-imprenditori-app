@@ -16,6 +16,16 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
   
   const cameraInputRef = useRef(null);
   const fileInputRef = useRef(null);
+  const titleRef = useRef(title);
+  const contentRef = useRef(content);
+  const attachmentsRef = useRef(attachments);
+  const checklistItemsRef = useRef(checklistItems);
+
+  // Tieni aggiornati i ref
+  titleRef.current = title;
+  contentRef.current = content;
+  attachmentsRef.current = attachments;
+  checklistItemsRef.current = checklistItems;
 
   // L'orario da usare: quello selezionato dallo slot
   const saveTime = selectedTime || '00:00';
