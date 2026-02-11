@@ -18,6 +18,7 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
   const [isDictating, setIsDictating] = useState(false);
   const recognitionRef = useRef(null);
   const dictationActiveRef = useRef(false);
+  const baseTextRef = useRef('');
   const cameraInputRef = useRef(null);
   const fileInputRef = useRef(null);
   const titleRef = useRef(title);
@@ -118,8 +119,8 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
     recognition.interimResults = true;
     recognition.maxAlternatives = 1;
 
-    // Testo base prima dell'inizio della dettatura corrente
-    let baseText = contentRef.current || '';
+    // Salva il testo base prima dell'inizio della dettatura
+    baseTextRef.current = contentRef.current || '';
 
     recognition.onresult = (event) => {
       let finalText = '';
@@ -135,13 +136,13 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
 
       if (finalText) {
         // Aggiorna la base con il testo confermato
-        baseText = baseText ? baseText + ' ' + finalText.trim() : finalText.trim();
-        setContent(baseText);
+        baseTextRef.current = baseTextRef.current ? baseTextRef.current + ' ' + finalText.trim() : finalText.trim();
+        setContent(baseTextRef.current);
       }
 
-      if (interimText) {
+      if (interimText && !finalText) {
         // Mostra provvisorio dopo la base (verrà sostituito dal finale)
-        setContent(baseText ? baseText + ' ' + interimText.trim() : interimText.trim());
+        setContent(baseTextRef.current ? baseTextRef.current + ' ' + interimText.trim() : interimText.trim());
       }
     };
 
