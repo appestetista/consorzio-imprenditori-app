@@ -1,5 +1,6 @@
 import React from 'react';
-import { X, Download, ExternalLink } from 'lucide-react';
+import ReactDOM from 'react-dom';
+import { X } from 'lucide-react';
 
 function getFileCategory(att) {
   const type = (att.type || '').toLowerCase();
@@ -10,9 +11,6 @@ function getFileCategory(att) {
   if (type.startsWith('audio/') || ['mp3','wav','ogg','webm','m4a','aac'].includes(ext)) return 'audio';
   if (type.startsWith('video/') || ['mp4','mov','avi','mkv'].includes(ext)) return 'video';
   if (type === 'application/pdf' || ext === 'pdf') return 'pdf';
-  // Documenti office / testo: prova iframe
-  if (['doc','docx','xls','xlsx','ppt','pptx','txt','csv','rtf'].includes(ext)) return 'document';
-  // Fallback: prova sempre iframe
   return 'other';
 }
 
@@ -21,25 +19,27 @@ export default function AttachmentViewer({ attachment, onClose }) {
 
   const category = getFileCategory(attachment);
 
-  return (
-    <div className="fixed inset-0 z-[70] bg-black flex flex-col">
+  const handleClose = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onClose();
+  };
+
+  return ReactDOM.createPortal(
+    <div 
+      className="fixed inset-0 z-[9999] bg-black flex flex-col"
+      onClick={(e) => e.stopPropagation()}
+    >
       {/* Header */}
-      <div className="flex items-center justify-between px-3 py-2.5 border-b border-slate-800">
+      <div className="flex items-center justify-between px-3 py-2.5 border-b border-slate-800 flex-shrink-0">
         <span className="text-slate-300 text-xs truncate flex-1 mr-3">{attachment.name}</span>
-        <div className="flex items-center gap-2">
-          <a
-            href={attachment.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            download={attachment.name}
-            className="p-1.5 rounded-lg hover:bg-slate-800 transition-colors"
-          >
-            <Download className="w-4 h-4 text-slate-400" />
-          </a>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-800 transition-colors">
-            <X className="w-5 h-5 text-white" />
-          </button>
-        </div>
+        <button 
+          onClick={handleClose} 
+          onTouchEnd={handleClose}
+          className="p-2 rounded-lg hover:bg-slate-800 transition-colors active:bg-slate-700"
+        >
+          <X className="w-6 h-6 text-white" />
+        </button>
       </div>
 
       {/* Content */}
@@ -65,6 +65,7 @@ export default function AttachmentViewer({ attachment, onClose }) {
           />
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
