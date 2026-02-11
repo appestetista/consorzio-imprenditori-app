@@ -212,11 +212,22 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
   const handleTimeClick = (slot) => {
     // Se c'è un popup di conferma eliminazione aperto, non fare nulla
     if (deleteConfirm) return;
-    
-    // Apri sempre l'editor (sia per note esistenti che nuove)
+
+    // Se clicco sullo stesso orario già aperto: salva e chiudi
+    if (selectedTime === slot.timeString && showNoteEditor) {
+      // Trigger salvataggio tramite ref
+      if (noteEditorSaveRef.current) {
+        noteEditorSaveRef.current();
+      }
+      setShowNoteEditor(false);
+      setSelectedTime(null);
+      return;
+    }
+
+    // Apri l'editor (sia per note esistenti che nuove)
     setSelectedTime(slot.timeString);
     setShowNoteEditor(true);
-    
+
     if (onTimeSelect) {
       onTimeSelect(slot.timeString);
     }
