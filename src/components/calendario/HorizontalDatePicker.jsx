@@ -247,7 +247,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
       {/* Calendario orizzontale scrollabile continuo - in alto */}
       <div 
         ref={scrollRef}
-        className="flex overflow-x-auto px-1 pt-5 scrollbar-hide items-end flex-1"
+        className="flex overflow-x-auto px-1 scrollbar-hide items-end flex-1"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {monthsData.map((monthData, monthIdx) => (
