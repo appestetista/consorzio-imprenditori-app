@@ -346,7 +346,10 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
               ) : (
                 <div className="flex items-center mr-2">
                   {(isCurrentTime && isToday) ? (
-                    <div className="w-2.5 h-2.5 rounded-full bg-lime-400 animate-pulse flex-shrink-0" />
+                    <div 
+                      className="h-[2px] rounded-full animate-pulse flex-shrink-0"
+                      style={{ width: '20px', backgroundColor: '#ffffff' }}
+                    />
                   ) : (
                     <div 
                       className="h-[2px] rounded-full"
@@ -364,10 +367,10 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
                 className={cn(
                   "font-mono text-xs flex-shrink-0",
                   slot.isFullHour && "font-bold",
-                  (isCurrentTime && isToday) && "text-lime-400 font-bold"
+                  (isCurrentTime && isToday) && "text-white font-bold animate-pulse"
                 )}
                 style={{
-                  color: (isCurrentTime && isToday) ? '#a3e635' :
+                  color: (isCurrentTime && isToday) ? '#ffffff' :
                     hasNote ? '#a3e635' :
                     slot.isFullHour ? activeColor : '#94a3b8'
                 }}
