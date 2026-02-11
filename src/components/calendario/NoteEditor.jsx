@@ -104,11 +104,19 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
           {formattedDate} • {currentTime}
         </div>
         <button 
-          onTouchStart={(e) => { e.preventDefault(); handleSave(); }}
-          onClick={handleSave} 
-          className="w-8 h-8 rounded-full bg-lime-500 active:bg-lime-600 active:scale-90 flex items-center justify-center transition-all touch-manipulation"
+          onTouchEnd={(e) => { e.preventDefault(); handleSave(); }}
+          onClick={handleSave}
+          disabled={isSaving}
+          className={cn(
+            "w-8 h-8 rounded-full flex items-center justify-center transition-all touch-manipulation",
+            isSaving ? "bg-slate-500 animate-pulse" : "bg-lime-500 active:bg-lime-600 active:scale-90"
+          )}
         >
-          <Check className="w-5 h-5 text-slate-900" strokeWidth={3} />
+          {isSaving ? (
+            <div className="w-4 h-4 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
+          ) : (
+            <Check className="w-5 h-5 text-slate-900" strokeWidth={3} />
+          )}
         </button>
       </div>
 
