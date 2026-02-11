@@ -1,7 +1,8 @@
-import React, { useState, useRef } from 'react';
-import { Check, Camera, Paperclip, ListChecks, X } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Check, Camera, Paperclip, ListChecks, X, ChevronDown, Folder } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
 import ChecklistEditor from './ChecklistEditor';
 import AudioRecorder from './AudioRecorder';
 import WhisperDictation from './WhisperDictation';
