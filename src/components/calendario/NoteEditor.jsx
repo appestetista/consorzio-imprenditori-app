@@ -27,6 +27,25 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
   attachmentsRef.current = attachments;
   checklistItemsRef.current = checklistItems;
 
+  // Registra la funzione di salvataggio per il parent
+  React.useEffect(() => {
+    if (onRegisterSave) {
+      onRegisterSave(() => {
+        if (!titleRef.current.trim()) return;
+        if (onSave) {
+          onSave({
+            title: titleRef.current.trim(),
+            content: contentRef.current,
+            attachments: attachmentsRef.current,
+            checklistItems: checklistItemsRef.current,
+            date: selectedDate,
+            time: selectedTime || '00:00'
+          });
+        }
+      });
+    }
+  }, [onRegisterSave]);
+
   // L'orario da usare: quello selezionato dallo slot
   const saveTime = selectedTime || '00:00';
 
