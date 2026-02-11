@@ -358,7 +358,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
   return (
     <div className="bg-slate-900 overflow-hidden flex flex-col relative">
       {/* Fascia cartelle scrollabile */}
-      <div className="flex items-center gap-2 px-2 pt-5 pb-2 overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+      <div className="flex items-center gap-2 px-2 pt-3 pb-2 overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {/* Pulsante nuova cartella */}
         <button 
           onClick={() => setShowNewFolderPopup(true)}
@@ -388,7 +388,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                   
                   {/* Parte posteriore della cartella (dietro) */}
                   <div 
-                    className="absolute top-0 left-0 right-0 bottom-1 rounded-lg"
+                    className="absolute top-1.5 left-0 right-0 bottom-1 rounded-lg"
                     style={{ 
                       background: `linear-gradient(180deg, ${cartella.colore}ee 0%, ${cartella.colore}cc 100%)`,
                       boxShadow: `inset 0 -2px 4px rgba(0,0,0,0.15)`
@@ -447,6 +447,8 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
               >
                 <X className="w-2.5 h-2.5 text-white" />
               </button>
+            </div>
+          );
             </div>
           );
         })}
