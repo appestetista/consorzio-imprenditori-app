@@ -164,11 +164,6 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
             >
               <ListChecks className={cn("w-5 h-5", showChecklist ? "text-lime-400" : "text-slate-400")} />
             </button>
-            <WhisperDictation 
-              isDictating={isDictating}
-              setIsDictating={setIsDictating}
-              onTranscription={handleWhisperTranscription}
-            />
           </div>
           <div className="ml-auto pl-2">
             <a
@@ -189,15 +184,26 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
           </div>
         </div>
 
-        {/* Registratore audio */}
-        <AudioRecorder
-          onAudioSaved={(audioAtt) => {
-            setAttachments(prev => [...prev, audioAtt]);
-          }}
-          onTranscription={(text) => {
-            setContent(prev => prev ? prev + '\n' + text : text);
-          }}
-        />
+        {/* Registratore audio + dettatura */}
+        <div className="flex items-center gap-2 mb-2">
+          <div className="flex-1 min-w-0">
+            <AudioRecorder
+              onAudioSaved={(audioAtt) => {
+                setAttachments(prev => [...prev, audioAtt]);
+              }}
+              onTranscription={(text) => {
+                setContent(prev => prev ? prev + '\n' + text : text);
+              }}
+            />
+          </div>
+          <div className="relative flex-shrink-0">
+            <WhisperDictation 
+              isDictating={isDictating}
+              setIsDictating={setIsDictating}
+              onTranscription={handleWhisperTranscription}
+            />
+          </div>
+        </div>
 
         {/* Area testo libero */}
         {!showChecklist && (

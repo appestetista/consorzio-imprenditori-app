@@ -4,10 +4,9 @@ import { cn } from '@/lib/utils';
 import { base44 } from '@/api/base44Client';
 
 function formatTime(seconds) {
-  const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
-  const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
+  const m = Math.floor(seconds / 60).toString().padStart(2, '0');
   const s = Math.floor(seconds % 60).toString().padStart(2, '0');
-  return `${h}:${m}:${s}`;
+  return `${m}:${s}`;
 }
 
 export default function AudioRecorder({ onAudioSaved, onTranscription }) {
@@ -163,7 +162,7 @@ export default function AudioRecorder({ onAudioSaved, onTranscription }) {
 
   return (
     <div className="mb-2">
-      <div className="flex items-center gap-2 bg-slate-800/60 rounded-lg px-2 py-1.5">
+      <div className="flex items-center gap-1.5 bg-slate-800/60 rounded-lg px-1.5 py-1">
         {/* Pulsante REC */}
         <button
           onClick={isRecording ? stopRecording : startRecording}
@@ -182,7 +181,7 @@ export default function AudioRecorder({ onAudioSaved, onTranscription }) {
         </button>
 
         {/* Separatore */}
-        <div className="w-[1px] h-5 bg-slate-600 flex-shrink-0" />
+        <div className="w-[1px] h-4 bg-slate-600 flex-shrink-0" />
 
         {/* Pulsante Play/Pause */}
         <button
@@ -213,12 +212,12 @@ export default function AudioRecorder({ onAudioSaved, onTranscription }) {
         </div>
 
         {/* Timer */}
-        <span className="text-[10px] text-slate-400 font-mono flex-shrink-0 min-w-[80px] text-right">
+        <span className="text-[10px] text-slate-400 font-mono flex-shrink-0 min-w-[52px] text-right">
           {isRecording 
             ? formatTime(recordTime)
             : audioURL 
               ? `${formatTime(playTime)} / ${formatTime(duration)}`
-              : '00:00:00'
+              : '00:00'
           }
         </span>
       </div>
