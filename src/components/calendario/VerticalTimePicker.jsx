@@ -80,7 +80,8 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
           title: noteData.title,
           content: noteData.content || '',
           attachments: noteData.attachments || [],
-          checklist_items: noteData.checklistItems || []
+          checklist_items: noteData.checklistItems || [],
+          cartella_id: noteData.cartella_id || null
         });
       } else {
         return base44.entities.Nota.create({
@@ -90,7 +91,8 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
           title: noteData.title,
           content: noteData.content || '',
           attachments: noteData.attachments || [],
-          checklist_items: noteData.checklistItems || []
+          checklist_items: noteData.checklistItems || [],
+          cartella_id: noteData.cartella_id || null
         });
       }
     },
@@ -446,7 +448,8 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
               inline={true}
               existingNote={savedNotes[selectedTime] ? {
                 ...savedNotes[selectedTime],
-                checklistItems: savedNotes[selectedTime].checklist_items || []
+                checklistItems: savedNotes[selectedTime].checklist_items || [],
+                cartella_id: savedNotes[selectedTime].cartella_id || ''
               } : null}
               onRegisterSave={(saveFn) => { noteEditorSaveRef.current = saveFn; }}
             />
