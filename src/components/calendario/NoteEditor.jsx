@@ -81,7 +81,7 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
           <ChevronLeft className="w-5 h-5 text-slate-400" />
         </button>
         <div className="text-slate-400 text-xs font-mono">
-          {formattedDate} • {currentTime}
+          {formattedDate} • {saveTime}
         </div>
         <button 
           onTouchEnd={(e) => { e.preventDefault(); handleSave(); }}
