@@ -334,14 +334,20 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
                   <FileText className="w-4 h-4 text-lime-400" />
                 </button>
               ) : (
-                <div 
-                  className="h-[2px] rounded-full mr-2"
-                  style={{ 
-                    width: slot.isFullHour ? '20px' : '10px',
-                    backgroundColor: (isCurrentTime && isToday) ? '#a3e635' : 
-                      slot.isFullHour ? activeColor : '#475569'
-                  }}
-                />
+                <div className="flex items-center mr-2">
+                  {/* Puntino fluo per ora corrente */}
+                  {(isCurrentTime && isToday) && (
+                    <div className="w-2 h-2 rounded-full bg-lime-400 mr-1 animate-pulse flex-shrink-0" />
+                  )}
+                  <div 
+                    className="h-[2px] rounded-full"
+                    style={{ 
+                      width: (isCurrentTime && isToday) ? '14px' : slot.isFullHour ? '20px' : '10px',
+                      backgroundColor: (isCurrentTime && isToday) ? '#a3e635' : 
+                        slot.isFullHour ? activeColor : '#475569'
+                    }}
+                  />
+                </div>
               )}
 
               {/* Orario */}
