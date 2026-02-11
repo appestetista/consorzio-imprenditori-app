@@ -98,7 +98,9 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
   const toggleDictation = (e) => {
     e.preventDefault();
     if (isDictating) {
-      recognitionRef.current?.stop();
+      const rec = recognitionRef.current;
+      recognitionRef.current = null; // impedisce il riavvio automatico
+      rec?.stop();
       setIsDictating(false);
       return;
     }
