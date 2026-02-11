@@ -97,7 +97,7 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
     if (file) handleFileUpload(file);
   };
 
-  const toggleDictation = (e) => {
+  const toggleDictation = async (e) => {
     e.preventDefault();
     if (isDictating) {
       // Stop manuale: disattiva il flag per impedire il riavvio
@@ -106,6 +106,10 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
       setIsDictating(false);
       // Doppia vibrazione breve allo stop
       if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
+      // Chiudi eventuali stream mic
+      if (recognitionRef.current?._micStream) {
+        recognitionRef.current._micStream.getTracks().forEach(t => t.stop());
+      }
       return;
     }
 
@@ -187,6 +191,7 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
     };
 
     recognitionRef.current = recognition;
+    recognition._micStream = micStream; // salva riferimento per cleanup allo stop
     dictationActiveRef.current = true;
     recognition.start();
     setIsDictating(true);
