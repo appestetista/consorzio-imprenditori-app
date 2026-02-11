@@ -125,39 +125,43 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
     baseTextRef.current = contentRef.current || '';
 
     recognition.onresult = (event) => {
-      let finalText = '';
-      let interimText = '';
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
+      // Raccogli TUTTI i risultati finali e l'ultimo interim
+      let allFinal = '';
+      let latestInterim = '';
+      
+      for (let i = 0; i < event.results.length; i++) {
         if (event.results[i].isFinal) {
-          finalText += transcript;
+          allFinal += event.results[i][0].transcript;
         } else {
-          interimText += transcript;
+          latestInterim = event.results[i][0].transcript;
         }
       }
 
-      if (finalText) {
-        // Aggiorna la base con il testo confermato
-        baseTextRef.current = baseTextRef.current ? baseTextRef.current + ' ' + finalText.trim() : finalText.trim();
-        setContent(baseTextRef.current);
+      // Il contenuto completo = base (pre-dettatura) + tutti i finali + eventuale interim
+      const confirmed = allFinal.trim();
+      const provisional = latestInterim.trim();
+      
+      let newContent = baseTextRef.current;
+      if (confirmed) {
+        newContent = newContent ? newContent + ' ' + confirmed : confirmed;
       }
-
-      if (interimText && !finalText) {
-        // Mostra provvisorio dopo la base (verrà sostituito dal finale)
-        setContent(baseTextRef.current ? baseTextRef.current + ' ' + interimText.trim() : interimText.trim());
+      if (provisional) {
+        newContent = newContent ? newContent + ' ' + provisional : provisional;
       }
+      
+      setContent(newContent);
     };
 
     recognition.onerror = (ev) => {
-      // "no-speech" e "aborted" non sono errori reali, riprova silenziosamente
       if (ev.error === 'no-speech' || ev.error === 'aborted') return;
       dictationActiveRef.current = false;
       setIsDictating(false);
     };
 
     recognition.onend = () => {
-      // Se l'utente vuole ancora dettare, riavvia senza che l'utente se ne accorga
       if (dictationActiveRef.current) {
+        // Prima di riavviare, aggiorna baseText con tutto il contenuto confermato finora
+        baseTextRef.current = contentRef.current || '';
         try {
           recognition.start();
         } catch {
