@@ -433,12 +433,13 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Popup conferma eliminazione - in alto con X */}
-      {showDeletePopup && (
-        <div className="fixed inset-0 z-[200] flex items-start justify-center pt-16 bg-black/60" onClick={() => setShowDeletePopup(null)}>
+      {showDeletePopup && ReactDOM.createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-start justify-center pt-20 bg-black/60" onClick={() => setShowDeletePopup(null)}>
           <div className="bg-slate-800 rounded-xl p-5 w-80 shadow-2xl relative" onClick={(e) => e.stopPropagation()}>
             {/* X per chiudere */}
             <button
