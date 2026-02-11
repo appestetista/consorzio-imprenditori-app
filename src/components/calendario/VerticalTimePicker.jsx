@@ -314,8 +314,7 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
               )}
               style={{
                 backgroundColor: isSelected ? 'rgba(100, 100, 100, 0.3)' : 
-                  hasNote ? 'rgba(163, 230, 53, 0.08)' :
-                  (isCurrentTime && isToday) ? 'rgba(163, 230, 53, 0.2)' : undefined
+                  hasNote ? 'rgba(163, 230, 53, 0.08)' : undefined
               }}
             >
               {/* Pulsante + giallo se selezionato, altrimenti linea o icona nota */}
