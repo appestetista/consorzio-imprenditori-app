@@ -3,6 +3,7 @@ import { Check, Camera, Paperclip, ListChecks } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { base44 } from '@/api/base44Client';
 import ChecklistEditor from './ChecklistEditor';
+import AudioRecorder from './AudioRecorder';
 
 export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave, inline = false, existingNote = null, onRegisterSave }) {
   const [title, setTitle] = useState(existingNote?.title || '');
