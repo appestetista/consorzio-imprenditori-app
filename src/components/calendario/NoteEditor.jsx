@@ -121,6 +121,15 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
     recognition.interimResults = true;
     recognition.maxAlternatives = 1;
 
+    // Apri il microfono in anticipo con getUserMedia per evitare il beep di sistema
+    // Il browser vede il mic già attivo e spesso non emette il suono di attivazione
+    let micStream = null;
+    try {
+      micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch (e) {
+      // Se fallisce, prosegui comunque con SpeechRecognition
+    }
+
     // Salva il testo base prima dell'inizio della dettatura
     baseTextRef.current = contentRef.current || '';
 
@@ -167,10 +176,14 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
         } catch {
           dictationActiveRef.current = false;
           setIsDictating(false);
+          // Chiudi lo stream mic se presente
+          if (micStream) micStream.getTracks().forEach(t => t.stop());
         }
         return;
       }
       setIsDictating(false);
+      // Chiudi lo stream mic quando la dettatura finisce
+      if (micStream) micStream.getTracks().forEach(t => t.stop());
     };
 
     recognitionRef.current = recognition;
