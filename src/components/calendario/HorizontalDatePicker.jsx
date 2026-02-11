@@ -243,27 +243,24 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
   const currentMonthIdx = now.getMonth();
 
   return (
-    <div className="bg-slate-900 overflow-hidden flex flex-col">
-      {/* Calendario orizzontale scrollabile continuo - in alto */}
+    <div className="bg-slate-900 overflow-hidden flex flex-col relative">
+      {/* Pulsanti sopra le linee weekend - FUORI dallo scroll */}
+      {(goToTodayButton || monthLabelButton) && (
+        <div className="flex justify-between items-center px-2 py-1">
+          <div>
+            {goToTodayButton}
+          </div>
+          <div>
+            {monthLabelButton}
+          </div>
+        </div>
+      )}
+      {/* Calendario orizzontale scrollabile continuo */}
       <div 
         ref={scrollRef}
-        className="flex overflow-x-auto px-1 pt-0 scrollbar-hide items-end flex-1 relative"
+        className="flex overflow-x-auto px-1 scrollbar-hide items-end flex-1"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
-        {/* Pulsanti posizionati a filo delle linee weekend (32px di altezza) */}
-        {(goToTodayButton || monthLabelButton) && (
-          <div 
-            className="absolute left-0 right-0 z-10 flex justify-between items-end px-2 pointer-events-none"
-            style={{ top: 0 }}
-          >
-            <div className="pointer-events-auto">
-              {goToTodayButton}
-            </div>
-            <div className="pointer-events-auto">
-              {monthLabelButton}
-            </div>
-          </div>
-        )}
         {monthsData.map((monthData, monthIdx) => (
           <div 
             key={`${monthData.year}-${monthData.month}`}
@@ -287,7 +284,6 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                 style={{ minWidth: '22px' }}
               >
                 {/* Linea verticale - colore mese per oggi e selezionato, bianco per altri */}
-                {/* Altezza linee: weekend 32px, altri 18px. Aggiungo margine top per i pulsanti */}
                 <div 
                   className={cn(
                     "w-[2px] mb-0.5 rounded-full transition-all",
@@ -295,7 +291,6 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                   )}
                   style={{ 
                     height: dayData.isWeekend ? '32px' : '18px',
-                    marginTop: dayData.isWeekend ? '20px' : '34px', // Spazio per i pulsanti (allineati al top delle linee weekend)
                     backgroundColor: (dayData.isToday || dayData.isSelected) ? monthData.color : '#ffffff'
                   }}
                 />
