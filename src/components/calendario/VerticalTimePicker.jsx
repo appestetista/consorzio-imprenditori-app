@@ -338,6 +338,7 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
           const isSelected = selectedTime === slot.timeString;
           const note = savedNotes[slot.timeString];
           const hasNote = !!note;
+          const hasCartellaFile = !hasNote && cartellaFiles[slot.timeString]?.length > 0;
 
           return (
             <div
