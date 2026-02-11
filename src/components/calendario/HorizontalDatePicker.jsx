@@ -379,24 +379,24 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                 className="flex flex-col items-center gap-1 px-0.5 rounded transition-all hover:scale-105 active:scale-95"
               >
                 {/* Cartella 3D stile immagine */}
-                <div className="relative w-11 h-10">
+                <div className="relative w-9 h-8">
                   {/* Ombra morbida sotto */}
                   <div 
-                    className="absolute bottom-0 left-1 right-1 h-1.5 rounded-full blur-md opacity-50"
+                    className="absolute bottom-0 left-0.5 right-0.5 h-1 rounded-full blur-sm opacity-40"
                     style={{ backgroundColor: cartella.colore }}
                   />
                   
                   {/* Parte posteriore della cartella (dietro) */}
                   <div 
-                    className="absolute top-1.5 left-0 right-0 bottom-1 rounded-lg"
+                    className="absolute top-1 left-0 right-0 bottom-0.5 rounded"
                     style={{ 
                       background: `linear-gradient(180deg, ${cartella.colore}ee 0%, ${cartella.colore}cc 100%)`,
-                      boxShadow: `inset 0 -2px 4px rgba(0,0,0,0.15)`
+                      boxShadow: `inset 0 -1px 2px rgba(0,0,0,0.15)`
                     }}
                   >
                     {/* Linguetta/Tab in alto a sinistra */}
                     <div 
-                      className="absolute -top-1.5 left-0 w-4 h-2 rounded-t-md"
+                      className="absolute -top-1 left-0 w-3 h-1.5 rounded-t-sm"
                       style={{ 
                         background: `linear-gradient(180deg, ${cartella.colore} 0%, ${cartella.colore}dd 100%)`,
                       }}
@@ -406,35 +406,35 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                   {/* Foglio bianco interno (solo se ha documenti) */}
                   {hasDocuments && (
                     <div 
-                      className="absolute top-2 left-1 right-1 h-4 rounded-t-sm bg-white"
+                      className="absolute top-1.5 left-0.5 right-0.5 h-3 rounded-t-sm bg-white"
                       style={{ 
-                        boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
+                        boxShadow: '0 1px 1px rgba(0,0,0,0.1)'
                       }}
                     />
                   )}
                   
                   {/* Parte frontale della cartella (davanti) */}
                   <div 
-                    className="absolute top-3 left-0 right-0 bottom-0 rounded-lg"
+                    className="absolute top-2.5 left-0 right-0 bottom-0 rounded"
                     style={{ 
                       background: `linear-gradient(180deg, ${cartella.colore} 0%, ${cartella.colore}dd 60%, ${cartella.colore}bb 100%)`,
                       boxShadow: `
-                        0 2px 4px rgba(0,0,0,0.2),
+                        0 1px 2px rgba(0,0,0,0.2),
                         inset 0 1px 0 rgba(255,255,255,0.25),
-                        inset 0 -1px 3px rgba(0,0,0,0.1)
+                        inset 0 -1px 2px rgba(0,0,0,0.1)
                       `
                     }}
                   >
                     {/* Linea decorativa orizzontale */}
                     <div 
-                      className="absolute top-1.5 left-1.5 right-1.5 h-[1px] rounded-full"
+                      className="absolute top-1 left-1 right-1 h-[1px] rounded-full"
                       style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}
                     />
                   </div>
                 </div>
                 
                 {/* Nome cartella */}
-                <span className="text-[9px] text-slate-300 font-medium max-w-12 truncate">{cartella.nome}</span>
+                <span className="text-[10px] text-slate-300 font-medium max-w-10 truncate">{cartella.nome}</span>
               </button>
               
               {/* X per eliminare */}
