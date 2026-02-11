@@ -17,9 +17,6 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
   const [isSaving, setIsSaving] = useState(false);
   
   const [isDictating, setIsDictating] = useState(false);
-  const recognitionRef = useRef(null);
-  const dictationActiveRef = useRef(false);
-  const baseTextRef = useRef('');
   const cameraInputRef = useRef(null);
   const fileInputRef = useRef(null);
   const titleRef = useRef(title);
@@ -98,81 +95,8 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
     if (file) handleFileUpload(file);
   };
 
-  const toggleDictation = (e) => {
-    e.preventDefault();
-    if (isDictating) {
-      dictationActiveRef.current = false;
-      recognitionRef.current?.stop();
-      setIsDictating(false);
-      if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
-      return;
-    }
-
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
-      alert('Il tuo browser non supporta il riconoscimento vocale');
-      return;
-    }
-
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'it-IT';
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.maxAlternatives = 1;
-
-    baseTextRef.current = contentRef.current || '';
-
-    recognition.onresult = (event) => {
-      let allFinal = '';
-      let latestInterim = '';
-      
-      for (let i = 0; i < event.results.length; i++) {
-        if (event.results[i].isFinal) {
-          allFinal += event.results[i][0].transcript;
-        } else {
-          latestInterim = event.results[i][0].transcript;
-        }
-      }
-
-      const confirmed = allFinal.trim();
-      const provisional = latestInterim.trim();
-      
-      let newContent = baseTextRef.current;
-      if (confirmed) {
-        newContent = newContent ? newContent + ' ' + confirmed : confirmed;
-      }
-      if (provisional) {
-        newContent = newContent ? newContent + ' ' + provisional : provisional;
-      }
-      
-      setContent(newContent);
-    };
-
-    recognition.onerror = (ev) => {
-      if (ev.error === 'no-speech' || ev.error === 'aborted') return;
-      dictationActiveRef.current = false;
-      setIsDictating(false);
-    };
-
-    recognition.onend = () => {
-      if (dictationActiveRef.current) {
-        baseTextRef.current = contentRef.current || '';
-        try {
-          recognition.start();
-        } catch {
-          dictationActiveRef.current = false;
-          setIsDictating(false);
-        }
-        return;
-      }
-      setIsDictating(false);
-    };
-
-    recognitionRef.current = recognition;
-    dictationActiveRef.current = true;
-    recognition.start();
-    setIsDictating(true);
-    if (navigator.vibrate) navigator.vibrate(80);
+  const handleWhisperTranscription = (text) => {
+    setContent(prev => prev ? prev + ' ' + text : text);
   };
 
   const toggleChecklist = () => {
@@ -238,19 +162,11 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
             >
               <ListChecks className={cn("w-5 h-5", showChecklist ? "text-lime-400" : "text-slate-400")} />
             </button>
-            <button 
-              onTouchEnd={(e) => toggleDictation(e)}
-              onClick={(e) => toggleDictation(e)}
-              className={cn(
-                "p-1.5 rounded-full transition-colors",
-                isDictating ? "bg-cyan-500/20 ring-2 ring-cyan-400" : "hover:bg-slate-800"
-              )}
-            >
-              <Mic className={cn(
-                "w-5 h-5 transition-colors",
-                isDictating ? "text-cyan-400 animate-pulse" : "text-slate-400"
-              )} />
-            </button>
+            <WhisperDictation 
+              isDictating={isDictating}
+              setIsDictating={setIsDictating}
+              onTranscription={handleWhisperTranscription}
+            />
           </div>
           <div className="ml-auto pl-2">
             <a
