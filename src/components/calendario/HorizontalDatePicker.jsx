@@ -243,7 +243,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
   const currentMonthIdx = now.getMonth();
 
   return (
-    <div className="bg-slate-800 overflow-hidden flex flex-col">
+    <div className="bg-slate-900 overflow-hidden flex flex-col">
       {/* Calendario orizzontale scrollabile continuo - in alto */}
       <div 
         ref={scrollRef}
