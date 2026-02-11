@@ -122,8 +122,8 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
           autoCorrect="off"
           spellCheck="false"
           className={cn(
-            "w-full bg-transparent text-white font-light outline-none mb-2",
-            inline ? "text-xl" : "text-3xl",
+            "w-full bg-transparent text-white font-light outline-none mb-2 truncate",
+            inline ? "text-base" : "text-3xl",
             titleError 
               ? "placeholder:text-red-500 border-b-2 border-red-500" 
               : "placeholder:text-slate-500"
