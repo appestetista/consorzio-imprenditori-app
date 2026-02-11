@@ -143,6 +143,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
   const scrollRef = useRef(null);
   const todayRef = useRef(null);
   const [visibleMonth, setVisibleMonth] = useState({ name: MONTHS[today.getMonth()], year: today.getFullYear(), color: MONTH_COLORS[today.getMonth()] });
+  const [bgColor, setBgColor] = useState(MONTH_COLORS[today.getMonth()]);
   const monthRefs = useRef({});
   const [selectedMonthIdx, setSelectedMonthIdx] = useState(null); // Mese selezionato dalla barra in basso
 
@@ -277,6 +278,11 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
     }
   }, [selectedDate]);
 
+  // Aggiorna colore sfondo con transizione morbida
+  useEffect(() => {
+    setBgColor(visibleMonth.color);
+  }, [visibleMonth.color]);
+
   // Notifica il colore e il mese al parent quando cambia visibleMonth (fuori dal rendering)
   useEffect(() => {
     if (onMonthColorChange) {
@@ -356,7 +362,13 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
   const currentMonthIdx = now.getMonth();
 
   return (
-    <div className="bg-slate-900 overflow-hidden flex flex-col relative">
+    <div 
+      className="overflow-hidden flex flex-col relative"
+      style={{ 
+        backgroundColor: `color-mix(in srgb, ${bgColor} 6%, #0f172a)`,
+        transition: 'background-color 1.2s ease'
+      }}
+    >
       {/* Fascia cartelle scrollabile */}
       <div className="flex items-center gap-2 px-2 pt-5 pb-2 overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {/* Pulsante nuova cartella */}
