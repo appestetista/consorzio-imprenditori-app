@@ -53,6 +53,7 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
       setTitleError(true);
       return;
     }
+    setIsSaving(true);
     if (onSave) {
       onSave({
         title: title.trim(),
