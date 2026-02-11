@@ -354,11 +354,12 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
               <span 
                 className={cn(
                   "font-mono text-xs flex-shrink-0",
-                  slot.isFullHour && "font-bold"
+                  slot.isFullHour && "font-bold",
+                  (isCurrentTime && isToday) && "text-lime-400 font-bold"
                 )}
                 style={{
-                  color: hasNote ? '#a3e635' :
-                    (isCurrentTime && isToday) ? '#a3e635' : 
+                  color: (isCurrentTime && isToday) ? '#a3e635' :
+                    hasNote ? '#a3e635' :
                     slot.isFullHour ? activeColor : '#94a3b8'
                 }}
               >
