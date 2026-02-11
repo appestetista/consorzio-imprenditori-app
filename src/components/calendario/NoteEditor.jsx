@@ -97,19 +97,13 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
     if (file) handleFileUpload(file);
   };
 
-  const toggleDictation = async (e) => {
+  const toggleDictation = (e) => {
     e.preventDefault();
     if (isDictating) {
-      // Stop manuale: disattiva il flag per impedire il riavvio
       dictationActiveRef.current = false;
       recognitionRef.current?.stop();
       setIsDictating(false);
-      // Doppia vibrazione breve allo stop
       if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
-      // Chiudi eventuali stream mic
-      if (recognitionRef.current?._micStream) {
-        recognitionRef.current._micStream.getTracks().forEach(t => t.stop());
-      }
       return;
     }
 
@@ -125,20 +119,9 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
     recognition.interimResults = true;
     recognition.maxAlternatives = 1;
 
-    // Apri il microfono in anticipo con getUserMedia per evitare il beep di sistema
-    // Il browser vede il mic già attivo e spesso non emette il suono di attivazione
-    let micStream = null;
-    try {
-      micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    } catch (e) {
-      // Se fallisce, prosegui comunque con SpeechRecognition
-    }
-
-    // Salva il testo base prima dell'inizio della dettatura
     baseTextRef.current = contentRef.current || '';
 
     recognition.onresult = (event) => {
-      // Raccogli TUTTI i risultati finali e l'ultimo interim
       let allFinal = '';
       let latestInterim = '';
       
@@ -150,7 +133,6 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
         }
       }
 
-      // Il contenuto completo = base (pre-dettatura) + tutti i finali + eventuale interim
       const confirmed = allFinal.trim();
       const provisional = latestInterim.trim();
       
@@ -173,29 +155,22 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
 
     recognition.onend = () => {
       if (dictationActiveRef.current) {
-        // Prima di riavviare, aggiorna baseText con tutto il contenuto confermato finora
         baseTextRef.current = contentRef.current || '';
         try {
           recognition.start();
         } catch {
           dictationActiveRef.current = false;
           setIsDictating(false);
-          // Chiudi lo stream mic se presente
-          if (micStream) micStream.getTracks().forEach(t => t.stop());
         }
         return;
       }
       setIsDictating(false);
-      // Chiudi lo stream mic quando la dettatura finisce
-      if (micStream) micStream.getTracks().forEach(t => t.stop());
     };
 
     recognitionRef.current = recognition;
-    recognition._micStream = micStream; // salva riferimento per cleanup allo stop
     dictationActiveRef.current = true;
     recognition.start();
     setIsDictating(true);
-    // Vibrazione breve al posto del beep di sistema
     if (navigator.vibrate) navigator.vibrate(80);
   };
 
