@@ -803,6 +803,18 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
           </span>
         </div>
         </div>
+
+      {/* Vista cartella aperta (full-screen overlay) */}
+      {openCartella && ReactDOM.createPortal(
+        <div className="fixed inset-0 z-[9998] bg-black">
+          <CartellaView
+            cartella={openCartella}
+            userEmail={userEmail}
+            onClose={() => setOpenCartella(null)}
+          />
+        </div>,
+        document.body
+      )}
     </div>
   );
 }
