@@ -143,8 +143,8 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
           <span className="text-red-500 text-[10px] -mt-1 mb-1 block">Il titolo è obbligatorio</span>
         )}
 
-        {/* Toolbar strumenti + salva inline */}
-        <div className="flex items-center py-2 mb-6 border-b border-slate-800/50 relative">
+        {/* Riga 1: Toolbar strumenti + salva */}
+        <div className="flex items-center py-2 border-b border-slate-800/50 relative">
           <div className="flex items-center gap-3">
             <button 
               onClick={() => cameraInputRef.current?.click()}
@@ -184,16 +184,18 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
           </div>
         </div>
 
-        {/* Dettatura + Registratore audio (max 60% larghezza) */}
-        <div className="flex items-center gap-1.5 mb-2 max-w-[60%]">
-          <div className="relative flex-shrink-0">
+        {/* Riga 2: Microfono sotto 📷, Registratore sotto 📎+✅, niente sotto SALVA */}
+        <div className="flex items-center gap-1 py-1.5 mb-4">
+          {/* Microfono - allineato sotto la fotocamera */}
+          <div className="relative flex-shrink-0 w-8 flex items-center justify-center">
             <WhisperDictation 
               isDictating={isDictating}
               setIsDictating={setIsDictating}
               onTranscription={handleWhisperTranscription}
             />
           </div>
-          <div className="flex-1 min-w-0">
+          {/* Registratore - occupa lo spazio sotto 📎 e ✅ */}
+          <div className="w-[120px] flex-shrink-0">
             <AudioRecorder
               onAudioSaved={(audioAtt) => {
                 setAttachments(prev => [...prev, audioAtt]);
