@@ -368,43 +368,66 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
           <span className="text-[10px] text-slate-300 font-medium">Nuova</span>
         </button>
         
-        {/* Cartelle dell'utente - stile cartella piena con ombra */}
+        {/* Cartelle dell'utente - stile cartella 3D realistica */}
         {cartelle.map((cartella) => (
-          <div key={cartella.id} className="relative flex-shrink-0 pt-3 pr-1">
-            <button className="flex flex-col items-center gap-0.5 px-1 rounded transition-colors">
-              {/* Icona cartella stile folder piena - più piccola */}
-              <div 
-                className="relative w-8 h-6 rounded-md shadow-lg"
-                style={{ 
-                  backgroundColor: cartella.colore,
-                  boxShadow: `0 2px 4px ${cartella.colore}40, 0 1px 2px rgba(0,0,0,0.3)`
-                }}
-              >
-                {/* Linguetta superiore della cartella */}
+          <div key={cartella.id} className="relative flex-shrink-0 pt-4 pr-2">
+            <button 
+              onClick={() => openEditPopup(cartella)}
+              className="flex flex-col items-center gap-1 px-1 rounded transition-all hover:scale-105"
+            >
+              {/* Cartella 3D */}
+              <div className="relative" style={{ perspective: '100px' }}>
+                {/* Ombra sotto la cartella */}
                 <div 
-                  className="absolute -top-1 left-0.5 w-3 h-1 rounded-t-sm"
-                  style={{ backgroundColor: cartella.colore, filter: 'brightness(0.85)' }}
+                  className="absolute -bottom-1 left-1 right-1 h-2 rounded-full blur-sm opacity-40"
+                  style={{ backgroundColor: cartella.colore }}
                 />
-                {/* Penna per modificare - centrata nella cartella */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    openEditPopup(cartella);
+                
+                {/* Corpo principale cartella */}
+                <div 
+                  className="relative w-10 h-8 rounded-b-md rounded-tr-md"
+                  style={{ 
+                    background: `linear-gradient(145deg, ${cartella.colore} 0%, ${cartella.colore}dd 50%, ${cartella.colore}aa 100%)`,
+                    boxShadow: `
+                      0 4px 8px rgba(0,0,0,0.3),
+                      inset 0 1px 0 rgba(255,255,255,0.2),
+                      inset 0 -2px 4px rgba(0,0,0,0.1)
+                    `
                   }}
-                  className="absolute inset-0 flex items-center justify-center"
                 >
-                  <Pencil className="w-3 h-3 text-white/80 hover:text-white transition-colors" />
-                </button>
+                  {/* Linguetta superiore - tab della cartella */}
+                  <div 
+                    className="absolute -top-2 left-0 w-5 h-2.5 rounded-t-md"
+                    style={{ 
+                      background: `linear-gradient(180deg, ${cartella.colore} 0%, ${cartella.colore}cc 100%)`,
+                      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3)'
+                    }}
+                  />
+                  
+                  {/* Linea di piegatura */}
+                  <div 
+                    className="absolute top-0 left-0 right-0 h-[1px]"
+                    style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}
+                  />
+                  
+                  {/* Icona penna centrata */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Pencil className="w-3.5 h-3.5 text-white/60 hover:text-white transition-colors drop-shadow" />
+                  </div>
+                </div>
               </div>
+              
+              {/* Nome cartella */}
               <span className="text-[9px] text-slate-300 font-medium max-w-12 truncate">{cartella.nome}</span>
             </button>
-            {/* X per eliminare - sempre visibile, in alto a destra */}
+            
+            {/* X per eliminare */}
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 setShowDeletePopup(cartella.id);
               }}
-              className="absolute top-1 right-0 w-3.5 h-3.5 rounded-full bg-red-500 hover:bg-red-400 flex items-center justify-center shadow-md"
+              className="absolute top-2 right-0 w-4 h-4 rounded-full bg-red-500 hover:bg-red-400 flex items-center justify-center shadow-lg border border-red-400"
             >
               <X className="w-2.5 h-2.5 text-white" />
             </button>
