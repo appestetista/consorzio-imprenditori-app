@@ -92,11 +92,26 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
     }
   });
 
-  // Mutation elimina cartella
+  // Mutation elimina cartella (scollega note ma non le elimina)
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.Cartella.delete(id),
+    mutationFn: async (id) => {
+      // 1. Scollega le note associate (rimuovi cartella_id, la nota resta nel calendario)
+      const noteCollegate = await base44.entities.Nota.filter({ cartella_id: id, user_email: userEmail });
+      for (const nota of noteCollegate) {
+        await base44.entities.Nota.update(nota.id, { cartella_id: null });
+      }
+      // 2. Elimina i FileCartella (questi sono solo dentro la cartella)
+      const fileCollegati = await base44.entities.FileCartella.filter({ cartella_id: id, user_email: userEmail });
+      for (const f of fileCollegati) {
+        await base44.entities.FileCartella.delete(f.id);
+      }
+      // 3. Elimina la cartella
+      return base44.entities.Cartella.delete(id);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cartelle'] });
+      queryClient.invalidateQueries({ queryKey: ['note'] });
+      queryClient.invalidateQueries({ queryKey: ['fileCartella'] });
       setShowDeletePopup(null);
     }
   });
