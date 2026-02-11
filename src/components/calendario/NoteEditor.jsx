@@ -11,6 +11,7 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
   const [checklistItems, setChecklistItems] = useState([]);
   const [showChecklist, setShowChecklist] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [titleError, setTitleError] = useState(false);
   
   const cameraInputRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -29,9 +30,13 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
       : '';
 
   const handleSave = () => {
+    if (!title.trim()) {
+      setTitleError(true);
+      return;
+    }
     if (onSave) {
       onSave({
-        title: title || 'Senza titolo',
+        title: title.trim(),
         content,
         attachments,
         checklistItems,
@@ -39,7 +44,6 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
         time: selectedTime
       });
     }
-    onClose();
   };
 
   const handleFileUpload = async (file) => {
@@ -89,14 +93,20 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
         <input
           type="text"
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Titolo"
+          onChange={(e) => { setTitle(e.target.value); if (e.target.value.trim()) setTitleError(false); }}
+          placeholder="Titolo *"
           className={cn(
-            "w-full bg-transparent text-white font-light outline-none placeholder:text-slate-500 mb-2",
-            inline ? "text-xl" : "text-3xl"
+            "w-full bg-transparent text-white font-light outline-none mb-2",
+            inline ? "text-xl" : "text-3xl",
+            titleError 
+              ? "placeholder:text-red-500 border-b-2 border-red-500" 
+              : "placeholder:text-slate-500"
           )}
           autoFocus
         />
+        {titleError && (
+          <span className="text-red-500 text-[10px] -mt-1 mb-1 block">Il titolo è obbligatorio</span>
+        )}
 
         {/* Area testo libero */}
         {!showChecklist && (
