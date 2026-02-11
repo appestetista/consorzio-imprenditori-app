@@ -338,20 +338,38 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
           <span className="text-[10px] text-slate-300 font-medium">Nuova</span>
         </button>
         
-        {/* Cartelle dell'utente */}
+        {/* Cartelle dell'utente - stile cartella piena con ombra */}
         {cartelle.map((cartella) => (
-          <div key={cartella.id} className="relative flex-shrink-0 group">
-            <button className="flex items-center gap-1 px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 transition-colors border border-slate-600">
-              <Folder className="w-8 h-8" style={{ color: cartella.colore }} />
-              <span className="text-[10px] text-slate-300 font-medium">{cartella.nome}</span>
+          <div key={cartella.id} className="relative flex-shrink-0">
+            <button className="flex flex-col items-center gap-0.5 px-1 py-1 rounded transition-colors">
+              {/* Icona cartella stile folder piena */}
+              <div 
+                className="relative w-12 h-10 rounded-md shadow-lg"
+                style={{ 
+                  backgroundColor: cartella.colore,
+                  boxShadow: `0 4px 8px ${cartella.colore}40, 0 2px 4px rgba(0,0,0,0.3)`
+                }}
+              >
+                {/* Linguetta superiore della cartella */}
+                <div 
+                  className="absolute -top-1.5 left-1 w-5 h-2 rounded-t-md"
+                  style={{ backgroundColor: cartella.colore, filter: 'brightness(0.85)' }}
+                />
+                {/* Effetto 3D bordo superiore */}
+                <div 
+                  className="absolute top-0 left-0 right-0 h-1 rounded-t-md"
+                  style={{ backgroundColor: cartella.colore, filter: 'brightness(1.1)' }}
+                />
+              </div>
+              <span className="text-[9px] text-slate-300 font-medium max-w-12 truncate">{cartella.nome}</span>
             </button>
-            {/* X per eliminare - visibile al hover */}
+            {/* X per eliminare - sempre visibile */}
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 setShowDeletePopup(cartella.id);
               }}
-              className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 hover:bg-red-400 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+              className="absolute -top-1 -right-0 w-4 h-4 rounded-full bg-red-500 hover:bg-red-400 flex items-center justify-center shadow-md"
             >
               <X className="w-3 h-3 text-white" />
             </button>
