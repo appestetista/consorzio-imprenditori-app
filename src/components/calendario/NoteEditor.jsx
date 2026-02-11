@@ -77,29 +77,13 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
     )}>
       {/* Header */}
       <div className="flex items-center justify-between px-3 py-2 border-b border-slate-800">
-        <div className="flex items-center gap-2">
-          <button onClick={onClose} className="p-1">
-            <ChevronLeft className="w-5 h-5 text-slate-400" />
-          </button>
-          <button 
-            onPointerDown={(e) => { e.preventDefault(); handleSave(); }}
-            disabled={isSaving}
-            className={cn(
-              "w-8 h-8 rounded-full flex items-center justify-center touch-manipulation select-none",
-              isSaving ? "bg-slate-500 animate-pulse" : "bg-lime-500"
-            )}
-          >
-            {isSaving ? (
-              <div className="w-4 h-4 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
-            ) : (
-              <Check className="w-5 h-5 text-slate-900" strokeWidth={3} />
-            )}
-          </button>
-        </div>
+        <button onClick={onClose} className="p-1">
+          <ChevronLeft className="w-5 h-5 text-slate-400" />
+        </button>
         <div className="text-slate-400 text-xs font-mono">
           {formattedDate} • {saveTime}
         </div>
-        <div className="w-8" />
+        <div className="w-5" />
       </div>
 
       {/* Content */}
