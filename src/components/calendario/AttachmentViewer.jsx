@@ -1,12 +1,25 @@
 import React from 'react';
 import { X, Download, ExternalLink } from 'lucide-react';
 
+function getFileCategory(att) {
+  const type = (att.type || '').toLowerCase();
+  const name = (att.name || att.url || '').toLowerCase();
+  const ext = name.split('.').pop();
+
+  if (type.startsWith('image/') || ['jpg','jpeg','png','gif','webp','svg','bmp'].includes(ext)) return 'image';
+  if (type.startsWith('audio/') || ['mp3','wav','ogg','webm','m4a','aac'].includes(ext)) return 'audio';
+  if (type.startsWith('video/') || ['mp4','mov','avi','mkv'].includes(ext)) return 'video';
+  if (type === 'application/pdf' || ext === 'pdf') return 'pdf';
+  // Documenti office / testo: prova iframe
+  if (['doc','docx','xls','xlsx','ppt','pptx','txt','csv','rtf'].includes(ext)) return 'document';
+  // Fallback: prova sempre iframe
+  return 'other';
+}
+
 export default function AttachmentViewer({ attachment, onClose }) {
   if (!attachment) return null;
 
-  const isImage = attachment.type?.startsWith('image/');
-  const isAudio = attachment.type?.startsWith('audio/');
-  const isPdf = attachment.type === 'application/pdf' || attachment.name?.endsWith('.pdf');
+  const category = getFileCategory(attachment);
 
   return (
     <div className="fixed inset-0 z-[70] bg-black flex flex-col">
@@ -31,36 +44,25 @@ export default function AttachmentViewer({ attachment, onClose }) {
 
       {/* Content */}
       <div className="flex-1 overflow-auto flex items-center justify-center p-4">
-        {isImage ? (
+        {category === 'image' ? (
           <img 
             src={attachment.url} 
             alt={attachment.name} 
             className="max-w-full max-h-full object-contain rounded"
           />
-        ) : isPdf ? (
+        ) : category === 'audio' ? (
+          <div className="flex flex-col items-center gap-4">
+            <div className="text-slate-400 text-sm">{attachment.name}</div>
+            <audio controls src={attachment.url} className="w-72" />
+          </div>
+        ) : category === 'video' ? (
+          <video controls src={attachment.url} className="max-w-full max-h-full rounded" />
+        ) : (
           <iframe 
             src={attachment.url} 
             className="w-full h-full rounded bg-white"
             title={attachment.name}
           />
-        ) : isAudio ? (
-          <div className="flex flex-col items-center gap-4">
-            <div className="text-slate-400 text-sm">{attachment.name}</div>
-            <audio controls src={attachment.url} className="w-72" />
-          </div>
-        ) : (
-          <div className="flex flex-col items-center gap-4 text-center">
-            <div className="text-slate-400 text-sm">Anteprima non disponibile</div>
-            <a
-              href={attachment.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 px-4 py-2 bg-slate-800 rounded-lg text-white text-sm hover:bg-slate-700"
-            >
-              <ExternalLink className="w-4 h-4" />
-              Apri file
-            </a>
-          </div>
         )}
       </div>
     </div>
