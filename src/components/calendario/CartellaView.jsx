@@ -383,7 +383,7 @@ export default function CartellaView({ cartella, userEmail, onClose }) {
               className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-slate-800/60 transition-colors mb-1"
             >
               <button 
-                onClick={() => !isNota && setOpenFile(item)} 
+                onClick={() => isNota ? setOpenNota(item) : setOpenFile(item)} 
                 className="flex items-center gap-3 flex-1 min-w-0 text-left"
               >
                 {isNota ? (
