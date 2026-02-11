@@ -370,25 +370,20 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
         
         {/* Cartelle dell'utente - stile cartella piena con ombra */}
         {cartelle.map((cartella) => (
-          <div key={cartella.id} className="relative flex-shrink-0 pt-2 pr-1">
+          <div key={cartella.id} className="relative flex-shrink-0 pt-3 pr-1">
             <button className="flex flex-col items-center gap-0.5 px-1 rounded transition-colors">
-              {/* Icona cartella stile folder piena */}
+              {/* Icona cartella stile folder piena - più piccola */}
               <div 
-                className="relative w-10 h-8 rounded-md shadow-lg"
+                className="relative w-8 h-6 rounded-md shadow-lg"
                 style={{ 
                   backgroundColor: cartella.colore,
-                  boxShadow: `0 3px 6px ${cartella.colore}40, 0 2px 4px rgba(0,0,0,0.3)`
+                  boxShadow: `0 2px 4px ${cartella.colore}40, 0 1px 2px rgba(0,0,0,0.3)`
                 }}
               >
                 {/* Linguetta superiore della cartella */}
                 <div 
-                  className="absolute -top-1 left-1 w-4 h-1.5 rounded-t-md"
+                  className="absolute -top-1 left-0.5 w-3 h-1 rounded-t-sm"
                   style={{ backgroundColor: cartella.colore, filter: 'brightness(0.85)' }}
-                />
-                {/* Effetto 3D bordo superiore */}
-                <div 
-                  className="absolute top-0 left-0 right-0 h-0.5 rounded-t-md"
-                  style={{ backgroundColor: cartella.colore, filter: 'brightness(1.1)' }}
                 />
                 {/* Penna per modificare - centrata nella cartella */}
                 <button
@@ -398,20 +393,20 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                   }}
                   className="absolute inset-0 flex items-center justify-center"
                 >
-                  <Pencil className="w-3.5 h-3.5 text-white/70 hover:text-white transition-colors" />
+                  <Pencil className="w-3 h-3 text-white/80 hover:text-white transition-colors" />
                 </button>
               </div>
-              <span className="text-[8px] text-slate-300 font-medium max-w-10 truncate">{cartella.nome}</span>
+              <span className="text-[9px] text-slate-300 font-medium max-w-12 truncate">{cartella.nome}</span>
             </button>
-            {/* X per eliminare - sempre visibile */}
+            {/* X per eliminare - sempre visibile, in alto a destra */}
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 setShowDeletePopup(cartella.id);
               }}
-              className="absolute top-0 right-0 w-4 h-4 rounded-full bg-red-500 hover:bg-red-400 flex items-center justify-center shadow-md"
+              className="absolute top-1 right-0 w-3.5 h-3.5 rounded-full bg-red-500 hover:bg-red-400 flex items-center justify-center shadow-md"
             >
-              <X className="w-3 h-3 text-white" />
+              <X className="w-2.5 h-2.5 text-white" />
             </button>
           </div>
         ))}
