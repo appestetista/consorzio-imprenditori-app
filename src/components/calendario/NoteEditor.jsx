@@ -16,6 +16,24 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
   const cameraInputRef = useRef(null);
   const fileInputRef = useRef(null);
 
+  // Orario corrente live per l'header
+  const [currentTime, setCurrentTime] = useState(() => {
+    const now = new Date();
+    return `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+  });
+
+  // Aggiorna l'orario ogni minuto
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      const now = new Date();
+      setCurrentTime(`${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`);
+    }, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // L'orario da usare per il salvataggio: quello selezionato dallo slot, oppure l'orario corrente
+  const saveTime = selectedTime || currentTime;
+
   const today = new Date();
   const isToday = selectedDate && 
     new Date(selectedDate).toDateString() === today.toDateString();
@@ -41,7 +59,7 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
         attachments,
         checklistItems,
         date: selectedDate,
-        time: selectedTime
+        time: saveTime
       });
     }
   };
@@ -80,8 +98,8 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
         <button onClick={onClose} className="p-1">
           <ChevronLeft className="w-5 h-5 text-slate-400" />
         </button>
-        <div className="text-slate-400 text-xs">
-          {formattedDate} {selectedTime}
+        <div className="text-slate-400 text-xs font-mono">
+          {formattedDate} • {currentTime}
         </div>
         <button onClick={handleSave} className="p-1">
           <Check className="w-5 h-5 text-slate-400" />
