@@ -47,13 +47,32 @@ export default function AudioRecorder({ onAudioSaved, onTranscription }) {
       if (e.data.size > 0) chunksRef.current.push(e.data);
     };
 
-    mediaRecorder.onstop = () => {
+    mediaRecorder.onstop = async () => {
       const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
       const url = URL.createObjectURL(blob);
       setAudioBlob(blob);
       setAudioURL(url);
       setDuration(recordTime);
       stream.getTracks().forEach(t => t.stop());
+
+      // Trascrizione automatica dopo lo stop
+      setIsTranscribing(true);
+      const file = new File([blob], 'audio_nota.webm', { type: 'audio/webm' });
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+
+      if (onAudioSaved) {
+        onAudioSaved({ url: file_url, name: 'audio_nota.webm', type: 'audio/webm' });
+      }
+
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: "Trascrivi fedelmente l'audio allegato in italiano. Restituisci solo il testo trascritto, senza commenti.",
+        file_urls: [file_url]
+      });
+
+      if (onTranscription && result) {
+        onTranscription(typeof result === 'string' ? result : result.text || '');
+      }
+      setIsTranscribing(false);
     };
 
     mediaRecorder.start();
