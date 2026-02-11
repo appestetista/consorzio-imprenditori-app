@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Calendar, Folder, FolderPlus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, Folder, FolderPlus, X } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 
 const DAYS_SHORT = ['D', 'L', 'M', 'M', 'G', 'V', 'S'];
@@ -27,6 +29,79 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
   
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
+  
+  // Stati per cartelle
+  const [showNewFolderPopup, setShowNewFolderPopup] = useState(false);
+  const [showDeletePopup, setShowDeletePopup] = useState(null); // ID cartella da eliminare
+  const [newFolderName, setNewFolderName] = useState('');
+  const [newFolderColor, setNewFolderColor] = useState('#f59e0b');
+  const [userEmail, setUserEmail] = useState(null);
+  const queryClient = useQueryClient();
+
+  // Colori disponibili per le cartelle
+  const FOLDER_COLORS = [
+    '#f59e0b', // amber
+    '#3b82f6', // blue
+    '#ec4899', // pink
+    '#22c55e', // green
+    '#a855f7', // purple
+    '#ef4444', // red
+    '#06b6d4', // cyan
+    '#f97316', // orange
+  ];
+
+  // Carica utente
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const user = await base44.auth.me();
+        setUserEmail(user?.email);
+      } catch (e) {}
+    };
+    loadUser();
+  }, []);
+
+  // Query cartelle
+  const { data: cartelle = [] } = useQuery({
+    queryKey: ['cartelle', userEmail],
+    queryFn: () => base44.entities.Cartella.filter({ user_email: userEmail }),
+    enabled: !!userEmail
+  });
+
+  // Mutation crea cartella
+  const createMutation = useMutation({
+    mutationFn: (data) => base44.entities.Cartella.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cartelle'] });
+      setShowNewFolderPopup(false);
+      setNewFolderName('');
+      setNewFolderColor('#f59e0b');
+    }
+  });
+
+  // Mutation elimina cartella
+  const deleteMutation = useMutation({
+    mutationFn: (id) => base44.entities.Cartella.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cartelle'] });
+      setShowDeletePopup(null);
+    }
+  });
+
+  const handleCreateFolder = () => {
+    if (!newFolderName.trim() || !userEmail) return;
+    createMutation.mutate({
+      user_email: userEmail,
+      nome: newFolderName.trim(),
+      colore: newFolderColor
+    });
+  };
+
+  const handleDeleteFolder = () => {
+    if (showDeletePopup) {
+      deleteMutation.mutate(showDeletePopup);
+    }
+  };
   const scrollRef = useRef(null);
   const todayRef = useRef(null);
   const [visibleMonth, setVisibleMonth] = useState({ name: MONTHS[today.getMonth()], year: today.getFullYear(), color: MONTH_COLORS[today.getMonth()] });
@@ -247,33 +322,113 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
       {/* Fascia cartelle scrollabile */}
       <div className="flex items-center gap-2 px-2 py-1 overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {/* Pulsante nuova cartella */}
-        <button className="flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 transition-colors">
+        <button 
+          onClick={() => setShowNewFolderPopup(true)}
+          className="flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 transition-colors"
+        >
           <FolderPlus className="w-4 h-4 text-lime-400" />
           <span className="text-[10px] text-slate-300 font-medium">Nuova</span>
         </button>
         
-        {/* Cartelle esistenti - esempi */}
-        <button className="flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 transition-colors border border-slate-600">
-          <Folder className="w-4 h-4 text-amber-400" />
-          <span className="text-[10px] text-slate-300 font-medium">Lavoro</span>
-        </button>
-        <button className="flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 transition-colors border border-slate-600">
-          <Folder className="w-4 h-4 text-blue-400" />
-          <span className="text-[10px] text-slate-300 font-medium">Personale</span>
-        </button>
-        <button className="flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 transition-colors border border-slate-600">
-          <Folder className="w-4 h-4 text-pink-400" />
-          <span className="text-[10px] text-slate-300 font-medium">Progetti</span>
-        </button>
-        <button className="flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 transition-colors border border-slate-600">
-          <Folder className="w-4 h-4 text-green-400" />
-          <span className="text-[10px] text-slate-300 font-medium">Clienti</span>
-        </button>
-        <button className="flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 transition-colors border border-slate-600">
-          <Folder className="w-4 h-4 text-purple-400" />
-          <span className="text-[10px] text-slate-300 font-medium">Appuntamenti</span>
-        </button>
+        {/* Cartelle dell'utente */}
+        {cartelle.map((cartella) => (
+          <div key={cartella.id} className="relative flex-shrink-0 group">
+            <button className="flex items-center gap-1 px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 transition-colors border border-slate-600">
+              <Folder className="w-4 h-4" style={{ color: cartella.colore }} />
+              <span className="text-[10px] text-slate-300 font-medium">{cartella.nome}</span>
+            </button>
+            {/* X per eliminare - visibile al hover */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowDeletePopup(cartella.id);
+              }}
+              className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 hover:bg-red-400 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <X className="w-3 h-3 text-white" />
+            </button>
+          </div>
+        ))}
       </div>
+
+      {/* Popup nuova cartella */}
+      {showNewFolderPopup && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setShowNewFolderPopup(false)}>
+          <div className="bg-slate-800 rounded-lg p-4 w-64 shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-white font-semibold text-sm mb-3">Nuova Cartella</h3>
+            
+            {/* Nome */}
+            <input
+              type="text"
+              value={newFolderName}
+              onChange={(e) => setNewFolderName(e.target.value)}
+              placeholder="Nome cartella"
+              className="w-full bg-slate-700 text-white text-sm rounded px-3 py-2 mb-3 outline-none focus:ring-2 focus:ring-lime-400"
+              autoFocus
+            />
+            
+            {/* Colori */}
+            <div className="flex gap-2 mb-4 flex-wrap">
+              {FOLDER_COLORS.map((color) => (
+                <button
+                  key={color}
+                  onClick={() => setNewFolderColor(color)}
+                  className={cn(
+                    "w-6 h-6 rounded-full transition-all",
+                    newFolderColor === color && "ring-2 ring-white ring-offset-2 ring-offset-slate-800"
+                  )}
+                  style={{ backgroundColor: color }}
+                />
+              ))}
+            </div>
+            
+            {/* Pulsanti */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowNewFolderPopup(false)}
+                className="flex-1 px-3 py-1.5 rounded bg-slate-600 hover:bg-slate-500 text-white text-sm"
+              >
+                Annulla
+              </button>
+              <button
+                onClick={handleCreateFolder}
+                disabled={!newFolderName.trim()}
+                className="flex-1 px-3 py-1.5 rounded bg-lime-500 hover:bg-lime-400 text-slate-900 text-sm font-semibold disabled:opacity-50"
+              >
+                Salva
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Popup conferma eliminazione */}
+      {showDeletePopup && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setShowDeletePopup(null)}>
+          <div className="bg-slate-800 rounded-lg p-4 w-64 shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-white font-semibold text-sm mb-2">⚠️ Attenzione</h3>
+            <p className="text-slate-300 text-xs mb-4">
+              Stai per eliminare questa cartella. Perderai tutto il contenuto al suo interno.
+            </p>
+            
+            {/* Pulsanti */}
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowDeletePopup(null)}
+                className="flex-1 px-3 py-1.5 rounded bg-slate-600 hover:bg-slate-500 text-white text-sm"
+              >
+                Annulla
+              </button>
+              <button
+                onClick={handleDeleteFolder}
+                className="flex-1 px-3 py-1.5 rounded bg-red-500 hover:bg-red-400 text-white text-sm font-semibold"
+              >
+                Elimina
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Pulsanti oggi e mese/chiudi */}
       {(goToTodayButton || monthLabelButton) && (
