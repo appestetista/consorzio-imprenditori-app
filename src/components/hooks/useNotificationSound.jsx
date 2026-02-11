@@ -1,9 +1,5 @@
 import { useCallback, useRef, useEffect } from 'react';
 
-// Flag globale: quando la dettatura è attiva, abbassa volume notifiche
-// Impostato da NoteEditor
-window.__dictationActive = window.__dictationActive || false;
-
 // Suono di notifica tipo campanello usando Web Audio API
 export default function useNotificationSound() {
   const audioContextRef = useRef(null);
@@ -96,13 +92,10 @@ export default function useNotificationSound() {
         oscillator.stop(startTime + duration);
       };
 
-      // Se dettatura attiva, volume molto basso
-      const volMultiplier = window.__dictationActive ? 0.1 : 1;
-
       // Sequenza tripla "ding-ding-ding" - più udibile
-      playBell(1200, now, 0.5, 0.7 * volMultiplier);           // Prima nota
-      playBell(1500, now + 0.2, 0.5, 0.8 * volMultiplier);     // Seconda nota
-      playBell(1800, now + 0.4, 0.6, 0.9 * volMultiplier);     // Terza nota più alta
+      playBell(1200, now, 0.5, 0.7);           // Prima nota
+      playBell(1500, now + 0.2, 0.5, 0.8);     // Seconda nota
+      playBell(1800, now + 0.4, 0.6, 0.9);     // Terza nota più alta
       
       console.log('[AUDIO] Suono riprodotto');
       
