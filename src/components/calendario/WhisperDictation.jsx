@@ -3,7 +3,8 @@ import { Mic, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { base44 } from '@/api/base44Client';
 
-const CHUNK_INTERVAL = 5000; // 5 secondi per chunk più affidabili
+const CHUNK_INTERVAL = 5000;
+const SILENCE_THRESHOLD = 0.015; // soglia RMS sotto la quale è silenzio
 
 export default function WhisperDictation({ onTranscription, isDictating, setIsDictating }) {
   const [isTranscribing, setIsTranscribing] = useState(false);
@@ -13,6 +14,9 @@ export default function WhisperDictation({ onTranscription, isDictating, setIsDi
   const intervalRef = useRef(null);
   const activeRef = useRef(false);
   const pendingRequests = useRef(0);
+  const hadSpeechRef = useRef(false);
+  const analyserRef = useRef(null);
+  const speechCheckRef = useRef(null);
 
   // Cleanup on unmount
   useEffect(() => {
