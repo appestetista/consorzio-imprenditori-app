@@ -95,6 +95,52 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
     if (file) handleFileUpload(file);
   };
 
+  const toggleDictation = () => {
+    if (isDictating) {
+      recognitionRef.current?.stop();
+      setIsDictating(false);
+      return;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert('Il tuo browser non supporta il riconoscimento vocale');
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'it-IT';
+    recognition.continuous = true;
+    recognition.interimResults = true;
+
+    let finalTranscript = '';
+
+    recognition.onresult = (event) => {
+      let interim = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          finalTranscript += transcript + ' ';
+          setContent(prev => prev + transcript + ' ');
+        } else {
+          interim = transcript;
+        }
+      }
+    };
+
+    recognition.onerror = () => {
+      setIsDictating(false);
+    };
+
+    recognition.onend = () => {
+      setIsDictating(false);
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+    setIsDictating(true);
+  };
+
   const toggleChecklist = () => {
     if (!showChecklist && checklistItems.length === 0) {
       setChecklistItems([{ id: Date.now().toString(), text: '', checked: false }]);
