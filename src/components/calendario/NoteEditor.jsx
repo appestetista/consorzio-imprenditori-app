@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ChevronLeft, Check, CheckCircle2, PlusCircle, AudioLines } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave }) {
+export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave, inline = false }) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
 
@@ -33,67 +33,71 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
   };
 
   return (
-    <div className="fixed inset-0 z-[60] bg-black flex flex-col">
+    <div className={cn(
+      "bg-black flex flex-col",
+      inline ? "h-full" : "fixed inset-0 z-[60]"
+    )}>
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3">
+      <div className="flex items-center justify-between px-3 py-2 border-b border-slate-800">
         <button 
           onClick={onClose}
-          className="p-2 -ml-2"
+          className="p-1"
         >
-          <ChevronLeft className="w-6 h-6 text-slate-400" />
+          <ChevronLeft className="w-5 h-5 text-slate-400" />
         </button>
         
-        <div className="w-6" /> {/* Spacer */}
+        {/* Data e ora nel header */}
+        <div className="text-slate-400 text-xs">
+          {formattedDate} {selectedTime}
+        </div>
         
         <button 
           onClick={handleSave}
-          className="p-2 -mr-2"
+          className="p-1"
         >
-          <Check className="w-6 h-6 text-slate-400" />
+          <Check className="w-5 h-5 text-slate-400" />
         </button>
       </div>
 
       {/* Content */}
-      <div className="flex-1 px-4 py-2">
+      <div className="flex-1 px-3 py-2 overflow-y-auto">
         {/* Titolo */}
         <input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Titolo"
-          className="w-full bg-transparent text-white text-3xl font-light outline-none placeholder:text-slate-500 mb-2"
+          className={cn(
+            "w-full bg-transparent text-white font-light outline-none placeholder:text-slate-500 mb-2",
+            inline ? "text-xl" : "text-3xl"
+          )}
           autoFocus
         />
-        
-        {/* Data e ora */}
-        <div className="text-slate-500 text-base mb-6">
-          {formattedDate} {selectedTime}
-        </div>
 
         {/* Area contenuto */}
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder="Scrivi qui..."
-          className="w-full h-[calc(100%-120px)] bg-transparent text-white text-base outline-none placeholder:text-slate-600 resize-none"
+          className="w-full flex-1 min-h-[200px] bg-transparent text-white text-sm outline-none placeholder:text-slate-600 resize-none"
         />
       </div>
 
       {/* Footer con azioni */}
-      <div className="flex items-center justify-center gap-8 py-4 border-t border-slate-800">
-        <button className="flex flex-col items-center gap-1">
-          <CheckCircle2 className="w-6 h-6 text-slate-400" />
-          <span className="text-xs text-slate-400">Elenco</span>
+      <div className="flex items-center justify-center gap-6 py-2 border-t border-slate-800">
+        <button className="flex flex-col items-center gap-0.5">
+          <CheckCircle2 className="w-5 h-5 text-slate-400" />
+          <span className="text-[10px] text-slate-400">Elenco</span>
         </button>
         
-        <button className="flex flex-col items-center gap-1">
-          <PlusCircle className="w-6 h-6 text-slate-400" />
-          <span className="text-xs text-slate-400">Aggiungi</span>
+        <button className="flex flex-col items-center gap-0.5">
+          <PlusCircle className="w-5 h-5 text-slate-400" />
+          <span className="text-[10px] text-slate-400">Aggiungi</span>
         </button>
         
-        <button className="flex flex-col items-center gap-1">
-          <AudioLines className="w-6 h-6 text-slate-400" />
-          <span className="text-xs text-slate-400">Registra</span>
+        <button className="flex flex-col items-center gap-0.5">
+          <AudioLines className="w-5 h-5 text-slate-400" />
+          <span className="text-[10px] text-slate-400">Registra</span>
         </button>
       </div>
     </div>
