@@ -358,7 +358,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
   return (
     <div className="bg-slate-900 overflow-hidden flex flex-col relative">
       {/* Fascia cartelle scrollabile */}
-      <div className="flex items-center gap-2 px-2 pt-3 pb-2 overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+      <div className="flex items-center gap-2 px-2 pt-4 pb-2 overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {/* Pulsante nuova cartella */}
         <button 
           onClick={() => setShowNewFolderPopup(true)}
