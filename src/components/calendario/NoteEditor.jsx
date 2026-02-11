@@ -107,6 +107,9 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
           value={title}
           onChange={(e) => { setTitle(e.target.value); if (e.target.value.trim()) setTitleError(false); }}
           placeholder="Titolo *"
+          autoComplete="off"
+          autoCorrect="off"
+          spellCheck="false"
           className={cn(
             "w-full bg-transparent text-white font-light outline-none mb-2",
             inline ? "text-xl" : "text-3xl",
