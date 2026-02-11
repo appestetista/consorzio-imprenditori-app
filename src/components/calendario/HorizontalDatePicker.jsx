@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { ChevronLeft, ChevronRight, Calendar, Folder, FolderPlus, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, Folder, FolderPlus, X, Pencil } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
@@ -34,8 +34,11 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
   // Stati per cartelle
   const [showNewFolderPopup, setShowNewFolderPopup] = useState(false);
   const [showDeletePopup, setShowDeletePopup] = useState(null); // ID cartella da eliminare
+  const [showEditPopup, setShowEditPopup] = useState(null); // Cartella da modificare
   const [newFolderName, setNewFolderName] = useState('');
   const [newFolderColor, setNewFolderColor] = useState('#f59e0b');
+  const [editFolderName, setEditFolderName] = useState('');
+  const [editFolderColor, setEditFolderColor] = useState('#f59e0b');
   const [userEmail, setUserEmail] = useState(null);
   const queryClient = useQueryClient();
 
@@ -97,6 +100,17 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
     }
   });
 
+  // Mutation modifica cartella
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.Cartella.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cartelle'] });
+      setShowEditPopup(null);
+      setEditFolderName('');
+      setEditFolderColor('#f59e0b');
+    }
+  });
+
   const handleCreateFolder = () => {
     if (!newFolderName.trim() || !userEmail) return;
     createMutation.mutate({
@@ -110,6 +124,21 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
     if (showDeletePopup) {
       deleteMutation.mutate(showDeletePopup);
     }
+  };
+
+  const handleEditFolder = () => {
+    if (showEditPopup && editFolderName.trim()) {
+      updateMutation.mutate({
+        id: showEditPopup.id,
+        data: { nome: editFolderName.trim(), colore: editFolderColor }
+      });
+    }
+  };
+
+  const openEditPopup = (cartella) => {
+    setEditFolderName(cartella.nome);
+    setEditFolderColor(cartella.colore);
+    setShowEditPopup(cartella);
   };
   const scrollRef = useRef(null);
   const todayRef = useRef(null);
@@ -341,7 +370,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
         
         {/* Cartelle dell'utente - stile cartella piena con ombra */}
         {cartelle.map((cartella) => (
-          <div key={cartella.id} className="relative flex-shrink-0 pt-2">
+          <div key={cartella.id} className="relative flex-shrink-0 pt-2 pr-1">
             <button className="flex flex-col items-center gap-0.5 px-1 rounded transition-colors">
               {/* Icona cartella stile folder piena */}
               <div 
@@ -361,6 +390,16 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                   className="absolute top-0 left-0 right-0 h-0.5 rounded-t-md"
                   style={{ backgroundColor: cartella.colore, filter: 'brightness(1.1)' }}
                 />
+                {/* Penna per modificare - centrata nella cartella */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openEditPopup(cartella);
+                  }}
+                  className="absolute inset-0 flex items-center justify-center"
+                >
+                  <Pencil className="w-3.5 h-3.5 text-white/70 hover:text-white transition-colors" />
+                </button>
               </div>
               <span className="text-[8px] text-slate-300 font-medium max-w-10 truncate">{cartella.nome}</span>
             </button>
@@ -428,6 +467,66 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
               <button
                 onClick={handleCreateFolder}
                 disabled={!newFolderName.trim()}
+                className="flex-1 px-4 py-2 rounded-lg bg-lime-500 hover:bg-lime-400 text-slate-900 text-sm font-semibold disabled:opacity-50"
+              >
+                Salva
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Popup modifica cartella - in alto con X */}
+      {showEditPopup && ReactDOM.createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-start justify-center pt-20 bg-black/60" onClick={() => setShowEditPopup(null)}>
+          <div className="bg-slate-800 rounded-xl p-5 w-80 shadow-2xl relative" onClick={(e) => e.stopPropagation()}>
+            {/* X per chiudere */}
+            <button
+              onClick={() => setShowEditPopup(null)}
+              className="absolute top-3 right-3 w-6 h-6 rounded-full bg-slate-700 hover:bg-slate-600 flex items-center justify-center"
+            >
+              <X className="w-4 h-4 text-slate-300" />
+            </button>
+            
+            <h3 className="text-white font-semibold text-base mb-4">Modifica Cartella</h3>
+            
+            {/* Nome */}
+            <input
+              type="text"
+              value={editFolderName}
+              onChange={(e) => setEditFolderName(e.target.value)}
+              placeholder="Nome cartella"
+              className="w-full bg-slate-700 text-white text-sm rounded-lg px-4 py-3 mb-4 outline-none focus:ring-2 focus:ring-lime-400"
+              autoFocus
+            />
+            
+            {/* Colori - griglia più grande */}
+            <div className="grid grid-cols-8 gap-2 mb-5">
+              {FOLDER_COLORS.map((color) => (
+                <button
+                  key={color}
+                  onClick={() => setEditFolderColor(color)}
+                  className={cn(
+                    "w-7 h-7 rounded-full transition-all",
+                    editFolderColor === color && "ring-2 ring-white ring-offset-2 ring-offset-slate-800 scale-110"
+                  )}
+                  style={{ backgroundColor: color }}
+                />
+              ))}
+            </div>
+            
+            {/* Pulsanti */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowEditPopup(null)}
+                className="flex-1 px-4 py-2 rounded-lg bg-slate-600 hover:bg-slate-500 text-white text-sm"
+              >
+                Annulla
+              </button>
+              <button
+                onClick={handleEditFolder}
+                disabled={!editFolderName.trim()}
                 className="flex-1 px-4 py-2 rounded-lg bg-lime-500 hover:bg-lime-400 text-slate-900 text-sm font-semibold disabled:opacity-50"
               >
                 Salva
