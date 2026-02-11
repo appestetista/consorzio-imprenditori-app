@@ -368,71 +368,88 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
           <span className="text-[10px] text-slate-300 font-medium">Nuova</span>
         </button>
         
-        {/* Cartelle dell'utente - stile cartella 3D realistica */}
-        {cartelle.map((cartella) => (
-          <div key={cartella.id} className="relative flex-shrink-0 pt-1 pr-2">
-            <button 
-              onClick={() => openEditPopup(cartella)}
-              className="flex flex-col items-center gap-1 px-1 rounded transition-all hover:scale-105"
-            >
-              {/* Cartella 3D */}
-              <div className="relative" style={{ perspective: '100px' }}>
-                {/* Ombra sotto la cartella */}
-                <div 
-                  className="absolute -bottom-1 left-1 right-1 h-2 rounded-full blur-sm opacity-40"
-                  style={{ backgroundColor: cartella.colore }}
-                />
-                
-                {/* Corpo principale cartella */}
-                <div 
-                  className="relative w-10 h-8 rounded-b-md rounded-tr-md"
-                  style={{ 
-                    background: `linear-gradient(145deg, ${cartella.colore} 0%, ${cartella.colore}dd 50%, ${cartella.colore}aa 100%)`,
-                    boxShadow: `
-                      0 4px 8px rgba(0,0,0,0.3),
-                      inset 0 1px 0 rgba(255,255,255,0.2),
-                      inset 0 -2px 4px rgba(0,0,0,0.1)
-                    `
-                  }}
-                >
-                  {/* Linguetta superiore - tab della cartella */}
+        {/* Cartelle dell'utente - stile cartella 3D come immagine */}
+        {cartelle.map((cartella) => {
+          const hasDocuments = false; // TODO: collegare ai documenti reali
+          
+          return (
+            <div key={cartella.id} className="relative flex-shrink-0 pt-2 pr-2">
+              <button 
+                onClick={() => openEditPopup(cartella)}
+                className="flex flex-col items-center gap-1 px-0.5 rounded transition-all hover:scale-105 active:scale-95"
+              >
+                {/* Cartella 3D stile immagine */}
+                <div className="relative w-11 h-10">
+                  {/* Ombra morbida sotto */}
                   <div 
-                    className="absolute -top-2 left-0 w-5 h-2.5 rounded-t-md"
+                    className="absolute bottom-0 left-1 right-1 h-1.5 rounded-full blur-md opacity-50"
+                    style={{ backgroundColor: cartella.colore }}
+                  />
+                  
+                  {/* Parte posteriore della cartella (dietro) */}
+                  <div 
+                    className="absolute top-0 left-0 right-0 bottom-1 rounded-lg"
                     style={{ 
-                      background: `linear-gradient(180deg, ${cartella.colore} 0%, ${cartella.colore}cc 100%)`,
-                      boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.3)'
+                      background: `linear-gradient(180deg, ${cartella.colore}ee 0%, ${cartella.colore}cc 100%)`,
+                      boxShadow: `inset 0 -2px 4px rgba(0,0,0,0.15)`
                     }}
-                  />
+                  >
+                    {/* Linguetta/Tab in alto a sinistra */}
+                    <div 
+                      className="absolute -top-1.5 left-0 w-4 h-2 rounded-t-md"
+                      style={{ 
+                        background: `linear-gradient(180deg, ${cartella.colore} 0%, ${cartella.colore}dd 100%)`,
+                      }}
+                    />
+                  </div>
                   
-                  {/* Linea di piegatura */}
+                  {/* Foglio bianco interno (solo se ha documenti) */}
+                  {hasDocuments && (
+                    <div 
+                      className="absolute top-2 left-1 right-1 h-4 rounded-t-sm bg-white"
+                      style={{ 
+                        boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
+                      }}
+                    />
+                  )}
+                  
+                  {/* Parte frontale della cartella (davanti) */}
                   <div 
-                    className="absolute top-0 left-0 right-0 h-[1px]"
-                    style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}
-                  />
-                  
-                  {/* Icona penna centrata */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <Pencil className="w-3.5 h-3.5 text-white/60 hover:text-white transition-colors drop-shadow" />
+                    className="absolute top-3 left-0 right-0 bottom-0 rounded-lg"
+                    style={{ 
+                      background: `linear-gradient(180deg, ${cartella.colore} 0%, ${cartella.colore}dd 60%, ${cartella.colore}bb 100%)`,
+                      boxShadow: `
+                        0 2px 4px rgba(0,0,0,0.2),
+                        inset 0 1px 0 rgba(255,255,255,0.25),
+                        inset 0 -1px 3px rgba(0,0,0,0.1)
+                      `
+                    }}
+                  >
+                    {/* Linea decorativa orizzontale */}
+                    <div 
+                      className="absolute top-1.5 left-1.5 right-1.5 h-[1px] rounded-full"
+                      style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}
+                    />
                   </div>
                 </div>
-              </div>
+                
+                {/* Nome cartella */}
+                <span className="text-[9px] text-slate-300 font-medium max-w-12 truncate">{cartella.nome}</span>
+              </button>
               
-              {/* Nome cartella */}
-              <span className="text-[9px] text-slate-300 font-medium max-w-12 truncate">{cartella.nome}</span>
-            </button>
-            
-            {/* X per eliminare */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowDeletePopup(cartella.id);
-              }}
-              className="absolute -top-1 right-0 w-4 h-4 rounded-full bg-red-500 hover:bg-red-400 flex items-center justify-center shadow-lg border border-red-400"
-            >
-              <X className="w-2.5 h-2.5 text-white" />
-            </button>
-          </div>
-        ))}
+              {/* X per eliminare */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowDeletePopup(cartella.id);
+                }}
+                className="absolute top-0 right-0 w-4 h-4 rounded-full bg-red-500 hover:bg-red-400 flex items-center justify-center shadow-lg"
+              >
+                <X className="w-2.5 h-2.5 text-white" />
+              </button>
+            </div>
+          );
+        })}
       </div>
 
       {/* Popup nuova cartella - in alto con X */}
