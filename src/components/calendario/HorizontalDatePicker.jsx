@@ -379,7 +379,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                 className="flex flex-col items-center gap-1 px-0.5 rounded transition-all hover:scale-105 active:scale-95"
               >
                 {/* Cartella 3D stile immagine */}
-                <div className="relative w-8 h-7">
+                <div className="relative w-7 h-6">
                   {/* Ombra morbida sotto */}
                   <div 
                     className="absolute bottom-0 left-0.5 right-0.5 h-1 rounded-full blur-sm opacity-40"
@@ -434,7 +434,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                 </div>
                 
                 {/* Nome cartella */}
-                <span className="text-[9px] text-slate-300 font-medium">
+                <span className="text-[12px] text-slate-300 font-medium">
                   {cartella.nome.length > 6 ? cartella.nome.substring(0, 6) + '..' : cartella.nome}
                 </span>
               </button>
