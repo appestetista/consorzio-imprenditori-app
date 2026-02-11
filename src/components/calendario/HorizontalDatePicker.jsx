@@ -334,7 +334,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
           onClick={() => setShowNewFolderPopup(true)}
           className="flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 transition-colors"
         >
-          <FolderPlus className="w-4 h-4 text-lime-400" />
+          <FolderPlus className="w-8 h-8 text-lime-400" />
           <span className="text-[10px] text-slate-300 font-medium">Nuova</span>
         </button>
         
@@ -342,7 +342,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
         {cartelle.map((cartella) => (
           <div key={cartella.id} className="relative flex-shrink-0 group">
             <button className="flex items-center gap-1 px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 transition-colors border border-slate-600">
-              <Folder className="w-4 h-4" style={{ color: cartella.colore }} />
+              <Folder className="w-8 h-8" style={{ color: cartella.colore }} />
               <span className="text-[10px] text-slate-300 font-medium">{cartella.nome}</span>
             </button>
             {/* X per eliminare - visibile al hover */}
@@ -359,9 +359,9 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
         ))}
       </div>
 
-      {/* Popup nuova cartella - posizionato in alto, sopra il calendario */}
+      {/* Popup nuova cartella - posizionato in alto al centro */}
       {showNewFolderPopup && (
-        <div className="fixed inset-0 z-[100] flex items-start justify-center pt-20 bg-black/60" onClick={() => setShowNewFolderPopup(false)}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60" onClick={() => setShowNewFolderPopup(false)}>
           <div className="bg-slate-800 rounded-xl p-5 w-80 shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <h3 className="text-white font-semibold text-base mb-4">Nuova Cartella</h3>
             
@@ -410,9 +410,9 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
         </div>
       )}
 
-      {/* Popup conferma eliminazione - posizionato in alto */}
+      {/* Popup conferma eliminazione - posizionato al centro */}
       {showDeletePopup && (
-        <div className="fixed inset-0 z-[100] flex items-start justify-center pt-20 bg-black/60" onClick={() => setShowDeletePopup(null)}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60" onClick={() => setShowDeletePopup(null)}>
           <div className="bg-slate-800 rounded-xl p-5 w-80 shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <h3 className="text-white font-semibold text-base mb-3">⚠️ Attenzione</h3>
             <p className="text-slate-300 text-sm mb-5">
