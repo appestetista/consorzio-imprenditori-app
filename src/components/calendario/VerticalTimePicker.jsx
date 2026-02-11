@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { Plus } from 'lucide-react';
+import { Plus, FileText } from 'lucide-react';
 import NoteEditor from './NoteEditor';
 
 export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMonth, visibleYear, onClose, onTimeSelect, onDateChange, monthColor = '#a3e635' }) {
@@ -10,6 +10,7 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
   const lastScrollTop = useRef(0);
   const [selectedTime, setSelectedTime] = useState(null);
   const [showNoteEditor, setShowNoteEditor] = useState(false);
+  const [savedNotes, setSavedNotes] = useState({}); // { "HH:MM": noteData }
 
   // Genera tutte le ore del giorno con intervalli di 5 minuti
   const generateTimeSlots = () => {
@@ -173,7 +174,11 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
 
   const handleNoteSave = (noteData) => {
     console.log('Nota salvata:', noteData);
-    // TODO: salvare la nota nel database
+    // Salva la nota nello state locale, associata all'orario
+    setSavedNotes(prev => ({
+      ...prev,
+      [noteData.time]: noteData
+    }));
     setShowNoteEditor(false);
   };
 
@@ -213,6 +218,8 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
             slot.minute === currentSlotMinute;
 
           const isSelected = selectedTime === slot.timeString;
+          const note = savedNotes[slot.timeString];
+          const hasNote = !!note;
 
           return (
             <div
@@ -223,15 +230,17 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
               className={cn(
                 "flex items-center cursor-pointer transition-all hover:bg-slate-700 rounded px-2",
                 slot.isFullHour ? "h-8" : "h-6",
-                isSelected && "bg-slate-700/50"
+                isSelected && "bg-slate-700/50",
+                hasNote && "bg-slate-800/60"
               )}
               style={{
                 backgroundColor: isSelected ? 'rgba(100, 100, 100, 0.3)' : 
+                  hasNote ? 'rgba(163, 230, 53, 0.08)' :
                   (isCurrentTime && isToday) ? 'rgba(163, 230, 53, 0.2)' : undefined
               }}
             >
-              {/* Pulsante + giallo se selezionato, altrimenti linea */}
-              {isSelected ? (
+              {/* Pulsante + giallo se selezionato, altrimenti linea o icona nota */}
+              {isSelected && !hasNote ? (
                 <button 
                   className="w-6 h-6 rounded-full bg-amber-500 hover:bg-amber-400 flex items-center justify-center mr-2 transition-colors"
                   onClick={(e) => {
@@ -240,6 +249,17 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
                   }}
                 >
                   <Plus className="w-4 h-4 text-white" />
+                </button>
+              ) : hasNote ? (
+                <button
+                  className="flex-shrink-0 mr-2"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedTime(slot.timeString);
+                    setShowNoteEditor(true);
+                  }}
+                >
+                  <FileText className="w-4 h-4 text-lime-400" />
                 </button>
               ) : (
                 <div 
@@ -252,19 +272,30 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
                 />
               )}
 
-              {/* Orario a destra */}
+              {/* Orario */}
               <span 
                 className={cn(
-                  "font-mono text-xs",
+                  "font-mono text-xs flex-shrink-0",
                   slot.isFullHour && "font-bold"
                 )}
                 style={{
-                  color: (isCurrentTime && isToday) ? '#a3e635' : 
+                  color: hasNote ? '#a3e635' :
+                    (isCurrentTime && isToday) ? '#a3e635' : 
                     slot.isFullHour ? activeColor : '#94a3b8'
                 }}
               >
                 {slot.timeString}
               </span>
+
+              {/* Titolo nota salvata */}
+              {hasNote && (
+                <span className="ml-2 text-xs text-lime-300 truncate">
+                  {note.title}
+                  {(note.content || note.checklistItems?.length > 0 || note.attachments?.length > 0) && (
+                    <span className="text-lime-500 ml-1">•••</span>
+                  )}
+                </span>
+              )}
             </div>
           );
         })}
