@@ -184,8 +184,15 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
           </div>
         </div>
 
-        {/* Registratore audio + dettatura */}
-        <div className="flex items-center gap-2 mb-2">
+        {/* Dettatura + Registratore audio (max 60% larghezza) */}
+        <div className="flex items-center gap-1.5 mb-2 max-w-[60%]">
+          <div className="relative flex-shrink-0">
+            <WhisperDictation 
+              isDictating={isDictating}
+              setIsDictating={setIsDictating}
+              onTranscription={handleWhisperTranscription}
+            />
+          </div>
           <div className="flex-1 min-w-0">
             <AudioRecorder
               onAudioSaved={(audioAtt) => {
@@ -194,13 +201,6 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
               onTranscription={(text) => {
                 setContent(prev => prev ? prev + '\n' + text : text);
               }}
-            />
-          </div>
-          <div className="relative flex-shrink-0">
-            <WhisperDictation 
-              isDictating={isDictating}
-              setIsDictating={setIsDictating}
-              onTranscription={handleWhisperTranscription}
             />
           </div>
         </div>
