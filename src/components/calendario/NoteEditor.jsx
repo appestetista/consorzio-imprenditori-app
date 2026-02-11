@@ -12,6 +12,7 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
   const [showChecklist, setShowChecklist] = useState(existingNote?.checklistItems?.length > 0 || false);
   const [isUploading, setIsUploading] = useState(false);
   const [titleError, setTitleError] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   
   const cameraInputRef = useRef(null);
   const fileInputRef = useRef(null);
