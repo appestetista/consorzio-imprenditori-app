@@ -616,8 +616,11 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
             </button>
             
             <h3 className="text-white font-semibold text-base mb-3">⚠️ Attenzione</h3>
-            <p className="text-slate-300 text-sm mb-5">
-              Stai per eliminare questa cartella. Perderai tutto il contenuto al suo interno.
+            <p className="text-slate-300 text-sm mb-2">
+              Stai per eliminare questa cartella e i file al suo interno.
+            </p>
+            <p className="text-lime-400 text-xs mb-5">
+              Le note salvate dal calendario NON verranno cancellate.
             </p>
             
             {/* Pulsanti */}
