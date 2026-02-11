@@ -102,8 +102,9 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
           {formattedDate} • {currentTime}
         </div>
         <button 
+          onTouchStart={(e) => { e.preventDefault(); handleSave(); }}
           onClick={handleSave} 
-          className="w-8 h-8 rounded-full bg-lime-500 active:bg-lime-600 active:scale-90 flex items-center justify-center transition-all"
+          className="w-8 h-8 rounded-full bg-lime-500 active:bg-lime-600 active:scale-90 flex items-center justify-center transition-all touch-manipulation"
         >
           <Check className="w-5 h-5 text-slate-900" strokeWidth={3} />
         </button>
