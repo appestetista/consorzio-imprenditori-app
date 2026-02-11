@@ -1,12 +1,20 @@
-import React, { useState } from 'react';
-import { ChevronLeft, Check, CheckCircle2, PlusCircle, AudioLines } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { ChevronLeft, Check, Camera, Paperclip, ListChecks, AudioLines } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { base44 } from '@/api/base44Client';
+import ChecklistEditor from './ChecklistEditor';
 
 export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave, inline = false }) {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [attachments, setAttachments] = useState([]);
+  const [checklistItems, setChecklistItems] = useState([]);
+  const [showChecklist, setShowChecklist] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  
+  const cameraInputRef = useRef(null);
+  const fileInputRef = useRef(null);
 
-  // Formatta la data per il display
   const today = new Date();
   const isToday = selectedDate && 
     new Date(selectedDate).toDateString() === today.toDateString();
@@ -25,11 +33,37 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
       onSave({
         title: title || 'Senza titolo',
         content,
+        attachments,
+        checklistItems,
         date: selectedDate,
         time: selectedTime
       });
     }
     onClose();
+  };
+
+  const handleFileUpload = async (file) => {
+    setIsUploading(true);
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    setAttachments(prev => [...prev, { url: file_url, name: file.name, type: file.type }]);
+    setIsUploading(false);
+  };
+
+  const handleCameraCapture = (e) => {
+    const file = e.target.files?.[0];
+    if (file) handleFileUpload(file);
+  };
+
+  const handleFileAttach = (e) => {
+    const file = e.target.files?.[0];
+    if (file) handleFileUpload(file);
+  };
+
+  const toggleChecklist = () => {
+    if (!showChecklist && checklistItems.length === 0) {
+      setChecklistItems([{ id: Date.now().toString(), text: '', checked: false }]);
+    }
+    setShowChecklist(!showChecklist);
   };
 
   return (
@@ -39,29 +73,19 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
     )}>
       {/* Header */}
       <div className="flex items-center justify-between px-3 py-2 border-b border-slate-800">
-        <button 
-          onClick={onClose}
-          className="p-1"
-        >
+        <button onClick={onClose} className="p-1">
           <ChevronLeft className="w-5 h-5 text-slate-400" />
         </button>
-        
-        {/* Data e ora nel header */}
         <div className="text-slate-400 text-xs">
           {formattedDate} {selectedTime}
         </div>
-        
-        <button 
-          onClick={handleSave}
-          className="p-1"
-        >
+        <button onClick={handleSave} className="p-1">
           <Check className="w-5 h-5 text-slate-400" />
         </button>
       </div>
 
       {/* Content */}
       <div className="flex-1 px-3 py-2 overflow-y-auto">
-        {/* Titolo */}
         <input
           type="text"
           value={title}
@@ -74,32 +98,95 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
           autoFocus
         />
 
-        {/* Area contenuto */}
-        <textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="Scrivi qui..."
-          className="w-full flex-1 min-h-[200px] bg-transparent text-white text-sm outline-none placeholder:text-slate-600 resize-none"
-        />
+        {/* Area testo libero */}
+        {!showChecklist && (
+          <textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder="Scrivi qui..."
+            className="w-full min-h-[120px] bg-transparent text-white text-sm outline-none placeholder:text-slate-600 resize-none"
+          />
+        )}
+
+        {/* Checklist */}
+        {showChecklist && (
+          <ChecklistEditor items={checklistItems} onChange={setChecklistItems} />
+        )}
+
+        {/* Allegati */}
+        {attachments.length > 0 && (
+          <div className="mt-3 space-y-1">
+            <span className="text-[10px] text-slate-500 uppercase">Allegati</span>
+            {attachments.map((att, idx) => (
+              <div key={idx} className="flex items-center gap-2 bg-slate-800 rounded px-2 py-1">
+                {att.type?.startsWith('image/') ? (
+                  <img src={att.url} alt={att.name} className="w-8 h-8 rounded object-cover" />
+                ) : (
+                  <Paperclip className="w-4 h-4 text-slate-400" />
+                )}
+                <span className="text-xs text-slate-300 truncate flex-1">{att.name}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {isUploading && (
+          <div className="mt-2 text-xs text-slate-500 animate-pulse">Caricamento...</div>
+        )}
       </div>
 
-      {/* Footer con azioni */}
+      {/* Footer - 4 pulsanti */}
       <div className="flex items-center justify-center gap-6 py-2 border-t border-slate-800">
-        <button className="flex flex-col items-center gap-0.5">
-          <CheckCircle2 className="w-5 h-5 text-slate-400" />
-          <span className="text-[10px] text-slate-400">Elenco</span>
+        {/* Fotocamera */}
+        <button 
+          onClick={() => cameraInputRef.current?.click()}
+          className="flex flex-col items-center gap-0.5"
+        >
+          <Camera className="w-5 h-5 text-slate-400" />
+          <span className="text-[10px] text-slate-400">Foto</span>
         </button>
         
-        <button className="flex flex-col items-center gap-0.5">
-          <PlusCircle className="w-5 h-5 text-slate-400" />
-          <span className="text-[10px] text-slate-400">Aggiungi</span>
+        {/* Allega */}
+        <button 
+          onClick={() => fileInputRef.current?.click()}
+          className="flex flex-col items-center gap-0.5"
+        >
+          <Paperclip className="w-5 h-5 text-slate-400" />
+          <span className="text-[10px] text-slate-400">Allega</span>
+        </button>
+
+        {/* Elenco */}
+        <button 
+          onClick={toggleChecklist}
+          className="flex flex-col items-center gap-0.5"
+        >
+          <ListChecks className={cn("w-5 h-5", showChecklist ? "text-lime-400" : "text-slate-400")} />
+          <span className={cn("text-[10px]", showChecklist ? "text-lime-400" : "text-slate-400")}>Elenco</span>
         </button>
         
+        {/* Registra */}
         <button className="flex flex-col items-center gap-0.5">
           <AudioLines className="w-5 h-5 text-slate-400" />
           <span className="text-[10px] text-slate-400">Registra</span>
         </button>
       </div>
+
+      {/* Input nascosti per camera e file */}
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        onChange={handleCameraCapture}
+        className="hidden"
+      />
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="*/*"
+        onChange={handleFileAttach}
+        className="hidden"
+      />
     </div>
   );
 }
