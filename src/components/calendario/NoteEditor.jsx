@@ -83,9 +83,7 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
         <div className="text-slate-400 text-xs font-mono">
           {formattedDate} • {saveTime}
         </div>
-        <div className="text-slate-400 text-xs font-mono">
-          {formattedDate} • {saveTime}
-        </div>
+        <div className="w-5" />
       </div>
 
       {/* Content */}
