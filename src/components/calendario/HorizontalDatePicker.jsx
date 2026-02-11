@@ -500,13 +500,13 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                     />
                   </div>
 
-                  {/* Badge conteggio file */}
+                  {/* Badge conteggio file - al centro della cartella */}
                   {hasDocuments && (
                     <div 
-                      className="absolute -top-1.5 -right-1 min-w-[14px] h-[14px] rounded-full flex items-center justify-center px-0.5"
-                      style={{ backgroundColor: cartella.colore, boxShadow: '0 1px 3px rgba(0,0,0,0.4)' }}
+                      className="absolute inset-0 flex items-center justify-center z-10"
+                      style={{ top: '6px' }}
                     >
-                      <span className="text-[8px] font-bold text-white leading-none">{itemCount}</span>
+                      <span className="text-[9px] font-extrabold text-white leading-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]">{itemCount}</span>
                     </div>
                   )}
                 </div>
