@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Check, Camera, Paperclip, ListChecks } from 'lucide-react';
+import { Check, Camera, Paperclip, ListChecks, Mic, MicOff } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { base44 } from '@/api/base44Client';
 import ChecklistEditor from './ChecklistEditor';
