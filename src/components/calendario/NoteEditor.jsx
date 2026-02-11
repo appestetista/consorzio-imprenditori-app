@@ -155,11 +155,8 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
             >
               <ListChecks className={cn("w-5 h-5", showChecklist ? "text-lime-400" : "text-slate-400")} />
             </button>
-            <button className="p-1.5 rounded-lg hover:bg-slate-800 transition-colors">
-              <AudioLines className="w-5 h-5 text-slate-400" />
-            </button>
           </div>
-          <div className="ml-auto">
+          <div className="ml-auto pl-2">
             <a
               href="#"
               onClick={(e) => { e.preventDefault(); handleSave(); }}
@@ -177,6 +174,11 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
             </a>
           </div>
         </div>
+
+        {/* Pulsante audio */}
+        <button className="p-1.5 rounded-lg hover:bg-slate-800 transition-colors mb-2">
+          <AudioLines className="w-5 h-5 text-slate-400" />
+        </button>
 
         {/* Area testo libero */}
         {!showChecklist && (
