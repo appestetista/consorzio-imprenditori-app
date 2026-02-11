@@ -358,7 +358,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
   return (
     <div className="bg-slate-900 overflow-hidden flex flex-col relative">
       {/* Fascia cartelle scrollabile */}
-      <div className="flex items-center gap-2 px-2 py-2 overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+      <div className="flex items-center gap-2 px-2 pt-3 pb-2 overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {/* Pulsante nuova cartella */}
         <button 
           onClick={() => setShowNewFolderPopup(true)}
@@ -370,7 +370,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
         
         {/* Cartelle dell'utente - stile cartella 3D realistica */}
         {cartelle.map((cartella) => (
-          <div key={cartella.id} className="relative flex-shrink-0 pt-4 pr-2">
+          <div key={cartella.id} className="relative flex-shrink-0 pt-1 pr-2">
             <button 
               onClick={() => openEditPopup(cartella)}
               className="flex flex-col items-center gap-1 px-1 rounded transition-all hover:scale-105"
@@ -427,7 +427,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                 e.stopPropagation();
                 setShowDeletePopup(cartella.id);
               }}
-              className="absolute top-2 right-0 w-4 h-4 rounded-full bg-red-500 hover:bg-red-400 flex items-center justify-center shadow-lg border border-red-400"
+              className="absolute -top-1 right-0 w-4 h-4 rounded-full bg-red-500 hover:bg-red-400 flex items-center justify-center shadow-lg border border-red-400"
             >
               <X className="w-2.5 h-2.5 text-white" />
             </button>
