@@ -48,6 +48,14 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
     '#ef4444', // red
     '#06b6d4', // cyan
     '#f97316', // orange
+    '#14b8a6', // teal
+    '#8b5cf6', // violet
+    '#eab308', // yellow
+    '#64748b', // slate
+    '#be185d', // fuchsia
+    '#0ea5e9', // sky
+    '#84cc16', // lime
+    '#78716c', // stone
   ];
 
   // Carica utente
@@ -351,11 +359,11 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
         ))}
       </div>
 
-      {/* Popup nuova cartella */}
+      {/* Popup nuova cartella - posizionato in alto, sopra il calendario */}
       {showNewFolderPopup && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setShowNewFolderPopup(false)}>
-          <div className="bg-slate-800 rounded-lg p-4 w-64 shadow-xl" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-white font-semibold text-sm mb-3">Nuova Cartella</h3>
+        <div className="fixed inset-0 z-[100] flex items-start justify-center pt-20 bg-black/60" onClick={() => setShowNewFolderPopup(false)}>
+          <div className="bg-slate-800 rounded-xl p-5 w-80 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-white font-semibold text-base mb-4">Nuova Cartella</h3>
             
             {/* Nome */}
             <input
@@ -363,19 +371,19 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
               value={newFolderName}
               onChange={(e) => setNewFolderName(e.target.value)}
               placeholder="Nome cartella"
-              className="w-full bg-slate-700 text-white text-sm rounded px-3 py-2 mb-3 outline-none focus:ring-2 focus:ring-lime-400"
+              className="w-full bg-slate-700 text-white text-sm rounded-lg px-4 py-3 mb-4 outline-none focus:ring-2 focus:ring-lime-400"
               autoFocus
             />
             
-            {/* Colori */}
-            <div className="flex gap-2 mb-4 flex-wrap">
+            {/* Colori - griglia più grande */}
+            <div className="grid grid-cols-8 gap-2 mb-5">
               {FOLDER_COLORS.map((color) => (
                 <button
                   key={color}
                   onClick={() => setNewFolderColor(color)}
                   className={cn(
-                    "w-6 h-6 rounded-full transition-all",
-                    newFolderColor === color && "ring-2 ring-white ring-offset-2 ring-offset-slate-800"
+                    "w-7 h-7 rounded-full transition-all",
+                    newFolderColor === color && "ring-2 ring-white ring-offset-2 ring-offset-slate-800 scale-110"
                   )}
                   style={{ backgroundColor: color }}
                 />
@@ -383,17 +391,17 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
             </div>
             
             {/* Pulsanti */}
-            <div className="flex gap-2">
+            <div className="flex gap-3">
               <button
                 onClick={() => setShowNewFolderPopup(false)}
-                className="flex-1 px-3 py-1.5 rounded bg-slate-600 hover:bg-slate-500 text-white text-sm"
+                className="flex-1 px-4 py-2 rounded-lg bg-slate-600 hover:bg-slate-500 text-white text-sm"
               >
                 Annulla
               </button>
               <button
                 onClick={handleCreateFolder}
                 disabled={!newFolderName.trim()}
-                className="flex-1 px-3 py-1.5 rounded bg-lime-500 hover:bg-lime-400 text-slate-900 text-sm font-semibold disabled:opacity-50"
+                className="flex-1 px-4 py-2 rounded-lg bg-lime-500 hover:bg-lime-400 text-slate-900 text-sm font-semibold disabled:opacity-50"
               >
                 Salva
               </button>
@@ -402,26 +410,26 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
         </div>
       )}
 
-      {/* Popup conferma eliminazione */}
+      {/* Popup conferma eliminazione - posizionato in alto */}
       {showDeletePopup && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/60" onClick={() => setShowDeletePopup(null)}>
-          <div className="bg-slate-800 rounded-lg p-4 w-64 shadow-xl" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-white font-semibold text-sm mb-2">⚠️ Attenzione</h3>
-            <p className="text-slate-300 text-xs mb-4">
+        <div className="fixed inset-0 z-[100] flex items-start justify-center pt-20 bg-black/60" onClick={() => setShowDeletePopup(null)}>
+          <div className="bg-slate-800 rounded-xl p-5 w-80 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-white font-semibold text-base mb-3">⚠️ Attenzione</h3>
+            <p className="text-slate-300 text-sm mb-5">
               Stai per eliminare questa cartella. Perderai tutto il contenuto al suo interno.
             </p>
             
             {/* Pulsanti */}
-            <div className="flex gap-2">
+            <div className="flex gap-3">
               <button
                 onClick={() => setShowDeletePopup(null)}
-                className="flex-1 px-3 py-1.5 rounded bg-slate-600 hover:bg-slate-500 text-white text-sm"
+                className="flex-1 px-4 py-2 rounded-lg bg-slate-600 hover:bg-slate-500 text-white text-sm"
               >
                 Annulla
               </button>
               <button
                 onClick={handleDeleteFolder}
-                className="flex-1 px-3 py-1.5 rounded bg-red-500 hover:bg-red-400 text-white text-sm font-semibold"
+                className="flex-1 px-4 py-2 rounded-lg bg-red-500 hover:bg-red-400 text-white text-sm font-semibold"
               >
                 Elimina
               </button>
