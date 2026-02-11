@@ -52,6 +52,7 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
   contentRef.current = content;
   attachmentsRef.current = attachments;
   checklistItemsRef.current = checklistItems;
+  cartellaRef.current = selectedCartella;
 
   // Registra la funzione di salvataggio per il parent
   React.useEffect(() => {
