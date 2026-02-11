@@ -142,7 +142,7 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
         )}
 
         {/* Toolbar strumenti + salva inline */}
-        <div className="flex items-center py-2 mb-2 border-b border-slate-800/50">
+        <div className="flex items-center py-2 mb-6 border-b border-slate-800/50 relative">
           <div className="flex items-center gap-3">
             <button 
               onClick={() => cameraInputRef.current?.click()}
