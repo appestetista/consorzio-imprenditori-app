@@ -185,34 +185,7 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
         )}
       </div>
 
-      {/* Footer - pulsanti strumenti */}
-      <div className="flex items-center justify-center gap-6 py-2 border-t border-slate-800">
-        <button 
-          onClick={() => cameraInputRef.current?.click()}
-          className="flex flex-col items-center gap-0.5"
-        >
-          <Camera className="w-5 h-5 text-slate-400" />
-          <span className="text-[10px] text-slate-400">Foto</span>
-        </button>
-        <button 
-          onClick={() => fileInputRef.current?.click()}
-          className="flex flex-col items-center gap-0.5"
-        >
-          <Paperclip className="w-5 h-5 text-slate-400" />
-          <span className="text-[10px] text-slate-400">Allega</span>
-        </button>
-        <button 
-          onClick={toggleChecklist}
-          className="flex flex-col items-center gap-0.5"
-        >
-          <ListChecks className={cn("w-5 h-5", showChecklist ? "text-lime-400" : "text-slate-400")} />
-          <span className={cn("text-[10px]", showChecklist ? "text-lime-400" : "text-slate-400")}>Elenco</span>
-        </button>
-        <button className="flex flex-col items-center gap-0.5">
-          <AudioLines className="w-5 h-5 text-slate-400" />
-          <span className="text-[10px] text-slate-400">Registra</span>
-        </button>
-      </div>
+  
 
       {/* Input nascosti per camera e file */}
       <input
