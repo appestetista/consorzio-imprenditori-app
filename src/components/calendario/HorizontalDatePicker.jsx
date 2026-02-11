@@ -421,7 +421,8 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
         
         {/* Cartelle dell'utente - stile cartella 3D come immagine */}
         {cartelle.map((cartella) => {
-          const hasDocuments = false; // TODO: collegare ai documenti reali
+          const itemCount = fileCountMap[cartella.id] || 0;
+          const hasDocuments = itemCount > 0;
           
           return (
             <div key={cartella.id} className="relative flex-shrink-0 pt-2 pr-2">
@@ -454,14 +455,30 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                     />
                   </div>
                   
-                  {/* Foglio bianco interno (solo se ha documenti) */}
+                  {/* Fogli bianchi che sporgono (se ha documenti) */}
                   {hasDocuments && (
-                    <div 
-                      className="absolute top-1.5 left-0.5 right-0.5 h-3 rounded-t-sm bg-white"
-                      style={{ 
-                        boxShadow: '0 1px 1px rgba(0,0,0,0.1)'
-                      }}
-                    />
+                    <>
+                      {/* Foglio dietro - sporge di più */}
+                      <div 
+                        className="absolute left-0.5 right-0.5 rounded-t-sm"
+                        style={{ 
+                          top: '2px',
+                          height: '12px',
+                          background: 'linear-gradient(180deg, #e2e8f0 0%, #cbd5e1 100%)',
+                          boxShadow: '0 -1px 2px rgba(0,0,0,0.08)'
+                        }}
+                      />
+                      {/* Foglio davanti - sporge meno */}
+                      <div 
+                        className="absolute left-1 right-1 rounded-t-sm"
+                        style={{ 
+                          top: '4px',
+                          height: '10px',
+                          background: 'linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%)',
+                          boxShadow: '0 -1px 2px rgba(0,0,0,0.06)'
+                        }}
+                      />
+                    </>
                   )}
                   
                   {/* Parte frontale della cartella (davanti) */}
@@ -482,6 +499,16 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                       style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}
                     />
                   </div>
+
+                  {/* Badge conteggio file */}
+                  {hasDocuments && (
+                    <div 
+                      className="absolute -top-1.5 -right-1 min-w-[14px] h-[14px] rounded-full flex items-center justify-center px-0.5"
+                      style={{ backgroundColor: cartella.colore, boxShadow: '0 1px 3px rgba(0,0,0,0.4)' }}
+                    >
+                      <span className="text-[8px] font-bold text-white leading-none">{itemCount}</span>
+                    </div>
+                  )}
                 </div>
                 
                 {/* Nome cartella */}
