@@ -65,6 +65,7 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
             content: contentRef.current,
             attachments: attachmentsRef.current,
             checklistItems: checklistItemsRef.current,
+            cartella_id: cartellaRef.current || null,
             date: selectedDate,
             time: selectedTime || '00:00'
           });
@@ -96,6 +97,7 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
         content,
         attachments,
         checklistItems,
+        cartella_id: selectedCartella || null,
         date: selectedDate,
         time: saveTime
       });
