@@ -1,10 +1,11 @@
 import React, { useState, useRef } from 'react';
-import { Check, Camera, Paperclip, ListChecks } from 'lucide-react';
+import { Check, Camera, Paperclip, ListChecks, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { base44 } from '@/api/base44Client';
 import ChecklistEditor from './ChecklistEditor';
 import AudioRecorder from './AudioRecorder';
 import WhisperDictation from './WhisperDictation';
+import AttachmentViewer from './AttachmentViewer';
 
 export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave, inline = false, existingNote = null, onRegisterSave }) {
   const [title, setTitle] = useState(existingNote?.title || '');
@@ -17,6 +18,7 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
   const [isSaving, setIsSaving] = useState(false);
   
   const [isDictating, setIsDictating] = useState(false);
+  const [viewingAttachment, setViewingAttachment] = useState(null);
   const cameraInputRef = useRef(null);
   const fileInputRef = useRef(null);
   const titleRef = useRef(title);
@@ -218,15 +220,34 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
             <span className="text-[10px] text-slate-500 uppercase">Allegati</span>
             {attachments.map((att, idx) => (
               <div key={idx} className="flex items-center gap-2 bg-slate-800 rounded px-2 py-1">
-                {att.type?.startsWith('image/') ? (
-                  <img src={att.url} alt={att.name} className="w-8 h-8 rounded object-cover" />
-                ) : (
-                  <Paperclip className="w-4 h-4 text-slate-400" />
-                )}
-                <span className="text-xs text-slate-300 truncate flex-1">{att.name}</span>
+                <button
+                  onClick={() => setViewingAttachment(att)}
+                  className="flex items-center gap-2 flex-1 min-w-0 text-left"
+                >
+                  {att.type?.startsWith('image/') ? (
+                    <img src={att.url} alt={att.name} className="w-8 h-8 rounded object-cover flex-shrink-0" />
+                  ) : (
+                    <Paperclip className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                  )}
+                  <span className="text-xs text-slate-300 truncate">{att.name}</span>
+                </button>
+                <button
+                  onClick={() => setAttachments(prev => prev.filter((_, i) => i !== idx))}
+                  className="p-1 hover:bg-slate-700 rounded flex-shrink-0"
+                >
+                  <X className="w-3 h-3 text-slate-500" />
+                </button>
               </div>
             ))}
           </div>
+        )}
+
+        {/* Viewer allegato a schermo intero */}
+        {viewingAttachment && (
+          <AttachmentViewer 
+            attachment={viewingAttachment} 
+            onClose={() => setViewingAttachment(null)} 
+          />
         )}
 
         {isUploading && (
