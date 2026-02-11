@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight, Calendar, Folder, FolderPlus, X, Pencil, Che
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
+import CartellaView from './CartellaView';
 
 const DAYS_SHORT = ['D', 'L', 'M', 'M', 'G', 'V', 'S'];
 const MONTHS = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
