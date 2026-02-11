@@ -162,7 +162,7 @@ export default function AudioRecorder({ onAudioSaved, onTranscription }) {
 
   return (
     <div className="mb-2">
-      <div className="flex items-center gap-1.5 bg-slate-800/60 rounded-lg px-1.5 py-1">
+      <div className="flex items-center gap-1.5">
         {/* Pulsante REC */}
         <button
           onClick={isRecording ? stopRecording : startRecording}
@@ -179,9 +179,6 @@ export default function AudioRecorder({ onAudioSaved, onTranscription }) {
             <Circle className="w-4 h-4 text-red-500" fill="#ef4444" />
           )}
         </button>
-
-        {/* Separatore */}
-        <div className="w-[1px] h-4 bg-slate-600 flex-shrink-0" />
 
         {/* Pulsante Play/Pause */}
         <button
@@ -200,26 +197,6 @@ export default function AudioRecorder({ onAudioSaved, onTranscription }) {
             <Play className="w-3.5 h-3.5 text-white ml-0.5" fill="white" />
           )}
         </button>
-
-        {/* Progress bar */}
-        <div className="flex-1 mx-1">
-          <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-slate-400 rounded-full transition-all"
-              style={{ width: `${isRecording ? 100 : progressPercent}%` }}
-            />
-          </div>
-        </div>
-
-        {/* Timer */}
-        <span className="text-[10px] text-slate-400 font-mono flex-shrink-0 min-w-[52px] text-right">
-          {isRecording 
-            ? formatTime(recordTime)
-            : audioURL 
-              ? `${formatTime(playTime)} / ${formatTime(duration)}`
-              : '00:00'
-          }
-        </span>
       </div>
 
       {/* Indicatore trascrizione automatica */}

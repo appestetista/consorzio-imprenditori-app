@@ -318,7 +318,7 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
               onClick={() => handleTimeClick(slot)}
               className={cn(
                 "flex items-center cursor-pointer transition-all hover:bg-slate-700 rounded px-2",
-                slot.isFullHour ? "h-8" : "h-6",
+                slot.isFullHour ? "h-10" : "h-6",
                 isSelected && "bg-slate-700/50",
                 hasNote && "bg-slate-800/60"
               )}
@@ -348,7 +348,10 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
                   {(isCurrentTime && isToday) ? (
                     <div 
                       className="h-[2px] rounded-full animate-pulse flex-shrink-0"
-                      style={{ width: '20px', backgroundColor: '#ffffff' }}
+                      style={{ 
+                        width: slot.isFullHour ? '20px' : '10px',
+                        backgroundColor: '#ffffff' 
+                      }}
                     />
                   ) : (
                     <div 
