@@ -442,7 +442,7 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
                       style={{ backgroundColor: cart?.colore || '#64748b' }}
                     />
                     <span className="text-xs truncate" style={{ color: cart?.colore || '#94a3b8' }}>
-                      📁 {cart?.nome || 'Cartella'} / {cf.titolo}
+                      📁 {cf.titolo} / cartella {cart?.nome || ''}
                     </span>
                   </div>
                 );
