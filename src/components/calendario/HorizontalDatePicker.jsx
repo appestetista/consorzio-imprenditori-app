@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { ChevronLeft, ChevronRight, Calendar, Folder, FolderPlus, X, Pencil } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, Folder, FolderPlus, X, Pencil, ChevronDown } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
@@ -24,7 +24,7 @@ const MONTH_COLORS = [
 
 const MONTHS_SHORT = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
 
-export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoToToday, onMonthColorChange, onVisibleMonthChange, onVisibleDayChange, onScrollSync, scrollRef: externalScrollRef, goToTodayButton, monthLabelButton }) {
+export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoToToday, onMonthColorChange, onVisibleMonthChange, onVisibleDayChange, onScrollSync, scrollRef: externalScrollRef, goToTodayButton, monthLabelButton, showFatturato, onToggleFatturato }) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   
@@ -765,6 +765,23 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
           <span className="text-[10px] text-lime-400 font-bold">
             {yearProgress.toFixed(2).replace('.', ',')}% anno trascorso
           </span>
+          
+          {/* Pulsante Vendite/€ centrato */}
+          {onToggleFatturato && (
+            <button
+              onClick={onToggleFatturato}
+              className="px-3 py-0.5 bg-slate-800 hover:bg-slate-700 rounded-full flex items-center gap-1 transition-all"
+            >
+              <span className="text-[10px] text-slate-400 font-semibold uppercase">
+                Vendite / €
+              </span>
+              <ChevronDown className={cn(
+                "w-3 h-3 text-slate-400 transition-transform",
+                showFatturato && "rotate-180"
+              )} />
+            </button>
+          )}
+          
           <span className="text-[10px] text-slate-300 font-bold">
             {yearRemaining.toFixed(2).replace('.', ',')}% anno che rimane
           </span>
