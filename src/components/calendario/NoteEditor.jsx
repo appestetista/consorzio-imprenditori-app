@@ -95,7 +95,8 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
     if (file) handleFileUpload(file);
   };
 
-  const toggleDictation = () => {
+  const toggleDictation = (e) => {
+    e.preventDefault();
     if (isDictating) {
       recognitionRef.current?.stop();
       setIsDictating(false);
@@ -111,19 +112,15 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
     const recognition = new SpeechRecognition();
     recognition.lang = 'it-IT';
     recognition.continuous = true;
-    recognition.interimResults = true;
-
-    let finalTranscript = '';
+    recognition.interimResults = false;
 
     recognition.onresult = (event) => {
-      let interim = '';
       for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
         if (event.results[i].isFinal) {
-          finalTranscript += transcript + ' ';
-          setContent(prev => prev + transcript + ' ');
-        } else {
-          interim = transcript;
+          const transcript = event.results[i][0].transcript.trim();
+          if (transcript) {
+            setContent(prev => prev ? prev + ' ' + transcript : transcript);
+          }
         }
       }
     };
