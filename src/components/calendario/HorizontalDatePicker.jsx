@@ -389,7 +389,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
           return (
             <div key={cartella.id} className="relative flex-shrink-0 pt-2 pr-2">
               <button 
-                onClick={() => openEditPopup(cartella)}
+                onClick={() => setOpenCartella(cartella)}
                 className="flex flex-col items-center gap-1 px-0.5 rounded transition-all hover:scale-105 active:scale-95"
               >
                 {/* Cartella 3D stile immagine */}
