@@ -31,7 +31,8 @@ function FileEditor({ file, cartellaId, userEmail, onClose, onSaved }) {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['fileCartella'] });
+      queryClient.invalidateQueries({ queryKey: ['fileCartella', cartellaId] });
+      queryClient.invalidateQueries({ queryKey: ['fileCartella-day'] });
       setIsSaving(false);
       if (onSaved) onSaved();
     }
