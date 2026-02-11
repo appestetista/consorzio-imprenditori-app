@@ -373,8 +373,8 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
                     )}
                   </span>
                   <button
-                    onTouchStart={(e) => { e.stopPropagation(); setDeleteConfirm(slot.timeString); }}
-                    onClick={(e) => { e.stopPropagation(); setDeleteConfirm(slot.timeString); }}
+                    onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); setDeleteConfirm(slot.timeString); }}
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDeleteConfirm(slot.timeString); }}
                     className="flex-shrink-0 w-5 h-5 rounded-full bg-red-500/20 hover:bg-red-500/40 flex items-center justify-center ml-auto touch-manipulation"
                   >
                     <X className="w-3 h-3 text-red-400" />
