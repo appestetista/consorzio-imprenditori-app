@@ -176,10 +176,15 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
           </div>
         </div>
 
-        {/* Pulsante audio */}
-        <button className="p-1.5 rounded-lg hover:bg-slate-800 transition-colors mb-2">
-          <AudioLines className="w-5 h-5 text-slate-400" />
-        </button>
+        {/* Registratore audio */}
+        <AudioRecorder
+          onAudioSaved={(audioAtt) => {
+            setAttachments(prev => [...prev, audioAtt]);
+          }}
+          onTranscription={(text) => {
+            setContent(prev => prev ? prev + '\n' + text : text);
+          }}
+        />
 
         {/* Area testo libero */}
         {!showChecklist && (
