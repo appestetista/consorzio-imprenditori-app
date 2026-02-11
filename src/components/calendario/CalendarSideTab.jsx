@@ -131,24 +131,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
         )}
         style={{ height: showFatturato ? 'auto' : 'auto' }}
       >
-        {/* Header del pannello - visibile solo se NON c'è il time picker */}
-        {!showTimePicker && (
-          <div className="flex items-center justify-between p-4 border-b border-slate-700">
-            <div className="flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-lime-400" />
-              <span className="text-white font-semibold">Seleziona Data</span>
-            </div>
-            <button
-              onClick={() => {
-                setIsOpen(false);
-                setShowTimePicker(false);
-              }}
-              className="p-2 rounded-lg hover:bg-slate-800 transition-colors"
-            >
-              <X className="w-5 h-5 text-slate-400" />
-            </button>
-          </div>
-        )}
+
 
         {/* Calendario orizzontale con pulsanti sovrapposti */}
         <div className="relative">
