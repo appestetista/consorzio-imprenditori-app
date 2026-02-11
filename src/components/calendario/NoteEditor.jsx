@@ -186,7 +186,7 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
             ) : (
               <>
                 <Folder className="w-3.5 h-3.5 text-slate-500" />
-                <span className="text-xs text-slate-500">Nessuna cartella</span>
+                <span className="text-xs text-slate-500">Salva nella cartella</span>
               </>
             )}
             <ChevronDown className={cn(
@@ -205,7 +205,7 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
                 )}
               >
                 <Folder className="w-3.5 h-3.5" />
-                Nessuna cartella
+                Salva nella cartella
               </button>
               {cartelle.map((c) => (
                 <button
