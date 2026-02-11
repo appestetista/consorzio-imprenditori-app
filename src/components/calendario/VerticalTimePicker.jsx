@@ -416,10 +416,13 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
               {/* Titolo nota salvata + X per eliminare */}
               {hasNote && (
                 <div className="ml-2 flex items-center gap-1 flex-1 min-w-0">
-                  <span className="text-xs text-lime-300 truncate">
+                  <span className="text-xs truncate" style={{ color: note.cartella_id && cartelleMap[note.cartella_id] ? cartelleMap[note.cartella_id].colore : '#bef264' }}>
                     📄 {note.title}
+                    {note.cartella_id && cartelleMap[note.cartella_id] && (
+                      <span style={{ color: cartelleMap[note.cartella_id].colore }}> / cartella {cartelleMap[note.cartella_id].nome}</span>
+                    )}
                     {(note.content || note.checklist_items?.length > 0 || note.attachments?.length > 0) && (
-                      <span className="text-lime-500 ml-1">•••</span>
+                      <span className="ml-1" style={{ color: note.cartella_id && cartelleMap[note.cartella_id] ? cartelleMap[note.cartella_id].colore + '99' : '#84cc16' }}>•••</span>
                     )}
                   </span>
                   <button
