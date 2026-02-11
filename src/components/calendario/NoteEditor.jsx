@@ -130,7 +130,14 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
     };
 
     recognition.onend = () => {
-      setIsDictating(false);
+      // Riavvia automaticamente se l'utente non ha fermato manualmente
+      if (recognitionRef.current === recognition) {
+        try {
+          recognition.start();
+        } catch {
+          setIsDictating(false);
+        }
+      }
     };
 
     recognitionRef.current = recognition;
