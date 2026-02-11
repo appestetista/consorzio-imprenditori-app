@@ -167,49 +167,8 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
           <span className="text-red-500 text-[10px] -mt-1 mb-1 block">Il titolo è obbligatorio</span>
         )}
 
-        {/* Riga 1: Toolbar strumenti + salva */}
-        <div className="flex items-center py-2 border-b border-slate-800/50 relative">
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => cameraInputRef.current?.click()}
-              className="p-1.5 rounded-lg hover:bg-slate-800 transition-colors"
-            >
-              <Camera className="w-5 h-5 text-slate-400" />
-            </button>
-            <button 
-              onClick={() => fileInputRef.current?.click()}
-              className="p-1.5 rounded-lg hover:bg-slate-800 transition-colors"
-            >
-              <Paperclip className="w-5 h-5 text-slate-400" />
-            </button>
-            <button 
-              onClick={toggleChecklist}
-              className="p-1.5 rounded-lg hover:bg-slate-800 transition-colors"
-            >
-              <ListChecks className={cn("w-5 h-5", showChecklist ? "text-lime-400" : "text-slate-400")} />
-            </button>
-          </div>
-          <div className="ml-auto pl-2">
-            <a
-              href="#"
-              onClick={(e) => { e.preventDefault(); handleSave(); }}
-              className={cn(
-                "flex items-center gap-1 px-3 py-1.5 rounded-full font-bold text-xs no-underline touch-manipulation select-none",
-                isSaving ? "bg-slate-500 text-slate-300" : "bg-lime-500 text-slate-900 active:bg-lime-400"
-              )}
-            >
-              {isSaving ? (
-                <div className="w-3 h-3 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <Check className="w-3 h-3" strokeWidth={3} />
-              )}
-              SALVA
-            </a>
-          </div>
-        </div>
-
-        {/* Selettore cartella sotto SALVA */}
-        <div className="relative py-1.5 border-b border-slate-800/50">
+        {/* Selettore cartella - PRIMA di tutto */}
+        <div className="relative py-1.5 border-b border-slate-800/50 mb-1">
           <button
             onClick={() => setShowCartellaDropdown(!showCartellaDropdown)}
             className="flex items-center gap-1.5 px-2 py-1 rounded-lg hover:bg-slate-800 transition-colors w-full"
@@ -266,6 +225,47 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
               ))}
             </div>
           )}
+        </div>
+
+        {/* Riga 1: Toolbar strumenti + salva */}
+        <div className="flex items-center py-2 border-b border-slate-800/50 relative">
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => cameraInputRef.current?.click()}
+              className="p-1.5 rounded-lg hover:bg-slate-800 transition-colors"
+            >
+              <Camera className="w-5 h-5 text-slate-400" />
+            </button>
+            <button 
+              onClick={() => fileInputRef.current?.click()}
+              className="p-1.5 rounded-lg hover:bg-slate-800 transition-colors"
+            >
+              <Paperclip className="w-5 h-5 text-slate-400" />
+            </button>
+            <button 
+              onClick={toggleChecklist}
+              className="p-1.5 rounded-lg hover:bg-slate-800 transition-colors"
+            >
+              <ListChecks className={cn("w-5 h-5", showChecklist ? "text-lime-400" : "text-slate-400")} />
+            </button>
+          </div>
+          <div className="ml-auto pl-2">
+            <a
+              href="#"
+              onClick={(e) => { e.preventDefault(); handleSave(); }}
+              className={cn(
+                "flex items-center gap-1 px-3 py-1.5 rounded-full font-bold text-xs no-underline touch-manipulation select-none",
+                isSaving ? "bg-slate-500 text-slate-300" : "bg-lime-500 text-slate-900 active:bg-lime-400"
+              )}
+            >
+              {isSaving ? (
+                <div className="w-3 h-3 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <Check className="w-3 h-3" strokeWidth={3} />
+              )}
+              SALVA
+            </a>
+          </div>
         </div>
 
         {/* Riga 2: Microfono sotto 📷, Registratore sotto 📎+✅, niente sotto SALVA */}

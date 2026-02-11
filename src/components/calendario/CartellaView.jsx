@@ -196,9 +196,16 @@ function FileEditor({ file, cartellaId, userEmail, onClose, onSaved }) {
   );
 }
 
+const FOLDER_COLORS = [
+  '#f59e0b', '#3b82f6', '#ec4899', '#22c55e', '#a855f7', '#ef4444', '#06b6d4', '#f97316',
+  '#14b8a6', '#8b5cf6', '#eab308', '#64748b', '#be185d', '#0ea5e9', '#84cc16', '#78716c',
+];
+
 export default function CartellaView({ cartella, userEmail, onClose }) {
   const [editingName, setEditingName] = useState(false);
   const [folderName, setFolderName] = useState(cartella.nome);
+  const [folderColor, setFolderColor] = useState(cartella.colore);
+  const [showColorPicker, setShowColorPicker] = useState(false);
   const [openFile, setOpenFile] = useState(null); // file aperto per modifica
   const [showNewFile, setShowNewFile] = useState(false);
   const [deleteFileConfirm, setDeleteFileConfirm] = useState(null);
@@ -231,14 +238,18 @@ export default function CartellaView({ cartella, userEmail, onClose }) {
     }))
   ];
 
-  // Mutation aggiorna nome cartella
-  const updateNameMutation = useMutation({
-    mutationFn: (nome) => base44.entities.Cartella.update(cartella.id, { nome }),
+  // Mutation aggiorna cartella (nome e/o colore)
+  const updateCartellaMutation = useMutation({
+    mutationFn: (data) => base44.entities.Cartella.update(cartella.id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cartelle'] });
       setEditingName(false);
+      setShowColorPicker(false);
     }
   });
+
+  // Alias per retrocompatibilità
+  const updateNameMutation = { mutate: (nome) => updateCartellaMutation.mutate({ nome }) };
 
   // Mutation elimina file
   const deleteFileMutation = useMutation({
@@ -337,13 +348,14 @@ export default function CartellaView({ cartella, userEmail, onClose }) {
   return (
     <div className="flex flex-col h-full bg-black">
       {/* Header con nome cartella modificabile */}
-      <div className="flex items-center px-3 py-3 border-b border-slate-800 gap-2">
+      <div className="flex items-center px-3 py-3 border-b border-slate-800 gap-2 relative">
         <button onClick={onClose} className="p-1">
           <ChevronLeft className="w-5 h-5 text-slate-400" />
         </button>
-        <div 
-          className="w-4 h-4 rounded-sm flex-shrink-0"
-          style={{ backgroundColor: cartella.colore }}
+        <button 
+          onClick={() => setShowColorPicker(!showColorPicker)}
+          className="w-5 h-5 rounded-full flex-shrink-0 ring-2 ring-white/20 hover:ring-white/50 transition-all"
+          style={{ backgroundColor: folderColor }}
         />
         {editingName ? (
           <input
@@ -359,6 +371,28 @@ export default function CartellaView({ cartella, userEmail, onClose }) {
           <button onClick={() => setEditingName(true)} className="flex-1 text-left">
             <span className="text-white font-semibold text-lg">{folderName}</span>
           </button>
+        )}
+
+        {/* Color picker dropdown */}
+        {showColorPicker && (
+          <div className="absolute left-10 top-full z-50 bg-slate-800 border border-slate-700 rounded-lg shadow-xl p-3 mt-1">
+            <div className="grid grid-cols-8 gap-2">
+              {FOLDER_COLORS.map((color) => (
+                <button
+                  key={color}
+                  onClick={() => {
+                    setFolderColor(color);
+                    updateCartellaMutation.mutate({ colore: color });
+                  }}
+                  className={cn(
+                    "w-6 h-6 rounded-full transition-all",
+                    folderColor === color && "ring-2 ring-white ring-offset-2 ring-offset-slate-800 scale-110"
+                  )}
+                  style={{ backgroundColor: color }}
+                />
+              ))}
+            </div>
+          </div>
         )}
       </div>
 

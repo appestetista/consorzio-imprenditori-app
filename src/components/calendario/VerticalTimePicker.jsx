@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { Plus, FileText, X } from 'lucide-react';
+import { Plus, FileText, X, CalendarOff } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import NoteEditor from './NoteEditor';
@@ -133,6 +133,15 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['note', userEmail, dateForQuery] });
       setDeleteConfirm(null);
+    }
+  });
+
+  // Mutation rimuovi file dal calendario (togli data/time ma resta in cartella)
+  const removeFileFromCalendarMutation = useMutation({
+    mutationFn: (fileId) => base44.entities.FileCartella.update(fileId, { data: null, time: null }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['fileCartella-day'] });
+      queryClient.invalidateQueries({ queryKey: ['allFileCartella'] });
     }
   });
 
@@ -447,6 +456,14 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
                     <span className="text-xs truncate" style={{ color: cart?.colore || '#94a3b8' }}>
                       📁 {cf.titolo} / cartella {cart?.nome || ''}
                     </span>
+                    <button
+                      onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); removeFileFromCalendarMutation.mutate(cf.id); }}
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); removeFileFromCalendarMutation.mutate(cf.id); }}
+                      className="flex-shrink-0 w-5 h-5 rounded-full bg-orange-500/20 hover:bg-orange-500/40 flex items-center justify-center ml-auto touch-manipulation"
+                      title="Rimuovi dal calendario"
+                    >
+                      <CalendarOff className="w-3 h-3 text-orange-400" />
+                    </button>
                   </div>
                 );
               })}
