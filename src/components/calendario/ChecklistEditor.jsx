@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { GripVertical, Plus, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
 export default function ChecklistEditor({ items, onChange }) {
   const [newItemText, setNewItemText] = useState('');
+  const [focusItemId, setFocusItemId] = useState(null);
+  const itemRefs = useRef({});
 
   const handleAddItem = () => {
     if (!newItemText.trim()) return;
@@ -33,7 +35,27 @@ export default function ChecklistEditor({ items, onChange }) {
     onChange(reordered);
   };
 
-  const handleKeyDown = (e) => {
+  // Quando un focusItemId cambia, metti il focus sull'input corrispondente
+  useEffect(() => {
+    if (focusItemId && itemRefs.current[focusItemId]) {
+      itemRefs.current[focusItemId].focus();
+      setFocusItemId(null);
+    }
+  }, [focusItemId, items]);
+
+  const handleItemKeyDown = (e, item, index) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const newId = Date.now().toString();
+      const newItem = { id: newId, text: '', checked: false };
+      const updated = [...items];
+      updated.splice(index + 1, 0, newItem);
+      onChange(updated);
+      setFocusItemId(newId);
+    }
+  };
+
+  const handleNewItemKeyDown = (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       handleAddItem();
@@ -81,9 +103,11 @@ export default function ChecklistEditor({ items, onChange }) {
 
                       {/* Testo */}
                       <input
+                        ref={(el) => { itemRefs.current[item.id] = el; }}
                         type="text"
                         value={item.text}
                         onChange={(e) => handleTextChange(item.id, e.target.value)}
+                        onKeyDown={(e) => handleItemKeyDown(e, item, index)}
                         className={cn(
                           "flex-1 bg-transparent text-sm outline-none min-w-0",
                           item.checked 
@@ -116,7 +140,7 @@ export default function ChecklistEditor({ items, onChange }) {
           type="text"
           value={newItemText}
           onChange={(e) => setNewItemText(e.target.value)}
-          onKeyDown={handleKeyDown}
+          onKeyDown={handleNewItemKeyDown}
           placeholder="Aggiungi voce..."
           className="flex-1 bg-transparent text-white text-sm outline-none placeholder:text-slate-600"
         />
