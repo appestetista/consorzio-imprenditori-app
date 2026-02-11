@@ -263,23 +263,33 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
 
   return (
     <div className="bg-slate-900 w-full flex h-full overflow-hidden">
-      {/* Fascia verticale con data completa ruotata */}
+      {/* Fascia verticale con data completa ruotata + X chiudi */}
       <div 
-        className="flex items-center justify-center border-r border-slate-700"
+        className="flex flex-col items-center border-r border-slate-700"
         style={{ 
           backgroundColor: isToday ? 'rgba(163, 230, 53, 0.1)' : `${currentMonthColor}15`,
           minWidth: '32px'
         }}
       >
-        <div 
-          className="text-base font-bold whitespace-nowrap"
-          style={{ 
-            color: activeColor,
-            writingMode: 'vertical-rl',
-            transform: 'rotate(180deg)'
-          }}
+        {/* Pulsante chiudi in alto */}
+        <button
+          onClick={onClose}
+          className="flex-shrink-0 w-7 h-7 flex items-center justify-center mt-2 mb-1 rounded-full hover:bg-slate-700/50 active:bg-slate-700"
         >
-          {formattedFullDate}
+          <X className="w-4 h-4" style={{ color: activeColor }} />
+        </button>
+        {/* Data ruotata */}
+        <div className="flex-1 flex items-center justify-center">
+          <div 
+            className="text-base font-bold whitespace-nowrap"
+            style={{ 
+              color: activeColor,
+              writingMode: 'vertical-rl',
+              transform: 'rotate(180deg)'
+            }}
+          >
+            {formattedFullDate}
+          </div>
         </div>
       </div>
 
@@ -335,18 +345,17 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
                 </button>
               ) : (
                 <div className="flex items-center mr-2">
-                  {/* Puntino fluo per ora corrente */}
-                  {(isCurrentTime && isToday) && (
-                    <div className="w-2 h-2 rounded-full bg-lime-400 mr-1 animate-pulse flex-shrink-0" />
+                  {(isCurrentTime && isToday) ? (
+                    <div className="w-2.5 h-2.5 rounded-full bg-lime-400 animate-pulse flex-shrink-0" />
+                  ) : (
+                    <div 
+                      className="h-[2px] rounded-full"
+                      style={{ 
+                        width: slot.isFullHour ? '20px' : '10px',
+                        backgroundColor: slot.isFullHour ? activeColor : '#475569'
+                      }}
+                    />
                   )}
-                  <div 
-                    className="h-[2px] rounded-full"
-                    style={{ 
-                      width: (isCurrentTime && isToday) ? '14px' : slot.isFullHour ? '20px' : '10px',
-                      backgroundColor: (isCurrentTime && isToday) ? '#a3e635' : 
-                        slot.isFullHour ? activeColor : '#475569'
-                    }}
-                  />
                 </div>
               )}
 
