@@ -15,6 +15,8 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
   const [titleError, setTitleError] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   
+  const [isDictating, setIsDictating] = useState(false);
+  const recognitionRef = useRef(null);
   const cameraInputRef = useRef(null);
   const fileInputRef = useRef(null);
   const titleRef = useRef(title);
