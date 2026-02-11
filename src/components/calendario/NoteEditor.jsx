@@ -104,6 +104,8 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
       dictationActiveRef.current = false;
       recognitionRef.current?.stop();
       setIsDictating(false);
+      // Doppia vibrazione breve allo stop
+      if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
       return;
     }
 
@@ -171,6 +173,8 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
     dictationActiveRef.current = true;
     recognition.start();
     setIsDictating(true);
+    // Vibrazione breve al posto del beep di sistema
+    if (navigator.vibrate) navigator.vibrate(80);
   };
 
   const toggleChecklist = () => {
