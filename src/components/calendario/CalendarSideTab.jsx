@@ -137,7 +137,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
         <div className="relative">
           {/* Pulsanti in sovrimpressione - posizionati sopra il calendario */}
           {selectedDate && (
-            <div className="absolute -top-1 left-0 right-0 z-10 flex justify-between items-start px-2">
+            <div className="absolute top-1 left-0 right-0 z-10 flex justify-between items-start px-2">
               {/* Torna Oggi a sinistra - solo se NON è oggi */}
               {new Date(selectedDate).toDateString() !== new Date().toDateString() ? (
                 <button
