@@ -1,9 +1,10 @@
 import React, { useState, useRef } from 'react';
-import { Check, Camera, Paperclip, ListChecks, Mic, MicOff } from 'lucide-react';
+import { Check, Camera, Paperclip, ListChecks } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { base44 } from '@/api/base44Client';
 import ChecklistEditor from './ChecklistEditor';
 import AudioRecorder from './AudioRecorder';
+import WhisperDictation from './WhisperDictation';
 
 export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave, inline = false, existingNote = null, onRegisterSave }) {
   const [title, setTitle] = useState(existingNote?.title || '');
