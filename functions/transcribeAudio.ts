@@ -12,20 +12,16 @@ Deno.serve(async (req) => {
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { audio_base64 } = await req.json();
+  const { file_url } = await req.json();
 
-  if (!audio_base64) {
-    return Response.json({ error: 'No audio data provided' }, { status: 400 });
+  if (!file_url) {
+    return Response.json({ error: 'No file_url provided' }, { status: 400 });
   }
 
-  // Decode base64 to binary
-  const binaryString = atob(audio_base64);
-  const bytes = new Uint8Array(binaryString.length);
-  for (let i = 0; i < binaryString.length; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
-  }
-
-  const file = new File([bytes], 'audio.webm', { type: 'audio/webm' });
+  // Download the audio file from the URL
+  const audioResponse = await fetch(file_url);
+  const audioBuffer = await audioResponse.arrayBuffer();
+  const file = new File([audioBuffer], 'audio.webm', { type: 'audio/webm' });
 
   const transcription = await openai.audio.transcriptions.create({
     file: file,
