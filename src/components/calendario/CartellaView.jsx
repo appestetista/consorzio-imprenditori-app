@@ -204,6 +204,25 @@ export default function CartellaView({ cartella, userEmail, onClose }) {
     enabled: !!cartella.id && !!userEmail
   });
 
+  // Query note salvate con questa cartella_id
+  const { data: noteInCartella = [] } = useQuery({
+    queryKey: ['noteCartella', cartella.id],
+    queryFn: () => base44.entities.Nota.filter({ cartella_id: cartella.id, user_email: userEmail }),
+    enabled: !!cartella.id && !!userEmail
+  });
+
+  // Combina file e note in un'unica lista
+  const allItems = [
+    ...files.map(f => ({ ...f, _type: 'file' })),
+    ...noteInCartella.map(n => ({ 
+      ...n, 
+      _type: 'nota',
+      titolo: n.title,
+      allegati: n.attachments,
+      checklist_items: n.checklist_items
+    }))
+  ];
+
   // Mutation aggiorna nome cartella
   const updateNameMutation = useMutation({
     mutationFn: (nome) => base44.entities.Cartella.update(cartella.id, { nome }),
