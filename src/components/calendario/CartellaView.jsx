@@ -115,24 +115,31 @@ function FileEditor({ file, cartellaId, userEmail, onClose, onSaved }) {
         </div>
       </div>
 
-      {/* Data e orario */}
-      <div className="flex items-center gap-2 px-3 py-1.5 border-b border-slate-800/50">
-        <CalendarIcon className="w-3.5 h-3.5 text-slate-500" />
-        <input
-          type="date"
-          value={data}
-          onChange={(e) => setData(e.target.value)}
-          className="bg-transparent text-xs text-slate-300 outline-none"
-        />
-        <input
-          type="time"
-          value={time}
-          onChange={(e) => setTime(e.target.value)}
-          className="bg-transparent text-xs text-slate-300 outline-none"
-        />
+      {/* Data e orario - picker colorati */}
+      <div className="flex items-center gap-2 px-3 py-2 border-b border-slate-800/50">
+        <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border" style={{ borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)' }}>
+          <CalendarIcon className="w-3.5 h-3.5" style={{ color: '#3b82f6' }} />
+          <input
+            type="date"
+            value={data}
+            onChange={(e) => setData(e.target.value)}
+            className="bg-transparent text-xs font-medium outline-none"
+            style={{ color: data ? '#60a5fa' : '#3b82f6', colorScheme: 'dark' }}
+          />
+        </div>
+        <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border" style={{ borderColor: '#a855f7', backgroundColor: 'rgba(168, 85, 247, 0.1)' }}>
+          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="#a855f7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <input
+            type="time"
+            value={time}
+            onChange={(e) => setTime(e.target.value)}
+            className="bg-transparent text-xs font-medium outline-none"
+            style={{ color: time ? '#c084fc' : '#a855f7', colorScheme: 'dark' }}
+          />
+        </div>
         {data && (
-          <button onClick={() => { setData(''); setTime(''); }} className="ml-auto">
-            <X className="w-3 h-3 text-slate-500" />
+          <button onClick={() => { setData(''); setTime(''); }} className="ml-auto p-1 rounded-full hover:bg-slate-700">
+            <X className="w-3.5 h-3.5 text-slate-400" />
           </button>
         )}
       </div>
