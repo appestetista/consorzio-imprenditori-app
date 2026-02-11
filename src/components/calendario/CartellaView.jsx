@@ -202,6 +202,7 @@ export default function CartellaView({ cartella, userEmail, onClose }) {
   const [openFile, setOpenFile] = useState(null); // file aperto per modifica
   const [showNewFile, setShowNewFile] = useState(false);
   const [deleteFileConfirm, setDeleteFileConfirm] = useState(null);
+  const [openNota, setOpenNota] = useState(null); // nota aperta per visualizzazione
   const queryClient = useQueryClient();
 
   // Query file della cartella
