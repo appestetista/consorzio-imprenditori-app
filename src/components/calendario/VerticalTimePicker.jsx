@@ -320,15 +320,9 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
             >
               {/* Pulsante + giallo se selezionato, altrimenti linea o icona nota */}
               {isSelected && !hasNote ? (
-                <button 
-                  className="w-6 h-6 rounded-full bg-amber-500 hover:bg-amber-400 flex items-center justify-center mr-2 transition-colors"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowNoteEditor(true);
-                  }}
-                >
+                <div className="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center mr-2">
                   <Plus className="w-4 h-4 text-white" />
-                </button>
+                </div>
               ) : hasNote ? (
                 <button
                   className="flex-shrink-0 mr-2"
