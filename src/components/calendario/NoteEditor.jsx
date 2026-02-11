@@ -105,14 +105,10 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
       inline ? "h-full" : "fixed inset-0 z-[60]"
     )}>
       {/* Header */}
-      <div className="flex items-center justify-between px-3 py-2 border-b border-slate-800">
-        <button onClick={onClose} className="p-1">
-          <ChevronLeft className="w-5 h-5 text-slate-400" />
-        </button>
+      <div className="flex items-center justify-center px-3 py-2 border-b border-slate-800">
         <div className="text-slate-400 text-xs font-mono">
           {formattedDate} • {saveTime}
         </div>
-        <div className="w-5" />
       </div>
 
       {/* Content */}
