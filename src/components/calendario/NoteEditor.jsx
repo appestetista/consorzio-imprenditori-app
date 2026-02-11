@@ -17,36 +17,16 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
   const cameraInputRef = useRef(null);
   const fileInputRef = useRef(null);
 
-  // Orario corrente live per l'header
-  const [currentTime, setCurrentTime] = useState(() => {
-    const now = new Date();
-    return `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-  });
+  // L'orario da usare: quello selezionato dallo slot
+  const saveTime = selectedTime || '00:00';
 
-  // Aggiorna l'orario ogni minuto
-  React.useEffect(() => {
-    const interval = setInterval(() => {
-      const now = new Date();
-      setCurrentTime(`${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`);
-    }, 60000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // L'orario da usare per il salvataggio: quello selezionato dallo slot, oppure l'orario corrente
-  const saveTime = selectedTime || currentTime;
-
-  const today = new Date();
-  const isToday = selectedDate && 
-    new Date(selectedDate).toDateString() === today.toDateString();
-  
-  const formattedDate = isToday 
-    ? 'Oggi' 
-    : selectedDate 
-      ? new Date(selectedDate).toLocaleDateString('it-IT', { 
-          day: 'numeric', 
-          month: 'long' 
-        })
-      : '';
+  const formattedDate = selectedDate 
+    ? new Date(selectedDate).toLocaleDateString('it-IT', { 
+        weekday: 'short',
+        day: 'numeric', 
+        month: 'long' 
+      })
+    : '';
 
   const handleSave = () => {
     if (!title.trim()) {
