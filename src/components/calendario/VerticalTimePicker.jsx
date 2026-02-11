@@ -210,6 +210,9 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
   const currentSlotMinute = Math.floor(currentMinute / 5) * 5;
 
   const handleTimeClick = (slot) => {
+    // Se c'è un popup di conferma eliminazione aperto, non fare nulla
+    if (deleteConfirm) return;
+    
     const note = savedNotes[slot.timeString];
     // Se c'è una nota salvata, aprila direttamente
     if (note) {
