@@ -21,16 +21,25 @@ export default function WhisperDictation({ onTranscription, isDictating, setIsDi
     };
   }, []);
 
+  const blobToBase64 = (blob) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = reader.result.split(',')[1];
+        resolve(base64);
+      };
+      reader.readAsDataURL(blob);
+    });
+  };
+
   const sendChunk = useCallback(async (blob) => {
     if (blob.size < 1000) return; // skip chunk troppo piccoli (silenzio)
     
     pendingRequests.current += 1;
     setIsTranscribing(true);
 
-    const formData = new FormData();
-    formData.append('audio', blob, 'chunk.webm');
-
-    const response = await base44.functions.invoke('transcribeAudio', formData);
+    const audio_base64 = await blobToBase64(blob);
+    const response = await base44.functions.invoke('transcribeAudio', { audio_base64 });
     const text = response?.data?.text?.trim();
     
     if (text && text.length > 0) {
