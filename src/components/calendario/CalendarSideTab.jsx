@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Calendar, X, ChevronUp, LayoutGrid, Plus, AudioLines } from 'lucide-react';
+import { Calendar, X, LayoutGrid, Plus, AudioLines } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { base44 } from '@/api/base44Client';
 import HorizontalDatePicker from './HorizontalDatePicker';
@@ -184,14 +184,8 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
             }}
             onScrollSync={handleCalendarScroll}
             scrollRef={calendarScrollRef}
-          />
-        </div>
-
-        {/* Linguetta per mostrare/nascondere fatturato */}
-        <div className="relative flex flex-col items-center">
-          {/* Linguetta come tab */}
-          <button
-            onClick={() => {
+            showFatturato={showFatturato}
+            onToggleFatturato={() => {
               const newShowFatturato = !showFatturato;
               setShowFatturato(newShowFatturato);
               // Sincronizza lo scroll quando si apre
@@ -203,38 +197,24 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                 }, 50);
               }
             }}
-            className={cn(
-              "px-4 py-1 transition-all",
-              "bg-slate-800 hover:bg-slate-700",
-              "rounded-b-lg",
-              "flex items-center gap-2"
-            )}
-          >
-            <span className="text-[10px] text-slate-400 font-semibold uppercase">
-              Vendite / €
-            </span>
-            <ChevronUp className={cn(
-              "w-4 h-4 text-slate-400 transition-transform",
-              showFatturato && "rotate-180"
-            )} />
-          </button>
-
-          {/* Barra fatturato - espandibile */}
-          {showFatturato && userEmail && (
-            <div className="w-full">
-              <FatturatoBarra 
-                selectedDate={selectedDate}
-                userEmail={userEmail}
-                onScrollSync={handleFatturatoScroll}
-                scrollRef={fatturatoScrollRef}
-                visibleMonth={visibleMonthLabel.month}
-                visibleYear={visibleMonthLabel.year}
-                monthColor={currentMonthColor}
-                onDateSelect={handleDateSelect}
-              />
-            </div>
-          )}
+          />
         </div>
+
+        {/* Barra fatturato - espandibile */}
+        {showFatturato && userEmail && (
+          <div className="w-full">
+            <FatturatoBarra 
+              selectedDate={selectedDate}
+              userEmail={userEmail}
+              onScrollSync={handleFatturatoScroll}
+              scrollRef={fatturatoScrollRef}
+              visibleMonth={visibleMonthLabel.month}
+              visibleYear={visibleMonthLabel.year}
+              monthColor={currentMonthColor}
+              onDateSelect={handleDateSelect}
+            />
+          </div>
+        )}
       </div>
 
       {/* Pannello orari - copre TUTTO lo spazio sopra il calendario fino in fondo */}
