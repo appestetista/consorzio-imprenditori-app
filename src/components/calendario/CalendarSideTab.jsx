@@ -133,8 +133,8 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
       >
 
 
-        {/* Calendario orizzontale con pulsanti sovrapposti */}
-        <div className="relative">
+        {/* Calendario orizzontale - senza spazio sopra */}
+        <div>
           <HorizontalDatePicker
             goToTodayButton={
               new Date(selectedDate).toDateString() !== new Date().toDateString() ? (
