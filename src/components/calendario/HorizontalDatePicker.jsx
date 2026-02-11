@@ -378,8 +378,8 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
       </div>
 
       {/* Popup nuova cartella - in alto con X */}
-      {showNewFolderPopup && (
-        <div className="fixed inset-0 z-[200] flex items-start justify-center pt-16 bg-black/60" onClick={() => setShowNewFolderPopup(false)}>
+      {showNewFolderPopup && ReactDOM.createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-start justify-center pt-20 bg-black/60" onClick={() => setShowNewFolderPopup(false)}>
           <div className="bg-slate-800 rounded-xl p-5 w-80 shadow-2xl relative" onClick={(e) => e.stopPropagation()}>
             {/* X per chiudere */}
             <button
