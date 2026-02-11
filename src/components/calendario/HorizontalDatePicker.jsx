@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, Folder, FolderPlus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const DAYS_SHORT = ['D', 'L', 'M', 'M', 'G', 'V', 'S'];
@@ -244,9 +244,40 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
 
   return (
     <div className="bg-slate-900 overflow-hidden flex flex-col relative">
-      {/* Pulsanti sopra le linee weekend - FUORI dallo scroll, ZERO padding/margin */}
+      {/* Fascia cartelle scrollabile */}
+      <div className="flex items-center gap-2 px-2 py-1 overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        {/* Pulsante nuova cartella */}
+        <button className="flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 transition-colors">
+          <FolderPlus className="w-4 h-4 text-lime-400" />
+          <span className="text-[10px] text-slate-300 font-medium">Nuova</span>
+        </button>
+        
+        {/* Cartelle esistenti - esempi */}
+        <button className="flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 transition-colors border border-slate-600">
+          <Folder className="w-4 h-4 text-amber-400" />
+          <span className="text-[10px] text-slate-300 font-medium">Lavoro</span>
+        </button>
+        <button className="flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 transition-colors border border-slate-600">
+          <Folder className="w-4 h-4 text-blue-400" />
+          <span className="text-[10px] text-slate-300 font-medium">Personale</span>
+        </button>
+        <button className="flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 transition-colors border border-slate-600">
+          <Folder className="w-4 h-4 text-pink-400" />
+          <span className="text-[10px] text-slate-300 font-medium">Progetti</span>
+        </button>
+        <button className="flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 transition-colors border border-slate-600">
+          <Folder className="w-4 h-4 text-green-400" />
+          <span className="text-[10px] text-slate-300 font-medium">Clienti</span>
+        </button>
+        <button className="flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 transition-colors border border-slate-600">
+          <Folder className="w-4 h-4 text-purple-400" />
+          <span className="text-[10px] text-slate-300 font-medium">Appuntamenti</span>
+        </button>
+      </div>
+
+      {/* Pulsanti oggi e mese/chiudi */}
       {(goToTodayButton || monthLabelButton) && (
-        <div className="flex justify-between items-center px-2">
+        <div className="flex justify-between items-center px-2 pb-1">
           <div>
             {goToTodayButton}
           </div>
