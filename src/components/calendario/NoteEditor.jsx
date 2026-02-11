@@ -157,59 +157,33 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
         )}
       </div>
 
-      {/* Footer - pulsanti + SALVA grande */}
-      <div className="flex items-center justify-between px-4 py-2 border-t border-slate-800">
-        <div className="flex items-center gap-5">
-          {/* Fotocamera */}
-          <button 
-            onClick={() => cameraInputRef.current?.click()}
-            className="flex flex-col items-center gap-0.5"
-          >
-            <Camera className="w-5 h-5 text-slate-400" />
-            <span className="text-[10px] text-slate-400">Foto</span>
-          </button>
-
-          {/* Allega */}
-          <button 
-            onClick={() => fileInputRef.current?.click()}
-            className="flex flex-col items-center gap-0.5"
-          >
-            <Paperclip className="w-5 h-5 text-slate-400" />
-            <span className="text-[10px] text-slate-400">Allega</span>
-          </button>
-
-          {/* Elenco */}
-          <button 
-            onClick={toggleChecklist}
-            className="flex flex-col items-center gap-0.5"
-          >
-            <ListChecks className={cn("w-5 h-5", showChecklist ? "text-lime-400" : "text-slate-400")} />
-            <span className={cn("text-[10px]", showChecklist ? "text-lime-400" : "text-slate-400")}>Elenco</span>
-          </button>
-
-          {/* Registra */}
-          <button className="flex flex-col items-center gap-0.5">
-            <AudioLines className="w-5 h-5 text-slate-400" />
-            <span className="text-[10px] text-slate-400">Registra</span>
-          </button>
-        </div>
-
-        {/* SALVA - pulsante grande a destra */}
-        <a
-          href="#"
-          onClick={(e) => { e.preventDefault(); handleSave(); }}
-          className={cn(
-            "flex items-center gap-1.5 px-4 py-2 rounded-full font-bold text-sm no-underline touch-manipulation select-none",
-            isSaving ? "bg-slate-500 text-slate-300" : "bg-lime-500 text-slate-900 active:bg-lime-400"
-          )}
+      {/* Footer - pulsanti strumenti */}
+      <div className="flex items-center justify-center gap-6 py-2 border-t border-slate-800">
+        <button 
+          onClick={() => cameraInputRef.current?.click()}
+          className="flex flex-col items-center gap-0.5"
         >
-          {isSaving ? (
-            <div className="w-4 h-4 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
-          ) : (
-            <Check className="w-4 h-4" strokeWidth={3} />
-          )}
-          SALVA
-        </a>
+          <Camera className="w-5 h-5 text-slate-400" />
+          <span className="text-[10px] text-slate-400">Foto</span>
+        </button>
+        <button 
+          onClick={() => fileInputRef.current?.click()}
+          className="flex flex-col items-center gap-0.5"
+        >
+          <Paperclip className="w-5 h-5 text-slate-400" />
+          <span className="text-[10px] text-slate-400">Allega</span>
+        </button>
+        <button 
+          onClick={toggleChecklist}
+          className="flex flex-col items-center gap-0.5"
+        >
+          <ListChecks className={cn("w-5 h-5", showChecklist ? "text-lime-400" : "text-slate-400")} />
+          <span className={cn("text-[10px]", showChecklist ? "text-lime-400" : "text-slate-400")}>Elenco</span>
+        </button>
+        <button className="flex flex-col items-center gap-0.5">
+          <AudioLines className="w-5 h-5 text-slate-400" />
+          <span className="text-[10px] text-slate-400">Registra</span>
+        </button>
       </div>
 
       {/* Input nascosti per camera e file */}
