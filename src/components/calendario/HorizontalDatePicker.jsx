@@ -760,7 +760,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
           />
         </div>
         
-        {/* Percentuali */}
+        {/* Percentuali con pulsante Vendite al centro */}
         <div className="flex justify-between items-center mt-0.5">
           <span className="text-[10px] text-lime-400 font-bold">
             {yearProgress.toFixed(2).replace('.', ',')}% anno trascorso
