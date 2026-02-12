@@ -54,8 +54,15 @@ export default function WeekView({ selectedDate, monthColor }) {
   const [userEmail, setUserEmail] = useState(null);
   const [weekOffset, setWeekOffset] = useState(0);
   const scrollRef = useRef(null);
-  const headerRef = useRef(null);
-  const swipeRef = useRef({ startX: null, startY: null, swiping: false });
+  const touchRef = useRef({
+    startX: 0, startY: 0,
+    lastX: 0, lastY: 0,
+    lastTime: 0,
+    velocityX: 0, velocityY: 0,
+    scrollStartTop: 0,
+    animFrame: null,
+    swipeTriggered: false
+  });
 
   useEffect(() => {
     const loadUser = async () => {
@@ -70,13 +77,79 @@ export default function WeekView({ selectedDate, monthColor }) {
     if (scrollRef.current) {
       const now = new Date();
       const slotIndex = now.getHours() * 12 + Math.floor(now.getMinutes() / 5);
-      const slotHeight = 26; // h-6 = 24px, h-10 = 40px, media ~26
+      const slotHeight = 26;
       const scrollTo = Math.max(0, (slotIndex - 5) * slotHeight);
       setTimeout(() => {
-        scrollRef.current?.scrollTo({ top: scrollTo, behavior: 'smooth' });
-      }, 300);
+        if (scrollRef.current) scrollRef.current.scrollTop = scrollTo;
+      }, 100);
     }
   }, [weekOffset]);
+
+  // Touch handler fluido con inerzia via requestAnimationFrame
+  // Ruotato 90°: clientX del dito = scroll verticale, clientY del dito = swipe orizzontale (settimane)
+  const handleTouchStart = (e) => {
+    const touch = e.touches[0];
+    if (touchRef.current.animFrame) cancelAnimationFrame(touchRef.current.animFrame);
+    touchRef.current = {
+      startX: touch.clientX,
+      startY: touch.clientY,
+      lastX: touch.clientX,
+      lastY: touch.clientY,
+      lastTime: Date.now(),
+      velocityX: 0,
+      velocityY: 0,
+      scrollStartTop: scrollRef.current?.scrollTop || 0,
+      animFrame: null,
+      swipeTriggered: false
+    };
+  };
+
+  const handleTouchMove = (e) => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const t = touchRef.current;
+    const now = Date.now();
+    const dt = Math.max(1, now - t.lastTime);
+
+    // Velocità per inerzia (asse X = scroll verticale nel mondo ruotato)
+    const dx = touch.clientX - t.lastX;
+    t.velocityX = 0.6 * t.velocityX + 0.4 * (-dx / dt * 16); // smoothing
+
+    t.lastX = touch.clientX;
+    t.lastY = touch.clientY;
+    t.lastTime = now;
+
+    // Scroll verticale: delta su asse X del dito (ruotato)
+    const deltaScroll = t.startX - touch.clientX;
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = t.scrollStartTop + deltaScroll;
+    }
+  };
+
+  const handleTouchEnd = () => {
+    const t = touchRef.current;
+    
+    // Swipe orizzontale (cambio settimana): usa asse Y del dito (ruotato)
+    const deltaY = t.lastY - t.startY;
+    if (Math.abs(deltaY) > 50 && !t.swipeTriggered) {
+      t.swipeTriggered = true;
+      setWeekOffset(w => deltaY > 0 ? w - 1 : w + 1);
+      return;
+    }
+
+    // Inerzia verticale fluida con requestAnimationFrame
+    let velocity = t.velocityX;
+    if (Math.abs(velocity) < 0.5) return;
+
+    const friction = 0.95;
+    const animate = () => {
+      if (Math.abs(velocity) < 0.3 || !scrollRef.current) return;
+      scrollRef.current.scrollTop += velocity;
+      velocity *= friction;
+      touchRef.current.animFrame = requestAnimationFrame(animate);
+    };
+    touchRef.current.animFrame = requestAnimationFrame(animate);
+  };
 
   const baseDate = selectedDate ? new Date(selectedDate) : new Date();
   const offsetDate = new Date(baseDate);
