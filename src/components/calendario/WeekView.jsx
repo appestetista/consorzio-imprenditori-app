@@ -141,7 +141,9 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     const sk = `${String(h).padStart(2,'0')}:${String(Math.floor(m/5)*5).padStart(2,'0')}`;
     if (!items[n.data]) items[n.data] = {};
     if (!items[n.data][sk]) items[n.data][sk] = [];
-    items[n.data][sk].push({ title: n.title, color: n.cartella_id && cm[n.cartella_id] ? cm[n.cartella_id].colore : '#a3e635' });
+    const noteMonth = parseInt(n.data.split('-')[1]) - 1;
+    const noteColor = n.cartella_id && cm[n.cartella_id] ? cm[n.cartella_id].colore : MONTH_COLORS[noteMonth];
+    items[n.data][sk].push({ title: n.title, color: noteColor });
     // Mappa per NoteEditor
     if (!notesByDateAndTime[n.data]) notesByDateAndTime[n.data] = {};
     notesByDateAndTime[n.data][sk] = n;
