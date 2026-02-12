@@ -332,32 +332,30 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                       const isSelectedInBar = selectedDayInBar && selectedDayInBar.day === dayNum && selectedDayInBar.month === refMonth && selectedDayInBar.year === refYear;
                       const borderColor = isSelectedInBar ? '#f59e0b' : (isFilled ? fillColor : (isWeekend ? '#ef444450' : ac + '40'));
                       const borderWidth = isSelectedInBar ? '2px' : (isFilled ? '2px' : '1.5px');
+                      const numColor = isSelectedInBar && !isFilled ? '#f59e0b' : (isFilled ? '#ffffff' : '#e2e8f0');
+                      const letterColor = isSelectedInBar && !isFilled ? '#f59e0b' : (isWeekend ? '#ef4444' : (isFilled ? fillColor : '#64748b'));
                       return (
-                        <div 
-                          className="rounded-full flex items-center justify-center transition-all"
-                          style={{ 
-                            width: '22px',
-                            height: '22px',
-                            backgroundColor: isFilled ? fillColor : 'transparent',
-                            border: `${borderWidth} solid ${borderColor}`,
-                            boxShadow: isFilled ? `0 0 8px ${fillColor}80` : (isSelectedInBar ? `0 0 6px #f59e0b80` : undefined)
-                          }}
-                        >
-                          <span 
-                            className="text-[8px] font-bold leading-none"
-                            style={{ color: isSelectedInBar && !isFilled ? '#f59e0b' : (isFilled ? '#ffffff' : '#e2e8f0') }}
+                        <>
+                          <div 
+                            className="rounded-full flex items-center justify-center transition-all"
+                            style={{ 
+                              width: '22px',
+                              height: '22px',
+                              backgroundColor: isFilled ? fillColor : 'transparent',
+                              border: `${borderWidth} solid ${borderColor}`,
+                              boxShadow: isFilled ? `0 0 8px ${fillColor}80` : (isSelectedInBar ? `0 0 6px #f59e0b80` : undefined)
+                            }}
                           >
-                            {dayNum}
+                            <span className="text-[8px] font-bold leading-none" style={{ color: numColor }}>
+                              {dayNum}
+                            </span>
+                          </div>
+                          <span className="text-[7px] font-bold leading-tight mt-[2px]" style={{ color: letterColor }}>
+                            {isWeekend ? (dow === 6 ? 'S' : 'D') : DAY_LETTERS[dow]}
                           </span>
-                        </div>
+                        </>
                       );
                     })()}
-                    <span 
-                      className="text-[7px] font-bold leading-tight mt-[2px]"
-                      style={{ color: isWeekend ? '#ef4444' : (isFilled ? fillColor : '#64748b') }}
-                    >
-                      {isWeekend ? (dow === 6 ? 'S' : 'D') : DAY_LETTERS[dow]}
-                    </span>
                   </div>
                 );
               })}
