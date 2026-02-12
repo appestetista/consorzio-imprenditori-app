@@ -28,7 +28,7 @@ function getWeekDays(ref) {
 }
 function fk(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 
-export default function WeekView({ selectedDate, monthColor, onMonthColorChange, onDateSelect, onSlotClick }) {
+export default function WeekView({ selectedDate, monthColor, onMonthColorChange, onDateSelect, onSlotClick, onRequestMonthDropdown }) {
   const [userEmail, setUserEmail] = useState(null);
   // viewDate è la data di riferimento per la settimana visualizzata
   const [viewDate, setViewDate] = useState(() => selectedDate ? new Date(selectedDate) : new Date());
@@ -208,71 +208,25 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
           <div className="flex items-center gap-1">
             <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: ac }}>{wLabel}</span>
             <button 
-              onClick={(e) => { e.stopPropagation(); if (!showMonthDropdown) setDropdownYear(weekDays[3].getFullYear()); setShowMonthDropdown(!showMonthDropdown); }}
+              onClick={(e) => { 
+                e.stopPropagation(); 
+                if (onRequestMonthDropdown) {
+                  onRequestMonthDropdown({
+                    currentMonth: weekMainMonth,
+                    currentYear: weekDays[3].getFullYear(),
+                    onSelectMonth: (year, month) => {
+                      setViewDate(new Date(year, month, 1));
+                    }
+                  });
+                }
+              }}
               className="p-0.5 rounded hover:bg-slate-700/50 transition-colors"
             >
-              <ChevronDown className={cn("w-3.5 h-3.5 transition-transform", showMonthDropdown && "rotate-180")} style={{ color: ac }} />
+              <ChevronDown className="w-3.5 h-3.5" style={{ color: ac }} />
             </button>
           </div>
 
-          {/* Dropdown mesi — renderizzato via portal FUORI dal container ruotato */}
-          {showMonthDropdown && ReactDOM.createPortal(
-            <div 
-              className="fixed inset-0 z-[200] bg-black/50"
-              onClick={() => setShowMonthDropdown(false)}
-              onTouchStart={(e) => e.stopPropagation()}
-              onTouchMove={(e) => { e.stopPropagation(); e.preventDefault(); }}
-              onTouchEnd={(e) => e.stopPropagation()}
-            >
-              <div 
-                className="absolute bg-slate-800 border border-slate-600 rounded-xl shadow-2xl overflow-hidden"
-                style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '240px' }}
-                onClick={(e) => e.stopPropagation()}
-              >
-                {/* Anno con frecce */}
-                <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700">
-                  <button 
-                    onClick={(e) => { e.stopPropagation(); setDropdownYear(y => y - 1); }}
-                    className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-700 active:bg-slate-600 text-slate-300 text-lg font-bold touch-manipulation"
-                  >
-                    ‹
-                  </button>
-                  <span className="text-lg font-bold text-slate-200">{dropdownYear}</span>
-                  <button 
-                    onClick={(e) => { e.stopPropagation(); setDropdownYear(y => y + 1); }}
-                    className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-700 active:bg-slate-600 text-slate-300 text-lg font-bold touch-manipulation"
-                  >
-                    ›
-                  </button>
-                </div>
-                {/* Griglia 3x4 mesi */}
-                <div className="grid grid-cols-3 gap-2.5 p-3.5">
-                  {MONTHS_IT.map((mName, mIdx) => {
-                    const isCurrentMonth = mIdx === weekMainMonth && dropdownYear === weekDays[3].getFullYear();
-                    const mColor = MONTH_COLORS[mIdx];
-                    return (
-                      <button
-                        key={mIdx}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setViewDate(new Date(dropdownYear, mIdx, 1));
-                          setShowMonthDropdown(false);
-                        }}
-                        className={cn(
-                          "py-4 rounded-lg text-sm font-semibold text-center touch-manipulation select-none active:scale-95 transition-transform",
-                          isCurrentMonth ? "text-slate-900 font-bold" : "text-slate-300"
-                        )}
-                        style={{ backgroundColor: isCurrentMonth ? mColor : 'rgba(51,65,85,0.5)' }}
-                      >
-                        {mName.slice(0, 3)}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>,
-            document.body
-          )}
+          {/* Dropdown mesi — gestito dal parent (CalendarSideTab) fuori dal container ruotato */}
         </div>
 
         {/* Barra pallini giorni del mese */}
