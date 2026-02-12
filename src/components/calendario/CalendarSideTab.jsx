@@ -8,6 +8,7 @@ import VerticalTimePicker from './VerticalTimePicker';
 import FatturatoBarra from './FatturatoBarra';
 import WeekView from './WeekView';
 import NoteEditor from './NoteEditor';
+import WeekMonthDropdown from './WeekMonthDropdown';
 
 const MONTH_COLORS = [
   '#3b82f6', // Gennaio - blu

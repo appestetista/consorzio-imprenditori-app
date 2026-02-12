@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import ReactDOM from 'react-dom';
 import { cn } from '@/lib/utils';
 import { Plus, FileText, X, ChevronDown } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
