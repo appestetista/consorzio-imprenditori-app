@@ -5,6 +5,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 
 const DAYS_SHORT_IT = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
+const DAY_LETTERS = ['D', 'L', 'M', 'M', 'G', 'V', 'S']; // Dom=0 ... Sab=6
 const MONTH_COLORS = [
   '#3b82f6','#8b5cf6','#ec4899','#14b8a6','#22c55e','#eab308',
   '#f97316','#ef4444','#06b6d4','#a855f7','#6366f1','#0ea5e9'
@@ -202,6 +203,50 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
             </button>
           )}
         </div>
+
+        {/* Barra pallini giorni del mese */}
+        {(() => {
+          const refMonth = weekMainMonth;
+          const refYear = weekDays[3].getFullYear();
+          const daysInMonth = new Date(refYear, refMonth + 1, 0).getDate();
+          const weekDayNums = weekDays.map(d => d.getMonth() === refMonth ? d.getDate() : null);
+          
+          return (
+            <div className="flex-shrink-0 flex items-end gap-[2px] px-2 py-1 border-b border-slate-700/30 overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: 'none' }}>
+              {Array.from({ length: daysInMonth }, (_, i) => {
+                const dayNum = i + 1;
+                const dayDate = new Date(refYear, refMonth, dayNum);
+                const dow = dayDate.getDay(); // 0=Dom, 6=Sab
+                const isWeekend = dow === 0 || dow === 6;
+                const isInWeek = weekDayNums.includes(dayNum);
+                const isToday = dayDate.getTime() === today.getTime();
+                
+                return (
+                  <div key={dayNum} className="flex flex-col items-center" style={{ minWidth: '12px' }}>
+                    {/* Pallino */}
+                    <div 
+                      className={cn(
+                        "w-2.5 h-2.5 rounded-full transition-all",
+                        isInWeek ? "scale-125" : "opacity-40"
+                      )}
+                      style={{ 
+                        backgroundColor: isInWeek ? ac : (isWeekend ? '#ef444480' : ac + '60'),
+                        boxShadow: isToday ? `0 0 6px ${ac}` : undefined
+                      }}
+                    />
+                    {/* Lettera giorno */}
+                    <span 
+                      className={cn("text-[6px] font-bold leading-tight mt-[1px]")}
+                      style={{ color: isWeekend ? '#ef4444' : (isInWeek ? ac : '#475569') }}
+                    >
+                      {isWeekend ? (dow === 6 ? 'S' : 'D') : DAY_LETTERS[dow]}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })()}
 
         {/* AREA TOUCH */}
         <div className="flex-1 flex flex-col overflow-hidden" style={{ touchAction: 'none' }} onTouchStart={onTS} onTouchMove={onTM} onTouchEnd={onTE}>
