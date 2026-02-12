@@ -315,64 +315,79 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                 return (
                   <div 
                     key={i} 
-                    className={cn("flex-1 flex flex-col items-center py-0.5 border-l border-slate-700/50 cursor-pointer relative", isT && "bg-slate-800/40")}
-                    onClick={() => {
-                      setHighlightedDay({ day: day.getDate(), month: day.getMonth(), year: day.getFullYear() });
-                      setSelectedSlot(null);
-                      if (onDateSelect) onDateSelect(day);
+                    className={cn("flex-1 flex flex-col items-center justify-center border-l border-slate-700/50 relative", isT && "bg-slate-800/40")}
+                    style={{ 
+                      minHeight: '44px',
+                      ...(isSel && !isT ? { backgroundColor: ac + '20' } : {})
                     }}
-                    style={isSel && !isT ? { backgroundColor: ac + '20' } : undefined}
                   >
-                    <span className="text-[7px] font-semibold leading-tight" style={{ color: isWe ? '#ef4444' : (isHL ? '#f59e0b' : (isSel ? ac : (isT ? ac : '#64748b'))) }}>{DAYS_SHORT_IT[i]}</span>
-                    <div className="flex items-center gap-0.5">
-                      <div 
-                        className="flex items-center justify-center rounded-full"
-                        style={isHL && !isT ? { 
-                          width: '18px', height: '18px',
-                          border: '2px solid #f59e0b',
-                          boxShadow: '0 0 6px #f59e0b80'
-                        } : isT ? {
-                          width: '18px', height: '18px',
-                          backgroundColor: ac,
-                          borderRadius: '9999px',
-                          boxShadow: `0 0 8px ${ac}80`
-                        } : { width: '18px', height: '18px' }}
-                      >
-                        <span className={cn("text-[10px] font-bold leading-tight", isT && "animate-pulse")} style={{ color: isHL && !isT ? '#f59e0b' : (isT ? '#fff' : (isSel ? ac : '#e2e8f0')) }}>{day.getDate()}</span>
-                      </div>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setOpenDropdownDay(isDropOpen ? null : i);
-                        }}
-                        className="flex-shrink-0 touch-manipulation active:scale-90"
-                      >
-                        <ChevronDown 
-                          className={cn("transition-transform", isDropOpen && "rotate-180")}
-                          style={{ width: '10px', height: '10px', color: dayAllNotes.length > 0 ? ac : '#64748b' }} 
-                        />
-                      </button>
+                    {/* Area cliccabile su tutto il blocco */}
+                    <div 
+                      className="absolute inset-0 cursor-pointer z-10"
+                      onClick={() => {
+                        setHighlightedDay({ day: day.getDate(), month: day.getMonth(), year: day.getFullYear() });
+                        setSelectedSlot(null);
+                        setOpenDropdownDay(null);
+                        if (onDateSelect) onDateSelect(day);
+                      }}
+                    />
+                    {/* Nome giorno - più grande */}
+                    <span className="text-[9px] font-bold leading-tight tracking-wide" style={{ color: isWe ? '#ef4444' : (isHL ? '#f59e0b' : (isSel ? ac : (isT ? ac : '#94a3b8'))) }}>{DAYS_SHORT_IT[i]}</span>
+                    {/* Numero centrato sotto la scritta */}
+                    <div 
+                      className="flex items-center justify-center rounded-full mt-0.5"
+                      style={isHL && !isT ? { 
+                        width: '20px', height: '20px',
+                        border: '2px solid #f59e0b',
+                        boxShadow: '0 0 6px #f59e0b80'
+                      } : isT ? {
+                        width: '20px', height: '20px',
+                        backgroundColor: ac,
+                        borderRadius: '9999px',
+                        boxShadow: `0 0 8px ${ac}80`
+                      } : { width: '20px', height: '20px' }}
+                    >
+                      <span className={cn("text-[11px] font-bold leading-none", isT && "animate-pulse")} style={{ color: isHL && !isT ? '#f59e0b' : (isT ? '#fff' : (isSel ? ac : '#e2e8f0')) }}>{day.getDate()}</span>
                     </div>
                     {isSel && !isT && !isHL && <div className="w-1 h-1 rounded-full mt-0.5" style={{ backgroundColor: ac }} />}
-                    {/* Dropdown appuntamenti del giorno */}
+                    {/* Freccetta dropdown - angolo basso destra, più grande, z-20 sopra area cliccabile */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setOpenDropdownDay(isDropOpen ? null : i);
+                      }}
+                      className="absolute bottom-0 right-0 z-20 p-0.5 touch-manipulation active:scale-90"
+                    >
+                      <ChevronDown 
+                        className={cn("transition-transform", isDropOpen && "rotate-180")}
+                        style={{ width: '13px', height: '13px', color: dayAllNotes.length > 0 ? ac : '#64748b' }} 
+                      />
+                    </button>
+                    {/* Dropdown appuntamenti del giorno - in sovraimpressione */}
                     {isDropOpen && (
                       <div 
-                        className="absolute top-full left-1/2 -translate-x-1/2 z-50 mt-1 bg-slate-800 border border-slate-600 rounded-lg shadow-xl overflow-hidden"
-                        style={{ minWidth: '120px', maxWidth: '160px' }}
+                        className="absolute z-50 bg-slate-800/95 backdrop-blur-sm border border-slate-600 rounded-lg shadow-2xl overflow-hidden"
+                        style={{ 
+                          top: '100%', 
+                          right: '-4px',
+                          minWidth: '140px', 
+                          maxWidth: '180px',
+                          marginTop: '2px'
+                        }}
                         onClick={(e) => e.stopPropagation()}
                       >
                         {dayAllNotes.length === 0 ? (
-                          <div className="px-2 py-2 text-[9px] text-slate-500 text-center">Nessun appuntamento</div>
+                          <div className="px-3 py-2.5 text-[10px] text-slate-500 text-center">Nessun appuntamento</div>
                         ) : (
                           dayAllNotes.sort((a, b) => a.time.localeCompare(b.time)).map((item, idx) => (
                             <div 
                               key={idx} 
-                              className="flex items-center gap-1.5 px-2 py-1.5 border-b border-slate-700/50 last:border-0 hover:bg-slate-700/50"
+                              className="flex items-center gap-2 px-2.5 py-2 border-b border-slate-700/50 last:border-0 hover:bg-slate-700/50"
                             >
-                              <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
+                              <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
                               <div className="min-w-0 flex-1">
-                                <span className="text-[9px] font-mono text-slate-400 block">{item.time}</span>
-                                <span className="text-[10px] text-slate-200 font-medium truncate block">{item.title}</span>
+                                <span className="text-[10px] font-mono text-slate-400 block">{item.time}</span>
+                                <span className="text-[11px] text-slate-200 font-medium truncate block">{item.title}</span>
                               </div>
                             </div>
                           ))
