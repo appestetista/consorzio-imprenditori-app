@@ -361,6 +361,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                             <span className={cn("text-[11px] font-bold leading-none", isT && "animate-pulse")} style={{ color: isT ? '#ffffff' : (isHL ? '#f59e0b' : (isSel ? '#fff' : '#e2e8f0')) }}>{day.getDate()}</span>
                           </div>
                           {isSel && !isT && !isHL && <div className="w-1 h-1 rounded-full mt-0.5" style={{ backgroundColor: ac }} />}
+                          {isT && !isSel && !isHL && <div className="w-1 h-1 rounded-full mt-0.5 animate-pulse" style={{ backgroundColor: '#ffffff' }} />}
                         </div>
 
                         {/* METÀ DESTRA: freccetta + conteggio — apre popup */}
