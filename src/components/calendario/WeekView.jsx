@@ -251,7 +251,8 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                     onClick={() => {
                       const d = new Date(refYear, refMonth, dayNum);
                       d.setHours(0,0,0,0);
-                      setSelectedDayInBar({ day: dayNum, month: refMonth, year: refYear });
+                      setHighlightedDay({ day: dayNum, month: refMonth, year: refYear });
+                      setSelectedSlot(null); // reset slot orario
                       setViewDate(d);
                       if (onDateSelect) onDateSelect(d);
                     }}
