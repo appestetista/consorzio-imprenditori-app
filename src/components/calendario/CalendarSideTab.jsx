@@ -2,13 +2,15 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Calendar, X, LayoutGrid, Plus, AudioLines } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { base44 } from '@/api/base44Client';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import HorizontalDatePicker from './HorizontalDatePicker';
 import VerticalTimePicker from './VerticalTimePicker';
 import FatturatoBarra from './FatturatoBarra';
 import WeekView from './WeekView';
 import NoteEditor from './NoteEditor';
 import MonthBar from './MonthBar';
+import MonthNotesCountBar from './MonthNotesCountBar';
+import MonthNotesSummaryPopup from './MonthNotesSummaryPopup';
 
 
 const MONTH_COLORS = [
