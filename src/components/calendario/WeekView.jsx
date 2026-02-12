@@ -185,7 +185,8 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     if (onRegisterMonthSelect) {
       onRegisterMonthSelect((mIdx) => {
         const y = weekDays[3].getFullYear();
-        setViewDate(new Date(y, mIdx, 1));
+        // Usa il 15 del mese per garantire che il giovedì della settimana cada nel mese corretto
+        setViewDate(new Date(y, mIdx, 15));
       });
     }
   }, [onRegisterMonthSelect]);
