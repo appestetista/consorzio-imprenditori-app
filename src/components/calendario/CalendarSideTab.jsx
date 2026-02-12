@@ -164,7 +164,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
       <button
         onClick={toggleCalendar}
         className={cn(
-          "fixed right-0 top-1/2 -translate-y-1/2 z-40 transition-all duration-300",
+          "fixed right-0 z-40 transition-all duration-300",
           "bg-gradient-to-l from-lime-400 to-lime-500 text-slate-900",
           "rounded-l-xl shadow-lg shadow-lime-400/20",
           "flex items-center justify-center",
@@ -175,7 +175,9 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           width: '28px',
           height: '130px',
           writingMode: 'vertical-rl',
-          textOrientation: 'mixed'
+          textOrientation: 'mixed',
+          top: '65%',
+          transform: 'translateY(-50%)'
         }}
       >
         <span className="text-[11px] font-bold tracking-wider leading-none rotate-180 whitespace-nowrap">CALENDARIO</span>
