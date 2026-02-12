@@ -321,7 +321,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                         }
                       }, 200);
                     }}
-                    className="flex items-center gap-1.5 px-3 py-1 rounded-md touch-manipulation active:scale-90 transition-all"
+                    className="flex items-center gap-1.5 px-3 py-1 rounded-md touch-manipulation active:scale-90 transition-all animate-pulse"
                     style={{ 
                       backgroundColor: MONTH_COLORS[weekViewMonth],
                       color: '#0f172a'
