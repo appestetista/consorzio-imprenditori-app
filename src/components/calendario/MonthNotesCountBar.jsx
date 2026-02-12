@@ -31,7 +31,7 @@ export default function MonthNotesCountBar({ noteCountsByMonth, currentMonth, on
             />
             {count > 0 && (
               <span 
-                className="text-[8px] font-bold leading-none"
+                className="text-[11px] font-bold leading-none"
                 style={{ color: isCurrent ? mc : '#a3e635' }}
               >
                 {count}
