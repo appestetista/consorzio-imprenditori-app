@@ -367,7 +367,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
 
                         {/* METÀ DESTRA: freccetta + conteggio — apre popup */}
                         <div 
-                          className="flex flex-col items-center justify-center cursor-pointer z-20 touch-manipulation active:scale-90"
+                          className="flex flex-col items-end justify-end cursor-pointer z-20 touch-manipulation active:scale-90 pb-0.5 pr-0.5"
                           style={{ width: '50%' }}
                           onClick={(e) => {
                             e.stopPropagation();
