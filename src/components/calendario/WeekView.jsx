@@ -236,83 +236,124 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     transition: 'background-color 1.2s ease'
   };
 
+  // Existing note per l'editor
+  const existingNoteForEditor = selectedSlot ? notesByDateAndTime[selectedSlot.date]?.[selectedSlot.time] : null;
+  // Calcola la data come Date object per NoteEditor
+  const selectedSlotDate = selectedSlot ? new Date(selectedSlot.date + 'T00:00:00') : null;
+
   return (
-    <div className="flex flex-col h-full overflow-hidden" style={bgStyle}>
-      {/* Label mese + pulsante oggi */}
-      <div className="flex-shrink-0 flex items-center justify-center gap-3 px-2 py-1 border-b border-slate-700/50">
-        <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: ac }}>{wLabel}</span>
-        {weekOffset !== 0 && (
-          <button onClick={() => setWeekOffset(0)} className="text-[8px] font-bold px-1.5 py-0.5 rounded" style={{ backgroundColor: ac, color: '#0f172a' }}>
-            OGGI
-          </button>
-        )}
-      </div>
+    <div className="flex h-full overflow-hidden" style={bgStyle}>
+      {/* Colonna principale: calendario */}
+      <div className={cn("flex flex-col overflow-hidden", showNoteEditor ? "w-[55%]" : "flex-1")}>
+        {/* Label mese + pulsante oggi */}
+        <div className="flex-shrink-0 flex items-center justify-center gap-3 px-2 py-1 border-b border-slate-700/50">
+          <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: ac }}>{wLabel}</span>
+          {weekOffset !== 0 && (
+            <button onClick={() => setWeekOffset(0)} className="text-[8px] font-bold px-1.5 py-0.5 rounded" style={{ backgroundColor: ac, color: '#0f172a' }}>
+              OGGI
+            </button>
+          )}
+        </div>
 
-      {/* AREA TOUCH */}
-      <div className="flex-1 flex flex-col overflow-hidden" style={{ touchAction: 'none' }} onTouchStart={onTS} onTouchMove={onTM} onTouchEnd={onTE}>
+        {/* AREA TOUCH */}
+        <div className="flex-1 flex flex-col overflow-hidden" style={{ touchAction: 'none' }} onTouchStart={onTS} onTouchMove={onTM} onTouchEnd={onTE}>
 
-        {/* HEADER GIORNI */}
-        <div className="flex flex-shrink-0 border-b border-slate-700/50 overflow-hidden">
-          <div className="flex-shrink-0" style={{ width: '56px' }} />
-          <div className="flex flex-1" style={swipeStyle}>
-            {weekDays.map((day, i) => {
-              const isT = day.getTime() === today.getTime();
-              const isWe = i >= 5;
-              const isSel = selectedDate && day.toDateString() === new Date(selectedDate).toDateString();
+          {/* HEADER GIORNI */}
+          <div className="flex flex-shrink-0 border-b border-slate-700/50 overflow-hidden">
+            <div className="flex-shrink-0" style={{ width: '56px' }} />
+            <div className="flex flex-1" style={swipeStyle}>
+              {weekDays.map((day, i) => {
+                const isT = day.getTime() === today.getTime();
+                const isWe = i >= 5;
+                const isSel = selectedDate && day.toDateString() === new Date(selectedDate).toDateString();
+                return (
+                  <div 
+                    key={i} 
+                    className={cn("flex-1 flex flex-col items-center py-0.5 border-l border-slate-700/50 cursor-pointer", isT && "bg-slate-800/40")}
+                    onClick={() => onDateSelect && onDateSelect(day)}
+                    style={isSel && !isT ? { backgroundColor: ac + '20' } : undefined}
+                  >
+                    <span className="text-[7px] font-semibold leading-tight" style={{ color: isWe ? '#ef4444' : (isSel ? ac : (isT ? ac : '#64748b')) }}>{DAYS_SHORT_IT[i]}</span>
+                    <span className={cn("text-[10px] font-bold leading-tight", isT && "animate-pulse")} style={{ color: isSel || isT ? ac : '#e2e8f0' }}>{day.getDate()}</span>
+                    {isSel && !isT && <div className="w-1 h-1 rounded-full mt-0.5" style={{ backgroundColor: ac }} />}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* CORPO */}
+          <div ref={scrollRef} className="flex-1 overflow-y-auto overscroll-none" style={{ scrollbarWidth:'none', msOverflowStyle:'none', touchAction:'none' }}>
+            {TIME_SLOTS.map((slot) => {
+              const isNow = todayInWeek && slot.label === nowSlot;
               return (
-                <div 
-                  key={i} 
-                  className={cn("flex-1 flex flex-col items-center py-0.5 border-l border-slate-700/50 cursor-pointer", isT && "bg-slate-800/40")}
-                  onClick={() => onDateSelect && onDateSelect(day)}
-                  style={isSel && !isT ? { backgroundColor: ac + '20' } : undefined}
-                >
-                  <span className="text-[7px] font-semibold leading-tight" style={{ color: isWe ? '#ef4444' : (isSel ? ac : (isT ? ac : '#64748b')) }}>{DAYS_SHORT_IT[i]}</span>
-                  <span className={cn("text-[10px] font-bold leading-tight", isT && "animate-pulse")} style={{ color: isSel || isT ? ac : '#e2e8f0' }}>{day.getDate()}</span>
-                  {isSel && !isT && <div className="w-1 h-1 rounded-full mt-0.5" style={{ backgroundColor: ac }} />}
+                <div key={slot.label} className={cn("flex", slot.isFullHour ? "h-10" : "h-6")}>
+                  {/* Ore fisse */}
+                  <div className="flex-shrink-0 flex items-center px-1.5" style={{ width: '56px' }}>
+                    <div className="flex items-center mr-1.5">
+                      <div className={cn("h-[2px] rounded-full", isNow && "animate-pulse")} style={{ width: slot.isFullHour ? '16px' : '8px', backgroundColor: isNow ? '#fff' : (slot.isFullHour ? ac : '#475569') }} />
+                    </div>
+                    <span className={cn("font-mono text-[10px]", slot.isFullHour && "font-bold", isNow && "text-white font-bold animate-pulse")} style={{ color: isNow ? '#fff' : (slot.isFullHour ? ac : '#94a3b8') }}>{slot.label}</span>
+                  </div>
+                  {/* Giorni — si spostano col swipe */}
+                  <div className="flex flex-1 overflow-hidden" style={swipeStyle}>
+                    {weekDays.map((day, di) => {
+                      const dk = fk(day);
+                      const isT = day.getTime() === today.getTime();
+                      const isNC = isT && slot.label === nowSlot;
+                      const isSel = selectedDate && day.toDateString() === new Date(selectedDate).toDateString();
+                      const its = items[dk]?.[slot.label] || [];
+                      const isSlotSelected = selectedSlot?.date === dk && selectedSlot?.time === slot.label;
+                      return (
+                        <div 
+                          key={di} 
+                          className={cn("flex-1 border-l border-slate-700/20 relative cursor-pointer", isNC && "bg-white/5", isT && "bg-slate-800/20", isSel && !isT && "bg-slate-700/15")}
+                          onClick={() => handleSlotClick(dk, slot.label)}
+                        >
+                          {isNC && <div className="absolute left-0 right-0 top-0 h-[2px] bg-white animate-pulse z-10" />}
+                          {/* Pallino + giallo se selezionato e vuoto */}
+                          {isSlotSelected && its.length === 0 && (
+                            <div className="absolute inset-0 flex items-center justify-center z-10">
+                              <div className="w-4 h-4 rounded-full bg-amber-500 flex items-center justify-center">
+                                <Plus className="w-3 h-3 text-white" />
+                              </div>
+                            </div>
+                          )}
+                          {its.map((it, ii) => (
+                            <div key={ii} className="absolute inset-x-0.5 top-0.5 bottom-0.5 rounded overflow-hidden flex items-center" style={{ backgroundColor: it.color+'30', borderLeft: `2px solid ${it.color}` }}>
+                              <span className="text-[7px] font-medium px-0.5 truncate" style={{ color: it.color }}>{it.title}</span>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               );
             })}
           </div>
         </div>
-
-        {/* CORPO */}
-        <div ref={scrollRef} className="flex-1 overflow-y-auto overscroll-none" style={{ scrollbarWidth:'none', msOverflowStyle:'none', touchAction:'none' }}>
-          {TIME_SLOTS.map((slot) => {
-            const isNow = todayInWeek && slot.label === nowSlot;
-            return (
-              <div key={slot.label} className={cn("flex", slot.isFullHour ? "h-10" : "h-6")}>
-                {/* Ore fisse */}
-                <div className="flex-shrink-0 flex items-center px-1.5" style={{ width: '56px' }}>
-                  <div className="flex items-center mr-1.5">
-                    <div className={cn("h-[2px] rounded-full", isNow && "animate-pulse")} style={{ width: slot.isFullHour ? '16px' : '8px', backgroundColor: isNow ? '#fff' : (slot.isFullHour ? ac : '#475569') }} />
-                  </div>
-                  <span className={cn("font-mono text-[10px]", slot.isFullHour && "font-bold", isNow && "text-white font-bold animate-pulse")} style={{ color: isNow ? '#fff' : (slot.isFullHour ? ac : '#94a3b8') }}>{slot.label}</span>
-                </div>
-                {/* Giorni — si spostano col swipe */}
-                <div className="flex flex-1 overflow-hidden" style={swipeStyle}>
-                  {weekDays.map((day, di) => {
-                    const dk = fk(day);
-                    const isT = day.getTime() === today.getTime();
-                    const isNC = isT && slot.label === nowSlot;
-                    const isSel = selectedDate && day.toDateString() === new Date(selectedDate).toDateString();
-                    const its = items[dk]?.[slot.label] || [];
-                    return (
-                      <div key={di} className={cn("flex-1 border-l border-slate-700/20 relative", isNC && "bg-white/5", isT && "bg-slate-800/20", isSel && !isT && "bg-slate-700/15")}>
-                        {isNC && <div className="absolute left-0 right-0 top-0 h-[2px] bg-white animate-pulse z-10" />}
-                        {its.map((it, ii) => (
-                          <div key={ii} className="absolute inset-x-0.5 top-0.5 bottom-0.5 rounded overflow-hidden flex items-center" style={{ backgroundColor: it.color+'30', borderLeft: `2px solid ${it.color}` }}>
-                            <span className="text-[7px] font-medium px-0.5 truncate" style={{ color: it.color }}>{it.title}</span>
-                          </div>
-                        ))}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })}
-        </div>
       </div>
+
+      {/* NoteEditor panel - affiancato a destra */}
+      {showNoteEditor && selectedSlot && (
+        <div className="w-[45%] border-l border-slate-700 overflow-hidden">
+          <NoteEditor
+            key={`${selectedSlot.date}-${selectedSlot.time}`}
+            selectedDate={selectedSlotDate}
+            selectedTime={selectedSlot.time}
+            onClose={() => { setShowNoteEditor(false); setSelectedSlot(null); }}
+            onSave={handleNoteSave}
+            inline={true}
+            existingNote={existingNoteForEditor ? {
+              ...existingNoteForEditor,
+              checklistItems: existingNoteForEditor.checklist_items || [],
+              cartella_id: existingNoteForEditor.cartella_id || ''
+            } : null}
+            onRegisterSave={(saveFn) => { noteEditorSaveRef.current = saveFn; }}
+          />
+        </div>
+      )}
     </div>
   );
 }
