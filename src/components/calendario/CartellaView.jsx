@@ -298,6 +298,9 @@ export default function CartellaView({ cartella, userEmail, onClose }) {
     mutationFn: (id) => base44.entities.FileCartella.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['fileCartella', cartella.id] });
+      queryClient.invalidateQueries({ queryKey: ['fileCartella-day'] });
+      queryClient.invalidateQueries({ queryKey: ['allFileCartella'] });
+      queryClient.invalidateQueries({ queryKey: ['file-week'] });
       setDeleteFileConfirm(null);
     }
   });
