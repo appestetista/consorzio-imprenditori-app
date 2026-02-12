@@ -20,6 +20,7 @@ function FileEditor({ file, cartellaId, userEmail, onClose, onSaved }) {
   const [isUploading, setIsUploading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [viewingAttachment, setViewingAttachment] = useState(null);
+  const [isDictating, setIsDictating] = useState(false);
   const cameraRef = useRef(null);
   const fileRef = useRef(null);
   const queryClient = useQueryClient();
