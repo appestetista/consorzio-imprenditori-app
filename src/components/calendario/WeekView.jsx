@@ -209,19 +209,30 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
           const refMonth = weekMainMonth;
           const refYear = weekDays[3].getFullYear();
           const daysInMonth = new Date(refYear, refMonth + 1, 0).getDate();
-          // Giorno attualmente selezionato (dalla selezione data o dal tap nella week)
+          // Giorno selezionato dalla data
           const selDay = selectedDate ? new Date(selectedDate) : null;
           const selDayNum = selDay && selDay.getMonth() === refMonth && selDay.getFullYear() === refYear ? selDay.getDate() : null;
+          // Giorno dello slot selezionato (tap su orario nel calendario)
+          const slotDayNum = (() => {
+            if (!selectedSlot?.date) return null;
+            const [y, m, d] = selectedSlot.date.split('-').map(Number);
+            if (m - 1 === refMonth && y === refYear) return d;
+            return null;
+          })();
           
           return (
-            <div className="flex-shrink-0 flex items-center px-1 py-1.5 border-b border-slate-700/30">
+            <div className="flex-shrink-0 flex items-center px-0.5 py-1 border-b border-slate-700/30">
               {Array.from({ length: daysInMonth }, (_, i) => {
                 const dayNum = i + 1;
                 const dayDate = new Date(refYear, refMonth, dayNum);
-                const dow = dayDate.getDay(); // 0=Dom, 6=Sab
+                const dow = dayDate.getDay();
                 const isWeekend = dow === 0 || dow === 6;
                 const isToday = dayDate.getTime() === today.getTime();
-                const isActive = dayNum === selDayNum || (isToday && !selDayNum);
+                const isSlotDay = dayNum === slotDayNum;
+                const isSelected = dayNum === selDayNum;
+                // Colore pallino: arancione se è il giorno dello slot selezionato, colore mese se oggi, altrimenti bordo vuoto
+                const isFilled = isSlotDay || isToday;
+                const fillColor = isSlotDay ? '#f59e0b' : ac;
                 
                 return (
                   <div 
@@ -234,33 +245,26 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                       if (onDateSelect) onDateSelect(d);
                     }}
                   >
-                    {/* Pallino con numero */}
                     <div 
-                      className={cn(
-                        "rounded-full flex items-center justify-center transition-all",
-                        isActive && "shadow-lg"
-                      )}
+                      className="rounded-full flex items-center justify-center transition-all"
                       style={{ 
-                        width: '18px',
-                        height: '18px',
-                        backgroundColor: isActive ? ac : 'transparent',
-                        border: isActive ? 'none' : `1.5px solid ${isWeekend ? '#ef444450' : ac + '30'}`,
-                        boxShadow: isActive ? `0 0 8px ${ac}80` : undefined
+                        width: '22px',
+                        height: '22px',
+                        backgroundColor: isFilled ? fillColor : 'transparent',
+                        border: isFilled ? 'none' : `1.5px solid ${isWeekend ? '#ef444440' : ac + '35'}`,
+                        boxShadow: isFilled ? `0 0 8px ${fillColor}80` : undefined
                       }}
                     >
                       <span 
-                        className="text-[7px] font-bold leading-none"
-                        style={{ 
-                          color: isActive ? '#0f172a' : (isWeekend ? '#ef4444' : '#64748b')
-                        }}
+                        className="text-[8px] font-bold leading-none"
+                        style={{ color: isFilled ? '#0f172a' : '#e2e8f0' }}
                       >
                         {dayNum}
                       </span>
                     </div>
-                    {/* Lettera giorno */}
                     <span 
-                      className="text-[5px] font-bold leading-tight mt-[1px]"
-                      style={{ color: isWeekend ? '#ef4444' : (isActive ? ac : '#475569') }}
+                      className="text-[7px] font-bold leading-tight mt-[2px]"
+                      style={{ color: isWeekend ? '#ef4444' : (isFilled ? fillColor : '#64748b') }}
                     >
                       {isWeekend ? (dow === 6 ? 'S' : 'D') : DAY_LETTERS[dow]}
                     </span>
