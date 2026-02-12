@@ -261,23 +261,31 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                 </button>
               </div>
               {/* Griglia 3x4 mesi — bottoni più grandi per touch */}
-              <div className="grid grid-cols-3 gap-1 p-2">
+              <div className="grid grid-cols-3 gap-1.5 p-2.5">
                 {MONTHS_IT.map((mName, mIdx) => {
                   const isCurrentMonth = mIdx === weekMainMonth;
                   const mColor = MONTH_COLORS[mIdx];
                   return (
                     <button
                       key={mIdx}
-                      onClick={() => {
+                      onTouchEnd={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const yr = weekDays[3].getFullYear();
+                        setViewDate(new Date(yr, mIdx, 1));
+                        setShowMonthDropdown(false);
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
                         const yr = weekDays[3].getFullYear();
                         setViewDate(new Date(yr, mIdx, 1));
                         setShowMonthDropdown(false);
                       }}
                       className={cn(
-                        "px-2 py-2.5 rounded-md text-[10px] font-semibold transition-all text-center touch-manipulation",
+                        "px-2 py-3 rounded-md text-[11px] font-semibold transition-all text-center touch-manipulation select-none",
                         isCurrentMonth ? "text-slate-900 font-bold" : "text-slate-400 hover:text-white active:bg-slate-600 hover:bg-slate-700"
                       )}
-                      style={isCurrentMonth ? { backgroundColor: mColor } : undefined}
+                      style={isCurrentMonth ? { backgroundColor: mColor } : { backgroundColor: 'rgba(51,65,85,0.4)' }}
                     >
                       {mName.slice(0, 3)}
                     </button>
@@ -363,11 +371,14 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
           );
         })()}
 
-        {/* AREA TOUCH */}
-        <div className="flex-1 flex flex-col overflow-hidden" style={{ touchAction: 'none' }} onTouchStart={onTS} onTouchMove={onTM} onTouchEnd={onTE}>
+        {/* AREA TOUCH — griglia ore + swipe settimane */}
+        <div className="flex-1 flex flex-col overflow-hidden">
 
-          {/* HEADER GIORNI */}
-          <div className="flex flex-shrink-0 border-b border-slate-700/50 overflow-hidden">
+          {/* HEADER GIORNI — swipe qui cambia settimana */}
+          <div className="flex flex-shrink-0 border-b border-slate-700/50 overflow-hidden"
+            onTouchStart={onTS} onTouchMove={onTM} onTouchEnd={onTE}
+            style={{ touchAction: 'none' }}
+          >
             <div className="flex-shrink-0" style={{ width: '56px' }} />
             <div className="flex flex-1" style={swipeStyle}>
               {weekDays.map((day, i) => {
@@ -390,8 +401,11 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
             </div>
           </div>
 
-          {/* CORPO */}
-          <div ref={scrollRef} className="flex-1 overflow-y-auto overscroll-none" style={{ scrollbarWidth:'none', msOverflowStyle:'none', touchAction:'none' }}>
+          {/* CORPO — scroll ore + swipe settimane */}
+          <div ref={scrollRef} className="flex-1 overflow-y-auto overscroll-none"
+            onTouchStart={onTS} onTouchMove={onTM} onTouchEnd={onTE}
+            style={{ scrollbarWidth:'none', msOverflowStyle:'none', touchAction:'none' }}
+          >
             {TIME_SLOTS.map((slot) => {
               const isNow = todayInWeek && slot.label === nowSlot;
               return (
