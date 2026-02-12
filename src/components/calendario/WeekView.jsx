@@ -312,6 +312,8 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                 const isWe = i >= 5;
                 const isSel = selectedDate && day.toDateString() === new Date(selectedDate).toDateString();
                 const isHL = highlightedDay && highlightedDay.day === day.getDate() && highlightedDay.month === day.getMonth() && highlightedDay.year === day.getFullYear();
+                // Giorno selezionato dalla vista giornaliera (cerchio pieno)
+                const isSelectedFromDay = isSel && !isHL;
                 const dk = fk(day);
                 const dayItems = items[dk] || {};
                 const dayAllNotes = Object.entries(dayItems).flatMap(([time, arr]) => arr.map(a => ({ ...a, time })));
