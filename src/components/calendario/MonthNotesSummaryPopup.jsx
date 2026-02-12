@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Check } from 'lucide-react';
+import { X, Check, Folder, Trash2 } from 'lucide-react';
 
 const MONTH_COLORS = [
   '#3b82f6','#8b5cf6','#ec4899','#14b8a6','#22c55e','#eab308',
