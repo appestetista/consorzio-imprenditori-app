@@ -1,9 +1,10 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { Plus, FileText, X, CalendarOff } from 'lucide-react';
+import { Plus, FileText, X, CalendarOff, ChevronDown } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import NoteEditor from './NoteEditor';
+import DayNotesSummaryPopup from './DayNotesSummaryPopup';
 
 export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMonth, visibleYear, onClose, onTimeSelect, onDateChange, monthColor = '#a3e635' }) {
   const scrollRef = useRef(null);
