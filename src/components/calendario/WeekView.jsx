@@ -34,7 +34,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   const [dragX, setDragX] = useState(0);
   const [animating, setAnimating] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState(null);
-  const [selectedDayInBar, setSelectedDayInBar] = useState(null); // { day, month, year } del giorno cliccato nella barra mese
+  const [highlightedDay, setHighlightedDay] = useState(null); // { day, month, year } — unico giorno con bordo arancione
   
   const scrollRef = useRef(null);
   const touchRef = useRef({ startX:0, startY:0, lastX:0, lastY:0, lastTime:0, velScroll:0, scrollTop0:0, dir:null, animFrame:null });
