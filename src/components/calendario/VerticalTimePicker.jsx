@@ -524,6 +524,22 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
             />
         </div>
       )}
-    </div>
-  );
-}
+
+      {/* Popup riepilogo note del giorno */}
+      {showDaySummary && (
+        <DayNotesSummaryPopup
+          notes={noteDelGiorno}
+          cartelleMap={cartelleMap}
+          selectedDate={selectedDate}
+          monthColor={currentMonthColor}
+          onClose={() => setShowDaySummary(false)}
+          onNoteClick={(note) => {
+            setShowDaySummary(false);
+            setSelectedTime(note.time);
+            setShowNoteEditor(true);
+          }}
+        />
+      )}
+      </div>
+      );
+      }
