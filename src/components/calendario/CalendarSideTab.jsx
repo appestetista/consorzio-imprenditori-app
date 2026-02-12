@@ -317,15 +317,11 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                   <div /> {/* spacer sinistro */}
                   <button
                     onClick={() => {
+                      // Usa selectedDate corrente (aggiornato dai click nella WeekView)
                       const targetDate = selectedDate 
                         ? new Date(selectedDate) 
-                        : new Date(new Date().getFullYear(), weekViewMonth, 1);
+                        : new Date();
                       targetDate.setHours(0,0,0,0);
-                      if (targetDate.getMonth() !== weekViewMonth) {
-                        targetDate.setFullYear(new Date().getFullYear());
-                        targetDate.setMonth(weekViewMonth);
-                        targetDate.setDate(1);
-                      }
                       handleDateSelect(targetDate);
                       setShowWeekView(false);
                       setIsOpen(true);
