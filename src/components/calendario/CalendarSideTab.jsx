@@ -341,16 +341,6 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                   >
                     <span className="text-[9px] font-bold uppercase">Vista giornaliera</span>
                   </button>
-                  <button
-                    onClick={() => {
-                      setShowWeekView(false);
-                      setIsOpen(false);
-                      setShowTimePicker(false);
-                    }}
-                    className="px-2 py-1 rounded-md bg-gradient-to-r from-lime-400 to-lime-500 text-slate-900 touch-manipulation active:scale-90 transition-all"
-                  >
-                    <span className="text-[9px] font-bold tracking-wider">CHIUDI</span>
-                  </button>
                 </div>
                 {/* Riga 2: Barra mesi */}
                 <div className="flex-1 overflow-hidden flex items-center">
