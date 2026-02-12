@@ -341,13 +341,18 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
         {/* Riga 2: Dettatura e Registratore in contenitori separati */}
         <div className="flex items-center gap-3 py-2 mb-4">
           {/* Dettatura vocale - contenitore con bordo */}
-          <div className="relative flex-shrink-0 flex items-center gap-1.5 px-2 py-1.5 rounded-lg border border-slate-700 bg-slate-800/50">
-            <WhisperDictation 
-              isDictating={isDictating}
-              setIsDictating={setIsDictating}
-              onTranscription={handleWhisperTranscription}
-            />
-            <span className="text-[9px] text-slate-500 font-medium">Dettatura</span>
+          <div className="relative flex-shrink-0 flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg border border-slate-700 bg-slate-800/50">
+            <div className="flex items-center gap-1.5">
+              <WhisperDictation 
+                isDictating={isDictating}
+                setIsDictating={setIsDictating}
+                onTranscription={handleWhisperTranscription}
+              />
+              <span className="text-[9px] text-slate-500 font-medium">Dettatura</span>
+            </div>
+            {isDictating && (
+              <span className="text-[8px] text-cyan-400 animate-pulse font-medium">Tocca per stoppare</span>
+            )}
           </div>
           {/* Registratore audio - contenitore con bordo */}
           <div className="flex-shrink-0 px-2 py-1.5 rounded-lg border border-slate-700 bg-slate-800/50">
