@@ -27,6 +27,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
     const [showTimePicker, setShowTimePicker] = useState(false);
     const [showFatturato, setShowFatturato] = useState(false);
     const [showWeekView, setShowWeekView] = useState(false);
+    const [weekViewColor, setWeekViewColor] = useState(null); // colore dal WeekView per sincronizzazione
   const goToTodayRef = useRef(null);
   const [currentMonthColor, setCurrentMonthColor] = useState(MONTH_COLORS[new Date().getMonth()]);
   const [visibleMonthLabel, setVisibleMonthLabel] = useState({ month: new Date().getMonth(), year: new Date().getFullYear() });
@@ -214,13 +215,17 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
       {/* Vista settimanale - sale dal basso, contenuto ruotato 90° per landscape */}
             <div 
               className={cn(
-                "fixed inset-0 z-[65] bg-slate-900 transition-transform duration-700 ease-in-out",
+                "fixed inset-0 z-[65] transition-transform duration-700 ease-in-out",
                 showWeekView ? "translate-y-0" : "translate-y-full"
               )}
+              style={{
+                backgroundColor: `color-mix(in srgb, ${weekViewColor || currentMonthColor} 6%, #0f172a)`,
+                transition: 'background-color 1.2s ease, transform 0.7s ease-in-out'
+              }}
             >
               {/* Contenitore ruotato: tutto il contenuto è girato di 90° in senso orario */}
               <div 
-                className="absolute flex flex-col bg-slate-900"
+                className="absolute flex flex-col"
                 style={{
                   width: '100vh',
                   height: '100vw',
@@ -230,15 +235,15 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                   transformOrigin: 'center center'
                 }}
               >
-                {/* Pulsante Settimana - chiude la vista */}
-                <div className="flex-shrink-0 flex items-center justify-center py-1.5 border-b border-slate-700">
+                {/* Pulsante Vista Giorno - per tornare alla vista giornaliera */}
+                <div className="flex-shrink-0 flex items-center justify-center py-1.5 border-b border-slate-700/50">
                   <button
                     onClick={() => setShowWeekView(false)}
                     className="px-4 py-1 rounded-full"
-                    style={{ backgroundColor: currentMonthColor || '#a3e635' }}
+                    style={{ backgroundColor: weekViewColor || currentMonthColor || '#a3e635' }}
                   >
                     <span className="text-[11px] text-slate-900 font-bold uppercase">
-                      ▼ Settimana
+                      ▼ Vista Giorno
                     </span>
                   </button>
                 </div>
@@ -247,6 +252,16 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                   <WeekView
                     selectedDate={selectedDate}
                     monthColor={currentMonthColor}
+                    onMonthColorChange={setWeekViewColor}
+                    onDateSelect={(date) => {
+                      handleDateSelect(date);
+                      // Scrolla anche il calendario orizzontale alla data selezionata
+                      setTimeout(() => {
+                        if (goToTodayRef.scrollToDate) {
+                          goToTodayRef.scrollToDate(date);
+                        }
+                      }, 100);
+                    }}
                   />
                 </div>
               </div>
