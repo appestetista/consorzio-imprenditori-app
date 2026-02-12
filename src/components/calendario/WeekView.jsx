@@ -140,13 +140,16 @@ export default function WeekView({ selectedDate, monthColor }) {
     items[f.data][sk].push({ title: f.titolo, color: cm[f.cartella_id]?.colore || '#64748b' });
   });
 
-  const ac = monthColor || MONTH_COLORS[off.getMonth()];
+  // Colore basato sul mese della settimana visualizzata (mese del giovedì = mese predominante)
+  const weekMainMonth = weekDays[3].getMonth();
+  const ac = MONTH_COLORS[weekMainMonth];
   const nH = new Date().getHours(), nM = Math.floor(new Date().getMinutes()/5)*5;
   const nowSlot = `${String(nH).padStart(2,'0')}:${String(nM).padStart(2,'0')}`;
   const todayInWeek = weekDays.some(d => d.getTime() === today.getTime());
 
-  // Label settimana
-  const wLabel = `${weekDays[0].getDate()} ${weekDays[0].toLocaleDateString('it-IT',{month:'short'})} – ${weekDays[6].getDate()} ${weekDays[6].toLocaleDateString('it-IT',{month:'short'})}`;
+  // Label mese
+  const MONTHS_IT = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+  const wLabel = `${MONTHS_IT[weekMainMonth]} ${weekDays[3].getFullYear()}`;
 
   // Stile swipe per le colonne giorni
   const swipeStyle = {
