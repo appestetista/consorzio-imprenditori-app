@@ -315,10 +315,10 @@ export default function WeekView({ selectedDate, monthColor }) {
                 slot.isFullHour ? "h-10" : "h-6"
               )}
             >
-              {/* Colonna ore — più larga per tocco facile */}
+              {/* Colonna ore */}
               <div 
                 className="flex-shrink-0 flex items-center px-1.5"
-                style={{ width: '62px' }}
+                style={{ width: '56px' }}
               >
                 {/* Lineetta */}
                 <div className="flex items-center mr-1.5">
