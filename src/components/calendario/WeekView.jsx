@@ -180,11 +180,33 @@ export default function WeekView({ selectedDate, monthColor }) {
         </button>
       </div>
 
-      {/* HEADER GIORNI in alto - orizzontale */}
-      <div className="flex flex-shrink-0 border-b border-slate-700">
-        {/* Spazio per la colonna ore a sinistra - più larga */}
+      {/* HEADER GIORNI - swipe orizzontale (rimappato da verticale per rotazione) per cambiare settimana */}
+      <div 
+        ref={headerRef}
+        className="flex flex-shrink-0 border-b border-slate-700"
+        style={{ touchAction: 'none' }}
+        onTouchStart={(e) => {
+          const touch = e.touches[0];
+          swipeRef.current = { startX: touch.clientX, startY: touch.clientY, swiping: true };
+        }}
+        onTouchMove={(e) => {
+          e.preventDefault();
+        }}
+        onTouchEnd={(e) => {
+          if (!swipeRef.current.swiping) return;
+          const touch = e.changedTouches[0];
+          // Ruotato 90°: asse Y del dito = asse orizzontale visivo
+          const deltaY = touch.clientY - swipeRef.current.startY;
+          if (Math.abs(deltaY) > 40) {
+            // deltaY positivo = dito va in basso = visivamente swipe a destra = settimana precedente
+            setWeekOffset(w => deltaY > 0 ? w - 1 : w + 1);
+          }
+          swipeRef.current.swiping = false;
+        }}
+      >
+        {/* Spazio per la colonna ore a sinistra */}
         <div className="flex-shrink-0" style={{ width: '62px' }} />
-        
+
         {/* 7 colonne giorno */}
         {weekDays.map((day, dayIdx) => {
           const isToday = day.getTime() === today.getTime();
