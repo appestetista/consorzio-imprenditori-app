@@ -168,10 +168,16 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
       }
       return;
     }
-    // Primo tap: evidenzia slot + aggiorna il pallino arancione nella barra mese
+    // Primo tap: evidenzia slot + aggiorna selectedDate per avere un solo cerchio
     setSelectedSlot({ date: dayStr, time: timeLabel });
     const [y, m, d] = dayStr.split('-').map(Number);
-    setHighlightedDay({ day: d, month: m - 1, year: y });
+    setHighlightedDay(null); // reset highlight separato
+    // Aggiorna selectedDate così c'è un solo giorno cerchiato
+    if (onDateSelect) {
+      const newDate = new Date(y, m - 1, d);
+      newDate.setHours(0, 0, 0, 0);
+      onDateSelect(newDate);
+    }
   };
 
   // Colore basato sul mese della settimana visualizzata (mese del giovedì = mese predominante)
