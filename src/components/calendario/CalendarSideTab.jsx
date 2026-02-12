@@ -315,6 +315,39 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                     }}
                   />
                 </div>
+                <button
+                  onClick={() => {
+                    // Determina la data da passare alla vista giornaliera
+                    const targetDate = selectedDate 
+                      ? new Date(selectedDate) 
+                      : new Date(new Date().getFullYear(), weekViewMonth, 1);
+                    targetDate.setHours(0,0,0,0);
+                    // Se la data selezionata non è nel mese della weekView, usa il 1° del mese
+                    if (targetDate.getMonth() !== weekViewMonth) {
+                      targetDate.setFullYear(new Date().getFullYear());
+                      targetDate.setMonth(weekViewMonth);
+                      targetDate.setDate(1);
+                    }
+                    handleDateSelect(targetDate);
+                    // Chiudi weekView e apri vista giornaliera
+                    setShowWeekView(false);
+                    setIsOpen(true);
+                    setShowTimePicker(true);
+                    // Scrolla il calendario orizzontale alla data
+                    setTimeout(() => {
+                      if (goToTodayRef.scrollToDate) {
+                        goToTodayRef.scrollToDate(targetDate);
+                      }
+                    }, 200);
+                  }}
+                  className="flex-shrink-0 px-2.5 py-1.5 rounded-md mr-1 touch-manipulation active:scale-90 transition-all"
+                  style={{ 
+                    backgroundColor: MONTH_COLORS[weekViewMonth],
+                    color: '#0f172a'
+                  }}
+                >
+                  <Calendar className="w-3.5 h-3.5" />
+                </button>
               </div>
 
               {/* Contenitore ruotato: tutto il contenuto è girato di 90° in senso orario */}
