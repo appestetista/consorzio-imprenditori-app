@@ -304,6 +304,13 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                     </span>
                   </button>
                 </div>
+                {/* Barra 12 mesi — DENTRO il rotate per layout ma con handler che chiama callback al parent */}
+                <MonthBar
+                  currentMonth={weekViewMonth}
+                  onSelectMonth={(mIdx) => {
+                    if (weekViewMonthSelectRef.current) weekViewMonthSelectRef.current(mIdx);
+                  }}
+                />
                 {/* WeekView occupa tutto il resto */}
                 <div className="flex-1 min-h-0">
                   <WeekView
