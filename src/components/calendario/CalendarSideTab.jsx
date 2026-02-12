@@ -176,7 +176,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           height: '130px',
           writingMode: 'vertical-rl',
           textOrientation: 'mixed',
-          top: '65%',
+          top: '75%',
           transform: 'translateY(-50%)'
         }}
       >
