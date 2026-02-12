@@ -333,25 +333,25 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                       const borderColor = isSelectedInBar ? '#f59e0b' : (isFilled ? fillColor : (isWeekend ? '#ef444450' : ac + '40'));
                       const borderWidth = isSelectedInBar ? '2px' : (isFilled ? '2px' : '1.5px');
                       return (
-                    <div 
-                      className="rounded-full flex items-center justify-center transition-all"
-                      style={{ 
-                        width: '22px',
-                        height: '22px',
-                        backgroundColor: isFilled ? fillColor : 'transparent',
-                        border: `${borderWidth} solid ${borderColor}`,
-                        boxShadow: isFilled ? `0 0 8px ${fillColor}80` : (isSelectedInBar ? `0 0 6px #f59e0b80` : undefined)
-                      }}
-                    >
+                        <div 
+                          className="rounded-full flex items-center justify-center transition-all"
+                          style={{ 
+                            width: '22px',
+                            height: '22px',
+                            backgroundColor: isFilled ? fillColor : 'transparent',
+                            border: `${borderWidth} solid ${borderColor}`,
+                            boxShadow: isFilled ? `0 0 8px ${fillColor}80` : (isSelectedInBar ? `0 0 6px #f59e0b80` : undefined)
+                          }}
+                        >
+                          <span 
+                            className="text-[8px] font-bold leading-none"
+                            style={{ color: isSelectedInBar && !isFilled ? '#f59e0b' : (isFilled ? '#ffffff' : '#e2e8f0') }}
+                          >
+                            {dayNum}
+                          </span>
+                        </div>
                       );
                     })()}
-                      <span 
-                        className="text-[8px] font-bold leading-none"
-                        style={{ color: isFilled ? '#ffffff' : '#e2e8f0' }}
-                      >
-                        {dayNum}
-                      </span>
-                    </div>
                     <span 
                       className="text-[7px] font-bold leading-tight mt-[2px]"
                       style={{ color: isWeekend ? '#ef4444' : (isFilled ? fillColor : '#64748b') }}
