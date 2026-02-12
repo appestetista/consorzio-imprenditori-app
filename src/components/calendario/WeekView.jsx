@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 
-const DAYS_SHORT_IT = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
+const DAYS_FULL_IT = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 'Domenica'];
 
 const MONTH_COLORS = [
   '#3b82f6', '#8b5cf6', '#ec4899', '#14b8a6', '#22c55e', '#eab308',
   '#f97316', '#ef4444', '#06b6d4', '#a855f7', '#6366f1', '#0ea5e9'
 ];
 
-// Genera slot ogni 5 minuti (identico a VerticalTimePicker)
+// Identico a VerticalTimePicker
 function generateTimeSlots() {
   const slots = [];
   for (let h = 0; h < 24; h++) {
@@ -63,13 +63,13 @@ export default function WeekView({ selectedDate, monthColor }) {
     loadUser();
   }, []);
 
-  // Scroll all'ora corrente
+  // Scroll all'ora corrente all'apertura
   useEffect(() => {
     if (scrollRef.current) {
       const now = new Date();
       const slotIndex = now.getHours() * 12 + Math.floor(now.getMinutes() / 5);
-      const ROW_HEIGHT = 26;
-      const scrollTo = Math.max(0, (slotIndex - 4) * ROW_HEIGHT);
+      const slotHeight = 26; // h-6 = 24px, h-10 = 40px, media ~26
+      const scrollTo = Math.max(0, (slotIndex - 5) * slotHeight);
       setTimeout(() => {
         scrollRef.current?.scrollTo({ top: scrollTo, behavior: 'smooth' });
       }, 300);
@@ -116,7 +116,7 @@ export default function WeekView({ selectedDate, monthColor }) {
   const cartelleMap = {};
   cartelle.forEach(c => { cartelleMap[c.id] = c; });
 
-  // Mappa items per data + timeSlotLabel
+  // Mappa items per data + slot
   const itemsByDayTime = {};
   weekDays.forEach(d => { itemsByDayTime[formatDateKey(d)] = {}; });
 
@@ -150,109 +150,105 @@ export default function WeekView({ selectedDate, monthColor }) {
   });
 
   const activeColor = monthColor || MONTH_COLORS[offsetDate.getMonth()];
-  const weekLabel = `${weekDays[0].getDate()} ${weekDays[0].toLocaleDateString('it-IT', { month: 'long' })} - ${weekDays[6].getDate()} ${weekDays[6].toLocaleDateString('it-IT', { month: 'long' })}`;
 
   const nowHour = new Date().getHours();
   const nowMin = Math.floor(new Date().getMinutes() / 5) * 5;
   const nowSlotLabel = `${String(nowHour).padStart(2, '0')}:${String(nowMin).padStart(2, '0')}`;
   const isTodayInWeek = weekDays.some(d => d.getTime() === today.getTime());
 
-  // Sincronizza scroll verticale tra tutte le colonne
-  const syncScroll = (sourceEl) => {
-    const scrollTop = sourceEl.scrollTop;
-    const allScrollables = document.querySelectorAll('[data-week-vscroll]');
-    allScrollables.forEach(el => {
-      if (el !== sourceEl) el.scrollTop = scrollTop;
-    });
-  };
-
   return (
     <div className="flex flex-col h-full bg-slate-900">
-      {/* Layout: fascia laterale sinistra con data range ruotata + navigazione, poi griglia */}
-      <div className="flex-1 flex min-h-0">
 
-        {/* Fascia sinistra: navigazione + label settimana ruotata */}
-        <div 
-          className="flex flex-col items-center border-r border-slate-700 flex-shrink-0"
-          style={{ 
-            width: '32px',
-            backgroundColor: `color-mix(in srgb, ${activeColor} 6%, #0f172a)`,
-          }}
-        >
-          {/* Freccia su (settimana precedente) */}
-          <button onClick={() => setWeekOffset(w => w - 1)} className="p-1 mt-1 rounded hover:bg-slate-700">
-            <ChevronLeft className="w-3.5 h-3.5 text-slate-400" />
+      {/* Navigazione settimana - piccola */}
+      <div className="flex items-center justify-center gap-2 px-2 py-1 flex-shrink-0 border-b border-slate-800">
+        <button onClick={() => setWeekOffset(w => w - 1)} className="p-0.5 rounded hover:bg-slate-700">
+          <ChevronLeft className="w-3.5 h-3.5 text-slate-400" />
+        </button>
+        {weekOffset !== 0 && (
+          <button 
+            onClick={() => setWeekOffset(0)} 
+            className="text-[8px] font-bold px-1.5 py-0.5 rounded"
+            style={{ backgroundColor: activeColor, color: '#0f172a' }}
+          >
+            OGGI
           </button>
+        )}
+        <button onClick={() => setWeekOffset(w => w + 1)} className="p-0.5 rounded hover:bg-slate-700">
+          <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+        </button>
+      </div>
 
-          {weekOffset !== 0 && (
-            <button 
-              onClick={() => setWeekOffset(0)} 
-              className="text-[7px] font-bold px-1 py-0.5 rounded my-0.5"
-              style={{ 
-                writingMode: 'vertical-rl', transform: 'rotate(180deg)',
-                backgroundColor: activeColor, color: '#0f172a' 
-              }}
+      {/* HEADER GIORNI in alto - orizzontale */}
+      {/* Struttura: [colonna ore vuota] [7 colonne giorno] */}
+      <div className="flex flex-shrink-0 border-b border-slate-700">
+        {/* Spazio per la colonna ore a sinistra */}
+        <div className="flex-shrink-0" style={{ width: '46px' }} />
+        
+        {/* 7 colonne giorno */}
+        {weekDays.map((day, dayIdx) => {
+          const isToday = day.getTime() === today.getTime();
+          const isWeekend = dayIdx >= 5;
+          return (
+            <div 
+              key={dayIdx}
+              className={cn(
+                "flex-1 flex flex-col items-center py-1 border-l border-slate-700/50",
+                isToday && "bg-slate-800/40"
+              )}
             >
-              OGGI
-            </button>
-          )}
-
-          {/* Label settimana ruotata 90° */}
-          <div className="flex-1 flex items-center justify-center">
-            <span 
-              className="text-[10px] font-bold whitespace-nowrap"
-              style={{ 
-                color: activeColor,
-                writingMode: 'vertical-rl',
-                transform: 'rotate(180deg)'
-              }}
-            >
-              {weekLabel}
-            </span>
-          </div>
-
-          {/* Freccia giù (settimana successiva) */}
-          <button onClick={() => setWeekOffset(w => w + 1)} className="p-1 mb-1 rounded hover:bg-slate-700">
-            <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-          </button>
-        </div>
-
-        {/* Colonna ore/minuti (identica a VerticalTimePicker) - scrollabile verticalmente */}
-        <div 
-          ref={scrollRef}
-          data-week-vscroll
-          className="flex-shrink-0 overflow-y-auto scrollbar-hide"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', width: '52px' }}
-          onScroll={(e) => syncScroll(e.target)}
-        >
-          {TIME_SLOTS.map((slot) => {
-            const isNow = isTodayInWeek && slot.label === nowSlotLabel;
-            return (
-              <div
-                key={slot.label}
-                className={cn(
-                  "flex items-center px-1",
-                  slot.isFullHour ? "h-10" : "h-6"
-                )}
+              <span 
+                className="text-[8px] font-semibold leading-tight"
+                style={{ color: isWeekend ? '#ef4444' : (isToday ? activeColor : '#64748b') }}
               >
-                {/* Lineetta come VerticalTimePicker */}
+                {DAYS_FULL_IT[dayIdx]}
+              </span>
+              <span 
+                className={cn("text-[11px] font-bold leading-tight", isToday && "animate-pulse")}
+                style={{ color: isToday ? activeColor : '#e2e8f0' }}
+              >
+                {day.getDate()}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* CORPO: colonna ore a sinistra + griglia giorni — scroll verticale condiviso */}
+      <div ref={scrollRef} className="flex-1 overflow-y-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        {TIME_SLOTS.map((slot) => {
+          const isNow = isTodayInWeek && slot.label === nowSlotLabel;
+
+          return (
+            <div 
+              key={slot.label} 
+              className={cn(
+                "flex",
+                slot.isFullHour ? "h-10" : "h-6"
+              )}
+            >
+              {/* Colonna ore — identica a VerticalTimePicker */}
+              <div 
+                className="flex-shrink-0 flex items-center px-1"
+                style={{ width: '46px' }}
+              >
+                {/* Lineetta */}
                 <div className="flex items-center mr-1">
-                  {isNow ? (
+                  {(isNow) ? (
                     <div 
                       className="h-[2px] rounded-full animate-pulse flex-shrink-0"
-                      style={{ width: slot.isFullHour ? '12px' : '6px', backgroundColor: '#ffffff' }}
+                      style={{ width: slot.isFullHour ? '14px' : '8px', backgroundColor: '#ffffff' }}
                     />
                   ) : (
                     <div 
                       className="h-[2px] rounded-full"
                       style={{ 
-                        width: slot.isFullHour ? '12px' : '6px',
+                        width: slot.isFullHour ? '14px' : '8px',
                         backgroundColor: slot.isFullHour ? activeColor : '#475569'
                       }}
                     />
                   )}
                 </div>
-                {/* Orario ruotato 90° */}
+                {/* Orario */}
                 <span 
                   className={cn(
                     "font-mono text-[9px] flex-shrink-0",
@@ -260,109 +256,54 @@ export default function WeekView({ selectedDate, monthColor }) {
                     isNow && "text-white font-bold animate-pulse"
                   )}
                   style={{
-                    color: isNow ? '#ffffff' : (slot.isFullHour ? activeColor : '#94a3b8'),
-                    writingMode: 'vertical-rl',
-                    transform: 'rotate(180deg)'
+                    color: isNow ? '#ffffff' : (slot.isFullHour ? activeColor : '#94a3b8')
                   }}
                 >
                   {slot.label}
                 </span>
               </div>
-            );
-          })}
-        </div>
 
-        {/* Colonne giorni della settimana - header in alto (ruotato) + celle scrollabili */}
-        <div className="flex-1 flex min-w-0 overflow-hidden">
-          {weekDays.map((day, dayIdx) => {
-            const dateKey = formatDateKey(day);
-            const isToday = day.getTime() === today.getTime();
-            const isWeekend = dayIdx >= 5; // Sab, Dom
+              {/* 7 celle giorno per questo slot */}
+              {weekDays.map((day, dayIdx) => {
+                const dateKey = formatDateKey(day);
+                const isToday = day.getTime() === today.getTime();
+                const isNowCell = isToday && slot.label === nowSlotLabel;
+                const items = itemsByDayTime[dateKey]?.[slot.label] || [];
 
-            return (
-              <div key={dayIdx} className="flex-1 flex flex-col min-w-0 border-r border-slate-800/30 last:border-r-0">
-                {/* Header giorno - ruotato 90° */}
-                <div 
-                  className={cn(
-                    "flex-shrink-0 flex flex-col items-center justify-center py-1.5 border-b border-slate-700",
-                    isToday && "bg-slate-800/50"
-                  )}
-                >
-                  <span 
-                    className="text-[8px] font-semibold"
-                    style={{ 
-                      color: isWeekend ? '#ef4444' : (isToday ? activeColor : '#64748b'),
-                      writingMode: 'vertical-rl',
-                      transform: 'rotate(180deg)'
-                    }}
+                return (
+                  <div 
+                    key={dayIdx}
+                    className={cn(
+                      "flex-1 border-l border-slate-700/20 relative",
+                      isNowCell && "bg-white/5",
+                      isToday && "bg-slate-800/20"
+                    )}
                   >
-                    {DAYS_SHORT_IT[dayIdx]}
-                  </span>
-                  <span 
-                    className={cn("text-[10px] font-bold leading-none mt-0.5", isToday && "animate-pulse")}
-                    style={{ 
-                      color: isToday ? activeColor : '#e2e8f0',
-                      writingMode: 'vertical-rl',
-                      transform: 'rotate(180deg)'
-                    }}
-                  >
-                    {day.getDate()}
-                  </span>
-                </div>
-
-                {/* Celle time slot - scrollabile verticalmente sincronizzata */}
-                <div 
-                  data-week-vscroll
-                  className="flex-1 overflow-y-auto scrollbar-hide"
-                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-                  onScroll={(e) => syncScroll(e.target)}
-                >
-                  {TIME_SLOTS.map((slot) => {
-                    const items = itemsByDayTime[dateKey]?.[slot.label] || [];
-                    const isNow = isToday && slot.label === nowSlotLabel;
-                    const hasItems = items.length > 0;
-
-                    return (
+                    {/* Linea orizzontale corrente */}
+                    {isNowCell && (
+                      <div className="absolute left-0 right-0 top-0 h-[2px] bg-white animate-pulse z-10" />
+                    )}
+                    {/* Items */}
+                    {items.map((item, i) => (
                       <div
-                        key={slot.label}
-                        className={cn(
-                          "relative border-b",
-                          slot.isFullHour ? "h-10 border-slate-700/40" : "h-6 border-slate-800/15",
-                          isNow && "bg-white/5"
-                        )}
+                        key={i}
+                        className="absolute inset-x-0.5 top-0.5 bottom-0.5 rounded overflow-hidden flex items-center"
+                        style={{ backgroundColor: item.color + '30', borderLeft: `2px solid ${item.color}` }}
                       >
-                        {/* Linea corrente */}
-                        {isNow && (
-                          <div className="absolute left-0 right-0 top-0 h-[2px] bg-white animate-pulse z-10" />
-                        )}
-                        {/* Items */}
-                        {items.map((item, i) => (
-                          <div
-                            key={i}
-                            className="absolute inset-x-0 top-0.5 bottom-0.5 mx-px rounded overflow-hidden"
-                            style={{ backgroundColor: item.color + '30', borderLeft: `2px solid ${item.color}` }}
-                          >
-                            <span 
-                              className="text-[7px] font-medium px-0.5 block truncate"
-                              style={{ 
-                                color: item.color,
-                                writingMode: 'vertical-rl',
-                                transform: 'rotate(180deg)',
-                                height: '100%'
-                              }}
-                            >
-                              {item.title}
-                            </span>
-                          </div>
-                        ))}
+                        <span 
+                          className="text-[7px] font-medium px-0.5 truncate leading-tight"
+                          style={{ color: item.color }}
+                        >
+                          {item.title}
+                        </span>
                       </div>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+                    ))}
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
