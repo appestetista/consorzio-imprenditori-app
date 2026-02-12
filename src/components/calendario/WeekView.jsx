@@ -25,7 +25,7 @@ function getWeekDays(ref) {
 }
 function fk(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 
-export default function WeekView({ selectedDate, monthColor }) {
+export default function WeekView({ selectedDate, monthColor, onMonthColorChange, onDateSelect }) {
   const [userEmail, setUserEmail] = useState(null);
   const [weekOffset, setWeekOffset] = useState(0);
   // Swipe state
@@ -143,6 +143,11 @@ export default function WeekView({ selectedDate, monthColor }) {
   // Colore basato sul mese della settimana visualizzata (mese del giovedì = mese predominante)
   const weekMainMonth = weekDays[3].getMonth();
   const ac = MONTH_COLORS[weekMainMonth];
+
+  // Notifica il colore mese al parent quando cambia
+  useEffect(() => {
+    if (onMonthColorChange) onMonthColorChange(ac);
+  }, [ac, onMonthColorChange]);
   const nH = new Date().getHours(), nM = Math.floor(new Date().getMinutes()/5)*5;
   const nowSlot = `${String(nH).padStart(2,'0')}:${String(nM).padStart(2,'0')}`;
   const todayInWeek = weekDays.some(d => d.getTime() === today.getTime());
@@ -186,10 +191,17 @@ export default function WeekView({ selectedDate, monthColor }) {
             {weekDays.map((day, i) => {
               const isT = day.getTime() === today.getTime();
               const isWe = i >= 5;
+              const isSel = selectedDate && day.toDateString() === new Date(selectedDate).toDateString();
               return (
-                <div key={i} className={cn("flex-1 flex flex-col items-center py-0.5 border-l border-slate-700/50", isT && "bg-slate-800/40")}>
-                  <span className="text-[7px] font-semibold leading-tight" style={{ color: isWe ? '#ef4444' : (isT ? ac : '#64748b') }}>{DAYS_SHORT_IT[i]}</span>
-                  <span className={cn("text-[10px] font-bold leading-tight", isT && "animate-pulse")} style={{ color: isT ? ac : '#e2e8f0' }}>{day.getDate()}</span>
+                <div 
+                  key={i} 
+                  className={cn("flex-1 flex flex-col items-center py-0.5 border-l border-slate-700/50 cursor-pointer", isT && "bg-slate-800/40")}
+                  onClick={() => onDateSelect && onDateSelect(day)}
+                  style={isSel && !isT ? { backgroundColor: ac + '20' } : undefined}
+                >
+                  <span className="text-[7px] font-semibold leading-tight" style={{ color: isWe ? '#ef4444' : (isSel ? ac : (isT ? ac : '#64748b')) }}>{DAYS_SHORT_IT[i]}</span>
+                  <span className={cn("text-[10px] font-bold leading-tight", isT && "animate-pulse")} style={{ color: isSel || isT ? ac : '#e2e8f0' }}>{day.getDate()}</span>
+                  {isSel && !isT && <div className="w-1 h-1 rounded-full mt-0.5" style={{ backgroundColor: ac }} />}
                 </div>
               );
             })}
@@ -215,9 +227,10 @@ export default function WeekView({ selectedDate, monthColor }) {
                     const dk = fk(day);
                     const isT = day.getTime() === today.getTime();
                     const isNC = isT && slot.label === nowSlot;
+                    const isSel = selectedDate && day.toDateString() === new Date(selectedDate).toDateString();
                     const its = items[dk]?.[slot.label] || [];
                     return (
-                      <div key={di} className={cn("flex-1 border-l border-slate-700/20 relative", isNC && "bg-white/5", isT && "bg-slate-800/20")}>
+                      <div key={di} className={cn("flex-1 border-l border-slate-700/20 relative", isNC && "bg-white/5", isT && "bg-slate-800/20", isSel && !isT && "bg-slate-700/15")}>
                         {isNC && <div className="absolute left-0 right-0 top-0 h-[2px] bg-white animate-pulse z-10" />}
                         {its.map((it, ii) => (
                           <div key={ii} className="absolute inset-x-0.5 top-0.5 bottom-0.5 rounded overflow-hidden flex items-center" style={{ backgroundColor: it.color+'30', borderLeft: `2px solid ${it.color}` }}>
