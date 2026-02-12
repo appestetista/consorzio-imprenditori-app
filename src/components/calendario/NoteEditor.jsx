@@ -8,7 +8,7 @@ import AudioRecorder from './AudioRecorder';
 import WhisperDictation from './WhisperDictation';
 import AttachmentViewer from './AttachmentViewer';
 
-export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave, inline = false, existingNote = null, onRegisterSave }) {
+export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave, onDelete, inline = false, existingNote = null, onRegisterSave }) {
   const [title, setTitle] = useState(existingNote?.title || '');
   const [content, setContent] = useState(existingNote?.content || '');
   const [attachments, setAttachments] = useState(existingNote?.attachments || []);
