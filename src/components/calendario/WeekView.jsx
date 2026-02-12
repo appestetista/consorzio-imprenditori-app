@@ -238,10 +238,9 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                 const isToday = dayDate.getTime() === today.getTime();
                 const isSlotDay = dayNum === slotDayNum;
                 
-                // Solo oggi è pieno col colore mese; slot selezionato → arancione pieno; il resto → bordo colore mese
-                const isFilled = isToday || isSlotDay;
-                const fillColor = isSlotDay ? '#f59e0b' : ac;
-                
+                // Oggi → pieno col colore mese; tutto il resto (slot, bar, click) → solo bordo arancione, mai pieno
+                const isSelected = isSlotDay || (selectedDayInBar && selectedDayInBar.day === dayNum && selectedDayInBar.month === refMonth && selectedDayInBar.year === refYear);
+
                 return (
                   <div 
                     key={dayNum} 
@@ -256,11 +255,14 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                     }}
                   >
                     {(() => {
-                      const isSelectedInBar = selectedDayInBar && selectedDayInBar.day === dayNum && selectedDayInBar.month === refMonth && selectedDayInBar.year === refYear;
-                      const borderColor = isSelectedInBar ? '#f59e0b' : (isFilled ? fillColor : (isWeekend ? '#ef444450' : ac + '40'));
-                      const borderWidth = isSelectedInBar ? '2px' : (isFilled ? '2px' : '1.5px');
-                      const numColor = isSelectedInBar && !isFilled ? '#f59e0b' : (isFilled ? '#ffffff' : '#e2e8f0');
-                      const letterColor = isSelectedInBar && !isFilled ? '#f59e0b' : (isWeekend ? '#ef4444' : (isFilled ? fillColor : '#64748b'));
+                      // Oggi: pieno col colore mese
+                      // Selezionato (bar o slot): bordo arancione, sfondo trasparente
+                      // Default: bordo tenue colore mese
+                      const bgColor = isToday ? ac : 'transparent';
+                      const borderColor = isSelected ? '#f59e0b' : (isToday ? ac : (isWeekend ? '#ef444450' : ac + '40'));
+                      const borderWidth = isSelected ? '2px' : (isToday ? '2px' : '1.5px');
+                      const numColor = isToday ? '#ffffff' : (isSelected ? '#f59e0b' : '#e2e8f0');
+                      const letterColor = isWeekend ? '#ef4444' : (isToday ? ac : (isSelected ? '#f59e0b' : '#64748b'));
                       return (
                         <>
                           <div 
@@ -268,9 +270,9 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                             style={{ 
                               width: '22px',
                               height: '22px',
-                              backgroundColor: isFilled ? fillColor : 'transparent',
+                              backgroundColor: bgColor,
                               border: `${borderWidth} solid ${borderColor}`,
-                              boxShadow: isFilled ? `0 0 8px ${fillColor}80` : (isSelectedInBar ? `0 0 6px #f59e0b80` : undefined)
+                              boxShadow: isToday ? `0 0 8px ${ac}80` : (isSelected ? `0 0 6px #f59e0b80` : undefined)
                             }}
                           >
                             <span className="text-[8px] font-bold leading-none" style={{ color: numColor }}>
