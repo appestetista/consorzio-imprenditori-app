@@ -302,39 +302,6 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
 
   return (
     <div className="bg-slate-900 w-full flex h-full overflow-hidden">
-      {/* Fascia verticale con data completa ruotata */}
-      <div 
-        className="flex flex-col items-center border-r border-slate-700"
-        style={{ 
-          backgroundColor: `color-mix(in srgb, ${currentMonthColor} 6%, #0f172a)`,
-          transition: 'background-color 1.2s ease',
-          minWidth: '32px'
-        }}
-      >
-        {/* Data ruotata */}
-        <div className="flex-1 flex items-center justify-center">
-          <div 
-            className="text-base font-bold whitespace-nowrap"
-            style={{ 
-              color: activeColor,
-              writingMode: 'vertical-rl',
-              transform: 'rotate(180deg)'
-            }}
-          >
-            {formattedFullDate}
-          </div>
-          {/* Freccetta verde per riepilogo note del giorno */}
-          {noteDelGiorno.length > 0 && (
-            <button
-              onClick={() => setShowDaySummary(true)}
-              className="mt-2 flex items-center justify-center animate-pulse"
-            >
-              <ChevronDown className="w-5 h-5" style={{ color: '#a3e635', filter: 'drop-shadow(0 0 4px #a3e635)' }} />
-            </button>
-          )}
-        </div>
-      </div>
-
       {/* Lista orari scrollabile verticale */}
       <div 
         ref={scrollRef}
