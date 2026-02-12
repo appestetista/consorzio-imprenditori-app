@@ -424,7 +424,7 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
                       <span style={{ color: cartelleMap[note.cartella_id].colore }}> / cartella {cartelleMap[note.cartella_id].nome}</span>
                     )}
                     {(note.content || note.checklist_items?.length > 0 || note.attachments?.length > 0) && (
-                      <span className="ml-1" style={{ color: note.cartella_id && cartelleMap[note.cartella_id] ? cartelleMap[note.cartella_id].colore + '99' : '#84cc16' }}>•••</span>
+                      <span className="ml-1" style={{ color: note.cartella_id && cartelleMap[note.cartella_id] ? cartelleMap[note.cartella_id].colore + '99' : currentMonthColor + '99' }}>•••</span>
                     )}
                   </span>
                   <button
