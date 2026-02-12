@@ -310,8 +310,8 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                   ›
                 </button>
               </div>
-              {/* Griglia 3x4 mesi */}
-              <div className="grid grid-cols-3 gap-0.5 p-1.5">
+              {/* Griglia 3x4 mesi — bottoni più grandi per touch */}
+              <div className="grid grid-cols-3 gap-1 p-2">
                 {MONTHS_IT.map((mName, mIdx) => {
                   const isCurrentMonth = mIdx === weekMainMonth;
                   const mColor = MONTH_COLORS[mIdx];
@@ -324,8 +324,8 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                         setShowMonthDropdown(false);
                       }}
                       className={cn(
-                        "px-1.5 py-1.5 rounded text-[9px] font-semibold transition-all text-center",
-                        isCurrentMonth ? "text-slate-900 font-bold" : "text-slate-400 hover:text-white hover:bg-slate-700"
+                        "px-2 py-2.5 rounded-md text-[10px] font-semibold transition-all text-center touch-manipulation",
+                        isCurrentMonth ? "text-slate-900 font-bold" : "text-slate-400 hover:text-white active:bg-slate-600 hover:bg-slate-700"
                       )}
                       style={isCurrentMonth ? { backgroundColor: mColor } : undefined}
                     >

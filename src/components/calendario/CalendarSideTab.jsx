@@ -291,13 +291,13 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                 }}
               >
                 {/* Pulsante Vista Giorno - per tornare alla vista giornaliera */}
-                <div className="flex-shrink-0 flex items-center justify-center py-0.5 border-b border-slate-700/50">
+                <div className="flex-shrink-0 flex items-center justify-center py-1 border-b border-slate-700/50">
                   <button
                     onClick={() => setShowWeekView(false)}
-                    className="px-3 py-0.5 rounded-full"
+                    className="px-8 py-1.5 rounded-full touch-manipulation active:scale-95 transition-transform"
                     style={{ backgroundColor: weekViewColor || currentMonthColor || '#a3e635' }}
                   >
-                    <span className="text-[9px] text-slate-900 font-bold uppercase">
+                    <span className="text-[10px] text-slate-900 font-bold uppercase">
                       ▼ Giorno
                     </span>
                   </button>
