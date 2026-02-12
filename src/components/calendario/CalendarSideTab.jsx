@@ -487,7 +487,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
         </div>
       )}
 
-      {/* Linguetta CHIUDI - unico pulsante per vista giornaliera e settimanale */}
+      {/* Semicerchio CHIUDI - per vista giornaliera e settimanale */}
       {(isOpen || showWeekView) && !showWeekNoteEditor && (
         <button
           onClick={() => {
@@ -495,23 +495,21 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
             setIsOpen(false);
             setShowTimePicker(false);
           }}
-          className={cn(
-            "fixed right-0 z-[70] transition-all duration-300",
-            "bg-gradient-to-l from-lime-400 to-lime-500 text-slate-900",
-            "rounded-l-xl shadow-lg shadow-lime-400/20",
-            "flex items-center justify-center",
-            "hover:pr-2 active:scale-95"
-          )}
+          className="fixed right-0 z-[70] transition-all duration-300 active:scale-90 touch-manipulation"
           style={{
-            width: '34px',
-            height: '140px',
-            writingMode: 'vertical-rl',
-            textOrientation: 'mixed',
+            width: '32px',
+            height: '64px',
             top: '12%',
-            transform: 'translateY(-50%)'
+            transform: 'translateY(-50%)',
+            background: 'linear-gradient(to left, #a3e635, #84cc16)',
+            borderRadius: '64px 0 0 64px',
+            boxShadow: '0 0 16px rgba(163, 230, 53, 0.4), -2px 0 8px rgba(163, 230, 53, 0.2)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
         >
-          <span className="text-[13px] font-bold tracking-wider leading-none whitespace-nowrap">CHIUDI</span>
+          <X className="w-5 h-5 text-slate-900" strokeWidth={3} />
         </button>
       )}
             </>
