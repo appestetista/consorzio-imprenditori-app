@@ -129,6 +129,8 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
 
   const cm = {}; cartelle.forEach(c => { cm[c.id] = c; });
   const items = {};
+  // Mappa note per data per accesso diretto (per NoteEditor existingNote)
+  const notesByDateAndTime = {};
   weekDays.forEach(d => { items[fk(d)] = {}; });
   notes.forEach(n => {
     if (!n.data || !n.time) return;
@@ -137,6 +139,9 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     if (!items[n.data]) items[n.data] = {};
     if (!items[n.data][sk]) items[n.data][sk] = [];
     items[n.data][sk].push({ title: n.title, color: n.cartella_id && cm[n.cartella_id] ? cm[n.cartella_id].colore : '#a3e635' });
+    // Mappa per NoteEditor
+    if (!notesByDateAndTime[n.data]) notesByDateAndTime[n.data] = {};
+    notesByDateAndTime[n.data][sk] = n;
   });
   files.forEach(f => {
     if (!f.data || !f.time) return;
@@ -146,6 +151,61 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     if (!items[f.data][sk]) items[f.data][sk] = [];
     items[f.data][sk].push({ title: f.titolo, color: cm[f.cartella_id]?.colore || '#64748b' });
   });
+
+  // Mutation salva nota dalla WeekView
+  const saveNoteMutation = useMutation({
+    mutationFn: async (noteData) => {
+      const existingNote = notesByDateAndTime[noteData.dateStr]?.[noteData.time];
+      if (existingNote) {
+        return base44.entities.Nota.update(existingNote.id, {
+          title: noteData.title,
+          content: noteData.content || '',
+          attachments: noteData.attachments || [],
+          checklist_items: noteData.checklistItems || [],
+          cartella_id: noteData.cartella_id || null
+        });
+      } else {
+        return base44.entities.Nota.create({
+          user_email: userEmail,
+          data: noteData.dateStr,
+          time: noteData.time,
+          title: noteData.title,
+          content: noteData.content || '',
+          attachments: noteData.attachments || [],
+          checklist_items: noteData.checklistItems || [],
+          cartella_id: noteData.cartella_id || null
+        });
+      }
+    },
+    onSuccess: () => {
+      // Invalida sia le query della week view che della day view
+      queryClient.invalidateQueries({ queryKey: ['note-week'] });
+      queryClient.invalidateQueries({ queryKey: ['note'] });
+    }
+  });
+
+  const handleSlotClick = (dayStr, timeLabel) => {
+    // Se clicco sullo stesso slot già aperto: salva e chiudi
+    if (selectedSlot?.date === dayStr && selectedSlot?.time === timeLabel && showNoteEditor) {
+      if (noteEditorSaveRef.current) noteEditorSaveRef.current();
+      setShowNoteEditor(false);
+      setSelectedSlot(null);
+      return;
+    }
+    setSelectedSlot({ date: dayStr, time: timeLabel });
+    setShowNoteEditor(true);
+  };
+
+  const handleNoteSave = (noteData) => {
+    if (!selectedSlot) return;
+    saveNoteMutation.mutate({
+      ...noteData,
+      dateStr: selectedSlot.date,
+      time: selectedSlot.time
+    });
+    setShowNoteEditor(false);
+    setSelectedSlot(null);
+  };
 
   // Colore basato sul mese della settimana visualizzata (mese del giovedì = mese predominante)
   const weekMainMonth = weekDays[3].getMonth();
