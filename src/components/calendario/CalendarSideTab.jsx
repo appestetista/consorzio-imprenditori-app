@@ -462,9 +462,19 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
               </div>
             )}
 
-      {/* Popup riepilogo note del mese */}
+      {/* Popup riepilogo note del mese - ruotato 90° come la week view */}
       {monthNotesPopup && (
-        <div className="fixed inset-0 z-[75]">
+        <div 
+          className="fixed inset-0 z-[75]"
+          style={{
+            width: '100vh',
+            height: '100vw',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%) rotate(90deg)',
+            transformOrigin: 'center center'
+          }}
+        >
           <MonthNotesSummaryPopup
               notes={allUserNotes.filter(n => {
                 if (!n.data) return false;
