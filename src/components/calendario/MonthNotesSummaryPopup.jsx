@@ -131,6 +131,44 @@ export default function MonthNotesSummaryPopup({ notes, cartelleMap, monthIndex,
             {Object.values(completedNotes).filter(Boolean).length} / {sortedNotes.length} completate
           </span>
         </div>
+
+        {/* Popup conferma eliminazione */}
+        {deleteConfirm && (
+          <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/70" onClick={() => setDeleteConfirm(null)}>
+            <div className="bg-slate-800 rounded-xl p-5 w-72 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+              <h3 className="text-white font-semibold text-base mb-2">⚠️ Eliminare nota?</h3>
+              <p className="text-slate-300 text-sm mb-1">
+                <span className="font-semibold text-lime-400">{deleteConfirm.title}</span>
+              </p>
+              {deleteConfirm.cartella_id && cartelleMap?.[deleteConfirm.cartella_id] && (
+                <p className="text-slate-400 text-xs mb-2 flex items-center gap-1">
+                  <Folder className="w-3 h-3" style={{ color: cartelleMap[deleteConfirm.cartella_id].colore }} />
+                  Resterà nella cartella "{cartelleMap[deleteConfirm.cartella_id].nome}"
+                </p>
+              )}
+              <p className="text-slate-500 text-[11px] mb-4">
+                La nota verrà rimossa dal calendario.{deleteConfirm.cartella_id ? ' I file nella cartella non verranno toccati.' : ''}
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setDeleteConfirm(null)}
+                  className="flex-1 px-4 py-2 rounded-lg bg-slate-600 hover:bg-slate-500 text-white text-sm"
+                >
+                  Annulla
+                </button>
+                <button
+                  onClick={() => {
+                    if (onDeleteNote) onDeleteNote(deleteConfirm);
+                    setDeleteConfirm(null);
+                  }}
+                  className="flex-1 px-4 py-2 rounded-lg bg-red-500 hover:bg-red-400 text-white text-sm font-semibold"
+                >
+                  Elimina
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
