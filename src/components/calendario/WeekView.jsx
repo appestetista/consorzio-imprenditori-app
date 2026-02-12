@@ -54,6 +54,8 @@ export default function WeekView({ selectedDate, monthColor }) {
   const [userEmail, setUserEmail] = useState(null);
   const [weekOffset, setWeekOffset] = useState(0);
   const scrollRef = useRef(null);
+  const headerRef = useRef(null);
+  const swipeRef = useRef({ startX: null, startY: null, swiping: false });
 
   useEffect(() => {
     const loadUser = async () => {
