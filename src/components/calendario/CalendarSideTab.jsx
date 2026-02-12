@@ -312,34 +312,8 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                   pointerEvents: 'auto'
                 }}
               >
-                {/* Riga 1: Vista giornaliera al centro + CHIUDI a destra */}
-                <div className="flex items-center justify-between px-3" style={{ height: '32px' }}>
-                  <div style={{ width: '60px' }} /> {/* spacer sinistro per bilanciare */}
-                  <button
-                    onClick={() => {
-                      const targetDate = selectedDate 
-                        ? new Date(selectedDate) 
-                        : new Date();
-                      targetDate.setHours(0,0,0,0);
-                      handleDateSelect(targetDate);
-                      setShowWeekView(false);
-                      setIsOpen(true);
-                      setShowTimePicker(true);
-                      setTimeout(() => {
-                        if (goToTodayRef.scrollToDate) {
-                          goToTodayRef.scrollToDate(targetDate);
-                        }
-                      }, 200);
-                    }}
-                    className="px-3 py-1 rounded-md touch-manipulation active:scale-90 transition-all animate-pulse"
-                    style={{ 
-                      backgroundColor: MONTH_COLORS[weekViewMonth],
-                      color: '#0f172a'
-                    }}
-                  >
-                    <span className="text-[9px] font-bold uppercase">Vista giornaliera</span>
-                  </button>
-                  {/* Pulsante CHIUDI */}
+                {/* Riga 1: Solo CHIUDI a destra */}
+                <div className="flex items-center justify-end px-3" style={{ height: '32px' }}>
                   <button
                     onClick={() => {
                       setShowWeekView(false);
