@@ -160,7 +160,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
 
   return (
     <>
-      {/* Linguetta DATA - in sovraimpressione sul lato destro */}
+      {/* Linguetta MIO CALENDARIO - in sovraimpressione sul lato destro */}
       <button
         onClick={toggleCalendar}
         className={cn(
@@ -173,14 +173,14 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
         )}
         style={{
           width: '32px',
-          height: '80px',
+          height: '110px',
           writingMode: 'vertical-rl',
           textOrientation: 'mixed'
         }}
       >
         <div className="flex items-center gap-1 rotate-180">
           <Calendar className="w-4 h-4" />
-          <span className="text-xs font-bold tracking-wider">DATA</span>
+          <span className="text-[10px] font-bold tracking-wider leading-none">MIO CALENDARIO</span>
         </div>
       </button>
 
