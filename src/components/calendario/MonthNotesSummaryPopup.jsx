@@ -7,7 +7,7 @@ const MONTH_COLORS = [
 ];
 const MONTHS_FULL = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
 
-export default function MonthNotesSummaryPopup({ notes, cartelleMap, monthIndex, year, onClose, onNoteClick }) {
+export default function MonthNotesSummaryPopup({ notes, cartelleMap, monthIndex, year, onClose, onNoteClick, onDeleteNote }) {
   const [completedNotes, setCompletedNotes] = useState({});
   const mc = MONTH_COLORS[monthIndex];
 
