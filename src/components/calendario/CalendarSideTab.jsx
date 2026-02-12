@@ -8,6 +8,7 @@ import VerticalTimePicker from './VerticalTimePicker';
 import FatturatoBarra from './FatturatoBarra';
 import WeekView from './WeekView';
 import NoteEditor from './NoteEditor';
+import MonthBar from './MonthBar';
 
 
 const MONTH_COLORS = [
