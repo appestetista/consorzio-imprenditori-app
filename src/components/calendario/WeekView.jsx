@@ -282,7 +282,6 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
             })}
           </div>
         </div>
-      </div>
     </div>
   );
 }
