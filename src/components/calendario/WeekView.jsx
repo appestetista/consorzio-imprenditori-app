@@ -366,8 +366,8 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                         style={{ 
                           width: '14px', 
                           height: '14px', 
-                          color: isDropOpen ? '#22d3ee' : (dayAllNotes.length > 0 ? ac : '#64748b'),
-                          filter: isDropOpen ? 'drop-shadow(0 0 4px #22d3ee) drop-shadow(0 0 8px #22d3ee80)' : 'none'
+                          color: isDropOpen ? '#22d3ee' : (dayAllNotes.length > 0 ? '#a3e635' : '#64748b'),
+                          filter: isDropOpen ? 'drop-shadow(0 0 4px #22d3ee) drop-shadow(0 0 8px #22d3ee80)' : (dayAllNotes.length > 0 ? 'drop-shadow(0 0 3px #a3e63580)' : 'none')
                         }} 
                       />
                     </button>
