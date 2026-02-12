@@ -366,7 +366,11 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        setOpenDropdownDay(isDropOpen ? null : i);
+                        if (dayAllNotes.length > 0) {
+                          setDaySummaryDate(dk);
+                        } else {
+                          setOpenDropdownDay(isDropOpen ? null : i);
+                        }
                       }}
                       className="absolute bottom-0 right-0 z-20 p-0.5 touch-manipulation active:scale-90"
                     >
