@@ -34,6 +34,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
     // NoteEditor dalla WeekView - orientamento normale
     const [weekNoteSlot, setWeekNoteSlot] = useState(null); // { date, time, existingNote }
     const [showWeekNoteEditor, setShowWeekNoteEditor] = useState(false);
+    const [weekMonthDropdown, setWeekMonthDropdown] = useState(null); // { currentMonth, currentYear, onSelectMonth }
     const weekNoteEditorSaveRef = useRef(null);
     const queryClient = useQueryClient();
   const goToTodayRef = useRef(null);
@@ -318,6 +319,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                       }, 100);
                     }}
                     onSlotClick={handleWeekSlotClick}
+                    onRequestMonthDropdown={(info) => setWeekMonthDropdown(info)}
                   />
                 </div>
               </div>
@@ -377,6 +379,19 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
             monthColor={currentMonthColor}
           />
         </div>
+      )}
+
+      {/* Dropdown mesi della WeekView — renderizzato QUI, fuori dal container ruotato, in orientamento normale */}
+      {weekMonthDropdown && (
+        <WeekMonthDropdown
+          currentMonth={weekMonthDropdown.currentMonth}
+          currentYear={weekMonthDropdown.currentYear}
+          onSelectMonth={(year, month) => {
+            weekMonthDropdown.onSelectMonth(year, month);
+            setWeekMonthDropdown(null);
+          }}
+          onClose={() => setWeekMonthDropdown(null)}
+        />
       )}
 
       {/* Overlay scuro quando il calendario è aperto */}
