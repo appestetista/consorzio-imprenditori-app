@@ -179,10 +179,9 @@ export default function WeekView({ selectedDate, monthColor }) {
       </div>
 
       {/* HEADER GIORNI in alto - orizzontale */}
-      {/* Struttura: [colonna ore vuota] [7 colonne giorno] */}
       <div className="flex flex-shrink-0 border-b border-slate-700">
-        {/* Spazio per la colonna ore a sinistra */}
-        <div className="flex-shrink-0" style={{ width: '46px' }} />
+        {/* Spazio per la colonna ore a sinistra - più larga */}
+        <div className="flex-shrink-0" style={{ width: '62px' }} />
         
         {/* 7 colonne giorno */}
         {weekDays.map((day, dayIdx) => {
