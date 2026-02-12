@@ -211,31 +211,44 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
         )}
       </div>
 
-      {/* Vista settimanale - sale dal basso con animazione lenta */}
+      {/* Vista settimanale - sale dal basso, contenuto ruotato 90° per landscape */}
             <div 
               className={cn(
-                "fixed inset-0 z-[65] bg-slate-900 flex flex-col transition-transform duration-700 ease-in-out",
+                "fixed inset-0 z-[65] bg-slate-900 transition-transform duration-700 ease-in-out",
                 showWeekView ? "translate-y-0" : "translate-y-full"
               )}
             >
-              {/* Pulsante Settimana in alto - chiude la vista */}
-              <div className="flex-shrink-0 flex items-center justify-center py-2 border-b border-slate-700">
-                <button
-                  onClick={() => setShowWeekView(false)}
-                  className="px-4 py-1 rounded-full"
-                  style={{ backgroundColor: currentMonthColor || '#a3e635' }}
-                >
-                  <span className="text-[11px] text-slate-900 font-bold uppercase">
-                    ▼ Settimana
-                  </span>
-                </button>
-              </div>
-              {/* WeekView occupa tutto il resto */}
-              <div className="flex-1 min-h-0">
-                <WeekView
-                  selectedDate={selectedDate}
-                  monthColor={currentMonthColor}
-                />
+              {/* Contenitore ruotato: tutto il contenuto è girato di 90° in senso orario */}
+              <div 
+                className="absolute flex flex-col bg-slate-900"
+                style={{
+                  width: '100vh',
+                  height: '100vw',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%) rotate(90deg)',
+                  transformOrigin: 'center center'
+                }}
+              >
+                {/* Pulsante Settimana - chiude la vista */}
+                <div className="flex-shrink-0 flex items-center justify-center py-1.5 border-b border-slate-700">
+                  <button
+                    onClick={() => setShowWeekView(false)}
+                    className="px-4 py-1 rounded-full"
+                    style={{ backgroundColor: currentMonthColor || '#a3e635' }}
+                  >
+                    <span className="text-[11px] text-slate-900 font-bold uppercase">
+                      ▼ Settimana
+                    </span>
+                  </button>
+                </div>
+                {/* WeekView occupa tutto il resto */}
+                <div className="flex-1 min-h-0">
+                  <WeekView
+                    selectedDate={selectedDate}
+                    monthColor={currentMonthColor}
+                  />
+                </div>
               </div>
             </div>
 
