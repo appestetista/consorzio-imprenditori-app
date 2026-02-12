@@ -29,8 +29,8 @@ function fk(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,
 
 export default function WeekView({ selectedDate, monthColor, onMonthColorChange, onDateSelect, onSlotClick }) {
   const [userEmail, setUserEmail] = useState(null);
-  const [weekOffset, setWeekOffset] = useState(0);
-  const [monthOffset, setMonthOffset] = useState(0); // scorrimento mesi dalla label
+  // viewDate è la data di riferimento per la settimana visualizzata
+  const [viewDate, setViewDate] = useState(() => selectedDate ? new Date(selectedDate) : new Date());
   const [dragX, setDragX] = useState(0);
   const [animating, setAnimating] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState(null);
@@ -42,12 +42,19 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
 
   useEffect(() => { base44.auth.me().then(u => setUserEmail(u?.email)).catch(()=>{}); }, []);
 
+  // Sync viewDate quando selectedDate cambia dall'esterno (es. dal calendario orizzontale)
+  useEffect(() => {
+    if (selectedDate) {
+      setViewDate(new Date(selectedDate));
+    }
+  }, [selectedDate]);
+
   useEffect(() => {
     if (!scrollRef.current) return;
     const now = new Date();
     const idx = now.getHours() * 12 + Math.floor(now.getMinutes() / 5);
     setTimeout(() => { if (scrollRef.current) scrollRef.current.scrollTop = Math.max(0, (idx - 5) * 26); }, 100);
-  }, [weekOffset]);
+  }, [viewDate]);
 
   // Touch — il contenuto è ruotato 90° CW con CSS transform.
   // Fisicamente: dito su/giù → clientY cambia, ma nel mondo ruotato questo corrisponde all'asse orizzontale (giorni/swipe)
@@ -90,7 +97,11 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
         setTimeout(() => {
           setAnimating(false);
           setDragX(0);
-          setWeekOffset(w => w + dir);
+          setViewDate(prev => {
+            const d = new Date(prev);
+            d.setDate(d.getDate() + dir * 7);
+            return d;
+          });
         }, 280);
       } else {
         setAnimating(true);
@@ -107,18 +118,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     }
   };
 
-  // Calcolo base: se c'è monthOffset usiamo il primo lunedì del mese target
-  const baseForWeek = (() => {
-    if (monthOffset !== 0) {
-      const now = selectedDate ? new Date(selectedDate) : new Date();
-      const targetMonth = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
-      // Trova il primo lunedì che contiene il 1° del mese
-      return targetMonth;
-    }
-    return selectedDate ? new Date(selectedDate) : new Date();
-  })();
-  const off = new Date(baseForWeek); off.setDate(off.getDate() + weekOffset * 7);
-  const weekDays = getWeekDays(off);
+  const weekDays = getWeekDays(viewDate);
   const today = new Date(); today.setHours(0,0,0,0);
   const s0 = fk(weekDays[0]), s6 = fk(weekDays[6]);
 
@@ -232,8 +232,12 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
       setTimeout(() => {
         setMonthAnimating(false);
         setMonthDragX(0);
-        setMonthOffset(m => m + dir);
-        setWeekOffset(0); // reset settimana quando cambio mese
+        // Salto al mese: calcola il 1° del mese target partendo dal mese corrente della settimana
+        setViewDate(prev => {
+          const curMonth = getWeekDays(prev)[3].getMonth();
+          const curYear = getWeekDays(prev)[3].getFullYear();
+          return new Date(curYear, curMonth + dir, 1);
+        });
       }, 200);
     } else {
       setMonthAnimating(true);
