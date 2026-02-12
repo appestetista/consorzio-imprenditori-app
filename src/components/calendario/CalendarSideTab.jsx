@@ -462,6 +462,31 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
               </div>
             )}
 
+      {/* Popup riepilogo note del mese */}
+      {monthNotesPopup && (
+        <div className="fixed inset-0 z-[75]">
+          <MonthNotesSummaryPopup
+            notes={allUserNotes.filter(n => {
+              if (!n.data) return false;
+              const [y, m] = n.data.split('-').map(Number);
+              return y === monthNotesPopup.year && (m - 1) === monthNotesPopup.monthIndex;
+            })}
+            cartelleMap={cartelleMapForPopup}
+            monthIndex={monthNotesPopup.monthIndex}
+            year={monthNotesPopup.year}
+            onClose={() => setMonthNotesPopup(null)}
+            onNoteClick={(note) => {
+              setMonthNotesPopup(null);
+              if (note.data && note.time) {
+                const [h, m] = (note.time || '00:00').split(':').map(Number);
+                const sk = `${String(h).padStart(2,'0')}:${String(Math.floor(m/5)*5).padStart(2,'0')}`;
+                handleWeekSlotClick({ date: note.data, time: sk, existingNote: note });
+              }
+            }}
+          />
+        </div>
+      )}
+
       {/* Linguetta CHIUDI - unico pulsante per vista giornaliera e settimanale */}
       {(isOpen || showWeekView) && !showWeekNoteEditor && (
         <button
