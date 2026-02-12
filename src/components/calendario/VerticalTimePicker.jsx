@@ -300,7 +300,7 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
 
   return (
     <div className="bg-slate-900 w-full flex h-full overflow-hidden">
-      {/* Fascia verticale con data completa ruotata + X chiudi */}
+      {/* Fascia verticale con data completa ruotata */}
       <div 
         className="flex flex-col items-center border-r border-slate-700"
         style={{ 
@@ -309,13 +309,6 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
           minWidth: '32px'
         }}
       >
-        {/* Pulsante chiudi in alto */}
-        <button
-          onClick={onClose}
-          className="flex-shrink-0 w-7 h-7 flex items-center justify-center mt-2 mb-1 rounded-full hover:bg-slate-700/50 active:bg-slate-700"
-        >
-          <X className="w-4 h-4" style={{ color: activeColor }} />
-        </button>
         {/* Data ruotata */}
         <div className="flex-1 flex items-center justify-center">
           <div 
