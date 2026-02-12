@@ -36,6 +36,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [highlightedDay, setHighlightedDay] = useState(null); // { day, month, year } — unico giorno con bordo arancione
   const [openDropdownDay, setOpenDropdownDay] = useState(null); // indice giorno settimana con dropdown aperto
+  const [strikethroughItems, setStrikethroughItems] = useState({}); // { "dateKey-time-idx": true }
   
   const scrollRef = useRef(null);
   const touchRef = useRef({ startX:0, startY:0, lastX:0, lastY:0, lastTime:0, velScroll:0, scrollTop0:0, dir:null, animFrame:null });
