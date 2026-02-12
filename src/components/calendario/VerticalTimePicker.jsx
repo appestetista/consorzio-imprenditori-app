@@ -514,6 +514,13 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
               selectedTime={selectedTime}
               onClose={() => { setShowNoteEditor(false); setSelectedTime(null); }}
               onSave={handleNoteSave}
+              onDelete={(note) => {
+                if (note?.id) {
+                  deleteNoteMutation.mutate(note.id);
+                }
+                setShowNoteEditor(false);
+                setSelectedTime(null);
+              }}
               inline={true}
               existingNote={savedNotes[selectedTime] ? {
                 ...savedNotes[selectedTime],
