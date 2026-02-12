@@ -410,31 +410,31 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
             )}
 
       {/* Linguetta CHIUDI dentro il calendario aperto - per chiuderlo */}
-      {isOpen && (
-        <button
-          onClick={() => {
-            setIsOpen(false);
-            setShowTimePicker(false);
-          }}
-          className={cn(
-            "fixed right-0 z-[70] transition-all duration-300",
-            "bg-gradient-to-l from-lime-400 to-lime-500 text-slate-900",
-            "rounded-l-xl shadow-lg shadow-lime-400/20",
-            "flex items-center justify-center",
-            "hover:pr-2 active:scale-95"
-          )}
-          style={{
-            width: '28px',
-            height: '130px',
-            writingMode: 'vertical-rl',
-            textOrientation: 'mixed',
-            top: '55%',
-            transform: 'translateY(-50%)'
+        {isOpen && !showWeekView && (
+          <button
+            onClick={() => {
+              setIsOpen(false);
+              setShowTimePicker(false);
             }}
-            >
-            <span className="text-[11px] font-bold tracking-wider leading-none whitespace-nowrap">CHIUDI</span>
-            </button>
+            className={cn(
+              "fixed right-0 z-[70] transition-all duration-300",
+              "bg-gradient-to-l from-lime-400 to-lime-500 text-slate-900",
+              "rounded-l-xl shadow-lg shadow-lime-400/20",
+              "flex items-center justify-center",
+              "hover:pr-2 active:scale-95"
             )}
+            style={{
+              width: '28px',
+              height: '130px',
+              writingMode: 'vertical-rl',
+              textOrientation: 'mixed',
+              top: '55%',
+              transform: 'translateY(-50%)'
+              }}
+              >
+              <span className="text-[11px] font-bold tracking-wider leading-none whitespace-nowrap">CHIUDI</span>
+              </button>
+              )}
 
       {/* Linguetta CHIUDI nella vista settimanale */}
       {showWeekView && !showWeekNoteEditor && (
