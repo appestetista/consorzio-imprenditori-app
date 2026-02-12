@@ -9,6 +9,7 @@ const MONTHS_FULL = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Lu
 
 export default function MonthNotesSummaryPopup({ notes, cartelleMap, monthIndex, year, onClose, onNoteClick, onDeleteNote }) {
   const [completedNotes, setCompletedNotes] = useState({});
+  const [deleteConfirm, setDeleteConfirm] = useState(null); // note id
   const mc = MONTH_COLORS[monthIndex];
 
   // Ordina note per data e poi per orario
