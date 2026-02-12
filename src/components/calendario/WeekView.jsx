@@ -342,7 +342,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                             if (onDateSelect) onDateSelect(day);
                           }}
                         >
-                          <span className={cn("text-[9px] font-bold leading-tight tracking-wide", isT && !isSel && !isHL && "animate-pulse")} style={{ color: isWe ? '#ef4444' : (isHL ? '#f59e0b' : (isSel ? ac : (isT ? ac : '#94a3b8'))) }}>{DAYS_SHORT_IT[i]}</span>
+                          <span className={cn("text-[9px] font-bold leading-tight tracking-wide", isT && "animate-pulse")} style={{ color: isWe ? '#ef4444' : (isT ? '#ffffff' : (isHL ? '#f59e0b' : (isSel ? ac : '#94a3b8'))) }}>{DAYS_SHORT_IT[i]}</span>
                           <div 
                             className={cn("flex items-center justify-center rounded-full mt-0.5", isT && "animate-pulse")}
                             style={isT ? {
