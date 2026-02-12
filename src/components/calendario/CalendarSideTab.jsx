@@ -187,7 +187,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
       {/* Pannello calendario - scorre da destra a sinistra orizzontalmente */}
       <div
         className={cn(
-          "fixed inset-0 transition-transform duration-500 ease-in-out",
+          "fixed inset-0 transition-transform duration-[800ms] ease-[cubic-bezier(0.25,0.1,0.25,1)]",
           "bg-slate-900 shadow-2xl",
           isOpen ? "translate-x-0" : "translate-x-full",
           "z-[55]"
