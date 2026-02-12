@@ -397,11 +397,11 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
               </div>
             )}
 
-      {/* Pannello orari - copre TUTTO lo spazio sopra il calendario fino in fondo */}
+      {/* Pannello orari - dentro il pannello calendario, sopra la barra calendario */}
             {isOpen && showTimePicker && selectedDate && (
         <div 
-          className="fixed inset-0 z-[60] bg-slate-900 flex flex-col"
-          style={{ bottom: showFatturato ? '340px' : '220px' }}
+          className="fixed z-[60] bg-slate-900 flex flex-col"
+          style={{ top: 0, left: 0, right: '32px', bottom: showFatturato ? '340px' : '220px' }}
         >
           <VerticalTimePicker 
             selectedDate={selectedDate}
