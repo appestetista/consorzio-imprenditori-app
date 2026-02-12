@@ -172,16 +172,13 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           isOpen ? "opacity-0 pointer-events-none" : "opacity-100"
         )}
         style={{
-          width: '32px',
-          height: '110px',
+          width: '28px',
+          height: '130px',
           writingMode: 'vertical-rl',
           textOrientation: 'mixed'
         }}
       >
-        <div className="flex items-center gap-1 rotate-180">
-          <Calendar className="w-4 h-4" />
-          <span className="text-[10px] font-bold tracking-wider leading-none">MIO CALENDARIO</span>
-        </div>
+        <span className="text-[9px] font-bold tracking-wider leading-none rotate-180 whitespace-nowrap">MIO CALENDARIO</span>
       </button>
 
       {/* Pannello calendario - scorre da destra a sinistra orizzontalmente */}
