@@ -34,12 +34,10 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   const [dragX, setDragX] = useState(0);
   const [animating, setAnimating] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState(null);
-  const [monthDragX, setMonthDragX] = useState(0);
-  const [monthAnimating, setMonthAnimating] = useState(false);
   const [showMonthDropdown, setShowMonthDropdown] = useState(false);
   const scrollRef = useRef(null);
   const touchRef = useRef({ startX:0, startY:0, lastX:0, lastY:0, lastTime:0, velScroll:0, scrollTop0:0, dir:null, animFrame:null });
-  const monthTouchRef = useRef({ startX: 0, startY: 0, active: false });
+
 
   useEffect(() => { base44.auth.me().then(u => setUserEmail(u?.email)).catch(()=>{}); }, []);
 
@@ -217,64 +215,15 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     transition: 'background-color 1.2s ease'
   };
 
-  // Touch handlers per label mese (swipe orizzontale per cambiare mese)
-  const onMonthTS = (e) => {
-    e.stopPropagation();
-    const t = e.touches[0];
-    monthTouchRef.current = { startX: t.clientY, startY: t.clientX, active: true };
-    setMonthAnimating(false);
-  };
-  const onMonthTM = (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-    if (!monthTouchRef.current.active) return;
-    const t = e.touches[0];
-    // Nel mondo ruotato 90°: clientY fisico = asse orizzontale visivo
-    setMonthDragX(t.clientY - monthTouchRef.current.startX);
-  };
-  const onMonthTE = (e) => {
-    e.stopPropagation();
-    if (!monthTouchRef.current.active) return;
-    monthTouchRef.current.active = false;
-    const THRESHOLD = 40;
-    if (Math.abs(monthDragX) > THRESHOLD) {
-      const dir = monthDragX > 0 ? -1 : 1; // swipe sinistra = mese avanti
-      setMonthAnimating(true);
-      setMonthDragX(monthDragX > 0 ? 200 : -200);
-      setTimeout(() => {
-        setMonthAnimating(false);
-        setMonthDragX(0);
-        // Salto al mese: calcola il 1° del mese target partendo dal mese corrente della settimana
-        setViewDate(prev => {
-          const curMonth = getWeekDays(prev)[3].getMonth();
-          const curYear = getWeekDays(prev)[3].getFullYear();
-          return new Date(curYear, curMonth + dir, 1);
-        });
-      }, 200);
-    } else {
-      setMonthAnimating(true);
-      setMonthDragX(0);
-      setTimeout(() => setMonthAnimating(false), 200);
-    }
-  };
-
-  const monthSwipeStyle = {
-    transform: `translateX(${monthDragX}px)`,
-    transition: monthAnimating ? 'transform 0.2s ease, opacity 0.2s ease' : 'none',
-    opacity: monthAnimating && Math.abs(monthDragX) > 100 ? 0 : 1,
-  };
+  // Il mese si aggiorna automaticamente in base alla settimana visualizzata (weekMainMonth)
 
   return (
     <div className="flex flex-col h-full overflow-hidden" style={bgStyle}>
-        {/* Label mese — swipe per cambiare mese + dropdown */}
+        {/* Label mese — si aggiorna automaticamente con la settimana + dropdown */}
         <div 
           className="flex-shrink-0 flex items-center justify-center px-2 py-1 border-b border-slate-700/50 select-none relative"
-          style={{ touchAction: 'none' }}
-          onTouchStart={onMonthTS}
-          onTouchMove={onMonthTM}
-          onTouchEnd={onMonthTE}
         >
-          <div style={monthSwipeStyle} className="flex items-center gap-1">
+          <div className="flex items-center gap-1">
             <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: ac }}>{wLabel}</span>
             <button 
               onClick={(e) => { e.stopPropagation(); setShowMonthDropdown(!showMonthDropdown); }}
