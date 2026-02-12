@@ -11,7 +11,23 @@ const MONTH_COLORS = [
   '#f97316', '#ef4444', '#06b6d4', '#a855f7', '#6366f1', '#0ea5e9'
 ];
 
-const HOURS = Array.from({ length: 24 }, (_, i) => i);
+// Genera slot ogni 5 minuti per 24 ore (come VerticalTimePicker)
+function generateTimeSlots() {
+  const slots = [];
+  for (let h = 0; h < 24; h++) {
+    for (let m = 0; m < 60; m += 5) {
+      slots.push({
+        hour: h,
+        minute: m,
+        label: `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`,
+        isFullHour: m === 0
+      });
+    }
+  }
+  return slots;
+}
+
+const TIME_SLOTS = generateTimeSlots();
 
 function getWeekDays(referenceDate) {
   const d = new Date(referenceDate);
@@ -33,7 +49,7 @@ function formatDateKey(date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }
 
-export default function WeekView({ selectedDate, onClose, monthColor }) {
+export default function WeekView({ selectedDate, monthColor }) {
   const [userEmail, setUserEmail] = useState(null);
   const [weekOffset, setWeekOffset] = useState(0);
   const scrollRef = useRef(null);
@@ -46,17 +62,19 @@ export default function WeekView({ selectedDate, onClose, monthColor }) {
     loadUser();
   }, []);
 
-  // Scroll all'ora corrente all'apertura
+  // Scroll all'ora corrente
   useEffect(() => {
     if (scrollRef.current) {
       const now = new Date();
-      const hourWidth = 60; // larghezza minima per ora
-      const scrollTo = Math.max(0, (now.getHours() - 2) * hourWidth);
+      // Ogni slot = 5 min, 12 slot per ora
+      const slotIndex = now.getHours() * 12 + Math.floor(now.getMinutes() / 5);
+      const slotWidth = 44; // minWidth di ogni colonna slot
+      const scrollTo = Math.max(0, (slotIndex - 3) * slotWidth);
       setTimeout(() => {
         scrollRef.current?.scrollTo({ left: scrollTo, behavior: 'smooth' });
-      }, 200);
+      }, 300);
     }
-  }, []);
+  }, [weekOffset]);
 
   const baseDate = selectedDate ? new Date(selectedDate) : new Date();
   const offsetDate = new Date(baseDate);
@@ -98,20 +116,19 @@ export default function WeekView({ selectedDate, onClose, monthColor }) {
   const cartelleMap = {};
   cartelle.forEach(c => { cartelleMap[c.id] = c; });
 
-  // Mappa items per data+ora
-  const itemsByDayHour = {};
-  weekDays.forEach(d => {
-    const key = formatDateKey(d);
-    itemsByDayHour[key] = {};
-  });
+  // Mappa items per data + timeSlotLabel (es. "07:05")
+  const itemsByDayTime = {};
+  weekDays.forEach(d => { itemsByDayTime[formatDateKey(d)] = {}; });
 
   noteSettimana.forEach(nota => {
     if (!nota.data || !nota.time) return;
-    const hour = parseInt(nota.time.split(':')[0]);
-    if (!itemsByDayHour[nota.data]) itemsByDayHour[nota.data] = {};
-    if (!itemsByDayHour[nota.data][hour]) itemsByDayHour[nota.data][hour] = [];
-    itemsByDayHour[nota.data][hour].push({
-      type: 'nota',
+    // Arrotonda ai 5 min
+    const [h, m] = nota.time.split(':').map(Number);
+    const roundedM = Math.floor(m / 5) * 5;
+    const slotKey = `${String(h).padStart(2, '0')}:${String(roundedM).padStart(2, '0')}`;
+    if (!itemsByDayTime[nota.data]) itemsByDayTime[nota.data] = {};
+    if (!itemsByDayTime[nota.data][slotKey]) itemsByDayTime[nota.data][slotKey] = [];
+    itemsByDayTime[nota.data][slotKey].push({
       title: nota.title,
       time: nota.time,
       color: nota.cartella_id && cartelleMap[nota.cartella_id] ? cartelleMap[nota.cartella_id].colore : '#a3e635',
@@ -121,12 +138,13 @@ export default function WeekView({ selectedDate, onClose, monthColor }) {
 
   fileSettimana.forEach(file => {
     if (!file.data || !file.time) return;
-    const hour = parseInt(file.time.split(':')[0]);
-    if (!itemsByDayHour[file.data]) itemsByDayHour[file.data] = {};
-    if (!itemsByDayHour[file.data][hour]) itemsByDayHour[file.data][hour] = [];
+    const [h, m] = file.time.split(':').map(Number);
+    const roundedM = Math.floor(m / 5) * 5;
+    const slotKey = `${String(h).padStart(2, '0')}:${String(roundedM).padStart(2, '0')}`;
+    if (!itemsByDayTime[file.data]) itemsByDayTime[file.data] = {};
+    if (!itemsByDayTime[file.data][slotKey]) itemsByDayTime[file.data][slotKey] = [];
     const cart = cartelleMap[file.cartella_id];
-    itemsByDayHour[file.data][hour].push({
-      type: 'file',
+    itemsByDayTime[file.data][slotKey].push({
       title: file.titolo,
       time: file.time,
       color: cart?.colore || '#64748b',
@@ -137,156 +155,153 @@ export default function WeekView({ selectedDate, onClose, monthColor }) {
   const activeColor = monthColor || MONTH_COLORS[offsetDate.getMonth()];
   const weekLabel = `${weekDays[0].getDate()} ${weekDays[0].toLocaleDateString('it-IT', { month: 'short' })} - ${weekDays[6].getDate()} ${weekDays[6].toLocaleDateString('it-IT', { month: 'short' })}`;
 
-  const currentHour = new Date().getHours();
+  const nowHour = new Date().getHours();
+  const nowMin = Math.floor(new Date().getMinutes() / 5) * 5;
+  const nowSlotLabel = `${String(nowHour).padStart(2, '0')}:${String(nowMin).padStart(2, '0')}`;
+  const isTodayInWeek = weekDays.some(d => d.getTime() === today.getTime());
 
-  // Altezza per ogni riga giorno (dividiamo lo spazio disponibile per 7)
-  // Larghezza per ogni colonna ora
-  const HOUR_WIDTH = 60;
+  // Sincronizza scroll di tutte le righe + barra ore
+  const syncScroll = (sourceEl) => {
+    const scrollLeft = sourceEl.scrollLeft;
+    const allScrollables = document.querySelectorAll('[data-week-scroll]');
+    allScrollables.forEach(el => {
+      if (el !== sourceEl) el.scrollLeft = scrollLeft;
+    });
+  };
+
+  const SLOT_WIDTH = 44;
 
   return (
     <div className="flex flex-col h-full bg-slate-900">
-      {/* Header con navigazione settimana */}
-      <div className="flex items-center justify-between px-3 py-1.5 border-b border-slate-700 flex-shrink-0">
-        <button onClick={() => setWeekOffset(w => w - 1)} className="p-1 rounded hover:bg-slate-700">
-          <ChevronLeft className="w-4 h-4 text-slate-400" />
+      {/* Navigazione settimana */}
+      <div className="flex items-center justify-center gap-3 px-2 py-1 flex-shrink-0">
+        <button onClick={() => setWeekOffset(w => w - 1)} className="p-0.5 rounded hover:bg-slate-700">
+          <ChevronLeft className="w-3.5 h-3.5 text-slate-400" />
         </button>
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold" style={{ color: activeColor }}>{weekLabel}</span>
-          {weekOffset !== 0 && (
-            <button 
-              onClick={() => setWeekOffset(0)} 
-              className="text-[9px] font-bold px-1.5 py-0.5 rounded"
-              style={{ backgroundColor: activeColor, color: '#0f172a' }}
-            >
-              OGGI
-            </button>
-          )}
-        </div>
-        <button onClick={() => setWeekOffset(w => w + 1)} className="p-1 rounded hover:bg-slate-700">
-          <ChevronRight className="w-4 h-4 text-slate-400" />
+        <span className="text-[10px] font-semibold" style={{ color: activeColor }}>{weekLabel}</span>
+        {weekOffset !== 0 && (
+          <button 
+            onClick={() => setWeekOffset(0)} 
+            className="text-[8px] font-bold px-1.5 py-0.5 rounded"
+            style={{ backgroundColor: activeColor, color: '#0f172a' }}
+          >
+            OGGI
+          </button>
+        )}
+        <button onClick={() => setWeekOffset(w => w + 1)} className="p-0.5 rounded hover:bg-slate-700">
+          <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
         </button>
       </div>
 
-      {/* Griglia ruotata: righe = giorni, colonne = ore, scroll orizzontale */}
-      <div className="flex-1 flex flex-col min-h-0">
-        {/* Contenitore scrollabile orizzontale (ore) */}
-        <div className="flex-1 flex flex-col min-h-0">
-          {/* Righe giorni */}
-          <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
-            {weekDays.map((day, dayIdx) => {
-              const dateKey = formatDateKey(day);
-              const isToday = day.getTime() === today.getTime();
-              const isSelected = selectedDate && day.toDateString() === new Date(selectedDate).toDateString();
-              const dayColor = MONTH_COLORS[day.getMonth()];
+      {/* Griglia: a sinistra i giorni, in alto le ore, scroll orizzontale condiviso */}
+      <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
 
+        {/* Barra ore in alto */}
+        <div className="flex flex-shrink-0 border-b border-slate-700">
+          {/* Angolo vuoto */}
+          <div className="w-14 flex-shrink-0 border-r border-slate-700" />
+          <div 
+            data-week-scroll
+            className="flex-1 overflow-x-auto scrollbar-hide flex"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            onScroll={(e) => syncScroll(e.target)}
+          >
+            {TIME_SLOTS.map((slot) => {
+              const isNow = isTodayInWeek && slot.label === nowSlotLabel;
               return (
-                <div key={dayIdx} className="flex flex-1 min-h-0 border-b border-slate-800/50">
-                  {/* Label giorno fisso a sinistra */}
-                  <div 
+                <div
+                  key={slot.label}
+                  className={cn(
+                    "flex-shrink-0 flex items-center justify-center py-1",
+                    slot.isFullHour ? "border-r border-slate-600" : "border-r border-slate-800/20"
+                  )}
+                  style={{ width: `${SLOT_WIDTH}px`, minWidth: `${SLOT_WIDTH}px` }}
+                >
+                  <span 
                     className={cn(
-                      "w-10 flex-shrink-0 flex flex-col items-center justify-center border-r border-slate-700",
-                      isToday && "bg-slate-800/60"
+                      "font-mono font-bold",
+                      slot.isFullHour ? "text-[10px]" : "text-[8px]",
+                      isNow && "animate-pulse"
                     )}
+                    style={{ color: isNow ? '#ffffff' : (slot.isFullHour ? activeColor : '#475569') }}
                   >
-                    <span className="text-[8px] font-medium" style={{ color: isToday ? activeColor : '#64748b' }}>
-                      {DAYS_SHORT_IT[dayIdx]}
-                    </span>
-                    <span 
-                      className={cn("text-[11px] font-bold leading-none", isToday && "animate-pulse")}
-                      style={{ color: isToday ? activeColor : '#ffffff' }}
-                    >
-                      {day.getDate()}
-                    </span>
-                  </div>
-
-                  {/* Celle ore scrollabili */}
-                  <div 
-                    ref={dayIdx === 0 ? scrollRef : null}
-                    className="flex-1 overflow-x-auto scrollbar-hide flex"
-                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-                    onScroll={(e) => {
-                      // Sincronizza scroll tra tutte le righe
-                      const scrollLeft = e.target.scrollLeft;
-                      const container = e.target.closest('.flex-col')?.parentElement;
-                      if (!container) return;
-                      const rows = container.querySelectorAll('.overflow-x-auto');
-                      rows.forEach(row => {
-                        if (row !== e.target) row.scrollLeft = scrollLeft;
-                      });
-                    }}
-                  >
-                    {HOURS.map((hour) => {
-                      const items = itemsByDayHour[dateKey]?.[hour] || [];
-                      const isNow = isToday && currentHour === hour;
-
-                      return (
-                        <div
-                          key={hour}
-                          className={cn(
-                            "flex-shrink-0 border-r border-slate-800/30 relative flex flex-col justify-center px-0.5",
-                            isNow && "bg-slate-700/30"
-                          )}
-                          style={{ width: `${HOUR_WIDTH}px`, minWidth: `${HOUR_WIDTH}px` }}
-                        >
-                          {isNow && (
-                            <div className="absolute top-0 bottom-0 left-0 w-[2px] bg-white/50 animate-pulse" />
-                          )}
-                          {items.map((item, itemIdx) => (
-                            <div
-                              key={itemIdx}
-                              className="rounded px-1 py-0.5 mb-px truncate"
-                              style={{ backgroundColor: item.color + '25', borderLeft: `2px solid ${item.color}` }}
-                            >
-                              <div className="text-[8px] font-mono" style={{ color: item.color + 'cc' }}>{item.time}</div>
-                              <div className="text-[9px] font-medium truncate" style={{ color: item.color }}>
-                                {item.title}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      );
-                    })}
-                  </div>
+                    {slot.label}
+                  </span>
                 </div>
               );
             })}
           </div>
+        </div>
 
-          {/* Barra ore in basso - fissa */}
-          <div className="flex-shrink-0 border-t border-slate-700 flex">
-            <div className="w-10 flex-shrink-0 border-r border-slate-700" />
-            <div 
-              className="flex-1 overflow-x-auto scrollbar-hide flex"
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-              onScroll={(e) => {
-                const scrollLeft = e.target.scrollLeft;
-                const container = e.target.closest('.flex-col')?.parentElement;
-                if (!container) return;
-                const rows = container.querySelectorAll('.overflow-x-auto');
-                rows.forEach(row => {
-                  if (row !== e.target) row.scrollLeft = scrollLeft;
-                });
-              }}
-            >
-              {HOURS.map((hour) => {
-                const isNow = today.getTime() === new Date(new Date().setHours(0,0,0,0)).getTime() && currentHour === hour;
-                return (
-                  <div
-                    key={hour}
-                    className="flex-shrink-0 flex items-center justify-center py-1 border-r border-slate-800/30"
-                    style={{ width: `${HOUR_WIDTH}px`, minWidth: `${HOUR_WIDTH}px` }}
+        {/* Righe giorni */}
+        <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+          {weekDays.map((day, dayIdx) => {
+            const dateKey = formatDateKey(day);
+            const isToday = day.getTime() === today.getTime();
+
+            return (
+              <div key={dayIdx} className="flex flex-1 min-h-0 border-b border-slate-800/40">
+                {/* Label giorno fisso a sinistra */}
+                <div 
+                  className={cn(
+                    "w-14 flex-shrink-0 flex flex-col items-center justify-center border-r border-slate-700 px-1",
+                    isToday && "bg-slate-800/50"
+                  )}
+                >
+                  <span className="text-[9px] font-semibold" style={{ color: isToday ? activeColor : '#64748b' }}>
+                    {DAYS_SHORT_IT[dayIdx]}
+                  </span>
+                  <span 
+                    className={cn("text-xs font-bold leading-none", isToday && "animate-pulse")}
+                    style={{ color: isToday ? activeColor : '#e2e8f0' }}
                   >
-                    <span 
-                      className={cn("text-[10px] font-mono font-bold", isNow && "animate-pulse")}
-                      style={{ color: isNow ? activeColor : '#64748b' }}
-                    >
-                      {String(hour).padStart(2, '0')}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+                    {day.getDate()}
+                  </span>
+                </div>
+
+                {/* Celle time slot scrollabili */}
+                <div 
+                  ref={dayIdx === 0 ? scrollRef : null}
+                  data-week-scroll
+                  className="flex-1 overflow-x-auto scrollbar-hide flex"
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                  onScroll={(e) => syncScroll(e.target)}
+                >
+                  {TIME_SLOTS.map((slot) => {
+                    const items = itemsByDayTime[dateKey]?.[slot.label] || [];
+                    const isNow = isToday && slot.label === nowSlotLabel;
+
+                    return (
+                      <div
+                        key={slot.label}
+                        className={cn(
+                          "flex-shrink-0 relative flex flex-col justify-center px-px",
+                          slot.isFullHour ? "border-r border-slate-700/40" : "border-r border-slate-800/15",
+                          isNow && "bg-white/5"
+                        )}
+                        style={{ width: `${SLOT_WIDTH}px`, minWidth: `${SLOT_WIDTH}px` }}
+                      >
+                        {isNow && (
+                          <div className="absolute top-0 bottom-0 left-0 w-[2px] bg-white animate-pulse z-10" />
+                        )}
+                        {items.map((item, i) => (
+                          <div
+                            key={i}
+                            className="rounded px-0.5 py-px truncate mx-px"
+                            style={{ backgroundColor: item.color + '30', borderLeft: `2px solid ${item.color}` }}
+                          >
+                            <div className="text-[7px] font-medium truncate" style={{ color: item.color }}>
+                              {item.title}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
