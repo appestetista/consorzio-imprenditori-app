@@ -445,6 +445,38 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
 
   
 
+      {/* Popup conferma eliminazione */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/70" onClick={() => setShowDeleteConfirm(false)}>
+          <div className="bg-slate-800 rounded-xl p-5 w-72 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-white font-semibold text-base mb-2">⚠️ Eliminare nota?</h3>
+            <p className="text-slate-300 text-sm mb-1">
+              <span className="font-semibold text-lime-400">{title || existingNote?.title}</span>
+            </p>
+            <p className="text-slate-400 text-xs mb-5">
+              Questa azione non può essere annullata.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="flex-1 px-4 py-2 rounded-lg bg-slate-600 hover:bg-slate-500 text-white text-sm"
+              >
+                Annulla
+              </button>
+              <button
+                onClick={() => {
+                  setShowDeleteConfirm(false);
+                  if (onDelete) onDelete(existingNote);
+                }}
+                className="flex-1 px-4 py-2 rounded-lg bg-red-500 hover:bg-red-400 text-white text-sm font-semibold"
+              >
+                Elimina
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Input nascosti per camera e file */}
       <input
         ref={cameraInputRef}
