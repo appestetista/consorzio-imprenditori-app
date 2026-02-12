@@ -180,7 +180,7 @@ export default function WeekView({ selectedDate, monthColor }) {
       <div className="flex-1 flex flex-col overflow-hidden" style={{ touchAction: 'none' }} onTouchStart={onTS} onTouchMove={onTM} onTouchEnd={onTE}>
 
         {/* HEADER GIORNI */}
-        <div className="flex flex-shrink-0 border-b border-slate-700 overflow-hidden">
+        <div className="flex flex-shrink-0 border-b border-slate-700/50 overflow-hidden">
           <div className="flex-shrink-0" style={{ width: '56px' }} />
           <div className="flex flex-1" style={swipeStyle}>
             {weekDays.map((day, i) => {
