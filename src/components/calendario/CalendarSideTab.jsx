@@ -173,10 +173,10 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
         )}
         style={{
           width: '34px',
-          height: '160px',
+          height: '140px',
           writingMode: 'vertical-rl',
           textOrientation: 'mixed',
-          top: '45%',
+          top: '52%',
           transform: 'translateY(-50%)'
         }}
       >
