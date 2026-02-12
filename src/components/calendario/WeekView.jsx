@@ -2,8 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { Plus, FileText, X } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import NoteEditor from './NoteEditor';
+import { useQuery } from '@tanstack/react-query';
 
 const DAYS_SHORT_IT = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
 const MONTH_COLORS = [
@@ -27,17 +26,12 @@ function getWeekDays(ref) {
 }
 function fk(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 
-export default function WeekView({ selectedDate, monthColor, onMonthColorChange, onDateSelect }) {
+export default function WeekView({ selectedDate, monthColor, onMonthColorChange, onDateSelect, onSlotClick }) {
   const [userEmail, setUserEmail] = useState(null);
   const [weekOffset, setWeekOffset] = useState(0);
-  // Swipe state
   const [dragX, setDragX] = useState(0);
   const [animating, setAnimating] = useState(false);
-  // NoteEditor state
-  const [selectedSlot, setSelectedSlot] = useState(null); // { date: 'YYYY-MM-DD', time: 'HH:MM' }
-  const [showNoteEditor, setShowNoteEditor] = useState(false);
-  const noteEditorSaveRef = useRef(null);
-  const queryClient = useQueryClient();
+  const [selectedSlot, setSelectedSlot] = useState(null); // per evidenziazione visiva
   const scrollRef = useRef(null);
   const touchRef = useRef({ startX:0, startY:0, lastX:0, lastY:0, lastTime:0, velScroll:0, scrollTop0:0, dir:null, animFrame:null });
 
@@ -152,60 +146,22 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     items[f.data][sk].push({ title: f.titolo, color: cm[f.cartella_id]?.colore || '#64748b' });
   });
 
-  // Mutation salva nota dalla WeekView
-  const saveNoteMutation = useMutation({
-    mutationFn: async (noteData) => {
-      const existingNote = notesByDateAndTime[noteData.dateStr]?.[noteData.time];
-      if (existingNote) {
-        return base44.entities.Nota.update(existingNote.id, {
-          title: noteData.title,
-          content: noteData.content || '',
-          attachments: noteData.attachments || [],
-          checklist_items: noteData.checklistItems || [],
-          cartella_id: noteData.cartella_id || null
-        });
-      } else {
-        return base44.entities.Nota.create({
-          user_email: userEmail,
-          data: noteData.dateStr,
-          time: noteData.time,
-          title: noteData.title,
-          content: noteData.content || '',
-          attachments: noteData.attachments || [],
-          checklist_items: noteData.checklistItems || [],
-          cartella_id: noteData.cartella_id || null
-        });
-      }
-    },
-    onSuccess: () => {
-      // Invalida sia le query della week view che della day view
-      queryClient.invalidateQueries({ queryKey: ['note-week'] });
-      queryClient.invalidateQueries({ queryKey: ['note'] });
-    }
-  });
-
   const handleSlotClick = (dayStr, timeLabel) => {
-    // Se clicco sullo stesso slot già aperto: salva e chiudi
-    if (selectedSlot?.date === dayStr && selectedSlot?.time === timeLabel && showNoteEditor) {
-      if (noteEditorSaveRef.current) noteEditorSaveRef.current();
-      setShowNoteEditor(false);
+    // Se clicco sullo stesso slot già selezionato: deseleziona
+    if (selectedSlot?.date === dayStr && selectedSlot?.time === timeLabel) {
       setSelectedSlot(null);
       return;
     }
     setSelectedSlot({ date: dayStr, time: timeLabel });
-    setShowNoteEditor(true);
+    // Notifica il parent per aprire NoteEditor fuori dal contesto ruotato
+    if (onSlotClick) {
+      const existingNote = notesByDateAndTime[dayStr]?.[timeLabel] || null;
+      onSlotClick({ date: dayStr, time: timeLabel, existingNote });
+    }
   };
 
-  const handleNoteSave = (noteData) => {
-    if (!selectedSlot) return;
-    saveNoteMutation.mutate({
-      ...noteData,
-      dateStr: selectedSlot.date,
-      time: selectedSlot.time
-    });
-    setShowNoteEditor(false);
-    setSelectedSlot(null);
-  };
+  // Permette al parent di resettare la selezione
+  const clearSelection = () => setSelectedSlot(null);
 
   // Colore basato sul mese della settimana visualizzata (mese del giovedì = mese predominante)
   const weekMainMonth = weekDays[3].getMonth();
@@ -236,15 +192,8 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     transition: 'background-color 1.2s ease'
   };
 
-  // Existing note per l'editor
-  const existingNoteForEditor = selectedSlot ? notesByDateAndTime[selectedSlot.date]?.[selectedSlot.time] : null;
-  // Calcola la data come Date object per NoteEditor
-  const selectedSlotDate = selectedSlot ? new Date(selectedSlot.date + 'T00:00:00') : null;
-
   return (
-    <div className="flex h-full overflow-hidden" style={bgStyle}>
-      {/* Colonna principale: calendario */}
-      <div className={cn("flex flex-col overflow-hidden", showNoteEditor ? "w-[55%]" : "flex-1")}>
+    <div className="flex flex-col h-full overflow-hidden" style={bgStyle}>
         {/* Label mese + pulsante oggi */}
         <div className="flex-shrink-0 flex items-center justify-center gap-3 px-2 py-1 border-b border-slate-700/50">
           <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: ac }}>{wLabel}</span>
@@ -307,7 +256,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                       return (
                         <div 
                           key={di} 
-                          className={cn("flex-1 border-l border-slate-700/20 relative cursor-pointer", isNC && "bg-white/5", isT && "bg-slate-800/20", isSel && !isT && "bg-slate-700/15")}
+                          className={cn("flex-1 border-l border-slate-700/20 relative cursor-pointer", isNC && "bg-white/5", isT && "bg-slate-800/20", isSel && !isT && "bg-slate-700/15", isSlotSelected && "ring-1 ring-amber-500/60")}
                           onClick={() => handleSlotClick(dk, slot.label)}
                         >
                           {isNC && <div className="absolute left-0 right-0 top-0 h-[2px] bg-white animate-pulse z-10" />}
@@ -334,26 +283,6 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
           </div>
         </div>
       </div>
-
-      {/* NoteEditor panel - affiancato a destra */}
-      {showNoteEditor && selectedSlot && (
-        <div className="w-[45%] border-l border-slate-700 overflow-hidden">
-          <NoteEditor
-            key={`${selectedSlot.date}-${selectedSlot.time}`}
-            selectedDate={selectedSlotDate}
-            selectedTime={selectedSlot.time}
-            onClose={() => { setShowNoteEditor(false); setSelectedSlot(null); }}
-            onSave={handleNoteSave}
-            inline={true}
-            existingNote={existingNoteForEditor ? {
-              ...existingNoteForEditor,
-              checklistItems: existingNoteForEditor.checklist_items || [],
-              cartella_id: existingNoteForEditor.cartella_id || ''
-            } : null}
-            onRegisterSave={(saveFn) => { noteEditorSaveRef.current = saveFn; }}
-          />
-        </div>
-      )}
     </div>
   );
 }
