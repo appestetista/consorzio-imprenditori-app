@@ -350,7 +350,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                 }}
               >
                 {/* Riga 1: Vista giornaliera al centro + CHIUDI a destra */}
-                <div className="flex items-center justify-between px-3" style={{ height: '32px' }}>
+                <div className="flex items-center justify-between px-3 pl-6" style={{ height: '32px' }}>
                   <div style={{ width: '50px' }} />
                   <button
                     onClick={() => {

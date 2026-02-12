@@ -8,7 +8,7 @@ const MONTH_COLORS = [
 
 export default function MonthBar({ currentMonth, onSelectMonth }) {
   return (
-    <div className="flex items-center gap-0 px-0 py-1 w-full">
+    <div className="flex items-center gap-0 pl-3 pr-0 py-1 w-full">
       {MONTHS_SHORT.map((mName, mIdx) => {
         const isCurrent = mIdx === Number(currentMonth);
         const mColor = MONTH_COLORS[mIdx];
