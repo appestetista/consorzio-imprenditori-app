@@ -283,6 +283,40 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                 transition: 'background-color 1.2s ease, transform 0.7s ease-in-out'
               }}
             >
+              {/* Barra mesi FUORI dal rotate ma orientata landscape (rotate 90deg), posizionata sopra i pallini giorni */}
+              <div 
+                className="fixed z-[66] flex items-center"
+                style={{
+                  /* Larghezza = altezza schermo (landscape), posizionata sopra il contenuto ruotato */
+                  width: '100vh',
+                  height: '36px',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%) rotate(90deg) translateY(calc(-50vw + 18px))',
+                  transformOrigin: 'center center',
+                  backgroundColor: `color-mix(in srgb, ${weekViewColor || currentMonthColor} 6%, #0f172a)`,
+                  borderBottom: '1px solid rgba(51,65,85,0.5)',
+                  pointerEvents: 'auto'
+                }}
+              >
+                <button
+                  onClick={() => setShowWeekView(false)}
+                  className="flex-shrink-0 px-2 py-1.5 touch-manipulation active:scale-95 transition-transform"
+                >
+                  <span className="text-[9px] font-bold uppercase" style={{ color: weekViewColor || currentMonthColor || '#a3e635' }}>
+                    ▼
+                  </span>
+                </button>
+                <div className="flex-1 overflow-hidden">
+                  <MonthBar 
+                    currentMonth={weekViewMonth}
+                    onSelectMonth={(mIdx) => {
+                      if (weekViewMonthSelectRef.current) weekViewMonthSelectRef.current(mIdx);
+                    }}
+                  />
+                </div>
+              </div>
+
               {/* Contenitore ruotato: tutto il contenuto è girato di 90° in senso orario */}
               <div 
                 className="absolute flex flex-col"
@@ -295,27 +329,8 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                   transformOrigin: 'center center'
                 }}
               >
-                {/* Barra mesi + pulsante giorno — DENTRO il rotate, sopra i pallini giorni */}
-                <div className="flex-shrink-0 flex items-center border-b border-slate-700/50"
-                  style={{ backgroundColor: `color-mix(in srgb, ${weekViewColor || currentMonthColor} 6%, #0f172a)` }}
-                >
-                  <button
-                    onClick={() => setShowWeekView(false)}
-                    className="flex-shrink-0 px-2 py-1.5 touch-manipulation active:scale-95 transition-transform"
-                  >
-                    <span className="text-[9px] font-bold uppercase" style={{ color: weekViewColor || currentMonthColor || '#a3e635' }}>
-                      ▼
-                    </span>
-                  </button>
-                  <div className="flex-1 overflow-hidden">
-                    <MonthBar 
-                      currentMonth={weekViewMonth}
-                      onSelectMonth={(mIdx) => {
-                        if (weekViewMonthSelectRef.current) weekViewMonthSelectRef.current(mIdx);
-                      }}
-                    />
-                  </div>
-                </div>
+                {/* Spacer per la barra mesi (36px) */}
+                <div className="flex-shrink-0" style={{ height: '36px' }} />
                 {/* WeekView occupa tutto il resto */}
                 <div className="flex-1 min-h-0">
                   <WeekView
