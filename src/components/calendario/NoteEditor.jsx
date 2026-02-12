@@ -328,7 +328,17 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
               <ListChecks className={cn("w-5 h-5", showChecklist ? "text-lime-400" : "text-slate-400")} />
             </button>
           </div>
-          <div className="ml-auto pl-2">
+          <div className="ml-auto pl-2 flex items-center gap-2">
+            {/* Cestino - elimina nota (solo se esiste già) */}
+            {existingNote && onDelete && (
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="w-7 h-7 rounded-full bg-red-500/20 hover:bg-red-500/40 flex items-center justify-center active:scale-90 transition-all touch-manipulation"
+              >
+                <Trash2 className="w-3.5 h-3.5 text-red-400" />
+              </button>
+            )}
+            {/* Salva */}
             <a
               href="#"
               onClick={(e) => { e.preventDefault(); handleSave(); }}
@@ -344,6 +354,15 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
               )}
               SALVA
             </a>
+            {/* X chiudi */}
+            {onClose && (
+              <button
+                onClick={onClose}
+                className="w-7 h-7 rounded-full bg-slate-700 hover:bg-slate-600 flex items-center justify-center active:scale-90 transition-all touch-manipulation"
+              >
+                <X className="w-3.5 h-3.5 text-slate-300" />
+              </button>
+            )}
           </div>
         </div>
 
