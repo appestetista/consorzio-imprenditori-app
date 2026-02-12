@@ -2,10 +2,12 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Calendar, X, LayoutGrid, Plus, AudioLines } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { base44 } from '@/api/base44Client';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import HorizontalDatePicker from './HorizontalDatePicker';
 import VerticalTimePicker from './VerticalTimePicker';
 import FatturatoBarra from './FatturatoBarra';
 import WeekView from './WeekView';
+import NoteEditor from './NoteEditor';
 
 const MONTH_COLORS = [
   '#3b82f6', // Gennaio - blu
@@ -27,7 +29,12 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
     const [showTimePicker, setShowTimePicker] = useState(false);
     const [showFatturato, setShowFatturato] = useState(false);
     const [showWeekView, setShowWeekView] = useState(false);
-    const [weekViewColor, setWeekViewColor] = useState(null); // colore dal WeekView per sincronizzazione
+    const [weekViewColor, setWeekViewColor] = useState(null);
+    // NoteEditor dalla WeekView - orientamento normale
+    const [weekNoteSlot, setWeekNoteSlot] = useState(null); // { date, time, existingNote }
+    const [showWeekNoteEditor, setShowWeekNoteEditor] = useState(false);
+    const weekNoteEditorSaveRef = useRef(null);
+    const queryClient = useQueryClient();
   const goToTodayRef = useRef(null);
   const [currentMonthColor, setCurrentMonthColor] = useState(MONTH_COLORS[new Date().getMonth()]);
   const [visibleMonthLabel, setVisibleMonthLabel] = useState({ month: new Date().getMonth(), year: new Date().getFullYear() });
@@ -48,6 +55,54 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
     };
     loadUser();
   }, []);
+
+  // Mutation salva nota dalla WeekView
+  const weekSaveNoteMutation = useMutation({
+    mutationFn: async (noteData) => {
+      if (noteData.existingNote) {
+        return base44.entities.Nota.update(noteData.existingNote.id, {
+          title: noteData.title,
+          content: noteData.content || '',
+          attachments: noteData.attachments || [],
+          checklist_items: noteData.checklistItems || [],
+          cartella_id: noteData.cartella_id || null
+        });
+      } else {
+        return base44.entities.Nota.create({
+          user_email: userEmail,
+          data: noteData.dateStr,
+          time: noteData.time,
+          title: noteData.title,
+          content: noteData.content || '',
+          attachments: noteData.attachments || [],
+          checklist_items: noteData.checklistItems || [],
+          cartella_id: noteData.cartella_id || null
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['note-week'] });
+      queryClient.invalidateQueries({ queryKey: ['note'] });
+      // Chiudi editor e torna alla week view
+      setShowWeekNoteEditor(false);
+      setWeekNoteSlot(null);
+    }
+  });
+
+  const handleWeekSlotClick = (slotInfo) => {
+    setWeekNoteSlot(slotInfo);
+    setShowWeekNoteEditor(true);
+  };
+
+  const handleWeekNoteSave = (noteData) => {
+    if (!weekNoteSlot) return;
+    weekSaveNoteMutation.mutate({
+      ...noteData,
+      dateStr: weekNoteSlot.date,
+      time: weekNoteSlot.time,
+      existingNote: weekNoteSlot.existingNote
+    });
+  };
 
   const toggleCalendar = () => {
     if (!isOpen) {
@@ -216,7 +271,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
             <div 
               className={cn(
                 "fixed inset-0 z-[65] transition-transform duration-700 ease-in-out",
-                showWeekView ? "translate-y-0" : "translate-y-full"
+                showWeekView && !showWeekNoteEditor ? "translate-y-0" : "translate-y-full"
               )}
               style={{
                 backgroundColor: `color-mix(in srgb, ${weekViewColor || currentMonthColor} 6%, #0f172a)`,
@@ -255,17 +310,37 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                     onMonthColorChange={setWeekViewColor}
                     onDateSelect={(date) => {
                       handleDateSelect(date);
-                      // Scrolla anche il calendario orizzontale alla data selezionata
                       setTimeout(() => {
                         if (goToTodayRef.scrollToDate) {
                           goToTodayRef.scrollToDate(date);
                         }
                       }, 100);
                     }}
+                    onSlotClick={handleWeekSlotClick}
                   />
                 </div>
               </div>
             </div>
+
+            {/* NoteEditor dalla WeekView - orientamento NORMALE del telefono (non ruotato) */}
+            {showWeekNoteEditor && weekNoteSlot && (
+              <div className="fixed inset-0 z-[70] bg-black">
+                <NoteEditor
+                  key={`week-${weekNoteSlot.date}-${weekNoteSlot.time}`}
+                  selectedDate={new Date(weekNoteSlot.date + 'T00:00:00')}
+                  selectedTime={weekNoteSlot.time}
+                  onClose={() => { setShowWeekNoteEditor(false); setWeekNoteSlot(null); }}
+                  onSave={handleWeekNoteSave}
+                  inline={false}
+                  existingNote={weekNoteSlot.existingNote ? {
+                    ...weekNoteSlot.existingNote,
+                    checklistItems: weekNoteSlot.existingNote.checklist_items || [],
+                    cartella_id: weekNoteSlot.existingNote.cartella_id || ''
+                  } : null}
+                  onRegisterSave={(saveFn) => { weekNoteEditorSaveRef.current = saveFn; }}
+                />
+              </div>
+            )}
 
       {/* Pannello orari - copre TUTTO lo spazio sopra il calendario fino in fondo */}
             {isOpen && showTimePicker && selectedDate && (
