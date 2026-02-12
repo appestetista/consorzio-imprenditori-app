@@ -158,11 +158,17 @@ export default function WeekView({ selectedDate, monthColor }) {
     opacity: animating && Math.abs(dragX) > 200 ? 0 : 1,
   };
 
+  // Background stile vista giornaliera
+  const bgStyle = {
+    backgroundColor: `color-mix(in srgb, ${ac} 6%, #0f172a)`,
+    transition: 'background-color 1.2s ease'
+  };
+
   return (
-    <div className="flex flex-col h-full bg-slate-900 overflow-hidden">
-      {/* Label settimana + pulsante oggi */}
-      <div className="flex-shrink-0 flex items-center justify-center gap-3 px-2 py-1 border-b border-slate-800">
-        <span className="text-[10px] font-bold" style={{ color: ac }}>{wLabel}</span>
+    <div className="flex flex-col h-full overflow-hidden" style={bgStyle}>
+      {/* Label mese + pulsante oggi */}
+      <div className="flex-shrink-0 flex items-center justify-center gap-3 px-2 py-1 border-b border-slate-700/50">
+        <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: ac }}>{wLabel}</span>
         {weekOffset !== 0 && (
           <button onClick={() => setWeekOffset(0)} className="text-[8px] font-bold px-1.5 py-0.5 rounded" style={{ backgroundColor: ac, color: '#0f172a' }}>
             OGGI
