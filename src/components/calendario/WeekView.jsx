@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils';
 import { Plus, FileText, X, ChevronDown, Check } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
+import DayNotesSummaryPopup from './DayNotesSummaryPopup';
 
 const DAYS_SHORT_IT = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
 const DAY_LETTERS = ['D', 'L', 'M', 'M', 'G', 'V', 'S']; // Dom=0 ... Sab=6
