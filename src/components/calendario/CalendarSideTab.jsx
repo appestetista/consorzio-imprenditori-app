@@ -398,6 +398,16 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                   selectedTime={weekNoteSlot.time}
                   onClose={() => { setShowWeekNoteEditor(false); setWeekNoteSlot(null); }}
                   onSave={handleWeekNoteSave}
+                  onDelete={(note) => {
+                    if (note?.id) {
+                      base44.entities.Nota.delete(note.id).then(() => {
+                        queryClient.invalidateQueries({ queryKey: ['note-week'] });
+                        queryClient.invalidateQueries({ queryKey: ['note'] });
+                      });
+                    }
+                    setShowWeekNoteEditor(false);
+                    setWeekNoteSlot(null);
+                  }}
                   inline={false}
                   existingNote={weekNoteSlot.existingNote ? {
                     ...weekNoteSlot.existingNote,
