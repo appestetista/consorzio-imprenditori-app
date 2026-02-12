@@ -170,8 +170,8 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
         )}
       </div>
 
-      {/* Content */}
-      <div className="flex-1 px-3 py-2 overflow-y-auto">
+      {/* Content - pr-10 per evitare sovrapposizione col pulsante CHIUDI fisso a destra */}
+      <div className="flex-1 px-3 pr-10 py-2 overflow-y-auto">
         <input
           type="text"
           value={title}
