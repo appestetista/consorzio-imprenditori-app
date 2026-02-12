@@ -856,7 +856,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
           {onToggleFatturato && (
             <button
               onClick={onToggleFatturato}
-              className="px-3 py-0.5 rounded-full flex items-center gap-1 transition-all"
+              className="px-3 py-0.5 rounded-full flex items-center gap-1 transition-all animate-pulse"
               style={{ backgroundColor: currentMonthColor || '#a3e635' }}
             >
               <span className="text-[10px] text-slate-900 font-semibold uppercase">
