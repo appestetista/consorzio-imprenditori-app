@@ -415,35 +415,6 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
               </div>
             )}
 
-      {/* Pannello orari - dentro il pannello calendario, sopra la barra calendario */}
-            {isOpen && showTimePicker && selectedDate && (
-        <div 
-          className="fixed z-[60] bg-slate-900 flex flex-col"
-          style={{ top: 0, left: 0, right: 0, bottom: showFatturato ? '340px' : '220px' }}
-        >
-          <VerticalTimePicker 
-            selectedDate={selectedDate}
-            visibleDay={visibleDay}
-            visibleMonth={visibleMonthLabel.month}
-            visibleYear={visibleMonthLabel.year}
-            onClose={() => setShowTimePicker(false)}
-            onTimeSelect={handleTimeSelect}
-            onDateChange={(newDate) => {
-              if (onDateSelect) {
-                onDateSelect(newDate);
-              }
-              // Scrolla anche il calendario orizzontale alla nuova data
-              setTimeout(() => {
-                if (goToTodayRef.scrollToDate) {
-                  goToTodayRef.scrollToDate(newDate);
-                }
-              }, 100);
-            }}
-            monthColor={currentMonthColor}
-          />
-        </div>
-      )}
-
       {/* Linguetta DATA dentro il calendario aperto - per chiuderlo */}
       {isOpen && (
         <button
