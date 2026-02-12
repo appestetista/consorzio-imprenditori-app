@@ -17,6 +17,7 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
   const [isUploading, setIsUploading] = useState(false);
   const [titleError, setTitleError] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   
   const [isDictating, setIsDictating] = useState(false);
   const [viewingAttachment, setViewingAttachment] = useState(null);
