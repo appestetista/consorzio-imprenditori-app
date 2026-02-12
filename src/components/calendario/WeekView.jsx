@@ -315,156 +315,154 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
             <div className="flex-shrink-0" style={{ width: '56px' }} />
             <div className="flex flex-1" style={swipeStyle}>
               {weekDays.map((day, i) => {
-                const isT = day.getTime() === today.getTime();
-                const isWe = i >= 5;
-                const isSel = selectedDate && day.toDateString() === new Date(selectedDate).toDateString();
-                const isHL = highlightedDay && highlightedDay.day === day.getDate() && highlightedDay.month === day.getMonth() && highlightedDay.year === day.getFullYear();
-                // Giorno selezionato dalla vista giornaliera (cerchio pieno)
-                const isSelectedFromDay = isSel && !isHL;
-                const dk = fk(day);
-                const dayItems = items[dk] || {};
-                const dayAllNotes = Object.entries(dayItems).flatMap(([time, arr]) => arr.map(a => ({ ...a, time })));
-                const isDropOpen = openDropdownDay === i;
-                return (
-                  <div 
-                    key={i} 
-                    className={cn("flex-1 flex flex-col items-center justify-center border-l border-slate-700/50 relative", isT && "bg-slate-800/40")}
-                    style={{ 
-                      minHeight: '44px',
-                      ...(isSel && !isT ? { backgroundColor: ac + '20' } : {})
-                    }}
-                  >
-                    {/* Area cliccabile su tutto il blocco */}
-                    <div 
-                      className="absolute inset-0 cursor-pointer z-10"
-                      onClick={() => {
-                        setHighlightedDay({ day: day.getDate(), month: day.getMonth(), year: day.getFullYear() });
-                        setSelectedSlot(null);
-                        setOpenDropdownDay(null);
-                        if (onDateSelect) onDateSelect(day);
-                      }}
-                    />
-                    {/* Nome giorno - più grande */}
-                    <span className={cn("text-[9px] font-bold leading-tight tracking-wide", isT && !isSel && !isHL && "animate-pulse")} style={{ color: isWe ? '#ef4444' : (isHL ? '#f59e0b' : (isSel ? ac : (isT ? ac : '#94a3b8'))) }}>{DAYS_SHORT_IT[i]}</span>
-                    {/* Numero centrato sotto la scritta */}
-                    <div 
-                      className={cn("flex items-center justify-center rounded-full mt-0.5", isT && !isSel && !isHL && "animate-pulse")}
-                      style={isHL && !isT ? { 
-                        width: '20px', height: '20px',
-                        border: '2px solid #f59e0b',
-                        boxShadow: '0 0 6px #f59e0b80'
-                      } : isSel ? {
-                        width: '20px', height: '20px',
-                        backgroundColor: ac,
-                        borderRadius: '9999px',
-                        boxShadow: `0 0 8px ${ac}80`
-                      } : isT ? {
-                        width: '20px', height: '20px',
-                        border: `2px solid ${ac}`,
-                        boxShadow: `0 0 6px ${ac}60`
-                      } : { width: '20px', height: '20px' }}
-                    >
-                      <span className={cn("text-[11px] font-bold leading-none", isT && !isSel && !isHL && "animate-pulse")} style={{ color: isHL && !isT ? '#f59e0b' : (isSel ? '#fff' : (isT ? ac : '#e2e8f0')) }}>{day.getDate()}</span>
-                    </div>
-                    {isSel && !isT && !isHL && <div className="w-1 h-1 rounded-full mt-0.5" style={{ backgroundColor: ac }} />}
-                    {/* Freccetta + conteggio note - vicino al numero, a destra */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (dayAllNotes.length > 0) {
-                          setDaySummaryDate(dk);
-                        } else {
-                          setOpenDropdownDay(isDropOpen ? null : i);
-                        }
-                      }}
-                      className="absolute z-20 touch-manipulation active:scale-90 flex items-center gap-0"
-                      style={{ bottom: '2px', right: '1px' }}
-                    >
-                      {dayAllNotes.length > 0 && (
-                        <span className="text-[8px] font-bold leading-none" style={{ color: '#a3e635' }}>
-                          {dayAllNotes.length}
-                        </span>
-                      )}
-                      <ChevronDown 
-                        className={cn("transition-all duration-200", isDropOpen && "rotate-180")}
-                        style={{ 
-                          width: '16px', 
-                          height: '16px', 
-                          color: isDropOpen ? '#22d3ee' : (dayAllNotes.length > 0 ? '#a3e635' : '#64748b'),
-                          filter: isDropOpen ? 'drop-shadow(0 0 4px #22d3ee) drop-shadow(0 0 8px #22d3ee80)' : (dayAllNotes.length > 0 ? 'drop-shadow(0 0 3px #a3e63580)' : 'none')
-                        }} 
-                      />
-                    </button>
-                    {/* Dropdown fumetto nero - appuntamenti del giorno */}
-                    {isDropOpen && (
+                    const isT = day.getTime() === today.getTime();
+                    const isWe = i >= 5;
+                    const isSel = selectedDate && day.toDateString() === new Date(selectedDate).toDateString();
+                    const isHL = highlightedDay && highlightedDay.day === day.getDate() && highlightedDay.month === day.getMonth() && highlightedDay.year === day.getFullYear();
+                    const dk = fk(day);
+                    const dayItems = items[dk] || {};
+                    const dayAllNotes = Object.entries(dayItems).flatMap(([time, arr]) => arr.map(a => ({ ...a, time })));
+                    const isDropOpen = openDropdownDay === i;
+                    return (
                       <div 
-                        className="absolute z-50 overflow-hidden"
+                        key={i} 
+                        className={cn("flex-1 flex border-l border-slate-700/50 relative", isT && "bg-slate-800/40")}
                         style={{ 
-                          top: '100%', 
-                          right: '-4px',
-                          minWidth: '160px', 
-                          maxWidth: '200px',
-                          marginTop: '6px'
+                          minHeight: '44px',
+                          ...(isSel && !isT ? { backgroundColor: ac + '20' } : {})
                         }}
-                        onClick={(e) => e.stopPropagation()}
                       >
-                        {/* Triangolino fumetto */}
+                        {/* METÀ SINISTRA: nome giorno + numero — evidenzia il giorno */}
                         <div 
-                          className="absolute -top-[6px] right-3 w-0 h-0"
-                          style={{
-                            borderLeft: '6px solid transparent',
-                            borderRight: '6px solid transparent',
-                            borderBottom: '6px solid #000000'
+                          className="flex-1 flex flex-col items-center justify-center cursor-pointer z-10"
+                          onClick={() => {
+                            setHighlightedDay({ day: day.getDate(), month: day.getMonth(), year: day.getFullYear() });
+                            setSelectedSlot(null);
+                            setOpenDropdownDay(null);
+                            if (onDateSelect) onDateSelect(day);
                           }}
-                        />
-                        <div className="bg-black rounded-xl shadow-2xl overflow-hidden border border-slate-700/50" style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.6)' }}>
-                          {dayAllNotes.length === 0 ? (
-                            <div className="px-3 py-3 text-[10px] text-slate-500 text-center">Nessun appuntamento</div>
-                          ) : (
-                            <div className="py-1.5">
-                              {dayAllNotes.sort((a, b) => a.time.localeCompare(b.time)).map((item, idx) => {
-                                const stKey = `${dk}-${item.time}-${idx}`;
-                                const isStruck = !!strikethroughItems[stKey];
-                                return (
-                                  <div 
-                                    key={idx} 
-                                    className="flex items-center gap-1.5 px-2.5 py-1.5 hover:bg-slate-900/50"
-                                  >
-                                    {/* Checkbox per barrare */}
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setStrikethroughItems(prev => ({ ...prev, [stKey]: !prev[stKey] }));
-                                      }}
-                                      className={cn(
-                                        "w-4 h-4 rounded flex-shrink-0 flex items-center justify-center border transition-all",
-                                        isStruck 
-                                          ? "border-slate-500 bg-slate-700" 
-                                          : "border-slate-600 bg-transparent hover:border-slate-400"
-                                      )}
-                                    >
-                                      {isStruck && <Check className="w-2.5 h-2.5 text-slate-400" />}
-                                    </button>
-                                    {/* Trattino + orario + titolo */}
-                                    <div className="min-w-0 flex-1">
-                                      <span 
-                                        className={cn("text-[11px] font-medium block truncate", isStruck && "line-through opacity-40")}
-                                        style={{ color: ac }}
-                                      >
-                                        — {item.time} {item.title}
-                                      </span>
-                                    </div>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          )}
+                        >
+                          <span className={cn("text-[9px] font-bold leading-tight tracking-wide", isT && !isSel && !isHL && "animate-pulse")} style={{ color: isWe ? '#ef4444' : (isHL ? '#f59e0b' : (isSel ? ac : (isT ? ac : '#94a3b8'))) }}>{DAYS_SHORT_IT[i]}</span>
+                          <div 
+                            className={cn("flex items-center justify-center rounded-full mt-0.5", isT && !isSel && !isHL && "animate-pulse")}
+                            style={isHL && !isT ? { 
+                              width: '20px', height: '20px',
+                              border: '2px solid #f59e0b',
+                              boxShadow: '0 0 6px #f59e0b80'
+                            } : isSel ? {
+                              width: '20px', height: '20px',
+                              backgroundColor: ac,
+                              borderRadius: '9999px',
+                              boxShadow: `0 0 8px ${ac}80`
+                            } : isT ? {
+                              width: '20px', height: '20px',
+                              border: `2px solid ${ac}`,
+                              boxShadow: `0 0 6px ${ac}60`
+                            } : { width: '20px', height: '20px' }}
+                          >
+                            <span className={cn("text-[11px] font-bold leading-none", isT && !isSel && !isHL && "animate-pulse")} style={{ color: isHL && !isT ? '#f59e0b' : (isSel ? '#fff' : (isT ? ac : '#e2e8f0')) }}>{day.getDate()}</span>
+                          </div>
+                          {isSel && !isT && !isHL && <div className="w-1 h-1 rounded-full mt-0.5" style={{ backgroundColor: ac }} />}
                         </div>
+
+                        {/* METÀ DESTRA: freccetta + conteggio — apre popup */}
+                        <div 
+                          className="flex flex-col items-center justify-center cursor-pointer z-20 touch-manipulation active:scale-90"
+                          style={{ width: '50%' }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (dayAllNotes.length > 0) {
+                              setDaySummaryDate(dk);
+                            } else {
+                              setOpenDropdownDay(isDropOpen ? null : i);
+                            }
+                          }}
+                        >
+                          <div className="flex items-center gap-0.5">
+                            {dayAllNotes.length > 0 && (
+                              <span className="text-[10px] font-bold leading-none" style={{ color: '#a3e635' }}>
+                                {dayAllNotes.length}
+                              </span>
+                            )}
+                            <ChevronDown 
+                              className={cn("transition-all duration-200", isDropOpen && "rotate-180")}
+                              style={{ 
+                                width: '20px', 
+                                height: '20px', 
+                                color: isDropOpen ? '#22d3ee' : (dayAllNotes.length > 0 ? '#a3e635' : '#64748b'),
+                                filter: isDropOpen ? 'drop-shadow(0 0 4px #22d3ee) drop-shadow(0 0 8px #22d3ee80)' : (dayAllNotes.length > 0 ? 'drop-shadow(0 0 3px #a3e63580)' : 'none')
+                              }} 
+                            />
+                          </div>
+                        </div>
+
+                        {/* Dropdown fumetto nero - appuntamenti del giorno */}
+                        {isDropOpen && (
+                          <div 
+                            className="absolute z-50 overflow-hidden"
+                            style={{ 
+                              top: '100%', 
+                              right: '-4px',
+                              minWidth: '160px', 
+                              maxWidth: '200px',
+                              marginTop: '6px'
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <div 
+                              className="absolute -top-[6px] right-3 w-0 h-0"
+                              style={{
+                                borderLeft: '6px solid transparent',
+                                borderRight: '6px solid transparent',
+                                borderBottom: '6px solid #000000'
+                              }}
+                            />
+                            <div className="bg-black rounded-xl shadow-2xl overflow-hidden border border-slate-700/50" style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.6)' }}>
+                              {dayAllNotes.length === 0 ? (
+                                <div className="px-3 py-3 text-[10px] text-slate-500 text-center">Nessun appuntamento</div>
+                              ) : (
+                                <div className="py-1.5">
+                                  {dayAllNotes.sort((a, b) => a.time.localeCompare(b.time)).map((item, idx) => {
+                                    const stKey = `${dk}-${item.time}-${idx}`;
+                                    const isStruck = !!strikethroughItems[stKey];
+                                    return (
+                                      <div 
+                                        key={idx} 
+                                        className="flex items-center gap-1.5 px-2.5 py-1.5 hover:bg-slate-900/50"
+                                      >
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setStrikethroughItems(prev => ({ ...prev, [stKey]: !prev[stKey] }));
+                                          }}
+                                          className={cn(
+                                            "w-4 h-4 rounded flex-shrink-0 flex items-center justify-center border transition-all",
+                                            isStruck 
+                                              ? "border-slate-500 bg-slate-700" 
+                                              : "border-slate-600 bg-transparent hover:border-slate-400"
+                                          )}
+                                        >
+                                          {isStruck && <Check className="w-2.5 h-2.5 text-slate-400" />}
+                                        </button>
+                                        <div className="min-w-0 flex-1">
+                                          <span 
+                                            className={cn("text-[11px] font-medium block truncate", isStruck && "line-through opacity-40")}
+                                            style={{ color: ac }}
+                                          >
+                                            — {item.time} {item.title}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                );
-              })}
+                    );
+                  })}
             </div>
           </div>
 
