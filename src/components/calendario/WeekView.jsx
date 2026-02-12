@@ -162,8 +162,10 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
       }
       return;
     }
-    // Primo tap: solo evidenzia il punto giallo + evidenzia l'orario
+    // Primo tap: evidenzia slot + aggiorna il pallino arancione nella barra mese
     setSelectedSlot({ date: dayStr, time: timeLabel });
+    const [y, m, d] = dayStr.split('-').map(Number);
+    setHighlightedDay({ day: d, month: m - 1, year: y });
   };
 
   // Colore basato sul mese della settimana visualizzata (mese del giovedì = mese predominante)
