@@ -36,6 +36,8 @@ function FileEditor({ file, cartellaId, userEmail, onClose, onSaved }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['fileCartella', cartellaId] });
       queryClient.invalidateQueries({ queryKey: ['fileCartella-day'] });
+      queryClient.invalidateQueries({ queryKey: ['allFileCartella'] });
+      queryClient.invalidateQueries({ queryKey: ['file-week'] });
       setIsSaving(false);
       if (onSaved) onSaved();
     }
@@ -160,7 +162,19 @@ function FileEditor({ file, cartellaId, userEmail, onClose, onSaved }) {
           <input
             type="time"
             value={time}
-            onChange={(e) => setTime(e.target.value)}
+            step="300"
+            onChange={(e) => {
+              const val = e.target.value;
+              if (val) {
+                const [h, m] = val.split(':').map(Number);
+                const rounded = Math.round(m / 5) * 5;
+                const finalM = rounded === 60 ? 0 : rounded;
+                const finalH = rounded === 60 ? (h + 1) % 24 : h;
+                setTime(`${String(finalH).padStart(2, '0')}:${String(finalM).padStart(2, '0')}`);
+              } else {
+                setTime('');
+              }
+            }}
             className="bg-transparent text-xs font-medium outline-none"
             style={{ color: time ? '#c084fc' : '#a855f7', colorScheme: 'dark' }}
           />
