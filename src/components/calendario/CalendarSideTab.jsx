@@ -5,6 +5,7 @@ import { base44 } from '@/api/base44Client';
 import HorizontalDatePicker from './HorizontalDatePicker';
 import VerticalTimePicker from './VerticalTimePicker';
 import FatturatoBarra from './FatturatoBarra';
+import WeekView from './WeekView';
 
 const MONTH_COLORS = [
   '#3b82f6', // Gennaio - blu
@@ -22,9 +23,10 @@ const MONTH_COLORS = [
 ];
 
 export default function CalendarSideTab({ selectedDate, onDateSelect }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [showTimePicker, setShowTimePicker] = useState(false);
-  const [showFatturato, setShowFatturato] = useState(false);
+    const [isOpen, setIsOpen] = useState(false);
+    const [showTimePicker, setShowTimePicker] = useState(false);
+    const [showFatturato, setShowFatturato] = useState(false);
+    const [showWeekView, setShowWeekView] = useState(false);
   const goToTodayRef = useRef(null);
   const [currentMonthColor, setCurrentMonthColor] = useState(MONTH_COLORS[new Date().getMonth()]);
   const [visibleMonthLabel, setVisibleMonthLabel] = useState({ month: new Date().getMonth(), year: new Date().getFullYear() });
@@ -218,8 +220,17 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
         )}
       </div>
 
+      {/* Vista settimanale full-screen */}
+            {showWeekView && (
+              <WeekView
+                selectedDate={selectedDate}
+                onClose={() => setShowWeekView(false)}
+                monthColor={currentMonthColor}
+              />
+            )}
+
       {/* Pannello orari - copre TUTTO lo spazio sopra il calendario fino in fondo */}
-      {isOpen && showTimePicker && selectedDate && (
+            {isOpen && showTimePicker && selectedDate && (
         <div 
           className="fixed inset-0 z-[60] bg-slate-900 flex flex-col"
           style={{ bottom: showFatturato ? '340px' : '220px' }}
