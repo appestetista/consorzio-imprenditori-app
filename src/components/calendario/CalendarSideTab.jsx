@@ -428,13 +428,41 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
             height: '130px',
             writingMode: 'vertical-rl',
             textOrientation: 'mixed',
-            top: '72%',
+            top: '75%',
             transform: 'translateY(-50%)'
             }}
             >
             <span className="text-[11px] font-bold tracking-wider leading-none rotate-180 whitespace-nowrap">CHIUDI</span>
             </button>
             )}
+
+      {/* Linguetta CHIUDI nella vista settimanale */}
+      {showWeekView && !showWeekNoteEditor && (
+        <button
+          onClick={() => {
+            setShowWeekView(false);
+            setIsOpen(false);
+            setShowTimePicker(false);
+          }}
+          className={cn(
+            "fixed right-0 z-[70] transition-all duration-300",
+            "bg-gradient-to-l from-lime-400 to-lime-500 text-slate-900",
+            "rounded-l-xl shadow-lg shadow-lime-400/20",
+            "flex items-center justify-center",
+            "hover:pr-2 active:scale-95"
+          )}
+          style={{
+            width: '28px',
+            height: '130px',
+            writingMode: 'vertical-rl',
+            textOrientation: 'mixed',
+            top: '75%',
+            transform: 'translateY(-50%)'
+          }}
+        >
+          <span className="text-[11px] font-bold tracking-wider leading-none rotate-180 whitespace-nowrap">CHIUDI</span>
+        </button>
+      )}
             </>
             );
             }
