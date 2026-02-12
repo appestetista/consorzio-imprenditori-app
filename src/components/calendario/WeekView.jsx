@@ -57,10 +57,12 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     setTimeout(() => { if (scrollRef.current) scrollRef.current.scrollTop = Math.max(0, (idx - 5) * 26); }, 100);
   }, [viewDate]);
 
-  // Touch — il contenuto è ruotato 90° CW con CSS transform.
-  // Fisicamente: dito su/giù → clientY cambia, ma nel mondo ruotato questo corrisponde all'asse orizzontale (giorni/swipe)
-  // Fisicamente: dito sinistra/destra → clientX cambia, ma nel mondo ruotato questo corrisponde all'asse verticale (scroll ore)
-  // Quindi: clientX → scroll ore (verticale visivo), clientY → swipe settimane (orizzontale visivo)
+  // Touch — il contenuto è ruotato 90° CW dal parent CSS transform.
+  // Nel mondo RUOTATO (quello che l'utente vede):
+  //   - "su/giù visivo" (scroll ore) = clientX fisico (dito sx/dx sullo schermo)
+  //     Dito verso SINISTRA fisico (clientX-) = scorrere GIÙ visivamente = scrollTop AUMENTA
+  //     Dito verso DESTRA fisico (clientX+) = scorrere SU visivamente = scrollTop DIMINUISCE
+  //   - "sinistra/destra visivo" (swipe settimane) = clientY fisico (dito su/giù sullo schermo)
   const onTS = (e) => {
     const t = e.touches[0];
     if (touchRef.current.animFrame) cancelAnimationFrame(touchRef.current.animFrame);
@@ -72,16 +74,16 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     e.preventDefault();
     const t = e.touches[0]; const r = touchRef.current; const now = Date.now(); const dt = Math.max(1, now - r.lastTime);
     const tdx = Math.abs(t.clientX - r.startX), tdy = Math.abs(t.clientY - r.startY);
-    if (!r.dir && (tdx > 8 || tdy > 8)) r.dir = tdx > tdy ? 'v' : 'h';
+    if (!r.dir && (tdx > 8 || tdy > 8)) r.dir = tdx > tdy ? 'scroll' : 'swipe';
 
-    if (r.dir === 'v') {
-      // clientX cambia (dito sx/dx fisico) → scroll ore nel mondo ruotato
-      // Dito verso DESTRA fisico (clientX+) = numeri salgono = scrollTop DIMINUISCE
-      const dx = t.clientX - r.lastX;
-      r.velScroll = 0.6 * r.velScroll + 0.4 * (dx / dt * 16);
+    if (r.dir === 'scroll') {
+      // clientX fisico → scroll ore verticale nel mondo ruotato
+      // deltaX positivo (dito verso destra) = scroll SU = scrollTop diminuisce
+      const deltaX = t.clientX - r.lastX;
+      r.velScroll = 0.6 * r.velScroll + 0.4 * (-deltaX / dt * 16);
       if (scrollRef.current) scrollRef.current.scrollTop = r.scrollTop0 - (t.clientX - r.startX);
-    } else if (r.dir === 'h') {
-      // clientY cambia (dito su/giù fisico) → swipe settimane nel mondo ruotato
+    } else if (r.dir === 'swipe') {
+      // clientY fisico → swipe settimane nel mondo ruotato
       setDragX(t.clientY - r.startY);
     }
     r.lastX = t.clientX; r.lastY = t.clientY; r.lastTime = now;
@@ -89,7 +91,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
 
   const onTE = () => {
     const r = touchRef.current;
-    if (r.dir === 'h') {
+    if (r.dir === 'swipe') {
       const THRESHOLD = 60;
       if (Math.abs(dragX) > THRESHOLD) {
         const dir = dragX > 0 ? -1 : 1;
@@ -111,10 +113,16 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
       }
       return;
     }
-    if (r.dir === 'v') {
+    if (r.dir === 'scroll') {
+      // Inerzia: continua lo scroll nella direzione del movimento
       let v = r.velScroll; if (Math.abs(v) < 0.5) return;
-      const f = 0.95;
-      const anim = () => { if (Math.abs(v) < 0.3 || !scrollRef.current) return; scrollRef.current.scrollTop += v; v *= f; touchRef.current.animFrame = requestAnimationFrame(anim); };
+      const friction = 0.96;
+      const anim = () => {
+        if (Math.abs(v) < 0.3 || !scrollRef.current) return;
+        scrollRef.current.scrollTop += v;
+        v *= friction;
+        touchRef.current.animFrame = requestAnimationFrame(anim);
+      };
       touchRef.current.animFrame = requestAnimationFrame(anim);
     }
   };
