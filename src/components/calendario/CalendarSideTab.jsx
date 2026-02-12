@@ -281,7 +281,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                     color: '#0f172a'
                   }}
                 >
-                  {new Date(visibleMonthLabel.year, visibleMonthLabel.month).toLocaleDateString('it-IT', { month: 'short' }).toLowerCase()} {visibleMonthLabel.year}
+                  {visibleDay} {new Date(visibleMonthLabel.year, visibleMonthLabel.month).toLocaleDateString('it-IT', { month: 'short' }).toLowerCase()} {visibleMonthLabel.year} — {new Date(visibleMonthLabel.year, visibleMonthLabel.month, visibleDay).toLocaleDateString('it-IT', { weekday: 'short' })}
                 </span>
               </div>
             } 
