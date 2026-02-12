@@ -104,11 +104,20 @@ export default function MonthNotesSummaryPopup({ notes, cartelleMap, monthIndex,
                         </span>
                       </div>
                       {cart && (
-                        <span className="text-[9px] ml-12 block" style={{ color: isCompleted ? '#475569' : cart.colore }}>
-                          📁 {cart.nome}
-                        </span>
+                        <div className="flex items-center gap-1 ml-12 mt-0.5" style={{ color: isCompleted ? '#475569' : cart.colore }}>
+                          <Folder className="w-3 h-3 flex-shrink-0" />
+                          <span className="text-[10px]">/ {cart.nome}</span>
+                        </div>
                       )}
                     </div>
+
+                    {/* Cestino elimina nota (solo dalla data, non dalla cartella) */}
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setDeleteConfirm(note); }}
+                      className="w-6 h-6 rounded-full bg-red-500/15 hover:bg-red-500/30 flex items-center justify-center flex-shrink-0 touch-manipulation active:scale-90 transition-all"
+                    >
+                      <Trash2 className="w-3 h-3 text-red-400" />
+                    </button>
                   </div>
                 </React.Fragment>
               );
