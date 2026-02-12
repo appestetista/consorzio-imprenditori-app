@@ -354,8 +354,8 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                   transformOrigin: 'center center'
                 }}
               >
-                {/* Spacer per la barra mesi (36px) */}
-                <div className="flex-shrink-0" style={{ height: '36px' }} />
+                {/* Spacer per la barra pulsante + mesi (68px) */}
+                <div className="flex-shrink-0" style={{ height: '68px' }} />
                 {/* WeekView occupa tutto il resto */}
                 <div className="flex-1 min-h-0">
                   <WeekView
