@@ -64,6 +64,36 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
     loadUser();
   }, []);
 
+  // Query tutte le note dell'utente per conteggio mensile nella week view
+  const weekViewYear = new Date().getFullYear(); // anno corrente come riferimento
+  const { data: allUserNotes = [] } = useQuery({
+    queryKey: ['all-user-notes', userEmail],
+    queryFn: () => base44.entities.Nota.filter({ user_email: userEmail }),
+    enabled: !!userEmail && showWeekView
+  });
+
+  // Query cartelle per il popup
+  const { data: cartelleForPopup = [] } = useQuery({
+    queryKey: ['cartelle', userEmail],
+    queryFn: () => base44.entities.Cartella.filter({ user_email: userEmail }),
+    enabled: !!userEmail
+  });
+  const cartelleMapForPopup = {};
+  cartelleForPopup.forEach(c => { cartelleMapForPopup[c.id] = c; });
+
+  // Conta note per mese (anno corrente della settimana visualizzata)
+  const noteCountsByMonth = {};
+  allUserNotes.forEach(n => {
+    if (!n.data) return;
+    const [y, m] = n.data.split('-').map(Number);
+    // Usa l'anno della settimana visualizzata
+    const refYear = weekViewMonth !== undefined ? new Date().getFullYear() : weekViewYear;
+    if (y === refYear) {
+      const mIdx = m - 1;
+      noteCountsByMonth[mIdx] = (noteCountsByMonth[mIdx] || 0) + 1;
+    }
+  });
+
   // Mutation salva nota dalla WeekView
   const weekSaveNoteMutation = useMutation({
     mutationFn: async (noteData) => {
