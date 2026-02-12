@@ -428,7 +428,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
               </div>
             )}
 
-      {/* Linguetta DATA dentro il calendario aperto - per chiuderlo */}
+      {/* Linguetta CHIUDI dentro il calendario aperto - per chiuderlo */}
       {isOpen && (
         <button
           onClick={() => {
@@ -450,8 +450,8 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           }}
         >
           <div className="flex items-center gap-1 rotate-180">
-            <Calendar className="w-4 h-4" />
-            <span className="text-xs font-bold tracking-wider">DATA</span>
+            <X className="w-4 h-4" />
+            <span className="text-xs font-bold tracking-wider">CHIUDI</span>
           </div>
         </button>
       )}
