@@ -10,7 +10,7 @@ export default function MonthBar({ currentMonth, onSelectMonth }) {
   return (
     <div className="flex items-center gap-0.5 px-1 py-1">
       {MONTHS_SHORT.map((mName, mIdx) => {
-        const isCurrent = mIdx === currentMonth;
+        const isCurrent = mIdx === Number(currentMonth);
         const mColor = MONTH_COLORS[mIdx];
         return (
           <button
