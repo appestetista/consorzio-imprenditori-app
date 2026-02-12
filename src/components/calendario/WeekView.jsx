@@ -174,6 +174,21 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   useEffect(() => {
     if (onMonthColorChange) onMonthColorChange(ac);
   }, [ac, onMonthColorChange]);
+
+  // Notifica il mese corrente al parent
+  useEffect(() => {
+    if (onMonthChange) onMonthChange(weekMainMonth);
+  }, [weekMainMonth, onMonthChange]);
+
+  // Registra funzione per permettere al parent di cambiare mese
+  useEffect(() => {
+    if (onRegisterMonthSelect) {
+      onRegisterMonthSelect((mIdx) => {
+        const y = weekDays[3].getFullYear();
+        setViewDate(new Date(y, mIdx, 1));
+      });
+    }
+  }, [onRegisterMonthSelect]);
   const nH = new Date().getHours(), nM = Math.floor(new Date().getMinutes()/5)*5;
   const nowSlot = `${String(nH).padStart(2,'0')}:${String(nM).padStart(2,'0')}`;
   const todayInWeek = weekDays.some(d => d.getTime() === today.getTime());
