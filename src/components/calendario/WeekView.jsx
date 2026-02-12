@@ -302,6 +302,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                     onClick={() => {
                       const d = new Date(refYear, refMonth, dayNum);
                       d.setHours(0,0,0,0);
+                      setViewDate(d);
                       if (onDateSelect) onDateSelect(d);
                     }}
                   >
