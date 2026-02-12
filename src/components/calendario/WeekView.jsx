@@ -58,42 +58,31 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     setTimeout(() => { if (scrollRef.current) scrollRef.current.scrollTop = Math.max(0, (idx - 5) * 26); }, 100);
   }, [viewDate]);
 
-  // Touch — il contenuto è DENTRO un parent CSS rotate(90deg).
-  // Questo significa che le coordinate touch fisiche sono RUOTATE:
-  //   - Dito fisico SU/GIÙ (clientY) → visivamente l'utente scorre ORE (scrollTop)
-  //   - Dito fisico SX/DX (clientX) → visivamente l'utente swipa SETTIMANE
-  // MA! Siccome il parent è ruotato 90° CW:
-  //   - L'utente vede il telefono in landscape
-  //   - "Scorrere le ore" = muovere il dito SX/DX sullo schermo fisico → clientX
-  //   - "Swipare settimane" = muovere il dito SU/GIÙ sullo schermo fisico → clientY
-  // Quindi dobbiamo INVERTIRE: clientX → scroll ore, clientY → swipe settimane
+  // Touch gestito SOLO per swipe settimane (asse orizzontale visivo).
+  // Lo scroll ore è lasciato al browser nativo (overflow-y-auto).
+  // Il parent ha rotate(90deg CW), quindi:
+  //   - Visivamente "scorrere ore" = dito su/giù visivo = clientX fisico → lasciato nativo
+  //   - Visivamente "swipe settimane" = dito sx/dx visivo = clientY fisico → gestito manualmente
   
   const onTS = (e) => {
     const t = e.touches[0];
-    if (touchRef.current.animFrame) cancelAnimationFrame(touchRef.current.animFrame);
+    touchRef.current = { startX:t.clientX, startY:t.clientY, dir:null };
     setAnimating(false);
-    touchRef.current = { startX:t.clientX, startY:t.clientY, lastX:t.clientX, lastY:t.clientY, lastTime:Date.now(), velScroll:0, scrollTop0:scrollRef.current?.scrollTop||0, dir:null, animFrame:null };
   };
 
   const onTM = (e) => {
-    e.preventDefault();
-    const t = e.touches[0]; const r = touchRef.current; const now = Date.now(); const dt = Math.max(1, now - r.lastTime);
-    // Fisico: clientX = orizzontale, clientY = verticale
-    // Visivo dopo rotate(90deg CW): clientX fisico → asse "alto/basso" visivo (ore), clientY fisico → asse "sx/dx" visivo (settimane)
+    const t = e.touches[0]; const r = touchRef.current;
     const physDX = Math.abs(t.clientX - r.startX);
     const physDY = Math.abs(t.clientY - r.startY);
-    if (!r.dir && (physDX > 8 || physDY > 8)) r.dir = physDX > physDY ? 'scroll' : 'swipe';
-
-    if (r.dir === 'scroll') {
-      // clientX fisico → scroll ore
-      const deltaX = t.clientX - r.lastX;
-      r.velScroll = 0.6 * r.velScroll + 0.4 * (deltaX / dt * 16);
-      if (scrollRef.current) scrollRef.current.scrollTop = r.scrollTop0 + (t.clientX - r.startX);
-    } else if (r.dir === 'swipe') {
-      // clientY fisico → swipe settimane (invertito: dito GIÙ fisico = swipe DESTRA visivo)
+    // Decidi direzione solo una volta
+    if (!r.dir && (physDX > 10 || physDY > 10)) {
+      r.dir = physDY > physDX ? 'swipe' : 'scroll';
+    }
+    if (r.dir === 'swipe') {
+      e.preventDefault(); // blocca solo durante swipe settimane
       setDragX(-(t.clientY - r.startY));
     }
-    r.lastX = t.clientX; r.lastY = t.clientY; r.lastTime = now;
+    // se dir === 'scroll' o non deciso → non facciamo nulla, il browser scrolla nativamente
   };
 
   const onTE = () => {
@@ -118,18 +107,6 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
         setDragX(0);
         setTimeout(() => setAnimating(false), 280);
       }
-      return;
-    }
-    if (r.dir === 'scroll') {
-      let v = r.velScroll; if (Math.abs(v) < 0.5) return;
-      const friction = 0.96;
-      const anim = () => {
-        if (Math.abs(v) < 0.3 || !scrollRef.current) return;
-        scrollRef.current.scrollTop += v;
-        v *= friction;
-        touchRef.current.animFrame = requestAnimationFrame(anim);
-      };
-      touchRef.current.animFrame = requestAnimationFrame(anim);
     }
   };
 
@@ -373,8 +350,8 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
           );
         })()}
 
-        {/* AREA TOUCH — griglia ore + swipe settimane */}
-        <div className="flex-1 flex flex-col overflow-hidden" style={{ touchAction: 'none' }} onTouchStart={onTS} onTouchMove={onTM} onTouchEnd={onTE}>
+        {/* AREA TOUCH — griglia ore (nativo) + swipe settimane (manuale) */}
+        <div className="flex-1 flex flex-col overflow-hidden" style={{ touchAction: 'pan-x' }} onTouchStart={onTS} onTouchMove={onTM} onTouchEnd={onTE}>
 
           {/* HEADER GIORNI */}
           <div className="flex flex-shrink-0 border-b border-slate-700/50 overflow-hidden">
@@ -400,9 +377,9 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
             </div>
           </div>
 
-          {/* CORPO */}
+          {/* CORPO — scroll ore nativo (il CSS rotate fa sì che pan-x = scroll verticale visivo) */}
           <div ref={scrollRef} className="flex-1 overflow-y-auto overscroll-none"
-            style={{ scrollbarWidth:'none', msOverflowStyle:'none' }}
+            style={{ scrollbarWidth:'none', msOverflowStyle:'none', touchAction: 'pan-x' }}
           >
             {TIME_SLOTS.map((slot) => {
               const isNow = todayInWeek && slot.label === nowSlot;
