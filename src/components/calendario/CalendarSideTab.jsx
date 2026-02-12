@@ -427,7 +427,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
             setShowTimePicker(false);
           }}
           className={cn(
-            "fixed right-0 top-1/2 -translate-y-1/2 z-[70] transition-all duration-300",
+            "fixed right-0 z-[70] transition-all duration-300",
             "bg-gradient-to-l from-lime-400 to-lime-500 text-slate-900",
             "rounded-l-xl shadow-lg shadow-lime-400/20",
             "flex items-center justify-center",
@@ -437,7 +437,9 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
             width: '32px',
             height: '80px',
             writingMode: 'vertical-rl',
-            textOrientation: 'mixed'
+            textOrientation: 'mixed',
+            top: '65%',
+            transform: 'translateY(-50%)'
           }}
         >
           <div className="flex items-center gap-1 rotate-180">
