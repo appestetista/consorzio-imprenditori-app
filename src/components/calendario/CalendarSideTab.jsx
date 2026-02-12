@@ -121,6 +121,8 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['note-week'] });
       queryClient.invalidateQueries({ queryKey: ['note'] });
+      queryClient.invalidateQueries({ queryKey: ['noteCartella'] });
+      queryClient.invalidateQueries({ queryKey: ['all-user-notes'] });
       // Chiudi editor e torna alla week view
       setShowWeekNoteEditor(false);
       setWeekNoteSlot(null);
@@ -444,9 +446,11 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                   onDelete={(note) => {
                     if (note?.id) {
                       base44.entities.Nota.delete(note.id).then(() => {
-                        queryClient.invalidateQueries({ queryKey: ['note-week'] });
-                        queryClient.invalidateQueries({ queryKey: ['note'] });
-                      });
+                          queryClient.invalidateQueries({ queryKey: ['note-week'] });
+                          queryClient.invalidateQueries({ queryKey: ['note'] });
+                          queryClient.invalidateQueries({ queryKey: ['noteCartella'] });
+                          queryClient.invalidateQueries({ queryKey: ['all-user-notes'] });
+                        });
                     }
                     setShowWeekNoteEditor(false);
                     setWeekNoteSlot(null);

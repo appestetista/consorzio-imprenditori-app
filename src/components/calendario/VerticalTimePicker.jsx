@@ -126,6 +126,9 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['note', userEmail, dateForQuery] });
+      queryClient.invalidateQueries({ queryKey: ['note-week'] });
+      queryClient.invalidateQueries({ queryKey: ['noteCartella'] });
+      queryClient.invalidateQueries({ queryKey: ['all-user-notes'] });
     }
   });
 
@@ -134,6 +137,9 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
     mutationFn: (notaId) => base44.entities.Nota.delete(notaId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['note', userEmail, dateForQuery] });
+      queryClient.invalidateQueries({ queryKey: ['note-week'] });
+      queryClient.invalidateQueries({ queryKey: ['noteCartella'] });
+      queryClient.invalidateQueries({ queryKey: ['all-user-notes'] });
       setDeleteConfirm(null);
     }
   });
@@ -144,6 +150,8 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['fileCartella-day'] });
       queryClient.invalidateQueries({ queryKey: ['allFileCartella'] });
+      queryClient.invalidateQueries({ queryKey: ['file-week'] });
+      queryClient.invalidateQueries({ queryKey: ['fileCartella'] });
     }
   });
 
