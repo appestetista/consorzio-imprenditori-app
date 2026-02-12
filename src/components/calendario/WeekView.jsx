@@ -44,7 +44,8 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     setTimeout(() => { if (scrollRef.current) scrollRef.current.scrollTop = Math.max(0, (idx - 5) * 26); }, 100);
   }, [weekOffset]);
 
-  // Touch — ruotato 90°: clientX → scroll ore, clientY → swipe settimane
+  // Touch — ruotato 90° CW: il dito fisico che va "giù" (clientY+) nel mondo ruotato muove lo scroll delle ore verso il basso
+  // Il dito fisico che va "destra" (clientX+) nel mondo ruotato = swipe settimana
   const onTS = (e) => {
     const t = e.touches[0];
     if (touchRef.current.animFrame) cancelAnimationFrame(touchRef.current.animFrame);
@@ -55,43 +56,43 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   const onTM = (e) => {
     e.preventDefault();
     const t = e.touches[0]; const r = touchRef.current; const now = Date.now(); const dt = Math.max(1, now - r.lastTime);
+    // Nel mondo ruotato 90° CW: asse fisico Y del dito → scroll ore, asse fisico X → swipe settimane
     const tdx = Math.abs(t.clientX - r.startX), tdy = Math.abs(t.clientY - r.startY);
-    if (!r.dir && (tdx > 8 || tdy > 8)) r.dir = tdx > tdy ? 'v' : 'h';
+    if (!r.dir && (tdx > 8 || tdy > 8)) r.dir = tdy > tdx ? 'scroll' : 'swipe';
 
-    if (r.dir === 'v') {
-      const dx = t.clientX - r.lastX;
-      r.velScroll = 0.6 * r.velScroll + 0.4 * (-dx / dt * 16);
-      if (scrollRef.current) scrollRef.current.scrollTop = r.scrollTop0 + (r.startX - t.clientX);
-    } else if (r.dir === 'h') {
-      // Segue il dito 1:1
-      setDragX(t.clientY - r.startY);
+    if (r.dir === 'scroll') {
+      // Dito giù (clientY+) = scroll ore verso BASSO (scrollTop aumenta)
+      const dy = t.clientY - r.lastY;
+      r.velScroll = 0.6 * r.velScroll + 0.4 * (-dy / dt * 16);
+      if (scrollRef.current) scrollRef.current.scrollTop = r.scrollTop0 + (r.startY - t.clientY);
+    } else if (r.dir === 'swipe') {
+      // Dito verso destra/sinistra fisico = cambia settimana
+      setDragX(t.clientX - r.startX);
     }
     r.lastX = t.clientX; r.lastY = t.clientY; r.lastTime = now;
   };
 
   const onTE = () => {
     const r = touchRef.current;
-    if (r.dir === 'h') {
+    if (r.dir === 'swipe') {
       const THRESHOLD = 60;
       if (Math.abs(dragX) > THRESHOLD) {
-        // Conferma swipe: anima fuori, poi cambia settimana
-        const dir = dragX > 0 ? -1 : 1; // dragX positivo = dito verso destra (nel mondo ruotato) = settimana precedente
+        const dir = dragX > 0 ? -1 : 1;
         setAnimating(true);
-        setDragX(dragX > 0 ? 400 : -400); // fuori schermo
+        setDragX(dragX > 0 ? 400 : -400);
         setTimeout(() => {
           setAnimating(false);
           setDragX(0);
           setWeekOffset(w => w + dir);
         }, 280);
       } else {
-        // Ritorna con animazione
         setAnimating(true);
         setDragX(0);
         setTimeout(() => setAnimating(false), 280);
       }
       return;
     }
-    if (r.dir === 'v') {
+    if (r.dir === 'scroll') {
       let v = r.velScroll; if (Math.abs(v) < 0.5) return;
       const f = 0.95;
       const anim = () => { if (Math.abs(v) < 0.3 || !scrollRef.current) return; scrollRef.current.scrollTop += v; v *= f; touchRef.current.animFrame = requestAnimationFrame(anim); };
@@ -147,21 +148,17 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   });
 
   const handleSlotClick = (dayStr, timeLabel) => {
-    // Se clicco sullo stesso slot già selezionato: deseleziona
+    // Se clicco sullo stesso slot già selezionato: apri la nota (secondo tap)
     if (selectedSlot?.date === dayStr && selectedSlot?.time === timeLabel) {
-      setSelectedSlot(null);
+      if (onSlotClick) {
+        const existingNote = notesByDateAndTime[dayStr]?.[timeLabel] || null;
+        onSlotClick({ date: dayStr, time: timeLabel, existingNote });
+      }
       return;
     }
+    // Primo tap: solo evidenzia il punto giallo + evidenzia l'orario
     setSelectedSlot({ date: dayStr, time: timeLabel });
-    // Notifica il parent per aprire NoteEditor fuori dal contesto ruotato
-    if (onSlotClick) {
-      const existingNote = notesByDateAndTime[dayStr]?.[timeLabel] || null;
-      onSlotClick({ date: dayStr, time: timeLabel, existingNote });
-    }
   };
-
-  // Permette al parent di resettare la selezione
-  const clearSelection = () => setSelectedSlot(null);
 
   // Colore basato sul mese della settimana visualizzata (mese del giovedì = mese predominante)
   const weekMainMonth = weekDays[3].getMonth();
@@ -237,13 +234,24 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
               const isNow = todayInWeek && slot.label === nowSlot;
               return (
                 <div key={slot.label} className={cn("flex", slot.isFullHour ? "h-10" : "h-6")}>
-                  {/* Ore fisse */}
-                  <div className="flex-shrink-0 flex items-center px-1.5" style={{ width: '56px' }}>
-                    <div className="flex items-center mr-1.5">
-                      <div className={cn("h-[2px] rounded-full", isNow && "animate-pulse")} style={{ width: slot.isFullHour ? '16px' : '8px', backgroundColor: isNow ? '#fff' : (slot.isFullHour ? ac : '#475569') }} />
-                    </div>
-                    <span className={cn("font-mono text-[10px]", slot.isFullHour && "font-bold", isNow && "text-white font-bold animate-pulse")} style={{ color: isNow ? '#fff' : (slot.isFullHour ? ac : '#94a3b8') }}>{slot.label}</span>
-                  </div>
+                  {/* Ore fisse - evidenzia se lo slot selezionato è su questa riga */}
+                  {(() => {
+                    const isSlotRow = selectedSlot?.time === slot.label;
+                    return (
+                      <div className={cn("flex-shrink-0 flex items-center px-1.5", isSlotRow && "bg-amber-500/10")} style={{ width: '56px' }}>
+                        {isSlotRow ? (
+                          <div className="w-4 h-4 rounded-full bg-amber-500 flex items-center justify-center mr-1 animate-pulse shadow-lg shadow-amber-500/40 flex-shrink-0">
+                            <Plus className="w-2.5 h-2.5 text-white" />
+                          </div>
+                        ) : (
+                          <div className="flex items-center mr-1.5">
+                            <div className={cn("h-[2px] rounded-full", isNow && "animate-pulse")} style={{ width: slot.isFullHour ? '16px' : '8px', backgroundColor: isNow ? '#fff' : (slot.isFullHour ? ac : '#475569') }} />
+                          </div>
+                        )}
+                        <span className={cn("font-mono text-[10px]", slot.isFullHour && "font-bold", isNow && "text-white font-bold animate-pulse")} style={{ color: isSlotRow ? '#f59e0b' : (isNow ? '#fff' : (slot.isFullHour ? ac : '#94a3b8')) }}>{slot.label}</span>
+                      </div>
+                    );
+                  })()}
                   {/* Giorni — si spostano col swipe */}
                   <div className="flex flex-1 overflow-hidden" style={swipeStyle}>
                     {weekDays.map((day, di) => {
