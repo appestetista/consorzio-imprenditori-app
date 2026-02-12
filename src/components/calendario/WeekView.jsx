@@ -212,7 +212,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
 
   return (
     <div className="flex flex-col h-full overflow-hidden" style={bgStyle}>
-        {/* Barra mesi rimossa — ora gestita dal parent CalendarSideTab fuori dal rotate */}
+
 
         {/* Barra pallini giorni del mese */}
         {(() => {
