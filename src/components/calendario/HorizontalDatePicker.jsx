@@ -848,20 +848,16 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
             {yearProgress.toFixed(2).replace('.', ',')}% anno trascorso
           </span>
           
-          {/* Pulsante Vendite/€ centrato - pulsante con colore mese */}
+          {/* Pulsante Settimana centrato - pulsante con colore mese */}
           {onToggleFatturato && (
             <button
               onClick={onToggleFatturato}
-              className="px-3 py-0.5 rounded-full flex items-center gap-1 transition-all animate-pulse"
+              className="px-3 py-0.5 rounded-full flex items-center gap-1 transition-all"
               style={{ backgroundColor: currentMonthColor || '#a3e635' }}
             >
               <span className="text-[10px] text-slate-900 font-semibold uppercase">
-                Vendite / €
+                Settimana
               </span>
-              <ChevronDown className={cn(
-                "w-3 h-3 text-slate-900 transition-transform",
-                showFatturato && "rotate-180"
-              )} />
             </button>
           )}
           
