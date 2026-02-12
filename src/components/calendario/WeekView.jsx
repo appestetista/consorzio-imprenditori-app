@@ -34,6 +34,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   const [dragX, setDragX] = useState(0);
   const [animating, setAnimating] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState(null);
+  const [selectedDayInBar, setSelectedDayInBar] = useState(null); // { day, month, year } del giorno cliccato nella barra mese
   const [showMonthDropdown, setShowMonthDropdown] = useState(false);
   const scrollRef = useRef(null);
   const touchRef = useRef({ startX:0, startY:0, lastX:0, lastY:0, lastTime:0, velScroll:0, scrollTop0:0, dir:null, animFrame:null });
@@ -322,20 +323,28 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                     onClick={() => {
                       const d = new Date(refYear, refMonth, dayNum);
                       d.setHours(0,0,0,0);
+                      setSelectedDayInBar({ day: dayNum, month: refMonth, year: refYear });
                       setViewDate(d);
                       if (onDateSelect) onDateSelect(d);
                     }}
                   >
+                    {(() => {
+                      const isSelectedInBar = selectedDayInBar && selectedDayInBar.day === dayNum && selectedDayInBar.month === refMonth && selectedDayInBar.year === refYear;
+                      const borderColor = isSelectedInBar ? '#f59e0b' : (isFilled ? fillColor : (isWeekend ? '#ef444450' : ac + '40'));
+                      const borderWidth = isSelectedInBar ? '2px' : (isFilled ? '2px' : '1.5px');
+                      return (
                     <div 
                       className="rounded-full flex items-center justify-center transition-all"
                       style={{ 
                         width: '22px',
                         height: '22px',
                         backgroundColor: isFilled ? fillColor : 'transparent',
-                        border: isFilled ? `2px solid ${fillColor}` : `1.5px solid ${isWeekend ? '#ef444450' : ac + '40'}`,
-                        boxShadow: isFilled ? `0 0 8px ${fillColor}80` : undefined
+                        border: `${borderWidth} solid ${borderColor}`,
+                        boxShadow: isFilled ? `0 0 8px ${fillColor}80` : (isSelectedInBar ? `0 0 6px #f59e0b80` : undefined)
                       }}
                     >
+                      );
+                    })()}
                       <span 
                         className="text-[8px] font-bold leading-none"
                         style={{ color: isFilled ? '#ffffff' : '#e2e8f0' }}
