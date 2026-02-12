@@ -178,7 +178,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           textOrientation: 'mixed'
         }}
       >
-        <span className="text-[9px] font-bold tracking-wider leading-none rotate-180 whitespace-nowrap">MIO CALENDARIO</span>
+        <span className="text-[11px] font-bold tracking-wider leading-none rotate-180 whitespace-nowrap">CALENDARIO</span>
       </button>
 
       {/* Pannello calendario - scorre da destra a sinistra orizzontalmente */}
