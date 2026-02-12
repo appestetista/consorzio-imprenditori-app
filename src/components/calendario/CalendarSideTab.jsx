@@ -283,30 +283,6 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                 transition: 'background-color 1.2s ease, transform 0.7s ease-in-out'
               }}
             >
-              {/* Barra mesi FUORI dal rotate — in orientamento portrait, in alto */}
-              <div className="absolute top-0 left-0 right-0 z-10 border-b border-slate-700/50"
-                style={{ backgroundColor: `color-mix(in srgb, ${weekViewColor || currentMonthColor} 6%, #0f172a)` }}
-              >
-                <div className="flex items-center">
-                  <button
-                    onClick={() => setShowWeekView(false)}
-                    className="flex-shrink-0 px-3 py-2 touch-manipulation active:scale-95 transition-transform"
-                  >
-                    <span className="text-[9px] font-bold uppercase" style={{ color: weekViewColor || currentMonthColor || '#a3e635' }}>
-                      ▼ Giorno
-                    </span>
-                  </button>
-                  <div className="flex-1">
-                    <MonthBar 
-                      currentMonth={weekViewMonth}
-                      onSelectMonth={(mIdx) => {
-                        if (weekViewMonthSelectRef.current) weekViewMonthSelectRef.current(mIdx);
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-
               {/* Contenitore ruotato: tutto il contenuto è girato di 90° in senso orario */}
               <div 
                 className="absolute flex flex-col"
@@ -319,8 +295,27 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                   transformOrigin: 'center center'
                 }}
               >
-                {/* Spacer per la barra mesi portrait (circa 40px) */}
-                <div className="flex-shrink-0" style={{ height: '40px' }} />
+                {/* Barra mesi + pulsante giorno — DENTRO il rotate, sopra i pallini giorni */}
+                <div className="flex-shrink-0 flex items-center border-b border-slate-700/50"
+                  style={{ backgroundColor: `color-mix(in srgb, ${weekViewColor || currentMonthColor} 6%, #0f172a)` }}
+                >
+                  <button
+                    onClick={() => setShowWeekView(false)}
+                    className="flex-shrink-0 px-2 py-1.5 touch-manipulation active:scale-95 transition-transform"
+                  >
+                    <span className="text-[9px] font-bold uppercase" style={{ color: weekViewColor || currentMonthColor || '#a3e635' }}>
+                      ▼
+                    </span>
+                  </button>
+                  <div className="flex-1 overflow-hidden">
+                    <MonthBar 
+                      currentMonth={weekViewMonth}
+                      onSelectMonth={(mIdx) => {
+                        if (weekViewMonthSelectRef.current) weekViewMonthSelectRef.current(mIdx);
+                      }}
+                    />
+                  </div>
+                </div>
                 {/* WeekView occupa tutto il resto */}
                 <div className="flex-1 min-h-0">
                   <WeekView
