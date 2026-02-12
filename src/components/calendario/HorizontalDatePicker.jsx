@@ -372,6 +372,10 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
   }, [selectedDate, currentYear]);
 
   const handleDayClick = (dayData, monthData) => {
+    // Se è già il giorno selezionato, non fare nulla (evita scroll/cambio involontario)
+    if (selectedDate && dayData.date.toDateString() === new Date(selectedDate).toDateString()) {
+      return;
+    }
     if (onDateSelect) {
       onDateSelect(dayData.date);
     }
