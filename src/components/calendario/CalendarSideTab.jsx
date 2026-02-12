@@ -180,7 +180,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           transform: 'translateY(-50%)'
         }}
       >
-        <span className="text-[11px] font-bold tracking-wider leading-none rotate-180 whitespace-nowrap">CALENDARIO</span>
+        <span className="text-[11px] font-bold tracking-wider leading-none whitespace-nowrap">CALENDARIO</span>
       </button>
 
       {/* Pannello calendario - scorre da destra a sinistra orizzontalmente */}
@@ -432,7 +432,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
             transform: 'translateY(-50%)'
             }}
             >
-            <span className="text-[11px] font-bold tracking-wider leading-none rotate-180 whitespace-nowrap">CHIUDI</span>
+            <span className="text-[11px] font-bold tracking-wider leading-none whitespace-nowrap">CHIUDI</span>
             </button>
             )}
 
@@ -460,7 +460,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
             transform: 'translateY(-50%)'
           }}
         >
-          <span className="text-[11px] font-bold tracking-wider leading-none rotate-180 whitespace-nowrap">CHIUDI</span>
+          <span className="text-[11px] font-bold tracking-wider leading-none whitespace-nowrap">CHIUDI</span>
         </button>
       )}
             </>
