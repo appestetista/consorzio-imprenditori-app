@@ -30,11 +30,15 @@ function fk(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,
 export default function WeekView({ selectedDate, monthColor, onMonthColorChange, onDateSelect, onSlotClick }) {
   const [userEmail, setUserEmail] = useState(null);
   const [weekOffset, setWeekOffset] = useState(0);
+  const [monthOffset, setMonthOffset] = useState(0); // scorrimento mesi dalla label
   const [dragX, setDragX] = useState(0);
   const [animating, setAnimating] = useState(false);
-  const [selectedSlot, setSelectedSlot] = useState(null); // per evidenziazione visiva
+  const [selectedSlot, setSelectedSlot] = useState(null);
+  const [monthDragX, setMonthDragX] = useState(0);
+  const [monthAnimating, setMonthAnimating] = useState(false);
   const scrollRef = useRef(null);
   const touchRef = useRef({ startX:0, startY:0, lastX:0, lastY:0, lastTime:0, velScroll:0, scrollTop0:0, dir:null, animFrame:null });
+  const monthTouchRef = useRef({ startX: 0, startY: 0, active: false });
 
   useEffect(() => { base44.auth.me().then(u => setUserEmail(u?.email)).catch(()=>{}); }, []);
 
@@ -103,8 +107,17 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     }
   };
 
-  const base = selectedDate ? new Date(selectedDate) : new Date();
-  const off = new Date(base); off.setDate(off.getDate() + weekOffset * 7);
+  // Calcolo base: se c'è monthOffset usiamo il primo lunedì del mese target
+  const baseForWeek = (() => {
+    if (monthOffset !== 0) {
+      const now = selectedDate ? new Date(selectedDate) : new Date();
+      const targetMonth = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
+      // Trova il primo lunedì che contiene il 1° del mese
+      return targetMonth;
+    }
+    return selectedDate ? new Date(selectedDate) : new Date();
+  })();
+  const off = new Date(baseForWeek); off.setDate(off.getDate() + weekOffset * 7);
   const weekDays = getWeekDays(off);
   const today = new Date(); today.setHours(0,0,0,0);
   const s0 = fk(weekDays[0]), s6 = fk(weekDays[6]);
@@ -192,16 +205,62 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     transition: 'background-color 1.2s ease'
   };
 
+  // Touch handlers per label mese (swipe orizzontale per cambiare mese)
+  const onMonthTS = (e) => {
+    e.stopPropagation();
+    const t = e.touches[0];
+    monthTouchRef.current = { startX: t.clientY, startY: t.clientX, active: true };
+    setMonthAnimating(false);
+  };
+  const onMonthTM = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (!monthTouchRef.current.active) return;
+    const t = e.touches[0];
+    // Nel mondo ruotato 90°: clientY fisico = asse orizzontale visivo
+    setMonthDragX(t.clientY - monthTouchRef.current.startX);
+  };
+  const onMonthTE = (e) => {
+    e.stopPropagation();
+    if (!monthTouchRef.current.active) return;
+    monthTouchRef.current.active = false;
+    const THRESHOLD = 40;
+    if (Math.abs(monthDragX) > THRESHOLD) {
+      const dir = monthDragX > 0 ? -1 : 1; // swipe sinistra = mese avanti
+      setMonthAnimating(true);
+      setMonthDragX(monthDragX > 0 ? 200 : -200);
+      setTimeout(() => {
+        setMonthAnimating(false);
+        setMonthDragX(0);
+        setMonthOffset(m => m + dir);
+        setWeekOffset(0); // reset settimana quando cambio mese
+      }, 200);
+    } else {
+      setMonthAnimating(true);
+      setMonthDragX(0);
+      setTimeout(() => setMonthAnimating(false), 200);
+    }
+  };
+
+  const monthSwipeStyle = {
+    transform: `translateX(${monthDragX}px)`,
+    transition: monthAnimating ? 'transform 0.2s ease, opacity 0.2s ease' : 'none',
+    opacity: monthAnimating && Math.abs(monthDragX) > 100 ? 0 : 1,
+  };
+
   return (
     <div className="flex flex-col h-full overflow-hidden" style={bgStyle}>
-        {/* Label mese + pulsante oggi */}
-        <div className="flex-shrink-0 flex items-center justify-center gap-3 px-2 py-1 border-b border-slate-700/50">
-          <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: ac }}>{wLabel}</span>
-          {weekOffset !== 0 && (
-            <button onClick={() => setWeekOffset(0)} className="text-[8px] font-bold px-1.5 py-0.5 rounded" style={{ backgroundColor: ac, color: '#0f172a' }}>
-              OGGI
-            </button>
-          )}
+        {/* Label mese — swipe per cambiare mese */}
+        <div 
+          className="flex-shrink-0 flex items-center justify-center px-2 py-1 border-b border-slate-700/50 select-none"
+          style={{ touchAction: 'none' }}
+          onTouchStart={onMonthTS}
+          onTouchMove={onMonthTM}
+          onTouchEnd={onMonthTE}
+        >
+          <div style={monthSwipeStyle}>
+            <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: ac }}>{wLabel}</span>
+          </div>
         </div>
 
         {/* Barra pallini giorni del mese */}
@@ -209,10 +268,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
           const refMonth = weekMainMonth;
           const refYear = weekDays[3].getFullYear();
           const daysInMonth = new Date(refYear, refMonth + 1, 0).getDate();
-          // Giorno selezionato dalla data
-          const selDay = selectedDate ? new Date(selectedDate) : null;
-          const selDayNum = selDay && selDay.getMonth() === refMonth && selDay.getFullYear() === refYear ? selDay.getDate() : null;
-          // Giorno dello slot selezionato (tap su orario nel calendario)
+          // Giorno dello slot selezionato (tap su orario nel calendario → cerchio arancione)
           const slotDayNum = (() => {
             if (!selectedSlot?.date) return null;
             const [y, m, d] = selectedSlot.date.split('-').map(Number);
@@ -221,7 +277,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
           })();
           
           return (
-            <div className="flex-shrink-0 flex items-center px-0.5 py-1 border-b border-slate-700/30">
+            <div className="flex-shrink-0 flex items-center px-0.5 py-1.5 border-b border-slate-700/30">
               {Array.from({ length: daysInMonth }, (_, i) => {
                 const dayNum = i + 1;
                 const dayDate = new Date(refYear, refMonth, dayNum);
@@ -229,9 +285,9 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                 const isWeekend = dow === 0 || dow === 6;
                 const isToday = dayDate.getTime() === today.getTime();
                 const isSlotDay = dayNum === slotDayNum;
-                const isSelected = dayNum === selDayNum;
-                // Colore pallino: arancione se è il giorno dello slot selezionato, colore mese se oggi, altrimenti bordo vuoto
-                const isFilled = isSlotDay || isToday;
+                
+                // Solo oggi è pieno col colore mese; slot selezionato → arancione pieno; il resto → bordo colore mese
+                const isFilled = isToday || isSlotDay;
                 const fillColor = isSlotDay ? '#f59e0b' : ac;
                 
                 return (
@@ -251,13 +307,13 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                         width: '22px',
                         height: '22px',
                         backgroundColor: isFilled ? fillColor : 'transparent',
-                        border: isFilled ? 'none' : `1.5px solid ${isWeekend ? '#ef444440' : ac + '35'}`,
+                        border: isFilled ? `2px solid ${fillColor}` : `1.5px solid ${isWeekend ? '#ef444450' : ac + '40'}`,
                         boxShadow: isFilled ? `0 0 8px ${fillColor}80` : undefined
                       }}
                     >
                       <span 
                         className="text-[8px] font-bold leading-none"
-                        style={{ color: isFilled ? '#0f172a' : '#e2e8f0' }}
+                        style={{ color: isFilled ? '#ffffff' : '#e2e8f0' }}
                       >
                         {dayNum}
                       </span>
