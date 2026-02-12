@@ -312,12 +312,11 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                   pointerEvents: 'auto'
                 }}
               >
-                {/* Riga 1: Pulsante vista giornaliera + DATA a destra */}
+                {/* Riga 1: Vista giornaliera al centro + CHIUDI a destra */}
                 <div className="flex items-center justify-between px-3" style={{ height: '32px' }}>
-                  <div /> {/* spacer sinistro */}
+                  <div style={{ width: '60px' }} /> {/* spacer sinistro per bilanciare */}
                   <button
                     onClick={() => {
-                      // Usa selectedDate corrente (aggiornato dai click nella WeekView)
                       const targetDate = selectedDate 
                         ? new Date(selectedDate) 
                         : new Date();
@@ -332,26 +331,24 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                         }
                       }, 200);
                     }}
-                    className="flex items-center gap-1.5 px-3 py-1 rounded-md touch-manipulation active:scale-90 transition-all animate-pulse"
+                    className="px-3 py-1 rounded-md touch-manipulation active:scale-90 transition-all animate-pulse"
                     style={{ 
                       backgroundColor: MONTH_COLORS[weekViewMonth],
                       color: '#0f172a'
                     }}
                   >
-                    <Calendar className="w-3.5 h-3.5" />
                     <span className="text-[9px] font-bold uppercase">Vista giornaliera</span>
                   </button>
-                  {/* Pulsante MIO CALENDARIO - chiude la vista settimanale */}
+                  {/* Pulsante CHIUDI */}
                   <button
                     onClick={() => {
                       setShowWeekView(false);
-                      setIsOpen(true);
-                      setShowTimePicker(true);
+                      setIsOpen(false);
+                      setShowTimePicker(false);
                     }}
-                    className="flex items-center gap-1 px-2 py-1 rounded-md bg-gradient-to-r from-lime-400 to-lime-500 text-slate-900 touch-manipulation active:scale-90 transition-all"
+                    className="px-2 py-1 rounded-md bg-gradient-to-r from-lime-400 to-lime-500 text-slate-900 touch-manipulation active:scale-90 transition-all"
                   >
-                    <Calendar className="w-3 h-3" />
-                    <span className="text-[9px] font-bold tracking-wider">MIO CALENDARIO</span>
+                    <span className="text-[9px] font-bold tracking-wider">CHIUDI</span>
                   </button>
                 </div>
                 {/* Riga 2: Barra mesi */}
