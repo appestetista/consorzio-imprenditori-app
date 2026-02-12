@@ -160,7 +160,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
 
   return (
     <>
-      {/* Linguetta laterale */}
+      {/* Linguetta DATA - in sovraimpressione sul lato destro */}
       <button
         onClick={toggleCalendar}
         className={cn(
@@ -184,14 +184,15 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
         </div>
       </button>
 
-      {/* Pannello calendario - si apre dal basso */}
+      {/* Pannello calendario - scorre da destra a sinistra orizzontalmente */}
       <div
         className={cn(
-          "fixed left-0 right-0 bottom-0 transition-all duration-300 ease-out",
+          "fixed inset-0 transition-transform duration-500 ease-in-out",
           "bg-slate-900 shadow-2xl",
-          isOpen ? "translate-y-0" : "translate-y-full",
+          isOpen ? "translate-x-0" : "translate-x-full",
           showTimePicker ? "z-[55]" : "z-50"
         )}
+        style={{ display: 'flex', flexDirection: 'column' }}
       >
         {/* Calendario orizzontale - senza spazio sopra */}
         <div>
