@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
-import { Plus, FileText, X } from 'lucide-react';
+import { Plus, FileText, X, ChevronDown } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 
@@ -36,6 +36,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [monthDragX, setMonthDragX] = useState(0);
   const [monthAnimating, setMonthAnimating] = useState(false);
+  const [showMonthDropdown, setShowMonthDropdown] = useState(false);
   const scrollRef = useRef(null);
   const touchRef = useRef({ startX:0, startY:0, lastX:0, lastY:0, lastTime:0, velScroll:0, scrollTop0:0, dir:null, animFrame:null });
   const monthTouchRef = useRef({ startX: 0, startY: 0, active: false });
@@ -254,17 +255,76 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
 
   return (
     <div className="flex flex-col h-full overflow-hidden" style={bgStyle}>
-        {/* Label mese — swipe per cambiare mese */}
+        {/* Label mese — swipe per cambiare mese + dropdown */}
         <div 
-          className="flex-shrink-0 flex items-center justify-center px-2 py-1 border-b border-slate-700/50 select-none"
+          className="flex-shrink-0 flex items-center justify-center px-2 py-1 border-b border-slate-700/50 select-none relative"
           style={{ touchAction: 'none' }}
           onTouchStart={onMonthTS}
           onTouchMove={onMonthTM}
           onTouchEnd={onMonthTE}
         >
-          <div style={monthSwipeStyle}>
+          <div style={monthSwipeStyle} className="flex items-center gap-1">
             <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: ac }}>{wLabel}</span>
+            <button 
+              onClick={(e) => { e.stopPropagation(); setShowMonthDropdown(!showMonthDropdown); }}
+              className="p-0.5 rounded hover:bg-slate-700/50 transition-colors"
+            >
+              <ChevronDown className={cn("w-3.5 h-3.5 transition-transform", showMonthDropdown && "rotate-180")} style={{ color: ac }} />
+            </button>
           </div>
+
+          {/* Dropdown mesi */}
+          {showMonthDropdown && (
+            <div 
+              className="absolute top-full left-1/2 -translate-x-1/2 z-50 bg-slate-800 border border-slate-600 rounded-lg shadow-2xl overflow-hidden"
+              style={{ minWidth: '160px' }}
+              onClick={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+              onTouchMove={(e) => e.stopPropagation()}
+              onTouchEnd={(e) => e.stopPropagation()}
+            >
+              {/* Anno corrente visualizzato con frecce per cambiare */}
+              <div className="flex items-center justify-between px-3 py-1.5 border-b border-slate-700">
+                <button 
+                  onClick={() => setViewDate(prev => new Date(getWeekDays(prev)[3].getFullYear() - 1, getWeekDays(prev)[3].getMonth(), 1))}
+                  className="text-slate-400 hover:text-white text-xs font-bold px-1"
+                >
+                  ‹
+                </button>
+                <span className="text-xs font-bold text-slate-300">{weekDays[3].getFullYear()}</span>
+                <button 
+                  onClick={() => setViewDate(prev => new Date(getWeekDays(prev)[3].getFullYear() + 1, getWeekDays(prev)[3].getMonth(), 1))}
+                  className="text-slate-400 hover:text-white text-xs font-bold px-1"
+                >
+                  ›
+                </button>
+              </div>
+              {/* Griglia 3x4 mesi */}
+              <div className="grid grid-cols-3 gap-0.5 p-1.5">
+                {MONTHS_IT.map((mName, mIdx) => {
+                  const isCurrentMonth = mIdx === weekMainMonth;
+                  const mColor = MONTH_COLORS[mIdx];
+                  return (
+                    <button
+                      key={mIdx}
+                      onClick={() => {
+                        const yr = weekDays[3].getFullYear();
+                        setViewDate(new Date(yr, mIdx, 1));
+                        setShowMonthDropdown(false);
+                      }}
+                      className={cn(
+                        "px-1.5 py-1.5 rounded text-[9px] font-semibold transition-all text-center",
+                        isCurrentMonth ? "text-slate-900 font-bold" : "text-slate-400 hover:text-white hover:bg-slate-700"
+                      )}
+                      style={isCurrentMonth ? { backgroundColor: mColor } : undefined}
+                    >
+                      {mName.slice(0, 3)}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Barra pallini giorni del mese */}
