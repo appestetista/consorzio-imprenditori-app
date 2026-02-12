@@ -438,13 +438,13 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
             height: '130px',
             writingMode: 'vertical-rl',
             textOrientation: 'mixed',
-            top: '65%',
+            top: '72%',
             transform: 'translateY(-50%)'
-          }}
-        >
-          <span className="text-[11px] font-bold tracking-wider leading-none rotate-180 whitespace-nowrap">CHIUDI</span>
-        </button>
-      )}
-    </>
-  );
-}
+            }}
+            >
+            <span className="text-[11px] font-bold tracking-wider leading-none rotate-180 whitespace-nowrap">CHIUDI</span>
+            </button>
+            )}
+            </>
+            );
+            }
