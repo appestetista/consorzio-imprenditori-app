@@ -270,32 +270,31 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                     }}
                   >
                     {(() => {
-                      // Giorno selezionato dalla vista giornaliera: cerchio pieno col colore mese
-                      // Oggi (non selezionato): solo bordo col colore mese, pulsante
-                      // Highlightato (tap nella week): bordo arancione
                       const isSelectedDay = selectedDate && dayDate.getTime() === new Date(new Date(selectedDate).setHours(0,0,0,0)).getTime();
-                      const bgColor = isSelectedDay ? ac : 'transparent';
-                      const borderColor = isSelected ? '#f59e0b' : (isSelectedDay ? ac : (isToday ? ac : (isWeekend ? '#ef444450' : ac + '40')));
-                      const borderWidth = isSelected ? '2px' : (isSelectedDay || isToday ? '2px' : '1.5px');
-                      const numColor = isSelectedDay ? '#ffffff' : (isSelected ? '#f59e0b' : (isToday ? ac : '#e2e8f0'));
-                      const letterColor = isWeekend ? '#ef4444' : (isSelectedDay ? ac : (isToday ? ac : (isSelected ? '#f59e0b' : '#64748b')));
+                      // Oggi: niente cerchio/bordo, solo numero bianco pulsante
+                      const showCircle = !isToday && (isSelectedDay || isSelected);
+                      const bgColor = isSelectedDay && !isToday ? ac : 'transparent';
+                      const borderColor = isSelected ? '#f59e0b' : (isSelectedDay ? ac : (isWeekend ? '#ef444450' : ac + '40'));
+                      const borderWidth = isSelected ? '2px' : (isSelectedDay ? '2px' : '1.5px');
+                      const numColor = isToday ? '#ffffff' : (isSelectedDay ? '#ffffff' : (isSelected ? '#f59e0b' : '#e2e8f0'));
+                      const letterColor = isWeekend ? '#ef4444' : (isToday ? '#ffffff' : (isSelectedDay ? ac : (isSelected ? '#f59e0b' : '#64748b')));
                       return (
                         <>
                           <div 
-                            className={cn("rounded-full flex items-center justify-center transition-all", isToday && !isSelectedDay && "animate-pulse")}
+                            className={cn("rounded-full flex items-center justify-center transition-all", isToday && "animate-pulse")}
                             style={{ 
                               width: '22px',
                               height: '22px',
-                              backgroundColor: bgColor,
-                              border: `${borderWidth} solid ${borderColor}`,
-                              boxShadow: isSelectedDay ? `0 0 8px ${ac}80` : (isSelected ? `0 0 6px #f59e0b80` : (isToday ? `0 0 6px ${ac}60` : undefined))
+                              backgroundColor: showCircle ? bgColor : 'transparent',
+                              border: showCircle ? `${borderWidth} solid ${borderColor}` : '1.5px solid transparent',
+                              boxShadow: isSelectedDay && !isToday ? `0 0 8px ${ac}80` : (isSelected ? `0 0 6px #f59e0b80` : undefined)
                             }}
                           >
-                            <span className="text-[8px] font-bold leading-none" style={{ color: numColor }}>
+                            <span className={cn("text-[8px] font-bold leading-none", isToday && "animate-pulse")} style={{ color: numColor }}>
                               {dayNum}
                             </span>
                           </div>
-                          <span className={cn("text-[7px] font-bold leading-tight mt-[2px]", isToday && !isSelectedDay && "animate-pulse")} style={{ color: letterColor }}>
+                          <span className={cn("text-[7px] font-bold leading-tight mt-[2px]", isToday && "animate-pulse")} style={{ color: letterColor }}>
                             {isWeekend ? (dow === 6 ? 'S' : 'D') : DAY_LETTERS[dow]}
                           </span>
                         </>
