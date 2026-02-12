@@ -344,8 +344,10 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                         >
                           <span className={cn("text-[9px] font-bold leading-tight tracking-wide", isT && !isSel && !isHL && "animate-pulse")} style={{ color: isWe ? '#ef4444' : (isHL ? '#f59e0b' : (isSel ? ac : (isT ? ac : '#94a3b8'))) }}>{DAYS_SHORT_IT[i]}</span>
                           <div 
-                            className={cn("flex items-center justify-center rounded-full mt-0.5", isT && !isSel && !isHL && "animate-pulse")}
-                            style={isHL && !isT ? { 
+                            className={cn("flex items-center justify-center rounded-full mt-0.5", isT && "animate-pulse")}
+                            style={isT ? {
+                              width: '20px', height: '20px'
+                            } : isHL ? { 
                               width: '20px', height: '20px',
                               border: '2px solid #f59e0b',
                               boxShadow: '0 0 6px #f59e0b80'
@@ -354,13 +356,9 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                               backgroundColor: ac,
                               borderRadius: '9999px',
                               boxShadow: `0 0 8px ${ac}80`
-                            } : isT ? {
-                              width: '20px', height: '20px',
-                              border: `2px solid ${ac}`,
-                              boxShadow: `0 0 6px ${ac}60`
                             } : { width: '20px', height: '20px' }}
                           >
-                            <span className={cn("text-[11px] font-bold leading-none", isT && !isSel && !isHL && "animate-pulse")} style={{ color: isHL && !isT ? '#f59e0b' : (isSel ? '#fff' : (isT ? ac : '#e2e8f0')) }}>{day.getDate()}</span>
+                            <span className={cn("text-[11px] font-bold leading-none", isT && "animate-pulse")} style={{ color: isT ? '#ffffff' : (isHL ? '#f59e0b' : (isSel ? '#fff' : '#e2e8f0')) }}>{day.getDate()}</span>
                           </div>
                           {isSel && !isT && !isHL && <div className="w-1 h-1 rounded-full mt-0.5" style={{ backgroundColor: ac }} />}
                         </div>
