@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
-import { Plus, FileText, X, ChevronDown } from 'lucide-react';
+import { Plus, FileText, X } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 
@@ -27,7 +27,7 @@ function getWeekDays(ref) {
 }
 function fk(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 
-export default function WeekView({ selectedDate, monthColor, onMonthColorChange, onDateSelect, onSlotClick, onRequestMonthDropdown }) {
+export default function WeekView({ selectedDate, monthColor, onMonthColorChange, onDateSelect, onSlotClick }) {
   const [userEmail, setUserEmail] = useState(null);
   // viewDate è la data di riferimento per la settimana visualizzata
   const [viewDate, setViewDate] = useState(() => selectedDate ? new Date(selectedDate) : new Date());
@@ -35,8 +35,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   const [animating, setAnimating] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [selectedDayInBar, setSelectedDayInBar] = useState(null); // { day, month, year } del giorno cliccato nella barra mese
-  const [showMonthDropdown, setShowMonthDropdown] = useState(false);
-  const [dropdownYear, setDropdownYear] = useState(() => selectedDate ? new Date(selectedDate).getFullYear() : new Date().getFullYear());
+  
   const scrollRef = useRef(null);
   const touchRef = useRef({ startX:0, startY:0, lastX:0, lastY:0, lastTime:0, velScroll:0, scrollTop0:0, dir:null, animFrame:null });
 
@@ -179,9 +178,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   const nowSlot = `${String(nH).padStart(2,'0')}:${String(nM).padStart(2,'0')}`;
   const todayInWeek = weekDays.some(d => d.getTime() === today.getTime());
 
-  // Label mese
-  const MONTHS_IT = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
-  const wLabel = `${MONTHS_IT[weekMainMonth]} ${weekDays[3].getFullYear()}`;
+  const MONTHS_IT = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
 
   // Stile swipe per le colonne giorni
   const swipeStyle = {
@@ -200,32 +197,32 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
 
   return (
     <div className="flex flex-col h-full overflow-hidden" style={bgStyle}>
-        {/* Label mese — si aggiorna automaticamente con la settimana + dropdown */}
-        <div 
-          className="flex-shrink-0 flex items-center justify-center px-2 py-1 border-b border-slate-700/50 select-none relative"
-        >
-          <div className="flex items-center gap-1">
-            <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: ac }}>{wLabel}</span>
-            <button 
-              onClick={(e) => { 
-                e.stopPropagation(); 
-                if (onRequestMonthDropdown) {
-                  onRequestMonthDropdown({
-                    currentMonth: weekMainMonth,
-                    currentYear: weekDays[3].getFullYear(),
-                    onSelectMonth: (year, month) => {
-                      setViewDate(new Date(year, month, 1));
-                    }
-                  });
-                }
-              }}
-              className="p-0.5 rounded hover:bg-slate-700/50 transition-colors"
-            >
-              <ChevronDown className="w-3.5 h-3.5" style={{ color: ac }} />
-            </button>
-          </div>
-
-          {/* Dropdown mesi — gestito dal parent (CalendarSideTab) fuori dal container ruotato */}
+        {/* Barra 12 mesi — pulsantini inline */}
+        <div className="flex-shrink-0 flex items-center justify-between px-1 py-1 border-b border-slate-700/50 select-none">
+          {MONTHS_IT.map((mName, mIdx) => {
+            const isCurrent = mIdx === weekMainMonth;
+            const mColor = MONTH_COLORS[mIdx];
+            return (
+              <button
+                key={mIdx}
+                onClick={() => {
+                  const y = weekDays[3].getFullYear();
+                  setViewDate(new Date(y, mIdx, 1));
+                }}
+                className="flex-1 flex items-center justify-center py-0.5 rounded transition-all touch-manipulation active:scale-90"
+                style={{
+                  backgroundColor: isCurrent ? mColor : 'transparent',
+                }}
+              >
+                <span
+                  className="text-[8px] font-bold uppercase tracking-tight"
+                  style={{ color: isCurrent ? '#0f172a' : '#64748b' }}
+                >
+                  {mName}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
         {/* Barra pallini giorni del mese */}
