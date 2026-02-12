@@ -306,6 +306,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                 const isT = day.getTime() === today.getTime();
                 const isWe = i >= 5;
                 const isSel = selectedDate && day.toDateString() === new Date(selectedDate).toDateString();
+                const isHL = highlightedDay && highlightedDay.day === day.getDate() && highlightedDay.month === day.getMonth() && highlightedDay.year === day.getFullYear();
                 return (
                   <div 
                     key={i} 
@@ -313,9 +314,23 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                     onClick={() => onDateSelect && onDateSelect(day)}
                     style={isSel && !isT ? { backgroundColor: ac + '20' } : undefined}
                   >
-                    <span className="text-[7px] font-semibold leading-tight" style={{ color: isWe ? '#ef4444' : (isSel ? ac : (isT ? ac : '#64748b')) }}>{DAYS_SHORT_IT[i]}</span>
-                    <span className={cn("text-[10px] font-bold leading-tight", isT && "animate-pulse")} style={{ color: isSel || isT ? ac : '#e2e8f0' }}>{day.getDate()}</span>
-                    {isSel && !isT && <div className="w-1 h-1 rounded-full mt-0.5" style={{ backgroundColor: ac }} />}
+                    <span className="text-[7px] font-semibold leading-tight" style={{ color: isWe ? '#ef4444' : (isHL ? '#f59e0b' : (isSel ? ac : (isT ? ac : '#64748b'))) }}>{DAYS_SHORT_IT[i]}</span>
+                    <div 
+                      className="flex items-center justify-center rounded-full"
+                      style={isHL && !isT ? { 
+                        width: '18px', height: '18px',
+                        border: '2px solid #f59e0b',
+                        boxShadow: '0 0 6px #f59e0b80'
+                      } : isT ? {
+                        width: '18px', height: '18px',
+                        backgroundColor: ac,
+                        borderRadius: '9999px',
+                        boxShadow: `0 0 8px ${ac}80`
+                      } : { width: '18px', height: '18px' }}
+                    >
+                      <span className={cn("text-[10px] font-bold leading-tight", isT && "animate-pulse")} style={{ color: isHL && !isT ? '#f59e0b' : (isSel || isT ? (isT ? '#fff' : ac) : '#e2e8f0') }}>{day.getDate()}</span>
+                    </div>
+                    {isSel && !isT && !isHL && <div className="w-1 h-1 rounded-full mt-0.5" style={{ backgroundColor: ac }} />}
                   </div>
                 );
               })}
