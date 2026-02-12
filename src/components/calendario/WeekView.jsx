@@ -351,7 +351,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                       <span className={cn("text-[11px] font-bold leading-none", isT && "animate-pulse")} style={{ color: isHL && !isT ? '#f59e0b' : (isT ? '#fff' : (isSel ? ac : '#e2e8f0')) }}>{day.getDate()}</span>
                     </div>
                     {isSel && !isT && !isHL && <div className="w-1 h-1 rounded-full mt-0.5" style={{ backgroundColor: ac }} />}
-                    {/* Freccetta dropdown - angolo basso destra, più grande, z-20 sopra area cliccabile */}
+                    {/* Freccetta dropdown - angolo basso destra, turchese quando aperta */}
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -360,39 +360,80 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                       className="absolute bottom-0 right-0 z-20 p-0.5 touch-manipulation active:scale-90"
                     >
                       <ChevronDown 
-                        className={cn("transition-transform", isDropOpen && "rotate-180")}
-                        style={{ width: '13px', height: '13px', color: dayAllNotes.length > 0 ? ac : '#64748b' }} 
+                        className={cn("transition-all duration-200", isDropOpen && "rotate-180")}
+                        style={{ 
+                          width: '14px', 
+                          height: '14px', 
+                          color: isDropOpen ? '#22d3ee' : (dayAllNotes.length > 0 ? ac : '#64748b'),
+                          filter: isDropOpen ? 'drop-shadow(0 0 4px #22d3ee) drop-shadow(0 0 8px #22d3ee80)' : 'none'
+                        }} 
                       />
                     </button>
-                    {/* Dropdown appuntamenti del giorno - in sovraimpressione */}
+                    {/* Dropdown fumetto nero - appuntamenti del giorno */}
                     {isDropOpen && (
                       <div 
-                        className="absolute z-50 bg-slate-800/95 backdrop-blur-sm border border-slate-600 rounded-lg shadow-2xl overflow-hidden"
+                        className="absolute z-50 overflow-hidden"
                         style={{ 
                           top: '100%', 
                           right: '-4px',
-                          minWidth: '140px', 
-                          maxWidth: '180px',
-                          marginTop: '2px'
+                          minWidth: '160px', 
+                          maxWidth: '200px',
+                          marginTop: '6px'
                         }}
                         onClick={(e) => e.stopPropagation()}
                       >
-                        {dayAllNotes.length === 0 ? (
-                          <div className="px-3 py-2.5 text-[10px] text-slate-500 text-center">Nessun appuntamento</div>
-                        ) : (
-                          dayAllNotes.sort((a, b) => a.time.localeCompare(b.time)).map((item, idx) => (
-                            <div 
-                              key={idx} 
-                              className="flex items-center gap-2 px-2.5 py-2 border-b border-slate-700/50 last:border-0 hover:bg-slate-700/50"
-                            >
-                              <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
-                              <div className="min-w-0 flex-1">
-                                <span className="text-[10px] font-mono text-slate-400 block">{item.time}</span>
-                                <span className="text-[11px] text-slate-200 font-medium truncate block">{item.title}</span>
-                              </div>
+                        {/* Triangolino fumetto */}
+                        <div 
+                          className="absolute -top-[6px] right-3 w-0 h-0"
+                          style={{
+                            borderLeft: '6px solid transparent',
+                            borderRight: '6px solid transparent',
+                            borderBottom: '6px solid #000000'
+                          }}
+                        />
+                        <div className="bg-black rounded-xl shadow-2xl overflow-hidden border border-slate-700/50" style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.6)' }}>
+                          {dayAllNotes.length === 0 ? (
+                            <div className="px-3 py-3 text-[10px] text-slate-500 text-center">Nessun appuntamento</div>
+                          ) : (
+                            <div className="py-1.5">
+                              {dayAllNotes.sort((a, b) => a.time.localeCompare(b.time)).map((item, idx) => {
+                                const stKey = `${dk}-${item.time}-${idx}`;
+                                const isStruck = !!strikethroughItems[stKey];
+                                return (
+                                  <div 
+                                    key={idx} 
+                                    className="flex items-center gap-1.5 px-2.5 py-1.5 hover:bg-slate-900/50"
+                                  >
+                                    {/* Checkbox per barrare */}
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setStrikethroughItems(prev => ({ ...prev, [stKey]: !prev[stKey] }));
+                                      }}
+                                      className={cn(
+                                        "w-4 h-4 rounded flex-shrink-0 flex items-center justify-center border transition-all",
+                                        isStruck 
+                                          ? "border-slate-500 bg-slate-700" 
+                                          : "border-slate-600 bg-transparent hover:border-slate-400"
+                                      )}
+                                    >
+                                      {isStruck && <Check className="w-2.5 h-2.5 text-slate-400" />}
+                                    </button>
+                                    {/* Trattino + orario + titolo */}
+                                    <div className="min-w-0 flex-1">
+                                      <span 
+                                        className={cn("text-[11px] font-medium block truncate", isStruck && "line-through opacity-40")}
+                                        style={{ color: ac }}
+                                      >
+                                        — {item.time} {item.title}
+                                      </span>
+                                    </div>
+                                  </div>
+                                );
+                              })}
                             </div>
-                          ))
-                        )}
+                          )}
+                        </div>
                       </div>
                     )}
                   </div>
