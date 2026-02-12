@@ -160,7 +160,7 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
         <div className="text-slate-400 text-xs font-mono flex-1 text-center">
           {formattedDate} • {saveTime}
         </div>
-        {inline && onClose && (
+        {onClose && (
           <button
             onClick={onClose}
             className="flex-shrink-0 w-7 h-7 rounded-full bg-slate-700 hover:bg-slate-600 flex items-center justify-center active:scale-90 transition-transform ml-1"
