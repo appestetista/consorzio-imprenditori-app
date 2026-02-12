@@ -225,15 +225,6 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                 >
                   {new Date(visibleMonthLabel.year, visibleMonthLabel.month).toLocaleDateString('it-IT', { month: 'short' }).toLowerCase()} {visibleMonthLabel.year}
                 </span>
-                <button
-                  onClick={() => {
-                    setIsOpen(false);
-                    setShowTimePicker(false);
-                  }}
-                  className="p-0.5 rounded bg-slate-700/80 hover:bg-slate-600"
-                >
-                  <X className="w-4 h-4 text-slate-300" />
-                </button>
               </div>
             } 
             selectedDate={selectedDate}
