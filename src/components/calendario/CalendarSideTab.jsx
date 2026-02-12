@@ -434,18 +434,15 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
             "hover:pr-2 active:scale-95"
           )}
           style={{
-            width: '32px',
-            height: '80px',
+            width: '28px',
+            height: '130px',
             writingMode: 'vertical-rl',
             textOrientation: 'mixed',
             top: '65%',
             transform: 'translateY(-50%)'
           }}
         >
-          <div className="flex items-center gap-1 rotate-180">
-            <X className="w-4 h-4" />
-            <span className="text-xs font-bold tracking-wider">CHIUDI</span>
-          </div>
+          <span className="text-[11px] font-bold tracking-wider leading-none rotate-180 whitespace-nowrap">CHIUDI</span>
         </button>
       )}
     </>
