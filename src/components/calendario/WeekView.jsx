@@ -228,7 +228,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
           <div className="flex items-center gap-1">
             <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: ac }}>{wLabel}</span>
             <button 
-              onClick={(e) => { e.stopPropagation(); setShowMonthDropdown(!showMonthDropdown); }}
+              onClick={(e) => { e.stopPropagation(); if (!showMonthDropdown) setDropdownYear(weekDays[3].getFullYear()); setShowMonthDropdown(!showMonthDropdown); }}
               className="p-0.5 rounded hover:bg-slate-700/50 transition-colors"
             >
               <ChevronDown className={cn("w-3.5 h-3.5 transition-transform", showMonthDropdown && "rotate-180")} style={{ color: ac }} />
