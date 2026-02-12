@@ -1,11 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { X, Plus, FileText, Camera, Paperclip, ListChecks, Check, Calendar as CalendarIcon, ChevronLeft, Trash2 } from 'lucide-react';
+import { X, Plus, FileText, Camera, Paperclip, ListChecks, Check, Calendar as CalendarIcon, ChevronLeft, Trash2, Folder } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import ChecklistEditor from './ChecklistEditor';
 import AttachmentViewer from './AttachmentViewer';
+import AudioRecorder from './AudioRecorder';
+import WhisperDictation from './WhisperDictation';
 
 function FileEditor({ file, cartellaId, userEmail, onClose, onSaved }) {
   const [titolo, setTitolo] = useState(file?.titolo || '');
