@@ -521,6 +521,25 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
             })}
           </div>
         </div>
+
+        {/* Popup riepilogo note del giorno */}
+        {daySummaryDate && (
+          <DayNotesSummaryPopup
+            notes={notes.filter(n => n.data === daySummaryDate)}
+            cartelleMap={cm}
+            selectedDate={new Date(daySummaryDate + 'T00:00:00')}
+            monthColor={ac}
+            onClose={() => setDaySummaryDate(null)}
+            onNoteClick={(note) => {
+              setDaySummaryDate(null);
+              if (onSlotClick) {
+                const [h, m] = (note.time || '00:00').split(':').map(Number);
+                const sk = `${String(h).padStart(2,'0')}:${String(Math.floor(m/5)*5).padStart(2,'0')}`;
+                onSlotClick({ date: note.data, time: sk, existingNote: note });
+              }
+            }}
+          />
+        )}
     </div>
   );
 }
