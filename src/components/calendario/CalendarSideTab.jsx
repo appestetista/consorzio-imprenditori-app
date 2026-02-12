@@ -376,11 +376,21 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                   </button>
                 </div>
                 {/* Riga 2: Barra mesi */}
-                <div className="flex-1 overflow-hidden flex items-center">
+                <div className="overflow-hidden flex items-center">
                   <MonthBar 
                     currentMonth={weekViewMonth}
                     onSelectMonth={(mIdx) => {
                       if (weekViewMonthSelectRef.current) weekViewMonthSelectRef.current(mIdx);
+                    }}
+                  />
+                </div>
+                {/* Riga 3: Conteggio note per mese */}
+                <div className="overflow-hidden flex items-center">
+                  <MonthNotesCountBar 
+                    noteCountsByMonth={noteCountsByMonth}
+                    currentMonth={weekViewMonth}
+                    onMonthClick={(mIdx) => {
+                      setMonthNotesPopup({ monthIndex: mIdx, year: new Date().getFullYear() });
                     }}
                   />
                 </div>
