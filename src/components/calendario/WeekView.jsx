@@ -215,11 +215,43 @@ export default function WeekView({ selectedDate, monthColor }) {
       {/* CORPO: colonna ore a sinistra + griglia giorni — scroll verticale */}
       <div 
         ref={scrollRef} 
-        className="flex-1 overflow-y-auto overscroll-contain" 
+        className="flex-1 overflow-hidden overscroll-none" 
         style={{ 
           scrollbarWidth: 'none', 
           msOverflowStyle: 'none',
-          WebkitOverflowScrolling: 'touch'
+          touchAction: 'none'
+        }}
+        onTouchStart={(e) => {
+          const touch = e.touches[0];
+          scrollRef.current._touchStartY = touch.clientX; // rotated: X becomes Y
+          scrollRef.current._scrollStartTop = scrollRef.current.scrollTop;
+          scrollRef.current._lastTimestamp = Date.now();
+          scrollRef.current._lastY = touch.clientX;
+          scrollRef.current._velocity = 0;
+        }}
+        onTouchMove={(e) => {
+          e.preventDefault();
+          const touch = e.touches[0];
+          const currentY = touch.clientX;
+          const now = Date.now();
+          const dt = now - (scrollRef.current._lastTimestamp || now);
+          if (dt > 0) {
+            scrollRef.current._velocity = (scrollRef.current._lastY - currentY) / dt;
+          }
+          scrollRef.current._lastY = currentY;
+          scrollRef.current._lastTimestamp = now;
+          const delta = scrollRef.current._touchStartY - currentY;
+          scrollRef.current.scrollTop = scrollRef.current._scrollStartTop + delta;
+        }}
+        onTouchEnd={() => {
+          const velocity = scrollRef.current._velocity || 0;
+          if (Math.abs(velocity) > 0.3) {
+            const momentum = velocity * 300;
+            scrollRef.current.scrollTo({
+              top: scrollRef.current.scrollTop + momentum,
+              behavior: 'smooth'
+            });
+          }
         }}
       >
         {TIME_SLOTS.map((slot) => {
