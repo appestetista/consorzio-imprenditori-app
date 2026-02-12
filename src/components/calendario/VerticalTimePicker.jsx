@@ -323,6 +323,15 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
           >
             {formattedFullDate}
           </div>
+          {/* Freccetta verde per riepilogo note del giorno */}
+          {noteDelGiorno.length > 0 && (
+            <button
+              onClick={() => setShowDaySummary(true)}
+              className="mt-2 flex items-center justify-center animate-pulse"
+            >
+              <ChevronDown className="w-5 h-5" style={{ color: '#a3e635', filter: 'drop-shadow(0 0 4px #a3e635)' }} />
+            </button>
+          )}
         </div>
       </div>
 
