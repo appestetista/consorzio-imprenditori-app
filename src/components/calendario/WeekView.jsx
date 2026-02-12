@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import ReactDOM from 'react-dom';
 import { cn } from '@/lib/utils';
 import { Plus, FileText, X, ChevronDown } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
@@ -57,14 +58,16 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     setTimeout(() => { if (scrollRef.current) scrollRef.current.scrollTop = Math.max(0, (idx - 5) * 26); }, 100);
   }, [viewDate]);
 
-  // Touch — il contenuto è ruotato 90° CW dal parent CSS transform.
-  // Il telefono è in landscape: l'utente vede lo schermo girato.
-  // Fisicamente il dito si muove su/giù (clientY) o sx/dx (clientX).
-  // Dopo la rotazione CSS 90° CW:
-  //   - Dito su/giù fisico (clientY) → scroll ore (asse verticale visivo della griglia)
-  //     Dito SU (clientY diminuisce) = scrollTop DIMINUISCE (ore più alte)
-  //     Dito GIÙ (clientY aumenta) = scrollTop AUMENTA (ore più basse)
-  //   - Dito sx/dx fisico (clientX) → swipe settimane (asse orizzontale visivo)
+  // Touch — il contenuto è DENTRO un parent CSS rotate(90deg).
+  // Questo significa che le coordinate touch fisiche sono RUOTATE:
+  //   - Dito fisico SU/GIÙ (clientY) → visivamente l'utente scorre ORE (scrollTop)
+  //   - Dito fisico SX/DX (clientX) → visivamente l'utente swipa SETTIMANE
+  // MA! Siccome il parent è ruotato 90° CW:
+  //   - L'utente vede il telefono in landscape
+  //   - "Scorrere le ore" = muovere il dito SX/DX sullo schermo fisico → clientX
+  //   - "Swipare settimane" = muovere il dito SU/GIÙ sullo schermo fisico → clientY
+  // Quindi dobbiamo INVERTIRE: clientX → scroll ore, clientY → swipe settimane
+  
   const onTS = (e) => {
     const t = e.touches[0];
     if (touchRef.current.animFrame) cancelAnimationFrame(touchRef.current.animFrame);
@@ -75,19 +78,20 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   const onTM = (e) => {
     e.preventDefault();
     const t = e.touches[0]; const r = touchRef.current; const now = Date.now(); const dt = Math.max(1, now - r.lastTime);
-    const tdx = Math.abs(t.clientX - r.startX), tdy = Math.abs(t.clientY - r.startY);
-    if (!r.dir && (tdx > 8 || tdy > 8)) r.dir = tdy > tdx ? 'scroll' : 'swipe';
+    // Fisico: clientX = orizzontale, clientY = verticale
+    // Visivo dopo rotate(90deg CW): clientX fisico → asse "alto/basso" visivo (ore), clientY fisico → asse "sx/dx" visivo (settimane)
+    const physDX = Math.abs(t.clientX - r.startX);
+    const physDY = Math.abs(t.clientY - r.startY);
+    if (!r.dir && (physDX > 8 || physDY > 8)) r.dir = physDX > physDY ? 'scroll' : 'swipe';
 
     if (r.dir === 'scroll') {
-      // clientY fisico → scroll ore
-      // Dito SU (clientY diminuisce, deltaY negativo) → scrollTop diminuisce (vai su)
-      // Dito GIÙ (clientY aumenta, deltaY positivo) → scrollTop aumenta (vai giù)
-      const deltaY = t.clientY - r.lastY;
-      r.velScroll = 0.6 * r.velScroll + 0.4 * (-deltaY / dt * 16);
-      if (scrollRef.current) scrollRef.current.scrollTop = r.scrollTop0 - (t.clientY - r.startY);
+      // clientX fisico → scroll ore
+      const deltaX = t.clientX - r.lastX;
+      r.velScroll = 0.6 * r.velScroll + 0.4 * (deltaX / dt * 16);
+      if (scrollRef.current) scrollRef.current.scrollTop = r.scrollTop0 + (t.clientX - r.startX);
     } else if (r.dir === 'swipe') {
-      // clientX fisico → swipe settimane
-      setDragX(t.clientX - r.startX);
+      // clientY fisico → swipe settimane (invertito: dito GIÙ fisico = swipe DESTRA visivo)
+      setDragX(-(t.clientY - r.startY));
     }
     r.lastX = t.clientX; r.lastY = t.clientY; r.lastTime = now;
   };
@@ -117,7 +121,6 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
       return;
     }
     if (r.dir === 'scroll') {
-      // Inerzia naturale
       let v = r.velScroll; if (Math.abs(v) < 0.5) return;
       const friction = 0.96;
       const anim = () => {
@@ -235,41 +238,38 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
             </button>
           </div>
 
-          {/* Dropdown mesi — overlay fisso per evitare problemi touch con parent ruotato */}
-          {showMonthDropdown && (
+          {/* Dropdown mesi — renderizzato via portal FUORI dal container ruotato */}
+          {showMonthDropdown && ReactDOM.createPortal(
             <div 
-              className="fixed inset-0 z-[100]"
+              className="fixed inset-0 z-[200] bg-black/50"
               onClick={() => setShowMonthDropdown(false)}
               onTouchStart={(e) => e.stopPropagation()}
-              onTouchMove={(e) => e.stopPropagation()}
+              onTouchMove={(e) => { e.stopPropagation(); e.preventDefault(); }}
               onTouchEnd={(e) => e.stopPropagation()}
             >
               <div 
-                className="absolute bg-slate-800 border border-slate-600 rounded-lg shadow-2xl overflow-hidden"
-                style={{ 
-                  top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-                  width: '220px'
-                }}
+                className="absolute bg-slate-800 border border-slate-600 rounded-xl shadow-2xl overflow-hidden"
+                style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '240px' }}
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Anno con frecce */}
-                <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-700">
+                <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700">
                   <button 
                     onClick={(e) => { e.stopPropagation(); setDropdownYear(y => y - 1); }}
-                    className="w-9 h-9 flex items-center justify-center rounded-full bg-slate-700 active:bg-slate-600 text-slate-300 text-base font-bold touch-manipulation"
+                    className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-700 active:bg-slate-600 text-slate-300 text-lg font-bold touch-manipulation"
                   >
                     ‹
                   </button>
-                  <span className="text-base font-bold text-slate-200">{dropdownYear}</span>
+                  <span className="text-lg font-bold text-slate-200">{dropdownYear}</span>
                   <button 
                     onClick={(e) => { e.stopPropagation(); setDropdownYear(y => y + 1); }}
-                    className="w-9 h-9 flex items-center justify-center rounded-full bg-slate-700 active:bg-slate-600 text-slate-300 text-base font-bold touch-manipulation"
+                    className="w-10 h-10 flex items-center justify-center rounded-full bg-slate-700 active:bg-slate-600 text-slate-300 text-lg font-bold touch-manipulation"
                   >
                     ›
                   </button>
                 </div>
                 {/* Griglia 3x4 mesi */}
-                <div className="grid grid-cols-3 gap-2 p-3">
+                <div className="grid grid-cols-3 gap-2.5 p-3.5">
                   {MONTHS_IT.map((mName, mIdx) => {
                     const isCurrentMonth = mIdx === weekMainMonth && dropdownYear === weekDays[3].getFullYear();
                     const mColor = MONTH_COLORS[mIdx];
@@ -282,7 +282,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                           setShowMonthDropdown(false);
                         }}
                         className={cn(
-                          "py-3.5 rounded-lg text-xs font-semibold text-center touch-manipulation select-none active:scale-95 transition-transform",
+                          "py-4 rounded-lg text-sm font-semibold text-center touch-manipulation select-none active:scale-95 transition-transform",
                           isCurrentMonth ? "text-slate-900 font-bold" : "text-slate-300"
                         )}
                         style={{ backgroundColor: isCurrentMonth ? mColor : 'rgba(51,65,85,0.5)' }}
@@ -293,7 +293,8 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                   })}
                 </div>
               </div>
-            </div>
+            </div>,
+            document.body
           )}
         </div>
 
