@@ -859,7 +859,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
               className="px-3 py-0.5 rounded-full flex items-center gap-1 transition-all"
               style={{ backgroundColor: currentMonthColor || '#a3e635' }}
             >
-              <span className="text-[10px] text-slate-900 font-semibold uppercase animate-pulse">
+              <span className="text-[10px] text-slate-900 font-semibold uppercase">
                 Vista Settimana
               </span>
             </button>
