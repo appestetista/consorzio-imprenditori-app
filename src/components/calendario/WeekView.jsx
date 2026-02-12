@@ -209,35 +209,58 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
           const refMonth = weekMainMonth;
           const refYear = weekDays[3].getFullYear();
           const daysInMonth = new Date(refYear, refMonth + 1, 0).getDate();
-          const weekDayNums = weekDays.map(d => d.getMonth() === refMonth ? d.getDate() : null);
+          // Giorno attualmente selezionato (dalla selezione data o dal tap nella week)
+          const selDay = selectedDate ? new Date(selectedDate) : null;
+          const selDayNum = selDay && selDay.getMonth() === refMonth && selDay.getFullYear() === refYear ? selDay.getDate() : null;
           
           return (
-            <div className="flex-shrink-0 flex items-end gap-[2px] px-2 py-1 border-b border-slate-700/30 overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: 'none' }}>
+            <div className="flex-shrink-0 flex items-center px-1 py-1.5 border-b border-slate-700/30">
               {Array.from({ length: daysInMonth }, (_, i) => {
                 const dayNum = i + 1;
                 const dayDate = new Date(refYear, refMonth, dayNum);
                 const dow = dayDate.getDay(); // 0=Dom, 6=Sab
                 const isWeekend = dow === 0 || dow === 6;
-                const isInWeek = weekDayNums.includes(dayNum);
                 const isToday = dayDate.getTime() === today.getTime();
+                const isActive = dayNum === selDayNum || (isToday && !selDayNum);
                 
                 return (
-                  <div key={dayNum} className="flex flex-col items-center" style={{ minWidth: '12px' }}>
-                    {/* Pallino */}
+                  <div 
+                    key={dayNum} 
+                    className="flex flex-col items-center cursor-pointer"
+                    style={{ flex: '1 1 0%', minWidth: 0 }}
+                    onClick={() => {
+                      const d = new Date(refYear, refMonth, dayNum);
+                      d.setHours(0,0,0,0);
+                      if (onDateSelect) onDateSelect(d);
+                    }}
+                  >
+                    {/* Pallino con numero */}
                     <div 
                       className={cn(
-                        "w-2.5 h-2.5 rounded-full transition-all",
-                        isInWeek ? "scale-125" : "opacity-40"
+                        "rounded-full flex items-center justify-center transition-all",
+                        isActive && "shadow-lg"
                       )}
                       style={{ 
-                        backgroundColor: isInWeek ? ac : (isWeekend ? '#ef444480' : ac + '60'),
-                        boxShadow: isToday ? `0 0 6px ${ac}` : undefined
+                        width: '18px',
+                        height: '18px',
+                        backgroundColor: isActive ? ac : 'transparent',
+                        border: isActive ? 'none' : `1.5px solid ${isWeekend ? '#ef444450' : ac + '30'}`,
+                        boxShadow: isActive ? `0 0 8px ${ac}80` : undefined
                       }}
-                    />
+                    >
+                      <span 
+                        className="text-[7px] font-bold leading-none"
+                        style={{ 
+                          color: isActive ? '#0f172a' : (isWeekend ? '#ef4444' : '#64748b')
+                        }}
+                      >
+                        {dayNum}
+                      </span>
+                    </div>
                     {/* Lettera giorno */}
                     <span 
-                      className={cn("text-[6px] font-bold leading-tight mt-[1px]")}
-                      style={{ color: isWeekend ? '#ef4444' : (isInWeek ? ac : '#475569') }}
+                      className="text-[5px] font-bold leading-tight mt-[1px]"
+                      style={{ color: isWeekend ? '#ef4444' : (isActive ? ac : '#475569') }}
                     >
                       {isWeekend ? (dow === 6 ? 'S' : 'D') : DAY_LETTERS[dow]}
                     </span>
