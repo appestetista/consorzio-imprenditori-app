@@ -212,8 +212,16 @@ export default function WeekView({ selectedDate, monthColor }) {
         })}
       </div>
 
-      {/* CORPO: colonna ore a sinistra + griglia giorni — scroll verticale condiviso */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+      {/* CORPO: colonna ore a sinistra + griglia giorni — scroll verticale */}
+      <div 
+        ref={scrollRef} 
+        className="flex-1 overflow-y-auto overscroll-contain" 
+        style={{ 
+          scrollbarWidth: 'none', 
+          msOverflowStyle: 'none',
+          WebkitOverflowScrolling: 'touch'
+        }}
+      >
         {TIME_SLOTS.map((slot) => {
           const isNow = isTodayInWeek && slot.label === nowSlotLabel;
 
@@ -225,23 +233,23 @@ export default function WeekView({ selectedDate, monthColor }) {
                 slot.isFullHour ? "h-10" : "h-6"
               )}
             >
-              {/* Colonna ore — identica a VerticalTimePicker */}
+              {/* Colonna ore — più larga per tocco facile */}
               <div 
-                className="flex-shrink-0 flex items-center px-1"
-                style={{ width: '46px' }}
+                className="flex-shrink-0 flex items-center px-1.5"
+                style={{ width: '62px' }}
               >
                 {/* Lineetta */}
-                <div className="flex items-center mr-1">
+                <div className="flex items-center mr-1.5">
                   {(isNow) ? (
                     <div 
                       className="h-[2px] rounded-full animate-pulse flex-shrink-0"
-                      style={{ width: slot.isFullHour ? '14px' : '8px', backgroundColor: '#ffffff' }}
+                      style={{ width: slot.isFullHour ? '16px' : '8px', backgroundColor: '#ffffff' }}
                     />
                   ) : (
                     <div 
                       className="h-[2px] rounded-full"
                       style={{ 
-                        width: slot.isFullHour ? '14px' : '8px',
+                        width: slot.isFullHour ? '16px' : '8px',
                         backgroundColor: slot.isFullHour ? activeColor : '#475569'
                       }}
                     />
@@ -250,7 +258,7 @@ export default function WeekView({ selectedDate, monthColor }) {
                 {/* Orario */}
                 <span 
                   className={cn(
-                    "font-mono text-[9px] flex-shrink-0",
+                    "font-mono text-[10px] flex-shrink-0",
                     slot.isFullHour && "font-bold",
                     isNow && "text-white font-bold animate-pulse"
                   )}
