@@ -308,12 +308,15 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                 const isWe = i >= 5;
                 const isSel = selectedDate && day.toDateString() === new Date(selectedDate).toDateString();
                 const isHL = highlightedDay && highlightedDay.day === day.getDate() && highlightedDay.month === day.getMonth() && highlightedDay.year === day.getFullYear();
+                const dk = fk(day);
+                const dayItems = items[dk] || {};
+                const dayAllNotes = Object.entries(dayItems).flatMap(([time, arr]) => arr.map(a => ({ ...a, time })));
+                const isDropOpen = openDropdownDay === i;
                 return (
                   <div 
                     key={i} 
-                    className={cn("flex-1 flex flex-col items-center py-0.5 border-l border-slate-700/50 cursor-pointer", isT && "bg-slate-800/40")}
+                    className={cn("flex-1 flex flex-col items-center py-0.5 border-l border-slate-700/50 cursor-pointer relative", isT && "bg-slate-800/40")}
                     onClick={() => {
-                      // Evidenzia il giorno cliccato con cerchio arancione
                       setHighlightedDay({ day: day.getDate(), month: day.getMonth(), year: day.getFullYear() });
                       setSelectedSlot(null);
                       if (onDateSelect) onDateSelect(day);
@@ -322,7 +325,6 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                   >
                     <span className="text-[7px] font-semibold leading-tight" style={{ color: isWe ? '#ef4444' : (isHL ? '#f59e0b' : (isSel ? ac : (isT ? ac : '#64748b'))) }}>{DAYS_SHORT_IT[i]}</span>
                     <div className="flex items-center gap-0.5">
-                      <Menu className="flex-shrink-0" style={{ width: '8px', height: '8px', color: isHL && !isT ? '#f59e0b' : (isT ? ac : '#64748b') }} />
                       <div 
                         className="flex items-center justify-center rounded-full"
                         style={isHL && !isT ? { 
@@ -338,8 +340,45 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                       >
                         <span className={cn("text-[10px] font-bold leading-tight", isT && "animate-pulse")} style={{ color: isHL && !isT ? '#f59e0b' : (isT ? '#fff' : (isSel ? ac : '#e2e8f0')) }}>{day.getDate()}</span>
                       </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenDropdownDay(isDropOpen ? null : i);
+                        }}
+                        className="flex-shrink-0 touch-manipulation active:scale-90"
+                      >
+                        <ChevronDown 
+                          className={cn("transition-transform", isDropOpen && "rotate-180")}
+                          style={{ width: '10px', height: '10px', color: dayAllNotes.length > 0 ? ac : '#64748b' }} 
+                        />
+                      </button>
                     </div>
                     {isSel && !isT && !isHL && <div className="w-1 h-1 rounded-full mt-0.5" style={{ backgroundColor: ac }} />}
+                    {/* Dropdown appuntamenti del giorno */}
+                    {isDropOpen && (
+                      <div 
+                        className="absolute top-full left-1/2 -translate-x-1/2 z-50 mt-1 bg-slate-800 border border-slate-600 rounded-lg shadow-xl overflow-hidden"
+                        style={{ minWidth: '120px', maxWidth: '160px' }}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {dayAllNotes.length === 0 ? (
+                          <div className="px-2 py-2 text-[9px] text-slate-500 text-center">Nessun appuntamento</div>
+                        ) : (
+                          dayAllNotes.sort((a, b) => a.time.localeCompare(b.time)).map((item, idx) => (
+                            <div 
+                              key={idx} 
+                              className="flex items-center gap-1.5 px-2 py-1.5 border-b border-slate-700/50 last:border-0 hover:bg-slate-700/50"
+                            >
+                              <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
+                              <div className="min-w-0 flex-1">
+                                <span className="text-[9px] font-mono text-slate-400 block">{item.time}</span>
+                                <span className="text-[10px] text-slate-200 font-medium truncate block">{item.title}</span>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    )}
                   </div>
                 );
               })}
