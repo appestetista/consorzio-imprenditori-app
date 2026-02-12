@@ -368,7 +368,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                       <span className={cn("text-[11px] font-bold leading-none", isT && !isSel && !isHL && "animate-pulse")} style={{ color: isHL && !isT ? '#f59e0b' : (isSel ? '#fff' : (isT ? ac : '#e2e8f0')) }}>{day.getDate()}</span>
                     </div>
                     {isSel && !isT && !isHL && <div className="w-1 h-1 rounded-full mt-0.5" style={{ backgroundColor: ac }} />}
-                    {/* Freccetta dropdown - angolo basso destra, turchese quando aperta */}
+                    {/* Freccetta + conteggio note - vicino al numero, a destra */}
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -378,13 +378,19 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                           setOpenDropdownDay(isDropOpen ? null : i);
                         }
                       }}
-                      className="absolute bottom-0 right-0 z-20 p-0.5 touch-manipulation active:scale-90"
+                      className="absolute z-20 touch-manipulation active:scale-90 flex items-center gap-0"
+                      style={{ bottom: '2px', right: '1px' }}
                     >
+                      {dayAllNotes.length > 0 && (
+                        <span className="text-[8px] font-bold leading-none" style={{ color: '#a3e635' }}>
+                          {dayAllNotes.length}
+                        </span>
+                      )}
                       <ChevronDown 
                         className={cn("transition-all duration-200", isDropOpen && "rotate-180")}
                         style={{ 
-                          width: '14px', 
-                          height: '14px', 
+                          width: '16px', 
+                          height: '16px', 
                           color: isDropOpen ? '#22d3ee' : (dayAllNotes.length > 0 ? '#a3e635' : '#64748b'),
                           filter: isDropOpen ? 'drop-shadow(0 0 4px #22d3ee) drop-shadow(0 0 8px #22d3ee80)' : (dayAllNotes.length > 0 ? 'drop-shadow(0 0 3px #a3e63580)' : 'none')
                         }} 
