@@ -425,15 +425,15 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
             "hover:pr-2 active:scale-95"
           )}
           style={{
-            width: '28px',
-            height: '130px',
+            width: '34px',
+            height: '160px',
             writingMode: 'vertical-rl',
             textOrientation: 'mixed',
             top: '75%',
             transform: 'translateY(-50%)'
           }}
         >
-          <span className="text-[11px] font-bold tracking-wider leading-none whitespace-nowrap">CHIUDI</span>
+          <span className="text-[13px] font-bold tracking-wider leading-none whitespace-nowrap">CHIUDI</span>
         </button>
       )}
             </>
