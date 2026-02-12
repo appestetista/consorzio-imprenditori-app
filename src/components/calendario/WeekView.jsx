@@ -253,104 +253,57 @@ export default function WeekView({ selectedDate, monthColor }) {
         </button>
       </div>
 
-      {/* HEADER GIORNI - swipe orizzontale (rimappato da verticale per rotazione) per cambiare settimana */}
+      {/* AREA TOUCH COMPLETA: header + corpo, gestione touch unificata */}
       <div 
-        ref={headerRef}
-        className="flex flex-shrink-0 border-b border-slate-700"
+        className="flex-1 flex flex-col overflow-hidden"
         style={{ touchAction: 'none' }}
-        onTouchStart={(e) => {
-          const touch = e.touches[0];
-          swipeRef.current = { startX: touch.clientX, startY: touch.clientY, swiping: true };
-        }}
-        onTouchMove={(e) => {
-          e.preventDefault();
-        }}
-        onTouchEnd={(e) => {
-          if (!swipeRef.current.swiping) return;
-          const touch = e.changedTouches[0];
-          // Ruotato 90°: asse Y del dito = asse orizzontale visivo
-          const deltaY = touch.clientY - swipeRef.current.startY;
-          if (Math.abs(deltaY) > 40) {
-            // deltaY positivo = dito va in basso = visivamente swipe a destra = settimana precedente
-            setWeekOffset(w => deltaY > 0 ? w - 1 : w + 1);
-          }
-          swipeRef.current.swiping = false;
-        }}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
-        {/* Spazio per la colonna ore a sinistra */}
-        <div className="flex-shrink-0" style={{ width: '62px' }} />
-
-        {/* 7 colonne giorno */}
-        {weekDays.map((day, dayIdx) => {
-          const isToday = day.getTime() === today.getTime();
-          const isWeekend = dayIdx >= 5;
-          return (
-            <div 
-              key={dayIdx}
-              className={cn(
-                "flex-1 flex flex-col items-center py-1 border-l border-slate-700/50",
-                isToday && "bg-slate-800/40"
-              )}
-            >
-              <span 
-                className="text-[8px] font-semibold leading-tight"
-                style={{ color: isWeekend ? '#ef4444' : (isToday ? activeColor : '#64748b') }}
+        {/* HEADER GIORNI */}
+        <div className="flex flex-shrink-0 border-b border-slate-700">
+          {/* Spazio colonna ore */}
+          <div className="flex-shrink-0" style={{ width: '56px' }} />
+          {/* 7 colonne giorno - più compatte */}
+          {weekDays.map((day, dayIdx) => {
+            const isToday = day.getTime() === today.getTime();
+            const isWeekend = dayIdx >= 5;
+            return (
+              <div 
+                key={dayIdx}
+                className={cn(
+                  "flex-1 flex flex-col items-center py-0.5 border-l border-slate-700/50",
+                  isToday && "bg-slate-800/40"
+                )}
               >
-                {DAYS_FULL_IT[dayIdx]}
-              </span>
-              <span 
-                className={cn("text-[11px] font-bold leading-tight", isToday && "animate-pulse")}
-                style={{ color: isToday ? activeColor : '#e2e8f0' }}
-              >
-                {day.getDate()}
-              </span>
-            </div>
-          );
-        })}
-      </div>
+                <span 
+                  className="text-[7px] font-semibold leading-tight"
+                  style={{ color: isWeekend ? '#ef4444' : (isToday ? activeColor : '#64748b') }}
+                >
+                  {DAYS_FULL_IT[dayIdx].substring(0, 3)}
+                </span>
+                <span 
+                  className={cn("text-[10px] font-bold leading-tight", isToday && "animate-pulse")}
+                  style={{ color: isToday ? activeColor : '#e2e8f0' }}
+                >
+                  {day.getDate()}
+                </span>
+              </div>
+            );
+          })}
+        </div>
 
-      {/* CORPO: colonna ore a sinistra + griglia giorni — scroll verticale */}
-      <div 
-        ref={scrollRef} 
-        className="flex-1 overflow-hidden overscroll-none" 
-        style={{ 
-          scrollbarWidth: 'none', 
-          msOverflowStyle: 'none',
-          touchAction: 'none'
-        }}
-        onTouchStart={(e) => {
-          const touch = e.touches[0];
-          scrollRef.current._touchStartY = touch.clientX; // rotated: X becomes Y
-          scrollRef.current._scrollStartTop = scrollRef.current.scrollTop;
-          scrollRef.current._lastTimestamp = Date.now();
-          scrollRef.current._lastY = touch.clientX;
-          scrollRef.current._velocity = 0;
-        }}
-        onTouchMove={(e) => {
-          e.preventDefault();
-          const touch = e.touches[0];
-          const currentY = touch.clientX;
-          const now = Date.now();
-          const dt = now - (scrollRef.current._lastTimestamp || now);
-          if (dt > 0) {
-            scrollRef.current._velocity = (scrollRef.current._lastY - currentY) / dt;
-          }
-          scrollRef.current._lastY = currentY;
-          scrollRef.current._lastTimestamp = now;
-          const delta = scrollRef.current._touchStartY - currentY;
-          scrollRef.current.scrollTop = scrollRef.current._scrollStartTop + delta;
-        }}
-        onTouchEnd={() => {
-          const velocity = scrollRef.current._velocity || 0;
-          if (Math.abs(velocity) > 0.3) {
-            const momentum = velocity * 300;
-            scrollRef.current.scrollTo({
-              top: scrollRef.current.scrollTop + momentum,
-              behavior: 'smooth'
-            });
-          }
-        }}
-      >
+        {/* CORPO: scroll verticale con ore a sinistra */}
+        <div 
+          ref={scrollRef} 
+          className="flex-1 overflow-y-auto overscroll-none" 
+          style={{ 
+            scrollbarWidth: 'none', 
+            msOverflowStyle: 'none',
+            touchAction: 'none'
+          }}
+        >
         {TIME_SLOTS.map((slot) => {
           const isNow = isTodayInWeek && slot.label === nowSlotLabel;
 
