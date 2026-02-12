@@ -300,22 +300,6 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                 }}
               >
                 <button
-                  onClick={() => setShowWeekView(false)}
-                  className="flex-shrink-0 px-2 py-1.5 touch-manipulation active:scale-95 transition-transform"
-                >
-                  <span className="text-[9px] font-bold uppercase" style={{ color: weekViewColor || currentMonthColor || '#a3e635' }}>
-                    ▼
-                  </span>
-                </button>
-                <div className="flex-1 overflow-hidden">
-                  <MonthBar 
-                    currentMonth={weekViewMonth}
-                    onSelectMonth={(mIdx) => {
-                      if (weekViewMonthSelectRef.current) weekViewMonthSelectRef.current(mIdx);
-                    }}
-                  />
-                </div>
-                <button
                   onClick={() => {
                     // Determina la data da passare alla vista giornaliera
                     const targetDate = selectedDate 
@@ -340,7 +324,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                       }
                     }, 200);
                   }}
-                  className="flex-shrink-0 px-2.5 py-1.5 rounded-md mr-1 touch-manipulation active:scale-90 transition-all"
+                  className="flex-shrink-0 px-2.5 py-1.5 rounded-md ml-1 touch-manipulation active:scale-90 transition-all"
                   style={{ 
                     backgroundColor: MONTH_COLORS[weekViewMonth],
                     color: '#0f172a'
@@ -348,6 +332,14 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                 >
                   <Calendar className="w-3.5 h-3.5" />
                 </button>
+                <div className="flex-1 overflow-hidden">
+                  <MonthBar 
+                    currentMonth={weekViewMonth}
+                    onSelectMonth={(mIdx) => {
+                      if (weekViewMonthSelectRef.current) weekViewMonthSelectRef.current(mIdx);
+                    }}
+                  />
+                </div>
               </div>
 
               {/* Contenitore ruotato: tutto il contenuto è girato di 90° in senso orario */}
