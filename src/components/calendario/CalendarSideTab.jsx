@@ -315,8 +315,9 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                   pointerEvents: 'auto'
                 }}
               >
-                {/* Riga 1: Pulsante vista giornaliera — sopra i mesi */}
-                <div className="flex items-center justify-center" style={{ height: '32px' }}>
+                {/* Riga 1: Pulsante vista giornaliera + DATA a destra */}
+                <div className="flex items-center justify-between px-3" style={{ height: '32px' }}>
+                  <div /> {/* spacer sinistro */}
                   <button
                     onClick={() => {
                       const targetDate = selectedDate 
@@ -346,6 +347,18 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                   >
                     <Calendar className="w-3.5 h-3.5" />
                     <span className="text-[9px] font-bold uppercase">Vista giornaliera</span>
+                  </button>
+                  {/* Pulsante DATA - chiude la vista settimanale */}
+                  <button
+                    onClick={() => {
+                      setShowWeekView(false);
+                      setIsOpen(true);
+                      setShowTimePicker(true);
+                    }}
+                    className="flex items-center gap-1 px-2 py-1 rounded-md bg-gradient-to-r from-lime-400 to-lime-500 text-slate-900 touch-manipulation active:scale-90 transition-all"
+                  >
+                    <Calendar className="w-3 h-3" />
+                    <span className="text-[9px] font-bold tracking-wider">DATA</span>
                   </button>
                 </div>
                 {/* Riga 2: Barra mesi */}
