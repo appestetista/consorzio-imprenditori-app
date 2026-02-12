@@ -42,6 +42,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
 
     const weekNoteEditorSaveRef = useRef(null);
     const queryClient = useQueryClient();
+    const [monthNotesPopup, setMonthNotesPopup] = useState(null); // { monthIndex, year }
   const goToTodayRef = useRef(null);
   const [currentMonthColor, setCurrentMonthColor] = useState(MONTH_COLORS[new Date().getMonth()]);
   const [visibleMonthLabel, setVisibleMonthLabel] = useState({ month: new Date().getMonth(), year: new Date().getFullYear() });
