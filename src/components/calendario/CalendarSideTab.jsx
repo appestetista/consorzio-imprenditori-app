@@ -426,15 +426,32 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
         </div>
       )}
 
-      {/* Overlay scuro quando il calendario è aperto */}
+      {/* Linguetta DATA dentro il calendario aperto - per chiuderlo */}
       {isOpen && (
-        <div 
-          className="fixed inset-0 bg-slate-900 z-40"
+        <button
           onClick={() => {
             setIsOpen(false);
             setShowTimePicker(false);
           }}
-        />
+          className={cn(
+            "fixed right-0 top-1/2 -translate-y-1/2 z-[70] transition-all duration-300",
+            "bg-gradient-to-l from-lime-400 to-lime-500 text-slate-900",
+            "rounded-l-xl shadow-lg shadow-lime-400/20",
+            "flex items-center justify-center",
+            "hover:pr-2 active:scale-95"
+          )}
+          style={{
+            width: '32px',
+            height: '80px',
+            writingMode: 'vertical-rl',
+            textOrientation: 'mixed'
+          }}
+        >
+          <div className="flex items-center gap-1 rotate-180">
+            <Calendar className="w-4 h-4" />
+            <span className="text-xs font-bold tracking-wider">DATA</span>
+          </div>
+        </button>
       )}
     </>
   );
