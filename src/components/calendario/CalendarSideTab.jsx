@@ -394,7 +394,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
             {isOpen && showTimePicker && selectedDate && (
         <div 
           className="fixed z-[60] bg-slate-900 flex flex-col"
-          style={{ top: 0, left: 0, right: '32px', bottom: showFatturato ? '340px' : '220px' }}
+          style={{ top: 0, left: 0, right: 0, bottom: showFatturato ? '340px' : '220px' }}
         >
           <VerticalTimePicker 
             selectedDate={selectedDate}
