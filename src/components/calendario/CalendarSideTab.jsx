@@ -189,17 +189,8 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
             showFatturato={showFatturato}
             currentMonthColor={currentMonthColor}
             onToggleFatturato={() => {
-              const newShowFatturato = !showFatturato;
-              setShowFatturato(newShowFatturato);
-              // Sincronizza lo scroll quando si apre
-              if (newShowFatturato && calendarScrollRef.current) {
-                setTimeout(() => {
-                  if (fatturatoScrollRef.current) {
-                    fatturatoScrollRef.current.scrollLeft = calendarScrollRef.current.scrollLeft;
-                  }
-                }, 50);
-              }
-            }}
+                setShowWeekView(true);
+              }}
           />
         </div>
 
