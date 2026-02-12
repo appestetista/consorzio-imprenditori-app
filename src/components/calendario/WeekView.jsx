@@ -240,8 +240,8 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                 const isToday = dayDate.getTime() === today.getTime();
                 const isSlotDay = dayNum === slotDayNum;
                 
-                // Oggi → pieno col colore mese; tutto il resto (slot, bar, click) → solo bordo arancione, mai pieno
-                const isSelected = isSlotDay || (selectedDayInBar && selectedDayInBar.day === dayNum && selectedDayInBar.month === refMonth && selectedDayInBar.year === refYear);
+                // Oggi → pieno col colore mese; unico giorno highlightedDay → bordo arancione
+                const isSelected = highlightedDay && highlightedDay.day === dayNum && highlightedDay.month === refMonth && highlightedDay.year === refYear;
 
                 return (
                   <div 
