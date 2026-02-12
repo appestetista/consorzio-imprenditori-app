@@ -503,6 +503,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                     queryClient.invalidateQueries({ queryKey: ['all-user-notes'] });
                     queryClient.invalidateQueries({ queryKey: ['note-week'] });
                     queryClient.invalidateQueries({ queryKey: ['note'] });
+                    queryClient.invalidateQueries({ queryKey: ['noteCartella'] });
                   });
                 }
               }}
