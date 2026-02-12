@@ -197,33 +197,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
 
   return (
     <div className="flex flex-col h-full overflow-hidden" style={bgStyle}>
-        {/* Barra 12 mesi — pulsantini inline */}
-        <div className="flex-shrink-0 flex items-center justify-between px-1 py-1 border-b border-slate-700/50 select-none">
-          {MONTHS_IT.map((mName, mIdx) => {
-            const isCurrent = mIdx === weekMainMonth;
-            const mColor = MONTH_COLORS[mIdx];
-            return (
-              <button
-                key={mIdx}
-                onClick={() => {
-                  const y = weekDays[3].getFullYear();
-                  setViewDate(new Date(y, mIdx, 1));
-                }}
-                className="flex-1 flex items-center justify-center py-0.5 rounded transition-all touch-manipulation active:scale-90"
-                style={{
-                  backgroundColor: isCurrent ? mColor : 'transparent',
-                }}
-              >
-                <span
-                  className="text-[8px] font-bold uppercase tracking-tight"
-                  style={{ color: isCurrent ? '#0f172a' : '#64748b' }}
-                >
-                  {mName}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+        {/* Barra mesi rimossa — ora gestita dal parent CalendarSideTab fuori dal rotate */}
 
         {/* Barra pallini giorni del mese */}
         {(() => {
