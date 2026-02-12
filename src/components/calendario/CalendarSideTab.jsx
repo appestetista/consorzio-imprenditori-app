@@ -190,10 +190,35 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           "fixed inset-0 transition-transform duration-500 ease-in-out",
           "bg-slate-900 shadow-2xl",
           isOpen ? "translate-x-0" : "translate-x-full",
-          showTimePicker ? "z-[55]" : "z-50"
+          "z-[55]"
         )}
-        style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}
+        style={{ display: 'flex', flexDirection: 'column' }}
       >
+        {/* VerticalTimePicker - occupa lo spazio sopra il calendario */}
+        {showTimePicker && selectedDate && (
+          <div className="flex-1 min-h-0 flex flex-col">
+            <VerticalTimePicker 
+              selectedDate={selectedDate}
+              visibleDay={visibleDay}
+              visibleMonth={visibleMonthLabel.month}
+              visibleYear={visibleMonthLabel.year}
+              onClose={() => setShowTimePicker(false)}
+              onTimeSelect={handleTimeSelect}
+              onDateChange={(newDate) => {
+                if (onDateSelect) {
+                  onDateSelect(newDate);
+                }
+                setTimeout(() => {
+                  if (goToTodayRef.scrollToDate) {
+                    goToTodayRef.scrollToDate(newDate);
+                  }
+                }, 100);
+              }}
+              monthColor={currentMonthColor}
+            />
+          </div>
+        )}
+        
         {/* Calendario orizzontale - in basso */}
         <div>
           <HorizontalDatePicker
