@@ -856,11 +856,11 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
           {onToggleFatturato && (
             <button
               onClick={onToggleFatturato}
-              className="px-3 py-0.5 rounded-full flex items-center gap-1 transition-all animate-pulse"
-              style={{ backgroundColor: currentMonthColor || '#a3e635' }}
+              className="px-4 py-2 rounded-md flex items-center gap-1 transition-all animate-pulse touch-manipulation active:scale-90"
+              style={{ backgroundColor: currentMonthColor || '#a3e635', color: '#0f172a' }}
             >
-              <span className="text-[10px] text-slate-900 font-semibold uppercase">
-                Vista Settimana
+              <span className="text-[9px] font-bold uppercase">
+                Vista Settimanale
               </span>
             </button>
           )}
