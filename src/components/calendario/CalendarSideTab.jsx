@@ -337,10 +337,10 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                 className="fixed z-[66] flex flex-col"
                 style={{
                   width: '100vh',
-                  height: '68px',
+                  height: '92px',
                   top: '50%',
                   left: '50%',
-                  transform: 'translate(-50%, -50%) rotate(90deg) translateY(calc(-50vw + 34px))',
+                  transform: 'translate(-50%, -50%) rotate(90deg) translateY(calc(-50vw + 46px))',
                   transformOrigin: 'center center',
                   backgroundColor: `color-mix(in srgb, ${weekViewColor || currentMonthColor} 6%, #0f172a)`,
                   borderBottom: '1px solid rgba(51,65,85,0.5)',
