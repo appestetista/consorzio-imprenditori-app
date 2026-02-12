@@ -17,7 +17,7 @@ export default function AudioRecorder({ onAudioSaved, onTranscription }) {
   const [recordTime, setRecordTime] = useState(0);
   const [playTime, setPlayTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [isTranscribing, setIsTranscribing] = useState(false);
+
 
   const mediaRecorderRef = useRef(null);
   const chunksRef = useRef([]);
@@ -54,24 +54,13 @@ export default function AudioRecorder({ onAudioSaved, onTranscription }) {
       setDuration(recordTime);
       stream.getTracks().forEach(t => t.stop());
 
-      // Trascrizione automatica dopo lo stop
-      setIsTranscribing(true);
+      // Salva solo l'audio come allegato, nessuna trascrizione
       const file = new File([blob], 'audio_nota.webm', { type: 'audio/webm' });
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
 
       if (onAudioSaved) {
         onAudioSaved({ url: file_url, name: 'audio_nota.webm', type: 'audio/webm' });
       }
-
-      const result = await base44.integrations.Core.InvokeLLM({
-        prompt: "Trascrivi fedelmente l'audio allegato in italiano. Restituisci solo il testo trascritto, senza commenti.",
-        file_urls: [file_url]
-      });
-
-      if (onTranscription && result) {
-        onTranscription(typeof result === 'string' ? result : result.text || '');
-      }
-      setIsTranscribing(false);
     };
 
     mediaRecorder.start();
@@ -132,31 +121,7 @@ export default function AudioRecorder({ onAudioSaved, onTranscription }) {
     }
   };
 
-  // Salva audio e trascrivi
-  const saveAndTranscribe = async () => {
-    if (!audioBlob) return;
-    setIsTranscribing(true);
 
-    // Upload audio
-    const file = new File([audioBlob], 'audio_nota.webm', { type: 'audio/webm' });
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
-
-    if (onAudioSaved) {
-      onAudioSaved({ url: file_url, name: 'audio_nota.webm', type: 'audio/webm' });
-    }
-
-    // Trascrivi con LLM
-    const result = await base44.integrations.Core.InvokeLLM({
-      prompt: "Trascrivi fedelmente l'audio allegato in italiano. Restituisci solo il testo trascritto, senza commenti.",
-      file_urls: [file_url]
-    });
-
-    if (onTranscription && result) {
-      onTranscription(typeof result === 'string' ? result : result.text || '');
-    }
-
-    setIsTranscribing(false);
-  };
 
   const progressPercent = duration > 0 ? (playTime / duration) * 100 : 0;
 
@@ -199,12 +164,7 @@ export default function AudioRecorder({ onAudioSaved, onTranscription }) {
         </button>
       </div>
 
-      {/* Indicatore trascrizione automatica */}
-          {isTranscribing && (
-            <div className="mt-1.5 w-full py-1.5 rounded-lg text-[11px] font-semibold text-center bg-slate-700 text-slate-400 animate-pulse">
-              Trascrizione in corso...
-            </div>
-          )}
+
     </div>
   );
 }
