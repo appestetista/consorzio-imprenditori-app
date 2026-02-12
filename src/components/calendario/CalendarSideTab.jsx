@@ -328,7 +328,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                     }}
                   >
                     <Calendar className="w-3.5 h-3.5" />
-                    <span className="text-[9px] font-bold uppercase">Vista giornaliera</span>
+                    <span className="text-[9px] font-bold uppercase animate-pulse">Vista giornaliera</span>
                   </button>
                 </div>
                 {/* Riga 2: Barra mesi */}
