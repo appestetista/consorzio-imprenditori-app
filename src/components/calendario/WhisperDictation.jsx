@@ -76,36 +76,24 @@ export default function WhisperDictation({ onTranscription, isDictating, setIsDi
   }, [isDictating, startDictation, stopDictation]);
 
   return (
-    <>
+    <div className="flex items-center gap-1">
       <button 
         onTouchEnd={toggle}
         onClick={toggle}
         className={cn(
-          "p-1.5 rounded-full transition-colors",
-          isDictating ? "bg-cyan-500/20 ring-2 ring-cyan-400" : "hover:bg-slate-800"
+          "w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 transition-all",
+          isDictating ? "bg-cyan-500 animate-pulse" : "bg-slate-700 hover:bg-slate-600"
         )}
       >
         <Mic className={cn(
-          "w-5 h-5 transition-colors",
-          isDictating ? "text-cyan-400 animate-pulse" : "text-slate-400"
+          "w-4 h-4 transition-colors",
+          isDictating ? "text-white" : "text-cyan-400"
         )} />
       </button>
 
-      {(isDictating || isTranscribing) && (
-        <div className="absolute left-0 right-0 -bottom-7 flex items-center justify-center gap-1.5">
-          {isTranscribing ? (
-            <>
-              <Loader2 className="w-3 h-3 text-cyan-400 animate-spin" />
-              <span className="text-[10px] text-cyan-400 font-mono">trascrivo...</span>
-            </>
-          ) : (
-            <>
-              <div className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-              <span className="text-[10px] text-cyan-400 font-mono">ascolto...</span>
-            </>
-          )}
-        </div>
+      {isTranscribing && (
+        <Loader2 className="w-3.5 h-3.5 text-cyan-400 animate-spin flex-shrink-0" />
       )}
-    </>
+    </div>
   );
 }

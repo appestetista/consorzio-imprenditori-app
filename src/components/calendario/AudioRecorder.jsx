@@ -161,7 +161,7 @@ export default function AudioRecorder({ onAudioSaved, onTranscription }) {
   const progressPercent = duration > 0 ? (playTime / duration) * 100 : 0;
 
   return (
-    <div className="mb-2">
+    <div>
       <div className="flex items-center gap-1.5">
         {/* Pulsante REC */}
         <button
