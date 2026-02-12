@@ -16,11 +16,9 @@ function generateTimeSlots() {
   for (let h = 0; h < 24; h++) {
     for (let m = 0; m < 60; m += 5) {
       slots.push({
-        hour: h,
-        minute: m,
+        hour: h, minute: m,
         label: `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`,
-        isFullHour: m === 0,
-        isHalfHour: m === 30
+        isFullHour: m === 0, isHalfHour: m === 30
       });
     }
   }
@@ -49,18 +47,57 @@ function formatDateKey(date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }
 
+// Costruisce la mappa items per data+slot
+function buildItemsMap(weekDays, notes, files, cartelleMap) {
+  const map = {};
+  weekDays.forEach(d => { map[formatDateKey(d)] = {}; });
+
+  notes.forEach(nota => {
+    if (!nota.data || !nota.time) return;
+    const [h, m] = nota.time.split(':').map(Number);
+    const slotKey = `${String(h).padStart(2, '0')}:${String(Math.floor(m / 5) * 5).padStart(2, '0')}`;
+    if (!map[nota.data]) map[nota.data] = {};
+    if (!map[nota.data][slotKey]) map[nota.data][slotKey] = [];
+    map[nota.data][slotKey].push({
+      title: nota.title, time: nota.time,
+      color: nota.cartella_id && cartelleMap[nota.cartella_id] ? cartelleMap[nota.cartella_id].colore : '#a3e635',
+    });
+  });
+
+  files.forEach(file => {
+    if (!file.data || !file.time) return;
+    const [h, m] = file.time.split(':').map(Number);
+    const slotKey = `${String(h).padStart(2, '0')}:${String(Math.floor(m / 5) * 5).padStart(2, '0')}`;
+    if (!map[file.data]) map[file.data] = {};
+    if (!map[file.data][slotKey]) map[file.data][slotKey] = [];
+    const cart = cartelleMap[file.cartella_id];
+    map[file.data][slotKey].push({
+      title: file.titolo, time: file.time,
+      color: cart?.colore || '#64748b',
+    });
+  });
+
+  return map;
+}
+
 export default function WeekView({ selectedDate, monthColor }) {
   const [userEmail, setUserEmail] = useState(null);
   const [weekOffset, setWeekOffset] = useState(0);
+  // Swipe visivo: translateX in px applicato durante il drag
+  const [swipeTranslateX, setSwipeTranslateX] = useState(0);
+  // Transizione animata dopo rilascio
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
   const scrollRef = useRef(null);
   const touchRef = useRef({
     startX: 0, startY: 0,
     lastX: 0, lastY: 0,
     lastTime: 0,
-    velocityX: 0,
+    velocityX: 0, velocityY: 0,
     scrollStartTop: 0,
     animFrame: null,
-    swipeTriggered: false
+    swipeTriggered: false,
+    isVerticalScroll: null // null = non determinato, true = scroll ore, false = swipe settimana
   });
 
   useEffect(() => {
@@ -83,10 +120,12 @@ export default function WeekView({ selectedDate, monthColor }) {
     }
   }, [weekOffset]);
 
-  // Touch handler fluido - ruotato 90°: clientX = scroll verticale, clientY = swipe settimana
+  const SWIPE_THRESHOLD = 60; // px per confermare cambio settimana
+
   const handleTouchStart = (e) => {
     const touch = e.touches[0];
     if (touchRef.current.animFrame) cancelAnimationFrame(touchRef.current.animFrame);
+    setIsTransitioning(false);
     touchRef.current = {
       startX: touch.clientX,
       startY: touch.clientY,
@@ -94,9 +133,11 @@ export default function WeekView({ selectedDate, monthColor }) {
       lastY: touch.clientY,
       lastTime: Date.now(),
       velocityX: 0,
+      velocityY: 0,
       scrollStartTop: scrollRef.current?.scrollTop || 0,
       animFrame: null,
-      swipeTriggered: false
+      swipeTriggered: false,
+      isVerticalScroll: null
     };
   };
 
@@ -106,25 +147,63 @@ export default function WeekView({ selectedDate, monthColor }) {
     const t = touchRef.current;
     const now = Date.now();
     const dt = Math.max(1, now - t.lastTime);
-    const dx = touch.clientX - t.lastX;
-    t.velocityX = 0.6 * t.velocityX + 0.4 * (-dx / dt * 16);
+
+    // Delta dal punto iniziale (nel mondo ruotato 90°)
+    // clientX del dito → scroll verticale (ore)
+    // clientY del dito → swipe orizzontale (settimane)
+    const totalDeltaX = Math.abs(touch.clientX - t.startX);
+    const totalDeltaY = Math.abs(touch.clientY - t.startY);
+
+    // Determina direzione dominante dopo 10px di movimento
+    if (t.isVerticalScroll === null && (totalDeltaX > 10 || totalDeltaY > 10)) {
+      t.isVerticalScroll = totalDeltaX > totalDeltaY;
+    }
+
+    if (t.isVerticalScroll === true) {
+      // Scroll ore (asse X dito → scrollTop)
+      const dx = touch.clientX - t.lastX;
+      t.velocityX = 0.6 * t.velocityX + 0.4 * (-dx / dt * 16);
+      const deltaScroll = t.startX - touch.clientX;
+      if (scrollRef.current) {
+        scrollRef.current.scrollTop = t.scrollStartTop + deltaScroll;
+      }
+    } else if (t.isVerticalScroll === false) {
+      // Swipe settimana (asse Y dito → translateX visivo)
+      const deltaY = touch.clientY - t.startY;
+      setSwipeTranslateX(deltaY);
+    }
+
     t.lastX = touch.clientX;
     t.lastY = touch.clientY;
     t.lastTime = now;
-    const deltaScroll = t.startX - touch.clientX;
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = t.scrollStartTop + deltaScroll;
-    }
   };
 
   const handleTouchEnd = () => {
     const t = touchRef.current;
-    const deltaY = t.lastY - t.startY;
-    if (Math.abs(deltaY) > 50 && !t.swipeTriggered) {
-      t.swipeTriggered = true;
-      setWeekOffset(w => deltaY > 0 ? w - 1 : w + 1);
+
+    if (t.isVerticalScroll === false) {
+      // Swipe settimana: controlla se supera la soglia
+      const deltaY = t.lastY - t.startY;
+      if (Math.abs(deltaY) > SWIPE_THRESHOLD) {
+        // Anima fuori schermo, poi cambia settimana
+        const direction = deltaY > 0 ? 1 : -1; // positivo = settimana precedente
+        setIsTransitioning(true);
+        setSwipeTranslateX(direction * 500); // fuori schermo
+        setTimeout(() => {
+          setWeekOffset(w => w - direction);
+          setSwipeTranslateX(0);
+          setIsTransitioning(false);
+        }, 200);
+      } else {
+        // Non abbastanza: torna indietro con animazione
+        setIsTransitioning(true);
+        setSwipeTranslateX(0);
+        setTimeout(() => setIsTransitioning(false), 200);
+      }
       return;
     }
+
+    // Inerzia scroll ore
     let velocity = t.velocityX;
     if (Math.abs(velocity) < 0.5) return;
     const friction = 0.95;
@@ -177,37 +256,7 @@ export default function WeekView({ selectedDate, monthColor }) {
   const cartelleMap = {};
   cartelle.forEach(c => { cartelleMap[c.id] = c; });
 
-  const itemsByDayTime = {};
-  weekDays.forEach(d => { itemsByDayTime[formatDateKey(d)] = {}; });
-
-  noteSettimana.forEach(nota => {
-    if (!nota.data || !nota.time) return;
-    const [h, m] = nota.time.split(':').map(Number);
-    const roundedM = Math.floor(m / 5) * 5;
-    const slotKey = `${String(h).padStart(2, '0')}:${String(roundedM).padStart(2, '0')}`;
-    if (!itemsByDayTime[nota.data]) itemsByDayTime[nota.data] = {};
-    if (!itemsByDayTime[nota.data][slotKey]) itemsByDayTime[nota.data][slotKey] = [];
-    itemsByDayTime[nota.data][slotKey].push({
-      title: nota.title,
-      time: nota.time,
-      color: nota.cartella_id && cartelleMap[nota.cartella_id] ? cartelleMap[nota.cartella_id].colore : '#a3e635',
-    });
-  });
-
-  fileSettimana.forEach(file => {
-    if (!file.data || !file.time) return;
-    const [h, m] = file.time.split(':').map(Number);
-    const roundedM = Math.floor(m / 5) * 5;
-    const slotKey = `${String(h).padStart(2, '0')}:${String(roundedM).padStart(2, '0')}`;
-    if (!itemsByDayTime[file.data]) itemsByDayTime[file.data] = {};
-    if (!itemsByDayTime[file.data][slotKey]) itemsByDayTime[file.data][slotKey] = [];
-    const cart = cartelleMap[file.cartella_id];
-    itemsByDayTime[file.data][slotKey].push({
-      title: file.titolo,
-      time: file.time,
-      color: cart?.colore || '#64748b',
-    });
-  });
+  const itemsByDayTime = buildItemsMap(weekDays, noteSettimana, fileSettimana, cartelleMap);
 
   const activeColor = monthColor || MONTH_COLORS[offsetDate.getMonth()];
   const nowHour = new Date().getHours();
@@ -215,8 +264,15 @@ export default function WeekView({ selectedDate, monthColor }) {
   const nowSlotLabel = `${String(nowHour).padStart(2, '0')}:${String(nowMin).padStart(2, '0')}`;
   const isTodayInWeek = weekDays.some(d => d.getTime() === today.getTime());
 
+  // Stile translateX per swipe visivo (applicato solo alle colonne giorni, non alle ore)
+  const swipeStyle = {
+    transform: `translateX(${swipeTranslateX}px)`,
+    transition: isTransitioning ? 'transform 0.2s ease-out' : 'none',
+    opacity: isTransitioning && Math.abs(swipeTranslateX) > 100 ? 0 : 1
+  };
+
   return (
-    <div className="flex flex-col h-full bg-slate-900">
+    <div className="flex flex-col h-full bg-slate-900 overflow-hidden">
       {/* Navigazione settimana */}
       <div className="flex items-center justify-center gap-2 px-2 py-1 flex-shrink-0 border-b border-slate-800">
         <button onClick={() => setWeekOffset(w => w - 1)} className="p-0.5 rounded hover:bg-slate-700">
@@ -236,7 +292,7 @@ export default function WeekView({ selectedDate, monthColor }) {
         </button>
       </div>
 
-      {/* AREA TOUCH: header giorni + corpo ore */}
+      {/* AREA TOUCH */}
       <div
         className="flex-1 flex flex-col overflow-hidden"
         style={{ touchAction: 'none' }}
@@ -244,35 +300,39 @@ export default function WeekView({ selectedDate, monthColor }) {
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        {/* HEADER GIORNI */}
-        <div className="flex flex-shrink-0 border-b border-slate-700">
+        {/* HEADER GIORNI — si muove col swipe */}
+        <div className="flex flex-shrink-0 border-b border-slate-700 overflow-hidden">
+          {/* Colonna ore fissa */}
           <div className="flex-shrink-0" style={{ width: '56px' }} />
-          {weekDays.map((day, dayIdx) => {
-            const isToday = day.getTime() === today.getTime();
-            const isWeekend = dayIdx >= 5;
-            return (
-              <div
-                key={dayIdx}
-                className={cn(
-                  "flex-1 flex flex-col items-center py-0.5 border-l border-slate-700/50",
-                  isToday && "bg-slate-800/40"
-                )}
-              >
-                <span
-                  className="text-[7px] font-semibold leading-tight"
-                  style={{ color: isWeekend ? '#ef4444' : (isToday ? activeColor : '#64748b') }}
+          {/* Giorni che si spostano */}
+          <div className="flex flex-1" style={swipeStyle}>
+            {weekDays.map((day, dayIdx) => {
+              const isToday = day.getTime() === today.getTime();
+              const isWeekend = dayIdx >= 5;
+              return (
+                <div
+                  key={dayIdx}
+                  className={cn(
+                    "flex-1 flex flex-col items-center py-0.5 border-l border-slate-700/50",
+                    isToday && "bg-slate-800/40"
+                  )}
                 >
-                  {DAYS_FULL_IT[dayIdx].substring(0, 3)}
-                </span>
-                <span
-                  className={cn("text-[10px] font-bold leading-tight", isToday && "animate-pulse")}
-                  style={{ color: isToday ? activeColor : '#e2e8f0' }}
-                >
-                  {day.getDate()}
-                </span>
-              </div>
-            );
-          })}
+                  <span
+                    className="text-[7px] font-semibold leading-tight"
+                    style={{ color: isWeekend ? '#ef4444' : (isToday ? activeColor : '#64748b') }}
+                  >
+                    {DAYS_FULL_IT[dayIdx].substring(0, 3)}
+                  </span>
+                  <span
+                    className={cn("text-[10px] font-bold leading-tight", isToday && "animate-pulse")}
+                    style={{ color: isToday ? activeColor : '#e2e8f0' }}
+                  >
+                    {day.getDate()}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         {/* CORPO: ore + griglia */}
@@ -288,6 +348,7 @@ export default function WeekView({ selectedDate, monthColor }) {
                 key={slot.label}
                 className={cn("flex", slot.isFullHour ? "h-10" : "h-6")}
               >
+                {/* Colonna ore — resta ferma */}
                 <div className="flex-shrink-0 flex items-center px-1.5" style={{ width: '56px' }}>
                   <div className="flex items-center mr-1.5">
                     <div
@@ -310,40 +371,43 @@ export default function WeekView({ selectedDate, monthColor }) {
                   </span>
                 </div>
 
-                {weekDays.map((day, dayIdx) => {
-                  const dateKey = formatDateKey(day);
-                  const isToday = day.getTime() === today.getTime();
-                  const isNowCell = isToday && slot.label === nowSlotLabel;
-                  const items = itemsByDayTime[dateKey]?.[slot.label] || [];
-                  return (
-                    <div
-                      key={dayIdx}
-                      className={cn(
-                        "flex-1 border-l border-slate-700/20 relative",
-                        isNowCell && "bg-white/5",
-                        isToday && "bg-slate-800/20"
-                      )}
-                    >
-                      {isNowCell && (
-                        <div className="absolute left-0 right-0 top-0 h-[2px] bg-white animate-pulse z-10" />
-                      )}
-                      {items.map((item, i) => (
-                        <div
-                          key={i}
-                          className="absolute inset-x-0.5 top-0.5 bottom-0.5 rounded overflow-hidden flex items-center"
-                          style={{ backgroundColor: item.color + '30', borderLeft: `2px solid ${item.color}` }}
-                        >
-                          <span
-                            className="text-[7px] font-medium px-0.5 truncate leading-tight"
-                            style={{ color: item.color }}
+                {/* 7 colonne giorno — si muovono col swipe */}
+                <div className="flex flex-1 overflow-hidden" style={swipeStyle}>
+                  {weekDays.map((day, dayIdx) => {
+                    const dateKey = formatDateKey(day);
+                    const isDayToday = day.getTime() === today.getTime();
+                    const isNowCell = isDayToday && slot.label === nowSlotLabel;
+                    const items = itemsByDayTime[dateKey]?.[slot.label] || [];
+                    return (
+                      <div
+                        key={dayIdx}
+                        className={cn(
+                          "flex-1 border-l border-slate-700/20 relative",
+                          isNowCell && "bg-white/5",
+                          isDayToday && "bg-slate-800/20"
+                        )}
+                      >
+                        {isNowCell && (
+                          <div className="absolute left-0 right-0 top-0 h-[2px] bg-white animate-pulse z-10" />
+                        )}
+                        {items.map((item, i) => (
+                          <div
+                            key={i}
+                            className="absolute inset-x-0.5 top-0.5 bottom-0.5 rounded overflow-hidden flex items-center"
+                            style={{ backgroundColor: item.color + '30', borderLeft: `2px solid ${item.color}` }}
                           >
-                            {item.title}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  );
-                })}
+                            <span
+                              className="text-[7px] font-medium px-0.5 truncate leading-tight"
+                              style={{ color: item.color }}
+                            >
+                              {item.title}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             );
           })}
