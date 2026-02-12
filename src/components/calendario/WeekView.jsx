@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
+import { Plus, FileText, X } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import NoteEditor from './NoteEditor';
 
 const DAYS_SHORT_IT = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
 const MONTH_COLORS = [
@@ -29,8 +31,13 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   const [userEmail, setUserEmail] = useState(null);
   const [weekOffset, setWeekOffset] = useState(0);
   // Swipe state
-  const [dragX, setDragX] = useState(0); // px di spostamento durante il drag
-  const [animating, setAnimating] = useState(false); // true = CSS transition attiva
+  const [dragX, setDragX] = useState(0);
+  const [animating, setAnimating] = useState(false);
+  // NoteEditor state
+  const [selectedSlot, setSelectedSlot] = useState(null); // { date: 'YYYY-MM-DD', time: 'HH:MM' }
+  const [showNoteEditor, setShowNoteEditor] = useState(false);
+  const noteEditorSaveRef = useRef(null);
+  const queryClient = useQueryClient();
   const scrollRef = useRef(null);
   const touchRef = useRef({ startX:0, startY:0, lastX:0, lastY:0, lastTime:0, velScroll:0, scrollTop0:0, dir:null, animFrame:null });
 
