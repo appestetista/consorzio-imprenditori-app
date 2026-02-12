@@ -298,7 +298,7 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
           )}
         </div>
 
-        {/* Riga 1: Toolbar strumenti + salva */}
+        {/* Riga 1: Camera, Allegato, Cestino, Salva, Chiudi */}
         <div className="flex items-center py-2 border-b border-slate-800/50 relative">
           <div className="flex items-center gap-3">
             <button 
@@ -312,12 +312,6 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
               className="p-1.5 rounded-lg hover:bg-slate-800 transition-colors"
             >
               <Paperclip className="w-5 h-5 text-slate-400" />
-            </button>
-            <button 
-              onClick={toggleChecklist}
-              className="p-1.5 rounded-lg hover:bg-slate-800 transition-colors"
-            >
-              <ListChecks className={cn("w-5 h-5", showChecklist ? "text-lime-400" : "text-slate-400")} />
             </button>
           </div>
           <div className="ml-auto pl-2 flex items-center gap-2">
@@ -358,7 +352,7 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
           </div>
         </div>
 
-        {/* Riga 2: Dettatura e Registratore in contenitori separati */}
+        {/* Riga 2: Dettatura, Registratore e Checklist */}
         <div className="flex items-center gap-3 py-2 mb-4">
           {/* Dettatura vocale - contenitore con bordo */}
           <div className="relative flex-shrink-0 flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg border border-slate-700 bg-slate-800/50">
@@ -385,6 +379,18 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
               }}
             />
           </div>
+          {/* Checklist - contenitore con bordo */}
+          <button 
+            onClick={toggleChecklist}
+            className={cn(
+              "flex-shrink-0 px-2 py-1.5 rounded-lg border transition-colors",
+              showChecklist 
+                ? "border-lime-500/50 bg-lime-500/10" 
+                : "border-slate-700 bg-slate-800/50 hover:bg-slate-800"
+            )}
+          >
+            <ListChecks className={cn("w-5 h-5", showChecklist ? "text-lime-400" : "text-slate-400")} />
+          </button>
         </div>
 
         {/* Area testo libero */}
