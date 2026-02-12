@@ -8,7 +8,7 @@ const MONTH_COLORS = [
 
 export default function MonthNotesCountBar({ noteCountsByMonth, currentMonth, onMonthClick }) {
   return (
-    <div className="flex items-center gap-0 px-0 w-full border-t border-slate-700/30">
+    <div className="flex items-center gap-0 pl-3 pr-0 w-full border-t border-slate-700/30">
       {Array.from({ length: 12 }, (_, mIdx) => {
         const count = noteCountsByMonth[mIdx] || 0;
         const isCurrent = mIdx === currentMonth;
