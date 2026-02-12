@@ -211,13 +211,30 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
         )}
       </div>
 
-      {/* Vista settimanale full-screen */}
+      {/* Vista settimanale - sale sopra tutto */}
             {showWeekView && (
-              <WeekView
-                selectedDate={selectedDate}
-                onClose={() => setShowWeekView(false)}
-                monthColor={currentMonthColor}
-              />
+              <div className="fixed inset-0 z-[65] bg-slate-900 flex flex-col">
+                {/* Pulsante Settimana in alto - resta visibile */}
+                <div className="flex-shrink-0 flex items-center justify-center py-2 border-b border-slate-700">
+                  <button
+                    onClick={() => setShowWeekView(false)}
+                    className="px-4 py-1 rounded-full flex items-center gap-1"
+                    style={{ backgroundColor: currentMonthColor || '#a3e635' }}
+                  >
+                    <span className="text-[11px] text-slate-900 font-bold uppercase">
+                      ✕ Settimana
+                    </span>
+                  </button>
+                </div>
+                {/* WeekView occupa tutto il resto */}
+                <div className="flex-1 min-h-0">
+                  <WeekView
+                    selectedDate={selectedDate}
+                    onClose={() => setShowWeekView(false)}
+                    monthColor={currentMonthColor}
+                  />
+                </div>
+              </div>
             )}
 
       {/* Pannello orari - copre TUTTO lo spazio sopra il calendario fino in fondo */}
