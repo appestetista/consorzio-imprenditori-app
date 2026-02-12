@@ -325,6 +325,13 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
             {/* NoteEditor dalla WeekView - orientamento NORMALE del telefono (non ruotato) */}
             {showWeekNoteEditor && weekNoteSlot && (
               <div className="fixed inset-0 z-[70] bg-black">
+                {/* X grande per chiudere */}
+                <button
+                  onClick={() => { setShowWeekNoteEditor(false); setWeekNoteSlot(null); }}
+                  className="absolute top-4 right-4 z-[71] w-10 h-10 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center active:scale-90 transition-transform"
+                >
+                  <X className="w-6 h-6 text-white" />
+                </button>
                 <NoteEditor
                   key={`week-${weekNoteSlot.date}-${weekNoteSlot.time}`}
                   selectedDate={new Date(weekNoteSlot.date + 'T00:00:00')}
