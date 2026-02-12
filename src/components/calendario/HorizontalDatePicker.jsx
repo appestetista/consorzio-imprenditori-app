@@ -856,7 +856,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
               style={{ backgroundColor: currentMonthColor || '#a3e635' }}
             >
               <span className="text-[10px] text-slate-900 font-semibold uppercase">
-                Settimana
+                Vista Settimana
               </span>
             </button>
           )}
