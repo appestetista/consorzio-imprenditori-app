@@ -192,9 +192,9 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           isOpen ? "translate-x-0" : "translate-x-full",
           showTimePicker ? "z-[55]" : "z-50"
         )}
-        style={{ display: 'flex', flexDirection: 'column' }}
+        style={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}
       >
-        {/* Calendario orizzontale - senza spazio sopra */}
+        {/* Calendario orizzontale - in basso */}
         <div>
           <HorizontalDatePicker
             goToTodayButton={
