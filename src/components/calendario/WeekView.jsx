@@ -235,63 +235,63 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
             </button>
           </div>
 
-          {/* Dropdown mesi */}
+          {/* Dropdown mesi — overlay fisso per evitare problemi touch con parent ruotato */}
           {showMonthDropdown && (
             <div 
-              className="absolute top-full left-1/2 -translate-x-1/2 z-50 bg-slate-800 border border-slate-600 rounded-lg shadow-2xl overflow-hidden"
-              style={{ minWidth: '180px' }}
-              onClick={(e) => e.stopPropagation()}
+              className="fixed inset-0 z-[100]"
+              onClick={() => setShowMonthDropdown(false)}
               onTouchStart={(e) => e.stopPropagation()}
-              onTouchMove={(e) => { e.stopPropagation(); e.preventDefault(); }}
+              onTouchMove={(e) => e.stopPropagation()}
               onTouchEnd={(e) => e.stopPropagation()}
             >
-              {/* Anno con frecce */}
-              <div className="flex items-center justify-between px-3 py-2 border-b border-slate-700">
-                <button 
-                  onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); setDropdownYear(y => y - 1); }}
-                  onClick={(e) => { e.stopPropagation(); setDropdownYear(y => y - 1); }}
-                  className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-700 active:bg-slate-600 text-slate-300 text-sm font-bold touch-manipulation"
-                >
-                  ‹
-                </button>
-                <span className="text-sm font-bold text-slate-200">{dropdownYear}</span>
-                <button 
-                  onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); setDropdownYear(y => y + 1); }}
-                  onClick={(e) => { e.stopPropagation(); setDropdownYear(y => y + 1); }}
-                  className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-700 active:bg-slate-600 text-slate-300 text-sm font-bold touch-manipulation"
-                >
-                  ›
-                </button>
-              </div>
-              {/* Griglia 3x4 mesi */}
-              <div className="grid grid-cols-3 gap-2 p-3">
-                {MONTHS_IT.map((mName, mIdx) => {
-                  const isCurrentMonth = mIdx === weekMainMonth && dropdownYear === weekDays[3].getFullYear();
-                  const mColor = MONTH_COLORS[mIdx];
-                  return (
-                    <button
-                      key={mIdx}
-                      onTouchEnd={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setViewDate(new Date(dropdownYear, mIdx, 1));
-                        setShowMonthDropdown(false);
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setViewDate(new Date(dropdownYear, mIdx, 1));
-                        setShowMonthDropdown(false);
-                      }}
-                      className={cn(
-                        "py-3 rounded-lg text-[11px] font-semibold text-center touch-manipulation select-none active:scale-95 transition-transform",
-                        isCurrentMonth ? "text-slate-900 font-bold" : "text-slate-300"
-                      )}
-                      style={{ backgroundColor: isCurrentMonth ? mColor : 'rgba(51,65,85,0.5)' }}
-                    >
-                      {mName.slice(0, 3)}
-                    </button>
-                  );
-                })}
+              <div 
+                className="absolute bg-slate-800 border border-slate-600 rounded-lg shadow-2xl overflow-hidden"
+                style={{ 
+                  top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+                  width: '220px'
+                }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Anno con frecce */}
+                <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-700">
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); setDropdownYear(y => y - 1); }}
+                    className="w-9 h-9 flex items-center justify-center rounded-full bg-slate-700 active:bg-slate-600 text-slate-300 text-base font-bold touch-manipulation"
+                  >
+                    ‹
+                  </button>
+                  <span className="text-base font-bold text-slate-200">{dropdownYear}</span>
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); setDropdownYear(y => y + 1); }}
+                    className="w-9 h-9 flex items-center justify-center rounded-full bg-slate-700 active:bg-slate-600 text-slate-300 text-base font-bold touch-manipulation"
+                  >
+                    ›
+                  </button>
+                </div>
+                {/* Griglia 3x4 mesi */}
+                <div className="grid grid-cols-3 gap-2 p-3">
+                  {MONTHS_IT.map((mName, mIdx) => {
+                    const isCurrentMonth = mIdx === weekMainMonth && dropdownYear === weekDays[3].getFullYear();
+                    const mColor = MONTH_COLORS[mIdx];
+                    return (
+                      <button
+                        key={mIdx}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setViewDate(new Date(dropdownYear, mIdx, 1));
+                          setShowMonthDropdown(false);
+                        }}
+                        className={cn(
+                          "py-3.5 rounded-lg text-xs font-semibold text-center touch-manipulation select-none active:scale-95 transition-transform",
+                          isCurrentMonth ? "text-slate-900 font-bold" : "text-slate-300"
+                        )}
+                        style={{ backgroundColor: isCurrentMonth ? mColor : 'rgba(51,65,85,0.5)' }}
+                      >
+                        {mName.slice(0, 3)}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           )}
@@ -373,13 +373,10 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
         })()}
 
         {/* AREA TOUCH — griglia ore + swipe settimane */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 flex flex-col overflow-hidden" style={{ touchAction: 'none' }} onTouchStart={onTS} onTouchMove={onTM} onTouchEnd={onTE}>
 
-          {/* HEADER GIORNI — swipe qui cambia settimana */}
-          <div className="flex flex-shrink-0 border-b border-slate-700/50 overflow-hidden"
-            onTouchStart={onTS} onTouchMove={onTM} onTouchEnd={onTE}
-            style={{ touchAction: 'none' }}
-          >
+          {/* HEADER GIORNI */}
+          <div className="flex flex-shrink-0 border-b border-slate-700/50 overflow-hidden">
             <div className="flex-shrink-0" style={{ width: '56px' }} />
             <div className="flex flex-1" style={swipeStyle}>
               {weekDays.map((day, i) => {
@@ -402,10 +399,9 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
             </div>
           </div>
 
-          {/* CORPO — scroll ore + swipe settimane */}
+          {/* CORPO */}
           <div ref={scrollRef} className="flex-1 overflow-y-auto overscroll-none"
-            onTouchStart={onTS} onTouchMove={onTM} onTouchEnd={onTE}
-            style={{ scrollbarWidth:'none', msOverflowStyle:'none', touchAction:'none' }}
+            style={{ scrollbarWidth:'none', msOverflowStyle:'none' }}
           >
             {TIME_SLOTS.map((slot) => {
               const isNow = todayInWeek && slot.label === nowSlot;
