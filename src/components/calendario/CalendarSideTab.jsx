@@ -283,56 +283,56 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                 transition: 'background-color 1.2s ease, transform 0.7s ease-in-out'
               }}
             >
-              {/* Barra mesi FUORI dal rotate ma orientata landscape (rotate 90deg), posizionata sopra i pallini giorni */}
+              {/* Barra pulsante + mesi FUORI dal rotate ma orientata landscape (rotate 90deg) */}
               <div 
-                className="fixed z-[66] flex items-center"
+                className="fixed z-[66] flex flex-col"
                 style={{
-                  /* Larghezza = altezza schermo (landscape), posizionata sopra il contenuto ruotato */
                   width: '100vh',
-                  height: '36px',
+                  height: '68px',
                   top: '50%',
                   left: '50%',
-                  transform: 'translate(-50%, -50%) rotate(90deg) translateY(calc(-50vw + 18px))',
+                  transform: 'translate(-50%, -50%) rotate(90deg) translateY(calc(-50vw + 34px))',
                   transformOrigin: 'center center',
                   backgroundColor: `color-mix(in srgb, ${weekViewColor || currentMonthColor} 6%, #0f172a)`,
                   borderBottom: '1px solid rgba(51,65,85,0.5)',
                   pointerEvents: 'auto'
                 }}
               >
-                <button
-                  onClick={() => {
-                    // Determina la data da passare alla vista giornaliera
-                    const targetDate = selectedDate 
-                      ? new Date(selectedDate) 
-                      : new Date(new Date().getFullYear(), weekViewMonth, 1);
-                    targetDate.setHours(0,0,0,0);
-                    // Se la data selezionata non è nel mese della weekView, usa il 1° del mese
-                    if (targetDate.getMonth() !== weekViewMonth) {
-                      targetDate.setFullYear(new Date().getFullYear());
-                      targetDate.setMonth(weekViewMonth);
-                      targetDate.setDate(1);
-                    }
-                    handleDateSelect(targetDate);
-                    // Chiudi weekView e apri vista giornaliera
-                    setShowWeekView(false);
-                    setIsOpen(true);
-                    setShowTimePicker(true);
-                    // Scrolla il calendario orizzontale alla data
-                    setTimeout(() => {
-                      if (goToTodayRef.scrollToDate) {
-                        goToTodayRef.scrollToDate(targetDate);
+                {/* Riga 1: Pulsante vista giornaliera — sopra i mesi */}
+                <div className="flex items-center justify-center" style={{ height: '32px' }}>
+                  <button
+                    onClick={() => {
+                      const targetDate = selectedDate 
+                        ? new Date(selectedDate) 
+                        : new Date(new Date().getFullYear(), weekViewMonth, 1);
+                      targetDate.setHours(0,0,0,0);
+                      if (targetDate.getMonth() !== weekViewMonth) {
+                        targetDate.setFullYear(new Date().getFullYear());
+                        targetDate.setMonth(weekViewMonth);
+                        targetDate.setDate(1);
                       }
-                    }, 200);
-                  }}
-                  className="flex-shrink-0 px-2.5 py-1.5 rounded-md ml-1 touch-manipulation active:scale-90 transition-all"
-                  style={{ 
-                    backgroundColor: MONTH_COLORS[weekViewMonth],
-                    color: '#0f172a'
-                  }}
-                >
-                  <Calendar className="w-3.5 h-3.5" />
-                </button>
-                <div className="flex-1 overflow-hidden">
+                      handleDateSelect(targetDate);
+                      setShowWeekView(false);
+                      setIsOpen(true);
+                      setShowTimePicker(true);
+                      setTimeout(() => {
+                        if (goToTodayRef.scrollToDate) {
+                          goToTodayRef.scrollToDate(targetDate);
+                        }
+                      }, 200);
+                    }}
+                    className="flex items-center gap-1.5 px-3 py-1 rounded-md touch-manipulation active:scale-90 transition-all"
+                    style={{ 
+                      backgroundColor: MONTH_COLORS[weekViewMonth],
+                      color: '#0f172a'
+                    }}
+                  >
+                    <Calendar className="w-3.5 h-3.5" />
+                    <span className="text-[9px] font-bold uppercase">Vista giornaliera</span>
+                  </button>
+                </div>
+                {/* Riga 2: Barra mesi */}
+                <div className="flex-1 overflow-hidden flex items-center">
                   <MonthBar 
                     currentMonth={weekViewMonth}
                     onSelectMonth={(mIdx) => {
