@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { X, FileText, ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 
-const DAYS_FULL = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 'Domenica'];
 const DAYS_SHORT_IT = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
 
 const MONTH_COLORS = [
@@ -12,17 +11,15 @@ const MONTH_COLORS = [
   '#f97316', '#ef4444', '#06b6d4', '#a855f7', '#6366f1', '#0ea5e9'
 ];
 
-// Ore da mostrare (6-23)
-const HOURS = Array.from({ length: 18 }, (_, i) => i + 6);
+const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
 function getWeekDays(referenceDate) {
   const d = new Date(referenceDate);
-  const dayOfWeek = d.getDay(); // 0=dom, 1=lun...
+  const dayOfWeek = d.getDay();
   const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
   const monday = new Date(d);
   monday.setDate(d.getDate() + mondayOffset);
   monday.setHours(0, 0, 0, 0);
-
   const days = [];
   for (let i = 0; i < 7; i++) {
     const day = new Date(monday);
@@ -39,6 +36,7 @@ function formatDateKey(date) {
 export default function WeekView({ selectedDate, onClose, monthColor }) {
   const [userEmail, setUserEmail] = useState(null);
   const [weekOffset, setWeekOffset] = useState(0);
+  const scrollRef = useRef(null);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -48,7 +46,18 @@ export default function WeekView({ selectedDate, onClose, monthColor }) {
     loadUser();
   }, []);
 
-  // Calcola i giorni della settimana corrente (con offset)
+  // Scroll all'ora corrente all'apertura
+  useEffect(() => {
+    if (scrollRef.current) {
+      const now = new Date();
+      const hourWidth = 60; // larghezza minima per ora
+      const scrollTo = Math.max(0, (now.getHours() - 2) * hourWidth);
+      setTimeout(() => {
+        scrollRef.current?.scrollTo({ left: scrollTo, behavior: 'smooth' });
+      }, 200);
+    }
+  }, []);
+
   const baseDate = selectedDate ? new Date(selectedDate) : new Date();
   const offsetDate = new Date(baseDate);
   offsetDate.setDate(offsetDate.getDate() + weekOffset * 7);
@@ -57,11 +66,9 @@ export default function WeekView({ selectedDate, onClose, monthColor }) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // Range date per query
   const startDateStr = formatDateKey(weekDays[0]);
   const endDateStr = formatDateKey(weekDays[6]);
 
-  // Query note della settimana
   const { data: noteSettimana = [] } = useQuery({
     queryKey: ['note-week', userEmail, startDateStr, endDateStr],
     queryFn: async () => {
@@ -72,7 +79,6 @@ export default function WeekView({ selectedDate, onClose, monthColor }) {
     enabled: !!userEmail
   });
 
-  // Query file cartella della settimana
   const { data: fileSettimana = [] } = useQuery({
     queryKey: ['file-week', userEmail, startDateStr, endDateStr],
     queryFn: async () => {
@@ -83,7 +89,6 @@ export default function WeekView({ selectedDate, onClose, monthColor }) {
     enabled: !!userEmail
   });
 
-  // Query cartelle per colori
   const { data: cartelle = [] } = useQuery({
     queryKey: ['cartelle', userEmail],
     queryFn: () => base44.entities.Cartella.filter({ user_email: userEmail }),
@@ -93,7 +98,7 @@ export default function WeekView({ selectedDate, onClose, monthColor }) {
   const cartelleMap = {};
   cartelle.forEach(c => { cartelleMap[c.id] = c; });
 
-  // Mappa note e file per data e ora
+  // Mappa items per data+ora
   const itemsByDayHour = {};
   weekDays.forEach(d => {
     const key = formatDateKey(d);
@@ -129,123 +134,159 @@ export default function WeekView({ selectedDate, onClose, monthColor }) {
     });
   });
 
-  // Colore del mese visibile
   const activeColor = monthColor || MONTH_COLORS[offsetDate.getMonth()];
+  const weekLabel = `${weekDays[0].getDate()} ${weekDays[0].toLocaleDateString('it-IT', { month: 'short' })} - ${weekDays[6].getDate()} ${weekDays[6].toLocaleDateString('it-IT', { month: 'short' })}`;
 
-  // Etichetta settimana
-  const weekLabel = `${weekDays[0].getDate()} ${weekDays[0].toLocaleDateString('it-IT', { month: 'short' })} - ${weekDays[6].getDate()} ${weekDays[6].toLocaleDateString('it-IT', { month: 'short', year: 'numeric' })}`;
+  const currentHour = new Date().getHours();
+
+  // Altezza per ogni riga giorno (dividiamo lo spazio disponibile per 7)
+  // Larghezza per ogni colonna ora
+  const HOUR_WIDTH = 60;
 
   return (
-    <div className="fixed inset-0 z-[70] bg-slate-900 flex flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between px-3 py-2 border-b border-slate-700 flex-shrink-0">
-        <button onClick={onClose} className="p-1.5 rounded-full hover:bg-slate-700">
-          <X className="w-5 h-5 text-slate-400" />
+    <div className="flex flex-col h-full bg-slate-900">
+      {/* Header con navigazione settimana */}
+      <div className="flex items-center justify-between px-3 py-1.5 border-b border-slate-700 flex-shrink-0">
+        <button onClick={() => setWeekOffset(w => w - 1)} className="p-1 rounded hover:bg-slate-700">
+          <ChevronLeft className="w-4 h-4 text-slate-400" />
         </button>
         <div className="flex items-center gap-2">
-          <button onClick={() => setWeekOffset(w => w - 1)} className="p-1 rounded hover:bg-slate-700">
-            <ChevronLeft className="w-4 h-4 text-slate-400" />
-          </button>
-          <span className="text-sm font-semibold" style={{ color: activeColor }}>{weekLabel}</span>
-          <button onClick={() => setWeekOffset(w => w + 1)} className="p-1 rounded hover:bg-slate-700">
-            <ChevronRight className="w-4 h-4 text-slate-400" />
-          </button>
+          <span className="text-xs font-semibold" style={{ color: activeColor }}>{weekLabel}</span>
+          {weekOffset !== 0 && (
+            <button 
+              onClick={() => setWeekOffset(0)} 
+              className="text-[9px] font-bold px-1.5 py-0.5 rounded"
+              style={{ backgroundColor: activeColor, color: '#0f172a' }}
+            >
+              OGGI
+            </button>
+          )}
         </div>
-        <button 
-          onClick={() => setWeekOffset(0)} 
-          className="text-[10px] font-bold px-2 py-1 rounded"
-          style={{ backgroundColor: activeColor, color: '#0f172a' }}
-        >
-          OGGI
+        <button onClick={() => setWeekOffset(w => w + 1)} className="p-1 rounded hover:bg-slate-700">
+          <ChevronRight className="w-4 h-4 text-slate-400" />
         </button>
       </div>
 
-      {/* Griglia settimanale - landscape style (ore a sinistra, giorni in colonne) */}
-      <div className="flex-1 overflow-auto">
-        <div className="min-w-full">
-          {/* Intestazioni giorni */}
-          <div className="flex sticky top-0 z-10 bg-slate-900 border-b border-slate-700">
-            {/* Cella vuota angolo ore */}
-            <div className="w-12 flex-shrink-0 border-r border-slate-700" />
-            {weekDays.map((day, idx) => {
+      {/* Griglia ruotata: righe = giorni, colonne = ore, scroll orizzontale */}
+      <div className="flex-1 flex flex-col min-h-0">
+        {/* Contenitore scrollabile orizzontale (ore) */}
+        <div className="flex-1 flex flex-col min-h-0">
+          {/* Righe giorni */}
+          <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+            {weekDays.map((day, dayIdx) => {
+              const dateKey = formatDateKey(day);
               const isToday = day.getTime() === today.getTime();
               const isSelected = selectedDate && day.toDateString() === new Date(selectedDate).toDateString();
               const dayColor = MONTH_COLORS[day.getMonth()];
+
               return (
-                <div
-                  key={idx}
-                  className={cn(
-                    "flex-1 text-center py-1.5 border-r border-slate-700/50 min-w-[80px]",
-                    isToday && "bg-slate-800/60"
-                  )}
-                >
-                  <div className="text-[10px] font-medium" style={{ color: isToday ? activeColor : '#94a3b8' }}>
-                    {DAYS_SHORT_IT[idx]}
-                  </div>
-                  <div
+                <div key={dayIdx} className="flex flex-1 min-h-0 border-b border-slate-800/50">
+                  {/* Label giorno fisso a sinistra */}
+                  <div 
                     className={cn(
-                      "text-sm font-bold leading-tight",
-                      isToday && "animate-pulse"
+                      "w-10 flex-shrink-0 flex flex-col items-center justify-center border-r border-slate-700",
+                      isToday && "bg-slate-800/60"
                     )}
-                    style={{ color: isToday ? activeColor : (isSelected ? dayColor : '#ffffff') }}
                   >
-                    {day.getDate()}
+                    <span className="text-[8px] font-medium" style={{ color: isToday ? activeColor : '#64748b' }}>
+                      {DAYS_SHORT_IT[dayIdx]}
+                    </span>
+                    <span 
+                      className={cn("text-[11px] font-bold leading-none", isToday && "animate-pulse")}
+                      style={{ color: isToday ? activeColor : '#ffffff' }}
+                    >
+                      {day.getDate()}
+                    </span>
+                  </div>
+
+                  {/* Celle ore scrollabili */}
+                  <div 
+                    ref={dayIdx === 0 ? scrollRef : null}
+                    className="flex-1 overflow-x-auto scrollbar-hide flex"
+                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                    onScroll={(e) => {
+                      // Sincronizza scroll tra tutte le righe
+                      const scrollLeft = e.target.scrollLeft;
+                      const container = e.target.closest('.flex-col')?.parentElement;
+                      if (!container) return;
+                      const rows = container.querySelectorAll('.overflow-x-auto');
+                      rows.forEach(row => {
+                        if (row !== e.target) row.scrollLeft = scrollLeft;
+                      });
+                    }}
+                  >
+                    {HOURS.map((hour) => {
+                      const items = itemsByDayHour[dateKey]?.[hour] || [];
+                      const isNow = isToday && currentHour === hour;
+
+                      return (
+                        <div
+                          key={hour}
+                          className={cn(
+                            "flex-shrink-0 border-r border-slate-800/30 relative flex flex-col justify-center px-0.5",
+                            isNow && "bg-slate-700/30"
+                          )}
+                          style={{ width: `${HOUR_WIDTH}px`, minWidth: `${HOUR_WIDTH}px` }}
+                        >
+                          {isNow && (
+                            <div className="absolute top-0 bottom-0 left-0 w-[2px] bg-white/50 animate-pulse" />
+                          )}
+                          {items.map((item, itemIdx) => (
+                            <div
+                              key={itemIdx}
+                              className="rounded px-1 py-0.5 mb-px truncate"
+                              style={{ backgroundColor: item.color + '25', borderLeft: `2px solid ${item.color}` }}
+                            >
+                              <div className="text-[8px] font-mono" style={{ color: item.color + 'cc' }}>{item.time}</div>
+                              <div className="text-[9px] font-medium truncate" style={{ color: item.color }}>
+                                {item.title}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               );
             })}
           </div>
 
-          {/* Righe ore */}
-          {HOURS.map((hour) => (
-            <div key={hour} className="flex border-b border-slate-800/50 min-h-[48px]">
-              {/* Colonna ora */}
-              <div className="w-12 flex-shrink-0 border-r border-slate-700 flex items-start justify-end pr-1 pt-0.5">
-                <span className="text-[10px] font-mono text-slate-500">
-                  {String(hour).padStart(2, '0')}:00
-                </span>
-              </div>
-              {/* Celle giornaliere */}
-              {weekDays.map((day, dayIdx) => {
-                const dateKey = formatDateKey(day);
-                const items = itemsByDayHour[dateKey]?.[hour] || [];
-                const isToday = day.getTime() === today.getTime();
-                const isNow = isToday && new Date().getHours() === hour;
-
+          {/* Barra ore in basso - fissa */}
+          <div className="flex-shrink-0 border-t border-slate-700 flex">
+            <div className="w-10 flex-shrink-0 border-r border-slate-700" />
+            <div 
+              className="flex-1 overflow-x-auto scrollbar-hide flex"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              onScroll={(e) => {
+                const scrollLeft = e.target.scrollLeft;
+                const container = e.target.closest('.flex-col')?.parentElement;
+                if (!container) return;
+                const rows = container.querySelectorAll('.overflow-x-auto');
+                rows.forEach(row => {
+                  if (row !== e.target) row.scrollLeft = scrollLeft;
+                });
+              }}
+            >
+              {HOURS.map((hour) => {
+                const isNow = today.getTime() === new Date(new Date().setHours(0,0,0,0)).getTime() && currentHour === hour;
                 return (
                   <div
-                    key={dayIdx}
-                    className={cn(
-                      "flex-1 border-r border-slate-800/30 px-0.5 py-0.5 min-w-[80px] relative",
-                      isToday && "bg-slate-800/20",
-                      isNow && "bg-slate-700/30"
-                    )}
+                    key={hour}
+                    className="flex-shrink-0 flex items-center justify-center py-1 border-r border-slate-800/30"
+                    style={{ width: `${HOUR_WIDTH}px`, minWidth: `${HOUR_WIDTH}px` }}
                   >
-                    {isNow && (
-                      <div className="absolute left-0 right-0 top-1/2 h-[2px] bg-white/40 animate-pulse z-0" />
-                    )}
-                    {items.map((item, itemIdx) => (
-                      <div
-                        key={itemIdx}
-                        className="rounded px-1 py-0.5 mb-0.5 truncate relative z-10"
-                        style={{ backgroundColor: item.color + '25', borderLeft: `2px solid ${item.color}` }}
-                      >
-                        <span className="text-[9px] font-mono text-slate-500 mr-1">{item.time}</span>
-                        <span className="text-[10px] font-medium" style={{ color: item.color }}>
-                          {item.title}
-                        </span>
-                        {item.cartellaName && (
-                          <span className="text-[8px] ml-1" style={{ color: item.color + 'aa' }}>
-                            / {item.cartellaName}
-                          </span>
-                        )}
-                      </div>
-                    ))}
+                    <span 
+                      className={cn("text-[10px] font-mono font-bold", isNow && "animate-pulse")}
+                      style={{ color: isNow ? activeColor : '#64748b' }}
+                    >
+                      {String(hour).padStart(2, '0')}
+                    </span>
                   </div>
                 );
               })}
             </div>
-          ))}
+          </div>
         </div>
       </div>
     </div>
