@@ -9,6 +9,8 @@ import VerticalTimePicker from './VerticalTimePicker';
 import FatturatoBarra from './FatturatoBarra';
 import WeekView from './WeekView';
 import NoteEditor from './NoteEditor';
+import WhisperDictation from './WhisperDictation';
+import AudioRecorder from './AudioRecorder';
 import MonthBar from './MonthBar';
 import MonthNotesCountBar from './MonthNotesCountBar';
 import MonthNotesSummaryPopup from './MonthNotesSummaryPopup';
