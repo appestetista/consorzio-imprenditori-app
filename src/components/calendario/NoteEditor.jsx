@@ -327,6 +327,62 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
                 </button>
               </div>
             ))}
+            {/* Inline edit cartella */}
+            {editingCartella && (
+              <div className="px-3 py-2.5 border-t border-slate-700 space-y-2">
+                <span className="text-[10px] text-slate-400 uppercase">Modifica cartella</span>
+                <input
+                  type="text"
+                  value={editCartellaName}
+                  onChange={(e) => setEditCartellaName(e.target.value)}
+                  placeholder="Nome cartella"
+                  className="w-full bg-slate-700 text-white text-xs rounded px-2.5 py-1.5 outline-none focus:ring-1 focus:ring-lime-400"
+                  autoFocus
+                />
+                <div className="flex gap-1.5 flex-wrap">
+                  {FOLDER_COLORS.map((color) => (
+                    <button
+                      key={color}
+                      onClick={() => setEditCartellaColor(color)}
+                      className={cn("w-5 h-5 rounded-full transition-all", editCartellaColor === color && "ring-2 ring-white ring-offset-1 ring-offset-slate-800 scale-110")}
+                      style={{ backgroundColor: color }}
+                    />
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={() => setEditingCartella(null)} className="flex-1 text-[10px] py-1 rounded bg-slate-600 text-white">Annulla</button>
+                  <button
+                    onClick={() => {
+                      if (editCartellaName.trim()) {
+                        updateFolderMutation.mutate({ id: editingCartella.id, data: { nome: editCartellaName.trim(), colore: editCartellaColor } });
+                      }
+                    }}
+                    disabled={!editCartellaName.trim()}
+                    className="flex-1 text-[10px] py-1 rounded bg-lime-500 text-slate-900 font-bold disabled:opacity-40"
+                  >
+                    Salva
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Conferma eliminazione cartella */}
+            {deleteCartellaConfirm && (
+              <div className="px-3 py-2.5 border-t border-slate-700 space-y-2">
+                <span className="text-[10px] text-red-400 uppercase">⚠️ Eliminare cartella?</span>
+                <p className="text-[10px] text-slate-400">Le note resteranno nel calendario.</p>
+                <div className="flex gap-2">
+                  <button onClick={() => setDeleteCartellaConfirm(null)} className="flex-1 text-[10px] py-1 rounded bg-slate-600 text-white">Annulla</button>
+                  <button
+                    onClick={() => deleteFolderMutation.mutate(deleteCartellaConfirm)}
+                    className="flex-1 text-[10px] py-1 rounded bg-red-500 text-white font-bold"
+                  >
+                    Elimina
+                  </button>
+                </div>
+              </div>
+            )}
+
             {!showNewFolderInline ? (
               <button
                 onClick={() => setShowNewFolderInline(true)}
