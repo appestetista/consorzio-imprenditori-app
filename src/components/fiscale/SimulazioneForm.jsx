@@ -24,6 +24,8 @@ export default function SimulazioneForm({ onSubmit, loading }) {
     coefficiente_redditivita: '0.78',
     aliquota_forfettario: 'ordinario',
     distribuzione_dividendi: false,
+    compenso_amministratore: '',
+    base_imponibile_irap: '',
     nome_scenario: '',
     anno: 2026
   });
@@ -34,6 +36,8 @@ export default function SimulazioneForm({ onSubmit, loading }) {
       ...form,
       fatturato: parseFloat(form.fatturato),
       costi_deducibili: parseFloat(form.costi_deducibili) || 0,
+      compenso_amministratore: parseFloat(form.compenso_amministratore) || 0,
+      base_imponibile_irap: form.base_imponibile_irap ? parseFloat(form.base_imponibile_irap) : undefined,
       coefficiente_redditivita: parseFloat(form.coefficiente_redditivita),
       anno: parseInt(form.anno)
     });
@@ -141,15 +145,38 @@ export default function SimulazioneForm({ onSubmit, loading }) {
         </>
       )}
 
-      {/* Distribuzione dividendi - solo SRL */}
+      {/* Campi specifici SRL */}
       {form.regime === 'SRL' && (
-        <div className="flex items-center justify-between p-3 rounded-lg bg-slate-800 border border-slate-700">
-          <Label className="text-slate-300 text-sm">Distribuzione dividendi</Label>
-          <Switch
-            checked={form.distribuzione_dividendi}
-            onCheckedChange={(v) => update('distribuzione_dividendi', v)}
-          />
-        </div>
+        <>
+          <div>
+            <label className="text-slate-400 text-xs font-medium mb-1 block">Compenso amministratore (€)</label>
+            <Input
+              type="number"
+              placeholder="es. 30000 (opzionale)"
+              value={form.compenso_amministratore}
+              onChange={(e) => update('compenso_amministratore', e.target.value)}
+              className="bg-slate-800 border-slate-700 text-white"
+            />
+          </div>
+          <div>
+            <label className="text-slate-400 text-xs font-medium mb-1 block">Base imponibile IRAP (€)</label>
+            <Input
+              type="number"
+              placeholder="Lascia vuoto per stima automatica"
+              value={form.base_imponibile_irap}
+              onChange={(e) => update('base_imponibile_irap', e.target.value)}
+              className="bg-slate-800 border-slate-700 text-white"
+            />
+            <p className="text-slate-500 text-[10px] mt-1">Se vuoto, verrà stimata pari all'utile. Nella realtà può differire.</p>
+          </div>
+          <div className="flex items-center justify-between p-3 rounded-lg bg-slate-800 border border-slate-700">
+            <Label className="text-slate-300 text-sm">Distribuzione dividendi</Label>
+            <Switch
+              checked={form.distribuzione_dividendi}
+              onCheckedChange={(v) => update('distribuzione_dividendi', v)}
+            />
+          </div>
+        </>
       )}
 
       {/* Anno */}
