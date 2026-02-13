@@ -533,6 +533,50 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
         </div>
       </div>
 
+      {/* Menu opzioni slot */}
+      {slotMenuPos && (
+        <div 
+          className="fixed inset-0 z-[60]" 
+          onClick={() => setSlotMenuPos(null)}
+        >
+          <div 
+            className="absolute z-[61] bg-black rounded-xl shadow-2xl border border-slate-700/50 overflow-hidden"
+            style={{
+              left: `${Math.min(slotMenuPos.x - 70, window.innerWidth - 160)}px`,
+              top: `${Math.max(slotMenuPos.y - 110, 10)}px`,
+              minWidth: '140px'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="py-1">
+              <button
+                className="w-full flex items-center gap-2.5 px-3 py-2.5 hover:bg-slate-800 transition-colors"
+                onClick={() => {
+                  setSlotMenuPos(null);
+                  if (onSlotClick) {
+                    const existingNote = notesByDateAndTime[slotMenuPos.date]?.[slotMenuPos.time] || null;
+                    onSlotClick({ date: slotMenuPos.date, time: slotMenuPos.time, existingNote });
+                  }
+                }}
+              >
+                <StickyNote className="w-4 h-4" style={{ color: ac }} />
+                <span className="text-xs text-white font-medium">Nuova nota</span>
+              </button>
+              <button
+                className="w-full flex items-center gap-2.5 px-3 py-2.5 hover:bg-slate-800 transition-colors"
+                onClick={() => {
+                  setSlotMenuPos(null);
+                  // Futuro: creare evento
+                }}
+              >
+                <CalendarPlus className="w-4 h-4 text-cyan-400" />
+                <span className="text-xs text-white font-medium">Nuovo evento</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Popup riepilogo note del giorno */}
       {daySummaryDate && (
         <DayNotesSummaryPopup
