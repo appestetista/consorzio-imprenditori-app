@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { cn } from '@/lib/utils';
-import { Plus, FileText, X, ChevronDown, Check } from 'lucide-react';
+import { Plus, X, ChevronDown, Check } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import DayNotesSummaryPopup from './DayNotesSummaryPopup';
@@ -12,6 +12,7 @@ const MONTH_COLORS = [
   '#f97316','#ef4444','#06b6d4','#a855f7','#6366f1','#0ea5e9'
 ];
 const MONTHS_IT = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
+const ITEM_W = 28; // larghezza fissa di ogni giorno nel nastro
 
 function generateTimeSlots() {
   const slots = [];
@@ -29,18 +30,16 @@ function getWeekDays(ref) {
 }
 function fk(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 
-// Genera N settimane centrate su una data
-function generateWeeks(centerDate, count = 53) {
-  const weeks = [];
-  const half = Math.floor(count / 2);
-  const center = getWeekDays(centerDate);
-  const centerMon = center[0];
-  for (let i = -half; i <= half; i++) {
-    const d = new Date(centerMon);
-    d.setDate(d.getDate() + i * 7);
-    weeks.push(getWeekDays(d));
+// Genera il nastro continuo di giorni per un anno intero (gen-dic)
+function generateYearDays(year) {
+  const days = [];
+  for (let m = 0; m < 12; m++) {
+    const daysInMonth = new Date(year, m + 1, 0).getDate();
+    for (let d = 1; d <= daysInMonth; d++) {
+      days.push(new Date(year, m, d));
+    }
   }
-  return weeks;
+  return days;
 }
 
 export default function WeekView({ selectedDate, monthColor, onMonthColorChange, onDateSelect, onSlotClick, onMonthChange, onRegisterMonthSelect, onBackToDaily, allMonthNotes = [] }) {
@@ -51,13 +50,20 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   const [openDropdownDay, setOpenDropdownDay] = useState(null);
   const [strikethroughItems, setStrikethroughItems] = useState({});
   const [daySummaryDate, setDaySummaryDate] = useState(null);
-  const [visibleWeekIdx, setVisibleWeekIdx] = useState(null);
+  // La settimana visualizzata (derivata dal giorno centrale visibile nel nastro)
+  const [currentWeekDays, setCurrentWeekDays] = useState(() => getWeekDays(selectedDate || new Date()));
+  // Cursore: posizione px nel nastro
+  const [cursorLeft, setCursorLeft] = useState(0);
+  const [cursorWidth, setCursorWidth] = useState(0);
 
-  const scrollRef = useRef(null);
-  const weekScrollRef = useRef(null);
-  const daysBarScrollRef = useRef(null);
-  const isSyncingRef = useRef(false);
+  const scrollRef = useRef(null); // scroll verticale ore
+  const ribbonRef = useRef(null); // scroll orizzontale nastro giorni
+  const dayRefsMap = useRef({}); // ref per ogni giorno del nastro: "YYYY-M-D" -> element
   const initialScrollDone = useRef(false);
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  const displayYear = viewDate.getFullYear();
+  const yearDays = React.useMemo(() => generateYearDays(displayYear), [displayYear]);
 
   useEffect(() => { base44.auth.me().then(u => setUserEmail(u?.email)).catch(()=>{}); }, []);
 
@@ -70,67 +76,85 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     if (!scrollRef.current) return;
     const now = new Date();
     const idx = now.getHours() * 12 + Math.floor(now.getMinutes() / 5);
-    setTimeout(() => { if (scrollRef.current) scrollRef.current.scrollTop = Math.max(0, (idx - 5) * 26); }, 100);
-  }, [viewDate]);
+    setTimeout(() => { if (scrollRef.current) scrollRef.current.scrollTop = Math.max(0, (idx - 5) * 26); }, 200);
+  }, [currentWeekDays]);
 
-  // Genera settimane
-  const allWeeks = React.useMemo(() => generateWeeks(viewDate, 53), []);
-  const centerIdx = Math.floor(allWeeks.length / 2);
-
-  // Scroll iniziale al centro
+  // Scroll iniziale del nastro al giorno corrente
   useEffect(() => {
-    if (weekScrollRef.current && !initialScrollDone.current) {
-      const container = weekScrollRef.current;
-      const weekWidth = container.scrollWidth / allWeeks.length;
-      container.scrollLeft = centerIdx * weekWidth;
-      initialScrollDone.current = true;
-      setVisibleWeekIdx(centerIdx);
+    if (!ribbonRef.current || initialScrollDone.current) return;
+    const targetDate = selectedDate ? new Date(selectedDate) : today;
+    const dayOfYear = getDayOfYear(targetDate, displayYear);
+    if (dayOfYear >= 0) {
+      const barWidth = ribbonRef.current.clientWidth;
+      ribbonRef.current.scrollLeft = dayOfYear * ITEM_W - barWidth / 2 + ITEM_W / 2;
     }
-  }, [allWeeks.length, centerIdx]);
+    initialScrollDone.current = true;
+  }, [yearDays]);
 
-  // Calcola settimana visibile dallo scroll
-  const handleWeekScroll = useCallback(() => {
-    if (!weekScrollRef.current || isSyncingRef.current) return;
-    const container = weekScrollRef.current;
-    const weekWidth = container.scrollWidth / allWeeks.length;
-    const idx = Math.round(container.scrollLeft / weekWidth);
-    const clampedIdx = Math.max(0, Math.min(allWeeks.length - 1, idx));
+  function getDayOfYear(date, year) {
+    if (date.getFullYear() !== year) return -1;
+    let count = 0;
+    for (let m = 0; m < date.getMonth(); m++) {
+      count += new Date(year, m + 1, 0).getDate();
+    }
+    return count + date.getDate() - 1;
+  }
+
+  // Quando il nastro scrolla, determina il giorno al centro e aggiorna la settimana
+  const handleRibbonScroll = useCallback(() => {
+    if (!ribbonRef.current) return;
+    const scrollLeft = ribbonRef.current.scrollLeft;
+    const barWidth = ribbonRef.current.clientWidth;
+    const centerOffset = scrollLeft + barWidth / 2;
+    const centerIdx = Math.floor(centerOffset / ITEM_W);
+    const clampedIdx = Math.max(0, Math.min(yearDays.length - 1, centerIdx));
+    const centerDate = yearDays[clampedIdx];
+    if (!centerDate) return;
+
+    // Aggiorna settimana se cambiata
+    const newWeek = getWeekDays(centerDate);
+    setCurrentWeekDays(prev => {
+      if (prev[0].getTime() !== newWeek[0].getTime()) return newWeek;
+      return prev;
+    });
+
+    // Aggiorna cursore in px — posizionato sopra i giorni reali della settimana nel nastro
+    updateCursorPosition(newWeek);
+  }, [yearDays]);
+
+  const updateCursorPosition = useCallback((week) => {
+    if (!ribbonRef.current) return;
+    // Trova indice del primo e ultimo giorno della settimana nel nastro
+    const firstDay = week[0];
+    const lastDay = week[6];
+    const firstIdx = getDayOfYear(firstDay, displayYear);
+    const lastIdx = getDayOfYear(lastDay, displayYear);
     
-    if (clampedIdx !== visibleWeekIdx) {
-      setVisibleWeekIdx(clampedIdx);
+    if (firstIdx >= 0 && lastIdx >= 0) {
+      // Posizione assoluta nel nastro (non relativa allo scroll)
+      const left = firstIdx * ITEM_W;
+      const width = (lastIdx - firstIdx + 1) * ITEM_W;
+      setCursorLeft(left);
+      setCursorWidth(width);
+    } else if (firstIdx >= 0) {
+      // Settimana a cavallo di anno — mostra solo i giorni nell'anno corrente
+      const lastInYear = yearDays.length - 1;
+      const left = firstIdx * ITEM_W;
+      const width = (lastInYear - firstIdx + 1) * ITEM_W;
+      setCursorLeft(left);
+      setCursorWidth(width);
+    } else if (lastIdx >= 0) {
+      setCursorLeft(0);
+      setCursorWidth((lastIdx + 1) * ITEM_W);
     }
+  }, [displayYear, yearDays.length]);
 
-    // Sincronizza barra giorni
-    if (daysBarScrollRef.current) {
-      isSyncingRef.current = true;
-      const week = allWeeks[clampedIdx];
-      if (week) {
-        const refMonth = week[3].getMonth();
-        const refYear = week[3].getFullYear();
-        const daysInMonth = new Date(refYear, refMonth + 1, 0).getDate();
-        // Trova primo giorno settimana nel mese
-        let firstInMonth = -1;
-        week.forEach(wd => {
-          if (wd.getMonth() === refMonth && wd.getFullYear() === refYear) {
-            const d = wd.getDate();
-            if (firstInMonth === -1 || d < firstInMonth) firstInMonth = d;
-          }
-        });
-        if (firstInMonth > 0) {
-          const itemWidth = 28;
-          const barWidth = daysBarScrollRef.current.clientWidth;
-          const scrollTarget = (firstInMonth - 1) * itemWidth - (barWidth / 2) + (itemWidth * 3.5);
-          daysBarScrollRef.current.scrollLeft = Math.max(0, scrollTarget);
-        }
-      }
-      requestAnimationFrame(() => { isSyncingRef.current = false; });
-    }
-  }, [allWeeks, visibleWeekIdx]);
+  // Aggiorna cursore iniziale
+  useEffect(() => {
+    updateCursorPosition(currentWeekDays);
+  }, [currentWeekDays, updateCursorPosition]);
 
-  // La settimana attualmente visibile
-  const currentWeekIdx = visibleWeekIdx ?? centerIdx;
-  const weekDays = allWeeks[currentWeekIdx] || getWeekDays(viewDate);
-  const today = new Date(); today.setHours(0,0,0,0);
+  const weekDays = currentWeekDays;
   const weekMainMonth = weekDays[3].getMonth();
   const ac = MONTH_COLORS[weekMainMonth];
 
@@ -138,44 +162,45 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   useEffect(() => { if (onMonthColorChange) onMonthColorChange(ac); }, [ac]);
   useEffect(() => { if (onMonthChange) onMonthChange(weekMainMonth); }, [weekMainMonth]);
 
-  // Registra navigazione mese dal parent
+  // Registra navigazione mese dal parent (MonthBar click)
   useEffect(() => {
     if (onRegisterMonthSelect) {
       onRegisterMonthSelect((mIdx) => {
-        // Trova la settimana che contiene il 15 del mese
-        const targetDate = new Date(weekDays[3].getFullYear(), mIdx, 15);
-        const targetWeek = getWeekDays(targetDate);
-        const targetMon = targetWeek[0].getTime();
-        let bestIdx = centerIdx;
-        let bestDist = Infinity;
-        allWeeks.forEach((w, i) => {
-          const dist = Math.abs(w[0].getTime() - targetMon);
-          if (dist < bestDist) { bestDist = dist; bestIdx = i; }
-        });
-        if (weekScrollRef.current) {
-          const weekWidth = weekScrollRef.current.scrollWidth / allWeeks.length;
-          weekScrollRef.current.scrollTo({ left: bestIdx * weekWidth, behavior: 'smooth' });
+        if (!ribbonRef.current) return;
+        // Scrolla il nastro al 15 del mese
+        const targetDate = new Date(displayYear, mIdx, 15);
+        const dayIdx = getDayOfYear(targetDate, displayYear);
+        if (dayIdx >= 0) {
+          const barWidth = ribbonRef.current.clientWidth;
+          ribbonRef.current.scrollTo({ left: dayIdx * ITEM_W - barWidth / 2 + ITEM_W / 2, behavior: 'smooth' });
         }
       });
     }
-  }, [onRegisterMonthSelect, allWeeks, centerIdx]);
+  }, [onRegisterMonthSelect, displayYear]);
 
-  // Scroll alla settimana corretta quando selectedDate cambia
+  // Quando cliccano un giorno nel nastro, scrolla la settimana
+  const handleDayClick = useCallback((date) => {
+    setHighlightedDay({ day: date.getDate(), month: date.getMonth(), year: date.getFullYear() });
+    setSelectedSlot(null);
+    if (onDateSelect) onDateSelect(date);
+    // La settimana si aggiorna automaticamente dal scroll handler
+  }, [onDateSelect]);
+
+  // Quando selectedDate cambia dall'esterno, scrolla il nastro a quel giorno
   useEffect(() => {
-    if (!selectedDate || !weekScrollRef.current || !initialScrollDone.current) return;
-    const selWeek = getWeekDays(selectedDate);
-    const selMon = selWeek[0].getTime();
-    let bestIdx = currentWeekIdx;
-    let bestDist = Infinity;
-    allWeeks.forEach((w, i) => {
-      const dist = Math.abs(w[0].getTime() - selMon);
-      if (dist < bestDist) { bestDist = dist; bestIdx = i; }
-    });
-    if (bestIdx !== currentWeekIdx) {
-      const weekWidth = weekScrollRef.current.scrollWidth / allWeeks.length;
-      weekScrollRef.current.scrollTo({ left: bestIdx * weekWidth, behavior: 'smooth' });
+    if (!selectedDate || !ribbonRef.current || !initialScrollDone.current) return;
+    const d = new Date(selectedDate);
+    const dayIdx = getDayOfYear(d, displayYear);
+    if (dayIdx >= 0) {
+      const barWidth = ribbonRef.current.clientWidth;
+      const currentCenter = ribbonRef.current.scrollLeft + barWidth / 2;
+      const targetCenter = dayIdx * ITEM_W + ITEM_W / 2;
+      // Solo se distante dal centro attuale
+      if (Math.abs(currentCenter - targetCenter) > barWidth * 0.4) {
+        ribbonRef.current.scrollTo({ left: targetCenter - barWidth / 2, behavior: 'smooth' });
+      }
     }
-  }, [selectedDate]);
+  }, [selectedDate, displayYear]);
 
   // Query data
   const s0 = fk(weekDays[0]), s6 = fk(weekDays[6]);
@@ -220,6 +245,13 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     items[f.data][sk].push({ title: f.titolo, color: cm[f.cartella_id]?.colore || '#64748b' });
   });
 
+  // Conteggio note per giorno (tutto l'anno, per pallini)
+  const noteCountByDayKey = {};
+  allMonthNotes.forEach(n => {
+    if (!n.data) return;
+    noteCountByDayKey[n.data] = (noteCountByDayKey[n.data] || 0) + 1;
+  });
+
   const handleSlotClick = (dayStr, timeLabel) => {
     if (selectedSlot?.date === dayStr && selectedSlot?.time === timeLabel) {
       if (onSlotClick) {
@@ -240,147 +272,106 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
 
   const nH = new Date().getHours(), nM = Math.floor(new Date().getMinutes()/5)*5;
   const nowSlot = `${String(nH).padStart(2,'0')}:${String(nM).padStart(2,'0')}`;
-  const todayInWeek = weekDays.some(d => d.getTime() === today.getTime());
 
   const bgStyle = {
     backgroundColor: `color-mix(in srgb, ${ac} 6%, #0f172a)`,
     transition: 'background-color 1.2s ease'
   };
 
-  // Barra giorni del mese
-  const refMonth = weekMainMonth;
-  const refYear = weekDays[3].getFullYear();
-  const daysInMonth = new Date(refYear, refMonth + 1, 0).getDate();
-
-  const noteCountByDay = {};
-  allMonthNotes.forEach(n => {
-    if (!n.data) return;
-    const [y, m, d] = n.data.split('-').map(Number);
-    if (y === refYear && (m - 1) === refMonth) {
-      noteCountByDay[d] = (noteCountByDay[d] || 0) + 1;
-    }
-  });
-
-  // Cursore: calcola posizione
-  let cursorStartDay = -1, cursorEndDay = -1;
-  weekDays.forEach(wd => {
-    if (wd.getMonth() === refMonth && wd.getFullYear() === refYear) {
-      const d = wd.getDate();
-      if (cursorStartDay === -1 || d < cursorStartDay) cursorStartDay = d;
-      if (d > cursorEndDay) cursorEndDay = d;
-    }
-  });
-
-  // Gestisci scroll barra giorni → aggiorna settimana
-  const handleDaysBarScroll = useCallback(() => {
-    if (!daysBarScrollRef.current || isSyncingRef.current) return;
-    // Non sincronizzare indietro, solo utente → settimana
-  }, []);
+  // Larghezza totale del nastro
+  const ribbonTotalWidth = yearDays.length * ITEM_W;
 
   return (
     <div className="flex flex-col h-full overflow-hidden" style={bgStyle}>
 
-      {/* Barra pallini giorni del mese */}
-      <div className="flex-shrink-0 flex flex-col border-b border-slate-700/30">
-        {/* Cursore bianco */}
-        <div className="relative" style={{ height: '4px' }}>
-          {cursorStartDay > 0 && (() => {
-            const dayWidth = 100 / daysInMonth;
-            const left = (cursorStartDay - 1) * dayWidth;
-            const width = (cursorEndDay - cursorStartDay + 1) * dayWidth;
-            return (
-              <div
-                className="absolute top-0 rounded-full"
-                style={{
-                  left: `${left}%`,
-                  width: `${width}%`,
-                  height: '4px',
-                  backgroundColor: 'rgba(255,255,255,0.85)',
-                  boxShadow: '0 0 8px rgba(255,255,255,0.4)',
-                  transition: 'left 0.3s ease, width 0.3s ease'
-                }}
-              />
-            );
-          })()}
-        </div>
-        {/* Giorni scrollabili */}
+      {/* NASTRO GIORNI continuo gen-dic con cursore */}
+      <div className="flex-shrink-0 flex flex-col border-b border-slate-700/30 relative">
+        {/* Cursore bianco — posizionato in px assoluti dentro il nastro scrollabile */}
+        {/* Usiamo un div dentro lo scroll container per allineamento perfetto */}
+        
+        {/* Nastro scrollabile */}
         <div
-          ref={daysBarScrollRef}
-          className="flex items-center overflow-x-auto py-1"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch', paddingLeft: '2px', paddingRight: '2px' }}
-          onScroll={handleDaysBarScroll}
+          ref={ribbonRef}
+          className="overflow-x-auto relative"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
+          onScroll={handleRibbonScroll}
         >
-          {Array.from({ length: daysInMonth }, (_, i) => {
-            const dayNum = i + 1;
-            const dayDate = new Date(refYear, refMonth, dayNum);
-            const dow = dayDate.getDay();
-            const isWeekend = dow === 0 || dow === 6;
-            const isToday = dayDate.getTime() === today.getTime();
-            const isSelected = highlightedDay && highlightedDay.day === dayNum && highlightedDay.month === refMonth && highlightedDay.year === refYear;
-            const dayNoteCount = noteCountByDay[dayNum] || 0;
-            const isInWeek = weekDays.some(wd => wd.getDate() === dayNum && wd.getMonth() === refMonth && wd.getFullYear() === refYear);
-            const isSelectedDay = selectedDate && dayDate.getTime() === new Date(new Date(selectedDate).setHours(0,0,0,0)).getTime();
+          {/* Cursore bianco — assoluto dentro il container scrollabile, si muove col contenuto */}
+          <div
+            className="absolute top-0 rounded-full z-10 pointer-events-none"
+            style={{
+              left: `${cursorLeft}px`,
+              width: `${cursorWidth}px`,
+              height: '3px',
+              backgroundColor: 'rgba(255,255,255,0.9)',
+              boxShadow: '0 0 8px rgba(255,255,255,0.5)',
+              transition: 'left 0.25s ease, width 0.25s ease'
+            }}
+          />
+          
+          {/* Contenitore giorni a larghezza fissa */}
+          <div className="flex" style={{ width: `${ribbonTotalWidth}px`, paddingTop: '4px' }}>
+            {yearDays.map((dayDate, idx) => {
+              const dayNum = dayDate.getDate();
+              const mIdx = dayDate.getMonth();
+              const dow = dayDate.getDay();
+              const isWeekend = dow === 0 || dow === 6;
+              const isToday = dayDate.getTime() === today.getTime();
+              const dk = fk(dayDate);
+              const dayNoteCount = noteCountByDayKey[dk] || 0;
+              const isInWeek = weekDays.some(wd => wd.getTime() === dayDate.getTime());
+              const isSelectedDay = selectedDate && dayDate.getTime() === new Date(new Date(selectedDate).setHours(0,0,0,0)).getTime();
+              const isHL = highlightedDay && highlightedDay.day === dayNum && highlightedDay.month === mIdx && highlightedDay.year === displayYear;
+              const mColor = MONTH_COLORS[mIdx];
+              const isFirstOfMonth = dayNum === 1;
 
-            return (
-              <div
-                key={dayNum}
-                className="flex flex-col items-center cursor-pointer flex-shrink-0"
-                style={{ width: '28px', minWidth: '28px' }}
-                onClick={() => {
-                  const d = new Date(refYear, refMonth, dayNum);
-                  d.setHours(0,0,0,0);
-                  setHighlightedDay({ day: dayNum, month: refMonth, year: refYear });
-                  setSelectedSlot(null);
-                  if (onDateSelect) onDateSelect(d);
-                  // Scroll settimana a quella che contiene questo giorno
-                  const targetWeek = getWeekDays(d);
-                  const targetMon = targetWeek[0].getTime();
-                  let bestIdx = currentWeekIdx;
-                  let bestDist = Infinity;
-                  allWeeks.forEach((w, wi) => {
-                    const dist = Math.abs(w[0].getTime() - targetMon);
-                    if (dist < bestDist) { bestDist = dist; bestIdx = wi; }
-                  });
-                  if (weekScrollRef.current) {
-                    const weekWidth = weekScrollRef.current.scrollWidth / allWeeks.length;
-                    weekScrollRef.current.scrollTo({ left: bestIdx * weekWidth, behavior: 'smooth' });
-                  }
-                }}
-              >
+              return (
                 <div
-                  className={cn("rounded-full flex items-center justify-center transition-all", isToday && "animate-pulse")}
-                  style={{
-                    width: '22px', height: '22px',
-                    backgroundColor: isSelectedDay && !isToday ? ac : 'transparent',
-                    border: isSelected ? '2px solid #f59e0b' : (isSelectedDay && !isToday ? `2px solid ${ac}` : '1.5px solid transparent'),
-                    boxShadow: isSelectedDay && !isToday ? `0 0 8px ${ac}80` : (isSelected ? '0 0 6px #f59e0b80' : undefined)
-                  }}
+                  key={idx}
+                  className="flex flex-col items-center cursor-pointer flex-shrink-0"
+                  style={{ width: `${ITEM_W}px` }}
+                  onClick={() => handleDayClick(dayDate)}
                 >
-                  <span className={cn("text-[9px] font-bold leading-none", isToday && "animate-pulse")} style={{
-                    color: isToday ? '#ffffff' : (isSelectedDay ? '#ffffff' : (isSelected ? '#f59e0b' : (isInWeek ? '#ffffff' : '#64748b')))
-                  }}>{dayNum}</span>
+                  {/* Etichetta mese sul primo giorno */}
+                  {isFirstOfMonth && (
+                    <div className="absolute" style={{ top: '-1px', left: `${idx * ITEM_W}px` }}>
+                      <span className="text-[7px] font-bold uppercase" style={{ color: mColor }}>{MONTHS_IT[mIdx]}</span>
+                    </div>
+                  )}
+                  <div
+                    className={cn("rounded-full flex items-center justify-center transition-all", isToday && "animate-pulse")}
+                    style={{
+                      width: '20px', height: '20px', marginTop: isFirstOfMonth ? '8px' : '0px',
+                      backgroundColor: isSelectedDay && !isToday ? mColor : 'transparent',
+                      border: isHL ? '2px solid #f59e0b' : (isSelectedDay && !isToday ? `2px solid ${mColor}` : 'none'),
+                    }}
+                  >
+                    <span className={cn("text-[8px] font-bold leading-none", isToday && "animate-pulse")} style={{
+                      color: isToday ? '#fff' : (isSelectedDay ? '#fff' : (isHL ? '#f59e0b' : (isInWeek ? '#fff' : '#64748b')))
+                    }}>{dayNum}</span>
+                  </div>
+                  <span className={cn("text-[6px] font-bold leading-tight")} style={{
+                    color: isWeekend ? '#ef4444' : (isInWeek ? '#94a3b8' : '#475569')
+                  }}>
+                    {DAY_LETTERS[dow]}
+                  </span>
+                  {dayNoteCount > 0 ? (
+                    <span className="text-[8px] font-bold leading-none" style={{ color: '#a3e635' }}>{dayNoteCount}</span>
+                  ) : (
+                    <span className="text-[8px] leading-none" style={{ color: 'transparent' }}>0</span>
+                  )}
                 </div>
-                <span className={cn("text-[7px] font-bold leading-tight", isToday && "animate-pulse")} style={{
-                  color: isWeekend ? '#ef4444' : (isToday ? '#ffffff' : (isSelectedDay ? ac : (isSelected ? '#f59e0b' : (isInWeek ? '#94a3b8' : '#475569'))))
-                }}>
-                  {isWeekend ? (dow === 6 ? 'S' : 'D') : DAY_LETTERS[dow]}
-                </span>
-                {dayNoteCount > 0 ? (
-                  <span className="text-[9px] font-bold leading-none" style={{ color: '#a3e635' }}>{dayNoteCount}</span>
-                ) : (
-                  <span className="text-[9px] leading-none" style={{ color: 'transparent' }}>0</span>
-                )}
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
 
-      {/* Griglia: header + corpo orari con scroll orizzontale continuo per le settimane */}
+      {/* Griglia: header giorni settimana + corpo orari */}
       <div className="flex-1 flex flex-col overflow-hidden">
 
-        {/* HEADER GIORNI — scroll orizzontale sincronizzato */}
-        <div className="flex flex-shrink-0 border-b border-slate-700/50 overflow-hidden">
+        {/* HEADER GIORNI SETTIMANA */}
+        <div className="flex flex-shrink-0 border-b border-slate-700/50">
           <div className="flex-shrink-0 flex items-center justify-end" style={{ width: '70px', paddingRight: '8px', borderRight: '2px solid rgba(100,116,139,0.6)' }}>
             {onBackToDaily && (
               <button
@@ -392,7 +383,6 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
               </button>
             )}
           </div>
-          {/* Header dei 7 giorni della settimana corrente */}
           <div className="flex flex-1">
             {weekDays.map((day, i) => {
               const isT = day.getTime() === today.getTime();
@@ -471,76 +461,55 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
           </div>
         </div>
 
-        {/* CORPO — scroll ore verticale (nativo) */}
-        <div ref={scrollRef} className="flex-1 overflow-y-auto overscroll-none" style={{ scrollbarWidth:'none', msOverflowStyle:'none', touchAction: 'pan-x' }}>
-          {/* Scroll orizzontale continuo per le settimane */}
-          <div
-            ref={weekScrollRef}
-            className="overflow-x-auto"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch', scrollSnapType: 'x mandatory' }}
-            onScroll={handleWeekScroll}
-          >
-            <div className="flex" style={{ width: `${allWeeks.length * 100}%` }}>
-              {allWeeks.map((week, weekIdx) => (
-                <div key={weekIdx} className="flex-shrink-0" style={{ width: `${100 / allWeeks.length}%`, scrollSnapAlign: 'start' }}>
-                  {TIME_SLOTS.map((slot) => {
-                    const isNow = week.some(d => d.getTime() === today.getTime()) && slot.label === nowSlot;
+        {/* CORPO — scroll ore verticale */}
+        <div ref={scrollRef} className="flex-1 overflow-y-auto overscroll-none" style={{ scrollbarWidth:'none', msOverflowStyle:'none' }}>
+          {TIME_SLOTS.map((slot) => {
+            const isNow = weekDays.some(d => d.getTime() === today.getTime()) && slot.label === nowSlot;
+            const isSlotRow = selectedSlot?.time === slot.label;
+            return (
+              <div key={slot.label} className={cn("flex", slot.isFullHour ? "h-10" : "h-6")}>
+                {/* Colonna ore */}
+                <div className={cn("flex-shrink-0 flex items-center justify-end px-0", isSlotRow && "bg-amber-500/10")} style={{ width: '70px', paddingRight: '6px', borderRight: '2px solid rgba(100,116,139,0.6)', backgroundColor: isSlotRow ? undefined : `color-mix(in srgb, ${ac} 6%, #0f172a)` }}>
+                  {isSlotRow ? (
+                    <div className="w-4 h-4 rounded-full bg-amber-500 flex items-center justify-center mr-1 animate-pulse shadow-lg shadow-amber-500/40 flex-shrink-0"><Plus className="w-2.5 h-2.5 text-white" /></div>
+                  ) : (
+                    <div className="flex items-center mr-1.5"><div className={cn("h-[2px] rounded-full", isNow && "animate-pulse")} style={{ width: slot.isFullHour ? '16px' : '8px', backgroundColor: isNow ? '#fff' : (slot.isFullHour ? ac : '#475569') }} /></div>
+                  )}
+                  <span className={cn("font-mono text-[10px]", slot.isFullHour && "font-bold", isNow && "text-white font-bold animate-pulse")} style={{ color: isSlotRow ? '#f59e0b' : (isNow ? '#fff' : (slot.isFullHour ? ac : '#94a3b8')) }}>{slot.label}</span>
+                </div>
+                {/* 7 colonne giorni */}
+                <div className="flex flex-1">
+                  {weekDays.map((day, di) => {
+                    const dk = fk(day);
+                    const isT = day.getTime() === today.getTime();
+                    const isNC = isT && slot.label === nowSlot;
+                    const isSel = selectedDate && day.toDateString() === new Date(selectedDate).toDateString();
+                    const its = items[dk]?.[slot.label] || [];
+                    const isSlotSelected = selectedSlot?.date === dk && selectedSlot?.time === slot.label;
                     return (
-                      <div key={slot.label} className={cn("flex", slot.isFullHour ? "h-10" : "h-6")}>
-                        {/* Ore — solo per la settimana visibile */}
-                        {weekIdx === currentWeekIdx && (() => {
-                          const isSlotRow = selectedSlot?.time === slot.label;
-                          return (
-                            <div className={cn("flex-shrink-0 flex items-center justify-end px-0 sticky left-0 z-10", isSlotRow && "bg-amber-500/10")} style={{ width: '70px', paddingRight: '6px', borderRight: '2px solid rgba(100,116,139,0.6)', backgroundColor: isSlotRow ? undefined : `color-mix(in srgb, ${ac} 6%, #0f172a)` }}>
-                              {isSlotRow ? (
-                                <div className="w-4 h-4 rounded-full bg-amber-500 flex items-center justify-center mr-1 animate-pulse shadow-lg shadow-amber-500/40 flex-shrink-0"><Plus className="w-2.5 h-2.5 text-white" /></div>
-                              ) : (
-                                <div className="flex items-center mr-1.5"><div className={cn("h-[2px] rounded-full", isNow && "animate-pulse")} style={{ width: slot.isFullHour ? '16px' : '8px', backgroundColor: isNow ? '#fff' : (slot.isFullHour ? ac : '#475569') }} /></div>
-                              )}
-                              <span className={cn("font-mono text-[10px]", slot.isFullHour && "font-bold", isNow && "text-white font-bold animate-pulse")} style={{ color: isSlotRow ? '#f59e0b' : (isNow ? '#fff' : (slot.isFullHour ? ac : '#94a3b8')) }}>{slot.label}</span>
-                            </div>
-                          );
-                        })()}
-                        {weekIdx !== currentWeekIdx && (
-                          <div className="flex-shrink-0" style={{ width: '70px' }} />
+                      <div
+                        key={di}
+                        className={cn("flex-1 border-l border-slate-700/20 relative cursor-pointer", isNC && "bg-white/5", isT && "bg-slate-800/20", isSel && !isT && "bg-slate-700/15", isSlotSelected && "ring-1 ring-amber-500/60")}
+                        onClick={() => handleSlotClick(dk, slot.label)}
+                      >
+                        {isNC && <div className="absolute left-0 right-0 top-0 h-[2px] bg-white animate-pulse z-10" />}
+                        {isSlotSelected && its.length === 0 && (
+                          <div className="absolute inset-0 flex items-center justify-center z-10">
+                            <div className="w-5 h-5 rounded-full bg-amber-500 flex items-center justify-center animate-pulse shadow-lg shadow-amber-500/40"><Plus className="w-3.5 h-3.5 text-white" /></div>
+                          </div>
                         )}
-                        {/* 7 colonne giorni */}
-                        <div className="flex flex-1">
-                          {week.map((day, di) => {
-                            const dk = fk(day);
-                            const isT = day.getTime() === today.getTime();
-                            const isNC = isT && slot.label === nowSlot;
-                            const isSel = selectedDate && day.toDateString() === new Date(selectedDate).toDateString();
-                            const its = items[dk]?.[slot.label] || [];
-                            const isSlotSelected = selectedSlot?.date === dk && selectedSlot?.time === slot.label;
-                            return (
-                              <div
-                                key={di}
-                                className={cn("flex-1 border-l border-slate-700/20 relative cursor-pointer", isNC && "bg-white/5", isT && "bg-slate-800/20", isSel && !isT && "bg-slate-700/15", isSlotSelected && "ring-1 ring-amber-500/60")}
-                                onClick={() => handleSlotClick(dk, slot.label)}
-                              >
-                                {isNC && <div className="absolute left-0 right-0 top-0 h-[2px] bg-white animate-pulse z-10" />}
-                                {isSlotSelected && its.length === 0 && (
-                                  <div className="absolute inset-0 flex items-center justify-center z-10">
-                                    <div className="w-5 h-5 rounded-full bg-amber-500 flex items-center justify-center animate-pulse shadow-lg shadow-amber-500/40"><Plus className="w-3.5 h-3.5 text-white" /></div>
-                                  </div>
-                                )}
-                                {its.map((it, ii) => (
-                                  <div key={ii} className="absolute inset-x-0.5 top-0.5 bottom-0.5 rounded overflow-hidden flex items-center" style={{ backgroundColor: it.color+'30', borderLeft: `2px solid ${it.color}` }}>
-                                    <span className="text-[7px] font-medium px-0.5 truncate" style={{ color: it.color }}>{it.title}</span>
-                                  </div>
-                                ))}
-                              </div>
-                            );
-                          })}
-                        </div>
+                        {its.map((it, ii) => (
+                          <div key={ii} className="absolute inset-x-0.5 top-0.5 bottom-0.5 rounded overflow-hidden flex items-center" style={{ backgroundColor: it.color+'30', borderLeft: `2px solid ${it.color}` }}>
+                            <span className="text-[7px] font-medium px-0.5 truncate" style={{ color: it.color }}>{it.title}</span>
+                          </div>
+                        ))}
                       </div>
                     );
                   })}
                 </div>
-              ))}
-            </div>
-          </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
