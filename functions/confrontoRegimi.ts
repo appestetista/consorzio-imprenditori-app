@@ -16,7 +16,8 @@ Deno.serve(async (req) => {
       aliquota_forfettario,
       distribuzione_dividendi,
       compenso_amministratore,
-      gestione_inps
+      gestione_inps,
+      costo_dipendente_annuo
     } = await req.json();
 
     if (!fatturato || !anno) {
@@ -44,6 +45,7 @@ Deno.serve(async (req) => {
     const costiDed = costi_deducibili || 0;
     const coeff = coefficiente_redditivita || 0.78;
     const compensoAmm = compenso_amministratore || 0;
+    const costoDip = costo_dipendente_annuo || 0;
 
     const risultati = [];
 
