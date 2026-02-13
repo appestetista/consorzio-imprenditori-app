@@ -178,13 +178,26 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     }
   }, [onRegisterMonthSelect, displayYear]);
 
-  // Quando cliccano un giorno nel nastro, scrolla la settimana
+  // Quando cliccano un giorno nel nastro, aggiorna la settimana e scrolla
   const handleDayClick = useCallback((date) => {
     setHighlightedDay({ day: date.getDate(), month: date.getMonth(), year: date.getFullYear() });
     setSelectedSlot(null);
     if (onDateSelect) onDateSelect(date);
-    // La settimana si aggiorna automaticamente dal scroll handler
-  }, [onDateSelect]);
+    
+    // Forza aggiornamento settimana al giorno cliccato
+    const newWeek = getWeekDays(date);
+    setCurrentWeekDays(newWeek);
+    updateCursorPosition(newWeek);
+    
+    // Scrolla il nastro per centrare il giorno cliccato
+    if (ribbonRef.current) {
+      const dayIdx = getDayOfYear(date, displayYear);
+      if (dayIdx >= 0) {
+        const barWidth = ribbonRef.current.clientWidth;
+        ribbonRef.current.scrollTo({ left: dayIdx * ITEM_W - barWidth / 2 + ITEM_W / 2, behavior: 'smooth' });
+      }
+    }
+  }, [onDateSelect, displayYear, updateCursorPosition]);
 
   // Quando selectedDate cambia dall'esterno, scrolla il nastro a quel giorno
   useEffect(() => {
