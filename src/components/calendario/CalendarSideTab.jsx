@@ -281,6 +281,14 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                 </button>
               ) : null
             }
+            monthNameLabel={
+              <span 
+                className="text-lg font-bold capitalize"
+                style={{ color: currentMonthColor }}
+              >
+                {new Date(visibleMonthLabel.year, visibleMonthLabel.month).toLocaleDateString('it-IT', { month: 'long' })}
+              </span>
+            }
             monthLabelButton={
               <div className="flex items-start gap-1">
                 <span 
@@ -290,7 +298,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                     color: '#0f172a'
                   }}
                 >
-                  {visibleDay} {new Date(visibleMonthLabel.year, visibleMonthLabel.month).toLocaleDateString('it-IT', { month: 'short' }).toLowerCase()} {visibleMonthLabel.year} — {new Date(visibleMonthLabel.year, visibleMonthLabel.month, visibleDay).toLocaleDateString('it-IT', { weekday: 'short' })}
+                  {new Date(visibleMonthLabel.year, visibleMonthLabel.month, visibleDay).toLocaleDateString('it-IT', { weekday: 'long' })} {visibleDay}
                 </span>
               </div>
             } 
