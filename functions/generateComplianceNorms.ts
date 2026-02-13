@@ -57,8 +57,11 @@ ISTRUZIONI:
 7. Per OGNI adempimento fornisci la SANZIONE ESATTA prevista dalla legge italiana
 8. frequenza_rinnovo_mesi = 0 se il documento non ha scadenza periodica, altrimenti il numero di mesi
 9. priorita: "alta" per obblighi con sanzioni penali, "media" per sanzioni amministrative, "bassa" per raccomandati
-10. NON inventare adempimenti inesistenti. Solo obblighi reali della normativa italiana vigente.
-11. Sii ESAUSTIVO: meglio uno in più che uno in meno.
+10. NON INVENTARE MAI adempimenti inesistenti. Solo obblighi REALI della normativa italiana VIGENTE al ${currentYear}.
+11. Sii esaustivo ma ACCURATO: includi solo obblighi che esistono VERAMENTE. Se hai dubbi, ometti.
+12. Verifica mentalmente ogni riferimento normativo: l'articolo che citi esiste davvero in quel decreto/legge?
+13. Le sanzioni devono essere quelle REALI previste dalla legge, con gli importi corretti e aggiornati. Non arrotondare e non inventare cifre.
+14. Per i codici ATECO: basa la tua analisi sulle attività REALMENTE coperte da quel codice secondo la classificazione ISTAT.
 
 Le categorie ammesse sono SOLO: "Sicurezza sul lavoro", "Privacy e GDPR", "Ambientale", "Fiscale", "Igiene e Sanità", "Antincendio", "Formazione obbligatoria", "Altro"
 
