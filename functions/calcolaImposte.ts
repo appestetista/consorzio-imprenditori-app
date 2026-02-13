@@ -48,11 +48,13 @@ Deno.serve(async (req) => {
     // ===================== SRL =====================
     if (regime === 'SRL') {
       const costiDed = costi_deducibili || 0;
+      const compensoAmm = compenso_amministratore || 0;
       const aliqIres = getAliquota('IRES');
       const aliqIrap = getAliquota('IRAP');
       const aliqDividendi = getAliquota('Dividendi');
 
-      utile = fatturato - costiDed;
+      // Il compenso amministratore è costo deducibile per la società
+      utile = fatturato - costiDed - compensoAmm;
       reddito_imponibile = utile;
       const ires = Math.round(utile * aliqIres * 100) / 100;
       const irap = Math.round(utile * aliqIrap * 100) / 100;
@@ -61,32 +63,120 @@ Deno.serve(async (req) => {
       dettaglio.push(`REGIME: SRL`);
       dettaglio.push(`Fatturato: €${fatturato.toLocaleString('it-IT')}`);
       dettaglio.push(`Costi deducibili: €${costiDed.toLocaleString('it-IT')}`);
-      dettaglio.push(`Utile lordo: €${fatturato.toLocaleString('it-IT')} - €${costiDed.toLocaleString('it-IT')} = €${utile.toLocaleString('it-IT')}`);
+      if (compensoAmm > 0) {
+        dettaglio.push(`Compenso amministratore: €${compensoAmm.toLocaleString('it-IT')}`);
+        dettaglio.push(`Utile lordo: €${fatturato.toLocaleString('it-IT')} - €${costiDed.toLocaleString('it-IT')} - €${compensoAmm.toLocaleString('it-IT')} = €${utile.toLocaleString('it-IT')}`);
+      } else {
+        dettaglio.push(`Utile lordo: €${fatturato.toLocaleString('it-IT')} - €${costiDed.toLocaleString('it-IT')} = €${utile.toLocaleString('it-IT')}`);
+      }
       dettaglio.push(`---`);
+      dettaglio.push(`TASSE SOCIETÀ:`);
       dettaglio.push(`IRES (${(aliqIres * 100).toFixed(1)}%): €${utile.toLocaleString('it-IT')} × ${aliqIres} = €${ires.toLocaleString('it-IT')}`);
       dettaglio.push(`IRAP (${(aliqIrap * 100).toFixed(1)}%): €${utile.toLocaleString('it-IT')} × ${aliqIrap} = €${irap.toLocaleString('it-IT')}`);
       dettaglio.push(`Utile netto società: €${utile.toLocaleString('it-IT')} - €${ires.toLocaleString('it-IT')} - €${irap.toLocaleString('it-IT')} = €${utile_netto_societa.toLocaleString('it-IT')}`);
 
+      // ---- COMPENSO AMMINISTRATORE: IRPEF + INPS Gestione Separata ----
+      let irpef_amministratore = 0;
+      let contributi_amministratore = 0;
+      let netto_amministratore = 0;
+
+      if (compensoAmm > 0) {
+        // Scaglioni IRPEF sul compenso
+        const scaglione1 = getAliquota('IRPEF_scaglione1');
+        const scaglione2 = getAliquota('IRPEF_scaglione2');
+        const scaglione3 = getAliquota('IRPEF_scaglione3');
+        const soglia1 = aliquoteRecords.find(a => a.tipo_imposta === 'IRPEF_scaglione1')?.soglia_max || 28000;
+        const soglia2 = aliquoteRecords.find(a => a.tipo_imposta === 'IRPEF_scaglione2')?.soglia_max || 50000;
+
+        const dettaglioIrpefAmm = [];
+        if (compensoAmm <= soglia1) {
+          irpef_amministratore = Math.round(compensoAmm * scaglione1 * 100) / 100;
+          dettaglioIrpefAmm.push(`Scaglione 1 (${(scaglione1 * 100).toFixed(0)}% fino €${soglia1.toLocaleString('it-IT')}): €${compensoAmm.toLocaleString('it-IT')} × ${scaglione1} = €${irpef_amministratore.toLocaleString('it-IT')}`);
+        } else if (compensoAmm <= soglia2) {
+          const p1 = Math.round(soglia1 * scaglione1 * 100) / 100;
+          const ecc = compensoAmm - soglia1;
+          const p2 = Math.round(ecc * scaglione2 * 100) / 100;
+          irpef_amministratore = Math.round((p1 + p2) * 100) / 100;
+          dettaglioIrpefAmm.push(`Scaglione 1 (${(scaglione1 * 100).toFixed(0)}%): €${soglia1.toLocaleString('it-IT')} × ${scaglione1} = €${p1.toLocaleString('it-IT')}`);
+          dettaglioIrpefAmm.push(`Scaglione 2 (${(scaglione2 * 100).toFixed(0)}%): €${ecc.toLocaleString('it-IT')} × ${scaglione2} = €${p2.toLocaleString('it-IT')}`);
+        } else {
+          const p1 = Math.round(soglia1 * scaglione1 * 100) / 100;
+          const fascia2 = soglia2 - soglia1;
+          const p2 = Math.round(fascia2 * scaglione2 * 100) / 100;
+          const ecc = compensoAmm - soglia2;
+          const p3 = Math.round(ecc * scaglione3 * 100) / 100;
+          irpef_amministratore = Math.round((p1 + p2 + p3) * 100) / 100;
+          dettaglioIrpefAmm.push(`Scaglione 1 (${(scaglione1 * 100).toFixed(0)}%): €${soglia1.toLocaleString('it-IT')} × ${scaglione1} = €${p1.toLocaleString('it-IT')}`);
+          dettaglioIrpefAmm.push(`Scaglione 2 (${(scaglione2 * 100).toFixed(0)}%): €${fascia2.toLocaleString('it-IT')} × ${scaglione2} = €${p2.toLocaleString('it-IT')}`);
+          dettaglioIrpefAmm.push(`Scaglione 3 (${(scaglione3 * 100).toFixed(0)}%): €${ecc.toLocaleString('it-IT')} × ${scaglione3} = €${p3.toLocaleString('it-IT')}`);
+        }
+
+        // Contributi INPS Gestione Separata AmministratoreSRL
+        const inpsRecords = await base44.asServiceRole.entities.ContributiINPS.filter({ anno: anno, gestione: 'AmministratoreSRL' });
+        if (inpsRecords.length > 0) {
+          const aliqInps = inpsRecords[0].aliquota_percentuale || 0;
+          const massimale = inpsRecords[0].massimale_reddito || Infinity;
+          const redditoInps = Math.min(compensoAmm, massimale);
+          contributi_amministratore = Math.round(redditoInps * aliqInps * 100) / 100;
+        }
+
+        netto_amministratore = Math.round((compensoAmm - irpef_amministratore - contributi_amministratore) * 100) / 100;
+
+        dettaglio.push(`---`);
+        dettaglio.push(`TASSE PERSONALI AMMINISTRATORE (su compenso €${compensoAmm.toLocaleString('it-IT')}):`);
+        dettaglio.push(`IRPEF progressiva:`);
+        dettaglioIrpefAmm.forEach(d => dettaglio.push(d));
+        dettaglio.push(`IRPEF totale amministratore: €${irpef_amministratore.toLocaleString('it-IT')}`);
+        dettaglio.push(`---`);
+        dettaglio.push(`CONTRIBUTI INPS Gestione Separata (Amministratore SRL):`);
+        if (inpsRecords.length > 0) {
+          const aliqInps = inpsRecords[0].aliquota_percentuale || 0;
+          dettaglio.push(`Contributi: €${Math.min(compensoAmm, inpsRecords[0].massimale_reddito || compensoAmm).toLocaleString('it-IT')} × ${(aliqInps * 100).toFixed(2)}% = €${contributi_amministratore.toLocaleString('it-IT')}`);
+        }
+        dettaglio.push(`Netto amministratore: €${compensoAmm.toLocaleString('it-IT')} - €${irpef_amministratore.toLocaleString('it-IT')} - €${contributi_amministratore.toLocaleString('it-IT')} = €${netto_amministratore.toLocaleString('it-IT')}`);
+      }
+
+      // ---- DIVIDENDI (opzionali, sull'utile netto società) ----
+      let imposta_dividendi = 0;
+      let dividendi_netto = 0;
+
       if (distribuzione_dividendi) {
-        const imposta_dividendi = Math.round(utile_netto_societa * aliqDividendi * 100) / 100;
-        const dividendi_netto = Math.round((utile_netto_societa - imposta_dividendi) * 100) / 100;
-        netto_finale = dividendi_netto;
-        imposte_totali = Math.round((ires + irap + imposta_dividendi) * 100) / 100;
+        imposta_dividendi = Math.round(utile_netto_societa * aliqDividendi * 100) / 100;
+        dividendi_netto = Math.round((utile_netto_societa - imposta_dividendi) * 100) / 100;
 
         dettaglio.push(`---`);
         dettaglio.push(`DISTRIBUZIONE DIVIDENDI`);
         dettaglio.push(`Imposta sostitutiva dividendi (${(aliqDividendi * 100).toFixed(0)}%): €${utile_netto_societa.toLocaleString('it-IT')} × ${aliqDividendi} = €${imposta_dividendi.toLocaleString('it-IT')}`);
         dettaglio.push(`Dividendi netti: €${utile_netto_societa.toLocaleString('it-IT')} - €${imposta_dividendi.toLocaleString('it-IT')} = €${dividendi_netto.toLocaleString('it-IT')}`);
       } else {
-        netto_finale = utile_netto_societa;
-        imposte_totali = Math.round((ires + irap) * 100) / 100;
         dettaglio.push(`---`);
         dettaglio.push(`Dividendi NON distribuiti`);
       }
 
+      // ---- TOTALI COMBINATI ----
+      const tasse_societa = Math.round((ires + irap) * 100) / 100;
+      const tasse_personali = Math.round((irpef_amministratore + imposta_dividendi) * 100) / 100;
+      imposte_totali = Math.round((tasse_societa + tasse_personali + contributi_amministratore) * 100) / 100;
+
+      // Netto combinato = utile netto società (o dividendi netti se distribuiti) + netto amministratore
+      if (distribuzione_dividendi) {
+        netto_finale = Math.round((dividendi_netto + netto_amministratore) * 100) / 100;
+      } else {
+        netto_finale = Math.round((utile_netto_societa + netto_amministratore) * 100) / 100;
+      }
+
       dettaglio.push(`---`);
-      dettaglio.push(`IMPOSTE TOTALI: €${imposte_totali.toLocaleString('it-IT')}`);
-      dettaglio.push(`NETTO FINALE: €${netto_finale.toLocaleString('it-IT')}`);
+      dettaglio.push(`RIEPILOGO TOTALE:`);
+      dettaglio.push(`Tasse società (IRES + IRAP): €${tasse_societa.toLocaleString('it-IT')}`);
+      if (compensoAmm > 0) {
+        dettaglio.push(`Tasse personali amministratore (IRPEF): €${irpef_amministratore.toLocaleString('it-IT')}`);
+        dettaglio.push(`Contributi INPS amministratore: €${contributi_amministratore.toLocaleString('it-IT')}`);
+      }
+      if (distribuzione_dividendi) {
+        dettaglio.push(`Imposta dividendi: €${imposta_dividendi.toLocaleString('it-IT')}`);
+      }
+      dettaglio.push(`IMPOSTE + CONTRIBUTI TOTALI: €${imposte_totali.toLocaleString('it-IT')}`);
+      dettaglio.push(`NETTO COMBINATO FINALE: €${netto_finale.toLocaleString('it-IT')}`);
     }
 
     // ===================== FORFETTARIO =====================
