@@ -40,8 +40,11 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
     // NoteEditor dalla WeekView - orientamento normale
     const [weekNoteSlot, setWeekNoteSlot] = useState(null); // { date, time, existingNote }
     const [showWeekNoteEditor, setShowWeekNoteEditor] = useState(false);
+    const [hasSelectedTime, setHasSelectedTime] = useState(false);
+    const [showToolsPopup, setShowToolsPopup] = useState(false);
 
     const weekNoteEditorSaveRef = useRef(null);
+    const verticalTimePickerRef = useRef(null);
     const queryClient = useQueryClient();
     const [monthNotesPopup, setMonthNotesPopup] = useState(null); // { monthIndex, year }
   const goToTodayRef = useRef(null);
