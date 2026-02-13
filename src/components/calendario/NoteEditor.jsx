@@ -182,14 +182,27 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
         </div>
       </div>
 
-      {/* Riga 2: Salva + X + Cestino */}
-      <div className="flex items-center justify-center gap-3 px-3 py-2 border-b border-slate-800">
-        {/* Salva */}
+      {/* Riga 2: Cestino | Salva | X */}
+      <div className="flex items-center gap-2 px-3 py-2 border-b border-slate-800">
+        {/* Cestino - sempre visibile a sinistra */}
+        <button
+          onClick={() => {
+            if (existingNote && onDelete) setShowDeleteConfirm(true);
+          }}
+          className={cn(
+            "w-9 h-9 rounded-full flex items-center justify-center active:scale-90 transition-all touch-manipulation flex-shrink-0",
+            existingNote ? "bg-red-500/20 hover:bg-red-500/40" : "bg-slate-800/50"
+          )}
+        >
+          <Trash2 className={cn("w-4 h-4", existingNote ? "text-red-400" : "text-slate-600")} />
+        </button>
+
+        {/* Salva - al centro, occupa tutto lo spazio */}
         <a
           href="#"
           onClick={(e) => { e.preventDefault(); handleSave(); }}
           className={cn(
-            "flex items-center gap-1 px-4 py-2 rounded-full font-bold text-xs no-underline touch-manipulation select-none",
+            "flex-1 flex items-center justify-center gap-1 py-2 rounded-full font-bold text-xs no-underline touch-manipulation select-none",
             isSaving ? "bg-slate-500 text-slate-300" : "bg-lime-500 text-slate-900 active:bg-lime-400"
           )}
         >
@@ -201,21 +214,11 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
           SALVA
         </a>
 
-        {/* Cestino */}
-        {existingNote && onDelete && (
-          <button
-            onClick={() => setShowDeleteConfirm(true)}
-            className="w-8 h-8 rounded-full bg-red-500/20 hover:bg-red-500/40 flex items-center justify-center active:scale-90 transition-all touch-manipulation"
-          >
-            <Trash2 className="w-4 h-4 text-red-400" />
-          </button>
-        )}
-
-        {/* X chiudi */}
+        {/* X chiudi - a destra */}
         {onClose && (
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-700 hover:bg-slate-600 flex items-center justify-center active:scale-90 transition-all touch-manipulation"
+            className="w-9 h-9 rounded-full bg-slate-700 hover:bg-slate-600 flex items-center justify-center active:scale-90 transition-all touch-manipulation flex-shrink-0"
           >
             <X className="w-4 h-4 text-slate-300" />
           </button>
