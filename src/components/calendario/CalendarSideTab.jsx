@@ -381,13 +381,9 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                           }
                         }, 200);
                       }}
-                      className="px-4 py-2 rounded-md touch-manipulation active:scale-90 transition-all animate-pulse"
-                      style={{ 
-                        backgroundColor: MONTH_COLORS[weekViewMonth],
-                        color: '#0f172a'
-                      }}
+                      className="px-4 py-2 rounded-md touch-manipulation active:scale-90 transition-all animate-pulse bg-white"
                     >
-                      <span className="text-[9px] font-bold uppercase">Giornaliera</span>
+                      <span className="text-[9px] font-bold uppercase text-black">Giornaliera</span>
                     </button>
                 </div>
                 {/* Riga 2: Barra mesi */}
