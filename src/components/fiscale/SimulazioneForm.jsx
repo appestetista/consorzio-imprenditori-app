@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import IndicatoreImpattoFiscale from './IndicatoreImpattoFiscale';
 
 const coefficientiAteco = [
   { label: '40% – Industrie alimentari e bevande', value: '0.40' },
@@ -42,6 +43,9 @@ export default function SimulazioneForm({ onSubmit, loading }) {
 
   return (
     <div className="space-y-4">
+      {/* Indicatore Impatto Fiscale - live */}
+      <IndicatoreImpattoFiscale form={form} />
+
       {/* Disclaimer */}
       <Card className="bg-[#0a2540] border-[#1a3a5c]">
         <CardContent className="p-4">
