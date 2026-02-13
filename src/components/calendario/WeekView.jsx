@@ -50,6 +50,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   const [openDropdownDay, setOpenDropdownDay] = useState(null);
   const [strikethroughItems, setStrikethroughItems] = useState({});
   const [daySummaryDate, setDaySummaryDate] = useState(null);
+  const [slotMenuPos, setSlotMenuPos] = useState(null); // { date, time, x, y }
   // La settimana visualizzata (derivata dal giorno centrale visibile nel nastro)
   const [currentWeekDays, setCurrentWeekDays] = useState(() => getWeekDays(selectedDate || new Date()));
   // Cursore: posizione px nel nastro
