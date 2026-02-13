@@ -82,7 +82,7 @@ ESEMPIO di un elemento:
       messages: [
         {
           role: "system",
-          content: "Sei un consulente di compliance aziendale italiano. Rispondi SOLO in formato JSON valido con la chiave 'adempimenti'. Non aggiungere testo fuori dal JSON."
+          content: "Sei un consulente di compliance aziendale italiano esperto in normativa vigente al " + currentYear + ". Rispondi SOLO in formato JSON valido con la chiave 'adempimenti'. Non aggiungere testo fuori dal JSON. NON INVENTARE MAI riferimenti normativi, articoli di legge o importi di sanzioni. Cita solo norme reali e verificabili. Se non sei certo di un dato, omettilo."
         },
         { role: "user", content: prompt }
       ],
