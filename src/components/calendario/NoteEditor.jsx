@@ -299,20 +299,33 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
               Nessuna cartella
             </button>
             {cartelle.map((c) => (
-              <button
-                key={c.id}
-                onClick={() => { setSelectedCartella(c.id); setShowCartellaDropdown(false); setShowNewFolderInline(false); }}
-                className={cn(
-                  "w-full flex items-center gap-2 px-3 py-2.5 text-sm hover:bg-slate-700 transition-colors",
-                  selectedCartella === c.id ? "text-white" : "text-slate-400"
-                )}
-              >
-                <div 
-                  className="w-4 h-4 rounded flex-shrink-0"
-                  style={{ backgroundColor: c.colore }}
-                />
-                {c.nome}
-              </button>
+              <div key={c.id} className="flex items-center hover:bg-slate-700 transition-colors">
+                <button
+                  onClick={() => { setSelectedCartella(c.id); setShowCartellaDropdown(false); setShowNewFolderInline(false); setEditingCartella(null); }}
+                  className={cn(
+                    "flex-1 flex items-center gap-2 px-3 py-2.5 text-sm min-w-0",
+                    selectedCartella === c.id ? "text-white" : "text-slate-400"
+                  )}
+                >
+                  <div 
+                    className="w-4 h-4 rounded flex-shrink-0"
+                    style={{ backgroundColor: c.colore }}
+                  />
+                  <span className="truncate">{c.nome}</span>
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); setEditingCartella(c); setEditCartellaName(c.nome); setEditCartellaColor(c.colore); }}
+                  className="w-7 h-7 flex items-center justify-center hover:bg-slate-600 rounded flex-shrink-0"
+                >
+                  <Pencil className="w-3 h-3 text-slate-400" />
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); setDeleteCartellaConfirm(c.id); }}
+                  className="w-7 h-7 flex items-center justify-center hover:bg-red-500/30 rounded flex-shrink-0 mr-1"
+                >
+                  <X className="w-3 h-3 text-red-400" />
+                </button>
+              </div>
             ))}
             {!showNewFolderInline ? (
               <button
