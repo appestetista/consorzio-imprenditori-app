@@ -414,6 +414,21 @@ NOTE: ${formData.notes || 'Nessuna'}
                     })()}
                   </div>
 
+                  {/* Avviso pagamento singolo */}
+                  {selectedPlan === 'singolo' && (
+                    <div className="bg-amber-500/10 rounded-xl p-3 border border-amber-500/30">
+                      <div className="flex items-start gap-2 mb-2">
+                        <Lock className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="text-amber-300 text-sm font-semibold">Pagamento richiesto</p>
+                          <p className="text-slate-400 text-xs mt-1">
+                            Compila i dati e invia la richiesta. Riceverai un link per il pagamento di <span className="text-white font-semibold">€ 200 + IVA</span>. La lavorazione del video partirà solo dopo il pagamento confermato.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   <Input
                     placeholder="Nome e Cognome del cliente *"
                     value={formData.client_name}

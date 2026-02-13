@@ -85,12 +85,12 @@ import RisparmioEnergetico from './pages/RisparmioEnergetico';
 import ScannerQRVantaggi from './pages/ScannerQRVantaggi';
 import VantaggiIscritti from './pages/VantaggiIscritti';
 import VideoInterviste from './pages/VideoInterviste';
+import VideoRecensioni from './pages/VideoRecensioni';
 import WelfareAziendale from './pages/WelfareAziendale';
 import WelfareNormativa from './pages/WelfareNormativa';
 import WelfareOrdina from './pages/WelfareOrdina';
 import WelfareStorico from './pages/WelfareStorico';
 import WelfareTipologie from './pages/WelfareTipologie';
-import VideoRecensioni from './pages/VideoRecensioni';
 import __Layout from './Layout.jsx';
 
 
@@ -133,12 +133,12 @@ export const PAGES = {
     "ScannerQRVantaggi": ScannerQRVantaggi,
     "VantaggiIscritti": VantaggiIscritti,
     "VideoInterviste": VideoInterviste,
+    "VideoRecensioni": VideoRecensioni,
     "WelfareAziendale": WelfareAziendale,
     "WelfareNormativa": WelfareNormativa,
     "WelfareOrdina": WelfareOrdina,
     "WelfareStorico": WelfareStorico,
     "WelfareTipologie": WelfareTipologie,
-    "VideoRecensioni": VideoRecensioni,
 }
 
 export const pagesConfig = {
