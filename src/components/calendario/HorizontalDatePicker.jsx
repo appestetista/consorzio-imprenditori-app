@@ -837,16 +837,33 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
             </button>
           )}
 
-          {/* VISTA GIORNALIERA - a destra */}
-          {onToggleDayView && (
+          {/* STRUMENTI - a destra */}
+          <div className="flex-1 relative">
             <button
-              onClick={onToggleDayView}
-              className="flex-1 px-3 py-2.5 rounded-md transition-all animate-pulse touch-manipulation active:scale-90"
+              onClick={() => {
+                if (hasSelectedTime && onOpenTools) {
+                  onOpenTools();
+                } else {
+                  setShowToolsTooltip(true);
+                  setTimeout(() => setShowToolsTooltip(false), 3000);
+                }
+              }}
+              className={cn(
+                "w-full px-3 py-2.5 rounded-md transition-all touch-manipulation active:scale-90",
+                hasSelectedTime ? "animate-pulse" : "opacity-50"
+              )}
               style={{ backgroundColor: currentMonthColor || '#a3e635', color: '#0f172a' }}
             >
-              <span className="text-[9px] font-bold uppercase">Vista Giornaliera</span>
+              <span className="text-[9px] font-bold uppercase">Strumenti</span>
             </button>
-          )}
+            {/* Fumetto tooltip */}
+            {showToolsTooltip && (
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-slate-700 text-white text-[10px] rounded-lg shadow-xl whitespace-nowrap z-50">
+                Prima seleziona un orario per creare la nota
+                <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-slate-700" />
+              </div>
+            )}
+          </div>
         </div>
         </div>
 
