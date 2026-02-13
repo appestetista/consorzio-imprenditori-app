@@ -193,9 +193,9 @@ Deno.serve(async (req) => {
       analisi_dipendente = {
         costo_dipendente_annuo: costoDip,
         dettaglio: [
-          buildAnalisi('SRL', srl_senza, srl_con),
-          buildAnalisi('Forfettario', forf_senza, forf_con),
-          buildAnalisi('Ditta Ordinaria', ditta_senza, ditta_con)
+          buildAnalisi('SRL', srl_senza, srl_con, true),
+          buildAnalisi('Forfettario', forf_senza, forf_con, false),
+          buildAnalisi('Ditta Ordinaria', ditta_senza, ditta_con, true)
         ]
       };
     }
