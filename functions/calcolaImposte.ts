@@ -96,9 +96,26 @@ Deno.serve(async (req) => {
 
       reddito_imponibile = Math.round(fatturato * coeff * 100) / 100;
       const imposta = Math.round(reddito_imponibile * aliq * 100) / 100;
-      netto_finale = Math.round((fatturato - imposta) * 100) / 100;
-      imposte_totali = imposta;
       utile = reddito_imponibile;
+
+      // ---- CONTRIBUTI INPS ----
+      let contributi_inps = 0;
+      const dettaglioInps = [];
+
+      if (gestione_inps) {
+        const inpsRecords = await base44.asServiceRole.entities.ContributiINPS.filter({ anno: anno, gestione: gestione_inps });
+        if (inpsRecords.length > 0) {
+          const inps = inpsRecords[0];
+          const aliqInps = inps.aliquota_percentuale || 0;
+          contributi_inps = Math.round(reddito_imponibile * aliqInps * 100) / 100;
+
+          dettaglioInps.push(`CONTRIBUTI INPS - ${gestione_inps}`);
+          dettaglioInps.push(`Contributi: €${reddito_imponibile.toLocaleString('it-IT')} × ${(aliqInps * 100).toFixed(2)}% = €${contributi_inps.toLocaleString('it-IT')}`);
+        }
+      }
+
+      imposte_totali = Math.round((imposta + contributi_inps) * 100) / 100;
+      netto_finale = Math.round((fatturato - imposta - contributi_inps) * 100) / 100;
 
       dettaglio.push(`REGIME: FORFETTARIO (${aliquota_forfettario === 'startup' ? 'Startup 5%' : 'Ordinario 15%'})`);
       dettaglio.push(`Fatturato: €${fatturato.toLocaleString('it-IT')}`);
@@ -106,9 +123,13 @@ Deno.serve(async (req) => {
       dettaglio.push(`Reddito imponibile: €${fatturato.toLocaleString('it-IT')} × ${coeff} = €${reddito_imponibile.toLocaleString('it-IT')}`);
       dettaglio.push(`---`);
       dettaglio.push(`Imposta sostitutiva (${(aliq * 100).toFixed(0)}%): €${reddito_imponibile.toLocaleString('it-IT')} × ${aliq} = €${imposta.toLocaleString('it-IT')}`);
+      if (dettaglioInps.length > 0) {
+        dettaglio.push(`---`);
+        dettaglioInps.forEach(d => dettaglio.push(d));
+      }
       dettaglio.push(`---`);
-      dettaglio.push(`IMPOSTE TOTALI: €${imposte_totali.toLocaleString('it-IT')}`);
-      dettaglio.push(`NETTO FINALE (fatturato - imposte): €${netto_finale.toLocaleString('it-IT')}`);
+      dettaglio.push(`IMPOSTE + CONTRIBUTI TOTALI: €${imposte_totali.toLocaleString('it-IT')}`);
+      dettaglio.push(`NETTO FINALE (fatturato - imposte - contributi): €${netto_finale.toLocaleString('it-IT')}`);
     }
 
     // ===================== DITTA ORDINARIA =====================
