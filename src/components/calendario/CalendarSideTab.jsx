@@ -370,30 +370,8 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                   pointerEvents: 'auto'
                 }}
               >
-                {/* Riga 1: Vista giornaliera al centro + CHIUDI a destra */}
-                <div className="flex items-center justify-between px-3 pl-6" style={{ height: '32px' }}>
-                  <div style={{ width: '50px' }} />
-                  <button
-                      onClick={() => {
-                        const targetDate = selectedDate 
-                          ? new Date(selectedDate) 
-                          : new Date();
-                        targetDate.setHours(0,0,0,0);
-                        handleDateSelect(targetDate);
-                        setShowWeekView(false);
-                        setIsOpen(true);
-                        setShowTimePicker(true);
-                        setTimeout(() => {
-                          if (goToTodayRef.scrollToDate) {
-                            goToTodayRef.scrollToDate(targetDate);
-                          }
-                        }, 200);
-                      }}
-                      className="px-4 py-2 rounded-md touch-manipulation active:scale-90 transition-all animate-pulse bg-white"
-                    >
-                      <span className="text-[9px] font-bold uppercase text-black">Giornaliera</span>
-                    </button>
-                </div>
+                {/* Riga 1: spazio vuoto (pulsante giornaliera rimosso, ora è nella WeekView) */}
+                <div style={{ height: '2px' }} />
                 {/* Riga 2: Barra mesi */}
                 <div className="overflow-hidden flex items-center">
                   <MonthBar 
@@ -446,6 +424,21 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                     onSlotClick={handleWeekSlotClick}
                     onMonthChange={(month) => setWeekViewMonth(month)}
                     onRegisterMonthSelect={(fn) => { weekViewMonthSelectRef.current = fn; }}
+                    onBackToDaily={() => {
+                      const targetDate = selectedDate 
+                        ? new Date(selectedDate) 
+                        : new Date();
+                      targetDate.setHours(0,0,0,0);
+                      handleDateSelect(targetDate);
+                      setShowWeekView(false);
+                      setIsOpen(true);
+                      setShowTimePicker(true);
+                      setTimeout(() => {
+                        if (goToTodayRef.scrollToDate) {
+                          goToTodayRef.scrollToDate(targetDate);
+                        }
+                      }, 200);
+                    }}
                   />
                 </div>
               </div>
@@ -606,31 +599,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
         document.body
       )}
 
-      {/* Semicerchio CHIUDI - solo per vista settimanale */}
-      {showWeekView && !showWeekNoteEditor && (
-        <button
-          onClick={() => {
-            setShowWeekView(false);
-            setIsOpen(false);
-            setShowTimePicker(false);
-          }}
-          className="fixed right-0 z-[70] transition-all duration-300 active:scale-90 touch-manipulation"
-          style={{
-            width: '32px',
-            height: '64px',
-            top: '12%',
-            transform: 'translateY(-50%)',
-            background: 'linear-gradient(to left, #a3e635, #84cc16)',
-            borderRadius: '64px 0 0 64px',
-            boxShadow: '0 0 16px rgba(163, 230, 53, 0.4), -2px 0 8px rgba(163, 230, 53, 0.2)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <X className="w-5 h-5 text-slate-900" strokeWidth={3} />
-        </button>
-      )}
+      {/* Semicerchio CHIUDI rimosso - ora il pulsante è dentro la WeekView */}
             </>
             );
             }

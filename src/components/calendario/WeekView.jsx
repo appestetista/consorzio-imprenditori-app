@@ -28,7 +28,7 @@ function getWeekDays(ref) {
 }
 function fk(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 
-export default function WeekView({ selectedDate, monthColor, onMonthColorChange, onDateSelect, onSlotClick, onMonthChange, onRegisterMonthSelect }) {
+export default function WeekView({ selectedDate, monthColor, onMonthColorChange, onDateSelect, onSlotClick, onMonthChange, onRegisterMonthSelect, onBackToDaily }) {
   const [userEmail, setUserEmail] = useState(null);
   // viewDate è la data di riferimento per la settimana visualizzata
   const [viewDate, setViewDate] = useState(() => selectedDate ? new Date(selectedDate) : new Date());
@@ -312,7 +312,18 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
 
           {/* HEADER GIORNI */}
           <div className="flex flex-shrink-0 border-b border-slate-700/50 overflow-hidden">
-            <div className="flex-shrink-0" style={{ width: '56px' }} />
+            {/* Quadratino verde fluo con X per tornare alla giornaliera */}
+            <div className="flex-shrink-0 flex items-center justify-center" style={{ width: '56px' }}>
+              {onBackToDaily && (
+                <button
+                  onClick={onBackToDaily}
+                  className="w-8 h-8 rounded-md flex items-center justify-center touch-manipulation active:scale-90 transition-all"
+                  style={{ backgroundColor: '#a3e635', boxShadow: '0 0 8px rgba(163,230,53,0.4)' }}
+                >
+                  <X className="w-4 h-4 text-slate-900" strokeWidth={3} />
+                </button>
+              )}
+            </div>
             <div className="flex flex-1" style={swipeStyle}>
               {weekDays.map((day, i) => {
                     const isT = day.getTime() === today.getTime();
