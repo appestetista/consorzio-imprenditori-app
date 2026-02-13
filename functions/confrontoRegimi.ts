@@ -144,7 +144,7 @@ Deno.serve(async (req) => {
       return { regime: 'Ditta Ordinaria', imposte_totali, netto_finale, dettaglio: dettagli.join(' | ') };
     }
 
-    // ===== CALCOLO SENZA DIPENDENTE =====
+    // ===== CALCOLO BASE =====
     risultati.push(calcolaSRL(costiDed));
     risultati.push(calcolaForfettario());
     risultati.push(calcolaDittaOrdinaria(costiDed));
