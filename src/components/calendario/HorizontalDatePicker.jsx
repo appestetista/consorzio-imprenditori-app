@@ -829,13 +829,13 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
             </button>
           )}
           
-          {/* VISION GLOBAL - al centro (apre vista settimanale) */}
+          {/* MESI - al centro (apre vista settimanale) */}
           {onToggleFatturato && (
             <button
               onClick={onToggleFatturato}
-              className="flex-1 h-10 rounded-md transition-all animate-pulse touch-manipulation active:scale-90 flex items-center justify-center bg-white"
+              className="flex-1 h-10 rounded-md transition-all touch-manipulation active:scale-90 flex items-center justify-center bg-white"
             >
-              <span className="text-[9px] font-bold uppercase text-black">Vision Global</span>
+              <span className="text-[9px] font-bold uppercase text-black">Mesi</span>
             </button>
           )}
 
@@ -852,7 +852,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
               }}
               className={cn(
                 "w-full h-10 rounded-md transition-all touch-manipulation active:scale-90 flex items-center justify-center bg-white",
-                hasSelectedTime ? "animate-pulse" : "opacity-50"
+                !hasSelectedTime && "opacity-50"
               )}
             >
               <span className="text-[9px] font-bold uppercase text-black">Strumenti</span>
