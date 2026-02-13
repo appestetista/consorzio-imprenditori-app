@@ -168,16 +168,7 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
     if (file) handleFileUpload(file);
   };
 
-  const handleWhisperTranscription = (text) => {
-    setContent(prev => prev ? prev + ' ' + text : text);
-  };
 
-  const toggleChecklist = () => {
-    if (!showChecklist && checklistItems.length === 0) {
-      setChecklistItems([{ id: Date.now().toString(), text: '', checked: false }]);
-    }
-    setShowChecklist(!showChecklist);
-  };
 
   return (
     <div className={cn(
