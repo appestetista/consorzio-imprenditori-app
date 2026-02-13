@@ -776,29 +776,24 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
         ))}
       </div>
 
-      {/* Barra mesi dell'anno con progress - in basso */}
+      {/* Barra mesi dell'anno - in basso */}
       <div className="px-2 py-1 pb-2">
-        {/* Etichette mesi sopra la barra */}
+        {/* Etichette mesi */}
         <div className="flex items-center mb-1">
           {MONTHS_SHORT.map((m, idx) => {
-            // Determina il colore:
-            // - passato = grigio scuro
-            // - mese attuale = lime
-            // - futuro = bianco
-            // - selezionato (cliccato) = colore del mese
             const isPast = idx < currentMonthIdx;
             const isCurrent = idx === currentMonthIdx;
             const isSelected = selectedMonthIdx === idx;
             
             let color;
             if (isSelected) {
-              color = MONTH_COLORS[idx]; // Colore del mese quando cliccato
+              color = MONTH_COLORS[idx];
             } else if (isCurrent) {
-              color = '#a3e635'; // Lime per mese attuale
+              color = '#a3e635';
             } else if (isPast) {
-              color = '#334155'; // Grigio scuro per passati
+              color = '#334155';
             } else {
-              color = '#ffffff'; // Bianco per futuri
+              color = '#ffffff';
             }
             
             return (
@@ -817,36 +812,40 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
           })}
         </div>
         
-        {/* Barra di riempimento sottile */}
-        <div className="h-2 rounded-full bg-slate-700 overflow-hidden">
-          <div 
-            className="h-full rounded-full bg-gradient-to-r from-lime-500 to-lime-400 transition-all"
-            style={{ width: `${yearProgress}%` }}
-          />
-        </div>
-        
-        {/* Percentuali con pulsante Vendite al centro */}
-        <div className="flex justify-between items-center mt-0.5">
-          <span className="text-[10px] text-lime-400 font-bold">
-            {yearProgress.toFixed(2).replace('.', ',')}% anno trascorso
-          </span>
-          
-          {/* Pulsante Settimana centrato - pulsante con colore mese */}
-          {onToggleFatturato && (
+        {/* Tre pulsanti: Chiudi | Vista Settimanale | Vista Giornaliera */}
+        <div className="flex items-center gap-2 mt-1">
+          {/* CHIUDI - a sinistra */}
+          {onClose && (
             <button
-              onClick={onToggleFatturato}
-              className="px-4 py-2 rounded-md flex items-center gap-1 transition-all animate-pulse touch-manipulation active:scale-90"
-              style={{ backgroundColor: currentMonthColor || '#a3e635', color: '#0f172a' }}
+              onClick={onClose}
+              className="flex-1 px-3 py-2.5 rounded-md transition-all touch-manipulation active:scale-90"
+              style={{ backgroundColor: '#a3e635', color: '#0f172a' }}
             >
-              <span className="text-[9px] font-bold uppercase">
-                Vista Settimanale
-              </span>
+              <span className="text-[9px] font-bold uppercase">Chiudi</span>
             </button>
           )}
           
-          <span className="text-[10px] text-slate-300 font-bold">
-            {yearRemaining.toFixed(2).replace('.', ',')}% anno che rimane
-          </span>
+          {/* VISTA SETTIMANALE - al centro */}
+          {onToggleFatturato && (
+            <button
+              onClick={onToggleFatturato}
+              className="flex-1 px-3 py-2.5 rounded-md transition-all animate-pulse touch-manipulation active:scale-90"
+              style={{ backgroundColor: currentMonthColor || '#a3e635', color: '#0f172a' }}
+            >
+              <span className="text-[9px] font-bold uppercase">Vista Settimanale</span>
+            </button>
+          )}
+
+          {/* VISTA GIORNALIERA - a destra */}
+          {onToggleDayView && (
+            <button
+              onClick={onToggleDayView}
+              className="flex-1 px-3 py-2.5 rounded-md transition-all animate-pulse touch-manipulation active:scale-90"
+              style={{ backgroundColor: currentMonthColor || '#a3e635', color: '#0f172a' }}
+            >
+              <span className="text-[9px] font-bold uppercase">Vista Giornaliera</span>
+            </button>
+          )}
         </div>
         </div>
 
