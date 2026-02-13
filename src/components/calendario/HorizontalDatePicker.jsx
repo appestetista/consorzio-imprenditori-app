@@ -708,95 +708,108 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
           </div>
         </div>
       )}
-      {/* Calendario orizzontale scrollabile continuo */}
-      <div 
-        ref={scrollRef}
-        className="flex overflow-x-auto px-1 scrollbar-hide items-end flex-1"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-      >
-        {monthsData.map((monthData, monthIdx) => (
-          <div 
-            key={`${monthData.year}-${monthData.month}`}
-            ref={(el) => monthRefs.current[`${monthData.year}-${monthData.month}`] = el}
-            data-month={`${monthData.year}-${monthData.month}`}
-            className="flex items-end"
-          >
-            {/* Giorni del mese */}
-            {monthData.days.map((dayData, idx) => (
-              <div
-                key={`${monthData.year}-${monthData.month}-${idx}`}
-                ref={dayData.isToday ? todayRef : null}
-                data-day-info={`${monthData.year}-${monthData.month}`}
-                data-date={`${monthData.year}-${monthData.month}-${dayData.day}`}
-                onClick={() => handleDayClick(dayData, monthData)}
-                className={cn(
-                  "flex flex-col items-center justify-end cursor-pointer transition-all",
-                  "border-r border-slate-700/30",
-                  "px-0.5 pb-0.5"
-                )}
-                style={{ minWidth: '22px' }}
-              >
-                {/* Linea verticale - bianco per tutti, colore mese solo per selezionato */}
-                <div 
-                  className={cn(
-                    "w-[2px] mb-0.5 rounded-full transition-all",
-                    dayData.isToday && "animate-pulse"
-                  )}
-                  style={{ 
-                    height: dayData.isWeekend ? '32px' : '18px',
-                    backgroundColor: dayData.isSelected ? monthData.color : '#ffffff'
-                  }}
-                />
+      {/* Settimana corrente: Lun-Dom */}
+      {(() => {
+        // Calcola la settimana lun-dom basata sulla data selezionata
+        const refDate = selectedDate ? new Date(selectedDate) : new Date();
+        refDate.setHours(0,0,0,0);
+        const dow = refDate.getDay(); // 0=dom
+        const mondayOffset = dow === 0 ? -6 : 1 - dow;
+        const monday = new Date(refDate);
+        monday.setDate(refDate.getDate() + mondayOffset);
 
-                {/* Numero del giorno - con cerchietto colorato per oggi */}
-                <div className={cn(
-                  "flex items-center justify-center",
-                  dayData.isToday && "w-5 h-5 rounded-full border-[1.5px] animate-pulse",
-                  dayData.isToday && !dayData.isSelected && "border-white/60"
-                )}
-                style={{
-                  borderColor: dayData.isToday ? monthData.color : undefined
-                }}
+        const weekDays = [];
+        for (let i = 0; i < 7; i++) {
+          const d = new Date(monday);
+          d.setDate(monday.getDate() + i);
+          d.setHours(0,0,0,0);
+          weekDays.push(d);
+        }
+
+        const todayStr = today.toDateString();
+        const selectedStr = selectedDate ? new Date(selectedDate).toDateString() : null;
+
+        return (
+          <div 
+            ref={scrollRef}
+            className="flex items-end justify-around px-2 pb-1 flex-1"
+          >
+            {weekDays.map((d, i) => {
+              const isToday = d.toDateString() === todayStr;
+              const isSelected = selectedStr && d.toDateString() === selectedStr;
+              const isWeekend = d.getDay() === 0 || d.getDay() === 6;
+              const mIdx = d.getMonth();
+              const mColor = MONTH_COLORS[mIdx];
+
+              // data-day-info e data-date per compatibilità con observer/scrollToDate
+              const dateKey = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+
+              return (
+                <div
+                  key={i}
+                  ref={isToday ? todayRef : null}
+                  data-day-info={`${d.getFullYear()}-${d.getMonth()}`}
+                  data-date={dateKey}
+                  onClick={() => {
+                    const dayData = {
+                      day: d.getDate(),
+                      date: d,
+                      dayOfWeek: d.getDay(),
+                      isToday,
+                      isWeekend,
+                      isSelected
+                    };
+                    const monthData = { month: d.getMonth(), year: d.getFullYear(), color: mColor };
+                    handleDayClick(dayData, monthData);
+                  }}
+                  className={cn(
+                    "flex flex-col items-center justify-end cursor-pointer transition-all py-1 px-1 rounded-lg",
+                    isSelected && "bg-white/5"
+                  )}
+                  style={{ flex: 1 }}
                 >
+                  {/* Nome giorno */}
                   <span 
                     className={cn(
-                      "text-[10px] font-bold leading-tight",
-                      dayData.isToday && "animate-pulse"
+                      "text-[10px] font-semibold uppercase mb-1",
+                      isToday && "animate-pulse"
                     )}
                     style={{ 
-                      color: dayData.isSelected ? monthData.color : '#ffffff'
+                      color: isWeekend ? '#ef4444' :
+                        isSelected ? mColor : '#64748b'
                     }}
                   >
-                    {dayData.day}
+                    {DAYS_FULL[d.getDay()]}
                   </span>
-                </div>
 
-                {/* Lettera del giorno della settimana */}
-                <span 
-                  className={cn(
-                    "text-[8px] font-medium leading-tight",
-                    dayData.isToday && "animate-pulse"
+                  {/* Numero del giorno - più grande */}
+                  <div className={cn(
+                    "flex items-center justify-center w-9 h-9 rounded-full transition-all",
+                    isToday && "border-2 animate-pulse",
+                    isSelected && !isToday && "bg-white/10"
                   )}
-                  style={{ 
-                    color: dayData.isWeekend ? '#ef4444' :
-                      dayData.isSelected ? monthData.color : '#94a3b8'
+                  style={{
+                    borderColor: isToday ? mColor : 'transparent'
                   }}
-                >
-                  {DAYS_SHORT[dayData.dayOfWeek]}
-                </span>
-
-                {/* Indicatore selezionato (pallino sotto) */}
-                {dayData.isSelected && !dayData.isToday && (
-                  <div 
-                    className="w-1.5 h-1.5 mt-0.5 rounded-full transition-all"
-                    style={{ backgroundColor: monthData.color }}
-                  />
-                )}
-              </div>
-            ))}
+                  >
+                    <span 
+                      className={cn(
+                        "text-lg font-bold leading-none",
+                        isToday && "animate-pulse"
+                      )}
+                      style={{ 
+                        color: isSelected ? mColor : '#ffffff'
+                      }}
+                    >
+                      {d.getDate()}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-        ))}
-      </div>
+        );
+      })()}
 
       {/* Barra mesi dell'anno con progress - in basso */}
       <div className="px-2 py-1 pb-2">
