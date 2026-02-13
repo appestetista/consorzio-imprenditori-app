@@ -309,6 +309,7 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
     saveNoteMutation.mutate(noteData);
     setShowNoteEditor(false);
     setSelectedTime(null);
+    if (onSelectedTimeChange) onSelectedTimeChange(false);
   };
 
   return (
