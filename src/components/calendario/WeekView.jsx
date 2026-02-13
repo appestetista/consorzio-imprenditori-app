@@ -510,7 +510,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                       <div
                         key={di}
                         className={cn("flex-1 border-l border-slate-700/20 relative cursor-pointer", isNC && "bg-white/5", isT && "bg-slate-800/20", isSel && !isT && "bg-slate-700/15", isSlotSelected && "ring-1 ring-amber-500/60")}
-                        onClick={() => handleSlotClick(dk, slot.label)}
+                        onClick={(e) => handleSlotClick(dk, slot.label, e)}
                       >
                         {isNC && <div className="absolute left-0 right-0 top-0 h-[2px] bg-white animate-pulse z-10" />}
                         {isSlotSelected && its.length === 0 && (
