@@ -90,6 +90,37 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
     }
   }, [onRegisterSave]);
 
+  // Ascolta eventi strumenti dal popup esterno
+  useEffect(() => {
+    const handleCamera = () => cameraInputRef.current?.click();
+    const handleAttach = () => fileInputRef.current?.click();
+    const handleChecklist = () => {
+      if (!showChecklist && checklistItems.length === 0) {
+        setChecklistItems([{ id: Date.now().toString(), text: '', checked: false }]);
+      }
+      setShowChecklist(prev => !prev);
+    };
+    const handleDictation = (e) => {
+      setContent(prev => prev ? prev + ' ' + e.detail : e.detail);
+    };
+    const handleAudio = (e) => {
+      setAttachments(prev => [...prev, e.detail]);
+    };
+
+    document.addEventListener('calendar-tool-camera', handleCamera);
+    document.addEventListener('calendar-tool-attach', handleAttach);
+    document.addEventListener('calendar-tool-checklist', handleChecklist);
+    document.addEventListener('calendar-tool-dictation', handleDictation);
+    document.addEventListener('calendar-tool-audio', handleAudio);
+    return () => {
+      document.removeEventListener('calendar-tool-camera', handleCamera);
+      document.removeEventListener('calendar-tool-attach', handleAttach);
+      document.removeEventListener('calendar-tool-checklist', handleChecklist);
+      document.removeEventListener('calendar-tool-dictation', handleDictation);
+      document.removeEventListener('calendar-tool-audio', handleAudio);
+    };
+  }, [showChecklist, checklistItems.length]);
+
   // L'orario da usare: quello selezionato dallo slot
   const saveTime = selectedTime || '00:00';
 
