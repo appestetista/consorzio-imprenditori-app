@@ -26,7 +26,7 @@ const MONTH_COLORS = [
 
 const MONTHS_SHORT = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
 
-export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoToToday, onMonthColorChange, onVisibleMonthChange, onVisibleDayChange, onScrollSync, scrollRef: externalScrollRef, goToTodayButton, monthLabelButton, showFatturato, onToggleFatturato, currentMonthColor }) {
+export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoToToday, onMonthColorChange, onVisibleMonthChange, onVisibleDayChange, onScrollSync, scrollRef: externalScrollRef, goToTodayButton, monthLabelButton, showFatturato, onToggleFatturato, currentMonthColor, onClose, onToggleDayView }) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   
