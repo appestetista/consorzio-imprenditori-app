@@ -826,18 +826,17 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
             </button>
           )}
           
-          {/* GLOBALE - al centro (apre vista settimanale) */}
+          {/* VISION GLOBAL - al centro (apre vista settimanale) */}
           {onToggleFatturato && (
             <button
               onClick={onToggleFatturato}
-              className="flex-1 h-10 rounded-md transition-all animate-pulse touch-manipulation active:scale-90 flex items-center justify-center"
-              style={{ backgroundColor: currentMonthColor || '#a3e635', color: '#0f172a' }}
+              className="flex-1 h-10 rounded-md transition-all animate-pulse touch-manipulation active:scale-90 flex items-center justify-center bg-white"
             >
-              <span className="text-[9px] font-bold uppercase">Globale</span>
+              <span className="text-[9px] font-bold uppercase text-black">Vision Global</span>
             </button>
           )}
 
-          {/* GIORNALIERA - a destra (apre strumenti) */}
+          {/* STRUMENTI - a destra (apre strumenti) */}
           <div className="flex-1 relative">
             <button
               onClick={() => {
@@ -849,12 +848,11 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                 }
               }}
               className={cn(
-                "w-full h-10 rounded-md transition-all touch-manipulation active:scale-90 flex items-center justify-center",
+                "w-full h-10 rounded-md transition-all touch-manipulation active:scale-90 flex items-center justify-center bg-white",
                 hasSelectedTime ? "animate-pulse" : "opacity-50"
               )}
-              style={{ backgroundColor: currentMonthColor || '#a3e635', color: '#0f172a' }}
             >
-              <span className="text-[9px] font-bold uppercase">Giornaliera</span>
+              <span className="text-[9px] font-bold uppercase text-black">Strumenti</span>
             </button>
             {/* Fumetto tooltip */}
             {showToolsTooltip && (
