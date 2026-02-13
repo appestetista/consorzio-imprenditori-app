@@ -10,12 +10,13 @@ import { normalizeUser } from '../components/utils/normalizeUser';
 import SimulazioneForm from '../components/fiscale/SimulazioneForm';
 import SimulazioneResult from '../components/fiscale/SimulazioneResult';
 import StoricoSimulazioni from '../components/fiscale/StoricoSimulazioni';
+import ConfrontoPrelievoSRL from '../components/fiscale/ConfrontoPrelievoSRL';
 
 export default function SimulatoreFiscale() {
   const [effectiveUser, setEffectiveUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
-  const [view, setView] = useState('form'); // 'form' | 'result' | 'storico'
+  const [view, setView] = useState('form'); // 'form' | 'result' | 'storico' | 'confronto_srl'
   const { impersonation, appMode } = useImpersonation();
 
   useEffect(() => {
@@ -80,12 +81,18 @@ export default function SimulatoreFiscale() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-6">
+        <div className="flex gap-2 mb-6 flex-wrap">
           <button
             onClick={() => { setView('form'); setResult(null); }}
-            className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${view === 'form' ? 'bg-[#d4af37] text-slate-900' : 'bg-slate-800 text-slate-400'}`}
+            className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${view === 'form' || view === 'result' ? 'bg-[#d4af37] text-slate-900' : 'bg-slate-800 text-slate-400'}`}
           >
-            Nuovo Scenario
+            Scenario
+          </button>
+          <button
+            onClick={() => setView('confronto_srl')}
+            className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${view === 'confronto_srl' ? 'bg-[#d4af37] text-slate-900' : 'bg-slate-800 text-slate-400'}`}
+          >
+            Prelievo SRL
           </button>
           <button
             onClick={() => setView('storico')}
@@ -113,6 +120,8 @@ export default function SimulatoreFiscale() {
             onNewScenario={() => { setView('form'); setResult(null); }}
           />
         )}
+
+        {view === 'confronto_srl' && <ConfrontoPrelievoSRL />}
 
         {view === 'storico' && (
           <StoricoSimulazioni
