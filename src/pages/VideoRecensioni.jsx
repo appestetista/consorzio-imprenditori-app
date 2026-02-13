@@ -25,7 +25,7 @@ export default function VideoRecensioni() {
     notes: ''
   });
   const [requestSent, setRequestSent] = useState(false);
-  const [abbonamentoAttivato, setAbbonamentoAttivato] = useState(false);
+  const [showAttivaPopup, setShowAttivaPopup] = useState(false);
   const queryClient = useQueryClient();
   const { impersonation, appMode } = useImpersonation();
 
