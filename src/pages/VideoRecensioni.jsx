@@ -331,6 +331,31 @@ NOTE: ${formData.notes || 'Nessuna'}
                     <p className="text-[#d4af37] text-sm font-semibold">
                       {selectedPlan === 'abbonamento' ? '📦 Abbonamento Mensile — € 100/mese + IVA' : '🎬 Singolo Filmato — € 200 + IVA'}
                     </p>
+                    {selectedPlan === 'abbonamento' && (() => {
+                      const usedCount = myRequests.filter(r => r.plan_type === 'abbonamento').length;
+                      const nextNumber = usedCount + 1;
+                      return (
+                        <div className="mt-2 pt-2 border-t border-[#d4af37]/20">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-slate-400 text-xs">Questo sarà il video n°</span>
+                            <span className="text-[#d4af37] text-sm font-bold">{nextNumber} / 12</span>
+                          </div>
+                          <div className="flex gap-1">
+                            {Array.from({ length: 12 }).map((_, i) => (
+                              <div
+                                key={i}
+                                className="flex-1 h-2.5 rounded-full"
+                                style={{
+                                  backgroundColor: i < usedCount ? '#d4af37' : i === usedCount ? '#d4af37' + '80' : '#1e293b',
+                                  boxShadow: i <= usedCount ? '0 0 4px rgba(212,175,55,0.3)' : 'none',
+                                  animation: i === usedCount ? 'pulse 2s infinite' : 'none'
+                                }}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </div>
 
                   <Input
