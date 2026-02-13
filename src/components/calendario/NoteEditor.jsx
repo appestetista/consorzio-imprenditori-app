@@ -187,211 +187,218 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
           <span className="text-red-500 text-[10px] -mt-1 mb-1 block">Il titolo è obbligatorio</span>
         )}
 
-        {/* Selettore cartella - PRIMA di tutto */}
-        <div className="relative py-1.5 border-b border-slate-800/50 mb-1">
-          <button
-            onClick={() => setShowCartellaDropdown(!showCartellaDropdown)}
-            className="flex items-center gap-1.5 px-2 py-1 rounded-lg hover:bg-slate-800 transition-colors w-full"
-          >
-            {selectedCartella && cartelle.find(c => c.id === selectedCartella) ? (
-              <>
-                <div 
-                  className="w-3 h-3 rounded-sm flex-shrink-0"
-                  style={{ backgroundColor: cartelle.find(c => c.id === selectedCartella)?.colore || '#64748b' }}
-                />
-                <span className="text-xs text-slate-300 truncate">
-                  {cartelle.find(c => c.id === selectedCartella)?.nome || 'Cartella'}
-                </span>
-              </>
-            ) : (
-              <>
-                <Folder className="w-3.5 h-3.5 text-slate-600" />
-                <span className="text-xs text-slate-600">Nessuna cartella</span>
-              </>
-            )}
-            <ChevronDown className={cn(
-              "w-3 h-3 text-slate-500 ml-auto transition-transform",
-              showCartellaDropdown && "rotate-180"
-            )} />
-          </button>
+        {/* Barra principale: Cartella + Salva + X */}
+        <div className="flex items-center gap-2 py-2 border-b border-slate-800/50">
+          {/* Selettore cartella - più grande */}
+          <div className="relative flex-1 min-w-0">
+            <button
+              onClick={() => setShowCartellaDropdown(!showCartellaDropdown)}
+              className="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-slate-800 transition-colors w-full"
+            >
+              {selectedCartella && cartelle.find(c => c.id === selectedCartella) ? (
+                <>
+                  <div 
+                    className="w-4 h-4 rounded flex-shrink-0"
+                    style={{ backgroundColor: cartelle.find(c => c.id === selectedCartella)?.colore || '#64748b' }}
+                  />
+                  <span className="text-sm text-slate-200 truncate font-medium">
+                    {cartelle.find(c => c.id === selectedCartella)?.nome || 'Cartella'}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <Folder className="w-4 h-4 text-slate-500" />
+                  <span className="text-sm text-slate-500">Nessuna cartella</span>
+                </>
+              )}
+              <ChevronDown className={cn(
+                "w-4 h-4 text-slate-500 ml-auto transition-transform flex-shrink-0",
+                showCartellaDropdown && "rotate-180"
+              )} />
+            </button>
 
-          {showCartellaDropdown && (
-            <div className="absolute left-0 right-0 top-full z-50 bg-slate-800 border border-slate-700 rounded-lg shadow-xl overflow-hidden">
-              {/* Nessuna cartella */}
-              <button
-                onClick={() => { setSelectedCartella(''); setShowCartellaDropdown(false); setShowNewFolderInline(false); }}
-                className={cn(
-                  "w-full flex items-center gap-2 px-3 py-2 text-xs hover:bg-slate-700 transition-colors",
-                  !selectedCartella ? "text-white" : "text-slate-400"
-                )}
-              >
-                <X className="w-3.5 h-3.5" />
-                Nessuna cartella
-              </button>
-              {/* Cartelle esistenti */}
-              {cartelle.map((c) => (
+            {showCartellaDropdown && (
+              <div className="absolute left-0 right-0 top-full z-50 bg-slate-800 border border-slate-700 rounded-lg shadow-xl overflow-hidden">
                 <button
-                  key={c.id}
-                  onClick={() => { setSelectedCartella(c.id); setShowCartellaDropdown(false); setShowNewFolderInline(false); }}
+                  onClick={() => { setSelectedCartella(''); setShowCartellaDropdown(false); setShowNewFolderInline(false); }}
                   className={cn(
-                    "w-full flex items-center gap-2 px-3 py-2 text-xs hover:bg-slate-700 transition-colors",
-                    selectedCartella === c.id ? "text-white" : "text-slate-400"
+                    "w-full flex items-center gap-2 px-3 py-2.5 text-sm hover:bg-slate-700 transition-colors",
+                    !selectedCartella ? "text-white" : "text-slate-400"
                   )}
                 >
-                  <div 
-                    className="w-3 h-3 rounded-sm flex-shrink-0"
-                    style={{ backgroundColor: c.colore }}
-                  />
-                  {c.nome}
+                  <X className="w-4 h-4" />
+                  Nessuna cartella
                 </button>
-              ))}
-              {/* Crea nuova cartella */}
-              {!showNewFolderInline ? (
-                <button
-                  onClick={() => setShowNewFolderInline(true)}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-xs text-lime-400 hover:bg-slate-700 transition-colors border-t border-slate-700"
-                >
-                  <FolderPlus className="w-3.5 h-3.5" />
-                  Crea nuova cartella
-                </button>
-              ) : (
-                <div className="px-3 py-2.5 border-t border-slate-700 space-y-2">
-                  <input
-                    type="text"
-                    value={newFolderName}
-                    onChange={(e) => setNewFolderName(e.target.value)}
-                    placeholder="Nome cartella"
-                    className="w-full bg-slate-700 text-white text-xs rounded px-2.5 py-1.5 outline-none focus:ring-1 focus:ring-lime-400"
-                    autoFocus
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && newFolderName.trim() && userEmail) {
-                        createFolderMutation.mutate({ user_email: userEmail, nome: newFolderName.trim(), colore: newFolderColor });
-                      }
-                    }}
-                  />
-                  <div className="flex gap-1.5 flex-wrap">
-                    {FOLDER_COLORS.map((color) => (
-                      <button
-                        key={color}
-                        onClick={() => setNewFolderColor(color)}
-                        className={cn("w-5 h-5 rounded-full transition-all", newFolderColor === color && "ring-2 ring-white ring-offset-1 ring-offset-slate-800 scale-110")}
-                        style={{ backgroundColor: color }}
-                      />
-                    ))}
-                  </div>
-                  <div className="flex gap-2">
-                    <button onClick={() => setShowNewFolderInline(false)} className="flex-1 text-[10px] py-1 rounded bg-slate-600 text-white">Annulla</button>
-                    <button
-                      onClick={() => {
-                        if (newFolderName.trim() && userEmail) {
+                {cartelle.map((c) => (
+                  <button
+                    key={c.id}
+                    onClick={() => { setSelectedCartella(c.id); setShowCartellaDropdown(false); setShowNewFolderInline(false); }}
+                    className={cn(
+                      "w-full flex items-center gap-2 px-3 py-2.5 text-sm hover:bg-slate-700 transition-colors",
+                      selectedCartella === c.id ? "text-white" : "text-slate-400"
+                    )}
+                  >
+                    <div 
+                      className="w-4 h-4 rounded flex-shrink-0"
+                      style={{ backgroundColor: c.colore }}
+                    />
+                    {c.nome}
+                  </button>
+                ))}
+                {!showNewFolderInline ? (
+                  <button
+                    onClick={() => setShowNewFolderInline(true)}
+                    className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-lime-400 hover:bg-slate-700 transition-colors border-t border-slate-700"
+                  >
+                    <FolderPlus className="w-4 h-4" />
+                    Crea nuova cartella
+                  </button>
+                ) : (
+                  <div className="px-3 py-2.5 border-t border-slate-700 space-y-2">
+                    <input
+                      type="text"
+                      value={newFolderName}
+                      onChange={(e) => setNewFolderName(e.target.value)}
+                      placeholder="Nome cartella"
+                      className="w-full bg-slate-700 text-white text-xs rounded px-2.5 py-1.5 outline-none focus:ring-1 focus:ring-lime-400"
+                      autoFocus
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && newFolderName.trim() && userEmail) {
                           createFolderMutation.mutate({ user_email: userEmail, nome: newFolderName.trim(), colore: newFolderColor });
                         }
                       }}
-                      disabled={!newFolderName.trim()}
-                      className="flex-1 text-[10px] py-1 rounded bg-lime-500 text-slate-900 font-bold disabled:opacity-40"
-                    >
-                      Crea
-                    </button>
+                    />
+                    <div className="flex gap-1.5 flex-wrap">
+                      {FOLDER_COLORS.map((color) => (
+                        <button
+                          key={color}
+                          onClick={() => setNewFolderColor(color)}
+                          className={cn("w-5 h-5 rounded-full transition-all", newFolderColor === color && "ring-2 ring-white ring-offset-1 ring-offset-slate-800 scale-110")}
+                          style={{ backgroundColor: color }}
+                        />
+                      ))}
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={() => setShowNewFolderInline(false)} className="flex-1 text-[10px] py-1 rounded bg-slate-600 text-white">Annulla</button>
+                      <button
+                        onClick={() => {
+                          if (newFolderName.trim() && userEmail) {
+                            createFolderMutation.mutate({ user_email: userEmail, nome: newFolderName.trim(), colore: newFolderColor });
+                          }
+                        }}
+                        disabled={!newFolderName.trim()}
+                        className="flex-1 text-[10px] py-1 rounded bg-lime-500 text-slate-900 font-bold disabled:opacity-40"
+                      >
+                        Crea
+                      </button>
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Cestino */}
+          {existingNote && onDelete && (
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              className="w-8 h-8 rounded-full bg-red-500/20 hover:bg-red-500/40 flex items-center justify-center active:scale-90 transition-all touch-manipulation flex-shrink-0"
+            >
+              <Trash2 className="w-4 h-4 text-red-400" />
+            </button>
+          )}
+
+          {/* Salva */}
+          <a
+            href="#"
+            onClick={(e) => { e.preventDefault(); handleSave(); }}
+            className={cn(
+              "flex items-center gap-1 px-3 py-2 rounded-full font-bold text-xs no-underline touch-manipulation select-none flex-shrink-0",
+              isSaving ? "bg-slate-500 text-slate-300" : "bg-lime-500 text-slate-900 active:bg-lime-400"
+            )}
+          >
+            {isSaving ? (
+              <div className="w-3 h-3 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <Check className="w-3 h-3" strokeWidth={3} />
+            )}
+            SALVA
+          </a>
+
+          {/* X chiudi */}
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="w-8 h-8 rounded-full bg-slate-700 hover:bg-slate-600 flex items-center justify-center active:scale-90 transition-all touch-manipulation flex-shrink-0"
+            >
+              <X className="w-4 h-4 text-slate-300" />
+            </button>
           )}
         </div>
 
-        {/* Riga 1: Camera, Allegato, Cestino, Salva, Chiudi */}
-        <div className="flex items-center py-2 border-b border-slate-800/50 relative">
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={() => cameraInputRef.current?.click()}
-              className="p-1.5 rounded-lg hover:bg-slate-800 transition-colors"
-            >
-              <Camera className="w-5 h-5 text-slate-400" />
-            </button>
-            <button 
-              onClick={() => fileInputRef.current?.click()}
-              className="p-1.5 rounded-lg hover:bg-slate-800 transition-colors"
-            >
-              <Paperclip className="w-5 h-5 text-slate-400" />
-            </button>
-          </div>
-          <div className="ml-auto pl-2 flex items-center gap-2">
-            {/* Cestino - elimina nota (solo se esiste già) */}
-            {existingNote && onDelete && (
-              <button
-                onClick={() => setShowDeleteConfirm(true)}
-                className="w-7 h-7 rounded-full bg-red-500/20 hover:bg-red-500/40 flex items-center justify-center active:scale-90 transition-all touch-manipulation"
-              >
-                <Trash2 className="w-3.5 h-3.5 text-red-400" />
-              </button>
-            )}
-            {/* Salva */}
-            <a
-              href="#"
-              onClick={(e) => { e.preventDefault(); handleSave(); }}
-              className={cn(
-                "flex items-center gap-1 px-3 py-1.5 rounded-full font-bold text-xs no-underline touch-manipulation select-none",
-                isSaving ? "bg-slate-500 text-slate-300" : "bg-lime-500 text-slate-900 active:bg-lime-400"
-              )}
-            >
-              {isSaving ? (
-                <div className="w-3 h-3 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <Check className="w-3 h-3" strokeWidth={3} />
-              )}
-              SALVA
-            </a>
-            {/* X chiudi */}
-            {onClose && (
-              <button
-                onClick={onClose}
-                className="w-7 h-7 rounded-full bg-slate-700 hover:bg-slate-600 flex items-center justify-center active:scale-90 transition-all touch-manipulation"
-              >
-                <X className="w-3.5 h-3.5 text-slate-300" />
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Riga 2: Dettatura, Registratore e Checklist */}
-        <div className="flex items-center gap-3 py-2 mb-4">
-          {/* Dettatura vocale - contenitore con bordo */}
-          <div className="relative flex-shrink-0 flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg border border-slate-700 bg-slate-800/50">
-            <div className="flex items-center gap-1.5">
-              <WhisperDictation 
-                isDictating={isDictating}
-                setIsDictating={setIsDictating}
-                onTranscription={handleWhisperTranscription}
-              />
-              <span className="text-[9px] text-slate-500 font-medium">Dettatura</span>
-            </div>
-            {isDictating && (
-              <span className="text-[8px] text-cyan-400 animate-pulse font-medium">Tocca per stoppare</span>
-            )}
-          </div>
-          {/* Registratore audio - contenitore con bordo */}
-          <div className="flex-shrink-0 px-2 py-1.5 rounded-lg border border-slate-700 bg-slate-800/50">
-            <AudioRecorder
-              onAudioSaved={(audioAtt) => {
-                setAttachments(prev => [...prev, audioAtt]);
-              }}
-              onTranscription={(text) => {
-                setContent(prev => prev ? prev + '\n' + text : text);
-              }}
-            />
-          </div>
-          {/* Checklist - contenitore con bordo */}
-          <button 
-            onClick={toggleChecklist}
-            className={cn(
-              "flex-shrink-0 px-2 py-1.5 rounded-lg border transition-colors",
-              showChecklist 
-                ? "border-lime-500/50 bg-lime-500/10" 
-                : "border-slate-700 bg-slate-800/50 hover:bg-slate-800"
-            )}
+        {/* Menu strumenti a tendina */}
+        <div className="border-b border-slate-800/50">
+          <button
+            onClick={() => setShowToolsMenu(!showToolsMenu)}
+            className="flex items-center gap-2 px-2 py-1.5 w-full hover:bg-slate-800/50 transition-colors"
           >
-            <ListChecks className={cn("w-5 h-5", showChecklist ? "text-lime-400" : "text-slate-400")} />
+            <MoreHorizontal className="w-4 h-4 text-slate-500" />
+            <span className="text-[10px] text-slate-500 font-medium uppercase">Strumenti</span>
+            <ChevronDown className={cn(
+              "w-3 h-3 text-slate-500 ml-auto transition-transform",
+              showToolsMenu && "rotate-180"
+            )} />
           </button>
+          {showToolsMenu && (
+            <div className="flex items-center gap-3 px-2 pb-2">
+              <button 
+                onClick={() => cameraInputRef.current?.click()}
+                className="p-1.5 rounded-lg hover:bg-slate-800 transition-colors"
+              >
+                <Camera className="w-5 h-5 text-slate-400" />
+              </button>
+              <button 
+                onClick={() => fileInputRef.current?.click()}
+                className="p-1.5 rounded-lg hover:bg-slate-800 transition-colors"
+              >
+                <Paperclip className="w-5 h-5 text-slate-400" />
+              </button>
+              <div className="relative flex-shrink-0 flex flex-col items-center gap-0.5 px-2 py-1.5 rounded-lg border border-slate-700 bg-slate-800/50">
+                <div className="flex items-center gap-1.5">
+                  <WhisperDictation 
+                    isDictating={isDictating}
+                    setIsDictating={setIsDictating}
+                    onTranscription={handleWhisperTranscription}
+                  />
+                  <span className="text-[9px] text-slate-500 font-medium">Dettatura</span>
+                </div>
+                {isDictating && (
+                  <span className="text-[8px] text-cyan-400 animate-pulse font-medium">Tocca per stoppare</span>
+                )}
+              </div>
+              <div className="flex-shrink-0 px-2 py-1.5 rounded-lg border border-slate-700 bg-slate-800/50">
+                <AudioRecorder
+                  onAudioSaved={(audioAtt) => {
+                    setAttachments(prev => [...prev, audioAtt]);
+                  }}
+                  onTranscription={(text) => {
+                    setContent(prev => prev ? prev + '\n' + text : text);
+                  }}
+                />
+              </div>
+              <button 
+                onClick={toggleChecklist}
+                className={cn(
+                  "flex-shrink-0 px-2 py-1.5 rounded-lg border transition-colors",
+                  showChecklist 
+                    ? "border-lime-500/50 bg-lime-500/10" 
+                    : "border-slate-700 bg-slate-800/50 hover:bg-slate-800"
+                )}
+              >
+                <ListChecks className={cn("w-5 h-5", showChecklist ? "text-lime-400" : "text-slate-400")} />
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Area testo libero */}
