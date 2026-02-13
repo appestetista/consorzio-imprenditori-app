@@ -190,7 +190,7 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
         )}
       </div>
 
-      {/* Content */}
+      {/* Content - pr-10 per evitare sovrapposizione con bordi */}
       <div className="flex-1 px-3 py-2 overflow-y-auto">
         <input
           type="text"
