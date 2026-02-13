@@ -35,7 +35,17 @@ export default function SimulazioneResult({ result, onNewScenario }) {
 
   return (
     <div className="space-y-4">
-      {/* Riepilogo + Tax Rate Semaforo */}
+      {/* Avvisi */}
+      {result.avvisi?.length > 0 && result.avvisi.map((avviso, i) => (
+        <Card key={i} className="bg-yellow-900/20 border-yellow-600/40">
+          <CardContent className="p-3 flex items-start gap-2">
+            <span className="text-yellow-400 text-sm flex-shrink-0">⚠️</span>
+            <p className="text-yellow-300 text-xs">{avviso}</p>
+          </CardContent>
+        </Card>
+      ))}
+
+      {/* Tax Rate Semaforo */}
       {(() => {
         const taxRate = result.tax_rate_effettivo || 0;
         const semaforoColor = taxRate < 30 ? '#22c55e' : taxRate <= 45 ? '#eab308' : '#ef4444';
@@ -45,7 +55,7 @@ export default function SimulazioneResult({ result, onNewScenario }) {
           <Card className={`bg-[#0a2540] ${semaforoBg} border-2`}>
             <CardContent className="p-4 flex items-center justify-between">
               <div>
-                <p className="text-slate-400 text-xs mb-1">Tax Rate Effettivo</p>
+                <p className="text-slate-400 text-xs mb-1">Tax Rate su Utile</p>
                 <p className="text-white font-bold text-2xl">{taxRate}%</p>
                 <p className="text-xs mt-1" style={{ color: semaforoColor }}>{semaforoLabel}</p>
               </div>
@@ -59,17 +69,12 @@ export default function SimulazioneResult({ result, onNewScenario }) {
         );
       })()}
 
+      {/* KPI principali */}
       <div className="grid grid-cols-2 gap-3">
         <Card className="bg-[#0a2540] border-[#1a3a5c]">
           <CardContent className="p-4 text-center">
             <p className="text-slate-400 text-xs mb-1">Utile</p>
             <p className="text-white font-bold text-lg">{formatEuro(result.utile)}</p>
-          </CardContent>
-        </Card>
-        <Card className="bg-[#0a2540] border-red-900/50">
-          <CardContent className="p-4 text-center">
-            <p className="text-slate-400 text-xs mb-1">Imposte Totali</p>
-            <p className="text-red-400 font-bold text-lg">{formatEuro(result.imposte_totali)}</p>
           </CardContent>
         </Card>
         <Card className="bg-[#0a2540] border-green-900/50">
@@ -78,10 +83,49 @@ export default function SimulazioneResult({ result, onNewScenario }) {
             <p className="text-green-400 font-bold text-lg">{formatEuro(result.netto_finale)}</p>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Tasse separate: societarie / personali / contributi */}
+      <Card className="bg-[#0a2540] border-[#1a3a5c]">
+        <CardContent className="p-4 space-y-2">
+          <p className="text-slate-400 text-xs font-semibold uppercase tracking-wide mb-2">Dettaglio Imposte</p>
+          {(result.tasse_societarie > 0) && (
+            <div className="flex justify-between items-center">
+              <span className="text-slate-300 text-sm">Tasse societarie</span>
+              <span className="text-red-400 font-semibold text-sm">{formatEuro(result.tasse_societarie)}</span>
+            </div>
+          )}
+          {(result.tasse_personali > 0) && (
+            <div className="flex justify-between items-center">
+              <span className="text-slate-300 text-sm">Tasse personali</span>
+              <span className="text-red-400 font-semibold text-sm">{formatEuro(result.tasse_personali)}</span>
+            </div>
+          )}
+          {(result.contributi_pure > 0) && (
+            <div className="flex justify-between items-center">
+              <span className="text-slate-300 text-sm">Contributi INPS</span>
+              <span className="text-yellow-400 font-semibold text-sm">{formatEuro(result.contributi_pure)}</span>
+            </div>
+          )}
+          <div className="border-t border-slate-700 pt-2 flex justify-between items-center">
+            <span className="text-white text-sm font-semibold">Totale</span>
+            <span className="text-red-400 font-bold text-sm">{formatEuro(result.imposte_totali)}</span>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Pressione fiscale doppia */}
+      <div className="grid grid-cols-2 gap-3">
         <Card className="bg-[#0a2540] border-[#1a3a5c]">
           <CardContent className="p-4 text-center">
-            <p className="text-slate-400 text-xs mb-1">Pressione fiscale</p>
+            <p className="text-slate-400 text-xs mb-1">Press. su fatturato</p>
             <p className="text-[#d4af37] font-bold text-lg">{result.pressione_fiscale}%</p>
+          </CardContent>
+        </Card>
+        <Card className="bg-[#0a2540] border-[#1a3a5c]">
+          <CardContent className="p-4 text-center">
+            <p className="text-slate-400 text-xs mb-1">Press. su utile</p>
+            <p className="text-[#d4af37] font-bold text-lg">{result.tax_rate_effettivo}%</p>
           </CardContent>
         </Card>
       </div>
