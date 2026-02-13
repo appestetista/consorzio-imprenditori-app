@@ -4,8 +4,6 @@ import { cn } from '@/lib/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import ChecklistEditor from './ChecklistEditor';
-import AudioRecorder from './AudioRecorder';
-import WhisperDictation from './WhisperDictation';
 import AttachmentViewer from './AttachmentViewer';
 
 export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave, onDelete, inline = false, existingNote = null, onRegisterSave }) {
