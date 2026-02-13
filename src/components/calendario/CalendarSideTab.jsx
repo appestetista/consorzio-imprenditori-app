@@ -253,6 +253,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                 }, 100);
               }}
               monthColor={currentMonthColor}
+              onSelectedTimeChange={setHasSelectedTime}
             />
           </div>
         )}
