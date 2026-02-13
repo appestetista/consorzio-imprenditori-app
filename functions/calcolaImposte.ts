@@ -151,8 +151,43 @@ Deno.serve(async (req) => {
         dettaglioIrpef.push(`Scaglione 3 (${(scaglione3 * 100).toFixed(0)}% oltre €${soglia2.toLocaleString('it-IT')}): €${eccedenza.toLocaleString('it-IT')} × ${scaglione3} = €${parte3.toLocaleString('it-IT')}`);
       }
 
-      imposte_totali = irpef;
-      netto_finale = Math.round((reddito_imponibile - irpef) * 100) / 100;
+      // ---- CONTRIBUTI INPS (Artigiani / Commercianti) ----
+      let contributi_totali = 0;
+      let contributo_fisso = 0;
+      let contributo_variabile = 0;
+      const dettaglioInps = [];
+
+      if (gestione_inps === 'Artigiani' || gestione_inps === 'Commercianti') {
+        const inpsRecords = await base44.asServiceRole.entities.ContributiINPS.filter({ anno: anno, gestione: gestione_inps });
+        if (inpsRecords.length > 0) {
+          const inps = inpsRecords[0];
+          contributo_fisso = Math.round((inps.contributo_fisso_annuo || 0) * 100) / 100;
+          const minimale = inps.minimale_annuo || 0;
+          const aliqInps = inps.aliquota_percentuale || 0;
+          const massimale = inps.massimale_reddito || Infinity;
+
+          // Reddito su cui calcolare la parte variabile (cap al massimale)
+          const redditoInps = Math.min(reddito_imponibile, massimale);
+
+          if (redditoInps > minimale) {
+            contributo_variabile = Math.round((redditoInps - minimale) * aliqInps * 100) / 100;
+          }
+
+          contributi_totali = Math.round((contributo_fisso + contributo_variabile) * 100) / 100;
+
+          dettaglioInps.push(`CONTRIBUTI INPS - Gestione ${gestione_inps}`);
+          dettaglioInps.push(`Contributo fisso annuo (sul minimale €${minimale.toLocaleString('it-IT')}): €${contributo_fisso.toLocaleString('it-IT')}`);
+          if (redditoInps > minimale) {
+            dettaglioInps.push(`Contributo variabile: (€${redditoInps.toLocaleString('it-IT')} - €${minimale.toLocaleString('it-IT')}) × ${(aliqInps * 100).toFixed(2)}% = €${contributo_variabile.toLocaleString('it-IT')}`);
+          } else {
+            dettaglioInps.push(`Contributo variabile: €0 (reddito ≤ minimale)`);
+          }
+          dettaglioInps.push(`Contributi INPS totali: €${contributi_totali.toLocaleString('it-IT')}`);
+        }
+      }
+
+      imposte_totali = Math.round((irpef + contributi_totali) * 100) / 100;
+      netto_finale = Math.round((reddito_imponibile - irpef - contributi_totali) * 100) / 100;
 
       dettaglio.push(`REGIME: DITTA INDIVIDUALE ORDINARIA`);
       dettaglio.push(`Fatturato: €${fatturato.toLocaleString('it-IT')}`);
@@ -162,8 +197,12 @@ Deno.serve(async (req) => {
       dettaglio.push(`IRPEF PROGRESSIVA:`);
       dettaglioIrpef.forEach(d => dettaglio.push(d));
       dettaglio.push(`IRPEF totale: €${irpef.toLocaleString('it-IT')}`);
+      if (dettaglioInps.length > 0) {
+        dettaglio.push(`---`);
+        dettaglioInps.forEach(d => dettaglio.push(d));
+      }
       dettaglio.push(`---`);
-      dettaglio.push(`IMPOSTE TOTALI: €${imposte_totali.toLocaleString('it-IT')}`);
+      dettaglio.push(`IMPOSTE + CONTRIBUTI TOTALI: €${imposte_totali.toLocaleString('it-IT')}`);
       dettaglio.push(`NETTO FINALE: €${netto_finale.toLocaleString('it-IT')}`);
     } else {
       return Response.json({ error: `Regime "${regime}" non supportato` }, { status: 400 });
