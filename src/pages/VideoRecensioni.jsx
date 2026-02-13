@@ -287,23 +287,23 @@ NOTE: ${formData.notes || 'Nessuna'}
                 </button>
 
                 {/* Abbonamento */}
-                <button
-                  onClick={() => setSelectedPlan('abbonamento')}
-                  className="w-full text-left bg-[#0a2540] border-2 border-[#d4af37]/40 rounded-xl p-4 hover:border-[#d4af37] transition-colors relative overflow-hidden"
-                >
-                  <div className="absolute top-0 right-0 bg-[#d4af37] text-slate-900 text-[10px] font-bold px-2 py-0.5 rounded-bl">
-                    CONVENIENTE
-                  </div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-white font-bold text-base">📦 Abbonamento Mensile</span>
-                    <span className="text-[#d4af37] font-bold text-lg">€ 100<span className="text-sm font-normal">/mese</span></span>
-                  </div>
-                  <p className="text-slate-400 text-sm">+ IVA — 1 video recensione al mese inclusa nell'abbonamento</p>
+                {(() => {
+                  const abbRequests = myRequests.filter(r => r.plan_type === 'abbonamento');
+                  const hasAbbonamento = abbRequests.length > 0 || abbonamentoAttivato;
+                  const completedAbbonamento = abbRequests.length;
 
-                  {/* Barra progresso 12 video */}
-                  {(() => {
-                    const completedAbbonamento = myRequests.filter(r => r.plan_type === 'abbonamento').length;
-                    return (
+                  return (
+                    <div className="w-full text-left bg-[#0a2540] border-2 border-[#d4af37]/40 rounded-xl p-4 relative overflow-hidden">
+                      <div className="absolute top-0 right-0 bg-[#d4af37] text-slate-900 text-[10px] font-bold px-2 py-0.5 rounded-bl">
+                        CONVENIENTE
+                      </div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-white font-bold text-base">📦 Abbonamento Mensile</span>
+                        <span className="text-[#d4af37] font-bold text-lg">€ 100<span className="text-sm font-normal">/mese</span></span>
+                      </div>
+                      <p className="text-slate-400 text-sm">+ IVA — 1 video recensione al mese inclusa nell'abbonamento</p>
+
+                      {/* Barra progresso 12 video */}
                       <div className="mt-3 pt-3 border-t border-slate-700/50">
                         <div className="flex items-center justify-between mb-1.5">
                           <span className="text-slate-400 text-xs">Video utilizzati</span>
@@ -323,9 +323,45 @@ NOTE: ${formData.notes || 'Nessuna'}
                         </div>
                         <p className="text-slate-500 text-[10px] mt-1 text-center">12 video inclusi nell'abbonamento annuale</p>
                       </div>
-                    );
-                  })()}
-                </button>
+
+                      {/* Pulsanti azione abbonamento */}
+                      <div className="mt-3 flex gap-2">
+                        {!hasAbbonamento ? (
+                          <button
+                            onClick={() => setAbbonamentoAttivato(true)}
+                            className="flex-1 h-10 rounded-xl text-slate-900 font-bold text-sm transition-all hover:brightness-110 active:scale-[0.98]"
+                            style={{
+                              background: 'linear-gradient(to bottom, #f7d774 0%, #e6b93d 35%, #c6921b 60%, #9e6f0f 100%)',
+                              boxShadow: 'inset 0 2px 3px rgba(255,255,255,0.5), inset 0 -4px 6px rgba(0,0,0,0.35), 0 6px 14px rgba(0,0,0,0.5)'
+                            }}
+                          >
+                            Attiva Abbonamento
+                          </button>
+                        ) : (
+                          <>
+                            {completedAbbonamento < 12 && (
+                              <button
+                                onClick={() => setSelectedPlan('abbonamento')}
+                                className="flex-1 h-10 rounded-xl text-slate-900 font-bold text-sm transition-all hover:brightness-110 active:scale-[0.98]"
+                                style={{
+                                  background: 'linear-gradient(to bottom, #f7d774 0%, #e6b93d 35%, #c6921b 60%, #9e6f0f 100%)',
+                                  boxShadow: 'inset 0 2px 3px rgba(255,255,255,0.5), inset 0 -4px 6px rgba(0,0,0,0.35), 0 6px 14px rgba(0,0,0,0.5)'
+                                }}
+                              >
+                                Richiedi Video {completedAbbonamento + 1}/12
+                              </button>
+                            )}
+                            {completedAbbonamento >= 12 && (
+                              <div className="flex-1 h-10 rounded-xl bg-green-500/20 border border-green-500/30 flex items-center justify-center">
+                                <span className="text-green-400 font-bold text-sm">✅ Abbonamento completato</span>
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
             )}
 
