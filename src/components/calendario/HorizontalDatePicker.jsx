@@ -749,20 +749,19 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                   {DAYS_FULL[dayData.dayOfWeek]}
                 </span>
 
-                {/* Numero del giorno - grande con cerchio */}
+                {/* Numero del giorno */}
                 <div className={cn(
                   "flex items-center justify-center w-9 h-9 rounded-full transition-all",
-                  dayData.isToday && "border-2 animate-pulse",
-                  dayData.isSelected && !dayData.isToday && "bg-white/10"
+                  dayData.isSelected && "border-2"
                 )}
                 style={{
-                  borderColor: dayData.isToday ? monthData.color : 'transparent'
+                  borderColor: dayData.isSelected ? monthData.color : 'transparent'
                 }}
                 >
                   <span 
                     className={cn(
                       "text-lg font-bold leading-none",
-                      dayData.isToday && "animate-pulse"
+                      dayData.isToday && !dayData.isSelected && "animate-pulse"
                     )}
                     style={{ 
                       color: dayData.isSelected ? monthData.color : '#ffffff'
