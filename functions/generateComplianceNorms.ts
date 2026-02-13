@@ -15,64 +15,58 @@ Deno.serve(async (req) => {
 
     const { codice_ateco, tipo_attivita, tipo_attivita_categoria, numero_dipendenti, superficie_mq, data_attivazione, rischi } = await req.json();
 
-    if (!tipo_attivita || !codice_ateco) {
-      return Response.json({ error: 'Tipo attività e codice ATECO sono obbligatori' }, { status: 400 });
+    if (!codice_ateco) {
+      return Response.json({ error: 'Codice ATECO obbligatorio' }, { status: 400 });
     }
 
     const dataBase = data_attivazione || new Date().toISOString().split('T')[0];
     const currentYear = new Date().getFullYear();
 
-    // Costruisci il prompt dettagliato per GPT
     const rischiAttivi = rischi ? Object.entries(rischi)
       .filter(([key, val]) => val === true && key !== 'lavoratori')
       .map(([key]) => key.replace(/_/g, ' '))
       .join(', ') : 'nessuno dichiarato';
 
-    const prompt = `Sei un esperto di compliance aziendale italiana, aggiornato al ${currentYear}. 
-Devi generare la lista COMPLETA di TUTTI gli adempimenti obbligatori per legge per un'azienda con queste caratteristiche:
+    const prompt = `Sei un consulente esperto di compliance aziendale italiana, aggiornato al ${currentYear}.
+
+Devi generare la lista COMPLETA e ESAUSTIVA di TUTTI gli adempimenti normativi obbligatori per un'azienda italiana con queste caratteristiche:
 
 CODICE ATECO: ${codice_ateco}
-TIPO ATTIVITÀ: ${tipo_attivita}
-CATEGORIA: ${tipo_attivita_categoria || 'non specificata'}
+TIPO ATTIVITÀ: ${tipo_attivita || 'da determinare in base al codice ATECO'}
+CATEGORIA ATTIVITÀ: ${tipo_attivita_categoria || 'non specificata'}
 NUMERO DIPENDENTI: ${numero_dipendenti || 'non specificato'}
 SUPERFICIE MQ: ${superficie_mq || 'non specificata'}
 DATA INIZIO ATTIVITÀ: ${dataBase}
+RISCHI DICHIARATI: Lavoratori: ${rischi?.lavoratori !== false ? 'SÌ' : 'NO'}, Specifici: ${rischiAttivi || 'nessuno'}
 
-RISCHI DICHIARATI DALL'AZIENDA:
-- Presenza lavoratori: ${rischi?.lavoratori !== false ? 'SÌ' : 'NO'}
-- Rischi specifici attivi: ${rischiAttivi || 'nessuno'}
+ISTRUZIONI:
+1. Analizza il codice ATECO e determina TUTTI gli obblighi normativi specifici per quel settore
+2. Includi SEMPRE gli adempimenti di: Sicurezza sul lavoro (D.Lgs. 81/08), Privacy e GDPR (Reg. UE 2016/679), Ambientale (D.Lgs. 152/06), Antincendio, Formazione obbligatoria
+3. Se il settore è alimentare: includi HACCP, registrazione OSA, formazione alimentaristi
+4. Se il settore è edilizia: includi POS, notifica cantiere, formazione ponteggi
+5. Includi adempimenti specifici per i rischi dichiarati (rumore, vibrazioni, chimico, ecc.)
+6. Per OGNI adempimento fornisci il RIFERIMENTO NORMATIVO ESATTO (articolo e decreto/legge)
+7. Per OGNI adempimento fornisci la SANZIONE ESATTA prevista dalla legge italiana
+8. frequenza_rinnovo_mesi = 0 se il documento non ha scadenza periodica, altrimenti il numero di mesi
+9. priorita: "alta" per obblighi con sanzioni penali, "media" per sanzioni amministrative, "bassa" per raccomandati
+10. NON inventare adempimenti inesistenti. Solo obblighi reali della normativa italiana vigente.
+11. Sii ESAUSTIVO: meglio uno in più che uno in meno.
 
-ISTRUZIONI CRITICHE:
-1. Genera TUTTI gli adempimenti obbligatori per questo specifico codice ATECO e tipo di attività
-2. Includi SEMPRE: sicurezza sul lavoro, privacy/GDPR, ambientale, antincendio, formazione obbligatoria, igiene/sanità (se applicabile), fiscale (se applicabile)
-3. Per ogni adempimento indica il RIFERIMENTO NORMATIVO ESATTO (articolo, decreto, legge)
-4. Per ogni adempimento indica la SANZIONE ESATTA prevista dalla legge
-5. Se il codice ATECO è del settore alimentare (10.xx, 11.xx, 47.2x, 55.xx, 56.xx), includi HACCP e tutti gli adempimenti igienico-sanitari
-6. Se il codice ATECO è del settore edilizia (41.xx, 42.xx, 43.xx), includi POS, notifica preliminare, formazione ponteggi
-7. Includi gli adempimenti legati ai rischi specifici dichiarati
-8. La frequenza_rinnovo_mesi deve essere 0 se il documento non ha scadenza periodica
-9. La data_scadenza va calcolata a partire dalla data di inizio attività (${dataBase}) + i mesi di frequenza_rinnovo_mesi. Se frequenza_rinnovo_mesi è 0, data_scadenza deve essere null
-10. NON INVENTARE adempimenti. Cita solo obblighi reali previsti dalla normativa italiana vigente.
-11. Sii ESAUSTIVO: è meglio includere un adempimento in più che dimenticarne uno obbligatorio.
+Le categorie ammesse sono SOLO: "Sicurezza sul lavoro", "Privacy e GDPR", "Ambientale", "Fiscale", "Igiene e Sanità", "Antincendio", "Formazione obbligatoria", "Altro"
 
-Le categorie ammesse sono SOLO queste: "Sicurezza sul lavoro", "Privacy e GDPR", "Ambientale", "Fiscale", "Igiene e Sanità", "Antincendio", "Formazione obbligatoria", "Altro"
-
-Restituisci un JSON con la lista di adempimenti.`;
+Rispondi con un JSON con chiave "adempimenti" contenente un array di oggetti, ciascuno con: nome, descrizione, categoria, frequenza_rinnovo_mesi, sanzione_prevista, priorita`;
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
         {
           role: "system",
-          content: "Sei un consulente di compliance aziendale italiano esperto. Rispondi SOLO in formato JSON valido. Non aggiungere commenti o testo fuori dal JSON."
+          content: "Sei un consulente di compliance aziendale italiano. Rispondi SOLO in formato JSON valido con la chiave 'adempimenti'. Non aggiungere testo fuori dal JSON."
         },
-        {
-          role: "user",
-          content: prompt
-        }
+        { role: "user", content: prompt }
       ],
       response_format: { type: "json_object" },
-      temperature: 0.2,
+      temperature: 0.1,
     });
 
     const content = response.choices[0].message.content;
@@ -83,10 +77,9 @@ Restituisci un JSON con la lista di adempimenti.`;
       return Response.json({ error: 'Errore parsing risposta AI', raw: content }, { status: 500 });
     }
 
-    // Normalizza: il risultato potrebbe essere { adempimenti: [...] } o { lista: [...] } o direttamente [...]
+    // Trova l'array di adempimenti nel JSON
     let adempimenti = parsed.adempimenti || parsed.lista || parsed.norms || parsed.items || parsed.obblighi || [];
     if (!Array.isArray(adempimenti)) {
-      // Prova a trovare il primo array nel JSON
       for (const key of Object.keys(parsed)) {
         if (Array.isArray(parsed[key])) {
           adempimenti = parsed[key];
@@ -96,37 +89,30 @@ Restituisci un JSON con la lista di adempimenti.`;
     }
 
     if (!Array.isArray(adempimenti) || adempimenti.length === 0) {
-      return Response.json({ error: 'Nessun adempimento generato dall\'AI', raw: parsed }, { status: 500 });
+      return Response.json({ error: 'Nessun adempimento generato', raw: parsed }, { status: 500 });
     }
 
     const validCategorie = ["Sicurezza sul lavoro", "Privacy e GDPR", "Ambientale", "Fiscale", "Igiene e Sanità", "Antincendio", "Formazione obbligatoria", "Altro"];
 
-    // Normalizza e calcola date scadenza
     const normalizedAdempimenti = adempimenti.map(a => {
-      // Normalizza categoria
       let categoria = a.categoria || 'Altro';
       const categoriaLower = categoria.toLowerCase().trim();
-      const matchedCategoria = validCategorie.find(c => c.toLowerCase() === categoriaLower);
-      if (matchedCategoria) {
-        categoria = matchedCategoria;
+      const matched = validCategorie.find(c => c.toLowerCase() === categoriaLower);
+      if (matched) {
+        categoria = matched;
       } else {
-        const partialMatch = validCategorie.find(c =>
+        const partial = validCategorie.find(c =>
           categoriaLower.includes(c.toLowerCase()) || c.toLowerCase().includes(categoriaLower)
         );
-        categoria = partialMatch || 'Altro';
+        categoria = partial || 'Altro';
       }
 
-      // Calcola data scadenza
       const frequenza = parseInt(a.frequenza_rinnovo_mesi) || 0;
       let dataScadenza = null;
       if (frequenza > 0) {
         const data = new Date(dataBase);
         data.setMonth(data.getMonth() + frequenza);
         dataScadenza = data.toISOString().split('T')[0];
-      }
-      // Se l'AI ha fornito una data_scadenza specifica, usa quella
-      if (a.data_scadenza && a.data_scadenza !== 'null' && a.data_scadenza !== '') {
-        dataScadenza = a.data_scadenza;
       }
 
       return {
@@ -140,10 +126,10 @@ Restituisci un JSON con la lista di adempimenti.`;
       };
     });
 
-    return Response.json({ 
-      success: true, 
+    return Response.json({
+      success: true,
       adempimenti: normalizedAdempimenti,
-      count: normalizedAdempimenti.length 
+      count: normalizedAdempimenti.length
     });
 
   } catch (error) {
