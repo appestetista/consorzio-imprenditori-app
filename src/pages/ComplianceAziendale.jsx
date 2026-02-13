@@ -1792,7 +1792,7 @@ VERIFICA:
                                                             ) : (
                       <Button
                         onClick={handleCreateBranch}
-                        disabled={!newBranch.nome.trim() || !newBranch.tipo_attivita.trim() || !newBranch.data_attivazione || branches.length >= 5}
+                        disabled={!newBranch.nome.trim() || !newBranch.tipo_attivita.trim() || !newBranch.codice_ateco.trim() || !newBranch.data_attivazione || branches.length >= 5}
                         className="w-full bg-lime-400 text-slate-900 hover:bg-lime-500"
                       >
                         <Plus className="w-4 h-4 mr-2" />
