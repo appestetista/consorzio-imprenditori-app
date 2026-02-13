@@ -27,7 +27,15 @@ Deno.serve(async (req) => {
       .map(([key]) => key.replace(/_/g, ' '))
       .join(', ') : 'nessuno dichiarato';
 
-    const prompt = `Sei un consulente esperto di compliance aziendale italiana, aggiornato al ${currentYear}.
+    const prompt = `Sei un consulente esperto di compliance aziendale italiana.
+
+REGOLE FONDAMENTALI CHE DEVI RISPETTARE TASSATIVAMENTE:
+- Rispondi ESCLUSIVAMENTE basandoti sulla normativa italiana VIGENTE e IN VIGORE al ${currentYear}. Non fare riferimento a norme abrogate, scadute o non ancora in vigore.
+- NON INVENTARE MAI nomi di leggi, articoli, decreti, importi di sanzioni o obblighi che non esistono realmente nella legislazione italiana.
+- Se non sei sicuro al 100% dell'esistenza di un obbligo o del riferimento normativo esatto, NON includerlo. È meglio omettere un adempimento dubbio che inventarne uno falso.
+- Cita SOLO articoli e commi che esistono realmente nei testi normativi italiani (D.Lgs. 81/08, D.Lgs. 196/03 e Reg. UE 2016/679, D.Lgs. 152/06, ecc.).
+- Gli importi delle sanzioni devono corrispondere a quelli REALI e AGGIORNATI della normativa vigente, non a importi inventati o approssimati.
+- NON generalizzare: ogni adempimento deve essere specifico e verificabile su un testo di legge reale.
 
 Devi generare la lista COMPLETA e ESAUSTIVA di TUTTI gli adempimenti normativi obbligatori per un'azienda italiana con queste caratteristiche:
 
