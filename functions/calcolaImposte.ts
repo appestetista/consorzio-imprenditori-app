@@ -43,6 +43,8 @@ Deno.serve(async (req) => {
     let reddito_imponibile = 0;
     let imposte_totali = 0;
     let netto_finale = 0;
+    let imposte_pure = 0;   // solo imposte (IRES, IRAP, IRPEF, sostitutiva, dividendi)
+    let contributi_pure = 0; // solo contributi INPS
     const dettaglio = [];
 
     // ===================== SRL =====================
@@ -157,6 +159,8 @@ Deno.serve(async (req) => {
       const tasse_societa = Math.round((ires + irap) * 100) / 100;
       const tasse_personali = Math.round((irpef_amministratore + imposta_dividendi) * 100) / 100;
       imposte_totali = Math.round((tasse_societa + tasse_personali + contributi_amministratore) * 100) / 100;
+      imposte_pure = Math.round((tasse_societa + tasse_personali) * 100) / 100;
+      contributi_pure = Math.round(contributi_amministratore * 100) / 100;
 
       // Netto combinato = utile netto società (o dividendi netti se distribuiti) + netto amministratore
       if (distribuzione_dividendi) {
@@ -206,6 +210,8 @@ Deno.serve(async (req) => {
       }
 
       imposte_totali = Math.round((imposta + contributi_inps) * 100) / 100;
+      imposte_pure = Math.round(imposta * 100) / 100;
+      contributi_pure = Math.round(contributi_inps * 100) / 100;
       netto_finale = Math.round((fatturato - imposta - contributi_inps) * 100) / 100;
 
       dettaglio.push(`REGIME: FORFETTARIO (${aliquota_forfettario === 'startup' ? 'Startup 5%' : 'Ordinario 15%'})`);
@@ -299,6 +305,8 @@ Deno.serve(async (req) => {
       }
 
       imposte_totali = Math.round((irpef + contributi_totali) * 100) / 100;
+      imposte_pure = Math.round(irpef * 100) / 100;
+      contributi_pure = Math.round(contributi_totali * 100) / 100;
       netto_finale = Math.round((reddito_imponibile - irpef - contributi_totali) * 100) / 100;
 
       dettaglio.push(`REGIME: DITTA INDIVIDUALE ORDINARIA`);
@@ -343,14 +351,20 @@ Deno.serve(async (req) => {
       dettaglio_calcolo: dettaglio.join('\n')
     });
 
+    // Tax Rate Effettivo = imposte_totali / utile
+    const tax_rate_effettivo = utile > 0 ? Math.round((imposte_totali / utile) * 10000) / 100 : 0;
+
     return Response.json({
       success: true,
       simulazione_id: simulazione.id,
       utile: Math.round(utile * 100) / 100,
       reddito_imponibile: Math.round(reddito_imponibile * 100) / 100,
       imposte_totali: Math.round(imposte_totali * 100) / 100,
+      imposte_pure: Math.round(imposte_pure * 100) / 100,
+      contributi_pure: Math.round(contributi_pure * 100) / 100,
       netto_finale: Math.round(netto_finale * 100) / 100,
       pressione_fiscale,
+      tax_rate_effettivo,
       dettaglio_calcolo: dettaglio.join('\n')
     });
 
