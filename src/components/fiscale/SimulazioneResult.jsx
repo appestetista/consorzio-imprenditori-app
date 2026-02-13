@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { TrendingDown, Lightbulb, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import ReactMarkdown from 'react-markdown';
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from 'recharts';
 
 export default function SimulazioneResult({ result, onNewScenario }) {
   const [analisiLoading, setAnalisiLoading] = useState(false);
@@ -34,7 +35,30 @@ export default function SimulazioneResult({ result, onNewScenario }) {
 
   return (
     <div className="space-y-4">
-      {/* Riepilogo */}
+      {/* Riepilogo + Tax Rate Semaforo */}
+      {(() => {
+        const taxRate = result.tax_rate_effettivo || 0;
+        const semaforoColor = taxRate < 30 ? '#22c55e' : taxRate <= 45 ? '#eab308' : '#ef4444';
+        const semaforoLabel = taxRate < 30 ? 'Efficiente' : taxRate <= 45 ? 'Attenzione' : 'Critico';
+        const semaforoBg = taxRate < 30 ? 'border-green-500/50' : taxRate <= 45 ? 'border-yellow-500/50' : 'border-red-500/50';
+        return (
+          <Card className={`bg-[#0a2540] ${semaforoBg} border-2`}>
+            <CardContent className="p-4 flex items-center justify-between">
+              <div>
+                <p className="text-slate-400 text-xs mb-1">Tax Rate Effettivo</p>
+                <p className="text-white font-bold text-2xl">{taxRate}%</p>
+                <p className="text-xs mt-1" style={{ color: semaforoColor }}>{semaforoLabel}</p>
+              </div>
+              <div className="flex flex-col items-center gap-1.5">
+                <div className={`w-5 h-5 rounded-full ${taxRate > 45 ? 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.6)]' : 'bg-red-900/40'}`} />
+                <div className={`w-5 h-5 rounded-full ${taxRate >= 30 && taxRate <= 45 ? 'bg-yellow-400 shadow-[0_0_10px_rgba(234,179,8,0.6)]' : 'bg-yellow-900/40'}`} />
+                <div className={`w-5 h-5 rounded-full ${taxRate < 30 ? 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.6)]' : 'bg-green-900/40'}`} />
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })()}
+
       <div className="grid grid-cols-2 gap-3">
         <Card className="bg-[#0a2540] border-[#1a3a5c]">
           <CardContent className="p-4 text-center">
@@ -62,29 +86,57 @@ export default function SimulazioneResult({ result, onNewScenario }) {
         </Card>
       </div>
 
-      {/* Barra visuale */}
-      <Card className="bg-[#0a2540] border-[#1a3a5c]">
-        <CardContent className="p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <TrendingDown className="w-4 h-4 text-slate-400" />
-            <span className="text-slate-400 text-xs">Ripartizione</span>
-          </div>
-          <div className="w-full h-6 rounded-full overflow-hidden flex bg-slate-800">
-            <div
-              className="h-full bg-green-500 transition-all"
-              style={{ width: `${((result.netto_finale / (result.netto_finale + result.imposte_totali)) * 100).toFixed(1)}%` }}
-            />
-            <div
-              className="h-full bg-red-500 transition-all"
-              style={{ width: `${((result.imposte_totali / (result.netto_finale + result.imposte_totali)) * 100).toFixed(1)}%` }}
-            />
-          </div>
-          <div className="flex justify-between mt-1">
-            <span className="text-green-400 text-xs">Netto {((result.netto_finale / (result.netto_finale + result.imposte_totali)) * 100).toFixed(1)}%</span>
-            <span className="text-red-400 text-xs">Imposte {((result.imposte_totali / (result.netto_finale + result.imposte_totali)) * 100).toFixed(1)}%</span>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Grafico Torta Distribuzione */}
+      {(() => {
+        const imposte = result.imposte_pure || 0;
+        const contributi = result.contributi_pure || 0;
+        const netto = result.netto_finale || 0;
+        const totale = imposte + contributi + netto;
+        if (totale <= 0) return null;
+        const data = [
+          { name: 'Imposte', value: imposte, color: '#ef4444' },
+          { name: 'Contributi', value: contributi, color: '#f59e0b' },
+          { name: 'Netto', value: netto, color: '#22c55e' },
+        ].filter(d => d.value > 0);
+
+        const renderLabel = ({ name, percent }) => `${(percent * 100).toFixed(1)}%`;
+
+        return (
+          <Card className="bg-[#0a2540] border-[#1a3a5c]">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <TrendingDown className="w-4 h-4 text-slate-400" />
+                <span className="text-slate-400 text-xs">Distribuzione</span>
+              </div>
+              <ResponsiveContainer width="100%" height={220}>
+                <PieChart>
+                  <Pie
+                    data={data}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={50}
+                    outerRadius={80}
+                    paddingAngle={3}
+                    dataKey="value"
+                    label={renderLabel}
+                    stroke="none"
+                  >
+                    {data.map((entry, i) => (
+                      <Cell key={i} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Legend
+                    formatter={(value, entry) => {
+                      const item = data.find(d => d.name === value);
+                      return <span style={{ color: '#94a3b8', fontSize: 12 }}>{value}: {formatEuro(item?.value || 0)}</span>;
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        );
+      })()}
 
       {/* Dettaglio calcolo */}
       <Card className="bg-[#0a2540] border-[#1a3a5c]">
