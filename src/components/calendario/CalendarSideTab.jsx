@@ -434,6 +434,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                     onSlotClick={handleWeekSlotClick}
                     onMonthChange={(month) => setWeekViewMonth(month)}
                     onRegisterMonthSelect={(fn) => { weekViewMonthSelectRef.current = fn; }}
+                    allMonthNotes={allUserNotes}
                     onBackToDaily={() => {
                       const targetDate = selectedDate 
                         ? new Date(selectedDate) 
