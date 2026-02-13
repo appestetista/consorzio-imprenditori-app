@@ -32,17 +32,16 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   const [userEmail, setUserEmail] = useState(null);
   // viewDate è la data di riferimento per la settimana visualizzata
   const [viewDate, setViewDate] = useState(() => selectedDate ? new Date(selectedDate) : new Date());
-  const [dragX, setDragX] = useState(0);
-  const [animating, setAnimating] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState(null);
-  const [highlightedDay, setHighlightedDay] = useState(null); // { day, month, year } — unico giorno con bordo arancione
-  const [openDropdownDay, setOpenDropdownDay] = useState(null); // indice giorno settimana con dropdown aperto
-  const [strikethroughItems, setStrikethroughItems] = useState({}); // { "dateKey-time-idx": true }
-    const [daySummaryDate, setDaySummaryDate] = useState(null); // dateKey del giorno da mostrare nel popup
+  const [highlightedDay, setHighlightedDay] = useState(null);
+  const [openDropdownDay, setOpenDropdownDay] = useState(null);
+  const [strikethroughItems, setStrikethroughItems] = useState({});
+  const [daySummaryDate, setDaySummaryDate] = useState(null);
   
   const scrollRef = useRef(null);
   const daysBarRef = useRef(null);
-  const daysBarTouchRef = useRef({ startX: 0, startScrollLeft: 0 });
+  const weekGridRef = useRef(null); // scroll orizzontale continuo per settimane
+  const isSyncingRef = useRef(false);
   const touchRef = useRef({ startX:0, startY:0, lastX:0, lastY:0, lastTime:0, velScroll:0, scrollTop0:0, dir:null, animFrame:null });
 
 
