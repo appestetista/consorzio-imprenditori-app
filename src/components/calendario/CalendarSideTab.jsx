@@ -312,12 +312,8 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                 setIsOpen(false);
                 setShowTimePicker(false);
               }}
-              onToggleDayView={() => {
-                // Già nella vista giornaliera - assicura che il timepicker sia aperto
-                if (!showTimePicker) {
-                  setShowTimePicker(true);
-                }
-              }}
+              hasSelectedTime={hasSelectedTime}
+              onOpenTools={() => setShowToolsPopup(true)}
             />
         </div>
 
