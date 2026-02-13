@@ -69,6 +69,11 @@ export default function VideoRecensioni() {
 
   const submitMutation = useMutation({
     mutationFn: async () => {
+      // Calcola numero video abbonamento prima di creare
+      const abbonamentoCount = selectedPlan === 'abbonamento' 
+        ? myRequests.filter(r => r.plan_type === 'abbonamento').length + 1
+        : null;
+
       const request = await base44.entities.VideoReviewRequest.create({
         requester_email: effectiveUser.email,
         requester_company: effectiveUser.company_name || effectiveUser.full_name,
@@ -95,19 +100,24 @@ export default function VideoRecensioni() {
               is_read: false
             });
           }
+
+          const pianoLabel = selectedPlan === 'abbonamento' 
+            ? `Abbonamento mensile (€100/mese) — Video n° ${abbonamentoCount} di 12` 
+            : 'Singolo filmato (€200)';
+
           await base44.integrations.Core.SendEmail({
             from_name: 'Piattaforma Consorzio',
             to: 'consorzioimprenditori@gmail.com',
-            subject: `Richiesta Video Recensione - ${effectiveUser.company_name || effectiveUser.full_name}`,
+            subject: `Richiesta Video Recensione - ${effectiveUser.company_name || effectiveUser.full_name}${selectedPlan === 'abbonamento' ? ` [Video ${abbonamentoCount}/12]` : ''}`,
             body: `
 Nuova richiesta di video recensione:
 
-AZIENDA RICHIEDENTE: ${effectiveUser.company_name || 'N/A'}
+AZIENDA COMMITTENTE: ${effectiveUser.company_name || 'N/A'}
 REFERENTE: ${effectiveUser.full_name || 'N/A'}
 EMAIL: ${effectiveUser.email}
-PIANO: ${selectedPlan === 'abbonamento' ? 'Abbonamento mensile (€100/mese)' : 'Singolo filmato (€200)'}
+PIANO: ${pianoLabel}
 
-DATI CLIENTE DA INTERVISTARE:
+DATI CLIENTE DA RECENSIRE:
 Nome: ${formData.client_name}
 Telefono: ${formData.client_phone}
 Email: ${formData.client_email || 'N/A'}
