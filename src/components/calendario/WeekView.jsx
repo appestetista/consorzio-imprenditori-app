@@ -252,7 +252,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
           });
 
           return (
-            <div className="flex-shrink-0 flex items-center px-0.5 py-1 border-b border-slate-700/30">
+            <div className="flex-shrink-0 flex items-center py-1 border-b border-slate-700/30" style={{ paddingLeft: '72px', paddingRight: '2px' }}>
               {Array.from({ length: daysInMonth }, (_, i) => {
                 const dayNum = i + 1;
                 const dayDate = new Date(refYear, refMonth, dayNum);
