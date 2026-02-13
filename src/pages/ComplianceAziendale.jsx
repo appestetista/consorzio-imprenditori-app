@@ -1514,12 +1514,16 @@ VERIFICA:
                 />
                 
                 <div className="grid grid-cols-2 gap-2">
-                  <Input
-                    value={newBranch.codice_ateco}
-                    onChange={(e) => setNewBranch({...newBranch, codice_ateco: e.target.value})}
-                    className="bg-slate-900 border-slate-700 text-white"
-                    placeholder="Codice ATECO"
-                  />
+                  <div>
+                    <Input
+                      value={newBranch.codice_ateco}
+                      onChange={(e) => setNewBranch({...newBranch, codice_ateco: e.target.value})}
+                      className="bg-slate-900 border-slate-700 text-white"
+                      placeholder="Codice ATECO *"
+                      required
+                    />
+                    <p className="text-slate-500 text-[10px] mt-0.5">Es: 56.10, 43.21, 25.11</p>
+                  </div>
                   <Input
                     type="number"
                     value={newBranch.numero_dipendenti}
