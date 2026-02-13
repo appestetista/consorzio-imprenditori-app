@@ -202,13 +202,51 @@ Deno.serve(async (req) => {
       };
     }
 
+    // ===== ANALISI INVESTIMENTO BENI (se valorizzato) =====
+    let analisi_investimento = null;
+
+    if (investBeni > 0) {
+      const costiConInvest = costiDed + investBeni;
+
+      const srl_senza = calcolaSRL(costiDed);
+      const srl_con = calcolaSRL(costiConInvest);
+
+      const forf_senza = calcolaForfettario();
+      const forf_con = calcolaForfettario(); // invariato
+
+      const ditta_senza = calcolaDittaOrdinaria(costiDed);
+      const ditta_con = calcolaDittaOrdinaria(costiConInvest);
+
+      const buildAnalisiInvest = (label, senza, con, deducibile) => {
+        const risparmio_fiscale = Math.round((senza.imposte_totali - con.imposte_totali) * 100) / 100;
+        const costo_reale_investimento = Math.round((investBeni - risparmio_fiscale) * 100) / 100;
+        return {
+          regime: label,
+          imposte_senza_invest: senza.imposte_totali,
+          imposte_con_invest: con.imposte_totali,
+          risparmio_fiscale,
+          costo_reale_investimento
+        };
+      };
+
+      analisi_investimento = {
+        investimento_beni: investBeni,
+        dettaglio: [
+          buildAnalisiInvest('SRL', srl_senza, srl_con, true),
+          buildAnalisiInvest('Forfettario', forf_senza, forf_con, false),
+          buildAnalisiInvest('Ditta Ordinaria', ditta_senza, ditta_con, true)
+        ]
+      };
+    }
+
     return Response.json({
       success: true,
       fatturato,
       costi_deducibili: costiDed,
       anno,
       confronto: risultati,
-      analisi_dipendente
+      analisi_dipendente,
+      analisi_investimento
     });
 
   } catch (error) {
