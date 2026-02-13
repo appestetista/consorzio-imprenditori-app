@@ -172,15 +172,19 @@ Deno.serve(async (req) => {
       const ditta_senza = calcolaDittaOrdinaria(costiDed);
       const ditta_con = calcolaDittaOrdinaria(costiConDip);
 
-      const buildAnalisi = (label, senza, con) => {
+      const buildAnalisi = (label, senza, con, costoDeducibile) => {
         const risparmio_fiscale = Math.round((senza.imposte_totali - con.imposte_totali) * 100) / 100;
         const costo_netto_reale = Math.round((costoDip - risparmio_fiscale) * 100) / 100;
+        // Se il costo è deducibile, con.netto_finale già lo include; altrimenti sottraiamo il costo lordo
+        const netto_con_dip = costoDeducibile
+          ? con.netto_finale
+          : Math.round((con.netto_finale - costoDip) * 100) / 100;
         return {
           regime: label,
           imposte_senza_dip: senza.imposte_totali,
           imposte_con_dip: con.imposte_totali,
           netto_senza_dip: senza.netto_finale,
-          netto_con_dip: Math.round((con.netto_finale - costoDip) * 100) / 100,
+          netto_con_dip,
           risparmio_fiscale,
           costo_netto_reale
         };
