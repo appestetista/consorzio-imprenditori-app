@@ -303,7 +303,17 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
             onToggleFatturato={() => {
                 setShowWeekView(true);
               }}
-          />
+              onClose={() => {
+                setIsOpen(false);
+                setShowTimePicker(false);
+              }}
+              onToggleDayView={() => {
+                // Già nella vista giornaliera - assicura che il timepicker sia aperto
+                if (!showTimePicker) {
+                  setShowTimePicker(true);
+                }
+              }}
+            />
         </div>
 
         {/* Barra fatturato - espandibile */}
