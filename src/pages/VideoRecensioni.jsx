@@ -289,7 +289,7 @@ NOTE: ${formData.notes || 'Nessuna'}
                 {/* Abbonamento */}
                 {(() => {
                   const abbRequests = myRequests.filter(r => r.plan_type === 'abbonamento');
-                  const hasAbbonamento = abbRequests.length > 0 || abbonamentoAttivato;
+                  const hasAbbonamento = effectiveUser?.video_abbonamento_attivo === true;
                   const completedAbbonamento = abbRequests.length;
 
                   return (
@@ -304,7 +304,7 @@ NOTE: ${formData.notes || 'Nessuna'}
                       <p className="text-slate-400 text-sm">+ IVA — 1 video recensione al mese inclusa nell'abbonamento</p>
 
                       {/* Barra progresso 12 video */}
-                      <div className="mt-3 pt-3 border-t border-slate-700/50">
+                      <div className={`mt-3 pt-3 border-t border-slate-700/50 ${!hasAbbonamento ? 'opacity-40' : ''}`}>
                         <div className="flex items-center justify-between mb-1.5">
                           <span className="text-slate-400 text-xs">Video utilizzati</span>
                           <span className="text-[#d4af37] text-xs font-bold">{completedAbbonamento} / 12</span>
@@ -327,16 +327,19 @@ NOTE: ${formData.notes || 'Nessuna'}
                       {/* Pulsanti azione abbonamento */}
                       <div className="mt-3 flex gap-2">
                         {!hasAbbonamento ? (
-                          <button
-                            onClick={() => setAbbonamentoAttivato(true)}
-                            className="flex-1 h-10 rounded-xl text-slate-900 font-bold text-sm transition-all hover:brightness-110 active:scale-[0.98]"
-                            style={{
-                              background: 'linear-gradient(to bottom, #f7d774 0%, #e6b93d 35%, #c6921b 60%, #9e6f0f 100%)',
-                              boxShadow: 'inset 0 2px 3px rgba(255,255,255,0.5), inset 0 -4px 6px rgba(0,0,0,0.35), 0 6px 14px rgba(0,0,0,0.5)'
-                            }}
-                          >
-                            Attiva Abbonamento
-                          </button>
+                          <>
+                            <button
+                              onClick={() => setShowAttivaPopup(true)}
+                              className="flex-1 h-10 rounded-xl text-slate-900 font-bold text-sm transition-all hover:brightness-110 active:scale-[0.98]"
+                              style={{
+                                background: 'linear-gradient(to bottom, #f7d774 0%, #e6b93d 35%, #c6921b 60%, #9e6f0f 100%)',
+                                boxShadow: 'inset 0 2px 3px rgba(255,255,255,0.5), inset 0 -4px 6px rgba(0,0,0,0.35), 0 6px 14px rgba(0,0,0,0.5)'
+                              }}
+                            >
+                              <Lock className="w-4 h-4 inline mr-1 -mt-0.5" />
+                              Attiva Abbonamento
+                            </button>
+                          </>
                         ) : (
                           <>
                             {completedAbbonamento < 12 && (
@@ -359,6 +362,12 @@ NOTE: ${formData.notes || 'Nessuna'}
                           </>
                         )}
                       </div>
+
+                      {!hasAbbonamento && (
+                        <p className="text-slate-500 text-[10px] mt-2 text-center flex items-center justify-center gap-1">
+                          <Lock className="w-3 h-3" /> Abbonamento non ancora attivo — procedi al pagamento per sbloccare
+                        </p>
+                      )}
                     </div>
                   );
                 })()}
