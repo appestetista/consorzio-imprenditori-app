@@ -351,9 +351,9 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
                   hasCartellaFile ? `color-mix(in srgb, ${cartelleMap[cartellaFiles[slot.timeString]?.[0]?.cartella_id]?.colore || '#64748b'} 8%, transparent)` : undefined
                 }}
             >
-              {/* Pulsante + arancione se selezionato, altrimenti linea o icona nota */}
+              {/* Pulsante + colore mese se selezionato, altrimenti linea o icona nota */}
               {isSelected && !hasNote ? (
-                <div className="w-6 h-6 rounded-full flex items-center justify-center mr-2 animate-pulse shadow-lg" style={{ backgroundColor: '#f97316', boxShadow: '0 0 12px rgba(249,115,22,0.5)' }}>
+                <div className="w-6 h-6 rounded-full flex items-center justify-center mr-2 animate-pulse shadow-lg" style={{ backgroundColor: currentMonthColor, boxShadow: `0 0 12px ${currentMonthColor}80` }}>
                   <Plus className="w-4 h-4 text-white" />
                 </div>
               ) : hasNote ? (

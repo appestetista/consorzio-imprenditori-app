@@ -264,33 +264,43 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
         <div>
           <HorizontalDatePicker
             goToTodayButton={
-              new Date(selectedDate).toDateString() !== new Date().toDateString() ? (
-                <button
-                  onClick={() => {
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
-                    if (onDateSelect) {
-                      onDateSelect(today);
-                    }
-                    goToTodayRef.current?.();
-                  }}
-                  className="px-2 py-0.5 rounded text-[10px] font-semibold text-slate-900 animate-pulse"
-                  style={{ backgroundColor: currentMonthColor }}
-                >
-                  TORNA A OGGI
-                </button>
-              ) : null
+              (() => {
+                const isToday = new Date(selectedDate).toDateString() === new Date().toDateString();
+                return (
+                  <button
+                    onClick={() => {
+                      if (isToday) return;
+                      const today = new Date();
+                      today.setHours(0, 0, 0, 0);
+                      if (onDateSelect) {
+                        onDateSelect(today);
+                      }
+                      goToTodayRef.current?.();
+                    }}
+                    className="rounded text-[10px] font-semibold"
+                    style={{ 
+                      backgroundColor: isToday ? '#334155' : currentMonthColor,
+                      color: isToday ? '#64748b' : '#0f172a',
+                      width: '80px',
+                      padding: '2px 0',
+                      textAlign: 'center'
+                    }}
+                  >
+                    {isToday ? 'OGGI' : 'TORNA A OGGI'}
+                  </button>
+                );
+              })()
             }
             monthNameLabel={
               <span 
-                className="text-lg font-bold capitalize"
-                style={{ color: currentMonthColor }}
+                className="text-xl font-bold capitalize text-center"
+                style={{ color: currentMonthColor, minWidth: '100px', display: 'inline-block' }}
               >
                 {new Date(visibleMonthLabel.year, visibleMonthLabel.month).toLocaleDateString('it-IT', { month: 'long' })}
               </span>
             }
             monthLabelButton={
-              <div className="flex items-start gap-1">
+              <div className="flex items-start gap-1" style={{ width: '80px', justifyContent: 'flex-end' }}>
                 <span 
                   className="px-2 py-0.5 rounded text-[10px] font-semibold"
                   style={{ 
