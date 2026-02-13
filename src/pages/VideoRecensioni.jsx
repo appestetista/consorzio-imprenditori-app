@@ -516,6 +516,66 @@ NOTE: ${formData.notes || 'Nessuna'}
       </main>
 
       <BottomNav currentPage="VideoRecensioni" unreadMessages={messages.length} />
+
+      {/* Popup Attiva Abbonamento */}
+      {showAttivaPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4" onClick={() => setShowAttivaPopup(false)}>
+          <div className="bg-[#0a2540] rounded-2xl border border-[#d4af37]/30 w-full max-w-sm shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="p-5">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-white font-bold text-lg">Attiva Abbonamento</h3>
+                <button onClick={() => setShowAttivaPopup(false)} className="text-slate-400 hover:text-white">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="bg-[#d4af37]/10 rounded-xl p-4 border border-[#d4af37]/20 mb-4">
+                <p className="text-[#d4af37] font-bold text-base mb-1">📦 Abbonamento Mensile</p>
+                <p className="text-[#d4af37] text-2xl font-bold">€ 100<span className="text-sm font-normal">/mese + IVA</span></p>
+              </div>
+
+              <div className="space-y-2 mb-4">
+                <div className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <p className="text-slate-300 text-sm">12 video recensioni incluse all'anno</p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <p className="text-slate-300 text-sm">1 video al mese, montaggio professionale</p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <Check className="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
+                  <p className="text-slate-300 text-sm">Pubblicazione sulla piattaforma</p>
+                </div>
+              </div>
+
+              <div className="bg-slate-900/50 rounded-lg p-3 border border-slate-700/50 mb-4">
+                <p className="text-slate-400 text-xs">
+                  Stai attivando l'abbonamento per <span className="text-white font-semibold">{effectiveUser?.company_name || effectiveUser?.full_name}</span>. Dopo il pagamento, il tuo abbonamento verrà attivato automaticamente e potrai richiedere i tuoi 12 video.
+                </p>
+              </div>
+
+              <a
+                href="https://buy.stripe.com/test_PLACEHOLDER"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full h-12 rounded-xl text-slate-900 font-bold text-sm transition-all hover:brightness-110 active:scale-[0.98] flex items-center justify-center gap-2"
+                style={{
+                  background: 'linear-gradient(to bottom, #f7d774 0%, #e6b93d 35%, #c6921b 60%, #9e6f0f 100%)',
+                  boxShadow: 'inset 0 2px 3px rgba(255,255,255,0.5), inset 0 -4px 6px rgba(0,0,0,0.35), 0 6px 14px rgba(0,0,0,0.5)'
+                }}
+              >
+                <ExternalLink className="w-4 h-4" />
+                Procedi al Pagamento
+              </a>
+
+              <p className="text-slate-500 text-[10px] mt-3 text-center">
+                Dopo il pagamento il consorzio attiverà il tuo abbonamento entro 24 ore
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
