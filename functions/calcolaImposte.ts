@@ -16,7 +16,8 @@ Deno.serve(async (req) => {
       aliquota_forfettario,
       distribuzione_dividendi,
       anno,
-      nome_scenario
+      nome_scenario,
+      gestione_inps
     } = await req.json();
 
     if (!regime || !fatturato || !anno) {
