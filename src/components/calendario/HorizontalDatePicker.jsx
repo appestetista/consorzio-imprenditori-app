@@ -26,7 +26,7 @@ const MONTH_COLORS = [
 
 const MONTHS_SHORT = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
 
-export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoToToday, onMonthColorChange, onVisibleMonthChange, onVisibleDayChange, onScrollSync, scrollRef: externalScrollRef, goToTodayButton, monthLabelButton, showFatturato, onToggleFatturato, currentMonthColor, onClose, onOpenTools, hasSelectedTime }) {
+export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoToToday, onMonthColorChange, onVisibleMonthChange, onVisibleDayChange, onScrollSync, scrollRef: externalScrollRef, goToTodayButton, monthNameLabel, monthLabelButton, showFatturato, onToggleFatturato, currentMonthColor, onClose, onOpenTools, hasSelectedTime }) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   
@@ -698,17 +698,20 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
         document.body
       )}
 
-      {/* Pulsanti oggi e mese/chiudi */}
-      {(goToTodayButton || monthLabelButton) && (
-        <div className="flex justify-between items-center px-2 pb-1">
-          <div>
-            {goToTodayButton}
-          </div>
-          <div>
-            {monthLabelButton}
-          </div>
-        </div>
-      )}
+      {/* Pulsanti oggi + nome mese grande + data breve */}
+          {(goToTodayButton || monthNameLabel || monthLabelButton) && (
+            <div className="flex items-center justify-between px-2 pb-1">
+              <div>
+                {goToTodayButton}
+              </div>
+              <div>
+                {monthNameLabel}
+              </div>
+              <div>
+                {monthLabelButton}
+              </div>
+            </div>
+          )}
       {/* Calendario orizzontale scrollabile continuo */}
       <div 
         ref={scrollRef}

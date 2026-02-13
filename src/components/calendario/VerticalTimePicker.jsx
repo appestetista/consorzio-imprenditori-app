@@ -351,9 +351,9 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
                   hasCartellaFile ? `color-mix(in srgb, ${cartelleMap[cartellaFiles[slot.timeString]?.[0]?.cartella_id]?.colore || '#64748b'} 8%, transparent)` : undefined
                 }}
             >
-              {/* Pulsante + giallo se selezionato, altrimenti linea o icona nota */}
+              {/* Pulsante + arancione se selezionato, altrimenti linea o icona nota */}
               {isSelected && !hasNote ? (
-                <div className="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center mr-2 animate-pulse shadow-lg shadow-amber-500/40">
+                <div className="w-6 h-6 rounded-full flex items-center justify-center mr-2 animate-pulse shadow-lg" style={{ backgroundColor: '#f97316', boxShadow: '0 0 12px rgba(249,115,22,0.5)' }}>
                   <Plus className="w-4 h-4 text-white" />
                 </div>
               ) : hasNote ? (
@@ -397,7 +397,8 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
                   (isCurrentTime && isToday) && "text-white font-bold animate-pulse"
                 )}
                 style={{
-                  color: (isCurrentTime && isToday) ? '#ffffff' :
+                  color: isSelected ? '#f97316' :
+                    (isCurrentTime && isToday) ? '#ffffff' :
                     hasNote ? '#a3e635' :
                     slot.isFullHour ? activeColor : '#94a3b8'
                 }}
