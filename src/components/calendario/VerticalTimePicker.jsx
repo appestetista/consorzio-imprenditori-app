@@ -276,6 +276,9 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
     setSelectedTime(slot.timeString);
     setShowNoteEditor(true);
 
+    if (onSelectedTimeChange) {
+      onSelectedTimeChange(true);
+    }
     if (onTimeSelect) {
       onTimeSelect(slot.timeString);
     }
