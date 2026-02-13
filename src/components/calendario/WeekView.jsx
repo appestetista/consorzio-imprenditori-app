@@ -363,7 +363,14 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                     {DAY_LETTERS[dow]}
                   </span>
                   {dayNoteCount > 0 ? (
-                    <span className="text-[8px] font-bold leading-none" style={{ color: '#a3e635' }}>{dayNoteCount}</span>
+                    <span 
+                      className="text-[8px] font-bold leading-none cursor-pointer"
+                      style={{ color: '#a3e635' }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDaySummaryDate(dk);
+                      }}
+                    >{dayNoteCount}</span>
                   ) : (
                     <span className="text-[8px] leading-none" style={{ color: 'transparent' }}>0</span>
                   )}
