@@ -521,8 +521,8 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
         </div>
       )}
 
-      {/* Semicerchio CHIUDI - per vista giornaliera e settimanale */}
-      {(isOpen || showWeekView) && !showWeekNoteEditor && (
+      {/* Semicerchio CHIUDI - solo per vista settimanale */}
+      {showWeekView && !showWeekNoteEditor && (
         <button
           onClick={() => {
             setShowWeekView(false);
