@@ -804,13 +804,41 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
             <X className="h-4 w-4 text-slate-400" />
           </button>
           <div className="space-y-4 mt-4">
+            {/* Costo del servizio */}
             <div className="bg-[#d4af37]/20 rounded-lg p-4 border border-[#d4af37]/30">
-              <p className="text-[#d4af37] text-sm font-medium mb-2">Costo del servizio: € 500 + IVA</p>
-              <p className="text-slate-300 text-xs">
-                Intervista + montaggio + pubblicazione nell'app compresa nel prezzo
+              <p className="text-[#d4af37] text-base font-bold mb-2">Costo del servizio: € 500 + IVA</p>
+              <p className="text-slate-300 text-sm">
+                Intervista + montaggio + pubblicazione nell'app <span className="text-[#d4af37] font-semibold">compresa nel prezzo</span>
               </p>
             </div>
+
+            {/* Opzione diritti di utilizzo */}
+            <div className="bg-slate-900 rounded-lg p-4 border border-slate-700">
+              <label className="flex items-start gap-3 cursor-pointer" onClick={() => setRequestMessage(prev => prev)}>
+                <input
+                  type="checkbox"
+                  id="diritti-utilizzo"
+                  className="mt-1 w-4 h-4 accent-[#d4af37] rounded"
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    setRequestMessage(prev => {
+                      const tag = '[DIRITTI DI UTILIZZO RICHIESTI]';
+                      if (checked && !prev.includes(tag)) return prev ? `${tag}\n${prev}` : tag;
+                      if (!checked) return prev.replace(tag, '').replace(/^\n/, '').trim();
+                      return prev;
+                    });
+                  }}
+                />
+                <div>
+                  <p className="text-white text-sm font-semibold">+ Diritti di utilizzo</p>
+                  <p className="text-slate-400 text-xs mt-1">
+                    Aggiungi i diritti di utilizzo del video per i tuoi canali e materiali promozionali
+                  </p>
+                </div>
+              </label>
+            </div>
             
+            {/* Dati utente */}
             <div className="space-y-2">
               <p className="text-slate-300 text-sm font-medium">I tuoi dati:</p>
               <div className="bg-slate-900 rounded-lg p-3 space-y-2">
