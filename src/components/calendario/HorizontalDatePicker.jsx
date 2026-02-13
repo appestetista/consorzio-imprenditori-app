@@ -186,6 +186,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
   const monthRefs = useRef({});
   const [selectedMonthIdx, setSelectedMonthIdx] = useState(null); // Mese selezionato dalla barra in basso
   const [openCartella, setOpenCartella] = useState(null); // Cartella aperta in vista completa
+  const [showToolsTooltip, setShowToolsTooltip] = useState(false); // Fumetto strumenti disabilitati
 
   // Genera tutti i giorni del mese corrente
   const getDaysInMonth = (month, year) => {
