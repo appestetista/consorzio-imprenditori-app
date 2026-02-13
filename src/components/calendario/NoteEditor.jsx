@@ -67,6 +67,35 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
     }
   });
 
+  const updateFolderMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.Cartella.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cartelle'] });
+      setEditingCartella(null);
+    }
+  });
+
+  const deleteFolderMutation = useMutation({
+    mutationFn: async (id) => {
+      const noteCollegate = await base44.entities.Nota.filter({ cartella_id: id, user_email: userEmail });
+      for (const nota of noteCollegate) {
+        await base44.entities.Nota.update(nota.id, { cartella_id: null });
+      }
+      const fileCollegati = await base44.entities.FileCartella.filter({ cartella_id: id, user_email: userEmail });
+      for (const f of fileCollegati) {
+        await base44.entities.FileCartella.delete(f.id);
+      }
+      return base44.entities.Cartella.delete(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['cartelle'] });
+      queryClient.invalidateQueries({ queryKey: ['note'] });
+      queryClient.invalidateQueries({ queryKey: ['fileCartella'] });
+      setDeleteCartellaConfirm(null);
+      setSelectedCartella('');
+    }
+  });
+
   // Tieni aggiornati i ref
   titleRef.current = title;
   contentRef.current = content;
