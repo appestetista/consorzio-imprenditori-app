@@ -118,6 +118,27 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
 
   const weekDays = getWeekDays(viewDate);
   const today = new Date(); today.setHours(0,0,0,0);
+
+  // Auto-scroll barra giorni per centrare la settimana corrente
+  useEffect(() => {
+    if (!daysBarRef.current) return;
+    const refMonth = weekDays[3].getMonth();
+    const refYear = weekDays[3].getFullYear();
+    let firstWeekDayInMonth = -1;
+    weekDays.forEach(wd => {
+      if (wd.getMonth() === refMonth && wd.getFullYear() === refYear) {
+        const d = wd.getDate();
+        if (firstWeekDayInMonth === -1 || d < firstWeekDayInMonth) firstWeekDayInMonth = d;
+      }
+    });
+    if (firstWeekDayInMonth > 0) {
+      const itemWidth = 28;
+      const scrollTarget = (firstWeekDayInMonth - 1) * itemWidth - (daysBarRef.current.clientWidth / 2) + (itemWidth * 3.5);
+      setTimeout(() => {
+        if (daysBarRef.current) daysBarRef.current.scrollTo({ left: Math.max(0, scrollTarget), behavior: 'smooth' });
+      }, 150);
+    }
+  }, [viewDate]);
   const s0 = fk(weekDays[0]), s6 = fk(weekDays[6]);
 
   const { data: notes = [] } = useQuery({
