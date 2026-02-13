@@ -489,6 +489,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                     cartella_id: weekNoteSlot.existingNote.cartella_id || ''
                   } : null}
                   onRegisterSave={(saveFn) => { weekNoteEditorSaveRef.current = saveFn; }}
+                  monthColor={weekViewColor || currentMonthColor}
                 />
               </div>
             )}
