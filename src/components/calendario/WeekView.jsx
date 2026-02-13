@@ -28,7 +28,7 @@ function getWeekDays(ref) {
 }
 function fk(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 
-export default function WeekView({ selectedDate, monthColor, onMonthColorChange, onDateSelect, onSlotClick, onMonthChange, onRegisterMonthSelect, onBackToDaily }) {
+export default function WeekView({ selectedDate, monthColor, onMonthColorChange, onDateSelect, onSlotClick, onMonthChange, onRegisterMonthSelect, onBackToDaily, allMonthNotes = [] }) {
   const [userEmail, setUserEmail] = useState(null);
   // viewDate è la data di riferimento per la settimana visualizzata
   const [viewDate, setViewDate] = useState(() => selectedDate ? new Date(selectedDate) : new Date());
@@ -229,31 +229,38 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     <div className="flex flex-col h-full overflow-hidden" style={bgStyle}>
 
 
-        {/* Barra pallini giorni del mese */}
+        {/* Barra pallini giorni del mese con conteggio note */}
         {(() => {
           const refMonth = weekMainMonth;
           const refYear = weekDays[3].getFullYear();
           const daysInMonth = new Date(refYear, refMonth + 1, 0).getDate();
-          // Giorno dello slot selezionato (tap su orario nel calendario → cerchio arancione)
           const slotDayNum = (() => {
             if (!selectedSlot?.date) return null;
             const [y, m, d] = selectedSlot.date.split('-').map(Number);
             if (m - 1 === refMonth && y === refYear) return d;
             return null;
           })();
-          
+
+          // Conta note per giorno del mese corrente
+          const noteCountByDay = {};
+          allMonthNotes.forEach(n => {
+            if (!n.data) return;
+            const [y, m, d] = n.data.split('-').map(Number);
+            if (y === refYear && (m - 1) === refMonth) {
+              noteCountByDay[d] = (noteCountByDay[d] || 0) + 1;
+            }
+          });
+
           return (
-            <div className="flex-shrink-0 flex items-center px-0.5 py-1.5 border-b border-slate-700/30">
+            <div className="flex-shrink-0 flex items-center px-0.5 py-1 border-b border-slate-700/30">
               {Array.from({ length: daysInMonth }, (_, i) => {
                 const dayNum = i + 1;
                 const dayDate = new Date(refYear, refMonth, dayNum);
                 const dow = dayDate.getDay();
                 const isWeekend = dow === 0 || dow === 6;
                 const isToday = dayDate.getTime() === today.getTime();
-                const isSlotDay = dayNum === slotDayNum;
-                
-                // Oggi → pieno col colore mese; unico giorno highlightedDay → bordo arancione
                 const isSelected = highlightedDay && highlightedDay.day === dayNum && highlightedDay.month === refMonth && highlightedDay.year === refYear;
+                const dayNoteCount = noteCountByDay[dayNum] || 0;
 
                 return (
                   <div 
@@ -264,14 +271,13 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                       const d = new Date(refYear, refMonth, dayNum);
                       d.setHours(0,0,0,0);
                       setHighlightedDay({ day: dayNum, month: refMonth, year: refYear });
-                      setSelectedSlot(null); // reset slot orario
+                      setSelectedSlot(null);
                       setViewDate(d);
                       if (onDateSelect) onDateSelect(d);
                     }}
                   >
                     {(() => {
                       const isSelectedDay = selectedDate && dayDate.getTime() === new Date(new Date(selectedDate).setHours(0,0,0,0)).getTime();
-                      // Oggi: niente cerchio/bordo, solo numero bianco pulsante
                       const showCircle = !isToday && (isSelectedDay || isSelected);
                       const bgColor = isSelectedDay && !isToday ? ac : 'transparent';
                       const borderColor = isSelected ? '#f59e0b' : (isSelectedDay ? ac : (isWeekend ? '#ef444450' : ac + '40'));
@@ -283,20 +289,28 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                           <div 
                             className={cn("rounded-full flex items-center justify-center transition-all", isToday && "animate-pulse")}
                             style={{ 
-                              width: '24px',
-                              height: '24px',
+                              width: '22px',
+                              height: '22px',
                               backgroundColor: showCircle ? bgColor : 'transparent',
                               border: showCircle ? `${borderWidth} solid ${borderColor}` : '1.5px solid transparent',
                               boxShadow: isSelectedDay && !isToday ? `0 0 8px ${ac}80` : (isSelected ? `0 0 6px #f59e0b80` : undefined)
                             }}
                           >
-                            <span className={cn("text-[10px] font-bold leading-none", isToday && "animate-pulse")} style={{ color: numColor }}>
+                            <span className={cn("text-[9px] font-bold leading-none", isToday && "animate-pulse")} style={{ color: numColor }}>
                               {dayNum}
                             </span>
                           </div>
-                          <span className={cn("text-[8px] font-bold leading-tight mt-[2px]", isToday && "animate-pulse")} style={{ color: letterColor }}>
+                          <span className={cn("text-[7px] font-bold leading-tight", isToday && "animate-pulse")} style={{ color: letterColor }}>
                             {isWeekend ? (dow === 6 ? 'S' : 'D') : DAY_LETTERS[dow]}
                           </span>
+                          {/* Conteggio note del giorno */}
+                          {dayNoteCount > 0 ? (
+                            <span className="text-[8px] font-bold leading-none" style={{ color: '#a3e635' }}>
+                              {dayNoteCount}
+                            </span>
+                          ) : (
+                            <span className="text-[8px] leading-none" style={{ color: 'transparent' }}>0</span>
+                          )}
                         </>
                       );
                     })()}
@@ -312,15 +326,15 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
 
           {/* HEADER GIORNI */}
           <div className="flex flex-shrink-0 border-b border-slate-700/50 overflow-hidden">
-            {/* Quadratino verde fluo con X per tornare alla giornaliera */}
-            <div className="flex-shrink-0 flex items-center justify-center" style={{ width: '56px' }}>
+            {/* Quadratino verde fluo con X + bordino destro */}
+            <div className="flex-shrink-0 flex items-center justify-center border-r border-slate-600/50" style={{ width: '50px' }}>
               {onBackToDaily && (
                 <button
                   onClick={onBackToDaily}
-                  className="w-8 h-8 rounded-md flex items-center justify-center touch-manipulation active:scale-90 transition-all"
+                  className="w-7 h-7 rounded-md flex items-center justify-center touch-manipulation active:scale-90 transition-all"
                   style={{ backgroundColor: '#a3e635', boxShadow: '0 0 8px rgba(163,230,53,0.4)' }}
                 >
-                  <X className="w-4 h-4 text-slate-900" strokeWidth={3} />
+                  <X className="w-3.5 h-3.5 text-slate-900" strokeWidth={3} />
                 </button>
               )}
             </div>
@@ -339,13 +353,13 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                         key={i} 
                         className={cn("flex-1 flex border-l border-slate-700/50 relative", isT && "bg-slate-800/40")}
                         style={{ 
-                          minHeight: '44px',
+                          minHeight: '38px',
                           ...(isSel && !isT ? { backgroundColor: ac + '20' } : {})
                         }}
                       >
-                        {/* METÀ SINISTRA: nome giorno + numero — evidenzia il giorno */}
+                        {/* Nome giorno + numero — clicca per evidenziare */}
                         <div 
-                          className="flex-1 flex flex-col items-center justify-center cursor-pointer z-10"
+                          className="flex-1 flex flex-col items-center justify-center cursor-pointer z-10 py-0.5"
                           onClick={() => {
                             setHighlightedDay({ day: day.getDate(), month: day.getMonth(), year: day.getFullYear() });
                             setSelectedSlot(null);
@@ -353,32 +367,29 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                             if (onDateSelect) onDateSelect(day);
                           }}
                         >
-                          <span className={cn("text-[9px] font-bold leading-tight tracking-wide", isT && "animate-pulse")} style={{ color: isWe ? '#ef4444' : (isT ? '#ffffff' : (isHL ? '#f59e0b' : (isSel ? ac : '#94a3b8'))) }}>{DAYS_SHORT_IT[i]}</span>
+                          <span className={cn("text-[8px] font-bold leading-tight tracking-wide", isT && "animate-pulse")} style={{ color: isWe ? '#ef4444' : (isT ? '#ffffff' : (isHL ? '#f59e0b' : (isSel ? ac : '#94a3b8'))) }}>{DAYS_SHORT_IT[i]}</span>
                           <div 
-                            className={cn("flex items-center justify-center rounded-full mt-0.5", isT && "animate-pulse")}
+                            className={cn("flex items-center justify-center rounded-full", isT && "animate-pulse")}
                             style={isT ? {
-                              width: '20px', height: '20px'
+                              width: '18px', height: '18px'
                             } : isHL ? { 
-                              width: '20px', height: '20px',
+                              width: '18px', height: '18px',
                               border: '2px solid #f59e0b',
                               boxShadow: '0 0 6px #f59e0b80'
                             } : isSel ? {
-                              width: '20px', height: '20px',
+                              width: '18px', height: '18px',
                               backgroundColor: ac,
                               borderRadius: '9999px',
                               boxShadow: `0 0 8px ${ac}80`
-                            } : { width: '20px', height: '20px' }}
+                            } : { width: '18px', height: '18px' }}
                           >
-                            <span className={cn("text-[11px] font-bold leading-none", isT && "animate-pulse")} style={{ color: isT ? '#ffffff' : (isHL ? '#f59e0b' : (isSel ? '#fff' : '#e2e8f0')) }}>{day.getDate()}</span>
+                            <span className={cn("text-[10px] font-bold leading-none", isT && "animate-pulse")} style={{ color: isT ? '#ffffff' : (isHL ? '#f59e0b' : (isSel ? '#fff' : '#e2e8f0')) }}>{day.getDate()}</span>
                           </div>
-                          {isSel && !isT && !isHL && <div className="w-1 h-1 rounded-full mt-0.5" style={{ backgroundColor: ac }} />}
-                          {isT && !isSel && !isHL && <div className="w-1 h-1 rounded-full mt-0.5 animate-pulse" style={{ backgroundColor: '#ffffff' }} />}
                         </div>
 
-                        {/* METÀ DESTRA: freccetta + conteggio — apre popup */}
+                        {/* Freccetta conteggio — apre popup */}
                         <div 
-                          className="flex flex-col items-end justify-end cursor-pointer z-20 touch-manipulation active:scale-90 pb-0.5 pr-0.5"
-                          style={{ width: '50%' }}
+                          className="absolute right-0 bottom-0 flex items-center cursor-pointer z-20 touch-manipulation active:scale-90 pb-0.5 pr-0.5"
                           onClick={(e) => {
                             e.stopPropagation();
                             if (dayAllNotes.length > 0) {
@@ -388,45 +399,29 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                             }
                           }}
                         >
-                          <div className="flex items-center gap-0.5">
-                            {dayAllNotes.length > 0 && (
-                              <span className="text-[10px] font-bold leading-none" style={{ color: '#a3e635' }}>
-                                {dayAllNotes.length}
-                              </span>
-                            )}
-                            <ChevronDown 
-                              className={cn("transition-all duration-200", isDropOpen && "rotate-180")}
-                              style={{ 
-                                width: '20px', 
-                                height: '20px', 
-                                color: isDropOpen ? '#22d3ee' : (dayAllNotes.length > 0 ? '#a3e635' : '#64748b'),
-                                filter: isDropOpen ? 'drop-shadow(0 0 4px #22d3ee) drop-shadow(0 0 8px #22d3ee80)' : (dayAllNotes.length > 0 ? 'drop-shadow(0 0 3px #a3e63580)' : 'none')
-                              }} 
-                            />
-                          </div>
+                          {dayAllNotes.length > 0 && (
+                            <span className="text-[9px] font-bold leading-none" style={{ color: '#a3e635' }}>
+                              {dayAllNotes.length}
+                            </span>
+                          )}
+                          <ChevronDown 
+                            className={cn("transition-all duration-200", isDropOpen && "rotate-180")}
+                            style={{ 
+                              width: '14px', 
+                              height: '14px', 
+                              color: isDropOpen ? '#22d3ee' : (dayAllNotes.length > 0 ? '#a3e635' : '#64748b'),
+                            }} 
+                          />
                         </div>
 
-                        {/* Dropdown fumetto nero - appuntamenti del giorno */}
+                        {/* Dropdown fumetto nero */}
                         {isDropOpen && (
                           <div 
                             className="absolute z-50 overflow-hidden"
-                            style={{ 
-                              top: '100%', 
-                              right: '-4px',
-                              minWidth: '160px', 
-                              maxWidth: '200px',
-                              marginTop: '6px'
-                            }}
+                            style={{ top: '100%', right: '-4px', minWidth: '160px', maxWidth: '200px', marginTop: '4px' }}
                             onClick={(e) => e.stopPropagation()}
                           >
-                            <div 
-                              className="absolute -top-[6px] right-3 w-0 h-0"
-                              style={{
-                                borderLeft: '6px solid transparent',
-                                borderRight: '6px solid transparent',
-                                borderBottom: '6px solid #000000'
-                              }}
-                            />
+                            <div className="absolute -top-[6px] right-3 w-0 h-0" style={{ borderLeft: '6px solid transparent', borderRight: '6px solid transparent', borderBottom: '6px solid #000000' }} />
                             <div className="bg-black rounded-xl shadow-2xl overflow-hidden border border-slate-700/50" style={{ boxShadow: '0 8px 32px rgba(0,0,0,0.6)' }}>
                               {dayAllNotes.length === 0 ? (
                                 <div className="px-3 py-3 text-[10px] text-slate-500 text-center">Nessun appuntamento</div>
@@ -436,29 +431,15 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                                     const stKey = `${dk}-${item.time}-${idx}`;
                                     const isStruck = !!strikethroughItems[stKey];
                                     return (
-                                      <div 
-                                        key={idx} 
-                                        className="flex items-center gap-1.5 px-2.5 py-1.5 hover:bg-slate-900/50"
-                                      >
+                                      <div key={idx} className="flex items-center gap-1.5 px-2.5 py-1.5 hover:bg-slate-900/50">
                                         <button
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            setStrikethroughItems(prev => ({ ...prev, [stKey]: !prev[stKey] }));
-                                          }}
-                                          className={cn(
-                                            "w-4 h-4 rounded flex-shrink-0 flex items-center justify-center border transition-all",
-                                            isStruck 
-                                              ? "border-slate-500 bg-slate-700" 
-                                              : "border-slate-600 bg-transparent hover:border-slate-400"
-                                          )}
+                                          onClick={(e) => { e.stopPropagation(); setStrikethroughItems(prev => ({ ...prev, [stKey]: !prev[stKey] })); }}
+                                          className={cn("w-4 h-4 rounded flex-shrink-0 flex items-center justify-center border transition-all", isStruck ? "border-slate-500 bg-slate-700" : "border-slate-600 bg-transparent hover:border-slate-400")}
                                         >
                                           {isStruck && <Check className="w-2.5 h-2.5 text-slate-400" />}
                                         </button>
                                         <div className="min-w-0 flex-1">
-                                          <span 
-                                            className={cn("text-[11px] font-medium block truncate", isStruck && "line-through opacity-40")}
-                                            style={{ color: ac }}
-                                          >
+                                          <span className={cn("text-[11px] font-medium block truncate", isStruck && "line-through opacity-40")} style={{ color: ac }}>
                                             — {item.time} {item.title}
                                           </span>
                                         </div>
@@ -488,7 +469,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                   {(() => {
                     const isSlotRow = selectedSlot?.time === slot.label;
                     return (
-                      <div className={cn("flex-shrink-0 flex items-center px-1.5", isSlotRow && "bg-amber-500/10")} style={{ width: '56px' }}>
+                      <div className={cn("flex-shrink-0 flex items-center px-1 border-r border-slate-600/50", isSlotRow && "bg-amber-500/10")} style={{ width: '50px' }}>
                         {isSlotRow ? (
                           <div className="w-4 h-4 rounded-full bg-amber-500 flex items-center justify-center mr-1 animate-pulse shadow-lg shadow-amber-500/40 flex-shrink-0">
                             <Plus className="w-2.5 h-2.5 text-white" />

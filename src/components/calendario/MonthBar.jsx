@@ -23,7 +23,7 @@ export default function MonthBar({ currentMonth, onSelectMonth }) {
             }}
           >
             <span
-              className="text-[8px] font-bold uppercase"
+              className="text-[11px] font-bold uppercase"
               style={{ color: isCurrent ? '#0f172a' : '#64748b' }}
             >
               {mName}
