@@ -47,6 +47,7 @@ Deno.serve(async (req) => {
     const coeff = coefficiente_redditivita || 0.78;
     const compensoAmm = compenso_amministratore || 0;
     const costoDip = costo_dipendente_annuo || 0;
+    const investBeni = investimento_beni || 0;
 
     const risultati = [];
 
