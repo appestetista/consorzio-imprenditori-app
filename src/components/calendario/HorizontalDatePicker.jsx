@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import CartellaView from './CartellaView';
 
 const DAYS_SHORT = ['D', 'L', 'M', 'M', 'G', 'V', 'S'];
+const DAYS_FULL = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
 const MONTHS = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
 const MONTH_COLORS = [
   '#3b82f6', // Gennaio - blu
