@@ -41,6 +41,8 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     const [daySummaryDate, setDaySummaryDate] = useState(null); // dateKey del giorno da mostrare nel popup
   
   const scrollRef = useRef(null);
+  const daysBarRef = useRef(null);
+  const daysBarTouchRef = useRef({ startX: 0, startScrollLeft: 0 });
   const touchRef = useRef({ startX:0, startY:0, lastX:0, lastY:0, lastTime:0, velScroll:0, scrollTop0:0, dir:null, animFrame:null });
 
 
