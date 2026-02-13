@@ -327,7 +327,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
           {/* HEADER GIORNI */}
           <div className="flex flex-shrink-0 border-b border-slate-700/50 overflow-hidden">
             {/* Quadratino verde fluo con X + bordino destro separatore */}
-            <div className="flex-shrink-0 flex items-center justify-center" style={{ width: '62px', paddingRight: '10px', borderRight: '2px solid rgba(100,116,139,0.6)' }}>
+            <div className="flex-shrink-0 flex items-center justify-end" style={{ width: '62px', paddingRight: '6px', borderRight: '2px solid rgba(100,116,139,0.6)' }}>
               {onBackToDaily && (
                 <button
                   onClick={onBackToDaily}
@@ -469,7 +469,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                   {(() => {
                     const isSlotRow = selectedSlot?.time === slot.label;
                     return (
-                      <div className={cn("flex-shrink-0 flex items-center px-1", isSlotRow && "bg-amber-500/10")} style={{ width: '62px', paddingRight: '6px', borderRight: '2px solid rgba(100,116,139,0.6)' }}>
+                      <div className={cn("flex-shrink-0 flex items-center justify-end px-0", isSlotRow && "bg-amber-500/10")} style={{ width: '62px', paddingRight: '4px', borderRight: '2px solid rgba(100,116,139,0.6)' }}>
                         {isSlotRow ? (
                           <div className="w-4 h-4 rounded-full bg-amber-500 flex items-center justify-center mr-1 animate-pulse shadow-lg shadow-amber-500/40 flex-shrink-0">
                             <Plus className="w-2.5 h-2.5 text-white" />
