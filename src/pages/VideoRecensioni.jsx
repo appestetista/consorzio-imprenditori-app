@@ -288,6 +288,32 @@ NOTE: ${formData.notes || 'Nessuna'}
                     <span className="text-[#d4af37] font-bold text-lg">€ 100<span className="text-sm font-normal">/mese</span></span>
                   </div>
                   <p className="text-slate-400 text-sm">+ IVA — 1 video recensione al mese inclusa nell'abbonamento</p>
+
+                  {/* Barra progresso 12 video */}
+                  {(() => {
+                    const completedAbbonamento = myRequests.filter(r => r.plan_type === 'abbonamento').length;
+                    return (
+                      <div className="mt-3 pt-3 border-t border-slate-700/50">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-slate-400 text-xs">Video utilizzati</span>
+                          <span className="text-[#d4af37] text-xs font-bold">{completedAbbonamento} / 12</span>
+                        </div>
+                        <div className="flex gap-1">
+                          {Array.from({ length: 12 }).map((_, i) => (
+                            <div
+                              key={i}
+                              className="flex-1 h-3 rounded-full transition-colors"
+                              style={{
+                                backgroundColor: i < completedAbbonamento ? '#d4af37' : '#1e293b',
+                                boxShadow: i < completedAbbonamento ? '0 0 6px rgba(212,175,55,0.4)' : 'none'
+                              }}
+                            />
+                          ))}
+                        </div>
+                        <p className="text-slate-500 text-[10px] mt-1 text-center">12 video inclusi nell'abbonamento annuale</p>
+                      </div>
+                    );
+                  })()}
                 </button>
               </div>
             )}
