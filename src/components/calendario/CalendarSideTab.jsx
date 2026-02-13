@@ -300,16 +300,22 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
               </span>
             }
             monthLabelButton={
-              <div className="flex items-start gap-1" style={{ width: '80px', justifyContent: 'flex-end' }}>
-                <span 
-                  className="px-2 py-0.5 rounded text-[10px] font-semibold"
-                  style={{ 
-                    backgroundColor: currentMonthColor,
-                    color: '#0f172a'
-                  }}
-                >
-                  {new Date(visibleMonthLabel.year, visibleMonthLabel.month, visibleDay).toLocaleDateString('it-IT', { weekday: 'long' })} {visibleDay}
-                </span>
+              <div className="flex items-start gap-1" style={{ width: '100px', justifyContent: 'flex-end' }}>
+                {selectedDate ? (
+                  <span 
+                    className="px-2 py-0.5 rounded text-[10px] font-semibold"
+                    style={{ 
+                      backgroundColor: currentMonthColor,
+                      color: '#0f172a'
+                    }}
+                  >
+                    {new Date(selectedDate).toLocaleDateString('it-IT', { weekday: 'long' })} {new Date(selectedDate).getDate()}
+                  </span>
+                ) : (
+                  <span className="text-[9px] text-slate-500 italic text-right">
+                    scegli un giorno
+                  </span>
+                )}
               </div>
             } 
             selectedDate={selectedDate}
