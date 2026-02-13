@@ -296,7 +296,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                 className="text-xl font-bold capitalize text-center"
                 style={{ color: currentMonthColor, minWidth: '100px', display: 'inline-block' }}
               >
-                {new Date(visibleMonthLabel.year, visibleMonthLabel.month).toLocaleDateString('it-IT', { month: 'long' })}
+                {new Date(visibleMonthLabel.year, visibleMonthLabel.month).toLocaleDateString('it-IT', { month: 'long' })} {visibleMonthLabel.year}
               </span>
             }
             monthLabelButton={
