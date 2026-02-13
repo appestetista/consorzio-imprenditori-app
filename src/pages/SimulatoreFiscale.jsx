@@ -1,0 +1,128 @@
+import React, { useState, useEffect } from 'react';
+import { base44 } from '@/api/base44Client';
+import { ArrowLeft, Calculator, History } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
+import Header from '../components/layout/Header';
+import BottomNav from '../components/layout/BottomNav';
+import { useImpersonation } from '../components/admin/ImpersonationContext';
+import { normalizeUser } from '../components/utils/normalizeUser';
+import SimulazioneForm from '../components/fiscale/SimulazioneForm';
+import SimulazioneResult from '../components/fiscale/SimulazioneResult';
+import StoricoSimulazioni from '../components/fiscale/StoricoSimulazioni';
+
+export default function SimulatoreFiscale() {
+  const [effectiveUser, setEffectiveUser] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState(null);
+  const [view, setView] = useState('form'); // 'form' | 'result' | 'storico'
+  const { impersonation, appMode } = useImpersonation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    const loadUser = async () => {
+      const currentUser = await base44.auth.me();
+      if (appMode === 'user-preview' && impersonation.previewUserId) {
+        const users = await base44.entities.User.filter({ id: impersonation.previewUserId });
+        setEffectiveUser(normalizeUser(users.length > 0 ? users[0] : currentUser));
+      } else {
+        setEffectiveUser(normalizeUser(currentUser));
+      }
+    };
+    loadUser();
+  }, [appMode, impersonation.previewUserId]);
+
+  const handleCalcola = async (formData) => {
+    setLoading(true);
+    setResult(null);
+    const response = await base44.functions.invoke('calcolaImposte', formData);
+    setResult(response.data);
+    setLoading(false);
+    setView('result');
+  };
+
+  const handleSelectStorico = (sim) => {
+    setResult({
+      success: true,
+      simulazione_id: sim.id,
+      utile: sim.utile,
+      reddito_imponibile: sim.reddito_imponibile,
+      imposte_totali: sim.imposte_totali,
+      netto_finale: sim.netto_finale,
+      pressione_fiscale: sim.fatturato > 0 ? Math.round((sim.imposte_totali / sim.fatturato) * 10000) / 100 : 0,
+      dettaglio_calcolo: sim.dettaglio_calcolo
+    });
+    setView('result');
+  };
+
+  return (
+    <div className="min-h-screen pb-24" style={{ backgroundColor: '#001d3b' }}>
+      <Header user={effectiveUser} />
+
+      <main className="px-4 py-6 max-w-md mx-auto">
+        {/* Header pagina */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <Link to={createPageUrl('Home')} className="text-[#d4af37]">
+              <ArrowLeft className="w-6 h-6" />
+            </Link>
+            <div className="flex items-center gap-2">
+              <Calculator className="w-5 h-5 text-[#d4af37]" />
+              <h1 className="text-white text-xl font-bold">Simulatore Fiscale</h1>
+            </div>
+          </div>
+          <button
+            onClick={() => setView(view === 'storico' ? 'form' : 'storico')}
+            className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 transition-colors"
+          >
+            <History className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex gap-2 mb-6">
+          <button
+            onClick={() => { setView('form'); setResult(null); }}
+            className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${view === 'form' ? 'bg-[#d4af37] text-slate-900' : 'bg-slate-800 text-slate-400'}`}
+          >
+            Nuovo Scenario
+          </button>
+          <button
+            onClick={() => setView('storico')}
+            className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${view === 'storico' ? 'bg-[#d4af37] text-slate-900' : 'bg-slate-800 text-slate-400'}`}
+          >
+            Storico
+          </button>
+        </div>
+
+        {/* Loading */}
+        {loading && (
+          <div className="bg-[#0a2540] border border-[#1a3a5c] rounded-xl p-6 text-center mb-4">
+            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-[#d4af37] mx-auto mb-3"></div>
+            <p className="text-white font-medium">Calcolo imposte in corso...</p>
+            <p className="text-slate-400 text-sm mt-1">Formule deterministiche basate su aliquote vigenti</p>
+          </div>
+        )}
+
+        {/* Contenuto */}
+        {view === 'form' && !loading && <SimulazioneForm onSubmit={handleCalcola} loading={loading} />}
+        
+        {view === 'result' && !loading && result && (
+          <SimulazioneResult
+            result={result}
+            onNewScenario={() => { setView('form'); setResult(null); }}
+          />
+        )}
+
+        {view === 'storico' && (
+          <StoricoSimulazioni
+            userEmail={effectiveUser?.email}
+            onSelect={handleSelectStorico}
+          />
+        )}
+      </main>
+
+      <BottomNav currentPage="SimulatoreFiscale" />
+    </div>
+  );
+}
