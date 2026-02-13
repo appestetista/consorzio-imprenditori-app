@@ -789,8 +789,6 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
             let color;
             if (isSelected) {
               color = MONTH_COLORS[idx];
-            } else if (isCurrent) {
-              color = '#a3e635';
             } else if (isPast) {
               color = '#334155';
             } else {
@@ -804,10 +802,12 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                   setSelectedMonthIdx(idx);
                   scrollToMonth(idx);
                 }}
-                className="flex-1 text-[10px] font-semibold text-center hover:opacity-70 transition-all"
-                style={{ color }}
+                className="flex-1 flex flex-col items-center hover:opacity-70 transition-all"
               >
-                {m}
+                <span className="text-[10px] font-semibold" style={{ color }}>{m}</span>
+                {isCurrent && !isSelected && (
+                  <div className="w-3 h-[2px] rounded-full bg-white mt-0.5" />
+                )}
               </button>
             );
           })}
