@@ -6,7 +6,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import NoteEditor from './NoteEditor';
 import DayNotesSummaryPopup from './DayNotesSummaryPopup';
 
-export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMonth, visibleYear, onClose, onTimeSelect, onDateChange, monthColor = '#a3e635' }) {
+export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMonth, visibleYear, onClose, onTimeSelect, onDateChange, monthColor = '#a3e635', onSelectedTimeChange, onOpenToolsPopup }) {
   const scrollRef = useRef(null);
   const currentHourRef = useRef(null);
   const isScrollingRef = useRef(false);
