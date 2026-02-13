@@ -1786,8 +1786,8 @@ VERIFICA:
                                                                     <Sparkles className="w-8 h-8 text-white animate-pulse" />
                                                                   </div>
                                                                 </div>
-                                                                <h3 className="text-white font-semibold text-lg mb-2">🤖 L'AI sta lavorando per te</h3>
-                                                                <p className="text-slate-400 text-sm mb-3">Stiamo analizzando il tipo di attività e generando tutti gli adempimenti obbligatori per legge...</p>
+                                                                <h3 className="text-white font-semibold text-lg mb-2">🤖 ChatGPT sta analizzando il codice ATECO</h3>
+                                                                <p className="text-slate-400 text-sm mb-3">Stiamo cercando tutte le normative obbligatorie per il tuo codice ATECO e tipo di attività...</p>
                                                                 <div className="flex items-center justify-center gap-2 text-purple-400 text-xs">
                                                                   <Loader2 className="w-4 h-4 animate-spin" />
                                                                   <span>Questo può richiedere qualche secondo</span>
