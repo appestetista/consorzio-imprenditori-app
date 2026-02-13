@@ -17,6 +17,7 @@ import BottomNav from '../components/layout/BottomNav';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import SectionConsultantPanel from '../components/consulenze/SectionConsultantPanel';
+import ComplianceChat from '../components/compliance/ComplianceChat';
 
 const CATEGORIE = [
   "Sicurezza sul lavoro",
