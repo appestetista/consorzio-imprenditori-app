@@ -126,7 +126,7 @@ ESEMPIO di un elemento:
       }
 
       return {
-        nome: a.nome || a.name || a.titolo || 'Adempimento',
+        nome: a.nome || a.name || a.titolo || a.descrizione?.substring(0, 80) || 'Adempimento',
         descrizione: a.descrizione || a.description || '',
         categoria,
         frequenza_rinnovo_mesi: frequenza,
