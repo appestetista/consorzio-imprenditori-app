@@ -305,11 +305,11 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                           </span>
                           {/* Conteggio note del giorno */}
                           {dayNoteCount > 0 ? (
-                            <span className="text-[8px] font-bold leading-none" style={{ color: '#a3e635' }}>
+                            <span className="text-[9px] font-bold leading-none" style={{ color: '#a3e635' }}>
                               {dayNoteCount}
                             </span>
                           ) : (
-                            <span className="text-[8px] leading-none" style={{ color: 'transparent' }}>0</span>
+                            <span className="text-[9px] leading-none" style={{ color: 'transparent' }}>0</span>
                           )}
                         </>
                       );
@@ -326,15 +326,15 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
 
           {/* HEADER GIORNI */}
           <div className="flex flex-shrink-0 border-b border-slate-700/50 overflow-hidden">
-            {/* Quadratino verde fluo con X + bordino destro */}
-            <div className="flex-shrink-0 flex items-center justify-center border-r border-slate-600/50" style={{ width: '50px' }}>
+            {/* Quadratino verde fluo con X + bordino destro continuo */}
+            <div className="flex-shrink-0 flex items-center justify-center border-r border-slate-500/60" style={{ width: '50px' }}>
               {onBackToDaily && (
                 <button
                   onClick={onBackToDaily}
-                  className="w-7 h-7 rounded-md flex items-center justify-center touch-manipulation active:scale-90 transition-all"
-                  style={{ backgroundColor: '#a3e635', boxShadow: '0 0 8px rgba(163,230,53,0.4)' }}
+                  className="w-8 h-8 rounded-lg flex items-center justify-center touch-manipulation active:scale-90 transition-all"
+                  style={{ backgroundColor: '#a3e635', boxShadow: '0 0 10px rgba(163,230,53,0.5)' }}
                 >
-                  <X className="w-3.5 h-3.5 text-slate-900" strokeWidth={3} />
+                  <X className="w-4 h-4 text-slate-900" strokeWidth={3} />
                 </button>
               )}
             </div>
@@ -400,7 +400,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                           }}
                         >
                           {dayAllNotes.length > 0 && (
-                            <span className="text-[9px] font-bold leading-none" style={{ color: '#a3e635' }}>
+                            <span className="text-[10px] font-bold leading-none" style={{ color: '#a3e635' }}>
                               {dayAllNotes.length}
                             </span>
                           )}
@@ -469,7 +469,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                   {(() => {
                     const isSlotRow = selectedSlot?.time === slot.label;
                     return (
-                      <div className={cn("flex-shrink-0 flex items-center px-1 border-r border-slate-600/50", isSlotRow && "bg-amber-500/10")} style={{ width: '50px' }}>
+                      <div className={cn("flex-shrink-0 flex items-center px-1 border-r border-slate-500/60", isSlotRow && "bg-amber-500/10")} style={{ width: '50px' }}>
                         {isSlotRow ? (
                           <div className="w-4 h-4 rounded-full bg-amber-500 flex items-center justify-center mr-1 animate-pulse shadow-lg shadow-amber-500/40 flex-shrink-0">
                             <Plus className="w-2.5 h-2.5 text-white" />
