@@ -295,22 +295,18 @@ export default function ComplianceAziendale() {
   
   const generateNormsForBranch = async (branchId, tipoAttivita, numeroDipendenti, dataAttivazione, codiceAteco, branchData = {}) => {
         if (!tipoAttivita || !tipoAttivita.trim()) {
-          console.error('[ComplianceAziendale] tipoAttivita mancante');
           throw new Error('Tipo attività mancante');
         }
 
         const branch = branches.find(b => b.id === branchId);
         const ateco = codiceAteco || branch?.codice_ateco || '';
-        const dataBase = dataAttivazione || new Date().toISOString().split('T')[0];
-        
-        // RISCHI REALI dichiarati dall'utente
+
+        if (!ateco) {
+          throw new Error('Codice ATECO mancante. Inserisci il codice ATECO per generare gli adempimenti.');
+        }
+
         const rischi = {
-          // Base
-          tipo_categoria: branchData.tipo_attivita_categoria || 'produttiva',
           lavoratori: branchData.presenza_lavoratori !== false,
-          numero_dipendenti: numeroDipendenti || 0,
-          superficie_mq: branchData.superficie_mq || 0,
-          // Sicurezza sul lavoro
           macchinari: branchData.presenza_macchinari || false,
           rumore: branchData.presenza_rumore || false,
           vibrazioni: branchData.presenza_vibrazioni || false,
@@ -324,636 +320,44 @@ export default function ComplianceAziendale() {
           radiazioni_ottiche: branchData.presenza_radiazioni_ottiche || false,
           microclima_severo: branchData.presenza_microclima_severo || false,
           atmosfere_esplosive: branchData.presenza_atmosfere_esplosive || false,
-          // Ambientale
           rifiuti_speciali: branchData.presenza_rifiuti_speciali || false,
           emissioni_atmosfera: branchData.presenza_emissioni_atmosfera || false,
           scarichi_industriali: branchData.presenza_scarichi_industriali || false,
-          // Antincendio
           rischio_incendio_non_basso: branchData.presenza_rischio_incendio_non_basso || false,
-          // Privacy/IT
           sistemi_it_cloud: branchData.presenza_sistemi_it_cloud || false,
           dati_sensibili: branchData.trattamento_dati_sensibili || false
         };
 
-        // Verifica dati minimi obbligatori
-        if (!rischi.lavoratori && rischi.numero_dipendenti > 0) {
-          rischi.lavoratori = true;
-        }
-
-        // Calcola data scadenza da oggi + mesi
-        const calcolaScadenza = (mesi) => {
-          if (!mesi || mesi === 0) return null;
-          const data = new Date(dataBase);
-          data.setMonth(data.getMonth() + mesi);
-          return data.toISOString().split('T')[0];
-        };
-
         try {
-          console.log('[ComplianceAziendale] START Generazione adempimenti per:', { branchId, tipoAttivita, numeroDipendenti, dataAttivazione, ateco, rischi });
+          console.log('[ComplianceAziendale] Chiamo ChatGPT per generare adempimenti ATECO:', ateco);
 
-          const allAdempimenti = [];
+          const response = await base44.functions.invoke('generateComplianceNorms', {
+            codice_ateco: ateco,
+            tipo_attivita: tipoAttivita,
+            tipo_attivita_categoria: branchData.tipo_attivita_categoria || 'produttiva',
+            numero_dipendenti: numeroDipendenti || 0,
+            superficie_mq: branchData.superficie_mq || 0,
+            data_attivazione: dataAttivazione || new Date().toISOString().split('T')[0],
+            rischi
+          });
 
-          // ========================================
-          // FASE 1: ADEMPIMENTI FISSI (SEMPRE OBBLIGATORI SE CI SONO LAVORATORI)
-          // ========================================
-          console.log('[ComplianceAziendale] FASE 1: Adempimenti FISSI base...');
+          const result = response.data;
 
-          if (rischi.lavoratori) {
-            // SICUREZZA SUL LAVORO - SEMPRE OBBLIGATORI
-            const adempimentiFissiSicurezza = [
-              {
-                nome: "DVR - Documento di Valutazione dei Rischi",
-                descrizione: "Art. 17, 28 D.Lgs. 81/08 - Documento obbligatorio che analizza tutti i rischi presenti in azienda e le misure di prevenzione adottate",
-                categoria: "Sicurezza sul lavoro",
-                frequenza_rinnovo_mesi: 0,
-                sanzione_prevista: "Art. 55 D.Lgs. 81/08: Arresto da 3 a 6 mesi o ammenda da €3.071 a €7.862",
-                priorita: "alta",
-                data_scadenza: null
-              },
-              {
-                nome: "Nomina RSPP - Responsabile Servizio Prevenzione e Protezione",
-                descrizione: "Art. 17, 31-34 D.Lgs. 81/08 - Nomina formale del responsabile della sicurezza aziendale",
-                categoria: "Sicurezza sul lavoro",
-                frequenza_rinnovo_mesi: 0,
-                sanzione_prevista: "Art. 55 D.Lgs. 81/08: Arresto da 3 a 6 mesi o ammenda da €3.071 a €7.862",
-                priorita: "alta",
-                data_scadenza: null
-              },
-              {
-                nome: "Nomina RLS - Rappresentante dei Lavoratori per la Sicurezza",
-                descrizione: "Art. 47-50 D.Lgs. 81/08 - Elezione/designazione del rappresentante dei lavoratori o adesione a RLST territoriale",
-                categoria: "Sicurezza sul lavoro",
-                frequenza_rinnovo_mesi: 0,
-                sanzione_prevista: "Art. 55 D.Lgs. 81/08: Ammenda da €2.740 a €7.014",
-                priorita: "alta",
-                data_scadenza: null
-              },
-              {
-                nome: "Formazione Generale Lavoratori",
-                descrizione: "Art. 37 D.Lgs. 81/08 - Formazione base 4 ore su concetti generali di sicurezza",
-                categoria: "Formazione obbligatoria",
-                frequenza_rinnovo_mesi: 0,
-                sanzione_prevista: "Art. 55 D.Lgs. 81/08: Arresto da 2 a 4 mesi o ammenda da €1.474 a €6.388",
-                priorita: "alta",
-                data_scadenza: null
-              },
-              {
-                nome: "Formazione Specifica Lavoratori",
-                descrizione: "Art. 37 D.Lgs. 81/08 - Formazione specifica in base al rischio (basso 4h, medio 8h, alto 12h)",
-                categoria: "Formazione obbligatoria",
-                frequenza_rinnovo_mesi: 60,
-                sanzione_prevista: "Art. 55 D.Lgs. 81/08: Arresto da 2 a 4 mesi o ammenda da €1.474 a €6.388",
-                priorita: "alta",
-                data_scadenza: calcolaScadenza(60)
-              },
-              {
-                nome: "Designazione e Formazione Addetti Primo Soccorso",
-                descrizione: "Art. 45 D.Lgs. 81/08 + DM 388/03 - Designazione addetti e corso 12/16 ore in base al gruppo aziendale",
-                categoria: "Formazione obbligatoria",
-                frequenza_rinnovo_mesi: 36,
-                sanzione_prevista: "Art. 55 D.Lgs. 81/08: Arresto da 2 a 4 mesi o ammenda da €1.474 a €6.388",
-                priorita: "alta",
-                data_scadenza: calcolaScadenza(36)
-              },
-              {
-                nome: "Designazione e Formazione Addetti Antincendio",
-                descrizione: "Art. 46 D.Lgs. 81/08 + DM 02/09/2021 - Designazione addetti e corso in base al livello di rischio",
-                categoria: "Formazione obbligatoria",
-                frequenza_rinnovo_mesi: 60,
-                sanzione_prevista: "Art. 55 D.Lgs. 81/08: Arresto da 2 a 4 mesi o ammenda da €1.474 a €6.388",
-                priorita: "alta",
-                data_scadenza: calcolaScadenza(60)
-              },
-              {
-                nome: "Piano di Emergenza ed Evacuazione",
-                descrizione: "Art. 43-46 D.Lgs. 81/08 + DM 02/09/2021 - Piano scritto delle procedure di emergenza e evacuazione",
-                categoria: "Sicurezza sul lavoro",
-                frequenza_rinnovo_mesi: 0,
-                sanzione_prevista: "Art. 55 D.Lgs. 81/08: Ammenda da €2.740 a €7.014",
-                priorita: "alta",
-                data_scadenza: null
-              },
-              {
-                nome: "Valutazione Stress Lavoro-Correlato",
-                descrizione: "Art. 28 D.Lgs. 81/08 - Valutazione OBBLIGATORIA per TUTTE le aziende con lavoratori",
-                categoria: "Sicurezza sul lavoro",
-                frequenza_rinnovo_mesi: 24,
-                sanzione_prevista: "Art. 55 D.Lgs. 81/08: Ammenda da €2.740 a €7.014",
-                priorita: "media",
-                data_scadenza: calcolaScadenza(24)
-              },
-              {
-                nome: "Registro Controlli Antincendio",
-                descrizione: "DM 02/09/2021 - Registro delle verifiche periodiche su estintori, idranti, uscite emergenza",
-                categoria: "Antincendio",
-                frequenza_rinnovo_mesi: 0,
-                sanzione_prevista: "DPR 151/2011: Sanzioni amministrative e penali",
-                priorita: "media",
-                data_scadenza: null
-              },
-              // PRIVACY - SEMPRE OBBLIGATORI
-              {
-                nome: "Registro dei Trattamenti Dati",
-                descrizione: "Art. 30 GDPR (Reg. UE 2016/679) - Registro obbligatorio dei trattamenti dati personali effettuati",
-                categoria: "Privacy e GDPR",
-                frequenza_rinnovo_mesi: 0,
-                sanzione_prevista: "Art. 83 GDPR: Sanzioni fino a €10.000.000 o 2% fatturato",
-                priorita: "alta",
-                data_scadenza: null
-              },
-              {
-                nome: "Informativa Privacy Dipendenti",
-                descrizione: "Art. 13 GDPR - Informativa sul trattamento dati personali da consegnare ai dipendenti",
-                categoria: "Privacy e GDPR",
-                frequenza_rinnovo_mesi: 0,
-                sanzione_prevista: "Art. 83 GDPR: Sanzioni fino a €20.000.000 o 4% fatturato",
-                priorita: "alta",
-                data_scadenza: null
-              },
-              {
-                nome: "Nomina Autorizzati al Trattamento Dati",
-                descrizione: "Art. 29 GDPR + Art. 2-quaterdecies D.Lgs. 196/03 - Nomina formale dei soggetti autorizzati a trattare dati",
-                categoria: "Privacy e GDPR",
-                frequenza_rinnovo_mesi: 0,
-                sanzione_prevista: "Art. 83 GDPR: Sanzioni amministrative",
-                priorita: "media",
-                data_scadenza: null
-              }
-            ];
-
-            adempimentiFissiSicurezza.forEach(a => allAdempimenti.push(a));
-            console.log('[ComplianceAziendale] Aggiunti', adempimentiFissiSicurezza.length, 'adempimenti FISSI sicurezza/privacy');
+          if (!result.success || !result.adempimenti?.length) {
+            throw new Error(result.error || 'Nessun adempimento generato. Riprova.');
           }
 
-          // ========================================
-          // FASE 2: ADEMPIMENTI CONDIZIONATI (basati su RISCHI DICHIARATI)
-          // ========================================
-          console.log('[ComplianceAziendale] FASE 2: Adempimenti CONDIZIONATI da rischi dichiarati...');
-
-          // --- VALUTAZIONI RISCHI SPECIFICHE (D.Lgs. 81/08) ---
-
-          if (rischi.macchinari) {
-            allAdempimenti.push({
-              nome: "Valutazione Rischio Meccanico",
-              descrizione: "Art. 71 D.Lgs. 81/08 - Valutazione rischi da attrezzature di lavoro e macchinari",
-              categoria: "Sicurezza sul lavoro",
-              frequenza_rinnovo_mesi: 36,
-              sanzione_prevista: "Art. 87 D.Lgs. 81/08: Arresto da 3 a 6 mesi o ammenda da €3.071 a €7.862",
-              priorita: "alta",
-              data_scadenza: calcolaScadenza(36)
-            });
-            allAdempimenti.push({
-              nome: "Registro Manutenzione Macchine",
-              descrizione: "Art. 71 c.4 D.Lgs. 81/08 - Registro controlli e manutenzioni periodiche",
-              categoria: "Sicurezza sul lavoro",
-              frequenza_rinnovo_mesi: 0,
-              sanzione_prevista: "Art. 87 D.Lgs. 81/08: Sanzione amministrativa da €2.740 a €7.014",
-              priorita: "media",
-              data_scadenza: null
-            });
-            allAdempimenti.push({
-              nome: "Dichiarazioni di Conformità CE Macchine",
-              descrizione: "Direttiva 2006/42/CE - Marcatura CE e dichiarazione di conformità per ogni macchina",
-              categoria: "Sicurezza sul lavoro",
-              frequenza_rinnovo_mesi: 0,
-              sanzione_prevista: "D.Lgs. 17/2010: Sanzioni da €2.000 a €24.000",
-              priorita: "alta",
-              data_scadenza: null
-            });
-          }
-
-          if (rischi.rumore) {
-            allAdempimenti.push({
-              nome: "Valutazione Rischio Rumore",
-              descrizione: "Art. 190 D.Lgs. 81/08 - Valutazione esposizione a rumore con fonometria",
-              categoria: "Sicurezza sul lavoro",
-              frequenza_rinnovo_mesi: 48,
-              sanzione_prevista: "Art. 219 D.Lgs. 81/08: Arresto da 3 a 6 mesi o ammenda da €2.740 a €7.014",
-              priorita: "alta",
-              data_scadenza: calcolaScadenza(48)
-            });
-          }
-
-          if (rischi.vibrazioni) {
-            allAdempimenti.push({
-              nome: "Valutazione Rischio Vibrazioni",
-              descrizione: "Art. 202 D.Lgs. 81/08 - Valutazione esposizione a vibrazioni meccaniche HAV/WBV",
-              categoria: "Sicurezza sul lavoro",
-              frequenza_rinnovo_mesi: 48,
-              sanzione_prevista: "Art. 219 D.Lgs. 81/08: Arresto da 3 a 6 mesi o ammenda da €2.740 a €7.014",
-              priorita: "alta",
-              data_scadenza: calcolaScadenza(48)
-            });
-          }
-
-          if (rischi.sostanze_chimiche) {
-            allAdempimenti.push({
-              nome: "Schede Dati di Sicurezza (SDS)",
-              descrizione: "Reg. UE 2020/878 (REACH/CLP) - Raccolta e aggiornamento SDS per tutte le sostanze chimiche",
-              categoria: "Sicurezza sul lavoro",
-              frequenza_rinnovo_mesi: 0,
-              sanzione_prevista: "D.Lgs. 133/2009: Sanzioni da €10.000 a €60.000",
-              priorita: "alta",
-              data_scadenza: null
-            });
-            allAdempimenti.push({
-              nome: "Valutazione Rischio Chimico",
-              descrizione: "Titolo IX D.Lgs. 81/08 - Valutazione specifica del rischio da agenti chimici",
-              categoria: "Sicurezza sul lavoro",
-              frequenza_rinnovo_mesi: 36,
-              sanzione_prevista: "Art. 223 D.Lgs. 81/08: Arresto da 3 a 6 mesi o ammenda da €3.071 a €7.862",
-              priorita: "alta",
-              data_scadenza: calcolaScadenza(36)
-            });
-          }
-
-          if (rischi.movimentazione_carichi) {
-            allAdempimenti.push({
-              nome: "Valutazione Rischio MMC - Movimentazione Manuale Carichi",
-              descrizione: "Titolo VI D.Lgs. 81/08 - Valutazione rischio da sollevamento, trasporto, traino, spinta",
-              categoria: "Sicurezza sul lavoro",
-              frequenza_rinnovo_mesi: 36,
-              sanzione_prevista: "Art. 170 D.Lgs. 81/08: Arresto da 3 a 6 mesi o ammenda da €2.740 a €7.014",
-              priorita: "alta",
-              data_scadenza: calcolaScadenza(36)
-            });
-          }
-
-          if (rischi.videoterminali) {
-            allAdempimenti.push({
-              nome: "Valutazione Rischio Videoterminali (VDT)",
-              descrizione: "Titolo VII D.Lgs. 81/08 - Valutazione per addetti che usano VDT per almeno 20 ore settimanali",
-              categoria: "Sicurezza sul lavoro",
-              frequenza_rinnovo_mesi: 60,
-              sanzione_prevista: "Art. 178 D.Lgs. 81/08: Sanzione amministrativa da €2.740 a €7.014",
-              priorita: "media",
-              data_scadenza: calcolaScadenza(60)
-            });
-          }
-
-          if (rischi.lavori_quota) {
-            allAdempimenti.push({
-              nome: "Valutazione Rischio Lavori in Quota",
-              descrizione: "Titolo IV Capo II D.Lgs. 81/08 - Valutazione per lavori a più di 2 metri di altezza",
-              categoria: "Sicurezza sul lavoro",
-              frequenza_rinnovo_mesi: 36,
-              sanzione_prevista: "Art. 159 D.Lgs. 81/08: Arresto da 2 a 4 mesi o ammenda da €1.096 a €5.260",
-              priorita: "alta",
-              data_scadenza: calcolaScadenza(36)
-            });
-            allAdempimenti.push({
-              nome: "Formazione Lavori in Quota e DPI III Categoria",
-              descrizione: "Art. 77 D.Lgs. 81/08 - Formazione uso imbracature e dispositivi anticaduta",
-              categoria: "Formazione obbligatoria",
-              frequenza_rinnovo_mesi: 60,
-              sanzione_prevista: "Art. 87 D.Lgs. 81/08: Arresto da 2 a 4 mesi o ammenda da €1.474 a €6.388",
-              priorita: "alta",
-              data_scadenza: calcolaScadenza(60)
-            });
-          }
-
-          if (rischi.spazi_confinati) {
-            allAdempimenti.push({
-              nome: "Valutazione Rischio Spazi Confinati",
-              descrizione: "DPR 177/2011 - Valutazione per lavori in ambienti sospetti di inquinamento o confinati",
-              categoria: "Sicurezza sul lavoro",
-              frequenza_rinnovo_mesi: 36,
-              sanzione_prevista: "Art. 3 DPR 177/2011: Arresto da 6 mesi a 1 anno o ammenda da €5.000 a €15.000",
-              priorita: "alta",
-              data_scadenza: calcolaScadenza(36)
-            });
-            allAdempimenti.push({
-              nome: "Formazione Spazi Confinati",
-              descrizione: "DPR 177/2011 - Formazione specifica per lavoratori in ambienti confinati",
-              categoria: "Formazione obbligatoria",
-              frequenza_rinnovo_mesi: 60,
-              sanzione_prevista: "DPR 177/2011: Sanzioni penali",
-              priorita: "alta",
-              data_scadenza: calcolaScadenza(60)
-            });
-          }
-
-          if (rischi.rischio_biologico) {
-            allAdempimenti.push({
-              nome: "Valutazione Rischio Biologico",
-              descrizione: "Titolo X D.Lgs. 81/08 - Valutazione esposizione ad agenti biologici",
-              categoria: "Sicurezza sul lavoro",
-              frequenza_rinnovo_mesi: 36,
-              sanzione_prevista: "Art. 282 D.Lgs. 81/08: Arresto da 3 a 6 mesi o ammenda da €2.740 a €7.014",
-              priorita: "alta",
-              data_scadenza: calcolaScadenza(36)
-            });
-          }
-
-          if (rischi.campi_elettromagnetici) {
-            allAdempimenti.push({
-              nome: "Valutazione Rischio Campi Elettromagnetici (CEM)",
-              descrizione: "Titolo VIII Capo IV D.Lgs. 81/08 - Valutazione esposizione a CEM",
-              categoria: "Sicurezza sul lavoro",
-              frequenza_rinnovo_mesi: 48,
-              sanzione_prevista: "Art. 219 D.Lgs. 81/08: Arresto da 3 a 6 mesi o ammenda da €2.740 a €7.014",
-              priorita: "alta",
-              data_scadenza: calcolaScadenza(48)
-            });
-          }
-
-          if (rischi.radiazioni_ottiche) {
-            allAdempimenti.push({
-              nome: "Valutazione Rischio Radiazioni Ottiche Artificiali (ROA)",
-              descrizione: "Titolo VIII Capo V D.Lgs. 81/08 - Valutazione esposizione a ROA (saldatura, laser, ecc.)",
-              categoria: "Sicurezza sul lavoro",
-              frequenza_rinnovo_mesi: 48,
-              sanzione_prevista: "Art. 219 D.Lgs. 81/08: Arresto da 3 a 6 mesi o ammenda da €2.740 a €7.014",
-              priorita: "alta",
-              data_scadenza: calcolaScadenza(48)
-            });
-          }
-
-          if (rischi.microclima_severo) {
-            allAdempimenti.push({
-              nome: "Valutazione Rischio Microclima",
-              descrizione: "Allegato IV D.Lgs. 81/08 - Valutazione condizioni microclimatiche (caldo/freddo severo)",
-              categoria: "Sicurezza sul lavoro",
-              frequenza_rinnovo_mesi: 48,
-              sanzione_prevista: "Art. 68 D.Lgs. 81/08: Arresto da 2 a 4 mesi o ammenda da €1.096 a €5.260",
-              priorita: "media",
-              data_scadenza: calcolaScadenza(48)
-            });
-          }
-
-          if (rischi.atmosfere_esplosive) {
-            allAdempimenti.push({
-              nome: "Valutazione Rischio ATEX - Atmosfere Esplosive",
-              descrizione: "Titolo XI D.Lgs. 81/08 - Valutazione rischio esplosione per polveri/vapori infiammabili",
-              categoria: "Sicurezza sul lavoro",
-              frequenza_rinnovo_mesi: 36,
-              sanzione_prevista: "Art. 297 D.Lgs. 81/08: Arresto da 3 a 6 mesi o ammenda da €2.740 a €7.014",
-              priorita: "alta",
-              data_scadenza: calcolaScadenza(36)
-            });
-            allAdempimenti.push({
-              nome: "Documento sulla Protezione contro le Esplosioni (DPCE)",
-              descrizione: "Art. 294 D.Lgs. 81/08 - Documento ATEX con classificazione zone",
-              categoria: "Sicurezza sul lavoro",
-              frequenza_rinnovo_mesi: 0,
-              sanzione_prevista: "Art. 297 D.Lgs. 81/08: Arresto da 3 a 6 mesi o ammenda da €2.740 a €7.014",
-              priorita: "alta",
-              data_scadenza: null
-            });
-          }
-
-          // --- SORVEGLIANZA SANITARIA ---
-          // Obbligatoria se presente almeno un rischio che la richiede
-          const richiede_sorveglianza = rischi.rumore || rischi.vibrazioni || rischi.sostanze_chimiche || 
-            rischi.movimentazione_carichi || rischi.videoterminali || rischi.rischio_biologico ||
-            rischi.campi_elettromagnetici || rischi.radiazioni_ottiche || rischi.lavori_quota;
-
-          if (richiede_sorveglianza && rischi.lavoratori) {
-            allAdempimenti.push({
-              nome: "Nomina Medico Competente",
-              descrizione: "Art. 18 c.1 lett. a) D.Lgs. 81/08 - Nomina obbligatoria del medico competente",
-              categoria: "Sicurezza sul lavoro",
-              frequenza_rinnovo_mesi: 0,
-              sanzione_prevista: "Art. 55 D.Lgs. 81/08: Arresto da 2 a 4 mesi o ammenda da €1.644 a €6.576",
-              priorita: "alta",
-              data_scadenza: null
-            });
-            allAdempimenti.push({
-              nome: "Protocollo Sanitario",
-              descrizione: "Art. 25 D.Lgs. 81/08 - Documento del medico competente con visite ed esami previsti",
-              categoria: "Sicurezza sul lavoro",
-              frequenza_rinnovo_mesi: 0,
-              sanzione_prevista: "Art. 58 D.Lgs. 81/08: Sanzioni per il medico competente",
-              priorita: "alta",
-              data_scadenza: null
-            });
-            allAdempimenti.push({
-              nome: "Giudizi di Idoneità alla Mansione",
-              descrizione: "Art. 41 D.Lgs. 81/08 - Giudizio di idoneità per ogni lavoratore esposto a rischi",
-              categoria: "Sicurezza sul lavoro",
-              frequenza_rinnovo_mesi: 12,
-              sanzione_prevista: "Art. 55 D.Lgs. 81/08: Ammenda da €2.192 a €4.384 per lavoratore",
-              priorita: "alta",
-              data_scadenza: calcolaScadenza(12)
-            });
-          }
-
-          // --- ANTINCENDIO ---
-          if (rischi.rischio_incendio_non_basso) {
-            allAdempimenti.push({
-              nome: "SCIA Antincendio / CPI",
-              descrizione: "DPR 151/2011 - Segnalazione Certificata Inizio Attività o Certificato Prevenzione Incendi",
-              categoria: "Antincendio",
-              frequenza_rinnovo_mesi: 60,
-              sanzione_prevista: "Art. 20 D.Lgs. 139/2006: Arresto fino a 1 anno o ammenda da €258 a €2.582",
-              priorita: "alta",
-              data_scadenza: calcolaScadenza(60)
-            });
-          }
-
-          // --- AMBIENTALE ---
-          if (rischi.rifiuti_speciali) {
-            const adempimentiRifiuti = [
-              {
-                nome: "Registro Carico/Scarico Rifiuti",
-                descrizione: "Art. 190 D.Lgs. 152/06 - Registro vidimato CCIAA per tracciabilità rifiuti speciali",
-                categoria: "Ambientale",
-                frequenza_rinnovo_mesi: 0,
-                sanzione_prevista: "Art. 258 D.Lgs. 152/06: Sanzione da €2.600 a €15.500",
-                priorita: "alta",
-                data_scadenza: null
-              },
-              {
-                nome: "Formulario Identificazione Rifiuti (FIR)",
-                descrizione: "Art. 193 D.Lgs. 152/06 - Documento di accompagnamento per ogni trasporto rifiuti",
-                categoria: "Ambientale",
-                frequenza_rinnovo_mesi: 0,
-                sanzione_prevista: "Art. 258 D.Lgs. 152/06: Sanzione da €1.600 a €9.300",
-                priorita: "alta",
-                data_scadenza: null
-              },
-              {
-                nome: "MUD - Modello Unico Dichiarazione Ambientale",
-                descrizione: "L. 70/94 - Dichiarazione annuale rifiuti, scadenza 30 aprile",
-                categoria: "Ambientale",
-                frequenza_rinnovo_mesi: 12,
-                sanzione_prevista: "Art. 258 D.Lgs. 152/06: Sanzione da €2.600 a €15.500",
-                priorita: "alta",
-                data_scadenza: calcolaScadenza(12)
-              },
-              {
-                nome: "Iscrizione RENTRI",
-                descrizione: "DM 04/04/2023 - Registro Elettronico Nazionale Tracciabilità Rifiuti (obbligatorio dal 2025)",
-                categoria: "Ambientale",
-                frequenza_rinnovo_mesi: 0,
-                sanzione_prevista: "Sanzioni amministrative previste dal DM",
-                priorita: "alta",
-                data_scadenza: null
-              }
-            ];
-            adempimentiRifiuti.forEach(a => allAdempimenti.push(a));
-          }
-
-          if (rischi.emissioni_atmosfera) {
-            allAdempimenti.push({
-              nome: "Autorizzazione Emissioni in Atmosfera",
-              descrizione: "Art. 269 D.Lgs. 152/06 o AUA (DPR 59/2013) - Autorizzazione per emissioni in atmosfera",
-              categoria: "Ambientale",
-              frequenza_rinnovo_mesi: 180,
-              sanzione_prevista: "Art. 279 D.Lgs. 152/06: Arresto fino a 1 anno o ammenda fino a €10.000",
-              priorita: "alta",
-              data_scadenza: calcolaScadenza(180)
-            });
-          }
-
-          if (rischi.scarichi_industriali) {
-            allAdempimenti.push({
-              nome: "Autorizzazione allo Scarico",
-              descrizione: "Art. 124 D.Lgs. 152/06 - Autorizzazione per scarichi acque reflue industriali",
-              categoria: "Ambientale",
-              frequenza_rinnovo_mesi: 48,
-              sanzione_prevista: "Art. 137 D.Lgs. 152/06: Arresto fino a 3 anni o ammenda da €5.000 a €52.000",
-              priorita: "alta",
-              data_scadenza: calcolaScadenza(48)
-            });
-          }
-
-          // --- PRIVACY AVANZATO ---
-          if (rischi.sistemi_it_cloud) {
-            allAdempimenti.push({
-              nome: "Nomina Responsabile Trattamento Dati (DPA)",
-              descrizione: "Art. 28 GDPR - Contratto con fornitori cloud/IT che trattano dati per conto dell'azienda",
-              categoria: "Privacy e GDPR",
-              frequenza_rinnovo_mesi: 0,
-              sanzione_prevista: "Art. 83 GDPR: Sanzioni fino a €10.000.000 o 2% fatturato",
-              priorita: "alta",
-              data_scadenza: null
-            });
-          }
-
-          if (rischi.dati_sensibili) {
-            allAdempimenti.push({
-              nome: "DPIA - Valutazione Impatto Privacy",
-              descrizione: "Art. 35 GDPR - Valutazione d'impatto obbligatoria per trattamenti ad alto rischio",
-              categoria: "Privacy e GDPR",
-              frequenza_rinnovo_mesi: 24,
-              sanzione_prevista: "Art. 83 GDPR: Sanzioni fino a €10.000.000 o 2% fatturato",
-              priorita: "alta",
-              data_scadenza: calcolaScadenza(24)
-            });
-            allAdempimenti.push({
-              nome: "Nomina DPO - Data Protection Officer",
-              descrizione: "Art. 37 GDPR - Nomina obbligatoria per trattamento su larga scala di dati sensibili",
-              categoria: "Privacy e GDPR",
-              frequenza_rinnovo_mesi: 0,
-              sanzione_prevista: "Art. 83 GDPR: Sanzioni fino a €10.000.000 o 2% fatturato",
-              priorita: "alta",
-              data_scadenza: null
-            });
-          }
-
-          console.log('[ComplianceAziendale] Totale adempimenti FISSI + CONDIZIONATI:', allAdempimenti.length);
-
-          // ========================================
-          // FASE 3: VERIFICA SETTORE SPECIFICO (HACCP, Edilizia, ecc.)
-          // ========================================
-          console.log('[ComplianceAziendale] FASE 3: Verifica settore specifico ATECO...');
-
-          // Determina se settore alimentare
-          const isAlimentare = ateco && (
-            ateco.startsWith('10.') || ateco.startsWith('11.') || 
-            ateco.startsWith('47.2') || ateco.startsWith('55.') || ateco.startsWith('56.')
-          );
-
-          if (isAlimentare) {
-            allAdempimenti.push({
-              nome: "Registrazione OSA alla ASL",
-              descrizione: "Reg. CE 852/2004 - Registrazione come Operatore del Settore Alimentare",
-              categoria: "Igiene e Sanità",
-              frequenza_rinnovo_mesi: 0,
-              sanzione_prevista: "D.Lgs. 193/2007: Sanzione da €1.000 a €6.000",
-              priorita: "alta",
-              data_scadenza: null
-            });
-            allAdempimenti.push({
-              nome: "Manuale HACCP",
-              descrizione: "Reg. CE 852/2004 - Sistema di autocontrollo igienico-sanitario",
-              categoria: "Igiene e Sanità",
-              frequenza_rinnovo_mesi: 12,
-              sanzione_prevista: "D.Lgs. 193/2007: Sanzione da €1.000 a €6.000",
-              priorita: "alta",
-              data_scadenza: calcolaScadenza(12)
-            });
-            allAdempimenti.push({
-              nome: "Formazione Alimentaristi (ex Libretto Sanitario)",
-              descrizione: "Reg. CE 852/2004 - Formazione obbligatoria per chi manipola alimenti",
-              categoria: "Formazione obbligatoria",
-              frequenza_rinnovo_mesi: 36,
-              sanzione_prevista: "Normativa regionale: Sanzioni variabili",
-              priorita: "alta",
-              data_scadenza: calcolaScadenza(36)
-            });
-          }
-
-          // Determina se settore edilizia/cantieri
-          const isEdilizia = ateco && (
-            ateco.startsWith('41.') || ateco.startsWith('42.') || ateco.startsWith('43.')
-          );
-
-          if (isEdilizia) {
-            allAdempimenti.push({
-              nome: "POS - Piano Operativo di Sicurezza",
-              descrizione: "Art. 89 D.Lgs. 81/08 - Piano obbligatorio per ogni cantiere",
-              categoria: "Sicurezza sul lavoro",
-              frequenza_rinnovo_mesi: 0,
-              sanzione_prevista: "Art. 159 D.Lgs. 81/08: Arresto da 2 a 4 mesi o ammenda da €1.096 a €5.260",
-              priorita: "alta",
-              data_scadenza: null
-            });
-            allAdempimenti.push({
-              nome: "Notifica Preliminare Cantiere",
-              descrizione: "Art. 99 D.Lgs. 81/08 - Notifica ASL/Ispettorato per cantieri > 200 uomini-giorno",
-              categoria: "Sicurezza sul lavoro",
-              frequenza_rinnovo_mesi: 0,
-              sanzione_prevista: "Art. 159 D.Lgs. 81/08: Sanzione amministrativa da €614 a €2.211",
-              priorita: "media",
-              data_scadenza: null
-            });
-            allAdempimenti.push({
-              nome: "Formazione Ponteggi",
-              descrizione: "Art. 136 D.Lgs. 81/08 - Formazione per montaggio/smontaggio ponteggi",
-              categoria: "Formazione obbligatoria",
-              frequenza_rinnovo_mesi: 48,
-              sanzione_prevista: "Art. 159 D.Lgs. 81/08: Arresto da 2 a 4 mesi o ammenda da €1.474 a €6.388",
-              priorita: "alta",
-              data_scadenza: calcolaScadenza(48)
-            });
-          }
-
-          console.log('[ComplianceAziendale] Adempimenti totali generati:', allAdempimenti.length);
-
-          // ========================================
-          // FASE 3: SALVATAGGIO
-          // ========================================
-          console.log('[ComplianceAziendale] Totale adempimenti da salvare:', allAdempimenti.length);
-          
-          if (allAdempimenti.length === 0) {
-            throw new Error('Nessun adempimento generato. Riprova.');
-          }
+          console.log('[ComplianceAziendale] ChatGPT ha generato', result.adempimenti.length, 'adempimenti');
 
           const validCategorie = ["Sicurezza sul lavoro", "Privacy e GDPR", "Ambientale", "Fiscale", "Igiene e Sanità", "Antincendio", "Formazione obbligatoria", "Altro"];
 
-          for (const adempimento of allAdempimenti) {
+          for (const adempimento of result.adempimenti) {
             let categoria = adempimento.categoria || 'Altro';
-            const categoriaLower = categoria.toLowerCase().trim();
-            const matchedCategoria = validCategorie.find(c => c.toLowerCase() === categoriaLower);
-            if (matchedCategoria) {
-              categoria = matchedCategoria;
-            } else {
-              const partialMatch = validCategorie.find(c => 
-                categoriaLower.includes(c.toLowerCase()) || c.toLowerCase().includes(categoriaLower)
+            if (!validCategorie.includes(categoria)) {
+              const partial = validCategorie.find(c => 
+                categoria.toLowerCase().includes(c.toLowerCase()) || c.toLowerCase().includes(categoria.toLowerCase())
               );
-              categoria = partialMatch || 'Altro';
+              categoria = partial || 'Altro';
             }
 
             await base44.entities.ComplianceNorm.create({
@@ -973,15 +377,8 @@ export default function ComplianceAziendale() {
             });
           }
 
-          console.log('[ComplianceAziendale] Salvati', allAdempimenti.length, 'adempimenti per branch', branchId);
-          
-          try {
-            queryClient.invalidateQueries({ queryKey: ['compliance-norms'] });
-          } catch (qcError) {
-            console.warn('[ComplianceAziendale] Errore invalidazione query (non critico):', qcError);
-          }
-
-          console.log('[ComplianceAziendale] Generazione completata con successo');
+          console.log('[ComplianceAziendale] Salvati', result.adempimenti.length, 'adempimenti per branch', branchId);
+          queryClient.invalidateQueries({ queryKey: ['compliance-norms'] });
 
         } catch (error) {
           console.error('[ComplianceAziendale] ERRORE generazione:', error);
