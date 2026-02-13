@@ -366,29 +366,29 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                 <div className="flex items-center justify-between px-3 pl-6" style={{ height: '32px' }}>
                   <div style={{ width: '50px' }} />
                   <button
-                    onClick={() => {
-                      const targetDate = selectedDate 
-                        ? new Date(selectedDate) 
-                        : new Date();
-                      targetDate.setHours(0,0,0,0);
-                      handleDateSelect(targetDate);
-                      setShowWeekView(false);
-                      setIsOpen(true);
-                      setShowTimePicker(true);
-                      setTimeout(() => {
-                        if (goToTodayRef.scrollToDate) {
-                          goToTodayRef.scrollToDate(targetDate);
-                        }
-                      }, 200);
-                    }}
-                    className="px-4 py-2 rounded-md touch-manipulation active:scale-90 transition-all animate-pulse"
-                    style={{ 
-                      backgroundColor: MONTH_COLORS[weekViewMonth],
-                      color: '#0f172a'
-                    }}
-                  >
-                    <span className="text-[9px] font-bold uppercase">Vista Giornaliera</span>
-                  </button>
+                      onClick={() => {
+                        const targetDate = selectedDate 
+                          ? new Date(selectedDate) 
+                          : new Date();
+                        targetDate.setHours(0,0,0,0);
+                        handleDateSelect(targetDate);
+                        setShowWeekView(false);
+                        setIsOpen(true);
+                        setShowTimePicker(true);
+                        setTimeout(() => {
+                          if (goToTodayRef.scrollToDate) {
+                            goToTodayRef.scrollToDate(targetDate);
+                          }
+                        }, 200);
+                      }}
+                      className="px-4 py-2 rounded-md touch-manipulation active:scale-90 transition-all animate-pulse"
+                      style={{ 
+                        backgroundColor: MONTH_COLORS[weekViewMonth],
+                        color: '#0f172a'
+                      }}
+                    >
+                      <span className="text-[9px] font-bold uppercase">Giornaliera</span>
+                    </button>
                 </div>
                 {/* Riga 2: Barra mesi */}
                 <div className="overflow-hidden flex items-center">
