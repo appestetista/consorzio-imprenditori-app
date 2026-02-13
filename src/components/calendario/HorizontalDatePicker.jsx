@@ -813,31 +813,31 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
           })}
         </div>
         
-        {/* Tre pulsanti: Chiudi | Vista Settimanale | Vista Giornaliera */}
+        {/* Tre pulsanti: Chiudi | Globale | Giornaliera */}
         <div className="flex items-center gap-2 mt-1">
           {/* CHIUDI - a sinistra */}
           {onClose && (
             <button
               onClick={onClose}
-              className="flex-1 px-3 py-2.5 rounded-md transition-all touch-manipulation active:scale-90"
+              className="flex-1 h-10 rounded-md transition-all touch-manipulation active:scale-90 flex items-center justify-center"
               style={{ backgroundColor: '#a3e635', color: '#0f172a' }}
             >
               <span className="text-[9px] font-bold uppercase">Chiudi</span>
             </button>
           )}
           
-          {/* VISTA SETTIMANALE - al centro */}
+          {/* GLOBALE - al centro (apre vista settimanale) */}
           {onToggleFatturato && (
             <button
               onClick={onToggleFatturato}
-              className="flex-1 px-3 py-2.5 rounded-md transition-all animate-pulse touch-manipulation active:scale-90"
+              className="flex-1 h-10 rounded-md transition-all animate-pulse touch-manipulation active:scale-90 flex items-center justify-center"
               style={{ backgroundColor: currentMonthColor || '#a3e635', color: '#0f172a' }}
             >
-              <span className="text-[9px] font-bold uppercase">Vista Settimanale</span>
+              <span className="text-[9px] font-bold uppercase">Globale</span>
             </button>
           )}
 
-          {/* STRUMENTI - a destra */}
+          {/* GIORNALIERA - a destra (apre strumenti) */}
           <div className="flex-1 relative">
             <button
               onClick={() => {
@@ -849,12 +849,12 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                 }
               }}
               className={cn(
-                "w-full px-3 py-2.5 rounded-md transition-all touch-manipulation active:scale-90",
+                "w-full h-10 rounded-md transition-all touch-manipulation active:scale-90 flex items-center justify-center",
                 hasSelectedTime ? "animate-pulse" : "opacity-50"
               )}
               style={{ backgroundColor: currentMonthColor || '#a3e635', color: '#0f172a' }}
             >
-              <span className="text-[9px] font-bold uppercase">Strumenti</span>
+              <span className="text-[9px] font-bold uppercase">Giornaliera</span>
             </button>
             {/* Fumetto tooltip */}
             {showToolsTooltip && (
