@@ -62,6 +62,28 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     setTimeout(() => { if (scrollRef.current) scrollRef.current.scrollTop = Math.max(0, (idx - 5) * 26); }, 100);
   }, [viewDate]);
 
+  // Auto-scroll barra giorni per centrare la settimana corrente
+  useEffect(() => {
+    if (!daysBarRef.current) return;
+    const refMonth = weekDays[3].getMonth();
+    const refYear = weekDays[3].getFullYear();
+    // Trova il primo giorno della settimana nel mese
+    let firstWeekDayInMonth = -1;
+    weekDays.forEach(wd => {
+      if (wd.getMonth() === refMonth && wd.getFullYear() === refYear) {
+        const d = wd.getDate();
+        if (firstWeekDayInMonth === -1 || d < firstWeekDayInMonth) firstWeekDayInMonth = d;
+      }
+    });
+    if (firstWeekDayInMonth > 0) {
+      const itemWidth = 28; // larghezza fissa di ogni giorno
+      const scrollTarget = (firstWeekDayInMonth - 1) * itemWidth - (daysBarRef.current.clientWidth / 2) + (itemWidth * 3.5);
+      setTimeout(() => {
+        if (daysBarRef.current) daysBarRef.current.scrollTo({ left: Math.max(0, scrollTarget), behavior: 'smooth' });
+      }, 150);
+    }
+  }, [viewDate, weekDays]);
+
   // Touch gestito SOLO per swipe settimane (asse orizzontale visivo).
   // Lo scroll ore è lasciato al browser nativo (overflow-y-auto).
   // Il parent ha rotate(90deg CW), quindi:
