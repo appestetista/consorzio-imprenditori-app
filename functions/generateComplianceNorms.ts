@@ -54,7 +54,17 @@ ISTRUZIONI:
 
 Le categorie ammesse sono SOLO: "Sicurezza sul lavoro", "Privacy e GDPR", "Ambientale", "Fiscale", "Igiene e Sanità", "Antincendio", "Formazione obbligatoria", "Altro"
 
-Rispondi con un JSON con chiave "adempimenti" contenente un array di oggetti, ciascuno con: nome, descrizione, categoria, frequenza_rinnovo_mesi, sanzione_prevista, priorita`;
+FORMATO OUTPUT:
+Rispondi con un JSON con chiave "adempimenti" contenente un array di oggetti con ESATTAMENTE questi campi:
+- "nome": stringa con il NOME SPECIFICO dell'adempimento (es: "DVR - Documento di Valutazione dei Rischi", "Manuale HACCP", "Nomina RSPP"). NON usare nomi generici come "Adempimento".
+- "descrizione": stringa con il riferimento normativo e la descrizione (es: "Art. 17, 28 D.Lgs. 81/08 - Documento obbligatorio che analizza tutti i rischi...")
+- "categoria": una delle categorie ammesse
+- "frequenza_rinnovo_mesi": numero intero (0 se non ha scadenza periodica)
+- "sanzione_prevista": stringa con articolo e importo esatto della sanzione
+- "priorita": "alta", "media" o "bassa"
+
+ESEMPIO di un elemento:
+{"nome": "DVR - Documento di Valutazione dei Rischi", "descrizione": "Art. 17, 28 D.Lgs. 81/08 - Documento obbligatorio che analizza tutti i rischi presenti in azienda", "categoria": "Sicurezza sul lavoro", "frequenza_rinnovo_mesi": 0, "sanzione_prevista": "Art. 55 D.Lgs. 81/08: Arresto da 3 a 6 mesi o ammenda da €3.071 a €7.862", "priorita": "alta"}`;
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
