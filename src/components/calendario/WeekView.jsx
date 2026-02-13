@@ -332,26 +332,20 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                   style={{ width: `${ITEM_W}px` }}
                   onClick={() => handleDayClick(dayDate)}
                 >
-                  {/* Etichetta mese sul primo giorno */}
-                  {isFirstOfMonth && (
-                    <div className="absolute" style={{ top: '-1px', left: `${idx * ITEM_W}px` }}>
-                      <span className="text-[7px] font-bold uppercase" style={{ color: mColor }}>{MONTHS_IT[mIdx]}</span>
-                    </div>
-                  )}
                   <div
                     className={cn("rounded-full flex items-center justify-center transition-all", isToday && "animate-pulse")}
                     style={{
-                      width: '20px', height: '20px', marginTop: isFirstOfMonth ? '8px' : '0px',
+                      width: '20px', height: '20px',
                       backgroundColor: isSelectedDay && !isToday ? mColor : 'transparent',
                       border: isHL ? '2px solid #f59e0b' : (isSelectedDay && !isToday ? `2px solid ${mColor}` : 'none'),
                     }}
                   >
                     <span className={cn("text-[8px] font-bold leading-none", isToday && "animate-pulse")} style={{
-                      color: isToday ? '#fff' : (isSelectedDay ? '#fff' : (isHL ? '#f59e0b' : (isInWeek ? '#fff' : '#64748b')))
+                      color: isToday ? '#fff' : (isSelectedDay ? '#fff' : (isHL ? '#f59e0b' : (isInWeek ? '#fff' : mColor)))
                     }}>{dayNum}</span>
                   </div>
                   <span className={cn("text-[6px] font-bold leading-tight")} style={{
-                    color: isWeekend ? '#ef4444' : (isInWeek ? '#94a3b8' : '#475569')
+                    color: isWeekend ? '#ef4444' : (isInWeek ? '#94a3b8' : mColor + '80')
                   }}>
                     {DAY_LETTERS[dow]}
                   </span>
