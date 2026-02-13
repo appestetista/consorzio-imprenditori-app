@@ -157,15 +157,23 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
       "bg-black flex flex-col",
       inline ? "h-full" : "fixed inset-0 z-[60]"
     )}>
-      {/* Header */}
+      {/* Header con data + X chiudi */}
       <div className="flex items-center px-3 py-2 border-b border-slate-800">
         <div className="text-slate-400 text-xs font-mono flex-1 text-center">
           {formattedDate} • {saveTime}
         </div>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-full bg-slate-700 hover:bg-slate-600 flex items-center justify-center active:scale-90 transition-all touch-manipulation flex-shrink-0 ml-2"
+          >
+            <X className="w-4 h-4 text-slate-300" />
+          </button>
+        )}
       </div>
 
-      {/* Content - pr-10 per evitare sovrapposizione col pulsante CHIUDI fisso a destra */}
-      <div className="flex-1 px-3 pr-10 py-2 overflow-y-auto">
+      {/* Content */}
+      <div className="flex-1 px-3 py-2 overflow-y-auto">
         <input
           type="text"
           value={title}
