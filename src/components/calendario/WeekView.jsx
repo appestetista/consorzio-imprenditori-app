@@ -370,7 +370,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                   </span>
                   {dayNoteCount > 0 ? (
                     <span 
-                      className="text-[8px] font-bold leading-none cursor-pointer"
+                      className="text-[16px] font-bold leading-none cursor-pointer"
                       style={{ color: '#a3e635' }}
                       onClick={(e) => {
                         e.stopPropagation();
