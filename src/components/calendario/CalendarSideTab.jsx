@@ -524,6 +524,84 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
         </div>
       )}
 
+      {/* Popup Strumenti - overlay in sovraimpressione */}
+      {showToolsPopup && ReactDOM.createPortal(
+        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70" onClick={() => setShowToolsPopup(false)}>
+          <div className="bg-slate-800 rounded-xl p-5 w-80 shadow-2xl relative" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => setShowToolsPopup(false)}
+              className="absolute top-3 right-3 w-7 h-7 rounded-full bg-slate-700 hover:bg-slate-600 flex items-center justify-center"
+            >
+              <X className="w-4 h-4 text-slate-300" />
+            </button>
+            
+            <h3 className="text-white font-semibold text-base mb-4">Strumenti</h3>
+            
+            <div className="grid grid-cols-3 gap-3">
+              {/* Camera */}
+              <button 
+                onClick={() => {
+                  setShowToolsPopup(false);
+                  // Trigger camera via event dispatch
+                  document.dispatchEvent(new CustomEvent('calendar-tool-camera'));
+                }}
+                className="flex flex-col items-center gap-2 p-3 rounded-lg bg-slate-700 hover:bg-slate-600 transition-colors"
+              >
+                <Camera className="w-6 h-6 text-slate-300" />
+                <span className="text-[10px] text-slate-400">Foto</span>
+              </button>
+              {/* Allegato */}
+              <button 
+                onClick={() => {
+                  setShowToolsPopup(false);
+                  document.dispatchEvent(new CustomEvent('calendar-tool-attach'));
+                }}
+                className="flex flex-col items-center gap-2 p-3 rounded-lg bg-slate-700 hover:bg-slate-600 transition-colors"
+              >
+                <Paperclip className="w-6 h-6 text-slate-300" />
+                <span className="text-[10px] text-slate-400">Allegato</span>
+              </button>
+              {/* Checklist */}
+              <button 
+                onClick={() => {
+                  setShowToolsPopup(false);
+                  document.dispatchEvent(new CustomEvent('calendar-tool-checklist'));
+                }}
+                className="flex flex-col items-center gap-2 p-3 rounded-lg bg-slate-700 hover:bg-slate-600 transition-colors"
+              >
+                <ListChecks className="w-6 h-6 text-slate-300" />
+                <span className="text-[10px] text-slate-400">Checklist</span>
+              </button>
+            </div>
+
+            {/* Dettatura e Registratore */}
+            <div className="mt-3 flex items-center gap-3">
+              <div className="flex-1 flex items-center justify-center gap-2 p-3 rounded-lg border border-slate-700 bg-slate-800/50">
+                <WhisperDictation 
+                  isDictating={false}
+                  setIsDictating={() => {}}
+                  onTranscription={(text) => {
+                    document.dispatchEvent(new CustomEvent('calendar-tool-dictation', { detail: text }));
+                  }}
+                />
+                <span className="text-[10px] text-slate-400">Dettatura</span>
+              </div>
+              <div className="flex-1 flex items-center justify-center p-3 rounded-lg border border-slate-700 bg-slate-800/50">
+                <AudioRecorder
+                  onAudioSaved={(audioAtt) => {
+                    document.dispatchEvent(new CustomEvent('calendar-tool-audio', { detail: audioAtt }));
+                  }}
+                  onTranscription={(text) => {
+                    document.dispatchEvent(new CustomEvent('calendar-tool-dictation', { detail: text }));
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
       {/* Semicerchio CHIUDI - solo per vista settimanale */}
       {showWeekView && !showWeekNoteEditor && (
         <button
