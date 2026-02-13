@@ -231,17 +231,11 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     <div className="flex flex-col h-full overflow-hidden" style={bgStyle}>
 
 
-        {/* Barra pallini giorni del mese con conteggio note */}
+        {/* Barra pallini giorni del mese — scrollabile con cursore settimana */}
         {(() => {
           const refMonth = weekMainMonth;
           const refYear = weekDays[3].getFullYear();
           const daysInMonth = new Date(refYear, refMonth + 1, 0).getDate();
-          const slotDayNum = (() => {
-            if (!selectedSlot?.date) return null;
-            const [y, m, d] = selectedSlot.date.split('-').map(Number);
-            if (m - 1 === refMonth && y === refYear) return d;
-            return null;
-          })();
 
           // Conta note per giorno del mese corrente
           const noteCountByDay = {};
@@ -253,72 +247,136 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
             }
           });
 
-          return (
-            <div className="flex-shrink-0 flex items-center py-1 border-b border-slate-700/30" style={{ paddingLeft: '72px', paddingRight: '2px' }}>
-              {Array.from({ length: daysInMonth }, (_, i) => {
-                const dayNum = i + 1;
-                const dayDate = new Date(refYear, refMonth, dayNum);
-                const dow = dayDate.getDay();
-                const isWeekend = dow === 0 || dow === 6;
-                const isToday = dayDate.getTime() === today.getTime();
-                const isSelected = highlightedDay && highlightedDay.day === dayNum && highlightedDay.month === refMonth && highlightedDay.year === refYear;
-                const dayNoteCount = noteCountByDay[dayNum] || 0;
+          // Calcola i giorni della settimana che cadono in questo mese
+          const weekStart = weekDays[0].getDate();
+          const weekEnd = weekDays[6].getDate();
+          const weekStartMonth = weekDays[0].getMonth();
+          const weekEndMonth = weekDays[6].getMonth();
 
-                return (
-                  <div 
-                    key={dayNum} 
-                    className="flex flex-col items-center cursor-pointer"
-                    style={{ flex: '1 1 0%', minWidth: 0 }}
-                    onClick={() => {
-                      const d = new Date(refYear, refMonth, dayNum);
-                      d.setHours(0,0,0,0);
-                      setHighlightedDay({ day: dayNum, month: refMonth, year: refYear });
-                      setSelectedSlot(null);
-                      setViewDate(d);
-                      if (onDateSelect) onDateSelect(d);
-                    }}
-                  >
-                    {(() => {
-                      const isSelectedDay = selectedDate && dayDate.getTime() === new Date(new Date(selectedDate).setHours(0,0,0,0)).getTime();
-                      const showCircle = !isToday && (isSelectedDay || isSelected);
-                      const bgColor = isSelectedDay && !isToday ? ac : 'transparent';
-                      const borderColor = isSelected ? '#f59e0b' : (isSelectedDay ? ac : (isWeekend ? '#ef444450' : ac + '40'));
-                      const borderWidth = isSelected ? '2px' : (isSelectedDay ? '2px' : '1.5px');
-                      const numColor = isToday ? '#ffffff' : (isSelectedDay ? '#ffffff' : (isSelected ? '#f59e0b' : '#e2e8f0'));
-                      const letterColor = isWeekend ? '#ef4444' : (isToday ? '#ffffff' : (isSelectedDay ? ac : (isSelected ? '#f59e0b' : '#64748b')));
-                      return (
-                        <>
-                          <div 
-                            className={cn("rounded-full flex items-center justify-center transition-all", isToday && "animate-pulse")}
-                            style={{ 
-                              width: '22px',
-                              height: '22px',
-                              backgroundColor: showCircle ? bgColor : 'transparent',
-                              border: showCircle ? `${borderWidth} solid ${borderColor}` : '1.5px solid transparent',
-                              boxShadow: isSelectedDay && !isToday ? `0 0 8px ${ac}80` : (isSelected ? `0 0 6px #f59e0b80` : undefined)
-                            }}
-                          >
-                            <span className={cn("text-[9px] font-bold leading-none", isToday && "animate-pulse")} style={{ color: numColor }}>
-                              {dayNum}
+          return (
+            <div className="flex-shrink-0 flex flex-col border-b border-slate-700/30">
+              {/* Cursore settimana bianco — barra draggabile */}
+              <div className="relative" style={{ height: '4px', marginLeft: '0px', marginRight: '0px' }}>
+                {(() => {
+                  // Calcola posizione cursore
+                  const dayWidth = 100 / daysInMonth;
+                  let startDay = -1, endDay = -1;
+                  weekDays.forEach(wd => {
+                    if (wd.getMonth() === refMonth && wd.getFullYear() === refYear) {
+                      const d = wd.getDate();
+                      if (startDay === -1 || d < startDay) startDay = d;
+                      if (d > endDay) endDay = d;
+                    }
+                  });
+                  if (startDay === -1) return null;
+                  const left = (startDay - 1) * dayWidth;
+                  const width = (endDay - startDay + 1) * dayWidth;
+                  return (
+                    <div
+                      className="absolute top-0 rounded-full cursor-grab active:cursor-grabbing"
+                      style={{
+                        left: `${left}%`,
+                        width: `${width}%`,
+                        height: '4px',
+                        backgroundColor: 'rgba(255,255,255,0.85)',
+                        boxShadow: '0 0 8px rgba(255,255,255,0.4)',
+                        transition: 'left 0.3s ease, width 0.3s ease'
+                      }}
+                      onTouchStart={(e) => {
+                        e.stopPropagation();
+                        const t = e.touches[0];
+                        daysBarTouchRef.current = { startY: t.clientY, startViewDate: new Date(viewDate) };
+                      }}
+                      onTouchMove={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        const t = e.touches[0];
+                        const ref = daysBarTouchRef.current;
+                        // In rotated view, clientY = horizontal visual movement
+                        const deltaY = t.clientY - ref.startY;
+                        const daysMoved = Math.round(deltaY / 15); // ~15px per giorno
+                        if (daysMoved !== 0) {
+                          const newDate = new Date(ref.startViewDate);
+                          newDate.setDate(newDate.getDate() - daysMoved);
+                          setViewDate(newDate);
+                        }
+                      }}
+                    />
+                  );
+                })()}
+              </div>
+              {/* Giorni scrollabili */}
+              <div 
+                ref={daysBarRef}
+                className="flex items-center overflow-x-auto py-1"
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', paddingLeft: '2px', paddingRight: '2px' }}
+              >
+                {Array.from({ length: daysInMonth }, (_, i) => {
+                  const dayNum = i + 1;
+                  const dayDate = new Date(refYear, refMonth, dayNum);
+                  const dow = dayDate.getDay();
+                  const isWeekend = dow === 0 || dow === 6;
+                  const isToday = dayDate.getTime() === today.getTime();
+                  const isSelected = highlightedDay && highlightedDay.day === dayNum && highlightedDay.month === refMonth && highlightedDay.year === refYear;
+                  const dayNoteCount = noteCountByDay[dayNum] || 0;
+                  // È nella settimana visualizzata?
+                  const isInWeek = weekDays.some(wd => wd.getDate() === dayNum && wd.getMonth() === refMonth && wd.getFullYear() === refYear);
+
+                  return (
+                    <div 
+                      key={dayNum} 
+                      className="flex flex-col items-center cursor-pointer flex-shrink-0"
+                      style={{ width: '28px', minWidth: '28px' }}
+                      onClick={() => {
+                        const d = new Date(refYear, refMonth, dayNum);
+                        d.setHours(0,0,0,0);
+                        setHighlightedDay({ day: dayNum, month: refMonth, year: refYear });
+                        setSelectedSlot(null);
+                        setViewDate(d);
+                        if (onDateSelect) onDateSelect(d);
+                      }}
+                    >
+                      {(() => {
+                        const isSelectedDay = selectedDate && dayDate.getTime() === new Date(new Date(selectedDate).setHours(0,0,0,0)).getTime();
+                        const showCircle = !isToday && (isSelectedDay || isSelected);
+                        const bgColor = isSelectedDay && !isToday ? ac : 'transparent';
+                        const borderColor = isSelected ? '#f59e0b' : (isSelectedDay ? ac : (isWeekend ? '#ef444450' : ac + '40'));
+                        const borderWidth = isSelected ? '2px' : (isSelectedDay ? '2px' : '1.5px');
+                        const numColor = isToday ? '#ffffff' : (isSelectedDay ? '#ffffff' : (isSelected ? '#f59e0b' : (isInWeek ? '#ffffff' : '#64748b')));
+                        const letterColor = isWeekend ? '#ef4444' : (isToday ? '#ffffff' : (isSelectedDay ? ac : (isSelected ? '#f59e0b' : (isInWeek ? '#94a3b8' : '#475569'))));
+                        return (
+                          <>
+                            <div 
+                              className={cn("rounded-full flex items-center justify-center transition-all", isToday && "animate-pulse")}
+                              style={{ 
+                                width: '22px',
+                                height: '22px',
+                                backgroundColor: showCircle ? bgColor : 'transparent',
+                                border: showCircle ? `${borderWidth} solid ${borderColor}` : '1.5px solid transparent',
+                                boxShadow: isSelectedDay && !isToday ? `0 0 8px ${ac}80` : (isSelected ? `0 0 6px #f59e0b80` : undefined)
+                              }}
+                            >
+                              <span className={cn("text-[9px] font-bold leading-none", isToday && "animate-pulse")} style={{ color: numColor }}>
+                                {dayNum}
+                              </span>
+                            </div>
+                            <span className={cn("text-[7px] font-bold leading-tight", isToday && "animate-pulse")} style={{ color: letterColor }}>
+                              {isWeekend ? (dow === 6 ? 'S' : 'D') : DAY_LETTERS[dow]}
                             </span>
-                          </div>
-                          <span className={cn("text-[7px] font-bold leading-tight", isToday && "animate-pulse")} style={{ color: letterColor }}>
-                            {isWeekend ? (dow === 6 ? 'S' : 'D') : DAY_LETTERS[dow]}
-                          </span>
-                          {/* Conteggio note del giorno */}
-                          {dayNoteCount > 0 ? (
-                            <span className="text-[9px] font-bold leading-none" style={{ color: '#a3e635' }}>
-                              {dayNoteCount}
-                            </span>
-                          ) : (
-                            <span className="text-[9px] leading-none" style={{ color: 'transparent' }}>0</span>
-                          )}
-                        </>
-                      );
-                    })()}
-                  </div>
-                );
-              })}
+                            {dayNoteCount > 0 ? (
+                              <span className="text-[9px] font-bold leading-none" style={{ color: '#a3e635' }}>
+                                {dayNoteCount}
+                              </span>
+                            ) : (
+                              <span className="text-[9px] leading-none" style={{ color: 'transparent' }}>0</span>
+                            )}
+                          </>
+                        );
+                      })()}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           );
         })()}
