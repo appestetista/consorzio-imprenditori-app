@@ -266,14 +266,19 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     noteCountByDayKey[n.data] = (noteCountByDayKey[n.data] || 0) + 1;
   });
 
-  const handleSlotClick = (dayStr, timeLabel) => {
+  const handleSlotClick = (dayStr, timeLabel, e) => {
     if (selectedSlot?.date === dayStr && selectedSlot?.time === timeLabel) {
-      if (onSlotClick) {
-        const existingNote = notesByDateAndTime[dayStr]?.[timeLabel] || null;
-        onSlotClick({ date: dayStr, time: timeLabel, existingNote });
-      }
+      // Secondo tap: mostra menu opzioni
+      const rect = e?.currentTarget?.getBoundingClientRect();
+      setSlotMenuPos({
+        date: dayStr,
+        time: timeLabel,
+        x: rect ? rect.left + rect.width / 2 : 100,
+        y: rect ? rect.top : 100
+      });
       return;
     }
+    setSlotMenuPos(null);
     setSelectedSlot({ date: dayStr, time: timeLabel });
     const [y, m, d] = dayStr.split('-').map(Number);
     setHighlightedDay(null);
