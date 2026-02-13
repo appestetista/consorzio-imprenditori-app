@@ -397,7 +397,7 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
                   (isCurrentTime && isToday) && "text-white font-bold animate-pulse"
                 )}
                 style={{
-                  color: isSelected ? '#f97316' :
+                  color: isSelected ? currentMonthColor :
                     (isCurrentTime && isToday) ? '#ffffff' :
                     hasNote ? '#a3e635' :
                     slot.isFullHour ? activeColor : '#94a3b8'
@@ -508,6 +508,7 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
                 cartella_id: savedNotes[selectedTime].cartella_id || ''
               } : null}
               onRegisterSave={(saveFn) => { noteEditorSaveRef.current = saveFn; }}
+              monthColor={currentMonthColor}
             />
         </div>
       )}

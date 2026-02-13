@@ -6,7 +6,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import ChecklistEditor from './ChecklistEditor';
 import AttachmentViewer from './AttachmentViewer';
 
-export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave, onDelete, inline = false, existingNote = null, onRegisterSave }) {
+export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave, onDelete, inline = false, existingNote = null, onRegisterSave, monthColor }) {
   const [title, setTitle] = useState(existingNote?.title || '');
   const [content, setContent] = useState(existingNote?.content || '');
   const [attachments, setAttachments] = useState(existingNote?.attachments || []);
@@ -236,8 +236,12 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
           onClick={(e) => { e.preventDefault(); handleSave(); }}
           className={cn(
             "flex-1 flex items-center justify-center gap-1 py-2 rounded-full font-bold text-xs no-underline touch-manipulation select-none",
-            isSaving ? "bg-slate-500 text-slate-300" : "bg-lime-500 text-slate-900 active:bg-lime-400"
+            isSaving && "opacity-60"
           )}
+          style={{ 
+            backgroundColor: isSaving ? '#64748b' : (monthColor || '#a3e635'),
+            color: '#0f172a'
+          }}
         >
           {isSaving ? (
             <div className="w-3 h-3 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
