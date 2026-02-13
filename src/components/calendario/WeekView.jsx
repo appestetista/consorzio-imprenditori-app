@@ -283,18 +283,18 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                           <div 
                             className={cn("rounded-full flex items-center justify-center transition-all", isToday && "animate-pulse")}
                             style={{ 
-                              width: '22px',
-                              height: '22px',
+                              width: '24px',
+                              height: '24px',
                               backgroundColor: showCircle ? bgColor : 'transparent',
                               border: showCircle ? `${borderWidth} solid ${borderColor}` : '1.5px solid transparent',
                               boxShadow: isSelectedDay && !isToday ? `0 0 8px ${ac}80` : (isSelected ? `0 0 6px #f59e0b80` : undefined)
                             }}
                           >
-                            <span className={cn("text-[8px] font-bold leading-none", isToday && "animate-pulse")} style={{ color: numColor }}>
+                            <span className={cn("text-[10px] font-bold leading-none", isToday && "animate-pulse")} style={{ color: numColor }}>
                               {dayNum}
                             </span>
                           </div>
-                          <span className={cn("text-[7px] font-bold leading-tight mt-[2px]", isToday && "animate-pulse")} style={{ color: letterColor }}>
+                          <span className={cn("text-[8px] font-bold leading-tight mt-[2px]", isToday && "animate-pulse")} style={{ color: letterColor }}>
                             {isWeekend ? (dow === 6 ? 'S' : 'D') : DAY_LETTERS[dow]}
                           </span>
                         </>
