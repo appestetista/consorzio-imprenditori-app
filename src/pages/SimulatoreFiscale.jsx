@@ -130,6 +130,8 @@ export default function SimulatoreFiscale() {
 
         {view === 'confronto_srl' && <ConfrontoPrelievoSRL />}
 
+        {view === 'multi_scenario' && <MultiScenarioCompenso />}
+
         {view === 'storico' && (
           <StoricoSimulazioni
             userEmail={effectiveUser?.email}
