@@ -1,7 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { base44 } from '@/api/base44Client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { ArrowDownUp, Trophy } from 'lucide-react';
+import { ArrowDownUp, Trophy, Loader2 } from 'lucide-react';
 
 function calcolaIRPEF(reddito) {
   if (reddito <= 0) return 0;
@@ -10,142 +11,147 @@ function calcolaIRPEF(reddito) {
   return 28000 * 0.23 + 22000 * 0.35 + (reddito - 50000) * 0.43;
 }
 
-function calcolaScenarioA(utile) {
-  // Scenario A: tutto come dividendi
-  const ires = utile * 0.24;
-  const irap = utile * 0.039;
-  const tasseSocieta = Math.round((ires + irap) * 100) / 100;
-  const utileNetto = utile - ires - irap;
-  const impostaDividendi = utileNetto * 0.26;
-  const tassePersonali = Math.round(impostaDividendi * 100) / 100;
-  const netto = Math.round((utileNetto - impostaDividendi) * 100) / 100;
-  return {
-    label: 'Solo Dividendi',
-    tasseSocieta,
-    tassePersonali,
-    contributi: 0,
-    tasseTotali: Math.round((tasseSocieta + tassePersonali) * 100) / 100,
-    netto
-  };
-}
-
-function calcolaScenarioB(utile, compenso) {
-  // Scenario B: compenso amministratore + eventuale residuo come dividendi
-  if (compenso > utile) compenso = utile;
-
-  // Tasse società (utile - compenso = base imponibile società)
-  const baseImponibile = utile - compenso;
-  const ires = baseImponibile * 0.24;
-  const irap = baseImponibile * 0.039;
-  const tasseSocieta = Math.round((ires + irap) * 100) / 100;
-
-  // IRPEF su compenso
-  const irpef = calcolaIRPEF(compenso);
-
-  // Contributi INPS gestione separata su compenso (aliquota ~33.72%)
-  const contributiINPS = compenso * 0.3372;
-
-  // Dividendi sul residuo
-  const utileNettoSocieta = baseImponibile - ires - irap;
-  const impostaDividendi = utileNettoSocieta > 0 ? utileNettoSocieta * 0.26 : 0;
-  const dividendiNetti = utileNettoSocieta > 0 ? utileNettoSocieta - impostaDividendi : 0;
-
-  const tassePersonali = Math.round((irpef + impostaDividendi) * 100) / 100;
-  const contributi = Math.round(contributiINPS * 100) / 100;
-  const nettoCompenso = compenso - irpef - contributiINPS;
-  const netto = Math.round((nettoCompenso + dividendiNetti) * 100) / 100;
-
-  return {
-    label: `Compenso €${compenso.toLocaleString('it-IT')} + Dividendi`,
-    tasseSocieta,
-    tassePersonali,
-    contributi,
-    tasseTotali: Math.round((tasseSocieta + tassePersonali + contributi) * 100) / 100,
-    netto
-  };
-}
-
+const r2 = (n) => Math.round(n * 100) / 100;
 const formatEuro = (v) => `€${Math.round(v).toLocaleString('it-IT')}`;
 
 export default function ConfrontoPrelievoSRL() {
   const [utile, setUtile] = useState('');
-  const [compenso, setCompenso] = useState('');
+  const [aliquote, setAliquote] = useState(null);
+  const [loadingAliquote, setLoadingAliquote] = useState(true);
+
+  // Carica aliquote da DB
+  useEffect(() => {
+    const load = async () => {
+      const [fiscali, inps] = await Promise.all([
+        base44.entities.AliquoteFiscali.filter({ anno: 2026 }),
+        base44.entities.ContributiINPS.filter({ anno: 2026, gestione: 'AmministratoreSRL' })
+      ]);
+      const get = (tipo) => fiscali.find(a => a.tipo_imposta === tipo)?.aliquota || 0;
+      setAliquote({
+        ires: get('IRES'),
+        irap: get('IRAP'),
+        dividendi: get('Dividendi'),
+        inps_gs: inps.length > 0 ? inps[0].aliquota_percentuale : 0.3372,
+        inps_massimale: inps.length > 0 ? (inps[0].massimale_reddito || Infinity) : Infinity
+      });
+      setLoadingAliquote(false);
+    };
+    load();
+  }, []);
 
   const utileNum = parseFloat(utile) || 0;
-  const compensoNum = parseFloat(compenso) || 0;
 
   const scenari = useMemo(() => {
-    if (utileNum <= 0) return null;
-    const a = calcolaScenarioA(utileNum);
-    const b = compensoNum > 0 ? calcolaScenarioB(utileNum, compensoNum) : null;
-    const list = [a];
-    if (b) list.push(b);
-    // Ordina per netto maggiore
-    list.sort((x, y) => y.netto - x.netto);
-    return list;
-  }, [utileNum, compensoNum]);
+    if (utileNum <= 0 || !aliquote) return null;
 
-  const migliore = scenari?.[0];
-  const differenza = scenari && scenari.length === 2
-    ? Math.round(Math.abs(scenari[0].netto - scenari[1].netto) * 100) / 100
-    : 0;
+    // SCENARIO A: Tutto dividendi
+    const a_ires = r2(utileNum * aliquote.ires);
+    const a_irap = r2(utileNum * aliquote.irap);
+    const a_tasseSocieta = r2(a_ires + a_irap);
+    const a_utileNetto = r2(utileNum - a_ires - a_irap);
+    const a_dividendi26 = r2(a_utileNetto * aliquote.dividendi);
+    const a_tassePersonali = a_dividendi26;
+    const a_netto = r2(a_utileNetto - a_dividendi26);
+
+    const scenarioA = {
+      label: 'Solo Dividendi',
+      dettaglio: `IRES ${formatEuro(a_ires)} + IRAP ${formatEuro(a_irap)}`,
+      tasseSocieta: a_tasseSocieta,
+      tassePersonali: a_tassePersonali,
+      contributi: 0,
+      tasseTotali: r2(a_tasseSocieta + a_tassePersonali),
+      netto: a_netto
+    };
+
+    // SCENARIO B: Compenso = 100% utile (utile società = 0)
+    const compenso = utileNum;
+    const b_baseImponibile = 0; // utile - compenso = 0
+    const b_ires = 0;
+    const b_irap = 0;
+    const b_tasseSocieta = 0;
+
+    const b_irpef = r2(calcolaIRPEF(compenso));
+    const b_redditoInps = Math.min(compenso, aliquote.inps_massimale);
+    const b_inps = r2(b_redditoInps * aliquote.inps_gs);
+    const b_tassePersonali = b_irpef;
+    const b_netto = r2(compenso - b_irpef - b_inps);
+
+    const scenarioB = {
+      label: 'Tutto Compenso Amm.',
+      dettaglio: `IRPEF ${formatEuro(b_irpef)} + INPS ${formatEuro(b_inps)}`,
+      tasseSocieta: b_tasseSocieta,
+      tassePersonali: b_tassePersonali,
+      contributi: b_inps,
+      tasseTotali: r2(b_tasseSocieta + b_tassePersonali + b_inps),
+      netto: b_netto
+    };
+
+    return [scenarioA, scenarioB].sort((x, y) => y.netto - x.netto);
+  }, [utileNum, aliquote]);
+
+  const differenza = scenari ? Math.round(Math.abs(scenari[0].netto - scenari[1].netto)) : 0;
+
+  if (loadingAliquote) {
+    return (
+      <div className="flex items-center justify-center py-10 gap-2">
+        <Loader2 className="w-5 h-5 animate-spin text-[#d4af37]" />
+        <span className="text-slate-400 text-sm">Caricamento aliquote...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
-      {/* Header */}
       <div className="flex items-center gap-2 mb-1">
         <ArrowDownUp className="w-5 h-5 text-[#d4af37]" />
         <h2 className="text-white font-bold text-lg">Confronto Prelievo SRL</h2>
       </div>
       <p className="text-slate-400 text-xs">
-        Confronta: prelevare tutto come dividendi vs. compenso amministratore + dividendi residui.
+        Dato lo stesso utile, confronta: prelevare tutto come dividendi vs. tutto come compenso amministratore.
       </p>
 
+      {/* Aliquote caricate */}
+      <Card className="bg-slate-800/50 border-slate-700">
+        <CardContent className="p-3">
+          <p className="text-slate-500 text-[10px] uppercase tracking-wide mb-1">Aliquote da database (anno 2026)</p>
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-slate-400">
+            <span>IRES {(aliquote.ires * 100).toFixed(1)}%</span>
+            <span>IRAP {(aliquote.irap * 100).toFixed(1)}%</span>
+            <span>Dividendi {(aliquote.dividendi * 100).toFixed(0)}%</span>
+            <span>INPS GS {(aliquote.inps_gs * 100).toFixed(2)}%</span>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Input */}
-      <div className="space-y-3">
-        <div>
-          <label className="text-slate-400 text-xs font-medium mb-1 block">Utile societario (€) *</label>
-          <Input
-            type="number"
-            placeholder="es. 80000"
-            value={utile}
-            onChange={(e) => setUtile(e.target.value)}
-            className="bg-slate-800 border-slate-700 text-white"
-          />
-        </div>
-        <div>
-          <label className="text-slate-400 text-xs font-medium mb-1 block">Compenso amministratore ipotetico (€) *</label>
-          <Input
-            type="number"
-            placeholder="es. 30000"
-            value={compenso}
-            onChange={(e) => setCompenso(e.target.value)}
-            className="bg-slate-800 border-slate-700 text-white"
-          />
-        </div>
+      <div>
+        <label className="text-slate-400 text-xs font-medium mb-1 block">Utile societario (€) *</label>
+        <Input
+          type="number"
+          placeholder="es. 80000"
+          value={utile}
+          onChange={(e) => setUtile(e.target.value)}
+          className="bg-slate-800 border-slate-700 text-white"
+        />
       </div>
 
       {/* Risultati */}
-      {scenari && scenari.length > 0 && (
+      {scenari && (
         <>
           {/* Vincitore */}
-          {scenari.length === 2 && differenza > 0 && (
+          {differenza > 0 && (
             <Card className="bg-green-900/20 border-green-500/40">
               <CardContent className="p-3 flex items-center gap-3">
                 <Trophy className="w-5 h-5 text-green-400 flex-shrink-0" />
                 <div>
-                  <p className="text-green-400 text-sm font-semibold">
-                    {migliore.label}
-                  </p>
-                  <p className="text-slate-300 text-xs">
-                    Ti fa risparmiare {formatEuro(differenza)} in più
-                  </p>
+                  <p className="text-green-400 text-sm font-semibold">{scenari[0].label}</p>
+                  <p className="text-slate-300 text-xs">Risparmio netto: {formatEuro(differenza)}</p>
                 </div>
               </CardContent>
             </Card>
           )}
 
-          {/* Tabella comparativa */}
+          {/* Tabella */}
           <Card className="bg-[#0a2540] border-[#1a3a5c]">
             <CardContent className="p-0">
               <div className="overflow-x-auto">
@@ -153,39 +159,24 @@ export default function ConfrontoPrelievoSRL() {
                   <thead>
                     <tr className="border-b border-slate-700">
                       <th className="text-left text-slate-400 font-medium p-3">Modalità</th>
-                      <th className="text-right text-slate-400 font-medium p-3">Tasse Tot.</th>
+                      <th className="text-right text-slate-400 font-medium p-3">Tasse Soc.</th>
+                      <th className="text-right text-slate-400 font-medium p-3">Tasse Pers.</th>
+                      <th className="text-right text-slate-400 font-medium p-3">Contributi</th>
                       <th className="text-right text-slate-400 font-medium p-3">Netto</th>
-                      {scenari.length === 2 && (
-                        <th className="text-right text-slate-400 font-medium p-3">Diff.</th>
-                      )}
                     </tr>
                   </thead>
                   <tbody>
                     {scenari.map((s, i) => {
-                      const isBest = i === 0 && scenari.length === 2 && differenza > 0;
-                      const diff = scenari.length === 2
-                        ? Math.round((s.netto - scenari[scenari.length - 1].netto) * 100) / 100
-                        : 0;
+                      const isBest = i === 0 && differenza > 0;
                       return (
                         <tr key={i} className={`border-b border-slate-800 ${isBest ? 'bg-green-900/10' : ''}`}>
                           <td className="p-3">
-                            <span className={`font-semibold ${isBest ? 'text-green-400' : 'text-white'}`}>
-                              {s.label}
-                            </span>
+                            <span className={`font-semibold ${isBest ? 'text-green-400' : 'text-white'}`}>{s.label}</span>
                           </td>
-                          <td className="text-right p-3 text-red-400 font-medium">{formatEuro(s.tasseTotali)}</td>
+                          <td className="text-right p-3 text-red-400">{formatEuro(s.tasseSocieta)}</td>
+                          <td className="text-right p-3 text-red-400">{formatEuro(s.tassePersonali)}</td>
+                          <td className="text-right p-3 text-yellow-400">{formatEuro(s.contributi)}</td>
                           <td className="text-right p-3 text-green-400 font-bold">{formatEuro(s.netto)}</td>
-                          {scenari.length === 2 && (
-                            <td className="text-right p-3">
-                              {diff > 0 ? (
-                                <span className="text-green-400 font-medium">+{formatEuro(diff)}</span>
-                              ) : diff < 0 ? (
-                                <span className="text-red-400 font-medium">{formatEuro(diff)}</span>
-                              ) : (
-                                <span className="text-slate-500">—</span>
-                              )}
-                            </td>
-                          )}
                         </tr>
                       );
                     })}
@@ -195,7 +186,18 @@ export default function ConfrontoPrelievoSRL() {
             </CardContent>
           </Card>
 
-          {/* Dettaglio per scenario */}
+          {/* Differenza */}
+          {differenza > 0 && (
+            <Card className="bg-[#0a2540] border-[#d4af37]/30">
+              <CardContent className="p-3 text-center">
+                <p className="text-slate-400 text-xs">Differenza netta tra le due modalità</p>
+                <p className="text-[#d4af37] font-bold text-xl mt-1">{formatEuro(differenza)}</p>
+                <p className="text-slate-500 text-[10px] mt-1">a favore di "{scenari[0].label}"</p>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Dettaglio */}
           <div className="space-y-3">
             {scenari.map((s, i) => (
               <Card key={i} className="bg-[#0a2540] border-[#1a3a5c]">
