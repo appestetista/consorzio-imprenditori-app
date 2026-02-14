@@ -2,7 +2,8 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { ArrowDownUp, Trophy, Loader2 } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ArrowDownUp, Trophy, Loader2, AlertTriangle } from 'lucide-react';
 
 function calcolaIRPEF(reddito) {
   if (reddito <= 0) return 0;
@@ -17,29 +18,56 @@ const r2 = (n) => Math.round(n * 100) / 100;
 const formatEuro = (v) => `€${Math.round(v).toLocaleString('it-IT')}`;
 
 export default function ConfrontoPrelievoSRL() {
-  const [utile, setUtile] = useState('');
-  const [aliquote, setAliquote] = useState(null);
-  const [loadingAliquote, setLoadingAliquote] = useState(true);
+    const [utile, setUtile] = useState('');
+    const [regione, setRegione] = useState('');
+    const [categoriaIrap, setCategoriaIrap] = useState('');
+    const [categorieDisponibili, setCategorieDisponibili] = useState([]);
+    const [aliquote, setAliquote] = useState(null);
+    const [loadingAliquote, setLoadingAliquote] = useState(true);
 
-  // Carica aliquote da DB
-  useEffect(() => {
-    const load = async () => {
-      const [fiscali, inps] = await Promise.all([
-        base44.entities.AliquoteFiscali.filter({ anno: 2026 }),
-        base44.entities.ContributiINPS.filter({ anno: 2026, gestione: 'AmministratoreSRL' })
-      ]);
-      const get = (tipo) => fiscali.find(a => a.tipo_imposta === tipo)?.aliquota || 0;
-      setAliquote({
-        ires: get('IRES'),
-        irap: get('IRAP'),
-        dividendi: get('Dividendi'),
-        inps_gs: inps.length > 0 ? inps[0].aliquota_percentuale : 0.3372,
-        inps_massimale: inps.length > 0 ? (inps[0].massimale_reddito || Infinity) : Infinity
-      });
-      setLoadingAliquote(false);
-    };
-    load();
-  }, []);
+    // Carica aliquote base da DB
+    useEffect(() => {
+      const load = async () => {
+        const [fiscali, inps] = await Promise.all([
+          base44.entities.AliquoteFiscali.filter({ anno: 2026 }),
+          base44.entities.ContributiINPS.filter({ anno: 2026, gestione: 'AmministratoreSRL' })
+        ]);
+        const get = (tipo) => fiscali.find(a => a.tipo_imposta === tipo)?.aliquota || 0;
+        setAliquote({
+          ires: get('IRES'),
+          irap: get('IRAP'),
+          dividendi: get('Dividendi'),
+          inps_gs: inps.length > 0 ? inps[0].aliquota_percentuale : 0.3372,
+          inps_massimale: inps.length > 0 ? (inps[0].massimale_reddito || Infinity) : Infinity
+        });
+        setLoadingAliquote(false);
+      };
+      load();
+    }, []);
+
+    // Carica categorie IRAP regionali
+    useEffect(() => {
+      if (!regione) { setCategorieDisponibili([]); return; }
+      const load = async () => {
+        const records = await base44.entities.AliquoteIRAPRegionali.filter({ anno: 2026, regione });
+        setCategorieDisponibili(records);
+        // Aggiorna aliquota IRAP con ordinaria della regione
+        const ordinaria = records.find(r => r.categoria === 'Impresa Ordinaria');
+        if (ordinaria && aliquote) {
+          setAliquote(prev => ({ ...prev, irap: ordinaria.aliquota }));
+        }
+      };
+      load();
+    }, [regione]);
+
+    // Aggiorna aliquota quando cambia categoria
+    useEffect(() => {
+      if (!categoriaIrap || categorieDisponibili.length === 0) return;
+      const record = categorieDisponibili.find(r => r.categoria === categoriaIrap);
+      if (record && aliquote) {
+        setAliquote(prev => ({ ...prev, irap: record.aliquota }));
+      }
+    }, [categoriaIrap, categorieDisponibili]);
 
   const utileNum = parseFloat(utile) || 0;
 
@@ -112,13 +140,51 @@ export default function ConfrontoPrelievoSRL() {
         Dato lo stesso utile, confronta: prelevare tutto come dividendi vs. tutto come compenso amministratore.
       </p>
 
+      {/* Regione e Categoria IRAP */}
+      <div>
+        <label className="text-slate-400 text-xs font-medium mb-1 block">Regione *</label>
+        <Select value={regione} onValueChange={(v) => { setRegione(v); setCategoriaIrap(''); }}>
+          <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+            <SelectValue placeholder="Seleziona regione" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Marche">Marche</SelectItem>
+            <SelectItem value="Emilia-Romagna">Emilia-Romagna</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {regione && categorieDisponibili.length > 0 && (
+        <div>
+          <label className="text-slate-400 text-xs font-medium mb-1 block">Categoria IRAP</label>
+          <Select value={categoriaIrap} onValueChange={setCategoriaIrap}>
+            <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+              <SelectValue placeholder="Impresa Ordinaria (default)" />
+            </SelectTrigger>
+            <SelectContent>
+              {categorieDisponibili.map(c => (
+                <SelectItem key={c.id} value={c.categoria}>
+                  {c.categoria} – {(c.aliquota * 100).toFixed(2)}%
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {categoriaIrap && categoriaIrap !== 'Impresa Ordinaria' && (
+            <div className="flex items-start gap-1.5 mt-2 p-2 rounded-lg bg-yellow-900/20 border border-yellow-600/30">
+              <AlertTriangle className="w-3.5 h-3.5 text-yellow-400 mt-0.5 flex-shrink-0" />
+              <p className="text-yellow-300 text-[10px]">Verificare possesso requisiti normativi per applicazione aliquota specifica.</p>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Aliquote caricate */}
       <Card className="bg-slate-800/50 border-slate-700">
         <CardContent className="p-3">
-          <p className="text-slate-500 text-[10px] uppercase tracking-wide mb-1">Aliquote da database (anno 2026)</p>
+          <p className="text-slate-500 text-[10px] uppercase tracking-wide mb-1">Aliquote da database (anno 2026){regione ? ` – ${regione}` : ''}</p>
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-slate-400">
             <span>IRES {(aliquote.ires * 100).toFixed(1)}%</span>
-            <span>IRAP {(aliquote.irap * 100).toFixed(1)}%</span>
+            <span>IRAP {(aliquote.irap * 100).toFixed(2)}%{regione ? ` (${categoriaIrap || 'Impresa Ordinaria'})` : ''}</span>
             <span>Dividendi {(aliquote.dividendi * 100).toFixed(0)}%</span>
             <span>INPS GS {(aliquote.inps_gs * 100).toFixed(2)}%</span>
           </div>
