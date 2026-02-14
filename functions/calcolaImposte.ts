@@ -19,7 +19,9 @@ Deno.serve(async (req) => {
       nome_scenario,
       gestione_inps,
       compenso_amministratore,
-      base_imponibile_irap
+      base_imponibile_irap,
+      regione,
+      categoria_irap
     } = await req.json();
 
     if (!regime || !fatturato || !anno) {
@@ -56,8 +58,28 @@ Deno.serve(async (req) => {
       const costiDed = costi_deducibili || 0;
       const compensoAmm = compenso_amministratore || 0;
       const aliqIres = getAliquota('IRES');
-      const aliqIrap = getAliquota('IRAP');
       const aliqDividendi = getAliquota('Dividendi');
+
+      // IRAP regionale: cerca aliquota specifica per regione/categoria
+      let aliqIrap = getAliquota('IRAP'); // fallback nazionale
+      let irapRegione = regione || '';
+      let irapCategoria = 'Impresa Ordinaria';
+      if (regione) {
+        const irapRecords = await base44.asServiceRole.entities.AliquoteIRAPRegionali.filter({ anno: anno, regione: regione });
+        if (irapRecords.length > 0) {
+          let irapRecord = null;
+          if (categoria_irap) {
+            irapRecord = irapRecords.find(r => r.categoria === categoria_irap);
+          }
+          if (!irapRecord) {
+            irapRecord = irapRecords.find(r => r.categoria === 'Impresa Ordinaria');
+          }
+          if (irapRecord) {
+            aliqIrap = irapRecord.aliquota;
+            irapCategoria = irapRecord.categoria;
+          }
+        }
+      }
 
       // Alert compenso = 0
       if (compensoAmm === 0) {
@@ -95,12 +117,18 @@ Deno.serve(async (req) => {
       dettaglio.push(`══════════════════════════════════`);
       dettaglio.push(`IRES (${(aliqIres * 100).toFixed(1)}%): ${fmt(utile)} × ${aliqIres} = ${fmt(ires)}`);
       dettaglio.push(``);
-      dettaglio.push(`IRAP (${(aliqIrap * 100).toFixed(1)}%):`);
+      dettaglio.push(`IRAP (${(aliqIrap * 100).toFixed(2)}%):`);
+      if (irapRegione) {
+        dettaglio.push(`  Aliquota IRAP applicata per ${irapRegione}: ${(aliqIrap * 100).toFixed(2)}% (${irapCategoria})`);
+      }
       dettaglio.push(`  Base imponibile IRAP: ${fmt(baseIrap)}${!irapSpecificata ? ' (stimata = utile)' : ' (inserita manualmente)'}`);
-      dettaglio.push(`  IRAP: ${fmt(baseIrap)} × ${aliqIrap} = ${fmt(irap)}`);
+      dettaglio.push(`  IRAP: ${fmt(baseIrap)} × ${(aliqIrap * 100).toFixed(2)}% = ${fmt(irap)}`);
       if (!irapSpecificata) {
         dettaglio.push(`  ⚠️ La base IRAP è stimata e può differire dalla realtà fiscale.`);
         avvisi.push('La base IRAP è stimata (= utile). Nella realtà può differire. Verificare con il consulente.');
+      }
+      if (irapCategoria !== 'Impresa Ordinaria') {
+        avvisi.push(`Aliquota IRAP specifica "${irapCategoria}" applicata. Verificare possesso requisiti normativi per applicazione aliquota specifica.`);
       }
       dettaglio.push(``);
       dettaglio.push(`Tasse società totali: ${fmt(ires)} + ${fmt(irap)} = ${fmt(ires + irap)}`);
