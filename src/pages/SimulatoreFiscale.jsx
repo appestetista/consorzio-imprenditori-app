@@ -17,7 +17,7 @@ export default function SimulatoreFiscale() {
   const [effectiveUser, setEffectiveUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
-  const [view, setView] = useState('form'); // 'form' | 'result' | 'storico' | 'confronto_srl'
+  const [view, setView] = useState('form'); // 'form' | 'result' | 'storico' | 'confronto_srl' | 'multi_scenario'
   const { impersonation, appMode } = useImpersonation();
 
   useEffect(() => {
