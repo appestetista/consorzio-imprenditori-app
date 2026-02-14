@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Calculator, Info } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { base44 } from '@/api/base44Client';
+import { Calculator, Info, AlertTriangle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -27,8 +28,28 @@ export default function SimulazioneForm({ onSubmit, loading }) {
     compenso_amministratore: '',
     base_imponibile_irap: '',
     nome_scenario: '',
-    anno: 2026
+    anno: 2026,
+    regione: '',
+    categoria_irap: ''
   });
+
+  const [categorieIRAP, setCategorieIRAP] = useState([]);
+  const [loadingCategorie, setLoadingCategorie] = useState(false);
+
+  // Carica categorie IRAP quando cambia regione
+  useEffect(() => {
+    if (!form.regione) {
+      setCategorieIRAP([]);
+      return;
+    }
+    const load = async () => {
+      setLoadingCategorie(true);
+      const records = await base44.entities.AliquoteIRAPRegionali.filter({ anno: 2026, regione: form.regione });
+      setCategorieIRAP(records);
+      setLoadingCategorie(false);
+    };
+    load();
+  }, [form.regione]);
 
   const handleSubmit = () => {
     if (!form.regime || !form.fatturato) return;
@@ -38,6 +59,8 @@ export default function SimulazioneForm({ onSubmit, loading }) {
       costi_deducibili: parseFloat(form.costi_deducibili) || 0,
       compenso_amministratore: parseFloat(form.compenso_amministratore) || 0,
       base_imponibile_irap: form.base_imponibile_irap ? parseFloat(form.base_imponibile_irap) : undefined,
+      regione: form.regione || undefined,
+      categoria_irap: form.categoria_irap || undefined,
       coefficiente_redditivita: parseFloat(form.coefficiente_redditivita),
       anno: parseInt(form.anno)
     });
@@ -148,6 +171,45 @@ export default function SimulazioneForm({ onSubmit, loading }) {
       {/* Campi specifici SRL */}
       {form.regime === 'SRL' && (
         <>
+          {/* Regione */}
+          <div>
+            <label className="text-slate-400 text-xs font-medium mb-1 block">Regione *</label>
+            <Select value={form.regione} onValueChange={(v) => { update('regione', v); update('categoria_irap', ''); }}>
+              <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                <SelectValue placeholder="Seleziona regione" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Marche">Marche</SelectItem>
+                <SelectItem value="Emilia-Romagna">Emilia-Romagna</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Categoria IRAP */}
+          {form.regione && (
+            <div>
+              <label className="text-slate-400 text-xs font-medium mb-1 block">Categoria IRAP</label>
+              <Select value={form.categoria_irap} onValueChange={(v) => update('categoria_irap', v)}>
+                <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                  <SelectValue placeholder={loadingCategorie ? 'Caricamento...' : 'Impresa Ordinaria (default)'} />
+                </SelectTrigger>
+                <SelectContent>
+                  {categorieIRAP.map(c => (
+                    <SelectItem key={c.id} value={c.categoria}>
+                      {c.categoria} – {(c.aliquota * 100).toFixed(2)}%
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {form.categoria_irap && form.categoria_irap !== 'Impresa Ordinaria' && (
+                <div className="flex items-start gap-1.5 mt-2 p-2 rounded-lg bg-yellow-900/20 border border-yellow-600/30">
+                  <AlertTriangle className="w-3.5 h-3.5 text-yellow-400 mt-0.5 flex-shrink-0" />
+                  <p className="text-yellow-300 text-[10px]">Verificare possesso requisiti normativi per applicazione aliquota specifica.</p>
+                </div>
+              )}
+            </div>
+          )}
+
           <div>
             <label className="text-slate-400 text-xs font-medium mb-1 block">Compenso amministratore (€)</label>
             <Input
@@ -195,7 +257,7 @@ export default function SimulazioneForm({ onSubmit, loading }) {
       {/* Submit */}
       <button
         onClick={handleSubmit}
-        disabled={loading || !form.regime || !form.fatturato}
+        disabled={loading || !form.regime || !form.fatturato || (form.regime === 'SRL' && !form.regione)}
         className="w-full h-12 cursor-pointer transition-all duration-150 hover:brightness-110 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-slate-900 font-bold text-sm"
         style={{
           background: 'linear-gradient(to bottom, #f7d774 0%, #e6b93d 35%, #c6921b 60%, #9e6f0f 100%)',
