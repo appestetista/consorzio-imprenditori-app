@@ -96,6 +96,12 @@ export default function SimulatoreFiscale() {
             Prelievo SRL
           </button>
           <button
+            onClick={() => setView('multi_scenario')}
+            className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${view === 'multi_scenario' ? 'bg-[#d4af37] text-slate-900' : 'bg-slate-800 text-slate-400'}`}
+          >
+            Multi-Scenario
+          </button>
+          <button
             onClick={() => setView('storico')}
             className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${view === 'storico' ? 'bg-[#d4af37] text-slate-900' : 'bg-slate-800 text-slate-400'}`}
           >
