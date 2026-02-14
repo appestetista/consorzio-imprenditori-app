@@ -42,9 +42,11 @@ Deno.serve(async (req) => {
       const s1 = getAliquota('IRPEF_scaglione1');
       const s2 = getAliquota('IRPEF_scaglione2');
       const s3 = getAliquota('IRPEF_scaglione3');
+      // 2026: se reddito > 200k, lo scaglione 2 resta a 35%
+      const aliq2 = reddito > 200000 ? 0.35 : s2;
       if (reddito <= soglia1) return Math.round(reddito * s1 * 100) / 100;
-      if (reddito <= soglia2) return Math.round((soglia1 * s1 + (reddito - soglia1) * s2) * 100) / 100;
-      return Math.round((soglia1 * s1 + (soglia2 - soglia1) * s2 + (reddito - soglia2) * s3) * 100) / 100;
+      if (reddito <= soglia2) return Math.round((soglia1 * s1 + (reddito - soglia1) * aliq2) * 100) / 100;
+      return Math.round((soglia1 * s1 + (soglia2 - soglia1) * aliq2 + (reddito - soglia2) * s3) * 100) / 100;
     };
 
     // Funzione di calcolo netto per un dato scenario

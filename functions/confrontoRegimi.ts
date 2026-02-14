@@ -258,20 +258,23 @@ Deno.serve(async (req) => {
 // Helper IRPEF progressiva
 function calcolaIRPEF(reddito, aliquoteRecords) {
   const scaglione1 = aliquoteRecords.find(a => a.tipo_imposta === 'IRPEF_scaglione1')?.aliquota || 0.23;
-  const scaglione2 = aliquoteRecords.find(a => a.tipo_imposta === 'IRPEF_scaglione2')?.aliquota || 0.35;
+  const scaglione2 = aliquoteRecords.find(a => a.tipo_imposta === 'IRPEF_scaglione2')?.aliquota || 0.33;
   const scaglione3 = aliquoteRecords.find(a => a.tipo_imposta === 'IRPEF_scaglione3')?.aliquota || 0.43;
   const soglia1 = aliquoteRecords.find(a => a.tipo_imposta === 'IRPEF_scaglione1')?.soglia_max || 28000;
   const soglia2 = aliquoteRecords.find(a => a.tipo_imposta === 'IRPEF_scaglione2')?.soglia_max || 50000;
+
+  // 2026: se reddito > 200k, la riduzione al 33% non si applica → resta 35%
+  const aliq2 = reddito > 200000 ? 0.35 : scaglione2;
 
   if (reddito <= soglia1) {
     return Math.round(reddito * scaglione1 * 100) / 100;
   } else if (reddito <= soglia2) {
     const p1 = Math.round(soglia1 * scaglione1 * 100) / 100;
-    const p2 = Math.round((reddito - soglia1) * scaglione2 * 100) / 100;
+    const p2 = Math.round((reddito - soglia1) * aliq2 * 100) / 100;
     return Math.round((p1 + p2) * 100) / 100;
   } else {
     const p1 = Math.round(soglia1 * scaglione1 * 100) / 100;
-    const p2 = Math.round((soglia2 - soglia1) * scaglione2 * 100) / 100;
+    const p2 = Math.round((soglia2 - soglia1) * aliq2 * 100) / 100;
     const p3 = Math.round((reddito - soglia2) * scaglione3 * 100) / 100;
     return Math.round((p1 + p2 + p3) * 100) / 100;
   }

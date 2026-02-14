@@ -133,25 +133,28 @@ Deno.serve(async (req) => {
 
         dettaglio.push(`IRPEF su compenso amministratore (${fmt(compensoAmm)}):`);
 
+        // 2026: se reddito complessivo > 200k, lo scaglione 2 resta a 35% (la riduzione a 33% non si applica)
+        const scag2Eff = compensoAmm > 200000 ? 0.35 : scaglione2;
+
         if (compensoAmm <= soglia1) {
           irpef_amministratore = r2(compensoAmm * scaglione1);
           dettaglio.push(`  Scaglione 1 (${(scaglione1 * 100).toFixed(0)}%): ${fmt(compensoAmm)} × ${scaglione1} = ${fmt(irpef_amministratore)}`);
         } else if (compensoAmm <= soglia2) {
           const p1 = r2(soglia1 * scaglione1);
           const ecc = compensoAmm - soglia1;
-          const p2 = r2(ecc * scaglione2);
+          const p2 = r2(ecc * scag2Eff);
           irpef_amministratore = r2(p1 + p2);
           dettaglio.push(`  Scaglione 1 (${(scaglione1 * 100).toFixed(0)}%): ${fmt(soglia1)} × ${scaglione1} = ${fmt(p1)}`);
-          dettaglio.push(`  Scaglione 2 (${(scaglione2 * 100).toFixed(0)}%): ${fmt(ecc)} × ${scaglione2} = ${fmt(p2)}`);
+          dettaglio.push(`  Scaglione 2 (${(scag2Eff * 100).toFixed(0)}%): ${fmt(ecc)} × ${scag2Eff} = ${fmt(p2)}`);
         } else {
           const p1 = r2(soglia1 * scaglione1);
           const fascia2 = soglia2 - soglia1;
-          const p2 = r2(fascia2 * scaglione2);
+          const p2 = r2(fascia2 * scag2Eff);
           const ecc = compensoAmm - soglia2;
           const p3 = r2(ecc * scaglione3);
           irpef_amministratore = r2(p1 + p2 + p3);
           dettaglio.push(`  Scaglione 1 (${(scaglione1 * 100).toFixed(0)}%): ${fmt(soglia1)} × ${scaglione1} = ${fmt(p1)}`);
-          dettaglio.push(`  Scaglione 2 (${(scaglione2 * 100).toFixed(0)}%): ${fmt(fascia2)} × ${scaglione2} = ${fmt(p2)}`);
+          dettaglio.push(`  Scaglione 2 (${(scag2Eff * 100).toFixed(0)}%): ${fmt(fascia2)} × ${scag2Eff} = ${fmt(p2)}`);
           dettaglio.push(`  Scaglione 3 (${(scaglione3 * 100).toFixed(0)}%): ${fmt(ecc)} × ${scaglione3} = ${fmt(p3)}`);
         }
         dettaglio.push(`  IRPEF totale: ${fmt(irpef_amministratore)}`);
@@ -289,25 +292,28 @@ Deno.serve(async (req) => {
       let irpef = 0;
       const dettaglioIrpef = [];
 
+      // 2026: se reddito > 200k, lo scaglione 2 resta a 35%
+      const scag2EffDitta = reddito_imponibile > 200000 ? 0.35 : scaglione2;
+
       if (reddito_imponibile <= soglia1) {
         irpef = r2(reddito_imponibile * scaglione1);
         dettaglioIrpef.push(`  Scaglione 1 (${(scaglione1 * 100).toFixed(0)}%): ${fmt(reddito_imponibile)} × ${scaglione1} = ${fmt(irpef)}`);
       } else if (reddito_imponibile <= soglia2) {
         const p1 = r2(soglia1 * scaglione1);
         const ecc = reddito_imponibile - soglia1;
-        const p2 = r2(ecc * scaglione2);
+        const p2 = r2(ecc * scag2EffDitta);
         irpef = r2(p1 + p2);
         dettaglioIrpef.push(`  Scaglione 1 (${(scaglione1 * 100).toFixed(0)}%): ${fmt(soglia1)} × ${scaglione1} = ${fmt(p1)}`);
-        dettaglioIrpef.push(`  Scaglione 2 (${(scaglione2 * 100).toFixed(0)}%): ${fmt(ecc)} × ${scaglione2} = ${fmt(p2)}`);
+        dettaglioIrpef.push(`  Scaglione 2 (${(scag2EffDitta * 100).toFixed(0)}%): ${fmt(ecc)} × ${scag2EffDitta} = ${fmt(p2)}`);
       } else {
         const p1 = r2(soglia1 * scaglione1);
         const fascia2 = soglia2 - soglia1;
-        const p2 = r2(fascia2 * scaglione2);
+        const p2 = r2(fascia2 * scag2EffDitta);
         const ecc = reddito_imponibile - soglia2;
         const p3 = r2(ecc * scaglione3);
         irpef = r2(p1 + p2 + p3);
         dettaglioIrpef.push(`  Scaglione 1 (${(scaglione1 * 100).toFixed(0)}%): ${fmt(soglia1)} × ${scaglione1} = ${fmt(p1)}`);
-        dettaglioIrpef.push(`  Scaglione 2 (${(scaglione2 * 100).toFixed(0)}%): ${fmt(fascia2)} × ${scaglione2} = ${fmt(p2)}`);
+        dettaglioIrpef.push(`  Scaglione 2 (${(scag2EffDitta * 100).toFixed(0)}%): ${fmt(fascia2)} × ${scag2EffDitta} = ${fmt(p2)}`);
         dettaglioIrpef.push(`  Scaglione 3 (${(scaglione3 * 100).toFixed(0)}%): ${fmt(ecc)} × ${scaglione3} = ${fmt(p3)}`);
       }
 

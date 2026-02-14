@@ -15,12 +15,13 @@ function stimaImposte({ regime, fatturato, costi_deducibili, coefficiente_reddit
     const ires = utile * 0.24;
     const irap = utile * 0.039;
     const utileNetto = utile - ires - irap;
-    // IRPEF compenso amministratore (semplificata)
+    // IRPEF compenso amministratore (2026: 23/33/43, 33% solo se <=200k)
     let irpefAmm = 0;
     if (compensoAmm > 0) {
+      const aliq2 = compensoAmm <= 200000 ? 0.33 : 0.35;
       if (compensoAmm <= 28000) irpefAmm = compensoAmm * 0.23;
-      else if (compensoAmm <= 50000) irpefAmm = 28000 * 0.23 + (compensoAmm - 28000) * 0.35;
-      else irpefAmm = 28000 * 0.23 + 22000 * 0.35 + (compensoAmm - 50000) * 0.43;
+      else if (compensoAmm <= 50000) irpefAmm = 28000 * 0.23 + (compensoAmm - 28000) * aliq2;
+      else irpefAmm = 28000 * 0.23 + 22000 * aliq2 + (compensoAmm - 50000) * 0.43;
     }
     const contribAmm = compensoAmm * 0.3372;
     let imposte = ires + irap + irpefAmm + contribAmm;
@@ -46,9 +47,10 @@ function stimaImposte({ regime, fatturato, costi_deducibili, coefficiente_reddit
     const reddito = fatturato - costiDed;
     if (reddito <= 0) return null;
     let irpef = 0;
+    const aliq2Ditta = reddito <= 200000 ? 0.33 : 0.35;
     if (reddito <= 28000) irpef = reddito * 0.23;
-    else if (reddito <= 50000) irpef = 28000 * 0.23 + (reddito - 28000) * 0.35;
-    else irpef = 28000 * 0.23 + 22000 * 0.35 + (reddito - 50000) * 0.43;
+    else if (reddito <= 50000) irpef = 28000 * 0.23 + (reddito - 28000) * aliq2Ditta;
+    else irpef = 28000 * 0.23 + 22000 * aliq2Ditta + (reddito - 50000) * 0.43;
     const contributi = reddito * 0.24; // stima media artigiani/commercianti
     return { imposte: irpef + contributi, netto: reddito - irpef - contributi };
   }
