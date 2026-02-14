@@ -6,9 +6,11 @@ import { ArrowDownUp, Trophy, Loader2 } from 'lucide-react';
 
 function calcolaIRPEF(reddito) {
   if (reddito <= 0) return 0;
+  // 2026: 23% fino a 28k, 33% da 28k a 50k (se reddito <= 200k, altrimenti 35%), 43% oltre 50k
+  const aliq2 = reddito <= 200000 ? 0.33 : 0.35;
   if (reddito <= 28000) return reddito * 0.23;
-  if (reddito <= 50000) return 28000 * 0.23 + (reddito - 28000) * 0.35;
-  return 28000 * 0.23 + 22000 * 0.35 + (reddito - 50000) * 0.43;
+  if (reddito <= 50000) return 28000 * 0.23 + (reddito - 28000) * aliq2;
+  return 28000 * 0.23 + 22000 * aliq2 + (reddito - 50000) * 0.43;
 }
 
 const r2 = (n) => Math.round(n * 100) / 100;

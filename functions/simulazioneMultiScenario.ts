@@ -2,9 +2,11 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
 function calcolaIRPEF(reddito, scaglione1, scaglione2, scaglione3, soglia1, soglia2) {
   if (reddito <= 0) return 0;
+  // 2026: se reddito > 200k, lo scaglione 2 resta a 0.35 (la riduzione a 0.33 non si applica)
+  const aliq2 = reddito > 200000 ? 0.35 : scaglione2;
   if (reddito <= soglia1) return reddito * scaglione1;
-  if (reddito <= soglia2) return soglia1 * scaglione1 + (reddito - soglia1) * scaglione2;
-  return soglia1 * scaglione1 + (soglia2 - soglia1) * scaglione2 + (reddito - soglia2) * scaglione3;
+  if (reddito <= soglia2) return soglia1 * scaglione1 + (reddito - soglia1) * aliq2;
+  return soglia1 * scaglione1 + (soglia2 - soglia1) * aliq2 + (reddito - soglia2) * scaglione3;
 }
 
 const r2 = (n) => Math.round(n * 100) / 100;
