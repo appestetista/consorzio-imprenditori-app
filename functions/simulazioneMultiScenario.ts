@@ -17,7 +17,7 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { utile_iniziale, step_simulazione = 1000, limite_massimo_compenso } = await req.json();
+    const { utile_iniziale, step_simulazione = 1000, limite_massimo_compenso, regione, categoria_irap } = await req.json();
 
     if (!utile_iniziale || utile_iniziale <= 0) {
       return Response.json({ error: 'utile_iniziale obbligatorio e > 0' }, { status: 400 });
@@ -37,7 +37,24 @@ Deno.serve(async (req) => {
     };
 
     const aliqIres = get('IRES').aliquota;
-    const aliqIrap = get('IRAP').aliquota;
+    let aliqIrap = get('IRAP').aliquota; // fallback nazionale
+    let irapLabel = '';
+    if (regione) {
+      const irapRecords = await base44.asServiceRole.entities.AliquoteIRAPRegionali.filter({ anno, regione });
+      if (irapRecords.length > 0) {
+        let irapRecord = null;
+        if (categoria_irap) {
+          irapRecord = irapRecords.find(r => r.categoria === categoria_irap);
+        }
+        if (!irapRecord) {
+          irapRecord = irapRecords.find(r => r.categoria === 'Impresa Ordinaria');
+        }
+        if (irapRecord) {
+          aliqIrap = irapRecord.aliquota;
+          irapLabel = `${regione} – ${irapRecord.categoria}`;
+        }
+      }
+    }
     const aliqDividendi = get('Dividendi').aliquota;
     const irpef1 = get('IRPEF_scaglione1');
     const irpef2 = get('IRPEF_scaglione2');
@@ -111,6 +128,7 @@ Deno.serve(async (req) => {
       aliquote_usate: {
         ires: aliqIres,
         irap: aliqIrap,
+        irap_label: irapLabel || undefined,
         dividendi: aliqDividendi,
         irpef_scaglioni: [irpef1.aliquota, irpef2.aliquota, irpef3.aliquota],
         inps_gs: aliqInps,
