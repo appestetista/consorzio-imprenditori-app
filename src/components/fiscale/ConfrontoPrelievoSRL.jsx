@@ -4,6 +4,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowDownUp, Trophy, Loader2, AlertTriangle } from 'lucide-react';
+import AtecoSearchInput from './AtecoSearchInput';
+import CategoriaIRAPBadge from './CategoriaIRAPBadge';
+import useRaccordoATECO from './useRaccordoATECO';
 
 function calcolaIRPEF(reddito) {
   if (reddito <= 0) return 0;
@@ -20,10 +23,12 @@ const formatEuro = (v) => `€${Math.round(v).toLocaleString('it-IT')}`;
 export default function ConfrontoPrelievoSRL() {
     const [utile, setUtile] = useState('');
     const [regione, setRegione] = useState('');
-    const [categoriaIrap, setCategoriaIrap] = useState('');
-    const [categorieDisponibili, setCategorieDisponibili] = useState([]);
+    const [codiceAteco, setCodiceAteco] = useState('');
     const [aliquote, setAliquote] = useState(null);
     const [loadingAliquote, setLoadingAliquote] = useState(true);
+
+    // Raccordo automatico ATECO → IRAP
+    const raccordo = useRaccordoATECO({ codiceAteco, regione, anno: 2026 });
 
     // Carica aliquote base da DB
     useEffect(() => {
@@ -45,29 +50,12 @@ export default function ConfrontoPrelievoSRL() {
       load();
     }, []);
 
-    // Carica categorie IRAP regionali
+    // Aggiorna aliquota IRAP dal raccordo automatico
     useEffect(() => {
-      if (!regione) { setCategorieDisponibili([]); return; }
-      const load = async () => {
-        const records = await base44.entities.AliquoteIRAPRegionali.filter({ anno: 2026, regione });
-        setCategorieDisponibili(records);
-        // Aggiorna aliquota IRAP con ordinaria della regione
-        const ordinaria = records.find(r => r.categoria === 'Impresa Ordinaria');
-        if (ordinaria && aliquote) {
-          setAliquote(prev => ({ ...prev, irap: ordinaria.aliquota }));
-        }
-      };
-      load();
-    }, [regione]);
-
-    // Aggiorna aliquota quando cambia categoria
-    useEffect(() => {
-      if (!categoriaIrap || categorieDisponibili.length === 0) return;
-      const record = categorieDisponibili.find(r => r.categoria === categoriaIrap);
-      if (record && aliquote) {
-        setAliquote(prev => ({ ...prev, irap: record.aliquota }));
+      if (!raccordo.loading && raccordo.aliquotaIrap !== null && aliquote) {
+        setAliquote(prev => ({ ...prev, irap: raccordo.aliquotaIrap }));
       }
-    }, [categoriaIrap, categorieDisponibili]);
+    }, [raccordo.aliquotaIrap, raccordo.loading]);
 
   const utileNum = parseFloat(utile) || 0;
 
@@ -140,43 +128,31 @@ export default function ConfrontoPrelievoSRL() {
         Dato lo stesso utile, confronta: prelevare tutto come dividendi vs. tutto come compenso amministratore.
       </p>
 
-      {/* Regione e Categoria IRAP */}
-      <div>
-        <label className="text-slate-400 text-xs font-medium mb-1 block">Regione *</label>
-        <Select value={regione} onValueChange={(v) => { setRegione(v); setCategoriaIrap(''); }}>
-          <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
-            <SelectValue placeholder="Seleziona regione" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="Marche">Marche</SelectItem>
-            <SelectItem value="Emilia-Romagna">Emilia-Romagna</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {regione && categorieDisponibili.length > 0 && (
+      {/* Regione e Codice ATECO */}
         <div>
-          <label className="text-slate-400 text-xs font-medium mb-1 block">Categoria IRAP</label>
-          <Select value={categoriaIrap} onValueChange={setCategoriaIrap}>
+          <label className="text-slate-400 text-xs font-medium mb-1 block">Regione *</label>
+          <Select value={regione} onValueChange={(v) => { setRegione(v); setCodiceAteco(''); }}>
             <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
-              <SelectValue placeholder="Impresa Ordinaria (default)" />
+              <SelectValue placeholder="Seleziona regione" />
             </SelectTrigger>
             <SelectContent>
-              {categorieDisponibili.map(c => (
-                <SelectItem key={c.id} value={c.categoria}>
-                  {c.categoria} – {(c.aliquota * 100).toFixed(2)}%
-                </SelectItem>
-              ))}
+              <SelectItem value="Marche">Marche</SelectItem>
+              <SelectItem value="Emilia-Romagna">Emilia-Romagna</SelectItem>
             </SelectContent>
           </Select>
-          {categoriaIrap && categoriaIrap !== 'Impresa Ordinaria' && (
-            <div className="flex items-start gap-1.5 mt-2 p-2 rounded-lg bg-yellow-900/20 border border-yellow-600/30">
-              <AlertTriangle className="w-3.5 h-3.5 text-yellow-400 mt-0.5 flex-shrink-0" />
-              <p className="text-yellow-300 text-[10px]">Verificare possesso requisiti normativi per applicazione aliquota specifica.</p>
-            </div>
-          )}
         </div>
-      )}
+
+        {regione && (
+          <>
+            <AtecoSearchInput value={codiceAteco} onChange={setCodiceAteco} />
+            <CategoriaIRAPBadge 
+              categoriaIrap={raccordo.categoriaIrap}
+              aliquotaIrap={raccordo.aliquotaIrap}
+              fonte={raccordo.fonte}
+              loading={raccordo.loading}
+            />
+          </>
+        )}
 
       {/* Aliquote caricate */}
       <Card className="bg-slate-800/50 border-slate-700">
@@ -184,7 +160,7 @@ export default function ConfrontoPrelievoSRL() {
           <p className="text-slate-500 text-[10px] uppercase tracking-wide mb-1">Aliquote da database (anno 2026){regione ? ` – ${regione}` : ''}</p>
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-slate-400">
             <span>IRES {(aliquote.ires * 100).toFixed(1)}%</span>
-            <span>IRAP {(aliquote.irap * 100).toFixed(2)}%{regione ? ` (${categoriaIrap || 'Impresa Ordinaria'})` : ''}</span>
+            <span>IRAP {(aliquote.irap * 100).toFixed(2)}%{regione ? ` (${raccordo.categoriaIrap || 'Impresa Ordinaria'})` : ''}</span>
             <span>Dividendi {(aliquote.dividendi * 100).toFixed(0)}%</span>
             <span>INPS GS {(aliquote.inps_gs * 100).toFixed(2)}%</span>
           </div>
