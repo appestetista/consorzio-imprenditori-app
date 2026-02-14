@@ -199,31 +199,47 @@ export default function ConfrontoPrelievoSRL() {
 
           {/* Dettaglio */}
           <div className="space-y-3">
-            {scenari.map((s, i) => (
-              <Card key={i} className="bg-[#0a2540] border-[#1a3a5c]">
-                <CardContent className="p-3">
-                  <p className="text-white text-sm font-semibold mb-2">{s.label}</p>
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div>
-                      <span className="text-slate-400">Tasse società</span>
-                      <p className="text-red-400 font-medium">{formatEuro(s.tasseSocieta)}</p>
+            {scenari.map((s, i) => {
+              const caricoTotale = r2(s.tasseSocieta + s.tassePersonali + s.contributi);
+              const caricoPerc = utileNum > 0 ? r2((caricoTotale / utileNum) * 100) : 0;
+              const rimaneSu100 = r2(100 - caricoPerc);
+              const semaforoColor = caricoPerc < 30 ? 'text-green-400' : caricoPerc <= 45 ? 'text-yellow-400' : 'text-red-400';
+              return (
+                <Card key={i} className="bg-[#0a2540] border-[#1a3a5c]">
+                  <CardContent className="p-3">
+                    <p className="text-white text-sm font-semibold mb-2">{s.label}</p>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div>
+                        <span className="text-slate-400">Tasse società</span>
+                        <p className="text-red-400 font-medium">{formatEuro(s.tasseSocieta)}</p>
+                      </div>
+                      <div>
+                        <span className="text-slate-400">Tasse personali</span>
+                        <p className="text-red-400 font-medium">{formatEuro(s.tassePersonali)}</p>
+                      </div>
+                      <div>
+                        <span className="text-slate-400">Contributi INPS</span>
+                        <p className="text-yellow-400 font-medium">{formatEuro(s.contributi)}</p>
+                      </div>
+                      <div>
+                        <span className="text-slate-400">Netto in tasca</span>
+                        <p className="text-green-400 font-bold">{formatEuro(s.netto)}</p>
+                      </div>
                     </div>
-                    <div>
-                      <span className="text-slate-400">Tasse personali</span>
-                      <p className="text-red-400 font-medium">{formatEuro(s.tassePersonali)}</p>
+                    <div className="mt-3 pt-3 border-t border-slate-700 flex items-center justify-between">
+                      <div>
+                        <p className="text-slate-500 text-[10px] uppercase tracking-wide">Carico fiscale effettivo</p>
+                        <p className={`font-bold text-lg ${semaforoColor}`}>{caricoPerc}%</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-slate-500 text-[10px] uppercase tracking-wide">Su 100€ di utile rimangono</p>
+                        <p className="text-green-400 font-bold text-lg">€{rimaneSu100.toFixed(2)}</p>
+                      </div>
                     </div>
-                    <div>
-                      <span className="text-slate-400">Contributi INPS</span>
-                      <p className="text-yellow-400 font-medium">{formatEuro(s.contributi)}</p>
-                    </div>
-                    <div>
-                      <span className="text-slate-400">Netto in tasca</span>
-                      <p className="text-green-400 font-bold">{formatEuro(s.netto)}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </>
       )}
