@@ -7,6 +7,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import IndicatoreImpattoFiscale from './IndicatoreImpattoFiscale';
+import AtecoSearchInput from './AtecoSearchInput';
+import CategoriaIRAPBadge from './CategoriaIRAPBadge';
+import useRaccordoATECO from './useRaccordoATECO';
 
 const coefficientiAteco = [
   { label: '40% – Industrie alimentari e bevande', value: '0.40' },
@@ -30,26 +33,23 @@ export default function SimulazioneForm({ onSubmit, loading }) {
     nome_scenario: '',
     anno: 2026,
     regione: '',
-    categoria_irap: ''
+    categoria_irap: '',
+    codice_ateco: ''
   });
 
-  const [categorieIRAP, setCategorieIRAP] = useState([]);
-  const [loadingCategorie, setLoadingCategorie] = useState(false);
+  // Raccordo automatico ATECO → IRAP
+  const raccordo = useRaccordoATECO({ 
+    codiceAteco: form.codice_ateco, 
+    regione: form.regione, 
+    anno: form.anno 
+  });
 
-  // Carica categorie IRAP quando cambia regione
+  // Sincronizza categoria IRAP dal raccordo automatico
   useEffect(() => {
-    if (!form.regione) {
-      setCategorieIRAP([]);
-      return;
+    if (!raccordo.loading && raccordo.categoriaIrap) {
+      setForm(prev => ({ ...prev, categoria_irap: raccordo.categoriaIrap }));
     }
-    const load = async () => {
-      setLoadingCategorie(true);
-      const records = await base44.entities.AliquoteIRAPRegionali.filter({ anno: 2026, regione: form.regione });
-      setCategorieIRAP(records);
-      setLoadingCategorie(false);
-    };
-    load();
-  }, [form.regione]);
+  }, [raccordo.categoriaIrap, raccordo.loading]);
 
   const handleSubmit = () => {
     if (!form.regime || !form.fatturato) return;
@@ -174,7 +174,7 @@ export default function SimulazioneForm({ onSubmit, loading }) {
           {/* Regione */}
           <div>
             <label className="text-slate-400 text-xs font-medium mb-1 block">Regione *</label>
-            <Select value={form.regione} onValueChange={(v) => { update('regione', v); update('categoria_irap', ''); }}>
+            <Select value={form.regione} onValueChange={(v) => { update('regione', v); update('categoria_irap', ''); update('codice_ateco', ''); }}>
               <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
                 <SelectValue placeholder="Seleziona regione" />
               </SelectTrigger>
@@ -185,29 +185,20 @@ export default function SimulazioneForm({ onSubmit, loading }) {
             </Select>
           </div>
 
-          {/* Categoria IRAP */}
+          {/* Codice ATECO + Categoria IRAP automatica */}
           {form.regione && (
-            <div>
-              <label className="text-slate-400 text-xs font-medium mb-1 block">Categoria IRAP</label>
-              <Select value={form.categoria_irap} onValueChange={(v) => update('categoria_irap', v)}>
-                <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
-                  <SelectValue placeholder={loadingCategorie ? 'Caricamento...' : 'Impresa Ordinaria (default)'} />
-                </SelectTrigger>
-                <SelectContent>
-                  {categorieIRAP.map(c => (
-                    <SelectItem key={c.id} value={c.categoria}>
-                      {c.categoria} – {(c.aliquota * 100).toFixed(2)}%
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {form.categoria_irap && form.categoria_irap !== 'Impresa Ordinaria' && (
-                <div className="flex items-start gap-1.5 mt-2 p-2 rounded-lg bg-yellow-900/20 border border-yellow-600/30">
-                  <AlertTriangle className="w-3.5 h-3.5 text-yellow-400 mt-0.5 flex-shrink-0" />
-                  <p className="text-yellow-300 text-[10px]">Verificare possesso requisiti normativi per applicazione aliquota specifica.</p>
-                </div>
-              )}
-            </div>
+            <>
+              <AtecoSearchInput 
+                value={form.codice_ateco} 
+                onChange={(v) => update('codice_ateco', v)} 
+              />
+              <CategoriaIRAPBadge 
+                categoriaIrap={raccordo.categoriaIrap}
+                aliquotaIrap={raccordo.aliquotaIrap}
+                fonte={raccordo.fonte}
+                loading={raccordo.loading}
+              />
+            </>
           )}
 
           <div>
