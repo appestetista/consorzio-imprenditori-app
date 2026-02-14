@@ -11,6 +11,7 @@ import SimulazioneForm from '../components/fiscale/SimulazioneForm';
 import SimulazioneResult from '../components/fiscale/SimulazioneResult';
 import StoricoSimulazioni from '../components/fiscale/StoricoSimulazioni';
 import ConfrontoPrelievoSRL from '../components/fiscale/ConfrontoPrelievoSRL';
+import MultiScenarioCompenso from '../components/fiscale/MultiScenarioCompenso';
 
 export default function SimulatoreFiscale() {
   const [effectiveUser, setEffectiveUser] = useState(null);
