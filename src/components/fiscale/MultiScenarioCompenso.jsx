@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Trophy, TrendingUp, Loader2, Calculator } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Trophy, TrendingUp, Loader2, Calculator, AlertTriangle } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 
 const formatEuro = (v) => `€${Math.round(v).toLocaleString('it-IT')}`;
@@ -10,8 +11,20 @@ const formatEuro = (v) => `€${Math.round(v).toLocaleString('it-IT')}`;
 export default function MultiScenarioCompenso() {
   const [utile, setUtile] = useState('');
   const [step, setStep] = useState('5000');
+  const [regione, setRegione] = useState('');
+  const [categoriaIrap, setCategoriaIrap] = useState('');
+  const [categorieDisponibili, setCategorieDisponibili] = useState([]);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
+
+  useEffect(() => {
+    if (!regione) { setCategorieDisponibili([]); return; }
+    const load = async () => {
+      const records = await base44.entities.AliquoteIRAPRegionali.filter({ anno: 2026, regione });
+      setCategorieDisponibili(records);
+    };
+    load();
+  }, [regione]);
 
   const handleCalcola = async () => {
     const u = parseFloat(utile);
@@ -19,7 +32,9 @@ export default function MultiScenarioCompenso() {
     setLoading(true);
     const res = await base44.functions.invoke('simulazioneMultiScenario', {
       utile_iniziale: u,
-      step_simulazione: parseInt(step) || 5000
+      step_simulazione: parseInt(step) || 5000,
+      regione: regione || undefined,
+      categoria_irap: categoriaIrap || undefined
     });
     setResult(res.data);
     setLoading(false);
@@ -38,6 +53,45 @@ export default function MultiScenarioCompenso() {
       <p className="text-slate-400 text-xs">
         Simula tutti i livelli di compenso amministratore per trovare il punto ottimale di netto in tasca.
       </p>
+
+      {/* Regione e Categoria */}
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="text-slate-400 text-xs font-medium mb-1 block">Regione *</label>
+          <Select value={regione} onValueChange={(v) => { setRegione(v); setCategoriaIrap(''); }}>
+            <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+              <SelectValue placeholder="Seleziona" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Marche">Marche</SelectItem>
+              <SelectItem value="Emilia-Romagna">Emilia-Romagna</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        {regione && categorieDisponibili.length > 0 && (
+          <div>
+            <label className="text-slate-400 text-xs font-medium mb-1 block">Categoria IRAP</label>
+            <Select value={categoriaIrap} onValueChange={setCategoriaIrap}>
+              <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                <SelectValue placeholder="Ordinaria" />
+              </SelectTrigger>
+              <SelectContent>
+                {categorieDisponibili.map(c => (
+                  <SelectItem key={c.id} value={c.categoria}>
+                    {c.categoria} – {(c.aliquota * 100).toFixed(2)}%
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+      </div>
+      {categoriaIrap && categoriaIrap !== 'Impresa Ordinaria' && (
+        <div className="flex items-start gap-1.5 p-2 rounded-lg bg-yellow-900/20 border border-yellow-600/30">
+          <AlertTriangle className="w-3.5 h-3.5 text-yellow-400 mt-0.5 flex-shrink-0" />
+          <p className="text-yellow-300 text-[10px]">Verificare possesso requisiti normativi per applicazione aliquota specifica.</p>
+        </div>
+      )}
 
       {/* Input */}
       <div className="grid grid-cols-2 gap-3">
@@ -65,7 +119,7 @@ export default function MultiScenarioCompenso() {
 
       <button
         onClick={handleCalcola}
-        disabled={loading || !utile}
+        disabled={loading || !utile || !regione}
         className="w-full h-11 cursor-pointer transition-all duration-150 hover:brightness-110 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-slate-900 font-bold text-sm rounded-xl"
         style={{
           background: 'linear-gradient(to bottom, #f7d774 0%, #e6b93d 35%, #c6921b 60%, #9e6f0f 100%)',
