@@ -3,7 +3,10 @@ import { base44 } from '@/api/base44Client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Trophy, TrendingUp, Loader2, Calculator, AlertTriangle } from 'lucide-react';
+import { Trophy, TrendingUp, Loader2, Calculator } from 'lucide-react';
+import AtecoSearchInput from './AtecoSearchInput';
+import CategoriaIRAPBadge from './CategoriaIRAPBadge';
+import useRaccordoATECO from './useRaccordoATECO';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
 
 const formatEuro = (v) => `€${Math.round(v).toLocaleString('it-IT')}`;
@@ -12,19 +15,12 @@ export default function MultiScenarioCompenso() {
   const [utile, setUtile] = useState('');
   const [step, setStep] = useState('5000');
   const [regione, setRegione] = useState('');
-  const [categoriaIrap, setCategoriaIrap] = useState('');
-  const [categorieDisponibili, setCategorieDisponibili] = useState([]);
+  const [codiceAteco, setCodiceAteco] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
 
-  useEffect(() => {
-    if (!regione) { setCategorieDisponibili([]); return; }
-    const load = async () => {
-      const records = await base44.entities.AliquoteIRAPRegionali.filter({ anno: 2026, regione });
-      setCategorieDisponibili(records);
-    };
-    load();
-  }, [regione]);
+  // Raccordo automatico ATECO → IRAP
+  const raccordo = useRaccordoATECO({ codiceAteco, regione, anno: 2026 });
 
   const handleCalcola = async () => {
     const u = parseFloat(utile);
@@ -34,7 +30,7 @@ export default function MultiScenarioCompenso() {
       utile_iniziale: u,
       step_simulazione: parseInt(step) || 5000,
       regione: regione || undefined,
-      categoria_irap: categoriaIrap || undefined
+      categoria_irap: raccordo.categoriaIrap || undefined
     });
     setResult(res.data);
     setLoading(false);
@@ -54,43 +50,29 @@ export default function MultiScenarioCompenso() {
         Simula tutti i livelli di compenso amministratore per trovare il punto ottimale di netto in tasca.
       </p>
 
-      {/* Regione e Categoria */}
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="text-slate-400 text-xs font-medium mb-1 block">Regione *</label>
-          <Select value={regione} onValueChange={(v) => { setRegione(v); setCategoriaIrap(''); }}>
-            <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
-              <SelectValue placeholder="Seleziona" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Marche">Marche</SelectItem>
-              <SelectItem value="Emilia-Romagna">Emilia-Romagna</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        {regione && categorieDisponibili.length > 0 && (
-          <div>
-            <label className="text-slate-400 text-xs font-medium mb-1 block">Categoria IRAP</label>
-            <Select value={categoriaIrap} onValueChange={setCategoriaIrap}>
-              <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
-                <SelectValue placeholder="Ordinaria" />
-              </SelectTrigger>
-              <SelectContent>
-                {categorieDisponibili.map(c => (
-                  <SelectItem key={c.id} value={c.categoria}>
-                    {c.categoria} – {(c.aliquota * 100).toFixed(2)}%
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
+      {/* Regione e Codice ATECO */}
+      <div>
+        <label className="text-slate-400 text-xs font-medium mb-1 block">Regione *</label>
+        <Select value={regione} onValueChange={(v) => { setRegione(v); setCodiceAteco(''); }}>
+          <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+            <SelectValue placeholder="Seleziona" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Marche">Marche</SelectItem>
+            <SelectItem value="Emilia-Romagna">Emilia-Romagna</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
-      {categoriaIrap && categoriaIrap !== 'Impresa Ordinaria' && (
-        <div className="flex items-start gap-1.5 p-2 rounded-lg bg-yellow-900/20 border border-yellow-600/30">
-          <AlertTriangle className="w-3.5 h-3.5 text-yellow-400 mt-0.5 flex-shrink-0" />
-          <p className="text-yellow-300 text-[10px]">Verificare possesso requisiti normativi per applicazione aliquota specifica.</p>
-        </div>
+      {regione && (
+        <>
+          <AtecoSearchInput value={codiceAteco} onChange={setCodiceAteco} />
+          <CategoriaIRAPBadge 
+            categoriaIrap={raccordo.categoriaIrap}
+            aliquotaIrap={raccordo.aliquotaIrap}
+            fonte={raccordo.fonte}
+            loading={raccordo.loading}
+          />
+        </>
       )}
 
       {/* Input */}
