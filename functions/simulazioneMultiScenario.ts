@@ -23,7 +23,6 @@ Deno.serve(async (req) => {
 
     const anno = 2026;
 
-    // Carica aliquote da DB
     const [fiscali, inpsRecords] = await Promise.all([
       base44.asServiceRole.entities.AliquoteFiscali.filter({ anno }),
       base44.asServiceRole.entities.ContributiINPS.filter({ anno, gestione: 'AmministratoreSRL' })
@@ -48,31 +47,31 @@ Deno.serve(async (req) => {
     const massimaleInps = inpsRecords.length > 0 ? (inpsRecords[0].massimale_reddito || Infinity) : Infinity;
 
     const maxCompenso = limite_massimo_compenso || utile_iniziale;
-    const step = Math.max(step_simulazione, 100); // minimo 100€ step
+    const step = Math.max(step_simulazione, 100);
 
     const scenari = [];
 
     for (let compenso = 0; compenso <= maxCompenso; compenso += step) {
-      const comp = Math.min(compenso, utile_iniziale); // non può superare utile
+      const comp = Math.min(compenso, utile_iniziale);
 
-      // --- Lato società ---
+      // Lato società
       const baseSocieta = r2(utile_iniziale - comp);
       const ires = r2(baseSocieta * aliqIres);
       const irap = r2(baseSocieta * aliqIrap);
       const tasseSocieta = r2(ires + irap);
       const utileNettoSocieta = r2(baseSocieta - ires - irap);
 
-      // Dividendi sul residuo (distribuzione totale)
+      // Dividendi sul residuo
       const impostaDividendi = r2(utileNettoSocieta > 0 ? utileNettoSocieta * aliqDividendi : 0);
       const dividendiNetti = r2(utileNettoSocieta > 0 ? utileNettoSocieta - impostaDividendi : 0);
 
-      // --- Lato personale (compenso) ---
+      // Lato personale
       const irpef = r2(calcolaIRPEF(comp, irpef1.aliquota, irpef2.aliquota, irpef3.aliquota, soglia1, soglia2));
       const redditoInps = Math.min(comp, massimaleInps);
       const contributiInps = r2(redditoInps * aliqInps);
       const nettoCompenso = r2(comp - irpef - contributiInps);
 
-      // --- Totali ---
+      // Totali
       const tassePersonali = r2(irpef + impostaDividendi);
       const contributi = contributiInps;
       const tasseTotali = r2(tasseSocieta + tassePersonali + contributi);
@@ -95,11 +94,8 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Ordina per netto decrescente
     const scenariOrdinati = [...scenari].sort((a, b) => b.netto_totale - a.netto_totale);
     const migliore = scenariOrdinati[0];
-
-    // Scenario compenso 0 = solo dividendi
     const scenarioZero = scenari.find(s => s.compenso === 0);
     const diffVsDividendi = migliore && scenarioZero
       ? r2(migliore.netto_totale - scenarioZero.netto_totale)
@@ -108,7 +104,7 @@ Deno.serve(async (req) => {
     return Response.json({
       success: true,
       utile_iniziale,
-      step: step,
+      step,
       num_scenari: scenari.length,
       aliquote_usate: {
         ires: aliqIres,
@@ -124,7 +120,7 @@ Deno.serve(async (req) => {
         carico_fiscale_perc: migliore.carico_fiscale_perc,
         diff_vs_dividendi_puri: diffVsDividendi
       },
-      scenari // ordine originale (per asse X)
+      scenari
     });
 
   } catch (error) {
