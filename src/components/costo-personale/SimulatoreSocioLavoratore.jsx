@@ -5,16 +5,18 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calculator, Loader2, AlertTriangle, ChevronRight, ChevronLeft, Info } from 'lucide-react';
+import { Calculator, Loader2, AlertTriangle, ChevronRight, ChevronLeft, Info, HelpCircle } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTabelleContributive, calcolaCostoSocioLavoratore } from './useTabelleContributive';
 import VerificaTabelleNormative from './VerificaTabelleNormative';
 import RisultatoSocioLavoratore from './RisultatoSocioLavoratore';
 
 const TIPI_SOCIETA = [
-  { key: 'srl', label: 'SRL (Società a responsabilità limitata)', desc: 'Socio lavoratore di SRL che presta attività nella società' },
-  { key: 'cooperativa', label: 'Cooperativa', desc: 'Socio lavoratore di cooperativa — inquadrato come dipendente o autonomo' },
-  { key: 'snc', label: 'SNC (Società in nome collettivo)', desc: 'Socio di SNC che partecipa all\'attività' },
-  { key: 'sas', label: 'SAS (Società in accomandita semplice)', desc: 'Socio accomandatario che presta lavoro nella società' },
+  { key: 'srl', label: 'SRL', tooltip: 'Società a responsabilità limitata. Il socio lavoratore può iscriversi alla Gestione Commercianti o Artigiani INPS, a scelta in base all\'attività svolta.' },
+  { key: 'snc', label: 'SNC', tooltip: 'Società in nome collettivo. I soci che prestano attività sono obbligati all\'iscrizione INPS Artigiani o Commercianti in base all\'oggetto sociale.' },
+  { key: 'sas', label: 'SAS', tooltip: 'Società in accomandita semplice. Il socio accomandatario che partecipa all\'attività ha obbligo di iscrizione INPS Artigiani o Commercianti.' },
+  { key: 'artigiana', label: 'Società Artigiana', tooltip: 'Impresa iscritta all\'Albo delle Imprese Artigiane. Tutti i soci lavoratori sono obbligatoriamente iscritti alla Gestione Artigiani INPS.' },
+  { key: 'commerciale', label: 'Società Commerciale', tooltip: 'Impresa con attività commerciale (vendita, servizi). I soci lavoratori sono obbligatoriamente iscritti alla Gestione Commercianti INPS.' },
 ];
 
 const RUOLI_OPERATIVI = [
@@ -26,10 +28,18 @@ const RUOLI_OPERATIVI = [
 ];
 
 const GESTIONI_PREVIDENZIALI = [
-  { key: 'commercianti', label: 'Gestione Commercianti INPS', desc: 'Obbligo per soci di SRL commerciale che partecipano all\'attività — minimale + eccedenza', societa: ['srl', 'snc', 'sas'] },
-  { key: 'artigiani', label: 'Gestione Artigiani INPS', desc: 'Obbligo per soci di imprese artigiane iscritte all\'Albo — minimale + eccedenza', societa: ['srl', 'snc', 'sas'] },
-  { key: 'dipendente_coop', label: 'Dipendente della Cooperativa', desc: 'Socio inquadrato come lavoratore subordinato — INPS datore + lavoratore', societa: ['cooperativa'] },
+  { key: 'commercianti', label: 'Gestione Commercianti INPS', desc: 'Obbligo per soci di società commerciale che partecipano all\'attività — minimale + eccedenza', societa: ['srl', 'snc', 'sas', 'commerciale'] },
+  { key: 'artigiani', label: 'Gestione Artigiani INPS', desc: 'Obbligo per soci di impresa artigiana iscritta all\'Albo — minimale + eccedenza', societa: ['srl', 'snc', 'sas', 'artigiana'] },
 ];
+
+// Mappa società → gestione INPS obbligatoria (auto-impostata, no scelta)
+const GESTIONE_OBBLIGATORIA = {
+  artigiana: 'artigiani',
+  commerciale: 'commercianti',
+  snc: null,   // obbligo ma scelta tra artigiani/commercianti
+  sas: null,   // obbligo ma scelta tra artigiani/commercianti
+  srl: null,   // libera scelta
+};
 
 const STEP_LABELS = [
   'Tipo società',
