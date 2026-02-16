@@ -3,8 +3,10 @@ import { AlertTriangle, Lock } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { AI_LIMIT_LABELS } from '@/components/hooks/useAILimits';
 
-export default function LimitReachedBanner({ actionType, usageCount, limit }) {
+export default function LimitReachedBanner({ actionType, usageCount, limit, isWeekly }) {
   const label = AI_LIMIT_LABELS[actionType] || actionType;
+  const periodLabel = isWeekly ? 'questa settimana' : 'questo mese';
+  const resetLabel = isWeekly ? 'Il limite si resetterà lunedì prossimo.' : 'Il limite si resetterà il 1° del prossimo mese.';
   
   return (
     <Card className="bg-red-500/20 border-red-500/50 mb-6">
@@ -16,13 +18,13 @@ export default function LimitReachedBanner({ actionType, usageCount, limit }) {
           <div>
             <h3 className="text-red-400 font-bold text-lg flex items-center gap-2">
               <AlertTriangle className="w-5 h-5" />
-              Limite mensile raggiunto
+              Limite {isWeekly ? 'settimanale' : 'mensile'} raggiunto
             </h3>
             <p className="text-red-200 text-sm mt-1">
-              Hai utilizzato tutte le <strong>{limit}</strong> {label.toLowerCase()} disponibili questo mese.
+              Hai utilizzato tutte le <strong>{limit}</strong> {label.toLowerCase()} disponibili {periodLabel}.
             </p>
             <p className="text-red-300/70 text-xs mt-2">
-              Il limite si resetterà il 1° del prossimo mese. Utilizzi: {usageCount}/{limit}
+              {resetLabel} Utilizzi: {usageCount}/{limit}
             </p>
           </div>
         </div>

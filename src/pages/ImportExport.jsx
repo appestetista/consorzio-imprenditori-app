@@ -625,10 +625,10 @@ Fornisci:
 
             {/* Limite Export */}
             {exportLimitReached && (
-              <LimitReachedBanner actionType="export_analysis" usageCount={exportUsage} limit={exportLimit} />
+              <LimitReachedBanner actionType="export_analysis" usageCount={exportUsage} limit={exportLimit} isWeekly={true} />
             )}
             {!exportLimitReached && user && (
-              <UsageCounter usageCount={exportUsage} limit={exportLimit} label="Analisi export disponibili questo mese" />
+              <UsageCounter usageCount={exportUsage} limit={exportLimit} label="Analisi export disponibili questa settimana" />
             )}
 
             {!analysisResult ? (
