@@ -571,22 +571,26 @@ RICORDA: meglio un'analisi con 5 dati certi e 10 "Non disponibile" che un'analis
       const result = await base44.integrations.Core.InvokeLLM({
         prompt: `Cerca informazioni doganali per il prodotto: "${hsCodeSearch}"
 
+FONTI DATI OBBLIGATORIE:
+1) TARIC (ec.europa.eu/taxation_customs/dds2/taric) — Dazio MFN, dazi preferenziali, misure anti-dumping, restrizioni merceologiche.
+2) UN Comtrade (comtradeplus.un.org) — Flussi commerciali per codice HS, valore USD.
+3) Eurostat Comext — Import/Export UE per codice HS, valore EUR.
+
 REGOLE INDEROGABILI:
-- OGNI dato (codice HS, aliquota dazio, percentuale IVA, restrizione) DEVE provenire da fonte ufficiale verificabile.
-- Fonti ammesse ESCLUSIVAMENTE: TARIC (database tariffario UE), Agenzia delle Dogane e dei Monopoli (Italia), WCO (World Customs Organization), WTO Tariff Database.
-- Se un codice HS NON è determinabile con certezza, fornisci i possibili capitoli/voci e scrivi "Codice esatto da verificare su TARIC con descrizione merceologica dettagliata".
-- Per ogni aliquota dazio, indica: fonte, anno, codice HS di riferimento, paese di origine.
-- NON INVENTARE MAI codici HS, dazi o percentuali. Se non hai il dato certo, scrivi "Da verificare su TARIC — consultare voce [capitolo HS]".
-- Per le certificazioni obbligatorie, citare la normativa UE/nazionale di riferimento (es: Regolamento UE 2023/xxx, Direttiva 2014/xxx).
+- OGNI dato (codice HS, aliquota dazio, percentuale IVA, restrizione) DEVE provenire da TARIC, UN Comtrade o Eurostat.
+- Per ogni dato indica: (Fonte, anno), es: "(TARIC, 2025)".
+- Se un codice HS NON è determinabile con certezza, fornisci i possibili capitoli/voci e scrivi "Codice esatto da verificare su TARIC".
+- NON INVENTARE MAI codici HS, dazi o percentuali. Scrivi "Da verificare su TARIC" se incerto.
+- Per le certificazioni, citare la normativa UE (Regolamento/Direttiva).
 
 Fornisci:
-1. Codice HS più probabile con livello di certezza (alto/medio/basso) e fonte
-2. Descrizione ufficiale della voce doganale dalla nomenclatura combinata UE
-3. Dazi doganali per import in Italia dalla Cina — SOLO da TARIC con codice HS specifico
-4. Dazi doganali per export dall'Italia verso USA, Cina, UK — SOLO da WTO Tariff Database o fonte equivalente
+1. Codice HS più probabile con livello di certezza e fonte
+2. Descrizione ufficiale dalla nomenclatura combinata UE
+3. Dazi import in Italia dalla Cina — da TARIC con HS specifico (MFN + anti-dumping se attivo)
+4. Dazi export dall'Italia verso USA, Cina, UK — da TARIC/WTO
 5. Restrizioni o certificazioni obbligatorie con riferimento normativo
-6. IVA applicabile (aliquota standard e eventuali aliquote ridotte con base normativa)
-7. Documentazione necessaria per import/export con riferimento normativo`,
+6. IVA applicabile con base normativa
+7. Documentazione necessaria per import/export`,
         add_context_from_internet: true,
         response_json_schema: {
           type: "object",
