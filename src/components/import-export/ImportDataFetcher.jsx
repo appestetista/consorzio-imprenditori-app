@@ -125,6 +125,27 @@ export function computeLandedCost(importData, quantitaRange, budgetRange) {
   // Non lo calcoliamo — lo lasciamo come "Da richiedere preventivo"
   const trasportoDisponibile = false;
 
+  // Conversione flussi Comtrade USD → EUR
+  const flussiComtrade = importData?.flussi_comtrade;
+  let flussiConvertiti = null;
+  if (flussiComtrade && tassoEurUsd && !isNaN(tassoEurUsd) && tassoEurUsd > 0) {
+    const parseUsd = (str) => {
+      if (!str) return null;
+      const n = parseFloat(String(str).replace(/[^0-9.]/g, ''));
+      return isNaN(n) ? null : n;
+    };
+    const importUsd = parseUsd(flussiComtrade.import_italia_da_cina_usd);
+    flussiConvertiti = {
+      import_italia_da_cina_eur: importUsd ? Math.round(importUsd / tassoEurUsd) : null,
+      serie_storica_eur: (flussiComtrade.serie_storica || []).map(s => ({
+        anno: s.anno,
+        valore_eur: Math.round((parseUsd(s.valore_usd) || 0) / tassoEurUsd)
+      }))
+    };
+  }
+
+  const conversionePossibile = tassoEurUsd && !isNaN(tassoEurUsd) && tassoEurUsd > 0;
+
   const result = {
     dazio_mfn_perc: dazioMfn !== null && !isNaN(dazioMfn) ? dazioMfn : null,
     anti_dumping_perc: antiDumping > 0 ? antiDumping : null,
@@ -137,7 +158,14 @@ export function computeLandedCost(importData, quantitaRange, budgetRange) {
       dazio: taric?.fonte || 'TARIC',
       iva: iva?.base_normativa || 'DPR 633/1972',
       sdoganamento: 'Costi standard pratica doganale (range di mercato)'
-    }
+    },
+    tasso_cambio: conversionePossibile ? {
+      tasso: tassoEurUsd,
+      anno: tassoAnno,
+      fonte: tassoFonte,
+      nota: `Valori convertiti in EUR al tasso medio BCE anno ${tassoAnno}.`
+    } : null,
+    flussi_convertiti_eur: flussiConvertiti
   };
 
   // Esempio di calcolo su valore merce ipotetico (per mostrare le percentuali)
