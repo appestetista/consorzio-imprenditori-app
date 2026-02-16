@@ -243,6 +243,10 @@ export function computeLandedCost(importData, quantitaRange, budgetRange) {
  * STEP 4: Interpretazione AI — riceve SOLO dati calcolati
  */
 export async function interpretImportData(importData, landedCost, hsCode, hsDescrizione, importForm) {
+  if (importData?._api_error || landedCost?._api_error) {
+    console.error('[ImportDataFetcher] interpretImportData skipped: upstream API error');
+    return { _api_error: true };
+  }
   const taric = importData?.taric;
   const flussi = importData?.flussi_comtrade;
 
