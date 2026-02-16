@@ -1,43 +1,128 @@
 import { base44 } from '@/api/base44Client';
 
 /**
- * STEP 1-2: Recupera dati ufficiali da UN Comtrade / Eurostat / TARIC
- * Restituisce SOLO numeri e fonti, NESSUNA interpretazione.
+ * Tronca codice HS a 4 cifre per analisi domanda globale
  */
-export async function fetchTradeData(hsCode, mercatiCodes, mercatiTarget) {
-  const mercatiNomi = mercatiCodes.map(code => {
-    const m = mercatiTarget.find(mt => mt.code === code);
-    return m ? `${m.name} (${m.code})` : code;
+function toHS4(hsCode) {
+  const clean = String(hsCode).replace(/\D/g, '');
+  return clean.substring(0, 4);
+}
+
+/**
+ * Recupera dati macro World Bank per i Paesi selezionati (popolazione, PIL, PIL pro capite)
+ */
+export async function fetchMacroData(countryCodes) {
+  const codes = countryCodes.filter(c => c !== 'WLD');
+  if (codes.length === 0) return {};
+
+  let result;
+  try {
+    result = await base44.integrations.Core.InvokeLLM({
+      prompt: `Recupera i dati macroeconomici più recenti disponibili dalla World Bank (data.worldbank.org) per i seguenti Paesi: ${codes.join(', ')}.
+
+Per ciascun Paese fornisci:
+- Popolazione totale (numero intero)
+- PIL nominale in USD correnti (numero)
+- PIL pro capite in USD correnti (numero)
+
+REGOLE:
+- Usa SOLO dati World Bank verificati.
+- Se un dato non è disponibile, restituisci null.
+- NON inventare. NON stimare.`,
+      add_context_from_internet: true,
+      response_json_schema: {
+        type: "object",
+        properties: {
+          paesi: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                codice: { type: "string" },
+                nome: { type: "string" },
+                popolazione: { type: "number" },
+                pil_nominale: { type: "number" },
+                pil_pro_capite: { type: "number" },
+                anno_dati: { type: "string" },
+                fonte: { type: "string" }
+              }
+            }
+          }
+        }
+      }
+    });
+  } catch (err) {
+    console.error('[ExportDataFetcher] fetchMacroData error:', err);
+    return {};
+  }
+
+  if (!result?.paesi) return {};
+
+  const map = {};
+  result.paesi.forEach(p => {
+    map[p.codice] = p;
+  });
+  return map;
+}
+
+/**
+ * STEP 1-2: Recupera dati ufficiali da UN Comtrade / Eurostat / TARIC
+ * Usa HS a 4 cifre per analisi domanda globale.
+ * Fallback: se dataset vuoto, riprova con Partner=World.
+ */
+export async function fetchTradeData(hsCode6, mercatiCodes, mercatiNames, exporterCode = 'IT', periodoAnni = 5) {
+  const hs4 = toHS4(hsCode6);
+  const currentYear = new Date().getFullYear();
+  const periodoStart = currentYear - periodoAnni;
+  const periodoEnd = currentYear - 1;
+  const timestamp = new Date().toISOString();
+
+  const mercatiNomi = mercatiCodes.map((code, i) => {
+    const name = mercatiNames?.[i] || code;
+    return `${name} (${code})`;
   }).join(', ');
 
-  const currentYear = new Date().getFullYear();
+  const exporterLabel = exporterCode === 'IT' ? 'Italia' : exporterCode;
 
   let result;
   try {
     result = await base44.integrations.Core.InvokeLLM({
       prompt: `Sei un analista di dati commerciali. Siamo nel ${currentYear}.
 
-COMPITO: Recupera ESCLUSIVAMENTE dati numerici ufficiali per il codice HS ${hsCode} dall'Italia verso i seguenti mercati: ${mercatiNomi}.
+COMPITO: Recupera ESCLUSIVAMENTE dati numerici ufficiali per il codice HS ${hs4} (livello 4 cifre, heading) esportato da ${exporterLabel} (${exporterCode}) verso i seguenti mercati target: ${mercatiNomi}.
+
+PARAMETRI QUERY:
+- Codice HS: ${hs4} (4 cifre — livello heading per analisi domanda globale)
+- Codice HS originale 6 cifre: ${hsCode6} (per riferimento dazi/normative specifiche)
+- Reporter (importatore): ciascun Paese target
+- Partner (esportatore): ${exporterLabel} (${exporterCode})
+- Periodo: ${periodoStart}-${periodoEnd} (${periodoAnni} anni)
 
 FONTI DA CONSULTARE (OBBLIGATORIE):
-1) UN Comtrade (comtradeplus.un.org) — Reporter: ciascun paese target, Partner: Italy, codice HS ${hsCode}, serie annuale ultimi 5 anni (${currentYear - 5}-${currentYear - 1}).
-2) Eurostat Comext (ec.europa.eu/eurostat) — Export UE / Italia verso ciascun paese per HS ${hsCode}.
-3) TARIC (ec.europa.eu/taxation_customs/dds2/taric) — Dazi MFN per HS ${hsCode}, misure anti-dumping, contingenti.
+1) UN Comtrade (comtradeplus.un.org) — Reporter: ciascun Paese target, Partner: ${exporterCode}, HS heading ${hs4}, serie annuale ${periodoStart}-${periodoEnd}.
+   - Se dati vuoti per un Paese con Partner=${exporterCode}: RIPETERE query con Partner=World per quel Paese.
+   - Se ancora vuoti: segnalare in dati_non_disponibili.
+2) Eurostat Comext (ec.europa.eu/eurostat) — Export ${exporterLabel} verso ciascun paese per HS ${hs4}.
+3) TARIC (ec.europa.eu/taxation_customs/dds2/taric) — Dazi MFN per HS ${hsCode6}, misure anti-dumping.
 
-REGOLE:
-- Restituisci SOLO dati numerici verificati. NESSUNA interpretazione, NESSUN commento strategico, NESSUNA raccomandazione.
-- Per ogni dato indica la fonte esatta e l'anno del dato.
-- Se un dato NON è reperibile, restituisci null per quel campo. NON inventare, NON stimare, NON approssimare.
-- Per la serie storica: restituisci un array con anno e valore per ogni anno disponibile.
-- Per i fornitori: restituisci i top 5 paesi esportatori verso ciascun paese target per HS ${hsCode} con valore e quota %.
-- CONVERSIONE VALUTA: Tutti i valori Comtrade sono in USD. Fornisci anche il tasso di cambio medio annuale EUR/USD dalla BCE (ECB Statistical Data Warehouse) per l'ultimo anno disponibile, indicando l'anno di riferimento. Es: "1 EUR = 1.08 USD (BCE, 2024)".
+REGOLE INDEROGABILI:
+- Restituisci SOLO dati numerici verificati. NESSUNA interpretazione.
+- Per ogni dato indica la fonte esatta e l'anno.
+- Se un dato NON è reperibile dopo doppia verifica (partner specifico + World), restituisci null.
+- NON inventare, NON stimare, NON approssimare.
+- Per la serie storica: array con anno e valore per ogni anno disponibile nel periodo ${periodoStart}-${periodoEnd}.
+- Per i fornitori: top 5 Paesi esportatori verso ciascun Paese target per HS ${hs4}.
+- CONVERSIONE VALUTA: Tasso cambio medio annuale EUR/USD dalla BCE per ultimo anno disponibile.
 
 OUTPUT: JSON strutturato con dati grezzi per ciascun mercato.`,
     add_context_from_internet: true,
     response_json_schema: {
       type: "object",
       properties: {
-        hs_code: { type: "string" },
+        hs_code_heading: { type: "string", description: "Codice HS 4 cifre usato per query" },
+        hs_code_full: { type: "string", description: "Codice HS 6 cifre originale" },
+        exporter: { type: "string", description: "Paese esportatore (Reporter)" },
+        periodo: { type: "string", description: "Periodo analizzato" },
         data_retrieval_date: { type: "string" },
         mercati: {
           type: "array",
@@ -49,15 +134,15 @@ OUTPUT: JSON strutturato con dati grezzi per ciascun mercato.`,
               import_totale: {
                 type: "object",
                 properties: {
-                  valore_usd: { type: "string", description: "Valore numerico import totale del paese per HS, USD" },
+                  valore_usd: { type: "string" },
                   anno: { type: "string" },
                   fonte: { type: "string" }
                 }
               },
-              export_italia: {
+              export_from_exporter: {
                 type: "object",
                 properties: {
-                  valore_usd: { type: "string", description: "Valore export Italia verso paese per HS, USD" },
+                  valore_usd: { type: "string", description: "Valore export dall'exporter verso Paese target, USD" },
                   anno: { type: "string" },
                   fonte: { type: "string" }
                 }
@@ -71,8 +156,7 @@ OUTPUT: JSON strutturato con dati grezzi per ciascun mercato.`,
                     valore_usd: { type: "string" },
                     fonte: { type: "string" }
                   }
-                },
-                description: "Serie storica ultimi 5 anni import del paese per HS"
+                }
               },
               top_fornitori: {
                 type: "array",
@@ -86,8 +170,8 @@ OUTPUT: JSON strutturato con dati grezzi per ciascun mercato.`,
                   }
                 }
               },
-              posizione_italia: { type: "string", description: "Ranking Italia tra i fornitori" },
-              quota_italia: { type: "string", description: "Quota % Italia sul totale import" },
+              posizione_exporter: { type: "string", description: "Ranking dell'exporter tra i fornitori" },
+              quota_exporter: { type: "string", description: "Quota % dell'exporter sul totale import" },
               dazi: {
                 type: "object",
                 properties: {
@@ -97,22 +181,22 @@ OUTPUT: JSON strutturato con dati grezzi per ciascun mercato.`,
                   restrizioni: { type: "string" },
                   fonte: { type: "string" }
                 }
-              }
+              },
+              query_fallback_world: { type: "boolean", description: "true se dati ottenuti con Partner=World" }
             }
           }
         },
         tasso_cambio_eur_usd: {
           type: "object",
           properties: {
-            tasso: { type: "string", description: "Tasso medio annuale EUR/USD BCE, es: 1.08" },
-            anno: { type: "string", description: "Anno di riferimento del tasso" },
-            fonte: { type: "string", description: "Es: BCE (ECB Statistical Data Warehouse)" }
+            tasso: { type: "string" },
+            anno: { type: "string" },
+            fonte: { type: "string" }
           }
         },
         dati_non_disponibili: {
           type: "array",
-          items: { type: "string" },
-          description: "Elenco dei dati non trovati con indicazione della fonte dove verificare"
+          items: { type: "string" }
         }
       }
     }
@@ -126,6 +210,18 @@ OUTPUT: JSON strutturato con dati grezzi per ciascun mercato.`,
     console.error('[ExportDataFetcher] fetchTradeData: risposta vuota o non valida', result);
     return { _api_error: true, _error_message: 'Risposta API non valida' };
   }
+
+  // Aggiunge metadata di query per trasparenza
+  result._query_log = {
+    hs_code_heading: hs4,
+    hs_code_full: hsCode6,
+    exporter: exporterCode,
+    partners: mercatiCodes,
+    periodo: `${periodoStart}-${periodoEnd}`,
+    timestamp,
+    records_returned: result.mercati?.length || 0
+  };
+  result._timestamp_recupero = timestamp;
 
   return result;
 }
