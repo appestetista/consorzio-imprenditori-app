@@ -242,17 +242,20 @@ export function computeMetrics(tradeData) {
   const tassoFonte = tradeData.tasso_cambio_eur_usd?.fonte || 'BCE';
   const conversionePossibile = tassoEurUsd && !isNaN(tassoEurUsd) && tassoEurUsd > 0;
 
+  // Determina periodo dal log di query se disponibile
+  const periodoAnni = tradeData._query_log?.periodo ? 
+    parseInt(tradeData._query_log.periodo.split('-')[1]) - parseInt(tradeData._query_log.periodo.split('-')[0]) + 1 : 5;
+
   const risultati = tradeData.mercati.map(mercato => {
     const serie = mercato.serie_storica || [];
     const valori = serie
       .map(s => parseFloat(String(s.valore_usd).replace(/[^0-9.]/g, '')))
       .filter(v => !isNaN(v) && v > 0);
 
-    // Verifica completezza: servono tutti e 5 gli anni per calcolare trend
     const anniPresenti = serie.map(s => s.anno).filter(a => typeof a === 'number');
-    const anniAttesi = Array.from({ length: 5 }, (_, i) => currentYearForMetrics - 5 + i);
+    const anniAttesi = Array.from({ length: periodoAnni }, (_, i) => currentYearForMetrics - periodoAnni + i);
     const anniMancanti = anniAttesi.filter(a => !anniPresenti.includes(a));
-    const datasetCompleto = anniMancanti.length === 0 && valori.length >= 5;
+    const datasetCompleto = anniMancanti.length <= 1 && valori.length >= Math.max(periodoAnni - 1, 3);
 
     // Crescita % ultimi 3 anni — solo se dataset completo
     let crescita_3_anni = null;
@@ -293,8 +296,10 @@ export function computeMetrics(tradeData) {
     // Conversione USD → EUR
     const importTotaleEur = conversionePossibile && importTotale ? Math.round(importTotale / tassoEurUsd) : null;
     
-    const exportItalia = mercato.export_italia?.valore_usd
-      ? parseFloat(String(mercato.export_italia.valore_usd).replace(/[^0-9.]/g, ''))
+    // Support both old and new field names
+    const exportRaw = mercato.export_from_exporter?.valore_usd || mercato.export_italia?.valore_usd;
+    const exportItalia = exportRaw
+      ? parseFloat(String(exportRaw).replace(/[^0-9.]/g, ''))
       : null;
     const exportItaliaEur = conversionePossibile && exportItalia ? Math.round(exportItalia / tassoEurUsd) : null;
 
@@ -321,7 +326,10 @@ export function computeMetrics(tradeData) {
       serie_storica: serie,
       serie_storica_eur: serieEur,
       dati_completi: datasetCompleto,
-      anni_mancanti: anniMancanti.length > 0 ? anniMancanti : null
+      anni_mancanti: anniMancanti.length > 0 ? anniMancanti : null,
+      posizione_exporter: mercato.posizione_exporter || mercato.posizione_italia,
+      quota_exporter: mercato.quota_exporter || mercato.quota_italia,
+      query_fallback_world: mercato.query_fallback_world || false
     };
   });
 
