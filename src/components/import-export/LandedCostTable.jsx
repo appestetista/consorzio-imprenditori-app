@@ -1,12 +1,20 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, ShieldCheck, ShieldAlert, Shield } from 'lucide-react';
 
 export default function LandedCostTable({ landedCost, importData }) {
   if (!landedCost) return null;
 
   const taric = importData?.taric;
   const iva = importData?.iva;
+
+  const rischioConfig = {
+    alto: { icon: ShieldAlert, color: 'text-red-400', bg: 'bg-red-500/15 border-red-500/30', label: 'Rischio Alto' },
+    medio: { icon: Shield, color: 'text-yellow-400', bg: 'bg-yellow-500/15 border-yellow-500/30', label: 'Rischio Medio' },
+    basso: { icon: ShieldCheck, color: 'text-green-400', bg: 'bg-green-500/15 border-green-500/30', label: 'Rischio Basso' },
+  };
+  const rischio = rischioConfig[landedCost.livello_rischio] || rischioConfig.basso;
+  const RischioIcon = rischio.icon;
 
   return (
     <Card className="bg-slate-800/80 border-slate-700">
@@ -15,13 +23,26 @@ export default function LandedCostTable({ landedCost, importData }) {
           💰 Landed Cost — Tabella Dettagliata
         </h3>
 
+        {/* Livello Rischio Import */}
+        {landedCost.livello_rischio && (
+          <div className={`border rounded-lg p-3 mb-3 ${rischio.bg}`}>
+            <div className="flex items-center gap-2 mb-1.5">
+              <RischioIcon className={`w-4 h-4 ${rischio.color}`} />
+              <span className={`text-xs font-bold ${rischio.color}`}>{rischio.label}</span>
+            </div>
+            {landedCost.dettagli_rischio?.map((r, i) => (
+              <p key={i} className="text-slate-300 text-[11px]">• {r}</p>
+            ))}
+          </div>
+        )}
+
         {/* Aliquote ufficiali */}
         <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 mb-3">
-          <p className="text-amber-400 text-xs font-semibold mb-2">🏛️ Aliquote ufficiali (TARIC + normativa)</p>
+          <p className="text-amber-400 text-xs font-semibold mb-2">🏛️ Aliquote ufficiali (TARIC — Commissione Europea)</p>
           <div className="space-y-1.5">
             <Row 
               label="Dazio MFN" 
-              value={landedCost.dazio_mfn_perc !== null ? `${landedCost.dazio_mfn_perc}%` : 'Non disponibile'}
+              value={landedCost.dazio_mfn_perc !== null ? `${landedCost.dazio_mfn_perc}%` : 'Dazio non disponibile nel database TARIC per origine Cina.'}
               fonte={landedCost.fonti.dazio}
               highlight={landedCost.dazio_mfn_perc === null}
             />
@@ -33,15 +54,23 @@ export default function LandedCostTable({ landedCost, importData }) {
                 isWarning
               />
             )}
-            {landedCost.dazio_totale_perc !== null && landedCost.anti_dumping_perc > 0 && (
+            {landedCost.misure_compensative_perc !== null && (
               <Row 
-                label="Dazio totale" 
+                label="Misure compensative" 
+                value={`${landedCost.misure_compensative_perc}%`}
+                fonte={taric?.misure_compensative_regolamento || 'TARIC'}
+                isWarning
+              />
+            )}
+            {landedCost.dazio_totale_perc !== null && (landedCost.anti_dumping_perc > 0 || landedCost.misure_compensative_perc > 0) && (
+              <Row 
+                label="Dazio totale (MFN + AD + MC)" 
                 value={`${landedCost.dazio_totale_perc}%`}
                 isBold
               />
             )}
             <Row 
-              label="IVA Italia" 
+              label="IVA" 
               value={landedCost.iva_perc !== null ? `${landedCost.iva_perc}%` : 'Non disponibile'}
               fonte={landedCost.fonti.iva}
               highlight={landedCost.iva_perc === null}
@@ -123,6 +152,16 @@ export default function LandedCostTable({ landedCost, importData }) {
             </p>
           </div>
         )}
+
+        {/* Trasparenza Report */}
+        <div className="mt-3 pt-2 border-t border-slate-600">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[10px] text-slate-500">
+            <div><span className="text-slate-600">Fonte dati:</span> TARIC (Commissione Europea)</div>
+            <div><span className="text-slate-600">Origine merce:</span> Cina</div>
+            <div><span className="text-slate-600">Destinazione:</span> UE (Italia)</div>
+            <div><span className="text-slate-600">Data recupero:</span> {importData?._timestamp_recupero ? new Date(importData._timestamp_recupero).toLocaleString('it-IT') : 'N/D'}</div>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
