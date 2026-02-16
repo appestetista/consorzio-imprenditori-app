@@ -358,7 +358,76 @@ function MarketPriceDetail({ m, interpretation }) {
   );
 }
 
-export default function PriceMarginSection({ priceMetrics, interpretation }) {
+function GrossMarginCard({ userPriceData }) {
+  const pv = parseFloat(userPriceData?.prezzo_vendita);
+  const cp = parseFloat(userPriceData?.costo_produzione);
+  if (!pv || !cp || isNaN(pv) || isNaN(cp) || pv <= 0) return null;
+
+  const margine = ((pv - cp) / pv) * 100;
+  const marginePct = parseFloat(margine.toFixed(1));
+  const unita = userPriceData?.unita || 'unità';
+
+  let colorClass, label, barColor;
+  if (marginePct >= 50) {
+    colorClass = 'text-green-400';
+    label = 'Eccellente';
+    barColor = 'from-green-500 to-emerald-400';
+  } else if (marginePct >= 30) {
+    colorClass = 'text-lime-400';
+    label = 'Buono';
+    barColor = 'from-lime-500 to-green-400';
+  } else if (marginePct >= 15) {
+    colorClass = 'text-yellow-400';
+    label = 'Moderato';
+    barColor = 'from-yellow-500 to-amber-400';
+  } else if (marginePct >= 0) {
+    colorClass = 'text-orange-400';
+    label = 'Basso';
+    barColor = 'from-orange-500 to-red-400';
+  } else {
+    colorClass = 'text-red-400';
+    label = 'Negativo';
+    barColor = 'from-red-600 to-red-400';
+  }
+
+  const barWidth = Math.max(0, Math.min(marginePct, 100));
+
+  return (
+    <Card className="bg-slate-800/80 border-slate-700">
+      <CardContent className="p-4">
+        <h4 className="text-white font-bold text-sm mb-3 flex items-center gap-2">
+          <DollarSign className="w-4 h-4 text-lime-400" />
+          Margine Lordo
+        </h4>
+        <div className="flex items-end justify-between mb-2">
+          <div>
+            <span className={`text-3xl font-black ${colorClass}`}>{marginePct}%</span>
+            <span className={`text-sm font-semibold ml-2 ${colorClass}`}>{label}</span>
+          </div>
+        </div>
+        <div className="h-2.5 bg-slate-700 rounded-full overflow-hidden mb-3">
+          <div
+            className={`h-full bg-gradient-to-r ${barColor} rounded-full transition-all duration-500`}
+            style={{ width: `${barWidth}%` }}
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="bg-slate-700/50 rounded-lg p-2">
+            <p className="text-slate-400 text-[10px]">Prezzo vendita</p>
+            <p className="text-white font-semibold text-sm">€{pv.toFixed(2)}/{unita}</p>
+          </div>
+          <div className="bg-slate-700/50 rounded-lg p-2">
+            <p className="text-slate-400 text-[10px]">Costo produzione</p>
+            <p className="text-white font-semibold text-sm">€{cp.toFixed(2)}/{unita}</p>
+          </div>
+        </div>
+        <p className="text-slate-500 text-[9px] mt-2">Formula: (Prezzo vendita – Costo produzione) / Prezzo vendita × 100</p>
+      </CardContent>
+    </Card>
+  );
+}
+
+export default function PriceMarginSection({ priceMetrics, interpretation, userPriceData }) {
   if (!priceMetrics?.metriche || priceMetrics.metriche.length === 0) return null;
 
   const hasInterpretation = interpretation && !interpretation._api_error;
@@ -410,10 +479,13 @@ export default function PriceMarginSection({ priceMetrics, interpretation }) {
         </Card>
       )}
 
-      {/* Card per mercato */}
-      {priceMetrics.metriche.map(m => (
-        <MarketPriceDetail key={m.paese_code} m={m} interpretation={interpretation} />
-      ))}
+      {/* Margine Lordo — dati utente */}
+          <GrossMarginCard userPriceData={userPriceData} />
+
+          {/* Card per mercato */}
+          {priceMetrics.metriche.map(m => (
+            <MarketPriceDetail key={m.paese_code} m={m} interpretation={interpretation} />
+          ))}
 
       {/* Raccomandazione pricing */}
       {hasInterpretation && interpretation.raccomandazione_pricing && (
