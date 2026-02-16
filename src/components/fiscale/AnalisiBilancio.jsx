@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Upload, FileText, CheckCircle2, XCircle, AlertTriangle, Loader2 } from 'lucide-react';
 import DatiEstrattiBilancio from './DatiEstrattiBilancio';
+import RevisioneContabile from './RevisioneContabile';
 
 const PARTI_LABELS = {
   stato_patrimoniale: 'Stato Patrimoniale',
@@ -38,6 +39,7 @@ export default function AnalisiBilancio() {
   const analisi = result?.analisi;
   const ocrInfo = result?.ocr_info;
   const datiEstratti = result?.dati_estratti;
+  const revisione = result?.revisione;
   const isIdoneo = analisi?.esito === 'Documento idoneo';
 
   return (
@@ -183,6 +185,9 @@ export default function AnalisiBilancio() {
 
           {/* Dati estratti */}
           {datiEstratti && <DatiEstrattiBilancio dati={datiEstratti} />}
+
+          {/* Revisione contabile */}
+          {revisione && <RevisioneContabile revisione={revisione} />}
 
           {/* Note */}
           {analisi.note && (
