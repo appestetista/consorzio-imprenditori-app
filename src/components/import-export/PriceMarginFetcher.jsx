@@ -338,6 +338,11 @@ export function computePriceMetrics(priceData) {
         anno: valutaLocale.anno_tasso,
         fonte: valutaLocale.fonte_tasso || 'ECB annual average'
       } : null,
+      // Price Fit Index = prezzo partner locale / prezzo medio import (World)
+      // Calcolato solo se entrambi i prezzi sono disponibili e unità coerenti
+      price_fit_index: (prezzoPartner && prezzoWorldCalcolato && prezzoWorldCalcolato > 0 && !avviso_unita)
+        ? parseFloat((prezzoPartner / prezzoWorldCalcolato).toFixed(3))
+        : null,
       premium_pct,
       top_destinatari: topDestinatari,
       ranking_prezzo: rankingPrezzo,

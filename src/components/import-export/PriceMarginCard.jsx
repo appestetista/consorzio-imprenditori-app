@@ -42,6 +42,38 @@ function PremiumBadge({ pct }) {
   );
 }
 
+function PriceFitBadge({ index }) {
+  if (index === null || index === undefined) return null;
+  let label, colorClass;
+  if (index < 0.9) {
+    label = 'Competitivo';
+    colorClass = 'bg-green-500/20 text-green-400 border-green-500/30';
+  } else if (index <= 1.2) {
+    label = 'Coerente';
+    colorClass = 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+  } else if (index <= 2.0) {
+    label = 'Premium';
+    colorClass = 'bg-amber-500/20 text-amber-400 border-amber-500/30';
+  } else {
+    label = 'Molto superiore';
+    colorClass = 'bg-red-500/20 text-red-400 border-red-500/30';
+  }
+  return (
+    <div className="flex flex-col items-start gap-1">
+      <div className={`text-xs font-bold px-2.5 py-1 rounded-lg border ${colorClass} flex items-center gap-1.5`}>
+        <span className="font-mono">{index.toFixed(2)}</span>
+        <span className="text-[10px] font-semibold opacity-80">— {label}</span>
+      </div>
+      {index > 3 && (
+        <div className="flex items-start gap-1.5 mt-0.5">
+          <AlertTriangle className="w-3 h-3 text-red-400 flex-shrink-0 mt-0.5" />
+          <span className="text-red-300 text-[10px] leading-tight">Prezzo significativamente superiore alla media import.</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function TrendArrow({ val }) {
   if (val === null || val === undefined) return <span className="text-slate-500 text-xs">N/D</span>;
   const isUp = val > 3;
@@ -191,6 +223,14 @@ function MarketPriceDetail({ m, interpretation }) {
                     <p className="text-slate-400 text-[10px]">Quantità ({m.unita_misura})</p>
                     <p className="text-white font-bold text-sm">{m.net_weight_kg ? m.net_weight_kg.toLocaleString('en-US') : 'N/D'}</p>
                   </div>
+                </div>
+              )}
+
+              {/* Price Fit Index */}
+              {m.price_fit_index !== null && m.price_fit_index !== undefined && (
+                <div className="bg-slate-700/50 rounded-lg p-2.5 mt-2">
+                  <p className="text-slate-400 text-[10px] mb-1.5">Price Fit Index (Prezzo export / Media import mercato)</p>
+                  <PriceFitBadge index={m.price_fit_index} />
                 </div>
               )}
 
