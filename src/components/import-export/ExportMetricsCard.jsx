@@ -120,12 +120,12 @@ export default function ExportMetricsCard({ mercatoData, metrics, tassoCambio })
       {/* Riga 3: Posizione Italia + Quota */}
       <div className="grid grid-cols-2 gap-2">
         <div className="bg-slate-700/50 rounded-xl p-3">
-          <p className="text-slate-400 text-xs mb-1">🏆 Posizione Italia</p>
-          <p className="text-white font-semibold text-sm">{mercatoData.posizione_italia || 'N/D'}</p>
+          <p className="text-slate-400 text-xs mb-1">🏆 Posizione esportatore</p>
+          <p className="text-white font-semibold text-sm">{metrics?.posizione_exporter || mercatoData.posizione_italia || mercatoData.posizione_exporter || 'N/D'}</p>
         </div>
         <div className="bg-slate-700/50 rounded-xl p-3">
-          <p className="text-slate-400 text-xs mb-1">📈 Quota Italia</p>
-          <p className="text-white font-semibold text-sm">{mercatoData.quota_italia || 'N/D'}</p>
+          <p className="text-slate-400 text-xs mb-1">📈 Quota esportatore</p>
+          <p className="text-white font-semibold text-sm">{metrics?.quota_exporter || mercatoData.quota_italia || mercatoData.quota_exporter || 'N/D'}</p>
         </div>
       </div>
 
