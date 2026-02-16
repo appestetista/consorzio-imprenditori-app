@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import useNotificationSound from '../components/hooks/useNotificationSound';
-import { ArrowLeft, Users, Video, Calendar, Briefcase, Settings, Bell, CheckCircle, XCircle, Clock, Trash2, Mail, Eye, MessageSquare, CalendarDays, MapPin, DollarSign, Sparkles, Euro, ShoppingBag, BookOpen, Handshake, Truck, Heart, FileSearch, Globe, Shield, User, UserPlus, Search, Edit, Phone, PhoneOff, Save, Plus, Upload, X, Image as ImageIcon, ChevronRight, Gavel, Zap, Flame, Leaf, Sun, Wifi, Gift } from 'lucide-react';
+import { ArrowLeft, Users, Video, Calendar, Briefcase, Settings, Bell, CheckCircle, XCircle, Clock, Trash2, Mail, Eye, MessageSquare, CalendarDays, MapPin, DollarSign, Sparkles, Euro, ShoppingBag, BookOpen, Handshake, Truck, Heart, FileSearch, Globe, Shield, User, UserPlus, Search, Edit, Phone, PhoneOff, Save, Plus, Upload, X, Image as ImageIcon, ChevronRight, Gavel, Zap, Flame, Leaf, Sun, Wifi, Gift, Calculator, Star } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
@@ -27,6 +27,8 @@ import ZoneManagerSimple from '../components/admin/ZoneManagerSimple';
 import ImportAsteSection from '../components/admin/ImportAsteSection';
 import RisparmioAdminPanel from '../components/admin/RisparmioAdminPanel';
 import VantaggiAdminPanel from '../components/admin/VantaggiAdminPanel';
+import SimulatoreFiscaleAdmin from '../components/admin/SimulatoreFiscaleAdmin';
+import VideoRecensioniAdmin from '../components/admin/VideoRecensioniAdmin';
 
 const CONSULTANT_CATEGORIES = [
   "Stampa Digitale e Cataloghi",
@@ -282,6 +284,8 @@ export default function AdminPanel() {
   const [showRisparmioPanel, setShowRisparmioPanel] = useState(false);
   const [selectedRisparmioCategory, setSelectedRisparmioCategory] = useState(null);
   const [showVantaggiPanel, setShowVantaggiPanel] = useState(false);
+  const [showSimulatorePanel, setShowSimulatorePanel] = useState(false);
+  const [showVideoRecensioniPanel, setShowVideoRecensioniPanel] = useState(false);
 
   const markVideoRequestReadMutation = useMutation({
     mutationFn: async (requestId) => {
