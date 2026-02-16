@@ -114,9 +114,87 @@ ${testoNormalizzato.substring(0, 30000)}`,
       }
     });
 
+    // STEP 3: Estrazione dati strutturati (solo se documento idoneo)
+    let dati_estratti = null;
+    if (result?.esito === 'Documento idoneo') {
+      dati_estratti = await base44.integrations.Core.InvokeLLM({
+        prompt: `Sei un analista di bilancio esperto.
+
+Usa SOLO il testo fornito. Estrai ESCLUSIVAMENTE i valori esplicitamente presenti.
+
+Campi da cercare:
+
+STATO PATRIMONIALE:
+- Totale Attivo
+- Totale Passivo
+- Patrimonio Netto
+- Debiti
+- Disponibilità liquide
+
+CONTO ECONOMICO:
+- Ricavi (Valore della produzione / Ricavi delle vendite)
+- Costi totali (Costi della produzione)
+- EBITDA (solo se esplicitamente indicato)
+- Ammortamenti
+- Utile o Perdita (Risultato di esercizio)
+
+IMPOSTE:
+- IRES
+- IRAP
+
+REGOLE TASSATIVE:
+- Se un dato NON è chiaramente presente nel testo → il valore DEVE essere null.
+- NON stimare valori mancanti.
+- NON ricostruire voci calcolandole.
+- NON inventare dati.
+- I valori devono essere numeri (senza simbolo €, senza punti migliaia). Usa il segno negativo per le perdite.
+
+TESTO DEL DOCUMENTO:
+${testoNormalizzato.substring(0, 30000)}`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            stato_patrimoniale: {
+              type: "object",
+              properties: {
+                totale_attivo: { type: ["number", "null"] },
+                totale_passivo: { type: ["number", "null"] },
+                patrimonio_netto: { type: ["number", "null"] },
+                debiti: { type: ["number", "null"] },
+                disponibilita_liquide: { type: ["number", "null"] }
+              }
+            },
+            conto_economico: {
+              type: "object",
+              properties: {
+                ricavi: { type: ["number", "null"] },
+                costi_totali: { type: ["number", "null"] },
+                ebitda: { type: ["number", "null"] },
+                ammortamenti: { type: ["number", "null"] },
+                utile_perdita: { type: ["number", "null"] }
+              }
+            },
+            imposte: {
+              type: "object",
+              properties: {
+                ires: { type: ["number", "null"] },
+                irap: { type: ["number", "null"] }
+              }
+            },
+            dati_mancanti: {
+              type: "array",
+              items: { type: "string" },
+              description: "Elenco dei campi non trovati nel documento"
+            }
+          }
+        }
+      });
+    }
+
     return Response.json({ 
       success: true, 
       analisi: result,
+      dati_estratti,
       ocr_info: {
         qualita: qualitaOcr,
         correzioni: correzioniOcr
