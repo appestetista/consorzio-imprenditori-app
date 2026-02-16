@@ -86,7 +86,16 @@ REGOLE:
         }
       }
     }
-  });
+    });
+  } catch (err) {
+    console.error('[ImportDataFetcher] fetchImportData API error:', err);
+    return { _api_error: true, _error_message: err?.message || 'Unknown error' };
+  }
+
+  if (!result || typeof result !== 'object') {
+    console.error('[ImportDataFetcher] fetchImportData: risposta vuota o non valida', result);
+    return { _api_error: true, _error_message: 'Risposta API non valida' };
+  }
 
   return result;
 }
