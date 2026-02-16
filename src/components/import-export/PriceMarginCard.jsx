@@ -283,7 +283,7 @@ export default function PriceMarginSection({ priceMetrics, interpretation }) {
               </div>
               <div>
                 <h3 className="text-white font-bold">Analisi Prezzo & Marginalità</h3>
-                <p className="text-indigo-200/70 text-xs">Prezzo unitario medio import per mercato</p>
+                <p className="text-indigo-200/70 text-xs">Prezzo unitario export per mercato (UN Comtrade)</p>
               </div>
             </div>
             {hasInterpretation && interpretation.punteggio_marginalita && (
