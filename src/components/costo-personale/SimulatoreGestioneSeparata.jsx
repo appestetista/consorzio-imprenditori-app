@@ -197,24 +197,28 @@ export default function SimulatoreGestioneSeparata() {
                   className={`w-full text-left p-3 rounded-lg border transition-all ${!form.ha_altra_copertura ? 'bg-cyan-500/20 border-cyan-500/50' : 'bg-slate-900 border-slate-700 hover:border-slate-600'}`}
                 >
                   <span className={`text-sm font-medium ${!form.ha_altra_copertura ? 'text-cyan-400' : 'text-white'}`}>No — Aliquota piena</span>
-                  <p className="text-slate-500 text-xs mt-0.5">Nessuna altra gestione obbligatoria → aliquota {aliquotaPiena ? (aliquotaPiena * 100).toFixed(2) : '35.03'}%</p>
+                  <p className="text-slate-500 text-xs mt-0.5">Nessuna altra gestione obbligatoria → aliquota {aliquotaPiena ? (aliquotaPiena * 100).toFixed(2) : '35,03'}%</p>
                 </button>
                 <button
                   onClick={() => setForm({ ...form, ha_altra_copertura: true })}
                   className={`w-full text-left p-3 rounded-lg border transition-all ${form.ha_altra_copertura ? 'bg-cyan-500/20 border-cyan-500/50' : 'bg-slate-900 border-slate-700 hover:border-slate-600'}`}
                 >
                   <span className={`text-sm font-medium ${form.ha_altra_copertura ? 'text-cyan-400' : 'text-white'}`}>Sì — Aliquota ridotta</span>
-                  <p className="text-slate-500 text-xs mt-0.5">Iscritto ad altra gestione obbligatoria → aliquota ridotta {aliquotaRidotta ? (aliquotaRidotta * 100).toFixed(2) : '26.07'}%</p>
+                  <p className="text-slate-500 text-xs mt-0.5">Iscritto ad altra gestione obbligatoria → aliquota ridotta {aliquotaRidotta ? (aliquotaRidotta * 100).toFixed(2) : '26,07'}%</p>
                 </button>
               </div>
 
               <div className={`rounded-lg p-3 border ${form.ha_altra_copertura ? 'bg-cyan-500/10 border-cyan-500/30' : 'bg-slate-700/50 border-slate-600'}`}>
                 <p className="text-slate-300 text-xs">
                   {form.ha_altra_copertura
-                    ? 'L\'aliquota è ridotta al 75% per soggetti iscritti contemporaneamente ad altra gestione previdenziale obbligatoria (es. lavoratore dipendente con posizione INPS attiva, pensionato).'
+                    ? 'L\'aliquota è ridotta per soggetti iscritti contemporaneamente ad altra gestione previdenziale obbligatoria (es. lavoratore dipendente con posizione INPS attiva, pensionato).'
                     : 'L\'aliquota piena si applica a soggetti senza altra copertura previdenziale obbligatoria. Il contributo è ripartito: 2/3 a carico del committente, 1/3 a carico del collaboratore.'
                   }
                 </p>
+                {massimaleGS && (
+                  <p className="text-slate-400 text-xs mt-1">Massimale di reddito 2026: €{massimaleGS.toLocaleString('it-IT', { minimumFractionDigits: 2 })}</p>
+                )}
+                <p className="text-slate-500 text-[10px] mt-1">Fonte: {fonteGS}</p>
               </div>
             </CardContent>
           </Card>
@@ -241,7 +245,9 @@ export default function SimulatoreGestioneSeparata() {
               <div className="bg-slate-700/50 border border-slate-600 rounded-lg p-3 space-y-1 text-xs">
                 <div className="flex justify-between"><span className="text-slate-500">Soggetto:</span><span className="text-white">{TIPI_SOGGETTO.find(t => t.key === form.tipo_soggetto)?.label}</span></div>
                 <div className="flex justify-between"><span className="text-slate-500">Altra copertura:</span><span className="text-white">{form.ha_altra_copertura ? 'Sì (ridotta)' : 'No (piena)'}</span></div>
-                <div className="flex justify-between"><span className="text-slate-500">Aliquota applicata:</span><span className="text-cyan-400 font-semibold">{form.ha_altra_copertura ? (aliquotaRidotta ? (aliquotaRidotta * 100).toFixed(2) : '26.07') : (aliquotaPiena ? (aliquotaPiena * 100).toFixed(2) : '35.03')}%</span></div>
+                <div className="flex justify-between"><span className="text-slate-500">Aliquota applicata:</span><span className="text-cyan-400 font-semibold">{form.ha_altra_copertura ? (aliquotaRidotta ? (aliquotaRidotta * 100).toFixed(2) : '26,07') : (aliquotaPiena ? (aliquotaPiena * 100).toFixed(2) : '35,03')}%</span></div>
+                {massimaleGS && <div className="flex justify-between"><span className="text-slate-500">Massimale reddito:</span><span className="text-white">€{massimaleGS.toLocaleString('it-IT', { minimumFractionDigits: 2 })}</span></div>}
+                <div className="flex justify-between"><span className="text-slate-500">Fonte:</span><span className="text-slate-400 text-[10px]">{fonteGS}</span></div>
               </div>
             </CardContent>
           </Card>
@@ -292,7 +298,7 @@ export default function SimulatoreGestioneSeparata() {
 
                   <div className="bg-slate-700/50 border border-slate-600 rounded-lg p-2.5">
                     <p className="text-slate-500 text-xs">
-                      <span className="font-semibold text-slate-400">Rif. normativo:</span> L. 335/1995 art. 2 co. 26 — Gestione Separata INPS. Aliquota {result.ha_altra_copertura ? 'ridotta' : 'piena'}: {(result.aliquota_effettiva * 100).toFixed(2)}%. Ripartizione: 2/3 committente, 1/3 collaboratore.
+                      <span className="font-semibold text-slate-400">Rif. normativo:</span> {result.fonte_gs || fonteGS} — Gestione Separata INPS. Aliquota {result.ha_altra_copertura ? 'ridotta' : 'piena'}: {(result.aliquota_effettiva * 100).toFixed(2)}%.{result.massimale_reddito ? ` Massimale: €${result.massimale_reddito.toLocaleString('it-IT')}.` : ''} Ripartizione: 2/3 committente, 1/3 collaboratore.
                     </p>
                   </div>
 
