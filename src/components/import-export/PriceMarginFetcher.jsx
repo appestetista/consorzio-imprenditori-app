@@ -180,42 +180,83 @@ export function computePriceMetrics(priceData) {
   // Prezzo unitario export globale (World) come benchmark
   const prezzoWorldGlobal = priceData.export_world?.prezzo_unitario_usd_kg || null;
 
+  // Validazione benchmark World: prezzo calcolabile solo se TradeValue > 0 E NetWeight > 0
+  const worldTV = priceData.export_world?.trade_value_usd;
+  const worldNW = priceData.export_world?.net_weight_kg;
+  const prezzoWorldValid = worldTV > 0 && worldNW > 0;
+  const prezzoWorldCalcolato = prezzoWorldValid ? prezzoWorldGlobal : null;
+  const worldUnitaMisura = priceData.export_world?.unita_misura || 'kg';
+
+  const avvisi = [];
+  if (!prezzoWorldValid && prezzoWorldGlobal) {
+    avvisi.push(`Prezzo medio globale (World) non calcolabile: ${!worldTV || worldTV <= 0 ? 'Valore export = 0 o non disponibile' : 'Quantità (NetWeight) = 0 o non disponibile'}.`);
+  }
+
   const metriche = priceData.mercati.map(m => {
-    const prezzoPartner = m.export_to_partner?.prezzo_unitario_usd_kg || null;
-    const tradeValue = m.export_to_partner?.trade_value_usd || null;
-    const netWeight = m.export_to_partner?.net_weight_kg || null;
+    const rawTradeValue = m.export_to_partner?.trade_value_usd;
+    const rawNetWeight = m.export_to_partner?.net_weight_kg;
+    const rawPrezzo = m.export_to_partner?.prezzo_unitario_usd_kg;
     const unita = m.export_to_partner?.unita_misura || 'kg';
     const fallbackWorld = m.query_fallback_world || false;
 
-    // Premium/discount del prezzo verso questo partner vs media export globale (World)
+    // Validazione: TradeValue > 0 AND NetWeight > 0 per calcolare prezzo medio
+    const tradeValueOk = typeof rawTradeValue === 'number' && rawTradeValue > 0;
+    const netWeightOk = typeof rawNetWeight === 'number' && rawNetWeight > 0;
+    const prezzoCalcolabile = tradeValueOk && netWeightOk;
+
+    const tradeValue = tradeValueOk ? rawTradeValue : null;
+    const netWeight = netWeightOk ? rawNetWeight : null;
+
+    // Prezzo partner: ricalcola da TradeValue/NetWeight solo se entrambi validi
+    let prezzoPartner = null;
+    let avviso_prezzo = null;
+    if (prezzoCalcolabile) {
+      prezzoPartner = rawPrezzo && rawPrezzo > 0 ? rawPrezzo : parseFloat((rawTradeValue / rawNetWeight).toFixed(4));
+    } else if (tradeValueOk && !netWeightOk) {
+      avviso_prezzo = 'Quantità (NetWeight) non disponibile per calcolo prezzo medio.';
+    } else if (!tradeValueOk && netWeightOk) {
+      avviso_prezzo = 'Valore export non disponibile per calcolo prezzo medio.';
+    } else {
+      avviso_prezzo = 'Valore e quantità non disponibili per calcolo prezzo medio.';
+    }
+
+    // Verifica coerenza unità di misura con benchmark World
+    let avviso_unita = null;
+    if (prezzoCalcolabile && prezzoWorldCalcolato && unita !== worldUnitaMisura) {
+      avviso_unita = `Unità di misura non coerente: partner=${unita}, World=${worldUnitaMisura}. Confronto prezzo non affidabile.`;
+    }
+
+    // Premium/discount: calcola SOLO se entrambi i prezzi sono calcolabili e unità coerenti
     let premium_pct = null;
-    if (prezzoWorldGlobal && prezzoPartner && prezzoWorldGlobal > 0) {
-      premium_pct = parseFloat((((prezzoPartner - prezzoWorldGlobal) / prezzoWorldGlobal) * 100).toFixed(1));
+    if (prezzoWorldCalcolato && prezzoPartner && prezzoWorldCalcolato > 0 && !avviso_unita) {
+      premium_pct = parseFloat((((prezzoPartner - prezzoWorldCalcolato) / prezzoWorldCalcolato) * 100).toFixed(1));
     }
 
     // Conversione EUR
     const prezzoPartnerEur = tassoValid && prezzoPartner ? parseFloat((prezzoPartner / tasso).toFixed(2)) : null;
-    const prezzoWorldEur = tassoValid && prezzoWorldGlobal ? parseFloat((prezzoWorldGlobal / tasso).toFixed(2)) : null;
+    const prezzoWorldEur = tassoValid && prezzoWorldCalcolato ? parseFloat((prezzoWorldCalcolato / tasso).toFixed(2)) : null;
     const tradeValueEur = tassoValid && tradeValue ? Math.round(tradeValue / tasso) : null;
 
-    // Top destinatari con prezzo
+    // Top destinatari: filtra solo quelli con TradeValue > 0 E NetWeight > 0
     const topDestinatari = (m.top_destinatari_prezzo || [])
-      .filter(f => f.prezzo_unitario_usd_kg && f.prezzo_unitario_usd_kg > 0)
+      .filter(f => f.prezzo_unitario_usd_kg > 0 && f.trade_value_usd > 0 && f.net_weight_kg > 0)
       .map(f => ({
         ...f,
         prezzo_eur: tassoValid ? parseFloat((f.prezzo_unitario_usd_kg / tasso).toFixed(2)) : null
       }))
       .sort((a, b) => a.prezzo_unitario_usd_kg - b.prezzo_unitario_usd_kg);
 
-    // Ranking: posizione prezzo di questo partner tra i top destinatari
+    // Ranking: solo se prezzo partner è calcolabile
     let rankingPrezzo = null;
     if (prezzoPartner && topDestinatari.length > 0) {
       const allPrices = [...topDestinatari.map(f => f.prezzo_unitario_usd_kg), prezzoPartner].sort((a, b) => a - b);
       rankingPrezzo = allPrices.indexOf(prezzoPartner) + 1;
     }
 
-    // Serie storica prezzo unitario
-    const serie = (m.serie_storica || []).filter(s => s.prezzo_unitario_usd_kg && s.prezzo_unitario_usd_kg > 0);
+    // Serie storica: filtra solo record con TradeValue > 0 E NetWeight > 0
+    const serie = (m.serie_storica || []).filter(s =>
+      s.prezzo_unitario_usd_kg > 0 && s.trade_value_usd > 0 && s.net_weight_kg > 0
+    );
     let trendPrezzo = null;
     if (serie.length >= 2) {
       const primo = serie[0].prezzo_unitario_usd_kg;
@@ -244,16 +285,18 @@ export function computePriceMetrics(priceData) {
       net_weight_kg: netWeight,
       prezzo_partner_usd: prezzoPartner,
       prezzo_partner_eur: prezzoPartnerEur,
-      prezzo_world_usd: prezzoWorldGlobal,
+      prezzo_world_usd: prezzoWorldCalcolato,
       prezzo_world_eur: prezzoWorldEur,
       premium_pct,
       top_destinatari: topDestinatari,
       ranking_prezzo: rankingPrezzo,
-      ranking_totale: topDestinatari.length + 1,
+      ranking_totale: topDestinatari.length + (prezzoPartner ? 1 : 0),
       trend_prezzo_pct: trendPrezzo,
       serie_prezzo: serie,
       serie_prezzo_eur: serieEur,
-      dati_completi: prezzoPartner !== null && tradeValue !== null
+      dati_completi: prezzoPartner !== null && tradeValue !== null,
+      avviso_prezzo,
+      avviso_unita
     };
   });
 
