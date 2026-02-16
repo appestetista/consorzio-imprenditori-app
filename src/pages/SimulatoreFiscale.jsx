@@ -13,12 +13,13 @@ import StoricoSimulazioni from '../components/fiscale/StoricoSimulazioni';
 import ConfrontoPrelievoSRL from '../components/fiscale/ConfrontoPrelievoSRL';
 import MultiScenarioCompenso from '../components/fiscale/MultiScenarioCompenso';
 import GestioneAliquoteIRAP from '../components/fiscale/GestioneAliquoteIRAP';
+import AnalisiBilancio from '../components/fiscale/AnalisiBilancio';
 
 export default function SimulatoreFiscale() {
   const [effectiveUser, setEffectiveUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
-  const [view, setView] = useState('form'); // 'form' | 'result' | 'storico' | 'confronto_srl' | 'multi_scenario' | 'aliquote'
+  const [view, setView] = useState('form'); // 'form' | 'result' | 'storico' | 'confronto_srl' | 'multi_scenario' | 'bilancio' | 'aliquote'
   const { impersonation, appMode } = useImpersonation();
 
   useEffect(() => {
@@ -103,6 +104,12 @@ export default function SimulatoreFiscale() {
             Multi-Scenario
           </button>
           <button
+            onClick={() => setView('bilancio')}
+            className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${view === 'bilancio' ? 'bg-[#d4af37] text-slate-900' : 'bg-slate-800 text-slate-400'}`}
+          >
+            Bilancio
+          </button>
+          <button
             onClick={() => setView('storico')}
             className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${view === 'storico' ? 'bg-[#d4af37] text-slate-900' : 'bg-slate-800 text-slate-400'}`}
           >
@@ -140,6 +147,8 @@ export default function SimulatoreFiscale() {
         {view === 'confronto_srl' && <ConfrontoPrelievoSRL />}
 
         {view === 'multi_scenario' && <MultiScenarioCompenso />}
+
+        {view === 'bilancio' && <AnalisiBilancio />}
 
         {view === 'aliquote' && effectiveUser?.role === 'admin' && (
           <GestioneAliquoteIRAP user={effectiveUser} />
