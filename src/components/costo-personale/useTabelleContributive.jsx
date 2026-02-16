@@ -11,6 +11,7 @@ export function useTabelleContributive(anno = 2026) {
     queryFn: async () => {
       const records = await base44.entities.TabellaContributiva.filter({ anno });
       const map = {};
+      let ultimoAggiornamento = null;
       records.forEach(r => {
         map[r.tipo] = {
           valore: r.valore,
@@ -18,29 +19,37 @@ export function useTabelleContributive(anno = 2026) {
           fonte_normativa: r.fonte_normativa,
           note: r.note || '',
         };
+        // Traccia la data più recente di aggiornamento tra tutti i record
+        const d = r.updated_date || r.created_date;
+        if (d && (!ultimoAggiornamento || new Date(d) > new Date(ultimoAggiornamento))) {
+          ultimoAggiornamento = d;
+        }
       });
-      return map;
+      return { map, ultimoAggiornamento };
     },
   });
 
-  const get = (tipo) => tabelle?.[tipo]?.valore ?? null;
-  const getFonte = (tipo) => tabelle?.[tipo]?.fonte_normativa ?? '';
-  const getDescrizione = (tipo) => tabelle?.[tipo]?.descrizione ?? '';
+  const tabelleMap = tabelle?.map;
+  const dataAggiornamento = tabelle?.ultimoAggiornamento || null;
+
+  const get = (tipo) => tabelleMap?.[tipo]?.valore ?? null;
+  const getFonte = (tipo) => tabelleMap?.[tipo]?.fonte_normativa ?? '';
+  const getDescrizione = (tipo) => tabelleMap?.[tipo]?.descrizione ?? '';
 
   // Raccoglie tutte le fonti normative usate in un calcolo
   const raccogliFonti = (tipiUsati) => {
-    if (!tabelle) return [];
+    if (!tabelleMap) return [];
     const fontiSet = new Set();
     tipiUsati.forEach(tipo => {
-      if (tabelle[tipo]?.fonte_normativa) {
-        fontiSet.add(tabelle[tipo].fonte_normativa);
+      if (tabelleMap[tipo]?.fonte_normativa) {
+        fontiSet.add(tabelleMap[tipo].fonte_normativa);
       }
     });
     return Array.from(fontiSet);
   };
 
   return {
-    tabelle,
+    tabelle: tabelleMap,
     isLoading,
     error,
     get,
@@ -48,6 +57,7 @@ export function useTabelleContributive(anno = 2026) {
     getDescrizione,
     raccogliFonti,
     anno,
+    dataAggiornamento,
   };
 }
 
