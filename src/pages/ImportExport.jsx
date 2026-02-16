@@ -23,6 +23,7 @@ import ExportTradeChart from '../components/import-export/ExportTradeChart';
 import ExportMetricsCard from '../components/import-export/ExportMetricsCard';
 import { fetchImportData, computeLandedCost, interpretImportData } from '../components/import-export/ImportDataFetcher';
 import LandedCostTable from '../components/import-export/LandedCostTable';
+import { buildExportSummary, buildImportSummary } from '../components/import-export/buildAnalysisSummary';
 
 const SETTORI = [
   'Alimentare e bevande',
@@ -183,11 +184,16 @@ export default function ImportExport() {
       const importConsultant = exportManagers[0]; // Usa il primo consulente disponibile
       const targetEmail = importConsultant?.email || 'import@consorzio.it';
 
+      // Genera riepilogo analisi automatico
+      const analysisSummary = (confirmedImportHS || importRawData || importLandedCost || importResult)
+        ? '\n\n' + buildImportSummary({ confirmedHS: confirmedImportHS, importRawData, importLandedCost, importResult, importForm })
+        : '';
+
       // Invia richiesta al consulente Import
       await base44.entities.Message.create({
         from_email: user.email,
         to_email: targetEmail,
-        content: `**Richiesta Import dalla Cina**\n\nOggetto: ${importContactForm.subject}\n\n${importContactForm.message}\n\n---\n**Dati richiesta:**\n- Tipo: ${importForm.tipo_richiesta === 'produzione_custom' ? 'Produzione su misura' : 'Prodotto esistente'}\n- Prodotto: ${importForm.descrizione_prodotto}\n- Quantità: ${importForm.quantita}\n- Budget: ${importForm.budget || 'Non specificato'}\n- Tempo attesa: ${importForm.tempo_attesa || 'Non specificato'}\n\n---\nInviato da: ${user.company_name || user.full_name}\nEmail: ${user.email}`,
+        content: `**Richiesta Import dalla Cina**\n\nOggetto: ${importContactForm.subject}\n\n${importContactForm.message}${analysisSummary}\n\n---\nInviato da: ${user.company_name || user.full_name}\nEmail: ${user.email}`,
         source: 'import_export',
         source_reference: 'Import dalla Cina',
         attachments: importContactForm.attachments.map(a => ({ url: a.url, name: a.name, type: 'document' }))
@@ -249,11 +255,16 @@ export default function ImportExport() {
         throw new Error('Seleziona un Export Manager');
       }
 
+      // Genera riepilogo analisi automatico
+      const analysisSummary = (confirmedExportHS || tradeData || tradeMetrics || analysisResult)
+        ? '\n\n' + buildExportSummary({ confirmedHS: confirmedExportHS, tradeData, tradeMetrics, analysisResult, exportForm, MERCATI_TARGET })
+        : '';
+
       // Crea messaggio
       await base44.entities.Message.create({
         from_email: user.email,
         to_email: exportManager.email,
-        content: `**Richiesta consulenza Export**\n\nOggetto: ${contactForm.subject}\n\n${contactForm.message}\n\n---\nInviato da: ${user.company_name || user.full_name}\nEmail: ${user.email}`,
+        content: `**Richiesta consulenza Export**\n\nOggetto: ${contactForm.subject}\n\n${contactForm.message}${analysisSummary}\n\n---\nInviato da: ${user.company_name || user.full_name}\nEmail: ${user.email}`,
         source: 'import_export',
         source_reference: 'Export',
         attachments: contactForm.attachments.map(a => ({ url: a.url, name: a.name, type: 'document' }))
