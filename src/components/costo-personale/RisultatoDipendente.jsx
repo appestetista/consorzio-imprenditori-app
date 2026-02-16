@@ -1,8 +1,9 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Info, AlertTriangle } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import IncentiviFiscali2026 from './IncentiviFiscali2026';
+import FooterNormativo from './FooterNormativo';
 
 const fmt = (n) => n?.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0,00';
 
@@ -121,27 +122,13 @@ export default function RisultatoDipendente({ result, profiloLavoratore, onReset
       {/* Incentivi Assunzione 2026 */}
       <IncentiviFiscali2026 result={result} profiloLavoratore={profiloLavoratore} />
 
-      {/* Fonti normative */}
-      <Card className="bg-slate-800/50 border-slate-700">
-        <CardContent className="p-3">
-          <p className="text-slate-500 text-xs mb-2 font-semibold">📚 Anno normativo: {result.anno} — Fonti utilizzate:</p>
-          <div className="flex flex-wrap gap-1">
-            {result.fonti.map((f, i) => (
-              <span key={i} className="bg-slate-700/50 text-slate-400 text-[10px] px-2 py-0.5 rounded">{f}</span>
-            ))}
-            {result.fonte_ccnl && (
-              <span className="bg-lime-400/10 text-lime-400 text-[10px] px-2 py-0.5 rounded">{result.fonte_ccnl}</span>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="flex items-start gap-2 bg-slate-800/50 rounded-lg p-3">
-        <Info className="w-4 h-4 text-slate-500 flex-shrink-0 mt-0.5" />
-        <p className="text-slate-500 text-xs">
-          Calcolo deterministico su tabelle normative {result.anno}. INPS: Circ. 6/2026. IRPEF: L. Bilancio 2026 (33% 2° scaglione). Non tiene conto di detrazioni da lavoro dipendente, bonus, assegni familiari o specificità CCNL.
-        </p>
-      </div>
+      {/* Footer normativo con anno, fonti, data aggiornamento */}
+      <FooterNormativo
+        anno={result.anno}
+        fonti={result.fonti}
+        fonteCcnl={result.fonte_ccnl}
+        dataAggiornamento={result.dataAggiornamento}
+      />
 
       <Button onClick={onReset} variant="outline" className="w-full border-slate-600 text-slate-400 hover:bg-slate-800">
         Nuova Simulazione
