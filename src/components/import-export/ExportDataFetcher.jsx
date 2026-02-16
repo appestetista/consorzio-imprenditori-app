@@ -277,7 +277,7 @@ PROFILO AZIENDA:
 
 DATI COMMERCIALI VERIFICATI:
 ${riepilogoDati}
-${datiNonDisponibili}
+${datiNonDisponibili}${notaCambio}
 
 STRUTTURA RICHIESTA per ogni mercato:
 1. DOMANDA REALE: commenta il valore import totale — c'è domanda reale? Quanto è grande?
