@@ -83,6 +83,7 @@ export default function ImportExport() {
   const [priceMetrics, setPriceMetrics] = useState(null);
   const [priceInterpretation, setPriceInterpretation] = useState(null);
   const [priceStep, setPriceStep] = useState(''); // '', 'fetching', 'computing', 'interpreting'
+  const [userPriceData, setUserPriceData] = useState({ prezzo_vendita: '', costo_produzione: '', unita: '' });
   const [importForm, setImportForm] = useState({
     tipo_richiesta: '',
     descrizione_prodotto: '',
@@ -533,6 +534,7 @@ Fornisci:
     setPriceMetrics(null);
     setPriceInterpretation(null);
     setPriceStep('');
+    setUserPriceData({ prezzo_vendita: '', costo_produzione: '', unita: '' });
     setExportForm({
       settore: '',
       prodotto: '',
@@ -799,6 +801,56 @@ Fornisci:
                   />
                 )}
 
+                {/* Prezzo vendita e Costo produzione — visibili dopo classificazione HS */}
+                {confirmedExportHS && !analyzing && !analysisResult && (
+                  <Card className="bg-slate-800 border-slate-700">
+                    <CardContent className="p-4">
+                      <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+                        <DollarSign className="w-5 h-5 text-lime-400" />
+                        Prezzo e Costo (opzionale)
+                      </h3>
+                      <p className="text-slate-400 text-xs mb-3">Per calcolare il Margine Lordo %. L'unità di misura è libera.</p>
+                      <div className="space-y-3">
+                        <div>
+                          <label className="text-slate-400 text-sm mb-1 block">Unità di misura</label>
+                          <Input
+                            placeholder="Es. pezzo, kg, litro, metro..."
+                            value={userPriceData.unita}
+                            onChange={(e) => setUserPriceData({ ...userPriceData, unita: e.target.value })}
+                            className="bg-slate-900 border-slate-700 text-white"
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="text-slate-400 text-sm mb-1 block">Prezzo di vendita (€)</label>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              placeholder="Es. 25.00"
+                              value={userPriceData.prezzo_vendita}
+                              onChange={(e) => setUserPriceData({ ...userPriceData, prezzo_vendita: e.target.value })}
+                              className="bg-slate-900 border-slate-700 text-white"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-slate-400 text-sm mb-1 block">Costo produzione (€)</label>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              placeholder="Es. 12.50"
+                              value={userPriceData.costo_produzione}
+                              onChange={(e) => setUserPriceData({ ...userPriceData, costo_produzione: e.target.value })}
+                              className="bg-slate-900 border-slate-700 text-white"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
                 {analyzing && (
                   <Card className="bg-slate-800 border-slate-700">
                     <CardContent className="p-4">
@@ -972,7 +1024,7 @@ Fornisci:
                 )}
 
                 {!priceStep && priceMetrics && (
-                  <PriceMarginSection priceMetrics={priceMetrics} interpretation={priceInterpretation} />
+                  <PriceMarginSection priceMetrics={priceMetrics} interpretation={priceInterpretation} userPriceData={userPriceData} />
                 )}
 
                 {/* Mercati Prioritari */}
