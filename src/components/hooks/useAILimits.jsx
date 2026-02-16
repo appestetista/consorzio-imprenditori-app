@@ -6,7 +6,7 @@ export const AI_LIMITS = {
   contract_analysis: 5,
   contract_comparison: 2,
   export_analysis: 20,
-  import_analysis: 20,
+  import_analysis: 2,
   grant_match: 5
 };
 
