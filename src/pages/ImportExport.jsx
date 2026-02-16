@@ -1526,6 +1526,21 @@ Fornisci:
                   </Card>
                 )}
 
+                {/* Anomalie Dataset Import */}
+                {importLandedCost?.anomalie_presenti && (
+                  <Card className="bg-yellow-500/15 border-yellow-500/40">
+                    <CardContent className="p-4">
+                      <h3 className="text-yellow-400 font-semibold mb-2 flex items-center gap-2">
+                        <AlertTriangle className="w-5 h-5" />
+                        Dataset presenta anomalie statistiche
+                      </h3>
+                      <ul className="text-yellow-200/80 text-sm space-y-1">
+                        {importLandedCost.anomalie.map((a, i) => <li key={i}>• {a}</li>)}
+                      </ul>
+                    </CardContent>
+                  </Card>
+                )}
+
                 {/* Dati non disponibili */}
                 {importRawData?.dati_non_disponibili?.length > 0 && (
                   <Card className="bg-slate-700/30 border-slate-600">
