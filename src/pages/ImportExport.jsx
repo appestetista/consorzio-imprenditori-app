@@ -26,6 +26,7 @@ import CountrySearchSelect, { ALL_COUNTRIES, WORLD_OPTION } from '../components/
 import CountryInfoCard from '../components/import-export/CountryInfoCard';
 import ExportComparisonRanking from '../components/import-export/ExportComparisonRanking';
 import PriceMarginSection from '../components/import-export/PriceMarginCard';
+import ExportRiskAlerts from '../components/import-export/ExportRiskAlerts';
 import { fetchImportData, computeLandedCost, interpretImportData } from '../components/import-export/ImportDataFetcher';
 import LandedCostTable from '../components/import-export/LandedCostTable';
 import { buildExportSummary, buildImportSummary } from '../components/import-export/buildAnalysisSummary';
@@ -970,6 +971,14 @@ Fornisci:
                     </CardContent>
                   </Card>
                 )}
+
+                {/* Risk Alerts — solo dati reali */}
+                <ExportRiskAlerts
+                  priceMetrics={priceMetrics}
+                  tradeMetrics={tradeMetrics}
+                  macroData={macroData}
+                  userPriceData={userPriceData}
+                />
 
                 {/* Readiness Score */}
                 <Card className="bg-slate-800 border-slate-700">
