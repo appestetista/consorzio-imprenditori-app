@@ -1474,7 +1474,14 @@ Fornisci:
                         {importRawData.flussi_comtrade.import_italia_da_cina_usd && (
                           <div className="bg-slate-700/50 rounded-lg p-2">
                             <p className="text-slate-400 text-xs">Import ITA da CN:</p>
-                            <p className="text-white font-semibold">{importRawData.flussi_comtrade.import_italia_da_cina_usd}</p>
+                            {importLandedCost?.flussi_convertiti_eur?.import_italia_da_cina_eur ? (
+                              <>
+                                <p className="text-white font-semibold">€{importLandedCost.flussi_convertiti_eur.import_italia_da_cina_eur.toLocaleString('it-IT')}</p>
+                                <p className="text-slate-500 text-[10px]">USD: {importRawData.flussi_comtrade.import_italia_da_cina_usd}</p>
+                              </>
+                            ) : (
+                              <p className="text-white font-semibold">{importRawData.flussi_comtrade.import_italia_da_cina_usd}</p>
+                            )}
                             {importRawData.flussi_comtrade.anno && (
                               <p className="text-slate-500 text-[10px]">{importRawData.flussi_comtrade.anno}</p>
                             )}
@@ -1484,13 +1491,21 @@ Fornisci:
                           <div className="bg-slate-700/50 rounded-lg p-2">
                             <p className="text-slate-400 text-xs">Serie storica:</p>
                             <p className="text-white text-xs">
-                              {importRawData.flussi_comtrade.serie_storica.map(s => `${s.anno}: ${s.valore_usd}`).join(' | ')}
+                              {importLandedCost?.flussi_convertiti_eur?.serie_storica_eur?.length > 0
+                                ? importLandedCost.flussi_convertiti_eur.serie_storica_eur.map(s => `${s.anno}: €${s.valore_eur.toLocaleString('it-IT')}`).join(' | ')
+                                : importRawData.flussi_comtrade.serie_storica.map(s => `${s.anno}: ${s.valore_usd}`).join(' | ')
+                              }
                             </p>
                           </div>
                         )}
                       </div>
                       {importRawData.flussi_comtrade.fonte && (
                         <p className="text-slate-500 text-[10px] mt-2">📌 {importRawData.flussi_comtrade.fonte}</p>
+                      )}
+                      {importLandedCost?.tasso_cambio && (
+                        <p className="text-blue-400/70 text-[10px] mt-1">
+                          💱 {importLandedCost.tasso_cambio.nota}
+                        </p>
                       )}
                     </CardContent>
                   </Card>
