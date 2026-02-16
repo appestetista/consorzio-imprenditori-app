@@ -547,6 +547,118 @@ ${testoNormalizzato.substring(0, 30000)}`,
       };
     }
 
+    // STEP 8: Sintesi imprenditoriale – linguaggio chiaro, solo dati disponibili
+    let sintesi_imprenditoriale = null;
+    if (dati_estratti) {
+      const sp = dati_estratti.stato_patrimoniale || {};
+      const ce = dati_estratti.conto_economico || {};
+      const imp = dati_estratti.imposte || {};
+
+      // --- Stato generale ---
+      const statoGenerale = [];
+      if (analisi?.ragione_sociale && analisi.ragione_sociale !== 'Non rilevata') {
+        statoGenerale.push(`Bilancio relativo a ${analisi.ragione_sociale}${analisi.anno_riferimento && analisi.anno_riferimento !== 'Non rilevato' ? `, esercizio ${analisi.anno_riferimento}` : ''}.`);
+      }
+      if (ce.ricavi != null) {
+        statoGenerale.push(`I ricavi ammontano a €${Math.round(ce.ricavi).toLocaleString('it-IT')}.`);
+      }
+      if (ce.utile_perdita != null) {
+        if (ce.utile_perdita > 0) {
+          statoGenerale.push(`L'esercizio si è chiuso con un utile di €${Math.round(ce.utile_perdita).toLocaleString('it-IT')}.`);
+        } else if (ce.utile_perdita < 0) {
+          statoGenerale.push(`L'esercizio si è chiuso con una perdita di €${Math.round(Math.abs(ce.utile_perdita)).toLocaleString('it-IT')}.`);
+        } else {
+          statoGenerale.push('L\'esercizio si è chiuso in pareggio.');
+        }
+      }
+      if (sp.patrimonio_netto != null) {
+        statoGenerale.push(`Il patrimonio netto è pari a €${Math.round(sp.patrimonio_netto).toLocaleString('it-IT')}.`);
+      }
+      if (sp.debiti != null) {
+        statoGenerale.push(`I debiti complessivi ammontano a €${Math.round(sp.debiti).toLocaleString('it-IT')}.`);
+      }
+
+      // --- Punti di forza ---
+      const puntiForza = [];
+      if (ce.utile_perdita != null && ce.utile_perdita > 0) {
+        puntiForza.push('L\'azienda ha generato un risultato positivo nell\'esercizio analizzato.');
+      }
+      if (ce.utile_perdita != null && ce.ricavi != null && ce.ricavi > 0) {
+        const margine = (ce.utile_perdita / ce.ricavi) * 100;
+        if (margine >= 5) {
+          puntiForza.push(`Il margine netto sui ricavi è del ${(Math.round(margine * 100) / 100)}%, un livello che indica capacità di generare valore.`);
+        }
+      }
+      if (sp.patrimonio_netto != null && sp.totale_attivo != null && sp.totale_attivo > 0) {
+        const rapportoPN = (sp.patrimonio_netto / sp.totale_attivo) * 100;
+        if (rapportoPN >= 25) {
+          puntiForza.push(`La struttura patrimoniale è solida: il patrimonio netto rappresenta il ${(Math.round(rapportoPN * 100) / 100)}% del totale attivo.`);
+        }
+      }
+      if (sp.debiti != null && sp.totale_attivo != null && sp.totale_attivo > 0) {
+        const rapportoDebiti = (sp.debiti / sp.totale_attivo) * 100;
+        if (rapportoDebiti < 60) {
+          puntiForza.push(`Il livello di indebitamento è contenuto (${(Math.round(rapportoDebiti * 100) / 100)}% del totale attivo).`);
+        }
+      }
+      if (sp.disponibilita_liquide != null && sp.disponibilita_liquide > 0 && ce.ricavi != null && ce.ricavi > 0) {
+        const mesiLiquidita = (sp.disponibilita_liquide / (ce.ricavi / 12));
+        if (mesiLiquidita >= 1) {
+          puntiForza.push(`Le disponibilità liquide coprono circa ${Math.round(mesiLiquidita * 10) / 10} mesi di ricavi.`);
+        }
+      }
+      // Coerenza fiscale come punto di forza
+      if (coerenza_fiscale?.verifiche) {
+        const tutteCoerenti = coerenza_fiscale.verifiche.filter(v => v.esito !== 'non_verificabile').every(v => v.esito === 'coerente');
+        if (tutteCoerenti && coerenza_fiscale.verifiche.some(v => v.esito === 'coerente')) {
+          puntiForza.push('Le aliquote fiscali effettive risultano coerenti con i valori nominali attesi.');
+        }
+      }
+
+      // --- Aree di attenzione ---
+      const areeAttenzione = [];
+      if (segnali_squilibrio?.segnali?.length > 0) {
+        for (const s of segnali_squilibrio.segnali) {
+          areeAttenzione.push(s.descrizione);
+        }
+      }
+      if (coerenza_fiscale?.verifiche) {
+        for (const v of coerenza_fiscale.verifiche) {
+          if (v.esito === 'da_verificare') {
+            areeAttenzione.push(v.nota);
+          }
+        }
+      }
+      if (revisione?.controlli) {
+        for (const c of revisione.controlli) {
+          if (c.esito === 'potenzialmente_incoerente') {
+            areeAttenzione.push(`${c.nome}: ${c.dettaglio}`);
+          }
+        }
+      }
+
+      // --- Limiti dell'analisi ---
+      const limiti = [];
+      limiti.push('L\'analisi si basa su un singolo esercizio: non è possibile valutare trend o evoluzioni nel tempo.');
+      if (dati_estratti.dati_mancanti?.length > 0) {
+        limiti.push(`Alcuni dati non sono stati rilevati nel documento (${dati_estratti.dati_mancanti.join(', ')}), limitando la completezza dell'analisi.`);
+      }
+      if (ocrInfo?.qualita === 'scarsa') {
+        limiti.push('La qualità dell\'OCR è risultata scarsa: alcuni valori potrebbero non essere stati estratti correttamente.');
+      } else if (ocrInfo?.qualita === 'media') {
+        limiti.push('La qualità dell\'OCR è risultata media: si consiglia di verificare i valori estratti con il documento originale.');
+      }
+      limiti.push('I calcoli sono basati esclusivamente sui valori estratti dal documento. Nessun dato è stato stimato o integrato da fonti esterne.');
+      limiti.push('Questa analisi ha finalità informativa e non sostituisce la consulenza di un professionista.');
+
+      sintesi_imprenditoriale = {
+        stato_generale: statoGenerale,
+        punti_forza: puntiForza,
+        aree_attenzione: areeAttenzione,
+        limiti
+      };
+    }
+
     return Response.json({ 
       success: true, 
       analisi: result,
@@ -555,6 +667,7 @@ ${testoNormalizzato.substring(0, 30000)}`,
       indicatori_finanziari,
       coerenza_fiscale,
       segnali_squilibrio,
+      sintesi_imprenditoriale,
       ocr_info: {
         qualita: qualitaOcr,
         correzioni: correzioniOcr
