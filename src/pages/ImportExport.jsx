@@ -279,6 +279,16 @@ export default function ImportExport() {
       const result = await base44.integrations.Core.InvokeLLM({
         prompt: `Sei un esperto di import dalla Cina con 15 anni di esperienza nel sourcing e nella produzione in Asia. Siamo nel ${currentYear}.
 
+REGOLE INDEROGABILI (la violazione di anche una sola regola invalida l'intera analisi):
+- OGNI dato numerico (prezzo FOB, costo spedizione, aliquota dazio, percentuale) DEVE provenire da una fonte ufficiale verificabile.
+- Fonti ammesse ESCLUSIVAMENTE: TARIC (EU), Agenzia delle Dogane italiana, Freightos Baltic Index (per tariffe container), World Freight Rates, UN Comtrade, Trade Map (ITC), normativa CE/UE vigente.
+- Se un dato NON è reperibile con certezza, scrivi ESATTAMENTE: "Da verificare su [nome fonte specifica]". NON approssimare, NON stimare, NON dedurre.
+- NON usare MAI espressioni come "circa", "stimato", "approssimativamente", "indicativamente", "potrebbe costare", "range indicativo" per dati quantitativi.
+- Per ogni dato numerico inserito, indica tra parentesi la fonte e l'anno/periodo, es: "(TARIC, 2025)" oppure "(Freightos, Q1 2025)".
+- NON INVENTARE MAI codici HS, aliquote dazio, prezzi FOB, costi di spedizione.
+- Per MOQ: indica solo se basato su prassi verificabile di settore, altrimenti scrivi "MOQ variabile — richiedere quotazione diretta a fornitori".
+- Preferisci lasciare un campo con "Da verificare" piuttosto che inserire un dato non verificato.
+
 Valuta la fattibilità di questo import per un'azienda italiana:
 
 TIPO RICHIESTA: ${importForm.tipo_richiesta === 'produzione_custom' ? 'Produzione su misura da disegni/specifiche' : 'Ricerca prodotto esistente già disponibile'}
@@ -290,24 +300,20 @@ BUDGET: ${importForm.budget || 'Non specificato'}
 ESPERIENZA IMPORT: ${importForm.esperienza_import || 'Non specificata'}
 REQUISITI SPECIFICI: ${importForm.requisiti || 'Nessuno specificato'}
 
-IMPORTANTE - DATI REALI E AGGIORNATI:
-- Usa SOLO dati verificati e aggiornati al ${currentYear} o al massimo ${currentYear - 1}
-- NON INVENTARE MAI dati, prezzi, percentuali o statistiche
-- Per i costi di spedizione, usa le tariffe reali attuali (container 20'/40', aereo al kg)
-- Per i dazi, usa il database TARIC aggiornato
-- Se non hai un dato certo, scrivi "Da verificare" invece di inventare
-
 Fornisci un'analisi completa che includa:
-1. Punteggio fattibilità (1-10) con motivazione
+1. Punteggio fattibilità (1-10) con motivazione basata su criteri oggettivi
 2. Se l'import è consigliato o meno e perché
-3. MOQ (Minimum Order Quantity) tipico per questo prodotto nel mercato cinese attuale
-4. Tempi realistici dettagliati (produzione + spedizione mare/aereo)
-5. Stima costi dettagliata con range realistici (prodotto FOB, spedizione, dazi %, IVA 22%)
-6. Criticità specifiche per questo tipo di import
-7. Requisiti necessari (certificazioni CE, documenti doganali, ecc.)
-8. Prossimi passi concreti e ordinati
-9. Vantaggi specifici di questo import
-10. Fonti dati utilizzate`,
+3. MOQ tipico — solo se verificabile, altrimenti "Da verificare con fornitori"
+4. Tempi realistici dettagliati (produzione + spedizione mare/aereo) — indicare fonte se disponibile
+5. Costi: per ogni voce (FOB, spedizione, dazi, IVA), indicare SOLO dati da fonte ufficiale con riferimento. Se non disponibile, scrivere "Da quantificare con preventivo — verificare su [fonte]"
+6. Dazi doganali: indicare SOLO aliquota da TARIC con codice HS pertinente. Se codice HS incerto, dichiararlo.
+7. Criticità specifiche per questo tipo di import
+8. Requisiti necessari (certificazioni CE, documenti doganali, normativa UE applicabile con riferimento)
+9. Prossimi passi concreti e ordinati
+10. Vantaggi specifici di questo import
+11. Fonti dati effettivamente utilizzate (solo fonti da cui hai estratto dati reali)
+
+RICORDA: meglio un'analisi con 5 dati certi e 10 "Da verificare" che un'analisi con 15 dati inventati.`,
         add_context_from_internet: true,
         response_json_schema: {
           type: "object",
