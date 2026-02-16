@@ -206,14 +206,16 @@ export function computePriceMetrics(priceData) {
 
     const tradeValue = tradeValueOk ? rawTradeValue : null;
     const netWeight = netWeightOk ? rawNetWeight : null;
+    const annoRiferimento = m.export_to_partner?.anno || null;
+    const fonteRiferimento = m.export_to_partner?.fonte || 'UN Comtrade';
 
-    // Prezzo partner: ricalcola da TradeValue/NetWeight solo se entrambi validi
+    // Prezzo partner: SEMPRE ricalcolato come TradeValue / NetWeight (mai fidarsi del valore LLM)
     let prezzoPartner = null;
     let avviso_prezzo = null;
     if (prezzoCalcolabile) {
-      prezzoPartner = rawPrezzo && rawPrezzo > 0 ? rawPrezzo : parseFloat((rawTradeValue / rawNetWeight).toFixed(4));
+      prezzoPartner = parseFloat((rawTradeValue / rawNetWeight).toFixed(4));
     } else if (tradeValueOk && !netWeightOk) {
-      avviso_prezzo = 'Quantità (NetWeight) non disponibile per calcolo prezzo medio.';
+      avviso_prezzo = 'Quantità non disponibile per calcolo prezzo medio.';
     } else if (!tradeValueOk && netWeightOk) {
       avviso_prezzo = 'Valore export non disponibile per calcolo prezzo medio.';
     } else {
