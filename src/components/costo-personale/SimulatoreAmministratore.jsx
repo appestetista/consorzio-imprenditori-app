@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Calculator, Info, Loader2, AlertTriangle } from 'lucide-react';
 import { useTabelleContributive, calcolaCostoAmministratore } from './useTabelleContributive';
 import RisultatoAmministratore from './RisultatoAmministratore';
+import VerificaTabelleNormative from './VerificaTabelleNormative';
 
 const GESTIONI = [
   { key: 'gestione_separata', label: 'Gestione Separata INPS', desc: 'Collaboratori/amministratori senza altra copertura — aliq. 35,03% (2/3 SRL, 1/3 amm.)' },
@@ -80,6 +81,7 @@ export default function SimulatoreAmministratore() {
   }
 
   return (
+    <VerificaTabelleNormative>
     <div className="space-y-4">
       <Card className="bg-slate-800 border-slate-700">
         <CardContent className="p-4 space-y-4">
@@ -131,6 +133,7 @@ export default function SimulatoreAmministratore() {
         </CardContent>
       </Card>
     </div>
+    </VerificaTabelleNormative>
   );
 }
 

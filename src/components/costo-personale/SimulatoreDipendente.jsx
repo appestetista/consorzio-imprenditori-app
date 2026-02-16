@@ -9,6 +9,7 @@ import { useTabelleContributive, calcolaCostoDipendente } from './useTabelleCont
 import { useCCNL, CCNL_OPTIONS, REGIONI, getQualificaINAIL } from './useCCNL';
 import RisultatoDipendente from './RisultatoDipendente';
 import ProfiloLavoratoreForm from './ProfiloLavoratoreForm';
+import VerificaTabelleNormative from './VerificaTabelleNormative';
 
 const TIPI_CONTRATTO = [
   { key: 'indeterminato_fulltime', label: 'Tempo indeterminato — Full-time' },
@@ -142,6 +143,7 @@ export default function SimulatoreDipendente() {
   }
 
   return (
+    <VerificaTabelleNormative>
     <TooltipProvider>
       <div className="space-y-4">
         {/* Step indicator */}
@@ -327,5 +329,6 @@ export default function SimulatoreDipendente() {
         </div>
       </div>
     </TooltipProvider>
+    </VerificaTabelleNormative>
   );
 }
