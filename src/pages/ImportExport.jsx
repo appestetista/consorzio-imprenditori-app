@@ -1619,14 +1619,20 @@ Fornisci:
                 )}
 
                 {/* Fonti Dati */}
-                {importResult.fonti_dati?.length > 0 && (
+                {(importRawData?.taric?.fonte || importRawData?.flussi_comtrade?.fonte || importRawData?.iva?.base_normativa) && (
                   <Card className="bg-slate-800/50 border-slate-700">
                     <CardContent className="p-3">
-                      <p className="text-slate-500 text-xs mb-2">📚 Fonti dati:</p>
+                      <p className="text-slate-500 text-xs mb-2">📚 Fonti dati utilizzate:</p>
                       <div className="flex flex-wrap gap-1">
-                        {importResult.fonti_dati.map((f, i) => (
-                          <span key={i} className="bg-slate-700/50 text-slate-400 text-xs px-2 py-0.5 rounded">{f}</span>
-                        ))}
+                        {importRawData.taric?.fonte && (
+                          <span className="bg-slate-700/50 text-slate-400 text-xs px-2 py-0.5 rounded">{importRawData.taric.fonte}</span>
+                        )}
+                        {importRawData.flussi_comtrade?.fonte && (
+                          <span className="bg-slate-700/50 text-slate-400 text-xs px-2 py-0.5 rounded">{importRawData.flussi_comtrade.fonte}</span>
+                        )}
+                        {importRawData.iva?.base_normativa && (
+                          <span className="bg-slate-700/50 text-slate-400 text-xs px-2 py-0.5 rounded">{importRawData.iva.base_normativa}</span>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
