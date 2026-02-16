@@ -420,9 +420,9 @@ export function calcolaCostoSocioLavoratore(params, tab) {
  * Non c'è INAIL obbligatorio (salvo eccezioni), non c'è TFR.
  */
 export function calcolaCostoGestioneSeparata(params, tab) {
-  const { compenso, ha_altra_copertura } = params;
+  const { compenso, ha_altra_copertura, contributiINPS } = params;
 
-  const gs_totale = tab.get('inps_gestione_separata_totale');
+  const gs_totale = tab.get('inps_gestione_separata_totale'); // 35.03% aliquota piena da TabellaContributiva
   const gs_quota_datore = tab.get('inps_gestione_separata_quota_datore');
   const gs_quota_iscritto = tab.get('inps_gestione_separata_quota_iscritto');
   const irpef_1 = tab.get('irpef_scaglione_1');
@@ -440,8 +440,12 @@ export function calcolaCostoGestioneSeparata(params, tab) {
     'irpef_soglia_1', 'irpef_soglia_2', 'addizionali_media',
   ];
 
-  // Aliquota ridotta se ha altra copertura previdenziale obbligatoria
-  const aliquota_effettiva = ha_altra_copertura ? gs_totale * 0.75 : gs_totale;
+  // Aliquota ridotta: usa entity ContributiINPS se disponibile (26.07% ufficiale), fallback 75% della piena
+  const datiGS = contributiINPS?.find(c => c.gestione === 'GestioneSeparata');
+  const aliquota_ridotta = datiGS?.aliquota_percentuale || gs_totale * 0.75;
+  const massimale_reddito = datiGS?.massimale_reddito || null;
+  const aliquota_effettiva = ha_altra_copertura ? aliquota_ridotta : gs_totale;
+  const fonte_gs = tab.getFonte('inps_gestione_separata_totale');
   const contributo_totale = compenso * aliquota_effettiva;
   const quota_committente = contributo_totale * gs_quota_datore;
   const quota_collaboratore = contributo_totale * gs_quota_iscritto;
