@@ -135,11 +135,33 @@ export default function SimulatoreGestioneSeparata() {
                     onClick={() => setForm({ ...form, tipo_soggetto: ts.key })}
                     className={`w-full text-left p-3 rounded-lg border transition-all ${form.tipo_soggetto === ts.key ? 'bg-cyan-500/20 border-cyan-500/50' : 'bg-slate-900 border-slate-700 hover:border-slate-600'}`}
                   >
-                    <span className={`text-sm font-medium ${form.tipo_soggetto === ts.key ? 'text-cyan-400' : 'text-white'}`}>{ts.label}</span>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-sm font-medium ${form.tipo_soggetto === ts.key ? 'text-cyan-400' : 'text-white'}`}>{ts.label}</span>
+                      <Tooltip>
+                        <TooltipTrigger asChild><span><HelpCircle className="w-3.5 h-3.5 text-slate-500" /></span></TooltipTrigger>
+                        <TooltipContent className="max-w-[280px] bg-slate-700 text-white border-slate-600">
+                          <p className="text-xs">{ts.tooltip}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
                     <p className="text-slate-500 text-xs mt-0.5">{ts.desc}</p>
                   </button>
                 ))}
               </div>
+
+              {/* Info card per selezione corrente */}
+              {form.tipo_soggetto && (() => {
+                const sel = TIPI_SOGGETTO.find(t => t.key === form.tipo_soggetto);
+                if (!sel) return null;
+                return (
+                  <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-3">
+                    <p className="text-cyan-400 text-xs font-semibold flex items-center gap-1 mb-1">
+                      <Info className="w-3 h-3" /> {sel.label}
+                    </p>
+                    <p className="text-slate-300 text-xs">{sel.tooltip}</p>
+                  </div>
+                );
+              })()}
             </CardContent>
           </Card>
         )}
