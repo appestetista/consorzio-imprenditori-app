@@ -45,7 +45,17 @@ function TrendBadge({ value, label }) {
   );
 }
 
-export default function ExportMetricsCard({ mercatoData, metrics }) {
+function formatEur(val) {
+  if (!val && val !== 0) return null;
+  const num = typeof val === 'number' ? val : parseFloat(String(val).replace(/[^0-9.]/g, ''));
+  if (isNaN(num)) return null;
+  if (num >= 1e9) return `€${(num / 1e9).toFixed(1)}B`;
+  if (num >= 1e6) return `€${(num / 1e6).toFixed(1)}M`;
+  if (num >= 1e3) return `€${(num / 1e3).toFixed(0)}K`;
+  return `€${num.toFixed(0)}`;
+}
+
+export default function ExportMetricsCard({ mercatoData, metrics, tassoCambio }) {
   if (!mercatoData) return null;
 
   const volatilitaLevel = metrics?.volatilita 
