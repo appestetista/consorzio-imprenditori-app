@@ -12,12 +12,13 @@ import SimulazioneResult from '../components/fiscale/SimulazioneResult';
 import StoricoSimulazioni from '../components/fiscale/StoricoSimulazioni';
 import ConfrontoPrelievoSRL from '../components/fiscale/ConfrontoPrelievoSRL';
 import MultiScenarioCompenso from '../components/fiscale/MultiScenarioCompenso';
+import GestioneAliquoteIRAP from '../components/fiscale/GestioneAliquoteIRAP';
 
 export default function SimulatoreFiscale() {
   const [effectiveUser, setEffectiveUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
-  const [view, setView] = useState('form'); // 'form' | 'result' | 'storico' | 'confronto_srl' | 'multi_scenario'
+  const [view, setView] = useState('form'); // 'form' | 'result' | 'storico' | 'confronto_srl' | 'multi_scenario' | 'aliquote'
   const { impersonation, appMode } = useImpersonation();
 
   useEffect(() => {
@@ -107,6 +108,14 @@ export default function SimulatoreFiscale() {
           >
             Storico
           </button>
+          {effectiveUser?.role === 'admin' && (
+            <button
+              onClick={() => setView('aliquote')}
+              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${view === 'aliquote' ? 'bg-[#d4af37] text-slate-900' : 'bg-slate-800 text-slate-400'}`}
+            >
+              Aliquote
+            </button>
+          )}
         </div>
 
         {/* Loading */}
@@ -131,6 +140,10 @@ export default function SimulatoreFiscale() {
         {view === 'confronto_srl' && <ConfrontoPrelievoSRL />}
 
         {view === 'multi_scenario' && <MultiScenarioCompenso />}
+
+        {view === 'aliquote' && effectiveUser?.role === 'admin' && (
+          <GestioneAliquoteIRAP user={effectiveUser} />
+        )}
 
         {view === 'storico' && (
           <StoricoSimulazioni
