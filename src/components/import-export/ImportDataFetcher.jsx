@@ -9,7 +9,7 @@ export async function fetchImportData(hsCode, hsDescrizione) {
   let result;
   try {
     result = await base44.integrations.Core.InvokeLLM({
-    prompt: `Sei un analista doganale. Siamo nel ${currentYear}.
+      prompt: `Sei un analista doganale. Siamo nel ${currentYear}.
 
 COMPITO: Recupera ESCLUSIVAMENTE dati numerici ufficiali per l'import in Italia dalla Cina del codice HS ${hsCode} (${hsDescrizione}).
 
