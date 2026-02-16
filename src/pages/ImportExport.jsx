@@ -701,31 +701,57 @@ Fornisci:
                   </CardContent>
                 </Card>
 
-                {/* Selezione Mercati */}
+                {/* Parametri Analisi */}
+                <Card className="bg-slate-800 border-slate-700">
+                  <CardContent className="p-4">
+                    <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
+                      <Globe className="w-5 h-5 text-lime-400" />
+                      Parametri Analisi
+                    </h3>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-slate-400 text-sm mb-1 block">Paese esportatore</label>
+                        <Select value={exporterCountry} onValueChange={setExporterCountry}>
+                          <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {EXPORTER_COUNTRIES.map(c => (
+                              <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <label className="text-slate-400 text-sm mb-1 block">Periodo analisi</label>
+                        <Select value={periodoAnalisi} onValueChange={setPeriodoAnalisi}>
+                          <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="3">3 anni</SelectItem>
+                            <SelectItem value="5">5 anni</SelectItem>
+                            <SelectItem value="10">10 anni</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Selezione Mercati — Multiselect dinamico */}
                 <Card className="bg-slate-800 border-slate-700">
                   <CardContent className="p-4">
                     <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
                       <MapPin className="w-5 h-5 text-lime-400" />
-                      Mercati di interesse *
+                      Mercati target *
                     </h3>
-                    <p className="text-slate-400 text-sm mb-3">Seleziona uno o più mercati da analizzare</p>
-                    
-                    <div className="grid grid-cols-3 gap-2">
-                      {MERCATI_TARGET.map((mercato) => (
-                        <button
-                          key={mercato.code}
-                          onClick={() => toggleMercato(mercato.code)}
-                          className={`p-2 rounded-lg text-center transition-all ${
-                            exportForm.mercati_interesse.includes(mercato.code)
-                              ? 'bg-lime-400 text-slate-900'
-                              : 'bg-slate-700 text-white hover:bg-slate-600'
-                          }`}
-                        >
-                          <span className="text-xl">{mercato.flag}</span>
-                          <p className="text-xs mt-1">{mercato.name}</p>
-                        </button>
-                      ))}
-                    </div>
+                    <p className="text-slate-400 text-sm mb-3">Cerca e seleziona fino a 5 Paesi (o "World")</p>
+                    <CountrySearchSelect
+                      selected={exportForm.mercati_interesse}
+                      onChange={(codes) => setExportForm({ ...exportForm, mercati_interesse: codes })}
+                      maxSelections={5}
+                    />
                   </CardContent>
                 </Card>
 
