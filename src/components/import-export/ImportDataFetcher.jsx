@@ -106,6 +106,7 @@ REGOLE:
  * Landed Cost = Valore merce + Trasporto + Dazio + IVA + Sdoganamento
  */
 export function computeLandedCost(importData, quantitaRange, budgetRange) {
+  if (importData?._api_error) return { _api_error: true, _error_message: importData._error_message };
   const taric = importData?.taric;
   const iva = importData?.iva;
 
