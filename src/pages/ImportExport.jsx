@@ -27,6 +27,7 @@ import CountryInfoCard from '../components/import-export/CountryInfoCard';
 import ExportComparisonRanking from '../components/import-export/ExportComparisonRanking';
 import PriceMarginSection from '../components/import-export/PriceMarginCard';
 import ExportRiskAlerts from '../components/import-export/ExportRiskAlerts';
+import MarketSummaryCard from '../components/import-export/MarketSummaryCard';
 import { fetchImportData, computeLandedCost, interpretImportData } from '../components/import-export/ImportDataFetcher';
 import LandedCostTable from '../components/import-export/LandedCostTable';
 import { buildExportSummary, buildImportSummary } from '../components/import-export/buildAnalysisSummary';
@@ -1071,7 +1072,30 @@ Fornisci:
                 )}
 
                 {!priceStep && priceMetrics && (
-                  <PriceMarginSection priceMetrics={priceMetrics} interpretation={priceInterpretation} userPriceData={userPriceData} />
+                  <>
+                    {/* Schede Riepilogo per mercato */}
+                    {priceMetrics.metriche?.length > 0 && (
+                      <div className="space-y-2">
+                        <h3 className="text-white font-bold text-sm flex items-center gap-2 px-1">
+                          <BarChart3 className="w-4 h-4 text-indigo-400" />
+                          Riepilogo per mercato
+                        </h3>
+                        {priceMetrics.metriche.map(pm => {
+                          const tm = tradeMetrics?.metriche?.find(t => t.paese_code === pm.paese_code);
+                          return (
+                            <MarketSummaryCard
+                              key={pm.paese_code}
+                              priceM={pm}
+                              tradeM={tm}
+                              macro={macroData?.[pm.paese_code]}
+                              userPriceData={userPriceData}
+                            />
+                          );
+                        })}
+                      </div>
+                    )}
+                    <PriceMarginSection priceMetrics={priceMetrics} interpretation={priceInterpretation} userPriceData={userPriceData} />
+                  </>
                 )}
 
                 {/* Mercati Prioritari */}
