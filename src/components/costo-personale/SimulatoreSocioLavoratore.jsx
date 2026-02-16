@@ -28,8 +28,9 @@ const RUOLI_OPERATIVI = [
 ];
 
 const GESTIONI_PREVIDENZIALI = [
-  { key: 'commercianti', label: 'Gestione Commercianti INPS', desc: 'Obbligo per soci di società commerciale che partecipano all\'attività — minimale + eccedenza', societa: ['srl', 'snc', 'sas', 'commerciale'] },
-  { key: 'artigiani', label: 'Gestione Artigiani INPS', desc: 'Obbligo per soci di impresa artigiana iscritta all\'Albo — minimale + eccedenza', societa: ['srl', 'snc', 'sas', 'artigiana'] },
+  { key: 'artigiani', label: 'Gestione Artigiani', desc: 'Obbligo per soci di impresa artigiana iscritta all\'Albo — minimale + eccedenza' },
+  { key: 'commercianti', label: 'Gestione Commercianti', desc: 'Obbligo per soci di società commerciale che partecipano all\'attività — minimale + eccedenza' },
+  { key: 'nessuna', label: 'Nessuna', desc: 'Solo se socio non operativo (non presta attività lavorativa nella società)' },
 ];
 
 // Mappa società → gestione INPS obbligatoria (auto-impostata, no scelta)
@@ -73,19 +74,20 @@ export default function SimulatoreSocioLavoratore() {
   const gestioneObbligatoria = form.tipo_societa ? GESTIONE_OBBLIGATORIA[form.tipo_societa] : null;
   const isGestioneObbligatoria = gestioneObbligatoria !== null && gestioneObbligatoria !== undefined;
 
-  // Filtra gestioni previdenziali in base al tipo di società selezionato
-  const gestioniFiltrate = GESTIONI_PREVIDENZIALI.filter(g =>
-    !form.tipo_societa || g.societa.includes(form.tipo_societa)
-  );
+  // Determina se il socio è operativo (ha un ruolo operativo selezionato)
+  const isSocioOperativo = !!form.ruolo_operativo;
+
+  // Blocco: socio operativo + "nessuna" gestione INPS → simulazione bloccata
+  const isGestioneBloccata = isSocioOperativo && form.gestione_inps === 'nessuna';
 
   const canNext = (s) => {
     switch (s) {
       case 1: return !!form.tipo_societa;
       case 2: return !!form.ruolo_operativo;
-      case 3: return !!form.gestione_inps;
+      case 3: return !!form.gestione_inps && !isGestioneBloccata;
       case 4: return !!form.compenso && parseFloat(form.compenso) > 0;
-      case 5: return true; // riepilogo contributi — sola lettura
-      case 6: return true; // riepilogo fiscale — sola lettura
+      case 5: return true;
+      case 6: return true;
       default: return false;
     }
   };
