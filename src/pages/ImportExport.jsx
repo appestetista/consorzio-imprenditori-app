@@ -289,132 +289,35 @@ export default function ImportExport() {
   const analyzeImportFeasibility = async (hsData) => {
     if (!importForm.descrizione_prodotto || !importForm.quantita || !importForm.tipo_richiesta) return;
     if (!hsData) return;
-    
     if (importLimitReached) return;
     
     setAnalyzingImport(true);
+    setImportRawData(null);
+    setImportLandedCost(null);
+    setImportResult(null);
+
     try {
       await trackImportUsage();
-      const currentYear = new Date().getFullYear();
-      const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Sei un esperto di import dalla Cina con 15 anni di esperienza nel sourcing e nella produzione in Asia. Siamo nel ${currentYear}.
 
-FONTI DATI OBBLIGATORIE (usa ESCLUSIVAMENTE queste):
-1) UN Comtrade (comtradeplus.un.org) — Flussi commerciali Cina→Italia per codice HS ${hsData.hs_code}, valore USD, serie ultimi 5 anni. Reporter: Italy, Partner: China.
-2) Eurostat Comext (ec.europa.eu/eurostat) — Import UE dalla Cina per codice HS ${hsData.hs_code}, valore EUR, quantità.
-3) TARIC (ec.europa.eu/taxation_customs/dds2/taric) — Dazio percentuale MFN e preferenziale per HS ${hsData.hs_code} origine Cina, misure anti-dumping, restrizioni merceologiche.
-Fonti aggiuntive ammesse: Freightos Baltic Index (tariffe container), Agenzia delle Dogane italiana, normativa CE/UE vigente.
+      // STEP 2: Recupero dati da TARIC + Comtrade
+      setImportStep('fetching');
+      const rawData = await fetchImportData(hsData.hs_code, hsData.descrizione_ufficiale);
+      setImportRawData(rawData);
 
-REGOLE INDEROGABILI (la violazione di anche una sola regola invalida l'intera analisi):
-- OGNI dato numerico (dazio, costo, percentuale) DEVE provenire dalle fonti sopra. Per ogni dato indica: (Fonte, anno/periodo).
-- Per i DAZI: consulta TARIC per HS ${hsData.hs_code} con origine CN (Cina). Indica aliquota MFN, dazio anti-dumping se attivo, e contingenti.
-- Per i FLUSSI: cerca su UN Comtrade il valore import Italia dalla Cina per HS ${hsData.hs_code}.
-- Se un dato NON è reperibile, scrivi: "Da verificare su [TARIC / UN Comtrade / Eurostat Comext]". NON approssimare, NON stimare.
-- NON usare MAI espressioni come "circa", "stimato", "approssimativamente", "indicativamente", "potrebbe costare".
-- NON INVENTARE MAI aliquote dazio, prezzi FOB, costi di spedizione.
-- Per MOQ: indica solo se basato su prassi verificabile, altrimenti "MOQ variabile — richiedere quotazione diretta a fornitori".
-- Preferisci "Da verificare" piuttosto che un dato non verificato.
+      // STEP 3: Calcolo Landed Cost (lato client, nessuna AI)
+      setImportStep('computing');
+      const landed = computeLandedCost(rawData, importForm.quantita, importForm.budget);
+      setImportLandedCost(landed);
 
-Valuta la fattibilità di questo import per un'azienda italiana:
-
-TIPO RICHIESTA: ${importForm.tipo_richiesta === 'produzione_custom' ? 'Produzione su misura da disegni/specifiche' : 'Ricerca prodotto esistente già disponibile'}
-PRODOTTO: ${importForm.descrizione_prodotto}
-QUANTITÀ RICHIESTA: ${importForm.quantita}
-FREQUENZA ORDINI: ${importForm.frequenza || 'Non specificata'}
-TEMPO MASSIMO ATTESA: ${importForm.tempo_attesa || 'Non specificato'}
-BUDGET: ${importForm.budget || 'Non specificato'}
-ESPERIENZA IMPORT: ${importForm.esperienza_import || 'Non specificata'}
-REQUISITI SPECIFICI: ${importForm.requisiti || 'Nessuno specificato'}
-
-CODICE HS CONFERMATO DALL'UTENTE: ${hsData.hs_code}
-DESCRIZIONE DOGANALE: ${hsData.descrizione_ufficiale}
-CERTEZZA CLASSIFICAZIONE: ${hsData.certezza}
-
-IMPORTANTE: Usa il codice HS ${hsData.hs_code} confermato sopra come base per tutti i dati doganali, dazi TARIC e costi. Non usare un codice HS diverso.
-
-Fornisci un'analisi completa con dati STRUTTURATI dalle fonti obbligatorie:
-
-1. Punteggio fattibilità (1-10) con motivazione basata su criteri oggettivi
-2. Se l'import è consigliato o meno e perché
-3. MOQ tipico — solo se verificabile, altrimenti "Da verificare con fornitori"
-4. Tempi realistici dettagliati (produzione + spedizione mare/aereo)
-5. DAZI E COSTI DOGANALI (da TARIC per HS ${hsData.hs_code} origine CN):
-   - Aliquota dazio MFN con fonte TARIC
-   - Misure anti-dumping attive (se presenti, indicare regolamento UE)
-   - Restrizioni merceologiche o contingenti tariffari
-   - IVA italiana applicabile
-6. FLUSSI COMMERCIALI (da UN Comtrade / Eurostat Comext):
-   - Valore import Italia dalla Cina per HS ${hsData.hs_code} (USD, ultimo anno disponibile)
-   - Trend 5 anni del flusso commerciale
-7. Costi logistici: per FOB e spedizione, solo se da fonte verificabile (es. Freightos), altrimenti "Da quantificare con preventivo"
-8. Criticità specifiche per questo tipo di import
-9. Requisiti necessari (certificazioni CE, documenti doganali, normativa UE con riferimento specifico)
-10. Prossimi passi concreti e ordinati
-11. Vantaggi specifici di questo import
-12. Fonti dati con riferimento specifico: per ogni fonte indicare URL o database e anno del dato estratto
-
-Per OGNI dato numerico: indica (Fonte, Anno). Se non reperibile: "Da verificare su [TARIC / UN Comtrade / Eurostat Comext]".
-RICORDA: meglio un'analisi con 5 dati certi e 10 "Da verificare" che un'analisi con 15 dati inventati.`,
-        add_context_from_internet: true,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            punteggio_fattibilita: { type: "number" },
-            motivazione_punteggio: { type: "string" },
-            consigliato: { type: "boolean" },
-            valutazione_generale: { type: "string" },
-            raccomandazione: { type: "string" },
-            moq_tipico: { type: "string" },
-            tempi_produzione: { type: "string" },
-            tempi_spedizione_mare: { type: "string" },
-            tempi_spedizione_aerea: { type: "string" },
-            tempo_totale: { type: "string" },
-            dazi_taric: {
-              type: "object",
-              properties: {
-                dazio_mfn: { type: "string", description: "Aliquota MFN da TARIC per HS confermato, origine CN" },
-                anti_dumping: { type: "string", description: "Misure anti-dumping attive con regolamento UE" },
-                restrizioni: { type: "string", description: "Restrizioni merceologiche o contingenti" },
-                iva_italia: { type: "string" },
-                fonte: { type: "string" }
-              }
-            },
-            flussi_commerciali: {
-              type: "object",
-              properties: {
-                import_italia_da_cina: { type: "string", description: "Valore import Italia dalla Cina per HS, USD, anno" },
-                trend_5_anni: { type: "string", description: "Trend serie storica 5 anni" },
-                fonte_comtrade: { type: "string" },
-                fonte_eurostat: { type: "string" }
-              }
-            },
-            costi_stimati: {
-              type: "object",
-              properties: {
-                costo_prodotto_fob: { type: "string" },
-                costo_spedizione_mare: { type: "string" },
-                costo_spedizione_aerea: { type: "string" },
-                dazi_doganali_percentuale: { type: "string" },
-                iva: { type: "string" },
-                costi_accessori: { type: "string" },
-                totale_stimato_min: { type: "string" },
-                totale_stimato_max: { type: "string" }
-              }
-            },
-            vantaggi: { type: "array", items: { type: "string" } },
-            criticita: { type: "array", items: { type: "string" } },
-            requisiti_necessari: { type: "array", items: { type: "string" } },
-            prossimi_passi: { type: "array", items: { type: "string" } },
-            fonti_dati: { type: "array", items: { type: "string" } }
-          }
-        }
-      });
-
-      setImportResult(result);
+      // STEP 4: Interpretazione AI (riceve solo dati calcolati)
+      setImportStep('interpreting');
+      const interpretation = await interpretImportData(rawData, landed, hsData.hs_code, hsData.descrizione_ufficiale, importForm);
+      setImportResult(interpretation);
     } catch (e) {
       console.error(e);
     } finally {
       setAnalyzingImport(false);
+      setImportStep('');
     }
   };
 
