@@ -250,10 +250,27 @@ export function computePriceMetrics(priceData) {
       premium_pct = parseFloat((((prezzoPartner - prezzoWorldCalcolato) / prezzoWorldCalcolato) * 100).toFixed(1));
     }
 
-    // Conversione EUR
-    const prezzoPartnerEur = tassoValid && prezzoPartner ? parseFloat((prezzoPartner / tasso).toFixed(2)) : null;
-    const prezzoWorldEur = tassoValid && prezzoWorldCalcolato ? parseFloat((prezzoWorldCalcolato / tasso).toFixed(2)) : null;
+    // Conversione EUR (tramite tasso EUR/USD)
+    const prezzoPartnerEur = tassoValid && prezzoPartner ? parseFloat((prezzoPartner / tasso).toFixed(4)) : null;
+    const prezzoWorldEur = tassoValid && prezzoWorldCalcolato ? parseFloat((prezzoWorldCalcolato / tasso).toFixed(4)) : null;
     const tradeValueEur = tassoValid && tradeValue ? Math.round(tradeValue / tasso) : null;
+
+    // Conversione valuta locale del Paese target (tasso BCE medio annuale)
+    const valutaLocale = m.valuta_locale || null;
+    const tassoLocaleValid = valutaLocale?.tasso_eur && !isNaN(valutaLocale.tasso_eur) && valutaLocale.tasso_eur > 0;
+    const isEurozone = valutaLocale?.codice === 'EUR';
+    
+    let prezzoPartnerLocale = null;
+    let prezzoWorldLocale = null;
+    if (tassoLocaleValid && !isEurozone) {
+      // prezzo USD → EUR → valuta locale: (prezzo_usd / tasso_eur_usd) * tasso_eur_locale
+      if (tassoValid && prezzoPartner) {
+        prezzoPartnerLocale = parseFloat(((prezzoPartner / tasso) * valutaLocale.tasso_eur).toFixed(4));
+      }
+      if (tassoValid && prezzoWorldCalcolato) {
+        prezzoWorldLocale = parseFloat(((prezzoWorldCalcolato / tasso) * valutaLocale.tasso_eur).toFixed(4));
+      }
+    }
 
     // Top destinatari: filtra solo quelli con TradeValue > 0 E NetWeight > 0, ricalcola prezzo
     const topDestinatari = (m.top_destinatari_prezzo || [])
