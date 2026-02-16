@@ -208,6 +208,42 @@ export function computeMetrics(tradeData) {
     };
   });
 
+  // === VALIDAZIONE ANOMALIE ===
+  const currentYear = new Date().getFullYear();
+  const anniAttesi = Array.from({ length: 5 }, (_, i) => currentYear - 5 + i);
+  const anomalie = [];
+
+  risultati.forEach(m => {
+    const serie = m.serie_storica || [];
+    const valori = serie
+      .map(s => ({ anno: s.anno, val: parseFloat(String(s.valore_usd).replace(/[^0-9.]/g, '')) }))
+      .filter(v => !isNaN(v.val));
+
+    // 1. Valori negativi
+    valori.forEach(v => {
+      if (v.val < 0) {
+        anomalie.push(`${m.paese_nome}: valore negativo (${v.val}) per anno ${v.anno}`);
+      }
+    });
+
+    // 2. Crescita YoY > 500%
+    for (let i = 1; i < valori.length; i++) {
+      if (valori[i - 1].val > 0) {
+        const crescitaYoY = ((valori[i].val - valori[i - 1].val) / valori[i - 1].val) * 100;
+        if (crescitaYoY > 500) {
+          anomalie.push(`${m.paese_nome}: crescita anomala ${valori[i - 1].anno}→${valori[i].anno} (+${crescitaYoY.toFixed(0)}%)`);
+        }
+      }
+    }
+
+    // 3. Anni mancanti nei 5 anni attesi
+    const anniPresenti = valori.map(v => v.anno);
+    const anniMancanti = anniAttesi.filter(a => !anniPresenti.includes(a));
+    if (anniMancanti.length > 0 && valori.length > 0) {
+      anomalie.push(`${m.paese_nome}: anni mancanti nella serie storica: ${anniMancanti.join(', ')}`);
+    }
+  });
+
   return {
     metriche: risultati,
     tasso_cambio: conversionePossibile ? {
@@ -215,7 +251,9 @@ export function computeMetrics(tradeData) {
       anno: tassoAnno,
       fonte: tassoFonte,
       nota: `Valori convertiti in EUR al tasso medio BCE anno ${tassoAnno}.`
-    } : null
+    } : null,
+    anomalie: anomalie.length > 0 ? anomalie : null,
+    anomalie_presenti: anomalie.length > 0
   };
 }
 
