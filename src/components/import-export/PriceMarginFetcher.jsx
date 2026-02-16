@@ -177,23 +177,29 @@ export function computePriceMetrics(priceData) {
   const tasso = priceData.tasso_cambio_eur_usd?.tasso;
   const tassoValid = tasso && !isNaN(tasso) && tasso > 0;
 
-  const metriche = priceData.mercati.map(m => {
-    const prezzoWorld = m.import_world?.prezzo_unitario_usd_kg;
-    const prezzoExporter = m.import_exporter?.prezzo_unitario_usd_kg;
-    const unita = m.import_world?.unita_misura || m.import_exporter?.unita_misura || 'kg';
+  // Prezzo unitario export globale (World) come benchmark
+  const prezzoWorldGlobal = priceData.export_world?.prezzo_unitario_usd_kg || null;
 
-    // Premium/discount dell'esportatore rispetto alla media mondiale
+  const metriche = priceData.mercati.map(m => {
+    const prezzoPartner = m.export_to_partner?.prezzo_unitario_usd_kg || null;
+    const tradeValue = m.export_to_partner?.trade_value_usd || null;
+    const netWeight = m.export_to_partner?.net_weight_kg || null;
+    const unita = m.export_to_partner?.unita_misura || 'kg';
+    const fallbackWorld = m.query_fallback_world || false;
+
+    // Premium/discount del prezzo verso questo partner vs media export globale (World)
     let premium_pct = null;
-    if (prezzoWorld && prezzoExporter && prezzoWorld > 0) {
-      premium_pct = parseFloat((((prezzoExporter - prezzoWorld) / prezzoWorld) * 100).toFixed(1));
+    if (prezzoWorldGlobal && prezzoPartner && prezzoWorldGlobal > 0) {
+      premium_pct = parseFloat((((prezzoPartner - prezzoWorldGlobal) / prezzoWorldGlobal) * 100).toFixed(1));
     }
 
     // Conversione EUR
-    const prezzoWorldEur = tassoValid && prezzoWorld ? parseFloat((prezzoWorld / tasso).toFixed(2)) : null;
-    const prezzoExporterEur = tassoValid && prezzoExporter ? parseFloat((prezzoExporter / tasso).toFixed(2)) : null;
+    const prezzoPartnerEur = tassoValid && prezzoPartner ? parseFloat((prezzoPartner / tasso).toFixed(2)) : null;
+    const prezzoWorldEur = tassoValid && prezzoWorldGlobal ? parseFloat((prezzoWorldGlobal / tasso).toFixed(2)) : null;
+    const tradeValueEur = tassoValid && tradeValue ? Math.round(tradeValue / tasso) : null;
 
-    // Confronto competitivo: posizionamento prezzo esportatore vs top fornitori
-    const topFornitori = (m.top_fornitori_prezzo || [])
+    // Top destinatari con prezzo
+    const topDestinatari = (m.top_destinatari_prezzo || [])
       .filter(f => f.prezzo_unitario_usd_kg && f.prezzo_unitario_usd_kg > 0)
       .map(f => ({
         ...f,
@@ -201,14 +207,15 @@ export function computePriceMetrics(priceData) {
       }))
       .sort((a, b) => a.prezzo_unitario_usd_kg - b.prezzo_unitario_usd_kg);
 
+    // Ranking: posizione prezzo di questo partner tra i top destinatari
     let rankingPrezzo = null;
-    if (prezzoExporter && topFornitori.length > 0) {
-      const allPrices = [...topFornitori.map(f => f.prezzo_unitario_usd_kg), prezzoExporter].sort((a, b) => a - b);
-      rankingPrezzo = allPrices.indexOf(prezzoExporter) + 1;
+    if (prezzoPartner && topDestinatari.length > 0) {
+      const allPrices = [...topDestinatari.map(f => f.prezzo_unitario_usd_kg), prezzoPartner].sort((a, b) => a - b);
+      rankingPrezzo = allPrices.indexOf(prezzoPartner) + 1;
     }
 
-    // Trend prezzo unitario
-    const serie = (m.serie_prezzo_unitario || []).filter(s => s.prezzo_unitario_usd_kg && s.prezzo_unitario_usd_kg > 0);
+    // Serie storica prezzo unitario
+    const serie = (m.serie_storica || []).filter(s => s.prezzo_unitario_usd_kg && s.prezzo_unitario_usd_kg > 0);
     let trendPrezzo = null;
     if (serie.length >= 2) {
       const primo = serie[0].prezzo_unitario_usd_kg;
@@ -222,7 +229,8 @@ export function computePriceMetrics(priceData) {
     const serieEur = tassoValid
       ? serie.map(s => ({
           ...s,
-          prezzo_unitario_eur: parseFloat((s.prezzo_unitario_usd_kg / tasso).toFixed(2))
+          prezzo_unitario_eur: parseFloat((s.prezzo_unitario_usd_kg / tasso).toFixed(2)),
+          trade_value_eur: s.trade_value_usd ? Math.round(s.trade_value_usd / tasso) : null
         }))
       : serie;
 
@@ -230,18 +238,22 @@ export function computePriceMetrics(priceData) {
       paese_code: m.paese_code,
       paese_nome: m.paese_nome,
       unita_misura: unita,
-      prezzo_world_usd: prezzoWorld,
+      query_fallback_world: fallbackWorld,
+      trade_value_usd: tradeValue,
+      trade_value_eur: tradeValueEur,
+      net_weight_kg: netWeight,
+      prezzo_partner_usd: prezzoPartner,
+      prezzo_partner_eur: prezzoPartnerEur,
+      prezzo_world_usd: prezzoWorldGlobal,
       prezzo_world_eur: prezzoWorldEur,
-      prezzo_exporter_usd: prezzoExporter,
-      prezzo_exporter_eur: prezzoExporterEur,
       premium_pct,
-      top_fornitori: topFornitori,
+      top_destinatari: topDestinatari,
       ranking_prezzo: rankingPrezzo,
-      ranking_totale: topFornitori.length + 1,
+      ranking_totale: topDestinatari.length + 1,
       trend_prezzo_pct: trendPrezzo,
       serie_prezzo: serie,
       serie_prezzo_eur: serieEur,
-      dati_completi: prezzoWorld !== null && prezzoWorld !== undefined && prezzoExporter !== null && prezzoExporter !== undefined
+      dati_completi: prezzoPartner !== null && tradeValue !== null
     };
   });
 
