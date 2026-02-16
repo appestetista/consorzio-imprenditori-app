@@ -380,9 +380,14 @@ export default function ImportExport() {
         capacita_produttiva: exportForm.capacita_produttiva
       });
 
+      if (interpretation?._api_error) {
+        setAnalysisResult({ _api_error: true });
+        return;
+      }
       setAnalysisResult(interpretation);
     } catch (e) {
-      console.error(e);
+      console.error('[Export] Errore analisi:', e);
+      setAnalysisResult({ _api_error: true });
     } finally {
       setAnalyzing(false);
       setExportStep('');
