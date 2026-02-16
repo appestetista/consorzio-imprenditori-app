@@ -137,6 +137,8 @@ export function computeMetrics(tradeData) {
   if (tradeData?._api_error) return { _api_error: true, _error_message: tradeData._error_message };
   if (!tradeData?.mercati) return null;
 
+  const currentYearForMetrics = new Date().getFullYear();
+
   // Tasso di cambio EUR/USD dalla BCE
   const tassoRaw = tradeData.tasso_cambio_eur_usd?.tasso;
   const tassoEurUsd = tassoRaw ? parseFloat(String(tassoRaw).replace(/[^0-9.]/g, '')) : null;
