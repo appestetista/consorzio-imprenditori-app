@@ -101,14 +101,45 @@ export default function RisultatoSocioLavoratore({ result, onReset }) {
         <CardContent className="p-4">
           <h3 className="text-green-400 font-bold mb-3">🧾 Netto Socio Lavoratore</h3>
           <div className="space-y-2 text-sm">
-            <Row label="Compenso lordo" value={fmt(result.compenso)} />
-            <Row label="- Contributi INPS personali" value={fmt(result.contributo_inps)} negative />
-            <Row label="= Imponibile IRPEF" value={fmt(result.imponibile_irpef)} bold />
-            <Row label="- IRPEF" value={fmt(result.irpef)} negative />
-            <Row label={`- Addizionali (~${(result.aliquota_addizionali * 100).toFixed(1)}%)`} value={fmt(result.addizionali)} negative />
+            <Row label="Reddito dichiarato" value={fmt(result.compenso)} />
+            <Row label="- Contributi previdenziali deducibili" value={fmt(result.contributo_inps)} negative />
+            <Row label="= Reddito imponibile IRPEF" value={fmt(result.imponibile_irpef)} bold />
+
+            {/* Dettaglio scaglioni IRPEF */}
+            <div className="pl-2 border-l-2 border-green-500/30 space-y-1">
+              <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider">Scaglioni IRPEF 2026</p>
+              {result.irpef_scaglione_1_importo > 0 && (
+                <div className="flex justify-between text-xs">
+                  <span className="text-slate-400">{(result.aliquota_scaglione_1 * 100).toFixed(0)}% fino a €{fmt(result.soglia_1)}</span>
+                  <span className="text-red-300">-€{fmt(result.irpef_scaglione_1_importo)}</span>
+                </div>
+              )}
+              {result.irpef_scaglione_2_importo > 0 && (
+                <div className="flex justify-between text-xs">
+                  <span className="text-slate-400">{(result.aliquota_scaglione_2 * 100).toFixed(0)}% €{fmt(result.soglia_1)}–€{fmt(result.soglia_2)}</span>
+                  <span className="text-red-300">-€{fmt(result.irpef_scaglione_2_importo)}</span>
+                </div>
+              )}
+              {result.irpef_scaglione_3_importo > 0 && (
+                <div className="flex justify-between text-xs">
+                  <span className="text-slate-400">{(result.aliquota_scaglione_3 * 100).toFixed(0)}% oltre €{fmt(result.soglia_2)}</span>
+                  <span className="text-red-300">-€{fmt(result.irpef_scaglione_3_importo)}</span>
+                </div>
+              )}
+            </div>
+
+            <Row label="IRPEF lorda" value={fmt(result.irpef_lorda)} negative />
+            {result.detrazione_lavoro > 0 && (
+              <div className="flex justify-between">
+                <span className="text-slate-400">+ Detrazione lavoro (art. 13 TUIR)</span>
+                <span className="text-green-400">+€{fmt(result.detrazione_lavoro)}</span>
+              </div>
+            )}
+            <Row label="= IRPEF netta" value={fmt(result.irpef)} negative />
+            <Row label={`- Addizionali reg./com. (~${(result.aliquota_addizionali * 100).toFixed(1)}%)`} value={fmt(result.addizionali)} negative />
             <div className="border-t border-green-500/30 pt-2 mt-2">
               <div className="flex justify-between">
-                <span className="text-green-400 font-bold">NETTO ANNUO</span>
+                <span className="text-green-400 font-bold">NETTO DISPONIBILE</span>
                 <span className="text-green-400 font-bold text-lg">€{fmt(result.netto_annuo)}</span>
               </div>
               <Row label="Netto mensile" value={fmt(result.netto_mensile)} green />

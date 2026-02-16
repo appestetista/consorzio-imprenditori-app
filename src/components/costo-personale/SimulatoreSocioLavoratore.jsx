@@ -491,14 +491,67 @@ export default function SimulatoreSocioLavoratore() {
             <CardContent className="p-4 space-y-4">
               <h3 className="text-white font-semibold">Step 6 — Calcolo fiscale</h3>
               <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3 space-y-2 text-sm">
-                <div className="flex justify-between"><span className="text-slate-400">Imponibile IRPEF</span><span className="text-white font-semibold">€{fmt(result.imponibile_irpef)}</span></div>
-                <div className="flex justify-between"><span className="text-slate-400">IRPEF (scaglioni)</span><span className="text-red-300">-€{fmt(result.irpef)}</span></div>
-                <div className="flex justify-between"><span className="text-slate-400">Addizionali (~{(result.aliquota_addizionali * 100).toFixed(1)}%)</span><span className="text-red-300">-€{fmt(result.addizionali)}</span></div>
+                {/* Reddito imponibile */}
+                <div className="flex justify-between"><span className="text-slate-400">Reddito dichiarato</span><span className="text-white">€{fmt(result.compenso)}</span></div>
+                <div className="flex justify-between"><span className="text-slate-400">- Contributi previdenziali deducibili</span><span className="text-red-300">-€{fmt(result.contributo_inps)}</span></div>
+                <div className="flex justify-between border-t border-green-500/20 pt-1"><span className="text-white font-semibold">Reddito imponibile IRPEF</span><span className="text-white font-semibold">€{fmt(result.imponibile_irpef)}</span></div>
+
+                {/* Dettaglio scaglioni IRPEF */}
+                <div className="space-y-1 pl-2 border-l-2 border-green-500/30 mt-1">
+                  <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider">Scaglioni IRPEF 2026</p>
+                  {result.irpef_scaglione_1_importo > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">{(result.aliquota_scaglione_1 * 100).toFixed(0)}% fino a €{fmt(result.soglia_1)}</span>
+                      <span className="text-red-300">-€{fmt(result.irpef_scaglione_1_importo)}</span>
+                    </div>
+                  )}
+                  {result.irpef_scaglione_2_importo > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">{(result.aliquota_scaglione_2 * 100).toFixed(0)}% da €{fmt(result.soglia_1)} a €{fmt(result.soglia_2)}</span>
+                      <span className="text-red-300">-€{fmt(result.irpef_scaglione_2_importo)}</span>
+                    </div>
+                  )}
+                  {result.irpef_scaglione_3_importo > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">{(result.aliquota_scaglione_3 * 100).toFixed(0)}% oltre €{fmt(result.soglia_2)}</span>
+                      <span className="text-red-300">-€{fmt(result.irpef_scaglione_3_importo)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between font-semibold border-t border-green-500/20 pt-1">
+                    <span className="text-slate-300">IRPEF lorda</span>
+                    <span className="text-red-300">-€{fmt(result.irpef_lorda)}</span>
+                  </div>
+                </div>
+
+                {/* Detrazioni */}
+                {result.detrazione_lavoro > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-slate-400">Detrazione lavoro (art. 13 TUIR)</span>
+                    <span className="text-green-400">+€{fmt(result.detrazione_lavoro)}</span>
+                  </div>
+                )}
+
+                <div className="flex justify-between font-semibold">
+                  <span className="text-white">IRPEF netta</span>
+                  <span className="text-red-300">-€{fmt(result.irpef)}</span>
+                </div>
+
+                <div className="flex justify-between"><span className="text-slate-400">Addizionali reg./com. (~{(result.aliquota_addizionali * 100).toFixed(1)}%)</span><span className="text-red-300">-€{fmt(result.addizionali)}</span></div>
+
+                {/* Netto */}
                 <div className="border-t border-green-500/30 pt-2">
-                  <div className="flex justify-between"><span className="text-green-400 font-bold">NETTO ANNUO</span><span className="text-green-400 font-bold text-lg">€{fmt(result.netto_annuo)}</span></div>
+                  <div className="flex justify-between"><span className="text-green-400 font-bold">NETTO DISPONIBILE</span><span className="text-green-400 font-bold text-lg">€{fmt(result.netto_annuo)}</span></div>
                   <div className="flex justify-between"><span className="text-slate-400">Netto mensile</span><span className="text-green-400">€{fmt(result.netto_mensile)}</span></div>
                 </div>
               </div>
+
+              {/* Riferimento normativo IRPEF */}
+              <div className="bg-slate-700/50 border border-slate-600 rounded-lg p-2.5">
+                <p className="text-slate-500 text-xs">
+                  <span className="font-semibold text-slate-400">Rif. normativo:</span> L. Bilancio 2026 (L. 207/2025) — Art. 11 TUIR. Scaglioni: 23% fino a €28.000, 33% da €28.001 a €50.000, 43% oltre €50.000. Detrazione lavoro art. 13 TUIR.
+                </p>
+              </div>
+
               <p className="text-slate-500 text-xs flex items-center gap-1"><Info className="w-3 h-3" /> Prosegui per il riepilogo professionale completo.</p>
             </CardContent>
           </Card>
