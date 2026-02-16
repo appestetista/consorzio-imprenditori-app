@@ -320,8 +320,13 @@ DESCRIZIONE: ${hsDescrizione}
 DATI TARIC VERIFICATI:
 - Dazio MFN: ${taric?.dazio_mfn_percentuale || 'Non disponibile'}% (${taric?.fonte || 'N/D'})
 - Anti-dumping: ${taric?.anti_dumping_percentuale || 'Nessuno'} ${taric?.anti_dumping_regolamento || ''}
+- Misure compensative: ${taric?.misure_compensative_percentuale || 'Nessuna'} ${taric?.misure_compensative_regolamento || ''}
 - Restrizioni: ${(taric?.restrizioni || []).join(', ') || 'Nessuna'}
+- Licenze richieste: ${taric?.licenze_richieste || 'Nessuna'}
 - IVA: ${importData?.iva?.aliquota_standard || 'N/D'}%
+
+LIVELLO RISCHIO CALCOLATO: ${landedCost.livello_rischio || 'N/D'}
+DETTAGLI RISCHIO: ${(landedCost.dettagli_rischio || []).join('; ')}
 
 LANDED COST CALCOLATO (su €10.000 di merce):
 ${landedCost.calcolo_possibile ? `- Dazio: €${landedCost.esempio_calcolo.dazio} (${landedCost.dazio_totale_perc}%)
