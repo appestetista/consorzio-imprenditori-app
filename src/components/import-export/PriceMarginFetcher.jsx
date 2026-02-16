@@ -28,40 +28,44 @@ export async function fetchPriceData(hsCode6, mercatiCodes, mercatiNames, export
     result = await base44.integrations.Core.InvokeLLM({
       prompt: `Sei un analista di dati commerciali internazionali. Anno corrente: ${currentYear}.
 
-COMPITO: Recupera ESCLUSIVAMENTE dati numerici ufficiali sul PREZZO UNITARIO MEDIO all'importazione per il codice HS ${hs4} (heading 4 cifre) nei seguenti mercati: ${mercatiNomi}.
+COMPITO: Recupera ESCLUSIVAMENTE dati numerici ufficiali di EXPORT dal database UN Comtrade per il codice HS ${hs4} (heading 4 cifre).
 
-PARAMETRI QUERY:
-- Codice HS heading: ${hs4}
-- Codice HS 6 cifre: ${hsCode6}
-- Reporter (importatore): ciascun Paese target
-- Partner (esportatore specifico): ${exporterLabel} (${exporterCode})
-- Partner (tutti): World
-- Periodo: ultimi ${periodoAnni} anni (${periodoStart}-${periodoEnd})
+PARAMETRI QUERY UN COMTRADE:
+- Reporter = ${exporterLabel} (${exporterCode}) — il Paese esportatore
+- Flow = Export (X)
+- CmdCode = ${hs4} (HS heading 4 cifre)
+- Periodo = ${periodoStart}-${periodoEnd} (ultimi ${periodoAnni} anni)
 
-DATI DA RECUPERARE PER CIASCUN MERCATO (fonti obbligatorie):
+QUERY PER CIASCUN MERCATO TARGET (${mercatiNomi}):
 
-1) DA UN COMTRADE (comtradeplus.un.org) — HS ${hs4}:
-   a) Import TOTALE del Paese (Partner=World):
-      - TradeValue in USD (valore totale)
-      - NetWeight in kg (peso netto totale)
-      - Calcola: prezzo_unitario_medio_world_usd = TradeValue / NetWeight (USD/kg)
-   b) Import dal partner ${exporterCode}:
-      - TradeValue in USD
-      - NetWeight in kg
-      - Calcola: prezzo_unitario_medio_exporter_usd = TradeValue / NetWeight (USD/kg)
-   c) Import dai top 5 Paesi fornitori:
-      - Per ciascuno: prezzo_unitario_medio_usd = TradeValue / NetWeight
-   d) Se NetWeight non disponibile, prova con Qty (unità supplementari) e specifica l'unità di misura
+QUERY A — Partner = Paese target specifico:
+- Reporter: ${exporterCode}, Partner: ciascun Paese target, Flow: Export, HS: ${hs4}
+- Recuperare per OGNI ANNO del periodo ${periodoStart}-${periodoEnd}:
+  * TradeValue (USD) — valore totale export
+  * NetWeight (kg) — quantità totale
+  * Prezzo unitario = TradeValue / NetWeight (USD/kg)
 
-2) DA BCE (ecb.europa.eu):
-   - Tasso di cambio medio annuale EUR/USD per ${periodoEnd}
+SE QUERY A restituisce dataset VUOTO per un Paese:
+→ QUERY B — Ripetere con Partner = World:
+  - Reporter: ${exporterCode}, Partner: World, Flow: Export, HS: ${hs4}
+  - Stessi dati: TradeValue, NetWeight, serie storica
+
+SE ANCHE QUERY B è vuota:
+→ Segnalare in dati_non_disponibili: "Dati commerciali non disponibili per [Paese] nel periodo ${periodoStart}-${periodoEnd}"
+
+DATI AGGIUNTIVI:
+- Top 5 Paesi destinatari per valore export da ${exporterCode} per HS ${hs4} (con prezzo unitario)
+- Se NetWeight non disponibile, usare Qty (unità supplementari) e specificare l'unità di misura
+
+DA BCE (ecb.europa.eu):
+- Tasso di cambio medio annuale EUR/USD per ${periodoEnd}
 
 REGOLE INDEROGABILI:
 - OGNI numero deve provenire da UN Comtrade o BCE. Nessuna stima, nessuna approssimazione.
-- Se TradeValue o NetWeight non sono disponibili per un Paese, restituisci null per quel dato.
+- Se TradeValue o NetWeight non sono disponibili, restituisci null per quel dato.
 - Indica SEMPRE fonte esatta e anno per ogni dato.
-- Se i dati per Partner=${exporterCode} non sono disponibili, segnala in dati_non_disponibili.
 - Il prezzo unitario si calcola SOLO come rapporto TradeValue/NetWeight (o Qty). Mai inventarlo.
+- Per ogni mercato, indicare se i dati provengono da Query A (partner specifico) o Query B (World) tramite il campo query_fallback_world.
 
 OUTPUT: JSON strutturato.`,
       add_context_from_internet: true,
