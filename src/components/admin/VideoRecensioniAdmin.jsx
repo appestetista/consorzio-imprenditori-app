@@ -51,10 +51,31 @@ export default function VideoRecensioniAdmin({ user }) {
 
   const saveVideoMutation = useMutation({
     mutationFn: async () => {
+      const isNew = !editingVideo;
       if (editingVideo) {
         await base44.entities.Video.update(editingVideo.id, videoForm);
       } else {
         await base44.entities.Video.create(videoForm);
+      }
+      // Notifica tutti gli utenti quando viene pubblicato un nuovo video
+      if (isNew) {
+        try {
+          const allUsers = await base44.entities.User.list();
+          const notifiche = allUsers
+            .filter(u => u.email !== user.email)
+            .map(u => ({
+              user_email: u.email,
+              type: 'video',
+              title: 'Nuovo Video Pubblicato',
+              content: `È stata pubblicata una nuova video recensione: "${videoForm.title}" di ${videoForm.company_name}`,
+              is_read: false
+            }));
+          if (notifiche.length > 0) {
+            await base44.entities.Notification.bulkCreate(notifiche);
+          }
+        } catch (e) {
+          console.log('Errore invio notifiche video:', e);
+        }
       }
     },
     onSuccess: () => {
