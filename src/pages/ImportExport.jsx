@@ -80,6 +80,9 @@ export default function ImportExport() {
   const [exporterCountry, setExporterCountry] = useState('IT');
   const [periodoAnalisi, setPeriodoAnalisi] = useState('5');
   const [macroData, setMacroData] = useState({});
+  const [priceMetrics, setPriceMetrics] = useState(null);
+  const [priceInterpretation, setPriceInterpretation] = useState(null);
+  const [priceStep, setPriceStep] = useState(''); // '', 'fetching', 'computing', 'interpreting'
   const [importForm, setImportForm] = useState({
     tipo_richiesta: '',
     descrizione_prodotto: '',
