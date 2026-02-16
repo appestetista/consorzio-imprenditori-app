@@ -8,6 +8,7 @@ import RevisioneContabile from './RevisioneContabile';
 import IndicatoriFinanziari from './IndicatoriFinanziari';
 import CoerenzaFiscale from './CoerenzaFiscale';
 import SegnaliSquilibrio from './SegnaliSquilibrio';
+import SintesiImprenditoriale from './SintesiImprenditoriale';
 
 const PARTI_LABELS = {
   stato_patrimoniale: 'Stato Patrimoniale',
@@ -46,6 +47,7 @@ export default function AnalisiBilancio() {
   const indicatoriFinanziari = result?.indicatori_finanziari;
   const coerenzaFiscale = result?.coerenza_fiscale;
   const segnaliSquilibrio = result?.segnali_squilibrio;
+  const sintesiImprenditoriale = result?.sintesi_imprenditoriale;
   const isIdoneo = analisi?.esito === 'Documento idoneo';
 
   return (
@@ -203,6 +205,9 @@ export default function AnalisiBilancio() {
 
           {/* Segnali di squilibrio */}
           {segnaliSquilibrio && <SegnaliSquilibrio dati={segnaliSquilibrio} />}
+
+          {/* Sintesi imprenditoriale */}
+          {sintesiImprenditoriale && <SintesiImprenditoriale dati={sintesiImprenditoriale} />}
 
           {/* Note */}
           {analisi.note && (
