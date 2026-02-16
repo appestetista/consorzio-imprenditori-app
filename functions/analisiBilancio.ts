@@ -13,10 +13,53 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'file_url è obbligatorio' }, { status: 400 });
     }
 
+    // STEP 1: Normalizzazione OCR – pulisce il testo senza alterare dati
+    const normalizzato = await base44.integrations.Core.InvokeLLM({
+      prompt: `Sei un sistema di normalizzazione testo OCR.
+
+Ricevi testo estratto tramite OCR da un documento PDF.
+Il tuo compito è ESCLUSIVAMENTE:
+- Pulire errori tipografici evidenti causati dall'OCR (es: "Stoto" → "Stato", "Patr1moniale" → "Patrimoniale", "C0nto" → "Conto")
+- Correggere spazi mancanti o doppi
+- Mantenere numeri e intestazioni ESATTAMENTE come appaiono
+- NON correggere valori numerici
+- NON interpretare significati
+- NON unire tabelle separate
+- NON fare deduzioni o aggiunte
+
+Se una riga è ambigua, mantienila così com'è.
+
+Restituisci il testo normalizzato, pronto per l'analisi strutturale.`,
+      file_urls: [file_url],
+      response_json_schema: {
+        type: "object",
+        properties: {
+          testo_normalizzato: {
+            type: "string",
+            description: "Testo del documento normalizzato e pulito da errori OCR"
+          },
+          correzioni_applicate: {
+            type: "number",
+            description: "Numero approssimativo di correzioni tipografiche applicate"
+          },
+          qualita_ocr: {
+            type: "string",
+            enum: ["buona", "media", "scarsa"],
+            description: "Valutazione della qualità del testo OCR originale"
+          }
+        }
+      }
+    });
+
+    const testoNormalizzato = normalizzato?.testo_normalizzato || '';
+    const qualitaOcr = normalizzato?.qualita_ocr || 'media';
+    const correzioniOcr = normalizzato?.correzioni_applicate || 0;
+
+    // STEP 2: Analisi strutturale del bilancio sul testo normalizzato
     const result = await base44.integrations.Core.InvokeLLM({
       prompt: `Sei un commercialista esperto in fiscalità italiana.
 
-Analizza il documento fornito ESCLUSIVAMENTE per verificare se si tratta di un bilancio di esercizio italiano.
+Analizza il seguente testo (già normalizzato) ESCLUSIVAMENTE per verificare se si tratta di un bilancio di esercizio italiano.
 
 Verifica la presenza di ciascuno dei seguenti elementi:
 1. Stato Patrimoniale
@@ -32,8 +75,8 @@ REGOLE TASSATIVE:
 - Per ogni parte, indica true se è presente nel documento, false se assente.
 - Il documento è idoneo se contiene ALMENO Stato Patrimoniale e Conto Economico.
 
-Analizza il documento allegato e rispondi.`,
-      file_urls: [file_url],
+TESTO DEL DOCUMENTO:
+${testoNormalizzato.substring(0, 30000)}`,
       response_json_schema: {
         type: "object",
         properties: {
@@ -71,7 +114,14 @@ Analizza il documento allegato e rispondi.`,
       }
     });
 
-    return Response.json({ success: true, analisi: result });
+    return Response.json({ 
+      success: true, 
+      analisi: result,
+      ocr_info: {
+        qualita: qualitaOcr,
+        correzioni: correzioniOcr
+      }
+    });
 
   } catch (error) {
     console.error('Errore analisiBilancio:', error);
