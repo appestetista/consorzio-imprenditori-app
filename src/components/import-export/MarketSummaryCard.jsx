@@ -93,7 +93,7 @@ function DataRow({ label, value, sub, warn }) {
   );
 }
 
-export default function MarketSummaryCard({ priceM, tradeM, macro, userPriceData }) {
+export default function MarketSummaryCard({ priceM, tradeM, macro, userPriceData, dataSourceInfo }) {
   const [expanded, setExpanded] = useState(false);
   const code = priceM?.paese_code || tradeM?.paese_code;
   const nome = priceM?.paese_nome || tradeM?.paese_nome || code;
@@ -231,6 +231,19 @@ export default function MarketSummaryCard({ priceM, tradeM, macro, userPriceData
                 </div>
               </div>
             )}
+
+            {/* BLOCCO 3: Tracciabilità fonti */}
+            <div className="bg-slate-700/20 rounded-lg px-3 py-2 space-y-0.5">
+              <p className="text-slate-500 text-[9px] font-semibold uppercase tracking-wider mb-1">📚 Fonti dati</p>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-0.5 text-[9px] text-slate-500">
+                <div>Commerciali: <span className="text-slate-400">UN Comtrade</span></div>
+                <div>Cambio valuta: <span className="text-slate-400">European Central Bank</span></div>
+                <div>Macro: <span className="text-slate-400">World Bank</span></div>
+                {dataSourceInfo?.periodo && <div>Periodo: <span className="text-slate-400">{dataSourceInfo.periodo}</span></div>}
+                {dataSourceInfo?.annoCambio && <div>Anno cambio: <span className="text-slate-400">{dataSourceInfo.annoCambio}</span></div>}
+                {dataSourceInfo?.dataRecupero && <div>Recupero: <span className="text-slate-400">{new Date(dataSourceInfo.dataRecupero).toLocaleString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span></div>}
+              </div>
+            </div>
           </div>
         )}
       </CardContent>
