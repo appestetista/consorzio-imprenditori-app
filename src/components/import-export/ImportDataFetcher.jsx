@@ -6,7 +6,9 @@ import { base44 } from '@/api/base44Client';
 export async function fetchImportData(hsCode, hsDescrizione) {
   const currentYear = new Date().getFullYear();
 
-  const result = await base44.integrations.Core.InvokeLLM({
+  let result;
+  try {
+    result = await base44.integrations.Core.InvokeLLM({
     prompt: `Sei un analista doganale. Siamo nel ${currentYear}.
 
 COMPITO: Recupera ESCLUSIVAMENTE dati numerici ufficiali per l'import in Italia dalla Cina del codice HS ${hsCode} (${hsDescrizione}).
