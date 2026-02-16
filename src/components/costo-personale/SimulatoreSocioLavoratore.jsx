@@ -434,12 +434,50 @@ export default function SimulatoreSocioLavoratore() {
                 <div className="space-y-3">
                   <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 space-y-2 text-sm">
                     <div className="flex justify-between"><span className="text-slate-400">Reddito lordo</span><span className="text-white font-semibold">€{fmt(result.compenso)}</span></div>
-                    <div className="flex justify-between"><span className="text-slate-400">Contributi INPS personali</span><span className="text-red-300">-€{fmt(result.contributo_inps)}</span></div>
+
+                    {/* Dettaglio contributi INPS separato: minimale + eccedenza */}
+                    {result.dettaglio_contributi && (result.dettaglio_contributi.tipo === 'commercianti' || result.dettaglio_contributi.tipo === 'artigiani') ? (
+                      <div className="space-y-1 pl-2 border-l-2 border-amber-500/30">
+                        <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider">Dettaglio INPS {result.label_gestione}</p>
+                        <div className="flex justify-between">
+                          <span className="text-slate-400">Contributo minimale (su €{fmt(result.dettaglio_contributi.minimale_annuo)})</span>
+                          <span className="text-red-300">-€{fmt(result.dettaglio_contributi.contributo_fisso_annuo)}</span>
+                        </div>
+                        {result.dettaglio_contributi.eccedenza > 0 ? (
+                          <div className="flex justify-between">
+                            <span className="text-slate-400">Contributo eccedenza ({(result.dettaglio_contributi.aliquota_percentuale * 100).toFixed(2)}% su €{fmt(result.dettaglio_contributi.eccedenza)})</span>
+                            <span className="text-red-300">-€{fmt(result.dettaglio_contributi.contributo_su_eccedenza)}</span>
+                          </div>
+                        ) : (
+                          <div className="flex justify-between">
+                            <span className="text-slate-400">Contributo eccedenza</span>
+                            <span className="text-slate-500">€0,00 (reddito ≤ minimale)</span>
+                          </div>
+                        )}
+                        <div className="flex justify-between font-semibold border-t border-amber-500/20 pt-1">
+                          <span className="text-slate-300">Totale contributi INPS</span>
+                          <span className="text-red-300">-€{fmt(result.contributo_inps)}</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex justify-between"><span className="text-slate-400">Contributi INPS personali</span><span className="text-red-300">-€{fmt(result.contributo_inps)}</span></div>
+                    )}
+
                     {result.inail > 0 && <div className="flex justify-between"><span className="text-slate-400">INAIL</span><span className="text-red-300">-€{fmt(result.inail)}</span></div>}
                     <div className="border-t border-amber-500/30 pt-2">
                       <div className="flex justify-between"><span className="text-amber-400 font-bold">Costo azienda totale</span><span className="text-amber-400 font-bold">€{fmt(result.costo_azienda)}</span></div>
                     </div>
                   </div>
+
+                  {/* Riferimento normativo INPS */}
+                  {result.dettaglio_contributi && (result.dettaglio_contributi.tipo === 'commercianti' || result.dettaglio_contributi.tipo === 'artigiani') && (
+                    <div className="bg-slate-700/50 border border-slate-600 rounded-lg p-2.5">
+                      <p className="text-slate-500 text-xs">
+                        <span className="font-semibold text-slate-400">Rif. normativo:</span> Circolare INPS n. 38/2026 — Aliquote contributive Artigiani e Commercianti anno 2026. Minimale di reddito ex art. 1, co. 3, L. 233/1990: €{fmt(result.dettaglio_contributi.minimale_annuo)}. Aliquota: {(result.dettaglio_contributi.aliquota_percentuale * 100).toFixed(2)}%. Massimale: €{fmt(result.dettaglio_contributi.massimale_reddito)}.
+                      </p>
+                    </div>
+                  )}
+
                   <p className="text-slate-500 text-xs flex items-center gap-1"><Info className="w-3 h-3" /> Prosegui per vedere il dettaglio fiscale (IRPEF, addizionali, netto).</p>
                 </div>
               )}
