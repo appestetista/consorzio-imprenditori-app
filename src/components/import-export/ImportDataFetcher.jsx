@@ -168,6 +168,42 @@ export function computeLandedCost(importData, quantitaRange, budgetRange) {
     flussi_convertiti_eur: flussiConvertiti
   };
 
+  // === VALIDAZIONE ANOMALIE serie storica import ===
+  const anomalie = [];
+  const serieStorica = flussiComtrade?.serie_storica || [];
+  const valoriSerie = serieStorica
+    .map(s => ({ anno: s.anno, val: parseFloat(String(s.valore_usd).replace(/[^0-9.]/g, '')) }))
+    .filter(v => !isNaN(v.val));
+
+  // 1. Valori negativi
+  valoriSerie.forEach(v => {
+    if (v.val < 0) {
+      anomalie.push(`Valore negativo (${v.val}) per anno ${v.anno}`);
+    }
+  });
+
+  // 2. Crescita YoY > 500%
+  for (let i = 1; i < valoriSerie.length; i++) {
+    if (valoriSerie[i - 1].val > 0) {
+      const crescitaYoY = ((valoriSerie[i].val - valoriSerie[i - 1].val) / valoriSerie[i - 1].val) * 100;
+      if (crescitaYoY > 500) {
+        anomalie.push(`Crescita anomala ${valoriSerie[i - 1].anno}→${valoriSerie[i].anno} (+${crescitaYoY.toFixed(0)}%)`);
+      }
+    }
+  }
+
+  // 3. Anni mancanti nei 5 anni attesi
+  const currentYear = new Date().getFullYear();
+  const anniAttesi = Array.from({ length: 5 }, (_, i) => currentYear - 5 + i);
+  const anniPresenti = valoriSerie.map(v => v.anno);
+  const anniMancanti = anniAttesi.filter(a => !anniPresenti.includes(a));
+  if (anniMancanti.length > 0 && valoriSerie.length > 0) {
+    anomalie.push(`Anni mancanti nella serie storica: ${anniMancanti.join(', ')}`);
+  }
+
+  result.anomalie = anomalie.length > 0 ? anomalie : null;
+  result.anomalie_presenti = anomalie.length > 0;
+
   // Esempio di calcolo su valore merce ipotetico (per mostrare le percentuali)
   // Su 10.000 EUR di merce:
   if (result.calcolo_possibile) {
