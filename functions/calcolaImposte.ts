@@ -214,7 +214,8 @@ Deno.serve(async (req) => {
       } else {
         if (hasPersonali) {
           dettaglio.push(``);
-          dettaglio.push(`Dividendi: NON distribuiti`);
+          dettaglio.push(`Dividendi: NON distribuiti – l'utile resta in società senza ulteriore tassazione.`);
+          dettaglio.push(`  In caso di distribuzione si applica imposta sostitutiva del 26% in capo al socio.`);
         }
       }
 
@@ -235,10 +236,12 @@ Deno.serve(async (req) => {
       dettaglio.push(`══════════════════════════════════`);
       dettaglio.push(`SEZIONE D – INDICATORI FISCALI`);
       dettaglio.push(`══════════════════════════════════`);
-      dettaglio.push(`Tasse societarie (IRES + IRAP): ${fmt(tasse_societarie)}`);
-      dettaglio.push(`Tasse personali (IRPEF + Dividendi): ${fmt(tasse_personali)}`);
-      dettaglio.push(`Contributi INPS: ${fmt(contributi_pure)}`);
-      dettaglio.push(`TOTALE IMPOSTE + CONTRIBUTI: ${fmt(imposte_totali)}`);
+      dettaglio.push(`IMPOSTE TOTALI SOCIETÀ (IRES + IRAP): ${fmt(tasse_societarie)}`);
+      if (tasse_personali > 0 || contributi_pure > 0) {
+        dettaglio.push(`Tasse personali socio/amministratore (IRPEF + Dividendi): ${fmt(tasse_personali)}`);
+        dettaglio.push(`Contributi INPS socio/amministratore: ${fmt(contributi_pure)}`);
+      }
+      dettaglio.push(`TOTALE CARICO FISCALE COMPLESSIVO: ${fmt(imposte_totali)}`);
       dettaglio.push(`NETTO COMBINATO FINALE: ${fmt(netto_finale)}`);
       dettaglio.push(``);
       const pressioneFatturato = fatturato > 0 ? r2((imposte_totali / fatturato) * 100) : 0;
@@ -246,7 +249,12 @@ Deno.serve(async (req) => {
       dettaglio.push(`Pressione fiscale su fatturato: ${pressioneFatturato}%`);
       dettaglio.push(`Pressione fiscale su utile: ${pressioneUtile}%`);
       dettaglio.push(``);
-      dettaglio.push(`📋 NOTA TECNICA: La base IRAP può differire dall'utile civilistico. Verificare con il consulente.`);
+      if (!irapSpecificata) {
+        dettaglio.push(`ℹ️ IRAP calcolata in modalità semplificata (base imponibile = utile). L'importo reale può variare in base alla base imponibile effettiva.`);
+      }
+      if (!distribuzione_dividendi) {
+        dettaglio.push(`ℹ️ Dividendi non distribuiti: l'utile trattenuto in società non subisce ulteriore tassazione. In caso di distribuzione si applica imposta sostitutiva del 26% in capo al socio.`);
+      }
     }
 
     // ===================== FORFETTARIO =====================
