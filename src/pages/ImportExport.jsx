@@ -82,7 +82,10 @@ export default function ImportExport() {
     requisiti: ''
   });
   const [analyzingImport, setAnalyzingImport] = useState(false);
+  const [importStep, setImportStep] = useState(''); // '', 'fetching', 'computing', 'interpreting'
   const [importResult, setImportResult] = useState(null);
+  const [importRawData, setImportRawData] = useState(null);
+  const [importLandedCost, setImportLandedCost] = useState(null);
   const [confirmedImportHS, setConfirmedImportHS] = useState(null);
   const [contactForm, setContactForm] = useState({ subject: '', message: '', exportManagerId: '', attachments: [] });
   const [uploadingAttachment, setUploadingAttachment] = useState(false);
