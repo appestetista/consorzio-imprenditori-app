@@ -83,6 +83,7 @@ import RichiestaWelfare from './pages/RichiestaWelfare';
 import RisparmioDettaglio from './pages/RisparmioDettaglio';
 import RisparmioEnergetico from './pages/RisparmioEnergetico';
 import ScannerQRVantaggi from './pages/ScannerQRVantaggi';
+import SimulatoreCostoPersonale from './pages/SimulatoreCostoPersonale';
 import SimulatoreFiscale from './pages/SimulatoreFiscale';
 import VantaggiIscritti from './pages/VantaggiIscritti';
 import VideoInterviste from './pages/VideoInterviste';
@@ -92,7 +93,6 @@ import WelfareNormativa from './pages/WelfareNormativa';
 import WelfareOrdina from './pages/WelfareOrdina';
 import WelfareStorico from './pages/WelfareStorico';
 import WelfareTipologie from './pages/WelfareTipologie';
-import SimulatoreCostoPersonale from './pages/SimulatoreCostoPersonale';
 import __Layout from './Layout.jsx';
 
 
@@ -133,6 +133,7 @@ export const PAGES = {
     "RisparmioDettaglio": RisparmioDettaglio,
     "RisparmioEnergetico": RisparmioEnergetico,
     "ScannerQRVantaggi": ScannerQRVantaggi,
+    "SimulatoreCostoPersonale": SimulatoreCostoPersonale,
     "SimulatoreFiscale": SimulatoreFiscale,
     "VantaggiIscritti": VantaggiIscritti,
     "VideoInterviste": VideoInterviste,
@@ -142,7 +143,6 @@ export const PAGES = {
     "WelfareOrdina": WelfareOrdina,
     "WelfareStorico": WelfareStorico,
     "WelfareTipologie": WelfareTipologie,
-    "SimulatoreCostoPersonale": SimulatoreCostoPersonale,
 }
 
 export const pagesConfig = {

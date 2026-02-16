@@ -9,6 +9,8 @@ import Header from '@/components/layout/Header';
 import BottomNav from '@/components/layout/BottomNav';
 import SimulatoreDipendente from '@/components/costo-personale/SimulatoreDipendente';
 import SimulatoreAmministratore from '@/components/costo-personale/SimulatoreAmministratore';
+import SimulatoreSocioLavoratore from '@/components/costo-personale/SimulatoreSocioLavoratore';
+import SimulatoreGestioneSeparata from '@/components/costo-personale/SimulatoreGestioneSeparata';
 
 export default function SimulatoreCostoPersonale() {
   const [user, setUser] = useState(null);
@@ -46,12 +48,18 @@ export default function SimulatoreCostoPersonale() {
         </Card>
 
         <Tabs defaultValue="dipendente" className="w-full">
-          <TabsList className="w-full bg-slate-800 border border-slate-700 mb-4">
-            <TabsTrigger value="dipendente" className="flex-1 data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900 text-white text-xs">
-              Dipendente subordinato
+          <TabsList className="w-full bg-slate-800 border border-slate-700 mb-4 grid grid-cols-2 gap-1 h-auto p-1">
+            <TabsTrigger value="dipendente" className="data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900 text-white text-[10px] py-2 px-1">
+              Dipendente
             </TabsTrigger>
-            <TabsTrigger value="amministratore" className="flex-1 data-[state=active]:bg-indigo-500 data-[state=active]:text-white text-white text-xs">
+            <TabsTrigger value="amministratore" className="data-[state=active]:bg-indigo-500 data-[state=active]:text-white text-white text-[10px] py-2 px-1">
               Amministratore SRL
+            </TabsTrigger>
+            <TabsTrigger value="socio" className="data-[state=active]:bg-amber-500 data-[state=active]:text-white text-white text-[10px] py-2 px-1">
+              Socio Lavoratore
+            </TabsTrigger>
+            <TabsTrigger value="gestione_separata" className="data-[state=active]:bg-cyan-500 data-[state=active]:text-white text-white text-[10px] py-2 px-1">
+              Gest. Separata
             </TabsTrigger>
           </TabsList>
 
@@ -61,6 +69,14 @@ export default function SimulatoreCostoPersonale() {
 
           <TabsContent value="amministratore">
             <SimulatoreAmministratore />
+          </TabsContent>
+
+          <TabsContent value="socio">
+            <SimulatoreSocioLavoratore />
+          </TabsContent>
+
+          <TabsContent value="gestione_separata">
+            <SimulatoreGestioneSeparata />
           </TabsContent>
         </Tabs>
       </main>
