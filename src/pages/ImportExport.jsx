@@ -64,7 +64,10 @@ export default function ImportExport() {
     capacita_produttiva: ''
   });
   const [analyzing, setAnalyzing] = useState(false);
+  const [exportStep, setExportStep] = useState(''); // '', 'fetching', 'computing', 'interpreting'
   const [analysisResult, setAnalysisResult] = useState(null);
+  const [tradeData, setTradeData] = useState(null);
+  const [tradeMetrics, setTradeMetrics] = useState(null);
   const [confirmedExportHS, setConfirmedExportHS] = useState(null);
   const [importForm, setImportForm] = useState({
     tipo_richiesta: '',
