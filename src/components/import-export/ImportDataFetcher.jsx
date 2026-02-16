@@ -223,7 +223,8 @@ ${landedCost.calcolo_possibile ? `- Dazio: €${landedCost.esempio_calcolo.dazio
 - Totale (escluso trasporto): €${landedCost.esempio_calcolo.totale_senza_trasporto}` : 'Non calcolabile — dati insufficienti'}
 
 FLUSSI COMMERCIALI:
-- Import Italia da Cina HS ${hsCode}: ${flussi?.import_italia_da_cina_usd || 'N/D'} (${flussi?.anno || 'N/D'})
+- Import Italia da Cina HS ${hsCode}: ${flussi?.import_italia_da_cina_usd || 'N/D'}${landedCost.flussi_convertiti_eur?.import_italia_da_cina_eur ? ` (≈ €${landedCost.flussi_convertiti_eur.import_italia_da_cina_eur.toLocaleString('it-IT')})` : ''} (${flussi?.anno || 'N/D'})
+${landedCost.tasso_cambio ? `- Tasso cambio: ${landedCost.tasso_cambio.nota}` : ''}
 
 RICHIESTA UTENTE:
 - Tipo: ${importForm.tipo_richiesta === 'produzione_custom' ? 'Produzione su misura' : 'Prodotto esistente'}
