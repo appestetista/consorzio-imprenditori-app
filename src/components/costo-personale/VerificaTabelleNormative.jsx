@@ -168,7 +168,14 @@ export default function VerificaTabelleNormative({ children }) {
     initialData: [],
   });
 
-  const isLoading = loadingTabelle || loadingContributi;
+  // Carica VersioningNormativo 2026
+  const { data: versioningRecords, isLoading: loadingVersioning, error: errorVersioning } = useQuery({
+    queryKey: ['verifica-versioning', ANNO],
+    queryFn: () => base44.entities.VersioningNormativo.filter({ anno_normativo: ANNO }),
+    initialData: [],
+  });
+
+  const isLoading = loadingTabelle || loadingContributi || loadingVersioning;
   const hasError = errorTabelle || errorContributi;
 
   if (isLoading) {
