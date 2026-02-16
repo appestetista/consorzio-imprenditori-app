@@ -430,142 +430,44 @@ RICORDA: meglio un'analisi con 5 dati certi e 10 "Da verificare" che un'analisi 
   const analyzeExportPotential = async (hsData) => {
     if (!exportForm.settore || !exportForm.prodotto || exportForm.mercati_interesse.length === 0) return;
     if (!hsData) return;
-    
     if (exportLimitReached) return;
     
     setAnalyzing(true);
+    setTradeData(null);
+    setTradeMetrics(null);
+    setAnalysisResult(null);
+
     try {
       await trackExportUsage();
-      const mercatiNomi = exportForm.mercati_interesse.map(code => 
-        MERCATI_TARGET.find(m => m.code === code)?.name
-      ).join(', ');
 
-      const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Sei un Export Manager esperto con 20 anni di esperienza nell'internazionalizzazione delle PMI italiane.
+      // STEP 1: Recupero dati ufficiali
+      setExportStep('fetching');
+      const rawData = await fetchTradeData(hsData.hs_code, exportForm.mercati_interesse, MERCATI_TARGET);
+      setTradeData(rawData);
 
-FONTI DATI OBBLIGATORIE (usa ESCLUSIVAMENTE queste):
-1) UN Comtrade (comtradeplus.un.org) — Flussi commerciali per codice HS, paese reporter/partner, valore USD, serie ultimi 5 anni.
-2) Eurostat Comext (ec.europa.eu/eurostat) — Import/Export UE per codice HS, valore EUR, quantità.
-3) TARIC (ec.europa.eu/taxation_customs/dds2/taric) — Dazio percentuale, misure anti-dumping, restrizioni merceologiche.
-Fonti aggiuntive ammesse: ICE-Agenzia, WTO Tariff Database, Banca Mondiale.
+      // STEP 2-3: Verifica completezza e calcolo metriche (lato client)
+      setExportStep('computing');
+      const metrics = computeMetrics(rawData);
+      setTradeMetrics(metrics);
 
-REGOLE INDEROGABILI (la violazione di anche una sola regola invalida l'intera analisi):
-- OGNI dato numerico (valore import/export, trend, quota, dazio) DEVE provenire da UN Comtrade, Eurostat Comext o TARIC. Per ogni dato indica tra parentesi: (Fonte, anno), es: "(UN Comtrade, 2023)" o "(Eurostat Comext, 2024)" o "(TARIC, 2025)".
-- Per i flussi commerciali: cerca su UN Comtrade il codice HS ${hsData.hs_code} con reporter = paese target e partner = Italy. Riporta valore in USD e anno. Se il dato non è disponibile su Comtrade, cerca su Eurostat Comext in EUR.
-- Per i dazi: consulta TARIC per il codice HS ${hsData.hs_code}. Indica aliquota MFN, preferenziale se esiste, e misure anti-dumping.
-- Se un dato NON è reperibile con certezza, scrivi ESATTAMENTE: "Dato non disponibile — verificare su [UN Comtrade / Eurostat Comext / TARIC]". NON approssimare, NON stimare, NON dedurre.
-- NON usare MAI espressioni come "circa", "stimato", "approssimativamente", "indicativamente" per dati quantitativi.
-- NON INVENTARE MAI valori di import/export, percentuali di crescita, quote di mercato o aliquote dazio.
-- Preferisci lasciare un campo con "Non disponibile (verificare su [fonte])" piuttosto che inserire un dato non verificato.
-
-PROFILO AZIENDA:
-- Settore: ${exportForm.settore}
-- Prodotto: ${exportForm.prodotto}
-- Descrizione: ${exportForm.descrizione_prodotto || 'Non specificata'}
-- Fatturato annuo: ${exportForm.fatturato_annuo || 'Non specificato'}
-- Esperienza export: ${exportForm.esperienza_export || 'Nessuna'}
-- Certificazioni: ${exportForm.certificazioni || 'Non specificate'}
-- Capacità produttiva: ${exportForm.capacita_produttiva || 'Non specificata'}
-
-CODICE HS CONFERMATO DALL'UTENTE: ${hsData.hs_code}
-DESCRIZIONE DOGANALE: ${hsData.descrizione_ufficiale}
-CERTEZZA CLASSIFICAZIONE: ${hsData.certezza}
-
-MERCATI DI INTERESSE: ${mercatiNomi}
-
-IMPORTANTE: Usa il codice HS ${hsData.hs_code} confermato sopra come base per tutti i dati di flusso commerciale, dazi e barriere tariffarie. Non usare un codice HS diverso.
-
-Fornisci un'analisi dettagliata e professionale che includa:
-1. Valutazione generale della readiness all'export (punteggio 1-10) — basata su criteri oggettivi (certificazioni, esperienza, capacità produttiva)
-2. Per ogni mercato selezionato, fornisci dati STRUTTURATI da fonti ufficiali:
-   a) FLUSSI COMMERCIALI DA UN COMTRADE:
-      - Import totale del paese target per HS ${hsData.hs_code} (valore USD, anno)
-      - Export Italia verso quel paese per HS ${hsData.hs_code} (valore USD, anno)
-      - Serie storica 5 anni se disponibile (trend crescita/calo)
-      - Top 5 paesi fornitori con quota % e valore
-      - Posizione Italia tra i fornitori
-   b) DATI EUROSTAT COMEXT (complementari):
-      - Export UE totale verso quel paese per HS ${hsData.hs_code} (valore EUR, quantità)
-      - Quota Italia su export UE
-   c) DAZI E BARRIERE DA TARIC:
-      - Aliquota dazio MFN per HS ${hsData.hs_code}
-      - Dazi preferenziali (se accordi commerciali in vigore)
-      - Misure anti-dumping attive
-      - Restrizioni merceologiche o contingenti
-   d) Opportunità e sfide specifiche del mercato
-   e) Documenti necessari e certificazioni obbligatorie (con riferimento normativo)
-3. Raccomandazione sui mercati prioritari — giustificata con dati di flusso citati.
-4. Costi di ingresso per mercato — solo se basati su fonti verificabili, altrimenti "Da quantificare con preventivo specifico".
-5. Timeline consigliata.
-6. Canali di distribuzione consigliati per il settore specifico.
-7. Rischi principali e come mitigarli.
-8. Primi passi concreti da fare.
-
-Per OGNI dato numerico: indica (Fonte, Anno). Se il dato non è reperibile, scrivi "Non disponibile — verificare su [UN Comtrade / Eurostat Comext / TARIC]".
-RICORDA: meglio un'analisi con 5 dati certi e 10 "Non disponibile" che un'analisi con 15 dati inventati.`,
-        add_context_from_internet: true,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            readiness_score: { type: "number" },
-            readiness_commento: { type: "string" },
-            raccomandazione_generale: { type: "string" },
-            mercati_analisi: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  mercato: { type: "string" },
-                  punteggio_opportunita: { type: "number" },
-                  flussi_commerciali: {
-                    type: "object",
-                    properties: {
-                      valore_import_annuo: { type: "string", description: "Valore import totale del paese per questo HS, con fonte e anno" },
-                      export_italia_verso_paese: { type: "string", description: "Valore export Italia verso questo paese per HS, con fonte e anno" },
-                      trend_5_anni: { type: "string", description: "Trend serie storica 5 anni con CAGR se disponibile" },
-                      trend_yoy_percentuale: { type: "string" },
-                      crescita_o_calo: { type: "string" },
-                      principali_fornitori: { type: "array", items: { type: "object", properties: { paese: { type: "string" }, quota_percentuale: { type: "string" }, valore: { type: "string" } } } },
-                      quota_italia: { type: "string" },
-                      posizione_italia: { type: "string" },
-                      fonte_comtrade: { type: "string", description: "Riferimento specifico UN Comtrade (reporter, partner, anno)" },
-                      fonte_eurostat: { type: "string", description: "Riferimento Eurostat Comext se usato" }
-                    }
-                  },
-                  dazi_taric: {
-                    type: "object",
-                    properties: {
-                      dazio_mfn: { type: "string", description: "Aliquota MFN da TARIC per HS confermato" },
-                      dazio_preferenziale: { type: "string", description: "Dazio preferenziale se accordo in vigore" },
-                      anti_dumping: { type: "string", description: "Misure anti-dumping attive" },
-                      restrizioni: { type: "string", description: "Restrizioni merceologiche o contingenti" },
-                      fonte: { type: "string" }
-                    }
-                  },
-                  opportunita: { type: "array", items: { type: "string" } },
-                  sfide: { type: "array", items: { type: "string" } },
-                  barriere_tariffarie: { type: "string" },
-                  documenti_necessari: { type: "array", items: { type: "string" } },
-                  certificazioni_richieste: { type: "array", items: { type: "string" } },
-                  costo_ingresso_stimato: { type: "string" },
-                  canali_distribuzione: { type: "array", items: { type: "string" } }
-                }
-              }
-            },
-            mercati_prioritari: { type: "array", items: { type: "string" } },
-            timeline_consigliata: { type: "string" },
-            rischi_principali: { type: "array", items: { type: "string" } },
-            primi_passi: { type: "array", items: { type: "string" } },
-            risorse_utili: { type: "array", items: { type: "object", properties: { nome: { type: "string" }, url: { type: "string" }, descrizione: { type: "string" } } } }
-          }
-        }
+      // STEP 4: Interpretazione strategica AI
+      setExportStep('interpreting');
+      const interpretation = await interpretData(rawData, metrics, hsData.hs_code, hsData.descrizione_ufficiale, {
+        settore: exportForm.settore,
+        prodotto: exportForm.prodotto,
+        descrizione: exportForm.descrizione_prodotto,
+        fatturato_annuo: exportForm.fatturato_annuo,
+        esperienza_export: exportForm.esperienza_export,
+        certificazioni: exportForm.certificazioni,
+        capacita_produttiva: exportForm.capacita_produttiva
       });
 
-      setAnalysisResult(result);
+      setAnalysisResult(interpretation);
     } catch (e) {
       console.error(e);
     } finally {
       setAnalyzing(false);
+      setExportStep('');
     }
   };
 
