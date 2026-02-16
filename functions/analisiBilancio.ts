@@ -191,10 +191,103 @@ ${testoNormalizzato.substring(0, 30000)}`,
       });
     }
 
+    // STEP 4: Revisione contabile – controlli matematici oggettivi
+    let revisione = null;
+    if (dati_estratti) {
+      const sp = dati_estratti.stato_patrimoniale || {};
+      const ce = dati_estratti.conto_economico || {};
+      const imp = dati_estratti.imposte || {};
+      const controlli = [];
+
+      // Controllo 1: Attivo = Passivo + Patrimonio Netto
+      if (sp.totale_attivo != null && sp.totale_passivo != null && sp.patrimonio_netto != null) {
+        const atteso = sp.totale_passivo + sp.patrimonio_netto;
+        const diff = Math.abs(sp.totale_attivo - atteso);
+        const tolleranza = Math.max(Math.abs(sp.totale_attivo) * 0.01, 1);
+        controlli.push({
+          nome: 'Equilibrio patrimoniale (Attivo = Passivo + PN)',
+          esito: diff <= tolleranza ? 'coerente' : 'potenzialmente_incoerente',
+          dettaglio: `Attivo: ${sp.totale_attivo}, Passivo + PN: ${atteso}, Differenza: ${Math.round(diff)}`
+        });
+      } else {
+        controlli.push({
+          nome: 'Equilibrio patrimoniale (Attivo = Passivo + PN)',
+          esito: 'non_verificabile',
+          dettaglio: 'Dati insufficienti per il controllo'
+        });
+      }
+
+      // Controllo 2: Coerenza utile CE con PN
+      if (ce.utile_perdita != null && sp.patrimonio_netto != null) {
+        const coerente = (ce.utile_perdita >= 0 && sp.patrimonio_netto >= 0) ||
+                         (ce.utile_perdita < 0 && sp.patrimonio_netto < sp.totale_attivo) ||
+                         true; // segno non è sufficiente per incoerenza diretta senza dati precedenti
+        // Controllo: se perdita > patrimonio netto → potenziale problema
+        let esito = 'coerente';
+        let dettaglio = `Utile/Perdita CE: ${ce.utile_perdita}, Patrimonio Netto: ${sp.patrimonio_netto}`;
+        if (ce.utile_perdita < 0 && Math.abs(ce.utile_perdita) > Math.abs(sp.patrimonio_netto)) {
+          esito = 'potenzialmente_incoerente';
+          dettaglio += ' — Perdita superiore al Patrimonio Netto';
+        }
+        controlli.push({
+          nome: 'Coerenza Utile CE / Patrimonio Netto',
+          esito,
+          dettaglio
+        });
+      } else {
+        controlli.push({
+          nome: 'Coerenza Utile CE / Patrimonio Netto',
+          esito: 'non_verificabile',
+          dettaglio: 'Dati insufficienti per il controllo'
+        });
+      }
+
+      // Controllo 3: Imposte non superiori all'utile
+      if (ce.utile_perdita != null && (imp.ires != null || imp.irap != null)) {
+        const totaleImposte = (imp.ires || 0) + (imp.irap || 0);
+        let esito = 'coerente';
+        let dettaglio = `Imposte totali (IRES+IRAP): ${totaleImposte}, Utile/Perdita: ${ce.utile_perdita}`;
+        if (ce.utile_perdita > 0 && totaleImposte > ce.utile_perdita) {
+          esito = 'potenzialmente_incoerente';
+          dettaglio += ' — Imposte superiori all\'utile lordo';
+        }
+        if (ce.utile_perdita <= 0 && totaleImposte > 0) {
+          esito = 'potenzialmente_incoerente';
+          dettaglio += ' — Imposte positive con risultato negativo o nullo';
+        }
+        controlli.push({
+          nome: 'Imposte ≤ Utile lordo',
+          esito,
+          dettaglio
+        });
+      } else {
+        controlli.push({
+          nome: 'Imposte ≤ Utile lordo',
+          esito: 'non_verificabile',
+          dettaglio: 'Dati insufficienti per il controllo'
+        });
+      }
+
+      // Controllo 4: Ricavi - Costi coerente con Utile (se tutti disponibili)
+      if (ce.ricavi != null && ce.costi_totali != null && ce.utile_perdita != null) {
+        const margine = ce.ricavi - ce.costi_totali;
+        const diff = Math.abs(margine - ce.utile_perdita);
+        const tolleranza = Math.max(Math.abs(ce.ricavi) * 0.05, 1);
+        controlli.push({
+          nome: 'Coerenza Ricavi - Costi ≈ Utile',
+          esito: diff <= tolleranza ? 'coerente' : 'potenzialmente_incoerente',
+          dettaglio: `Ricavi - Costi: ${Math.round(margine)}, Utile dichiarato: ${ce.utile_perdita}, Differenza: ${Math.round(diff)}`
+        });
+      }
+
+      revisione = { controlli };
+    }
+
     return Response.json({ 
       success: true, 
       analisi: result,
       dati_estratti,
+      revisione,
       ocr_info: {
         qualita: qualitaOcr,
         correzioni: correzioniOcr
