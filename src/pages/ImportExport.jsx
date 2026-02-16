@@ -302,19 +302,34 @@ export default function ImportExport() {
       // STEP 2: Recupero dati da TARIC + Comtrade
       setImportStep('fetching');
       const rawData = await fetchImportData(hsData.hs_code, hsData.descrizione_ufficiale);
+      if (rawData?._api_error) {
+        setImportRawData(rawData);
+        setImportResult({ _api_error: true });
+        return;
+      }
       setImportRawData(rawData);
 
       // STEP 3: Calcolo Landed Cost (lato client, nessuna AI)
       setImportStep('computing');
       const landed = computeLandedCost(rawData, importForm.quantita, importForm.budget);
+      if (landed?._api_error) {
+        setImportLandedCost(landed);
+        setImportResult({ _api_error: true });
+        return;
+      }
       setImportLandedCost(landed);
 
       // STEP 4: Interpretazione AI (riceve solo dati calcolati)
       setImportStep('interpreting');
       const interpretation = await interpretImportData(rawData, landed, hsData.hs_code, hsData.descrizione_ufficiale, importForm);
+      if (interpretation?._api_error) {
+        setImportResult({ _api_error: true });
+        return;
+      }
       setImportResult(interpretation);
     } catch (e) {
-      console.error(e);
+      console.error('[Import] Errore analisi:', e);
+      setImportResult({ _api_error: true });
     } finally {
       setAnalyzingImport(false);
       setImportStep('');
