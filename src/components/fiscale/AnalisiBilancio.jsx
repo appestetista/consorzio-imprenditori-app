@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Upload, FileText, CheckCircle2, XCircle, AlertTriangle, Loader2 } from 'lucide-react';
 import DatiEstrattiBilancio from './DatiEstrattiBilancio';
 import RevisioneContabile from './RevisioneContabile';
+import IndicatoriFinanziari from './IndicatoriFinanziari';
 
 const PARTI_LABELS = {
   stato_patrimoniale: 'Stato Patrimoniale',
@@ -40,6 +41,7 @@ export default function AnalisiBilancio() {
   const ocrInfo = result?.ocr_info;
   const datiEstratti = result?.dati_estratti;
   const revisione = result?.revisione;
+  const indicatoriFinanziari = result?.indicatori_finanziari;
   const isIdoneo = analisi?.esito === 'Documento idoneo';
 
   return (
@@ -188,6 +190,9 @@ export default function AnalisiBilancio() {
 
           {/* Revisione contabile */}
           {revisione && <RevisioneContabile revisione={revisione} />}
+
+          {/* Indicatori finanziari */}
+          {indicatoriFinanziari && <IndicatoriFinanziari dati={indicatoriFinanziari} />}
 
           {/* Note */}
           {analisi.note && (
