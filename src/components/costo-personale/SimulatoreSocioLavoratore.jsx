@@ -265,10 +265,32 @@ export default function SimulatoreSocioLavoratore() {
         {step === 3 && (
           <Card className="bg-slate-800 border-slate-700">
             <CardContent className="p-4 space-y-4">
-              <h3 className="text-white font-semibold">Step 3 — Iscrizione previdenziale</h3>
-              <p className="text-slate-400 text-xs">L'inquadramento previdenziale dipende dalla forma societaria e dal tipo di attività svolta.</p>
-              
-              {gestioniFiltrate.length === 0 ? (
+              <div className="flex items-center gap-2">
+                <h3 className="text-white font-semibold">Step 3 — Iscrizione previdenziale</h3>
+                <Tooltip>
+                  <TooltipTrigger><HelpCircle className="w-4 h-4 text-slate-500" /></TooltipTrigger>
+                  <TooltipContent className="max-w-[280px] bg-slate-700 text-white border-slate-600">
+                    <p className="text-xs">La gestione previdenziale determina aliquote, minimale e massimale contributivo. Per Artigiani/Commercianti si versa un contributo fisso annuo sul minimale + aliquota sull'eccedenza.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+
+              {/* Caso: gestione obbligatoria automatica */}
+              {isGestioneObbligatoria ? (
+                <div className="space-y-3">
+                  <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3">
+                    <p className="text-amber-400 text-xs font-semibold flex items-center gap-2">
+                      <Info className="w-4 h-4 flex-shrink-0" />
+                      Iscrizione obbligatoria: {form.gestione_inps === 'artigiani' ? 'Gestione Artigiani INPS' : 'Gestione Commercianti INPS'}
+                    </p>
+                    <p className="text-slate-400 text-xs mt-1">
+                      {form.tipo_societa === 'artigiana'
+                        ? 'Le imprese iscritte all\'Albo Artigiani comportano l\'obbligo di iscrizione alla Gestione Artigiani per tutti i soci lavoratori.'
+                        : 'Le società commerciali comportano l\'obbligo di iscrizione alla Gestione Commercianti per i soci che partecipano all\'attività.'}
+                    </p>
+                  </div>
+                </div>
+              ) : gestioniFiltrate.length === 0 ? (
                 <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3">
                   <p className="text-yellow-400 text-xs flex items-center gap-2">
                     <AlertTriangle className="w-4 h-4 flex-shrink-0" />
@@ -276,17 +298,24 @@ export default function SimulatoreSocioLavoratore() {
                   </p>
                 </div>
               ) : (
-                <div className="space-y-2">
-                  {gestioniFiltrate.map(g => (
-                    <button
-                      key={g.key}
-                      onClick={() => setForm({ ...form, gestione_inps: g.key })}
-                      className={`w-full text-left p-3 rounded-lg border transition-all ${form.gestione_inps === g.key ? 'bg-amber-500/20 border-amber-500/50' : 'bg-slate-900 border-slate-700 hover:border-slate-600'}`}
-                    >
-                      <span className={`text-sm font-medium ${form.gestione_inps === g.key ? 'text-amber-400' : 'text-white'}`}>{g.label}</span>
-                      <p className="text-slate-500 text-xs mt-0.5">{g.desc}</p>
-                    </button>
-                  ))}
+                <div className="space-y-3">
+                  <p className="text-slate-400 text-xs">
+                    {(form.tipo_societa === 'snc' || form.tipo_societa === 'sas')
+                      ? 'Per SNC/SAS l\'iscrizione INPS è obbligatoria. Seleziona la gestione in base all\'attività prevalente.'
+                      : 'Seleziona la gestione previdenziale applicabile.'}
+                  </p>
+                  <div className="space-y-2">
+                    {gestioniFiltrate.map(g => (
+                      <button
+                        key={g.key}
+                        onClick={() => setForm({ ...form, gestione_inps: g.key })}
+                        className={`w-full text-left p-3 rounded-lg border transition-all ${form.gestione_inps === g.key ? 'bg-amber-500/20 border-amber-500/50' : 'bg-slate-900 border-slate-700 hover:border-slate-600'}`}
+                      >
+                        <span className={`text-sm font-medium ${form.gestione_inps === g.key ? 'text-amber-400' : 'text-white'}`}>{g.label}</span>
+                        <p className="text-slate-500 text-xs mt-0.5">{g.desc}</p>
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
 
