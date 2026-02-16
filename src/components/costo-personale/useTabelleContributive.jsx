@@ -339,20 +339,42 @@ export function calcolaCostoSocioLavoratore(params, tab) {
   const inail = inail_applicabile && inail_val ? compenso * inail_val : 0;
   if (inail_applicabile) tipi_usati.push('inail_operaio_generico');
 
-  const imponibile_irpef = compenso - contributo_inps;
-  let irpef = 0;
-  if (imponibile_irpef <= 0) {
-    irpef = 0;
-  } else if (imponibile_irpef <= soglia_1) {
-    irpef = imponibile_irpef * irpef_1;
-  } else if (imponibile_irpef <= soglia_2) {
-    irpef = soglia_1 * irpef_1 + (imponibile_irpef - soglia_1) * irpef_2;
-  } else {
-    irpef = soglia_1 * irpef_1 + (soglia_2 - soglia_1) * irpef_2 + (imponibile_irpef - soglia_2) * irpef_3;
+  const imponibile_irpef_raw = compenso - contributo_inps;
+  const imponibile_irpef = Math.max(0, imponibile_irpef_raw);
+
+  // Calcolo IRPEF lorda per scaglione
+  let irpef_scaglione_1_importo = 0;
+  let irpef_scaglione_2_importo = 0;
+  let irpef_scaglione_3_importo = 0;
+
+  if (imponibile_irpef > 0) {
+    irpef_scaglione_1_importo = Math.min(imponibile_irpef, soglia_1) * irpef_1;
+  }
+  if (imponibile_irpef > soglia_1) {
+    irpef_scaglione_2_importo = (Math.min(imponibile_irpef, soglia_2) - soglia_1) * irpef_2;
+  }
+  if (imponibile_irpef > soglia_2) {
+    irpef_scaglione_3_importo = (imponibile_irpef - soglia_2) * irpef_3;
   }
 
-  const addiz = Math.max(0, imponibile_irpef) * addizionali_val;
-  const netto_annuo = compenso - contributo_inps - irpef - addiz;
+  const irpef_lorda = irpef_scaglione_1_importo + irpef_scaglione_2_importo + irpef_scaglione_3_importo;
+
+  // Detrazione lavoro autonomo art. 13 TUIR (per redditi da lavoro autonomo/socio)
+  // 2026: detrazione base 1.265€ per redditi fino a 15.000€, decresce fino a 0 a 55.000€
+  let detrazione_lavoro = 0;
+  if (imponibile_irpef <= 15000 && imponibile_irpef > 0) {
+    detrazione_lavoro = 1265;
+  } else if (imponibile_irpef <= 28000) {
+    detrazione_lavoro = 1265 * (28000 - imponibile_irpef) / (28000 - 15000);
+  } else if (imponibile_irpef <= 55000) {
+    detrazione_lavoro = 1265 * (55000 - imponibile_irpef) / (55000 - 28000);
+  }
+  detrazione_lavoro = Math.max(0, Math.round(detrazione_lavoro * 100) / 100);
+
+  const irpef_netta = Math.max(0, irpef_lorda - detrazione_lavoro);
+
+  const addiz = imponibile_irpef * addizionali_val;
+  const netto_annuo = compenso - contributo_inps - irpef_netta - addiz;
 
   // Costo azienda: compenso + INPS datore (se dipendente coop) + INAIL
   const inps_datore_coop = dettaglio_contributi?.tipo === 'dipendente_coop' ? dettaglio_contributi.inps_datore : 0;
@@ -369,8 +391,19 @@ export function calcolaCostoSocioLavoratore(params, tab) {
     dettaglio_contributi,
     inail,
     costo_azienda,
-    imponibile_irpef: Math.max(0, imponibile_irpef),
-    irpef,
+    imponibile_irpef,
+    // Dettaglio IRPEF per scaglione
+    irpef_lorda,
+    irpef_scaglione_1_importo,
+    irpef_scaglione_2_importo,
+    irpef_scaglione_3_importo,
+    aliquota_scaglione_1: irpef_1,
+    aliquota_scaglione_2: irpef_2,
+    aliquota_scaglione_3: irpef_3,
+    soglia_1,
+    soglia_2,
+    detrazione_lavoro,
+    irpef: irpef_netta,
     addizionali: addiz,
     aliquota_addizionali: addizionali_val,
     netto_annuo,
