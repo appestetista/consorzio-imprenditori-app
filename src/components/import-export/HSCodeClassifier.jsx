@@ -1,0 +1,195 @@
+import React, { useState } from 'react';
+import { base44 } from '@/api/base44Client';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Loader2, CheckCircle, AlertTriangle, RotateCcw } from 'lucide-react';
+
+export default function HSCodeClassifier({ productDescription, onConfirm, onError }) {
+  const [loading, setLoading] = useState(false);
+  const [candidates, setCandidates] = useState(null);
+  const [selectedCode, setSelectedCode] = useState(null);
+  const [error, setError] = useState(null);
+
+  const classify = async () => {
+    if (!productDescription?.trim()) return;
+    setLoading(true);
+    setError(null);
+    setCandidates(null);
+    setSelectedCode(null);
+
+    const result = await base44.integrations.Core.InvokeLLM({
+      prompt: `Sei un classificatore doganale. Dato il seguente prodotto, restituisci ESATTAMENTE fino a 3 codici HS (Harmonized System) candidati a 6 cifre, con la descrizione ufficiale dalla nomenclatura combinata UE.
+
+PRODOTTO: "${productDescription}"
+
+REGOLE INDEROGABILI:
+- Restituisci SOLO codici HS che esistono realmente nella nomenclatura combinata UE (Regolamento CE n. 2658/87 e successivi aggiornamenti).
+- Per ogni codice indica la descrizione UFFICIALE dalla nomenclatura, NON una tua riformulazione.
+- Se NON riesci a identificare NESSUN codice HS con ragionevole certezza, restituisci un array vuoto in "codici" e scrivi il motivo in "errore".
+- Indica per ogni codice un livello di certezza: "alto" (corrispondenza precisa), "medio" (corrispondenza probabile), "basso" (corrispondenza incerta).
+- NON INVENTARE codici HS. Meglio restituire 1 codice certo che 3 incerti.`,
+      add_context_from_internet: true,
+      response_json_schema: {
+        type: "object",
+        properties: {
+          codici: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                hs_code: { type: "string", description: "Codice HS a 6 cifre" },
+                descrizione_ufficiale: { type: "string", description: "Descrizione dalla nomenclatura combinata UE" },
+                certezza: { type: "string", enum: ["alto", "medio", "basso"] },
+                nota: { type: "string", description: "Nota aggiuntiva sulla classificazione" }
+              }
+            }
+          },
+          errore: { type: "string", description: "Motivo se nessun codice identificabile" }
+        }
+      }
+    });
+
+    setLoading(false);
+
+    if (!result.codici || result.codici.length === 0) {
+      const msg = result.errore || "Impossibile determinare codice HS. Specificare dettagli tecnici del prodotto.";
+      setError(msg);
+      if (onError) onError(msg);
+      return;
+    }
+
+    setCandidates(result.codici.slice(0, 3));
+  };
+
+  const handleConfirm = () => {
+    if (!selectedCode) return;
+    const chosen = candidates.find(c => c.hs_code === selectedCode);
+    onConfirm(chosen);
+  };
+
+  const certezzaStyle = {
+    alto: 'bg-green-500/20 text-green-400 border-green-500/30',
+    medio: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+    basso: 'bg-red-500/20 text-red-400 border-red-500/30',
+  };
+
+  // Stato iniziale: mostra bottone per avviare classificazione
+  if (!loading && !candidates && !error) {
+    return (
+      <Card className="bg-slate-800 border-slate-700">
+        <CardContent className="p-4">
+          <h3 className="text-white font-semibold mb-2 text-sm">📦 Classificazione Merceologica</h3>
+          <p className="text-slate-400 text-xs mb-3">
+            Prima dell'analisi, è necessario identificare il codice doganale (HS) del prodotto.
+          </p>
+          <Button
+            onClick={classify}
+            disabled={!productDescription?.trim()}
+            className="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold"
+          >
+            Identifica Codice HS
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Loading
+  if (loading) {
+    return (
+      <Card className="bg-slate-800 border-slate-700">
+        <CardContent className="p-4">
+          <div className="flex items-center gap-3 justify-center py-4">
+            <Loader2 className="w-5 h-5 animate-spin text-amber-400" />
+            <p className="text-slate-300 text-sm">Classificazione in corso...</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Errore: nessun codice identificato
+  if (error) {
+    return (
+      <Card className="bg-red-500/10 border-red-500/30">
+        <CardContent className="p-4">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <h3 className="text-red-400 font-semibold text-sm">Classificazione non riuscita</h3>
+              <p className="text-red-200/80 text-xs mt-1">{error}</p>
+            </div>
+          </div>
+          <Button
+            onClick={classify}
+            variant="outline"
+            className="w-full mt-3 border-red-500/30 text-red-400 hover:bg-red-500/10"
+          >
+            <RotateCcw className="w-4 h-4 mr-2" />
+            Riprova
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Codici candidati disponibili
+  return (
+    <Card className="bg-slate-800 border-slate-700">
+      <CardContent className="p-4">
+        <h3 className="text-white font-semibold mb-1 text-sm">📦 Seleziona il codice HS corretto</h3>
+        <p className="text-slate-400 text-xs mb-3">
+          Conferma il codice doganale prima di procedere con l'analisi.
+        </p>
+
+        <div className="space-y-2">
+          {candidates.map((c) => (
+            <button
+              key={c.hs_code}
+              onClick={() => setSelectedCode(c.hs_code)}
+              className={`w-full text-left p-3 rounded-lg border transition-all ${
+                selectedCode === c.hs_code
+                  ? 'bg-amber-500/20 border-amber-500/50'
+                  : 'bg-slate-700/50 border-slate-600 hover:border-slate-500'
+              }`}
+            >
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-white font-mono font-bold text-sm">{c.hs_code}</span>
+                <span className={`text-[10px] px-2 py-0.5 rounded-full border ${certezzaStyle[c.certezza] || certezzaStyle.basso}`}>
+                  {c.certezza === 'alto' ? 'Alta certezza' : c.certezza === 'medio' ? 'Media certezza' : 'Bassa certezza'}
+                </span>
+              </div>
+              <p className="text-slate-300 text-xs leading-relaxed">{c.descrizione_ufficiale}</p>
+              {c.nota && <p className="text-slate-500 text-[10px] mt-1 italic">{c.nota}</p>}
+              {selectedCode === c.hs_code && (
+                <div className="flex items-center gap-1 mt-2 text-amber-400 text-xs">
+                  <CheckCircle className="w-3.5 h-3.5" />
+                  Selezionato
+                </div>
+              )}
+            </button>
+          ))}
+        </div>
+
+        <div className="flex gap-2 mt-3">
+          <Button
+            onClick={() => { setCandidates(null); setSelectedCode(null); setError(null); }}
+            variant="outline"
+            className="flex-1 border-slate-600 text-slate-400 hover:bg-slate-700 text-xs"
+          >
+            <RotateCcw className="w-3.5 h-3.5 mr-1" />
+            Reclassifica
+          </Button>
+          <Button
+            onClick={handleConfirm}
+            disabled={!selectedCode}
+            className="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold text-xs"
+          >
+            <CheckCircle className="w-3.5 h-3.5 mr-1" />
+            Conferma e Analizza
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
