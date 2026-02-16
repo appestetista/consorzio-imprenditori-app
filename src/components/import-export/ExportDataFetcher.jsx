@@ -116,7 +116,16 @@ OUTPUT: JSON strutturato con dati grezzi per ciascun mercato.`,
         }
       }
     }
-  });
+    });
+  } catch (err) {
+    console.error('[ExportDataFetcher] fetchTradeData API error:', err);
+    return { _api_error: true, _error_message: err?.message || 'Unknown error' };
+  }
+
+  if (!result || typeof result !== 'object') {
+    console.error('[ExportDataFetcher] fetchTradeData: risposta vuota o non valida', result);
+    return { _api_error: true, _error_message: 'Risposta API non valida' };
+  }
 
   return result;
 }
