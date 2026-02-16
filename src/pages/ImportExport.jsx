@@ -370,8 +370,14 @@ RICORDA: meglio un'analisi con 5 dati certi e 10 "Da verificare" che un'analisi 
     }));
   };
 
-  const analyzeExportPotential = async () => {
+  const handleExportHSConfirm = (hsData) => {
+    setConfirmedExportHS(hsData);
+    analyzeExportPotential(hsData);
+  };
+
+  const analyzeExportPotential = async (hsData) => {
     if (!exportForm.settore || !exportForm.prodotto || exportForm.mercati_interesse.length === 0) return;
+    if (!hsData) return;
     
     if (exportLimitReached) return;
     
@@ -403,7 +409,13 @@ PROFILO AZIENDA:
 - Certificazioni: ${exportForm.certificazioni || 'Non specificate'}
 - Capacità produttiva: ${exportForm.capacita_produttiva || 'Non specificata'}
 
+CODICE HS CONFERMATO DALL'UTENTE: ${hsData.hs_code}
+DESCRIZIONE DOGANALE: ${hsData.descrizione_ufficiale}
+CERTEZZA CLASSIFICAZIONE: ${hsData.certezza}
+
 MERCATI DI INTERESSE: ${mercatiNomi}
+
+IMPORTANTE: Usa il codice HS ${hsData.hs_code} confermato sopra come base per tutti i dati di flusso commerciale, dazi e barriere tariffarie. Non usare un codice HS diverso.
 
 Fornisci un'analisi dettagliata e professionale che includa:
 1. Valutazione generale della readiness all'export (punteggio 1-10) — basata su criteri oggettivi (certificazioni, esperienza, capacità produttiva)
