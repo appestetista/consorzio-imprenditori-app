@@ -30,6 +30,7 @@ import VantaggiAdminPanel from '../components/admin/VantaggiAdminPanel';
 import SimulatoreFiscaleAdmin from '../components/admin/SimulatoreFiscaleAdmin';
 import VideoRecensioniAdmin from '../components/admin/VideoRecensioniAdmin';
 import ImportExportAdmin from '../components/admin/ImportExportAdmin';
+import CostoPersonaleAdmin from '../components/admin/CostoPersonaleAdmin';
 
 const CONSULTANT_CATEGORIES = [
   "Stampa Digitale e Cataloghi",
@@ -288,6 +289,7 @@ export default function AdminPanel() {
   const [showSimulatorePanel, setShowSimulatorePanel] = useState(false);
   const [showVideoRecensioniPanel, setShowVideoRecensioniPanel] = useState(false);
   const [showImportExportPanel, setShowImportExportPanel] = useState(false);
+  const [showCostoPersonalePanel, setShowCostoPersonalePanel] = useState(false);
 
   const markVideoRequestReadMutation = useMutation({
     mutationFn: async (requestId) => {
