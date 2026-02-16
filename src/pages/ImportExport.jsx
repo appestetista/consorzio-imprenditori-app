@@ -478,17 +478,23 @@ RICORDA: meglio un'analisi con 5 dati certi e 10 "Non disponibile" che un'analis
     try {
       const result = await base44.integrations.Core.InvokeLLM({
         prompt: `Cerca informazioni doganali per il prodotto: "${hsCodeSearch}"
-        
-Fornisci:
-1. Codice HS (Harmonized System) più probabile per questo prodotto
-2. Descrizione ufficiale della voce doganale
-3. Dazi doganali medi per import in Italia dalla Cina
-4. Dazi doganali medi per export dall'Italia verso USA, Cina, UK
-5. Eventuali restrizioni o certificazioni obbligatorie
-6. IVA applicabile
-7. Documentazione necessaria per import/export
 
-IMPORTANTE: Usa SOLO fonti ufficiali (TARIC, Agenzia delle Dogane, WCO). NON INVENTARE MAI codici HS, dazi o percentuali. Se non sei sicuro di un dato, scrivi "Dato da verificare su TARIC". Indica sempre la fonte di ogni informazione.`,
+REGOLE INDEROGABILI:
+- OGNI dato (codice HS, aliquota dazio, percentuale IVA, restrizione) DEVE provenire da fonte ufficiale verificabile.
+- Fonti ammesse ESCLUSIVAMENTE: TARIC (database tariffario UE), Agenzia delle Dogane e dei Monopoli (Italia), WCO (World Customs Organization), WTO Tariff Database.
+- Se un codice HS NON è determinabile con certezza, fornisci i possibili capitoli/voci e scrivi "Codice esatto da verificare su TARIC con descrizione merceologica dettagliata".
+- Per ogni aliquota dazio, indica: fonte, anno, codice HS di riferimento, paese di origine.
+- NON INVENTARE MAI codici HS, dazi o percentuali. Se non hai il dato certo, scrivi "Da verificare su TARIC — consultare voce [capitolo HS]".
+- Per le certificazioni obbligatorie, citare la normativa UE/nazionale di riferimento (es: Regolamento UE 2023/xxx, Direttiva 2014/xxx).
+
+Fornisci:
+1. Codice HS più probabile con livello di certezza (alto/medio/basso) e fonte
+2. Descrizione ufficiale della voce doganale dalla nomenclatura combinata UE
+3. Dazi doganali per import in Italia dalla Cina — SOLO da TARIC con codice HS specifico
+4. Dazi doganali per export dall'Italia verso USA, Cina, UK — SOLO da WTO Tariff Database o fonte equivalente
+5. Restrizioni o certificazioni obbligatorie con riferimento normativo
+6. IVA applicabile (aliquota standard e eventuali aliquote ridotte con base normativa)
+7. Documentazione necessaria per import/export con riferimento normativo`,
         add_context_from_internet: true,
         response_json_schema: {
           type: "object",
