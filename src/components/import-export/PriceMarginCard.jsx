@@ -17,6 +17,15 @@ function fmtPriceEur(val, unit) {
   return `€${val.toFixed(decimali)}/${unit}`;
 }
 
+function fmtPriceLocale(val, unit, currencyCode) {
+  if (val === null || val === undefined || !currencyCode) return null;
+  const decimali = Math.abs(val) < 1 ? 4 : 2;
+  // Simboli comuni
+  const symbols = { USD: '$', GBP: '£', JPY: '¥', CNY: '¥', CHF: 'CHF ', INR: '₹', BRL: 'R$', KRW: '₩', AUD: 'A$', CAD: 'C$', SEK: 'kr ', NOK: 'kr ', DKK: 'kr ', PLN: 'zł ', CZK: 'Kč ', HUF: 'Ft ', TRY: '₺', MXN: 'MX$', ARS: 'AR$', RUB: '₽', ZAR: 'R ' };
+  const sym = symbols[currencyCode] || `${currencyCode} `;
+  return `${sym}${val.toFixed(decimali)}/${unit}`;
+}
+
 function PremiumBadge({ pct }) {
   if (pct === null || pct === undefined) return <span className="text-slate-500 text-xs">N/D</span>;
   const isPremium = pct > 5;
