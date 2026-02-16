@@ -361,12 +361,90 @@ ${testoNormalizzato.substring(0, 30000)}`,
       indicatori_finanziari = { indicatori: lista };
     }
 
+    // STEP 6: Coerenza fiscale – aliquote effettive e scostamenti
+    let coerenza_fiscale = null;
+    if (dati_estratti) {
+      const ce = dati_estratti.conto_economico || {};
+      const imp = dati_estratti.imposte || {};
+      const verifiche = [];
+
+      const IRES_STANDARD = 0.24;
+      const IRAP_STANDARD_MIN = 0.039;
+      const IRAP_STANDARD_MAX = 0.049;
+      const TOLLERANZA_PUNTI = 5; // punti percentuali di tolleranza
+
+      // Aliquota IRES effettiva
+      if (imp.ires != null && ce.utile_perdita != null && ce.utile_perdita > 0) {
+        const aliqEffettiva = Math.round((imp.ires / ce.utile_perdita) * 10000) / 100;
+        const scostamento = Math.abs(aliqEffettiva - IRES_STANDARD * 100);
+        let esito = 'coerente';
+        let nota = `Aliquota IRES nominale: 24%. Aliquota effettiva rilevata: ${aliqEffettiva}%.`;
+        if (scostamento > TOLLERANZA_PUNTI) {
+          esito = 'da_verificare';
+          nota += ` Scostamento di ${Math.round(scostamento * 100) / 100} punti percentuali rispetto all'aliquota nominale. Lo scostamento può dipendere da riprese fiscali, deduzioni extracontabili o differenze temporanee.`;
+        } else {
+          nota += ' Aliquota effettiva in linea con il valore nominale.';
+        }
+        verifiche.push({ nome: 'Aliquota IRES effettiva', aliquota_effettiva: aliqEffettiva, aliquota_nominale: 24, esito, nota, formula: 'IRES / Utile lordo × 100', dettaglio: `${imp.ires} / ${ce.utile_perdita} × 100 = ${aliqEffettiva}%` });
+      } else {
+        const mancanti = [];
+        if (imp.ires == null) mancanti.push('IRES');
+        if (ce.utile_perdita == null) mancanti.push('Utile/Perdita');
+        if (ce.utile_perdita != null && ce.utile_perdita <= 0) mancanti.push('Utile ≤ 0');
+        verifiche.push({ nome: 'Aliquota IRES effettiva', aliquota_effettiva: null, esito: 'non_verificabile', nota: `Dato mancante: ${mancanti.join(', ')}` });
+      }
+
+      // Aliquota IRAP apparente (su ricavi come proxy del valore della produzione)
+      if (imp.irap != null && ce.ricavi != null && ce.ricavi > 0) {
+        const aliqApparente = Math.round((imp.irap / ce.ricavi) * 10000) / 100;
+        let esito = 'coerente';
+        let nota = `Aliquota IRAP standard: 3.9%–4.9% (variabile per regione). Aliquota apparente su ricavi: ${aliqApparente}%.`;
+        if (aliqApparente > IRAP_STANDARD_MAX * 100 + TOLLERANZA_PUNTI) {
+          esito = 'da_verificare';
+          nota += ' Valore significativamente superiore all\'intervallo standard. Potrebbe dipendere da base imponibile ridotta rispetto ai ricavi, o da maggiorazioni regionali.';
+        } else if (aliqApparente < IRAP_STANDARD_MIN * 100 - 2) {
+          esito = 'da_verificare';
+          nota += ' Valore significativamente inferiore all\'intervallo standard. Potrebbe dipendere da deduzioni IRAP (costo del lavoro, cuneo fiscale) o agevolazioni regionali.';
+        } else {
+          nota += ' Valore nell\'intervallo atteso.';
+        }
+        verifiche.push({ nome: 'Aliquota IRAP apparente', aliquota_effettiva: aliqApparente, aliquota_nominale_min: 3.9, aliquota_nominale_max: 4.9, esito, nota, formula: 'IRAP / Ricavi × 100', dettaglio: `${imp.irap} / ${ce.ricavi} × 100 = ${aliqApparente}%` });
+      } else {
+        const mancanti = [];
+        if (imp.irap == null) mancanti.push('IRAP');
+        if (ce.ricavi == null) mancanti.push('Ricavi');
+        if (ce.ricavi != null && ce.ricavi <= 0) mancanti.push('Ricavi ≤ 0');
+        verifiche.push({ nome: 'Aliquota IRAP apparente', aliquota_effettiva: null, esito: 'non_verificabile', nota: `Dato mancante: ${mancanti.join(', ')}` });
+      }
+
+      // Incidenza fiscale complessiva
+      if (imp.ires != null && imp.irap != null && ce.utile_perdita != null && ce.utile_perdita > 0) {
+        const totImposte = imp.ires + imp.irap;
+        const incidenza = Math.round((totImposte / ce.utile_perdita) * 10000) / 100;
+        let esito = 'coerente';
+        let nota = `Incidenza fiscale complessiva (IRES+IRAP) su utile: ${incidenza}%.`;
+        if (incidenza > 40) {
+          esito = 'da_verificare';
+          nota += ' Valore elevato. Può derivare da indeducibilità di costi, riprese fiscali in aumento o base IRAP più ampia dell\'utile.';
+        } else if (incidenza < 20) {
+          esito = 'da_verificare';
+          nota += ' Valore contenuto. Può derivare da agevolazioni, crediti d\'imposta, patent box o deduzioni extra-contabili.';
+        } else {
+          nota += ' Valore nell\'intervallo tipico per una società di capitali italiana (20%–40%).';
+        }
+        verifiche.push({ nome: 'Incidenza fiscale complessiva', aliquota_effettiva: incidenza, esito, nota, formula: '(IRES + IRAP) / Utile lordo × 100', dettaglio: `(${imp.ires} + ${imp.irap}) / ${ce.utile_perdita} × 100 = ${incidenza}%` });
+      }
+
+      coerenza_fiscale = { verifiche };
+    }
+
     return Response.json({ 
       success: true, 
       analisi: result,
       dati_estratti,
       revisione,
       indicatori_finanziari,
+      coerenza_fiscale,
       ocr_info: {
         qualita: qualitaOcr,
         correzioni: correzioniOcr
