@@ -17,6 +17,7 @@ import BottomNav from '@/components/layout/BottomNav';
 import ImportMessagesSection from '@/components/import-export/ImportMessagesSection';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import SectionConsultantPanel from '../components/consulenze/SectionConsultantPanel';
+import HSCodeClassifier from '../components/import-export/HSCodeClassifier';
 
 const SETTORI = [
   'Alimentare e bevande',
@@ -61,6 +62,7 @@ export default function ImportExport() {
   });
   const [analyzing, setAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState(null);
+  const [confirmedExportHS, setConfirmedExportHS] = useState(null);
   const [importForm, setImportForm] = useState({
     tipo_richiesta: '',
     descrizione_prodotto: '',
@@ -73,6 +75,7 @@ export default function ImportExport() {
   });
   const [analyzingImport, setAnalyzingImport] = useState(false);
   const [importResult, setImportResult] = useState(null);
+  const [confirmedImportHS, setConfirmedImportHS] = useState(null);
   const [contactForm, setContactForm] = useState({ subject: '', message: '', exportManagerId: '', attachments: [] });
   const [uploadingAttachment, setUploadingAttachment] = useState(false);
   const [contactSent, setContactSent] = useState(false);
