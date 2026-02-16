@@ -75,6 +75,9 @@ export default function ImportExport() {
   const [tradeData, setTradeData] = useState(null);
   const [tradeMetrics, setTradeMetrics] = useState(null);
   const [confirmedExportHS, setConfirmedExportHS] = useState(null);
+  const [exporterCountry, setExporterCountry] = useState('IT');
+  const [periodoAnalisi, setPeriodoAnalisi] = useState('5');
+  const [macroData, setMacroData] = useState({});
   const [importForm, setImportForm] = useState({
     tipo_richiesta: '',
     descrizione_prodotto: '',
@@ -350,14 +353,7 @@ export default function ImportExport() {
     }
   };
 
-  const toggleMercato = (code) => {
-    setExportForm(prev => ({
-      ...prev,
-      mercati_interesse: prev.mercati_interesse.includes(code)
-        ? prev.mercati_interesse.filter(m => m !== code)
-        : [...prev.mercati_interesse, code]
-    }));
-  };
+  // No longer needed - replaced by CountrySearchSelect
 
   const handleExportHSConfirm = (hsData) => {
     setConfirmedExportHS(hsData);
@@ -373,19 +369,31 @@ export default function ImportExport() {
     setTradeData(null);
     setTradeMetrics(null);
     setAnalysisResult(null);
+    setMacroData({});
+
+    const mercatiNames = exportForm.mercati_interesse.map(code => {
+      if (code === 'WLD') return 'World';
+      const c = ALL_COUNTRIES.find(c => c.code === code);
+      return c ? c.name : code;
+    });
 
     try {
       await trackExportUsage();
 
-      // STEP 1: Recupero dati ufficiali
+      // STEP 1: Recupero dati ufficiali + macro World Bank in parallelo
       setExportStep('fetching');
-      const rawData = await fetchTradeData(hsData.hs_code, exportForm.mercati_interesse, MERCATI_TARGET);
+      const [rawData, macro] = await Promise.all([
+        fetchTradeData(hsData.hs_code, exportForm.mercati_interesse, mercatiNames, exporterCountry, parseInt(periodoAnalisi)),
+        fetchMacroData(exportForm.mercati_interesse)
+      ]);
+      
       if (rawData?._api_error) {
         setTradeData(rawData);
         setAnalysisResult({ _api_error: true });
         return;
       }
       setTradeData(rawData);
+      setMacroData(macro || {});
 
       // STEP 2-3: Verifica completezza e calcolo metriche (lato client)
       setExportStep('computing');
