@@ -351,11 +351,21 @@ export default function ImportExport() {
       // STEP 1: Recupero dati ufficiali
       setExportStep('fetching');
       const rawData = await fetchTradeData(hsData.hs_code, exportForm.mercati_interesse, MERCATI_TARGET);
+      if (rawData?._api_error) {
+        setTradeData(rawData);
+        setAnalysisResult({ _api_error: true });
+        return;
+      }
       setTradeData(rawData);
 
       // STEP 2-3: Verifica completezza e calcolo metriche (lato client)
       setExportStep('computing');
       const metrics = computeMetrics(rawData);
+      if (metrics?._api_error) {
+        setTradeMetrics(metrics);
+        setAnalysisResult({ _api_error: true });
+        return;
+      }
       setTradeMetrics(metrics);
 
       // STEP 4: Interpretazione strategica AI
