@@ -129,10 +129,15 @@ export default function ExportMetricsCard({ mercatoData, metrics, tassoCambio })
         </div>
       </div>
 
-      {/* Fonti */}
+      {/* Fonti + nota conversione */}
       {(mercatoData.import_totale?.fonte || mercatoData.export_italia?.fonte) && (
         <p className="text-slate-500 text-[10px]">
           📌 {mercatoData.import_totale?.fonte}{mercatoData.export_italia?.fonte ? ` | ${mercatoData.export_italia?.fonte}` : ''}
+        </p>
+      )}
+      {tassoCambio && (
+        <p className="text-blue-400/70 text-[10px]">
+          💱 {tassoCambio.nota} (1 EUR = {tassoCambio.tasso} USD, {tassoCambio.fonte})
         </p>
       )}
     </div>
