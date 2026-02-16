@@ -180,11 +180,11 @@ export function computePriceMetrics(priceData) {
   // Prezzo unitario export globale (World) come benchmark
   const prezzoWorldGlobal = priceData.export_world?.prezzo_unitario_usd_kg || null;
 
-  // Validazione benchmark World: prezzo calcolabile solo se TradeValue > 0 E NetWeight > 0
+  // Validazione benchmark World: ricalcola prezzo come TradeValue/NetWeight
   const worldTV = priceData.export_world?.trade_value_usd;
   const worldNW = priceData.export_world?.net_weight_kg;
   const prezzoWorldValid = worldTV > 0 && worldNW > 0;
-  const prezzoWorldCalcolato = prezzoWorldValid ? prezzoWorldGlobal : null;
+  const prezzoWorldCalcolato = prezzoWorldValid ? parseFloat((worldTV / worldNW).toFixed(4)) : null;
   const worldUnitaMisura = priceData.export_world?.unita_misura || 'kg';
 
   const avvisi = [];
