@@ -61,7 +61,17 @@ const VERIFICHE = [
   },
 ];
 
-function eseguiVerifica(tabelleMap, contributiINPS) {
+/**
+ * Mapping da id verifica → tabella versioning corrispondente
+ */
+const VERSIONING_MAP = {
+  inps: 'inps_aliquote',
+  inail: 'inail_tassi',
+  irpef: 'irpef_scaglioni',
+  agevolazioni: 'agevolazioni_2026',
+};
+
+function eseguiVerifica(tabelleMap, contributiINPS, versioningRecords) {
   const risultati = VERIFICHE.map(v => {
     const mancanti = [];
     v.tipi_richiesti.forEach(tipo => {
@@ -82,7 +92,27 @@ function eseguiVerifica(tabelleMap, contributiINPS) {
       }
     }
 
-    const ok = mancanti.length === 0 && extraOk;
+    // Verifica versioning: deve esistere un record con esito "successo" per anno 2026
+    let versioningOk = true;
+    let versioningNote = null;
+    const versioningTabella = VERSIONING_MAP[v.id];
+    if (versioningTabella && versioningRecords?.length > 0) {
+      const vRecord = versioningRecords.find(
+        vr => vr.tabella === versioningTabella && vr.anno_normativo === ANNO && vr.esito === 'successo'
+      );
+      if (!vRecord) {
+        versioningOk = false;
+        versioningNote = `Nessun import verificato (VersioningNormativo) per "${versioningTabella}" anno ${ANNO}.`;
+      }
+    }
+    // Se non ci sono record versioning affatto, non blocchiamo (retrocompatibilità),
+    // ma segnaliamo come warning se i dati nella tabella esistono
+    if (!versioningRecords || versioningRecords.length === 0) {
+      versioningOk = true; // non bloccare, ma lo segnaliamo sotto
+      versioningNote = 'Nessun record di versioning trovato — verifica manuale consigliata.';
+    }
+
+    const ok = mancanti.length === 0 && extraOk && versioningOk;
 
     // Raccogli fonti dei record trovati
     const fonti = v.tipi_richiesti
@@ -90,15 +120,14 @@ function eseguiVerifica(tabelleMap, contributiINPS) {
       .map(tipo => tabelleMap[tipo].fonte_normativa);
     const fontiUniche = [...new Set(fonti)];
 
-    // Data aggiornamento più recente tra i record di questa categoria
-    // (non abbiamo la data qui, ma la mostra il footer — qui segnaliamo solo lo stato)
-
     return {
       ...v,
       ok,
       mancanti,
       extraOk,
       extraNote,
+      versioningOk,
+      versioningNote,
       fonti: fontiUniche,
     };
   });
