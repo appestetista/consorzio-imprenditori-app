@@ -171,6 +171,7 @@ export default function SimulatoreSocioLavoratore() {
 
   return (
     <VerificaTabelleNormative>
+    <TooltipProvider>
       <div className="space-y-4">
         {/* Step indicator */}
         <div className="flex items-center gap-1 px-1">
@@ -476,6 +477,7 @@ export default function SimulatoreSocioLavoratore() {
           )}
         </div>
       </div>
+    </TooltipProvider>
     </VerificaTabelleNormative>
   );
 }
