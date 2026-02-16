@@ -327,8 +327,17 @@ export function computePriceMetrics(priceData) {
       net_weight_kg: netWeight,
       prezzo_partner_usd: prezzoPartner,
       prezzo_partner_eur: prezzoPartnerEur,
+      prezzo_partner_locale: prezzoPartnerLocale,
       prezzo_world_usd: prezzoWorldCalcolato,
       prezzo_world_eur: prezzoWorldEur,
+      prezzo_world_locale: prezzoWorldLocale,
+      valuta_locale: tassoLocaleValid ? {
+        codice: valutaLocale.codice,
+        nome: valutaLocale.nome,
+        tasso_eur: valutaLocale.tasso_eur,
+        anno: valutaLocale.anno_tasso,
+        fonte: valutaLocale.fonte_tasso || 'ECB annual average'
+      } : null,
       premium_pct,
       top_destinatari: topDestinatari,
       ranking_prezzo: rankingPrezzo,
