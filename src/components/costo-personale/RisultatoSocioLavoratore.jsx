@@ -45,69 +45,62 @@ export default function RisultatoSocioLavoratore({ result, onReset }) {
         </CardContent>
       </Card>
 
-      {/* Contributi INPS */}
+      {/* AREA PREVIDENZIALE */}
       <Card className="bg-gradient-to-br from-amber-500/20 to-orange-500/10 border-amber-500/30">
         <CardContent className="p-4">
-          <h3 className="text-amber-400 font-bold mb-3">🏛️ Contributi INPS — {result.label_gestione}</h3>
+          <h3 className="text-amber-400 font-bold mb-3">🏛️ Area Previdenziale — {result.label_gestione}</h3>
           <div className="space-y-2 text-sm">
+            <Row label="Reddito lordo" value={fmt(result.compenso)} bold />
+
             {det?.tipo === 'dipendente_coop' && (
               <>
                 <Row label={`INPS datore (${(det.aliquota_datore * 100).toFixed(2)}%)`} value={fmt(det.inps_datore)} />
                 <Row label={`INPS lavoratore (${(det.aliquota_lavoratore * 100).toFixed(2)}%)`} value={fmt(det.inps_lavoratore)} />
-                <div className="border-t border-amber-500/30 pt-2 mt-1">
-                  <Row label="Totale INPS" value={fmt(det.inps_datore + det.inps_lavoratore)} bold />
-                </div>
               </>
             )}
             {(det?.tipo === 'commercianti' || det?.tipo === 'artigiani') && (
               <>
-                <Row label="Contributo fisso su minimale" value={fmt(det.contributo_fisso_annuo)} bold />
-                <div className="text-slate-500 text-xs pl-2">
-                  Minimale: €{fmt(det.minimale_annuo)} — Aliquota: {(det.aliquota_percentuale * 100).toFixed(2)}%
-                </div>
-                {det.eccedenza > 0 && (
-                  <Row label={`Eccedenza (€${fmt(det.eccedenza)} × ${(det.aliquota_percentuale * 100).toFixed(2)}%)`} value={fmt(det.contributo_su_eccedenza)} />
-                )}
-                <div className="border-t border-amber-500/30 pt-2 mt-1">
-                  <Row label="Contributo totale" value={fmt(det.contributo_totale)} bold />
+                <div className="pl-2 border-l-2 border-amber-500/30 space-y-1">
+                  <Row label={`Contributo minimale (su €${fmt(det.minimale_annuo)})`} value={fmt(det.contributo_fisso_annuo)} />
+                  {det.eccedenza > 0 ? (
+                    <Row label={`Contributo eccedenza (${(det.aliquota_percentuale * 100).toFixed(2)}% su €${fmt(det.eccedenza)})`} value={fmt(det.contributo_su_eccedenza)} />
+                  ) : (
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Contributo eccedenza</span>
+                      <span className="text-slate-500">€0,00 (reddito ≤ minimale)</span>
+                    </div>
+                  )}
                 </div>
               </>
             )}
-          </div>
-        </CardContent>
-      </Card>
 
-      {/* Costo azienda */}
-      <Card className="bg-gradient-to-br from-red-500/20 to-orange-500/10 border-red-500/30">
-        <CardContent className="p-4">
-          <h3 className="text-red-400 font-bold mb-3">🏢 Costo per l'Azienda</h3>
-          <div className="space-y-2 text-sm">
-            <Row label="Compenso lordo" value={fmt(result.compenso)} />
-            {det?.tipo === 'dipendente_coop' && <Row label="INPS datore" value={fmt(det.inps_datore)} />}
-            {result.inail > 0 && <Row label="INAIL" value={fmt(result.inail)} />}
-            <div className="border-t border-red-500/30 pt-2 mt-2">
-              <div className="flex justify-between">
-                <span className="text-red-400 font-bold">COSTO TOTALE</span>
-                <span className="text-red-400 font-bold text-lg">€{fmt(result.costo_azienda)}</span>
+            <div className="border-t border-amber-500/30 pt-2 mt-1">
+              <div className="flex justify-between font-semibold">
+                <span className="text-amber-400">Totale INPS</span>
+                <span className="text-red-300">-€{fmt(result.contributo_inps)}</span>
               </div>
-              <Row label="Mensile (su 12 mesi)" value={fmt(result.costo_azienda / 12)} />
+            </div>
+            {result.inail > 0 && <Row label="INAIL" value={fmt(result.inail)} negative />}
+
+            <div className="flex justify-between text-xs mt-1 pt-1 border-t border-amber-500/20">
+              <span className="text-slate-500">Incidenza contributiva sul reddito</span>
+              <span className="text-amber-400 font-bold">{result.compenso > 0 ? ((result.contributo_inps / result.compenso) * 100).toFixed(1) : '0.0'}%</span>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Netto */}
+      {/* AREA FISCALE */}
       <Card className="bg-gradient-to-br from-green-500/20 to-emerald-500/10 border-green-500/30">
         <CardContent className="p-4">
-          <h3 className="text-green-400 font-bold mb-3">🧾 Netto Socio Lavoratore</h3>
+          <h3 className="text-green-400 font-bold mb-3">🧾 Area Fiscale — IRPEF 2026</h3>
           <div className="space-y-2 text-sm">
-            <Row label="Reddito dichiarato" value={fmt(result.compenso)} />
-            <Row label="- Contributi previdenziali deducibili" value={fmt(result.contributo_inps)} negative />
-            <Row label="= Reddito imponibile IRPEF" value={fmt(result.imponibile_irpef)} bold />
+            <Row label="Reddito imponibile IRPEF" value={fmt(result.imponibile_irpef)} bold />
+            <p className="text-slate-500 text-xs pl-2">(Reddito lordo €{fmt(result.compenso)} − Contributi INPS €{fmt(result.contributo_inps)})</p>
 
-            {/* Dettaglio scaglioni IRPEF */}
+            {/* Dettaglio scaglioni */}
             <div className="pl-2 border-l-2 border-green-500/30 space-y-1">
-              <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider">Scaglioni IRPEF 2026</p>
+              <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider">Scaglioni IRPEF</p>
               {result.irpef_scaglione_1_importo > 0 && (
                 <div className="flex justify-between text-xs">
                   <span className="text-slate-400">{(result.aliquota_scaglione_1 * 100).toFixed(0)}% fino a €{fmt(result.soglia_1)}</span>
@@ -135,14 +128,50 @@ export default function RisultatoSocioLavoratore({ result, onReset }) {
                 <span className="text-green-400">+€{fmt(result.detrazione_lavoro)}</span>
               </div>
             )}
-            <Row label="= IRPEF netta" value={fmt(result.irpef)} negative />
-            <Row label={`- Addizionali reg./com. (~${(result.aliquota_addizionali * 100).toFixed(1)}%)`} value={fmt(result.addizionali)} negative />
-            <div className="border-t border-green-500/30 pt-2 mt-2">
-              <div className="flex justify-between">
-                <span className="text-green-400 font-bold">NETTO DISPONIBILE</span>
-                <span className="text-green-400 font-bold text-lg">€{fmt(result.netto_annuo)}</span>
+            <div className="border-t border-green-500/30 pt-2 mt-1">
+              <div className="flex justify-between font-semibold">
+                <span className="text-white">IRPEF netta</span>
+                <span className="text-red-300">-€{fmt(result.irpef)}</span>
               </div>
-              <Row label="Netto mensile" value={fmt(result.netto_mensile)} green />
+            </div>
+            <Row label={`Addizionali reg./com. (~${(result.aliquota_addizionali * 100).toFixed(1)}%)`} value={fmt(result.addizionali)} negative />
+
+            <div className="flex justify-between text-xs mt-1 pt-1 border-t border-green-500/20">
+              <span className="text-slate-500">Incidenza fiscale sul reddito</span>
+              <span className="text-green-400 font-bold">{result.compenso > 0 ? (((result.irpef + result.addizionali) / result.compenso) * 100).toFixed(1) : '0.0'}%</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* NETTO FINALE */}
+      <Card className="bg-gradient-to-br from-emerald-600/20 to-green-500/10 border-emerald-500/40">
+        <CardContent className="p-4">
+          <h3 className="text-green-400 font-bold mb-3">💰 Netto Finale</h3>
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-green-400 font-bold text-base">NETTO DISPONIBILE</span>
+              <span className="text-green-400 font-bold text-xl">€{fmt(result.netto_annuo)}</span>
+            </div>
+            <Row label="Netto mensile (su 12 mesi)" value={fmt(result.netto_mensile)} green />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Costo azienda */}
+      <Card className="bg-gradient-to-br from-red-500/20 to-orange-500/10 border-red-500/30">
+        <CardContent className="p-4">
+          <h3 className="text-red-400 font-bold mb-3">🏢 Costo per l'Azienda</h3>
+          <div className="space-y-2 text-sm">
+            <Row label="Compenso lordo" value={fmt(result.compenso)} />
+            {det?.tipo === 'dipendente_coop' && <Row label="INPS datore" value={fmt(det.inps_datore)} />}
+            {result.inail > 0 && <Row label="INAIL" value={fmt(result.inail)} />}
+            <div className="border-t border-red-500/30 pt-2 mt-2">
+              <div className="flex justify-between">
+                <span className="text-red-400 font-bold">COSTO TOTALE</span>
+                <span className="text-red-400 font-bold text-lg">€{fmt(result.costo_azienda)}</span>
+              </div>
+              <Row label="Mensile (su 12 mesi)" value={fmt(result.costo_azienda / 12)} />
             </div>
           </div>
         </CardContent>
@@ -152,18 +181,22 @@ export default function RisultatoSocioLavoratore({ result, onReset }) {
       <Card className="bg-slate-800 border-slate-700">
         <CardContent className="p-4">
           <h3 className="text-white font-bold mb-3">📊 Indicatori</h3>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 gap-2">
+            <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 text-center">
+              <p className="text-slate-400 text-[10px]">Incidenza contributiva</p>
+              <p className="text-amber-400 font-bold text-lg">{result.compenso > 0 ? ((result.contributo_inps / result.compenso) * 100).toFixed(1) : '0.0'}%</p>
+            </div>
+            <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3 text-center">
+              <p className="text-slate-400 text-[10px]">Incidenza fiscale</p>
+              <p className="text-green-400 font-bold text-lg">{result.compenso > 0 ? (((result.irpef + result.addizionali) / result.compenso) * 100).toFixed(1) : '0.0'}%</p>
+            </div>
             <div className="bg-slate-700/50 rounded-lg p-3 text-center">
-              <p className="text-slate-400 text-[10px]">Cuneo fiscale</p>
+              <p className="text-slate-400 text-[10px]">Cuneo totale</p>
               <p className="text-yellow-400 font-bold text-lg">{((1 - result.netto_annuo / result.costo_azienda) * 100).toFixed(1)}%</p>
             </div>
             <div className="bg-slate-700/50 rounded-lg p-3 text-center">
               <p className="text-slate-400 text-[10px]">Costo/Netto</p>
               <p className="text-white font-bold text-lg">{(result.costo_azienda / Math.max(1, result.netto_annuo)).toFixed(2)}x</p>
-            </div>
-            <div className="bg-slate-700/50 rounded-lg p-3 text-center">
-              <p className="text-slate-400 text-[10px]">Gestione</p>
-              <p className="text-white font-bold text-[11px]">{result.label_gestione}</p>
             </div>
           </div>
         </CardContent>

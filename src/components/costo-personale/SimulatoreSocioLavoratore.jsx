@@ -490,15 +490,47 @@ export default function SimulatoreSocioLavoratore() {
           <Card className="bg-slate-800 border-slate-700">
             <CardContent className="p-4 space-y-4">
               <h3 className="text-white font-semibold">Step 6 — Calcolo fiscale</h3>
-              <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3 space-y-2 text-sm">
-                {/* Reddito imponibile */}
-                <div className="flex justify-between"><span className="text-slate-400">Reddito dichiarato</span><span className="text-white">€{fmt(result.compenso)}</span></div>
-                <div className="flex justify-between"><span className="text-slate-400">- Contributi previdenziali deducibili</span><span className="text-red-300">-€{fmt(result.contributo_inps)}</span></div>
-                <div className="flex justify-between border-t border-green-500/20 pt-1"><span className="text-white font-semibold">Reddito imponibile IRPEF</span><span className="text-white font-semibold">€{fmt(result.imponibile_irpef)}</span></div>
 
-                {/* Dettaglio scaglioni IRPEF */}
-                <div className="space-y-1 pl-2 border-l-2 border-green-500/30 mt-1">
-                  <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider">Scaglioni IRPEF 2026</p>
+              {/* AREA PREVIDENZIALE */}
+              <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 space-y-2 text-sm">
+                <p className="text-amber-400 text-xs font-bold uppercase tracking-wider">Area Previdenziale — {result.label_gestione}</p>
+                <div className="flex justify-between"><span className="text-slate-400">Reddito lordo</span><span className="text-white font-semibold">€{fmt(result.compenso)}</span></div>
+                {result.dettaglio_contributi && (result.dettaglio_contributi.tipo === 'commercianti' || result.dettaglio_contributi.tipo === 'artigiani') ? (
+                  <div className="space-y-1 pl-2 border-l-2 border-amber-500/30">
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Contributo minimale (su €{fmt(result.dettaglio_contributi.minimale_annuo)})</span>
+                      <span className="text-red-300">-€{fmt(result.dettaglio_contributi.contributo_fisso_annuo)}</span>
+                    </div>
+                    {result.dettaglio_contributi.eccedenza > 0 ? (
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Contributo eccedenza ({(result.dettaglio_contributi.aliquota_percentuale * 100).toFixed(2)}% su €{fmt(result.dettaglio_contributi.eccedenza)})</span>
+                        <span className="text-red-300">-€{fmt(result.dettaglio_contributi.contributo_su_eccedenza)}</span>
+                      </div>
+                    ) : (
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Contributo eccedenza</span>
+                        <span className="text-slate-500">€0,00 (reddito ≤ minimale)</span>
+                      </div>
+                    )}
+                  </div>
+                ) : null}
+                <div className="flex justify-between font-semibold border-t border-amber-500/20 pt-1">
+                  <span className="text-amber-400">Totale INPS</span>
+                  <span className="text-red-300">-€{fmt(result.contributo_inps)}</span>
+                </div>
+                {result.inail > 0 && <div className="flex justify-between"><span className="text-slate-400">INAIL</span><span className="text-red-300">-€{fmt(result.inail)}</span></div>}
+                <div className="flex justify-between text-xs mt-1">
+                  <span className="text-slate-500">Incidenza contributiva</span>
+                  <span className="text-amber-400 font-semibold">{result.compenso > 0 ? ((result.contributo_inps / result.compenso) * 100).toFixed(1) : '0.0'}%</span>
+                </div>
+              </div>
+
+              {/* AREA FISCALE */}
+              <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3 space-y-2 text-sm">
+                <p className="text-green-400 text-xs font-bold uppercase tracking-wider">Area Fiscale — IRPEF 2026</p>
+                <div className="flex justify-between"><span className="text-slate-400">Reddito imponibile IRPEF</span><span className="text-white font-semibold">€{fmt(result.imponibile_irpef)}</span></div>
+
+                <div className="space-y-1 pl-2 border-l-2 border-green-500/30">
                   {result.irpef_scaglione_1_importo > 0 && (
                     <div className="flex justify-between">
                       <span className="text-slate-400">{(result.aliquota_scaglione_1 * 100).toFixed(0)}% fino a €{fmt(result.soglia_1)}</span>
@@ -523,32 +555,29 @@ export default function SimulatoreSocioLavoratore() {
                   </div>
                 </div>
 
-                {/* Detrazioni */}
                 {result.detrazione_lavoro > 0 && (
                   <div className="flex justify-between">
                     <span className="text-slate-400">Detrazione lavoro (art. 13 TUIR)</span>
                     <span className="text-green-400">+€{fmt(result.detrazione_lavoro)}</span>
                   </div>
                 )}
-
-                <div className="flex justify-between font-semibold">
-                  <span className="text-white">IRPEF netta</span>
-                  <span className="text-red-300">-€{fmt(result.irpef)}</span>
-                </div>
-
+                <div className="flex justify-between font-semibold"><span className="text-white">IRPEF netta</span><span className="text-red-300">-€{fmt(result.irpef)}</span></div>
                 <div className="flex justify-between"><span className="text-slate-400">Addizionali reg./com. (~{(result.aliquota_addizionali * 100).toFixed(1)}%)</span><span className="text-red-300">-€{fmt(result.addizionali)}</span></div>
-
-                {/* Netto */}
-                <div className="border-t border-green-500/30 pt-2">
-                  <div className="flex justify-between"><span className="text-green-400 font-bold">NETTO DISPONIBILE</span><span className="text-green-400 font-bold text-lg">€{fmt(result.netto_annuo)}</span></div>
-                  <div className="flex justify-between"><span className="text-slate-400">Netto mensile</span><span className="text-green-400">€{fmt(result.netto_mensile)}</span></div>
+                <div className="flex justify-between text-xs mt-1">
+                  <span className="text-slate-500">Incidenza fiscale</span>
+                  <span className="text-green-400 font-semibold">{result.compenso > 0 ? (((result.irpef + result.addizionali) / result.compenso) * 100).toFixed(1) : '0.0'}%</span>
                 </div>
               </div>
 
-              {/* Riferimento normativo IRPEF */}
+              {/* NETTO FINALE */}
+              <div className="bg-slate-700/50 border border-slate-600 rounded-lg p-3">
+                <div className="flex justify-between"><span className="text-green-400 font-bold">NETTO DISPONIBILE</span><span className="text-green-400 font-bold text-lg">€{fmt(result.netto_annuo)}</span></div>
+                <div className="flex justify-between text-sm"><span className="text-slate-400">Netto mensile</span><span className="text-green-400">€{fmt(result.netto_mensile)}</span></div>
+              </div>
+
               <div className="bg-slate-700/50 border border-slate-600 rounded-lg p-2.5">
                 <p className="text-slate-500 text-xs">
-                  <span className="font-semibold text-slate-400">Rif. normativo:</span> L. Bilancio 2026 (L. 207/2025) — Art. 11 TUIR. Scaglioni: 23% fino a €28.000, 33% da €28.001 a €50.000, 43% oltre €50.000. Detrazione lavoro art. 13 TUIR.
+                  <span className="font-semibold text-slate-400">Rif. normativo:</span> L. Bilancio 2026 (L. 207/2025) — Art. 11 TUIR. Scaglioni: 23% fino a €28.000, 33% da €28.001 a €50.000, 43% oltre €50.000.
                 </p>
               </div>
 
