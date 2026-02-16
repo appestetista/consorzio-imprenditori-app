@@ -975,6 +975,20 @@ export default function AdminPanel() {
             <div 
               className="relative h-20 transition-transform duration-100 active:scale-[0.97] cursor-pointer"
               style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}
+              onClick={() => setShowCostoPersonalePanel(true)}
+            >
+              <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #8b5cf6 0%, #7c3aed 30%, #6d28d9 60%, #8b5cf6 100%)' }}>
+                <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #0c1730 50%, #0a1225 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
+                  <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
+                  <Database className="w-5 h-5 text-violet-400 mb-1 relative z-10" />
+                  <p className="text-white text-[10px] text-center leading-tight relative z-10">Costo<br/>Personale</p>
+                  <span className="absolute top-1 right-1 text-violet-400/60 z-20"><Bell className="w-3 h-3" /></span>
+                </div>
+              </div>
+            </div>
+            <div 
+              className="relative h-20 transition-transform duration-100 active:scale-[0.97] cursor-pointer"
+              style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}
               onClick={() => setShowImportAste(true)}
             >
               <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
