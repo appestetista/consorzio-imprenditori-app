@@ -245,6 +245,15 @@ export default function VerificaTabelleNormative({ children }) {
                   {r.extraNote && (
                     <div className="text-red-400/70 text-[10px]">{r.extraNote}</div>
                   )}
+                  {!r.versioningOk && r.versioningNote && (
+                    <div className="text-red-400/70 text-[10px]">{r.versioningNote}</div>
+                  )}
+                </div>
+              )}
+
+              {r.ok && r.versioningNote && (
+                <div className="pl-6">
+                  <span className="text-yellow-400/70 text-[9px]">⚠ {r.versioningNote}</span>
                 </div>
               )}
 
