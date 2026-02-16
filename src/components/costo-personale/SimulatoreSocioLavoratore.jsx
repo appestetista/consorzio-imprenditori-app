@@ -184,20 +184,57 @@ export default function SimulatoreSocioLavoratore() {
         {step === 1 && (
           <Card className="bg-slate-800 border-slate-700">
             <CardContent className="p-4 space-y-4">
-              <h3 className="text-white font-semibold">Step 1 — Tipo società</h3>
-              <p className="text-slate-400 text-xs">Seleziona la forma giuridica della società in cui operi come socio lavoratore.</p>
-              <div className="space-y-2">
-                {TIPI_SOCIETA.map(ts => (
-                  <button
-                    key={ts.key}
-                    onClick={() => setForm({ ...form, tipo_societa: ts.key, gestione_inps: '' })}
-                    className={`w-full text-left p-3 rounded-lg border transition-all ${form.tipo_societa === ts.key ? 'bg-amber-500/20 border-amber-500/50' : 'bg-slate-900 border-slate-700 hover:border-slate-600'}`}
-                  >
-                    <span className={`text-sm font-medium ${form.tipo_societa === ts.key ? 'text-amber-400' : 'text-white'}`}>{ts.label}</span>
-                    <p className="text-slate-500 text-xs mt-0.5">{ts.desc}</p>
-                  </button>
-                ))}
+              <div className="flex items-center gap-2">
+                <h3 className="text-white font-semibold">Step 1 — Tipo società</h3>
+                <Tooltip>
+                  <TooltipTrigger><HelpCircle className="w-4 h-4 text-slate-500" /></TooltipTrigger>
+                  <TooltipContent className="max-w-[280px] bg-slate-700 text-white border-slate-600">
+                    <p className="text-xs">La forma giuridica determina l'obbligo di iscrizione previdenziale INPS. SNC/SAS comportano obbligo automatico; SRL consente la scelta della gestione.</p>
+                  </TooltipContent>
+                </Tooltip>
               </div>
+              <p className="text-slate-400 text-xs">Seleziona la forma giuridica della società in cui operi come socio lavoratore.</p>
+
+              <Select value={form.tipo_societa} onValueChange={(v) => setForm({ ...form, tipo_societa: v, gestione_inps: '' })}>
+                <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                  <SelectValue placeholder="Seleziona tipo società" />
+                </SelectTrigger>
+                <SelectContent>
+                  {TIPI_SOCIETA.map(ts => (
+                    <SelectItem key={ts.key} value={ts.key}>{ts.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Tooltip esplicativo per il tipo selezionato */}
+              {form.tipo_societa && (() => {
+                const sel = TIPI_SOCIETA.find(t => t.key === form.tipo_societa);
+                if (!sel) return null;
+                const obbl = GESTIONE_OBBLIGATORIA[form.tipo_societa];
+                return (
+                  <div className={`rounded-lg p-3 border ${obbl ? 'bg-amber-500/10 border-amber-500/30' : 'bg-slate-700/50 border-slate-600'}`}>
+                    <p className="text-slate-300 text-xs">{sel.tooltip}</p>
+                    {obbl && (
+                      <p className="text-amber-400 text-xs font-semibold mt-2 flex items-center gap-1">
+                        <Info className="w-3 h-3" />
+                        Iscrizione INPS obbligatoria: {obbl === 'artigiani' ? 'Gestione Artigiani' : 'Gestione Commercianti'} — verrà impostata automaticamente.
+                      </p>
+                    )}
+                    {!obbl && form.tipo_societa === 'srl' && (
+                      <p className="text-slate-400 text-xs mt-2 flex items-center gap-1">
+                        <Info className="w-3 h-3" />
+                        Potrai scegliere la gestione INPS allo Step 3.
+                      </p>
+                    )}
+                    {!obbl && (form.tipo_societa === 'snc' || form.tipo_societa === 'sas') && (
+                      <p className="text-amber-400 text-xs font-semibold mt-2 flex items-center gap-1">
+                        <Info className="w-3 h-3" />
+                        Iscrizione INPS obbligatoria — dovrai scegliere tra Artigiani e Commercianti allo Step 3.
+                      </p>
+                    )}
+                  </div>
+                );
+              })()}
             </CardContent>
           </Card>
         )}
