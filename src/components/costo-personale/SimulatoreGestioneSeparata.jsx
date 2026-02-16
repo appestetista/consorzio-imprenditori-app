@@ -10,11 +10,9 @@ import VerificaTabelleNormative from './VerificaTabelleNormative';
 import RisultatoGestioneSeparata from './RisultatoGestioneSeparata';
 
 const TIPI_SOGGETTO = [
-  { key: 'cococo', label: 'Collaboratore co.co.co.', desc: 'Collaboratore coordinato e continuativo (art. 409 c.p.c.)' },
-  { key: 'amministratore_gs', label: 'Amministratore senza altra copertura', desc: 'Amministratore di società non iscritto ad altra gestione previdenziale obbligatoria' },
-  { key: 'professionista', label: 'Professionista senza cassa', desc: 'Professionista non iscritto ad albo con cassa propria (es. consulente informatico, formatore)' },
-  { key: 'occasionale', label: 'Collaboratore occasionale strutturato', desc: 'Collaborazione occasionale con reddito annuo > €5.000' },
-  { key: 'altro', label: 'Altro soggetto', desc: 'Altro soggetto obbligato alla Gestione Separata INPS' },
+  { key: 'cococo', label: 'Collaboratore Co.Co.Co.', desc: 'Collaborazione coordinata e continuativa (art. 409 c.p.c.). Tipico di incarichi di gestione, consulenza continuativa, sindaci e revisori.', tooltip: 'Il committente versa 2/3 dei contributi, il collaboratore 1/3. L\'aliquota è piena se non ha altra copertura previdenziale, ridotta se iscritto ad altra gestione obbligatoria.' },
+  { key: 'professionista', label: 'Professionista senza cassa', desc: 'Professionista senza albo con cassa autonoma (es. consulente IT, formatore, web designer, traduttore).', tooltip: 'Obbligato alla Gestione Separata INPS ex L. 335/1995 art. 2 co. 26. Il contributo è interamente a suo carico, ma può addebitare il 4% in rivalsa al committente in fattura.' },
+  { key: 'amministratore_gs', label: 'Amministratore iscritto Gestione Separata', desc: 'Amministratore di società (SRL, SPA) senza iscrizione ad altra gestione previdenziale obbligatoria.', tooltip: 'L\'amministratore che percepisce un compenso ed è privo di altra copertura previdenziale è obbligato alla Gestione Separata. Il contributo è ripartito 2/3 società, 1/3 amministratore.' },
 ];
 
 const STEP_LABELS = [
