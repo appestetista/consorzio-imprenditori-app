@@ -91,18 +91,31 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
 
       {/* Dati macro World Bank */}
       {macroData && (
-        <div className="grid grid-cols-3 gap-0 border-t border-slate-700">
-          <div className="px-3 py-2 border-r border-slate-700">
-            <p className="text-slate-500 text-[10px]">Popolazione</p>
-            <p className="text-white text-xs font-semibold">{formatPop(macroData.popolazione)}</p>
+        <div className="border-t border-slate-700">
+          <div className="grid grid-cols-3 gap-0">
+            <div className="px-3 py-2 border-r border-slate-700">
+              <p className="text-slate-500 text-[10px]">Popolazione</p>
+              <p className="text-white text-xs font-semibold">{formatPop(macroData.popolazione)}</p>
+              {macroData.popolazione_anno && <p className="text-slate-600 text-[9px]">{macroData.popolazione_anno}</p>}
+            </div>
+            <div className="px-3 py-2 border-r border-slate-700">
+              <p className="text-slate-500 text-[10px]">PIL nominale</p>
+              <p className="text-white text-xs font-semibold">{formatBigNum(macroData.pil_nominale)}</p>
+              {macroData.pil_nominale_anno && <p className="text-slate-600 text-[9px]">{macroData.pil_nominale_anno}</p>}
+            </div>
+            <div className="px-3 py-2">
+              <p className="text-slate-500 text-[10px]">PIL pro capite</p>
+              <p className="text-white text-xs font-semibold">{formatBigNum(macroData.pil_pro_capite)}</p>
+              {macroData.pil_pro_capite_anno && <p className="text-slate-600 text-[9px]">{macroData.pil_pro_capite_anno}</p>}
+            </div>
           </div>
-          <div className="px-3 py-2 border-r border-slate-700">
-            <p className="text-slate-500 text-[10px]">PIL nominale</p>
-            <p className="text-white text-xs font-semibold">{formatBigNum(macroData.pil_nominale)}</p>
-          </div>
-          <div className="px-3 py-2">
-            <p className="text-slate-500 text-[10px]">PIL pro capite</p>
-            <p className="text-white text-xs font-semibold">{formatBigNum(macroData.pil_pro_capite)}</p>
+          {macroData.dati_mancanti && (
+            <div className="px-3 py-1.5 border-t border-slate-700/50">
+              <p className="text-yellow-400/70 text-[9px]">⚠ Non disponibili: {macroData.dati_mancanti.join(', ')}</p>
+            </div>
+          )}
+          <div className="px-3 py-1 border-t border-slate-700/50">
+            <p className="text-slate-600 text-[9px]">Fonte: World Bank API</p>
           </div>
         </div>
       )}
