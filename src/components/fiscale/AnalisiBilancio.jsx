@@ -7,6 +7,7 @@ import DatiEstrattiBilancio from './DatiEstrattiBilancio';
 import RevisioneContabile from './RevisioneContabile';
 import IndicatoriFinanziari from './IndicatoriFinanziari';
 import CoerenzaFiscale from './CoerenzaFiscale';
+import SegnaliSquilibrio from './SegnaliSquilibrio';
 
 const PARTI_LABELS = {
   stato_patrimoniale: 'Stato Patrimoniale',
@@ -44,6 +45,7 @@ export default function AnalisiBilancio() {
   const revisione = result?.revisione;
   const indicatoriFinanziari = result?.indicatori_finanziari;
   const coerenzaFiscale = result?.coerenza_fiscale;
+  const segnaliSquilibrio = result?.segnali_squilibrio;
   const isIdoneo = analisi?.esito === 'Documento idoneo';
 
   return (
@@ -198,6 +200,9 @@ export default function AnalisiBilancio() {
 
           {/* Coerenza fiscale */}
           {coerenzaFiscale && <CoerenzaFiscale dati={coerenzaFiscale} />}
+
+          {/* Segnali di squilibrio */}
+          {segnaliSquilibrio && <SegnaliSquilibrio dati={segnaliSquilibrio} />}
 
           {/* Note */}
           {analisi.note && (
