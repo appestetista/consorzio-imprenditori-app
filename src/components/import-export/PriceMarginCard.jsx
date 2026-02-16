@@ -150,6 +150,9 @@ function MarketPriceDetail({ m, interpretation }) {
                   <p className="text-slate-400 text-[10px]">Prezzo medio export = Valore / Quantità</p>
                   <p className="text-white font-bold text-sm">{fmtPrice(m.prezzo_partner_usd, m.unita_misura)}</p>
                   {m.prezzo_partner_eur && <p className="text-slate-500 text-[10px]">{fmtPriceEur(m.prezzo_partner_eur, m.unita_misura)}</p>}
+                  {m.prezzo_partner_locale && m.valuta_locale?.codice !== 'EUR' && (
+                    <p className="text-cyan-400/80 text-[10px]">{fmtPriceLocale(m.prezzo_partner_locale, m.unita_misura, m.valuta_locale.codice)}</p>
+                  )}
                   {m.anno_riferimento && <p className="text-slate-500 text-[9px]">Anno: {m.anno_riferimento}</p>}
                   <p className="text-slate-600 text-[9px]">Unità: {m.unita_misura}</p>
                   {m.query_fallback_world && <p className="text-yellow-400/70 text-[9px]">⚠ dati da Partner=World</p>}
@@ -158,6 +161,9 @@ function MarketPriceDetail({ m, interpretation }) {
                   <p className="text-slate-400 text-[10px]">Media export globale (World)</p>
                   <p className="text-white font-bold text-sm">{fmtPrice(m.prezzo_world_usd, m.unita_misura)}</p>
                   {m.prezzo_world_eur && <p className="text-slate-500 text-[10px]">{fmtPriceEur(m.prezzo_world_eur, m.unita_misura)}</p>}
+                  {m.prezzo_world_locale && m.valuta_locale?.codice !== 'EUR' && (
+                    <p className="text-cyan-400/80 text-[10px]">{fmtPriceLocale(m.prezzo_world_locale, m.unita_misura, m.valuta_locale.codice)}</p>
+                  )}
                 </div>
               </div>
 
