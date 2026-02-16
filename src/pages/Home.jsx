@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Calendar, Video, Briefcase, User, Euro, ShoppingBag, BookOpen, Handshake, Truck, Heart, FileSearch, Globe, Shield, PiggyBank, Gavel, Gift, QrCode, ScanLine, Star, Calculator } from 'lucide-react';
+import { Calendar, Video, Briefcase, User, Euro, ShoppingBag, BookOpen, Handshake, Truck, Heart, FileSearch, Globe, Shield, PiggyBank, Gavel, Gift, QrCode, ScanLine, Star, Calculator, Users } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import Header from '../components/layout/Header';
@@ -750,6 +750,7 @@ export default function Home() {
     { title: 'Evita\nSanzioni', icon: Shield, page: 'ComplianceAziendale', notifications: complianceAlerts, permission: 'compliance', variant: 'blue', category: 'strumenti' },
     { title: 'Benefit\nDipendenti', icon: Heart, page: 'WelfareAziendale', notifications: 0, permission: 'welfare_aziendale', variant: 'pink', category: 'strumenti' },
     { title: 'Simulatore\nFiscale', icon: Calculator, page: 'SimulatoreFiscale', notifications: 0, permission: 'simulatore_fiscale', category: 'strumenti' },
+    { title: 'Costo del\nPersonale', icon: Users, page: 'SimulatoreCostoPersonale', notifications: 0, permission: 'simulatore_fiscale', category: 'strumenti' },
     
     // CONSULENZA
     { title: isConsultant ? 'Richieste di\nConsulenza' : 'Consulenze', icon: Briefcase, page: 'Consulenze', notifications: consultationNotifications, permission: 'consulenze', bottomBadge: isConsultant ? (pendingConsultationRequests > 0 ? pendingConsultationRequests : null) : (freeConsultationsCount > 0 ? freeConsultationsCount : null), bottomBadgeType: isConsultant ? 'requests' : 'consultations', category: 'consulenza' },
