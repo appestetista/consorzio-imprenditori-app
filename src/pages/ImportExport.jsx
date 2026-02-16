@@ -1127,6 +1127,23 @@ Fornisci:
                   </Card>
                 )}
 
+                {/* Trasparenza */}
+                <Card className="bg-slate-800/50 border-slate-700">
+                  <CardContent className="p-3">
+                    <p className="text-slate-500 text-xs mb-2">📚 Trasparenza dati</p>
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[10px] text-slate-500">
+                      <div><span className="text-slate-600">Fonte commerciale:</span> UN Comtrade</div>
+                      <div><span className="text-slate-600">Fonte macro:</span> World Bank</div>
+                      <div><span className="text-slate-600">HS heading:</span> {tradeData?._query_log?.hs_code_heading || confirmedExportHS?.hs_code?.substring(0, 4)}</div>
+                      <div><span className="text-slate-600">HS completo:</span> {tradeData?._query_log?.hs_code_full || confirmedExportHS?.hs_code}</div>
+                      <div><span className="text-slate-600">Esportatore:</span> {tradeData?._query_log?.exporter || 'IT'}</div>
+                      <div><span className="text-slate-600">Periodo:</span> {tradeData?._query_log?.periodo || `${new Date().getFullYear() - 5}-${new Date().getFullYear() - 1}`}</div>
+                      <div><span className="text-slate-600">Data recupero:</span> {tradeData?._timestamp_recupero ? new Date(tradeData._timestamp_recupero).toLocaleString('it-IT') : 'N/D'}</div>
+                      <div><span className="text-slate-600">Record:</span> {tradeData?._query_log?.records_returned || 'N/D'}</div>
+                    </div>
+                  </CardContent>
+                </Card>
+
                 {/* Form Contatto Export Manager */}
                 <Card className="bg-slate-800 border-slate-700">
                   <CardContent className="p-4">
