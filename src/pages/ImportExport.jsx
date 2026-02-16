@@ -18,9 +18,12 @@ import ImportMessagesSection from '@/components/import-export/ImportMessagesSect
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import SectionConsultantPanel from '../components/consulenze/SectionConsultantPanel';
 import HSCodeClassifier from '../components/import-export/HSCodeClassifier';
-import { fetchTradeData, computeMetrics, interpretData } from '../components/import-export/ExportDataFetcher';
+import { fetchTradeData, computeMetrics, interpretData, fetchMacroData } from '../components/import-export/ExportDataFetcher';
 import ExportTradeChart from '../components/import-export/ExportTradeChart';
 import ExportMetricsCard from '../components/import-export/ExportMetricsCard';
+import CountrySearchSelect, { ALL_COUNTRIES, WORLD_OPTION } from '../components/import-export/CountrySearchSelect';
+import CountryInfoCard from '../components/import-export/CountryInfoCard';
+import ExportComparisonRanking from '../components/import-export/ExportComparisonRanking';
 import { fetchImportData, computeLandedCost, interpretImportData } from '../components/import-export/ImportDataFetcher';
 import LandedCostTable from '../components/import-export/LandedCostTable';
 import { buildExportSummary, buildImportSummary } from '../components/import-export/buildAnalysisSummary';
@@ -38,19 +41,19 @@ const SETTORI = [
   'Altro'
 ];
 
-const MERCATI_TARGET = [
-  { code: 'US', name: 'Stati Uniti', flag: '🇺🇸' },
-  { code: 'CN', name: 'Cina', flag: '🇨🇳' },
-  { code: 'DE', name: 'Germania', flag: '🇩🇪' },
-  { code: 'FR', name: 'Francia', flag: '🇫🇷' },
-  { code: 'UK', name: 'Regno Unito', flag: '🇬🇧' },
-  { code: 'JP', name: 'Giappone', flag: '🇯🇵' },
-  { code: 'AE', name: 'Emirati Arabi', flag: '🇦🇪' },
-  { code: 'BR', name: 'Brasile', flag: '🇧🇷' },
-  { code: 'IN', name: 'India', flag: '🇮🇳' },
-  { code: 'AU', name: 'Australia', flag: '🇦🇺' },
-  { code: 'KR', name: 'Corea del Sud', flag: '🇰🇷' },
-  { code: 'SA', name: 'Arabia Saudita', flag: '🇸🇦' }
+// MERCATI_TARGET kept for backward compat (used in buildExportSummary)
+const MERCATI_TARGET = ALL_COUNTRIES;
+
+const EXPORTER_COUNTRIES = [
+  { code: 'IT', name: 'Italia' },
+  { code: 'DE', name: 'Germania' },
+  { code: 'FR', name: 'Francia' },
+  { code: 'ES', name: 'Spagna' },
+  { code: 'NL', name: 'Paesi Bassi' },
+  { code: 'BE', name: 'Belgio' },
+  { code: 'AT', name: 'Austria' },
+  { code: 'PL', name: 'Polonia' },
+  { code: 'PT', name: 'Portogallo' },
 ];
 
 export default function ImportExport() {
