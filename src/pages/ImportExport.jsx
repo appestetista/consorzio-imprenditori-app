@@ -321,19 +321,28 @@ CERTEZZA CLASSIFICAZIONE: ${hsData.certezza}
 
 IMPORTANTE: Usa il codice HS ${hsData.hs_code} confermato sopra come base per tutti i dati doganali, dazi TARIC e costi. Non usare un codice HS diverso.
 
-Fornisci un'analisi completa che includa:
+Fornisci un'analisi completa con dati STRUTTURATI dalle fonti obbligatorie:
+
 1. Punteggio fattibilità (1-10) con motivazione basata su criteri oggettivi
 2. Se l'import è consigliato o meno e perché
 3. MOQ tipico — solo se verificabile, altrimenti "Da verificare con fornitori"
-4. Tempi realistici dettagliati (produzione + spedizione mare/aereo) — indicare fonte se disponibile
-5. Costi: per ogni voce (FOB, spedizione, dazi, IVA), indicare SOLO dati da fonte ufficiale con riferimento. Se non disponibile, scrivere "Da quantificare con preventivo — verificare su [fonte]"
-6. Dazi doganali: indicare SOLO aliquota da TARIC con codice HS pertinente. Se codice HS incerto, dichiararlo.
-7. Criticità specifiche per questo tipo di import
-8. Requisiti necessari (certificazioni CE, documenti doganali, normativa UE applicabile con riferimento)
-9. Prossimi passi concreti e ordinati
-10. Vantaggi specifici di questo import
-11. Fonti dati effettivamente utilizzate (solo fonti da cui hai estratto dati reali)
+4. Tempi realistici dettagliati (produzione + spedizione mare/aereo)
+5. DAZI E COSTI DOGANALI (da TARIC per HS ${hsData.hs_code} origine CN):
+   - Aliquota dazio MFN con fonte TARIC
+   - Misure anti-dumping attive (se presenti, indicare regolamento UE)
+   - Restrizioni merceologiche o contingenti tariffari
+   - IVA italiana applicabile
+6. FLUSSI COMMERCIALI (da UN Comtrade / Eurostat Comext):
+   - Valore import Italia dalla Cina per HS ${hsData.hs_code} (USD, ultimo anno disponibile)
+   - Trend 5 anni del flusso commerciale
+7. Costi logistici: per FOB e spedizione, solo se da fonte verificabile (es. Freightos), altrimenti "Da quantificare con preventivo"
+8. Criticità specifiche per questo tipo di import
+9. Requisiti necessari (certificazioni CE, documenti doganali, normativa UE con riferimento specifico)
+10. Prossimi passi concreti e ordinati
+11. Vantaggi specifici di questo import
+12. Fonti dati con riferimento specifico: per ogni fonte indicare URL o database e anno del dato estratto
 
+Per OGNI dato numerico: indica (Fonte, Anno). Se non reperibile: "Da verificare su [TARIC / UN Comtrade / Eurostat Comext]".
 RICORDA: meglio un'analisi con 5 dati certi e 10 "Da verificare" che un'analisi con 15 dati inventati.`,
         add_context_from_internet: true,
         response_json_schema: {
