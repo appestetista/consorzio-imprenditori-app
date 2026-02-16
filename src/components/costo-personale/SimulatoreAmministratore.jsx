@@ -3,103 +3,54 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calculator, Info } from 'lucide-react';
+import { Calculator, Info, Loader2, AlertTriangle } from 'lucide-react';
+import { useTabelleContributive, calcolaCostoAmministratore } from './useTabelleContributive';
 
 export default function SimulatoreAmministratore() {
+  const tab = useTabelleContributive(2025);
   const [form, setForm] = useState({
     compenso_lordo: '',
-    tipo_rapporto: 'gestione_separata', // gestione_separata | co.co.co | dipendente
-    inail_applicabile: 'no',
+    tipo_rapporto: 'gestione_separata',
+    inail_applicabile: false,
   });
   const [result, setResult] = useState(null);
 
   const calcola = () => {
     const compenso = parseFloat(form.compenso_lordo);
-    if (!compenso || compenso <= 0) return;
+    if (!compenso || compenso <= 0 || tab.isLoading) return;
 
-    let inps_datore = 0;
-    let inps_amministratore = 0;
-    let aliquota_inps_totale = 0;
-    let aliquota_datore = 0;
-    let aliquota_amm = 0;
-    let label_gestione = '';
-
-    if (form.tipo_rapporto === 'gestione_separata') {
-      // Gestione Separata INPS 2025
-      // Aliquota totale: 33.72% (di cui 2/3 datore, 1/3 amministratore)
-      aliquota_inps_totale = 0.3372;
-      aliquota_datore = aliquota_inps_totale * (2 / 3);
-      aliquota_amm = aliquota_inps_totale * (1 / 3);
-      inps_datore = compenso * aliquota_datore;
-      inps_amministratore = compenso * aliquota_amm;
-      label_gestione = 'Gestione Separata INPS';
-    } else if (form.tipo_rapporto === 'dipendente') {
-      // Come dipendente subordinato
-      aliquota_datore = 0.2981;
-      aliquota_amm = 0.0919;
-      inps_datore = compenso * aliquota_datore;
-      inps_amministratore = compenso * aliquota_amm;
-      label_gestione = 'INPS come dipendente';
-    }
-
-    // INAIL (se applicabile)
-    const inail = form.inail_applicabile === 'si' ? compenso * 0.004 : 0;
-
-    // TFR non si applica all'amministratore in gestione separata
-    const tfr = form.tipo_rapporto === 'dipendente' ? compenso / 13.5 : 0;
-
-    // Costo totale per la SRL
-    const costo_totale_srl = compenso + inps_datore + inail + tfr;
-
-    // Deducibilità IRES/IRAP: il compenso + contributi datore sono deducibili
-    const deducibile_ires = compenso + inps_datore;
-    const risparmio_ires = deducibile_ires * 0.24; // IRES 24%
-    const deducibile_irap = compenso; // Solo compenso è deducibile IRAP (contributi esclusi)
-    const risparmio_irap = deducibile_irap * 0.039; // IRAP media ~3.9%
-
-    // Costo netto per la SRL (dopo risparmio fiscale)
-    const costo_netto_srl = costo_totale_srl - risparmio_ires - risparmio_irap;
-
-    // Netto in tasca all'amministratore
-    const imponibile_irpef = compenso - inps_amministratore;
-
-    // IRPEF 2025
-    let irpef = 0;
-    if (imponibile_irpef <= 28000) {
-      irpef = imponibile_irpef * 0.23;
-    } else if (imponibile_irpef <= 50000) {
-      irpef = 28000 * 0.23 + (imponibile_irpef - 28000) * 0.35;
-    } else {
-      irpef = 28000 * 0.23 + 22000 * 0.35 + (imponibile_irpef - 50000) * 0.43;
-    }
-
-    const addizionali = imponibile_irpef * 0.025;
-    const netto_amministratore = compenso - inps_amministratore - irpef - addizionali;
-
-    setResult({
+    const res = calcolaCostoAmministratore({
       compenso,
       tipo_rapporto: form.tipo_rapporto,
-      label_gestione,
-      inps_datore,
-      inps_amministratore,
-      aliquota_datore,
-      aliquota_amm,
-      aliquota_inps_totale,
-      inail,
-      tfr,
-      costo_totale_srl,
-      deducibile_ires,
-      risparmio_ires,
-      deducibile_irap,
-      risparmio_irap,
-      costo_netto_srl,
-      irpef,
-      addizionali,
-      netto_amministratore,
-    });
+      inail_applicabile: form.inail_applicabile,
+    }, tab);
+
+    setResult(res);
   };
 
   const fmt = (n) => n.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  if (tab.isLoading) {
+    return (
+      <Card className="bg-slate-800 border-slate-700">
+        <CardContent className="p-6 flex items-center justify-center gap-3">
+          <Loader2 className="w-5 h-5 animate-spin text-indigo-400" />
+          <span className="text-slate-400 text-sm">Caricamento tabelle normative...</span>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (tab.error || !tab.tabelle || Object.keys(tab.tabelle).length === 0) {
+    return (
+      <Card className="bg-red-500/20 border-red-500/50">
+        <CardContent className="p-4 flex items-center gap-3">
+          <AlertTriangle className="w-5 h-5 text-red-400" />
+          <span className="text-red-400 text-sm">Tabelle contributive {tab.anno} non disponibili. Contattare l'amministratore.</span>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -112,23 +63,15 @@ export default function SimulatoreAmministratore() {
 
           <div>
             <label className="text-slate-400 text-sm mb-1 block">Compenso lordo annuo *</label>
-            <Input
-              type="number"
-              placeholder="Es. 40000"
-              value={form.compenso_lordo}
-              onChange={(e) => setForm({ ...form, compenso_lordo: e.target.value })}
-              className="bg-slate-900 border-slate-700 text-white"
-            />
+            <Input type="number" placeholder="Es. 40000" value={form.compenso_lordo} onChange={(e) => setForm({ ...form, compenso_lordo: e.target.value })} className="bg-slate-900 border-slate-700 text-white" />
           </div>
 
           <div>
             <label className="text-slate-400 text-sm mb-1 block">Tipo rapporto previdenziale *</label>
             <Select value={form.tipo_rapporto} onValueChange={(v) => setForm({ ...form, tipo_rapporto: v })}>
-              <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
-                <SelectValue />
-              </SelectTrigger>
+              <SelectTrigger className="bg-slate-900 border-slate-700 text-white"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="gestione_separata">Gestione Separata INPS (33,72%)</SelectItem>
+                <SelectItem value="gestione_separata">Gestione Separata INPS</SelectItem>
                 <SelectItem value="dipendente">Come dipendente (già iscritto altra gestione)</SelectItem>
               </SelectContent>
             </Select>
@@ -136,64 +79,46 @@ export default function SimulatoreAmministratore() {
 
           <div>
             <label className="text-slate-400 text-sm mb-1 block">INAIL applicabile?</label>
-            <Select value={form.inail_applicabile} onValueChange={(v) => setForm({ ...form, inail_applicabile: v })}>
-              <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
-                <SelectValue />
-              </SelectTrigger>
+            <Select value={form.inail_applicabile ? 'si' : 'no'} onValueChange={(v) => setForm({ ...form, inail_applicabile: v === 'si' })}>
+              <SelectTrigger className="bg-slate-900 border-slate-700 text-white"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="no">No</SelectItem>
-                <SelectItem value="si">Sì (0,4%)</SelectItem>
+                <SelectItem value="si">Sì</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          <Button
-            onClick={calcola}
-            disabled={!form.compenso_lordo}
-            className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold"
-          >
+          <Button onClick={calcola} disabled={!form.compenso_lordo} className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold">
             <Calculator className="w-4 h-4 mr-2" />
             Calcola Costo
           </Button>
         </CardContent>
       </Card>
 
-      {result && (
+      {result === null ? null : !result ? (
+        <Card className="bg-red-500/20 border-red-500/50">
+          <CardContent className="p-4 flex items-center gap-3">
+            <AlertTriangle className="w-5 h-5 text-red-400" />
+            <span className="text-red-400 text-sm">Tabelle incomplete per il tipo selezionato. Verificare i dati normativi.</span>
+          </CardContent>
+        </Card>
+      ) : (
         <div className="space-y-4">
           {/* Costo per la SRL */}
           <Card className="bg-gradient-to-br from-red-500/20 to-orange-500/10 border-red-500/30">
             <CardContent className="p-4">
               <h3 className="text-red-400 font-bold mb-3">🏢 Costo per la SRL</h3>
               <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Compenso lordo</span>
-                  <span className="text-white font-semibold">€{fmt(result.compenso)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Contributi INPS datore ({(result.aliquota_datore * 100).toFixed(2)}%)</span>
-                  <span className="text-white">€{fmt(result.inps_datore)}</span>
-                </div>
-                {result.inail > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">INAIL (0,4%)</span>
-                    <span className="text-white">€{fmt(result.inail)}</span>
-                  </div>
-                )}
-                {result.tfr > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">TFR</span>
-                    <span className="text-white">€{fmt(result.tfr)}</span>
-                  </div>
-                )}
+                <Row label="Compenso lordo" value={fmt(result.compenso)} bold />
+                <Row label={`Contributi INPS datore (${(result.aliquota_datore * 100).toFixed(2)}%)`} value={fmt(result.inps_datore)} />
+                {result.inail > 0 && <Row label={`INAIL (${(result.aliquota_inail * 100).toFixed(1)}%)`} value={fmt(result.inail)} />}
+                {result.tfr > 0 && <Row label="TFR" value={fmt(result.tfr)} />}
                 <div className="border-t border-red-500/30 pt-2 mt-2">
                   <div className="flex justify-between">
                     <span className="text-red-400 font-bold">COSTO TOTALE SRL</span>
                     <span className="text-red-400 font-bold text-lg">€{fmt(result.costo_totale_srl)}</span>
                   </div>
-                  <div className="flex justify-between mt-1">
-                    <span className="text-slate-400">Costo mensile (su 12 mesi)</span>
-                    <span className="text-white font-semibold">€{fmt(result.costo_totale_srl / 12)}</span>
-                  </div>
+                  <Row label="Costo mensile (su 12 mesi)" value={fmt(result.costo_totale_srl / 12)} />
                 </div>
               </div>
             </CardContent>
@@ -204,20 +129,14 @@ export default function SimulatoreAmministratore() {
             <CardContent className="p-4">
               <h3 className="text-blue-400 font-bold mb-3">📉 Risparmio Fiscale SRL</h3>
               <div className="space-y-2 text-sm">
+                <Row label="Deducibile IRES (compenso + INPS datore)" value={fmt(result.deducibile_ires)} />
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Deducibile IRES (compenso + INPS datore)</span>
-                  <span className="text-white">€{fmt(result.deducibile_ires)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">→ Risparmio IRES (24%)</span>
+                  <span className="text-slate-400">→ Risparmio IRES ({(result.aliquota_ires * 100).toFixed(0)}%)</span>
                   <span className="text-green-400">-€{fmt(result.risparmio_ires)}</span>
                 </div>
+                <Row label="Deducibile IRAP (solo compenso)" value={fmt(result.deducibile_irap)} />
                 <div className="flex justify-between">
-                  <span className="text-slate-400">Deducibile IRAP (solo compenso)</span>
-                  <span className="text-white">€{fmt(result.deducibile_irap)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">→ Risparmio IRAP (~3,9%)</span>
+                  <span className="text-slate-400">→ Risparmio IRAP (~{(result.aliquota_irap * 100).toFixed(1)}%)</span>
                   <span className="text-green-400">-€{fmt(result.risparmio_irap)}</span>
                 </div>
                 <div className="border-t border-blue-500/30 pt-2 mt-2">
@@ -236,31 +155,16 @@ export default function SimulatoreAmministratore() {
             <CardContent className="p-4">
               <h3 className="text-green-400 font-bold mb-3">🧾 Netto Amministratore</h3>
               <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-slate-400">Compenso lordo</span>
-                  <span className="text-white">€{fmt(result.compenso)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">- INPS amministratore ({(result.aliquota_amm * 100).toFixed(2)}%)</span>
-                  <span className="text-red-300">-€{fmt(result.inps_amministratore)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">- IRPEF (scaglioni 2025)</span>
-                  <span className="text-red-300">-€{fmt(result.irpef)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-400">- Addizionali (~2,5%)</span>
-                  <span className="text-red-300">-€{fmt(result.addizionali)}</span>
-                </div>
+                <Row label="Compenso lordo" value={fmt(result.compenso)} />
+                <Row label={`- INPS amministratore (${(result.aliquota_amm * 100).toFixed(2)}%)`} value={fmt(result.inps_amministratore)} negative />
+                <Row label="- IRPEF (scaglioni)" value={fmt(result.irpef)} negative />
+                <Row label={`- Addizionali (~${(result.aliquota_addizionali * 100).toFixed(1)}%)`} value={fmt(result.addizionali)} negative />
                 <div className="border-t border-green-500/30 pt-2 mt-2">
                   <div className="flex justify-between">
                     <span className="text-green-400 font-bold">NETTO ANNUO</span>
                     <span className="text-green-400 font-bold text-lg">€{fmt(result.netto_amministratore)}</span>
                   </div>
-                  <div className="flex justify-between mt-1">
-                    <span className="text-slate-400">Netto mensile (su 12 mesi)</span>
-                    <span className="text-white font-semibold">€{fmt(result.netto_amministratore / 12)}</span>
-                  </div>
+                  <Row label="Netto mensile (su 12 mesi)" value={fmt(result.netto_amministratore / 12)} />
                 </div>
               </div>
             </CardContent>
@@ -273,9 +177,7 @@ export default function SimulatoreAmministratore() {
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-slate-700/50 rounded-lg p-3 text-center">
                   <p className="text-slate-400 text-xs">Cuneo fiscale</p>
-                  <p className="text-yellow-400 font-bold text-lg">
-                    {((1 - result.netto_amministratore / result.costo_totale_srl) * 100).toFixed(1)}%
-                  </p>
+                  <p className="text-yellow-400 font-bold text-lg">{((1 - result.netto_amministratore / result.costo_totale_srl) * 100).toFixed(1)}%</p>
                 </div>
                 <div className="bg-slate-700/50 rounded-lg p-3 text-center">
                   <p className="text-slate-400 text-xs">Gestione</p>
@@ -285,14 +187,37 @@ export default function SimulatoreAmministratore() {
             </CardContent>
           </Card>
 
+          {/* Fonti normative */}
+          <Card className="bg-slate-800/50 border-slate-700">
+            <CardContent className="p-3">
+              <p className="text-slate-500 text-xs mb-2">📚 Anno normativo: {result.anno} — Fonti utilizzate:</p>
+              <div className="flex flex-wrap gap-1">
+                {result.fonti.map((f, i) => (
+                  <span key={i} className="bg-slate-700/50 text-slate-400 text-[10px] px-2 py-0.5 rounded">{f}</span>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
           <div className="flex items-start gap-2 bg-slate-800/50 rounded-lg p-3">
             <Info className="w-4 h-4 text-slate-500 flex-shrink-0 mt-0.5" />
             <p className="text-slate-500 text-xs">
-              Calcolo indicativo. L'aliquota IRAP varia per regione. Non tiene conto di detrazioni specifiche. Per un calcolo esatto consultare il commercialista.
+              Calcolo deterministico su tabelle normative {result.anno}. L'aliquota IRAP varia per regione. Non tiene conto di detrazioni specifiche.
             </p>
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function Row({ label, value, bold, negative }) {
+  return (
+    <div className="flex justify-between">
+      <span className="text-slate-400">{label}</span>
+      <span className={`${bold ? 'font-semibold text-white' : ''} ${negative ? 'text-red-300' : 'text-white'}`}>
+        {negative ? '-' : ''}€{value}
+      </span>
     </div>
   );
 }
