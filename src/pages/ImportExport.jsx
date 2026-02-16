@@ -929,6 +929,43 @@ Fornisci:
                   </div>
                 )}
 
+                {/* STEP 2: Analisi Prezzo & Marginalità */}
+                {priceStep && (
+                  <Card className="bg-slate-800 border-slate-700">
+                    <CardContent className="p-4">
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-3">
+                          <Loader2 className="w-5 h-5 animate-spin text-indigo-400" />
+                          <p className="text-white font-semibold text-sm">Analisi Prezzo & Marginalità...</p>
+                        </div>
+                        <div className="space-y-2">
+                          {['fetching', 'computing', 'interpreting'].map((step, i) => {
+                            const labels = {
+                              fetching: '1. Recupero prezzi unitari da UN Comtrade...',
+                              computing: '2. Calcolo premium/discount e trend...',
+                              interpreting: '3. Interpretazione strategica AI...'
+                            };
+                            const isActive = priceStep === step;
+                            const isDone = ['fetching', 'computing', 'interpreting'].indexOf(priceStep) > i;
+                            return (
+                              <div key={step} className={`flex items-center gap-2 text-xs px-3 py-1.5 rounded-lg ${
+                                isActive ? 'bg-indigo-400/10 text-indigo-400' : isDone ? 'bg-green-500/10 text-green-400' : 'text-slate-500'
+                              }`}>
+                                {isActive ? <Loader2 className="w-3 h-3 animate-spin" /> : isDone ? <CheckCircle className="w-3 h-3" /> : <span className="w-3 h-3 rounded-full border border-slate-600 block" />}
+                                {labels[step]}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {!priceStep && priceMetrics && (
+                  <PriceMarginSection priceMetrics={priceMetrics} interpretation={priceInterpretation} />
+                )}
+
                 {/* Mercati Prioritari */}
                 {analysisResult.mercati_prioritari?.length > 0 && (
                   <Card className="bg-slate-800 border-slate-700">
