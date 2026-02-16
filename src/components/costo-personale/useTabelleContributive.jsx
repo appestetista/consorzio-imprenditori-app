@@ -265,3 +265,189 @@ export function calcolaCostoAmministratore(params, tab) {
     dataAggiornamento: tab.dataAggiornamento,
   };
 }
+
+/**
+ * Motore di calcolo deterministico Socio Lavoratore di cooperativa / SRL.
+ * Il socio lavoratore è iscritto come dipendente della cooperativa o come
+ * artigiano/commerciante. Il compenso è soggetto a contributi INPS (gestione
+ * autonoma: commercianti o artigiani) + INAIL + IRPEF.
+ */
+export function calcolaCostoSocioLavoratore(params, tab) {
+  const { compenso, gestione_inps, inail_applicabile, contributiINPS } = params;
+
+  const irpef_1 = tab.get('irpef_scaglione_1');
+  const irpef_2 = tab.get('irpef_scaglione_2');
+  const irpef_3 = tab.get('irpef_scaglione_3');
+  const soglia_1 = tab.get('irpef_soglia_1');
+  const soglia_2 = tab.get('irpef_soglia_2');
+  const addizionali_val = tab.get('addizionali_media');
+  const inail_val = tab.get('inail_operaio_generico');
+
+  if ([irpef_1, soglia_1].some(v => v === null)) return null;
+
+  let contributo_inps = 0;
+  let aliquota_inps = 0;
+  let label_gestione = '';
+  let dettaglio_contributi = null;
+  const fonti_extra = [];
+  const tipi_usati = ['irpef_scaglione_1', 'irpef_scaglione_2', 'irpef_scaglione_3', 'irpef_soglia_1', 'irpef_soglia_2', 'addizionali_media'];
+
+  if (gestione_inps === 'commercianti' || gestione_inps === 'artigiani') {
+    const gestKey = gestione_inps === 'commercianti' ? 'Commercianti' : 'Artigiani';
+    const dati = contributiINPS?.find(c => c.gestione === gestKey);
+    if (!dati) return null;
+
+    const { aliquota_percentuale, minimale_annuo, contributo_fisso_annuo, massimale_reddito } = dati;
+    const compenso_capped = Math.min(compenso, massimale_reddito);
+
+    if (compenso_capped <= minimale_annuo) {
+      contributo_inps = contributo_fisso_annuo;
+    } else {
+      contributo_inps = contributo_fisso_annuo + (compenso_capped - minimale_annuo) * aliquota_percentuale;
+    }
+    aliquota_inps = aliquota_percentuale;
+    label_gestione = gestione_inps === 'commercianti' ? 'Gestione Commercianti' : 'Gestione Artigiani';
+    fonti_extra.push(`Circ. INPS ${gestKey} 2026`);
+    dettaglio_contributi = {
+      tipo: gestione_inps,
+      aliquota_percentuale,
+      minimale_annuo,
+      contributo_fisso_annuo,
+      massimale_reddito,
+      contributo_totale: contributo_inps,
+      eccedenza: Math.max(0, compenso_capped - minimale_annuo),
+      contributo_su_eccedenza: Math.max(0, compenso_capped - minimale_annuo) * aliquota_percentuale,
+    };
+  } else {
+    // Dipendente della cooperativa — usa aliquote standard
+    const inps_datore_aliq = tab.get('inps_datore_dipendente');
+    const inps_lav_aliq = tab.get('inps_dipendente');
+    if (inps_datore_aliq === null || inps_lav_aliq === null) return null;
+    contributo_inps = compenso * inps_lav_aliq;
+    aliquota_inps = inps_lav_aliq;
+    label_gestione = 'Dipendente Cooperativa';
+    tipi_usati.push('inps_datore_dipendente', 'inps_dipendente');
+    dettaglio_contributi = {
+      tipo: 'dipendente_coop',
+      aliquota_datore: inps_datore_aliq,
+      aliquota_lavoratore: inps_lav_aliq,
+      inps_datore: compenso * inps_datore_aliq,
+      inps_lavoratore: contributo_inps,
+    };
+  }
+
+  const inail = inail_applicabile && inail_val ? compenso * inail_val : 0;
+  if (inail_applicabile) tipi_usati.push('inail_operaio_generico');
+
+  const imponibile_irpef = compenso - contributo_inps;
+  let irpef = 0;
+  if (imponibile_irpef <= 0) {
+    irpef = 0;
+  } else if (imponibile_irpef <= soglia_1) {
+    irpef = imponibile_irpef * irpef_1;
+  } else if (imponibile_irpef <= soglia_2) {
+    irpef = soglia_1 * irpef_1 + (imponibile_irpef - soglia_1) * irpef_2;
+  } else {
+    irpef = soglia_1 * irpef_1 + (soglia_2 - soglia_1) * irpef_2 + (imponibile_irpef - soglia_2) * irpef_3;
+  }
+
+  const addiz = Math.max(0, imponibile_irpef) * addizionali_val;
+  const netto_annuo = compenso - contributo_inps - irpef - addiz;
+
+  // Costo azienda: compenso + INPS datore (se dipendente coop) + INAIL
+  const inps_datore_coop = dettaglio_contributi?.tipo === 'dipendente_coop' ? dettaglio_contributi.inps_datore : 0;
+  const costo_azienda = compenso + inps_datore_coop + inail;
+
+  const fonti = [...tab.raccogliFonti(tipi_usati), ...fonti_extra];
+
+  return {
+    compenso,
+    gestione_inps,
+    label_gestione,
+    contributo_inps,
+    aliquota_inps,
+    dettaglio_contributi,
+    inail,
+    costo_azienda,
+    imponibile_irpef: Math.max(0, imponibile_irpef),
+    irpef,
+    addizionali: addiz,
+    aliquota_addizionali: addizionali_val,
+    netto_annuo,
+    netto_mensile: netto_annuo / 12,
+    fonti,
+    anno: tab.anno,
+    dataAggiornamento: tab.dataAggiornamento,
+  };
+}
+
+/**
+ * Motore di calcolo deterministico Gestione Separata INPS.
+ * Per collaboratori/professionisti senza cassa. Aliquota piena su compenso lordo.
+ * Non c'è INAIL obbligatorio (salvo eccezioni), non c'è TFR.
+ */
+export function calcolaCostoGestioneSeparata(params, tab) {
+  const { compenso, ha_altra_copertura } = params;
+
+  const gs_totale = tab.get('inps_gestione_separata_totale');
+  const gs_quota_datore = tab.get('inps_gestione_separata_quota_datore');
+  const gs_quota_iscritto = tab.get('inps_gestione_separata_quota_iscritto');
+  const irpef_1 = tab.get('irpef_scaglione_1');
+  const irpef_2 = tab.get('irpef_scaglione_2');
+  const irpef_3 = tab.get('irpef_scaglione_3');
+  const soglia_1 = tab.get('irpef_soglia_1');
+  const soglia_2 = tab.get('irpef_soglia_2');
+  const addizionali_val = tab.get('addizionali_media');
+
+  if ([gs_totale, gs_quota_datore, gs_quota_iscritto, irpef_1, soglia_1].some(v => v === null)) return null;
+
+  const tipi_usati = [
+    'inps_gestione_separata_totale', 'inps_gestione_separata_quota_datore', 'inps_gestione_separata_quota_iscritto',
+    'irpef_scaglione_1', 'irpef_scaglione_2', 'irpef_scaglione_3',
+    'irpef_soglia_1', 'irpef_soglia_2', 'addizionali_media',
+  ];
+
+  // Aliquota ridotta se ha altra copertura previdenziale obbligatoria
+  const aliquota_effettiva = ha_altra_copertura ? gs_totale * 0.75 : gs_totale; // 26.07% se ha altra, 35.03% se non ha
+  const contributo_totale = compenso * aliquota_effettiva;
+  const quota_committente = contributo_totale * gs_quota_datore; // 2/3
+  const quota_collaboratore = contributo_totale * gs_quota_iscritto; // 1/3
+
+  // Costo committente
+  const costo_committente = compenso + quota_committente;
+
+  // Netto collaboratore
+  const imponibile_irpef = compenso - quota_collaboratore;
+  let irpef = 0;
+  if (imponibile_irpef <= 0) {
+    irpef = 0;
+  } else if (imponibile_irpef <= soglia_1) {
+    irpef = imponibile_irpef * irpef_1;
+  } else if (imponibile_irpef <= soglia_2) {
+    irpef = soglia_1 * irpef_1 + (imponibile_irpef - soglia_1) * irpef_2;
+  } else {
+    irpef = soglia_1 * irpef_1 + (soglia_2 - soglia_1) * irpef_2 + (imponibile_irpef - soglia_2) * irpef_3;
+  }
+
+  const addiz = Math.max(0, imponibile_irpef) * addizionali_val;
+  const netto_annuo = compenso - quota_collaboratore - irpef - addiz;
+
+  return {
+    compenso,
+    ha_altra_copertura,
+    aliquota_effettiva,
+    contributo_totale,
+    quota_committente,
+    quota_collaboratore,
+    costo_committente,
+    imponibile_irpef: Math.max(0, imponibile_irpef),
+    irpef,
+    addizionali: addiz,
+    aliquota_addizionali: addizionali_val,
+    netto_annuo,
+    netto_mensile: netto_annuo / 12,
+    fonti: tab.raccogliFonti(tipi_usati),
+    anno: tab.anno,
+    dataAggiornamento: tab.dataAggiornamento,
+  };
+}
