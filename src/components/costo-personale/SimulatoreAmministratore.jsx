@@ -35,7 +35,7 @@ export default function SimulatoreAmministratore() {
       <Card className="bg-slate-800 border-slate-700">
         <CardContent className="p-6 flex items-center justify-center gap-3">
           <Loader2 className="w-5 h-5 animate-spin text-indigo-400" />
-          <span className="text-slate-400 text-sm">Caricamento tabelle normative...</span>
+          <span className="text-slate-400 text-sm">Caricamento tabelle normative 2026...</span>
         </CardContent>
       </Card>
     );
@@ -157,7 +157,7 @@ export default function SimulatoreAmministratore() {
               <div className="space-y-2 text-sm">
                 <Row label="Compenso lordo" value={fmt(result.compenso)} />
                 <Row label={`- INPS amministratore (${(result.aliquota_amm * 100).toFixed(2)}%)`} value={fmt(result.inps_amministratore)} negative />
-                <Row label="- IRPEF (scaglioni)" value={fmt(result.irpef)} negative />
+                <Row label="- IRPEF (scaglioni 23/33/43%)" value={fmt(result.irpef)} negative />
                 <Row label={`- Addizionali (~${(result.aliquota_addizionali * 100).toFixed(1)}%)`} value={fmt(result.addizionali)} negative />
                 <div className="border-t border-green-500/30 pt-2 mt-2">
                   <div className="flex justify-between">
