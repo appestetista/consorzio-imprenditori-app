@@ -73,6 +73,8 @@ OUTPUT: JSON strutturato.`,
         type: "object",
         properties: {
           hs_code: { type: "string" },
+          reporter: { type: "string", description: "Paese esportatore (Reporter)" },
+          flow: { type: "string", description: "Export" },
           periodo: { type: "string" },
           mercati: {
             type: "array",
@@ -81,10 +83,11 @@ OUTPUT: JSON strutturato.`,
               properties: {
                 paese_code: { type: "string" },
                 paese_nome: { type: "string" },
-                import_world: {
+                query_fallback_world: { type: "boolean", description: "true se dati ottenuti con Partner=World invece che partner specifico" },
+                export_to_partner: {
                   type: "object",
                   properties: {
-                    trade_value_usd: { type: "number", description: "Valore import totale USD (Partner=World)" },
+                    trade_value_usd: { type: "number", description: "Valore totale export USD verso il partner" },
                     net_weight_kg: { type: "number", description: "Peso netto totale kg" },
                     prezzo_unitario_usd_kg: { type: "number", description: "TradeValue / NetWeight" },
                     unita_misura: { type: "string", description: "kg o altra unità se NetWeight non disponibile" },
@@ -92,18 +95,21 @@ OUTPUT: JSON strutturato.`,
                     fonte: { type: "string" }
                   }
                 },
-                import_exporter: {
-                  type: "object",
-                  properties: {
-                    trade_value_usd: { type: "number", description: "Valore import dal partner specifico USD" },
-                    net_weight_kg: { type: "number", description: "Peso netto kg" },
-                    prezzo_unitario_usd_kg: { type: "number", description: "TradeValue / NetWeight" },
-                    unita_misura: { type: "string" },
-                    anno: { type: "string" },
-                    fonte: { type: "string" }
-                  }
+                serie_storica: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      anno: { type: "number" },
+                      trade_value_usd: { type: "number" },
+                      net_weight_kg: { type: "number" },
+                      prezzo_unitario_usd_kg: { type: "number" },
+                      fonte: { type: "string" }
+                    }
+                  },
+                  description: "Serie storica annuale export per ciascun anno del periodo"
                 },
-                top_fornitori_prezzo: {
+                top_destinatari_prezzo: {
                   type: "array",
                   items: {
                     type: "object",
@@ -114,22 +120,22 @@ OUTPUT: JSON strutturato.`,
                       net_weight_kg: { type: "number" },
                       fonte: { type: "string" }
                     }
-                  }
-                },
-                serie_prezzo_unitario: {
-                  type: "array",
-                  items: {
-                    type: "object",
-                    properties: {
-                      anno: { type: "number" },
-                      prezzo_unitario_usd_kg: { type: "number" },
-                      fonte: { type: "string" }
-                    }
                   },
-                  description: "Serie storica prezzo unitario World per HS heading nel Paese"
+                  description: "Top 5 Paesi destinatari per valore export con prezzo unitario"
                 }
               }
             }
+          },
+          export_world: {
+            type: "object",
+            properties: {
+              trade_value_usd: { type: "number", description: "Export totale (Partner=World) per HS heading" },
+              net_weight_kg: { type: "number" },
+              prezzo_unitario_usd_kg: { type: "number" },
+              anno: { type: "string" },
+              fonte: { type: "string" }
+            },
+            description: "Export totale del Reporter verso World per benchmark"
           },
           tasso_cambio_eur_usd: {
             type: "object",
