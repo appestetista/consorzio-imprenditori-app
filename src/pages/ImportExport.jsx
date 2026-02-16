@@ -1460,67 +1460,52 @@ Fornisci:
                   </Card>
                 )}
 
-                {/* Dazi TARIC e Flussi Commerciali Import */}
-                {importResult.dazi_taric && (
-                  <Card className="bg-amber-500/10 border-amber-500/20">
+                {/* Landed Cost Table — dati TARIC + calcolo */}
+                <LandedCostTable landedCost={importLandedCost} importData={importRawData} />
+
+                {/* Flussi Commerciali Cina→Italia */}
+                {importRawData?.flussi_comtrade && (
+                  <Card className="bg-slate-800/80 border-slate-700">
                     <CardContent className="p-4">
-                      <h3 className="text-amber-400 font-bold mb-3 flex items-center gap-2">
-                        🏛️ Dazi Doganali (TARIC — HS {confirmedImportHS?.hs_code})
+                      <h3 className="text-white font-bold mb-3 flex items-center gap-2">
+                        📊 Flussi Commerciali Cina→Italia (UN Comtrade)
                       </h3>
                       <div className="grid grid-cols-2 gap-3 text-sm">
-                        {importResult.dazi_taric.dazio_mfn && (
-                          <div className="bg-slate-800/50 rounded-lg p-2">
-                            <p className="text-slate-400 text-xs">Dazio MFN:</p>
-                            <p className="text-white font-bold">{importResult.dazi_taric.dazio_mfn}</p>
+                        {importRawData.flussi_comtrade.import_italia_da_cina_usd && (
+                          <div className="bg-slate-700/50 rounded-lg p-2">
+                            <p className="text-slate-400 text-xs">Import ITA da CN:</p>
+                            <p className="text-white font-semibold">{importRawData.flussi_comtrade.import_italia_da_cina_usd}</p>
+                            {importRawData.flussi_comtrade.anno && (
+                              <p className="text-slate-500 text-[10px]">{importRawData.flussi_comtrade.anno}</p>
+                            )}
                           </div>
                         )}
-                        {importResult.dazi_taric.iva_italia && (
-                          <div className="bg-slate-800/50 rounded-lg p-2">
-                            <p className="text-slate-400 text-xs">IVA Italia:</p>
-                            <p className="text-white font-bold">{importResult.dazi_taric.iva_italia}</p>
+                        {importRawData.flussi_comtrade.serie_storica?.length > 0 && (
+                          <div className="bg-slate-700/50 rounded-lg p-2">
+                            <p className="text-slate-400 text-xs">Serie storica:</p>
+                            <p className="text-white text-xs">
+                              {importRawData.flussi_comtrade.serie_storica.map(s => `${s.anno}: ${s.valore_usd}`).join(' | ')}
+                            </p>
                           </div>
                         )}
                       </div>
-                      {importResult.dazi_taric.anti_dumping && importResult.dazi_taric.anti_dumping !== 'Nessuna' && importResult.dazi_taric.anti_dumping !== 'N/A' && (
-                        <div className="mt-2 bg-red-500/10 rounded-lg p-2">
-                          <p className="text-red-400 text-xs">⚠️ Anti-dumping: {importResult.dazi_taric.anti_dumping}</p>
-                        </div>
-                      )}
-                      {importResult.dazi_taric.restrizioni && importResult.dazi_taric.restrizioni !== 'Nessuna' && importResult.dazi_taric.restrizioni !== 'N/A' && (
-                        <p className="text-orange-400 text-xs mt-2">🔒 {importResult.dazi_taric.restrizioni}</p>
-                      )}
-                      {importResult.dazi_taric.fonte && (
-                        <p className="text-slate-500 text-[10px] mt-2">📌 {importResult.dazi_taric.fonte}</p>
+                      {importRawData.flussi_comtrade.fonte && (
+                        <p className="text-slate-500 text-[10px] mt-2">📌 {importRawData.flussi_comtrade.fonte}</p>
                       )}
                     </CardContent>
                   </Card>
                 )}
 
-                {importResult.flussi_commerciali && (
-                  <Card className="bg-slate-800/80 border-slate-700">
-                    <CardContent className="p-4">
-                      <h3 className="text-white font-bold mb-3 flex items-center gap-2">
-                        📊 Flussi Commerciali Cina→Italia (UN Comtrade / Eurostat)
-                      </h3>
-                      <div className="grid grid-cols-2 gap-3 text-sm">
-                        {importResult.flussi_commerciali.import_italia_da_cina && (
-                          <div className="bg-slate-700/50 rounded-lg p-2">
-                            <p className="text-slate-400 text-xs">Import ITA da CN:</p>
-                            <p className="text-white font-semibold">{importResult.flussi_commerciali.import_italia_da_cina}</p>
-                          </div>
-                        )}
-                        {importResult.flussi_commerciali.trend_5_anni && (
-                          <div className="bg-slate-700/50 rounded-lg p-2">
-                            <p className="text-slate-400 text-xs">Trend 5 anni:</p>
-                            <p className="text-white">{importResult.flussi_commerciali.trend_5_anni}</p>
-                          </div>
-                        )}
+                {/* Dati non disponibili */}
+                {importRawData?.dati_non_disponibili?.length > 0 && (
+                  <Card className="bg-slate-700/30 border-slate-600">
+                    <CardContent className="p-3">
+                      <p className="text-slate-500 text-xs mb-1.5">⚠ Dati non reperiti:</p>
+                      <div className="space-y-1">
+                        {importRawData.dati_non_disponibili.map((d, i) => (
+                          <p key={i} className="text-slate-500 text-[10px]">• {d}</p>
+                        ))}
                       </div>
-                      {(importResult.flussi_commerciali.fonte_comtrade || importResult.flussi_commerciali.fonte_eurostat) && (
-                        <p className="text-slate-500 text-[10px] mt-2">
-                          📌 {importResult.flussi_commerciali.fonte_comtrade}{importResult.flussi_commerciali.fonte_eurostat ? ` | ${importResult.flussi_commerciali.fonte_eurostat}` : ''}
-                        </p>
-                      )}
                     </CardContent>
                   </Card>
                 )}
