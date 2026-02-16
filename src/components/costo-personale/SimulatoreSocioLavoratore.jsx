@@ -69,6 +69,10 @@ export default function SimulatoreSocioLavoratore() {
     initialData: [],
   });
 
+  // Gestione obbligatoria per il tipo di società selezionato
+  const gestioneObbligatoria = form.tipo_societa ? GESTIONE_OBBLIGATORIA[form.tipo_societa] : null;
+  const isGestioneObbligatoria = gestioneObbligatoria !== null && gestioneObbligatoria !== undefined;
+
   // Filtra gestioni previdenziali in base al tipo di società selezionato
   const gestioniFiltrate = GESTIONI_PREVIDENZIALI.filter(g =>
     !form.tipo_societa || g.societa.includes(form.tipo_societa)
@@ -98,15 +102,28 @@ export default function SimulatoreSocioLavoratore() {
     }, tab);
 
     if (res) {
-      res.tipo_societa = TIPI_SOCIETA.find(t => t.key === form.tipo_societa)?.label || form.tipo_societa;
+      const ts = TIPI_SOCIETA.find(t => t.key === form.tipo_societa);
+      res.tipo_societa = ts?.label || form.tipo_societa;
       res.ruolo_operativo = RUOLI_OPERATIVI.find(r => r.key === form.ruolo_operativo)?.label || form.ruolo_operativo;
     }
 
     setResult(res);
   };
 
-  // Calcola al passaggio dallo step 4 allo step 5
+  // Gestisce il passaggio al prossimo step con logica condizionale
   const goToStep = (target) => {
+    // Quando si esce dallo Step 1, se la gestione è obbligatoria auto-imposta
+    if (step === 1 && target === 2 && form.tipo_societa) {
+      const obbl = GESTIONE_OBBLIGATORIA[form.tipo_societa];
+      if (obbl) {
+        setForm(prev => ({ ...prev, gestione_inps: obbl }));
+      } else {
+        // Reset gestione se si torna a un tipo con scelta libera
+        if (form.gestione_inps && !GESTIONI_PREVIDENZIALI.some(g => g.key === form.gestione_inps && g.societa.includes(form.tipo_societa))) {
+          setForm(prev => ({ ...prev, gestione_inps: '' }));
+        }
+      }
+    }
     if (target === 5 && !result) {
       calcola();
     }
