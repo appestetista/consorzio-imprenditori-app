@@ -75,6 +75,13 @@ export default function SintesiImprenditoriale({ dati }) {
             items={dati.limiti}
             itemColor="text-slate-400"
           />
+
+          <div className="mt-3 pt-3 border-t border-slate-700/50">
+            <p className="text-slate-500 text-[10px] leading-relaxed italic text-center">
+              Analisi automatica basata esclusivamente sui dati forniti nel documento caricato.
+              Il risultato ha finalità informative e non sostituisce la consulenza di un professionista abilitato.
+            </p>
+          </div>
         </CardContent>
       </Card>
     </div>
