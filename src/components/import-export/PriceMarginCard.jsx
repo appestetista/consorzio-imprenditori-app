@@ -167,6 +167,18 @@ function MarketPriceDetail({ m, interpretation }) {
                 </div>
               </div>
 
+              {/* Tasso di cambio valuta locale */}
+              {m.valuta_locale && m.valuta_locale.codice !== 'EUR' && (
+                <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-2 mt-2 flex items-center gap-2">
+                  <span className="text-cyan-400 text-xs">💱</span>
+                  <div className="text-cyan-200/80 text-[10px]">
+                    <span className="font-semibold">1 EUR = {m.valuta_locale.tasso_eur} {m.valuta_locale.codice}</span>
+                    {m.valuta_locale.nome && <span className="text-cyan-300/60"> ({m.valuta_locale.nome})</span>}
+                    <span className="text-cyan-300/60"> — Anno: {m.valuta_locale.anno}, Fonte: {m.valuta_locale.fonte}</span>
+                  </div>
+                </div>
+              )}
+
               {/* Valore e quantità export */}
               {(m.trade_value_usd || m.net_weight_kg) && (
                 <div className="grid grid-cols-2 gap-2 mt-2">
