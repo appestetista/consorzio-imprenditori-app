@@ -6,12 +6,15 @@ import { getFlagUrl } from './CountrySearchSelect';
 
 function fmtPrice(val, unit) {
   if (val === null || val === undefined) return 'N/D';
-  return `$${val.toFixed(2)}/${unit}`;
+  // Precisione adattiva: 4 decimali se < 1, 2 se >= 1
+  const decimali = Math.abs(val) < 1 ? 4 : 2;
+  return `$${val.toFixed(decimali)}/${unit}`;
 }
 
 function fmtPriceEur(val, unit) {
   if (val === null || val === undefined) return null;
-  return `€${val.toFixed(2)}/${unit}`;
+  const decimali = Math.abs(val) < 1 ? 4 : 2;
+  return `€${val.toFixed(decimali)}/${unit}`;
 }
 
 function PremiumBadge({ pct }) {
