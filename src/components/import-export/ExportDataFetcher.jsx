@@ -12,7 +12,9 @@ export async function fetchTradeData(hsCode, mercatiCodes, mercatiTarget) {
 
   const currentYear = new Date().getFullYear();
 
-  const result = await base44.integrations.Core.InvokeLLM({
+  let result;
+  try {
+    result = await base44.integrations.Core.InvokeLLM({
     prompt: `Sei un analista di dati commerciali. Siamo nel ${currentYear}.
 
 COMPITO: Recupera ESCLUSIVAMENTE dati numerici ufficiali per il codice HS ${hsCode} dall'Italia verso i seguenti mercati: ${mercatiNomi}.
