@@ -324,6 +324,20 @@ export default function PriceMarginSection({ priceMetrics, interpretation }) {
         </CardContent>
       </Card>
 
+      {/* Avvisi validazione globali */}
+      {priceMetrics.avvisi_validazione?.length > 0 && (
+        <Card className="bg-yellow-500/10 border-yellow-500/30">
+          <CardContent className="p-3">
+            {priceMetrics.avvisi_validazione.map((a, i) => (
+              <div key={i} className="flex items-start gap-2">
+                <AlertTriangle className="w-3.5 h-3.5 text-yellow-400 flex-shrink-0 mt-0.5" />
+                <p className="text-yellow-200 text-xs">{a}</p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+
       {/* Card per mercato */}
       {priceMetrics.metriche.map(m => (
         <MarketPriceDetail key={m.paese_code} m={m} interpretation={interpretation} />
