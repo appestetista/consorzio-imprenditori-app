@@ -3,6 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Upload, FileText, CheckCircle2, XCircle, AlertTriangle, Loader2 } from 'lucide-react';
+import DatiEstrattiBilancio from './DatiEstrattiBilancio';
 
 const PARTI_LABELS = {
   stato_patrimoniale: 'Stato Patrimoniale',
@@ -36,6 +37,7 @@ export default function AnalisiBilancio() {
 
   const analisi = result?.analisi;
   const ocrInfo = result?.ocr_info;
+  const datiEstratti = result?.dati_estratti;
   const isIdoneo = analisi?.esito === 'Documento idoneo';
 
   return (
@@ -178,6 +180,9 @@ export default function AnalisiBilancio() {
               </CardContent>
             </Card>
           )}
+
+          {/* Dati estratti */}
+          {datiEstratti && <DatiEstrattiBilancio dati={datiEstratti} />}
 
           {/* Note */}
           {analisi.note && (
