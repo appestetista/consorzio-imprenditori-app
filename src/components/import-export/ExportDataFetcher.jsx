@@ -174,17 +174,49 @@ export function computeMetrics(tradeData) {
       ? parseFloat(String(mercato.import_totale.valore_usd).replace(/[^0-9.]/g, ''))
       : null;
 
+    // Conversione USD → EUR
+    const importTotaleEur = conversionePossibile && importTotale ? Math.round(importTotale / tassoEurUsd) : null;
+    
+    const exportItalia = mercato.export_italia?.valore_usd
+      ? parseFloat(String(mercato.export_italia.valore_usd).replace(/[^0-9.]/g, ''))
+      : null;
+    const exportItaliaEur = conversionePossibile && exportItalia ? Math.round(exportItalia / tassoEurUsd) : null;
+
+    // Converti serie storica in EUR
+    const serieEur = conversionePossibile
+      ? serie.map(s => ({
+          ...s,
+          valore_eur: Math.round(
+            (parseFloat(String(s.valore_usd).replace(/[^0-9.]/g, '')) || 0) / tassoEurUsd
+          )
+        }))
+      : serie;
+
     return {
       paese_code: mercato.paese_code,
       paese_nome: mercato.paese_nome,
       import_totale_raw: importTotale,
+      import_totale_eur: importTotaleEur,
+      export_italia_raw: exportItalia,
+      export_italia_eur: exportItaliaEur,
       crescita_3_anni,
       cagr,
       volatilita,
       serie_storica: serie,
+      serie_storica_eur: serieEur,
       dati_completi: valori.length >= 3
     };
   });
+
+  return {
+    metriche: risultati,
+    tasso_cambio: conversionePossibile ? {
+      tasso: tassoEurUsd,
+      anno: tassoAnno,
+      fonte: tassoFonte,
+      nota: `Valori convertiti in EUR al tasso medio BCE anno ${tassoAnno}.`
+    } : null
+  };
 }
 
 /**
