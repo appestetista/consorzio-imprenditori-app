@@ -125,7 +125,14 @@ OUTPUT: JSON strutturato con dati grezzi per ciascun mercato.`,
 export function computeMetrics(tradeData) {
   if (!tradeData?.mercati) return null;
 
-  return tradeData.mercati.map(mercato => {
+  // Tasso di cambio EUR/USD dalla BCE
+  const tassoRaw = tradeData.tasso_cambio_eur_usd?.tasso;
+  const tassoEurUsd = tassoRaw ? parseFloat(String(tassoRaw).replace(/[^0-9.]/g, '')) : null;
+  const tassoAnno = tradeData.tasso_cambio_eur_usd?.anno || null;
+  const tassoFonte = tradeData.tasso_cambio_eur_usd?.fonte || 'BCE';
+  const conversionePossibile = tassoEurUsd && !isNaN(tassoEurUsd) && tassoEurUsd > 0;
+
+  const risultati = tradeData.mercati.map(mercato => {
     const serie = mercato.serie_storica || [];
     const valori = serie
       .map(s => parseFloat(String(s.valore_usd).replace(/[^0-9.]/g, '')))
