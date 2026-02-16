@@ -304,6 +304,8 @@ export function computePriceMetrics(priceData) {
       serie_prezzo: serie,
       serie_prezzo_eur: serieEur,
       dati_completi: prezzoPartner !== null && tradeValue !== null,
+      anno_riferimento: annoRiferimento,
+      fonte: fonteRiferimento,
       avviso_prezzo,
       avviso_unita
     };
