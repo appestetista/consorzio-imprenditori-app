@@ -283,11 +283,90 @@ ${testoNormalizzato.substring(0, 30000)}`,
       revisione = { controlli };
     }
 
+    // STEP 5: Analisi finanziaria – indicatori calcolati SOLO se dati sufficienti
+    let indicatori_finanziari = null;
+    if (dati_estratti) {
+      const sp = dati_estratti.stato_patrimoniale || {};
+      const ce = dati_estratti.conto_economico || {};
+      const lista = [];
+
+      // ROS = Utile / Ricavi × 100
+      if (ce.utile_perdita != null && ce.ricavi != null && ce.ricavi !== 0) {
+        lista.push({
+          nome: 'ROS (Return on Sales)',
+          formula: 'Utile / Ricavi × 100',
+          valore: Math.round((ce.utile_perdita / ce.ricavi) * 10000) / 100,
+          unita: '%',
+          dettaglio: `${ce.utile_perdita} / ${ce.ricavi} × 100`
+        });
+      } else {
+        const mancanti = [];
+        if (ce.utile_perdita == null) mancanti.push('Utile/Perdita');
+        if (ce.ricavi == null) mancanti.push('Ricavi');
+        if (ce.ricavi === 0) mancanti.push('Ricavi = 0');
+        lista.push({ nome: 'ROS (Return on Sales)', formula: 'Utile / Ricavi × 100', valore: null, motivo: `Dato mancante: ${mancanti.join(', ')}` });
+      }
+
+      // ROI = Utile / Totale Attivo × 100
+      if (ce.utile_perdita != null && sp.totale_attivo != null && sp.totale_attivo !== 0) {
+        lista.push({
+          nome: 'ROI (Return on Investment)',
+          formula: 'Utile / Totale Attivo × 100',
+          valore: Math.round((ce.utile_perdita / sp.totale_attivo) * 10000) / 100,
+          unita: '%',
+          dettaglio: `${ce.utile_perdita} / ${sp.totale_attivo} × 100`
+        });
+      } else {
+        const mancanti = [];
+        if (ce.utile_perdita == null) mancanti.push('Utile/Perdita');
+        if (sp.totale_attivo == null) mancanti.push('Totale Attivo');
+        if (sp.totale_attivo === 0) mancanti.push('Totale Attivo = 0');
+        lista.push({ nome: 'ROI (Return on Investment)', formula: 'Utile / Totale Attivo × 100', valore: null, motivo: `Dato mancante: ${mancanti.join(', ')}` });
+      }
+
+      // Current Ratio = Totale Attivo / Debiti (approssimazione con dati disponibili)
+      if (sp.totale_attivo != null && sp.debiti != null && sp.debiti !== 0) {
+        lista.push({
+          nome: 'Indice di Indebitamento',
+          formula: 'Debiti / Totale Attivo × 100',
+          valore: Math.round((sp.debiti / sp.totale_attivo) * 10000) / 100,
+          unita: '%',
+          dettaglio: `${sp.debiti} / ${sp.totale_attivo} × 100`
+        });
+      } else {
+        const mancanti = [];
+        if (sp.totale_attivo == null) mancanti.push('Totale Attivo');
+        if (sp.debiti == null) mancanti.push('Debiti');
+        if (sp.debiti === 0) mancanti.push('Debiti = 0');
+        lista.push({ nome: 'Indice di Indebitamento', formula: 'Debiti / Totale Attivo × 100', valore: null, motivo: `Dato mancante: ${mancanti.join(', ')}` });
+      }
+
+      // PFN stimata = Debiti - Disponibilità liquide
+      if (sp.debiti != null && sp.disponibilita_liquide != null) {
+        const pfn = sp.debiti - sp.disponibilita_liquide;
+        lista.push({
+          nome: 'PFN stimata (Posizione Finanziaria Netta)',
+          formula: 'Debiti − Disponibilità liquide',
+          valore: pfn,
+          unita: '€',
+          dettaglio: `${sp.debiti} − ${sp.disponibilita_liquide}`
+        });
+      } else {
+        const mancanti = [];
+        if (sp.debiti == null) mancanti.push('Debiti');
+        if (sp.disponibilita_liquide == null) mancanti.push('Disponibilità liquide');
+        lista.push({ nome: 'PFN stimata (Posizione Finanziaria Netta)', formula: 'Debiti − Disponibilità liquide', valore: null, motivo: `Dato mancante: ${mancanti.join(', ')}` });
+      }
+
+      indicatori_finanziari = { indicatori: lista };
+    }
+
     return Response.json({ 
       success: true, 
       analisi: result,
       dati_estratti,
       revisione,
+      indicatori_finanziari,
       ocr_info: {
         qualita: qualitaOcr,
         correzioni: correzioniOcr
