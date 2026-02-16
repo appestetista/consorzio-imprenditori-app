@@ -288,15 +288,21 @@ export default function ImportExport() {
       const result = await base44.integrations.Core.InvokeLLM({
         prompt: `Sei un esperto di import dalla Cina con 15 anni di esperienza nel sourcing e nella produzione in Asia. Siamo nel ${currentYear}.
 
+FONTI DATI OBBLIGATORIE (usa ESCLUSIVAMENTE queste):
+1) UN Comtrade (comtradeplus.un.org) — Flussi commerciali Cina→Italia per codice HS ${hsData.hs_code}, valore USD, serie ultimi 5 anni. Reporter: Italy, Partner: China.
+2) Eurostat Comext (ec.europa.eu/eurostat) — Import UE dalla Cina per codice HS ${hsData.hs_code}, valore EUR, quantità.
+3) TARIC (ec.europa.eu/taxation_customs/dds2/taric) — Dazio percentuale MFN e preferenziale per HS ${hsData.hs_code} origine Cina, misure anti-dumping, restrizioni merceologiche.
+Fonti aggiuntive ammesse: Freightos Baltic Index (tariffe container), Agenzia delle Dogane italiana, normativa CE/UE vigente.
+
 REGOLE INDEROGABILI (la violazione di anche una sola regola invalida l'intera analisi):
-- OGNI dato numerico (prezzo FOB, costo spedizione, aliquota dazio, percentuale) DEVE provenire da una fonte ufficiale verificabile.
-- Fonti ammesse ESCLUSIVAMENTE: TARIC (EU), Agenzia delle Dogane italiana, Freightos Baltic Index (per tariffe container), World Freight Rates, UN Comtrade, Trade Map (ITC), normativa CE/UE vigente.
-- Se un dato NON è reperibile con certezza, scrivi ESATTAMENTE: "Da verificare su [nome fonte specifica]". NON approssimare, NON stimare, NON dedurre.
-- NON usare MAI espressioni come "circa", "stimato", "approssimativamente", "indicativamente", "potrebbe costare", "range indicativo" per dati quantitativi.
-- Per ogni dato numerico inserito, indica tra parentesi la fonte e l'anno/periodo, es: "(TARIC, 2025)" oppure "(Freightos, Q1 2025)".
-- NON INVENTARE MAI codici HS, aliquote dazio, prezzi FOB, costi di spedizione.
-- Per MOQ: indica solo se basato su prassi verificabile di settore, altrimenti scrivi "MOQ variabile — richiedere quotazione diretta a fornitori".
-- Preferisci lasciare un campo con "Da verificare" piuttosto che inserire un dato non verificato.
+- OGNI dato numerico (dazio, costo, percentuale) DEVE provenire dalle fonti sopra. Per ogni dato indica: (Fonte, anno/periodo).
+- Per i DAZI: consulta TARIC per HS ${hsData.hs_code} con origine CN (Cina). Indica aliquota MFN, dazio anti-dumping se attivo, e contingenti.
+- Per i FLUSSI: cerca su UN Comtrade il valore import Italia dalla Cina per HS ${hsData.hs_code}.
+- Se un dato NON è reperibile, scrivi: "Da verificare su [TARIC / UN Comtrade / Eurostat Comext]". NON approssimare, NON stimare.
+- NON usare MAI espressioni come "circa", "stimato", "approssimativamente", "indicativamente", "potrebbe costare".
+- NON INVENTARE MAI aliquote dazio, prezzi FOB, costi di spedizione.
+- Per MOQ: indica solo se basato su prassi verificabile, altrimenti "MOQ variabile — richiedere quotazione diretta a fornitori".
+- Preferisci "Da verificare" piuttosto che un dato non verificato.
 
 Valuta la fattibilità di questo import per un'azienda italiana:
 
