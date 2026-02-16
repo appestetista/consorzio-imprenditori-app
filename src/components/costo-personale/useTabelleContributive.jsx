@@ -441,40 +441,70 @@ export function calcolaCostoGestioneSeparata(params, tab) {
   ];
 
   // Aliquota ridotta se ha altra copertura previdenziale obbligatoria
-  const aliquota_effettiva = ha_altra_copertura ? gs_totale * 0.75 : gs_totale; // 26.07% se ha altra, 35.03% se non ha
+  const aliquota_effettiva = ha_altra_copertura ? gs_totale * 0.75 : gs_totale;
   const contributo_totale = compenso * aliquota_effettiva;
-  const quota_committente = contributo_totale * gs_quota_datore; // 2/3
-  const quota_collaboratore = contributo_totale * gs_quota_iscritto; // 1/3
+  const quota_committente = contributo_totale * gs_quota_datore;
+  const quota_collaboratore = contributo_totale * gs_quota_iscritto;
 
   // Costo committente
   const costo_committente = compenso + quota_committente;
 
-  // Netto collaboratore
-  const imponibile_irpef = compenso - quota_collaboratore;
-  let irpef = 0;
-  if (imponibile_irpef <= 0) {
-    irpef = 0;
-  } else if (imponibile_irpef <= soglia_1) {
-    irpef = imponibile_irpef * irpef_1;
-  } else if (imponibile_irpef <= soglia_2) {
-    irpef = soglia_1 * irpef_1 + (imponibile_irpef - soglia_1) * irpef_2;
-  } else {
-    irpef = soglia_1 * irpef_1 + (soglia_2 - soglia_1) * irpef_2 + (imponibile_irpef - soglia_2) * irpef_3;
+  // Netto collaboratore — IRPEF per scaglione
+  const imponibile_irpef_raw = compenso - quota_collaboratore;
+  const imponibile_irpef = Math.max(0, imponibile_irpef_raw);
+
+  let irpef_scaglione_1_importo = 0;
+  let irpef_scaglione_2_importo = 0;
+  let irpef_scaglione_3_importo = 0;
+
+  if (imponibile_irpef > 0) {
+    irpef_scaglione_1_importo = Math.min(imponibile_irpef, soglia_1) * irpef_1;
+  }
+  if (imponibile_irpef > soglia_1) {
+    irpef_scaglione_2_importo = (Math.min(imponibile_irpef, soglia_2) - soglia_1) * irpef_2;
+  }
+  if (imponibile_irpef > soglia_2) {
+    irpef_scaglione_3_importo = (imponibile_irpef - soglia_2) * irpef_3;
   }
 
-  const addiz = Math.max(0, imponibile_irpef) * addizionali_val;
-  const netto_annuo = compenso - quota_collaboratore - irpef - addiz;
+  const irpef_lorda = irpef_scaglione_1_importo + irpef_scaglione_2_importo + irpef_scaglione_3_importo;
+
+  // Detrazione lavoro art. 13 TUIR
+  let detrazione_lavoro = 0;
+  if (imponibile_irpef <= 15000 && imponibile_irpef > 0) {
+    detrazione_lavoro = 1265;
+  } else if (imponibile_irpef <= 28000) {
+    detrazione_lavoro = 1265 * (28000 - imponibile_irpef) / (28000 - 15000);
+  } else if (imponibile_irpef <= 55000) {
+    detrazione_lavoro = 1265 * (55000 - imponibile_irpef) / (55000 - 28000);
+  }
+  detrazione_lavoro = Math.max(0, Math.round(detrazione_lavoro * 100) / 100);
+
+  const irpef_netta = Math.max(0, irpef_lorda - detrazione_lavoro);
+  const addiz = imponibile_irpef * addizionali_val;
+  const netto_annuo = compenso - quota_collaboratore - irpef_netta - addiz;
 
   return {
     compenso,
     ha_altra_copertura,
     aliquota_effettiva,
+    aliquota_piena: gs_totale,
     contributo_totale,
     quota_committente,
     quota_collaboratore,
     costo_committente,
-    imponibile_irpef: Math.max(0, imponibile_irpef),
-    irpef,
+    imponibile_irpef,
+    irpef_lorda,
+    irpef_scaglione_1_importo,
+    irpef_scaglione_2_importo,
+    irpef_scaglione_3_importo,
+    aliquota_scaglione_1: irpef_1,
+    aliquota_scaglione_2: irpef_2,
+    aliquota_scaglione_3: irpef_3,
+    soglia_1,
+    soglia_2,
+    detrazione_lavoro,
+    irpef: irpef_netta,
     addizionali: addiz,
     aliquota_addizionali: addizionali_val,
     netto_annuo,
