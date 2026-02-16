@@ -452,7 +452,9 @@ MERCATO: ${m.paese_nome} (${m.paese_code})
     ? `\nNOTA CONVERSIONE: ${tassoCambio.nota} (1 EUR = ${tassoCambio.tasso} USD, ${tassoCambio.fonte})`
     : '';
 
-  const result = await base44.integrations.Core.InvokeLLM({
+  let result;
+  try {
+  result = await base44.integrations.Core.InvokeLLM({
     prompt: `Sei un Export Manager con 20 anni di esperienza. Siamo nel ${currentYear}.
 
 COMPITO: Interpreta i seguenti DATI GIÀ VERIFICATI e fornisci una valutazione strategica.
@@ -531,6 +533,15 @@ Fornisci anche una classifica dei mercati per priorità e i primi passi concreti
       }
     }
   });
+  } catch (err) {
+    console.error('[ExportDataFetcher] interpretData API error:', err);
+    return { _api_error: true, _error_message: err?.message || 'Unknown error' };
+  }
+
+  if (!result || typeof result !== 'object') {
+    console.error('[ExportDataFetcher] interpretData: risposta vuota o non valida');
+    return { _api_error: true, _error_message: 'Risposta API non valida' };
+  }
 
   return result;
 }
