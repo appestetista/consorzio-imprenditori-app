@@ -530,6 +530,9 @@ Fornisci:
     setTradeData(null);
     setTradeMetrics(null);
     setMacroData({});
+    setPriceMetrics(null);
+    setPriceInterpretation(null);
+    setPriceStep('');
     setExportForm({
       settore: '',
       prodotto: '',
