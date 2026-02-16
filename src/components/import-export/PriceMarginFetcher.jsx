@@ -239,13 +239,17 @@ export function computePriceMetrics(priceData) {
     const prezzoWorldEur = tassoValid && prezzoWorldCalcolato ? parseFloat((prezzoWorldCalcolato / tasso).toFixed(2)) : null;
     const tradeValueEur = tassoValid && tradeValue ? Math.round(tradeValue / tasso) : null;
 
-    // Top destinatari: filtra solo quelli con TradeValue > 0 E NetWeight > 0
+    // Top destinatari: filtra solo quelli con TradeValue > 0 E NetWeight > 0, ricalcola prezzo
     const topDestinatari = (m.top_destinatari_prezzo || [])
-      .filter(f => f.prezzo_unitario_usd_kg > 0 && f.trade_value_usd > 0 && f.net_weight_kg > 0)
-      .map(f => ({
-        ...f,
-        prezzo_eur: tassoValid ? parseFloat((f.prezzo_unitario_usd_kg / tasso).toFixed(2)) : null
-      }))
+      .filter(f => f.trade_value_usd > 0 && f.net_weight_kg > 0)
+      .map(f => {
+        const prezzoRicalcolato = parseFloat((f.trade_value_usd / f.net_weight_kg).toFixed(4));
+        return {
+          ...f,
+          prezzo_unitario_usd_kg: prezzoRicalcolato,
+          prezzo_eur: tassoValid ? parseFloat((prezzoRicalcolato / tasso).toFixed(4)) : null
+        };
+      })
       .sort((a, b) => a.prezzo_unitario_usd_kg - b.prezzo_unitario_usd_kg);
 
     // Ranking: solo se prezzo partner è calcolabile
