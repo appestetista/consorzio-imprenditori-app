@@ -123,17 +123,16 @@ export function calcolaCostoDipendente(params, tab) {
 
 /**
  * Motore di calcolo deterministico amministratore SRL.
+ * Supporta: gestione_separata, commercianti, artigiani, nessuna.
+ * Per Commercianti/Artigiani: minimale fisso + eccedenza da entity ContributiINPS.
  */
 export function calcolaCostoAmministratore(params, tab) {
-  const { compenso, tipo_rapporto, inail_applicabile } = params;
+  const { compenso, tipo_rapporto, inail_applicabile, contributiINPS } = params;
 
   const gs_totale = tab.get('inps_gestione_separata_totale');
   const gs_quota_datore = tab.get('inps_gestione_separata_quota_datore');
   const gs_quota_iscritto = tab.get('inps_gestione_separata_quota_iscritto');
-  const inps_datore_dip = tab.get('inps_datore_dipendente');
-  const inps_dip = tab.get('inps_dipendente');
   const inail_amm = tab.get('inail_amministratore');
-  const tfr_divisore = tab.get('tfr_divisore');
   const irpef_1 = tab.get('irpef_scaglione_1');
   const irpef_2 = tab.get('irpef_scaglione_2');
   const irpef_3 = tab.get('irpef_scaglione_3');
@@ -143,35 +142,78 @@ export function calcolaCostoAmministratore(params, tab) {
   const ires_val = tab.get('ires');
   const irap_val = tab.get('irap_media');
 
-  if ([gs_totale, gs_quota_datore, irpef_1, soglia_1, ires_val].some(v => v === null)) {
+  if ([irpef_1, soglia_1, ires_val].some(v => v === null)) {
     return null;
   }
 
-  let inps_datore = 0, inps_amministratore = 0, aliquota_datore = 0, aliquota_amm = 0, label_gestione = '';
+  let inps_datore = 0, inps_amministratore = 0, aliquota_totale_inps = 0, label_gestione = '';
+  let dettaglio_contributi = null;
   const tipi_usati = ['irpef_scaglione_1', 'irpef_scaglione_2', 'irpef_scaglione_3', 'irpef_soglia_1', 'irpef_soglia_2', 'addizionali_media', 'ires', 'irap_media'];
+  let fonti_extra = [];
 
   if (tipo_rapporto === 'gestione_separata') {
-    aliquota_datore = gs_totale * gs_quota_datore;
-    aliquota_amm = gs_totale * gs_quota_iscritto;
-    inps_datore = compenso * aliquota_datore;
-    inps_amministratore = compenso * aliquota_amm;
+    if (!gs_totale || !gs_quota_datore) return null;
+    const aliq_datore = gs_totale * gs_quota_datore;
+    const aliq_amm = gs_totale * gs_quota_iscritto;
+    inps_datore = compenso * aliq_datore;
+    inps_amministratore = compenso * aliq_amm;
+    aliquota_totale_inps = gs_totale;
     label_gestione = 'Gestione Separata INPS';
     tipi_usati.push('inps_gestione_separata_totale', 'inps_gestione_separata_quota_datore', 'inps_gestione_separata_quota_iscritto');
+    dettaglio_contributi = {
+      tipo: 'gestione_separata',
+      aliquota_totale: gs_totale,
+      quota_datore_pct: gs_quota_datore,
+      quota_iscritto_pct: gs_quota_iscritto,
+    };
+  } else if (tipo_rapporto === 'commercianti' || tipo_rapporto === 'artigiani') {
+    // Usa entity ContributiINPS per minimale, aliquota, massimale
+    const gestKey = tipo_rapporto === 'commercianti' ? 'Commercianti' : 'Artigiani';
+    const datiGestione = contributiINPS?.find(c => c.gestione === gestKey);
+    if (!datiGestione) return null;
+
+    const { aliquota_percentuale, minimale_annuo, contributo_fisso_annuo, massimale_reddito } = datiGestione;
+    const compenso_capped = Math.min(compenso, massimale_reddito);
+
+    let contributo_totale = 0;
+    if (compenso_capped <= minimale_annuo) {
+      // Sotto il minimale: si paga il contributo fisso
+      contributo_totale = contributo_fisso_annuo;
+    } else {
+      // Fisso sul minimale + aliquota sull'eccedenza
+      contributo_totale = contributo_fisso_annuo + (compenso_capped - minimale_annuo) * aliquota_percentuale;
+    }
+
+    // Per artigiani/commercianti l'intero contributo è a carico del titolare
+    // La SRL deduce come costo il compenso (non i contributi personali)
+    inps_datore = 0; // La SRL non versa INPS per il socio-amministratore artigiano/commerciante
+    inps_amministratore = contributo_totale;
+    aliquota_totale_inps = aliquota_percentuale;
+    label_gestione = tipo_rapporto === 'commercianti' ? 'Gestione Commercianti INPS' : 'Gestione Artigiani INPS';
+    fonti_extra.push(`Circ. INPS Artigiani e Commercianti 2026 — Minimale €${minimale_annuo.toLocaleString('it-IT')}, Massimale €${massimale_reddito.toLocaleString('it-IT')}`);
+    dettaglio_contributi = {
+      tipo: tipo_rapporto,
+      aliquota_percentuale,
+      minimale_annuo,
+      contributo_fisso_annuo,
+      massimale_reddito,
+      contributo_totale,
+      eccedenza: Math.max(0, compenso_capped - minimale_annuo),
+      contributo_su_eccedenza: Math.max(0, compenso_capped - minimale_annuo) * aliquota_percentuale,
+    };
   } else {
-    aliquota_datore = inps_datore_dip;
-    aliquota_amm = inps_dip;
-    inps_datore = compenso * aliquota_datore;
-    inps_amministratore = compenso * aliquota_amm;
-    label_gestione = 'INPS come dipendente';
-    tipi_usati.push('inps_datore_dipendente', 'inps_dipendente');
+    // 'nessuna' — nessun contributo INPS
+    inps_datore = 0;
+    inps_amministratore = 0;
+    aliquota_totale_inps = 0;
+    label_gestione = 'Nessuna gestione previdenziale';
+    dettaglio_contributi = { tipo: 'nessuna' };
   }
 
   const inail = inail_applicabile ? compenso * inail_amm : 0;
   if (inail_applicabile) tipi_usati.push('inail_amministratore');
-  const tfr = tipo_rapporto === 'dipendente' ? compenso / tfr_divisore : 0;
-  if (tipo_rapporto === 'dipendente') tipi_usati.push('tfr_divisore');
 
-  const costo_totale_srl = compenso + inps_datore + inail + tfr;
+  const costo_totale_srl = compenso + inps_datore + inail;
   const deducibile_ires = compenso + inps_datore;
   const risparmio_ires = deducibile_ires * ires_val;
   const deducibile_irap = compenso;
@@ -180,7 +222,9 @@ export function calcolaCostoAmministratore(params, tab) {
 
   const imponibile_irpef = compenso - inps_amministratore;
   let irpef = 0;
-  if (imponibile_irpef <= soglia_1) {
+  if (imponibile_irpef <= 0) {
+    irpef = 0;
+  } else if (imponibile_irpef <= soglia_1) {
     irpef = imponibile_irpef * irpef_1;
   } else if (imponibile_irpef <= soglia_2) {
     irpef = soglia_1 * irpef_1 + (imponibile_irpef - soglia_1) * irpef_2;
@@ -188,20 +232,24 @@ export function calcolaCostoAmministratore(params, tab) {
     irpef = soglia_1 * irpef_1 + (soglia_2 - soglia_1) * irpef_2 + (imponibile_irpef - soglia_2) * irpef_3;
   }
 
-  const addiz = imponibile_irpef * addizionali_val;
+  const addiz = Math.max(0, imponibile_irpef) * addizionali_val;
   const netto_amministratore = compenso - inps_amministratore - irpef - addiz;
+
+  const fonti = [...tab.raccogliFonti(tipi_usati), ...fonti_extra];
 
   return {
     compenso, tipo_rapporto, label_gestione,
-    inps_datore, inps_amministratore, aliquota_datore, aliquota_amm,
+    inps_datore, inps_amministratore, aliquota_totale_inps,
+    dettaglio_contributi,
     inail, aliquota_inail: inail_amm,
-    tfr, costo_totale_srl,
+    costo_totale_srl,
     deducibile_ires, risparmio_ires, aliquota_ires: ires_val,
     deducibile_irap, risparmio_irap, aliquota_irap: irap_val,
     costo_netto_srl,
     irpef, addizionali: addiz, aliquota_addizionali: addizionali_val,
+    imponibile_irpef: Math.max(0, imponibile_irpef),
     netto_amministratore,
-    fonti: tab.raccogliFonti(tipi_usati),
+    fonti,
     anno: tab.anno,
   };
 }
