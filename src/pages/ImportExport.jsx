@@ -1332,10 +1332,35 @@ Fornisci:
                 )}
 
                 {analyzingImport && (
-                  <div className="flex items-center justify-center gap-3 py-6">
-                    <Loader2 className="w-6 h-6 animate-spin text-lime-400" />
-                    <p className="text-slate-300 text-sm">Analisi import in corso...</p>
-                  </div>
+                  <Card className="bg-slate-800 border-slate-700">
+                    <CardContent className="p-4">
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-3">
+                          <Loader2 className="w-5 h-5 animate-spin text-lime-400" />
+                          <p className="text-white font-semibold text-sm">Analisi import in corso...</p>
+                        </div>
+                        <div className="space-y-2">
+                          {['fetching', 'computing', 'interpreting'].map((step, i) => {
+                            const labels = {
+                              fetching: '1. Recupero dazi TARIC e flussi Comtrade...',
+                              computing: '2. Calcolo Landed Cost...',
+                              interpreting: '3. Valutazione fattibilità AI...'
+                            };
+                            const isActive = importStep === step;
+                            const isDone = ['fetching', 'computing', 'interpreting'].indexOf(importStep) > i;
+                            return (
+                              <div key={step} className={`flex items-center gap-2 text-xs px-3 py-1.5 rounded-lg ${
+                                isActive ? 'bg-lime-400/10 text-lime-400' : isDone ? 'bg-green-500/10 text-green-400' : 'text-slate-500'
+                              }`}>
+                                {isActive ? <Loader2 className="w-3 h-3 animate-spin" /> : isDone ? <CheckCircle className="w-3 h-3" /> : <span className="w-3 h-3 rounded-full border border-slate-600 block" />}
+                                {labels[step]}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 )}
               </div>
             ) : (
