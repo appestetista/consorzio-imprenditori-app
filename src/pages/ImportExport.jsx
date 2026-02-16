@@ -374,9 +374,16 @@ Fornisci un'analisi completa che includa:
       ).join(', ');
 
       const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Sei un Export Manager esperto con 20 anni di esperienza nell'internazionalizzazione delle PMI italiane. 
-        
-Analizza questa opportunità di export per un'azienda italiana:
+        prompt: `Sei un Export Manager esperto con 20 anni di esperienza nell'internazionalizzazione delle PMI italiane.
+
+REGOLE INDEROGABILI (la violazione di anche una sola regola invalida l'intera analisi):
+- OGNI dato numerico (valore import, percentuale, quota, dazio, costo) DEVE provenire da una fonte ufficiale verificabile.
+- Fonti ammesse ESCLUSIVAMENTE: Trade Map (ITC), UN Comtrade, Eurostat, WTO Tariff Database, TARIC, ICE-Agenzia, Banca Mondiale, OECD.
+- Se un dato NON è reperibile con certezza da queste fonti, scrivi ESATTAMENTE: "Dato non disponibile — verificare su [nome fonte]". NON approssimare, NON stimare, NON dedurre.
+- NON usare MAI espressioni come "circa", "stimato", "approssimativamente", "indicativamente" per dati quantitativi.
+- Per ogni dato numerico inserito, indica tra parentesi la fonte e l'anno di riferimento, es: "(Trade Map, 2024)" oppure "(Eurostat, 2023)".
+- NON INVENTARE MAI codici HS, aliquote dazio, percentuali di crescita o valori di import/export.
+- Preferisci lasciare un campo vuoto o scrivere "Non disponibile" piuttosto che inserire un dato non verificato.
 
 PROFILO AZIENDA:
 - Settore: ${exportForm.settore}
@@ -390,24 +397,22 @@ PROFILO AZIENDA:
 MERCATI DI INTERESSE: ${mercatiNomi}
 
 Fornisci un'analisi dettagliata e professionale che includa:
-1. Valutazione generale della readiness all'export (punteggio 1-10)
+1. Valutazione generale della readiness all'export (punteggio 1-10) — basata su criteri oggettivi (certificazioni, esperienza, capacità produttiva)
 2. Per ogni mercato selezionato:
-   - FLUSSI COMMERCIALI: valore import del prodotto negli ultimi 12 mesi (in USD/EUR), trend YoY (crescita/decrescita %), principali paesi fornitori, quota di mercato Italia
-   - Opportunità, sfide, barriere tariffarie/non tariffarie
-   - Documenti necessari e certificazioni
-3. Raccomandazione sui mercati prioritari basata sui dati di flusso
-4. Stima dei costi di ingresso per mercato
-5. Timeline consigliata
-6. Canali di distribuzione consigliati
-7. Rischi principali e come mitigarli
-8. Primi passi concreti da fare
+   - FLUSSI COMMERCIALI: valore import del prodotto (codice HS pertinente) con fonte e anno. Se il dato non è disponibile, scrivilo esplicitamente.
+   - Trend YoY con fonte e anno. Se non disponibile, dichiararlo.
+   - Principali paesi fornitori con quota %, solo se da fonte ufficiale.
+   - Quota di mercato Italia, solo se da fonte ufficiale.
+   - Opportunità, sfide, barriere tariffarie/non tariffarie (dazi da TARIC/WTO Tariff Database con codice HS).
+   - Documenti necessari e certificazioni obbligatorie (da normativa vigente del paese).
+3. Raccomandazione sui mercati prioritari — giustificata con dati di flusso citati.
+4. Costi di ingresso per mercato — solo se basati su fonti verificabili, altrimenti "Da quantificare con preventivo specifico".
+5. Timeline consigliata.
+6. Canali di distribuzione consigliati per il settore specifico.
+7. Rischi principali e come mitigarli.
+8. Primi passi concreti da fare.
 
-IMPORTANTE: 
-- Usa SOLO dati REALI e VERIFICABILI dai database ufficiali (Trade Map, UN Comtrade, Eurostat, WTO, ICE).
-- NON INVENTARE MAI dati, numeri o statistiche. Se non hai dati certi per un mercato, scrivi "Dato non disponibile - verificare su Trade Map".
-- Indica sempre le FONTI dei dati che citi.
-- Se un'informazione è incerta, segnalalo esplicitamente.
-- Indica i valori in miliardi/milioni USD e le percentuali di crescita degli ultimi 12 mesi SOLO se hai dati verificati.`,
+RICORDA: meglio un'analisi con 5 dati certi e 10 "Non disponibile" che un'analisi con 15 dati inventati.`,
         add_context_from_internet: true,
         response_json_schema: {
           type: "object",
