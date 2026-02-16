@@ -138,9 +138,11 @@ function MarketPriceDetail({ m, interpretation }) {
               <p className="text-lime-400 text-[10px] font-semibold uppercase tracking-wider mb-2">📊 Dati Ufficiali (UN Comtrade)</p>
               <div className="grid grid-cols-2 gap-2">
                 <div className="bg-slate-700/50 rounded-lg p-2.5">
-                  <p className="text-slate-400 text-[10px]">Prezzo export verso partner</p>
+                  <p className="text-slate-400 text-[10px]">Prezzo medio export = Valore / Quantità</p>
                   <p className="text-white font-bold text-sm">{fmtPrice(m.prezzo_partner_usd, m.unita_misura)}</p>
                   {m.prezzo_partner_eur && <p className="text-slate-500 text-[10px]">{fmtPriceEur(m.prezzo_partner_eur, m.unita_misura)}</p>}
+                  {m.anno_riferimento && <p className="text-slate-500 text-[9px]">Anno: {m.anno_riferimento}</p>}
+                  <p className="text-slate-600 text-[9px]">Unità: {m.unita_misura}</p>
                   {m.query_fallback_world && <p className="text-yellow-400/70 text-[9px]">⚠ dati da Partner=World</p>}
                 </div>
                 <div className="bg-slate-700/50 rounded-lg p-2.5">
