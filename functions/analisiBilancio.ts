@@ -438,6 +438,115 @@ ${testoNormalizzato.substring(0, 30000)}`,
       coerenza_fiscale = { verifiche };
     }
 
+    // STEP 7: Segnali di squilibrio – basati esclusivamente sui dati disponibili
+    let segnali_squilibrio = null;
+    if (dati_estratti) {
+      const sp = dati_estratti.stato_patrimoniale || {};
+      const ce = dati_estratti.conto_economico || {};
+      const segnali = [];
+
+      // 1. Patrimonio netto negativo
+      if (sp.patrimonio_netto != null && sp.patrimonio_netto < 0) {
+        segnali.push({
+          area: 'Patrimoniale',
+          segnale: 'Patrimonio netto negativo',
+          valore: sp.patrimonio_netto,
+          unita: '€',
+          descrizione: 'Il patrimonio netto risulta negativo. Questo rappresenta un indicatore da monitorare in quanto i debiti superano il totale delle attività al netto delle passività. Può richiedere interventi di ricapitalizzazione.'
+        });
+      }
+      // 2. Patrimonio netto basso rispetto al totale attivo (< 10%)
+      else if (sp.patrimonio_netto != null && sp.totale_attivo != null && sp.totale_attivo > 0) {
+        const rapporto = (sp.patrimonio_netto / sp.totale_attivo) * 100;
+        if (rapporto < 10) {
+          segnali.push({
+            area: 'Patrimoniale',
+            segnale: 'Patrimonio netto contenuto rispetto al totale attivo',
+            valore: Math.round(rapporto * 100) / 100,
+            unita: '%',
+            descrizione: `Il patrimonio netto rappresenta solo il ${(Math.round(rapporto * 100) / 100)}% del totale attivo. Un valore inferiore al 10% è un possibile segnale di sottocapitalizzazione.`,
+            formula: 'Patrimonio netto / Totale attivo × 100',
+            dettaglio: `${sp.patrimonio_netto} / ${sp.totale_attivo} × 100`
+          });
+        }
+      }
+
+      // 3. Utile negativo (perdita d'esercizio)
+      if (ce.utile_perdita != null && ce.utile_perdita < 0) {
+        segnali.push({
+          area: 'Reddituale',
+          segnale: 'Risultato d\'esercizio negativo',
+          valore: ce.utile_perdita,
+          unita: '€',
+          descrizione: 'L\'esercizio si è chiuso in perdita. Se il dato è ricorrente, rappresenta un indicatore da monitorare sulla sostenibilità economica dell\'attività.'
+        });
+      }
+
+      // 4. Margine operativo negativo o molto basso (utile/ricavi < 2%)
+      if (ce.utile_perdita != null && ce.ricavi != null && ce.ricavi > 0) {
+        const margine = (ce.utile_perdita / ce.ricavi) * 100;
+        if (margine < 0) {
+          segnali.push({
+            area: 'Reddituale',
+            segnale: 'Margine netto negativo',
+            valore: Math.round(margine * 100) / 100,
+            unita: '%',
+            descrizione: 'I costi complessivi superano i ricavi. Indicatore da monitorare sulla capacità dell\'impresa di generare valore.',
+            formula: 'Utile / Ricavi × 100',
+            dettaglio: `${ce.utile_perdita} / ${ce.ricavi} × 100`
+          });
+        } else if (margine < 2) {
+          segnali.push({
+            area: 'Reddituale',
+            segnale: 'Margine netto molto contenuto',
+            valore: Math.round(margine * 100) / 100,
+            unita: '%',
+            descrizione: `Il margine netto è pari al ${(Math.round(margine * 100) / 100)}%. Un valore inferiore al 2% indica possibili segnali di fragilità nella generazione di utile.`,
+            formula: 'Utile / Ricavi × 100',
+            dettaglio: `${ce.utile_perdita} / ${ce.ricavi} × 100`
+          });
+        }
+      }
+
+      // 5. Squilibrio debiti/ricavi (debiti > 2× ricavi)
+      if (sp.debiti != null && ce.ricavi != null && ce.ricavi > 0) {
+        const rapportoDebitiRicavi = sp.debiti / ce.ricavi;
+        if (rapportoDebitiRicavi > 2) {
+          segnali.push({
+            area: 'Finanziaria',
+            segnale: 'Debiti significativamente superiori ai ricavi',
+            valore: Math.round(rapportoDebitiRicavi * 100) / 100,
+            unita: 'x',
+            descrizione: `I debiti totali risultano ${(Math.round(rapportoDebitiRicavi * 100) / 100)} volte i ricavi. Un rapporto superiore a 2x rappresenta un possibile segnale di squilibrio finanziario.`,
+            formula: 'Debiti / Ricavi',
+            dettaglio: `${sp.debiti} / ${ce.ricavi}`
+          });
+        }
+      }
+
+      // 6. Debiti > Totale attivo
+      if (sp.debiti != null && sp.totale_attivo != null && sp.totale_attivo > 0) {
+        const rapportoDebitiAttivo = (sp.debiti / sp.totale_attivo) * 100;
+        if (rapportoDebitiAttivo > 90) {
+          segnali.push({
+            area: 'Finanziaria',
+            segnale: 'Incidenza debiti sul totale attivo molto elevata',
+            valore: Math.round(rapportoDebitiAttivo * 100) / 100,
+            unita: '%',
+            descrizione: `I debiti rappresentano il ${(Math.round(rapportoDebitiAttivo * 100) / 100)}% del totale attivo. Un valore superiore al 90% è un indicatore da monitorare.`,
+            formula: 'Debiti / Totale attivo × 100',
+            dettaglio: `${sp.debiti} / ${sp.totale_attivo} × 100`
+          });
+        }
+      }
+
+      segnali_squilibrio = {
+        esito: segnali.length > 0 ? 'segnali_rilevati' : 'nessun_segnale',
+        conteggio: segnali.length,
+        segnali
+      };
+    }
+
     return Response.json({ 
       success: true, 
       analisi: result,
@@ -445,6 +554,7 @@ ${testoNormalizzato.substring(0, 30000)}`,
       revisione,
       indicatori_finanziari,
       coerenza_fiscale,
+      segnali_squilibrio,
       ocr_info: {
         qualita: qualitaOcr,
         correzioni: correzioniOcr
