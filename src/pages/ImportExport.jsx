@@ -83,7 +83,7 @@ export default function ImportExport() {
   const [priceMetrics, setPriceMetrics] = useState(null);
   const [priceInterpretation, setPriceInterpretation] = useState(null);
   const [priceStep, setPriceStep] = useState(''); // '', 'fetching', 'computing', 'interpreting'
-  const [userPriceData, setUserPriceData] = useState({ prezzo_vendita: '', costo_produzione: '', unita: '' });
+  const [userPriceData, setUserPriceData] = useState({ prezzo_vendita: '', costo_produzione: '', unita: '', costo_logistica: '', commissioni: '', dazi: '' });
   const [importForm, setImportForm] = useState({
     tipo_richiesta: '',
     descrizione_prodotto: '',
@@ -534,7 +534,7 @@ Fornisci:
     setPriceMetrics(null);
     setPriceInterpretation(null);
     setPriceStep('');
-    setUserPriceData({ prezzo_vendita: '', costo_produzione: '', unita: '' });
+    setUserPriceData({ prezzo_vendita: '', costo_produzione: '', unita: '', costo_logistica: '', commissioni: '', dazi: '' });
     setExportForm({
       settore: '',
       prodotto: '',
@@ -842,6 +842,44 @@ Fornisci:
                               placeholder="Es. 12.50"
                               value={userPriceData.costo_produzione}
                               onChange={(e) => setUserPriceData({ ...userPriceData, costo_produzione: e.target.value })}
+                              className="bg-slate-900 border-slate-700 text-white"
+                            />
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-3 gap-3">
+                          <div>
+                            <label className="text-slate-400 text-sm mb-1 block">Logistica (€)</label>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              placeholder="0.00"
+                              value={userPriceData.costo_logistica}
+                              onChange={(e) => setUserPriceData({ ...userPriceData, costo_logistica: e.target.value })}
+                              className="bg-slate-900 border-slate-700 text-white"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-slate-400 text-sm mb-1 block">Commissioni (€)</label>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              placeholder="0.00"
+                              value={userPriceData.commissioni}
+                              onChange={(e) => setUserPriceData({ ...userPriceData, commissioni: e.target.value })}
+                              className="bg-slate-900 border-slate-700 text-white"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-slate-400 text-sm mb-1 block">Dazi (€)</label>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              placeholder="0.00"
+                              value={userPriceData.dazi}
+                              onChange={(e) => setUserPriceData({ ...userPriceData, dazi: e.target.value })}
                               className="bg-slate-900 border-slate-700 text-white"
                             />
                           </div>

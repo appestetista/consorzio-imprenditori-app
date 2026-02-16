@@ -358,39 +358,47 @@ function MarketPriceDetail({ m, interpretation }) {
   );
 }
 
+function getMarginStyle(pct) {
+  if (pct >= 50) return { colorClass: 'text-green-400', label: 'Eccellente', barColor: 'from-green-500 to-emerald-400' };
+  if (pct >= 30) return { colorClass: 'text-lime-400', label: 'Buono', barColor: 'from-lime-500 to-green-400' };
+  if (pct >= 15) return { colorClass: 'text-yellow-400', label: 'Moderato', barColor: 'from-yellow-500 to-amber-400' };
+  if (pct >= 0) return { colorClass: 'text-orange-400', label: 'Basso', barColor: 'from-orange-500 to-red-400' };
+  return { colorClass: 'text-red-400', label: 'Negativo', barColor: 'from-red-600 to-red-400' };
+}
+
+function MarginBar({ pct, style }) {
+  const barWidth = Math.max(0, Math.min(pct, 100));
+  return (
+    <div className="h-2.5 bg-slate-700 rounded-full overflow-hidden">
+      <div
+        className={`h-full bg-gradient-to-r ${style.barColor} rounded-full transition-all duration-500`}
+        style={{ width: `${barWidth}%` }}
+      />
+    </div>
+  );
+}
+
 function GrossMarginCard({ userPriceData }) {
   const pv = parseFloat(userPriceData?.prezzo_vendita);
   const cp = parseFloat(userPriceData?.costo_produzione);
   if (!pv || !cp || isNaN(pv) || isNaN(cp) || pv <= 0) return null;
 
-  const margine = ((pv - cp) / pv) * 100;
-  const marginePct = parseFloat(margine.toFixed(1));
   const unita = userPriceData?.unita || 'unità';
 
-  let colorClass, label, barColor;
-  if (marginePct >= 50) {
-    colorClass = 'text-green-400';
-    label = 'Eccellente';
-    barColor = 'from-green-500 to-emerald-400';
-  } else if (marginePct >= 30) {
-    colorClass = 'text-lime-400';
-    label = 'Buono';
-    barColor = 'from-lime-500 to-green-400';
-  } else if (marginePct >= 15) {
-    colorClass = 'text-yellow-400';
-    label = 'Moderato';
-    barColor = 'from-yellow-500 to-amber-400';
-  } else if (marginePct >= 0) {
-    colorClass = 'text-orange-400';
-    label = 'Basso';
-    barColor = 'from-orange-500 to-red-400';
-  } else {
-    colorClass = 'text-red-400';
-    label = 'Negativo';
-    barColor = 'from-red-600 to-red-400';
-  }
+  // Margine Lordo
+  const margineLordo = parseFloat((((pv - cp) / pv) * 100).toFixed(1));
+  const lordoStyle = getMarginStyle(margineLordo);
 
-  const barWidth = Math.max(0, Math.min(marginePct, 100));
+  // Margine Netto: solo se almeno un costo aggiuntivo è compilato
+  const logistica = parseFloat(userPriceData?.costo_logistica) || 0;
+  const commissioni = parseFloat(userPriceData?.commissioni) || 0;
+  const dazi = parseFloat(userPriceData?.dazi) || 0;
+  const costiExtra = logistica + commissioni + dazi;
+  const hasCostiExtra = costiExtra > 0;
+
+  const costiTotali = cp + costiExtra;
+  const margineNetto = hasCostiExtra ? parseFloat((((pv - costiTotali) / pv) * 100).toFixed(1)) : null;
+  const nettoStyle = margineNetto !== null ? getMarginStyle(margineNetto) : null;
 
   return (
     <Card className="bg-slate-800/80 border-slate-700">
@@ -401,17 +409,12 @@ function GrossMarginCard({ userPriceData }) {
         </h4>
         <div className="flex items-end justify-between mb-2">
           <div>
-            <span className={`text-3xl font-black ${colorClass}`}>{marginePct}%</span>
-            <span className={`text-sm font-semibold ml-2 ${colorClass}`}>{label}</span>
+            <span className={`text-3xl font-black ${lordoStyle.colorClass}`}>{margineLordo}%</span>
+            <span className={`text-sm font-semibold ml-2 ${lordoStyle.colorClass}`}>{lordoStyle.label}</span>
           </div>
         </div>
-        <div className="h-2.5 bg-slate-700 rounded-full overflow-hidden mb-3">
-          <div
-            className={`h-full bg-gradient-to-r ${barColor} rounded-full transition-all duration-500`}
-            style={{ width: `${barWidth}%` }}
-          />
-        </div>
-        <div className="grid grid-cols-2 gap-2">
+        <MarginBar pct={margineLordo} style={lordoStyle} />
+        <div className="grid grid-cols-2 gap-2 mt-3">
           <div className="bg-slate-700/50 rounded-lg p-2">
             <p className="text-slate-400 text-[10px]">Prezzo vendita</p>
             <p className="text-white font-semibold text-sm">€{pv.toFixed(2)}/{unita}</p>
@@ -422,6 +425,40 @@ function GrossMarginCard({ userPriceData }) {
           </div>
         </div>
         <p className="text-slate-500 text-[9px] mt-2">Formula: (Prezzo vendita – Costo produzione) / Prezzo vendita × 100</p>
+
+        {/* Margine Netto */}
+        {hasCostiExtra && margineNetto !== null && (
+          <div className="mt-4 pt-4 border-t border-slate-700">
+            <h4 className="text-white font-bold text-sm mb-3 flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 text-cyan-400" />
+              Margine Netto
+            </h4>
+            <div className="flex items-end justify-between mb-2">
+              <div>
+                <span className={`text-3xl font-black ${nettoStyle.colorClass}`}>{margineNetto}%</span>
+                <span className={`text-sm font-semibold ml-2 ${nettoStyle.colorClass}`}>{nettoStyle.label}</span>
+              </div>
+            </div>
+            <MarginBar pct={margineNetto} style={nettoStyle} />
+            <div className="grid grid-cols-2 gap-2 mt-3">
+              <div className="bg-slate-700/50 rounded-lg p-2">
+                <p className="text-slate-400 text-[10px]">Costi totali</p>
+                <p className="text-white font-semibold text-sm">€{costiTotali.toFixed(2)}/{unita}</p>
+              </div>
+              <div className="bg-slate-700/50 rounded-lg p-2">
+                <p className="text-slate-400 text-[10px]">Margine per unità</p>
+                <p className={`font-semibold text-sm ${nettoStyle.colorClass}`}>€{(pv - costiTotali).toFixed(2)}/{unita}</p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-1.5 mt-2">
+              <span className="bg-slate-700/50 text-slate-400 text-[10px] px-2 py-0.5 rounded">Produzione: €{cp.toFixed(2)}</span>
+              {logistica > 0 && <span className="bg-slate-700/50 text-slate-400 text-[10px] px-2 py-0.5 rounded">Logistica: €{logistica.toFixed(2)}</span>}
+              {commissioni > 0 && <span className="bg-slate-700/50 text-slate-400 text-[10px] px-2 py-0.5 rounded">Commissioni: €{commissioni.toFixed(2)}</span>}
+              {dazi > 0 && <span className="bg-slate-700/50 text-slate-400 text-[10px] px-2 py-0.5 rounded">Dazi: €{dazi.toFixed(2)}</span>}
+            </div>
+            <p className="text-slate-500 text-[9px] mt-2">Formula: (Prezzo vendita – Costi totali) / Prezzo vendita × 100</p>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
