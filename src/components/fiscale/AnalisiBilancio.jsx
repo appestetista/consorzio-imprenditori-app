@@ -6,6 +6,7 @@ import { Upload, FileText, CheckCircle2, XCircle, AlertTriangle, Loader2 } from 
 import DatiEstrattiBilancio from './DatiEstrattiBilancio';
 import RevisioneContabile from './RevisioneContabile';
 import IndicatoriFinanziari from './IndicatoriFinanziari';
+import CoerenzaFiscale from './CoerenzaFiscale';
 
 const PARTI_LABELS = {
   stato_patrimoniale: 'Stato Patrimoniale',
@@ -42,6 +43,7 @@ export default function AnalisiBilancio() {
   const datiEstratti = result?.dati_estratti;
   const revisione = result?.revisione;
   const indicatoriFinanziari = result?.indicatori_finanziari;
+  const coerenzaFiscale = result?.coerenza_fiscale;
   const isIdoneo = analisi?.esito === 'Documento idoneo';
 
   return (
@@ -193,6 +195,9 @@ export default function AnalisiBilancio() {
 
           {/* Indicatori finanziari */}
           {indicatoriFinanziari && <IndicatoriFinanziari dati={indicatoriFinanziari} />}
+
+          {/* Coerenza fiscale */}
+          {coerenzaFiscale && <CoerenzaFiscale dati={coerenzaFiscale} />}
 
           {/* Note */}
           {analisi.note && (
