@@ -57,8 +57,13 @@ DATI AGGIUNTIVI:
 - Top 5 Paesi destinatari per valore export da ${exporterCode} per HS ${hs4} (con prezzo unitario)
 - Se NetWeight non disponibile, usare Qty (unità supplementari) e specificare l'unità di misura
 
-DA BCE (ecb.europa.eu):
-- Tasso di cambio medio annuale EUR/USD per ${periodoEnd}
+DA BCE (ecb.europa.eu) — TASSI DI CAMBIO MEDI ANNUALI:
+- Tasso medio annuale EUR/USD per ${periodoEnd}
+- Per CIASCUN Paese target: tasso medio annuale EUR → valuta locale del Paese per ${periodoEnd}
+  (es. EUR/GBP per UK, EUR/JPY per Giappone, EUR/CNY per Cina, EUR/USD per USA, ecc.)
+  Usa SOLO i tassi medi annuali (annual average) dalla BCE, NON tassi giornalieri.
+  Se un Paese usa EUR (es. Germania, Francia), indicare tasso = 1.0 e valuta = EUR.
+  Se la valuta locale NON è disponibile nella BCE, restituisci null.
 
 REGOLE INDEROGABILI:
 - OGNI numero deve provenire da UN Comtrade o BCE. Nessuna stima, nessuna approssimazione.
