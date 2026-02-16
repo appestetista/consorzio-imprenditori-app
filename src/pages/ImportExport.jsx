@@ -1633,7 +1633,7 @@ Fornisci:
                 )}
 
                 <Button
-                  onClick={() => { setImportResult(null); setConfirmedImportHS(null); }}
+                  onClick={() => { setImportResult(null); setImportRawData(null); setImportLandedCost(null); setConfirmedImportHS(null); }}
                   variant="outline"
                   className="w-full border-slate-600 text-slate-400 hover:bg-slate-800"
                 >
