@@ -426,7 +426,7 @@ export default function PriceMarginSection({ priceMetrics, interpretation }) {
           <p className="text-slate-500 text-[10px] mb-1">📚 Fonti dati prezzo</p>
           <div className="grid grid-cols-2 gap-x-4 gap-y-0.5 text-[10px] text-slate-500">
             <div><span className="text-slate-600">Prezzo unitario:</span> UN Comtrade (TradeValue/NetWeight)</div>
-            <div><span className="text-slate-600">Tasso cambio:</span> BCE (ECB)</div>
+            <div><span className="text-slate-600">Tasso cambio:</span> BCE media annuale (ECB)</div>
             <div><span className="text-slate-600">Calcolo premium:</span> Lato client, nessuna AI</div>
             <div><span className="text-slate-600">Interpretazione:</span> AI su dati verificati</div>
           </div>
