@@ -114,6 +114,15 @@ export default function LandedCostTable({ landedCost, importData }) {
         {taric?.contingenti && taric.contingenti !== 'null' && (
           <p className="text-slate-400 text-[10px] mt-2">📋 Contingenti: {taric.contingenti}</p>
         )}
+
+        {/* Nota conversione valuta */}
+        {landedCost.tasso_cambio && (
+          <div className="mt-3 pt-2 border-t border-slate-600">
+            <p className="text-blue-400/70 text-[10px]">
+              💱 {landedCost.tasso_cambio.nota} (1 EUR = {landedCost.tasso_cambio.tasso} USD, {landedCost.tasso_cambio.fonte})
+            </p>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
