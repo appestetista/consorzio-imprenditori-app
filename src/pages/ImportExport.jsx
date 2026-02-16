@@ -498,6 +498,9 @@ Fornisci:
   const resetAnalysis = () => {
     setAnalysisResult(null);
     setConfirmedExportHS(null);
+    setTradeData(null);
+    setTradeMetrics(null);
+    setMacroData({});
     setExportForm({
       settore: '',
       prodotto: '',
