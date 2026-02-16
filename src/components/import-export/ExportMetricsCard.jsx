@@ -76,8 +76,11 @@ export default function ExportMetricsCard({ mercatoData, metrics, tassoCambio })
         <div className="bg-slate-700/50 rounded-xl p-3">
           <p className="text-slate-400 text-xs mb-1">📦 Import totale paese</p>
           <p className="text-white font-bold text-sm">
-            {mercatoData.import_totale?.valore_usd || 'N/D'}
+            {metrics?.import_totale_eur ? formatEur(metrics.import_totale_eur) : mercatoData.import_totale?.valore_usd || 'N/D'}
           </p>
+          {metrics?.import_totale_eur && (
+            <p className="text-slate-500 text-[10px]">USD: {mercatoData.import_totale?.valore_usd}</p>
+          )}
           {mercatoData.import_totale?.anno && (
             <p className="text-slate-500 text-[10px]">{mercatoData.import_totale.anno}</p>
           )}
@@ -85,8 +88,11 @@ export default function ExportMetricsCard({ mercatoData, metrics, tassoCambio })
         <div className="bg-slate-700/50 rounded-xl p-3">
           <p className="text-slate-400 text-xs mb-1">🇮🇹 Export ITA→paese</p>
           <p className="text-white font-bold text-sm">
-            {mercatoData.export_italia?.valore_usd || 'N/D'}
+            {metrics?.export_italia_eur ? formatEur(metrics.export_italia_eur) : mercatoData.export_italia?.valore_usd || 'N/D'}
           </p>
+          {metrics?.export_italia_eur && (
+            <p className="text-slate-500 text-[10px]">USD: {mercatoData.export_italia?.valore_usd}</p>
+          )}
           {mercatoData.export_italia?.anno && (
             <p className="text-slate-500 text-[10px]">{mercatoData.export_italia.anno}</p>
           )}
