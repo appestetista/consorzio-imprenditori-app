@@ -29,6 +29,7 @@ import RisparmioAdminPanel from '../components/admin/RisparmioAdminPanel';
 import VantaggiAdminPanel from '../components/admin/VantaggiAdminPanel';
 import SimulatoreFiscaleAdmin from '../components/admin/SimulatoreFiscaleAdmin';
 import VideoRecensioniAdmin from '../components/admin/VideoRecensioniAdmin';
+import ImportExportAdmin from '../components/admin/ImportExportAdmin';
 
 const CONSULTANT_CATEGORIES = [
   "Stampa Digitale e Cataloghi",
@@ -286,6 +287,7 @@ export default function AdminPanel() {
   const [showVantaggiPanel, setShowVantaggiPanel] = useState(false);
   const [showSimulatorePanel, setShowSimulatorePanel] = useState(false);
   const [showVideoRecensioniPanel, setShowVideoRecensioniPanel] = useState(false);
+  const [showImportExportPanel, setShowImportExportPanel] = useState(false);
 
   const markVideoRequestReadMutation = useMutation({
     mutationFn: async (requestId) => {
@@ -914,18 +916,20 @@ export default function AdminPanel() {
                 </div>
               </div>
             </Link>
-            <Link to={createPageUrl('ImportExport')}>
-              <div className="relative h-20 transition-transform duration-100 active:scale-[0.97]" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}>
-                <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
-                  <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #0c1730 50%, #0a1225 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
-                    <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
-                    <Globe className="w-5 h-5 text-[#d4af37] mb-1 relative z-10" />
-                    <p className="text-white text-[10px] text-center leading-tight relative z-10">Import /<br/>Export</p>
-                    <span className="absolute top-1 right-1 text-[#d4af37]/60 z-20"><Bell className="w-3 h-3" /></span>
-                  </div>
+            <div 
+              className="relative h-20 transition-transform duration-100 active:scale-[0.97] cursor-pointer"
+              style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}
+              onClick={() => setShowImportExportPanel(true)}
+            >
+              <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
+                <div className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #1a1a1a 0%, #0c1730 50%, #0a1225 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)' }}>
+                  <div className="absolute top-0 left-0 w-full h-[45%] pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%)', borderRadius: '14px 14px 50% 50%' }} />
+                  <Globe className="w-5 h-5 text-[#d4af37] mb-1 relative z-10" />
+                  <p className="text-white text-[10px] text-center leading-tight relative z-10">Import /<br/>Export</p>
+                  <span className="absolute top-1 right-1 text-[#d4af37]/60 z-20"><Bell className="w-3 h-3" /></span>
                 </div>
               </div>
-            </Link>
+            </div>
             <Link to={createPageUrl('ComplianceAziendale')}>
               <div className="relative h-20 transition-transform duration-100 active:scale-[0.97]" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4)', borderRadius: '16px' }}>
                 <div className="absolute inset-0 rounded-[16px] p-[2px]" style={{ background: 'linear-gradient(145deg, #d4af37 0%, #b8860b 30%, #8b7355 60%, #d4af37 100%)' }}>
@@ -1724,6 +1728,21 @@ export default function AdminPanel() {
           </DialogHeader>
           <div className="p-4">
             <SimulatoreFiscaleAdmin user={user} />
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Pannello Import/Export Admin */}
+      <Dialog open={showImportExportPanel} onOpenChange={setShowImportExportPanel}>
+        <DialogContent className="bg-slate-900 border-slate-700 max-w-lg max-h-[90vh] overflow-y-auto p-0">
+          <DialogHeader className="p-4 border-b border-slate-700 sticky top-0 bg-slate-900 z-10">
+            <DialogTitle className="text-white flex items-center gap-2">
+              <Globe className="w-5 h-5 text-[#d4af37]" />
+              Import / Export
+            </DialogTitle>
+          </DialogHeader>
+          <div className="p-4">
+            <ImportExportAdmin user={user} />
           </div>
         </DialogContent>
       </Dialog>
