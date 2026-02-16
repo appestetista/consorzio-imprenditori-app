@@ -560,6 +560,7 @@ Fornisci:
 
   const resetAnalysis = () => {
     setAnalysisResult(null);
+    setConfirmedExportHS(null);
     setExportForm({
       settore: '',
       prodotto: '',
@@ -1569,7 +1570,7 @@ Fornisci:
                 )}
 
                 <Button
-                  onClick={() => setImportResult(null)}
+                  onClick={() => { setImportResult(null); setConfirmedImportHS(null); }}
                   variant="outline"
                   className="w-full border-slate-600 text-slate-400 hover:bg-slate-800"
                 >
