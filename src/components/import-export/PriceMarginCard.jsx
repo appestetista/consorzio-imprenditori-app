@@ -149,7 +149,7 @@ function MarketPriceDetail({ m, interpretation }) {
                   <PremiumBadge pct={m.premium_pct} />
                 </div>
                 <div className="bg-slate-700/50 rounded-lg p-2.5">
-                  <p className="text-slate-400 text-[10px]">Ranking prezzo fornitori</p>
+                  <p className="text-slate-400 text-[10px]">Ranking prezzo destinatari</p>
                   <p className="text-white font-semibold text-sm">
                     {m.ranking_prezzo !== null ? `#${m.ranking_prezzo} / ${m.ranking_totale}` : 'N/D'}
                   </p>
