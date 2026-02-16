@@ -280,18 +280,20 @@ export async function interpretPriceData(priceMetrics, hsCode, hsDescrizione, pr
   const currentYear = new Date().getFullYear();
 
   const riepilogo = priceMetrics.metriche.map(m => {
-    const topStr = m.top_fornitori.map(f =>
+    const topStr = m.top_destinatari.map(f =>
       `${f.paese}: $${f.prezzo_unitario_usd_kg?.toFixed(2)}/${m.unita_misura}${f.prezzo_eur ? ` (€${f.prezzo_eur}/${m.unita_misura})` : ''}`
     ).join(', ');
 
     return `
-MERCATO: ${m.paese_nome} (${m.paese_code})
-- Prezzo unitario medio import (World): ${m.prezzo_world_usd !== null ? `$${m.prezzo_world_usd.toFixed(2)}/${m.unita_misura}` : 'Non disponibile'}${m.prezzo_world_eur ? ` (€${m.prezzo_world_eur}/${m.unita_misura})` : ''}
-- Prezzo unitario import da esportatore: ${m.prezzo_exporter_usd !== null ? `$${m.prezzo_exporter_usd.toFixed(2)}/${m.unita_misura}` : 'Non disponibile'}${m.prezzo_exporter_eur ? ` (€${m.prezzo_exporter_eur}/${m.unita_misura})` : ''}
-- Premium/Discount vs media: ${m.premium_pct !== null ? `${m.premium_pct > 0 ? '+' : ''}${m.premium_pct}%` : 'Non calcolabile'}
-- Ranking prezzo tra fornitori: ${m.ranking_prezzo !== null ? `#${m.ranking_prezzo} su ${m.ranking_totale}` : 'Non calcolabile'}
+MERCATO: ${m.paese_nome} (${m.paese_code})${m.query_fallback_world ? ' [dati da Partner=World]' : ''}
+- Valore export verso partner: ${m.trade_value_usd !== null ? `$${m.trade_value_usd.toLocaleString('en-US')}` : 'Non disponibile'}${m.trade_value_eur ? ` (€${m.trade_value_eur.toLocaleString('it-IT')})` : ''}
+- Quantità: ${m.net_weight_kg !== null ? `${m.net_weight_kg.toLocaleString('en-US')} ${m.unita_misura}` : 'Non disponibile'}
+- Prezzo unitario export verso partner: ${m.prezzo_partner_usd !== null ? `$${m.prezzo_partner_usd.toFixed(2)}/${m.unita_misura}` : 'Non disponibile'}${m.prezzo_partner_eur ? ` (€${m.prezzo_partner_eur}/${m.unita_misura})` : ''}
+- Prezzo unitario export medio globale (World): ${m.prezzo_world_usd !== null ? `$${m.prezzo_world_usd.toFixed(2)}/${m.unita_misura}` : 'Non disponibile'}${m.prezzo_world_eur ? ` (€${m.prezzo_world_eur}/${m.unita_misura})` : ''}
+- Premium/Discount vs media globale: ${m.premium_pct !== null ? `${m.premium_pct > 0 ? '+' : ''}${m.premium_pct}%` : 'Non calcolabile'}
+- Ranking prezzo tra top destinatari: ${m.ranking_prezzo !== null ? `#${m.ranking_prezzo} su ${m.ranking_totale}` : 'Non calcolabile'}
 - Trend prezzo unitario nel periodo: ${m.trend_prezzo_pct !== null ? `${m.trend_prezzo_pct > 0 ? '+' : ''}${m.trend_prezzo_pct}%` : 'Non calcolabile'}
-- Top fornitori per prezzo: ${topStr || 'Non disponibile'}
+- Top destinatari per prezzo: ${topStr || 'Non disponibile'}
 - Dati completi: ${m.dati_completi ? 'Sì' : 'Parziali/Insufficienti'}`;
   }).join('\n');
 
