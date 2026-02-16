@@ -128,6 +128,7 @@ export function calcolaCostoDipendente(params, tab) {
     qualifica,
     fonti: tab.raccogliFonti(tipi_usati),
     anno: tab.anno,
+    dataAggiornamento: tab.dataAggiornamento,
   };
 }
 
@@ -261,5 +262,6 @@ export function calcolaCostoAmministratore(params, tab) {
     netto_amministratore,
     fonti,
     anno: tab.anno,
+    dataAggiornamento: tab.dataAggiornamento,
   };
 }
