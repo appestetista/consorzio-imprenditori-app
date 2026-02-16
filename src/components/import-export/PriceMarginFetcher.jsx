@@ -127,6 +127,17 @@ OUTPUT: JSON strutturato.`,
                     }
                   },
                   description: "Top 5 Paesi destinatari per valore export con prezzo unitario"
+                },
+                valuta_locale: {
+                  type: "object",
+                  properties: {
+                    codice: { type: "string", description: "Codice ISO 4217 valuta locale (es. USD, GBP, JPY, CNY, EUR)" },
+                    nome: { type: "string", description: "Nome valuta (es. US Dollar, British Pound)" },
+                    tasso_eur: { type: "number", description: "Tasso medio annuale BCE: 1 EUR = X valuta locale. Se Paese eurozona, tasso = 1.0" },
+                    anno_tasso: { type: "string", description: "Anno del tasso medio (deve corrispondere all'ultimo dato commerciale)" },
+                    fonte_tasso: { type: "string", description: "Es. ECB annual average exchange rate" }
+                  },
+                  description: "Valuta locale del Paese target con tasso di cambio medio annuale BCE"
                 }
               }
             }
