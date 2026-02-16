@@ -18,6 +18,9 @@ import ImportMessagesSection from '@/components/import-export/ImportMessagesSect
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import SectionConsultantPanel from '../components/consulenze/SectionConsultantPanel';
 import HSCodeClassifier from '../components/import-export/HSCodeClassifier';
+import { fetchTradeData, computeMetrics, interpretData } from '../components/import-export/ExportDataFetcher';
+import ExportTradeChart from '../components/import-export/ExportTradeChart';
+import ExportMetricsCard from '../components/import-export/ExportMetricsCard';
 
 const SETTORI = [
   'Alimentare e bevande',
