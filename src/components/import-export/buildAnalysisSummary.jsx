@@ -127,10 +127,21 @@ export function buildImportSummary({ confirmedHS, importRawData, importLandedCos
   // Dati TARIC
   const taric = importRawData?.taric;
   if (taric) {
-    lines.push('\n🏛️ DATI TARIC:');
+    lines.push('\n🏛️ DATI TARIC (Commissione Europea):');
     lines.push(`- Dazio MFN: ${taric.dazio_mfn_percentuale || 'N/D'}%`);
-    lines.push(`- Anti-dumping: ${taric.anti_dumping_percentuale || 'Nessuno'}`);
+    lines.push(`- Anti-dumping: ${taric.anti_dumping_percentuale || 'Nessuno'}${taric.anti_dumping_regolamento ? ' (' + taric.anti_dumping_regolamento + ')' : ''}`);
+    lines.push(`- Misure compensative: ${taric.misure_compensative_percentuale || 'Nessuna'}${taric.misure_compensative_regolamento ? ' (' + taric.misure_compensative_regolamento + ')' : ''}`);
     if (taric.restrizioni?.length > 0) lines.push(`- Restrizioni: ${taric.restrizioni.join(', ')}`);
+    if (taric.licenze_richieste && taric.licenze_richieste !== 'null') lines.push(`- Licenze richieste: ${taric.licenze_richieste}`);
+  }
+
+  // Livello Rischio
+  if (importLandedCost?.livello_rischio) {
+    const rischioLabel = { alto: 'ALTO', medio: 'MEDIO', basso: 'BASSO' };
+    lines.push(`\n⚠️ LIVELLO RISCHIO IMPORT: ${rischioLabel[importLandedCost.livello_rischio] || importLandedCost.livello_rischio}`);
+    if (importLandedCost.dettagli_rischio?.length > 0) {
+      importLandedCost.dettagli_rischio.forEach(r => lines.push(`- ${r}`));
+    }
   }
 
   // Simulazione Landed Cost
