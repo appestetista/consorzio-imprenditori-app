@@ -225,7 +225,7 @@ export default function SimulazioneResult({ result, onNewScenario }) {
         <Card className="bg-[#0a2540] border-[#1a3a5c]">
           <CardContent className="p-6 text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#d4af37] mx-auto mb-3"></div>
-            <p className="text-slate-300 text-sm">ChatGPT sta interpretando i risultati...</p>
+            <p className="text-slate-300 text-sm">Analisi AI in corso...</p>
           </CardContent>
         </Card>
       )}
