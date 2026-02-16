@@ -33,10 +33,12 @@ export default function RisultatoSocioLavoratore({ result, onReset }) {
 
   return (
     <div className="space-y-4">
-      {/* Riepilogo */}
+      {/* Riepilogo input */}
       <Card className="bg-slate-800 border-slate-700">
         <CardContent className="p-3">
           <div className="grid grid-cols-2 gap-2 text-xs">
+            {result.tipo_societa && <div><span className="text-slate-500">Società:</span> <span className="text-white">{result.tipo_societa}</span></div>}
+            {result.ruolo_operativo && <div><span className="text-slate-500">Ruolo:</span> <span className="text-white">{result.ruolo_operativo}</span></div>}
             <div><span className="text-slate-500">Compenso:</span> <span className="text-white font-semibold">€{fmt(result.compenso)}</span></div>
             <div><span className="text-slate-500">Gestione:</span> <span className="text-white">{result.label_gestione}</span></div>
           </div>
