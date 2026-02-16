@@ -3,6 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle } from 'lucide-react';
 import FooterNormativo from './FooterNormativo';
+import KPIGrid from './KPIGrid';
 
 const fmt = (n) => n?.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0,00';
 
@@ -30,6 +31,8 @@ export default function RisultatoAmministratore({ result, onReset }) {
   }
 
   const det = result.dettaglio_contributi;
+  const contributiTotali = result.inps_datore + result.inps_amministratore + result.inail;
+  const imposteTotali = result.irpef + result.addizionali;
 
   return (
     <div className="space-y-4">
@@ -43,48 +46,10 @@ export default function RisultatoAmministratore({ result, onReset }) {
         </CardContent>
       </Card>
 
-      {/* Dettaglio contributi INPS */}
-      <Card className="bg-gradient-to-br from-indigo-500/20 to-violet-500/10 border-indigo-500/30">
-        <CardContent className="p-4">
-          <h3 className="text-indigo-400 font-bold mb-3">🏛️ Contributi INPS — {result.label_gestione}</h3>
-          <div className="space-y-2 text-sm">
-            {det?.tipo === 'gestione_separata' && (
-              <>
-                <Row label={`Aliquota totale (${(det.aliquota_totale * 100).toFixed(2)}%)`} value={fmt(result.inps_datore + result.inps_amministratore)} bold />
-                <Row label={`  ↳ Quota SRL 2/3 (${(det.aliquota_totale * det.quota_datore_pct * 100).toFixed(2)}%)`} value={fmt(result.inps_datore)} />
-                <Row label={`  ↳ Quota amministratore 1/3 (${(det.aliquota_totale * det.quota_iscritto_pct * 100).toFixed(2)}%)`} value={fmt(result.inps_amministratore)} />
-              </>
-            )}
-            {(det?.tipo === 'commercianti' || det?.tipo === 'artigiani') && (
-              <>
-                <Row label="Contributo fisso su minimale" value={fmt(det.contributo_fisso_annuo)} bold />
-                <div className="text-slate-500 text-xs pl-2">
-                  Minimale: €{fmt(det.minimale_annuo)} — Aliquota: {(det.aliquota_percentuale * 100).toFixed(2)}%
-                </div>
-                {det.eccedenza > 0 && (
-                  <>
-                    <Row label={`Eccedenza (€${fmt(det.eccedenza)} × ${(det.aliquota_percentuale * 100).toFixed(2)}%)`} value={fmt(det.contributo_su_eccedenza)} />
-                  </>
-                )}
-                <div className="border-t border-indigo-500/30 pt-2 mt-1">
-                  <Row label="Contributo totale" value={fmt(det.contributo_totale)} bold />
-                </div>
-                <div className="text-slate-500 text-xs">
-                  Massimale reddito: €{fmt(det.massimale_reddito)} — Interamente a carico del socio-amministratore
-                </div>
-              </>
-            )}
-            {det?.tipo === 'nessuna' && (
-              <p className="text-slate-400 text-sm">Nessun contributo INPS applicabile.</p>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Costo per la SRL */}
       <Card className="bg-gradient-to-br from-red-500/20 to-orange-500/10 border-red-500/30">
         <CardContent className="p-4">
-          <h3 className="text-red-400 font-bold mb-3">🏢 Costo per la SRL</h3>
+          <h3 className="text-red-400 font-bold mb-3 text-sm">🏢 Costo per la SRL</h3>
           <div className="space-y-2 text-sm">
             <Row label="Compenso lordo" value={fmt(result.compenso)} bold />
             {result.inps_datore > 0 && (
@@ -102,10 +67,51 @@ export default function RisultatoAmministratore({ result, onReset }) {
         </CardContent>
       </Card>
 
+      {/* Area Contributiva */}
+      <Card className="bg-gradient-to-br from-amber-500/20 to-orange-500/10 border-amber-500/30">
+        <CardContent className="p-4">
+          <h3 className="text-amber-400 font-bold mb-3 text-sm">🏛️ Area Contributiva — {result.label_gestione}</h3>
+          <div className="space-y-2 text-sm">
+            {det?.tipo === 'gestione_separata' && (
+              <>
+                <Row label={`Aliquota totale (${(det.aliquota_totale * 100).toFixed(2)}%)`} value={fmt(result.inps_datore + result.inps_amministratore)} bold />
+                <Row label={`  ↳ Quota SRL 2/3 (${(det.aliquota_totale * det.quota_datore_pct * 100).toFixed(2)}%)`} value={fmt(result.inps_datore)} />
+                <Row label={`  ↳ Quota amministratore 1/3 (${(det.aliquota_totale * det.quota_iscritto_pct * 100).toFixed(2)}%)`} value={fmt(result.inps_amministratore)} />
+              </>
+            )}
+            {(det?.tipo === 'commercianti' || det?.tipo === 'artigiani') && (
+              <>
+                <Row label="Contributo fisso su minimale" value={fmt(det.contributo_fisso_annuo)} bold />
+                <div className="text-slate-500 text-xs pl-2">
+                  Minimale: €{fmt(det.minimale_annuo)} — Aliquota: {(det.aliquota_percentuale * 100).toFixed(2)}%
+                </div>
+                {det.eccedenza > 0 && (
+                  <Row label={`Eccedenza (€${fmt(det.eccedenza)} × ${(det.aliquota_percentuale * 100).toFixed(2)}%)`} value={fmt(det.contributo_su_eccedenza)} />
+                )}
+                <div className="border-t border-amber-500/30 pt-2 mt-1">
+                  <Row label="Contributo totale" value={fmt(det.contributo_totale)} bold />
+                </div>
+                <div className="text-slate-500 text-xs">
+                  Massimale reddito: €{fmt(det.massimale_reddito)}
+                </div>
+              </>
+            )}
+            {det?.tipo === 'nessuna' && (
+              <p className="text-slate-400 text-sm">Nessun contributo INPS applicabile.</p>
+            )}
+            {result.inail > 0 && <Row label={`INAIL (${(result.aliquota_inail * 100).toFixed(2)}%)`} value={fmt(result.inail)} />}
+            <div className="flex justify-between text-xs mt-1 pt-1 border-t border-amber-500/20">
+              <span className="text-slate-500">Incidenza contributiva totale</span>
+              <span className="text-amber-400 font-bold">{result.compenso > 0 ? ((contributiTotali / result.compenso) * 100).toFixed(1) : '0.0'}%</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Risparmio Fiscale SRL */}
       <Card className="bg-gradient-to-br from-blue-500/20 to-cyan-500/10 border-blue-500/30">
         <CardContent className="p-4">
-          <h3 className="text-blue-400 font-bold mb-3">📉 Risparmio Fiscale SRL</h3>
+          <h3 className="text-blue-400 font-bold mb-3 text-sm">📉 Risparmio Fiscale SRL</h3>
           <div className="space-y-2 text-sm">
             <Row label="Deducibile IRES (compenso + INPS SRL)" value={fmt(result.deducibile_ires)} />
             <div className="flex justify-between">
@@ -127,49 +133,49 @@ export default function RisultatoAmministratore({ result, onReset }) {
         </CardContent>
       </Card>
 
-      {/* Netto Amministratore */}
+      {/* Area Fiscale */}
       <Card className="bg-gradient-to-br from-green-500/20 to-emerald-500/10 border-green-500/30">
         <CardContent className="p-4">
-          <h3 className="text-green-400 font-bold mb-3">🧾 Netto Amministratore</h3>
+          <h3 className="text-green-400 font-bold mb-3 text-sm">🧾 Area Fiscale — IRPEF {result.anno}</h3>
           <div className="space-y-2 text-sm">
             <Row label="Compenso lordo" value={fmt(result.compenso)} />
-            <Row label={`- Contributi INPS personali`} value={fmt(result.inps_amministratore)} negative />
+            <Row label="- Contributi INPS personali" value={fmt(result.inps_amministratore)} negative />
             <Row label="= Imponibile IRPEF" value={fmt(result.imponibile_irpef)} bold />
             <Row label="- IRPEF (scaglioni 23/33/43%)" value={fmt(result.irpef)} negative />
             <Row label={`- Addizionali (~${(result.aliquota_addizionali * 100).toFixed(1)}%)`} value={fmt(result.addizionali)} negative />
-            <div className="border-t border-green-500/30 pt-2 mt-2">
-              <div className="flex justify-between">
-                <span className="text-green-400 font-bold">NETTO ANNUO</span>
-                <span className="text-green-400 font-bold text-lg">€{fmt(result.netto_amministratore)}</span>
-              </div>
-              <Row label="Netto mensile (su 12 mesi)" value={fmt(result.netto_amministratore / 12)} green />
+            <div className="flex justify-between text-xs mt-1 pt-1 border-t border-green-500/20">
+              <span className="text-slate-500">Incidenza fiscale</span>
+              <span className="text-green-400 font-bold">{result.compenso > 0 ? ((imposteTotali / result.compenso) * 100).toFixed(1) : '0.0'}%</span>
             </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Netto Finale */}
+      <Card className="bg-gradient-to-br from-emerald-600/20 to-green-500/10 border-emerald-500/40">
+        <CardContent className="p-4">
+          <h3 className="text-green-400 font-bold mb-3 text-sm">💰 Netto Finale</h3>
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-green-400 font-bold text-base">NETTO DISPONIBILE</span>
+              <span className="text-green-400 font-bold text-xl">€{fmt(result.netto_amministratore)}</span>
+            </div>
+            <Row label="Netto mensile (su 12 mesi)" value={fmt(result.netto_amministratore / 12)} green />
           </div>
         </CardContent>
       </Card>
 
       {/* KPI */}
-      <Card className="bg-slate-800 border-slate-700">
-        <CardContent className="p-4">
-          <h3 className="text-white font-bold mb-3">📊 Indicatori</h3>
-          <div className="grid grid-cols-3 gap-2">
-            <div className="bg-slate-700/50 rounded-lg p-3 text-center">
-              <p className="text-slate-400 text-[10px]">Cuneo fiscale</p>
-              <p className="text-yellow-400 font-bold text-lg">{((1 - result.netto_amministratore / result.costo_totale_srl) * 100).toFixed(1)}%</p>
-            </div>
-            <div className="bg-slate-700/50 rounded-lg p-3 text-center">
-              <p className="text-slate-400 text-[10px]">Costo/Netto</p>
-              <p className="text-white font-bold text-lg">{(result.costo_totale_srl / Math.max(1, result.netto_amministratore)).toFixed(2)}x</p>
-            </div>
-            <div className="bg-slate-700/50 rounded-lg p-3 text-center">
-              <p className="text-slate-400 text-[10px]">Gestione</p>
-              <p className="text-white font-bold text-[11px]">{det?.tipo === 'gestione_separata' ? 'Gest. Sep.' : det?.tipo === 'commercianti' ? 'Comm.' : det?.tipo === 'artigiani' ? 'Art.' : 'Nessuna'}</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <KPIGrid
+        costoTotale={result.costo_totale_srl}
+        nettoAnnuo={result.netto_amministratore}
+        contributiTotali={contributiTotali}
+        imposteTotali={imposteTotali}
+        compensoLordo={result.compenso}
+        anno={result.anno}
+      />
 
-      {/* Footer normativo con anno, fonti, data aggiornamento */}
+      {/* Footer normativo */}
       <FooterNormativo
         anno={result.anno}
         fonti={result.fonti}
