@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
+import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calculator, Loader2, AlertTriangle, ChevronRight, ChevronLeft, Info, HelpCircle } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTabelleContributive, calcolaCostoGestioneSeparata } from './useTabelleContributive';
@@ -34,6 +35,12 @@ export default function SimulatoreGestioneSeparata() {
   });
   const [result, setResult] = useState(null);
 
+  const { data: contributiINPS, isLoading: loadingContributi } = useQuery({
+    queryKey: ['contributi-inps-gs', 2026],
+    queryFn: () => base44.entities.ContributiINPS.filter({ anno: 2026 }),
+    initialData: [],
+  });
+
   const canNext = (s) => {
     switch (s) {
       case 1: return !!form.tipo_soggetto;
@@ -48,7 +55,7 @@ export default function SimulatoreGestioneSeparata() {
   const calcola = () => {
     const compenso = parseFloat(form.compenso);
     if (!compenso || compenso <= 0 || tab.isLoading) return;
-    const res = calcolaCostoGestioneSeparata({ compenso, ha_altra_copertura: form.ha_altra_copertura }, tab);
+    const res = calcolaCostoGestioneSeparata({ compenso, ha_altra_copertura: form.ha_altra_copertura, contributiINPS }, tab);
     if (res) {
       const ts = TIPI_SOGGETTO.find(t => t.key === form.tipo_soggetto);
       res.tipo_soggetto = ts?.label || form.tipo_soggetto;
@@ -63,7 +70,7 @@ export default function SimulatoreGestioneSeparata() {
 
   const fmt = (n) => n?.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0,00';
 
-  if (tab.isLoading) {
+  if (tab.isLoading || loadingContributi) {
     return (
       <Card className="bg-slate-800 border-slate-700">
         <CardContent className="p-6 flex items-center justify-center gap-3">
@@ -100,7 +107,10 @@ export default function SimulatoreGestioneSeparata() {
   }
 
   const aliquotaPiena = tab.get('inps_gestione_separata_totale');
-  const aliquotaRidotta = aliquotaPiena ? aliquotaPiena * 0.75 : null;
+  const datiGS = contributiINPS?.find(c => c.gestione === 'GestioneSeparata');
+  const aliquotaRidotta = datiGS?.aliquota_percentuale || (aliquotaPiena ? aliquotaPiena * 0.75 : null);
+  const massimaleGS = datiGS?.massimale_reddito || null;
+  const fonteGS = tab.getFonte('inps_gestione_separata_totale') || 'Circ. INPS n. 8/2026';
 
   return (
     <VerificaTabelleNormative>
