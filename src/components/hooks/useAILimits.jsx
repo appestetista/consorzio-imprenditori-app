@@ -1,14 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 
-// Limiti mensili per tipo di azione
+// Limiti per tipo di azione (mensili di default, settimanali se specificato)
 export const AI_LIMITS = {
   contract_analysis: 5,
   contract_comparison: 2,
-  export_analysis: 20,
+  export_analysis: 1,
   import_analysis: 2,
   grant_match: 5
 };
+
+// Tipi con limite settimanale invece che mensile
+export const WEEKLY_LIMITS = ['export_analysis'];
 
 export const AI_LIMIT_LABELS = {
   contract_analysis: 'Analisi Contratti',
@@ -23,17 +26,26 @@ export function getCurrentMonthYear() {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 }
 
+export function getCurrentWeekKey() {
+  const now = new Date();
+  const startOfYear = new Date(now.getFullYear(), 0, 1);
+  const days = Math.floor((now - startOfYear) / (24 * 60 * 60 * 1000));
+  const weekNumber = Math.ceil((days + startOfYear.getDay() + 1) / 7);
+  return `${now.getFullYear()}-W${String(weekNumber).padStart(2, '0')}`;
+}
+
 export function useAILimits(userEmail, actionType) {
-  const monthYear = getCurrentMonthYear();
+  const isWeekly = WEEKLY_LIMITS.includes(actionType);
+  const periodKey = isWeekly ? getCurrentWeekKey() : getCurrentMonthYear();
 
   const { data: usageCount = 0, refetch } = useQuery({
-    queryKey: ['ai-usage', userEmail, actionType, monthYear],
+    queryKey: ['ai-usage', userEmail, actionType, periodKey],
     queryFn: async () => {
       if (!userEmail) return 0;
       const logs = await base44.entities.UsageLog.filter({
         user_email: userEmail,
         action_type: actionType,
-        month_year: monthYear
+        month_year: periodKey
       });
       return logs.length;
     },
@@ -50,7 +62,7 @@ export function useAILimits(userEmail, actionType) {
     await base44.entities.UsageLog.create({
       user_email: userEmail,
       action_type: actionType,
-      month_year: monthYear
+      month_year: periodKey
     });
     
     refetch();
@@ -62,6 +74,7 @@ export function useAILimits(userEmail, actionType) {
     limit,
     remaining,
     isLimitReached,
+    isWeekly,
     trackUsage,
     refetch
   };
