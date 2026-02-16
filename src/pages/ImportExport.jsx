@@ -1497,7 +1497,7 @@ Fornisci:
           <div className="space-y-4">
             {/* Limite Import */}
             {!importLimitReached && user && (
-              <UsageCounter usageCount={importUsage} limit={importLimit} label="Analisi import disponibili questo mese" />
+              <UsageCounter usageCount={importUsage} limit={importLimit} label="Analisi import disponibili questa settimana" />
             )}
 
             {/* Hero Import */}
@@ -1702,7 +1702,7 @@ Fornisci:
                   <Card className="bg-red-500/15 border-red-500/40">
                     <CardContent className="p-4 text-center">
                       <AlertTriangle className="w-8 h-8 text-red-400 mx-auto mb-2" />
-                      <p className="text-red-400 font-bold text-sm mb-1">Hai raggiunto il limite di {importLimit} analisi import questo mese</p>
+                      <p className="text-red-400 font-bold text-sm mb-1">Hai raggiunto il limite di {importLimit} analisi import questa settimana</p>
                       <p className="text-slate-400 text-xs mb-3">Puoi comunque rivolgerti ai nostri consulenti specializzati con base in Cina per assistenza completa.</p>
                       <Button
                         onClick={() => setShowImportLimitPopup(true)}
@@ -2215,7 +2215,7 @@ Fornisci:
             </div>
             <h3 className="text-white font-bold text-xl mb-2">Limite analisi raggiunto</h3>
             <p className="text-white/90 text-sm">
-              Hai utilizzato tutte le {importLimit} analisi import disponibili questo mese. 
+              Hai utilizzato tutte le {importLimit} analisi import disponibili questa settimana. 
               Ma non preoccuparti: i nostri <strong>consulenti specializzati con base in Cina</strong> possono aiutarti direttamente!
             </p>
           </div>

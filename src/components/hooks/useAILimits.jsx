@@ -6,12 +6,12 @@ export const AI_LIMITS = {
   contract_analysis: 5,
   contract_comparison: 2,
   export_analysis: 1,
-  import_analysis: 2,
+  import_analysis: 1,
   grant_match: 5
 };
 
 // Tipi con limite settimanale invece che mensile
-export const WEEKLY_LIMITS = ['export_analysis'];
+export const WEEKLY_LIMITS = ['export_analysis', 'import_analysis'];
 
 export const AI_LIMIT_LABELS = {
   contract_analysis: 'Analisi Contratti',
