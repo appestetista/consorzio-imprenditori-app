@@ -134,6 +134,7 @@ OUTPUT: JSON strutturato con dati grezzi per ciascun mercato.`,
  * STEP 3: Calcola metriche dai dati grezzi (lato client, nessuna AI)
  */
 export function computeMetrics(tradeData) {
+  if (tradeData?._api_error) return { _api_error: true, _error_message: tradeData._error_message };
   if (!tradeData?.mercati) return null;
 
   // Tasso di cambio EUR/USD dalla BCE
