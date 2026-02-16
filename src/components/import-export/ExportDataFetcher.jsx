@@ -232,8 +232,8 @@ export async function interpretData(tradeData, metricsResult, hsCode, hsDescrizi
     const met = Array.isArray(metrics) ? metrics[i] : null;
     return `
 MERCATO: ${m.paese_nome} (${m.paese_code})
-- Import totale HS ${hsCode}: ${m.import_totale?.valore_usd || 'N/D'} (${m.import_totale?.anno || 'N/D'}, ${m.import_totale?.fonte || 'N/D'})
-- Export Italia→${m.paese_nome}: ${m.export_italia?.valore_usd || 'N/D'} (${m.export_italia?.anno || 'N/D'}, ${m.export_italia?.fonte || 'N/D'})
+- Import totale HS ${hsCode}: ${m.import_totale?.valore_usd || 'N/D'}${met?.import_totale_eur ? ` (≈ €${met.import_totale_eur.toLocaleString('it-IT')})` : ''} (${m.import_totale?.anno || 'N/D'}, ${m.import_totale?.fonte || 'N/D'})
+- Export Italia→${m.paese_nome}: ${m.export_italia?.valore_usd || 'N/D'}${met?.export_italia_eur ? ` (≈ €${met.export_italia_eur.toLocaleString('it-IT')})` : ''} (${m.export_italia?.anno || 'N/D'}, ${m.export_italia?.fonte || 'N/D'})
 - Quota Italia: ${m.quota_italia || 'N/D'}
 - Posizione Italia tra fornitori: ${m.posizione_italia || 'N/D'}
 - CAGR serie storica: ${met?.cagr ? met.cagr + '%' : 'Non calcolabile'}
