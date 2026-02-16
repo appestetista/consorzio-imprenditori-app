@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Info, AlertTriangle } from 'lucide-react';
+import IncentiviFiscali2026 from './IncentiviFiscali2026';
 
 const fmt = (n) => n?.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0,00';
 
@@ -16,7 +17,7 @@ function Row({ label, value, bold, negative, green }) {
   );
 }
 
-export default function RisultatoDipendente({ result, onReset }) {
+export default function RisultatoDipendente({ result, profiloLavoratore, onReset }) {
   if (!result) {
     return (
       <Card className="bg-red-500/20 border-red-500/50">
@@ -116,6 +117,9 @@ export default function RisultatoDipendente({ result, onReset }) {
           </div>
         </CardContent>
       </Card>
+
+      {/* Incentivi Assunzione 2026 */}
+      <IncentiviFiscali2026 result={result} profiloLavoratore={profiloLavoratore} />
 
       {/* Fonti normative */}
       <Card className="bg-slate-800/50 border-slate-700">

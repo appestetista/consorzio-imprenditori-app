@@ -8,6 +8,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { useTabelleContributive, calcolaCostoDipendente } from './useTabelleContributive';
 import { useCCNL, CCNL_OPTIONS, REGIONI, getQualificaINAIL } from './useCCNL';
 import RisultatoDipendente from './RisultatoDipendente';
+import ProfiloLavoratoreForm from './ProfiloLavoratoreForm';
 
 const TIPI_CONTRATTO = [
   { key: 'indeterminato_fulltime', label: 'Tempo indeterminato — Full-time' },
@@ -30,6 +31,11 @@ export default function SimulatoreDipendente() {
     regione: '',
     tfr_destinazione: 'azienda',
     percentuale_parttime: '50',
+  });
+  const [profiloLavoratore, setProfiloLavoratore] = useState({
+    eta: '',
+    donna_disoccupata: false,
+    percettore_naspi: false,
   });
   const [result, setResult] = useState(null);
 
@@ -129,7 +135,8 @@ export default function SimulatoreDipendente() {
     return (
       <RisultatoDipendente
         result={result}
-        onReset={() => { setResult(null); setStep(1); setForm({ ccnl: '', livello: '', tipo_contratto: '', ral: '', retribuzione_mensile: '', input_mode: 'ral', regione: '', tfr_destinazione: 'azienda', percentuale_parttime: '50' }); }}
+        profiloLavoratore={profiloLavoratore}
+        onReset={() => { setResult(null); setStep(1); setForm({ ccnl: '', livello: '', tipo_contratto: '', ral: '', retribuzione_mensile: '', input_mode: 'ral', regione: '', tfr_destinazione: 'azienda', percentuale_parttime: '50' }); setProfiloLavoratore({ eta: '', donna_disoccupata: false, percettore_naspi: false }); }}
       />
     );
   }
@@ -139,7 +146,7 @@ export default function SimulatoreDipendente() {
       <div className="space-y-4">
         {/* Step indicator */}
         <div className="flex items-center gap-1 px-1">
-          {[1, 2, 3, 4, 5].map(s => (
+          {[1, 2, 3, 4, 5, 5.5].map((s, i) => (
             <div key={s} className={`h-1.5 flex-1 rounded-full transition-all ${s <= step ? 'bg-lime-400' : 'bg-slate-700'}`} />
           ))}
         </div>
@@ -281,15 +288,23 @@ export default function SimulatoreDipendente() {
                   {REGIONI.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}
                 </SelectContent>
               </Select>
-              <p className="text-slate-500 text-xs flex items-center gap-1"><Info className="w-3 h-3" /> La regione incide sulle addizionali regionali IRPEF. Attualmente il calcolo usa la media nazionale.</p>
+              <p className="text-slate-500 text-xs flex items-center gap-1"><Info className="w-3 h-3" /> La regione incide sulle addizionali regionali IRPEF e sull'applicabilità incentivi ZES.</p>
             </CardContent>
           </Card>
+        )}
+
+        {/* STEP 5.5 — Profilo Lavoratore (incentivi) */}
+        {step === 5.5 && (
+          <ProfiloLavoratoreForm
+            profilo={profiloLavoratore}
+            onChange={setProfiloLavoratore}
+          />
         )}
 
         {/* Navigation */}
         <div className="flex gap-3">
           {step > 1 && (
-            <Button onClick={() => setStep(step - 1)} variant="outline" className="border-slate-600 text-slate-400 hover:bg-slate-800">
+            <Button onClick={() => setStep(step === 5.5 ? 5 : step - 1)} variant="outline" className="border-slate-600 text-slate-400 hover:bg-slate-800">
               <ChevronLeft className="w-4 h-4 mr-1" /> Indietro
             </Button>
           )}
@@ -300,6 +315,11 @@ export default function SimulatoreDipendente() {
             </Button>
           )}
           {step === 5 && (
+            <Button onClick={() => setStep(5.5)} disabled={!canNext(5)} className="bg-lime-400 hover:bg-lime-500 text-slate-900 font-bold">
+              Avanti <ChevronRight className="w-4 h-4 ml-1" />
+            </Button>
+          )}
+          {step === 5.5 && (
             <Button onClick={calcola} disabled={!canNext(5)} className="bg-lime-400 hover:bg-lime-500 text-slate-900 font-bold">
               <Calculator className="w-4 h-4 mr-2" /> Calcola Costo
             </Button>
