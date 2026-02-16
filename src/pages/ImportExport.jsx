@@ -403,14 +403,20 @@ RICORDA: meglio un'analisi con 5 dati certi e 10 "Da verificare" che un'analisi 
       const result = await base44.integrations.Core.InvokeLLM({
         prompt: `Sei un Export Manager esperto con 20 anni di esperienza nell'internazionalizzazione delle PMI italiane.
 
+FONTI DATI OBBLIGATORIE (usa ESCLUSIVAMENTE queste):
+1) UN Comtrade (comtradeplus.un.org) — Flussi commerciali per codice HS, paese reporter/partner, valore USD, serie ultimi 5 anni.
+2) Eurostat Comext (ec.europa.eu/eurostat) — Import/Export UE per codice HS, valore EUR, quantità.
+3) TARIC (ec.europa.eu/taxation_customs/dds2/taric) — Dazio percentuale, misure anti-dumping, restrizioni merceologiche.
+Fonti aggiuntive ammesse: ICE-Agenzia, WTO Tariff Database, Banca Mondiale.
+
 REGOLE INDEROGABILI (la violazione di anche una sola regola invalida l'intera analisi):
-- OGNI dato numerico (valore import, percentuale, quota, dazio, costo) DEVE provenire da una fonte ufficiale verificabile.
-- Fonti ammesse ESCLUSIVAMENTE: Trade Map (ITC), UN Comtrade, Eurostat, WTO Tariff Database, TARIC, ICE-Agenzia, Banca Mondiale, OECD.
-- Se un dato NON è reperibile con certezza da queste fonti, scrivi ESATTAMENTE: "Dato non disponibile — verificare su [nome fonte]". NON approssimare, NON stimare, NON dedurre.
+- OGNI dato numerico (valore import/export, trend, quota, dazio) DEVE provenire da UN Comtrade, Eurostat Comext o TARIC. Per ogni dato indica tra parentesi: (Fonte, anno), es: "(UN Comtrade, 2023)" o "(Eurostat Comext, 2024)" o "(TARIC, 2025)".
+- Per i flussi commerciali: cerca su UN Comtrade il codice HS ${hsData.hs_code} con reporter = paese target e partner = Italy. Riporta valore in USD e anno. Se il dato non è disponibile su Comtrade, cerca su Eurostat Comext in EUR.
+- Per i dazi: consulta TARIC per il codice HS ${hsData.hs_code}. Indica aliquota MFN, preferenziale se esiste, e misure anti-dumping.
+- Se un dato NON è reperibile con certezza, scrivi ESATTAMENTE: "Dato non disponibile — verificare su [UN Comtrade / Eurostat Comext / TARIC]". NON approssimare, NON stimare, NON dedurre.
 - NON usare MAI espressioni come "circa", "stimato", "approssimativamente", "indicativamente" per dati quantitativi.
-- Per ogni dato numerico inserito, indica tra parentesi la fonte e l'anno di riferimento, es: "(Trade Map, 2024)" oppure "(Eurostat, 2023)".
-- NON INVENTARE MAI codici HS, aliquote dazio, percentuali di crescita o valori di import/export.
-- Preferisci lasciare un campo vuoto o scrivere "Non disponibile" piuttosto che inserire un dato non verificato.
+- NON INVENTARE MAI valori di import/export, percentuali di crescita, quote di mercato o aliquote dazio.
+- Preferisci lasciare un campo con "Non disponibile (verificare su [fonte])" piuttosto che inserire un dato non verificato.
 
 PROFILO AZIENDA:
 - Settore: ${exportForm.settore}
@@ -431,13 +437,23 @@ IMPORTANTE: Usa il codice HS ${hsData.hs_code} confermato sopra come base per tu
 
 Fornisci un'analisi dettagliata e professionale che includa:
 1. Valutazione generale della readiness all'export (punteggio 1-10) — basata su criteri oggettivi (certificazioni, esperienza, capacità produttiva)
-2. Per ogni mercato selezionato:
-   - FLUSSI COMMERCIALI: valore import del prodotto (codice HS pertinente) con fonte e anno. Se il dato non è disponibile, scrivilo esplicitamente.
-   - Trend YoY con fonte e anno. Se non disponibile, dichiararlo.
-   - Principali paesi fornitori con quota %, solo se da fonte ufficiale.
-   - Quota di mercato Italia, solo se da fonte ufficiale.
-   - Opportunità, sfide, barriere tariffarie/non tariffarie (dazi da TARIC/WTO Tariff Database con codice HS).
-   - Documenti necessari e certificazioni obbligatorie (da normativa vigente del paese).
+2. Per ogni mercato selezionato, fornisci dati STRUTTURATI da fonti ufficiali:
+   a) FLUSSI COMMERCIALI DA UN COMTRADE:
+      - Import totale del paese target per HS ${hsData.hs_code} (valore USD, anno)
+      - Export Italia verso quel paese per HS ${hsData.hs_code} (valore USD, anno)
+      - Serie storica 5 anni se disponibile (trend crescita/calo)
+      - Top 5 paesi fornitori con quota % e valore
+      - Posizione Italia tra i fornitori
+   b) DATI EUROSTAT COMEXT (complementari):
+      - Export UE totale verso quel paese per HS ${hsData.hs_code} (valore EUR, quantità)
+      - Quota Italia su export UE
+   c) DAZI E BARRIERE DA TARIC:
+      - Aliquota dazio MFN per HS ${hsData.hs_code}
+      - Dazi preferenziali (se accordi commerciali in vigore)
+      - Misure anti-dumping attive
+      - Restrizioni merceologiche o contingenti
+   d) Opportunità e sfide specifiche del mercato
+   e) Documenti necessari e certificazioni obbligatorie (con riferimento normativo)
 3. Raccomandazione sui mercati prioritari — giustificata con dati di flusso citati.
 4. Costi di ingresso per mercato — solo se basati su fonti verificabili, altrimenti "Da quantificare con preventivo specifico".
 5. Timeline consigliata.
@@ -445,6 +461,7 @@ Fornisci un'analisi dettagliata e professionale che includa:
 7. Rischi principali e come mitigarli.
 8. Primi passi concreti da fare.
 
+Per OGNI dato numerico: indica (Fonte, Anno). Se il dato non è reperibile, scrivi "Non disponibile — verificare su [UN Comtrade / Eurostat Comext / TARIC]".
 RICORDA: meglio un'analisi con 5 dati certi e 10 "Non disponibile" che un'analisi con 15 dati inventati.`,
         add_context_from_internet: true,
         response_json_schema: {
