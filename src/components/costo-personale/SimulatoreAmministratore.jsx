@@ -7,7 +7,7 @@ import { Calculator, Info, Loader2, AlertTriangle } from 'lucide-react';
 import { useTabelleContributive, calcolaCostoAmministratore } from './useTabelleContributive';
 
 export default function SimulatoreAmministratore() {
-  const tab = useTabelleContributive(2025);
+  const tab = useTabelleContributive(2026);
   const [form, setForm] = useState({
     compenso_lordo: '',
     tipo_rapporto: 'gestione_separata',

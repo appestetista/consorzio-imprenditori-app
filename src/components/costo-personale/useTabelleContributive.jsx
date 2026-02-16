@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
  * Hook che carica tutte le tabelle contributive per un dato anno.
  * Restituisce un dizionario { tipo: { valore, descrizione, fonte_normativa } }
  */
-export function useTabelleContributive(anno = 2025) {
+export function useTabelleContributive(anno = 2026) {
   const { data: tabelle, isLoading, error } = useQuery({
     queryKey: ['tabelle-contributive', anno],
     queryFn: async () => {

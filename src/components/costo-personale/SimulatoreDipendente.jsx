@@ -15,7 +15,7 @@ const QUALIFICHE = [
 ];
 
 export default function SimulatoreDipendente() {
-  const tab = useTabelleContributive(2025);
+  const tab = useTabelleContributive(2026);
   const [form, setForm] = useState({
     ral: '',
     qualifica: '',
