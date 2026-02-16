@@ -91,19 +91,19 @@ export default function SimulazioneResult({ result, onNewScenario }) {
           <p className="text-slate-400 text-xs font-semibold uppercase tracking-wide mb-2">Dettaglio Imposte</p>
           {(result.tasse_societarie > 0) && (
             <div className="flex justify-between items-center">
-              <span className="text-slate-300 text-sm">Tasse societarie</span>
+              <span className="text-slate-300 text-sm">Imposte società (IRES + IRAP)</span>
               <span className="text-red-400 font-semibold text-sm">{formatEuro(result.tasse_societarie)}</span>
             </div>
           )}
           {(result.tasse_personali > 0) && (
             <div className="flex justify-between items-center">
-              <span className="text-slate-300 text-sm">Tasse personali</span>
+              <span className="text-slate-300 text-sm">Imposte personali socio/amm.</span>
               <span className="text-red-400 font-semibold text-sm">{formatEuro(result.tasse_personali)}</span>
             </div>
           )}
           {(result.contributi_pure > 0) && (
             <div className="flex justify-between items-center">
-              <span className="text-slate-300 text-sm">Contributi INPS</span>
+              <span className="text-slate-300 text-sm">Contributi INPS (amm.re)</span>
               <span className="text-yellow-400 font-semibold text-sm">{formatEuro(result.contributi_pure)}</span>
             </div>
           )}
