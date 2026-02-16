@@ -9,59 +9,91 @@ function toHS4(hsCode) {
 }
 
 /**
+ * Mappa ISO Alpha-2 → ISO Alpha-3 (World Bank usa Alpha-3)
+ */
+const ALPHA2_TO_ALPHA3 = {
+  US:'USA',DE:'DEU',FR:'FRA',GB:'GBR',CN:'CHN',JP:'JPN',IN:'IND',BR:'BRA',IT:'ITA',
+  ES:'ESP',NL:'NLD',BE:'BEL',AT:'AUT',PL:'POL',PT:'PRT',CH:'CHE',SE:'SWE',NO:'NOR',
+  DK:'DNK',FI:'FIN',IE:'IRL',CZ:'CZE',HU:'HUN',RO:'ROU',GR:'GRC',BG:'BGR',HR:'HRV',
+  SK:'SVK',SI:'SVN',LT:'LTU',LV:'LVA',EE:'EST',CY:'CYP',MT:'MLT',LU:'LUX',
+  RU:'RUS',TR:'TUR',SA:'SAU',AE:'ARE',KR:'KOR',AU:'AUS',CA:'CAN',MX:'MEX',AR:'ARG',
+  CL:'CHL',CO:'COL',PE:'PER',ZA:'ZAF',EG:'EGY',NG:'NGA',KE:'KEN',MA:'MAR',
+  TH:'THA',VN:'VNM',ID:'IDN',MY:'MYS',PH:'PHL',SG:'SGP',TW:'TWN',HK:'HKG',
+  NZ:'NZL',IL:'ISR',UA:'UKR',PK:'PAK',BD:'BGD',DZ:'DZA',TN:'TUN',GH:'GHA',
+  QA:'QAT',KW:'KWT',OM:'OMN',BH:'BHR',JO:'JOR',LB:'LBN',IQ:'IRQ',IR:'IRN',
+};
+
+/**
+ * Recupera un singolo indicatore World Bank per un Paese.
+ * Ritorna { value, year } con l'ultimo anno disponibile, oppure { value: null, year: null }.
+ */
+async function fetchWBIndicator(alpha3, indicatorCode) {
+  try {
+    const url = `https://api.worldbank.org/v2/country/${alpha3}/indicator/${indicatorCode}?format=json&per_page=10&mrv=5`;
+    const resp = await fetch(url);
+    if (!resp.ok) return { value: null, year: null };
+    const json = await resp.json();
+    // json[1] contiene i record, ordinati dal più recente
+    const records = json?.[1];
+    if (!Array.isArray(records) || records.length === 0) return { value: null, year: null };
+    // Cerca il primo record con valore non null
+    for (const rec of records) {
+      if (rec.value !== null && rec.value !== undefined) {
+        return { value: rec.value, year: String(rec.date) };
+      }
+    }
+    return { value: null, year: null };
+  } catch (err) {
+    console.error(`[WB API] Errore fetch ${indicatorCode} per ${alpha3}:`, err);
+    return { value: null, year: null };
+  }
+}
+
+/**
  * Recupera dati macro World Bank per i Paesi selezionati (popolazione, PIL, PIL pro capite)
+ * Usa chiamate dirette alla World Bank API — nessuna AI, nessuna stima.
  */
 export async function fetchMacroData(countryCodes) {
   const codes = countryCodes.filter(c => c !== 'WLD');
   if (codes.length === 0) return {};
 
-  let result;
+  const map = {};
+
+  // Lancia tutte le richieste in parallelo
+  const promises = codes.map(async (code2) => {
+    const alpha3 = ALPHA2_TO_ALPHA3[code2] || code2;
+
+    const [pop, gdp, gdpPc] = await Promise.all([
+      fetchWBIndicator(alpha3, 'SP.POP.TOTL'),       // Popolazione totale
+      fetchWBIndicator(alpha3, 'NY.GDP.MKTP.CD'),     // PIL nominale USD correnti
+      fetchWBIndicator(alpha3, 'NY.GDP.PCAP.CD'),     // PIL pro capite USD correnti
+    ]);
+
+    const datiMancanti = [];
+    if (pop.value === null) datiMancanti.push('Popolazione');
+    if (gdp.value === null) datiMancanti.push('PIL nominale');
+    if (gdpPc.value === null) datiMancanti.push('PIL pro capite');
+
+    map[code2] = {
+      codice: code2,
+      nome: null, // verrà usato il nome dal componente
+      popolazione: pop.value,
+      popolazione_anno: pop.year,
+      pil_nominale: gdp.value,
+      pil_nominale_anno: gdp.year,
+      pil_pro_capite: gdpPc.value,
+      pil_pro_capite_anno: gdpPc.year,
+      fonte: 'World Bank API',
+      dati_mancanti: datiMancanti.length > 0 ? datiMancanti : null
+    };
+  });
+
   try {
-    result = await base44.integrations.Core.InvokeLLM({
-      prompt: `Recupera i dati macroeconomici più recenti disponibili dalla World Bank (data.worldbank.org) per i seguenti Paesi: ${codes.join(', ')}.
-
-Per ciascun Paese fornisci:
-- Popolazione totale (numero intero)
-- PIL nominale in USD correnti (numero)
-- PIL pro capite in USD correnti (numero)
-
-REGOLE:
-- Usa SOLO dati World Bank verificati.
-- Se un dato non è disponibile, restituisci null.
-- NON inventare. NON stimare.`,
-      add_context_from_internet: true,
-      response_json_schema: {
-        type: "object",
-        properties: {
-          paesi: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                codice: { type: "string" },
-                nome: { type: "string" },
-                popolazione: { type: "number" },
-                pil_nominale: { type: "number" },
-                pil_pro_capite: { type: "number" },
-                anno_dati: { type: "string" },
-                fonte: { type: "string" }
-              }
-            }
-          }
-        }
-      }
-    });
+    await Promise.all(promises);
   } catch (err) {
     console.error('[ExportDataFetcher] fetchMacroData error:', err);
-    return {};
   }
 
-  if (!result?.paesi) return {};
-
-  const map = {};
-  result.paesi.forEach(p => {
-    map[p.codice] = p;
-  });
   return map;
 }
 
