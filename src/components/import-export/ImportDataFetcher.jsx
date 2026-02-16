@@ -5,31 +5,42 @@ import { base44 } from '@/api/base44Client';
  */
 export async function fetchImportData(hsCode, hsDescrizione) {
   const currentYear = new Date().getFullYear();
+  const timestamp = new Date().toISOString();
 
   let result;
   try {
     result = await base44.integrations.Core.InvokeLLM({
       prompt: `Sei un analista doganale. Siamo nel ${currentYear}.
 
-COMPITO: Recupera ESCLUSIVAMENTE dati numerici ufficiali per l'import in Italia dalla Cina del codice HS ${hsCode} (${hsDescrizione}).
+COMPITO: Recupera ESCLUSIVAMENTE dati numerici ufficiali per l'import in un Paese UE dalla Cina del codice HS ${hsCode} (${hsDescrizione}).
 
-FONTI DA CONSULTARE (OBBLIGATORIE):
-1) TARIC (ec.europa.eu/taxation_customs/dds2/taric) — Codice HS ${hsCode}, origine CN (Cina):
-   - Dazio MFN (aliquota %)
-   - Eventuali dazi anti-dumping (regolamento UE se attivi)
-   - Contingenti tariffari
-   - Restrizioni merceologiche (certificazioni obbligatorie, norme tecniche)
-2) UN Comtrade (comtradeplus.un.org) — Reporter: Italy, Partner: China, HS ${hsCode}:
-   - Valore import Italia dalla Cina (USD) ultimo anno disponibile
-   - Serie storica 5 anni
-3) Normativa UE — IVA italiana standard e ridotta applicabile a questa merce
+FONTE PRIMARIA E OBBLIGATORIA — TARIC (Commissione Europea):
+URL: ec.europa.eu/taxation_customs/dds2/taric
+Codice HS: ${hsCode}, Origine: CN (Cina)
 
-REGOLE:
-- Restituisci SOLO dati numerici verificati. NESSUNA interpretazione, NESSUN commento.
-- Se un dato NON è reperibile, restituisci null. NON inventare, NON stimare.
-- Per aliquote dazio: restituisci il numero esatto (es. "6.5" per 6.5%). NON scrivere "circa".
-- Per anti-dumping: se non attivo, scrivi "Nessuno". Se attivo, indica regolamento UE e aliquota.
-- CONVERSIONE VALUTA: I valori Comtrade sono in USD. Fornisci anche il tasso di cambio medio annuale EUR/USD dalla BCE (ECB Statistical Data Warehouse) per l'ultimo anno disponibile, indicando l'anno di riferimento.`,
+Recupera da TARIC:
+1. Dazio MFN applicabile (aliquota % esatta)
+2. Eventuali dazi anti-dumping attivi (regolamento UE + aliquota %)
+3. Eventuali misure compensative (regolamento UE + aliquota %)
+4. Contingenti tariffari
+5. Restrizioni/licenze richieste (certificazioni obbligatorie, norme tecniche)
+
+FONTE SECONDARIA — UN Comtrade (comtradeplus.un.org):
+Reporter: Italy, Partner: China, HS ${hsCode}
+- Valore import Italia dalla Cina (USD) ultimo anno disponibile
+- Serie storica 5 anni
+
+NORMATIVA UE:
+- IVA standard e ridotta del Paese UE di destinazione (default: Italia 22%)
+
+REGOLE INDEROGABILI:
+- Restituisci SOLO dati verificati da TARIC. NESSUNA interpretazione, NESSUN commento.
+- Se un dato NON è reperibile, restituisci null. NON inventare, NON stimare, NON usare dazi generici.
+- Per aliquote: numero esatto (es. "6.5" per 6.5%). MAI scrivere "circa" o "stimato".
+- Per anti-dumping: se non attivo scrivi "Nessuno". Se attivo: regolamento UE + aliquota esatta.
+- Per misure compensative: se non attive scrivi "Nessuna". Se attive: regolamento UE + aliquota esatta.
+- Se il dazio non è disponibile in TARIC per origine CN: restituisci null per dazio_mfn_percentuale.
+- CONVERSIONE VALUTA: Fornisci tasso cambio medio annuale EUR/USD dalla BCE per ultimo anno disponibile.`,
     add_context_from_internet: true,
     response_json_schema: {
       type: "object",
@@ -38,11 +49,14 @@ REGOLE:
         taric: {
           type: "object",
           properties: {
-            dazio_mfn_percentuale: { type: "string", description: "Aliquota dazio MFN in %, es: 6.5" },
+            dazio_mfn_percentuale: { type: "string", description: "Aliquota dazio MFN in %, es: 6.5. null se non disponibile." },
             anti_dumping_percentuale: { type: "string", description: "Aliquota anti-dumping in %, o 'Nessuno'" },
             anti_dumping_regolamento: { type: "string", description: "Regolamento UE se anti-dumping attivo" },
+            misure_compensative_percentuale: { type: "string", description: "Aliquota misure compensative in %, o 'Nessuna'" },
+            misure_compensative_regolamento: { type: "string", description: "Regolamento UE se misura compensativa attiva" },
             contingenti: { type: "string", description: "Contingenti tariffari se presenti, altrimenti null" },
             restrizioni: { type: "array", items: { type: "string" }, description: "Certificazioni/norme obbligatorie (CE, REACH, etc.)" },
+            licenze_richieste: { type: "string", description: "Licenze di importazione richieste, o null" },
             fonte: { type: "string" }
           }
         },
@@ -97,6 +111,9 @@ REGOLE:
     return { _api_error: true, _error_message: 'Risposta API non valida' };
   }
 
+  // Aggiunge timestamp recupero
+  result._timestamp_recupero = timestamp;
+
   return result;
 }
 
@@ -105,7 +122,7 @@ REGOLE:
  * 
  * Landed Cost = Valore merce + Trasporto + Dazio + IVA + Sdoganamento
  */
-export function computeLandedCost(importData, quantitaRange, budgetRange) {
+export function computeLandedCost(importData, quantitaRange, budgetRange, valoreMerceInput) {
   if (importData?._api_error) return { _api_error: true, _error_message: importData._error_message };
   const taric = importData?.taric;
   const iva = importData?.iva;
@@ -123,6 +140,11 @@ export function computeLandedCost(importData, quantitaRange, budgetRange) {
 
   const antiDumping = taric?.anti_dumping_percentuale && taric.anti_dumping_percentuale !== 'Nessuno'
     ? parseFloat(String(taric.anti_dumping_percentuale).replace(/[^0-9.]/g, ''))
+    : 0;
+
+  // Parse misure compensative
+  const misureComp = taric?.misure_compensative_percentuale && taric.misure_compensative_percentuale !== 'Nessuna'
+    ? parseFloat(String(taric.misure_compensative_percentuale).replace(/[^0-9.]/g, ''))
     : 0;
 
   const ivaPerc = iva?.aliquota_standard
@@ -158,10 +180,13 @@ export function computeLandedCost(importData, quantitaRange, budgetRange) {
 
   const conversionePossibile = tassoEurUsd && !isNaN(tassoEurUsd) && tassoEurUsd > 0;
 
+  const dazioTotale = dazioMfn !== null && !isNaN(dazioMfn) ? dazioMfn + antiDumping + misureComp : null;
+
   const result = {
     dazio_mfn_perc: dazioMfn !== null && !isNaN(dazioMfn) ? dazioMfn : null,
     anti_dumping_perc: antiDumping > 0 ? antiDumping : null,
-    dazio_totale_perc: dazioMfn !== null && !isNaN(dazioMfn) ? dazioMfn + antiDumping : null,
+    misure_compensative_perc: misureComp > 0 ? misureComp : null,
+    dazio_totale_perc: dazioTotale,
     iva_perc: ivaPerc !== null && !isNaN(ivaPerc) ? ivaPerc : null,
     costi_sdoganamento_range: { min: COSTI_SDOGANAMENTO_MIN, max: COSTI_SDOGANAMENTO_MAX },
     trasporto_disponibile: trasportoDisponibile,
@@ -216,10 +241,41 @@ export function computeLandedCost(importData, quantitaRange, budgetRange) {
   result.anomalie = anomalie.length > 0 ? anomalie : null;
   result.anomalie_presenti = anomalie.length > 0;
 
-  // Esempio di calcolo su valore merce ipotetico (per mostrare le percentuali)
-  // Su 10.000 EUR di merce:
+  // === CALCOLO LIVELLO RISCHIO IMPORT (basato su dati tariffari reali) ===
+  const rischi = [];
+  let livello_rischio = 'basso';
+
+  if (antiDumping > 0) {
+    rischi.push(`Misure anti-dumping attive: ${antiDumping}%${taric?.anti_dumping_regolamento ? ' (' + taric.anti_dumping_regolamento + ')' : ''}`);
+    livello_rischio = 'alto';
+  }
+  if (misureComp > 0) {
+    rischi.push(`Misure compensative attive: ${misureComp}%${taric?.misure_compensative_regolamento ? ' (' + taric.misure_compensative_regolamento + ')' : ''}`);
+    livello_rischio = 'alto';
+  }
+  if (dazioMfn !== null && dazioMfn > 10 && livello_rischio !== 'alto') {
+    rischi.push(`Dazio MFN elevato: ${dazioMfn}%`);
+    livello_rischio = 'medio';
+  }
+  if (taric?.restrizioni?.length > 0) {
+    rischi.push(`Restrizioni normative: ${taric.restrizioni.join(', ')}`);
+    if (livello_rischio === 'basso') livello_rischio = 'medio';
+  }
+  if (taric?.licenze_richieste && taric.licenze_richieste !== 'null') {
+    rischi.push(`Licenze richieste: ${taric.licenze_richieste}`);
+    if (livello_rischio === 'basso') livello_rischio = 'medio';
+  }
+  if (rischi.length === 0) {
+    rischi.push('Nessuna misura restrittiva rilevata');
+  }
+
+  result.livello_rischio = livello_rischio;
+  result.dettagli_rischio = rischi;
+
+  // Calcolo Landed Cost
+  const valoreMerceBase = valoreMerceInput && !isNaN(parseFloat(valoreMerceInput)) ? parseFloat(valoreMerceInput) : 10000;
   if (result.calcolo_possibile) {
-    const valoreMerce = 10000;
+    const valoreMerce = valoreMerceBase;
     const dazio = valoreMerce * (result.dazio_totale_perc / 100);
     const baseIva = valoreMerce + dazio; // IVA si calcola su valore + dazio
     const ivaImporto = baseIva * (result.iva_perc / 100);
