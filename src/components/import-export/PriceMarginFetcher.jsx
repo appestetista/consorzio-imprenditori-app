@@ -1,0 +1,349 @@
+import { base44 } from '@/api/base44Client';
+
+/**
+ * STEP 2 — Recupera dati di prezzo unitario e marginalità per ciascun mercato target.
+ * 
+ * FONTI OBBLIGATORIE:
+ * - UN Comtrade: Valore import (USD) e Quantità (kg o unità) → prezzo unitario
+ * - BCE: Tasso di cambio EUR/USD per conversione
+ * - World Bank: eventuale indice prezzi al consumo per contesto
+ * 
+ * NON inventa nulla. Se un dato non è disponibile → null.
+ */
+export async function fetchPriceData(hsCode6, mercatiCodes, mercatiNames, exporterCode = 'IT', periodoAnni = 5) {
+  const hs4 = String(hsCode6).replace(/\D/g, '').substring(0, 4);
+  const currentYear = new Date().getFullYear();
+  const periodoStart = currentYear - periodoAnni;
+  const periodoEnd = currentYear - 1;
+  const timestamp = new Date().toISOString();
+
+  const exporterLabel = exporterCode === 'IT' ? 'Italia' : exporterCode;
+  const mercatiNomi = mercatiCodes.map((code, i) => {
+    const name = mercatiNames?.[i] || code;
+    return `${name} (${code})`;
+  }).join(', ');
+
+  let result;
+  try {
+    result = await base44.integrations.Core.InvokeLLM({
+      prompt: `Sei un analista di dati commerciali internazionali. Anno corrente: ${currentYear}.
+
+COMPITO: Recupera ESCLUSIVAMENTE dati numerici ufficiali sul PREZZO UNITARIO MEDIO all'importazione per il codice HS ${hs4} (heading 4 cifre) nei seguenti mercati: ${mercatiNomi}.
+
+PARAMETRI QUERY:
+- Codice HS heading: ${hs4}
+- Codice HS 6 cifre: ${hsCode6}
+- Reporter (importatore): ciascun Paese target
+- Partner (esportatore specifico): ${exporterLabel} (${exporterCode})
+- Partner (tutti): World
+- Periodo: ultimi ${periodoAnni} anni (${periodoStart}-${periodoEnd})
+
+DATI DA RECUPERARE PER CIASCUN MERCATO (fonti obbligatorie):
+
+1) DA UN COMTRADE (comtradeplus.un.org) — HS ${hs4}:
+   a) Import TOTALE del Paese (Partner=World):
+      - TradeValue in USD (valore totale)
+      - NetWeight in kg (peso netto totale)
+      - Calcola: prezzo_unitario_medio_world_usd = TradeValue / NetWeight (USD/kg)
+   b) Import dal partner ${exporterCode}:
+      - TradeValue in USD
+      - NetWeight in kg
+      - Calcola: prezzo_unitario_medio_exporter_usd = TradeValue / NetWeight (USD/kg)
+   c) Import dai top 5 Paesi fornitori:
+      - Per ciascuno: prezzo_unitario_medio_usd = TradeValue / NetWeight
+   d) Se NetWeight non disponibile, prova con Qty (unità supplementari) e specifica l'unità di misura
+
+2) DA BCE (ecb.europa.eu):
+   - Tasso di cambio medio annuale EUR/USD per ${periodoEnd}
+
+REGOLE INDEROGABILI:
+- OGNI numero deve provenire da UN Comtrade o BCE. Nessuna stima, nessuna approssimazione.
+- Se TradeValue o NetWeight non sono disponibili per un Paese, restituisci null per quel dato.
+- Indica SEMPRE fonte esatta e anno per ogni dato.
+- Se i dati per Partner=${exporterCode} non sono disponibili, segnala in dati_non_disponibili.
+- Il prezzo unitario si calcola SOLO come rapporto TradeValue/NetWeight (o Qty). Mai inventarlo.
+
+OUTPUT: JSON strutturato.`,
+      add_context_from_internet: true,
+      response_json_schema: {
+        type: "object",
+        properties: {
+          hs_code: { type: "string" },
+          periodo: { type: "string" },
+          mercati: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                paese_code: { type: "string" },
+                paese_nome: { type: "string" },
+                import_world: {
+                  type: "object",
+                  properties: {
+                    trade_value_usd: { type: "number", description: "Valore import totale USD (Partner=World)" },
+                    net_weight_kg: { type: "number", description: "Peso netto totale kg" },
+                    prezzo_unitario_usd_kg: { type: "number", description: "TradeValue / NetWeight" },
+                    unita_misura: { type: "string", description: "kg o altra unità se NetWeight non disponibile" },
+                    anno: { type: "string" },
+                    fonte: { type: "string" }
+                  }
+                },
+                import_exporter: {
+                  type: "object",
+                  properties: {
+                    trade_value_usd: { type: "number", description: "Valore import dal partner specifico USD" },
+                    net_weight_kg: { type: "number", description: "Peso netto kg" },
+                    prezzo_unitario_usd_kg: { type: "number", description: "TradeValue / NetWeight" },
+                    unita_misura: { type: "string" },
+                    anno: { type: "string" },
+                    fonte: { type: "string" }
+                  }
+                },
+                top_fornitori_prezzo: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      paese: { type: "string" },
+                      prezzo_unitario_usd_kg: { type: "number" },
+                      trade_value_usd: { type: "number" },
+                      net_weight_kg: { type: "number" },
+                      fonte: { type: "string" }
+                    }
+                  }
+                },
+                serie_prezzo_unitario: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      anno: { type: "number" },
+                      prezzo_unitario_usd_kg: { type: "number" },
+                      fonte: { type: "string" }
+                    }
+                  },
+                  description: "Serie storica prezzo unitario World per HS heading nel Paese"
+                }
+              }
+            }
+          },
+          tasso_cambio_eur_usd: {
+            type: "object",
+            properties: {
+              tasso: { type: "number" },
+              anno: { type: "string" },
+              fonte: { type: "string" }
+            }
+          },
+          dati_non_disponibili: {
+            type: "array",
+            items: { type: "string" }
+          }
+        }
+      }
+    });
+  } catch (err) {
+    console.error('[PriceMarginFetcher] fetchPriceData API error:', err);
+    return { _api_error: true, _error_message: err?.message || 'Unknown error' };
+  }
+
+  if (!result || typeof result !== 'object') {
+    return { _api_error: true, _error_message: 'Risposta API non valida' };
+  }
+
+  result._timestamp = timestamp;
+  result._query_log = { hs4, hsCode6, exporterCode, mercatiCodes, periodo: `${periodoStart}-${periodoEnd}` };
+  return result;
+}
+
+/**
+ * Calcola metriche di prezzo e marginalità lato client (zero AI).
+ * Tutti i calcoli sono aritmetici puri su dati ufficiali.
+ */
+export function computePriceMetrics(priceData) {
+  if (priceData?._api_error) return { _api_error: true };
+  if (!priceData?.mercati) return null;
+
+  const tasso = priceData.tasso_cambio_eur_usd?.tasso;
+  const tassoValid = tasso && !isNaN(tasso) && tasso > 0;
+
+  const metriche = priceData.mercati.map(m => {
+    const prezzoWorld = m.import_world?.prezzo_unitario_usd_kg;
+    const prezzoExporter = m.import_exporter?.prezzo_unitario_usd_kg;
+    const unita = m.import_world?.unita_misura || m.import_exporter?.unita_misura || 'kg';
+
+    // Premium/discount dell'esportatore rispetto alla media mondiale
+    let premium_pct = null;
+    if (prezzoWorld && prezzoExporter && prezzoWorld > 0) {
+      premium_pct = parseFloat((((prezzoExporter - prezzoWorld) / prezzoWorld) * 100).toFixed(1));
+    }
+
+    // Conversione EUR
+    const prezzoWorldEur = tassoValid && prezzoWorld ? parseFloat((prezzoWorld / tasso).toFixed(2)) : null;
+    const prezzoExporterEur = tassoValid && prezzoExporter ? parseFloat((prezzoExporter / tasso).toFixed(2)) : null;
+
+    // Confronto competitivo: posizionamento prezzo esportatore vs top fornitori
+    const topFornitori = (m.top_fornitori_prezzo || [])
+      .filter(f => f.prezzo_unitario_usd_kg && f.prezzo_unitario_usd_kg > 0)
+      .map(f => ({
+        ...f,
+        prezzo_eur: tassoValid ? parseFloat((f.prezzo_unitario_usd_kg / tasso).toFixed(2)) : null
+      }))
+      .sort((a, b) => a.prezzo_unitario_usd_kg - b.prezzo_unitario_usd_kg);
+
+    let rankingPrezzo = null;
+    if (prezzoExporter && topFornitori.length > 0) {
+      const allPrices = [...topFornitori.map(f => f.prezzo_unitario_usd_kg), prezzoExporter].sort((a, b) => a - b);
+      rankingPrezzo = allPrices.indexOf(prezzoExporter) + 1;
+    }
+
+    // Trend prezzo unitario
+    const serie = (m.serie_prezzo_unitario || []).filter(s => s.prezzo_unitario_usd_kg && s.prezzo_unitario_usd_kg > 0);
+    let trendPrezzo = null;
+    if (serie.length >= 2) {
+      const primo = serie[0].prezzo_unitario_usd_kg;
+      const ultimo = serie[serie.length - 1].prezzo_unitario_usd_kg;
+      if (primo > 0) {
+        trendPrezzo = parseFloat((((ultimo - primo) / primo) * 100).toFixed(1));
+      }
+    }
+
+    // Serie in EUR
+    const serieEur = tassoValid
+      ? serie.map(s => ({
+          ...s,
+          prezzo_unitario_eur: parseFloat((s.prezzo_unitario_usd_kg / tasso).toFixed(2))
+        }))
+      : serie;
+
+    return {
+      paese_code: m.paese_code,
+      paese_nome: m.paese_nome,
+      unita_misura: unita,
+      prezzo_world_usd: prezzoWorld,
+      prezzo_world_eur: prezzoWorldEur,
+      prezzo_exporter_usd: prezzoExporter,
+      prezzo_exporter_eur: prezzoExporterEur,
+      premium_pct,
+      top_fornitori: topFornitori,
+      ranking_prezzo: rankingPrezzo,
+      ranking_totale: topFornitori.length + 1,
+      trend_prezzo_pct: trendPrezzo,
+      serie_prezzo: serie,
+      serie_prezzo_eur: serieEur,
+      dati_completi: prezzoWorld !== null && prezzoWorld !== undefined && prezzoExporter !== null && prezzoExporter !== undefined
+    };
+  });
+
+  return {
+    metriche,
+    tasso_cambio: tassoValid ? {
+      tasso,
+      anno: priceData.tasso_cambio_eur_usd.anno,
+      fonte: priceData.tasso_cambio_eur_usd.fonte,
+      nota: `Tasso medio BCE ${priceData.tasso_cambio_eur_usd.anno}: 1 EUR = ${tasso} USD`
+    } : null,
+    dati_non_disponibili: priceData.dati_non_disponibili || []
+  };
+}
+
+/**
+ * STEP AI: Interpretazione strategica sui dati di prezzo/marginalità.
+ * Riceve SOLO dati calcolati, NON inventa numeri.
+ */
+export async function interpretPriceData(priceMetrics, hsCode, hsDescrizione, profiloAzienda) {
+  if (priceMetrics?._api_error) return { _api_error: true };
+  if (!priceMetrics?.metriche) return null;
+
+  const currentYear = new Date().getFullYear();
+
+  const riepilogo = priceMetrics.metriche.map(m => {
+    const topStr = m.top_fornitori.map(f =>
+      `${f.paese}: $${f.prezzo_unitario_usd_kg?.toFixed(2)}/${m.unita_misura}${f.prezzo_eur ? ` (€${f.prezzo_eur}/${m.unita_misura})` : ''}`
+    ).join(', ');
+
+    return `
+MERCATO: ${m.paese_nome} (${m.paese_code})
+- Prezzo unitario medio import (World): ${m.prezzo_world_usd !== null ? `$${m.prezzo_world_usd.toFixed(2)}/${m.unita_misura}` : 'Non disponibile'}${m.prezzo_world_eur ? ` (€${m.prezzo_world_eur}/${m.unita_misura})` : ''}
+- Prezzo unitario import da esportatore: ${m.prezzo_exporter_usd !== null ? `$${m.prezzo_exporter_usd.toFixed(2)}/${m.unita_misura}` : 'Non disponibile'}${m.prezzo_exporter_eur ? ` (€${m.prezzo_exporter_eur}/${m.unita_misura})` : ''}
+- Premium/Discount vs media: ${m.premium_pct !== null ? `${m.premium_pct > 0 ? '+' : ''}${m.premium_pct}%` : 'Non calcolabile'}
+- Ranking prezzo tra fornitori: ${m.ranking_prezzo !== null ? `#${m.ranking_prezzo} su ${m.ranking_totale}` : 'Non calcolabile'}
+- Trend prezzo unitario nel periodo: ${m.trend_prezzo_pct !== null ? `${m.trend_prezzo_pct > 0 ? '+' : ''}${m.trend_prezzo_pct}%` : 'Non calcolabile'}
+- Top fornitori per prezzo: ${topStr || 'Non disponibile'}
+- Dati completi: ${m.dati_completi ? 'Sì' : 'Parziali/Insufficienti'}`;
+  }).join('\n');
+
+  const datiMancanti = priceMetrics.dati_non_disponibili?.length > 0
+    ? `\nDATI NON DISPONIBILI:\n${priceMetrics.dati_non_disponibili.join('\n')}`
+    : '';
+
+  const notaCambio = priceMetrics.tasso_cambio
+    ? `\nTASSO DI CAMBIO: ${priceMetrics.tasso_cambio.nota} (${priceMetrics.tasso_cambio.fonte})`
+    : '';
+
+  let result;
+  try {
+    result = await base44.integrations.Core.InvokeLLM({
+      prompt: `Sei un esperto di pricing internazionale e trade intelligence. Anno: ${currentYear}.
+
+COMPITO: Interpreta i seguenti DATI DI PREZZO E MARGINALITÀ GIÀ VERIFICATI e fornisci una valutazione strategica sul posizionamento di prezzo.
+
+REGOLE:
+- NON inventare numeri. Usa SOLO i dati forniti sotto.
+- Se un dato è "Non disponibile" o "Non calcolabile", dillo esplicitamente.
+- Le tue conclusioni DEVONO essere coerenti con i numeri.
+
+CODICE HS: ${hsCode}
+DESCRIZIONE: ${hsDescrizione}
+
+PROFILO AZIENDA:
+- Settore: ${profiloAzienda.settore}
+- Prodotto: ${profiloAzienda.prodotto}
+- Fatturato: ${profiloAzienda.fatturato_annuo || 'Non specificato'}
+
+DATI DI PREZZO VERIFICATI:
+${riepilogo}
+${datiMancanti}${notaCambio}
+
+PER CIASCUN MERCATO RISPONDI:
+1. POSIZIONAMENTO PREZZO: l'esportatore è premium, allineato o sotto media? Motivazione con numeri.
+2. COMPETITIVITA: confronto con top fornitori — chi è più economico, chi più caro?
+3. TREND: il prezzo medio sta salendo o scendendo? Cosa implica per i margini?
+4. STRATEGIA PREZZO CONSIGLIATA: penetrazione, allineamento, premium? Con motivazione numerica.
+5. RISCHIO MARGINE: se il prezzo medio cala, quanto è vulnerabile il posizionamento?
+
+Fornisci anche una valutazione complessiva del potenziale di marginalità.`,
+      response_json_schema: {
+        type: "object",
+        properties: {
+          valutazione_generale: { type: "string", description: "Sintesi complessiva sul posizionamento prezzo e marginalità" },
+          punteggio_marginalita: { type: "number", description: "Score 1-10 sul potenziale di marginalità" },
+          mercati: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                paese_code: { type: "string" },
+                paese_nome: { type: "string" },
+                posizionamento: { type: "string", description: "premium / allineato / sotto_media / dati_insufficienti" },
+                analisi_posizionamento: { type: "string" },
+                analisi_competitivita: { type: "string" },
+                analisi_trend: { type: "string" },
+                strategia_prezzo: { type: "string" },
+                rischio_margine: { type: "string" },
+                dati_insufficienti: { type: "boolean" }
+              }
+            }
+          },
+          raccomandazione_pricing: { type: "string", description: "Consiglio operativo sul pricing" },
+          rischi_pricing: { type: "array", items: { type: "string" } }
+        }
+      }
+    });
+  } catch (err) {
+    console.error('[PriceMarginFetcher] interpretPriceData error:', err);
+    return { _api_error: true };
+  }
+
+  return result;
+}
