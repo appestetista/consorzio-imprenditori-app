@@ -95,10 +95,16 @@ function MarketPriceDetail({ m, interpretation }) {
           <div className="flex-1 min-w-0 text-left">
             <p className="text-white text-sm font-semibold">{m.paese_nome}</p>
             <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-              <span className="text-slate-400 text-[10px]">
-                Export: {fmtPrice(m.prezzo_partner_usd, m.unita_misura)}
-              </span>
-              <PremiumBadge pct={m.premium_pct} />
+              {m.prezzo_partner_usd !== null ? (
+                <>
+                  <span className="text-slate-400 text-[10px]">
+                    Export: {fmtPrice(m.prezzo_partner_usd, m.unita_misura)}
+                  </span>
+                  <PremiumBadge pct={m.premium_pct} />
+                </>
+              ) : (
+                <span className="text-yellow-400/70 text-[10px]">Prezzo medio non calcolabile</span>
+              )}
               {m.query_fallback_world && <span className="text-yellow-400/70 text-[10px]">(World)</span>}
             </div>
           </div>
