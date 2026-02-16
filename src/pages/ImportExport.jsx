@@ -427,12 +427,36 @@ export default function ImportExport() {
         return;
       }
       setAnalysisResult(interpretation);
+
+      // STEP 2: Analisi Prezzo & Marginalità (in parallelo dopo risultati principali)
+      setPriceStep('fetching');
+      const priceRaw = await fetchPriceData(hsData.hs_code, exportForm.mercati_interesse, mercatiNames, exporterCountry, parseInt(periodoAnalisi));
+      if (priceRaw?._api_error) {
+        setPriceMetrics(null);
+        setPriceStep('');
+      } else {
+        setPriceStep('computing');
+        const pMetrics = computePriceMetrics(priceRaw);
+        setPriceMetrics(pMetrics);
+
+        if (pMetrics && !pMetrics._api_error) {
+          setPriceStep('interpreting');
+          const pInterp = await interpretPriceData(pMetrics, hsData.hs_code, hsData.descrizione_ufficiale, {
+            settore: exportForm.settore,
+            prodotto: exportForm.prodotto,
+            fatturato_annuo: exportForm.fatturato_annuo
+          });
+          setPriceInterpretation(pInterp);
+        }
+        setPriceStep('');
+      }
     } catch (e) {
       console.error('[Export] Errore analisi:', e);
       setAnalysisResult({ _api_error: true });
     } finally {
       setAnalyzing(false);
       setExportStep('');
+      setPriceStep('');
     }
   };
 
