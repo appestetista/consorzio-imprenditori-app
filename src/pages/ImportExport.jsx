@@ -947,14 +947,22 @@ Fornisci:
                         </span>
                       </div>
 
-                      {/* Flussi Commerciali */}
+                      {/* Flussi Commerciali — UN Comtrade / Eurostat */}
                       {mercato.flussi_commerciali && (
                         <div className="mb-3 bg-slate-700/50 rounded-lg p-3">
-                          <p className="text-lime-400 text-xs font-semibold mb-2">📊 Flussi Commerciali (ultimi 12 mesi):</p>
+                          <p className="text-lime-400 text-xs font-semibold mb-2">📊 Flussi Commerciali (UN Comtrade / Eurostat Comext)</p>
                           <div className="grid grid-cols-2 gap-2 text-sm">
                             <div>
-                              <p className="text-slate-400 text-xs">Import totale:</p>
+                              <p className="text-slate-400 text-xs">Import totale paese:</p>
                               <p className="text-white font-semibold">{mercato.flussi_commerciali.valore_import_annuo}</p>
+                            </div>
+                            <div>
+                              <p className="text-slate-400 text-xs">Export ITA→paese:</p>
+                              <p className="text-white font-semibold">{mercato.flussi_commerciali.export_italia_verso_paese || 'N/D'}</p>
+                            </div>
+                            <div>
+                              <p className="text-slate-400 text-xs">Trend 5 anni:</p>
+                              <p className="text-white">{mercato.flussi_commerciali.trend_5_anni || mercato.flussi_commerciali.trend_yoy_percentuale}</p>
                             </div>
                             <div>
                               <p className="text-slate-400 text-xs">Trend YoY:</p>
@@ -977,11 +985,53 @@ Fornisci:
                               <div className="flex flex-wrap gap-1">
                                 {mercato.flussi_commerciali.principali_fornitori.slice(0, 5).map((f, i) => (
                                   <span key={i} className="bg-slate-600 text-slate-200 px-2 py-0.5 rounded text-xs">
-                                    {f.paese} ({f.quota_percentuale})
+                                    {f.paese} {f.quota_percentuale} {f.valore ? `(${f.valore})` : ''}
                                   </span>
                                 ))}
                               </div>
                             </div>
+                          )}
+                          {(mercato.flussi_commerciali.fonte_comtrade || mercato.flussi_commerciali.fonte_eurostat) && (
+                            <div className="mt-2 pt-2 border-t border-slate-600">
+                              <p className="text-slate-500 text-[10px]">
+                                {mercato.flussi_commerciali.fonte_comtrade && `📌 ${mercato.flussi_commerciali.fonte_comtrade}`}
+                                {mercato.flussi_commerciali.fonte_eurostat && ` | ${mercato.flussi_commerciali.fonte_eurostat}`}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Dazi e Barriere — TARIC */}
+                      {mercato.dazi_taric && (
+                        <div className="mb-3 bg-amber-500/10 rounded-lg p-3 border border-amber-500/20">
+                          <p className="text-amber-400 text-xs font-semibold mb-2">🏛️ Dazi e Barriere (TARIC)</p>
+                          <div className="grid grid-cols-2 gap-2 text-sm">
+                            {mercato.dazi_taric.dazio_mfn && (
+                              <div>
+                                <p className="text-slate-400 text-xs">Dazio MFN:</p>
+                                <p className="text-white font-semibold">{mercato.dazi_taric.dazio_mfn}</p>
+                              </div>
+                            )}
+                            {mercato.dazi_taric.dazio_preferenziale && (
+                              <div>
+                                <p className="text-slate-400 text-xs">Dazio preferenziale:</p>
+                                <p className="text-green-400 font-semibold">{mercato.dazi_taric.dazio_preferenziale}</p>
+                              </div>
+                            )}
+                          </div>
+                          {mercato.dazi_taric.anti_dumping && mercato.dazi_taric.anti_dumping !== 'Nessuna' && (
+                            <div className="mt-2">
+                              <p className="text-red-400 text-xs">⚠️ Anti-dumping: {mercato.dazi_taric.anti_dumping}</p>
+                            </div>
+                          )}
+                          {mercato.dazi_taric.restrizioni && mercato.dazi_taric.restrizioni !== 'Nessuna' && (
+                            <div className="mt-1">
+                              <p className="text-orange-400 text-xs">🔒 Restrizioni: {mercato.dazi_taric.restrizioni}</p>
+                            </div>
+                          )}
+                          {mercato.dazi_taric.fonte && (
+                            <p className="text-slate-500 text-[10px] mt-2">📌 {mercato.dazi_taric.fonte}</p>
                           )}
                         </div>
                       )}
