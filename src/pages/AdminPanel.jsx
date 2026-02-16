@@ -1763,6 +1763,21 @@ export default function AdminPanel() {
         </DialogContent>
       </Dialog>
 
+      {/* Pannello Costo Personale Admin */}
+      <Dialog open={showCostoPersonalePanel} onOpenChange={setShowCostoPersonalePanel}>
+        <DialogContent className="bg-slate-900 border-slate-700 max-w-lg max-h-[90vh] overflow-y-auto p-0">
+          <DialogHeader className="p-4 border-b border-slate-700 sticky top-0 bg-slate-900 z-10">
+            <DialogTitle className="text-white flex items-center gap-2">
+              <Database className="w-5 h-5 text-violet-400" />
+              Costo del Personale — DB Normativo
+            </DialogTitle>
+          </DialogHeader>
+          <div className="p-4">
+            <CostoPersonaleAdmin user={user} />
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Pannello Video Recensioni Admin */}
       <Dialog open={showVideoRecensioniPanel} onOpenChange={setShowVideoRecensioniPanel}>
         <DialogContent className="bg-slate-900 border-slate-700 max-w-lg max-h-[90vh] overflow-y-auto p-0">
