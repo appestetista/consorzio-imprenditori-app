@@ -270,8 +270,14 @@ export default function ImportExport() {
     }
   });
 
-  const analyzeImportFeasibility = async () => {
+  const handleImportHSConfirm = (hsData) => {
+    setConfirmedImportHS(hsData);
+    analyzeImportFeasibility(hsData);
+  };
+
+  const analyzeImportFeasibility = async (hsData) => {
     if (!importForm.descrizione_prodotto || !importForm.quantita || !importForm.tipo_richiesta) return;
+    if (!hsData) return;
     
     if (importLimitReached) return;
     
@@ -302,6 +308,12 @@ TEMPO MASSIMO ATTESA: ${importForm.tempo_attesa || 'Non specificato'}
 BUDGET: ${importForm.budget || 'Non specificato'}
 ESPERIENZA IMPORT: ${importForm.esperienza_import || 'Non specificata'}
 REQUISITI SPECIFICI: ${importForm.requisiti || 'Nessuno specificato'}
+
+CODICE HS CONFERMATO DALL'UTENTE: ${hsData.hs_code}
+DESCRIZIONE DOGANALE: ${hsData.descrizione_ufficiale}
+CERTEZZA CLASSIFICAZIONE: ${hsData.certezza}
+
+IMPORTANTE: Usa il codice HS ${hsData.hs_code} confermato sopra come base per tutti i dati doganali, dazi TARIC e costi. Non usare un codice HS diverso.
 
 Fornisci un'analisi completa che includa:
 1. Punteggio fattibilità (1-10) con motivazione basata su criteri oggettivi
