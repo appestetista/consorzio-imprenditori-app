@@ -70,6 +70,14 @@ REGOLE:
             fonte: { type: "string" }
           }
         },
+        tasso_cambio_eur_usd: {
+          type: "object",
+          properties: {
+            tasso: { type: "string", description: "Tasso medio annuale EUR/USD BCE, es: 1.08" },
+            anno: { type: "string", description: "Anno di riferimento del tasso" },
+            fonte: { type: "string", description: "Es: BCE (ECB Statistical Data Warehouse)" }
+          }
+        },
         dati_non_disponibili: {
           type: "array",
           items: { type: "string" }
