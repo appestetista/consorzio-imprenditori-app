@@ -1089,6 +1089,11 @@ Fornisci:
                               tradeM={tm}
                               macro={macroData?.[pm.paese_code]}
                               userPriceData={userPriceData}
+                              dataSourceInfo={{
+                                periodo: tradeData?._query_log?.periodo,
+                                annoCambio: priceMetrics?.tasso_cambio?.anno || tradeMetrics?.tasso_cambio?.anno,
+                                dataRecupero: tradeData?._timestamp_recupero
+                              }}
                             />
                           );
                         })}
