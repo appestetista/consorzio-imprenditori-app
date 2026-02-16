@@ -873,6 +873,27 @@ Fornisci:
                   </CardContent>
                 </Card>
 
+                {/* Classifica Comparativa */}
+                {tradeMetrics?.metriche?.length > 1 && (
+                  <ExportComparisonRanking metriche={tradeMetrics.metriche} macroData={macroData} />
+                )}
+
+                {/* Country Cards con macro data */}
+                {tradeMetrics?.metriche?.length > 0 && (
+                  <div className="space-y-2">
+                    {tradeMetrics.metriche.map(m => (
+                      <CountryInfoCard
+                        key={m.paese_code}
+                        countryCode={m.paese_code}
+                        countryName={m.paese_nome}
+                        macroData={macroData?.[m.paese_code]}
+                        metrics={m}
+                        isCompact={tradeMetrics.metriche.length > 3}
+                      />
+                    ))}
+                  </div>
+                )}
+
                 {/* Mercati Prioritari */}
                 {analysisResult.mercati_prioritari?.length > 0 && (
                   <Card className="bg-slate-800 border-slate-700">
