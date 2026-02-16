@@ -779,23 +779,21 @@ Fornisci:
                   </CardContent>
                 </Card>
 
-                <Button
-                  onClick={analyzeExportPotential}
-                  disabled={!exportForm.settore || !exportForm.prodotto || exportForm.mercati_interesse.length === 0 || analyzing || exportLimitReached}
-                  className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 font-semibold h-12 disabled:opacity-50"
-                >
-                  {analyzing ? (
-                    <>
-                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                      Analisi in corso...
-                    </>
-                  ) : (
-                    <>
-                      <TrendingUp className="w-5 h-5 mr-2" />
-                      Analizza Potenziale Export
-                    </>
-                  )}
-                </Button>
+                {/* Classificazione HS obbligatoria prima dell'analisi */}
+                {exportForm.prodotto && exportForm.settore && exportForm.mercati_interesse.length > 0 && !exportLimitReached && !analyzing && (
+                  <HSCodeClassifier
+                    productDescription={`${exportForm.prodotto}${exportForm.descrizione_prodotto ? ' - ' + exportForm.descrizione_prodotto : ''} (Settore: ${exportForm.settore})`}
+                    onConfirm={handleExportHSConfirm}
+                    onError={() => {}}
+                  />
+                )}
+
+                {analyzing && (
+                  <div className="flex items-center justify-center gap-3 py-6">
+                    <Loader2 className="w-6 h-6 animate-spin text-lime-400" />
+                    <p className="text-slate-300 text-sm">Analisi export in corso...</p>
+                  </div>
+                )}
               </div>
             ) : (
               /* Risultati Analisi Export */
