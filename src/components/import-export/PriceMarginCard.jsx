@@ -115,16 +115,32 @@ function MarketPriceDetail({ m, interpretation }) {
               <p className="text-lime-400 text-[10px] font-semibold uppercase tracking-wider mb-2">📊 Dati Ufficiali (UN Comtrade)</p>
               <div className="grid grid-cols-2 gap-2">
                 <div className="bg-slate-700/50 rounded-lg p-2.5">
-                  <p className="text-slate-400 text-[10px]">Prezzo medio import (World)</p>
+                  <p className="text-slate-400 text-[10px]">Prezzo export verso partner</p>
+                  <p className="text-white font-bold text-sm">{fmtPrice(m.prezzo_partner_usd, m.unita_misura)}</p>
+                  {m.prezzo_partner_eur && <p className="text-slate-500 text-[10px]">{fmtPriceEur(m.prezzo_partner_eur, m.unita_misura)}</p>}
+                  {m.query_fallback_world && <p className="text-yellow-400/70 text-[9px]">⚠ dati da Partner=World</p>}
+                </div>
+                <div className="bg-slate-700/50 rounded-lg p-2.5">
+                  <p className="text-slate-400 text-[10px]">Media export globale (World)</p>
                   <p className="text-white font-bold text-sm">{fmtPrice(m.prezzo_world_usd, m.unita_misura)}</p>
                   {m.prezzo_world_eur && <p className="text-slate-500 text-[10px]">{fmtPriceEur(m.prezzo_world_eur, m.unita_misura)}</p>}
                 </div>
-                <div className="bg-slate-700/50 rounded-lg p-2.5">
-                  <p className="text-slate-400 text-[10px]">Prezzo import da esportatore</p>
-                  <p className="text-white font-bold text-sm">{fmtPrice(m.prezzo_exporter_usd, m.unita_misura)}</p>
-                  {m.prezzo_exporter_eur && <p className="text-slate-500 text-[10px]">{fmtPriceEur(m.prezzo_exporter_eur, m.unita_misura)}</p>}
-                </div>
               </div>
+
+              {/* Valore e quantità export */}
+              {(m.trade_value_usd || m.net_weight_kg) && (
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  <div className="bg-slate-700/50 rounded-lg p-2.5">
+                    <p className="text-slate-400 text-[10px]">Valore export totale</p>
+                    <p className="text-white font-bold text-sm">{m.trade_value_usd ? `$${m.trade_value_usd.toLocaleString('en-US')}` : 'N/D'}</p>
+                    {m.trade_value_eur && <p className="text-slate-500 text-[10px]">€{m.trade_value_eur.toLocaleString('it-IT')}</p>}
+                  </div>
+                  <div className="bg-slate-700/50 rounded-lg p-2.5">
+                    <p className="text-slate-400 text-[10px]">Quantità ({m.unita_misura})</p>
+                    <p className="text-white font-bold text-sm">{m.net_weight_kg ? m.net_weight_kg.toLocaleString('en-US') : 'N/D'}</p>
+                  </div>
+                </div>
+              )}
 
               {/* Ranking prezzo */}
               <div className="grid grid-cols-2 gap-2 mt-2">
