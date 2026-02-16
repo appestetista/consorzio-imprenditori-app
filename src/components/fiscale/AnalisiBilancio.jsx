@@ -35,6 +35,7 @@ export default function AnalisiBilancio() {
   };
 
   const analisi = result?.analisi;
+  const ocrInfo = result?.ocr_info;
   const isIdoneo = analisi?.esito === 'Documento idoneo';
 
   return (
@@ -155,6 +156,28 @@ export default function AnalisiBilancio() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Info OCR */}
+          {ocrInfo && (
+            <Card className="bg-[#0a2540] border-[#1a3a5c]">
+              <CardContent className="p-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-400 text-xs">Qualità OCR</span>
+                  <span className={`text-xs font-medium ${
+                    ocrInfo.qualita === 'buona' ? 'text-green-400' : 
+                    ocrInfo.qualita === 'media' ? 'text-yellow-400' : 'text-red-400'
+                  }`}>
+                    {ocrInfo.qualita === 'buona' ? '✓ Buona' : ocrInfo.qualita === 'media' ? '~ Media' : '⚠ Scarsa'}
+                  </span>
+                </div>
+                {ocrInfo.correzioni > 0 && (
+                  <p className="text-slate-500 text-[10px] mt-1">
+                    {ocrInfo.correzioni} correzioni tipografiche applicate prima dell'analisi
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          )}
 
           {/* Note */}
           {analisi.note && (
