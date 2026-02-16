@@ -255,10 +255,13 @@ export function computePriceMetrics(priceData) {
       rankingPrezzo = allPrices.indexOf(prezzoPartner) + 1;
     }
 
-    // Serie storica: filtra solo record con TradeValue > 0 E NetWeight > 0
-    const serie = (m.serie_storica || []).filter(s =>
-      s.prezzo_unitario_usd_kg > 0 && s.trade_value_usd > 0 && s.net_weight_kg > 0
-    );
+    // Serie storica: filtra solo record con TradeValue > 0 E NetWeight > 0, ricalcola prezzo
+    const serie = (m.serie_storica || [])
+      .filter(s => s.trade_value_usd > 0 && s.net_weight_kg > 0)
+      .map(s => ({
+        ...s,
+        prezzo_unitario_usd_kg: parseFloat((s.trade_value_usd / s.net_weight_kg).toFixed(4))
+      }));
     let trendPrezzo = null;
     if (serie.length >= 2) {
       const primo = serie[0].prezzo_unitario_usd_kg;
