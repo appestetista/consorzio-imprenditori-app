@@ -358,6 +358,25 @@ RICORDA: meglio un'analisi con 5 dati certi e 10 "Da verificare" che un'analisi 
             tempi_spedizione_mare: { type: "string" },
             tempi_spedizione_aerea: { type: "string" },
             tempo_totale: { type: "string" },
+            dazi_taric: {
+              type: "object",
+              properties: {
+                dazio_mfn: { type: "string", description: "Aliquota MFN da TARIC per HS confermato, origine CN" },
+                anti_dumping: { type: "string", description: "Misure anti-dumping attive con regolamento UE" },
+                restrizioni: { type: "string", description: "Restrizioni merceologiche o contingenti" },
+                iva_italia: { type: "string" },
+                fonte: { type: "string" }
+              }
+            },
+            flussi_commerciali: {
+              type: "object",
+              properties: {
+                import_italia_da_cina: { type: "string", description: "Valore import Italia dalla Cina per HS, USD, anno" },
+                trend_5_anni: { type: "string", description: "Trend serie storica 5 anni" },
+                fonte_comtrade: { type: "string" },
+                fonte_eurostat: { type: "string" }
+              }
+            },
             costi_stimati: {
               type: "object",
               properties: {
