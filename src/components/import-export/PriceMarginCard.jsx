@@ -166,13 +166,12 @@ function MarketPriceDetail({ m, interpretation }) {
                 <PriceChart serie={m.serie_prezzo_eur?.length > 0 ? m.serie_prezzo_eur : m.serie_prezzo} unit={m.unita_misura} />
               </div>
 
-              {/* Top fornitori prezzo */}
-              {m.top_fornitori?.length > 0 && (
+              {/* Top destinatari prezzo */}
+              {m.top_destinatari?.length > 0 && (
                 <div className="mt-2">
-                  <p className="text-slate-400 text-[10px] mb-1.5">Confronto prezzo fornitori ({m.unita_misura}):</p>
+                  <p className="text-slate-400 text-[10px] mb-1.5">Confronto prezzo top destinatari ({m.unita_misura}):</p>
                   <div className="space-y-1">
-                    {m.top_fornitori.map((f, i) => {
-                      const isExporter = false; // fornitori sono competitor
+                    {m.top_destinatari.map((f, i) => {
                       const bar = m.prezzo_world_usd && f.prezzo_unitario_usd_kg
                         ? Math.min((f.prezzo_unitario_usd_kg / (m.prezzo_world_usd * 2)) * 100, 100)
                         : 50;
@@ -191,18 +190,18 @@ function MarketPriceDetail({ m, interpretation }) {
                         </div>
                       );
                     })}
-                    {/* Linea esportatore */}
-                    {m.prezzo_exporter_usd && (
+                    {/* Linea prezzo verso partner corrente */}
+                    {m.prezzo_partner_usd && (
                       <div className="flex items-center gap-2 border-t border-dashed border-slate-600 pt-1 mt-1">
-                        <span className="text-lime-400 text-[10px] w-16 truncate font-semibold">Esportatore</span>
+                        <span className="text-lime-400 text-[10px] w-16 truncate font-semibold">Questo mercato</span>
                         <div className="flex-1 h-3 bg-slate-600/50 rounded-full overflow-hidden">
                           <div
                             className="h-full bg-gradient-to-r from-lime-400 to-green-400 rounded-full"
-                            style={{ width: `${m.prezzo_world_usd ? Math.min((m.prezzo_exporter_usd / (m.prezzo_world_usd * 2)) * 100, 100) : 50}%` }}
+                            style={{ width: `${m.prezzo_world_usd ? Math.min((m.prezzo_partner_usd / (m.prezzo_world_usd * 2)) * 100, 100) : 50}%` }}
                           />
                         </div>
                         <span className="text-lime-400 text-[10px] font-mono w-20 text-right font-semibold">
-                          ${m.prezzo_exporter_usd.toFixed(2)}{m.prezzo_exporter_eur ? ` (€${m.prezzo_exporter_eur})` : ''}
+                          ${m.prezzo_partner_usd.toFixed(2)}{m.prezzo_partner_eur ? ` (€${m.prezzo_partner_eur})` : ''}
                         </span>
                       </div>
                     )}
