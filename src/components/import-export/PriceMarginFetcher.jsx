@@ -308,7 +308,8 @@ export function computePriceMetrics(priceData) {
       fonte: priceData.tasso_cambio_eur_usd.fonte,
       nota: `Tasso medio BCE ${priceData.tasso_cambio_eur_usd.anno}: 1 EUR = ${tasso} USD`
     } : null,
-    dati_non_disponibili: priceData.dati_non_disponibili || []
+    dati_non_disponibili: priceData.dati_non_disponibili || [],
+    avvisi_validazione: avvisi.length > 0 ? avvisi : null
   };
 }
 
