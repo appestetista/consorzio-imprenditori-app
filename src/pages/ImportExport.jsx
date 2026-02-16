@@ -1347,23 +1347,21 @@ Fornisci:
                   </CardContent>
                 </Card>
 
-                <Button
-                  onClick={analyzeImportFeasibility}
-                  disabled={!importForm.descrizione_prodotto || !importForm.quantita || !importForm.tipo_richiesta || analyzingImport || importLimitReached}
-                  className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 font-semibold h-12 disabled:opacity-50"
-                >
-                  {analyzingImport ? (
-                    <>
-                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                      Analisi in corso...
-                    </>
-                  ) : (
-                    <>
-                      <Ship className="w-5 h-5 mr-2" />
-                      Valuta Fattibilità Import
-                    </>
-                  )}
-                </Button>
+                {/* Classificazione HS obbligatoria prima dell'analisi import */}
+                {importForm.descrizione_prodotto && importForm.quantita && importForm.tipo_richiesta && !importLimitReached && !analyzingImport && (
+                  <HSCodeClassifier
+                    productDescription={`${importForm.descrizione_prodotto}${importForm.requisiti ? ' - Requisiti: ' + importForm.requisiti : ''}`}
+                    onConfirm={handleImportHSConfirm}
+                    onError={() => {}}
+                  />
+                )}
+
+                {analyzingImport && (
+                  <div className="flex items-center justify-center gap-3 py-6">
+                    <Loader2 className="w-6 h-6 animate-spin text-lime-400" />
+                    <p className="text-slate-300 text-sm">Analisi import in corso...</p>
+                  </div>
+                )}
               </div>
             ) : (
               /* Risultati Analisi Import - Design Elegante */
