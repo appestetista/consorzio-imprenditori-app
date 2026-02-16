@@ -28,6 +28,7 @@ REGOLE:
 - Se un dato NON è reperibile, restituisci null per quel campo. NON inventare, NON stimare, NON approssimare.
 - Per la serie storica: restituisci un array con anno e valore per ogni anno disponibile.
 - Per i fornitori: restituisci i top 5 paesi esportatori verso ciascun paese target per HS ${hsCode} con valore e quota %.
+- CONVERSIONE VALUTA: Tutti i valori Comtrade sono in USD. Fornisci anche il tasso di cambio medio annuale EUR/USD dalla BCE (ECB Statistical Data Warehouse) per l'ultimo anno disponibile, indicando l'anno di riferimento. Es: "1 EUR = 1.08 USD (BCE, 2024)".
 
 OUTPUT: JSON strutturato con dati grezzi per ciascun mercato.`,
     add_context_from_internet: true,
