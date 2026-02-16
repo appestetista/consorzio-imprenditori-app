@@ -116,6 +116,20 @@ function MarketPriceDetail({ m, interpretation }) {
 
         {expanded && (
           <div className="px-4 pb-4 space-y-3 border-t border-slate-700 pt-3">
+            {/* Avvisi validazione */}
+            {m.avviso_prezzo && (
+              <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-2.5 flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 text-yellow-400 flex-shrink-0 mt-0.5" />
+                <p className="text-yellow-200 text-xs">{m.avviso_prezzo}</p>
+              </div>
+            )}
+            {m.avviso_unita && (
+              <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-2.5 flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 text-orange-400 flex-shrink-0 mt-0.5" />
+                <p className="text-orange-200 text-xs">{m.avviso_unita}</p>
+              </div>
+            )}
+
             {/* Dati Ufficiali */}
             <div>
               <p className="text-lime-400 text-[10px] font-semibold uppercase tracking-wider mb-2">📊 Dati Ufficiali (UN Comtrade)</p>
