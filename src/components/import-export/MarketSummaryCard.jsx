@@ -139,8 +139,9 @@ export default function MarketSummaryCard({ priceM, tradeM, macro, userPriceData
   const lordoStyle = typeof margineLordo === 'number' ? getMarginStyle(margineLordo) : null;
   const nettoStyle = typeof margineNetto === 'number' ? getMarginStyle(margineNetto) : null;
 
-  const hasAnyData = prezzoMedioImport || prezzoPartnerEur || pfi || margineLordo || pop || pil;
-  if (!hasAnyData) return null;
+  // Se nessun dato reale (prezzo, margine, macro) è disponibile, mostra avviso
+  const hasAnyData = prezzoMedioImport || prezzoPartnerEur || typeof pfi === 'number' || typeof margineLordo === 'number' || typeof pop === 'number' || typeof pil === 'number';
+  if (!code) return null;
 
   return (
     <Card className="bg-slate-800/80 border-slate-700">
@@ -174,7 +175,14 @@ export default function MarketSummaryCard({ priceM, tradeM, macro, userPriceData
 
         {expanded && (
           <div className="px-4 pb-4 space-y-3 border-t border-slate-700 pt-3">
+            {!hasAnyData && (
+              <div className="bg-slate-700/30 border border-slate-600 rounded-lg p-3 flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 text-slate-400 flex-shrink-0 mt-0.5" />
+                <p className="text-slate-400 text-xs">Dati ufficiali temporaneamente non disponibili per questo mercato.</p>
+              </div>
+            )}
             {/* BLOCCO 1: Dati Numerici */}
+            {hasAnyData && (
             <div>
               <p className="text-lime-400 text-[10px] font-semibold uppercase tracking-wider mb-2">📊 Dati numerici</p>
               <div className="bg-slate-700/30 rounded-lg px-3 py-1 divide-y divide-slate-700/50">
@@ -207,6 +215,7 @@ export default function MarketSummaryCard({ priceM, tradeM, macro, userPriceData
                 )}
               </div>
             </div>
+            )}
 
             {/* BLOCCO 2: Conclusione sintetica */}
             {conclusionPoints && conclusionPoints.length > 0 && (
