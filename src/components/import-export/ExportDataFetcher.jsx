@@ -224,7 +224,8 @@ export function computeMetrics(tradeData) {
       volatilita,
       serie_storica: serie,
       serie_storica_eur: serieEur,
-      dati_completi: valori.length >= 3
+      dati_completi: datasetCompleto,
+      anni_mancanti: anniMancanti.length > 0 ? anniMancanti : null
     };
   });
 
