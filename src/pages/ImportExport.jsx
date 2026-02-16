@@ -480,12 +480,26 @@ RICORDA: meglio un'analisi con 5 dati certi e 10 "Non disponibile" che un'analis
                   flussi_commerciali: {
                     type: "object",
                     properties: {
-                      valore_import_annuo: { type: "string" },
+                      valore_import_annuo: { type: "string", description: "Valore import totale del paese per questo HS, con fonte e anno" },
+                      export_italia_verso_paese: { type: "string", description: "Valore export Italia verso questo paese per HS, con fonte e anno" },
+                      trend_5_anni: { type: "string", description: "Trend serie storica 5 anni con CAGR se disponibile" },
                       trend_yoy_percentuale: { type: "string" },
                       crescita_o_calo: { type: "string" },
-                      principali_fornitori: { type: "array", items: { type: "object", properties: { paese: { type: "string" }, quota_percentuale: { type: "string" } } } },
+                      principali_fornitori: { type: "array", items: { type: "object", properties: { paese: { type: "string" }, quota_percentuale: { type: "string" }, valore: { type: "string" } } } },
                       quota_italia: { type: "string" },
-                      posizione_italia: { type: "string" }
+                      posizione_italia: { type: "string" },
+                      fonte_comtrade: { type: "string", description: "Riferimento specifico UN Comtrade (reporter, partner, anno)" },
+                      fonte_eurostat: { type: "string", description: "Riferimento Eurostat Comext se usato" }
+                    }
+                  },
+                  dazi_taric: {
+                    type: "object",
+                    properties: {
+                      dazio_mfn: { type: "string", description: "Aliquota MFN da TARIC per HS confermato" },
+                      dazio_preferenziale: { type: "string", description: "Dazio preferenziale se accordo in vigore" },
+                      anti_dumping: { type: "string", description: "Misure anti-dumping attive" },
+                      restrizioni: { type: "string", description: "Restrizioni merceologiche o contingenti" },
+                      fonte: { type: "string" }
                     }
                   },
                   opportunita: { type: "array", items: { type: "string" } },
