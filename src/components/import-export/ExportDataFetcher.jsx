@@ -249,6 +249,10 @@ MERCATO: ${m.paese_nome} (${m.paese_code})
     ? `\nDATI NON DISPONIBILI:\n${tradeData.dati_non_disponibili.join('\n')}`
     : '';
 
+  const notaCambio = tassoCambio
+    ? `\nNOTA CONVERSIONE: ${tassoCambio.nota} (1 EUR = ${tassoCambio.tasso} USD, ${tassoCambio.fonte})`
+    : '';
+
   const result = await base44.integrations.Core.InvokeLLM({
     prompt: `Sei un Export Manager con 20 anni di esperienza. Siamo nel ${currentYear}.
 
