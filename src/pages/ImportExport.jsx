@@ -962,6 +962,15 @@ Fornisci:
                   </Card>
                 )}
 
+                {!priceStep && !confirmedExportHS && priceMetrics === null && analysisResult && (
+                  <Card className="bg-red-500/10 border-red-500/30">
+                    <CardContent className="p-4 flex items-center gap-3">
+                      <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0" />
+                      <p className="text-red-300 text-sm">Codice HS non confermato. Impossibile avviare l'analisi Prezzo & Marginalità.</p>
+                    </CardContent>
+                  </Card>
+                )}
+
                 {!priceStep && priceMetrics && (
                   <PriceMarginSection priceMetrics={priceMetrics} interpretation={priceInterpretation} />
                 )}
