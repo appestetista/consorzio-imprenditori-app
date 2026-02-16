@@ -222,12 +222,14 @@ export function computeMetrics(tradeData) {
 /**
  * STEP 4: Interpretazione strategica AI (riceve SOLO dati calcolati, produce SOLO interpretazione)
  */
-export async function interpretData(tradeData, metrics, hsCode, hsDescrizione, profiloAzienda) {
+export async function interpretData(tradeData, metricsResult, hsCode, hsDescrizione, profiloAzienda) {
   const currentYear = new Date().getFullYear();
+  const metrics = metricsResult?.metriche || metricsResult || [];
+  const tassoCambio = metricsResult?.tasso_cambio;
 
   // Prepara il riepilogo dati per l'AI
   const riepilogoDati = tradeData.mercati.map((m, i) => {
-    const met = metrics[i];
+    const met = Array.isArray(metrics) ? metrics[i] : null;
     return `
 MERCATO: ${m.paese_nome} (${m.paese_code})
 - Import totale HS ${hsCode}: ${m.import_totale?.valore_usd || 'N/D'} (${m.import_totale?.anno || 'N/D'}, ${m.import_totale?.fonte || 'N/D'})
