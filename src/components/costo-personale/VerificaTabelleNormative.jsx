@@ -200,7 +200,7 @@ export default function VerificaTabelleNormative({ children }) {
     );
   }
 
-  const { risultati, tuttoOk } = eseguiVerifica(tabelleRaw, contributiINPS);
+  const { risultati, tuttoOk } = eseguiVerifica(tabelleRaw, contributiINPS, versioningRecords);
 
   if (!tuttoOk) {
     return (
