@@ -1,0 +1,283 @@
+import { base44 } from '@/api/base44Client';
+
+/**
+ * STEP 1-2: Recupera dati ufficiali da UN Comtrade / Eurostat / TARIC
+ * Restituisce SOLO numeri e fonti, NESSUNA interpretazione.
+ */
+export async function fetchTradeData(hsCode, mercatiCodes, mercatiTarget) {
+  const mercatiNomi = mercatiCodes.map(code => {
+    const m = mercatiTarget.find(mt => mt.code === code);
+    return m ? `${m.name} (${m.code})` : code;
+  }).join(', ');
+
+  const currentYear = new Date().getFullYear();
+
+  const result = await base44.integrations.Core.InvokeLLM({
+    prompt: `Sei un analista di dati commerciali. Siamo nel ${currentYear}.
+
+COMPITO: Recupera ESCLUSIVAMENTE dati numerici ufficiali per il codice HS ${hsCode} dall'Italia verso i seguenti mercati: ${mercatiNomi}.
+
+FONTI DA CONSULTARE (OBBLIGATORIE):
+1) UN Comtrade (comtradeplus.un.org) — Reporter: ciascun paese target, Partner: Italy, codice HS ${hsCode}, serie annuale ultimi 5 anni (${currentYear - 5}-${currentYear - 1}).
+2) Eurostat Comext (ec.europa.eu/eurostat) — Export UE / Italia verso ciascun paese per HS ${hsCode}.
+3) TARIC (ec.europa.eu/taxation_customs/dds2/taric) — Dazi MFN per HS ${hsCode}, misure anti-dumping, contingenti.
+
+REGOLE:
+- Restituisci SOLO dati numerici verificati. NESSUNA interpretazione, NESSUN commento strategico, NESSUNA raccomandazione.
+- Per ogni dato indica la fonte esatta e l'anno del dato.
+- Se un dato NON è reperibile, restituisci null per quel campo. NON inventare, NON stimare, NON approssimare.
+- Per la serie storica: restituisci un array con anno e valore per ogni anno disponibile.
+- Per i fornitori: restituisci i top 5 paesi esportatori verso ciascun paese target per HS ${hsCode} con valore e quota %.
+
+OUTPUT: JSON strutturato con dati grezzi per ciascun mercato.`,
+    add_context_from_internet: true,
+    response_json_schema: {
+      type: "object",
+      properties: {
+        hs_code: { type: "string" },
+        data_retrieval_date: { type: "string" },
+        mercati: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              paese_code: { type: "string" },
+              paese_nome: { type: "string" },
+              import_totale: {
+                type: "object",
+                properties: {
+                  valore_usd: { type: "string", description: "Valore numerico import totale del paese per HS, USD" },
+                  anno: { type: "string" },
+                  fonte: { type: "string" }
+                }
+              },
+              export_italia: {
+                type: "object",
+                properties: {
+                  valore_usd: { type: "string", description: "Valore export Italia verso paese per HS, USD" },
+                  anno: { type: "string" },
+                  fonte: { type: "string" }
+                }
+              },
+              serie_storica: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    anno: { type: "number" },
+                    valore_usd: { type: "string" },
+                    fonte: { type: "string" }
+                  }
+                },
+                description: "Serie storica ultimi 5 anni import del paese per HS"
+              },
+              top_fornitori: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    paese: { type: "string" },
+                    valore_usd: { type: "string" },
+                    quota_percentuale: { type: "string" },
+                    fonte: { type: "string" }
+                  }
+                }
+              },
+              posizione_italia: { type: "string", description: "Ranking Italia tra i fornitori" },
+              quota_italia: { type: "string", description: "Quota % Italia sul totale import" },
+              dazi: {
+                type: "object",
+                properties: {
+                  dazio_mfn: { type: "string" },
+                  dazio_preferenziale: { type: "string" },
+                  anti_dumping: { type: "string" },
+                  restrizioni: { type: "string" },
+                  fonte: { type: "string" }
+                }
+              }
+            }
+          }
+        },
+        dati_non_disponibili: {
+          type: "array",
+          items: { type: "string" },
+          description: "Elenco dei dati non trovati con indicazione della fonte dove verificare"
+        }
+      }
+    }
+  });
+
+  return result;
+}
+
+/**
+ * STEP 3: Calcola metriche dai dati grezzi (lato client, nessuna AI)
+ */
+export function computeMetrics(tradeData) {
+  if (!tradeData?.mercati) return null;
+
+  return tradeData.mercati.map(mercato => {
+    const serie = mercato.serie_storica || [];
+    const valori = serie
+      .map(s => parseFloat(String(s.valore_usd).replace(/[^0-9.]/g, '')))
+      .filter(v => !isNaN(v) && v > 0);
+
+    // Crescita % ultimi 3 anni
+    let crescita_3_anni = null;
+    if (valori.length >= 4) {
+      const inizio = valori[valori.length - 4];
+      const fine = valori[valori.length - 1];
+      if (inizio > 0) {
+        crescita_3_anni = ((fine - inizio) / inizio * 100).toFixed(1);
+      }
+    }
+
+    // Trend medio annuo (CAGR)
+    let cagr = null;
+    if (valori.length >= 2) {
+      const primo = valori[0];
+      const ultimo = valori[valori.length - 1];
+      const anni = valori.length - 1;
+      if (primo > 0 && anni > 0) {
+        cagr = ((Math.pow(ultimo / primo, 1 / anni) - 1) * 100).toFixed(1);
+      }
+    }
+
+    // Volatilità (deviazione standard / media)
+    let volatilita = null;
+    if (valori.length >= 3) {
+      const media = valori.reduce((a, b) => a + b, 0) / valori.length;
+      if (media > 0) {
+        const varianza = valori.reduce((sum, v) => sum + Math.pow(v - media, 2), 0) / valori.length;
+        volatilita = ((Math.sqrt(varianza) / media) * 100).toFixed(1);
+      }
+    }
+
+    // Ranking per volume (import totale)
+    const importTotale = mercato.import_totale?.valore_usd 
+      ? parseFloat(String(mercato.import_totale.valore_usd).replace(/[^0-9.]/g, ''))
+      : null;
+
+    return {
+      paese_code: mercato.paese_code,
+      paese_nome: mercato.paese_nome,
+      import_totale_raw: importTotale,
+      crescita_3_anni,
+      cagr,
+      volatilita,
+      serie_storica: serie,
+      dati_completi: valori.length >= 3
+    };
+  });
+}
+
+/**
+ * STEP 4: Interpretazione strategica AI (riceve SOLO dati calcolati, produce SOLO interpretazione)
+ */
+export async function interpretData(tradeData, metrics, hsCode, hsDescrizione, profiloAzienda) {
+  const currentYear = new Date().getFullYear();
+
+  // Prepara il riepilogo dati per l'AI
+  const riepilogoDati = tradeData.mercati.map((m, i) => {
+    const met = metrics[i];
+    return `
+MERCATO: ${m.paese_nome} (${m.paese_code})
+- Import totale HS ${hsCode}: ${m.import_totale?.valore_usd || 'N/D'} (${m.import_totale?.anno || 'N/D'}, ${m.import_totale?.fonte || 'N/D'})
+- Export Italia→${m.paese_nome}: ${m.export_italia?.valore_usd || 'N/D'} (${m.export_italia?.anno || 'N/D'}, ${m.export_italia?.fonte || 'N/D'})
+- Quota Italia: ${m.quota_italia || 'N/D'}
+- Posizione Italia tra fornitori: ${m.posizione_italia || 'N/D'}
+- CAGR serie storica: ${met?.cagr ? met.cagr + '%' : 'Non calcolabile'}
+- Crescita ultimi 3 anni: ${met?.crescita_3_anni ? met.crescita_3_anni + '%' : 'Non calcolabile'}
+- Volatilità serie storica: ${met?.volatilita ? met.volatilita + '%' : 'Non calcolabile'}
+- Top fornitori: ${(m.top_fornitori || []).map(f => `${f.paese} ${f.quota_percentuale} (${f.valore_usd})`).join(', ') || 'N/D'}
+- Dazio MFN: ${m.dazi?.dazio_mfn || 'N/D'} (${m.dazi?.fonte || 'N/D'})
+- Anti-dumping: ${m.dazi?.anti_dumping || 'Nessuna'}
+- Dati completi: ${met?.dati_completi ? 'Sì' : 'Parziali/Insufficienti'}`;
+  }).join('\n');
+
+  const datiNonDisponibili = tradeData.dati_non_disponibili?.length > 0
+    ? `\nDATI NON DISPONIBILI:\n${tradeData.dati_non_disponibili.join('\n')}`
+    : '';
+
+  const result = await base44.integrations.Core.InvokeLLM({
+    prompt: `Sei un Export Manager con 20 anni di esperienza. Siamo nel ${currentYear}.
+
+COMPITO: Interpreta i seguenti DATI GIÀ VERIFICATI e fornisci una valutazione strategica.
+
+IMPORTANTE:
+- NON inventare nuovi dati. Usa SOLO i numeri forniti sotto.
+- Se un dato è "N/D" o "Non calcolabile", dillo esplicitamente — NON lo sostituire con stime.
+- La tua analisi DEVE essere coerente con i numeri forniti.
+- Se i dati sono insufficienti per un mercato, scrivi "Dati insufficienti per una valutazione affidabile di questo mercato."
+
+CODICE HS: ${hsCode}
+DESCRIZIONE: ${hsDescrizione}
+
+PROFILO AZIENDA:
+- Settore: ${profiloAzienda.settore}
+- Prodotto: ${profiloAzienda.prodotto}
+- Fatturato: ${profiloAzienda.fatturato_annuo || 'Non specificato'}
+- Esperienza export: ${profiloAzienda.esperienza_export || 'Nessuna'}
+- Certificazioni: ${profiloAzienda.certificazioni || 'Non specificate'}
+- Capacità produttiva export: ${profiloAzienda.capacita_produttiva || 'Non specificata'}
+
+DATI COMMERCIALI VERIFICATI:
+${riepilogoDati}
+${datiNonDisponibili}
+
+STRUTTURA RICHIESTA per ogni mercato:
+1. DOMANDA REALE: commenta il valore import totale — c'è domanda reale? Quanto è grande?
+2. TREND STORICO: commenta CAGR e crescita 3 anni — mercato in crescita, stabile, o in calo?
+3. STABILITÀ: commenta la volatilità — mercato stabile o volatile?
+4. COERENZA CON AZIENDA: questa azienda ha le caratteristiche per competere in questo mercato?
+5. CONCLUSIONE OPERATIVA: consiglio concreto (entrare, attendere, evitare) con motivazione basata sui numeri.
+
+Fornisci anche una classifica dei mercati per priorità e i primi passi concreti.`,
+    response_json_schema: {
+      type: "object",
+      properties: {
+        readiness_score: { type: "number", description: "Punteggio readiness export 1-10" },
+        readiness_commento: { type: "string" },
+        mercati_analisi: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              paese_code: { type: "string" },
+              paese_nome: { type: "string" },
+              punteggio_opportunita: { type: "number" },
+              domanda_reale: { type: "string", description: "Commento sulla domanda reale del mercato basato su import totale" },
+              trend_storico: { type: "string", description: "Commento su CAGR e trend basato sui numeri" },
+              stabilita: { type: "string", description: "Commento sulla volatilità della serie storica" },
+              coerenza_azienda: { type: "string", description: "Compatibilità azienda-mercato" },
+              conclusione_operativa: { type: "string", description: "Consiglio concreto: entrare/attendere/evitare" },
+              opportunita: { type: "array", items: { type: "string" } },
+              sfide: { type: "array", items: { type: "string" } },
+              documenti_necessari: { type: "array", items: { type: "string" } },
+              certificazioni_richieste: { type: "array", items: { type: "string" } },
+              canali_distribuzione: { type: "array", items: { type: "string" } },
+              dati_insufficienti: { type: "boolean", description: "true se dati insufficienti per analisi affidabile" }
+            }
+          }
+        },
+        classifica_mercati: {
+          type: "array",
+          items: {
+            type: "object",
+            properties: {
+              posizione: { type: "number" },
+              paese: { type: "string" },
+              motivazione: { type: "string" }
+            }
+          }
+        },
+        raccomandazione_generale: { type: "string" },
+        timeline_consigliata: { type: "string" },
+        rischi_principali: { type: "array", items: { type: "string" } },
+        primi_passi: { type: "array", items: { type: "string" } }
+      }
+    }
+  });
+
+  return result;
+}
