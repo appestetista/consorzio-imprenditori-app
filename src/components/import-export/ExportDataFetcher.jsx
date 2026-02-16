@@ -150,9 +150,15 @@ export function computeMetrics(tradeData) {
       .map(s => parseFloat(String(s.valore_usd).replace(/[^0-9.]/g, '')))
       .filter(v => !isNaN(v) && v > 0);
 
-    // Crescita % ultimi 3 anni
+    // Verifica completezza: servono tutti e 5 gli anni per calcolare trend
+    const anniPresenti = serie.map(s => s.anno).filter(a => typeof a === 'number');
+    const anniAttesi = Array.from({ length: 5 }, (_, i) => currentYearForMetrics - 5 + i);
+    const anniMancanti = anniAttesi.filter(a => !anniPresenti.includes(a));
+    const datasetCompleto = anniMancanti.length === 0 && valori.length >= 5;
+
+    // Crescita % ultimi 3 anni — solo se dataset completo
     let crescita_3_anni = null;
-    if (valori.length >= 4) {
+    if (datasetCompleto && valori.length >= 4) {
       const inizio = valori[valori.length - 4];
       const fine = valori[valori.length - 1];
       if (inizio > 0) {
@@ -160,9 +166,9 @@ export function computeMetrics(tradeData) {
       }
     }
 
-    // Trend medio annuo (CAGR)
+    // Trend medio annuo (CAGR) — solo se dataset completo
     let cagr = null;
-    if (valori.length >= 2) {
+    if (datasetCompleto && valori.length >= 2) {
       const primo = valori[0];
       const ultimo = valori[valori.length - 1];
       const anni = valori.length - 1;
@@ -171,9 +177,9 @@ export function computeMetrics(tradeData) {
       }
     }
 
-    // Volatilità (deviazione standard / media)
+    // Volatilità (deviazione standard / media) — solo se dataset completo
     let volatilita = null;
-    if (valori.length >= 3) {
+    if (datasetCompleto && valori.length >= 3) {
       const media = valori.reduce((a, b) => a + b, 0) / valori.length;
       if (media > 0) {
         const varianza = valori.reduce((sum, v) => sum + Math.pow(v - media, 2), 0) / valori.length;
