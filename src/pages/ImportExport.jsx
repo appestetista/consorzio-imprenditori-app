@@ -811,6 +811,20 @@ Fornisci:
             ) : (
               /* Risultati Analisi Export */
               <div className="space-y-4">
+                {/* Codice HS Confermato */}
+                {confirmedExportHS && (
+                  <Card className="bg-amber-500/10 border-amber-500/30">
+                    <CardContent className="p-3 flex items-center gap-3">
+                      <span className="text-amber-400 text-lg">📦</span>
+                      <div>
+                        <p className="text-amber-400 text-xs font-semibold">Codice HS confermato</p>
+                        <p className="text-white font-mono font-bold text-sm">{confirmedExportHS.hs_code}</p>
+                        <p className="text-slate-400 text-[10px]">{confirmedExportHS.descrizione_ufficiale}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
                 {/* Readiness Score */}
                 <Card className="bg-slate-800 border-slate-700">
                   <CardContent className="p-4">
@@ -1367,6 +1381,20 @@ Fornisci:
             ) : (
               /* Risultati Analisi Import - Design Elegante */
               <div className="space-y-4">
+                {/* Codice HS Confermato */}
+                {confirmedImportHS && (
+                  <Card className="bg-amber-500/10 border-amber-500/30">
+                    <CardContent className="p-3 flex items-center gap-3">
+                      <span className="text-amber-400 text-lg">📦</span>
+                      <div>
+                        <p className="text-amber-400 text-xs font-semibold">Codice HS confermato</p>
+                        <p className="text-white font-mono font-bold text-sm">{confirmedImportHS.hs_code}</p>
+                        <p className="text-slate-400 text-[10px]">{confirmedImportHS.descrizione_ufficiale}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
                 {/* Header con Punteggio */}
                 <Card className="bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700 overflow-hidden">
                   <CardContent className="p-0">
