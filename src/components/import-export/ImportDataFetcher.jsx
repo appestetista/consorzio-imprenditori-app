@@ -26,7 +26,8 @@ REGOLE:
 - Restituisci SOLO dati numerici verificati. NESSUNA interpretazione, NESSUN commento.
 - Se un dato NON è reperibile, restituisci null. NON inventare, NON stimare.
 - Per aliquote dazio: restituisci il numero esatto (es. "6.5" per 6.5%). NON scrivere "circa".
-- Per anti-dumping: se non attivo, scrivi "Nessuno". Se attivo, indica regolamento UE e aliquota.`,
+- Per anti-dumping: se non attivo, scrivi "Nessuno". Se attivo, indica regolamento UE e aliquota.
+- CONVERSIONE VALUTA: I valori Comtrade sono in USD. Fornisci anche il tasso di cambio medio annuale EUR/USD dalla BCE (ECB Statistical Data Warehouse) per l'ultimo anno disponibile, indicando l'anno di riferimento.`,
     add_context_from_internet: true,
     response_json_schema: {
       type: "object",
