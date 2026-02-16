@@ -278,7 +278,7 @@ export default function SimulatoreSocioLavoratore() {
                 </Tooltip>
               </div>
 
-              {/* Caso: gestione obbligatoria automatica */}
+              {/* Caso: gestione obbligatoria automatica (Società Artigiana / Commerciale) */}
               {isGestioneObbligatoria ? (
                 <div className="space-y-3">
                   <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3">
@@ -293,32 +293,48 @@ export default function SimulatoreSocioLavoratore() {
                     </p>
                   </div>
                 </div>
-              ) : gestioniFiltrate.length === 0 ? (
-                <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3">
-                  <p className="text-yellow-400 text-xs flex items-center gap-2">
-                    <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-                    Seleziona prima il tipo di società (Step 1).
-                  </p>
-                </div>
               ) : (
                 <div className="space-y-3">
                   <p className="text-slate-400 text-xs">
                     {(form.tipo_societa === 'snc' || form.tipo_societa === 'sas')
-                      ? 'Per SNC/SAS l\'iscrizione INPS è obbligatoria. Seleziona la gestione in base all\'attività prevalente.'
+                      ? 'Per SNC/SAS l\'iscrizione INPS è obbligatoria per i soci operativi. Seleziona la gestione in base all\'attività prevalente.'
                       : 'Seleziona la gestione previdenziale applicabile.'}
                   </p>
-                  <div className="space-y-2">
-                    {gestioniFiltrate.map(g => (
-                      <button
-                        key={g.key}
-                        onClick={() => setForm({ ...form, gestione_inps: g.key })}
-                        className={`w-full text-left p-3 rounded-lg border transition-all ${form.gestione_inps === g.key ? 'bg-amber-500/20 border-amber-500/50' : 'bg-slate-900 border-slate-700 hover:border-slate-600'}`}
-                      >
-                        <span className={`text-sm font-medium ${form.gestione_inps === g.key ? 'text-amber-400' : 'text-white'}`}>{g.label}</span>
-                        <p className="text-slate-500 text-xs mt-0.5">{g.desc}</p>
-                      </button>
-                    ))}
-                  </div>
+                  <Select value={form.gestione_inps} onValueChange={(v) => setForm({ ...form, gestione_inps: v })}>
+                    <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                      <SelectValue placeholder="Seleziona iscrizione INPS" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {GESTIONI_PREVIDENZIALI.map(g => (
+                        <SelectItem key={g.key} value={g.key}>{g.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {/* Descrizione opzione selezionata */}
+                  {form.gestione_inps && form.gestione_inps !== 'nessuna' && (
+                    <div className="bg-slate-700/50 border border-slate-600 rounded-lg p-3">
+                      <p className="text-slate-300 text-xs">
+                        {GESTIONI_PREVIDENZIALI.find(g => g.key === form.gestione_inps)?.desc}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* BLOCCO: socio operativo + nessuna gestione */}
+                  {isGestioneBloccata && (
+                    <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-3">
+                      <p className="text-red-400 text-sm font-semibold flex items-center gap-2">
+                        <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+                        Simulazione non possibile
+                      </p>
+                      <p className="text-red-300 text-xs mt-1">
+                        La normativa prevede l'iscrizione obbligatoria alla gestione INPS per i soci che prestano attività lavorativa nella società (art. 1, co. 203, L. 662/1996).
+                      </p>
+                      <p className="text-red-300 text-xs mt-1">
+                        Seleziona "Gestione Artigiani" o "Gestione Commercianti" per proseguire.
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 
