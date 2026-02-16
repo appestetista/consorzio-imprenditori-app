@@ -98,6 +98,12 @@ export function computeLandedCost(importData, quantitaRange, budgetRange) {
   const taric = importData?.taric;
   const iva = importData?.iva;
 
+  // Tasso di cambio EUR/USD dalla BCE
+  const tassoRaw = importData?.tasso_cambio_eur_usd?.tasso;
+  const tassoEurUsd = tassoRaw ? parseFloat(String(tassoRaw).replace(/[^0-9.]/g, '')) : null;
+  const tassoAnno = importData?.tasso_cambio_eur_usd?.anno || null;
+  const tassoFonte = importData?.tasso_cambio_eur_usd?.fonte || 'BCE';
+
   // Parse dazio
   const dazioMfn = taric?.dazio_mfn_percentuale
     ? parseFloat(String(taric.dazio_mfn_percentuale).replace(/[^0-9.]/g, ''))
