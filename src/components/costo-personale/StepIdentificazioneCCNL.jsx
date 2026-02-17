@@ -874,7 +874,7 @@ export default function StepIdentificazioneCCNL({ onComplete, onBack }) {
 
   const goNext = () => {
     if (subStep === '1E') {
-      onComplete(ccnlScelto);
+      onComplete(ccnlSelezionato?.key || ccnlScelto);
       return;
     }
     const nextIdx = subStepIdx + 1;
