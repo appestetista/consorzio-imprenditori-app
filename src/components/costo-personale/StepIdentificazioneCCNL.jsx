@@ -239,6 +239,24 @@ function calcolaCCNLCompatibili(attivita, natura, associazione) {
 // ─── SUB-STEPS ──────────────────────────────────────────────────────────────────
 
 function SubStep1A({ value, onChange }) {
+  const [expandedMacro, setExpandedMacro] = useState(null);
+  const [search, setSearch] = useState('');
+
+  // Trova la macro-categoria dell'attività selezionata
+  const selectedMacro = value ? ATTIVITA_TO_MACRO[value] : null;
+
+  // Filtra per ricerca
+  const filteredMacro = useMemo(() => {
+    if (!search.trim()) return MACRO_CATEGORIE;
+    const q = search.toLowerCase();
+    return MACRO_CATEGORIE.map(mc => {
+      const filteredAtt = mc.attivita.filter(a => a.label.toLowerCase().includes(q));
+      if (filteredAtt.length > 0) return { ...mc, attivita: filteredAtt };
+      if (mc.label.toLowerCase().includes(q)) return mc;
+      return null;
+    }).filter(Boolean);
+  }, [search]);
+
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2 mb-1">
@@ -247,31 +265,69 @@ function SubStep1A({ value, onChange }) {
         <Tooltip>
           <TooltipTrigger><HelpCircle className="w-4 h-4 text-slate-500" /></TooltipTrigger>
           <TooltipContent className="max-w-[280px] bg-slate-700 text-white border-slate-600">
-            <p className="text-xs">Seleziona il macro-settore che meglio descrive l'attività principale della tua azienda. Questa scelta guiderà l'identificazione del CCNL corretto.</p>
+            <p className="text-xs">Seleziona la specifica attività della tua azienda. Le attività sono raggruppate per macro-settore.</p>
           </TooltipContent>
         </Tooltip>
       </div>
-      <div className="space-y-2">
-        {ATTIVITA_ECONOMICHE.map(a => (
-          <button
-            key={a.key}
-            onClick={() => onChange(a.key)}
-            className={`w-full text-left rounded-lg border p-3 transition-all ${
-              value === a.key
-                ? 'bg-lime-400/10 border-lime-400 ring-1 ring-lime-400/50'
-                : 'bg-slate-900 border-slate-700 hover:border-slate-500'
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              <span className="text-xl">{a.icon}</span>
-              <div className="flex-1 min-w-0">
-                <p className={`text-sm font-medium ${value === a.key ? 'text-lime-400' : 'text-white'}`}>{a.label}</p>
-                <p className="text-slate-400 text-[11px] leading-tight">{a.desc}</p>
-              </div>
-              {value === a.key && <CheckCircle className="w-5 h-5 text-lime-400 flex-shrink-0" />}
+
+      {/* Barra di ricerca */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+        <Input
+          placeholder="Cerca attività (es. ristorante, officina...)"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="pl-9 bg-slate-900 border-slate-700 text-white placeholder:text-slate-500 text-sm"
+        />
+      </div>
+
+      <div className="space-y-2 max-h-[420px] overflow-y-auto pr-1">
+        {filteredMacro.map(mc => {
+          const isExpanded = expandedMacro === mc.key || (search.trim().length > 0);
+          const hasSelection = mc.attivita.some(a => a.key === value);
+
+          return (
+            <div key={mc.key} className="rounded-lg border border-slate-700 overflow-hidden">
+              {/* Header macro-categoria */}
+              <button
+                onClick={() => setExpandedMacro(isExpanded && !search ? null : mc.key)}
+                className={`w-full text-left p-3 flex items-center gap-3 transition-all ${
+                  hasSelection ? 'bg-lime-400/5 border-lime-400/20' : 'bg-slate-800 hover:bg-slate-800/80'
+                }`}
+              >
+                <span className="text-lg">{mc.icon}</span>
+                <span className={`text-sm font-medium flex-1 ${hasSelection ? 'text-lime-400' : 'text-white'}`}>{mc.label}</span>
+                <span className="text-slate-500 text-[10px]">{mc.attivita.length} voci</span>
+                <ChevronRight className={`w-4 h-4 text-slate-500 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
+              </button>
+
+              {/* Lista attività espansa */}
+              {isExpanded && (
+                <div className="border-t border-slate-700 bg-slate-900/50">
+                  {mc.attivita.map(a => (
+                    <button
+                      key={a.key}
+                      onClick={() => onChange(a.key)}
+                      className={`w-full text-left px-4 py-2.5 flex items-center gap-2 border-b border-slate-800 last:border-0 transition-all ${
+                        value === a.key
+                          ? 'bg-lime-400/10'
+                          : 'hover:bg-slate-800/50'
+                      }`}
+                    >
+                      <span className={`text-xs flex-1 ${value === a.key ? 'text-lime-400 font-medium' : 'text-slate-300'}`}>
+                        {a.label}
+                      </span>
+                      {value === a.key && <CheckCircle className="w-4 h-4 text-lime-400 flex-shrink-0" />}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
-          </button>
-        ))}
+          );
+        })}
+        {filteredMacro.length === 0 && (
+          <p className="text-slate-500 text-xs text-center py-4">Nessuna attività trovata per "{search}"</p>
+        )}
       </div>
     </div>
   );
