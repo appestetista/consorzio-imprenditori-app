@@ -139,11 +139,13 @@ MACRO_CATEGORIE.forEach(mc => {
 });
 
 const NATURE_AZIENDA = [
-  { key: 'industriale', label: 'Impresa industriale', desc: 'Oltre 15 dipendenti, struttura industriale', icon: '🏭' },
-  { key: 'artigiana', label: 'Impresa artigiana', desc: 'Iscritta all\'albo imprese artigiane (L. 443/85)', icon: '🔧' },
-  { key: 'cooperativa', label: 'Cooperativa', desc: 'Società cooperativa (di produzione, servizi, ecc.)', icon: '🤝' },
-  { key: 'commerciale_pmi', label: 'Impresa commerciale / PMI', desc: 'Fino a 50 dipendenti, settore commerciale o servizi', icon: '🏪' },
-  { key: 'professionale', label: 'Studio professionale', desc: 'Studio associato, STP, attività professionale', icon: '📐' },
+  { key: 'artigiana', label: 'Artigiana', desc: 'Iscritta all\'albo imprese artigiane (L. 443/85)', icon: '🔧' },
+  { key: 'industriale', label: 'Industriale', desc: 'Impresa con struttura industriale', icon: '🏭' },
+  { key: 'commerciale', label: 'Commerciale', desc: 'Impresa commerciale, servizi, terziario', icon: '🏪' },
+  { key: 'cooperativa', label: 'Cooperativa', desc: 'Società cooperativa (di produzione, servizi, sociale, ecc.)', icon: '🤝' },
+  { key: 'professionale', label: 'Professionale', desc: 'Studio associato, STP, attività professionale', icon: '📐' },
+  { key: 'pubblico_esercizio', label: 'Pubblico esercizio', desc: 'Bar, ristoranti, pubblici esercizi, somministrazione', icon: '🍽' },
+  { key: 'agricola', label: 'Agricola', desc: 'Impresa agricola, agriturismo, cooperativa agricola', icon: '🌾' },
 ];
 
 const ASSOCIAZIONI = [
