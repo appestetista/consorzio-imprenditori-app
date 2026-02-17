@@ -294,30 +294,30 @@ export default function SimulatoreDipendente() {
           />
         )}
 
-        {/* Navigation */}
-        <div className="flex gap-3">
-          {step > 1 && (
+        {/* Navigation (solo per step > 1, step 1 ha navigazione interna) */}
+        {step > 1 && (
+          <div className="flex gap-3">
             <Button onClick={() => setStep(step === 5.5 ? 5 : step - 1)} variant="outline" className="border-slate-600 text-slate-400 hover:bg-slate-800">
               <ChevronLeft className="w-4 h-4 mr-1" /> Indietro
             </Button>
-          )}
-          <div className="flex-1" />
-          {step < 5 && (
-            <Button onClick={() => setStep(step + 1)} disabled={!canNext(step)} className="bg-lime-400 hover:bg-lime-500 text-slate-900 font-bold">
-              Avanti <ChevronRight className="w-4 h-4 ml-1" />
-            </Button>
-          )}
-          {step === 5 && (
-            <Button onClick={() => setStep(5.5)} disabled={!canNext(5)} className="bg-lime-400 hover:bg-lime-500 text-slate-900 font-bold">
-              Avanti <ChevronRight className="w-4 h-4 ml-1" />
-            </Button>
-          )}
-          {step === 5.5 && (
-            <Button onClick={calcola} disabled={!canNext(5)} className="bg-lime-400 hover:bg-lime-500 text-slate-900 font-bold">
-              <Calculator className="w-4 h-4 mr-2" /> Calcola Costo
-            </Button>
-          )}
-        </div>
+            <div className="flex-1" />
+            {step >= 2 && step < 5 && (
+              <Button onClick={() => setStep(step + 1)} disabled={!canNext(step)} className="bg-lime-400 hover:bg-lime-500 text-slate-900 font-bold">
+                Avanti <ChevronRight className="w-4 h-4 ml-1" />
+              </Button>
+            )}
+            {step === 5 && (
+              <Button onClick={() => setStep(5.5)} disabled={!canNext(5)} className="bg-lime-400 hover:bg-lime-500 text-slate-900 font-bold">
+                Avanti <ChevronRight className="w-4 h-4 ml-1" />
+              </Button>
+            )}
+            {step === 5.5 && (
+              <Button onClick={calcola} disabled={!canNext(5)} className="bg-lime-400 hover:bg-lime-500 text-slate-900 font-bold">
+                <Calculator className="w-4 h-4 mr-2" /> Calcola Costo
+              </Button>
+            )}
+          </div>
+        )}
       </div>
     </TooltipProvider>
     </VerificaTabelleNormative>
