@@ -9,15 +9,134 @@ import { ChevronRight, ChevronLeft, HelpCircle, Building2, Factory, Users2, File
 
 // ─── DATI STATICI ───────────────────────────────────────────────────────────────
 
-const ATTIVITA_ECONOMICHE = [
-  { key: 'commercio', label: 'Commercio, servizi e terziario', icon: '🏪', desc: 'Vendita al dettaglio/ingrosso, servizi alle imprese, terziario avanzato' },
-  { key: 'industria_alimentare', label: 'Industria Alimentare', icon: '🏭', desc: 'Produzione, trasformazione e conservazione di prodotti alimentari' },
-  { key: 'metalmeccanica', label: 'Metalmeccanica e installazione impianti', icon: '⚙️', desc: 'Lavorazione metalli, meccanica, elettronica, installazione impianti' },
-  { key: 'edilizia', label: 'Edilizia e costruzioni', icon: '🏗️', desc: 'Costruzioni, ristrutturazioni, impiantistica edile' },
-  { key: 'turismo', label: 'Turismo, pubblici esercizi, ristorazione', icon: '🏨', desc: 'Alberghi, ristoranti, bar, stabilimenti balneari, agenzie viaggio' },
-  { key: 'artigianato', label: 'Artigianato', icon: '🔧', desc: 'Imprese artigiane di ogni settore (meccanica, legno, tessile, ecc.)' },
-  { key: 'altro', label: 'Altro settore', icon: '📋', desc: 'Attività non rientrante nelle categorie sopra' },
+// Macro-categorie con le singole attività
+const MACRO_CATEGORIE = [
+  {
+    key: 'commercio_terziario', label: 'Commercio & Terziario', icon: '🏢',
+    attivita: [
+      { key: 'negozio_abbigliamento', label: 'Negozio abbigliamento' },
+      { key: 'negozio_alimentari', label: 'Negozio alimentari' },
+      { key: 'supermercato', label: 'Supermercato' },
+      { key: 'grande_distribuzione', label: 'Grande distribuzione' },
+      { key: 'ecommerce', label: 'E-commerce' },
+      { key: 'agenzia_immobiliare', label: 'Agenzia immobiliare' },
+      { key: 'agenzia_viaggi', label: 'Agenzia viaggi' },
+      { key: 'centro_servizi', label: 'Centro servizi' },
+      { key: 'call_center', label: 'Call center' },
+      { key: 'azienda_marketing', label: 'Azienda marketing' },
+      { key: 'centro_assistenza_clienti', label: 'Centro assistenza clienti' },
+      { key: 'farmacia', label: 'Farmacia' },
+      { key: 'parafarmacia', label: 'Parafarmacia' },
+    ]
+  },
+  {
+    key: 'pubblici_esercizi', label: 'Pubblici Esercizi', icon: '🍽',
+    attivita: [
+      { key: 'bar', label: 'Bar' },
+      { key: 'ristorante', label: 'Ristorante' },
+      { key: 'pizzeria', label: 'Pizzeria' },
+      { key: 'pub', label: 'Pub' },
+      { key: 'catering', label: 'Catering' },
+      { key: 'mensa_aziendale', label: 'Mensa aziendale' },
+      { key: 'gelateria', label: 'Gelateria' },
+      { key: 'pasticceria', label: 'Pasticceria' },
+      { key: 'stabilimento_balneare', label: 'Stabilimento balneare' },
+    ]
+  },
+  {
+    key: 'turismo', label: 'Turismo', icon: '🏨',
+    attivita: [
+      { key: 'hotel', label: 'Hotel' },
+      { key: 'bb', label: 'B&B' },
+      { key: 'villaggio_turistico', label: 'Villaggio turistico' },
+      { key: 'resort', label: 'Resort' },
+      { key: 'campeggio', label: 'Campeggio' },
+      { key: 'struttura_extralberghiera', label: 'Struttura ricettiva extralberghiera' },
+    ]
+  },
+  {
+    key: 'artigianato', label: 'Artigianato', icon: '🛠',
+    attivita: [
+      { key: 'centro_estetico', label: 'Centro estetico' },
+      { key: 'parrucchiere', label: 'Parrucchiere' },
+      { key: 'officina_meccanica', label: 'Officina meccanica' },
+      { key: 'falegnameria', label: 'Falegnameria' },
+      { key: 'carpenteria_metallica', label: 'Carpenteria metallica' },
+      { key: 'impresa_impiantistica', label: 'Impresa impiantistica' },
+      { key: 'idraulico', label: 'Idraulico' },
+      { key: 'elettricista', label: 'Elettricista' },
+      { key: 'azienda_serramenti', label: 'Azienda serramenti' },
+    ]
+  },
+  {
+    key: 'industria', label: 'Industria', icon: '🏭',
+    attivita: [
+      { key: 'industria_metalmeccanica', label: 'Industria metalmeccanica' },
+      { key: 'industria_chimica', label: 'Industria chimica' },
+      { key: 'industria_alimentare', label: 'Industria alimentare' },
+      { key: 'industria_tessile', label: 'Industria tessile' },
+      { key: 'industria_plastica', label: 'Industria plastica' },
+      { key: 'industria_farmaceutica', label: 'Industria farmaceutica' },
+      { key: 'industria_cartaria', label: 'Industria cartaria' },
+      { key: 'industria_legno', label: 'Industria legno' },
+    ]
+  },
+  {
+    key: 'edilizia', label: 'Edilizia', icon: '🏗',
+    attivita: [
+      { key: 'impresa_edile', label: 'Impresa edile' },
+      { key: 'ristrutturazioni', label: 'Ristrutturazioni' },
+      { key: 'costruzioni_industriali', label: 'Costruzioni industriali' },
+      { key: 'movimento_terra', label: 'Movimento terra' },
+    ]
+  },
+  {
+    key: 'trasporti_logistica', label: 'Trasporti & Logistica', icon: '🚛',
+    attivita: [
+      { key: 'autotrasporto_merci', label: 'Autotrasporto merci' },
+      { key: 'logistica_magazzino', label: 'Logistica magazzino' },
+      { key: 'corriere_espresso', label: 'Corriere espresso' },
+      { key: 'spedizioni_internazionali', label: 'Spedizioni internazionali' },
+    ]
+  },
+  {
+    key: 'sanita_servizi_persona', label: 'Sanità & Servizi alla Persona', icon: '🧑‍⚕️',
+    attivita: [
+      { key: 'studio_medico', label: 'Studio medico' },
+      { key: 'studio_dentistico', label: 'Studio dentistico' },
+      { key: 'clinica_privata', label: 'Clinica privata' },
+      { key: 'rsa', label: 'RSA' },
+      { key: 'cooperativa_sociale', label: 'Cooperativa sociale' },
+      { key: 'servizi_domiciliari', label: 'Servizi domiciliari' },
+    ]
+  },
+  {
+    key: 'studi_professionali', label: 'Studi Professionali', icon: '💼',
+    attivita: [
+      { key: 'studio_commercialista', label: 'Studio commercialista' },
+      { key: 'studio_legale', label: 'Studio legale' },
+      { key: 'studio_consulente_lavoro', label: 'Studio consulente del lavoro' },
+      { key: 'studio_tecnico', label: 'Studio tecnico' },
+      { key: 'studio_ingegneria', label: 'Studio ingegneria' },
+    ]
+  },
+  {
+    key: 'agricoltura', label: 'Agricoltura', icon: '🌾',
+    attivita: [
+      { key: 'azienda_agricola', label: 'Azienda agricola' },
+      { key: 'agriturismo', label: 'Agriturismo' },
+      { key: 'cooperativa_agricola', label: 'Cooperativa agricola' },
+    ]
+  },
 ];
+
+// Mappa piatta per lookup veloce: key attività → macro-categoria key
+const ATTIVITA_TO_MACRO = {};
+MACRO_CATEGORIE.forEach(mc => {
+  mc.attivita.forEach(a => {
+    ATTIVITA_TO_MACRO[a.key] = mc.key;
+  });
+});
 
 const NATURE_AZIENDA = [
   { key: 'industriale', label: 'Impresa industriale', desc: 'Oltre 15 dipendenti, struttura industriale', icon: '🏭' },
