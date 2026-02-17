@@ -693,37 +693,74 @@ function SubStep1D({ ccnlOptions, value, onChange }) {
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-2">
-          {ccnlOptions.map((c, idx) => (
-            <button
-              key={c.key}
-              onClick={() => onChange(c.key)}
-              className={`w-full text-left rounded-lg border p-3 transition-all ${
-                value === c.key
-                  ? 'bg-lime-400/10 border-lime-400 ring-1 ring-lime-400/50'
-                  : 'bg-slate-900 border-slate-700 hover:border-slate-500'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <p className={`text-sm font-medium ${value === c.key ? 'text-lime-400' : 'text-white'}`}>{c.label}</p>
-                    {idx === 0 && (
-                      <Badge className="bg-lime-400/30 text-lime-300 border-0 text-[9px]">Consigliato</Badge>
-                    )}
-                  </div>
-                  <p className="text-slate-400 text-[11px] leading-tight">{c.nota}</p>
-                  <div className="mt-1">
-                    <div className="w-full bg-slate-700 rounded-full h-1">
-                      <div className="bg-lime-400 h-1 rounded-full" style={{ width: `${c.pertinenza}%` }} />
+        <div className="space-y-3">
+          {ccnlOptions.map((c, idx) => {
+            const isSelected = value === c.dbKey;
+            const statoColor = c.stato === 'Vigente'
+              ? 'bg-green-500/20 text-green-400 border-green-500/30'
+              : c.stato === 'In attesa di rinnovo'
+                ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
+                : 'bg-slate-600/20 text-slate-400 border-slate-500/30';
+
+            return (
+              <button
+                key={c.dbKey}
+                onClick={() => onChange(c.dbKey)}
+                className={`w-full text-left rounded-lg border p-3 transition-all ${
+                  isSelected
+                    ? 'bg-lime-400/10 border-lime-400 ring-1 ring-lime-400/50'
+                    : 'bg-slate-900 border-slate-700 hover:border-slate-500'
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <div className="flex-1 min-w-0 space-y-1.5">
+                    {/* Nome + badge consigliato */}
+                    <div className="flex items-start gap-2">
+                      <p className={`text-sm font-semibold leading-tight ${isSelected ? 'text-lime-400' : 'text-white'}`}>
+                        {c.nome}
+                      </p>
+                      {idx === 0 && (
+                        <Badge className="bg-lime-400/30 text-lime-300 border-0 text-[9px] flex-shrink-0">Consigliato</Badge>
+                      )}
                     </div>
-                    <p className="text-slate-500 text-[9px] mt-0.5">Pertinenza: {c.pertinenza}%</p>
+
+                    {/* Dettagli in griglia */}
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                      <div>
+                        <span className="text-slate-500 text-[10px]">Codice CNEL</span>
+                        <p className="text-slate-300 text-[11px] font-mono">{c.codice_cnel}</p>
+                      </div>
+                      <div>
+                        <span className="text-slate-500 text-[10px]">Settore</span>
+                        <p className="text-slate-300 text-[11px]">{c.settore}</p>
+                      </div>
+                      <div className="col-span-2">
+                        <span className="text-slate-500 text-[10px]">Associazione firmataria</span>
+                        <p className="text-slate-300 text-[11px] leading-tight">{c.associazione_firmataria}</p>
+                      </div>
+                      <div>
+                        <span className="text-slate-500 text-[10px]">Ultimo rinnovo</span>
+                        <p className="text-slate-300 text-[11px]">{c.ultimo_rinnovo}</p>
+                      </div>
+                      <div>
+                        <span className="text-slate-500 text-[10px]">Stato</span>
+                        <Badge className={`${statoColor} border text-[9px] mt-0.5`}>{c.stato}</Badge>
+                      </div>
+                    </div>
+
+                    {/* Barra pertinenza */}
+                    <div>
+                      <div className="w-full bg-slate-700 rounded-full h-1">
+                        <div className="bg-lime-400 h-1 rounded-full" style={{ width: `${c.pertinenza}%` }} />
+                      </div>
+                      <p className="text-slate-500 text-[9px] mt-0.5">Coerenza: {c.pertinenza}%</p>
+                    </div>
                   </div>
+                  {isSelected && <CheckCircle className="w-5 h-5 text-lime-400 flex-shrink-0 mt-1" />}
                 </div>
-                {value === c.key && <CheckCircle className="w-5 h-5 text-lime-400 flex-shrink-0" />}
-              </div>
-            </button>
-          ))}
+              </button>
+            );
+          })}
         </div>
       )}
     </div>
