@@ -615,6 +615,36 @@ function calcolaCCNLCompatibili(attivita, natura, associazione) {
     if (attivita === 'farmacia' || attivita === 'parafarmacia') {
       add('commercio_farmacie', 100);
     }
+    if (attivita === 'grande_distribuzione') {
+      add('dmo_distribuzione', 100);
+    }
+    if (attivita === 'call_center') {
+      add('call_center_tlc', 100);
+      add('commercio_confcommercio', 60);
+    }
+    if (attivita === 'azienda_ict') {
+      add('ict_terziario', 95);
+      add('ict_industria', 70);
+    }
+    if (attivita === 'agenzia_immobiliare') {
+      add('agenzie_immobiliari', 100);
+      add('commercio_confcommercio', 50);
+    }
+    if (attivita === 'agenzia_viaggi') {
+      add('agenzie_viaggio', 100);
+      add('turismo_confcommercio', 50);
+    }
+    if (attivita === 'formazione_privata') {
+      add('formazione_privata', 100);
+      add('commercio_confcommercio', 50);
+    }
+    if (attivita === 'agenzia_assicurazioni') {
+      add('assicurazioni', 100);
+      add('commercio_confcommercio', 50);
+    }
+    if (attivita === 'poste_private') {
+      add('poste_private', 100);
+    }
     if (['confcommercio', 'nessuna', 'non_so'].includes(associazione)) {
       add('commercio_confcommercio', 95);
     }
@@ -627,12 +657,18 @@ function calcolaCCNLCompatibili(attivita, natura, associazione) {
 
   // Pubblici Esercizi
   if (macro === 'pubblici_esercizi') {
+    if (attivita === 'ristorazione_collettiva') {
+      add('ristorazione_collettiva', 100);
+    }
+    if (attivita === 'stabilimento_balneare') {
+      add('stabilimenti_balneari', 100);
+    }
     if (associazione === 'confesercenti') {
       add('turismo_confesercenti', 100);
     } else {
-      add('turismo_confcommercio', 100);
+      add('pubblici_esercizi_fipe', 100);
     }
-    add('turismo_confesercenti', 60);
+    add('turismo_confcommercio', 60);
     if (natura === 'artigiana') {
       add('artigianato_alimentare', 70);
     }
@@ -659,6 +695,7 @@ function calcolaCCNLCompatibili(attivita, natura, associazione) {
     if (['officina_meccanica', 'carpenteria_metallica', 'impresa_impiantistica'].includes(attivita)) {
       add('artigianato_metalmeccanico', 100);
       if (natura === 'industriale') add('metalmeccanico_confindustria', 60);
+      add('impiantisti', 50);
     }
     if (['falegnameria', 'azienda_serramenti'].includes(attivita)) {
       add('artigianato_legno', 100);
@@ -666,8 +703,9 @@ function calcolaCCNLCompatibili(attivita, natura, associazione) {
     }
     if (['idraulico', 'elettricista'].includes(attivita)) {
       add('artigianato_metalmeccanico', 95);
+      add('impiantisti', 60);
     }
-    add('artigianato_generico', 50);
+    add('artigianato_chimica', 30);
   }
 
   // Industria
@@ -683,29 +721,41 @@ function calcolaCCNLCompatibili(attivita, natura, associazione) {
       }
       add('metalmeccanico_confapi', 60);
     } else if (attivita === 'industria_alimentare') {
-      if (natura === 'artigiana') {
-        add('artigianato_alimentare', 95);
-      }
+      if (natura === 'artigiana') add('artigianato_alimentare', 95);
       add('industria_alimentare', natura === 'artigiana' ? 60 : 100);
     } else if (attivita === 'industria_chimica' || attivita === 'industria_farmaceutica') {
       add('industria_chimica', 100);
+      if (associazione === 'confapi') add('chimica_confapi', 90);
+      if (natura === 'artigiana') add('artigianato_chimica', 70);
     } else if (attivita === 'industria_tessile') {
       add('industria_tessile', 100);
-      if (natura === 'artigiana') add('artigianato_generico', 70);
+      if (natura === 'artigiana') add('artigianato_tessile', 90);
     } else if (attivita === 'industria_plastica') {
       add('industria_gomma_plastica', 100);
+      if (associazione === 'confapi') add('chimica_confapi', 60);
     } else if (attivita === 'industria_cartaria') {
       add('industria_cartaria', 100);
+      add('grafica_industria', 60);
     } else if (attivita === 'industria_legno') {
       if (natura === 'artigiana') add('artigianato_legno', 95);
       add('industria_legno', natura === 'artigiana' ? 70 : 100);
+    } else if (attivita === 'industria_ict') {
+      add('ict_industria', 100);
+      add('call_center_tlc', 60);
+      add('ict_terziario', 50);
+    } else if (attivita === 'cinema_spettacolo') {
+      add('cinema_spettacolo', 100);
     } else {
       add('industria_generica', 80);
     }
   }
 
-  // Edilizia
+  // Edilizia & Impiantistica
   if (macro === 'edilizia') {
+    if (attivita === 'impresa_impiantistica_edile') {
+      add('impiantisti', 100);
+      add('artigianato_metalmeccanico', 60);
+    }
     if (natura === 'artigiana' || ['confartigianato', 'cna'].includes(associazione)) {
       add('artigianato_edile', 95);
     }
@@ -714,7 +764,13 @@ function calcolaCCNLCompatibili(attivita, natura, associazione) {
 
   // Trasporti & Logistica
   if (macro === 'trasporti_logistica') {
-    add('logistica', 100);
+    if (attivita === 'autotrasporto_merci') {
+      add('autotrasporto_merci', 100);
+    }
+    if (attivita === 'autorimesse') {
+      add('autorimesse', 100);
+    }
+    add('logistica', attivita === 'autotrasporto_merci' ? 80 : 100);
     if (natura === 'artigiana') add('artigianato_trasporto', 80);
   }
 
@@ -730,16 +786,51 @@ function calcolaCCNLCompatibili(attivita, natura, associazione) {
     }
   }
 
+  // Servizi & Multiservizi
+  if (macro === 'servizi') {
+    if (attivita === 'impresa_pulizie') {
+      add('servizi_pulizia', 100);
+      add('multiservizi', 70);
+    }
+    if (attivita === 'multiservizi') {
+      add('multiservizi', 100);
+      add('servizi_pulizia', 70);
+    }
+    if (attivita === 'vigilanza_privata') {
+      add('vigilanza_privata', 100);
+    }
+    if (attivita === 'servizi_ambientali') {
+      add('servizi_ambientali', 100);
+    }
+  }
+
   // Studi Professionali
   if (macro === 'studi_professionali') {
     add('studi_professionali', 100);
     add('commercio_confcommercio', 40);
   }
 
+  // Cooperative
+  if (macro === 'cooperative') {
+    if (attivita === 'cooperativa_consumo') {
+      add('cooperative_consumo', 100);
+    }
+    if (attivita === 'cooperativa_produzione') {
+      add('cooperative_produzione', 100);
+    }
+    add('cooperative_sociali', 40);
+  }
+
   // Agricoltura
   if (macro === 'agricoltura') {
     add('agricoltura_operai', 100);
     if (attivita === 'agriturismo') add('agriturismo', 85);
+  }
+
+  // Energia & Utilities
+  if (macro === 'energia_utilities') {
+    if (attivita === 'gas_acqua') add('gas_acqua', 100);
+    if (attivita === 'energia_elettrica') add('energia_elettrica', 100);
   }
 
   // Fallback
