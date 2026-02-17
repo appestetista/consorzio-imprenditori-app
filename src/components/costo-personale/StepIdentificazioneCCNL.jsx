@@ -767,12 +767,16 @@ function SubStep1D({ ccnlOptions, value, onChange }) {
   );
 }
 
-function SubStep1E({ attivita, natura, associazione, ccnl, ccnlLabel }) {
+function SubStep1E({ attivita, natura, associazione, ccnlData }) {
   const macroKey = ATTIVITA_TO_MACRO[attivita];
   const macroObj = MACRO_CATEGORIE.find(mc => mc.key === macroKey);
   const attLabel = getAttivitaLabel(attivita);
   const natObj = NATURE_AZIENDA.find(n => n.key === natura);
   const assObj = ASSOCIAZIONI.find(a => a.key === associazione);
+
+  const statoColor = ccnlData?.stato === 'Vigente'
+    ? 'bg-green-500/20 text-green-400 border-green-500/30'
+    : 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
 
   return (
     <div className="space-y-3">
@@ -800,12 +804,26 @@ function SubStep1E({ attivita, natura, associazione, ccnl, ccnlLabel }) {
               <span className="text-slate-500 text-xs w-28 flex-shrink-0">Associazione:</span>
               <span className="text-white text-xs">{assObj?.label}</span>
             </div>
-            <div className="border-t border-slate-700 pt-2 mt-2">
-              <div className="flex items-start gap-2">
-                <span className="text-lime-400 text-xs w-28 flex-shrink-0 font-bold">CCNL scelto:</span>
-                <span className="text-lime-400 text-xs font-bold">{ccnlLabel || ccnl}</span>
+            {ccnlData && (
+              <div className="border-t border-slate-700 pt-2 mt-2 space-y-2">
+                <div className="flex items-start gap-2">
+                  <span className="text-lime-400 text-xs w-28 flex-shrink-0 font-bold">CCNL scelto:</span>
+                  <span className="text-lime-400 text-xs font-bold">{ccnlData.nome}</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-slate-500 text-xs w-28 flex-shrink-0">Codice CNEL:</span>
+                  <span className="text-white text-xs font-mono">{ccnlData.codice_cnel}</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-slate-500 text-xs w-28 flex-shrink-0">Ultimo rinnovo:</span>
+                  <span className="text-white text-xs">{ccnlData.ultimo_rinnovo}</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-slate-500 text-xs w-28 flex-shrink-0">Stato:</span>
+                  <Badge className={`${statoColor} border text-[9px]`}>{ccnlData.stato}</Badge>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </CardContent>
       </Card>
