@@ -548,7 +548,9 @@ function SubStep1D({ ccnlOptions, value, onChange }) {
 }
 
 function SubStep1E({ attivita, natura, associazione, ccnl, ccnlLabel }) {
-  const attObj = ATTIVITA_ECONOMICHE.find(a => a.key === attivita);
+  const macroKey = ATTIVITA_TO_MACRO[attivita];
+  const macroObj = MACRO_CATEGORIE.find(mc => mc.key === macroKey);
+  const attLabel = getAttivitaLabel(attivita);
   const natObj = NATURE_AZIENDA.find(n => n.key === natura);
   const assObj = ASSOCIAZIONI.find(a => a.key === associazione);
 
