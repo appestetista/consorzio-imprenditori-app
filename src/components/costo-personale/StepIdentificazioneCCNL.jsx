@@ -207,27 +207,38 @@ function getAttivitaLabel(attivitaKey) {
 // ─── DATABASE CCNL ──────────────────────────────────────────────────────────────
 // Ogni CCNL ha: key, nome, codice_cnel, settore, associazione_firmataria, ultimo_rinnovo, stato
 const CCNL_DATABASE = {
+  // ── 1. Terziario Confcommercio ─────────────────────────────────────────────
   commercio_confcommercio: {
     key: 'Commercio', nome: 'CCNL Terziario, Distribuzione e Servizi',
     codice_cnel: 'H011', settore: 'Commercio e Terziario',
     associazione_firmataria: 'Confcommercio — FILCAMS CGIL, FISASCAT CISL, UILTuCS',
     ultimo_rinnovo: '22/03/2024', stato: 'Vigente'
   },
+  // ── 2. Terziario Confesercenti ─────────────────────────────────────────────
   commercio_confesercenti: {
     key: 'Commercio', nome: 'CCNL Commercio — Confesercenti',
     codice_cnel: 'H01K', settore: 'Commercio e Terziario',
     associazione_firmataria: 'Confesercenti — FILCAMS CGIL, FISASCAT CISL, UILTuCS',
     ultimo_rinnovo: '12/12/2019', stato: 'In attesa di rinnovo'
   },
-  commercio_farmacie: {
-    key: 'Commercio', nome: 'CCNL Farmacie Private',
-    codice_cnel: 'H01S', settore: 'Commercio — Farmacie',
-    associazione_firmataria: 'Federfarma — FILCAMS CGIL, FISASCAT CISL, UILTuCS',
-    ultimo_rinnovo: '07/09/2021', stato: 'Vigente'
+  // ── 3. DMO Distribuzione Moderna ───────────────────────────────────────────
+  dmo_distribuzione: {
+    key: 'Commercio', nome: 'CCNL Distribuzione Moderna Organizzata (DMO)',
+    codice_cnel: 'H012', settore: 'Distribuzione Moderna',
+    associazione_firmataria: 'Federdistribuzione — FILCAMS CGIL, FISASCAT CISL, UILTuCS',
+    ultimo_rinnovo: '19/12/2023', stato: 'Vigente'
   },
+  // ── 4. Pubblici Esercizi FIPE ──────────────────────────────────────────────
+  pubblici_esercizi_fipe: {
+    key: 'Turismo', nome: 'CCNL Pubblici Esercizi, Ristorazione e Turismo — FIPE',
+    codice_cnel: 'H052', settore: 'Pubblici Esercizi',
+    associazione_firmataria: 'FIPE-Confcommercio — FILCAMS CGIL, FISASCAT CISL, UILTuCS',
+    ultimo_rinnovo: '05/07/2024', stato: 'Vigente'
+  },
+  // ── 5. Turismo Federalberghi ───────────────────────────────────────────────
   turismo_confcommercio: {
-    key: 'Turismo', nome: 'CCNL Turismo — Confcommercio',
-    codice_cnel: 'H052', settore: 'Turismo e Pubblici Esercizi',
+    key: 'Turismo', nome: 'CCNL Turismo — Federalberghi/Confcommercio',
+    codice_cnel: 'H052', settore: 'Turismo e Ricettività',
     associazione_firmataria: 'Federalberghi, FIPE — FILCAMS CGIL, FISASCAT CISL, UILTuCS',
     ultimo_rinnovo: '05/07/2024', stato: 'Vigente'
   },
@@ -237,47 +248,75 @@ const CCNL_DATABASE = {
     associazione_firmataria: 'Confesercenti, FIEPET — FILCAMS CGIL, FISASCAT CISL, UILTuCS',
     ultimo_rinnovo: '05/07/2024', stato: 'Vigente'
   },
+  // ── 6. Metalmeccanici Industria ────────────────────────────────────────────
   metalmeccanico_confindustria: {
     key: 'Metalmeccanico', nome: 'CCNL Metalmeccanico — Federmeccanica/Assistal',
     codice_cnel: 'C011', settore: 'Industria Metalmeccanica',
     associazione_firmataria: 'Federmeccanica, Assistal — FIM CISL, FIOM CGIL, UILM',
     ultimo_rinnovo: '05/02/2021', stato: 'In attesa di rinnovo'
   },
-  metalmeccanico_confapi: {
-    key: 'Metalmeccanico', nome: 'CCNL Metalmeccanico PMI — Confapi/UNIONMECCANICA',
-    codice_cnel: 'C013', settore: 'Industria Metalmeccanica PMI',
-    associazione_firmataria: 'Confapi UNIONMECCANICA — FIM CISL, FIOM CGIL, UILM',
-    ultimo_rinnovo: '26/05/2021', stato: 'In attesa di rinnovo'
-  },
+  // ── 7. Metalmeccanici Artigianato ──────────────────────────────────────────
   artigianato_metalmeccanico: {
     key: 'Artigianato', nome: 'CCNL Artigianato — Area Meccanica',
     codice_cnel: 'T011', settore: 'Artigianato Metalmeccanico',
     associazione_firmataria: 'Confartigianato, CNA, Casartigiani — FIM CISL, FIOM CGIL, UILM',
     ultimo_rinnovo: '24/01/2024', stato: 'Vigente'
   },
-  artigianato_estetica: {
-    key: 'Artigianato', nome: 'CCNL Acconciatura ed Estetica',
-    codice_cnel: 'T071', settore: 'Artigianato — Benessere',
-    associazione_firmataria: 'Confartigianato Benessere, CNA — FILCAMS CGIL, FISASCAT CISL, UILTuCS',
-    ultimo_rinnovo: '10/10/2022', stato: 'Vigente'
+  // ── 8. Metalmeccanici Confapi ──────────────────────────────────────────────
+  metalmeccanico_confapi: {
+    key: 'Metalmeccanico', nome: 'CCNL Metalmeccanico PMI — Confapi/UNIONMECCANICA',
+    codice_cnel: 'C013', settore: 'Industria Metalmeccanica PMI',
+    associazione_firmataria: 'Confapi UNIONMECCANICA — FIM CISL, FIOM CGIL, UILM',
+    ultimo_rinnovo: '26/05/2021', stato: 'In attesa di rinnovo'
   },
-  artigianato_generico: {
-    key: 'Artigianato', nome: 'CCNL Area Comunicazione, Legno, Chimica, Tessile Artigianato',
-    codice_cnel: 'T0A1', settore: 'Artigianato — Aree varie',
-    associazione_firmataria: 'Confartigianato, CNA, Casartigiani, CLAAI — CGIL, CISL, UIL',
+  // ── 9. Chimica Industria ───────────────────────────────────────────────────
+  industria_chimica: {
+    key: 'Industria', nome: 'CCNL Industria Chimica Farmaceutica',
+    codice_cnel: 'E014', settore: 'Industria Chimica e Farmaceutica',
+    associazione_firmataria: 'Federchimica, Farmindustria — FILCTEM CGIL, FEMCA CISL, UILTEC',
+    ultimo_rinnovo: '13/06/2022', stato: 'Vigente'
+  },
+  // ── 10. Chimica Artigianato ────────────────────────────────────────────────
+  artigianato_chimica: {
+    key: 'Artigianato', nome: 'CCNL Artigianato — Area Chimica/Ceramica',
+    codice_cnel: 'T0A1', settore: 'Artigianato Chimico',
+    associazione_firmataria: 'Confartigianato, CNA, Casartigiani — FILCTEM CGIL, FEMCA CISL, UILTEC',
     ultimo_rinnovo: '24/01/2024', stato: 'Vigente'
   },
-  artigianato_alimentare: {
-    key: 'Artigianato', nome: 'CCNL Artigianato — Area Alimentazione e Panificazione',
-    codice_cnel: 'T031', settore: 'Artigianato Alimentare',
-    associazione_firmataria: 'Confartigianato, CNA, Casartigiani — FAI CISL, FLAI CGIL, UILA',
-    ultimo_rinnovo: '06/12/2023', stato: 'Vigente'
+  // ── 11. Chimica Confapi ────────────────────────────────────────────────────
+  chimica_confapi: {
+    key: 'Industria', nome: 'CCNL Chimica PMI — Confapi/UNIONCHIMICA',
+    codice_cnel: 'E01K', settore: 'Chimica PMI',
+    associazione_firmataria: 'Confapi UNIONCHIMICA — FILCTEM CGIL, FEMCA CISL, UILTEC',
+    ultimo_rinnovo: '06/04/2023', stato: 'Vigente'
   },
+  // ── 12. Edilizia Industria ─────────────────────────────────────────────────
+  edilizia_industria: {
+    key: 'Edilizia', nome: 'CCNL Edilizia — Industria',
+    codice_cnel: 'F012', settore: 'Edilizia e Costruzioni',
+    associazione_firmataria: 'ANCE — FENEAL UIL, FILCA CISL, FILLEA CGIL',
+    ultimo_rinnovo: '03/03/2022', stato: 'Vigente'
+  },
+  // ── 13. Edilizia Artigianato ───────────────────────────────────────────────
   artigianato_edile: {
     key: 'Artigianato', nome: 'CCNL Edilizia — Artigianato',
     codice_cnel: 'T051', settore: 'Artigianato Edile',
     associazione_firmataria: 'Confartigianato Edilizia, CNA — FENEAL UIL, FILCA CISL, FILLEA CGIL',
     ultimo_rinnovo: '04/05/2022', stato: 'Vigente'
+  },
+  // ── 14. Logistica e Trasporti ──────────────────────────────────────────────
+  logistica: {
+    key: 'Logistica', nome: 'CCNL Logistica, Trasporto Merci e Spedizioni',
+    codice_cnel: 'I011', settore: 'Trasporti e Logistica',
+    associazione_firmataria: 'Confetra, Assologistica — FILT CGIL, FIT CISL, UILTrasporti',
+    ultimo_rinnovo: '06/12/2024', stato: 'Vigente'
+  },
+  // ── 15. Autotrasporto Merci ────────────────────────────────────────────────
+  autotrasporto_merci: {
+    key: 'Logistica', nome: 'CCNL Autotrasporto Merci e Logistica',
+    codice_cnel: 'I012', settore: 'Autotrasporto',
+    associazione_firmataria: 'AITE, FAI, FEDIT — FILT CGIL, FIT CISL, UILTrasporti',
+    ultimo_rinnovo: '06/12/2024', stato: 'Vigente'
   },
   artigianato_trasporto: {
     key: 'Artigianato', nome: 'CCNL Artigianato — Area Trasporto',
@@ -285,95 +324,278 @@ const CCNL_DATABASE = {
     associazione_firmataria: 'Confartigianato Trasporti, CNA FITA — FILT CGIL, FIT CISL, UILTrasporti',
     ultimo_rinnovo: '24/01/2024', stato: 'Vigente'
   },
-  industria_alimentare: {
-    key: 'Industria', nome: 'CCNL Industria Alimentare',
-    codice_cnel: 'E012', settore: 'Industria Alimentare',
-    associazione_firmataria: 'Confindustria — FAI CISL, FLAI CGIL, UILA',
-    ultimo_rinnovo: '01/03/2024', stato: 'Vigente'
-  },
-  industria_chimica: {
-    key: 'Industria', nome: 'CCNL Industria Chimica Farmaceutica',
-    codice_cnel: 'E014', settore: 'Industria Chimica e Farmaceutica',
-    associazione_firmataria: 'Federchimica, Farmindustria — FILCTEM CGIL, FEMCA CISL, UILTEC',
-    ultimo_rinnovo: '13/06/2022', stato: 'Vigente'
-  },
-  industria_tessile: {
-    key: 'Industria', nome: 'CCNL Tessile Abbigliamento Moda — Industria',
-    codice_cnel: 'D011', settore: 'Industria Tessile',
-    associazione_firmataria: 'SMI Confindustria Moda — FILCTEM CGIL, FEMCA CISL, UILTEC',
-    ultimo_rinnovo: '28/07/2021', stato: 'In attesa di rinnovo'
-  },
-  industria_gomma_plastica: {
-    key: 'Industria', nome: 'CCNL Gomma Plastica — Industria',
-    codice_cnel: 'E015', settore: 'Industria Gomma e Plastica',
-    associazione_firmataria: 'Federazione Gomma Plastica — FILCTEM CGIL, FEMCA CISL, UILTEC',
-    ultimo_rinnovo: '29/12/2022', stato: 'Vigente'
-  },
-  industria_cartaria: {
-    key: 'Industria', nome: 'CCNL Industria Cartaria e Cartotecnica',
-    codice_cnel: 'D021', settore: 'Industria Cartaria',
-    associazione_firmataria: 'Assocarta, Assografici — SLC CGIL, FISTEL CISL, UILCOM',
-    ultimo_rinnovo: '28/07/2021', stato: 'In attesa di rinnovo'
-  },
-  industria_legno: {
-    key: 'Industria', nome: 'CCNL Legno e Arredamento — Industria',
-    codice_cnel: 'F011', settore: 'Industria Legno e Arredamento',
-    associazione_firmataria: 'FederlegnoArredo — FILCA CISL, FILLEA CGIL, FENEAL UIL',
-    ultimo_rinnovo: '30/10/2020', stato: 'In attesa di rinnovo'
-  },
-  artigianato_legno: {
-    key: 'Artigianato', nome: 'CCNL Artigianato — Area Legno e Arredamento',
-    codice_cnel: 'T041', settore: 'Artigianato Legno',
-    associazione_firmataria: 'Confartigianato Legno, CNA — FILCA CISL, FILLEA CGIL, FENEAL UIL',
-    ultimo_rinnovo: '24/01/2024', stato: 'Vigente'
-  },
-  edilizia_industria: {
-    key: 'Edilizia', nome: 'CCNL Edilizia — Industria',
-    codice_cnel: 'F012', settore: 'Edilizia e Costruzioni',
-    associazione_firmataria: 'ANCE — FENEAL UIL, FILCA CISL, FILLEA CGIL',
-    ultimo_rinnovo: '03/03/2022', stato: 'Vigente'
-  },
-  logistica: {
-    key: 'Logistica', nome: 'CCNL Logistica, Trasporto Merci e Spedizioni',
-    codice_cnel: 'I011', settore: 'Trasporti e Logistica',
-    associazione_firmataria: 'Confetra, Assologistica — FILT CGIL, FIT CISL, UILTrasporti',
-    ultimo_rinnovo: '06/12/2024', stato: 'Vigente'
-  },
+  // ── 16. Studi Professionali ────────────────────────────────────────────────
   studi_professionali: {
     key: 'Studi Professionali', nome: 'CCNL Studi Professionali',
     codice_cnel: 'H042', settore: 'Studi Professionali',
     associazione_firmataria: 'Confprofessioni — FILCAMS CGIL, FISASCAT CISL, UILTuCS',
     ultimo_rinnovo: '16/02/2024', stato: 'Vigente'
   },
-  sanita_privata: {
-    key: 'Sanità Privata', nome: 'CCNL Sanità Privata — Personale non medico',
-    codice_cnel: 'J012', settore: 'Sanità e Assistenza',
-    associazione_firmataria: 'AIOP, ARIS — FP CGIL, CISL FP, UIL FPL',
-    ultimo_rinnovo: '10/10/2020', stato: 'In attesa di rinnovo'
-  },
+  // ── 17. Cooperative Sociali ────────────────────────────────────────────────
   cooperative_sociali: {
     key: 'Cooperative Sociali', nome: 'CCNL Cooperative Sociali',
     codice_cnel: 'J021', settore: 'Cooperazione Sociale',
     associazione_firmataria: 'Confcooperative, Legacoop, AGCI — FP CGIL, CISL FP, UIL FPL',
     ultimo_rinnovo: '21/05/2019', stato: 'In attesa di rinnovo'
   },
+  // ── 18. Agricoltura Operai ─────────────────────────────────────────────────
   agricoltura_operai: {
     key: 'Agricoltura', nome: 'CCNL Operai Agricoli e Florovivaisti',
     codice_cnel: 'A012', settore: 'Agricoltura',
     associazione_firmataria: 'Confagricoltura, Coldiretti, CIA — FLAI CGIL, FAI CISL, UILA',
     ultimo_rinnovo: '23/05/2022', stato: 'Vigente'
   },
+  // ── 19. Acconciatura ed Estetica ───────────────────────────────────────────
+  artigianato_estetica: {
+    key: 'Artigianato', nome: 'CCNL Acconciatura ed Estetica',
+    codice_cnel: 'T071', settore: 'Artigianato — Benessere',
+    associazione_firmataria: 'Confartigianato Benessere, CNA — FILCAMS CGIL, FISASCAT CISL, UILTuCS',
+    ultimo_rinnovo: '10/10/2022', stato: 'Vigente'
+  },
+  // ── 20. Servizi di Pulizia / Multiservizi ──────────────────────────────────
+  servizi_pulizia: {
+    key: 'Servizi', nome: 'CCNL Servizi di Pulizia e Servizi Integrati/Multiservizi',
+    codice_cnel: 'K511', settore: 'Pulizie e Multiservizi',
+    associazione_firmataria: 'ANIP, Confindustria — FILCAMS CGIL, FISASCAT CISL, UILTrasporti',
+    ultimo_rinnovo: '09/11/2021', stato: 'Vigente'
+  },
+  // ── 21. Alimentare Industria ───────────────────────────────────────────────
+  industria_alimentare: {
+    key: 'Industria', nome: 'CCNL Industria Alimentare',
+    codice_cnel: 'E012', settore: 'Industria Alimentare',
+    associazione_firmataria: 'Confindustria — FAI CISL, FLAI CGIL, UILA',
+    ultimo_rinnovo: '01/03/2024', stato: 'Vigente'
+  },
+  // ── 22. Alimentare Artigianato ─────────────────────────────────────────────
+  artigianato_alimentare: {
+    key: 'Artigianato', nome: 'CCNL Artigianato — Area Alimentazione e Panificazione',
+    codice_cnel: 'T031', settore: 'Artigianato Alimentare',
+    associazione_firmataria: 'Confartigianato, CNA, Casartigiani — FAI CISL, FLAI CGIL, UILA',
+    ultimo_rinnovo: '06/12/2023', stato: 'Vigente'
+  },
+  // ── 23. Tessile Industria ──────────────────────────────────────────────────
+  industria_tessile: {
+    key: 'Industria', nome: 'CCNL Tessile Abbigliamento Moda — Industria',
+    codice_cnel: 'D011', settore: 'Industria Tessile',
+    associazione_firmataria: 'SMI Confindustria Moda — FILCTEM CGIL, FEMCA CISL, UILTEC',
+    ultimo_rinnovo: '28/07/2021', stato: 'In attesa di rinnovo'
+  },
+  // ── 24. Tessile Artigianato ────────────────────────────────────────────────
+  artigianato_tessile: {
+    key: 'Artigianato', nome: 'CCNL Artigianato — Area Tessile/Moda',
+    codice_cnel: 'T021', settore: 'Artigianato Tessile',
+    associazione_firmataria: 'Confartigianato, CNA — FILCTEM CGIL, FEMCA CISL, UILTEC',
+    ultimo_rinnovo: '24/01/2024', stato: 'Vigente'
+  },
+  // ── 25. Legno Industria ────────────────────────────────────────────────────
+  industria_legno: {
+    key: 'Industria', nome: 'CCNL Legno e Arredamento — Industria',
+    codice_cnel: 'F011', settore: 'Industria Legno e Arredamento',
+    associazione_firmataria: 'FederlegnoArredo — FILCA CISL, FILLEA CGIL, FENEAL UIL',
+    ultimo_rinnovo: '30/10/2020', stato: 'In attesa di rinnovo'
+  },
+  // ── 26. Legno Artigianato ──────────────────────────────────────────────────
+  artigianato_legno: {
+    key: 'Artigianato', nome: 'CCNL Artigianato — Area Legno e Arredamento',
+    codice_cnel: 'T041', settore: 'Artigianato Legno',
+    associazione_firmataria: 'Confartigianato Legno, CNA — FILCA CISL, FILLEA CGIL, FENEAL UIL',
+    ultimo_rinnovo: '24/01/2024', stato: 'Vigente'
+  },
+  // ── 27. Grafica Industria ──────────────────────────────────────────────────
+  grafica_industria: {
+    key: 'Industria', nome: 'CCNL Grafica ed Editoria — Industria',
+    codice_cnel: 'D021', settore: 'Industria Grafica',
+    associazione_firmataria: 'Assografici — SLC CGIL, FISTEL CISL, UILCOM',
+    ultimo_rinnovo: '28/07/2021', stato: 'In attesa di rinnovo'
+  },
+  // ── 28. Grafica Artigianato ────────────────────────────────────────────────
+  artigianato_grafica: {
+    key: 'Artigianato', nome: 'CCNL Artigianato — Area Comunicazione/Grafica',
+    codice_cnel: 'T0A1', settore: 'Artigianato Comunicazione',
+    associazione_firmataria: 'Confartigianato, CNA — SLC CGIL, FISTEL CISL, UILCOM',
+    ultimo_rinnovo: '24/01/2024', stato: 'Vigente'
+  },
+  // ── 29. Farmacie Private ───────────────────────────────────────────────────
+  commercio_farmacie: {
+    key: 'Commercio', nome: 'CCNL Farmacie Private',
+    codice_cnel: 'H01S', settore: 'Commercio — Farmacie',
+    associazione_firmataria: 'Federfarma — FILCAMS CGIL, FISASCAT CISL, UILTuCS',
+    ultimo_rinnovo: '07/09/2021', stato: 'Vigente'
+  },
+  // ── 30. Sanità Privata ─────────────────────────────────────────────────────
+  sanita_privata: {
+    key: 'Sanità Privata', nome: 'CCNL Sanità Privata — Personale non medico',
+    codice_cnel: 'J012', settore: 'Sanità e Assistenza',
+    associazione_firmataria: 'AIOP, ARIS — FP CGIL, CISL FP, UIL FPL',
+    ultimo_rinnovo: '10/10/2020', stato: 'In attesa di rinnovo'
+  },
+  // ── 31. Vigilanza Privata ──────────────────────────────────────────────────
+  vigilanza_privata: {
+    key: 'Servizi', nome: 'CCNL Vigilanza Privata e Servizi Fiduciari',
+    codice_cnel: 'K514', settore: 'Vigilanza e Sicurezza',
+    associazione_firmataria: 'ASSIV, UNIV, Legacoop — FILCAMS CGIL, FISASCAT CISL, UILTuCS',
+    ultimo_rinnovo: '30/05/2023', stato: 'Vigente'
+  },
+  // ── 32. Call Center (Telecomunicazioni) ────────────────────────────────────
+  call_center_tlc: {
+    key: 'Telecomunicazioni', nome: 'CCNL Telecomunicazioni',
+    codice_cnel: 'K221', settore: 'Telecomunicazioni e Call Center',
+    associazione_firmataria: 'Asstel-Assotelecomunicazioni — SLC CGIL, FISTEL CISL, UILCOM',
+    ultimo_rinnovo: '06/11/2024', stato: 'Vigente'
+  },
+  // ── 33. ICT Industria (Metalmeccanico) ─────────────────────────────────────
+  ict_industria: {
+    key: 'Metalmeccanico', nome: 'CCNL Metalmeccanico (Sezione ICT/Elettronica)',
+    codice_cnel: 'C011', settore: 'ICT e Industria Elettronica',
+    associazione_firmataria: 'Federmeccanica — FIM CISL, FIOM CGIL, UILM',
+    ultimo_rinnovo: '05/02/2021', stato: 'In attesa di rinnovo'
+  },
+  // ── 34. ICT Terziario ──────────────────────────────────────────────────────
+  ict_terziario: {
+    key: 'Commercio', nome: 'CCNL Terziario (Sezione ICT e Servizi Digitali)',
+    codice_cnel: 'H011', settore: 'ICT — Terziario',
+    associazione_firmataria: 'Confcommercio — FILCAMS CGIL, FISASCAT CISL, UILTuCS',
+    ultimo_rinnovo: '22/03/2024', stato: 'Vigente'
+  },
+  // ── 35. Agenzie Immobiliari ────────────────────────────────────────────────
+  agenzie_immobiliari: {
+    key: 'Commercio', nome: 'CCNL Agenzie Immobiliari — FIAIP/Confcommercio',
+    codice_cnel: 'H044', settore: 'Servizi Immobiliari',
+    associazione_firmataria: 'FIAIP, Confcommercio — FILCAMS CGIL, FISASCAT CISL, UILTuCS',
+    ultimo_rinnovo: '05/06/2021', stato: 'Vigente'
+  },
+  // ── 36. Agenzie di Viaggio ─────────────────────────────────────────────────
+  agenzie_viaggio: {
+    key: 'Turismo', nome: 'CCNL Agenzie di Viaggio e Tour Operator',
+    codice_cnel: 'H053', settore: 'Turismo — Agenzie di Viaggio',
+    associazione_firmataria: 'FIAVET, Confcommercio — FILCAMS CGIL, FISASCAT CISL, UILTuCS',
+    ultimo_rinnovo: '05/07/2024', stato: 'Vigente'
+  },
+  // ── 37. Stabilimenti Balneari ──────────────────────────────────────────────
+  stabilimenti_balneari: {
+    key: 'Turismo', nome: 'CCNL Stabilimenti Balneari',
+    codice_cnel: 'H054', settore: 'Turismo — Stabilimenti Balneari',
+    associazione_firmataria: 'SIB, FIPE — FILCAMS CGIL, FISASCAT CISL, UILTuCS',
+    ultimo_rinnovo: '05/07/2024', stato: 'Vigente'
+  },
+  // ── 38. Ristorazione Collettiva ────────────────────────────────────────────
+  ristorazione_collettiva: {
+    key: 'Turismo', nome: 'CCNL Ristorazione Collettiva e Commerciale',
+    codice_cnel: 'H056', settore: 'Ristorazione Collettiva',
+    associazione_firmataria: 'ANGEM, FIPE-Confcommercio — FILCAMS CGIL, FISASCAT CISL, UILTuCS',
+    ultimo_rinnovo: '05/07/2024', stato: 'Vigente'
+  },
+  // ── 39. Imprese Impiantistiche ─────────────────────────────────────────────
+  impiantisti: {
+    key: 'Metalmeccanico', nome: 'CCNL Imprese Installatrici/Impiantistiche (Metalmeccanico)',
+    codice_cnel: 'C011', settore: 'Impiantistica',
+    associazione_firmataria: 'Assistal, Federmeccanica — FIM CISL, FIOM CGIL, UILM',
+    ultimo_rinnovo: '05/02/2021', stato: 'In attesa di rinnovo'
+  },
+  // ── 40. Autorimesse ────────────────────────────────────────────────────────
+  autorimesse: {
+    key: 'Logistica', nome: 'CCNL Autorimesse e Noleggio Automezzi',
+    codice_cnel: 'I021', settore: 'Autorimesse e Noleggio',
+    associazione_firmataria: 'Confcommercio — FILT CGIL, FIT CISL, UILTrasporti',
+    ultimo_rinnovo: '26/03/2024', stato: 'Vigente'
+  },
+  // ── 41. Multiservizi ───────────────────────────────────────────────────────
+  multiservizi: {
+    key: 'Servizi', nome: 'CCNL Multiservizi / Facility Management',
+    codice_cnel: 'K515', settore: 'Multiservizi',
+    associazione_firmataria: 'Confindustria, Legacoop — FILCAMS CGIL, FISASCAT CISL, UILTrasporti',
+    ultimo_rinnovo: '09/11/2021', stato: 'Vigente'
+  },
+  // ── 42. Cooperative di Consumo ─────────────────────────────────────────────
+  cooperative_consumo: {
+    key: 'Cooperative', nome: 'CCNL Cooperative di Consumo — Distribuzione',
+    codice_cnel: 'K031', settore: 'Cooperative di Consumo',
+    associazione_firmataria: 'ANCC-Coop, Confcooperative, AGCI — FILCAMS CGIL, FISASCAT CISL, UILTuCS',
+    ultimo_rinnovo: '16/03/2024', stato: 'Vigente'
+  },
+  // ── 43. Cooperative di Produzione e Lavoro ─────────────────────────────────
+  cooperative_produzione: {
+    key: 'Cooperative', nome: 'CCNL Cooperative di Produzione e Lavoro',
+    codice_cnel: 'K041', settore: 'Cooperative di Produzione',
+    associazione_firmataria: 'Legacoop, Confcooperative, AGCI — CGIL, CISL, UIL',
+    ultimo_rinnovo: '30/07/2019', stato: 'In attesa di rinnovo'
+  },
+  // ── 44. Servizi Ambientali / Igiene Urbana ─────────────────────────────────
+  servizi_ambientali: {
+    key: 'Servizi', nome: 'CCNL Servizi Ambientali — Igiene Urbana',
+    codice_cnel: 'K517', settore: 'Ambiente e Igiene Urbana',
+    associazione_firmataria: 'Utilitalia — FP CGIL, FIT CISL, UILTrasporti, FIADEL',
+    ultimo_rinnovo: '18/05/2022', stato: 'Vigente'
+  },
+  // ── 45. Gas-Acqua ──────────────────────────────────────────────────────────
+  gas_acqua: {
+    key: 'Energia', nome: 'CCNL Gas-Acqua',
+    codice_cnel: 'K311', settore: 'Gas e Acqua',
+    associazione_firmataria: 'Utilitalia — FILCTEM CGIL, FEMCA CISL, UILTEC',
+    ultimo_rinnovo: '14/03/2023', stato: 'Vigente'
+  },
+  // ── 46. Energia Elettrica ──────────────────────────────────────────────────
+  energia_elettrica: {
+    key: 'Energia', nome: 'CCNL Energia Elettrica',
+    codice_cnel: 'K312', settore: 'Energia Elettrica',
+    associazione_firmataria: 'Elettricità Futura, Utilitalia — FILCTEM CGIL, FLAEI CISL, UILTEC',
+    ultimo_rinnovo: '18/07/2022', stato: 'Vigente'
+  },
+  // ── 47. Poste Private ──────────────────────────────────────────────────────
+  poste_private: {
+    key: 'Servizi', nome: 'CCNL Poste Private e Servizi Postali',
+    codice_cnel: 'K524', settore: 'Servizi Postali Privati',
+    associazione_firmataria: 'FISE, AIPoste — SLC CGIL, SLP CISL, UILPoste',
+    ultimo_rinnovo: '02/06/2021', stato: 'Vigente'
+  },
+  // ── 48. Cinema e Spettacolo ────────────────────────────────────────────────
+  cinema_spettacolo: {
+    key: 'Spettacolo', nome: 'CCNL Cinema, Audiovisivo e Spettacolo',
+    codice_cnel: 'V011', settore: 'Cinema e Spettacolo',
+    associazione_firmataria: 'ANICA, APA — SLC CGIL, FISTEL CISL, UILCOM',
+    ultimo_rinnovo: '19/11/2022', stato: 'Vigente'
+  },
+  // ── 49. Formazione Privata ─────────────────────────────────────────────────
+  formazione_privata: {
+    key: 'Formazione', nome: 'CCNL Formazione Professionale',
+    codice_cnel: 'W011', settore: 'Formazione Privata',
+    associazione_firmataria: 'Forma, CENFOP — FLC CGIL, CISL Scuola, UIL Scuola, SNALS',
+    ultimo_rinnovo: '16/02/2024', stato: 'Vigente'
+  },
+  // ── 50. Assicurazioni ──────────────────────────────────────────────────────
+  assicurazioni: {
+    key: 'Assicurazioni', nome: 'CCNL Imprese di Assicurazione',
+    codice_cnel: 'K211', settore: 'Assicurazioni',
+    associazione_firmataria: 'ANIA — FISAC CGIL, FIRST CISL, FNA, UILCA, SNFIA',
+    ultimo_rinnovo: '16/11/2022', stato: 'Vigente'
+  },
+  // ── Agriturismi (bonus) ────────────────────────────────────────────────────
   agriturismo: {
     key: 'Turismo', nome: 'CCNL Agriturismi',
     codice_cnel: 'A021', settore: 'Agriturismo',
     associazione_firmataria: 'Confagricoltura, Coldiretti, CIA — FLAI CGIL, FAI CISL, UILA',
     ultimo_rinnovo: '06/06/2018', stato: 'In attesa di rinnovo'
   },
+  // ── Generico Industria (fallback) ──────────────────────────────────────────
   industria_generica: {
     key: 'Industria', nome: 'CCNL Industria — Confindustria (generico)',
     codice_cnel: 'C0XX', settore: 'Industria',
     associazione_firmataria: 'Confindustria — CGIL, CISL, UIL',
     ultimo_rinnovo: '—', stato: 'Variabile per settore'
+  },
+  // ── Gomma Plastica Industria ───────────────────────────────────────────────
+  industria_gomma_plastica: {
+    key: 'Industria', nome: 'CCNL Gomma Plastica — Industria',
+    codice_cnel: 'E015', settore: 'Industria Gomma e Plastica',
+    associazione_firmataria: 'Federazione Gomma Plastica — FILCTEM CGIL, FEMCA CISL, UILTEC',
+    ultimo_rinnovo: '29/12/2022', stato: 'Vigente'
+  },
+  // ── Cartaria Industria ─────────────────────────────────────────────────────
+  industria_cartaria: {
+    key: 'Industria', nome: 'CCNL Industria Cartaria e Cartotecnica',
+    codice_cnel: 'D021', settore: 'Industria Cartaria',
+    associazione_firmataria: 'Assocarta, Assografici — SLC CGIL, FISTEL CISL, UILCOM',
+    ultimo_rinnovo: '28/07/2021', stato: 'In attesa di rinnovo'
   },
 };
 
