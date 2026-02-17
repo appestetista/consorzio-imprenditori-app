@@ -159,27 +159,12 @@ export default function SimulatoreDipendente() {
           ))}
         </div>
 
-        {/* STEP 1 — CCNL */}
+        {/* STEP 1 — Identificazione CCNL (5 sotto-step) */}
         {step === 1 && (
-          <Card className="bg-slate-800 border-slate-700">
-            <CardContent className="p-4 space-y-4">
-              <div className="flex items-center gap-2">
-                <h3 className="text-white font-semibold">Step 1 — CCNL</h3>
-                <Tooltip>
-                  <TooltipTrigger><HelpCircle className="w-4 h-4 text-slate-500" /></TooltipTrigger>
-                  <TooltipContent className="max-w-[260px] bg-slate-700 text-white border-slate-600">
-                    <p className="text-xs">Il CCNL determina minimi retributivi e disciplina contributiva. Seleziona il contratto collettivo applicato alla tua azienda tra quelli depositati al CNEL.</p>
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-              <Select value={form.ccnl} onValueChange={(v) => setForm({ ...form, ccnl: v, livello: '' })}>
-                <SelectTrigger className="bg-slate-900 border-slate-700 text-white"><SelectValue placeholder="Seleziona CCNL" /></SelectTrigger>
-                <SelectContent>
-                  {CCNL_OPTIONS.map(c => <SelectItem key={c.key} value={c.key}>{c.label}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </CardContent>
-          </Card>
+          <StepIdentificazioneCCNL
+            onComplete={handleCCNLComplete}
+            onBack={null}
+          />
         )}
 
         {/* STEP 2 — Livello */}
