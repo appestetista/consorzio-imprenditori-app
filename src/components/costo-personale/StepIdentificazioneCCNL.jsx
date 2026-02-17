@@ -17,16 +17,20 @@ const MACRO_CATEGORIE = [
       { key: 'negozio_abbigliamento', label: 'Negozio abbigliamento' },
       { key: 'negozio_alimentari', label: 'Negozio alimentari' },
       { key: 'supermercato', label: 'Supermercato' },
-      { key: 'grande_distribuzione', label: 'Grande distribuzione' },
+      { key: 'grande_distribuzione', label: 'Grande distribuzione (DMO)' },
       { key: 'ecommerce', label: 'E-commerce' },
       { key: 'agenzia_immobiliare', label: 'Agenzia immobiliare' },
       { key: 'agenzia_viaggi', label: 'Agenzia viaggi' },
       { key: 'centro_servizi', label: 'Centro servizi' },
       { key: 'call_center', label: 'Call center' },
-      { key: 'azienda_marketing', label: 'Azienda marketing' },
+      { key: 'azienda_marketing', label: 'Azienda marketing/comunicazione' },
       { key: 'centro_assistenza_clienti', label: 'Centro assistenza clienti' },
       { key: 'farmacia', label: 'Farmacia' },
       { key: 'parafarmacia', label: 'Parafarmacia' },
+      { key: 'azienda_ict', label: 'Azienda ICT / Software / Servizi digitali' },
+      { key: 'formazione_privata', label: 'Centro formazione privata' },
+      { key: 'agenzia_assicurazioni', label: 'Agenzia assicurazioni' },
+      { key: 'poste_private', label: 'Servizi postali privati' },
     ]
   },
   {
@@ -37,7 +41,7 @@ const MACRO_CATEGORIE = [
       { key: 'pizzeria', label: 'Pizzeria' },
       { key: 'pub', label: 'Pub' },
       { key: 'catering', label: 'Catering' },
-      { key: 'mensa_aziendale', label: 'Mensa aziendale' },
+      { key: 'ristorazione_collettiva', label: 'Ristorazione collettiva / Mensa' },
       { key: 'gelateria', label: 'Gelateria' },
       { key: 'pasticceria', label: 'Pasticceria' },
       { key: 'stabilimento_balneare', label: 'Stabilimento balneare' },
@@ -75,19 +79,22 @@ const MACRO_CATEGORIE = [
       { key: 'industria_chimica', label: 'Industria chimica' },
       { key: 'industria_alimentare', label: 'Industria alimentare' },
       { key: 'industria_tessile', label: 'Industria tessile' },
-      { key: 'industria_plastica', label: 'Industria plastica' },
+      { key: 'industria_plastica', label: 'Industria plastica (gomma)' },
       { key: 'industria_farmaceutica', label: 'Industria farmaceutica' },
-      { key: 'industria_cartaria', label: 'Industria cartaria' },
-      { key: 'industria_legno', label: 'Industria legno' },
+      { key: 'industria_cartaria', label: 'Industria cartaria/grafica' },
+      { key: 'industria_legno', label: 'Industria legno/arredamento' },
+      { key: 'industria_ict', label: 'Industria ICT / Telecomunicazioni' },
+      { key: 'cinema_spettacolo', label: 'Cinema e Spettacolo' },
     ]
   },
   {
-    key: 'edilizia', label: 'Edilizia', icon: '🏗',
+    key: 'edilizia', label: 'Edilizia & Impiantistica', icon: '🏗',
     attivita: [
       { key: 'impresa_edile', label: 'Impresa edile' },
       { key: 'ristrutturazioni', label: 'Ristrutturazioni' },
       { key: 'costruzioni_industriali', label: 'Costruzioni industriali' },
       { key: 'movimento_terra', label: 'Movimento terra' },
+      { key: 'impresa_impiantistica_edile', label: 'Impresa impiantistica (edile)' },
     ]
   },
   {
@@ -97,6 +104,7 @@ const MACRO_CATEGORIE = [
       { key: 'logistica_magazzino', label: 'Logistica magazzino' },
       { key: 'corriere_espresso', label: 'Corriere espresso' },
       { key: 'spedizioni_internazionali', label: 'Spedizioni internazionali' },
+      { key: 'autorimesse', label: 'Autorimesse e parcheggi' },
     ]
   },
   {
@@ -111,6 +119,15 @@ const MACRO_CATEGORIE = [
     ]
   },
   {
+    key: 'servizi', label: 'Servizi & Multiservizi', icon: '🧹',
+    attivita: [
+      { key: 'impresa_pulizie', label: 'Impresa di pulizie / Servizi integrati' },
+      { key: 'multiservizi', label: 'Multiservizi / Facility management' },
+      { key: 'vigilanza_privata', label: 'Vigilanza privata' },
+      { key: 'servizi_ambientali', label: 'Servizi ambientali / Igiene urbana' },
+    ]
+  },
+  {
     key: 'studi_professionali', label: 'Studi Professionali', icon: '💼',
     attivita: [
       { key: 'studio_commercialista', label: 'Studio commercialista' },
@@ -121,11 +138,25 @@ const MACRO_CATEGORIE = [
     ]
   },
   {
+    key: 'cooperative', label: 'Cooperative', icon: '🤝',
+    attivita: [
+      { key: 'cooperativa_consumo', label: 'Cooperativa di consumo' },
+      { key: 'cooperativa_produzione', label: 'Cooperativa di produzione e lavoro' },
+    ]
+  },
+  {
     key: 'agricoltura', label: 'Agricoltura', icon: '🌾',
     attivita: [
       { key: 'azienda_agricola', label: 'Azienda agricola' },
       { key: 'agriturismo', label: 'Agriturismo' },
       { key: 'cooperativa_agricola', label: 'Cooperativa agricola' },
+    ]
+  },
+  {
+    key: 'energia_utilities', label: 'Energia & Utilities', icon: '⚡',
+    attivita: [
+      { key: 'gas_acqua', label: 'Gas e Acqua' },
+      { key: 'energia_elettrica', label: 'Energia elettrica' },
     ]
   },
 ];
