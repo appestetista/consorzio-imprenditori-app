@@ -10,6 +10,7 @@ import { useCCNL, CCNL_OPTIONS, REGIONI, getQualificaINAIL } from './useCCNL';
 import RisultatoDipendente from './RisultatoDipendente';
 import ProfiloLavoratoreForm from './ProfiloLavoratoreForm';
 import VerificaTabelleNormative from './VerificaTabelleNormative';
+import StepIdentificazioneCCNL from './StepIdentificazioneCCNL';
 
 const TIPI_CONTRATTO = [
   { key: 'indeterminato_fulltime', label: 'Tempo indeterminato — Full-time' },
