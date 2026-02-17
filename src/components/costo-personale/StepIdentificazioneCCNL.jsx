@@ -570,7 +570,7 @@ function SubStep1E({ attivita, natura, associazione, ccnl, ccnlLabel }) {
           <div className="space-y-2">
             <div className="flex items-start gap-2">
               <span className="text-slate-500 text-xs w-28 flex-shrink-0">Attività:</span>
-              <span className="text-white text-xs">{attObj?.icon} {attObj?.label}</span>
+              <span className="text-white text-xs">{macroObj?.icon} {attLabel} ({macroObj?.label})</span>
             </div>
             <div className="flex items-start gap-2">
               <span className="text-slate-500 text-xs w-28 flex-shrink-0">Natura azienda:</span>
