@@ -421,11 +421,11 @@ function SubStep1B({ value, onChange }) {
     <div className="space-y-3">
       <div className="flex items-center gap-2 mb-1">
         <Badge className="bg-lime-400/20 text-lime-400 border-0 text-[10px]">1B</Badge>
-        <h3 className="text-white font-semibold text-sm">Natura Azienda</h3>
+        <h3 className="text-white font-semibold text-sm">L'azienda è:</h3>
         <Tooltip>
           <TooltipTrigger><HelpCircle className="w-4 h-4 text-slate-500" /></TooltipTrigger>
           <TooltipContent className="max-w-[280px] bg-slate-700 text-white border-slate-600">
-            <p className="text-xs">La forma giuridica e la dimensione dell'azienda influenzano il CCNL applicabile e le aliquote contributive.</p>
+            <p className="text-xs">La natura dell'azienda influenza il CCNL applicabile e le aliquote contributive.</p>
           </TooltipContent>
         </Tooltip>
       </div>
