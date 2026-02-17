@@ -837,7 +837,8 @@ export default function StepIdentificazioneCCNL({ onComplete, onBack }) {
     return calcolaCCNLCompatibili(attivita, natura, associazione);
   }, [attivita, natura, associazione]);
 
-  const ccnlLabel = ccnlOptions.find(c => c.key === ccnlScelto)?.label || '';
+  const ccnlSelezionato = ccnlOptions.find(c => c.dbKey === ccnlScelto);
+  const ccnlLabel = ccnlSelezionato?.nome || '';
 
   const subSteps = ['1A', '1B', '1C', '1D', '1E'];
   const subStepIdx = subSteps.indexOf(subStep);
