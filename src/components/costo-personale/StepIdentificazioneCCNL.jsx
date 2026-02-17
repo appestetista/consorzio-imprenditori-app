@@ -240,6 +240,9 @@ function calcolaCCNLCompatibili(attivita, natura, associazione) {
       } else if (natura === 'artigiana') {
         add('Artigianato', 'Artigianato Alimentare', 90, 'Per imprese artigiane del settore');
         add('Industria', 'Industria Alimentare', 60, 'Alternativa per artigiani con molti dipendenti');
+      } else if (natura === 'commerciale') {
+        add('Industria', 'Industria Alimentare', 85, 'CCNL standard del settore');
+        add('Commercio', 'Commercio — Confcommercio', 50, 'Per attività prevalentemente commerciale');
       } else {
         add('Industria', 'Industria Alimentare', 85, 'CCNL standard del settore');
       }
