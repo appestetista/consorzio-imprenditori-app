@@ -173,147 +173,326 @@ function getAttivitaLabel(attivitaKey) {
   return attivitaKey;
 }
 
+// ─── DATABASE CCNL ──────────────────────────────────────────────────────────────
+// Ogni CCNL ha: key, nome, codice_cnel, settore, associazione_firmataria, ultimo_rinnovo, stato
+const CCNL_DATABASE = {
+  commercio_confcommercio: {
+    key: 'Commercio', nome: 'CCNL Terziario, Distribuzione e Servizi',
+    codice_cnel: 'H011', settore: 'Commercio e Terziario',
+    associazione_firmataria: 'Confcommercio — FILCAMS CGIL, FISASCAT CISL, UILTuCS',
+    ultimo_rinnovo: '22/03/2024', stato: 'Vigente'
+  },
+  commercio_confesercenti: {
+    key: 'Commercio', nome: 'CCNL Commercio — Confesercenti',
+    codice_cnel: 'H01K', settore: 'Commercio e Terziario',
+    associazione_firmataria: 'Confesercenti — FILCAMS CGIL, FISASCAT CISL, UILTuCS',
+    ultimo_rinnovo: '12/12/2019', stato: 'In attesa di rinnovo'
+  },
+  commercio_farmacie: {
+    key: 'Commercio', nome: 'CCNL Farmacie Private',
+    codice_cnel: 'H01S', settore: 'Commercio — Farmacie',
+    associazione_firmataria: 'Federfarma — FILCAMS CGIL, FISASCAT CISL, UILTuCS',
+    ultimo_rinnovo: '07/09/2021', stato: 'Vigente'
+  },
+  turismo_confcommercio: {
+    key: 'Turismo', nome: 'CCNL Turismo — Confcommercio',
+    codice_cnel: 'H052', settore: 'Turismo e Pubblici Esercizi',
+    associazione_firmataria: 'Federalberghi, FIPE — FILCAMS CGIL, FISASCAT CISL, UILTuCS',
+    ultimo_rinnovo: '05/07/2024', stato: 'Vigente'
+  },
+  turismo_confesercenti: {
+    key: 'Turismo', nome: 'CCNL Turismo — Confesercenti',
+    codice_cnel: 'H05K', settore: 'Turismo e Pubblici Esercizi',
+    associazione_firmataria: 'Confesercenti, FIEPET — FILCAMS CGIL, FISASCAT CISL, UILTuCS',
+    ultimo_rinnovo: '05/07/2024', stato: 'Vigente'
+  },
+  metalmeccanico_confindustria: {
+    key: 'Metalmeccanico', nome: 'CCNL Metalmeccanico — Federmeccanica/Assistal',
+    codice_cnel: 'C011', settore: 'Industria Metalmeccanica',
+    associazione_firmataria: 'Federmeccanica, Assistal — FIM CISL, FIOM CGIL, UILM',
+    ultimo_rinnovo: '05/02/2021', stato: 'In attesa di rinnovo'
+  },
+  metalmeccanico_confapi: {
+    key: 'Metalmeccanico', nome: 'CCNL Metalmeccanico PMI — Confapi/UNIONMECCANICA',
+    codice_cnel: 'C013', settore: 'Industria Metalmeccanica PMI',
+    associazione_firmataria: 'Confapi UNIONMECCANICA — FIM CISL, FIOM CGIL, UILM',
+    ultimo_rinnovo: '26/05/2021', stato: 'In attesa di rinnovo'
+  },
+  artigianato_metalmeccanico: {
+    key: 'Artigianato', nome: 'CCNL Artigianato — Area Meccanica',
+    codice_cnel: 'T011', settore: 'Artigianato Metalmeccanico',
+    associazione_firmataria: 'Confartigianato, CNA, Casartigiani — FIM CISL, FIOM CGIL, UILM',
+    ultimo_rinnovo: '24/01/2024', stato: 'Vigente'
+  },
+  artigianato_estetica: {
+    key: 'Artigianato', nome: 'CCNL Acconciatura ed Estetica',
+    codice_cnel: 'T071', settore: 'Artigianato — Benessere',
+    associazione_firmataria: 'Confartigianato Benessere, CNA — FILCAMS CGIL, FISASCAT CISL, UILTuCS',
+    ultimo_rinnovo: '10/10/2022', stato: 'Vigente'
+  },
+  artigianato_generico: {
+    key: 'Artigianato', nome: 'CCNL Area Comunicazione, Legno, Chimica, Tessile Artigianato',
+    codice_cnel: 'T0A1', settore: 'Artigianato — Aree varie',
+    associazione_firmataria: 'Confartigianato, CNA, Casartigiani, CLAAI — CGIL, CISL, UIL',
+    ultimo_rinnovo: '24/01/2024', stato: 'Vigente'
+  },
+  artigianato_alimentare: {
+    key: 'Artigianato', nome: 'CCNL Artigianato — Area Alimentazione e Panificazione',
+    codice_cnel: 'T031', settore: 'Artigianato Alimentare',
+    associazione_firmataria: 'Confartigianato, CNA, Casartigiani — FAI CISL, FLAI CGIL, UILA',
+    ultimo_rinnovo: '06/12/2023', stato: 'Vigente'
+  },
+  artigianato_edile: {
+    key: 'Artigianato', nome: 'CCNL Edilizia — Artigianato',
+    codice_cnel: 'T051', settore: 'Artigianato Edile',
+    associazione_firmataria: 'Confartigianato Edilizia, CNA — FENEAL UIL, FILCA CISL, FILLEA CGIL',
+    ultimo_rinnovo: '04/05/2022', stato: 'Vigente'
+  },
+  artigianato_trasporto: {
+    key: 'Artigianato', nome: 'CCNL Artigianato — Area Trasporto',
+    codice_cnel: 'T061', settore: 'Artigianato Trasporti',
+    associazione_firmataria: 'Confartigianato Trasporti, CNA FITA — FILT CGIL, FIT CISL, UILTrasporti',
+    ultimo_rinnovo: '24/01/2024', stato: 'Vigente'
+  },
+  industria_alimentare: {
+    key: 'Industria', nome: 'CCNL Industria Alimentare',
+    codice_cnel: 'E012', settore: 'Industria Alimentare',
+    associazione_firmataria: 'Confindustria — FAI CISL, FLAI CGIL, UILA',
+    ultimo_rinnovo: '01/03/2024', stato: 'Vigente'
+  },
+  industria_chimica: {
+    key: 'Industria', nome: 'CCNL Industria Chimica Farmaceutica',
+    codice_cnel: 'E014', settore: 'Industria Chimica e Farmaceutica',
+    associazione_firmataria: 'Federchimica, Farmindustria — FILCTEM CGIL, FEMCA CISL, UILTEC',
+    ultimo_rinnovo: '13/06/2022', stato: 'Vigente'
+  },
+  industria_tessile: {
+    key: 'Industria', nome: 'CCNL Tessile Abbigliamento Moda — Industria',
+    codice_cnel: 'D011', settore: 'Industria Tessile',
+    associazione_firmataria: 'SMI Confindustria Moda — FILCTEM CGIL, FEMCA CISL, UILTEC',
+    ultimo_rinnovo: '28/07/2021', stato: 'In attesa di rinnovo'
+  },
+  industria_gomma_plastica: {
+    key: 'Industria', nome: 'CCNL Gomma Plastica — Industria',
+    codice_cnel: 'E015', settore: 'Industria Gomma e Plastica',
+    associazione_firmataria: 'Federazione Gomma Plastica — FILCTEM CGIL, FEMCA CISL, UILTEC',
+    ultimo_rinnovo: '29/12/2022', stato: 'Vigente'
+  },
+  industria_cartaria: {
+    key: 'Industria', nome: 'CCNL Industria Cartaria e Cartotecnica',
+    codice_cnel: 'D021', settore: 'Industria Cartaria',
+    associazione_firmataria: 'Assocarta, Assografici — SLC CGIL, FISTEL CISL, UILCOM',
+    ultimo_rinnovo: '28/07/2021', stato: 'In attesa di rinnovo'
+  },
+  industria_legno: {
+    key: 'Industria', nome: 'CCNL Legno e Arredamento — Industria',
+    codice_cnel: 'F011', settore: 'Industria Legno e Arredamento',
+    associazione_firmataria: 'FederlegnoArredo — FILCA CISL, FILLEA CGIL, FENEAL UIL',
+    ultimo_rinnovo: '30/10/2020', stato: 'In attesa di rinnovo'
+  },
+  artigianato_legno: {
+    key: 'Artigianato', nome: 'CCNL Artigianato — Area Legno e Arredamento',
+    codice_cnel: 'T041', settore: 'Artigianato Legno',
+    associazione_firmataria: 'Confartigianato Legno, CNA — FILCA CISL, FILLEA CGIL, FENEAL UIL',
+    ultimo_rinnovo: '24/01/2024', stato: 'Vigente'
+  },
+  edilizia_industria: {
+    key: 'Edilizia', nome: 'CCNL Edilizia — Industria',
+    codice_cnel: 'F012', settore: 'Edilizia e Costruzioni',
+    associazione_firmataria: 'ANCE — FENEAL UIL, FILCA CISL, FILLEA CGIL',
+    ultimo_rinnovo: '03/03/2022', stato: 'Vigente'
+  },
+  logistica: {
+    key: 'Logistica', nome: 'CCNL Logistica, Trasporto Merci e Spedizioni',
+    codice_cnel: 'I011', settore: 'Trasporti e Logistica',
+    associazione_firmataria: 'Confetra, Assologistica — FILT CGIL, FIT CISL, UILTrasporti',
+    ultimo_rinnovo: '06/12/2024', stato: 'Vigente'
+  },
+  studi_professionali: {
+    key: 'Studi Professionali', nome: 'CCNL Studi Professionali',
+    codice_cnel: 'H042', settore: 'Studi Professionali',
+    associazione_firmataria: 'Confprofessioni — FILCAMS CGIL, FISASCAT CISL, UILTuCS',
+    ultimo_rinnovo: '16/02/2024', stato: 'Vigente'
+  },
+  sanita_privata: {
+    key: 'Sanità Privata', nome: 'CCNL Sanità Privata — Personale non medico',
+    codice_cnel: 'J012', settore: 'Sanità e Assistenza',
+    associazione_firmataria: 'AIOP, ARIS — FP CGIL, CISL FP, UIL FPL',
+    ultimo_rinnovo: '10/10/2020', stato: 'In attesa di rinnovo'
+  },
+  cooperative_sociali: {
+    key: 'Cooperative Sociali', nome: 'CCNL Cooperative Sociali',
+    codice_cnel: 'J021', settore: 'Cooperazione Sociale',
+    associazione_firmataria: 'Confcooperative, Legacoop, AGCI — FP CGIL, CISL FP, UIL FPL',
+    ultimo_rinnovo: '21/05/2019', stato: 'In attesa di rinnovo'
+  },
+  agricoltura_operai: {
+    key: 'Agricoltura', nome: 'CCNL Operai Agricoli e Florovivaisti',
+    codice_cnel: 'A012', settore: 'Agricoltura',
+    associazione_firmataria: 'Confagricoltura, Coldiretti, CIA — FLAI CGIL, FAI CISL, UILA',
+    ultimo_rinnovo: '23/05/2022', stato: 'Vigente'
+  },
+  agriturismo: {
+    key: 'Turismo', nome: 'CCNL Agriturismi',
+    codice_cnel: 'A021', settore: 'Agriturismo',
+    associazione_firmataria: 'Confagricoltura, Coldiretti, CIA — FLAI CGIL, FAI CISL, UILA',
+    ultimo_rinnovo: '06/06/2018', stato: 'In attesa di rinnovo'
+  },
+  industria_generica: {
+    key: 'Industria', nome: 'CCNL Industria — Confindustria (generico)',
+    codice_cnel: 'C0XX', settore: 'Industria',
+    associazione_firmataria: 'Confindustria — CGIL, CISL, UIL',
+    ultimo_rinnovo: '—', stato: 'Variabile per settore'
+  },
+};
+
 // Matrice di compatibilità: attività + natura + associazione → CCNL proposti
 function calcolaCCNLCompatibili(attivita, natura, associazione) {
   const macro = getMacroFromAttivita(attivita);
   const risultati = [];
 
-  const add = (key, label, pertinenza, nota) => {
-    if (!risultati.find(r => r.key === key)) {
-      risultati.push({ key, label, pertinenza, nota });
-    }
+  const add = (dbKey, pertinenza) => {
+    const ccnl = CCNL_DATABASE[dbKey];
+    if (!ccnl || risultati.find(r => r.dbKey === dbKey)) return;
+    risultati.push({ ...ccnl, dbKey, pertinenza });
   };
 
   // Commercio & Terziario
   if (macro === 'commercio_terziario') {
-    if (['confcommercio', 'confesercenti', 'nessuna', 'non_so'].includes(associazione)) {
-      add('Commercio', 'Commercio — Confcommercio / Confesercenti', 100, 'CCNL più applicato per commercio e servizi');
-    } else {
-      add('Commercio', 'Commercio — Confcommercio', 80, 'Applicabile anche se non associati');
-    }
     if (attivita === 'farmacia' || attivita === 'parafarmacia') {
-      add('Commercio', 'Commercio — Farmacie', 100, 'CCNL specifico per farmacie/parafarmacie');
+      add('commercio_farmacie', 100);
     }
+    if (['confcommercio', 'nessuna', 'non_so'].includes(associazione)) {
+      add('commercio_confcommercio', 95);
+    }
+    if (associazione === 'confesercenti') {
+      add('commercio_confesercenti', 95);
+    }
+    add('commercio_confcommercio', 70);
+    add('commercio_confesercenti', 50);
   }
 
   // Pubblici Esercizi
   if (macro === 'pubblici_esercizi') {
-    add('Turismo', 'Turismo e Pubblici Esercizi — Confcommercio/FIPE', 100, 'CCNL principale per bar, ristoranti, catering');
+    if (associazione === 'confesercenti') {
+      add('turismo_confesercenti', 100);
+    } else {
+      add('turismo_confcommercio', 100);
+    }
+    add('turismo_confesercenti', 60);
     if (natura === 'artigiana') {
-      add('Artigianato', 'Artigianato — Alimentazione e Ristorazione', 70, 'Per piccole attività artigiane di ristorazione');
+      add('artigianato_alimentare', 70);
     }
   }
 
   // Turismo
   if (macro === 'turismo') {
-    add('Turismo', 'Turismo — Federalberghi/Confcommercio', 100, 'CCNL Turismo per strutture ricettive');
     if (attivita === 'agriturismo') {
-      add('Altri CCNL', 'Agriturismo — CCNL specifico', 85, 'CCNL per attività agrituristiche');
+      add('agriturismo', 95);
     }
+    if (associazione === 'confesercenti') {
+      add('turismo_confesercenti', 100);
+    } else {
+      add('turismo_confcommercio', 100);
+    }
+    add('turismo_confesercenti', 50);
   }
 
   // Artigianato
   if (macro === 'artigianato') {
-    add('Artigianato', 'Artigianato — Confartigianato/CNA', 100, 'CCNL Artigianato per il settore specifico');
     if (['centro_estetico', 'parrucchiere'].includes(attivita)) {
-      add('Artigianato', 'Artigianato — Acconciatura ed Estetica', 100, 'CCNL specifico per settore benessere');
+      add('artigianato_estetica', 100);
     }
-    if (['officina_meccanica', 'carpenteria_metallica'].includes(attivita)) {
-      add('Metalmeccanico', 'Metalmeccanico — Federmeccanica', 50, 'Alternativa per aziende più strutturate');
+    if (['officina_meccanica', 'carpenteria_metallica', 'impresa_impiantistica'].includes(attivita)) {
+      add('artigianato_metalmeccanico', 100);
+      if (natura === 'industriale') add('metalmeccanico_confindustria', 60);
     }
+    if (['falegnameria', 'azienda_serramenti'].includes(attivita)) {
+      add('artigianato_legno', 100);
+      if (natura === 'industriale') add('industria_legno', 60);
+    }
+    if (['idraulico', 'elettricista'].includes(attivita)) {
+      add('artigianato_metalmeccanico', 95);
+    }
+    add('artigianato_generico', 50);
   }
 
   // Industria
   if (macro === 'industria') {
     if (attivita === 'industria_metalmeccanica') {
       if (natura === 'artigiana' || ['confartigianato', 'cna'].includes(associazione)) {
-        add('Artigianato', 'Artigianato — Area Meccanica', 95, 'CCNL artigianato metalmeccanico');
+        add('artigianato_metalmeccanico', 95);
       }
-      add('Metalmeccanico', 'Metalmeccanico — Federmeccanica/Assistal', 100, 'CCNL nazionale metalmeccanico');
       if (associazione === 'confapi') {
-        add('Metalmeccanico', 'Metalmeccanico — Confapi/UNIONMECCANICA', 95, 'Per PMI metalmeccaniche');
-      }
-    } else if (attivita === 'industria_alimentare') {
-      if (natura === 'industriale' || natura === 'cooperativa') {
-        add('Industria', 'Industria Alimentare — Confindustria', 100, 'Per imprese con struttura industriale');
-      } else if (natura === 'artigiana') {
-        add('Artigianato', 'Artigianato Alimentare', 90, 'Per imprese artigiane del settore');
-        add('Industria', 'Industria Alimentare', 60, 'Alternativa per artigiani con molti dipendenti');
-      } else if (natura === 'commerciale') {
-        add('Industria', 'Industria Alimentare', 85, 'CCNL standard del settore');
-        add('Commercio', 'Commercio — Confcommercio', 50, 'Per attività prevalentemente commerciale');
+        add('metalmeccanico_confapi', 100);
       } else {
-        add('Industria', 'Industria Alimentare', 85, 'CCNL standard del settore');
+        add('metalmeccanico_confindustria', 100);
       }
-    } else if (attivita === 'industria_chimica') {
-      add('Industria', 'Industria Chimica — Federchimica', 100, 'CCNL chimico-farmaceutico');
-    } else if (attivita === 'industria_farmaceutica') {
-      add('Industria', 'Industria Chimica-Farmaceutica — Federchimica', 100, 'CCNL chimico-farmaceutico');
-    } else if (attivita === 'industria_tessile') {
-      add('Industria', 'Industria Tessile — SMI', 100, 'CCNL tessile-abbigliamento-moda');
-    } else if (attivita === 'industria_plastica') {
-      add('Industria', 'Industria Gomma-Plastica', 100, 'CCNL gomma plastica');
-    } else if (attivita === 'industria_cartaria') {
-      add('Industria', 'Industria Cartaria — Assocarta', 100, 'CCNL cartario-cartotecnico');
-    } else if (attivita === 'industria_legno') {
+      add('metalmeccanico_confapi', 60);
+    } else if (attivita === 'industria_alimentare') {
       if (natura === 'artigiana') {
-        add('Artigianato', 'Artigianato — Area Legno/Arredamento', 95, 'CCNL artigianato legno');
+        add('artigianato_alimentare', 95);
       }
-      add('Industria', 'Industria Legno — FederlegnoArredo', 100, 'CCNL legno-arredamento industria');
+      add('industria_alimentare', natura === 'artigiana' ? 60 : 100);
+    } else if (attivita === 'industria_chimica' || attivita === 'industria_farmaceutica') {
+      add('industria_chimica', 100);
+    } else if (attivita === 'industria_tessile') {
+      add('industria_tessile', 100);
+      if (natura === 'artigiana') add('artigianato_generico', 70);
+    } else if (attivita === 'industria_plastica') {
+      add('industria_gomma_plastica', 100);
+    } else if (attivita === 'industria_cartaria') {
+      add('industria_cartaria', 100);
+    } else if (attivita === 'industria_legno') {
+      if (natura === 'artigiana') add('artigianato_legno', 95);
+      add('industria_legno', natura === 'artigiana' ? 70 : 100);
     } else {
-      add('Industria', 'Industria — Confindustria', 85, 'CCNL industriale generico');
+      add('industria_generica', 80);
     }
   }
 
   // Edilizia
   if (macro === 'edilizia') {
     if (natura === 'artigiana' || ['confartigianato', 'cna'].includes(associazione)) {
-      add('Artigianato', 'Artigianato Edile', 90, 'Per imprese artigiane edili');
+      add('artigianato_edile', 95);
     }
-    add('Edilizia', 'Edilizia Industria — ANCE', 100, 'CCNL principale per il settore edile');
+    add('edilizia_industria', natura === 'artigiana' ? 60 : 100);
   }
 
   // Trasporti & Logistica
   if (macro === 'trasporti_logistica') {
-    add('Altri CCNL', 'Logistica, Trasporto Merci e Spedizioni — CCNL Logistica', 100, 'CCNL autotrasporto/logistica');
-    if (natura === 'artigiana') {
-      add('Artigianato', 'Artigianato — Trasporto', 70, 'Per piccole imprese artigiane di trasporto');
-    }
+    add('logistica', 100);
+    if (natura === 'artigiana') add('artigianato_trasporto', 80);
   }
 
   // Sanità & Servizi alla Persona
   if (macro === 'sanita_servizi_persona') {
     if (['studio_medico', 'studio_dentistico'].includes(attivita)) {
-      add('Altri CCNL', 'Studi Professionali — Confprofessioni', 100, 'CCNL studi professionali area sanitaria');
+      add('studi_professionali', 100);
     } else if (attivita === 'clinica_privata') {
-      add('Altri CCNL', 'Sanità Privata — AIOP/ARIS', 100, 'CCNL personale dipendente sanità privata');
-    } else if (attivita === 'rsa' || attivita === 'cooperativa_sociale' || attivita === 'servizi_domiciliari') {
-      add('Altri CCNL', 'Cooperative Sociali — CCNL Coop. Sociali', 100, 'CCNL per cooperative socio-sanitarie');
+      add('sanita_privata', 100);
+    } else if (['rsa', 'cooperativa_sociale', 'servizi_domiciliari'].includes(attivita)) {
+      add('cooperative_sociali', 100);
+      add('sanita_privata', 50);
     }
   }
 
   // Studi Professionali
   if (macro === 'studi_professionali') {
-    add('Altri CCNL', 'Studi Professionali — Confprofessioni', 100, 'CCNL studi professionali');
-    add('Commercio', 'Commercio — Confcommercio', 50, 'Alternativa per studi con attività commerciale');
+    add('studi_professionali', 100);
+    add('commercio_confcommercio', 40);
   }
 
   // Agricoltura
   if (macro === 'agricoltura') {
-    add('Altri CCNL', 'Agricoltura — Operai Agricoli e Florovivaisti', 100, 'CCNL lavoratori agricoli');
-    if (attivita === 'agriturismo') {
-      add('Turismo', 'Turismo — CCNL Agriturismo', 80, 'Per attività ricettiva agricola');
-    }
+    add('agricoltura_operai', 100);
+    if (attivita === 'agriturismo') add('agriturismo', 85);
   }
 
   // Fallback
   if (risultati.length === 0) {
-    add('Commercio', 'Commercio — Confcommercio', 70, 'Spesso applicato per attività non classificate');
-    add('Altri CCNL', 'Altri CCNL registrati CNEL', 90, 'Per contratti specifici non in elenco');
+    add('commercio_confcommercio', 60);
   }
-
-  // Sempre come opzione residuale
-  add('Altri CCNL', 'Altri CCNL registrati CNEL', 30, 'Per CCNL specifici non elencati');
 
   return risultati.sort((a, b) => b.pertinenza - a.pertinenza);
 }
