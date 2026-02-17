@@ -57,13 +57,18 @@ export default function SimulatoreDipendente() {
 
   const canNext = (s) => {
     switch (s) {
-      case 1: return !!form.ccnl;
+      case 1: return !!form.ccnl; // gestito internamente da StepIdentificazioneCCNL
       case 2: return !!form.livello;
       case 3: return !!form.tipo_contratto;
       case 4: return form.input_mode === 'ral' ? !!form.ral && parseFloat(form.ral) > 0 : !!form.retribuzione_mensile && parseFloat(form.retribuzione_mensile) > 0;
       case 5: return !!form.regione;
       default: return false;
     }
+  };
+
+  const handleCCNLComplete = (ccnlKey) => {
+    setForm({ ...form, ccnl: ccnlKey, livello: '' });
+    setStep(2);
   };
 
   const calcola = () => {
