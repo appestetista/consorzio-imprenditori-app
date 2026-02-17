@@ -916,7 +916,7 @@ export default function StepIdentificazioneCCNL({ onComplete, onBack }) {
         {subStep === '1B' && <SubStep1B value={natura} onChange={setNatura} />}
         {subStep === '1C' && <SubStep1C value={associazione} onChange={setAssociazione} />}
         {subStep === '1D' && <SubStep1D ccnlOptions={ccnlOptions} value={ccnlScelto} onChange={setCcnlScelto} />}
-        {subStep === '1E' && <SubStep1E attivita={attivita} natura={natura} associazione={associazione} ccnl={ccnlScelto} ccnlLabel={ccnlLabel} />}
+        {subStep === '1E' && <SubStep1E attivita={attivita} natura={natura} associazione={associazione} ccnlData={ccnlSelezionato} />}
 
         {/* Navigation */}
         <div className="flex gap-3 pt-2">
