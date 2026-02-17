@@ -9,133 +9,15 @@ import { ChevronRight, ChevronLeft, HelpCircle, Building2, Factory, Users2, File
 
 // ─── DATI STATICI ───────────────────────────────────────────────────────────────
 
-const MACRO_CATEGORIE = [
-  {
-    key: 'commercio_terziario', label: 'Commercio & Terziario', icon: '🏢',
-    attivita: [
-      { key: 'negozio_abbigliamento', label: 'Negozio abbigliamento' },
-      { key: 'negozio_alimentari', label: 'Negozio alimentari' },
-      { key: 'supermercato', label: 'Supermercato' },
-      { key: 'grande_distribuzione', label: 'Grande distribuzione' },
-      { key: 'ecommerce', label: 'E-commerce' },
-      { key: 'agenzia_immobiliare', label: 'Agenzia immobiliare' },
-      { key: 'agenzia_viaggi', label: 'Agenzia viaggi' },
-      { key: 'centro_servizi', label: 'Centro servizi' },
-      { key: 'call_center', label: 'Call center' },
-      { key: 'azienda_marketing', label: 'Azienda marketing' },
-      { key: 'centro_assistenza_clienti', label: 'Centro assistenza clienti' },
-      { key: 'farmacia', label: 'Farmacia' },
-      { key: 'parafarmacia', label: 'Parafarmacia' },
-    ],
-  },
-  {
-    key: 'pubblici_esercizi', label: 'Pubblici Esercizi', icon: '🍽',
-    attivita: [
-      { key: 'bar', label: 'Bar' },
-      { key: 'ristorante', label: 'Ristorante' },
-      { key: 'pizzeria', label: 'Pizzeria' },
-      { key: 'pub', label: 'Pub' },
-      { key: 'catering', label: 'Catering' },
-      { key: 'mensa_aziendale', label: 'Mensa aziendale' },
-      { key: 'gelateria', label: 'Gelateria' },
-      { key: 'pasticceria', label: 'Pasticceria' },
-      { key: 'stabilimento_balneare', label: 'Stabilimento balneare' },
-    ],
-  },
-  {
-    key: 'turismo', label: 'Turismo', icon: '🏨',
-    attivita: [
-      { key: 'hotel', label: 'Hotel' },
-      { key: 'bb', label: 'B&B' },
-      { key: 'villaggio_turistico', label: 'Villaggio turistico' },
-      { key: 'resort', label: 'Resort' },
-      { key: 'campeggio', label: 'Campeggio' },
-      { key: 'struttura_extralberghiera', label: 'Struttura ricettiva extralberghiera' },
-    ],
-  },
-  {
-    key: 'artigianato', label: 'Artigianato', icon: '🛠',
-    attivita: [
-      { key: 'centro_estetico', label: 'Centro estetico' },
-      { key: 'parrucchiere', label: 'Parrucchiere' },
-      { key: 'officina_meccanica', label: 'Officina meccanica' },
-      { key: 'falegnameria', label: 'Falegnameria' },
-      { key: 'carpenteria_metallica', label: 'Carpenteria metallica' },
-      { key: 'impresa_impiantistica', label: 'Impresa impiantistica' },
-      { key: 'idraulico', label: 'Idraulico' },
-      { key: 'elettricista', label: 'Elettricista' },
-      { key: 'azienda_serramenti', label: 'Azienda serramenti' },
-    ],
-  },
-  {
-    key: 'industria', label: 'Industria', icon: '🏭',
-    attivita: [
-      { key: 'industria_metalmeccanica', label: 'Industria metalmeccanica' },
-      { key: 'industria_chimica', label: 'Industria chimica' },
-      { key: 'industria_alimentare', label: 'Industria alimentare' },
-      { key: 'industria_tessile', label: 'Industria tessile' },
-      { key: 'industria_plastica', label: 'Industria plastica' },
-      { key: 'industria_farmaceutica', label: 'Industria farmaceutica' },
-      { key: 'industria_cartaria', label: 'Industria cartaria' },
-      { key: 'industria_legno', label: 'Industria legno' },
-    ],
-  },
-  {
-    key: 'edilizia', label: 'Edilizia', icon: '🏗',
-    attivita: [
-      { key: 'impresa_edile', label: 'Impresa edile' },
-      { key: 'ristrutturazioni', label: 'Ristrutturazioni' },
-      { key: 'costruzioni_industriali', label: 'Costruzioni industriali' },
-      { key: 'movimento_terra', label: 'Movimento terra' },
-    ],
-  },
-  {
-    key: 'trasporti_logistica', label: 'Trasporti & Logistica', icon: '🚛',
-    attivita: [
-      { key: 'autotrasporto_merci', label: 'Autotrasporto merci' },
-      { key: 'logistica_magazzino', label: 'Logistica magazzino' },
-      { key: 'corriere_espresso', label: 'Corriere espresso' },
-      { key: 'spedizioni_internazionali', label: 'Spedizioni internazionali' },
-    ],
-  },
-  {
-    key: 'sanita_persona', label: 'Sanità & Servizi alla Persona', icon: '🧑‍⚕️',
-    attivita: [
-      { key: 'studio_medico', label: 'Studio medico' },
-      { key: 'studio_dentistico', label: 'Studio dentistico' },
-      { key: 'clinica_privata', label: 'Clinica privata' },
-      { key: 'rsa', label: 'RSA' },
-      { key: 'cooperativa_sociale', label: 'Cooperativa sociale' },
-      { key: 'servizi_domiciliari', label: 'Servizi domiciliari' },
-    ],
-  },
-  {
-    key: 'studi_professionali', label: 'Studi Professionali', icon: '💼',
-    attivita: [
-      { key: 'studio_commercialista', label: 'Studio commercialista' },
-      { key: 'studio_legale', label: 'Studio legale' },
-      { key: 'studio_consulente_lavoro', label: 'Studio consulente del lavoro' },
-      { key: 'studio_tecnico', label: 'Studio tecnico' },
-      { key: 'studio_ingegneria', label: 'Studio ingegneria' },
-    ],
-  },
-  {
-    key: 'agricoltura', label: 'Agricoltura', icon: '🌾',
-    attivita: [
-      { key: 'azienda_agricola', label: 'Azienda agricola' },
-      { key: 'agriturismo', label: 'Agriturismo' },
-      { key: 'cooperativa_agricola', label: 'Cooperativa agricola' },
-    ],
-  },
+const ATTIVITA_ECONOMICHE = [
+  { key: 'commercio', label: 'Commercio, servizi e terziario', icon: '🏪', desc: 'Vendita al dettaglio/ingrosso, servizi alle imprese, terziario avanzato' },
+  { key: 'industria_alimentare', label: 'Industria Alimentare', icon: '🏭', desc: 'Produzione, trasformazione e conservazione di prodotti alimentari' },
+  { key: 'metalmeccanica', label: 'Metalmeccanica e installazione impianti', icon: '⚙️', desc: 'Lavorazione metalli, meccanica, elettronica, installazione impianti' },
+  { key: 'edilizia', label: 'Edilizia e costruzioni', icon: '🏗️', desc: 'Costruzioni, ristrutturazioni, impiantistica edile' },
+  { key: 'turismo', label: 'Turismo, pubblici esercizi, ristorazione', icon: '🏨', desc: 'Alberghi, ristoranti, bar, stabilimenti balneari, agenzie viaggio' },
+  { key: 'artigianato', label: 'Artigianato', icon: '🔧', desc: 'Imprese artigiane di ogni settore (meccanica, legno, tessile, ecc.)' },
+  { key: 'altro', label: 'Altro settore', icon: '📋', desc: 'Attività non rientrante nelle categorie sopra' },
 ];
-
-// Mappa attività → macro-categoria (per uso nel motore CCNL)
-function getMacroCategoria(attivitaKey) {
-  for (const macro of MACRO_CATEGORIE) {
-    if (macro.attivita.find(a => a.key === attivitaKey)) return macro.key;
-  }
-  return null;
-}
 
 const NATURE_AZIENDA = [
   { key: 'industriale', label: 'Impresa industriale', desc: 'Oltre 15 dipendenti, struttura industriale', icon: '🏭' },
@@ -157,9 +39,9 @@ const ASSOCIAZIONI = [
   { key: 'nessuna', label: 'Nessuna / Non so', desc: 'Non iscritto ad alcuna associazione datoriale' },
 ];
 
-// Matrice di compatibilità: macro-categoria + natura + associazione → CCNL proposti
+// Matrice di compatibilità: attività + natura + associazione → CCNL proposti
+// Restituisce un array ordinato per pertinenza
 function calcolaCCNLCompatibili(attivita, natura, associazione) {
-  const macro = getMacroCategoria(attivita);
   const risultati = [];
 
   const add = (key, label, pertinenza, nota) => {
@@ -168,123 +50,69 @@ function calcolaCCNLCompatibili(attivita, natura, associazione) {
     }
   };
 
-  const isArtigiana = natura === 'artigiana' || ['confartigianato', 'cna'].includes(associazione);
-
-  // ─── Commercio & Terziario ───
-  if (macro === 'commercio_terziario') {
+  // Commercio
+  if (attivita === 'commercio') {
     if (['confcommercio', 'confesercenti', 'nessuna'].includes(associazione)) {
       add('Commercio', 'Commercio — Confcommercio / Confesercenti', 100, 'CCNL più applicato per commercio e servizi');
     } else {
       add('Commercio', 'Commercio — Confcommercio', 80, 'Applicabile anche se non associati');
     }
-    if (isArtigiana) {
-      add('Artigianato', 'Artigianato — Area Servizi', 60, 'Per imprese artigiane del terziario');
+  }
+
+  // Industria alimentare
+  if (attivita === 'industria_alimentare') {
+    if (natura === 'industriale' || natura === 'cooperativa') {
+      add('Industria', 'Industria Alimentare — Confindustria', 100, 'Per imprese con struttura industriale');
+    } else if (natura === 'artigiana') {
+      add('Artigianato', 'Artigianato Alimentare', 90, 'Per imprese artigiane del settore alimentare');
+      add('Industria', 'Industria Alimentare', 60, 'Alternativa per artigiani con molti dipendenti');
+    } else {
+      add('Industria', 'Industria Alimentare', 85, 'CCNL standard del settore');
     }
   }
 
-  // ─── Pubblici Esercizi ───
-  if (macro === 'pubblici_esercizi') {
-    add('Turismo', 'Turismo e Pubblici Esercizi — Confcommercio/FIPE', 100, 'CCNL per bar, ristoranti, pubblici esercizi');
-    if (isArtigiana) {
-      add('Artigianato', 'Artigianato — Alimentazione/Ristorazione', 70, 'Per piccole attività artigiane di ristorazione');
-    }
-    add('Commercio', 'Commercio — Confcommercio', 40, 'Alternativa meno specifica');
-  }
-
-  // ─── Turismo ───
-  if (macro === 'turismo') {
-    add('Turismo', 'Turismo — Federalberghi/Confcommercio', 100, 'CCNL Turismo e strutture ricettive');
-    if (isArtigiana) {
-      add('Artigianato', 'Artigianato — Ristorazione/Alimentazione', 50, 'Per piccole strutture artigiane');
-    }
-  }
-
-  // ─── Artigianato ───
-  if (macro === 'artigianato') {
-    add('Artigianato', 'Artigianato — Confartigianato/CNA', 100, 'CCNL Artigianato per tutti i settori');
-    if (['officina_meccanica', 'carpenteria_metallica', 'impresa_impiantistica'].includes(attivita)) {
+  // Metalmeccanica
+  if (attivita === 'metalmeccanica') {
+    if (natura === 'artigiana' || ['confartigianato', 'cna'].includes(associazione)) {
+      add('Artigianato', 'Artigianato — Area Meccanica', 100, 'CCNL artigianato metalmeccanico');
       add('Metalmeccanico', 'Metalmeccanico — Federmeccanica', 50, 'Alternativa per aziende più strutturate');
-    }
-    if (['centro_estetico', 'parrucchiere'].includes(attivita)) {
-      add('Commercio', 'Commercio — Confcommercio', 40, 'Alternativa per saloni non artigiani');
-    }
-  }
-
-  // ─── Industria ───
-  if (macro === 'industria') {
-    if (attivita === 'industria_metalmeccanica') {
-      if (isArtigiana) {
-        add('Artigianato', 'Artigianato — Area Meccanica', 95, 'CCNL artigianato metalmeccanico');
-      }
-      add('Metalmeccanico', 'Metalmeccanico — Federmeccanica/Assistal', 100, 'CCNL nazionale metalmeccanico');
+    } else {
+      add('Metalmeccanico', 'Metalmeccanico — Federmeccanica/Assistal', 100, 'CCNL nazionale per il settore');
       if (associazione === 'confapi') {
         add('Metalmeccanico', 'Metalmeccanico — Confapi/UNIONMECCANICA', 95, 'Per PMI metalmeccaniche');
       }
-    } else if (attivita === 'industria_alimentare') {
-      if (isArtigiana) {
-        add('Artigianato', 'Artigianato Alimentare', 90, 'Per imprese artigiane del settore alimentare');
-      }
-      add('Industria', 'Industria Alimentare — Confindustria', 100, 'CCNL industria alimentare');
-    } else if (attivita === 'industria_chimica') {
-      add('Industria', 'Industria Chimica — Federchimica', 100, 'CCNL industria chimica');
-    } else if (attivita === 'industria_tessile') {
-      add('Industria', 'Industria Tessile — SMI', 100, 'CCNL industria tessile');
-      if (isArtigiana) add('Artigianato', 'Artigianato Tessile', 85, 'Per imprese artigiane tessili');
-    } else {
-      // industria_plastica, farmaceutica, cartaria, legno
-      add('Industria', 'Industria — Confindustria', 100, 'CCNL industria di settore');
-      if (isArtigiana) add('Artigianato', 'Artigianato di settore', 80, 'Per imprese artigiane');
     }
   }
 
-  // ─── Edilizia ───
-  if (macro === 'edilizia') {
-    add('Edilizia', 'Edilizia Industria — ANCE', 100, 'CCNL principale per il settore edile');
-    if (isArtigiana) {
+  // Edilizia
+  if (attivita === 'edilizia') {
+    if (natura === 'artigiana' || ['confartigianato', 'cna'].includes(associazione)) {
       add('Artigianato', 'Artigianato Edile', 90, 'Per imprese artigiane edili');
     }
+    add('Edilizia', 'Edilizia Industria — ANCE', 100, 'CCNL principale per il settore edile');
   }
 
-  // ─── Trasporti & Logistica ───
-  if (macro === 'trasporti_logistica') {
-    add('Commercio', 'Commercio — Logistica/Trasporti', 70, 'CCNL Commercio per logistica');
-    add('Industria', 'Logistica, Trasporto Merci e Spedizioni', 100, 'CCNL specifico trasporti e logistica');
-    if (isArtigiana) {
-      add('Artigianato', 'Artigianato Trasporti', 60, 'Per piccole imprese artigiane di trasporto');
+  // Turismo
+  if (attivita === 'turismo') {
+    add('Turismo', 'Turismo — Federalberghi/Confcommercio', 100, 'CCNL Turismo e pubblici esercizi');
+    if (natura === 'artigiana') {
+      add('Artigianato', 'Artigianato — Ristorazione/Alimentazione', 60, 'Per piccole attività artigiane');
     }
   }
 
-  // ─── Sanità & Servizi alla Persona ───
-  if (macro === 'sanita_persona') {
-    if (['cooperativa_sociale', 'servizi_domiciliari'].includes(attivita)) {
-      add('Commercio', 'Cooperative Sociali — CCNL Cooperative', 100, 'CCNL per cooperative sociali e servizi');
-    } else {
-      add('Commercio', 'Commercio — Confcommercio', 70, 'Applicabile a studi e cliniche private');
-    }
-    add('Altri CCNL', 'CCNL Sanità Privata / AIOP', 90, 'Per strutture sanitarie private');
+  // Artigianato
+  if (attivita === 'artigianato') {
+    add('Artigianato', 'Artigianato — Area Meccanica/Tessile/Legno', 100, 'CCNL Artigianato per tutti i settori');
   }
 
-  // ─── Studi Professionali ───
-  if (macro === 'studi_professionali') {
-    add('Commercio', 'Studi Professionali — Confprofessioni', 100, 'CCNL specifico per studi professionali');
-    add('Commercio', 'Commercio — Confcommercio', 60, 'Alternativa generica');
+  // Altro / fallback
+  if (attivita === 'altro' || risultati.length === 0) {
+    add('Commercio', 'Commercio — Confcommercio', 70, 'Spesso applicato per attività non classificate');
+    add('Altri CCNL', 'Altri CCNL registrati CNEL', 90, 'Per contratti specifici non in elenco');
   }
 
-  // ─── Agricoltura ───
-  if (macro === 'agricoltura') {
-    add('Altri CCNL', 'CCNL Agricoltura — Operai Agricoli/Florovivaisti', 100, 'CCNL nazionale agricoltura');
-    if (attivita === 'agriturismo') {
-      add('Turismo', 'Turismo — Agriturismo', 80, 'CCNL Turismo applicabile ad agriturismo');
-    }
-  }
-
-  // Fallback se nessun risultato
-  if (risultati.length === 0) {
-    add('Commercio', 'Commercio — Confcommercio', 70, 'Spesso applicato come CCNL residuale');
-  }
-
-  // Sempre "Altri CCNL" come residuale
-  add('Altri CCNL', 'Altri CCNL registrati CNEL', 30, 'Per contratti specifici non in elenco');
+  // Aggiungi sempre "Altri CCNL" come opzione residuale
+  add('Altri CCNL', 'Altri CCNL registrati CNEL', 30, 'Per CCNL specifici non elencati');
 
   return risultati.sort((a, b) => b.pertinenza - a.pertinenza);
 }
