@@ -150,14 +150,13 @@ const NATURE_AZIENDA = [
 
 const ASSOCIAZIONI = [
   { key: 'confindustria', label: 'Confindustria', desc: 'Sistema Confindustria e federazioni settoriali' },
+  { key: 'confapi', label: 'Confapi', desc: 'Confederazione italiana della piccola e media industria' },
   { key: 'confcommercio', label: 'Confcommercio', desc: 'Confederazione Generale Italiana del Commercio' },
   { key: 'confesercenti', label: 'Confesercenti', desc: 'Confederazione degli esercenti' },
-  { key: 'confartigianato', label: 'Confartigianato', desc: 'Confederazione Nazionale Artigianato' },
   { key: 'cna', label: 'CNA', desc: 'Confederazione Nazionale Artigianato e PMI' },
-  { key: 'confapi', label: 'Confapi', desc: 'Confederazione italiana della piccola e media industria' },
-  { key: 'federalberghi', label: 'Federalberghi', desc: 'Federazione Nazionale Alberghi' },
-  { key: 'ance', label: 'ANCE', desc: 'Associazione Nazionale Costruttori Edili' },
-  { key: 'nessuna', label: 'Nessuna / Non so', desc: 'Non iscritto ad alcuna associazione datoriale' },
+  { key: 'confartigianato', label: 'Confartigianato', desc: 'Confederazione Nazionale Artigianato' },
+  { key: 'nessuna', label: 'Nessuna', desc: 'Non iscritto ad alcuna associazione datoriale' },
+  { key: 'non_so', label: 'Non so', desc: 'Non conosco l\'associazione di riferimento' },
 ];
 
 // Risolvi la macro-categoria dalla singola attività
@@ -187,7 +186,7 @@ function calcolaCCNLCompatibili(attivita, natura, associazione) {
 
   // Commercio & Terziario
   if (macro === 'commercio_terziario') {
-    if (['confcommercio', 'confesercenti', 'nessuna'].includes(associazione)) {
+    if (['confcommercio', 'confesercenti', 'nessuna', 'non_so'].includes(associazione)) {
       add('Commercio', 'Commercio — Confcommercio / Confesercenti', 100, 'CCNL più applicato per commercio e servizi');
     } else {
       add('Commercio', 'Commercio — Confcommercio', 80, 'Applicabile anche se non associati');
@@ -460,11 +459,11 @@ function SubStep1C({ value, onChange }) {
     <div className="space-y-3">
       <div className="flex items-center gap-2 mb-1">
         <Badge className="bg-lime-400/20 text-lime-400 border-0 text-[10px]">1C</Badge>
-        <h3 className="text-white font-semibold text-sm">Associazione Datoriale</h3>
+        <h3 className="text-white font-semibold text-sm">Sei associato a:</h3>
         <Tooltip>
           <TooltipTrigger><HelpCircle className="w-4 h-4 text-slate-500" /></TooltipTrigger>
           <TooltipContent className="max-w-[280px] bg-slate-700 text-white border-slate-600">
-            <p className="text-xs">L'associazione datoriale a cui l'azienda è iscritta determina quale versione del CCNL viene applicata. Se non sei iscritto, seleziona "Nessuna".</p>
+            <p className="text-xs">L'associazione datoriale a cui l'azienda è iscritta determina quale versione del CCNL viene applicata.</p>
           </TooltipContent>
         </Tooltip>
       </div>
