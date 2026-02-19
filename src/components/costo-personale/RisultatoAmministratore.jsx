@@ -183,6 +183,8 @@ export default function RisultatoAmministratore({ result, onReset }) {
         dataAggiornamento={result.dataAggiornamento}
       />
 
+      <SalvaSimulazione tipo="amministratore" result={result} />
+
       <Button onClick={onReset} variant="outline" className="w-full border-slate-600 text-slate-400 hover:bg-slate-800">
         Nuova Simulazione
       </Button>
