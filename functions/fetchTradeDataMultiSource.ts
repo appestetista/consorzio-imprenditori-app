@@ -133,28 +133,128 @@ async function fetchFromOEC(reporterISO2, partnerISO2, hsCode, flowType, startYe
   return result.length > 0 ? result : null;
 }
 
+// ISO2 → UN Comtrade numeric reporter codes (M49)
+const ISO2_TO_M49 = {
+  AF:4,AL:8,DZ:12,AO:24,AR:32,AM:51,AU:36,AT:40,AZ:31,
+  BH:48,BD:50,BY:112,BE:56,BJ:204,BO:68,BA:70,BW:72,BR:76,
+  BN:96,BG:100,BF:854,KH:116,CM:120,CA:124,CL:152,CN:156,CO:170,
+  CG:178,CR:188,CI:384,HR:191,CU:192,CY:196,CZ:203,DK:208,DO:214,
+  EC:218,EG:818,SV:222,EE:233,ET:231,FI:246,FR:251,GA:266,GE:268,
+  DE:276,GH:288,GR:300,GT:320,GN:324,HN:340,HK:344,HU:348,IS:352,
+  IN:356,ID:360,IR:364,IQ:368,IE:372,IL:376,IT:380,JM:388,JP:392,
+  JO:400,KZ:398,KE:404,KR:410,KW:414,LV:428,LB:422,LY:434,LT:440,
+  LU:442,MO:446,MG:450,MY:458,ML:466,MT:470,MX:484,MD:498,MN:496,
+  ME:499,MA:504,MZ:508,MM:104,NA:516,NP:524,NL:528,NZ:554,NI:558,
+  NE:562,NG:566,NO:578,OM:512,PK:586,PA:591,PY:600,PE:604,PH:608,
+  PL:616,PT:620,QA:634,RO:642,RU:643,RW:646,SA:682,SN:686,RS:688,
+  SG:702,SK:703,SI:705,ZA:710,ES:724,LK:144,SD:729,SE:752,CH:757,
+  TW:490,TZ:834,TH:764,TN:788,TR:792,UA:804,AE:784,GB:826,US:842,
+  UY:858,UZ:860,VE:862,VN:704,ZM:894,ZW:716
+};
+
 /**
- * Fetch from UN Comtrade API (requires API key)
+ * Fetch from UN Comtrade PUBLIC API (free, no key required)
+ * Limits: 1 period per call, max 500 records. We call year by year.
  */
-async function fetchFromComtrade(reporterISO2, partnerISO2, hsCode, flowType, startYear, endYear) {
-  // Comtrade API key is optional - skip if not available
-  const envVars = Deno.env.toObject();
-  const apiKey = envVars['COMTRADE_API_KEY'] || '';
-  if (!apiKey || apiKey.length < 10) {
-    console.log('[Comtrade] No API key configured, skipping');
-    return null;
-  }
-  
-  const reporterISO3 = ISO2_TO_ISO3[reporterISO2];
-  const partnerISO3 = ISO2_TO_ISO3[partnerISO2];
-  if (!reporterISO3 || !partnerISO3) return null;
+async function fetchFromComtradePublic(reporterISO2, partnerISO2, hsCode, flowType, startYear, endYear) {
+  const reporterM49 = ISO2_TO_M49[reporterISO2];
+  const partnerM49 = ISO2_TO_M49[partnerISO2];
+  if (!reporterM49 || !partnerM49) return null;
   
   const hs4 = String(hsCode).replace(/\D/g, '').substring(0, 4);
   const flowCode = flowType === 'export' ? 'X' : 'M';
   
-  const url = `https://comtradeapi.un.org/data/v1/get/C/A/${reporterISO3}/${partnerISO3}/${hs4}?flowCode=${flowCode}&period=${startYear},${endYear}&subscription-key=${apiKey}`;
+  const years = [];
+  for (let y = startYear; y <= endYear; y++) years.push(y);
   
-  console.log(`[Comtrade] Fetching: ${reporterISO3}->${partnerISO3} HS${hs4} ${flowType}`);
+  console.log(`[Comtrade-Public] Fetching: ${reporterISO2}(${reporterM49})->${partnerISO2}(${partnerM49}) HS${hs4} ${flowType} years=${years.join(',')}`);
+  
+  // Call one year at a time (API limit: 1 period per call)
+  const yearPromises = years.map(async (year) => {
+    const url = `https://comtradeapi.un.org/public/v1/preview/C/A/HS?reporterCode=${reporterM49}&partnerCode=${partnerM49}&cmdCode=${hs4}&flowCode=${flowCode}&period=${year}`;
+    
+    const resp = await fetch(url, {
+      headers: { 'Accept': 'application/json' },
+      signal: AbortSignal.timeout(12000)
+    });
+    
+    if (!resp.ok) {
+      console.log(`[Comtrade-Public] HTTP ${resp.status} for year ${year}`);
+      return null;
+    }
+    
+    const json = await resp.json();
+    if (json.error && json.error.length > 0) {
+      console.log(`[Comtrade-Public] API error for year ${year}: ${json.error}`);
+    }
+    
+    const records = json?.data || [];
+    if (records.length === 0) return null;
+    
+    // Sum all matching records for this year (could be sub-headings)
+    let totalValue = 0;
+    let totalNetWgt = 0;
+    let totalQty = 0;
+    let qtyUnit = null;
+    
+    for (const r of records) {
+      if (r.primaryValue != null) totalValue += r.primaryValue;
+      if (r.netWgt) totalNetWgt += r.netWgt;
+      if (r.qty) totalQty += r.qty;
+      if (r.qtyUnitAbbr && !qtyUnit) qtyUnit = r.qtyUnitAbbr;
+    }
+    
+    if (totalValue <= 0) return null;
+    
+    return {
+      year: year,
+      trade_value_usd: Math.round(totalValue),
+      net_weight_kg: totalNetWgt > 0 ? Math.round(totalNetWgt) : null,
+      quantity: totalQty > 0 ? Math.round(totalQty) : null,
+      quantity_unit: qtyUnit,
+      source: 'comtrade',
+      source_detail: `public-${reporterM49}-${partnerM49}-${hs4}`
+    };
+  });
+  
+  const results = await Promise.allSettled(yearPromises);
+  const data = results
+    .filter(r => r.status === 'fulfilled' && r.value != null)
+    .map(r => r.value)
+    .sort((a, b) => a.year - b.year);
+  
+  if (data.length > 0) {
+    console.log(`[Comtrade-Public] Got ${data.length} years of data`);
+  }
+  
+  return data.length > 0 ? data : null;
+}
+
+/**
+ * Fetch from UN Comtrade Premium API (requires subscription key)
+ * Falls back gracefully if no key is set.
+ */
+async function fetchFromComtradePremium(reporterISO2, partnerISO2, hsCode, flowType, startYear, endYear) {
+  const envVars = Deno.env.toObject();
+  const apiKey = envVars['COMTRADE_API_KEY'] || '';
+  if (!apiKey || apiKey.length < 10) {
+    return null; // silently skip, public endpoint handles it
+  }
+  
+  const reporterM49 = ISO2_TO_M49[reporterISO2];
+  const partnerM49 = ISO2_TO_M49[partnerISO2];
+  if (!reporterM49 || !partnerM49) return null;
+  
+  const hs4 = String(hsCode).replace(/\D/g, '').substring(0, 4);
+  const flowCode = flowType === 'export' ? 'X' : 'M';
+  
+  const years = [];
+  for (let y = startYear; y <= endYear; y++) years.push(y);
+  const periodsStr = years.join(',');
+  
+  const url = `https://comtradeapi.un.org/data/v1/get/C/A/HS?reporterCode=${reporterM49}&partnerCode=${partnerM49}&cmdCode=${hs4}&flowCode=${flowCode}&period=${periodsStr}&subscription-key=${apiKey}`;
+  
+  console.log(`[Comtrade-Premium] Fetching: ${reporterISO2}->${partnerISO2} HS${hs4} ${flowType}`);
   
   const resp = await fetch(url, {
     headers: { 'Accept': 'application/json' },
@@ -162,7 +262,7 @@ async function fetchFromComtrade(reporterISO2, partnerISO2, hsCode, flowType, st
   });
   
   if (!resp.ok) {
-    console.log(`[Comtrade] HTTP ${resp.status}`);
+    console.log(`[Comtrade-Premium] HTTP ${resp.status}`);
     return null;
   }
   
@@ -174,13 +274,13 @@ async function fetchFromComtrade(reporterISO2, partnerISO2, hsCode, flowType, st
   const result = records
     .filter(r => r.primaryValue != null)
     .map(r => ({
-      year: parseInt(r.period || r.refPeriodId),
+      year: parseInt(r.period || r.refYear),
       trade_value_usd: Math.round(r.primaryValue || 0),
-      net_weight_kg: r.netWgt || null,
-      quantity: r.qty || null,
+      net_weight_kg: r.netWgt ? Math.round(r.netWgt) : null,
+      quantity: r.qty ? Math.round(r.qty) : null,
       quantity_unit: r.qtyUnitAbbr || null,
       source: 'comtrade',
-      source_detail: `${r.reporterCode}-${r.partnerCode}-${r.cmdCode}`
+      source_detail: `premium-${r.reporterCode}-${r.partnerCode}-${r.cmdCode}`
     }))
     .sort((a, b) => a.year - b.year);
   
