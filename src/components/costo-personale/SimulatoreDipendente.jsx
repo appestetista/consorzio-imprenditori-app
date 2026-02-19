@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Calculator, Info, Loader2, AlertTriangle, ChevronRight, ChevronLeft, HelpCircle } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useTabelleContributive, calcolaCostoDipendente } from './useTabelleContributive';
-import { useCCNL, CCNL_OPTIONS, REGIONI, getQualificaINAIL } from './useCCNL';
+import { useCCNL, REGIONI, getQualificaINAIL } from './useCCNL';
 import RisultatoDipendente from './RisultatoDipendente';
 import ProfiloLavoratoreForm from './ProfiloLavoratoreForm';
 import VerificaTabelleNormative from './VerificaTabelleNormative';
