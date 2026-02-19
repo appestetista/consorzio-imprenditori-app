@@ -89,10 +89,13 @@ export default function RisultatoDipendente({ result, profiloLavoratore, onReset
         <CardContent className="p-4">
           <h3 className="text-amber-400 font-bold mb-3 text-sm">🏛️ Area Contributiva</h3>
           <div className="space-y-2 text-sm">
-            <Row label={`INPS datore (${(result.aliquota_inps_datore * 100).toFixed(2)}%)`} value={fmt(result.inps_datore)} />
+            <Row label={`${result.label_inps_datore || 'INPS datore'} (${(result.aliquota_inps_datore * 100).toFixed(2)}%)`} value={fmt(result.inps_datore)} />
             <Row label={`INPS dipendente (${(result.aliquota_inps_dip * 100).toFixed(2)}%)`} value={fmt(result.inps_dipendente)} />
             <Row label={`INAIL (${(result.aliquota_inail * 100).toFixed(2)}%)`} value={fmt(result.inail)} />
             <Row label={`TFR annuo`} value={fmt(result.tfr_annuo)} />
+            {result.contributo_td_importo > 0 && (
+              <Row label={`Contributo addiz. TD NASpI (${(result.aliquota_contributo_td * 100).toFixed(1)}%)`} value={fmt(result.contributo_td_importo)} />
+            )}
             <div className="flex justify-between text-xs mt-1 pt-1 border-t border-amber-500/20">
               <span className="text-slate-500">Incidenza contributiva totale</span>
               <span className="text-amber-400 font-bold">{result.ral > 0 ? ((contributiTotali / result.ral) * 100).toFixed(1) : '0.0'}%</span>
