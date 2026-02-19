@@ -96,6 +96,8 @@ export default function SimulatoreDipendente() {
       qualifica,
       mensilita,
       tfr_destinazione: form.tfr_destinazione,
+      regione: form.regione,
+      tipo_contratto: form.tipo_contratto,
     }, tab);
 
     if (res) {
