@@ -72,11 +72,27 @@ export default function MyRequestsList({ user }) {
   const [viewingApplicationsRequest, setViewingApplicationsRequest] = useState(null);
   const queryClient = useQueryClient();
 
-  // Mostra tutte le richieste aperte a tutti gli utenti
-  const { data: requests = [], isLoading } = useQuery({
-    queryKey: ['all-supplier-requests'],
-    queryFn: () => base44.entities.SupplierRequest.filter({ status: 'aperta' }, '-created_date'),
+  const [expandedRequest, setExpandedRequest] = useState(null);
+  const [showAnonymize, setShowAnonymize] = useState(null);
+
+  // Mostra le MIE richieste (tutte) + le richieste aperte degli altri
+  const { data: myRequests = [], isLoading: loadingMy } = useQuery({
+    queryKey: ['my-supplier-requests', user?.email],
+    queryFn: () => base44.entities.SupplierRequest.filter({ author_email: user?.email }, '-created_date'),
+    enabled: !!user?.email,
   });
+
+  const { data: otherRequests = [], isLoading: loadingOther } = useQuery({
+    queryKey: ['other-supplier-requests', user?.email],
+    queryFn: async () => {
+      const all = await base44.entities.SupplierRequest.filter({ status: 'aperta' }, '-created_date');
+      return all.filter(r => r.author_email !== user?.email);
+    },
+    enabled: !!user?.email,
+  });
+
+  const requests = [...myRequests, ...otherRequests];
+  const isLoading = loadingMy || loadingOther;
 
   // Le mie candidature inviate
   const { data: myApplications = [] } = useQuery({
