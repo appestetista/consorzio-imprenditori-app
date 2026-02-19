@@ -176,6 +176,8 @@ export default function RisultatoGestioneSeparata({ result, onReset }) {
       {/* Footer normativo */}
       <FooterNormativo anno={result.anno} fonti={result.fonti} dataAggiornamento={result.dataAggiornamento} />
 
+      <SalvaSimulazione tipo="gestione_separata" result={result} />
+
       <Button onClick={onReset} variant="outline" className="w-full border-slate-600 text-slate-400 hover:bg-slate-800">
         Nuova Simulazione
       </Button>
