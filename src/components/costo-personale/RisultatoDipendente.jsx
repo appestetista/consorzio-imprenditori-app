@@ -39,8 +39,8 @@ export default function RisultatoDipendente({ result, profiloLavoratore, onReset
     'apprendistato': 'Apprendistato',
   };
 
-  const contributiTotali = result.inps_datore + result.inail + result.tfr_annuo + (result.tfr_fondo_garanzia_costo || 0) + result.inps_dipendente;
-  const imposteTotali = result.irpef + result.addizionali;
+  const contributiTotali = result.inps_datore + result.inail + result.tfr_annuo + (result.tfr_fondo_garanzia_costo || 0) + result.inps_dipendente + (result.contributo_td_importo || 0);
+  const imposteTotali = result.irpef + result.addizionali - (result.trattamento_integrativo || 0);
 
   return (
     <div className="space-y-4">
