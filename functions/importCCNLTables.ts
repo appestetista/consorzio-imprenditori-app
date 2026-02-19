@@ -1,6 +1,10 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 import * as XLSX from 'npm:xlsx@0.18.5';
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -14,24 +18,24 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'file_url is required' }, { status: 400 });
     }
 
-    // Download the file
     const fileResponse = await fetch(file_url);
     const arrayBuffer = await fileResponse.arrayBuffer();
-    const workbook = XLSX.read(new Uint8Array(arrayBuffer), { type: 'array' });
+    // Read with raw: true to get raw cell values before formatting
+    const workbook = XLSX.read(new Uint8Array(arrayBuffer), { type: 'array', raw: true });
 
     const allRecords = [];
     const sheetSummary = [];
 
     for (const sheetName of workbook.SheetNames) {
       const sheet = workbook.Sheets[sheetName];
-      const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+      // Use raw values to avoid comma-splitting issues
+      const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '', raw: true });
 
       if (rows.length < 8) {
         sheetSummary.push({ sheet: sheetName, status: 'skipped', reason: 'too few rows' });
         continue;
       }
 
-      // Parse header metadata (rows 0-5 typically)
       let codiceCnel = '';
       let settore = '';
       let ccnlNome = '';
@@ -42,7 +46,6 @@ Deno.serve(async (req) => {
         const row = rows[i];
         const label = String(row[0] || '').trim();
         const value = String(row[1] || '').trim();
-
         if (label === 'Codice CNEL') codiceCnel = value;
         else if (label === 'Settore') settore = value;
         else if (label === 'CCNL') ccnlNome = value;
@@ -51,13 +54,12 @@ Deno.serve(async (req) => {
       }
 
       if (!ccnlNome && !settore) {
-        // Try first row as category name
         ccnlNome = String(rows[0][0] || '').trim();
       }
 
-      // Parse tables - find TABELLA QUALIFICATI and TABELLA APPRENDISTI sections
       let currentTableType = null;
       let headerRow = null;
+      let colMap = null;
       let recordCount = 0;
 
       for (let i = 0; i < rows.length; i++) {
@@ -67,76 +69,65 @@ Deno.serve(async (req) => {
         if (firstCell === 'TABELLA QUALIFICATI') {
           currentTableType = 'qualificati';
           headerRow = null;
+          colMap = null;
           continue;
         } else if (firstCell === 'TABELLA APPRENDISTI') {
           currentTableType = 'apprendisti';
           headerRow = null;
+          colMap = null;
           continue;
         }
 
-        // Detect header row
         if (firstCell === 'LIVELLO' && currentTableType) {
+          // Build column map from header
+          colMap = {};
+          for (let c = 0; c < row.length; c++) {
+            const h = String(row[c] || '').trim().toUpperCase();
+            if (h === 'LIVELLO') colMap.livello = c;
+            else if (h === 'PAGA BASE') colMap.paga_base = c;
+            else if (h === 'CONTINGENZA') colMap.contingenza = c;
+            else if (h === 'TERZO ELEMENTO') colMap.terzo_elemento = c;
+            else if (h === 'TOTALE') colMap.totale = c;
+            else if (h === 'IMPORTO SCATTO') colMap.importo_scatto = c;
+            else if (h === 'DIVISORE ORARIO') colMap.divisore_orario = c;
+            else if (h.startsWith('DIVISORE GIORN')) colMap.divisore_giornaliero = c;
+          }
           headerRow = i;
           continue;
         }
 
-        // Parse data rows (after header)
-        if (headerRow !== null && currentTableType && i > headerRow) {
-          const livello = String(row[0] || '').trim();
+        if (headerRow !== null && currentTableType && colMap && i > headerRow) {
+          const livello = String(row[colMap.livello] || '').trim();
 
-          // Empty row = end of section
           if (!livello) {
-            if (currentTableType === 'qualificati') {
-              // Keep going, apprendisti section might follow
-              headerRow = null;
-            } else {
-              headerRow = null;
+            headerRow = null;
+            if (currentTableType === 'apprendisti') {
               currentTableType = null;
+              colMap = null;
             }
             continue;
           }
 
-          // Parse numeric values - handle Italian comma format (1469,68 stored as two cells)
-          const parseAmount = (idx) => {
-            const v1 = row[idx];
-            const v2 = row[idx + 1];
-            
-            if (v1 === undefined || v1 === null || v1 === '') return 0;
-            
-            // If it's already a proper number
-            if (typeof v1 === 'number' && (v2 === undefined || v2 === null || v2 === '' || typeof v2 === 'number')) {
-              // Could be integer part and decimal part split across columns
-              if (typeof v2 === 'number' && v2 >= 0 && v2 < 100) {
-                return v1 + v2 / 100;
-              }
-              return v1;
-            }
-
-            const s1 = String(v1).trim();
-            const s2 = String(v2 || '').trim();
-            
-            // Try combining as Italian number (1469,68 split into 1469 and 68)
-            if (s1 && s2 && !isNaN(Number(s1)) && !isNaN(Number(s2))) {
-              return Number(s1) + Number(s2) / 100;
-            }
-            
-            // Try parsing as single number
-            const parsed = Number(s1.replace(',', '.'));
-            return isNaN(parsed) ? 0 : parsed;
+          const parseNum = (colKey) => {
+            if (colMap[colKey] === undefined) return 0;
+            const v = row[colMap[colKey]];
+            if (v === undefined || v === null || v === '') return 0;
+            if (typeof v === 'number') return v;
+            const s = String(v).replace(',', '.').trim();
+            const n = Number(s);
+            return isNaN(n) ? 0 : n;
           };
 
-          // Columns layout: LIVELLO | PAGA BASE(2cols) | CONTINGENZA(2cols) | TERZO ELEMENTO(2cols) | TOTALE(2cols) | IMPORTO SCATTO(2cols) | DIVISORE ORARIO(2cols) | DIVISORE GIORNALIERO
-          // Each numeric value takes 2 columns because of Italian comma format
-          const pagaBase = parseAmount(1);
-          const contingenza = parseAmount(3);
-          const terzoElemento = parseAmount(5);
-          const totale = parseAmount(7);
-          const importoScatto = parseAmount(9);
-          const divisoreOrario = parseAmount(11);
-          const divisoreGiornaliero = parseAmount(13);
+          const pagaBase = parseNum('paga_base');
+          const contingenza = parseNum('contingenza');
+          const terzoElemento = parseNum('terzo_elemento');
+          const totale = parseNum('totale');
+          const importoScatto = parseNum('importo_scatto');
+          const divisoreOrario = parseNum('divisore_orario');
+          const divisoreGiornaliero = parseNum('divisore_giornaliero');
 
           if (totale > 0 || pagaBase > 0) {
-            const record = {
+            allRecords.push({
               sheet_name: sheetName,
               ccnl_nome: ccnlNome || categoria || sheetName,
               codice_cnel: codiceCnel,
@@ -152,8 +143,7 @@ Deno.serve(async (req) => {
               importo_scatto: importoScatto,
               divisore_orario: divisoreOrario,
               divisore_giornaliero: divisoreGiornaliero,
-            };
-            allRecords.push(record);
+            });
             recordCount++;
           }
         }
@@ -163,7 +153,6 @@ Deno.serve(async (req) => {
         sheet: sheetName, 
         ccnl: ccnlNome || categoria,
         codice: codiceCnel,
-        settore: settore,
         records: recordCount,
         status: recordCount > 0 ? 'ok' : 'no_data'
       });
@@ -174,32 +163,41 @@ Deno.serve(async (req) => {
         status: 'dry_run',
         total_records: allRecords.length,
         total_sheets: workbook.SheetNames.length,
-        sheets: sheetSummary,
-        sample_records: allRecords.slice(0, 10),
+        sheets_ok: sheetSummary.filter(s => s.status === 'ok').length,
+        sample_records: allRecords.slice(0, 5),
+        sample_meta: allRecords.filter(r => r.ccnl_nome.includes('Metalmeccanica') && r.ccnl_nome.includes('Industria') && r.tipo_tabella === 'qualificati').slice(0, 3),
       });
     }
 
-    // Bulk insert in batches of 50
+    // Bulk insert in batches of 40 with delays to avoid rate limits
     let insertedCount = 0;
-    const batchSize = 50;
+    const batchSize = 40;
     const errors = [];
 
     for (let i = 0; i < allRecords.length; i += batchSize) {
       const batch = allRecords.slice(i, i + batchSize);
-      try {
-        await base44.asServiceRole.entities.TabellaCCNL.bulkCreate(batch);
-        insertedCount += batch.length;
-      } catch (err) {
-        errors.push({ batch_start: i, error: err.message });
-        // Try individual inserts for this batch
-        for (const record of batch) {
-          try {
-            await base44.asServiceRole.entities.TabellaCCNL.create(record);
-            insertedCount++;
-          } catch (innerErr) {
-            errors.push({ record: record.livello, ccnl: record.ccnl_nome, error: innerErr.message });
+      let retries = 0;
+      let success = false;
+      
+      while (!success && retries < 3) {
+        try {
+          await base44.asServiceRole.entities.TabellaCCNL.bulkCreate(batch);
+          insertedCount += batch.length;
+          success = true;
+        } catch (err) {
+          retries++;
+          if (err.message.includes('Rate limit') && retries < 3) {
+            await sleep(2000 * retries);
+          } else {
+            errors.push({ batch_start: i, error: err.message });
+            success = true; // skip batch
           }
         }
+      }
+      
+      // Small delay between batches to avoid rate limiting
+      if (i + batchSize < allRecords.length) {
+        await sleep(300);
       }
     }
 
@@ -208,8 +206,8 @@ Deno.serve(async (req) => {
       total_records: allRecords.length,
       inserted: insertedCount,
       total_sheets: workbook.SheetNames.length,
-      sheets_summary: sheetSummary.filter(s => s.status === 'ok').length + ' sheets with data',
-      errors: errors.length > 0 ? errors.slice(0, 20) : null,
+      sheets_with_data: sheetSummary.filter(s => s.status === 'ok').length,
+      errors: errors.length > 0 ? errors.slice(0, 10) : null,
     });
 
   } catch (error) {
