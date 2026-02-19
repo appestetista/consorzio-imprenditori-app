@@ -192,15 +192,16 @@ export default function SimulatoreDipendente() {
                   {selectedLivello && (
                     <Card className="bg-slate-700/50 border-slate-600">
                       <CardContent className="p-3 space-y-1">
-                        <p className="text-lime-400 text-xs font-semibold">Minimo tabellare 2026</p>
+                        <p className="text-lime-400 text-xs font-semibold">Dettaglio retributivo</p>
                         <div className="grid grid-cols-2 gap-2 text-sm">
-                          <div><span className="text-slate-400 text-xs">Minimo:</span><br /><span className="text-white font-semibold">€{fmt(selectedLivello.minimo_tabellare_mensile)}</span></div>
+                          <div><span className="text-slate-400 text-xs">Paga base:</span><br /><span className="text-white font-semibold">€{fmt(selectedLivello.minimo_tabellare_mensile)}</span></div>
+                          <div><span className="text-slate-400 text-xs">Totale mensile:</span><br /><span className="text-white font-semibold">€{fmt(selectedLivello.totale)}</span></div>
                           {selectedLivello.contingenza > 0 && <div><span className="text-slate-400 text-xs">Contingenza:</span><br /><span className="text-white">€{fmt(selectedLivello.contingenza)}</span></div>}
-                          {selectedLivello.edr > 0 && <div><span className="text-slate-400 text-xs">EDR:</span><br /><span className="text-white">€{fmt(selectedLivello.edr)}</span></div>}
+                          {selectedLivello.importo_scatto > 0 && <div><span className="text-slate-400 text-xs">Scatto anzianità:</span><br /><span className="text-white">€{fmt(selectedLivello.importo_scatto)}</span></div>}
                           <div><span className="text-slate-400 text-xs">Mensilità:</span><br /><span className="text-white">{selectedLivello.mensilita}</span></div>
                           <div><span className="text-slate-400 text-xs">RAL minima:</span><br /><span className="text-white font-semibold">€{fmt(selectedLivello.ral_minima_annua)}</span></div>
                         </div>
-                        <p className="text-slate-500 text-[10px] mt-2">{selectedLivello.fonte_normativa}</p>
+                        <p className="text-slate-500 text-[10px] mt-2">{selectedLivello.fonte_normativa} — Decorrenza: {selectedLivello.data_decorrenza}</p>
                       </CardContent>
                     </Card>
                   )}
