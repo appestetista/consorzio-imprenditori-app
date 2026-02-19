@@ -137,7 +137,9 @@ async function fetchFromOEC(reporterISO2, partnerISO2, hsCode, flowType, startYe
  * Fetch from UN Comtrade API (requires API key)
  */
 async function fetchFromComtrade(reporterISO2, partnerISO2, hsCode, flowType, startYear, endYear) {
-  const apiKey = Deno.env.get('COMTRADE_API_KEY') || '';
+  // Comtrade API key is optional - function works without it via OEC
+  let apiKey = '';
+  try { apiKey = Deno.env.get('COMTRADE_API_KEY') || ''; } catch (_) { /* no key */ }
   if (!apiKey || apiKey.length < 10) {
     console.log('[Comtrade] No API key configured, skipping');
     return null;
