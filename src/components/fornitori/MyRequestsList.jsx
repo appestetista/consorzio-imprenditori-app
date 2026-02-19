@@ -1,15 +1,21 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Clock, Users, CheckCircle, XCircle, Shield, Eye, Euro, Building2, Pencil, Trash2, X, Repeat, Send, MessageCircle, Check } from 'lucide-react';
+import { Clock, Users, CheckCircle, XCircle, Shield, Eye, Euro, Building2, Pencil, Trash2, X, Repeat, Send, MessageCircle, Check, Search, Sparkles, FileText, MapPin } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import SupplierApplicationForm from './SupplierApplicationForm';
 import ApplicationReadStatus from './ApplicationReadStatus';
+import SupplierSearchResults from './SupplierSearchResults';
+import AnonymizeQuoteView from './AnonymizeQuoteView';
 
 const STATUS_CONFIG = {
   aperta: { label: 'Aperta', color: 'bg-green-500/20 text-green-400', icon: Clock },
+  ricerca_in_corso: { label: 'Ricerca...', color: 'bg-cyan-500/20 text-cyan-400', icon: Search },
+  fornitori_trovati: { label: 'Fornitori trovati', color: 'bg-emerald-500/20 text-emerald-400', icon: Sparkles },
+  preventivi_inviati: { label: 'Preventivi inviati', color: 'bg-blue-500/20 text-blue-400', icon: Send },
+  preventivi_ricevuti: { label: 'Preventivi ricevuti', color: 'bg-purple-500/20 text-purple-400', icon: FileText },
   in_valutazione: { label: 'In valutazione', color: 'bg-blue-500/20 text-blue-400', icon: Eye },
   fornitore_scelto: { label: 'Fornitore scelto', color: 'bg-lime-500/20 text-lime-400', icon: CheckCircle },
   chiusa: { label: 'Chiusa', color: 'bg-slate-500/20 text-slate-400', icon: XCircle },
