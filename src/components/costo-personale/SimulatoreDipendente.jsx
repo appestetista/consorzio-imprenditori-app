@@ -171,7 +171,8 @@ export default function SimulatoreDipendente() {
         {step === 2 && (
           <Card className="bg-slate-800 border-slate-700">
             <CardContent className="p-4 space-y-4">
-              <h3 className="text-white font-semibold">Step 2 — Livello ({form.ccnl})</h3>
+              <h3 className="text-white font-semibold text-sm">Step 2 — Livello</h3>
+              <p className="text-slate-400 text-xs truncate">{form.ccnl}</p>
               {loadingCCNL ? (
                 <div className="flex items-center gap-2 text-slate-400 text-sm"><Loader2 className="w-4 h-4 animate-spin" /> Caricamento livelli...</div>
               ) : livelli.length === 0 ? (
