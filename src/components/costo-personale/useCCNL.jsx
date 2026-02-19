@@ -61,10 +61,74 @@ export function useCCNLLivelli(ccnlNome) {
   };
 }
 
+/**
+ * CCNL che prevedono la 14ª mensilità (tredicesima + quattordicesima).
+ * Fonte: tabelle ufficiali CCNL aggiornate.
+ * I CCNL non presenti in questa lista hanno solo la 13ª (default).
+ * 
+ * Le keyword sono in minuscolo e matchate con includes() sul ccnl_nome.
+ */
+const CCNL_CON_QUATTORDICESIMA = [
+  'agenzie immobiliari',
+  'agenzie marittime',
+  'agenzie aeree',
+  'agricoltura',         // Cooperative e Contoterzisti
+  'contoterzisti',
+  'alimentari',          // Piccola/Media Industria e Panificazione Artigianato
+  'panificazione',
+  'assicurazioni agenzie',
+  'unapass',
+  'sna',
+  'autoferrotranvieri',
+  'autotrasporto',       // Dirigenti Aziende Autotrasporto
+  'dirigenti aziende cooperative',
+  'dirigenti terziario',
+  'dirigenti aziende terziario',
+  'farmacie',            // Private e Municipalizzate
+  'gas acqua',
+  'ortofrutticoli',
+  'agrumari',
+  'pompe funebri',
+  'trasporti funebri',
+  'porti',
+  'recapito telegrammi',
+  'sacristi',
+  'studi professionali',
+  'tabacco',
+  'terziario',           // Confcommercio, Confesercenti, Federdistribuzione
+  'confcommercio',
+  'confesercenti',
+  'federdistribuzione',
+  'turismo',
+  'pubblici esercizi',
+  'pulizie',
+  'multiservizi',
+  'trasporto merci',
+  'logistica',
+  'vigilanza privata',
+  'ceramica',
+  'edilizia artigianato',
+  'cooperative sociali',
+];
+
+/**
+ * Determina il numero di mensilità per un dato CCNL.
+ * Se il nome del CCNL corrisponde a uno dei contratti con 14ª → 14.
+ * Altrimenti → 13 (tredicesima standard).
+ */
+function getMensilitaCCNL(ccnlNome) {
+  if (!ccnlNome) return 13;
+  const nome = ccnlNome.toLowerCase();
+  const ha14 = CCNL_CON_QUATTORDICESIMA.some(kw => nome.includes(kw));
+  return ha14 ? 14 : 13;
+}
+
 // Legacy hook for backward compat
 export function useCCNL(ccnl, anno = 2026) {
   const { qualificati, isLoading } = useCCNLLivelli(ccnl);
   
+  const mensilita = getMensilitaCCNL(ccnl);
+
   // Map to old format
   const livelli = (qualificati || []).map(l => ({
     livello: l.livello,
@@ -73,8 +137,8 @@ export function useCCNL(ccnl, anno = 2026) {
     edr: 0,
     terzo_elemento: l.terzo_elemento || 0,
     totale: l.totale || 0,
-    mensilita: 14, // Default, most CCNLs use 14
-    ral_minima_annua: (l.totale || 0) * 14,
+    mensilita,
+    ral_minima_annua: (l.totale || 0) * mensilita,
     apprendistato_previsto: true,
     fonte_normativa: `${l.ccnl_nome} - ${l.codice_cnel || 'N/A'}`,
     data_decorrenza: l.data_tabella || '',
