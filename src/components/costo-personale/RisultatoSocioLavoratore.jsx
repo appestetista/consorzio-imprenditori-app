@@ -191,6 +191,8 @@ export default function RisultatoSocioLavoratore({ result, onReset }) {
       {/* Footer normativo */}
       <FooterNormativo anno={result.anno} fonti={result.fonti} dataAggiornamento={result.dataAggiornamento} />
 
+      <SalvaSimulazione tipo="socio_lavoratore" result={result} />
+
       <Button onClick={onReset} variant="outline" className="w-full border-slate-600 text-slate-400 hover:bg-slate-800">
         Nuova Simulazione
       </Button>
