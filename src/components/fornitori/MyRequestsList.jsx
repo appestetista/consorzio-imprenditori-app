@@ -1,67 +1,12 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Clock, Users, CheckCircle, XCircle, Shield, Eye, Euro, Building2, Pencil, Trash2, X, Repeat, Send, MessageCircle, Check, Search, Sparkles, FileText, MapPin } from 'lucide-react';
+import { Shield, Users, Trash2, X, MessageCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import SupplierApplicationForm from './SupplierApplicationForm';
-import ApplicationReadStatus from './ApplicationReadStatus';
-import SupplierSearchResults from './SupplierSearchResults';
-import AnonymizeQuoteView from './AnonymizeQuoteView';
-
-const STATUS_CONFIG = {
-  aperta: { label: 'Aperta', color: 'bg-green-500/20 text-green-400', icon: Clock },
-  ricerca_in_corso: { label: 'Ricerca...', color: 'bg-cyan-500/20 text-cyan-400', icon: Search },
-  fornitori_trovati: { label: 'Fornitori trovati', color: 'bg-emerald-500/20 text-emerald-400', icon: Sparkles },
-  preventivi_inviati: { label: 'Preventivi inviati', color: 'bg-blue-500/20 text-blue-400', icon: Send },
-  preventivi_ricevuti: { label: 'Preventivi ricevuti', color: 'bg-purple-500/20 text-purple-400', icon: FileText },
-  in_valutazione: { label: 'In valutazione', color: 'bg-blue-500/20 text-blue-400', icon: Eye },
-  fornitore_scelto: { label: 'Fornitore scelto', color: 'bg-lime-500/20 text-lime-400', icon: CheckCircle },
-  chiusa: { label: 'Chiusa', color: 'bg-slate-500/20 text-slate-400', icon: XCircle },
-  annullata: { label: 'Annullata', color: 'bg-red-500/20 text-red-400', icon: XCircle }
-};
-
-const URGENCY_LABELS = {
-  immediata: 'Immediata',
-  entro_1_mese: 'Entro 1 mese',
-  entro_3_mesi: 'Entro 3 mesi',
-  nessuna_fretta: 'Nessuna fretta'
-};
-
-const COMPANY_CONTEXT_LABELS = {
-  ditta_individuale: 'Ditta individuale',
-  libero_professionista: 'Libero professionista',
-  snc: 'SNC',
-  sas: 'SAS',
-  srl: 'SRL',
-  srls: 'SRLS',
-  spa: 'SPA',
-  cooperativa: 'Cooperativa',
-  associazione: 'Associazione',
-  altro: 'Altro'
-};
-
-const BUDGET_LABELS = {
-  '0-500': '0 - 500 €',
-  '500-1000': '500 - 1.000 €',
-  '1000-2500': '1.000 - 2.500 €',
-  '2500-5000': '2.500 - 5.000 €',
-  '5000-10000': '5.000 - 10.000 €',
-  '10000-25000': '10.000 - 25.000 €',
-  '25000-50000': '25.000 - 50.000 €',
-  '50000-100000': '50.000 - 100.000 €',
-  'oltre_100000': 'Oltre 100.000 €'
-};
-
-const PAYMENT_FREQUENCY_LABELS = {
-  'una_tantum': 'Una tantum',
-  'totale_budget': 'Totale budget',
-  'giornaliero': 'Giornaliero',
-  'mensile': 'Mensile',
-  'trimestrale': 'Trimestrale',
-  'annuale': 'Annuale'
-};
+import RequestCard from './RequestCard';
 
 
 
