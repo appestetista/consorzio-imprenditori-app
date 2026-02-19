@@ -49,18 +49,21 @@ export default function SimulatoreCostoPersonale() {
         </Card>
 
         <Tabs defaultValue="dipendente" className="w-full">
-          <TabsList className="w-full bg-slate-800 border border-slate-700 mb-4 grid grid-cols-2 gap-1 h-auto p-1">
+          <TabsList className="w-full bg-slate-800 border border-slate-700 mb-4 grid grid-cols-3 gap-1 h-auto p-1">
             <TabsTrigger value="dipendente" className="data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900 text-white text-[10px] py-2 px-1">
               Dipendente
             </TabsTrigger>
             <TabsTrigger value="amministratore" className="data-[state=active]:bg-indigo-500 data-[state=active]:text-white text-white text-[10px] py-2 px-1">
-              Amministratore SRL
+              Amm. SRL
             </TabsTrigger>
             <TabsTrigger value="socio" className="data-[state=active]:bg-amber-500 data-[state=active]:text-white text-white text-[10px] py-2 px-1">
-              Socio Lavoratore
+              Socio Lav.
             </TabsTrigger>
             <TabsTrigger value="gestione_separata" className="data-[state=active]:bg-cyan-500 data-[state=active]:text-white text-white text-[10px] py-2 px-1">
-              Gest. Separata
+              Gest. Sep.
+            </TabsTrigger>
+            <TabsTrigger value="storico" className="data-[state=active]:bg-slate-500 data-[state=active]:text-white text-white text-[10px] py-2 px-1 col-span-2">
+              📋 Storico Calcoli
             </TabsTrigger>
           </TabsList>
 
