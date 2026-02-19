@@ -274,6 +274,50 @@ export default function MyRequestsList({ user }) {
                 </div>
               )}
 
+              {/* Azioni proprietario: ricerca AI, anonimizzazione */}
+              {isOwner(request) && (
+                <div className="mt-3 pt-3 border-t border-slate-700 space-y-2">
+                  {/* Pulsanti azione */}
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      onClick={() => setExpandedRequest(expandedRequest === request.id ? null : request.id)}
+                      className={`flex-1 text-xs ${
+                        expandedRequest === request.id 
+                          ? 'bg-slate-700 text-lime-400 hover:bg-slate-600' 
+                          : 'bg-lime-400 text-slate-900 hover:bg-lime-500'
+                      }`}
+                    >
+                      <Search className="w-3 h-3 mr-1" />
+                      {request.found_suppliers?.length > 0 
+                        ? `${request.found_suppliers.length} fornitori` 
+                        : 'Cerca fornitori'}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setShowAnonymize(showAnonymize === request.id ? null : request.id)}
+                      className="text-xs border-slate-600 text-slate-300 hover:bg-slate-700"
+                    >
+                      <FileText className="w-3 h-3 mr-1" /> Anonimizza
+                    </Button>
+                  </div>
+
+                  {/* Expanded: search results */}
+                  {expandedRequest === request.id && (
+                    <SupplierSearchResults
+                      request={request}
+                      onRefresh={() => queryClient.invalidateQueries({ queryKey: ['my-supplier-requests'] })}
+                    />
+                  )}
+
+                  {/* Expanded: anonymize */}
+                  {showAnonymize === request.id && (
+                    <AnonymizeQuoteView requestId={request.id} />
+                  )}
+                </div>
+              )}
+
               {/* Info candidature ricevute per il proprietario */}
               {isOwner(request) && getApplicationsCount(request.id) > 0 && (
                 <div className="mt-3 pt-3 border-t border-slate-700">
