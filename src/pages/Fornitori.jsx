@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
-import NewSupplierRequestForm from '../components/fornitori/NewSupplierRequestForm';
+import SupplierRequestWizard from '../components/fornitori/SupplierRequestWizard';
 import MyRequestsList from '../components/fornitori/MyRequestsList';
 import OpenRequestsList from '../components/fornitori/OpenRequestsList';
 import SupplierProfileSetup from '../components/fornitori/SupplierProfileSetup';
