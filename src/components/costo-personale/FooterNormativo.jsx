@@ -56,7 +56,7 @@ export default function FooterNormativo({ anno, fonti, fonteCcnl, dataAggiorname
       <div className="flex items-start gap-2 bg-slate-800/50 rounded-lg p-3">
         <Info className="w-4 h-4 text-slate-500 flex-shrink-0 mt-0.5" />
         <p className="text-slate-500 text-xs">
-          Calcolo deterministico su tabelle normative {anno}. Non tiene conto di detrazioni specifiche, bonus o assegni familiari.
+          Calcolo deterministico su tabelle normative {anno}. Include: detrazioni lavoro dipendente (art. 13 TUIR), trattamento integrativo, addizionali regionali reali e comunale media. Non tiene conto di detrazioni per carichi familiari, bonus specifici o assegni.
         </p>
       </div>
     </>
