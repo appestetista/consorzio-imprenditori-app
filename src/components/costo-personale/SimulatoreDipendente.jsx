@@ -8,7 +8,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { useTabelleContributive, calcolaCostoDipendente } from './useTabelleContributive';
 import { useCCNL, REGIONI, getQualificaINAIL } from './useCCNL';
 import RisultatoDipendente from './RisultatoDipendente';
-
 import ProfiloLavoratoreForm from './ProfiloLavoratoreForm';
 import VerificaTabelleNormative from './VerificaTabelleNormative';
 import StepIdentificazioneCCNL from './StepIdentificazioneCCNL';
