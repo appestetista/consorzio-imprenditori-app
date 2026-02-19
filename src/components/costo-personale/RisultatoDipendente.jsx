@@ -158,7 +158,7 @@ export default function RisultatoDipendente({ result, profiloLavoratore, onReset
       {/* Footer normativo */}
       <FooterNormativo
         anno={result.anno}
-        fonti={result.fonti}
+        fonti={[...(result.fonti || []), result.fonte_addizionale_regionale ? `Add. reg. ${result.regione}: ${result.fonte_addizionale_regionale}` : null, 'Art. 13 TUIR — Detrazioni lavoro dipendente', 'DL 3/2020 art. 1 — Trattamento integrativo'].filter(Boolean)}
         fonteCcnl={result.fonte_ccnl}
         dataAggiornamento={result.dataAggiornamento}
       />
