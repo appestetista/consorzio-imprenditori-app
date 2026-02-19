@@ -504,7 +504,14 @@ export default function VantaggiIscritti() {
       </button>
 
       {/* Sheet Crea Vantaggio */}
-      <Sheet open={showCreatePanel} onOpenChange={setShowCreatePanel}>
+      <Sheet open={showCreatePanel} onOpenChange={(open) => {
+        if (!open && formData.tipo_vantaggio) {
+          // Se siamo nello step 2, torna allo step 1 invece di chiudere
+          setFormData({ ...formData, tipo_vantaggio: '' });
+        } else {
+          setShowCreatePanel(open);
+        }
+      }}>
         <SheetContent side="right" className="w-full sm:max-w-md bg-slate-800 border-slate-700 overflow-y-auto">
           <SheetHeader>
             <SheetTitle className="text-white flex items-center gap-2">
