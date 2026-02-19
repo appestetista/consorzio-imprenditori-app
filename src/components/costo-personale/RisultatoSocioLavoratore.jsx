@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { AlertTriangle } from 'lucide-react';
 import FooterNormativo from './FooterNormativo';
 import KPIGrid from './KPIGrid';
+import SalvaSimulazione from './SalvaSimulazione';
 
 const fmt = (n) => n?.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0,00';
 
