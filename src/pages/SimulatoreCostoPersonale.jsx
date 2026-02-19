@@ -82,6 +82,10 @@ export default function SimulatoreCostoPersonale() {
           <TabsContent value="gestione_separata">
             <SimulatoreGestioneSeparata />
           </TabsContent>
+
+          <TabsContent value="storico">
+            <StoricoCalcoli />
+          </TabsContent>
         </Tabs>
       </main>
 
