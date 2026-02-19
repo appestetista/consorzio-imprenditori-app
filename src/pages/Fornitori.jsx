@@ -154,12 +154,12 @@ export default function Fornitori() {
                 <MyRequestsList user={effectiveUser} />
               </>
             ) : (
-              <NewSupplierRequestForm 
+              <SupplierRequestWizard 
                 user={effectiveUser} 
                 onClose={() => setShowNewRequest(false)}
                 onSuccess={() => {
                   setShowNewRequest(false);
-                  queryClient.invalidateQueries({ queryKey: ['my-supplier-requests'] });
+                  queryClient.invalidateQueries({ queryKey: ['all-supplier-requests'] });
                 }}
               />
             )}
