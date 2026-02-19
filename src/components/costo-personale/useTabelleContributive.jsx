@@ -62,13 +62,114 @@ export function useTabelleContributive(anno = 2026) {
 }
 
 /**
+ * Addizionali regionali IRPEF 2026 — aliquota media ponderata per regione.
+ * Per regioni con scaglioni (Piemonte, Emilia-Romagna, Lombardia, Marche, Lazio),
+ * si usa un'aliquota media rappresentativa per redditi 25-35k (fascia più comune).
+ * Fonte: MEF/Regioni, aggiornamento gennaio 2026.
+ * 
+ * Addizionale comunale media nazionale stimata: 0,70% (MEF 2025).
+ */
+const ADDIZIONALI_REGIONALI_2026 = {
+  'Abruzzo':              { regionale: 0.0173, fonte: 'D.G.R. Abruzzo - aliquota unica 1,73%' },
+  'Basilicata':           { regionale: 0.0123, fonte: 'Aliquota base nazionale 1,23%' },
+  'Calabria':             { regionale: 0.0333, fonte: 'Piano rientro deficit sanitario - aliquota max 3,33%' },
+  'Campania':             { regionale: 0.0333, fonte: 'Piano rientro deficit sanitario - aliquota max 3,33%' },
+  'Emilia-Romagna':       { regionale: 0.0173, fonte: 'L.R. E-R 2026 - media ponderata scaglioni (1,33%-1,93%-2,03%)' },
+  'Friuli Venezia Giulia':{ regionale: 0.0123, fonte: 'Aliquota unica 1,23%' },
+  'Lazio':                { regionale: 0.0333, fonte: 'Piano rientro deficit sanitario - aliquota max 3,33%' },
+  'Liguria':              { regionale: 0.0123, fonte: 'Aliquota unica 1,23%' },
+  'Lombardia':            { regionale: 0.0158, fonte: 'L.R. Lombardia - media scaglioni (1,23%-1,58%-1,72%-1,73%)' },
+  'Marche':               { regionale: 0.0123, fonte: 'Aliquota unica 1,23%' },
+  'Molise':               { regionale: 0.0233, fonte: 'Piano rientro deficit sanitario - aliquota 2,33%' },
+  'Piemonte':             { regionale: 0.0213, fonte: 'L.R. Piemonte 2026 - media ponderata scaglioni (1,62%-2,13%-2,23%-2,33%)' },
+  'Puglia':               { regionale: 0.0173, fonte: 'D.G.R. Puglia - aliquota unica 1,73%' },
+  'Sardegna':             { regionale: 0.0123, fonte: 'Aliquota unica 1,23%' },
+  'Sicilia':              { regionale: 0.0173, fonte: 'D.G.R. Sicilia - aliquota 1,73%' },
+  'Toscana':              { regionale: 0.0142, fonte: 'L.R. Toscana - media scaglioni (1,23%-1,43%-1,68%)' },
+  'Trentino-Alto Adige':  { regionale: 0.0123, fonte: 'Aliquota unica 1,23%' },
+  'Umbria':               { regionale: 0.0123, fonte: 'Aliquota unica 1,23%' },
+  "Valle d'Aosta":        { regionale: 0.0123, fonte: 'Aliquota unica 1,23%' },
+  'Veneto':               { regionale: 0.0123, fonte: 'Aliquota unica 1,23%' },
+};
+const ADDIZIONALE_COMUNALE_MEDIA = 0.007; // 0,70% media nazionale MEF 2025
+
+/**
+ * Detrazioni da lavoro dipendente 2026 — Art. 13 TUIR (come da L. 207/2024 e L. Bilancio 2026).
+ * Il reddito complessivo = RAL (per semplicità, coincide con imponibile lordo).
+ * Sono riproporzionate a 365 giorni (anno pieno).
+ * Fonte: clsystem.it tabella applicativa IRPEF 2026, factorial.it
+ */
+function calcolaDetrazioneLavoroDipendente(redditoComplessivo) {
+  const R = redditoComplessivo;
+  if (R <= 0) return 0;
+  
+  if (R <= 15000) {
+    // Detrazione fissa 1.955€, minimo 690€ (TI) / 1.380€ (TD)
+    // Usiamo 1.955€ per anno pieno
+    return 1955;
+  } else if (R <= 28000) {
+    const C = (28000 - R) / 13000;
+    if (R <= 25000) {
+      return 1910 + 1190 * C;
+    } else {
+      // 25.000 < R ≤ 28.000: si aggiunge 65€ extra
+      return 1910 + 65 + 1190 * C;
+    }
+  } else if (R <= 50000) {
+    const C = (50000 - R) / 22000;
+    if (R <= 35000) {
+      return 65 + 1910 * C;
+    } else {
+      return 1910 * C;
+    }
+  }
+  return 0; // Oltre 50.000€ nessuna detrazione
+}
+
+/**
+ * Trattamento integrativo (bonus €100/mese) — DL 3/2020 art.1, confermato 2026.
+ * Reddito ≤ 15.000€: spetta 1.200€ se imposta lorda > detrazione lavoro - 75€
+ * 15.000 < Reddito ≤ 28.000€: spetta fino a max 1.200€ pari alla differenza (detrazioni - imposta lorda), solo se positiva
+ * Oltre 28.000€: non spetta
+ * Fonte: agenziapiu.com, clsystem.it tabella applicativa 2026
+ */
+function calcolaTrattamentoIntegrativo(redditoComplessivo, impostaLorda, detrazioneLavoro) {
+  const R = redditoComplessivo;
+  if (R <= 15000) {
+    // Spetta per intero SE l'imposta lorda > (detrazione lavoro - 75)
+    if (impostaLorda > (detrazioneLavoro - 75)) {
+      return 1200;
+    }
+    return 0; // Incapienza
+  } else if (R <= 28000) {
+    // Spetta la differenza tra somma detrazioni e imposta lorda, max 1.200€
+    // Ai fini del bonus, le "detrazioni" includono anche carichi familiari, mutuo, etc.
+    // Per un lavoratore single senza particolari detrazioni, il bonus è raro sopra 15k.
+    // Approssimazione prudente: consideriamo solo detrazione lavoro dipendente
+    const differenza = detrazioneLavoro - impostaLorda;
+    if (differenza > 0) {
+      return Math.min(differenza, 1200);
+    }
+    return 0;
+  }
+  return 0; // Oltre 28.000€
+}
+
+/**
  * Motore di calcolo deterministico dipendente subordinato.
  * Nessuna AI, solo aritmetica su tabelle normative.
+ * 
+ * Aggiornamento 2026:
+ * - Addizionali regionali reali per regione (non più media unica)
+ * - Detrazioni da lavoro dipendente (art. 13 TUIR)
+ * - Trattamento integrativo (bonus €100/mese)
+ * - Contributo addizionale TD 1,4% per contratti a tempo determinato
+ * - Aliquota agevolata apprendistato
  */
 export function calcolaCostoDipendente(params, tab) {
-  const { ral, qualifica, mensilita, tfr_destinazione } = params;
+  const { ral, qualifica, mensilita, tfr_destinazione, regione, tipo_contratto } = params;
 
-  const inps_datore_aliquota = tab.get('inps_datore_dipendente');
+  const inps_datore_aliquota_base = tab.get('inps_datore_dipendente');
   const inps_dip_aliquota = tab.get('inps_dipendente');
   const inail_aliquota = tab.get(`inail_${qualifica}`);
   const tfr_divisore = tab.get('tfr_divisore');
@@ -78,54 +179,108 @@ export function calcolaCostoDipendente(params, tab) {
   const irpef_3 = tab.get('irpef_scaglione_3');
   const soglia_1 = tab.get('irpef_soglia_1');
   const soglia_2 = tab.get('irpef_soglia_2');
-  const addizionali = tab.get('addizionali_media');
+  const contributo_td = tab.get('contributo_td_addizionale') || 0.014;
+  const contributo_apprendistato = tab.get('contributo_apprendistato_datore') || 0.1161;
 
-  if ([inps_datore_aliquota, inps_dip_aliquota, inail_aliquota, tfr_divisore, irpef_1, soglia_1].some(v => v === null)) {
+  if ([inps_datore_aliquota_base, inps_dip_aliquota, inail_aliquota, tfr_divisore, irpef_1, soglia_1].some(v => v === null)) {
     return null; // tabelle incomplete
   }
+
+  // --- COSTO DATORE ---
+  const isTempoDeterm = tipo_contratto && (tipo_contratto.includes('determinato') && !tipo_contratto.includes('indeterminato'));
+  const isApprendistato = tipo_contratto === 'apprendistato';
+  
+  // Aliquota INPS datore effettiva
+  let inps_datore_aliquota;
+  let label_inps_datore;
+  if (isApprendistato) {
+    inps_datore_aliquota = contributo_apprendistato;
+    label_inps_datore = 'INPS datore (apprendistato agevolato)';
+  } else {
+    inps_datore_aliquota = inps_datore_aliquota_base;
+    label_inps_datore = 'INPS datore';
+  }
+
+  // Contributo addizionale TD
+  const contributo_td_importo = isTempoDeterm ? ral * contributo_td : 0;
 
   const inps_datore = ral * inps_datore_aliquota;
   const inail = ral * inail_aliquota;
   const tfr_annuo = ral / tfr_divisore;
   const tfr_fondo_garanzia_costo = tfr_destinazione === 'fondo' ? ral * fondo_garanzia : 0;
-  const costo_totale_annuo = ral + inps_datore + inail + tfr_annuo + tfr_fondo_garanzia_costo;
+  const costo_totale_annuo = ral + inps_datore + inail + tfr_annuo + tfr_fondo_garanzia_costo + contributo_td_importo;
   const costo_mensile_datore = costo_totale_annuo / 12;
 
-  // Netto dipendente
-  const inps_dipendente = ral * inps_dip_aliquota;
+  // --- NETTO DIPENDENTE ---
+  // INPS dipendente (per apprendistato è ridotta: 5,84%)
+  const inps_dip_aliquota_effettiva = isApprendistato ? 0.0584 : inps_dip_aliquota;
+  const inps_dipendente = ral * inps_dip_aliquota_effettiva;
   const imponibile_irpef = ral - inps_dipendente;
 
-  let irpef = 0;
+  // IRPEF lorda
+  let irpef_lorda = 0;
   if (imponibile_irpef <= soglia_1) {
-    irpef = imponibile_irpef * irpef_1;
+    irpef_lorda = imponibile_irpef * irpef_1;
   } else if (imponibile_irpef <= soglia_2) {
-    irpef = soglia_1 * irpef_1 + (imponibile_irpef - soglia_1) * irpef_2;
+    irpef_lorda = soglia_1 * irpef_1 + (imponibile_irpef - soglia_1) * irpef_2;
   } else {
-    irpef = soglia_1 * irpef_1 + (soglia_2 - soglia_1) * irpef_2 + (imponibile_irpef - soglia_2) * irpef_3;
+    irpef_lorda = soglia_1 * irpef_1 + (soglia_2 - soglia_1) * irpef_2 + (imponibile_irpef - soglia_2) * irpef_3;
   }
 
-  const addiz = imponibile_irpef * addizionali;
-  const netto_annuo = ral - inps_dipendente - irpef - addiz;
+  // Detrazione lavoro dipendente (art. 13 TUIR)
+  // Il reddito complessivo ai fini della detrazione = RAL (per un lavoratore con un solo rapporto)
+  const detrazione_lavoro = calcolaDetrazioneLavoroDipendente(ral);
+  
+  // IRPEF netta = lorda - detrazione (non può essere < 0)
+  const irpef = Math.max(0, irpef_lorda - detrazione_lavoro);
+
+  // Trattamento integrativo (bonus 100€/mese)
+  const trattamento_integrativo = calcolaTrattamentoIntegrativo(ral, irpef_lorda, detrazione_lavoro);
+
+  // Addizionali regionali e comunali reali
+  const datiRegione = ADDIZIONALI_REGIONALI_2026[regione];
+  const aliquota_regionale = datiRegione?.regionale || 0.0173; // fallback media nazionale
+  const aliquota_comunale = ADDIZIONALE_COMUNALE_MEDIA;
+  const aliquota_addizionali_totale = aliquota_regionale + aliquota_comunale;
+  const addiz_regionale = imponibile_irpef * aliquota_regionale;
+  const addiz_comunale = imponibile_irpef * aliquota_comunale;
+  const addiz = addiz_regionale + addiz_comunale;
+
+  // Netto annuo = RAL - INPS dip - IRPEF netta - addizionali + trattamento integrativo
+  const netto_annuo = ral - inps_dipendente - irpef - addiz + trattamento_integrativo;
   const netto_mensile = netto_annuo / mensilita;
 
   const tipi_usati = [
     'inps_datore_dipendente', 'inps_dipendente', `inail_${qualifica}`,
     'tfr_divisore', 'irpef_scaglione_1', 'irpef_scaglione_2', 'irpef_scaglione_3',
-    'irpef_soglia_1', 'irpef_soglia_2', 'addizionali_media',
+    'irpef_soglia_1', 'irpef_soglia_2',
   ];
   if (tfr_destinazione === 'fondo') tipi_usati.push('fondo_garanzia_tfr');
+  if (isTempoDeterm) tipi_usati.push('contributo_td_addizionale');
+  if (isApprendistato) tipi_usati.push('contributo_apprendistato_datore');
 
   return {
     ral,
     inps_datore, aliquota_inps_datore: inps_datore_aliquota,
+    label_inps_datore,
     inail, aliquota_inail: inail_aliquota,
     tfr_annuo, tfr_divisore,
     tfr_fondo_garanzia_costo, fondo_garanzia,
+    contributo_td_importo, aliquota_contributo_td: isTempoDeterm ? contributo_td : 0,
     costo_totale_annuo, costo_mensile_datore,
-    inps_dipendente, aliquota_inps_dip: inps_dip_aliquota,
-    irpef, addizionali: addiz, aliquota_addizionali: addizionali,
+    inps_dipendente, aliquota_inps_dip: inps_dip_aliquota_effettiva,
+    irpef_lorda,
+    detrazione_lavoro,
+    irpef, // netta
+    trattamento_integrativo,
+    addiz_regionale, aliquota_regionale,
+    addiz_comunale, aliquota_comunale,
+    addizionali: addiz, aliquota_addizionali: aliquota_addizionali_totale,
+    fonte_addizionale_regionale: datiRegione?.fonte || 'Media nazionale',
     netto_annuo, netto_mensile, mensilita,
     qualifica,
+    isApprendistato,
+    isTempoDeterm,
     fonti: tab.raccogliFonti(tipi_usati),
     anno: tab.anno,
     dataAggiornamento: tab.dataAggiornamento,
