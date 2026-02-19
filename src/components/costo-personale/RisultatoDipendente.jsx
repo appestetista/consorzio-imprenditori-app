@@ -5,6 +5,7 @@ import { AlertTriangle } from 'lucide-react';
 import IncentiviFiscali2026 from './IncentiviFiscali2026';
 import FooterNormativo from './FooterNormativo';
 import KPIGrid from './KPIGrid';
+import SalvaSimulazione from './SalvaSimulazione';
 
 const fmt = (n) => n?.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0,00';
 
