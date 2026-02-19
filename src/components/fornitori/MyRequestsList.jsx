@@ -178,7 +178,48 @@ export default function MyRequestsList({ user }) {
   return (
     <>
       <div className="space-y-3">
-        {requests.map(request => {
+        {/* Le mie richieste */}
+        {myRequests.length > 0 && (
+          <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider">
+            Le mie richieste ({myRequests.length})
+          </p>
+        )}
+        {myRequests.map(request => {
+          return <RequestCard key={request.id} request={request} user={user} isOwner={true}
+            expandedRequest={expandedRequest} setExpandedRequest={setExpandedRequest}
+            showAnonymize={showAnonymize} setShowAnonymize={setShowAnonymize}
+            queryClient={queryClient}
+            hasAppliedTo={hasAppliedTo} getMyApplication={getMyApplication}
+            getApplicationsCount={getApplicationsCount} getUnreadApplicationsCount={getUnreadApplicationsCount}
+            getApplicationsForRequest={getApplicationsForRequest}
+            setApplyingToRequest={setApplyingToRequest}
+            setViewingApplicationsRequest={setViewingApplicationsRequest}
+            markApplicationsAsRead={markApplicationsAsRead}
+            setEditingRequest={setEditingRequest} setDeletingRequest={setDeletingRequest}
+          />;
+        })}
+
+        {/* Richieste di altri */}
+        {otherRequests.length > 0 && (
+          <p className="text-slate-500 text-xs font-semibold uppercase tracking-wider mt-4">
+            Richieste aperte da altri ({otherRequests.length})
+          </p>
+        )}
+        {otherRequests.map(request => {
+          return <RequestCard key={request.id} request={request} user={user} isOwner={false}
+            expandedRequest={expandedRequest} setExpandedRequest={setExpandedRequest}
+            showAnonymize={showAnonymize} setShowAnonymize={setShowAnonymize}
+            queryClient={queryClient}
+            hasAppliedTo={hasAppliedTo} getMyApplication={getMyApplication}
+            getApplicationsCount={getApplicationsCount} getUnreadApplicationsCount={getUnreadApplicationsCount}
+            getApplicationsForRequest={getApplicationsForRequest}
+            setApplyingToRequest={setApplyingToRequest}
+            setViewingApplicationsRequest={setViewingApplicationsRequest}
+            markApplicationsAsRead={markApplicationsAsRead}
+            setEditingRequest={setEditingRequest} setDeletingRequest={setDeletingRequest}
+          />;
+        })}
+        {false && requests.map(request => {
           const statusConfig = STATUS_CONFIG[request.status] || STATUS_CONFIG.aperta;
           const StatusIcon = statusConfig.icon;
           
