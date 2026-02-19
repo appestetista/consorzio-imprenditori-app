@@ -64,11 +64,14 @@ export default function RisultatoDipendente({ result, profiloLavoratore, onReset
           <h3 className="text-red-400 font-bold mb-3 text-sm">🏢 Costo per il Datore di Lavoro</h3>
           <div className="space-y-2 text-sm">
             <Row label="RAL" value={fmt(result.ral)} bold />
-            <Row label={`Contributi INPS datore (${(result.aliquota_inps_datore * 100).toFixed(2)}%)`} value={fmt(result.inps_datore)} />
+            <Row label={`${result.label_inps_datore || 'INPS datore'} (${(result.aliquota_inps_datore * 100).toFixed(2)}%)`} value={fmt(result.inps_datore)} />
             <Row label={`INAIL (${(result.aliquota_inail * 100).toFixed(2)}%)`} value={fmt(result.inail)} />
             <Row label={`TFR (RAL / ${result.tfr_divisore})`} value={fmt(result.tfr_annuo)} />
             {result.tfr_fondo_garanzia_costo > 0 && (
               <Row label={`Fondo garanzia TFR (${(result.fondo_garanzia * 100).toFixed(2)}%)`} value={fmt(result.tfr_fondo_garanzia_costo)} />
+            )}
+            {result.contributo_td_importo > 0 && (
+              <Row label={`Contributo addiz. TD (${(result.aliquota_contributo_td * 100).toFixed(1)}%)`} value={fmt(result.contributo_td_importo)} />
             )}
             <div className="border-t border-red-500/30 pt-2 mt-2">
               <div className="flex justify-between">
