@@ -11,6 +11,7 @@ import SimulatoreDipendente from '@/components/costo-personale/SimulatoreDipende
 import SimulatoreAmministratore from '@/components/costo-personale/SimulatoreAmministratore';
 import SimulatoreSocioLavoratore from '@/components/costo-personale/SimulatoreSocioLavoratore';
 import SimulatoreGestioneSeparata from '@/components/costo-personale/SimulatoreGestioneSeparata';
+import StoricoCalcoli from '@/components/costo-personale/StoricoCalcoli';
 
 export default function SimulatoreCostoPersonale() {
   const [user, setUser] = useState(null);
