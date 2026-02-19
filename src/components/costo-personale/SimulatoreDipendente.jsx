@@ -184,7 +184,7 @@ export default function SimulatoreDipendente() {
                     <SelectContent>
                       {livelli.map(l => (
                         <SelectItem key={l.livello} value={l.livello}>
-                          Livello {l.livello} — Min. €{l.minimo_tabellare_mensile?.toLocaleString('it-IT', { minimumFractionDigits: 2 })}/mese
+                          {l.livello} — €{l.totale?.toLocaleString('it-IT', { minimumFractionDigits: 2 })}/mese
                         </SelectItem>
                       ))}
                     </SelectContent>
