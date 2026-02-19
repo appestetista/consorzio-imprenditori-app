@@ -164,6 +164,9 @@ export default function RisultatoDipendente({ result, profiloLavoratore, onReset
         dataAggiornamento={result.dataAggiornamento}
       />
 
+      {/* Salva nello storico */}
+      <SalvaSimulazione tipo="dipendente" result={result} profiloLavoratore={profiloLavoratore} />
+
       <Button onClick={onReset} variant="outline" className="w-full border-slate-600 text-slate-400 hover:bg-slate-800">
         Nuova Simulazione
       </Button>
