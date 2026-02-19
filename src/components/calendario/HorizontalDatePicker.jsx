@@ -325,15 +325,20 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
   }, [visibleMonth.color]);
 
   // Notifica il colore e il mese al parent quando cambia visibleMonth (fuori dal rendering)
+  const onMonthColorChangeRef = useRef(onMonthColorChange);
+  const onVisibleMonthChangeRef = useRef(onVisibleMonthChange);
+  onMonthColorChangeRef.current = onMonthColorChange;
+  onVisibleMonthChangeRef.current = onVisibleMonthChange;
+
   useEffect(() => {
-    if (onMonthColorChange) {
-      onMonthColorChange(visibleMonth.color);
+    if (onMonthColorChangeRef.current) {
+      onMonthColorChangeRef.current(visibleMonth.color);
     }
-    if (onVisibleMonthChange) {
+    if (onVisibleMonthChangeRef.current) {
       const monthIdx = MONTHS.indexOf(visibleMonth.name);
-      onVisibleMonthChange(monthIdx, visibleMonth.year);
+      onVisibleMonthChangeRef.current(monthIdx, visibleMonth.year);
     }
-  }, [visibleMonth, onMonthColorChange, onVisibleMonthChange]);
+  }, [visibleMonth]);
 
   const goToToday = () => {
     setCurrentMonth(today.getMonth());
