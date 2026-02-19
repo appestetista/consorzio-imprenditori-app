@@ -482,27 +482,32 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Fetch from APIs in parallel
+    // Fetch from APIs in parallel: OEC + Comtrade Public + Comtrade Premium (if key exists)
     let oecData = null, comtradeData = null;
     
     try {
-      const [oecResult, comtradeResult] = await Promise.allSettled([
+      const [oecResult, comtradePublicResult, comtradePremiumResult] = await Promise.allSettled([
         fetchFromOEC(reporter_code, partnerCode, hs_code, flow_type, startYear, endYear),
-        fetchFromComtrade(reporter_code, partnerCode, hs_code, flow_type, startYear, endYear)
+        fetchFromComtradePublic(reporter_code, partnerCode, hs_code, flow_type, startYear, endYear),
+        fetchFromComtradePremium(reporter_code, partnerCode, hs_code, flow_type, startYear, endYear)
       ]);
       
       oecData = oecResult.status === 'fulfilled' ? oecResult.value : null;
-      comtradeData = comtradeResult.status === 'fulfilled' ? comtradeResult.value : null;
+      // Prefer premium over public comtrade data
+      const premiumData = comtradePremiumResult.status === 'fulfilled' ? comtradePremiumResult.value : null;
+      const publicData = comtradePublicResult.status === 'fulfilled' ? comtradePublicResult.value : null;
+      comtradeData = premiumData || publicData;
       
       if (oecData) sourceStatus.oec = 'ok';
-      if (comtradeData) sourceStatus.comtrade = 'ok';
+      if (premiumData) sourceStatus.comtrade = 'ok (premium)';
+      else if (publicData) sourceStatus.comtrade = 'ok (public)';
       
       if (oecResult.status === 'rejected') {
         console.log(`[OEC] Error for ${partnerCode}: ${oecResult.reason}`);
         sourceStatus.oec = 'error';
       }
-      if (comtradeResult.status === 'rejected') {
-        console.log(`[Comtrade] Error for ${partnerCode}: ${comtradeResult.reason}`);
+      if (comtradePublicResult.status === 'rejected' && comtradePremiumResult.status === 'rejected') {
+        console.log(`[Comtrade] Both public & premium failed for ${partnerCode}`);
         sourceStatus.comtrade = 'error';
       }
     } catch (e) {
