@@ -109,11 +109,17 @@ export default function RisultatoDipendente({ result, profiloLavoratore, onReset
             <Row label="RAL" value={fmt(result.ral)} />
             <Row label={`- INPS dipendente (${(result.aliquota_inps_dip * 100).toFixed(2)}%)`} value={fmt(result.inps_dipendente)} negative />
             <Row label="= Imponibile IRPEF" value={fmt(result.ral - result.inps_dipendente)} bold />
-            <Row label="- IRPEF (scaglioni 23/33/43%)" value={fmt(result.irpef)} negative />
-            <Row label={`- Addizionali (~${(result.aliquota_addizionali * 100).toFixed(1)}%)`} value={fmt(result.addizionali)} negative />
+            <Row label="IRPEF lorda (scaglioni 23/33/43%)" value={fmt(result.irpef_lorda)} />
+            <Row label={`- Detrazione lavoro dipendente (art. 13 TUIR)`} value={fmt(result.detrazione_lavoro)} green />
+            <Row label="= IRPEF netta" value={fmt(result.irpef)} negative />
+            <Row label={`- Addiz. regionale (${(result.aliquota_regionale * 100).toFixed(2)}%)`} value={fmt(result.addiz_regionale)} negative />
+            <Row label={`- Addiz. comunale media (${(result.aliquota_comunale * 100).toFixed(2)}%)`} value={fmt(result.addiz_comunale)} negative />
+            {result.trattamento_integrativo > 0 && (
+              <Row label="+ Trattamento integrativo (bonus €100/mese)" value={fmt(result.trattamento_integrativo)} green />
+            )}
             <div className="flex justify-between text-xs mt-1 pt-1 border-t border-green-500/20">
-              <span className="text-slate-500">Incidenza fiscale</span>
-              <span className="text-green-400 font-bold">{result.ral > 0 ? ((imposteTotali / result.ral) * 100).toFixed(1) : '0.0'}%</span>
+              <span className="text-slate-500">Incidenza fiscale netta</span>
+              <span className="text-green-400 font-bold">{result.ral > 0 ? (((result.irpef + result.addizionali - result.trattamento_integrativo) / result.ral) * 100).toFixed(1) : '0.0'}%</span>
             </div>
           </div>
         </CardContent>
