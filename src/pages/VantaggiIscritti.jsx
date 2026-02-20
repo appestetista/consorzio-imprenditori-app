@@ -50,6 +50,7 @@ export default function VantaggiIscritti() {
     richiede_prenotazione: true,
     is_active: true
   });
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const { impersonation } = useImpersonation();
   const queryClient = useQueryClient();
 
