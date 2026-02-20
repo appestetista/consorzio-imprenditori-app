@@ -649,21 +649,26 @@ Fornisci:
             {!analysisResult ? (
               <div className="space-y-4">
                 {/* Form Export */}
-                <Card className="bg-slate-800 border-slate-700">
-                  <CardContent className="p-4">
-                    <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
-                      <Target className="w-5 h-5 text-lime-400" />
-                      Valuta il tuo potenziale Export
-                    </h3>
+                <Card className="bg-slate-800/60 border-white/5 backdrop-blur-sm shadow-xl">
+                  <CardContent className="p-5">
+                    <div className="flex items-center gap-3 mb-5">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-lime-400 to-emerald-500 flex items-center justify-center shadow-lg shadow-lime-400/20">
+                        <Target className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-white font-bold">Valuta il tuo potenziale</h3>
+                        <p className="text-slate-500 text-xs">Compila i dati per l'analisi di mercato</p>
+                      </div>
+                    </div>
                     
                     <div className="space-y-4">
                       <div>
-                        <label className="text-slate-400 text-sm mb-1 block">Settore *</label>
+                        <label className="text-slate-400 text-xs font-medium mb-1.5 block">Settore *</label>
                         <Select
                           value={exportForm.settore}
                           onValueChange={(value) => setExportForm({ ...exportForm, settore: value })}
                         >
-                          <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                          <SelectTrigger className="bg-slate-900/70 border-white/10 text-white h-11 rounded-xl">
                             <SelectValue placeholder="Seleziona il tuo settore" />
                           </SelectTrigger>
                           <SelectContent>
@@ -675,7 +680,7 @@ Fornisci:
                       </div>
 
                       <div>
-                        <label className="text-slate-400 text-sm mb-1 block">Prodotto principale *</label>
+                        <label className="text-slate-400 text-xs font-medium mb-1.5 block">Prodotto principale *</label>
                         <Input
                           placeholder="Es. Macchine per packaging alimentare"
                           value={exportForm.prodotto}
