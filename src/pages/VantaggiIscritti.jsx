@@ -585,6 +585,26 @@ export default function VantaggiIscritti() {
                   </Button>
                 </div>
 
+                {/* Categoria merceologica */}
+                <div>
+                  <Label className="text-lime-400">Categoria *</Label>
+                  <Select
+                    value={formData.categoria_vantaggio}
+                    onValueChange={(val) => setFormData({ ...formData, categoria_vantaggio: val })}
+                  >
+                    <SelectTrigger className="bg-slate-900 border-slate-600 text-white">
+                      <SelectValue placeholder="Seleziona categoria..." />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-800 border-slate-700">
+                      {CATEGORIES.map(cat => (
+                        <SelectItem key={cat.id} value={cat.id} className="text-white hover:bg-slate-700">
+                          {cat.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 {/* Titolo */}
                 <div>
                   <Label className="text-lime-400">Titolo *</Label>
