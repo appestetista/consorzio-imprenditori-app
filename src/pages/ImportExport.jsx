@@ -32,6 +32,7 @@ import MarketSummaryCard from '../components/import-export/MarketSummaryCard';
 import { fetchImportData, computeLandedCost, interpretImportData } from '../components/import-export/ImportDataFetcher';
 import LandedCostTable from '../components/import-export/LandedCostTable';
 import { buildExportSummary, buildImportSummary } from '../components/import-export/buildAnalysisSummary';
+import SearchHistory from '../components/import-export/SearchHistory';
 
 const SETTORI = [
   'Alimentare e bevande',
