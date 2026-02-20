@@ -217,13 +217,32 @@ export default function CountrySearchSelect({ selected = [], onChange, maxSelect
       </button>
       <p className="text-slate-500 text-[10px] mt-1">{selected.length}/{maxSelections} Paesi selezionati</p>
 
-      {/* Dialog popup */}
+      {/* Dialog popup - full screen on mobile */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-md p-0 gap-0 max-h-[85vh] flex flex-col top-[8%] translate-y-0 sm:top-[50%] sm:-translate-y-1/2">
+        <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-md p-0 gap-0 fixed inset-2 top-2 bottom-2 translate-x-0 translate-y-0 sm:inset-auto sm:top-[50%] sm:left-[50%] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:max-h-[85vh] flex flex-col rounded-xl">
           <DialogHeader className="px-4 pt-4 pb-2 flex-shrink-0">
             <DialogTitle className="text-white text-base">Seleziona Paesi</DialogTitle>
             <p className="text-slate-400 text-xs">{selected.length}/{maxSelections} selezionati</p>
           </DialogHeader>
+
+          {/* Selected chips inside dialog */}
+          {selectedCountries.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 px-4 pb-2 flex-shrink-0">
+              {selectedCountries.map(c => (
+                <div key={c.code} className="flex items-center gap-1.5 bg-lime-400/15 border border-lime-400/30 rounded-lg px-2 py-1">
+                  {c.code !== 'WLD' ? (
+                    <img src={getFlagUrl(c.code)} alt="" className="w-4 h-3 object-cover rounded-sm" />
+                  ) : (
+                    <Globe className="w-3.5 h-3.5 text-lime-400" />
+                  )}
+                  <span className="text-lime-300 text-[11px] font-medium">{c.name}</span>
+                  <button type="button" onClick={() => handleRemove(c.code)} className="text-lime-400/60 hover:text-lime-400 ml-0.5">
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Search inside dialog */}
           <div className="px-4 pb-2 flex-shrink-0">
