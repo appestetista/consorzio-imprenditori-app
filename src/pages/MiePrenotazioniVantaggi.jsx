@@ -261,9 +261,21 @@ export default function MiePrenotazioniVantaggi() {
           </TabsList>
 
           {/* Disclaimer dinamico */}
-          <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-3 mb-4 flex items-start gap-2">
-            <Info className="w-4 h-4 text-slate-400 flex-shrink-0 mt-0.5" />
-            <p className="text-slate-400 text-xs leading-relaxed">{TAB_DISCLAIMERS[activeTab]}</p>
+          <div className={`rounded-xl p-3 mb-4 flex items-start gap-2 border ${
+            activeTab === 'ricevute' ? 'bg-amber-400/10 border-amber-400/30' :
+            activeTab === 'attive' ? 'bg-lime-400/10 border-lime-400/30' :
+            'bg-green-500/10 border-green-500/30'
+          }`}>
+            <Info className={`w-4 h-4 flex-shrink-0 mt-0.5 ${
+              activeTab === 'ricevute' ? 'text-amber-400' :
+              activeTab === 'attive' ? 'text-lime-400' :
+              'text-green-400'
+            }`} />
+            <p className={`text-xs leading-relaxed ${
+              activeTab === 'ricevute' ? 'text-amber-300' :
+              activeTab === 'attive' ? 'text-lime-300' :
+              'text-green-300'
+            }`}>{TAB_DISCLAIMERS[activeTab]}</p>
           </div>
 
           {/* BLOCCO prenotazioni */}
