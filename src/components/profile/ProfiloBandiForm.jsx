@@ -11,8 +11,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useImpersonation } from '../admin/ImpersonationContext';
 
-// Campi obbligatori per il matching bandi
-const REQUIRED_FIELDS = ['company_size', 'region', 'interested_regions', 'sector', 'ateco_code', 'legal_form'];
+// Campi obbligatori per il matching bandi (company_size è già nel profilo azienda)
+const REQUIRED_FIELDS = ['region', 'interested_regions', 'sector', 'ateco_code', 'legal_form'];
 
 const HelpTooltip = ({ text }) => (
   <Popover>
