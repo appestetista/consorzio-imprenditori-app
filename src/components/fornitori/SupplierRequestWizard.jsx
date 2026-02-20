@@ -286,21 +286,6 @@ export default function SupplierRequestWizard({ user, onClose, onSuccess }) {
             </div>
           </div>
 
-          {/* Contesto aziendale */}
-          <div>
-            <label className="text-slate-400 text-sm mb-1.5 block">Contesto aziendale</label>
-            <Select value={formData.company_context} onValueChange={v => updateField('company_context', v)}>
-              <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
-                <SelectValue placeholder="Seleziona (facoltativo)" />
-              </SelectTrigger>
-              <SelectContent className="bg-slate-700 border-slate-600">
-                {COMPANY_CONTEXTS.map(c => (
-                  <SelectItem key={c.value} value={c.value} className="text-white hover:bg-slate-600">{c.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
           {/* Budget */}
           <div className="grid grid-cols-2 gap-3">
             <div>
