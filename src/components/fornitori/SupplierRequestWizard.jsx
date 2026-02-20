@@ -89,7 +89,7 @@ export default function SupplierRequestWizard({ user, onClose, onSuccess }) {
       subcategory: selectedCategory.subcategory,
       macro_sector: selectedCategory.macro_sector,
       service_type: formData.service_type,
-      company_context: formData.company_context || undefined,
+      company_context: user.legal_form || undefined,
       problem_to_solve: formData.problem_to_solve,
       locality: formData.locality || undefined,
       radius_km: formData.radius_km,
