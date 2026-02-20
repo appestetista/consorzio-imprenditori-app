@@ -30,7 +30,7 @@ export default function AnalisiContratti() {
   const [contactSent, setContactSent] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [selectedHistory, setSelectedHistory] = useState(null);
-  const [activeTab, setActiveTab] = useState('analisi'); // 'analisi' | 'messaggi'
+  const [activeTab, setActiveTab] = useState('analisi'); // 'analisi' | 'storico' | 'messaggi'
   const [followUpQuestion, setFollowUpQuestion] = useState('');
   const [followUpAnswers, setFollowUpAnswers] = useState([]);
   const [askingFollowUp, setAskingFollowUp] = useState(false);
