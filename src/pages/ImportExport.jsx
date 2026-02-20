@@ -653,6 +653,8 @@ Fornisci:
 
         {activeTab === 'messages' ? (
           <ImportMessagesSection user={user} />
+        ) : activeTab === 'history' ? (
+          <SearchHistory userEmail={user?.email} />
         ) : activeTab === 'export' ? (
           <>
             {/* Pannello Consulenti per Export */}
