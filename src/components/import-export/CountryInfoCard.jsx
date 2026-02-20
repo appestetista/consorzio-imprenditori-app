@@ -172,24 +172,24 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
   );
 
   return (
-    <div className="bg-slate-800/80 border border-slate-700 rounded-xl overflow-hidden">
+    <div className="bg-slate-800/50 border border-white/5 rounded-2xl overflow-hidden backdrop-blur-sm">
       {/* Header */}
-      <div className="bg-gradient-to-r from-slate-700/50 to-slate-800/50 px-4 py-3 flex items-center gap-3">
+      <div className="px-4 py-3 flex items-center gap-3 border-b border-white/5">
         {countryCode !== 'WLD' ? (
-          <img src={flagUrl} alt="" className="w-10 h-7 object-cover rounded shadow" />
+          <img src={flagUrl} alt="" className="w-10 h-7 object-cover rounded-md shadow" />
         ) : (
           <Globe className="w-8 h-6 text-blue-400" />
         )}
         <div className="flex-1">
-          <p className="text-white font-bold">{countryName}</p>
+          <p className="text-white font-bold text-sm">{countryName}</p>
           <div className="flex items-center gap-2 mt-0.5">
-            <span className="text-slate-400 text-xs">{countryCode}</span>
+            <span className="text-slate-500 text-xs">{countryCode}</span>
             {stabilityScore !== null && <StabilityBadge score={stabilityScore} />}
           </div>
         </div>
         {metrics?.crescita_3_anni !== undefined && (
           <div className="text-right">
-            <p className="text-slate-500 text-[10px]">Crescita 3Y</p>
+            <p className="text-slate-600 text-[9px]">Crescita 3Y</p>
             <GrowthIndicator value={metrics.crescita_3_anni} />
           </div>
         )}
