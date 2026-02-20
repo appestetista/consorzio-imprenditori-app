@@ -1369,14 +1369,6 @@ export default function MyProfile() {
         )}
           </TabsContent>
 
-          <TabsContent value="contratti">
-            <ContractHistorySection user={user} />
-          </TabsContent>
-
-          <TabsContent value="bandi">
-              <ProfiloBandiForm user={user} />
-            </TabsContent>
-
           <TabsContent value="notifiche">
             <NotificationPreferences user={user} />
           </TabsContent>
