@@ -382,16 +382,25 @@ export default function VantaggiIscritti() {
           <div className="text-center py-12">
             <div className="animate-spin w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full mx-auto"></div>
           </div>
-        ) : vantaggi.length === 0 ? (
+        ) : (() => {
+          const filtered = vantaggi.filter(v => !selectedCategory || v.categoria_vantaggio === selectedCategory);
+          return filtered.length === 0 ? (
           <Card className="bg-slate-800 border-slate-700">
             <CardContent className="p-8 text-center">
               <Gift className="w-16 h-16 text-slate-600 mx-auto mb-4" />
-              <p className="text-slate-400">Nessun vantaggio disponibile al momento</p>
+              <p className="text-slate-400">
+                {selectedCategory ? `Nessun vantaggio nella categoria "${selectedCategory}"` : 'Nessun vantaggio disponibile al momento'}
+              </p>
+              {selectedCategory && (
+                <Button variant="ghost" size="sm" className="text-lime-400 mt-2" onClick={() => setSelectedCategory(null)}>
+                  Mostra tutti
+                </Button>
+              )}
             </CardContent>
           </Card>
         ) : (
           <div className="grid gap-4">
-            {vantaggi.filter(v => !selectedCategory || v.categoria_vantaggio === selectedCategory).map((vantaggio) => {
+            {filtered.map((vantaggio) => {
               const creator = getCreatorInfo(vantaggio);
               const prenotato = isPrenotato(vantaggio.id);
               const consumato = isConsumato(vantaggio.id);
