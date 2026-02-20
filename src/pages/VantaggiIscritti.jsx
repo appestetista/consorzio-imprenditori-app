@@ -389,7 +389,7 @@ export default function VantaggiIscritti() {
           </Card>
         ) : (
           <div className="grid gap-4">
-            {vantaggi.map((vantaggio) => {
+            {vantaggi.filter(v => !selectedCategory || v.categoria_vantaggio === selectedCategory).map((vantaggio) => {
               const creator = getCreatorInfo(vantaggio);
               const prenotato = isPrenotato(vantaggio.id);
               const consumato = isConsumato(vantaggio.id);
