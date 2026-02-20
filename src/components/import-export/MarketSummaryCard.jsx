@@ -77,6 +77,21 @@ function buildConclusion(priceM, tradeM, macro, margineLordo, margineNetto) {
     points.push(`PIL pro capite basso ($${Math.round(pilPc).toLocaleString('en-US')}) con prezzo premium — potere d'acquisto limitato.`);
   }
 
+  // Inflazione alta
+  if (typeof macro?.inflazione === 'number' && macro.inflazione > 8) {
+    points.push(`Inflazione elevata (${macro.inflazione}%) — rischio erosione margini e instabilità prezzi.`);
+  }
+
+  // LPI scarso
+  if (typeof macro?.lpi_score === 'number' && macro.lpi_score < 2.5) {
+    points.push(`Logistica carente (LPI ${macro.lpi_score}/5) — possibili ritardi e costi extra spedizione.`);
+  }
+
+  // Volatilità cambio
+  if (typeof macro?.volatilita_cambio === 'number' && macro.volatilita_cambio > 12) {
+    points.push(`Volatilità valutaria alta (${macro.volatilita_cambio}%) — rischio cambio significativo.`);
+  }
+
   if (points.length === 0) return null;
   return points;
 }
