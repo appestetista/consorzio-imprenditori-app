@@ -131,6 +131,10 @@ export default function MarketSummaryCard({ priceM, tradeM, macro, userPriceData
   const pop = macro?.popolazione;
   const pil = macro?.pil_nominale;
   const pilPc = macro?.pil_pro_capite;
+  const inflazione = macro?.inflazione;
+  const lpiScore = macro?.lpi_score;
+  const doingBusiness = macro?.doing_business_score;
+  const volatilitaCambio = macro?.volatilita_cambio;
 
   // Conclusione
   const conclusionPoints = buildConclusion(priceM, tradeM, macro, margineLordo, margineNetto);
