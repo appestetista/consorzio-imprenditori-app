@@ -477,12 +477,12 @@ export default function VantaggiIscritti() {
                       ) : vantaggio.richiede_prenotazione ? (
                         <Button
                           onClick={() => prenotaMutation.mutate(vantaggio.id)}
-                          disabled={prenotaMutation.isPending || consumato}
-                          className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 font-bold"
+                          disabled={prenotaMutation.isPending || consumato || isBloccato}
+                          className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 font-bold disabled:opacity-50"
                           size="sm"
                         >
                           <Gift className="w-4 h-4 mr-2" />
-                          Prenota
+                          {isBloccato ? 'Bloccato' : 'Prenota'}
                         </Button>
                       ) : (
                         <div className="bg-amber-500/20 border border-amber-500/50 rounded-lg p-2 text-center">
