@@ -639,14 +639,26 @@ Fornisci:
             )}
 
             {/* Limite Export */}
-            {exportLimitReached && (
+            {exportLimitReached && !analysisResult && (
               <LimitReachedBanner actionType="export_analysis" usageCount={exportUsage} limit={exportLimit} isWeekly={true} />
             )}
-            {!exportLimitReached && user && (
+            {!exportLimitReached && user && !analysisResult && (
               <UsageCounter usageCount={exportUsage} limit={exportLimit} label="Analisi export disponibili questa settimana" />
             )}
 
             {!analysisResult ? (
+              exportLimitReached ? (
+                /* Limite raggiunto — nasconde il form, mostra solo il messaggio */
+                <div className="space-y-4">
+                  <Card className="bg-slate-800/60 border-white/5 backdrop-blur-sm">
+                    <CardContent className="p-5 text-center">
+                      <p className="text-slate-400 text-sm">
+                        Le analisi si ricaricheranno la prossima settimana. Puoi comunque contattare i nostri consulenti export per assistenza personalizzata.
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+              ) :
               <div className="space-y-4">
                 {/* Form Export */}
                 <Card className="bg-slate-800/60 border-white/5 backdrop-blur-sm shadow-xl">
