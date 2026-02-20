@@ -1719,7 +1719,7 @@ Fornisci:
                     </CardContent>
                   </Card>
                 )}
-                {importForm.descrizione_prodotto && importForm.quantita && importForm.tipo_richiesta && !importLimitReached && !analyzingImport && (
+                {importForm.descrizione_prodotto && importForm.quantita && importForm.tipo_richiesta && !importLimitReached && !analyzingImport && !confirmedImportHS && (
                   <HSCodeClassifier
                     productDescription={`${importForm.descrizione_prodotto}${importForm.requisiti ? ' - Requisiti: ' + importForm.requisiti : ''}`}
                     onConfirm={handleImportHSConfirm}
