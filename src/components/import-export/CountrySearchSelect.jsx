@@ -82,36 +82,51 @@ function getFlagUrl(code) {
 }
 
 const CONTINENT_MAP = {
-  AL: 'Europa', AT: 'Europa', BA: 'Europa', BE: 'Europa', BG: 'Europa', BY: 'Europa',
+  // Europa
+  AD: 'Europa', AL: 'Europa', AT: 'Europa', BA: 'Europa', BE: 'Europa', BG: 'Europa', BY: 'Europa',
   CH: 'Europa', CY: 'Europa', CZ: 'Europa', DE: 'Europa', DK: 'Europa', EE: 'Europa',
   ES: 'Europa', FI: 'Europa', FR: 'Europa', GB: 'Europa', GE: 'Europa', GR: 'Europa',
-  HR: 'Europa', HU: 'Europa', IE: 'Europa', IS: 'Europa', IT: 'Europa', LT: 'Europa',
-  LU: 'Europa', LV: 'Europa', MD: 'Europa', ME: 'Europa', MT: 'Europa', NL: 'Europa',
-  NO: 'Europa', PL: 'Europa', PT: 'Europa', RO: 'Europa', RS: 'Europa', RU: 'Europa',
-  SE: 'Europa', SI: 'Europa', SK: 'Europa', UA: 'Europa',
-  AR: 'America', BO: 'America', BR: 'America', CA: 'America', CL: 'America', CO: 'America',
-  CR: 'America', CU: 'America', DO: 'America', EC: 'America', GT: 'America', HN: 'America',
-  JM: 'America', MX: 'America', NI: 'America', PA: 'America', PE: 'America', PY: 'America',
-  SV: 'America', US: 'America', UY: 'America', VE: 'America',
-  AE: 'Asia', AF: 'Asia', AM: 'Asia', AZ: 'Asia', BD: 'Asia', BH: 'Asia', BN: 'Asia',
+  HR: 'Europa', HU: 'Europa', IE: 'Europa', IS: 'Europa', IT: 'Europa', LI: 'Europa', LT: 'Europa',
+  LU: 'Europa', LV: 'Europa', MC: 'Europa', MD: 'Europa', ME: 'Europa', MK: 'Europa', MT: 'Europa',
+  NL: 'Europa', NO: 'Europa', PL: 'Europa', PT: 'Europa', RO: 'Europa', RS: 'Europa', RU: 'Europa',
+  SE: 'Europa', SI: 'Europa', SK: 'Europa', SM: 'Europa', UA: 'Europa',
+  // America
+  AG: 'America', AR: 'America', BB: 'America', BO: 'America', BR: 'America', BS: 'America',
+  BZ: 'America', CA: 'America', CL: 'America', CO: 'America', CR: 'America', CU: 'America',
+  DM: 'America', DO: 'America', EC: 'America', GD: 'America', GT: 'America', GY: 'America',
+  HN: 'America', HT: 'America', JM: 'America', MX: 'America', NI: 'America', PA: 'America',
+  PE: 'America', PY: 'America', SR: 'America', SV: 'America', TT: 'America', US: 'America',
+  UY: 'America', VE: 'America',
+  // Asia
+  AE: 'Asia', AF: 'Asia', AM: 'Asia', AZ: 'Asia', BD: 'Asia', BH: 'Asia', BN: 'Asia', BT: 'Asia',
   CN: 'Asia', HK: 'Asia', ID: 'Asia', IL: 'Asia', IN: 'Asia', IQ: 'Asia', IR: 'Asia',
-  JO: 'Asia', JP: 'Asia', KH: 'Asia', KR: 'Asia', KW: 'Asia', KZ: 'Asia', LB: 'Asia',
-  LK: 'Asia', MM: 'Asia', MN: 'Asia', MO: 'Asia', MY: 'Asia', NP: 'Asia', OM: 'Asia',
-  PH: 'Asia', PK: 'Asia', QA: 'Asia', SA: 'Asia', SG: 'Asia', TH: 'Asia', TR: 'Asia',
-  TW: 'Asia', UZ: 'Asia', VN: 'Asia', AU: 'Asia', NZ: 'Asia',
-  AO: 'Africa', BF: 'Africa', BJ: 'Africa', BW: 'Africa', CM: 'Africa', CG: 'Africa',
-  CI: 'Africa', DZ: 'Africa', EG: 'Africa', ET: 'Africa', GA: 'Africa', GH: 'Africa',
-  GN: 'Africa', KE: 'Africa', LY: 'Africa', MA: 'Africa', MG: 'Africa', ML: 'Africa',
-  MZ: 'Africa', NA: 'Africa', NE: 'Africa', NG: 'Africa', RW: 'Africa', SD: 'Africa',
-  SN: 'Africa', TN: 'Africa', TZ: 'Africa', ZA: 'Africa', ZM: 'Africa', ZW: 'Africa',
+  JO: 'Asia', JP: 'Asia', KG: 'Asia', KH: 'Asia', KP: 'Asia', KR: 'Asia', KW: 'Asia', KZ: 'Asia',
+  LA: 'Asia', LB: 'Asia', LK: 'Asia', MM: 'Asia', MN: 'Asia', MO: 'Asia', MV: 'Asia', MY: 'Asia',
+  NP: 'Asia', OM: 'Asia', PH: 'Asia', PK: 'Asia', QA: 'Asia', SA: 'Asia', SG: 'Asia', SY: 'Asia',
+  TH: 'Asia', TJ: 'Asia', TL: 'Asia', TM: 'Asia', TR: 'Asia', TW: 'Asia', UZ: 'Asia', VN: 'Asia',
+  YE: 'Asia',
+  // Africa
+  AO: 'Africa', BF: 'Africa', BI: 'Africa', BJ: 'Africa', BW: 'Africa', CD: 'Africa', CG: 'Africa',
+  CI: 'Africa', CM: 'Africa', CV: 'Africa', DJ: 'Africa', DZ: 'Africa', EG: 'Africa', ER: 'Africa',
+  ET: 'Africa', GA: 'Africa', GH: 'Africa', GM: 'Africa', GN: 'Africa', GQ: 'Africa', GW: 'Africa',
+  KE: 'Africa', KM: 'Africa', LR: 'Africa', LS: 'Africa', LY: 'Africa', MA: 'Africa', MG: 'Africa',
+  ML: 'Africa', MR: 'Africa', MU: 'Africa', MW: 'Africa', MZ: 'Africa', NA: 'Africa', NE: 'Africa',
+  NG: 'Africa', RW: 'Africa', SC: 'Africa', SD: 'Africa', SL: 'Africa', SN: 'Africa', SO: 'Africa',
+  SS: 'Africa', ST: 'Africa', SZ: 'Africa', TD: 'Africa', TG: 'Africa', TN: 'Africa', TZ: 'Africa',
+  UG: 'Africa', ZA: 'Africa', ZM: 'Africa', ZW: 'Africa',
+  // Oceania
+  AU: 'Oceania', FJ: 'Oceania', FM: 'Oceania', KI: 'Oceania', MH: 'Oceania', NR: 'Oceania',
+  NZ: 'Oceania', PG: 'Oceania', PW: 'Oceania', SB: 'Oceania', TO: 'Oceania', TV: 'Oceania',
+  VU: 'Oceania', WS: 'Oceania',
 };
 
-const CONTINENT_ORDER = ['Europa', 'America', 'Asia', 'Africa'];
+const CONTINENT_ORDER = ['Europa', 'America', 'Asia', 'Africa', 'Oceania'];
 const CONTINENT_COLORS = {
   Europa: 'from-blue-500 to-indigo-500',
   America: 'from-emerald-500 to-teal-500',
   Asia: 'from-amber-500 to-orange-500',
   Africa: 'from-rose-500 to-pink-500',
+  Oceania: 'from-cyan-500 to-sky-500',
 };
 
 export default function CountrySearchSelect({ selected = [], onChange, maxSelections = 5 }) {
