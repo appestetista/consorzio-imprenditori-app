@@ -494,17 +494,7 @@ export default function VantaggiIscritti() {
 
       <BottomNav currentPage="VantaggiIscritti" />
 
-      {/* FAB Crea Vantaggio */}
-      <button
-        onClick={() => setShowCreatePanel(true)}
-        className="fixed bottom-28 right-4 w-14 h-14 rounded-2xl shadow-lg flex items-center justify-center z-40 transition-transform active:scale-95"
-        style={{
-          background: 'linear-gradient(145deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%)',
-          boxShadow: '0 4px 15px rgba(251, 191, 36, 0.4), 0 2px 6px rgba(0,0,0,0.2)'
-        }}
-      >
-        <Plus className="w-7 h-7 text-white" strokeWidth={2.5} />
-      </button>
+
 
       {/* Sheet Crea Vantaggio */}
       <Sheet open={showCreatePanel} onOpenChange={(open) => {
