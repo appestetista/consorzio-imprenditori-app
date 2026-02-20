@@ -17,6 +17,7 @@ import BottomNav from '../components/layout/BottomNav';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import ContractMessagesSection from '@/components/analisi-contratti/ContractMessagesSection';
 import SectionConsultantPanel from '../components/consulenze/SectionConsultantPanel';
+import ContractHistorySection from '@/components/profile/ContractHistorySection';
 
 export default function AnalisiContratti() {
   const [user, setUser] = useState(null);
