@@ -101,48 +101,48 @@ export default function Fornitori() {
           </div>
         </div>
 
-        {/* Tabs per imprenditori e fornitori */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="w-full bg-slate-800 border border-slate-700 mb-4">
-            <TabsTrigger 
-            value="my-requests" 
-            className="flex-1 data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900"
+        {/* Sezione principale */}
+        {/* Pannello Consulenti */}
+        {effectiveUser && (
+          <div className="mb-4">
+            <SectionConsultantPanel 
+              sectionId="fornitori" 
+              sectionLabel="Ricerca Fornitori" 
+              user={effectiveUser} 
+            />
+          </div>
+        )}
+
+        {/* Tab fornitori (solo se è fornitore) */}
+        {isSupplier && (
+          <div className="flex gap-2 mb-4">
+            <Button
+              size="sm"
+              onClick={() => setActiveTab('my-requests')}
+              className={`flex-1 text-xs ${activeTab === 'my-requests' ? 'bg-lime-400 text-slate-900 hover:bg-lime-500' : 'bg-slate-800 text-slate-400 border border-slate-700 hover:bg-slate-700'}`}
             >
-            <Search className="w-4 h-4 mr-2" />
-            Richieste
-            </TabsTrigger>
-            {isSupplier && (
-              <TabsTrigger 
-                value="open-requests" 
-                className="flex-1 data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900"
-              >
-                <Users className="w-4 h-4 mr-2" />
-                Richieste aperte
-              </TabsTrigger>
-            )}
-            {isSupplier && (
-              <TabsTrigger 
-                value="my-profile" 
-                className="flex-1 data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900"
-              >
-                <Eye className="w-4 h-4 mr-2" />
-                Profilo
-              </TabsTrigger>
-            )}
-          </TabsList>
+              <Search className="w-3 h-3 mr-1" /> Cerca fornitore
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => setActiveTab('open-requests')}
+              className={`flex-1 text-xs ${activeTab === 'open-requests' ? 'bg-lime-400 text-slate-900 hover:bg-lime-500' : 'bg-slate-800 text-slate-400 border border-slate-700 hover:bg-slate-700'}`}
+            >
+              <Users className="w-3 h-3 mr-1" /> Candidati
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => setActiveTab('my-profile')}
+              className={`flex-1 text-xs ${activeTab === 'my-profile' ? 'bg-lime-400 text-slate-900 hover:bg-lime-500' : 'bg-slate-800 text-slate-400 border border-slate-700 hover:bg-slate-700'}`}
+            >
+              <Eye className="w-3 h-3 mr-1" /> Profilo
+            </Button>
+          </div>
+        )}
 
-          <TabsContent value="my-requests" className="mt-0">
-            {/* Pannello Consulenti per questa sezione */}
-            {effectiveUser && (
-              <div className="mb-6">
-                <SectionConsultantPanel 
-                  sectionId="fornitori" 
-                  sectionLabel="Ricerca Fornitori" 
-                  user={effectiveUser} 
-                />
-              </div>
-            )}
-
+        {/* Contenuto */}
+        {activeTab === 'my-requests' && (
+          <>
             {!showNewRequest ? (
               <>
                 <Button 
@@ -163,20 +163,16 @@ export default function Fornitori() {
                 }}
               />
             )}
-          </TabsContent>
+          </>
+        )}
 
-          {isSupplier && (
-            <TabsContent value="open-requests" className="mt-0">
-              <OpenRequestsList user={effectiveUser} supplierProfile={supplierProfile} />
-            </TabsContent>
-          )}
+        {isSupplier && activeTab === 'open-requests' && (
+          <OpenRequestsList user={effectiveUser} supplierProfile={supplierProfile} />
+        )}
 
-          {isSupplier && (
-            <TabsContent value="my-profile" className="mt-0">
-              <SupplierProfileSetup user={effectiveUser} existingProfile={supplierProfile} />
-            </TabsContent>
-          )}
-        </Tabs>
+        {isSupplier && activeTab === 'my-profile' && (
+          <SupplierProfileSetup user={effectiveUser} existingProfile={supplierProfile} />
+        )}
       </main>
 
       <BottomNav currentPage="Fornitori" unreadMessages={messages.length} />
