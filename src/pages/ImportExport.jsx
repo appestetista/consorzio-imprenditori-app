@@ -415,7 +415,7 @@ export default function ImportExport() {
       }
       setTradeMetrics(metrics);
 
-      // STEP 4: Interpretazione strategica AI
+      // STEP 4: Interpretazione strategica AI (include dati macro stabilità)
       setExportStep('interpreting');
       const interpretation = await interpretData(rawData, metrics, hsData.hs_code, hsData.descrizione_ufficiale, {
         settore: exportForm.settore,
@@ -425,7 +425,7 @@ export default function ImportExport() {
         esperienza_export: exportForm.esperienza_export,
         certificazioni: exportForm.certificazioni,
         capacita_produttiva: exportForm.capacita_produttiva
-      });
+      }, macro || {});
 
       if (interpretation?._api_error) {
         setAnalysisResult({ _api_error: true });
