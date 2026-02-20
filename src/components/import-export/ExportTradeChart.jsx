@@ -32,35 +32,41 @@ export default function ExportTradeChart({ serieStorica, serieStoricaEur, paeseN
   const formatter = (v) => formatVal(v, hasEur);
 
   return (
-    <Card className="bg-slate-700/50 border-slate-600">
-      <CardContent className="p-3">
-        <p className="text-slate-400 text-xs mb-2">
-          📈 Import {paeseNome} — Serie storica HS ({hasEur ? 'EUR' : 'USD'})
+    <div className="bg-white/[0.03] border border-white/5 rounded-xl p-3">
+      <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider mb-2">
+        Import {paeseNome} — Serie storica ({hasEur ? 'EUR' : 'USD'})
+      </p>
+      <div className="h-40">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={data} margin={{ top: 5, right: 5, left: -10, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+            <XAxis dataKey="anno" tick={{ fill: '#64748b', fontSize: 10 }} axisLine={false} tickLine={false} />
+            <YAxis 
+              tick={{ fill: '#64748b', fontSize: 9 }} 
+              tickFormatter={formatter}
+              axisLine={false}
+              tickLine={false}
+            />
+            <Tooltip 
+              contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, fontSize: 12 }}
+              labelStyle={{ color: '#fff' }}
+              formatter={(v) => [formatter(v), 'Import']}
+            />
+            <Bar dataKey="valore" fill="url(#chartGradient)" radius={[6, 6, 0, 0]} />
+            <defs>
+              <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#a3e635" stopOpacity={0.9} />
+                <stop offset="100%" stopColor="#22c55e" stopOpacity={0.6} />
+              </linearGradient>
+            </defs>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+      {tassoCambio && hasEur && (
+        <p className="text-slate-600 text-[10px] mt-1">
+          💱 {tassoCambio.nota}
         </p>
-        <div className="h-40">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data} margin={{ top: 5, right: 5, left: -10, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
-              <XAxis dataKey="anno" tick={{ fill: '#94a3b8', fontSize: 10 }} />
-              <YAxis 
-                tick={{ fill: '#94a3b8', fontSize: 9 }} 
-                tickFormatter={formatter}
-              />
-              <Tooltip 
-                contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #475569', borderRadius: 8, fontSize: 12 }}
-                labelStyle={{ color: '#fff' }}
-                formatter={(v) => [formatter(v), 'Import']}
-              />
-              <Bar dataKey="valore" fill="#a3e635" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-        {tassoCambio && hasEur && (
-          <p className="text-blue-400/70 text-[10px] mt-1">
-            💱 {tassoCambio.nota}
-          </p>
-        )}
-      </CardContent>
-    </Card>
+      )}
+    </div>
   );
 }

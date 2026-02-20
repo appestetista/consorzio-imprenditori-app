@@ -150,51 +150,55 @@ export default function ExportRiskAlerts({ priceMetrics, tradeMetrics, macroData
   const lowAlerts = alerts.filter(a => a.severity === 'low');
 
   return (
-    <Card className="bg-red-500/10 border-red-500/30">
-      <CardContent className="p-4">
-        <h3 className="text-red-400 font-bold text-sm mb-3 flex items-center gap-2">
-          <AlertTriangle className="w-5 h-5" />
-          Alert Rischio ({alerts.length})
-        </h3>
-        <div className="space-y-2.5">
-          {highAlerts.map((a, i) => (
-            <div key={`h-${i}`} className="bg-red-500/15 border border-red-500/30 rounded-lg p-3">
-              <div className="flex items-start gap-2">
-                <span className="text-red-400 text-xs font-black bg-red-500/30 px-1.5 py-0.5 rounded mt-0.5">!</span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-red-300 text-xs font-bold">{a.title}</p>
-                  <p className="text-red-200/80 text-xs mt-0.5">{a.detail}</p>
-                  <p className="text-red-300/50 text-[10px] mt-1">Fonte: {a.source}</p>
-                </div>
+    <div className="bg-red-500/5 border border-red-500/15 rounded-2xl p-4">
+      <p className="text-red-400 font-bold text-sm mb-3 flex items-center gap-2">
+        <AlertTriangle className="w-4 h-4" />
+        Alert Rischio ({alerts.length})
+      </p>
+      <div className="space-y-2">
+        {highAlerts.map((a, i) => (
+          <div key={`h-${i}`} className="bg-red-500/10 border border-red-500/15 rounded-xl p-3">
+            <div className="flex items-start gap-2.5">
+              <div className="w-6 h-6 rounded-lg bg-red-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="text-red-400 text-[10px] font-black">!</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-red-300 text-xs font-bold">{a.title}</p>
+                <p className="text-red-200/70 text-xs mt-0.5 leading-relaxed">{a.detail}</p>
+                <p className="text-red-300/40 text-[10px] mt-1">{a.source}</p>
               </div>
             </div>
-          ))}
-          {mediumAlerts.map((a, i) => (
-            <div key={`m-${i}`} className="bg-amber-500/10 border border-amber-500/25 rounded-lg p-3">
-              <div className="flex items-start gap-2">
-                <span className="text-amber-400 text-xs font-bold bg-amber-500/20 px-1.5 py-0.5 rounded mt-0.5">⚠</span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-amber-300 text-xs font-bold">{a.title}</p>
-                  <p className="text-amber-200/80 text-xs mt-0.5">{a.detail}</p>
-                  <p className="text-amber-300/50 text-[10px] mt-1">Fonte: {a.source}</p>
-                </div>
+          </div>
+        ))}
+        {mediumAlerts.map((a, i) => (
+          <div key={`m-${i}`} className="bg-amber-500/5 border border-amber-500/15 rounded-xl p-3">
+            <div className="flex items-start gap-2.5">
+              <div className="w-6 h-6 rounded-lg bg-amber-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="text-amber-400 text-[10px] font-bold">⚠</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-amber-300 text-xs font-bold">{a.title}</p>
+                <p className="text-amber-200/70 text-xs mt-0.5 leading-relaxed">{a.detail}</p>
+                <p className="text-amber-300/40 text-[10px] mt-1">{a.source}</p>
               </div>
             </div>
-          ))}
-          {lowAlerts.map((a, i) => (
-            <div key={`l-${i}`} className="bg-blue-500/10 border border-blue-500/25 rounded-lg p-3">
-              <div className="flex items-start gap-2">
-                <span className="text-blue-400 text-xs font-bold bg-blue-500/20 px-1.5 py-0.5 rounded mt-0.5">ℹ</span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-blue-300 text-xs font-bold">{a.title}</p>
-                  <p className="text-blue-200/80 text-xs mt-0.5">{a.detail}</p>
-                  <p className="text-blue-300/50 text-[10px] mt-1">Fonte: {a.source}</p>
-                </div>
+          </div>
+        ))}
+        {lowAlerts.map((a, i) => (
+          <div key={`l-${i}`} className="bg-blue-500/5 border border-blue-500/15 rounded-xl p-3">
+            <div className="flex items-start gap-2.5">
+              <div className="w-6 h-6 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="text-blue-400 text-[10px] font-bold">ℹ</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-blue-300 text-xs font-bold">{a.title}</p>
+                <p className="text-blue-200/70 text-xs mt-0.5 leading-relaxed">{a.detail}</p>
+                <p className="text-blue-300/40 text-[10px] mt-1">{a.source}</p>
               </div>
             </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
