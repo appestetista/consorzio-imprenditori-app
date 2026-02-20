@@ -1721,9 +1721,9 @@ Fornisci:
                         <div className="space-y-2">
                           {['fetching', 'computing', 'interpreting'].map((step, i) => {
                             const labels = {
-                              fetching: '1. Recupero dazi TARIC e flussi Comtrade...',
-                              computing: '2. Calcolo Landed Cost...',
-                              interpreting: '3. Valutazione fattibilità AI...'
+                              fetching: '1. Recupero dati ufficiali...',
+                              computing: '2. Calcolo costi...',
+                              interpreting: '3. Valutazione fattibilità...'
                             };
                             const isActive = importStep === step;
                             const isDone = ['fetching', 'computing', 'interpreting'].indexOf(importStep) > i;
