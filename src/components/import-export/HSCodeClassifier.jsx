@@ -197,7 +197,13 @@ REGOLE INDEROGABILI:
           ))}
         </div>
 
-        <div className="flex gap-2 mt-4">
+        {!selectedCode && (
+          <p className="text-amber-400/80 text-xs text-center mt-3 animate-pulse">
+            ☝️ Tocca il codice HS sopra per selezionarlo
+          </p>
+        )}
+
+        <div className="flex gap-2 mt-3">
           <button
             type="button"
             onClick={() => { setCandidates(null); setSelectedCode(null); setError(null); }}
@@ -213,7 +219,7 @@ REGOLE INDEROGABILI:
             className={`flex-1 flex items-center justify-center gap-1.5 h-12 rounded-xl font-bold text-sm transition-all active:scale-95 ${
               selectedCode 
                 ? 'bg-lime-400 hover:bg-lime-300 text-black shadow-lg shadow-lime-400/30' 
-                : 'bg-slate-700 text-slate-500 cursor-not-allowed'
+                : 'bg-slate-700 text-slate-500 cursor-not-allowed opacity-60'
             }`}
           >
             <CheckCircle className="w-4 h-4" />
