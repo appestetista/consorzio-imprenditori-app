@@ -985,18 +985,10 @@ export default function MyProfile() {
        </div>
 
         <Tabs defaultValue="profilo" className="w-full">
-          <TabsList className="w-full bg-slate-800 border border-slate-700 mb-4 grid grid-cols-4">
+          <TabsList className="w-full bg-slate-800 border border-slate-700 mb-4 grid grid-cols-2">
             <TabsTrigger value="profilo" className="data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
               <User className="w-4 h-4 mr-1" />
               <span className="hidden sm:inline">Profilo</span>
-            </TabsTrigger>
-            <TabsTrigger value="contratti" className="data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
-              <FileSearch className="w-4 h-4 mr-1" />
-              <span className="hidden sm:inline">Contratti</span>
-            </TabsTrigger>
-            <TabsTrigger value="bandi" className="data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
-              <FileText className="w-4 h-4 mr-1" />
-              <span className="hidden sm:inline">Bandi</span>
             </TabsTrigger>
             <TabsTrigger value="notifiche" className="data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
               <Bell className="w-4 h-4 mr-1" />
