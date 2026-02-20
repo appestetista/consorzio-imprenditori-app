@@ -624,6 +624,17 @@ Fornisci:
             Import CN
           </button>
           <button
+            onClick={() => setActiveTab('history')}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+              activeTab === 'history' 
+                ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/20' 
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <Clock className="w-4 h-4" />
+            Storico
+          </button>
+          <button
             onClick={() => setActiveTab('messages')}
             className={`relative px-4 flex items-center justify-center py-2.5 rounded-lg text-sm font-semibold transition-all ${
               activeTab === 'messages' 
