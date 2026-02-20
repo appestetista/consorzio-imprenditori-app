@@ -13,13 +13,18 @@ function formatVal(val) {
   return `€${num.toFixed(0)}`;
 }
 
-export default function ExportComparisonRanking({ metriche, macroData }) {
+export default function ExportComparisonRanking({ metriche, macroData, mercatiAnalisi }) {
   if (!metriche || metriche.length < 2) return null;
 
-  // Sort by import_totale_eur descending
+  // Sort by punteggio_opportunita from AI analysis (descending), fallback to import_totale_eur
   const sorted = [...metriche]
     .filter(m => m.import_totale_eur > 0)
-    .sort((a, b) => (b.import_totale_eur || 0) - (a.import_totale_eur || 0));
+    .sort((a, b) => {
+      const scoreA = mercatiAnalisi?.find(ma => ma.paese_code === a.paese_code)?.punteggio_opportunita || 0;
+      const scoreB = mercatiAnalisi?.find(ma => ma.paese_code === b.paese_code)?.punteggio_opportunita || 0;
+      if (scoreB !== scoreA) return scoreB - scoreA;
+      return (b.import_totale_eur || 0) - (a.import_totale_eur || 0);
+    });
 
   if (sorted.length < 2) return null;
 
