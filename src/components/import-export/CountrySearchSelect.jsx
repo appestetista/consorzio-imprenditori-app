@@ -1,6 +1,7 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { X, Search, Globe, ChevronDown } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { X, Search, Globe } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 // Full list of UN Comtrade countries with ISO2 codes
 const ALL_COUNTRIES = [
@@ -57,9 +58,7 @@ function getFlagUrl(code) {
   return `https://flagcdn.com/w40/${code.toLowerCase()}.png`;
 }
 
-// Continente per ogni paese
 const CONTINENT_MAP = {
-  // Europa
   AL: 'Europa', AT: 'Europa', BA: 'Europa', BE: 'Europa', BG: 'Europa', BY: 'Europa',
   CH: 'Europa', CY: 'Europa', CZ: 'Europa', DE: 'Europa', DK: 'Europa', EE: 'Europa',
   ES: 'Europa', FI: 'Europa', FR: 'Europa', GB: 'Europa', GE: 'Europa', GR: 'Europa',
@@ -67,19 +66,16 @@ const CONTINENT_MAP = {
   LU: 'Europa', LV: 'Europa', MD: 'Europa', ME: 'Europa', MT: 'Europa', NL: 'Europa',
   NO: 'Europa', PL: 'Europa', PT: 'Europa', RO: 'Europa', RS: 'Europa', RU: 'Europa',
   SE: 'Europa', SI: 'Europa', SK: 'Europa', UA: 'Europa',
-  // America
   AR: 'America', BO: 'America', BR: 'America', CA: 'America', CL: 'America', CO: 'America',
   CR: 'America', CU: 'America', DO: 'America', EC: 'America', GT: 'America', HN: 'America',
   JM: 'America', MX: 'America', NI: 'America', PA: 'America', PE: 'America', PY: 'America',
   SV: 'America', US: 'America', UY: 'America', VE: 'America',
-  // Asia & Oceania
   AE: 'Asia', AF: 'Asia', AM: 'Asia', AZ: 'Asia', BD: 'Asia', BH: 'Asia', BN: 'Asia',
   CN: 'Asia', HK: 'Asia', ID: 'Asia', IL: 'Asia', IN: 'Asia', IQ: 'Asia', IR: 'Asia',
   JO: 'Asia', JP: 'Asia', KH: 'Asia', KR: 'Asia', KW: 'Asia', KZ: 'Asia', LB: 'Asia',
   LK: 'Asia', MM: 'Asia', MN: 'Asia', MO: 'Asia', MY: 'Asia', NP: 'Asia', OM: 'Asia',
   PH: 'Asia', PK: 'Asia', QA: 'Asia', SA: 'Asia', SG: 'Asia', TH: 'Asia', TR: 'Asia',
   TW: 'Asia', UZ: 'Asia', VN: 'Asia', AU: 'Asia', NZ: 'Asia',
-  // Africa
   AO: 'Africa', BF: 'Africa', BJ: 'Africa', BW: 'Africa', CM: 'Africa', CG: 'Africa',
   CI: 'Africa', DZ: 'Africa', EG: 'Africa', ET: 'Africa', GA: 'Africa', GH: 'Africa',
   GN: 'Africa', KE: 'Africa', LY: 'Africa', MA: 'Africa', MG: 'Africa', ML: 'Africa',
@@ -98,20 +94,8 @@ const CONTINENT_COLORS = {
 export default function CountrySearchSelect({ selected = [], onChange, maxSelections = 5 }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
-  const [activeContinent, setActiveContinent] = useState(null);
-  const dropdownRef = useRef(null);
+  const [activeContinent, setActiveContinent] = useState('Europa');
 
-  useEffect(() => {
-    const handler = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
-
-  // Raggruppamento per continente
   const grouped = useMemo(() => {
     const q = search.toLowerCase().trim();
     const groups = {};
@@ -130,10 +114,8 @@ export default function CountrySearchSelect({ selected = [], onChange, maxSelect
     return groups;
   }, [search, selected]);
 
-  // Paesi da mostrare (filtrati per continente attivo o tutti se ricerca)
   const visibleCountries = useMemo(() => {
     if (search.trim()) {
-      // In ricerca, mostra tutto flat
       return CONTINENT_ORDER.flatMap(c => grouped[c]);
     }
     if (activeContinent) {
@@ -160,8 +142,10 @@ export default function CountrySearchSelect({ selected = [], onChange, maxSelect
     onChange(selected.filter(c => c !== code));
   };
 
+  const canOpen = selected.length < maxSelections;
+
   return (
-    <div ref={dropdownRef} className="relative">
+    <div>
       {/* Selected chips */}
       {selectedCountries.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mb-2">
@@ -181,80 +165,90 @@ export default function CountrySearchSelect({ selected = [], onChange, maxSelect
         </div>
       )}
 
-      {/* Search input */}
-      <div
-        className="relative cursor-pointer"
-        onClick={() => { if (selected.length < maxSelections) setOpen(true); }}
+      {/* Trigger button */}
+      <button
+        type="button"
+        onClick={() => { if (canOpen) setOpen(true); }}
+        className={`w-full flex items-center gap-2 bg-slate-900 border border-slate-700 text-white px-3 py-2.5 rounded-xl text-left ${!canOpen ? 'opacity-50 cursor-not-allowed' : 'hover:border-slate-500 cursor-pointer'}`}
       >
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-        <Input
-          placeholder={selected.length >= maxSelections ? `Massimo ${maxSelections} Paesi` : "Cerca Paese... (es. Germania, US, Brasile)"}
-          value={search}
-          onChange={(e) => { setSearch(e.target.value); setActiveContinent(null); setOpen(true); }}
-          onFocus={() => { if (selected.length < maxSelections) setOpen(true); }}
-          className="bg-slate-900 border-slate-700 text-white pl-9 pr-8"
-          disabled={selected.length >= maxSelections}
-        />
-        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-      </div>
+        <Search className="w-4 h-4 text-slate-500 flex-shrink-0" />
+        <span className="text-slate-500 text-sm flex-1">
+          {canOpen ? 'Cerca Paese... (es. Germania, US)' : `Massimo ${maxSelections} Paesi`}
+        </span>
+      </button>
       <p className="text-slate-500 text-[10px] mt-1">{selected.length}/{maxSelections} Paesi selezionati</p>
 
-      {/* Dropdown */}
-      {open && selected.length < maxSelections && (
-        <div className="absolute z-50 mt-1 w-full bg-slate-800 border border-slate-700 rounded-xl shadow-xl overflow-hidden">
-          
-          {/* World option + Continent tabs orizzontali */}
-          <div className="border-b border-slate-700/50">
-            {/* World */}
-            {!selected.includes('WLD') && !search.trim() && (
-              <button
-                type="button"
-                onClick={() => handleSelect('WLD')}
-                className="w-full flex items-center gap-2.5 px-3 py-2.5 hover:bg-slate-700/50 transition-colors text-left border-b border-slate-700/30"
-              >
-                <Globe className="w-5 h-4 text-blue-400 flex-shrink-0" />
-                <span className="text-white text-sm font-semibold">World (Mondo intero)</span>
-              </button>
-            )}
+      {/* Dialog popup */}
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-md p-0 gap-0 max-h-[80vh] flex flex-col">
+          <DialogHeader className="px-4 pt-4 pb-2 flex-shrink-0">
+            <DialogTitle className="text-white text-base">Seleziona Paesi</DialogTitle>
+            <p className="text-slate-400 text-xs">{selected.length}/{maxSelections} selezionati</p>
+          </DialogHeader>
 
-            {/* Continent tabs - scroll orizzontale */}
-            {!search.trim() && (
-              <div className="flex overflow-x-auto gap-1.5 p-2 scrollbar-hide">
-                {CONTINENT_ORDER.map(cont => {
-                  const count = grouped[cont]?.length || 0;
-                  const isActive = activeContinent === cont;
-                  return (
-                    <button
-                      key={cont}
-                      type="button"
-                      onClick={() => setActiveContinent(isActive ? null : cont)}
-                      className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                        isActive
-                          ? `bg-gradient-to-r ${CONTINENT_COLORS[cont]} text-white shadow-lg`
-                          : 'bg-slate-700/50 text-slate-400 hover:text-white hover:bg-slate-700'
-                      }`}
-                    >
-                      {cont} ({count})
-                    </button>
-                  );
-                })}
-              </div>
-            )}
+          {/* Search inside dialog */}
+          <div className="px-4 pb-2 flex-shrink-0">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+              <Input
+                placeholder="Cerca Paese..."
+                value={search}
+                onChange={(e) => { setSearch(e.target.value); }}
+                className="bg-slate-800 border-slate-700 text-white pl-9"
+                autoFocus
+              />
+            </div>
           </div>
 
+          {/* World option */}
+          {!selected.includes('WLD') && !search.trim() && (
+            <button
+              type="button"
+              onClick={() => handleSelect('WLD')}
+              className="mx-4 mb-2 flex items-center gap-2.5 px-3 py-2.5 bg-blue-500/10 border border-blue-500/20 rounded-xl hover:bg-blue-500/20 transition-colors text-left flex-shrink-0"
+            >
+              <Globe className="w-5 h-5 text-blue-400 flex-shrink-0" />
+              <span className="text-white text-sm font-semibold">World (Mondo intero)</span>
+            </button>
+          )}
+
+          {/* Continent tabs */}
+          {!search.trim() && (
+            <div className="flex overflow-x-auto gap-1.5 px-4 pb-2 scrollbar-hide flex-shrink-0">
+              {CONTINENT_ORDER.map(cont => {
+                const count = grouped[cont]?.length || 0;
+                const isActive = activeContinent === cont;
+                return (
+                  <button
+                    key={cont}
+                    type="button"
+                    onClick={() => setActiveContinent(cont)}
+                    className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                      isActive
+                        ? `bg-gradient-to-r ${CONTINENT_COLORS[cont]} text-white shadow-lg`
+                        : 'bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700'
+                    }`}
+                  >
+                    {cont} ({count})
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
           {/* Country list */}
-          <div className="max-h-48 overflow-y-auto">
-            {search.trim() && visibleCountries.length === 0 ? (
-              <p className="text-slate-500 text-sm p-3 text-center">Nessun risultato</p>
-            ) : !search.trim() && !activeContinent ? (
-              <p className="text-slate-500 text-xs p-3 text-center">Seleziona un continente sopra</p>
+          <div className="flex-1 overflow-y-auto px-2 pb-3 min-h-0">
+            {visibleCountries.length === 0 ? (
+              <p className="text-slate-500 text-sm p-3 text-center">
+                {search.trim() ? 'Nessun risultato' : 'Seleziona un continente'}
+              </p>
             ) : (
               visibleCountries.map(c => (
                 <button
                   key={c.code}
                   type="button"
                   onClick={() => handleSelect(c.code)}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 hover:bg-slate-700/50 transition-colors text-left"
+                  className="w-full flex items-center gap-2.5 px-3 py-2.5 hover:bg-slate-800 rounded-lg transition-colors text-left"
                 >
                   <img src={getFlagUrl(c.code)} alt="" className="w-6 h-4 object-cover rounded-sm flex-shrink-0" />
                   <span className="text-white text-sm">{c.name}</span>
@@ -263,8 +257,8 @@ export default function CountrySearchSelect({ selected = [], onChange, maxSelect
               ))
             )}
           </div>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
