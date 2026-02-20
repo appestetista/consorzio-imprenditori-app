@@ -431,9 +431,16 @@ export default function VantaggiIscritti() {
                       <div className="flex-1 p-3">
                         {/* Header con tipo e creator */}
                         <div className="flex items-start justify-between gap-2 mb-2">
-                          <Badge className={`${getTipoVantaggioColor(vantaggio.tipo_vantaggio)} text-white text-[10px]`}>
-                            {vantaggio.tipo_vantaggio}
-                          </Badge>
+                          <div className="flex flex-wrap gap-1">
+                            <Badge className={`${getTipoVantaggioColor(vantaggio.tipo_vantaggio)} text-white text-[10px]`}>
+                              {vantaggio.tipo_vantaggio}
+                            </Badge>
+                            {vantaggio.categoria_vantaggio && (
+                              <Badge variant="outline" className="text-slate-300 border-slate-600 text-[10px]">
+                                {vantaggio.categoria_vantaggio}
+                              </Badge>
+                            )}
+                          </div>
                           <div className="flex items-center gap-1 text-slate-400 text-xs">
                             {creator.logo ? (
                               <img src={creator.logo} alt="" className="w-4 h-4 rounded-full object-cover" />
