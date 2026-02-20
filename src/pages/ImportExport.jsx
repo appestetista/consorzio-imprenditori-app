@@ -914,9 +914,9 @@ Fornisci:
                         <div className="space-y-2">
                           {['fetching', 'computing', 'interpreting'].map((step, i) => {
                             const labels = {
-                              fetching: 'Recupero dati Comtrade + World Bank',
-                              computing: 'Calcolo metriche e stabilità',
-                              interpreting: 'Interpretazione strategica AI'
+                              fetching: 'Recupero dati ufficiali',
+                              computing: 'Calcolo metriche',
+                              interpreting: 'Elaborazione analisi'
                             };
                             const isActive = exportStep === step;
                             const isDone = ['fetching', 'computing', 'interpreting'].indexOf(exportStep) > i;
