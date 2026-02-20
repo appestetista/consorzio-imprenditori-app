@@ -57,6 +57,8 @@ export default function SupplierRequestWizard({ user, onClose, onSuccess }) {
   const [attachments, setAttachments] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [anonymizedQuoteUrl, setAnonymizedQuoteUrl] = useState(null);
+  const [showAnonymizer, setShowAnonymizer] = useState(false);
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.SupplierRequest.create(data),
