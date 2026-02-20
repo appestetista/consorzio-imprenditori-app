@@ -486,7 +486,8 @@ export async function interpretData(tradeData, metricsResult, hsCode, hsDescrizi
   // Prepara il riepilogo dati per l'AI
   const riepilogoDati = tradeData.mercati.map((m, i) => {
     const met = Array.isArray(metrics) ? metrics[i] : null;
-    return `
+    const macro = macroDataMap[m.paese_code];
+    let base = `
 MERCATO: ${m.paese_nome} (${m.paese_code})
 - Import totale HS ${hsCode}: ${m.import_totale?.valore_usd || 'N/D'}${met?.import_totale_eur ? ` (≈ €${met.import_totale_eur.toLocaleString('it-IT')})` : ''} (${m.import_totale?.anno || 'N/D'}, ${m.import_totale?.fonte || 'N/D'})
 - Export Italia→${m.paese_nome}: ${m.export_italia?.valore_usd || 'N/D'}${met?.export_italia_eur ? ` (≈ €${met.export_italia_eur.toLocaleString('it-IT')})` : ''} (${m.export_italia?.anno || 'N/D'}, ${m.export_italia?.fonte || 'N/D'})
@@ -499,6 +500,15 @@ MERCATO: ${m.paese_nome} (${m.paese_code})
 - Dazio MFN: ${m.dazi?.dazio_mfn || 'N/D'} (${m.dazi?.fonte || 'N/D'})
 - Anti-dumping: ${m.dazi?.anti_dumping || 'Nessuna'}
 - Dati completi: ${met?.dati_completi ? 'Sì' : 'Parziali/Insufficienti'}`;
+    if (macro) {
+      base += '\n--- STABILITÀ ECONOMICA (World Bank API) ---';
+      if (macro.inflazione !== null) base += `\n- Inflazione CPI: ${macro.inflazione}% (${macro.inflazione_anno})`;
+      if (macro.doing_business_score !== null) base += `\n- Ease of Doing Business: ${macro.doing_business_score}/100 (${macro.doing_business_anno})`;
+      if (macro.lpi_score !== null) base += `\n- Logistics Performance Index: ${macro.lpi_score}/5 (${macro.lpi_anno})`;
+      if (macro.volatilita_cambio !== null) base += `\n- Volatilità cambio (5 anni): ${macro.volatilita_cambio}%`;
+      if (macro.partite_correnti_usd !== null) base += `\n- Saldo partite correnti: $${Math.round(macro.partite_correnti_usd).toLocaleString('en-US')} (${macro.partite_correnti_anno})`;
+    }
+    return base;
   }).join('\n');
 
   const datiNonDisponibili = tradeData.dati_non_disponibili?.length > 0
