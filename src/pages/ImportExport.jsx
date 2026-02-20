@@ -1138,33 +1138,35 @@ Fornisci:
 
                 {/* Mercati Prioritari */}
                 {analysisResult.mercati_prioritari?.length > 0 && (
-                  <Card className="bg-slate-800 border-slate-700">
-                    <CardContent className="p-4">
-                      <h3 className="text-white font-semibold mb-2">🎯 Mercati Prioritari</h3>
-                      <div className="flex flex-wrap gap-2">
-                        {analysisResult.mercati_prioritari.map((m, i) => (
-                          <span key={i} className="bg-lime-400/20 text-lime-400 px-3 py-1 rounded-full text-sm">
-                            {m}
-                          </span>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <div className="bg-slate-800/60 border border-white/5 rounded-2xl p-4">
+                    <p className="text-white font-bold text-sm mb-3 flex items-center gap-2">
+                      <Target className="w-4 h-4 text-lime-400" />
+                      Mercati Prioritari
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {analysisResult.mercati_prioritari.map((m, i) => (
+                        <span key={i} className="bg-lime-400/10 text-lime-400 px-3 py-1.5 rounded-lg text-xs font-semibold border border-lime-400/20">
+                          {m}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                 )}
 
                 {/* Analisi per Mercato */}
                 {analysisResult.mercati_analisi?.map((mercato, idx) => (
-                  <Card key={idx} className="bg-slate-800 border-slate-700">
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <h3 className="text-white font-semibold">{mercato.mercato}</h3>
-                        <span className={`px-2 py-1 rounded text-xs font-bold ${
+                  <Card key={idx} className="bg-slate-800/60 border-white/5 backdrop-blur-sm overflow-hidden">
+                    <CardContent className="p-0">
+                      <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
+                        <h3 className="text-white font-bold text-sm">{mercato.mercato}</h3>
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm ${
                           mercato.punteggio_opportunita >= 7 ? 'bg-green-500/20 text-green-400' :
                           mercato.punteggio_opportunita >= 5 ? 'bg-yellow-500/20 text-yellow-400' : 'bg-red-500/20 text-red-400'
                         }`}>
-                          {mercato.punteggio_opportunita}/10
-                        </span>
+                          {mercato.punteggio_opportunita}
+                        </div>
                       </div>
+                      <div className="p-4">
 
                       {/* Flussi Commerciali — UN Comtrade / Eurostat */}
                       {mercato.flussi_commerciali && (
