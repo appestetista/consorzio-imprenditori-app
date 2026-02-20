@@ -176,7 +176,6 @@ export default function ProfiloBandiForm({ user, onSaved }) {
   // Verifica campi obbligatori mancanti
   const getMissingRequiredFields = () => {
     const missing = [];
-    if (!formData.company_size) missing.push('Dimensione Azienda');
     if (!formData.region) missing.push('Regione Sede Legale');
     if (!formData.interested_regions?.length) missing.push('Regioni di Interesse');
     if (!formData.sector) missing.push('Settore Principale');
