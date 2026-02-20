@@ -9,19 +9,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import CategorySelector from './CategorySelector';
 
-const COMPANY_CONTEXTS = [
-  { value: 'ditta_individuale', label: 'Ditta individuale' },
-  { value: 'libero_professionista', label: 'Libero professionista' },
-  { value: 'snc', label: 'SNC' },
-  { value: 'sas', label: 'SAS' },
-  { value: 'srl', label: 'SRL' },
-  { value: 'srls', label: 'SRLS' },
-  { value: 'spa', label: 'SPA' },
-  { value: 'cooperativa', label: 'Cooperativa' },
-  { value: 'associazione', label: 'Associazione' },
-  { value: 'altro', label: 'Altro' }
-];
-
 const URGENCY_OPTIONS = [
   { value: 'immediata', label: 'Immediata' },
   { value: 'entro_1_mese', label: 'Entro 1 mese' },
