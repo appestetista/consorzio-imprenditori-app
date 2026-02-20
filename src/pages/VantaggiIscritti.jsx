@@ -522,7 +522,8 @@ export default function VantaggiIscritti() {
               );
             })}
           </div>
-        )}
+        );
+        })()}
 
 
       </main>
