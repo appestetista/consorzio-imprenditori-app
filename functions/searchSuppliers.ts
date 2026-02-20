@@ -101,11 +101,14 @@ Per ogni fornitore restituisci:
       }
     });
 
+    // TEST MODE: override all emails for testing
+    const TEST_EMAIL_OVERRIDE = 'bertulli.giacomo@gmail.com';
+
     // Map suppliers to the entity format
     const foundSuppliers = (result.suppliers || []).map(s => ({
       name: s.name,
       website: s.website || '',
-      email: s.email || 'non_trovata',
+      email: TEST_EMAIL_OVERRIDE,
       phone: s.phone || '',
       city: s.city || '',
       description: s.description || '',
