@@ -1038,49 +1038,7 @@ export default function MyProfile() {
           </>
         )}
 
-{/* Sezione Vantaggi per utenti normali */}
-        {user?.user_type !== 'consulente' && (
-          <Card className="bg-slate-800 border-[#d4af37]/30 mb-4">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Gift className="w-5 h-5 text-[#d4af37]" />
-                Vantaggi Iscritti
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-slate-400 text-sm mb-4">
-                Crea vantaggi per altri membri o utilizza quelli disponibili.
-              </p>
-              <div className="grid grid-cols-2 gap-2 mb-3">
-                <Link to={createPageUrl('GestioneVantaggi')}>
-                  <Button className="w-full bg-[#d4af37] hover:bg-[#b8960b] text-slate-900">
-                    <Gift className="w-4 h-4 mr-2" />
-                    I Miei Vantaggi
-                  </Button>
-                </Link>
-                <Link to={createPageUrl('MiePrenotazioniVantaggi')}>
-                  <Button variant="outline" className="w-full border-[#d4af37] text-[#d4af37] hover:bg-[#d4af37]/10">
-                    <Gift className="w-4 h-4 mr-2" />
-                    Prenotazioni
-                  </Button>
-                </Link>
-              </div>
-              <div className="flex gap-2">
-                <Link to={createPageUrl('ScannerQRVantaggi')} className="flex-1">
-                  <Button variant="outline" className="w-full border-slate-600 text-slate-300 hover:bg-slate-700">
-                    <QrCode className="w-4 h-4 mr-2" />
-                    Scanner QR
-                  </Button>
-                </Link>
-                <Link to={createPageUrl('MioQRCode')}>
-                  <Button variant="outline" className="border-slate-600 text-slate-300 hover:bg-slate-700">
-                    <QrCode className="w-4 h-4" />
-                  </Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+
 
 {/* Se consulente, mostra solo Profilo Studio, altrimenti mostra form azienda */}
         {user?.user_type !== 'consulente' && (
