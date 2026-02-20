@@ -452,6 +452,13 @@ Accedi all'app per visualizzare gli allegati e rispondere direttamente al client
             Analisi
           </Button>
           <Button
+            onClick={() => setActiveTab('storico')}
+            className={`flex-1 ${activeTab === 'storico' ? 'bg-lime-400 text-slate-900' : 'bg-slate-800 text-white'}`}
+          >
+            <History className="w-4 h-4 mr-2" />
+            Storico
+          </Button>
+          <Button
             onClick={() => setActiveTab('messaggi')}
             className={`flex-1 relative ${activeTab === 'messaggi' ? 'bg-lime-400 text-slate-900' : 'bg-slate-800 text-white'}`}
           >
@@ -467,6 +474,8 @@ Accedi all'app per visualizzare gli allegati e rispondere direttamente al client
 
         {activeTab === 'messaggi' ? (
                         <ContractMessagesSection user={user} avvocati={avvocati} />
+                      ) : activeTab === 'storico' ? (
+                        <ContractHistorySection user={user} />
                       ) : (
                         <>
                           {/* Pannello Consulenti per questa sezione */}
