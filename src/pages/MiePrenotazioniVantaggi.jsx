@@ -85,6 +85,7 @@ export default function MiePrenotazioniVantaggi() {
     }
   };
 
+  const prenotazioniRicevute = prenotazioni.filter(p => p.status === 'attiva' && !p.data_utilizzo);
   const prenotazioniAttive = prenotazioni.filter(p => p.status === 'attiva');
   const prenotazioniUtilizzate = prenotazioni.filter(p => p.status === 'utilizzata');
 
