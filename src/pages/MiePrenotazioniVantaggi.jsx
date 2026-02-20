@@ -189,17 +189,40 @@ export default function MiePrenotazioniVantaggi() {
           <h1 className="text-white text-xl font-bold">Le Mie Prenotazioni</h1>
         </div>
 
-        <Tabs defaultValue="attive" className="w-full">
+        <Tabs defaultValue="ricevute" className="w-full">
           <TabsList className="w-full bg-slate-800 border border-slate-700 mb-4">
-            <TabsTrigger value="attive" className="flex-1 data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
-              <Clock className="w-4 h-4 mr-2" />
+            <TabsTrigger value="ricevute" className="flex-1 data-[state=active]:bg-amber-400 data-[state=active]:text-slate-900 text-xs">
+              Ricevute ({prenotazioniRicevute.length})
+            </TabsTrigger>
+            <TabsTrigger value="attive" className="flex-1 data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900 text-xs">
               Attive ({prenotazioniAttive.length})
             </TabsTrigger>
-            <TabsTrigger value="utilizzate" className="flex-1 data-[state=active]:bg-green-500 data-[state=active]:text-white">
-              <Check className="w-4 h-4 mr-2" />
+            <TabsTrigger value="utilizzate" className="flex-1 data-[state=active]:bg-green-500 data-[state=active]:text-white text-xs">
               Utilizzate ({prenotazioniUtilizzate.length})
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="ricevute">
+            {loadingPrenotazioni ? (
+              <div className="text-center py-12">
+                <div className="animate-spin w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full mx-auto"></div>
+              </div>
+            ) : prenotazioniRicevute.length === 0 ? (
+              <Card className="bg-slate-800 border-slate-700">
+                <CardContent className="p-8 text-center">
+                  <Gift className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+                  <p className="text-slate-400">Nessuna prenotazione ricevuta</p>
+                  <Link to={createPageUrl('VantaggiIscritti')} className="text-lime-400 text-sm mt-2 inline-block hover:underline">
+                    Scopri i vantaggi disponibili →
+                  </Link>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-3">
+                {prenotazioniRicevute.map(renderPrenotazione)}
+              </div>
+            )}
+          </TabsContent>
 
           <TabsContent value="attive">
             {loadingPrenotazioni ? (
