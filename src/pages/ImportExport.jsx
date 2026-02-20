@@ -1720,22 +1720,7 @@ Fornisci:
                 </Card>
 
                 {/* Classificazione HS obbligatoria prima dell'analisi import */}
-                {importForm.descrizione_prodotto && importForm.quantita && importForm.tipo_richiesta && !analyzingImport && importLimitReached && (
-                  <Card className="bg-red-500/15 border-red-500/40">
-                    <CardContent className="p-4 text-center">
-                      <AlertTriangle className="w-8 h-8 text-red-400 mx-auto mb-2" />
-                      <p className="text-red-400 font-bold text-sm mb-1">Hai raggiunto il limite di {importLimit} analisi import questa settimana</p>
-                      <p className="text-slate-400 text-xs mb-3">Puoi comunque rivolgerti ai nostri consulenti specializzati con base in Cina per assistenza completa.</p>
-                      <Button
-                        onClick={() => setShowImportLimitPopup(true)}
-                        className="bg-red-500 hover:bg-red-600 text-white"
-                      >
-                        Contatta i nostri consulenti
-                      </Button>
-                    </CardContent>
-                  </Card>
-                )}
-                {importForm.descrizione_prodotto && importForm.quantita && importForm.tipo_richiesta && !importLimitReached && !analyzingImport && !confirmedImportHS && (
+                {importForm.descrizione_prodotto && importForm.quantita && importForm.tipo_richiesta && !analyzingImport && !confirmedImportHS && (
                   <HSCodeClassifier
                     productDescription={`${importForm.descrizione_prodotto}${importForm.requisiti ? ' - Requisiti: ' + importForm.requisiti : ''}`}
                     onConfirm={handleImportHSConfirm}
