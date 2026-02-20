@@ -1168,152 +1168,133 @@ Fornisci:
                       </div>
                       <div className="p-4">
 
-                      {/* Flussi Commerciali — UN Comtrade / Eurostat */}
+                      {/* Flussi Commerciali */}
                       {mercato.flussi_commerciali && (
-                        <div className="mb-3 bg-slate-700/50 rounded-lg p-3">
-                          <p className="text-lime-400 text-xs font-semibold mb-2">📊 Flussi Commerciali (UN Comtrade / Eurostat Comext)</p>
-                          <div className="grid grid-cols-2 gap-2 text-sm">
-                            <div>
-                              <p className="text-slate-400 text-xs">Import totale paese:</p>
-                              <p className="text-white font-semibold">{mercato.flussi_commerciali.valore_import_annuo}</p>
+                        <div className="mb-3 bg-white/5 rounded-xl p-3">
+                          <p className="text-lime-400 text-[10px] font-bold uppercase tracking-wider mb-2">Flussi Commerciali</p>
+                          <div className="grid grid-cols-2 gap-2">
+                            <div className="bg-white/5 rounded-lg p-2">
+                              <p className="text-slate-500 text-[10px]">Import totale</p>
+                              <p className="text-white font-bold text-xs">{mercato.flussi_commerciali.valore_import_annuo}</p>
                             </div>
-                            <div>
-                              <p className="text-slate-400 text-xs">Export ITA→paese:</p>
-                              <p className="text-white font-semibold">{mercato.flussi_commerciali.export_italia_verso_paese || 'N/D'}</p>
+                            <div className="bg-white/5 rounded-lg p-2">
+                              <p className="text-slate-500 text-[10px]">Export ITA→paese</p>
+                              <p className="text-white font-bold text-xs">{mercato.flussi_commerciali.export_italia_verso_paese || 'N/D'}</p>
                             </div>
-                            <div>
-                              <p className="text-slate-400 text-xs">Trend 5 anni:</p>
-                              <p className="text-white">{mercato.flussi_commerciali.trend_5_anni || mercato.flussi_commerciali.trend_yoy_percentuale}</p>
-                            </div>
-                            <div>
-                              <p className="text-slate-400 text-xs">Trend YoY:</p>
-                              <p className={`font-semibold ${mercato.flussi_commerciali.crescita_o_calo === 'crescita' ? 'text-green-400' : 'text-red-400'}`}>
+                            <div className="bg-white/5 rounded-lg p-2">
+                              <p className="text-slate-500 text-[10px]">Trend</p>
+                              <p className={`font-bold text-xs ${mercato.flussi_commerciali.crescita_o_calo === 'crescita' ? 'text-green-400' : 'text-red-400'}`}>
                                 {mercato.flussi_commerciali.trend_yoy_percentuale}
                               </p>
                             </div>
-                            <div>
-                              <p className="text-slate-400 text-xs">Quota Italia:</p>
-                              <p className="text-white">{mercato.flussi_commerciali.quota_italia}</p>
-                            </div>
-                            <div>
-                              <p className="text-slate-400 text-xs">Posizione Italia:</p>
-                              <p className="text-white">{mercato.flussi_commerciali.posizione_italia}</p>
+                            <div className="bg-white/5 rounded-lg p-2">
+                              <p className="text-slate-500 text-[10px]">Quota ITA</p>
+                              <p className="text-white font-bold text-xs">{mercato.flussi_commerciali.quota_italia}</p>
                             </div>
                           </div>
                           {mercato.flussi_commerciali.principali_fornitori?.length > 0 && (
-                            <div className="mt-2">
-                              <p className="text-slate-400 text-xs mb-1">Top fornitori:</p>
+                            <div className="mt-2 pt-2 border-t border-white/5">
+                              <p className="text-slate-500 text-[10px] mb-1.5">Top fornitori</p>
                               <div className="flex flex-wrap gap-1">
                                 {mercato.flussi_commerciali.principali_fornitori.slice(0, 5).map((f, i) => (
-                                  <span key={i} className="bg-slate-600 text-slate-200 px-2 py-0.5 rounded text-xs">
-                                    {f.paese} {f.quota_percentuale} {f.valore ? `(${f.valore})` : ''}
+                                  <span key={i} className="bg-white/5 text-slate-300 px-2 py-0.5 rounded-md text-[10px]">
+                                    {f.paese} {f.quota_percentuale}
                                   </span>
                                 ))}
                               </div>
                             </div>
                           )}
-                          {(mercato.flussi_commerciali.fonte_comtrade || mercato.flussi_commerciali.fonte_eurostat) && (
-                            <div className="mt-2 pt-2 border-t border-slate-600">
-                              <p className="text-slate-500 text-[10px]">
-                                {mercato.flussi_commerciali.fonte_comtrade && `📌 ${mercato.flussi_commerciali.fonte_comtrade}`}
-                                {mercato.flussi_commerciali.fonte_eurostat && ` | ${mercato.flussi_commerciali.fonte_eurostat}`}
-                              </p>
-                            </div>
-                          )}
                         </div>
                       )}
 
-                      {/* Dazi e Barriere — TARIC */}
+                      {/* Dazi e Barriere */}
                       {mercato.dazi_taric && (
-                        <div className="mb-3 bg-amber-500/10 rounded-lg p-3 border border-amber-500/20">
-                          <p className="text-amber-400 text-xs font-semibold mb-2">🏛️ Dazi e Barriere (TARIC)</p>
-                          <div className="grid grid-cols-2 gap-2 text-sm">
+                        <div className="mb-3 bg-amber-500/5 rounded-xl p-3 border border-amber-500/10">
+                          <p className="text-amber-400 text-[10px] font-bold uppercase tracking-wider mb-2">Dazi e Barriere</p>
+                          <div className="grid grid-cols-2 gap-2">
                             {mercato.dazi_taric.dazio_mfn && (
-                              <div>
-                                <p className="text-slate-400 text-xs">Dazio MFN:</p>
-                                <p className="text-white font-semibold">{mercato.dazi_taric.dazio_mfn}</p>
+                              <div className="bg-white/5 rounded-lg p-2">
+                                <p className="text-slate-500 text-[10px]">Dazio MFN</p>
+                                <p className="text-white font-bold text-xs">{mercato.dazi_taric.dazio_mfn}</p>
                               </div>
                             )}
                             {mercato.dazi_taric.dazio_preferenziale && (
-                              <div>
-                                <p className="text-slate-400 text-xs">Dazio preferenziale:</p>
-                                <p className="text-green-400 font-semibold">{mercato.dazi_taric.dazio_preferenziale}</p>
+                              <div className="bg-white/5 rounded-lg p-2">
+                                <p className="text-slate-500 text-[10px]">Preferenziale</p>
+                                <p className="text-green-400 font-bold text-xs">{mercato.dazi_taric.dazio_preferenziale}</p>
                               </div>
                             )}
                           </div>
                           {mercato.dazi_taric.anti_dumping && mercato.dazi_taric.anti_dumping !== 'Nessuna' && (
-                            <div className="mt-2">
-                              <p className="text-red-400 text-xs">⚠️ Anti-dumping: {mercato.dazi_taric.anti_dumping}</p>
-                            </div>
+                            <p className="text-red-400 text-xs mt-2">⚠ Anti-dumping: {mercato.dazi_taric.anti_dumping}</p>
                           )}
                           {mercato.dazi_taric.restrizioni && mercato.dazi_taric.restrizioni !== 'Nessuna' && (
-                            <div className="mt-1">
-                              <p className="text-orange-400 text-xs">🔒 Restrizioni: {mercato.dazi_taric.restrizioni}</p>
-                            </div>
-                          )}
-                          {mercato.dazi_taric.fonte && (
-                            <p className="text-slate-500 text-[10px] mt-2">📌 {mercato.dazi_taric.fonte}</p>
+                            <p className="text-orange-400 text-xs mt-1">🔒 {mercato.dazi_taric.restrizioni}</p>
                           )}
                         </div>
                       )}
 
-                      {mercato.opportunita?.length > 0 && (
-                        <div className="mb-3">
-                          <p className="text-green-400 text-xs font-semibold mb-1">Opportunità:</p>
-                          <ul className="text-slate-300 text-sm space-y-1">
-                            {mercato.opportunita.map((o, i) => <li key={i}>• {o}</li>)}
-                          </ul>
-                        </div>
-                      )}
-
-                      {mercato.sfide?.length > 0 && (
-                        <div className="mb-3">
-                          <p className="text-orange-400 text-xs font-semibold mb-1">Sfide:</p>
-                          <ul className="text-slate-300 text-sm space-y-1">
-                            {mercato.sfide.map((s, i) => <li key={i}>• {s}</li>)}
-                          </ul>
-                        </div>
-                      )}
+                      {/* Opportunità e Sfide */}
+                      <div className="grid grid-cols-2 gap-2 mb-3">
+                        {mercato.opportunita?.length > 0 && (
+                          <div className="bg-green-500/5 rounded-xl p-3 border border-green-500/10">
+                            <p className="text-green-400 text-[10px] font-bold uppercase tracking-wider mb-1.5">Opportunità</p>
+                            <ul className="text-slate-300 text-xs space-y-1">
+                              {mercato.opportunita.map((o, i) => <li key={i} className="leading-snug">• {o}</li>)}
+                            </ul>
+                          </div>
+                        )}
+                        {mercato.sfide?.length > 0 && (
+                          <div className="bg-orange-500/5 rounded-xl p-3 border border-orange-500/10">
+                            <p className="text-orange-400 text-[10px] font-bold uppercase tracking-wider mb-1.5">Sfide</p>
+                            <ul className="text-slate-300 text-xs space-y-1">
+                              {mercato.sfide.map((s, i) => <li key={i} className="leading-snug">• {s}</li>)}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
 
                       {(mercato.barriere_tariffarie || mercato.costo_ingresso_stimato) && (
-                        <div className="grid grid-cols-2 gap-3 text-sm">
+                        <div className="grid grid-cols-2 gap-2 mb-3">
                           {mercato.barriere_tariffarie && (
-                            <div>
-                              <p className="text-slate-400 text-xs">Barriere tariffarie:</p>
-                              <p className="text-white">{mercato.barriere_tariffarie}</p>
+                            <div className="bg-white/5 rounded-lg p-2">
+                              <p className="text-slate-500 text-[10px]">Barriere tariffarie</p>
+                              <p className="text-white text-xs">{mercato.barriere_tariffarie}</p>
                             </div>
                           )}
                           {mercato.costo_ingresso_stimato && (
-                            <div>
-                              <p className="text-slate-400 text-xs">Costo ingresso stimato:</p>
-                              <p className="text-white">{mercato.costo_ingresso_stimato}</p>
+                            <div className="bg-white/5 rounded-lg p-2">
+                              <p className="text-slate-500 text-[10px]">Costo ingresso</p>
+                              <p className="text-white text-xs">{mercato.costo_ingresso_stimato}</p>
                             </div>
                           )}
                         </div>
                       )}
 
                       {mercato.certificazioni_richieste?.length > 0 && (
-                        <div className="mt-3">
-                          <p className="text-slate-400 text-xs mb-1">Certificazioni richieste:</p>
+                        <div>
+                          <p className="text-slate-500 text-[10px] mb-1.5">Certificazioni</p>
                           <div className="flex flex-wrap gap-1">
                             {mercato.certificazioni_richieste.map((c, i) => (
-                              <span key={i} className="bg-slate-700 text-slate-300 px-2 py-0.5 rounded text-xs">{c}</span>
+                              <span key={i} className="bg-white/5 text-slate-300 px-2 py-0.5 rounded-md text-[10px] border border-white/5">{c}</span>
                             ))}
                           </div>
                         </div>
                       )}
+                      </div>
                     </CardContent>
                   </Card>
                 ))}
 
                 {/* Timeline */}
                 {analysisResult.timeline_consigliata && (
-                  <Card className="bg-slate-800 border-slate-700">
-                    <CardContent className="p-4">
-                      <h3 className="text-white font-semibold mb-2">⏱️ Timeline Consigliata</h3>
-                      <p className="text-slate-300 text-sm">{analysisResult.timeline_consigliata}</p>
-                    </CardContent>
-                  </Card>
+                  <div className="bg-slate-800/60 border border-white/5 rounded-2xl p-4">
+                    <p className="text-white font-bold text-sm mb-2 flex items-center gap-2">
+                      <ArrowRight className="w-4 h-4 text-blue-400" />
+                      Timeline Consigliata
+                    </p>
+                    <p className="text-slate-300 text-sm leading-relaxed">{analysisResult.timeline_consigliata}</p>
+                  </div>
                 )}
 
                 {/* Primi Passi */}
