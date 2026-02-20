@@ -1085,6 +1085,24 @@ export default function FinanziamentiAgevolati() {
           </div>
         )}
 
+        {/* Accesso Profilo Bandi - sempre visibile per utenti non admin */}
+        {!isRealAdmin && !hasIncompleteProfile && (
+          <Link to={createPageUrl('ProfiloBandi')}>
+            <Card className="bg-slate-800 border-slate-700 mb-6 hover:border-purple-500/50 transition-colors cursor-pointer">
+              <CardContent className="p-4 flex items-center gap-3">
+                <div className="w-10 h-10 bg-purple-500/20 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Briefcase className="w-5 h-5 text-purple-400" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-white font-semibold text-sm">Il tuo Profilo Bandi</p>
+                  <p className="text-slate-400 text-xs">Modifica dati aziendali, regione, ATECO, requisiti per il matching</p>
+                </div>
+                <Edit className="w-4 h-4 text-slate-500" />
+              </CardContent>
+            </Card>
+          </Link>
+        )}
+
         {/* Banner profilo bandi incompleto - ben evidente */}
         {!isRealAdmin && hasIncompleteProfile && (
           <Card className="bg-gradient-to-br from-purple-600/20 to-indigo-600/20 border-2 border-purple-500/50 mb-6 animate-pulse-slow">
