@@ -33,6 +33,7 @@ export function buildExportSummary({ confirmedHS, tradeData, tradeMetrics, analy
   lines.push('- UN Comtrade (comtradeplus.un.org)');
   lines.push('- Eurostat Comext (ec.europa.eu/eurostat)');
   lines.push('- TARIC (ec.europa.eu/taxation_customs)');
+  lines.push('- World Bank API (indicatori macro e stabilità)');
   if (tradeData?.data_retrieval_date) {
     lines.push(`- Data recupero: ${tradeData.data_retrieval_date}`);
   }
