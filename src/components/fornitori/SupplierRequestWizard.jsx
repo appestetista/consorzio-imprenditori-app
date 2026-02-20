@@ -65,6 +65,8 @@ export default function SupplierRequestWizard({ user, onClose, onSuccess }) {
     urgency: '',
     service_type: ''
   });
+  const [keywords, setKeywords] = useState([]);
+  const [keywordInput, setKeywordInput] = useState('');
   const [attachments, setAttachments] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
