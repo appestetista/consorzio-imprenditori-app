@@ -930,8 +930,8 @@ Fornisci:
                           {['fetching', 'computing', 'interpreting'].map((step, i) => {
                             const labels = {
                               fetching: 'Recupero dati Comtrade + World Bank',
-                              computing: 'Calcolo metriche (crescita, CAGR, volatilità, stabilità)...',
-                              interpreting: '3. Interpretazione strategica AI...'
+                              computing: 'Calcolo metriche e stabilità',
+                              interpreting: 'Interpretazione strategica AI'
                             };
                             const isActive = exportStep === step;
                             const isDone = ['fetching', 'computing', 'interpreting'].indexOf(exportStep) > i;
