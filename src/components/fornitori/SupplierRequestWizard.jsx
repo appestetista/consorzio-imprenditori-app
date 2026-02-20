@@ -431,7 +431,7 @@ export default function SupplierRequestWizard({ user, onClose, onSuccess }) {
           {/* Submit */}
           <Button
             onClick={handleSubmit}
-            disabled={createMutation.isPending || !formData.problem_to_solve || !formData.urgency}
+            disabled={createMutation.isPending || !formData.supplier_description || !formData.urgency}
             className="w-full bg-lime-400 text-slate-900 hover:bg-lime-500 font-semibold"
           >
             {createMutation.isPending ? (
