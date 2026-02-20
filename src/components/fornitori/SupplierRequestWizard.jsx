@@ -110,6 +110,7 @@ export default function SupplierRequestWizard({ user, onClose, onSuccess }) {
       budget_range: formData.budget_range || undefined,
       payment_frequency: formData.payment_frequency,
       urgency: formData.urgency,
+      search_keywords: keywords.length > 0 ? keywords : undefined,
       attachments: attachments.length > 0 ? attachments : undefined,
       status: 'aperta',
       candidates_count: 0,
