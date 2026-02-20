@@ -17,8 +17,9 @@ export default function HSCodeClassifier({ productDescription, onConfirm, onErro
     setCandidates(null);
     setSelectedCode(null);
 
-    const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `Sei un classificatore doganale. Dato il seguente prodotto, restituisci ESATTAMENTE fino a 3 codici HS (Harmonized System) candidati a 6 cifre, con la descrizione ufficiale dalla nomenclatura combinata UE.
+    try {
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `Sei un classificatore doganale. Dato il seguente prodotto, restituisci ESATTAMENTE fino a 3 codici HS (Harmonized System) candidati a 6 cifre, con la descrizione ufficiale dalla nomenclatura combinata UE.
 
 PRODOTTO: "${productDescription}"
 
@@ -28,41 +29,47 @@ REGOLE INDEROGABILI:
 - Se NON riesci a identificare NESSUN codice HS con ragionevole certezza, restituisci un array vuoto in "codici" e scrivi il motivo in "errore".
 - Indica per ogni codice un livello di certezza: "alto" (corrispondenza precisa), "medio" (corrispondenza probabile), "basso" (corrispondenza incerta).
 - NON INVENTARE codici HS. Meglio restituire 1 codice certo che 3 incerti.`,
-      add_context_from_internet: true,
-      response_json_schema: {
-        type: "object",
-        properties: {
-          codici: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                hs_code: { type: "string", description: "Codice HS a 6 cifre" },
-                descrizione_ufficiale: { type: "string", description: "Descrizione dalla nomenclatura combinata UE" },
-                certezza: { type: "string", enum: ["alto", "medio", "basso"] },
-                nota: { type: "string", description: "Nota aggiuntiva sulla classificazione" }
+        add_context_from_internet: true,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            codici: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  hs_code: { type: "string", description: "Codice HS a 6 cifre" },
+                  descrizione_ufficiale: { type: "string", description: "Descrizione dalla nomenclatura combinata UE" },
+                  certezza: { type: "string", enum: ["alto", "medio", "basso"] },
+                  nota: { type: "string", description: "Nota aggiuntiva sulla classificazione" }
+                }
               }
-            }
-          },
-          errore: { type: "string", description: "Motivo se nessun codice identificabile" }
+            },
+            errore: { type: "string", description: "Motivo se nessun codice identificabile" }
+          }
         }
+      });
+
+      console.log('[HSCodeClassifier] LLM result:', JSON.stringify(result));
+
+      if (!result || !result.codici || result.codici.length === 0) {
+        const msg = result?.errore || "Impossibile determinare codice HS. Specificare dettagli tecnici del prodotto.";
+        setError(msg);
+        if (onError) onError(msg);
+        return;
       }
-    });
 
-    setLoading(false);
-
-    if (!result.codici || result.codici.length === 0) {
-      const msg = result.errore || "Impossibile determinare codice HS. Specificare dettagli tecnici del prodotto.";
-      setError(msg);
-      if (onError) onError(msg);
-      return;
-    }
-
-    const codes = result.codici.slice(0, 3);
-    setCandidates(codes);
-    // Auto-select if only one candidate
-    if (codes.length === 1) {
-      setSelectedCode(codes[0].hs_code);
+      const codes = result.codici.slice(0, 3);
+      setCandidates(codes);
+      if (codes.length === 1) {
+        setSelectedCode(codes[0].hs_code);
+      }
+    } catch (err) {
+      console.error('[HSCodeClassifier] Errore LLM:', err);
+      setError("Errore nella classificazione. Riprova tra qualche secondo.");
+      if (onError) onError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
