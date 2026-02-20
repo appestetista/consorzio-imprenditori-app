@@ -522,53 +522,7 @@ Accedi all'app per visualizzare gli allegati e rispondere direttamente al client
               </CardContent>
             </Card>
 
-        {/* Pulsante Storico - sempre visibile */}
-        {!analysis && !selectedHistory && (
-          <Button
-            onClick={() => setShowHistory(!showHistory)}
-            variant="outline"
-            className="w-full bg-[#d4af37] hover:bg-[#c9a432] text-slate-900 border-0 mb-4 h-12 text-base font-bold"
-          >
-            <History className="w-5 h-5 mr-2" />
-            📂 Storico Analisi {historyAnalyses.length > 0 ? `(${historyAnalyses.length})` : '(vuoto)'}
-            <ChevronRight className={`w-5 h-5 ml-auto transition-transform ${showHistory ? 'rotate-90' : ''}`} />
-          </Button>
-        )}
-
-        {/* Lista Storico */}
-        {showHistory && (
-          <div className="space-y-2 mb-4 bg-slate-800 rounded-xl p-4 border border-[#d4af37]/30">
-            <h3 className="text-[#d4af37] font-semibold mb-3">Le tue analisi salvate:</h3>
-            {historyAnalyses.length === 0 ? (
-              <p className="text-slate-400 text-sm text-center py-4">Nessuna analisi ancora salvata. Carica un contratto per iniziare!</p>
-            ) : null}
-            {historyAnalyses.map((item) => (
-              <Card key={item.id} className="bg-slate-800 border-slate-700">
-                <CardContent className="p-3 flex items-center gap-3">
-                  <FileText className="w-8 h-8 text-blue-400 flex-shrink-0" />
-                  <div className="flex-1 min-w-0" onClick={() => viewHistoryItem(item)} style={{ cursor: 'pointer' }}>
-                    <p className="text-white text-sm font-medium truncate">
-                      {item.tipo_contratto || 'Contratto'}
-                    </p>
-                    <p className="text-slate-400 text-xs">
-                      {new Date(item.created_date).toLocaleDateString('it-IT')} - {item.file_names?.join(', ') || 'File'}
-                    </p>
-                  </div>
-                  <button 
-                    onClick={(e) => { e.stopPropagation(); deleteHistoryItem(item.id); }}
-                    className="text-red-400 hover:text-red-300 p-1"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                  <ChevronRight 
-                    className="w-4 h-4 text-slate-500 cursor-pointer" 
-                    onClick={() => viewHistoryItem(item)}
-                  />
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
+        {/* Storico inline rimosso - ora è un tab separato */}
 
         {/* Vista dettaglio storico */}
         {selectedHistory ? (
