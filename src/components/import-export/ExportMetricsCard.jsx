@@ -73,28 +73,22 @@ export default function ExportMetricsCard({ mercatoData, metrics, tassoCambio })
     <div className="space-y-2">
       {/* Riga 1: Import totale + Export Italia */}
       <div className="grid grid-cols-2 gap-2">
-        <div className="bg-slate-700/50 rounded-xl p-3">
-          <p className="text-slate-400 text-xs mb-1">📦 Import totale paese</p>
+        <div className="bg-white/[0.03] rounded-xl p-3 border border-white/5">
+          <p className="text-slate-500 text-[10px] font-medium mb-1">Import totale paese</p>
           <p className="text-white font-bold text-sm">
             {metrics?.import_totale_eur ? formatEur(metrics.import_totale_eur) : mercatoData.import_totale?.valore_usd || 'N/D'}
           </p>
           {metrics?.import_totale_eur && (
-            <p className="text-slate-500 text-[10px]">USD: {mercatoData.import_totale?.valore_usd}</p>
-          )}
-          {mercatoData.import_totale?.anno && (
-            <p className="text-slate-500 text-[10px]">{mercatoData.import_totale.anno}</p>
+            <p className="text-slate-600 text-[10px]">{mercatoData.import_totale?.valore_usd}</p>
           )}
         </div>
-        <div className="bg-slate-700/50 rounded-xl p-3">
-          <p className="text-slate-400 text-xs mb-1">🇮🇹 Export ITA→paese</p>
+        <div className="bg-white/[0.03] rounded-xl p-3 border border-white/5">
+          <p className="text-slate-500 text-[10px] font-medium mb-1">Export ITA→paese</p>
           <p className="text-white font-bold text-sm">
             {metrics?.export_italia_eur ? formatEur(metrics.export_italia_eur) : mercatoData.export_italia?.valore_usd || 'N/D'}
           </p>
           {metrics?.export_italia_eur && (
-            <p className="text-slate-500 text-[10px]">USD: {mercatoData.export_italia?.valore_usd}</p>
-          )}
-          {mercatoData.export_italia?.anno && (
-            <p className="text-slate-500 text-[10px]">{mercatoData.export_italia.anno}</p>
+            <p className="text-slate-600 text-[10px]">{mercatoData.export_italia?.valore_usd}</p>
           )}
         </div>
       </div>
@@ -103,41 +97,36 @@ export default function ExportMetricsCard({ mercatoData, metrics, tassoCambio })
       <div className="grid grid-cols-3 gap-2">
         <TrendBadge value={metrics?.crescita_3_anni} label="Crescita 3Y" />
         <TrendBadge value={metrics?.cagr} label="CAGR" />
-        <div className="bg-slate-700/50 rounded-xl p-3">
-          <p className="text-slate-400 text-xs mb-1">📊 Volatilità</p>
+        <div className="bg-white/[0.03] rounded-xl p-3 border border-white/5">
+          <p className="text-slate-500 text-[10px] font-medium mb-1">Volatilità</p>
           <div className="flex items-center gap-1.5">
-            <Activity className={`w-4 h-4 ${volatilitaColor}`} />
+            <Activity className={`w-3.5 h-3.5 ${volatilitaColor}`} />
             <span className={`font-bold text-sm ${volatilitaColor}`}>
               {metrics?.volatilita ? `${metrics.volatilita}%` : 'N/D'}
             </span>
           </div>
           {volatilitaLevel && (
-            <p className={`text-[10px] ${volatilitaColor}`}>{volatilitaLevel}</p>
+            <p className={`text-[10px] mt-0.5 ${volatilitaColor}`}>{volatilitaLevel}</p>
           )}
         </div>
       </div>
 
-      {/* Riga 3: Posizione Italia + Quota */}
+      {/* Riga 3: Posizione + Quota */}
       <div className="grid grid-cols-2 gap-2">
-        <div className="bg-slate-700/50 rounded-xl p-3">
-          <p className="text-slate-400 text-xs mb-1">🏆 Posizione esportatore</p>
+        <div className="bg-white/[0.03] rounded-xl p-3 border border-white/5">
+          <p className="text-slate-500 text-[10px] font-medium mb-1">Posizione esportatore</p>
           <p className="text-white font-semibold text-sm">{metrics?.posizione_exporter || mercatoData.posizione_italia || mercatoData.posizione_exporter || 'N/D'}</p>
         </div>
-        <div className="bg-slate-700/50 rounded-xl p-3">
-          <p className="text-slate-400 text-xs mb-1">📈 Quota esportatore</p>
+        <div className="bg-white/[0.03] rounded-xl p-3 border border-white/5">
+          <p className="text-slate-500 text-[10px] font-medium mb-1">Quota esportatore</p>
           <p className="text-white font-semibold text-sm">{metrics?.quota_exporter || mercatoData.quota_italia || mercatoData.quota_exporter || 'N/D'}</p>
         </div>
       </div>
 
-      {/* Fonti + nota conversione */}
-      {(mercatoData.import_totale?.fonte || mercatoData.export_italia?.fonte) && (
-        <p className="text-slate-500 text-[10px]">
-          📌 {mercatoData.import_totale?.fonte}{mercatoData.export_italia?.fonte ? ` | ${mercatoData.export_italia?.fonte}` : ''}
-        </p>
-      )}
+      {/* Fonti */}
       {tassoCambio && (
-        <p className="text-blue-400/70 text-[10px]">
-          💱 {tassoCambio.nota} (1 EUR = {tassoCambio.tasso} USD, {tassoCambio.fonte})
+        <p className="text-slate-600 text-[10px]">
+          💱 1 EUR = {tassoCambio.tasso} USD ({tassoCambio.fonte})
         </p>
       )}
     </div>
