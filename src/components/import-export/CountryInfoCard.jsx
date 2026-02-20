@@ -197,22 +197,19 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
 
       {/* Dati macro base */}
       {macroData && (
-        <div className="border-t border-slate-700">
+        <div className="border-t border-white/5">
           <div className="grid grid-cols-3 gap-0">
-            <div className="px-3 py-2 border-r border-slate-700">
-              <p className="text-slate-500 text-[10px]">Popolazione</p>
+            <div className="px-3 py-2.5 border-r border-white/5">
+              <p className="text-slate-600 text-[9px] font-medium">Popolazione</p>
               <p className="text-white text-xs font-semibold">{formatPop(macroData.popolazione)}</p>
-              {macroData.popolazione_anno && <p className="text-slate-600 text-[9px]">{macroData.popolazione_anno}</p>}
             </div>
-            <div className="px-3 py-2 border-r border-slate-700">
-              <p className="text-slate-500 text-[10px]">PIL nominale</p>
+            <div className="px-3 py-2.5 border-r border-white/5">
+              <p className="text-slate-600 text-[9px] font-medium">PIL nominale</p>
               <p className="text-white text-xs font-semibold">{formatBigNum(macroData.pil_nominale)}</p>
-              {macroData.pil_nominale_anno && <p className="text-slate-600 text-[9px]">{macroData.pil_nominale_anno}</p>}
             </div>
-            <div className="px-3 py-2">
-              <p className="text-slate-500 text-[10px]">PIL pro capite</p>
+            <div className="px-3 py-2.5">
+              <p className="text-slate-600 text-[9px] font-medium">PIL p.c.</p>
               <p className="text-white text-xs font-semibold">{formatBigNum(macroData.pil_pro_capite)}</p>
-              {macroData.pil_pro_capite_anno && <p className="text-slate-600 text-[9px]">{macroData.pil_pro_capite_anno}</p>}
             </div>
           </div>
         </div>
@@ -220,10 +217,10 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
 
       {/* Stabilità Economica — espandibile */}
       {hasStabilityData && (
-        <div className="border-t border-slate-700">
+        <div className="border-t border-white/5">
           <button
             onClick={() => setShowStability(!showStability)}
-            className="w-full flex items-center justify-between px-3 py-2 hover:bg-slate-700/30 transition-colors"
+            className="w-full flex items-center justify-between px-3 py-2.5 hover:bg-white/[0.02] transition-colors"
           >
             <div className="flex items-center gap-1.5">
               {stabilityScore >= 55 ? (
@@ -231,11 +228,11 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
               ) : (
                 <ShieldAlert className="w-3.5 h-3.5 text-orange-400" />
               )}
-              <span className="text-slate-400 text-[10px] font-semibold uppercase tracking-wider">
-                Stabilità economica & logistica
+              <span className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider">
+                Stabilità & logistica
               </span>
             </div>
-            {showStability ? <ChevronUp className="w-3.5 h-3.5 text-slate-500" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-500" />}
+            {showStability ? <ChevronUp className="w-3.5 h-3.5 text-slate-600" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-600" />}
           </button>
           
           {showStability && (
