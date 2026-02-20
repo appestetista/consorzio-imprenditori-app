@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { UtensilsCrossed, Sparkles, Shirt, Sofa, Smartphone, Car, Dumbbell, Heart, GraduationCap, Briefcase, Monitor, Megaphone, Scale, Landmark, HardHat, Truck, Factory, Printer, Leaf, MoreHorizontal } from 'lucide-react';
 
-const CATEGORIES = [
+const ALL_CATEGORIES = [
   { id: 'Ristorazione e Food', label: 'Ristorazione', icon: UtensilsCrossed, color: 'text-orange-400 border-orange-400/40 bg-orange-400/10' },
   { id: 'Estetica e Benessere', label: 'Estetica', icon: Sparkles, color: 'text-pink-400 border-pink-400/40 bg-pink-400/10' },
   { id: 'Abbigliamento e Moda', label: 'Moda', icon: Shirt, color: 'text-fuchsia-400 border-fuchsia-400/40 bg-fuchsia-400/10' },
@@ -24,9 +24,20 @@ const CATEGORIES = [
   { id: 'Altro', label: 'Altro', icon: MoreHorizontal, color: 'text-slate-400 border-slate-500/40 bg-slate-500/10' },
 ];
 
-export { CATEGORIES };
+export { ALL_CATEGORIES as CATEGORIES };
 
-export default function VantaggiCategoryFilter({ selected, onSelect }) {
+export default function VantaggiCategoryFilter({ selected, onSelect, vantaggi = [] }) {
+  // Filtra solo le categorie che hanno almeno un vantaggio
+  const visibleCategories = useMemo(() => {
+    const categoriePresentSet = new Set(
+      vantaggi.map(v => v.categoria_vantaggio).filter(Boolean)
+    );
+    return ALL_CATEGORIES.filter(cat => categoriePresentSet.has(cat.id));
+  }, [vantaggi]);
+
+  // Se c'è solo 0 o 1 categoria, non mostrare il filtro
+  if (visibleCategories.length <= 1) return null;
+
   return (
     <div className="overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide mb-4">
       <div className="flex gap-2 min-w-max">
@@ -40,7 +51,7 @@ export default function VantaggiCategoryFilter({ selected, onSelect }) {
         >
           Tutti
         </button>
-        {CATEGORIES.map(cat => {
+        {visibleCategories.map(cat => {
           const Icon = cat.icon;
           const isActive = selected === cat.id;
           return (

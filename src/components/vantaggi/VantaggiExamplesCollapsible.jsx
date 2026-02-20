@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { ChevronDown, Lightbulb } from 'lucide-react';
+import { Lightbulb, X } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const EXAMPLES = [
   {
@@ -34,35 +35,40 @@ const EXAMPLES = [
   }
 ];
 
-export default function VantaggiExamplesCollapsible() {
+export default function VantaggiExamplesPopup() {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="mb-4">
+    <>
       <button
-        onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 text-slate-400 hover:text-lime-400 transition-colors text-xs w-full"
+        onClick={() => setOpen(true)}
+        className="flex items-center justify-center gap-1.5 text-slate-400 hover:text-lime-400 transition-colors text-[11px] mt-1 mb-4 mx-auto"
       >
-        <Lightbulb className="w-4 h-4" />
-        <span>Esempi di vantaggi</span>
-        <ChevronDown className={`w-4 h-4 ml-auto transition-transform ${open ? 'rotate-180' : ''}`} />
+        <Lightbulb className="w-3.5 h-3.5" />
+        <span>Vedi esempi di vantaggi</span>
       </button>
 
-      {open && (
-        <div className="mt-3 space-y-2">
-          {EXAMPLES.map((ex, i) => (
-            <div key={i} className="bg-slate-800/60 border border-slate-700 rounded-lg p-3">
-              <div className="flex items-center gap-2 mb-1">
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="bg-slate-900 border-slate-700 max-w-md max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-white flex items-center gap-2 text-base">
+              <Lightbulb className="w-5 h-5 text-lime-400" />
+              Esempi di vantaggi
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 mt-2">
+            {EXAMPLES.map((ex, i) => (
+              <div key={i} className="bg-slate-800/60 border border-slate-700 rounded-lg p-3">
                 <span className="text-lime-400 text-[10px] font-medium bg-lime-400/10 px-2 py-0.5 rounded-full">
                   {ex.categoria}
                 </span>
+                <p className="text-white text-sm font-medium mt-1.5">{ex.titolo}</p>
+                <p className="text-slate-400 text-xs mt-0.5">{ex.descrizione}</p>
               </div>
-              <p className="text-white text-sm font-medium">{ex.titolo}</p>
-              <p className="text-slate-400 text-xs mt-0.5">{ex.descrizione}</p>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
