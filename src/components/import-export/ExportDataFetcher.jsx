@@ -474,7 +474,7 @@ export function computeMetrics(tradeData) {
 /**
  * STEP 4: Interpretazione strategica AI (riceve SOLO dati calcolati, produce SOLO interpretazione)
  */
-export async function interpretData(tradeData, metricsResult, hsCode, hsDescrizione, profiloAzienda) {
+export async function interpretData(tradeData, metricsResult, hsCode, hsDescrizione, profiloAzienda, macroDataMap = {}) {
   if (tradeData?._api_error || metricsResult?._api_error) {
     console.error('[ExportDataFetcher] interpretData skipped: upstream API error');
     return { _api_error: true };
