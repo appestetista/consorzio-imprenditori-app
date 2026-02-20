@@ -15,9 +15,9 @@ function formatUsd(val) {
 function TrendBadge({ value, label }) {
   if (value === null || value === undefined) {
     return (
-      <div className="bg-slate-700/50 rounded-xl p-3">
-        <p className="text-slate-500 text-xs mb-1">{label}</p>
-        <p className="text-slate-400 text-sm">Non calcolabile</p>
+      <div className="bg-white/[0.03] rounded-xl p-3 border border-white/5">
+        <p className="text-slate-500 text-[10px] font-medium mb-1">{label}</p>
+        <p className="text-slate-600 text-xs">N/D</p>
       </div>
     );
   }
@@ -27,15 +27,15 @@ function TrendBadge({ value, label }) {
   const isNeutral = Math.abs(num) < 1;
 
   return (
-    <div className="bg-slate-700/50 rounded-xl p-3">
-      <p className="text-slate-400 text-xs mb-1">{label}</p>
+    <div className="bg-white/[0.03] rounded-xl p-3 border border-white/5">
+      <p className="text-slate-500 text-[10px] font-medium mb-1">{label}</p>
       <div className="flex items-center gap-1.5">
         {isNeutral ? (
-          <Minus className="w-4 h-4 text-slate-400" />
+          <Minus className="w-3.5 h-3.5 text-slate-400" />
         ) : isPositive ? (
-          <TrendingUp className="w-4 h-4 text-green-400" />
+          <TrendingUp className="w-3.5 h-3.5 text-green-400" />
         ) : (
-          <TrendingDown className="w-4 h-4 text-red-400" />
+          <TrendingDown className="w-3.5 h-3.5 text-red-400" />
         )}
         <span className={`font-bold text-sm ${isNeutral ? 'text-slate-300' : isPositive ? 'text-green-400' : 'text-red-400'}`}>
           {isPositive ? '+' : ''}{value}%
