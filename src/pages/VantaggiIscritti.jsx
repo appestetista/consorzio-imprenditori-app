@@ -355,14 +355,15 @@ export default function VantaggiIscritti() {
           </Link>
         </div>
 
-        {/* Crea nuovo vantaggio */}
+        {/* Crea nuovo vantaggio + esempi appendice */}
         <Button
           onClick={() => setShowCreatePanel(true)}
-          className="w-full mb-4 bg-lime-400 hover:bg-lime-500 text-black font-bold h-11 text-sm"
+          className="w-full bg-lime-400 hover:bg-lime-500 text-black font-bold h-11 text-sm rounded-b-none"
         >
           <Plus className="w-5 h-5 mr-2" />
           Crea nuovo vantaggio
         </Button>
+        <VantaggiExamplesCollapsible />
 
         {/* Info box */}
         <div className="bg-lime-400/10 border border-lime-400/30 rounded-xl p-3 mb-4">
@@ -371,11 +372,8 @@ export default function VantaggiIscritti() {
           </p>
         </div>
 
-        {/* Esempi collassabili */}
-        <VantaggiExamplesCollapsible />
-
-        {/* Filtro categorie orizzontale */}
-        <VantaggiCategoryFilter selected={selectedCategory} onSelect={setSelectedCategory} />
+        {/* Filtro categorie dinamico */}
+        <VantaggiCategoryFilter selected={selectedCategory} onSelect={setSelectedCategory} vantaggi={vantaggi} />
 
         {/* Lista vantaggi */}
         {loadingVantaggi ? (
