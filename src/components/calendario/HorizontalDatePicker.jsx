@@ -827,10 +827,13 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
           {onClose && (
             <button
               onClick={onClose}
-              className="flex-1 h-10 rounded-md transition-all touch-manipulation active:scale-90 flex items-center justify-center"
+              className="flex-1 h-10 rounded-md transition-all touch-manipulation active:scale-90 flex items-center justify-center gap-1.5"
               style={{ backgroundColor: '#a3e635', color: '#0f172a' }}
             >
-              <span className="text-[9px] font-bold uppercase">Chiudi</span>
+              <span className="w-5 h-5 rounded-full bg-slate-900 flex items-center justify-center flex-shrink-0">
+                <X className="w-3.5 h-3.5 text-white" strokeWidth={3} />
+              </span>
+              <span className="text-[12px] font-bold uppercase">Chiudi</span>
             </button>
           )}
           
@@ -840,7 +843,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
               onClick={onToggleFatturato}
               className="flex-1 h-10 rounded-md transition-all touch-manipulation active:scale-90 flex items-center justify-center bg-white"
             >
-              <span className="text-[9px] font-bold uppercase text-black">Mesi</span>
+              <span className="text-[12px] font-bold uppercase text-black">Mesi</span>
             </button>
           )}
 
@@ -860,7 +863,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                 !hasSelectedTime && "opacity-50"
               )}
             >
-              <span className="text-[9px] font-bold uppercase text-black">Strumenti</span>
+              <span className="text-[12px] font-bold uppercase text-black">Strumenti</span>
             </button>
             {/* Fumetto tooltip */}
             {showToolsTooltip && (
