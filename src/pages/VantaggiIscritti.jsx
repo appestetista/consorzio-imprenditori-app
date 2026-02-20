@@ -366,8 +366,8 @@ export default function VantaggiIscritti() {
         <VantaggiExamplesCollapsible />
 
         {/* Info box */}
-        <div className="bg-lime-400/10 border border-lime-400/30 rounded-xl p-3 mb-4">
-          <p className="text-lime-300 text-xs">
+        <div className="bg-gradient-to-r from-emerald-500/15 to-cyan-500/15 border border-emerald-400/40 rounded-xl p-3 mb-4">
+          <p className="text-emerald-300 text-xs font-medium">
             💡 Prenota un vantaggio e mostra il tuo QR code in negozio per utilizzarlo!
           </p>
         </div>
