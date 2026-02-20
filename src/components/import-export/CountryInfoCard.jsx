@@ -146,17 +146,17 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
 
   if (isCompact) {
     return (
-      <div className="bg-slate-800/80 border border-slate-700 rounded-xl p-3 flex items-center gap-3">
+      <div className="bg-white/[0.03] border border-white/5 rounded-xl p-3 flex items-center gap-3">
         {countryCode !== 'WLD' ? (
-          <img src={flagUrl} alt="" className="w-8 h-5.5 object-cover rounded-sm shadow" />
+          <img src={flagUrl} alt="" className="w-8 h-5.5 object-cover rounded-md shadow" />
         ) : (
           <Globe className="w-7 h-5 text-blue-400" />
         )}
         <div className="flex-1 min-w-0">
           <p className="text-white text-sm font-semibold truncate">{countryName}</p>
           <div className="flex items-center gap-3 mt-0.5">
-            {macroData?.popolazione && <span className="text-slate-400 text-[10px]">👤 {formatPop(macroData.popolazione)}</span>}
-            {macroData?.pil_nominale && <span className="text-slate-400 text-[10px]">💰 {formatBigNum(macroData.pil_nominale)}</span>}
+            {macroData?.popolazione && <span className="text-slate-500 text-[10px]">👤 {formatPop(macroData.popolazione)}</span>}
+            {macroData?.pil_nominale && <span className="text-slate-500 text-[10px]">💰 {formatBigNum(macroData.pil_nominale)}</span>}
           </div>
         </div>
         {metrics?.crescita_3_anni !== undefined && (
