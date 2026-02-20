@@ -62,9 +62,13 @@ REGOLE INDEROGABILI:
   };
 
   const handleConfirm = () => {
+    console.log('[HSCodeClassifier] handleConfirm called, selectedCode:', selectedCode);
     if (!selectedCode) return;
     const chosen = candidates.find(c => c.hs_code === selectedCode);
-    onConfirm(chosen);
+    console.log('[HSCodeClassifier] chosen:', chosen);
+    if (chosen && onConfirm) {
+      onConfirm(chosen);
+    }
   };
 
   const certezzaStyle = {
