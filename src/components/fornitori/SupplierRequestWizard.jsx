@@ -179,11 +179,11 @@ export default function SupplierRequestWizard({ user, onClose, onSuccess }) {
           </div>
 
           {/* Anonimato banner */}
-          <div className="bg-slate-900 rounded-lg p-3 flex items-start gap-2">
+          <div className="bg-lime-400/5 border border-lime-400/20 rounded-lg p-3 flex items-start gap-2">
             <Shield className="w-4 h-4 text-lime-400 mt-0.5 flex-shrink-0" />
             <p className="text-slate-400 text-xs">
-              Richiesta <span className="text-lime-400 font-medium">completamente anonima</span>.
-              I fornitori non vedranno la tua identità.
+              Tutte le informazioni che inserisci restano <span className="text-lime-400 font-medium">completamente anonime</span>.
+              I fornitori non vedranno mai la tua identità, il nome della tua azienda o i tuoi contatti.
             </p>
           </div>
 
