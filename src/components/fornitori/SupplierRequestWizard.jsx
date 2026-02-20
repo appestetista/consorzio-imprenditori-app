@@ -334,9 +334,50 @@ export default function SupplierRequestWizard({ user, onClose, onSuccess }) {
             </Select>
           </div>
 
-          {/* Allegati */}
+          {/* Preventivo esistente da anonimizzare */}
           <div>
-            <label className="text-slate-400 text-sm mb-1.5 block">Allegati / preventivo esistente</label>
+            <label className="text-slate-400 text-sm mb-1.5 block">Hai già un preventivo da un altro fornitore?</label>
+            <p className="text-slate-500 text-xs mb-2">
+              Se carichi un preventivo ricevuto, verrà anonimizzato (loghi, nomi, indirizzi coperti da barre nere) 
+              e inviato ai fornitori trovati, chiedendo un'offerta migliorativa.
+            </p>
+            
+            {!showAnonymizer && !anonymizedQuoteUrl && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowAnonymizer(true)}
+                className="w-full border-slate-600 text-slate-300 hover:bg-slate-700"
+              >
+                <Upload className="w-4 h-4 mr-2" /> Carica e anonimizza preventivo (facoltativo)
+              </Button>
+            )}
+
+            {showAnonymizer && !anonymizedQuoteUrl && (
+              <AnonymizeQuoteView 
+                user={user}
+                onAnonymized={(url) => setAnonymizedQuoteUrl(url)}
+              />
+            )}
+
+            {anonymizedQuoteUrl && (
+              <div className="bg-lime-400/10 border border-lime-400/30 rounded-lg p-3 flex items-center gap-2">
+                <CheckCircle className="w-4 h-4 text-lime-400 flex-shrink-0" />
+                <div className="flex-1">
+                  <p className="text-lime-300 text-xs font-medium">Preventivo anonimizzato pronto</p>
+                  <p className="text-slate-500 text-xs">Sarà allegato alle email inviate ai fornitori</p>
+                </div>
+                <button
+                  onClick={() => { setAnonymizedQuoteUrl(null); setShowAnonymizer(false); }}
+                  className="text-slate-400 hover:text-red-400 text-xs"
+                >Rimuovi</button>
+              </div>
+            )}
+          </div>
+
+          {/* Allegati generici */}
+          <div>
+            <label className="text-slate-400 text-sm mb-1.5 block">Altri allegati (facoltativo)</label>
             <div className="border-2 border-dashed border-slate-700 rounded-lg p-4 text-center">
               <input
                 type="file"
