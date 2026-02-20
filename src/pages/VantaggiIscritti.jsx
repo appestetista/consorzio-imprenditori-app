@@ -235,8 +235,8 @@ export default function VantaggiIscritti() {
   };
 
   const handleSubmitVantaggio = () => {
-    if (!formData.tipo_vantaggio || !formData.titolo) {
-      toast.error('Compila tipo e titolo');
+    if (!formData.tipo_vantaggio || !formData.titolo || !formData.categoria_vantaggio) {
+      toast.error('Compila tipo, categoria e titolo');
       return;
     }
     createVantaggioMutation.mutate(formData);
