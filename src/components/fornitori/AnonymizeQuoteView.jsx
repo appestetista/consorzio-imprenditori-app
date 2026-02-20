@@ -36,6 +36,23 @@ export default function AnonymizeQuoteView({ requestId, user, onAnonymized }) {
 
   return (
     <div className="space-y-4">
+      {/* Overlay bloccante durante anonimizzazione */}
+      {anonymizeMutation.isPending && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-slate-800 border border-slate-600 rounded-2xl p-8 max-w-sm mx-4 text-center space-y-4 shadow-2xl">
+            <div className="w-16 h-16 bg-lime-400/20 rounded-full flex items-center justify-center mx-auto">
+              <Loader2 className="w-8 h-8 animate-spin text-lime-400" />
+            </div>
+            <h3 className="text-white text-lg font-semibold">Anonimizzazione in corso...</h3>
+            <p className="text-slate-400 text-sm">
+              Stiamo oscurando nomi, indirizzi, P.IVA e loghi dal tuo preventivo. 
+              Può richiedere fino a <span className="text-lime-400 font-medium">30 secondi</span>.
+            </p>
+            <p className="text-slate-500 text-xs">Non chiudere questa finestra.</p>
+          </div>
+        </div>
+      )}
+
       <div className="bg-slate-900 rounded-lg p-3 flex items-start gap-2">
         <Shield className="w-4 h-4 text-lime-400 mt-0.5 flex-shrink-0" />
         <div>
