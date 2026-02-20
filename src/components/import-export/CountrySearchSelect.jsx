@@ -219,7 +219,7 @@ export default function CountrySearchSelect({ selected = [], onChange, maxSelect
 
       {/* Dialog popup */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-md p-0 gap-0 max-h-[80vh] flex flex-col">
+        <DialogContent className="bg-slate-900 border-slate-700 text-white max-w-md p-0 gap-0 max-h-[85vh] flex flex-col top-[8%] translate-y-0 sm:top-[50%] sm:-translate-y-1/2">
           <DialogHeader className="px-4 pt-4 pb-2 flex-shrink-0">
             <DialogTitle className="text-white text-base">Seleziona Paesi</DialogTitle>
             <p className="text-slate-400 text-xs">{selected.length}/{maxSelections} selezionati</p>
