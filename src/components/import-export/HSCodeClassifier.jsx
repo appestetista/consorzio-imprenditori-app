@@ -91,13 +91,18 @@ REGOLE INDEROGABILI:
               <p className="text-slate-500 text-xs">Identifica il codice doganale HS del prodotto</p>
             </div>
           </div>
-          <Button
+          <button
+            type="button"
             onClick={classify}
             disabled={!productDescription?.trim()}
-            className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold shadow-lg shadow-amber-500/20 h-11 rounded-xl"
+            className={`w-full h-12 rounded-xl font-bold text-sm transition-all active:scale-95 ${
+              productDescription?.trim()
+                ? 'bg-lime-400 hover:bg-lime-300 text-black shadow-lg shadow-lime-400/30'
+                : 'bg-slate-700 text-slate-500 cursor-not-allowed'
+            }`}
           >
             Identifica Codice HS
-          </Button>
+          </button>
         </CardContent>
       </Card>
     );
