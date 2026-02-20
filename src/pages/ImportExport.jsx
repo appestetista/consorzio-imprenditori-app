@@ -1497,7 +1497,10 @@ Fornisci:
           /* Tab Import dalla Cina */
           <div className="space-y-4">
             {/* Limite Import */}
-            {!importLimitReached && user && (
+            {importLimitReached && !importResult && (
+              <LimitReachedBanner actionType="import_analysis" usageCount={importUsage} limit={importLimit} isWeekly={true} />
+            )}
+            {!importLimitReached && user && !importResult && (
               <UsageCounter usageCount={importUsage} limit={importLimit} label="Analisi import disponibili questa settimana" />
             )}
 
@@ -1533,6 +1536,24 @@ Fornisci:
                 </Button>
               </div>
             ) : !importResult ? (
+              importLimitReached ? (
+                /* Limite raggiunto — nasconde il form, mostra solo il messaggio */
+                <div className="space-y-4">
+                  <Card className="bg-slate-800/60 border-white/5 backdrop-blur-sm">
+                    <CardContent className="p-5 text-center">
+                      <p className="text-slate-400 text-sm mb-3">
+                        Le analisi si ricaricheranno la prossima settimana. Puoi comunque contattare i nostri consulenti specializzati per assistenza.
+                      </p>
+                      <Button
+                        onClick={() => setShowImportLimitPopup(true)}
+                        className="bg-red-500 hover:bg-red-600 text-white"
+                      >
+                        Contatta i nostri consulenti
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
+              ) :
               <div className="space-y-4">
                 {/* Tipo di Import */}
                 <Card className="bg-slate-800 border-slate-700">
