@@ -38,6 +38,7 @@ export default function VantaggiIscritti() {
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [formData, setFormData] = useState({
     tipo_vantaggio: '',
+    categoria_vantaggio: '',
     titolo: '',
     descrizione: '',
     foto_url: '',
