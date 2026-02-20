@@ -58,7 +58,12 @@ REGOLE INDEROGABILI:
       return;
     }
 
-    setCandidates(result.codici.slice(0, 3));
+    const codes = result.codici.slice(0, 3);
+    setCandidates(codes);
+    // Auto-select if only one candidate
+    if (codes.length === 1) {
+      setSelectedCode(codes[0].hs_code);
+    }
   };
 
   const handleConfirm = () => {
