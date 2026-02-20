@@ -776,7 +776,7 @@ Fornisci:
                           <SelectTrigger className="bg-slate-900/70 border-white/10 text-white h-11 rounded-xl">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent position="popper" sideOffset={4} className="z-[9999]">
                             {EXPORTER_COUNTRIES.map(c => (
                               <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>
                             ))}
@@ -784,17 +784,18 @@ Fornisci:
                         </Select>
                       </div>
                       <div>
-                        <label className="text-slate-400 text-xs font-medium mb-1.5 block">Periodo analisi</label>
+                        <label className="text-slate-400 text-xs font-medium mb-1.5 block">Storico dati commerciali</label>
                         <Select value={periodoAnalisi} onValueChange={setPeriodoAnalisi}>
                           <SelectTrigger className="bg-slate-900/70 border-white/10 text-white h-11 rounded-xl">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="3">3 anni</SelectItem>
-                            <SelectItem value="5">5 anni</SelectItem>
-                            <SelectItem value="10">10 anni</SelectItem>
+                          <SelectContent position="popper" sideOffset={4} className="z-[9999]">
+                            <SelectItem value="3">Ultimi 3 anni</SelectItem>
+                            <SelectItem value="5">Ultimi 5 anni</SelectItem>
+                            <SelectItem value="10">Ultimi 10 anni</SelectItem>
                           </SelectContent>
                         </Select>
+                        <p className="text-slate-500 text-[10px] mt-1">Dati reali UN Comtrade</p>
                       </div>
                     </div>
                   </CardContent>
