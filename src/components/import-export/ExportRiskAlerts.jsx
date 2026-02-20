@@ -92,6 +92,51 @@ function computeAlerts({ priceMetrics, tradeMetrics, macroData, userPriceData })
     });
   }
 
+  // --- 5. Inflazione alta (>10%) ---
+  if (macroData) {
+    Object.entries(macroData).forEach(([code, macro]) => {
+      if (typeof macro?.inflazione === 'number' && macro.inflazione > 10) {
+        const nome = macro.nome || code;
+        alerts.push({
+          severity: 'medium',
+          title: `Inflazione elevata: ${nome} (${macro.inflazione}%)`,
+          detail: `L'inflazione al ${macro.inflazione}% può erodere il potere d'acquisto e creare instabilità nei prezzi. Valutare clausole di adeguamento prezzo nei contratti.`,
+          source: `World Bank, CPI annuo (${macro.inflazione_anno})`
+        });
+      }
+    });
+  }
+
+  // --- 6. Volatilità cambio alta (>15%) ---
+  if (macroData) {
+    Object.entries(macroData).forEach(([code, macro]) => {
+      if (typeof macro?.volatilita_cambio === 'number' && macro.volatilita_cambio > 15) {
+        const nome = macro.nome || code;
+        alerts.push({
+          severity: 'medium',
+          title: `Volatilità valutaria elevata: ${nome} (${macro.volatilita_cambio}%)`,
+          detail: `Il tasso di cambio ha oscillato del ${macro.volatilita_cambio}% negli ultimi 5 anni. Rischio cambio significativo — consigliabile fatturare in EUR o USD.`,
+          source: `World Bank, PA.NUS.FCRF serie 5 anni`
+        });
+      }
+    });
+  }
+
+  // --- 7. LPI scarso (<2.5) ---
+  if (macroData) {
+    Object.entries(macroData).forEach(([code, macro]) => {
+      if (typeof macro?.lpi_score === 'number' && macro.lpi_score < 2.5) {
+        const nome = macro.nome || code;
+        alerts.push({
+          severity: 'low',
+          title: `Logistica carente: ${nome} (LPI ${macro.lpi_score}/5)`,
+          detail: `Il Logistics Performance Index è sotto 2.5, indicando infrastrutture logistiche deboli. Possibili ritardi e costi extra di spedizione.`,
+          source: `World Bank, LP.LPI.OVRL.XQ (${macro.lpi_anno})`
+        });
+      }
+    });
+  }
+
   return alerts;
 }
 
