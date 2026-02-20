@@ -1,16 +1,55 @@
 import { base44 } from '@/api/base44Client';
 
 /**
+ * Recupera indicatori macroeconomici Cina da World Bank API (dati ufficiali, no AI).
+ */
+async function fetchChinaMacro() {
+  const indicators = {
+    gdp_growth: 'NY.GDP.MKTP.KD.ZG',
+    inflation: 'FP.CPI.TOTL.ZG',
+    gdp_nominal: 'NY.GDP.MKTP.CD',
+    gdp_per_capita: 'NY.GDP.PCAP.CD',
+    population: 'SP.POP.TOTL',
+    trade_pct_gdp: 'NE.TRD.GNFS.ZS',
+    current_account: 'BN.CAB.XOKA.CD',
+    exchange_rate: 'PA.NUS.FCRF',
+  };
+
+  const results = {};
+  const fetches = Object.entries(indicators).map(async ([key, code]) => {
+    try {
+      const url = `https://api.worldbank.org/v2/country/CHN/indicator/${code}?format=json&per_page=6&mrv=6`;
+      const resp = await fetch(url);
+      if (!resp.ok) { results[key] = { value: null, year: null, series: [] }; return; }
+      const json = await resp.json();
+      const records = json?.[1];
+      if (!Array.isArray(records) || records.length === 0) { results[key] = { value: null, year: null, series: [] }; return; }
+      const series = records.filter(r => r.value !== null).map(r => ({ year: parseInt(r.date), value: r.value })).sort((a, b) => a.year - b.year);
+      const latest = series.length > 0 ? series[series.length - 1] : { value: null, year: null };
+      results[key] = { value: latest.value, year: latest.year ? String(latest.year) : null, series };
+    } catch {
+      results[key] = { value: null, year: null, series: [] };
+    }
+  });
+  await Promise.all(fetches);
+  return results;
+}
+
+/**
  * STEP 2: Recupera dati ufficiali da TARIC + flussi Comtrade per Import Cina→Italia
+ * Ora include anche la classifica top importatori mondiali per quel codice HS.
  */
 export async function fetchImportData(hsCode, hsDescrizione) {
   const currentYear = new Date().getFullYear();
   const timestamp = new Date().toISOString();
+  const hs4 = String(hsCode).replace(/\D/g, '').substring(0, 4);
 
-  let result;
-  try {
-    result = await base44.integrations.Core.InvokeLLM({
-      prompt: `Sei un analista doganale. Siamo nel ${currentYear}.
+  // Lancio parallelo: dati TARIC/Comtrade (LLM) + macro Cina (World Bank API diretta)
+  const [llmResult, chinaMacro] = await Promise.all([
+    (async () => {
+      try {
+        return await base44.integrations.Core.InvokeLLM({
+          prompt: `Sei un analista doganale. Siamo nel ${currentYear}.
 
 COMPITO: Recupera ESCLUSIVAMENTE dati numerici ufficiali per l'import in un Paese UE dalla Cina del codice HS ${hsCode} (${hsDescrizione}).
 
@@ -26,95 +65,140 @@ Recupera da TARIC:
 5. Restrizioni/licenze richieste (certificazioni obbligatorie, norme tecniche)
 
 FONTE SECONDARIA — UN Comtrade (comtradeplus.un.org):
-Reporter: Italy, Partner: China, HS ${hsCode}
+Reporter: Italy, Partner: China, HS ${hs4} (4 cifre per analisi globale)
 - Valore import Italia dalla Cina (USD) ultimo anno disponibile
 - Serie storica 5 anni
+- QUANTITÀ importata (kg netti o unità, come disponibile su Comtrade) per ogni anno della serie storica
+
+CLASSIFICA TOP IMPORTATORI MONDIALI — UN Comtrade:
+HS heading ${hs4}, ultimo anno disponibile.
+Recupera i TOP 15 Paesi importatori mondiali per questo codice HS, con per ciascuno:
+- Nome Paese
+- Codice ISO
+- Valore importato in USD
+- Quantità importata (kg netti o unità)
+- Unità di misura usata da Comtrade (kg, unità, paia, litri, etc.)
+- Quota percentuale sul totale mondiale
+Ordina per valore importato decrescente.
+
+FLUSSI IMPORT GLOBALI PER CATEGORIA HS ${hs4}:
+- Valore totale import mondiale per HS ${hs4} (USD) ultimo anno
+- Crescita % import mondiale anno su anno (ultimi 3 anni)
 
 NORMATIVA UE:
 - IVA standard e ridotta del Paese UE di destinazione (default: Italia 22%)
 
 REGOLE INDEROGABILI:
-- Restituisci SOLO dati verificati da TARIC. NESSUNA interpretazione, NESSUN commento.
-- Se un dato NON è reperibile, restituisci null. NON inventare, NON stimare, NON usare dazi generici.
-- Per aliquote: numero esatto (es. "6.5" per 6.5%). MAI scrivere "circa" o "stimato".
-- Per anti-dumping: se non attivo scrivi "Nessuno". Se attivo: regolamento UE + aliquota esatta.
-- Per misure compensative: se non attive scrivi "Nessuna". Se attive: regolamento UE + aliquota esatta.
-- Se il dazio non è disponibile in TARIC per origine CN: restituisci null per dazio_mfn_percentuale.
+- Restituisci SOLO dati verificati. NESSUNA interpretazione, NESSUN commento.
+- Se un dato NON è reperibile, restituisci null. NON inventare, NON stimare.
+- Per aliquote: numero esatto. MAI scrivere "circa" o "stimato".
+- Per quantità: numero esatto come riportato da Comtrade. Se non disponibile, null.
 - CONVERSIONE VALUTA: Fornisci tasso cambio medio annuale EUR/USD dalla BCE per ultimo anno disponibile.`,
-    add_context_from_internet: true,
-    response_json_schema: {
-      type: "object",
-      properties: {
-        hs_code: { type: "string" },
-        taric: {
-          type: "object",
-          properties: {
-            dazio_mfn_percentuale: { type: "string", description: "Aliquota dazio MFN in %, es: 6.5. null se non disponibile." },
-            anti_dumping_percentuale: { type: "string", description: "Aliquota anti-dumping in %, o 'Nessuno'" },
-            anti_dumping_regolamento: { type: "string", description: "Regolamento UE se anti-dumping attivo" },
-            misure_compensative_percentuale: { type: "string", description: "Aliquota misure compensative in %, o 'Nessuna'" },
-            misure_compensative_regolamento: { type: "string", description: "Regolamento UE se misura compensativa attiva" },
-            contingenti: { type: "string", description: "Contingenti tariffari se presenti, altrimenti null" },
-            restrizioni: { type: "array", items: { type: "string" }, description: "Certificazioni/norme obbligatorie (CE, REACH, etc.)" },
-            licenze_richieste: { type: "string", description: "Licenze di importazione richieste, o null" },
-            fonte: { type: "string" }
-          }
-        },
-        iva: {
-          type: "object",
-          properties: {
-            aliquota_standard: { type: "string", description: "IVA standard Italia %, es: 22" },
-            aliquota_ridotta: { type: "string", description: "IVA ridotta se applicabile, altrimenti null" },
-            base_normativa: { type: "string" }
-          }
-        },
-        flussi_comtrade: {
-          type: "object",
-          properties: {
-            import_italia_da_cina_usd: { type: "string", description: "Valore USD ultimo anno" },
-            anno: { type: "string" },
-            serie_storica: {
-              type: "array",
-              items: {
+          add_context_from_internet: true,
+          response_json_schema: {
+            type: "object",
+            properties: {
+              hs_code: { type: "string" },
+              taric: {
                 type: "object",
                 properties: {
-                  anno: { type: "number" },
-                  valore_usd: { type: "string" }
+                  dazio_mfn_percentuale: { type: "string", description: "Aliquota dazio MFN in %, es: 6.5. null se non disponibile." },
+                  anti_dumping_percentuale: { type: "string", description: "Aliquota anti-dumping in %, o 'Nessuno'" },
+                  anti_dumping_regolamento: { type: "string", description: "Regolamento UE se anti-dumping attivo" },
+                  misure_compensative_percentuale: { type: "string", description: "Aliquota misure compensative in %, o 'Nessuna'" },
+                  misure_compensative_regolamento: { type: "string", description: "Regolamento UE se misura compensativa attiva" },
+                  contingenti: { type: "string", description: "Contingenti tariffari se presenti, altrimenti null" },
+                  restrizioni: { type: "array", items: { type: "string" }, description: "Certificazioni/norme obbligatorie (CE, REACH, etc.)" },
+                  licenze_richieste: { type: "string", description: "Licenze di importazione richieste, o null" },
+                  fonte: { type: "string" }
                 }
+              },
+              iva: {
+                type: "object",
+                properties: {
+                  aliquota_standard: { type: "string", description: "IVA standard Italia %, es: 22" },
+                  aliquota_ridotta: { type: "string", description: "IVA ridotta se applicabile, altrimenti null" },
+                  base_normativa: { type: "string" }
+                }
+              },
+              flussi_comtrade: {
+                type: "object",
+                properties: {
+                  import_italia_da_cina_usd: { type: "string", description: "Valore USD ultimo anno" },
+                  import_italia_da_cina_quantita: { type: "string", description: "Quantità importata ultimo anno (numero)" },
+                  import_italia_da_cina_unita: { type: "string", description: "Unità di misura Comtrade (kg, units, pairs, litres, etc.)" },
+                  anno: { type: "string" },
+                  serie_storica: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        anno: { type: "number" },
+                        valore_usd: { type: "string" },
+                        quantita: { type: "string", description: "Quantità importata per quell'anno" }
+                      }
+                    }
+                  },
+                  fonte: { type: "string" }
+                }
+              },
+              top_importatori_mondiali: {
+                type: "object",
+                properties: {
+                  anno_riferimento: { type: "string" },
+                  hs_heading: { type: "string" },
+                  totale_mondiale_usd: { type: "string", description: "Valore totale import mondiale per HS heading in USD" },
+                  crescita_mondiale_3y_perc: { type: "string", description: "Crescita % import mondiale ultimi 3 anni" },
+                  unita_misura: { type: "string", description: "Unità di misura comune (kg, units, pairs, litres, etc.)" },
+                  classifica: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        posizione: { type: "number" },
+                        paese: { type: "string" },
+                        codice_iso: { type: "string" },
+                        valore_usd: { type: "string" },
+                        quantita: { type: "string", description: "Quantità importata (nella unità di misura Comtrade)" },
+                        quota_percentuale: { type: "string", description: "Quota % sul totale mondiale" }
+                      }
+                    }
+                  },
+                  fonte: { type: "string" }
+                }
+              },
+              tasso_cambio_eur_usd: {
+                type: "object",
+                properties: {
+                  tasso: { type: "string", description: "Tasso medio annuale EUR/USD BCE, es: 1.08" },
+                  anno: { type: "string", description: "Anno di riferimento del tasso" },
+                  fonte: { type: "string", description: "Es: BCE (ECB Statistical Data Warehouse)" }
+                }
+              },
+              dati_non_disponibili: {
+                type: "array",
+                items: { type: "string" }
               }
-            },
-            fonte: { type: "string" }
+            }
           }
-        },
-        tasso_cambio_eur_usd: {
-          type: "object",
-          properties: {
-            tasso: { type: "string", description: "Tasso medio annuale EUR/USD BCE, es: 1.08" },
-            anno: { type: "string", description: "Anno di riferimento del tasso" },
-            fonte: { type: "string", description: "Es: BCE (ECB Statistical Data Warehouse)" }
-          }
-        },
-        dati_non_disponibili: {
-          type: "array",
-          items: { type: "string" }
-        }
+        });
+      } catch (err) {
+        console.error('[ImportDataFetcher] fetchImportData LLM error:', err);
+        return { _api_error: true, _error_message: err?.message || 'Unknown error' };
       }
-    }
-    });
-  } catch (err) {
-    console.error('[ImportDataFetcher] fetchImportData API error:', err);
-    return { _api_error: true, _error_message: err?.message || 'Unknown error' };
+    })(),
+    fetchChinaMacro()
+  ]);
+
+  if (!llmResult || typeof llmResult !== 'object' || llmResult._api_error) {
+    return { _api_error: true, _error_message: llmResult?._error_message || 'Risposta API non valida' };
   }
 
-  if (!result || typeof result !== 'object') {
-    console.error('[ImportDataFetcher] fetchImportData: risposta vuota o non valida', result);
-    return { _api_error: true, _error_message: 'Risposta API non valida' };
-  }
+  // Merge risultati
+  llmResult._timestamp_recupero = timestamp;
+  llmResult.china_macro = chinaMacro;
 
-  // Aggiunge timestamp recupero
-  result._timestamp_recupero = timestamp;
-
-  return result;
+  return llmResult;
 }
 
 /**
