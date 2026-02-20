@@ -185,6 +185,43 @@ export default function MarketSummaryCard({ priceM, tradeM, macro, userPriceData
                 <p className="text-slate-400 text-xs">Dati ufficiali temporaneamente non disponibili per questo mercato.</p>
               </div>
             )}
+            {/* BLOCCO 0: Stabilità & Logistica */}
+            {(inflazione !== null || lpiScore !== null || doingBusiness !== null || volatilitaCambio !== null) && (
+              <div>
+                <p className="text-cyan-400 text-[10px] font-semibold uppercase tracking-wider mb-2">🛡️ Stabilità economica</p>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {inflazione !== null && (
+                    <div className="bg-slate-700/30 rounded-lg px-2.5 py-1.5">
+                      <p className="text-slate-500 text-[10px]">Inflazione</p>
+                      <p className={`text-xs font-semibold ${inflazione < 3 ? 'text-green-400' : inflazione < 6 ? 'text-yellow-400' : inflazione < 10 ? 'text-orange-400' : 'text-red-400'}`}>{inflazione}%</p>
+                      {macro?.inflazione_anno && <p className="text-slate-600 text-[9px]">World Bank {macro.inflazione_anno}</p>}
+                    </div>
+                  )}
+                  {lpiScore !== null && (
+                    <div className="bg-slate-700/30 rounded-lg px-2.5 py-1.5">
+                      <p className="text-slate-500 text-[10px]">Logistica (LPI)</p>
+                      <p className={`text-xs font-semibold ${lpiScore >= 3.5 ? 'text-green-400' : lpiScore >= 3 ? 'text-lime-400' : lpiScore >= 2.5 ? 'text-yellow-400' : 'text-red-400'}`}>{lpiScore}/5</p>
+                      {macro?.lpi_anno && <p className="text-slate-600 text-[9px]">World Bank {macro.lpi_anno}</p>}
+                    </div>
+                  )}
+                  {doingBusiness !== null && (
+                    <div className="bg-slate-700/30 rounded-lg px-2.5 py-1.5">
+                      <p className="text-slate-500 text-[10px]">Doing Business</p>
+                      <p className={`text-xs font-semibold ${doingBusiness >= 75 ? 'text-green-400' : doingBusiness >= 60 ? 'text-lime-400' : doingBusiness >= 45 ? 'text-yellow-400' : 'text-red-400'}`}>{doingBusiness}/100</p>
+                      {macro?.doing_business_anno && <p className="text-slate-600 text-[9px]">World Bank {macro.doing_business_anno}</p>}
+                    </div>
+                  )}
+                  {volatilitaCambio !== null && (
+                    <div className="bg-slate-700/30 rounded-lg px-2.5 py-1.5">
+                      <p className="text-slate-500 text-[10px]">Volatilità cambio</p>
+                      <p className={`text-xs font-semibold ${volatilitaCambio < 3 ? 'text-green-400' : volatilitaCambio < 8 ? 'text-yellow-400' : volatilitaCambio < 15 ? 'text-orange-400' : 'text-red-400'}`}>{volatilitaCambio}%</p>
+                      <p className="text-slate-600 text-[9px]">World Bank, 5 anni</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* BLOCCO 1: Dati Numerici */}
             {hasAnyData && (
             <div>
