@@ -38,8 +38,8 @@ export default function ExportComparisonRanking({ metriche, macroData, mercatiAn
       </p>
       <div className="space-y-2">
         {sorted.map((m, i) => {
-          const macro = macroData?.[m.paese_code];
           const flagUrl = getFlagUrl(m.paese_code);
+          const score = mercatiAnalisi?.find(ma => ma.paese_code === m.paese_code)?.punteggio_opportunita;
           const crescita = m.crescita_3_anni ? parseFloat(m.crescita_3_anni) : null;
           const isPos = crescita !== null && crescita > 5;
           const isNeg = crescita !== null && crescita < -2;
@@ -60,22 +60,24 @@ export default function ExportComparisonRanking({ metriche, macroData, mercatiAn
                 <p className="text-white text-sm font-semibold truncate">{m.paese_nome}</p>
                 <div className="flex items-center gap-2">
                   <span className="text-slate-500 text-[10px]">Import: {formatVal(m.import_totale_eur)}</span>
+                  {crescita !== null && (
+                    <span className={`text-[10px] font-bold ${isPos ? 'text-green-400' : isNeg ? 'text-red-400' : 'text-yellow-400'}`}>
+                      {crescita > 0 ? '+' : ''}{m.crescita_3_anni}% 3Y
+                    </span>
+                  )}
                 </div>
               </div>
               <div className="text-right flex-shrink-0">
-                {crescita !== null ? (
-                  <div className="flex items-center gap-1">
-                    {isPos ? <TrendingUp className="w-3 h-3 text-green-400" /> :
-                     isNeg ? <TrendingDown className="w-3 h-3 text-red-400" /> :
-                     <Minus className="w-3 h-3 text-yellow-400" />}
-                    <span className={`text-xs font-bold ${isPos ? 'text-green-400' : isNeg ? 'text-red-400' : 'text-yellow-400'}`}>
-                      {crescita > 0 ? '+' : ''}{m.crescita_3_anni}%
-                    </span>
+                {score != null ? (
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm ${
+                    score >= 7 ? 'bg-green-500/20 text-green-400' :
+                    score >= 5 ? 'bg-yellow-500/20 text-yellow-400' : 'bg-red-500/20 text-red-400'
+                  }`}>
+                    {score}
                   </div>
                 ) : (
                   <span className="text-slate-500 text-xs">N/D</span>
                 )}
-                <p className="text-slate-600 text-[9px]">3Y</p>
               </div>
             </div>
           );
