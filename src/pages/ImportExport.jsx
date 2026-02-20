@@ -914,18 +914,23 @@ Fornisci:
                 )}
 
                 {analyzing && (
-                  <Card className="bg-slate-800 border-slate-700">
-                    <CardContent className="p-4">
-                      <div className="space-y-3">
+                  <Card className="bg-slate-800/60 border-white/5 backdrop-blur-sm shadow-2xl">
+                    <CardContent className="p-5">
+                      <div className="space-y-4">
                         <div className="flex items-center gap-3">
-                          <Loader2 className="w-5 h-5 animate-spin text-lime-400" />
-                          <p className="text-white font-semibold text-sm">Analisi export in corso...</p>
+                          <div className="w-10 h-10 rounded-xl bg-lime-400/10 flex items-center justify-center">
+                            <Loader2 className="w-5 h-5 animate-spin text-lime-400" />
+                          </div>
+                          <div>
+                            <p className="text-white font-bold text-sm">Analisi in corso</p>
+                            <p className="text-slate-500 text-xs">Recupero e analisi dati reali</p>
+                          </div>
                         </div>
                         <div className="space-y-2">
                           {['fetching', 'computing', 'interpreting'].map((step, i) => {
                             const labels = {
-                              fetching: '1. Recupero dati Comtrade + World Bank (macro, stabilità, logistica)...',
-                              computing: '2. Calcolo metriche (crescita, CAGR, volatilità, stabilità)...',
+                              fetching: 'Recupero dati Comtrade + World Bank',
+                              computing: 'Calcolo metriche (crescita, CAGR, volatilità, stabilità)...',
                               interpreting: '3. Interpretazione strategica AI...'
                             };
                             const isActive = exportStep === step;
