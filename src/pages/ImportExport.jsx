@@ -904,8 +904,8 @@ Fornisci:
                         <div className="space-y-2">
                           {['fetching', 'computing', 'interpreting'].map((step, i) => {
                             const labels = {
-                              fetching: '1. Recupero dati da UN Comtrade / Eurostat / TARIC...',
-                              computing: '2. Calcolo metriche (crescita, CAGR, volatilità)...',
+                              fetching: '1. Recupero dati Comtrade + World Bank (macro, stabilità, logistica)...',
+                              computing: '2. Calcolo metriche (crescita, CAGR, volatilità, stabilità)...',
                               interpreting: '3. Interpretazione strategica AI...'
                             };
                             const isActive = exportStep === step;
