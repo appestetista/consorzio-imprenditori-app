@@ -19,16 +19,18 @@ export default function HSCodeClassifier({ productDescription, onConfirm, onErro
 
     try {
       const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Sei un classificatore doganale. Dato il seguente prodotto, restituisci ESATTAMENTE fino a 3 codici HS (Harmonized System) candidati a 6 cifre, con la descrizione ufficiale dalla nomenclatura combinata UE.
+        prompt: `Sei un classificatore doganale esperto. Dato il seguente prodotto, restituisci fino a 3 codici HS (Harmonized System) candidati a 6 cifre.
 
 PRODOTTO: "${productDescription}"
 
 REGOLE INDEROGABILI:
-- Restituisci SOLO codici HS che esistono realmente nella nomenclatura combinata UE (Regolamento CE n. 2658/87 e successivi aggiornamenti).
-- Per ogni codice indica la descrizione UFFICIALE dalla nomenclatura, NON una tua riformulazione.
-- Se NON riesci a identificare NESSUN codice HS con ragionevole certezza, restituisci un array vuoto in "codici" e scrivi il motivo in "errore".
-- Indica per ogni codice un livello di certezza: "alto" (corrispondenza precisa), "medio" (corrispondenza probabile), "basso" (corrispondenza incerta).
-- NON INVENTARE codici HS. Meglio restituire 1 codice certo che 3 incerti.`,
+- Restituisci SOLO codici HS che esistono realmente nella nomenclatura combinata UE (Regolamento CE n. 2658/87).
+- Per ogni codice indica la descrizione UFFICIALE dalla nomenclatura combinata UE. 
+- IMPORTANTE: Ogni codice HS ha una descrizione DIVERSA e SPECIFICA. NON ripetere la stessa descrizione per codici diversi. Se due codici hanno descrizioni simili, distingui chiaramente cosa li differenzia (es. "uso generale" vs "uso speciale", "a controllo numerico" vs "manuali").
+- Se NON riesci a identificare NESSUN codice con ragionevole certezza, restituisci array vuoto in "codici" e scrivi il motivo in "errore".
+- Indica per ogni codice un livello di certezza: "alto", "medio", "basso".
+- NON INVENTARE codici HS. Meglio 1 codice certo che 3 incerti.
+- Nella "nota" spiega brevemente cosa differenzia questo codice dagli altri candidati.`,
         add_context_from_internet: true,
         response_json_schema: {
           type: "object",
