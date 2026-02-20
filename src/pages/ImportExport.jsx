@@ -685,28 +685,28 @@ Fornisci:
                           placeholder="Es. Macchine per packaging alimentare"
                           value={exportForm.prodotto}
                           onChange={(e) => setExportForm({ ...exportForm, prodotto: e.target.value })}
-                          className="bg-slate-900 border-slate-700 text-white"
+                          className="bg-slate-900/70 border-white/10 text-white h-11 rounded-xl"
                         />
                       </div>
 
                       <div>
-                        <label className="text-slate-400 text-sm mb-1 block">Descrizione prodotto</label>
+                        <label className="text-slate-400 text-xs font-medium mb-1.5 block">Descrizione prodotto</label>
                         <Textarea
                           placeholder="Descrivi brevemente il tuo prodotto, caratteristiche distintive, vantaggi competitivi..."
                           value={exportForm.descrizione_prodotto}
                           onChange={(e) => setExportForm({ ...exportForm, descrizione_prodotto: e.target.value })}
-                          className="bg-slate-900 border-slate-700 text-white min-h-[80px]"
+                          className="bg-slate-900/70 border-white/10 text-white min-h-[80px] rounded-xl"
                         />
                       </div>
 
                       <div className="grid grid-cols-2 gap-3">
                         <div>
-                          <label className="text-slate-400 text-sm mb-1 block">Fatturato annuo</label>
+                          <label className="text-slate-400 text-xs font-medium mb-1.5 block">Fatturato annuo</label>
                           <Select
                             value={exportForm.fatturato_annuo}
                             onValueChange={(value) => setExportForm({ ...exportForm, fatturato_annuo: value })}
                           >
-                            <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                            <SelectTrigger className="bg-slate-900/70 border-white/10 text-white h-11 rounded-xl">
                               <SelectValue placeholder="Range" />
                             </SelectTrigger>
                             <SelectContent>
@@ -720,12 +720,12 @@ Fornisci:
                         </div>
 
                         <div>
-                          <label className="text-slate-400 text-sm mb-1 block">Esperienza export</label>
+                          <label className="text-slate-400 text-xs font-medium mb-1.5 block">Esperienza export</label>
                           <Select
                             value={exportForm.esperienza_export}
                             onValueChange={(value) => setExportForm({ ...exportForm, esperienza_export: value })}
                           >
-                            <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                            <SelectTrigger className="bg-slate-900/70 border-white/10 text-white h-11 rounded-xl">
                               <SelectValue placeholder="Livello" />
                             </SelectTrigger>
                             <SelectContent>
@@ -740,22 +740,22 @@ Fornisci:
                       </div>
 
                       <div>
-                        <label className="text-slate-400 text-sm mb-1 block">Certificazioni possedute</label>
+                        <label className="text-slate-400 text-xs font-medium mb-1.5 block">Certificazioni possedute</label>
                         <Input
                           placeholder="Es. ISO 9001, CE, FDA, HACCP..."
                           value={exportForm.certificazioni}
                           onChange={(e) => setExportForm({ ...exportForm, certificazioni: e.target.value })}
-                          className="bg-slate-900 border-slate-700 text-white"
+                          className="bg-slate-900/70 border-white/10 text-white h-11 rounded-xl"
                         />
                       </div>
 
                       <div>
-                        <label className="text-slate-400 text-sm mb-1 block">Capacità produttiva disponibile per export</label>
+                        <label className="text-slate-400 text-xs font-medium mb-1.5 block">Capacità produttiva per export</label>
                         <Input
                           placeholder="Es. 30% della produzione, 1000 unità/mese"
                           value={exportForm.capacita_produttiva}
                           onChange={(e) => setExportForm({ ...exportForm, capacita_produttiva: e.target.value })}
-                          className="bg-slate-900 border-slate-700 text-white"
+                          className="bg-slate-900/70 border-white/10 text-white h-11 rounded-xl"
                         />
                       </div>
                     </div>
@@ -763,17 +763,17 @@ Fornisci:
                 </Card>
 
                 {/* Parametri Analisi */}
-                <Card className="bg-slate-800 border-slate-700">
-                  <CardContent className="p-4">
-                    <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
-                      <Globe className="w-5 h-5 text-lime-400" />
+                <Card className="bg-slate-800/60 border-white/5 backdrop-blur-sm">
+                  <CardContent className="p-5">
+                    <h3 className="text-white font-semibold mb-3 flex items-center gap-2 text-sm">
+                      <Globe className="w-4 h-4 text-lime-400" />
                       Parametri Analisi
                     </h3>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="text-slate-400 text-sm mb-1 block">Paese esportatore</label>
+                        <label className="text-slate-400 text-xs font-medium mb-1.5 block">Paese esportatore</label>
                         <Select value={exporterCountry} onValueChange={setExporterCountry}>
-                          <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                          <SelectTrigger className="bg-slate-900/70 border-white/10 text-white h-11 rounded-xl">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -784,9 +784,9 @@ Fornisci:
                         </Select>
                       </div>
                       <div>
-                        <label className="text-slate-400 text-sm mb-1 block">Periodo analisi</label>
+                        <label className="text-slate-400 text-xs font-medium mb-1.5 block">Periodo analisi</label>
                         <Select value={periodoAnalisi} onValueChange={setPeriodoAnalisi}>
-                          <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
+                          <SelectTrigger className="bg-slate-900/70 border-white/10 text-white h-11 rounded-xl">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -800,14 +800,14 @@ Fornisci:
                   </CardContent>
                 </Card>
 
-                {/* Selezione Mercati — Multiselect dinamico */}
-                <Card className="bg-slate-800 border-slate-700">
-                  <CardContent className="p-4">
-                    <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
-                      <MapPin className="w-5 h-5 text-lime-400" />
+                {/* Selezione Mercati */}
+                <Card className="bg-slate-800/60 border-white/5 backdrop-blur-sm">
+                  <CardContent className="p-5">
+                    <h3 className="text-white font-semibold mb-2 flex items-center gap-2 text-sm">
+                      <MapPin className="w-4 h-4 text-lime-400" />
                       Mercati target *
                     </h3>
-                    <p className="text-slate-400 text-sm mb-3">Cerca e seleziona fino a 5 Paesi (o "World")</p>
+                    <p className="text-slate-500 text-xs mb-3">Seleziona fino a 5 Paesi (o "World")</p>
                     <CountrySearchSelect
                       selected={exportForm.mercati_interesse}
                       onChange={(codes) => setExportForm({ ...exportForm, mercati_interesse: codes })}
