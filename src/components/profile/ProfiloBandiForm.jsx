@@ -220,27 +220,6 @@ export default function ProfiloBandiForm({ user, onSaved }) {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label className={`text-sm flex items-center ${!formData.company_size ? 'text-lime-400' : 'text-slate-300'}`}>
-              Dimensione Azienda <span className="text-lime-400 ml-1">*</span>
-              <HelpTooltip text="Micro (<10 dip., <2M€), Piccola (<50 dip., <10M€), Media (<250 dip., <50M€), Grande (oltre)" />
-            </Label>
-            <Select value={formData.company_size || undefined} onValueChange={(value) => updateAndSave('company_size', value)}>
-              <SelectTrigger 
-                className="bg-slate-900 text-white mt-1"
-                style={!formData.company_size ? { border: '3px solid #a3e635' } : { border: '1px solid rgb(51 65 85)' }}
-              >
-                <SelectValue placeholder="Seleziona dimensione" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Micro">Micro (&lt;10 dip., &lt;2M€)</SelectItem>
-                <SelectItem value="Piccola">Piccola (&lt;50 dip., &lt;10M€)</SelectItem>
-                <SelectItem value="Media">Media (&lt;250 dip., &lt;50M€)</SelectItem>
-                <SelectItem value="Grande">Grande (oltre 250 dip.)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
             <Label className={`text-sm flex items-center ${!formData.legal_form ? 'text-lime-400' : 'text-slate-300'}`}>
               Forma Giuridica <span className="text-lime-400 ml-1">*</span>
               <HelpTooltip text="La forma societaria come risulta dalla visura camerale." />
