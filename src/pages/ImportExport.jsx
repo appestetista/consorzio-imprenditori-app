@@ -324,7 +324,14 @@ export default function ImportExport() {
     setImportResult(null);
 
     try {
-      await trackImportUsage();
+      await trackImportUsage({
+        search_label: `Import: ${importForm.descrizione_prodotto.substring(0, 60)}`,
+        search_meta: {
+          prodotto: importForm.descrizione_prodotto,
+          hs_code: hsData.hs_code,
+          tipo_richiesta: importForm.tipo_richiesta
+        }
+      });
 
       // STEP 2: Recupero dati da TARIC + Comtrade
       setImportStep('fetching');
