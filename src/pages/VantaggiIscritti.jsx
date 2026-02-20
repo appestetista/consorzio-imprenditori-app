@@ -369,6 +369,12 @@ export default function VantaggiIscritti() {
           </p>
         </div>
 
+        {/* Esempi collassabili */}
+        <VantaggiExamplesCollapsible />
+
+        {/* Filtro categorie orizzontale */}
+        <VantaggiCategoryFilter selected={selectedCategory} onSelect={setSelectedCategory} />
+
         {/* Lista vantaggi */}
         {loadingVantaggi ? (
           <div className="text-center py-12">
