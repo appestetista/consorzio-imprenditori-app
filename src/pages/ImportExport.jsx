@@ -552,60 +552,75 @@ Fornisci:
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 pb-24">
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 pb-24">
       <Header user={user} />
       
       <main className="px-4 py-6 max-w-md mx-auto">
-        <div className="flex items-center gap-3 mb-6">
-          <Link to={createPageUrl('Home')} className="text-lime-400">
-            <ArrowLeft className="w-6 h-6" />
+        {/* Minimal Header */}
+        <div className="flex items-center gap-3 mb-5">
+          <Link to={createPageUrl('Home')} className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors">
+            <ArrowLeft className="w-4 h-4 text-white" />
           </Link>
-          <h1 className="text-white text-xl font-bold">Import / Export</h1>
+          <div>
+            <h1 className="text-white text-lg font-bold tracking-tight">Import / Export</h1>
+            <p className="text-slate-500 text-xs">Analisi mercati internazionali</p>
+          </div>
         </div>
 
-        {/* Hero Card */}
-        <Card className="bg-gradient-to-br from-emerald-500 to-teal-600 border-0 mb-6">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
-                <Globe className="w-8 h-8 text-white" />
-              </div>
-              <div>
-                <h2 className="text-white text-xl font-bold">Internazionalizzazione</h2>
-                <p className="text-white/80 text-sm">Analizza mercati e opportunità globali</p>
-              </div>
+        {/* Hero */}
+        <div className="relative mb-6 rounded-2xl overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-600/90 via-teal-600/90 to-cyan-700/90" />
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMSIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA1KSIvPjwvc3ZnPg==')] opacity-40" />
+          <div className="relative px-5 py-6 flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur-sm flex items-center justify-center shadow-lg">
+              <Globe className="w-7 h-7 text-white" />
             </div>
-          </CardContent>
-        </Card>
+            <div className="flex-1">
+              <h2 className="text-white text-lg font-bold">Internazionalizzazione</h2>
+              <p className="text-white/70 text-sm mt-0.5">Dati ufficiali · Analisi AI · Consulenza</p>
+            </div>
+          </div>
+        </div>
 
         {/* Tab Switch */}
-        <div className="flex gap-2 mb-6">
-          <Button
+        <div className="flex gap-1.5 mb-6 bg-slate-800/50 p-1 rounded-xl border border-white/5">
+          <button
             onClick={() => setActiveTab('export')}
-            className={`flex-1 ${activeTab === 'export' ? 'bg-lime-400 text-slate-900 hover:bg-lime-500' : 'bg-slate-800 text-white hover:bg-slate-700'}`}
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+              activeTab === 'export' 
+                ? 'bg-gradient-to-r from-lime-400 to-emerald-400 text-slate-900 shadow-lg shadow-lime-400/20' 
+                : 'text-slate-400 hover:text-white'
+            }`}
           >
-            <TrendingUp className="w-4 h-4 mr-2" />
+            <TrendingUp className="w-4 h-4" />
             Export
-          </Button>
-          <Button
+          </button>
+          <button
             onClick={() => setActiveTab('import')}
-            className={`flex-1 ${activeTab === 'import' ? 'bg-red-400 text-white hover:bg-red-500' : 'bg-slate-800 text-white hover:bg-slate-700'}`}
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+              activeTab === 'import' 
+                ? 'bg-gradient-to-r from-red-500 to-rose-500 text-white shadow-lg shadow-red-500/20' 
+                : 'text-slate-400 hover:text-white'
+            }`}
           >
-            <img src="https://flagcdn.com/w20/cn.png" alt="China" className="w-5 h-3.5 mr-1 object-cover rounded-sm" />
-            <span className="mr-1">CN</span>
-            Import
-          </Button>
-          <Button
+            <Ship className="w-4 h-4" />
+            Import CN
+          </button>
+          <button
             onClick={() => setActiveTab('messages')}
-            className={`relative ${activeTab === 'messages' ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-slate-800 text-white hover:bg-slate-700'}`}
+            className={`relative px-4 flex items-center justify-center py-2.5 rounded-lg text-sm font-semibold transition-all ${
+              activeTab === 'messages' 
+                ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg shadow-blue-500/20' 
+                : 'text-slate-400 hover:text-white'
+            }`}
           >
             <Mail className="w-4 h-4" />
             {importUnreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full w-4.5 h-4.5 flex items-center justify-center font-bold ring-2 ring-slate-900">
                 {importUnreadCount}
               </span>
             )}
-          </Button>
+          </button>
         </div>
 
         {activeTab === 'messages' ? (
