@@ -7,14 +7,15 @@ export default function CategorySelector({ onSelect }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedSector, setExpandedSector] = useState(null);
 
-  // Flat search across all items
+  // Flat search across all items (items are now objects with {name, example})
   const searchResults = searchTerm.trim().length >= 2
     ? SUPPLIER_CATEGORIES.flatMap(cat =>
         cat.subcategories.flatMap(sub =>
           sub.items
-            .filter(item => item.toLowerCase().includes(searchTerm.toLowerCase()))
+            .filter(item => item.name.toLowerCase().includes(searchTerm.toLowerCase()))
             .map(item => ({
-              item,
+              item: item.name,
+              example: item.example,
               group: sub.group,
               macro: cat.label,
               macroId: cat.id,
@@ -55,11 +56,17 @@ export default function CategorySelector({ onSelect }) {
               <div className="grid grid-cols-1 gap-1">
                 {sub.items.map(item => (
                   <button
-                    key={item}
-                    onClick={() => onSelect({ category: item, subcategory: sub.group || '', macro_sector: sector.label, macro_id: sector.id })}
+                    key={item.name}
+                    onClick={() => onSelect({ 
+                      category: item.name, 
+                      example: item.example,
+                      subcategory: sub.group || '', 
+                      macro_sector: sector.label, 
+                      macro_id: sector.id 
+                    })}
                     className="w-full text-left px-3 py-2.5 rounded-lg bg-slate-800 border border-slate-700 hover:border-lime-500/50 hover:bg-slate-700/50 transition-all text-white text-sm flex items-center justify-between group"
                   >
-                    <span className="group-hover:text-lime-300">{item}</span>
+                    <span className="group-hover:text-lime-300">{item.name}</span>
                     <ChevronRight className="w-4 h-4 text-slate-600 group-hover:text-lime-400" />
                   </button>
                 ))}
@@ -93,7 +100,13 @@ export default function CategorySelector({ onSelect }) {
             searchResults.map((r, i) => (
               <button
                 key={i}
-                onClick={() => onSelect({ category: r.item, subcategory: r.group || '', macro_sector: r.macro, macro_id: r.macroId })}
+                onClick={() => onSelect({ 
+                  category: r.item, 
+                  example: r.example,
+                  subcategory: r.group || '', 
+                  macro_sector: r.macro, 
+                  macro_id: r.macroId 
+                })}
                 className="w-full text-left px-3 py-2.5 rounded-lg bg-slate-800 border border-slate-700 hover:border-lime-500/50 hover:bg-slate-700/50 transition-all flex items-center justify-between group"
               >
                 <div>
