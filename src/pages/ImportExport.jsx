@@ -1187,12 +1187,17 @@ Fornisci:
                     <CardContent className="p-0">
                       <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
                         <h3 className="text-white font-bold text-sm">{mercato.mercato}</h3>
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm ${
-                          mercato.punteggio_opportunita >= 7 ? 'bg-green-500/20 text-green-400' :
-                          mercato.punteggio_opportunita >= 5 ? 'bg-yellow-500/20 text-yellow-400' : 'bg-red-500/20 text-red-400'
-                        }`}>
-                          {mercato.punteggio_opportunita}
-                        </div>
+                        {mercato.punteggio_opportunita != null && (
+                          <div className="flex flex-col items-center gap-0.5">
+                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm ${
+                              mercato.punteggio_opportunita >= 7 ? 'bg-green-500/20 text-green-400' :
+                              mercato.punteggio_opportunita >= 5 ? 'bg-yellow-500/20 text-yellow-400' : 'bg-red-500/20 text-red-400'
+                            }`}>
+                              {mercato.punteggio_opportunita}
+                            </div>
+                            <span className="text-slate-500 text-[8px] uppercase tracking-wider">Opportunità</span>
+                          </div>
+                        )}
                       </div>
                       <div className="p-4">
 
