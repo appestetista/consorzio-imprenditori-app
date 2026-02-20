@@ -145,8 +145,9 @@ export default function CountrySearchSelect({ selected = [], onChange, maxSelect
       : allOpts;
 
     matching.forEach(c => {
-      const cont = CONTINENT_MAP[c.code] || 'Africa';
+      const cont = CONTINENT_MAP[c.code] || 'Oceania';
       if (groups[cont]) groups[cont].push(c);
+      else groups['Oceania'].push(c);
     });
 
     return groups;
