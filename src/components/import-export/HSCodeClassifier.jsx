@@ -188,22 +188,27 @@ REGOLE INDEROGABILI:
         </div>
 
         <div className="flex gap-2 mt-4">
-          <Button
+          <button
+            type="button"
             onClick={() => { setCandidates(null); setSelectedCode(null); setError(null); }}
-            variant="outline"
-            className="flex-1 border-white/10 text-slate-400 hover:bg-white/5 text-xs rounded-xl h-10"
+            className="flex-1 flex items-center justify-center gap-1.5 h-12 rounded-xl border-2 border-slate-500 text-white font-bold text-sm bg-slate-700 hover:bg-slate-600 active:scale-95 transition-all"
           >
-            <RotateCcw className="w-3.5 h-3.5 mr-1" />
+            <RotateCcw className="w-4 h-4" />
             Reclassifica
-          </Button>
-          <Button
+          </button>
+          <button
+            type="button"
             onClick={handleConfirm}
             disabled={!selectedCode}
-            className="flex-1 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold text-xs rounded-xl h-10 shadow-lg shadow-amber-500/20"
+            className={`flex-1 flex items-center justify-center gap-1.5 h-12 rounded-xl font-bold text-sm transition-all active:scale-95 ${
+              selectedCode 
+                ? 'bg-lime-400 hover:bg-lime-300 text-black shadow-lg shadow-lime-400/30' 
+                : 'bg-slate-700 text-slate-500 cursor-not-allowed'
+            }`}
           >
-            <CheckCircle className="w-3.5 h-3.5 mr-1" />
+            <CheckCircle className="w-4 h-4" />
             Conferma e Analizza
-          </Button>
+          </button>
         </div>
       </CardContent>
     </Card>
