@@ -149,7 +149,7 @@ export default function Fornitori() {
                   onClick={() => setShowNewRequest(true)}
                   className="w-full bg-lime-400 text-slate-900 hover:bg-lime-500 mb-4"
                 >
-                  <Plus className="w-4 h-4 mr-2" /> Nuova richiesta fornitore
+                  <Plus className="w-4 h-4 mr-2" /> Cerca nuovo fornitore
                 </Button>
                 <MyRequestsList user={effectiveUser} />
               </>
