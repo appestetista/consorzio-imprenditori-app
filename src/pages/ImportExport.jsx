@@ -64,7 +64,7 @@ const EXPORTER_COUNTRIES = [
 
 export default function ImportExport() {
   const [user, setUser] = useState(null);
-  const [activeTab, setActiveTab] = useState('export'); // 'export' | 'import' | 'messages'
+  const [activeTab, setActiveTab] = useState('export'); // 'export' | 'import' | 'messages' | 'history'
   const [exportForm, setExportForm] = useState({
     settore: '',
     prodotto: '',
