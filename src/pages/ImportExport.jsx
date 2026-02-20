@@ -1020,9 +1020,13 @@ Fornisci:
                   </div>
                 </div>
 
-                {/* Classifica Comparativa */}
-                {tradeMetrics?.metriche?.length > 1 && (
-                  <ExportComparisonRanking metriche={tradeMetrics.metriche} macroData={macroData} />
+                {/* Classifica Comparativa — ordinata per punteggio opportunità AI */}
+                {tradeMetrics?.metriche?.length > 1 && analysisResult?.mercati_analisi && (
+                  <ExportComparisonRanking 
+                    metriche={tradeMetrics.metriche} 
+                    macroData={macroData} 
+                    mercatiAnalisi={analysisResult.mercati_analisi}
+                  />
                 )}
 
                 {/* Country Cards con macro data */}
