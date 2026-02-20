@@ -44,7 +44,8 @@ export default function SupplierRequestWizard({ user, onClose, onSuccess }) {
   const [step, setStep] = useState(1); // 1=categoria, 2=dettagli, 3=conferma
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [formData, setFormData] = useState({
-    problem_to_solve: '',
+    supplier_description: '', // cosa cerchi
+    current_issue: '', // cosa non va nell'attuale
     locality: '',
     radius_km: 50,
     budget_range: '',
