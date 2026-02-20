@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation } from '@tanstack/react-query';
-import { Upload, Loader2, Shield, FileText, CheckCircle, AlertTriangle, Eye } from 'lucide-react';
+import { Upload, Loader2, Shield, FileText, CheckCircle, AlertTriangle, Eye, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 
-export default function AnonymizeQuoteView({ requestId }) {
+export default function AnonymizeQuoteView({ requestId, user, onAnonymized }) {
   const [fileUrl, setFileUrl] = useState(null);
   const [fileName, setFileName] = useState('');
   const [uploading, setUploading] = useState(false);
@@ -24,9 +23,15 @@ export default function AnonymizeQuoteView({ requestId }) {
   const anonymizeMutation = useMutation({
     mutationFn: () => base44.functions.invoke('anonymizeQuote', {
       file_url: fileUrl,
-      request_id: requestId
+      request_id: requestId,
+      user_company_name: user?.company_name || '',
+      user_address: user?.address ? `${user.address}, ${user.city || ''} ${user.postal_code || ''}` : '',
+      user_vat: user?.vat_number || ''
     }),
-    onSuccess: (res) => setResult(res.data)
+    onSuccess: (res) => {
+      setResult(res.data);
+      if (onAnonymized) onAnonymized(res.data.anonymized_url);
+    }
   });
 
   return (
@@ -34,10 +39,10 @@ export default function AnonymizeQuoteView({ requestId }) {
       <div className="bg-slate-900 rounded-lg p-3 flex items-start gap-2">
         <Shield className="w-4 h-4 text-lime-400 mt-0.5 flex-shrink-0" />
         <div>
-          <p className="text-slate-300 text-xs font-medium">Anonimizzazione preventivo</p>
+          <p className="text-slate-300 text-xs font-medium">Anonimizzazione visiva del preventivo</p>
           <p className="text-slate-500 text-xs mt-0.5">
-            Carica un preventivo esistente e il sistema rimuoverà automaticamente tutti i riferimenti 
-            all'azienda emittente e alla tua azienda, mantenendo solo prezzi e condizioni.
+            Carica un preventivo esistente. Il documento verrà mostrato così com'è, ma con loghi, nomi aziende, 
+            indirizzi, P.IVA e ogni dato identificativo coperti da barre nere. I prezzi e le condizioni resteranno visibili.
           </p>
         </div>
       </div>
@@ -50,7 +55,7 @@ export default function AnonymizeQuoteView({ requestId }) {
             id="quote-upload"
             className="hidden"
             onChange={handleUpload}
-            accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+            accept=".pdf,.jpg,.jpeg,.png"
           />
           <label htmlFor="quote-upload" className="cursor-pointer block">
             {uploading ? (
@@ -59,13 +64,13 @@ export default function AnonymizeQuoteView({ requestId }) {
               <div className="space-y-2">
                 <FileText className="w-8 h-8 text-lime-400 mx-auto" />
                 <p className="text-white text-sm">{fileName}</p>
-                <p className="text-slate-500 text-xs">File caricato - clicca per cambiare</p>
+                <p className="text-slate-500 text-xs">File caricato — clicca per cambiare</p>
               </div>
             ) : (
               <div className="space-y-2">
                 <Upload className="w-8 h-8 text-slate-500 mx-auto" />
-                <p className="text-slate-400 text-sm">Carica preventivo (PDF, immagine, documento)</p>
-                <p className="text-slate-600 text-xs">Il file verrà analizzato e anonimizzato dall'AI</p>
+                <p className="text-slate-400 text-sm">Carica preventivo (PDF o immagine)</p>
+                <p className="text-slate-600 text-xs">Il documento sarà visivamente anonimizzato dall'AI</p>
               </div>
             )}
           </label>
@@ -80,11 +85,21 @@ export default function AnonymizeQuoteView({ requestId }) {
           className="w-full bg-lime-400 text-slate-900 hover:bg-lime-500 font-semibold"
         >
           {anonymizeMutation.isPending ? (
-            <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Anonimizzazione in corso...</>
+            <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Anonimizzazione in corso (può richiedere ~30s)...</>
           ) : (
             <><Eye className="w-4 h-4 mr-2" /> Anonimizza preventivo</>
           )}
         </Button>
+      )}
+
+      {/* Error */}
+      {anonymizeMutation.isError && (
+        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-3">
+          <p className="text-red-300 text-xs flex items-start gap-2">
+            <AlertTriangle className="w-3 h-3 mt-0.5 flex-shrink-0" />
+            Errore durante l'anonimizzazione. Riprova.
+          </p>
+        </div>
       )}
 
       {/* Result */}
@@ -95,14 +110,12 @@ export default function AnonymizeQuoteView({ requestId }) {
             <h4 className="text-white font-semibold text-sm">Preventivo anonimizzato</h4>
           </div>
 
-          {/* Document info */}
+          {/* Stats */}
           <div className="grid grid-cols-2 gap-2">
-            {result.document_type && (
-              <div className="bg-slate-800 rounded-lg p-2">
-                <p className="text-slate-500 text-xs">Tipo documento</p>
-                <p className="text-white text-sm">{result.document_type}</p>
-              </div>
-            )}
+            <div className="bg-slate-800 rounded-lg p-2">
+              <p className="text-slate-500 text-xs">Elementi censurati</p>
+              <p className="text-white text-sm font-semibold">{result.sensitive_items_found || 0}</p>
+            </div>
             {result.total_amount && (
               <div className="bg-slate-800 rounded-lg p-2">
                 <p className="text-slate-500 text-xs">Importo totale</p>
@@ -111,49 +124,34 @@ export default function AnonymizeQuoteView({ requestId }) {
             )}
           </div>
 
-          {/* Items summary */}
-          {result.items_summary?.length > 0 && (
-            <div className="bg-slate-800 rounded-lg p-3">
-              <p className="text-slate-500 text-xs font-medium mb-2">Voci principali</p>
-              <div className="space-y-1.5">
-                {result.items_summary.map((item, i) => (
-                  <div key={i} className="flex justify-between text-xs">
-                    <span className="text-slate-300">{item.description}</span>
-                    <span className="text-white font-medium">{item.amount}</span>
-                  </div>
-                ))}
-              </div>
+          {/* Preview iframe */}
+          {result.anonymized_url && (
+            <div className="bg-white rounded-lg overflow-hidden">
+              <iframe
+                src={result.anonymized_url}
+                className="w-full h-[500px] border-0"
+                title="Preventivo anonimizzato"
+              />
             </div>
           )}
 
-          {/* Anonymized content */}
-          <div className="bg-slate-800 rounded-lg p-3">
-            <p className="text-slate-500 text-xs font-medium mb-2">Contenuto anonimizzato</p>
-            <div className="bg-slate-900 rounded-lg p-3 max-h-60 overflow-y-auto">
-              <pre className="text-slate-300 text-xs whitespace-pre-wrap font-sans leading-relaxed">
-                {result.anonymized_content}
-              </pre>
-            </div>
+          {/* Actions */}
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => window.open(result.anonymized_url, '_blank')}
+              className="flex-1 border-slate-600 text-slate-300"
+            >
+              <ExternalLink className="w-4 h-4 mr-2" /> Apri in nuova scheda
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => { setResult(null); setFileUrl(null); setFileName(''); }}
+              className="flex-1 border-slate-600 text-slate-300"
+            >
+              Carica un altro
+            </Button>
           </div>
-
-          {/* Warnings */}
-          {result.warnings?.length > 0 && (
-            <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3">
-              {result.warnings.map((w, i) => (
-                <p key={i} className="text-amber-300 text-xs flex items-start gap-2">
-                  <AlertTriangle className="w-3 h-3 mt-0.5 flex-shrink-0" /> {w}
-                </p>
-              ))}
-            </div>
-          )}
-
-          <Button 
-            variant="outline" 
-            onClick={() => { setResult(null); setFileUrl(null); setFileName(''); }}
-            className="w-full border-slate-600 text-slate-300"
-          >
-            Carica un altro preventivo
-          </Button>
         </div>
       )}
     </div>
