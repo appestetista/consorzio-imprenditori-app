@@ -56,14 +56,18 @@ export function useAILimits(userEmail, actionType) {
   const remaining = Math.max(0, limit - usageCount);
   const isLimitReached = usageCount >= limit;
 
-  const trackUsage = async () => {
+  const trackUsage = async (meta) => {
     if (!userEmail || isLimitReached) return false;
     
-    await base44.entities.UsageLog.create({
+    const record = {
       user_email: userEmail,
       action_type: actionType,
       month_year: periodKey
-    });
+    };
+    if (meta?.search_label) record.search_label = meta.search_label;
+    if (meta?.search_meta) record.search_meta = meta.search_meta;
+    
+    await base44.entities.UsageLog.create(record);
     
     refetch();
     return true;
