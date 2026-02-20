@@ -388,7 +388,16 @@ export default function ImportExport() {
     });
 
     try {
-      await trackExportUsage();
+      const mercatiLabels = mercatiNames.slice(0, 3).join(', ');
+      await trackExportUsage({
+        search_label: `${exportForm.prodotto} → ${mercatiLabels}`,
+        search_meta: {
+          prodotto: exportForm.prodotto,
+          settore: exportForm.settore,
+          hs_code: hsData.hs_code,
+          mercati: mercatiNames
+        }
+      });
 
       // STEP 1: Recupero dati ufficiali + macro World Bank in parallelo
       setExportStep('fetching');
