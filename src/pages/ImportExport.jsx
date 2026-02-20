@@ -983,13 +983,7 @@ Fornisci:
                   </div>
                 )}
 
-                {/* Risk Alerts */}
-                <ExportRiskAlerts
-                  priceMetrics={priceMetrics}
-                  tradeMetrics={tradeMetrics}
-                  macroData={macroData}
-                  userPriceData={userPriceData}
-                />
+                {/* Risk Alerts rimossi — dati non sufficientemente precisi */}
 
                 {/* Readiness Score — Hero Card */}
                 <div className="relative rounded-2xl overflow-hidden">
