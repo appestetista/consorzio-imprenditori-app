@@ -31,6 +31,9 @@ import ExportRiskAlerts from '../components/import-export/ExportRiskAlerts';
 import MarketSummaryCard from '../components/import-export/MarketSummaryCard';
 import { fetchImportData, computeLandedCost, interpretImportData } from '../components/import-export/ImportDataFetcher';
 import LandedCostTable from '../components/import-export/LandedCostTable';
+import ImportMarketIndicators from '../components/import-export/ImportMarketIndicators';
+import ImportTopImportersChart from '../components/import-export/ImportTopImportersChart';
+import ImportTradeChart from '../components/import-export/ImportTradeChart';
 import { buildExportSummary, buildImportSummary } from '../components/import-export/buildAnalysisSummary';
 import SearchHistory from '../components/import-export/SearchHistory';
 
