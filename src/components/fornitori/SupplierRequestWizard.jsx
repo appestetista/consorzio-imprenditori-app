@@ -86,7 +86,9 @@ export default function SupplierRequestWizard({ user, onClose, onSuccess }) {
   };
 
   const handleSubmit = () => {
-    if (!formData.problem_to_solve || !formData.urgency) return;
+    if (!formData.supplier_description || !formData.urgency) return;
+    // Combina i due campi nel campo problem_to_solve dell'entity
+    const combinedDescription = `FORNITORE CERCATO: ${formData.supplier_description}${formData.current_issue ? `\n\nPROBLEMA CON L'ATTUALE: ${formData.current_issue}` : ''}`;
     createMutation.mutate({
       author_email: user.email,
       category: selectedCategory.category,
@@ -94,7 +96,7 @@ export default function SupplierRequestWizard({ user, onClose, onSuccess }) {
       macro_sector: selectedCategory.macro_sector,
       service_type: formData.service_type,
       company_context: user.legal_form || undefined,
-      problem_to_solve: formData.problem_to_solve,
+      problem_to_solve: combinedDescription,
       locality: formData.locality || undefined,
       radius_km: formData.radius_km,
       budget_range: formData.budget_range || undefined,
