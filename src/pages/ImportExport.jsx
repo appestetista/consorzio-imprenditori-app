@@ -1299,82 +1299,74 @@ Fornisci:
 
                 {/* Primi Passi */}
                 {analysisResult.primi_passi?.length > 0 && (
-                  <Card className="bg-blue-500/20 border-blue-500/50">
-                    <CardContent className="p-4">
-                      <h3 className="text-blue-400 font-semibold mb-2">🚀 Primi Passi</h3>
-                      <ol className="text-blue-200 text-sm space-y-2">
-                        {analysisResult.primi_passi.map((p, i) => (
-                          <li key={i} className="flex gap-2">
-                            <span className="bg-blue-500/30 rounded-full w-5 h-5 flex items-center justify-center text-xs flex-shrink-0">{i + 1}</span>
-                            {p}
-                          </li>
-                        ))}
-                      </ol>
-                    </CardContent>
-                  </Card>
+                  <div className="bg-blue-500/10 border border-blue-500/15 rounded-2xl p-4">
+                    <p className="text-blue-400 font-bold text-sm mb-3">Primi Passi</p>
+                    <div className="space-y-2.5">
+                      {analysisResult.primi_passi.map((p, i) => (
+                        <div key={i} className="flex items-start gap-3">
+                          <div className="w-7 h-7 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                            <span className="text-blue-400 text-xs font-bold">{i + 1}</span>
+                          </div>
+                          <p className="text-blue-100 text-sm pt-0.5">{p}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 )}
 
                 {/* Rischi */}
                 {analysisResult.rischi_principali?.length > 0 && (
-                  <Card className="bg-orange-500/20 border-orange-500/50">
-                    <CardContent className="p-4">
-                      <h3 className="text-orange-400 font-semibold mb-2 flex items-center gap-2">
-                        <AlertTriangle className="w-5 h-5" />
-                        Rischi Principali
-                      </h3>
-                      <ul className="text-orange-200 text-sm space-y-1">
-                        {analysisResult.rischi_principali.map((r, i) => <li key={i}>• {r}</li>)}
-                      </ul>
-                    </CardContent>
-                  </Card>
+                  <div className="bg-orange-500/10 border border-orange-500/15 rounded-2xl p-4">
+                    <p className="text-orange-400 font-bold text-sm mb-2 flex items-center gap-2">
+                      <AlertTriangle className="w-4 h-4" />
+                      Rischi Principali
+                    </p>
+                    <ul className="text-orange-200/90 text-sm space-y-1.5">
+                      {analysisResult.rischi_principali.map((r, i) => <li key={i} className="leading-snug">• {r}</li>)}
+                    </ul>
+                  </div>
                 )}
 
                 {/* Risorse Utili */}
                 {analysisResult.risorse_utili?.length > 0 && (
-                  <Card className="bg-slate-800 border-slate-700">
-                    <CardContent className="p-4">
-                      <h3 className="text-white font-semibold mb-3">🔗 Risorse Utili</h3>
-                      <div className="space-y-2">
-                        {analysisResult.risorse_utili.map((r, i) => (
-                          <a
-                            key={i}
-                            href={r.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 text-lime-400 hover:text-lime-300 text-sm"
-                          >
-                            <ExternalLink className="w-4 h-4" />
-                            {r.nome}
-                          </a>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <div className="bg-slate-800/60 border border-white/5 rounded-2xl p-4">
+                    <p className="text-white font-bold text-sm mb-3">Risorse Utili</p>
+                    <div className="space-y-2">
+                      {analysisResult.risorse_utili.map((r, i) => (
+                        <a
+                          key={i}
+                          href={r.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 text-lime-400 hover:text-lime-300 text-sm bg-white/5 rounded-lg px-3 py-2 transition-colors"
+                        >
+                          <ExternalLink className="w-4 h-4 flex-shrink-0" />
+                          {r.nome}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
                 )}
 
                 {/* Trasparenza */}
-                <Card className="bg-slate-800/50 border-slate-700">
-                  <CardContent className="p-3">
-                    <p className="text-slate-500 text-xs mb-2">📚 Trasparenza dati</p>
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[10px] text-slate-500">
-                      <div><span className="text-slate-600">Fonte commerciale:</span> UN Comtrade</div>
-                      <div><span className="text-slate-600">Fonte macro:</span> World Bank</div>
-                      <div><span className="text-slate-600">HS heading:</span> {tradeData?._query_log?.hs_code_heading || confirmedExportHS?.hs_code?.substring(0, 4)}</div>
-                      <div><span className="text-slate-600">HS completo:</span> {tradeData?._query_log?.hs_code_full || confirmedExportHS?.hs_code}</div>
-                      <div><span className="text-slate-600">Esportatore:</span> {tradeData?._query_log?.exporter || 'IT'}</div>
-                      <div><span className="text-slate-600">Periodo:</span> {tradeData?._query_log?.periodo || `${new Date().getFullYear() - 5}-${new Date().getFullYear() - 1}`}</div>
-                      <div><span className="text-slate-600">Data recupero:</span> {tradeData?._timestamp_recupero ? new Date(tradeData._timestamp_recupero).toLocaleString('it-IT') : 'N/D'}</div>
-                      <div><span className="text-slate-600">Record:</span> {tradeData?._query_log?.records_returned || 'N/D'}</div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3">
+                  <p className="text-slate-600 text-[10px] font-semibold uppercase tracking-wider mb-2">Trasparenza dati</p>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[10px] text-slate-500">
+                    <div><span className="text-slate-600">Fonte:</span> UN Comtrade</div>
+                    <div><span className="text-slate-600">Macro:</span> World Bank</div>
+                    <div><span className="text-slate-600">HS:</span> {confirmedExportHS?.hs_code}</div>
+                    <div><span className="text-slate-600">Esportatore:</span> {tradeData?._query_log?.exporter || 'IT'}</div>
+                    <div><span className="text-slate-600">Periodo:</span> {tradeData?._query_log?.periodo || `${new Date().getFullYear() - 5}-${new Date().getFullYear() - 1}`}</div>
+                    <div><span className="text-slate-600">Data:</span> {tradeData?._timestamp_recupero ? new Date(tradeData._timestamp_recupero).toLocaleString('it-IT') : 'N/D'}</div>
+                  </div>
+                </div>
 
                 {/* Form Contatto Export Manager */}
-                <Card className="bg-slate-800 border-slate-700">
-                  <CardContent className="p-4">
-                    <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
-                      <Users className="w-5 h-5 text-lime-400" />
-                      Contatta un Export Manager del Consorzio
+                <Card className="bg-slate-800/60 border-white/5 backdrop-blur-sm">
+                  <CardContent className="p-5">
+                    <h3 className="text-white font-bold mb-3 flex items-center gap-2 text-sm">
+                      <Users className="w-4 h-4 text-lime-400" />
+                      Contatta un Export Manager
                     </h3>
                     
                     {contactSent ? (
