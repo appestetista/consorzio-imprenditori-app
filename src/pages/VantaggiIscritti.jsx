@@ -259,6 +259,9 @@ export default function VantaggiIscritti() {
     return miePrenotazioni.some(p => p.vantaggio_id === vantaggioId);
   };
 
+  // Blocco: se l'utente ha >= 5 prenotazioni attive senza match QR
+  const isBloccato = miePrenotazioni.length >= 5;
+
   // Verifica se l'utente ha già consumato questo vantaggio
   const isConsumato = (vantaggioId) => {
     return tuttePrenotazioni.some(p => p.vantaggio_id === vantaggioId && p.status === 'utilizzata');
