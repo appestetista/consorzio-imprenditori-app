@@ -81,7 +81,13 @@ export default function Fornitori() {
       <main className="px-4 py-6 max-w-md mx-auto">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate(createPageUrl('Home'))} className="text-lime-400">
+            <button onClick={() => {
+              if (showNewRequest) {
+                setShowNewRequest(false);
+              } else {
+                navigate(createPageUrl('Home'));
+              }
+            }} className="text-lime-400">
               <ArrowLeft className="w-6 h-6" />
             </button>
             <h1 className="text-lime-400 text-xl font-bold">Fornitori</h1>
