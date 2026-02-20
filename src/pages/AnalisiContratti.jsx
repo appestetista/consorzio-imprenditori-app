@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, FileSearch, Upload, FileText, Loader2, CheckCircle, AlertTriangle, Info, Scale, Send, X, History, ChevronRight, Trash2, Paperclip, Camera, Mail, MessageSquare } from 'lucide-react';
+import { ArrowLeft, FileSearch, Upload, FileText, Loader2, CheckCircle, AlertTriangle, Info, Scale, Send, X, History, ChevronRight, Trash2, Paperclip, Camera, Mail, MessageSquare, Clock } from 'lucide-react';
 import { useAILimits } from '@/components/hooks/useAILimits';
 import LimitReachedBanner from '@/components/common/LimitReachedBanner';
 import UsageCounter from '@/components/common/UsageCounter';
