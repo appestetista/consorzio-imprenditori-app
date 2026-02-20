@@ -69,8 +69,18 @@ async function fetchWBSeries(alpha3, indicatorCode, years = 5) {
 }
 
 /**
- * Recupera dati macro World Bank per i Paesi selezionati (popolazione, PIL, PIL pro capite)
- * Usa chiamate dirette alla World Bank API — nessuna AI, nessuna stima.
+ * Recupera dati macro World Bank per i Paesi selezionati.
+ * TUTTI i dati provengono da World Bank API — nessuna AI, nessuna stima.
+ * 
+ * Indicatori:
+ * - SP.POP.TOTL: Popolazione totale
+ * - NY.GDP.MKTP.CD: PIL nominale USD
+ * - NY.GDP.PCAP.CD: PIL pro capite USD
+ * - FP.CPI.TOTL.ZG: Inflazione (CPI % annuo)
+ * - IC.BUS.EASE.XQ: Ease of Doing Business score (0-100)
+ * - LP.LPI.OVRL.XQ: Logistics Performance Index (1-5)
+ * - BN.CAB.XOKA.CD: Saldo partite correnti (USD)
+ * - PA.NUS.FCRF: Tasso di cambio ufficiale (LCU per USD)
  */
 export async function fetchMacroData(countryCodes) {
   const codes = countryCodes.filter(c => c !== 'WLD');
@@ -78,15 +88,31 @@ export async function fetchMacroData(countryCodes) {
 
   const map = {};
 
-  // Lancia tutte le richieste in parallelo
   const promises = codes.map(async (code2) => {
     const alpha3 = ALPHA2_TO_ALPHA3[code2] || code2;
 
-    const [pop, gdp, gdpPc] = await Promise.all([
-      fetchWBIndicator(alpha3, 'SP.POP.TOTL'),       // Popolazione totale
-      fetchWBIndicator(alpha3, 'NY.GDP.MKTP.CD'),     // PIL nominale USD correnti
-      fetchWBIndicator(alpha3, 'NY.GDP.PCAP.CD'),     // PIL pro capite USD correnti
+    const [pop, gdp, gdpPc, inflazione, doingBusiness, lpi, partiteCorrenti, tassoUfficiale, infSerie] = await Promise.all([
+      fetchWBIndicator(alpha3, 'SP.POP.TOTL'),
+      fetchWBIndicator(alpha3, 'NY.GDP.MKTP.CD'),
+      fetchWBIndicator(alpha3, 'NY.GDP.PCAP.CD'),
+      fetchWBIndicator(alpha3, 'FP.CPI.TOTL.ZG'),
+      fetchWBIndicator(alpha3, 'IC.BUS.EASE.XQ'),
+      fetchWBIndicator(alpha3, 'LP.LPI.OVRL.XQ'),
+      fetchWBIndicator(alpha3, 'BN.CAB.XOKA.CD'),
+      fetchWBIndicator(alpha3, 'PA.NUS.FCRF'),
+      fetchWBSeries(alpha3, 'PA.NUS.FCRF', 5),
     ]);
+
+    // Calcola volatilità cambio dagli ultimi 5 anni di tasso ufficiale
+    let volatilita_cambio = null;
+    if (infSerie.length >= 3) {
+      const valori = infSerie.map(s => s.value).filter(v => v > 0);
+      if (valori.length >= 3) {
+        const media = valori.reduce((a, b) => a + b, 0) / valori.length;
+        const varianza = valori.reduce((sum, v) => sum + Math.pow(v - media, 2), 0) / valori.length;
+        volatilita_cambio = parseFloat(((Math.sqrt(varianza) / media) * 100).toFixed(1));
+      }
+    }
 
     const datiMancanti = [];
     if (pop.value === null) datiMancanti.push('Popolazione');
@@ -95,13 +121,25 @@ export async function fetchMacroData(countryCodes) {
 
     map[code2] = {
       codice: code2,
-      nome: null, // verrà usato il nome dal componente
+      nome: null,
       popolazione: pop.value,
       popolazione_anno: pop.year,
       pil_nominale: gdp.value,
       pil_nominale_anno: gdp.year,
       pil_pro_capite: gdpPc.value,
       pil_pro_capite_anno: gdpPc.year,
+      // Nuovi indicatori stabilità economica
+      inflazione: inflazione.value !== null ? parseFloat(inflazione.value.toFixed(1)) : null,
+      inflazione_anno: inflazione.year,
+      doing_business_score: doingBusiness.value !== null ? parseFloat(doingBusiness.value.toFixed(1)) : null,
+      doing_business_anno: doingBusiness.year,
+      lpi_score: lpi.value !== null ? parseFloat(lpi.value.toFixed(2)) : null,
+      lpi_anno: lpi.year,
+      partite_correnti_usd: partiteCorrenti.value,
+      partite_correnti_anno: partiteCorrenti.year,
+      tasso_cambio_ufficiale: tassoUfficiale.value,
+      tasso_cambio_anno: tassoUfficiale.year,
+      volatilita_cambio,
       fonte: 'World Bank API',
       dati_mancanti: datiMancanti.length > 0 ? datiMancanti : null
     };
