@@ -330,15 +330,20 @@ export default function VantaggiIscritti() {
         </div>
 
         {/* Pulsanti fissi in alto */}
-        <div className="grid grid-cols-3 gap-2 mb-3">
-          <Link to={createPageUrl('MioQRCode')} className="flex flex-col items-center gap-1 p-2 rounded-xl border border-lime-400/30 hover:bg-lime-400/10 transition-colors">
-            <QrCode className="w-6 h-6 text-lime-400" />
+        <div className="grid grid-cols-2 gap-3 mb-3">
+          <Link 
+            to={createPageUrl('MioQRCode')} 
+            className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl border-2 border-lime-400/40 bg-lime-400/5 hover:bg-lime-400/15 transition-all active:scale-95"
+          >
+            <QrCode className="w-12 h-12 text-lime-400" />
+            <span className="text-lime-400 text-xs font-bold">Il Mio QR Code</span>
           </Link>
-          <Link to={createPageUrl('MiePrenotazioniVantaggi')} className="flex flex-col items-center gap-1 p-2 rounded-xl border border-amber-400/30 hover:bg-amber-400/10 transition-colors">
-            <span className="text-black text-xs font-semibold bg-amber-400 px-3 py-1 rounded-full">Prenotazioni</span>
-          </Link>
-          <Link to={createPageUrl('GestioneVantaggi')} className="flex flex-col items-center gap-1 p-2 rounded-xl border border-purple-400/30 hover:bg-purple-400/10 transition-colors">
-            <span className="text-black text-xs font-semibold bg-purple-400 px-3 py-1 rounded-full">Vantaggi prenotati</span>
+          <Link 
+            to={createPageUrl('MiePrenotazioniVantaggi')} 
+            className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl border-2 border-amber-400/40 bg-amber-400/5 hover:bg-amber-400/15 transition-all active:scale-95"
+          >
+            <Gift className="w-12 h-12 text-amber-400" />
+            <span className="text-amber-400 text-xs font-bold">Prenotazioni</span>
           </Link>
         </div>
 
