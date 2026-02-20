@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, CheckCircle, AlertTriangle, RotateCcw } from 'lucide-react';
+import { Loader2, CheckCircle, AlertTriangle, RotateCcw, Package } from 'lucide-react';
 
 export default function HSCodeClassifier({ productDescription, onConfirm, onError }) {
   const [loading, setLoading] = useState(false);
@@ -76,16 +76,21 @@ REGOLE INDEROGABILI:
   // Stato iniziale: mostra bottone per avviare classificazione
   if (!loading && !candidates && !error) {
     return (
-      <Card className="bg-slate-800 border-slate-700">
-        <CardContent className="p-4">
-          <h3 className="text-white font-semibold mb-2 text-sm">📦 Classificazione Merceologica</h3>
-          <p className="text-slate-400 text-xs mb-3">
-            Prima dell'analisi, è necessario identificare il codice doganale (HS) del prodotto.
-          </p>
+      <Card className="bg-slate-800/60 border-white/5 backdrop-blur-sm shadow-xl">
+        <CardContent className="p-5">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/15 flex items-center justify-center">
+              <Package className="w-5 h-5 text-amber-400" />
+            </div>
+            <div>
+              <h3 className="text-white font-bold text-sm">Classificazione Merceologica</h3>
+              <p className="text-slate-500 text-xs">Identifica il codice doganale HS del prodotto</p>
+            </div>
+          </div>
           <Button
             onClick={classify}
             disabled={!productDescription?.trim()}
-            className="w-full bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold"
+            className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold shadow-lg shadow-amber-500/20 h-11 rounded-xl"
           >
             Identifica Codice HS
           </Button>
@@ -97,11 +102,13 @@ REGOLE INDEROGABILI:
   // Loading
   if (loading) {
     return (
-      <Card className="bg-slate-800 border-slate-700">
-        <CardContent className="p-4">
+      <Card className="bg-slate-800/60 border-white/5 backdrop-blur-sm">
+        <CardContent className="p-5">
           <div className="flex items-center gap-3 justify-center py-4">
-            <Loader2 className="w-5 h-5 animate-spin text-amber-400" />
-            <p className="text-slate-300 text-sm">Classificazione in corso...</p>
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
+              <Loader2 className="w-5 h-5 animate-spin text-amber-400" />
+            </div>
+            <p className="text-slate-400 text-sm">Classificazione in corso...</p>
           </div>
         </CardContent>
       </Card>
@@ -135,32 +142,37 @@ REGOLE INDEROGABILI:
 
   // Codici candidati disponibili
   return (
-    <Card className="bg-slate-800 border-slate-700">
-      <CardContent className="p-4">
-        <h3 className="text-white font-semibold mb-1 text-sm">📦 Seleziona il codice HS corretto</h3>
-        <p className="text-slate-400 text-xs mb-3">
-          Conferma il codice doganale prima di procedere con l'analisi.
-        </p>
+    <Card className="bg-slate-800/60 border-white/5 backdrop-blur-sm shadow-xl">
+      <CardContent className="p-5">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-xl bg-amber-500/15 flex items-center justify-center">
+            <Package className="w-5 h-5 text-amber-400" />
+          </div>
+          <div>
+            <h3 className="text-white font-bold text-sm">Seleziona codice HS</h3>
+            <p className="text-slate-500 text-xs">Conferma prima di procedere</p>
+          </div>
+        </div>
 
         <div className="space-y-2">
           {candidates.map((c) => (
             <button
               key={c.hs_code}
               onClick={() => setSelectedCode(c.hs_code)}
-              className={`w-full text-left p-3 rounded-lg border transition-all ${
+              className={`w-full text-left p-3 rounded-xl border transition-all ${
                 selectedCode === c.hs_code
-                  ? 'bg-amber-500/20 border-amber-500/50'
-                  : 'bg-slate-700/50 border-slate-600 hover:border-slate-500'
+                  ? 'bg-amber-500/10 border-amber-500/30 shadow-lg shadow-amber-500/5'
+                  : 'bg-white/[0.03] border-white/5 hover:border-white/10'
               }`}
             >
               <div className="flex items-center justify-between mb-1">
                 <span className="text-white font-mono font-bold text-sm">{c.hs_code}</span>
                 <span className={`text-[10px] px-2 py-0.5 rounded-full border ${certezzaStyle[c.certezza] || certezzaStyle.basso}`}>
-                  {c.certezza === 'alto' ? 'Alta certezza' : c.certezza === 'medio' ? 'Media certezza' : 'Bassa certezza'}
+                  {c.certezza === 'alto' ? 'Alta' : c.certezza === 'medio' ? 'Media' : 'Bassa'}
                 </span>
               </div>
-              <p className="text-slate-300 text-xs leading-relaxed">{c.descrizione_ufficiale}</p>
-              {c.nota && <p className="text-slate-500 text-[10px] mt-1 italic">{c.nota}</p>}
+              <p className="text-slate-400 text-xs leading-relaxed">{c.descrizione_ufficiale}</p>
+              {c.nota && <p className="text-slate-600 text-[10px] mt-1 italic">{c.nota}</p>}
               {selectedCode === c.hs_code && (
                 <div className="flex items-center gap-1 mt-2 text-amber-400 text-xs">
                   <CheckCircle className="w-3.5 h-3.5" />
@@ -171,11 +183,11 @@ REGOLE INDEROGABILI:
           ))}
         </div>
 
-        <div className="flex gap-2 mt-3">
+        <div className="flex gap-2 mt-4">
           <Button
             onClick={() => { setCandidates(null); setSelectedCode(null); setError(null); }}
             variant="outline"
-            className="flex-1 border-slate-600 text-slate-400 hover:bg-slate-700 text-xs"
+            className="flex-1 border-white/10 text-slate-400 hover:bg-white/5 text-xs rounded-xl h-10"
           >
             <RotateCcw className="w-3.5 h-3.5 mr-1" />
             Reclassifica
@@ -183,7 +195,7 @@ REGOLE INDEROGABILI:
           <Button
             onClick={handleConfirm}
             disabled={!selectedCode}
-            className="flex-1 bg-amber-500 hover:bg-amber-600 text-slate-900 font-semibold text-xs"
+            className="flex-1 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold text-xs rounded-xl h-10 shadow-lg shadow-amber-500/20"
           >
             <CheckCircle className="w-3.5 h-3.5 mr-1" />
             Conferma e Analizza
