@@ -205,6 +205,7 @@ export default function VantaggiIscritti() {
   const resetForm = () => {
     setFormData({
       tipo_vantaggio: '',
+      categoria_vantaggio: '',
       titolo: '',
       descrizione: '',
       foto_url: '',
