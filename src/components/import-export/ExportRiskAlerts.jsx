@@ -147,6 +147,7 @@ export default function ExportRiskAlerts({ priceMetrics, tradeMetrics, macroData
 
   const highAlerts = alerts.filter(a => a.severity === 'high');
   const mediumAlerts = alerts.filter(a => a.severity === 'medium');
+  const lowAlerts = alerts.filter(a => a.severity === 'low');
 
   return (
     <Card className="bg-red-500/10 border-red-500/30">
@@ -176,6 +177,18 @@ export default function ExportRiskAlerts({ priceMetrics, tradeMetrics, macroData
                   <p className="text-amber-300 text-xs font-bold">{a.title}</p>
                   <p className="text-amber-200/80 text-xs mt-0.5">{a.detail}</p>
                   <p className="text-amber-300/50 text-[10px] mt-1">Fonte: {a.source}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+          {lowAlerts.map((a, i) => (
+            <div key={`l-${i}`} className="bg-blue-500/10 border border-blue-500/25 rounded-lg p-3">
+              <div className="flex items-start gap-2">
+                <span className="text-blue-400 text-xs font-bold bg-blue-500/20 px-1.5 py-0.5 rounded mt-0.5">ℹ</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-blue-300 text-xs font-bold">{a.title}</p>
+                  <p className="text-blue-200/80 text-xs mt-0.5">{a.detail}</p>
+                  <p className="text-blue-300/50 text-[10px] mt-1">Fonte: {a.source}</p>
                 </div>
               </div>
             </div>
