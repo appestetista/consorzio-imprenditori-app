@@ -100,6 +100,7 @@ export default function SupplierRequestWizard({ user, onClose, onSuccess }) {
       payment_frequency: formData.payment_frequency,
       urgency: formData.urgency,
       search_keywords: keywords.length > 0 ? keywords : undefined,
+      existing_quote_url: anonymizedQuoteUrl || undefined,
       attachments: attachments.length > 0 ? attachments : undefined,
       status: 'aperta',
       candidates_count: 0,
