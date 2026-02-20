@@ -187,23 +187,34 @@ export default function SupplierRequestWizard({ user, onClose, onSuccess }) {
             </p>
           </div>
 
-          {/* Problema */}
+          {/* Campo 1: Che fornitore cerchi */}
           <div>
-            <label className="text-slate-400 text-sm mb-1.5 block">Problema da risolvere *</label>
-            <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-2 mb-2">
-              <div className="flex items-start gap-2">
-                <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" />
-                <p className="text-amber-200 text-xs">
-                  Descrivi il <strong>problema</strong>, non la soluzione. 
-                  Es: "Perdo clienti perché non rispondo in tempo" → NON "Mi serve un CRM"
-                </p>
+            <label className="text-slate-400 text-sm mb-1.5 block">Che tipo di fornitore cerchi e per cosa? *</label>
+            {selectedCategory?.example && (
+              <div className="bg-slate-900/80 border border-slate-700 rounded-lg p-2.5 mb-2">
+                <p className="text-slate-400 text-xs italic">{selectedCategory.example}</p>
               </div>
-            </div>
+            )}
             <Textarea
-              placeholder="Qual è il problema che stai cercando di risolvere?"
-              value={formData.problem_to_solve}
-              onChange={e => updateField('problem_to_solve', e.target.value)}
+              placeholder="Descrivi il fornitore che stai cercando e per quale esigenza specifica..."
+              value={formData.supplier_description}
+              onChange={e => updateField('supplier_description', e.target.value)}
               className="bg-slate-700 border-slate-600 text-white min-h-24"
+            />
+          </div>
+
+          {/* Campo 2: Cosa non va nell'attuale */}
+          <div>
+            <label className="text-slate-400 text-sm mb-1.5 block">Cosa non va nel fornitore attuale? (facoltativo)</label>
+            <p className="text-slate-500 text-xs mb-2">
+              Se hai già un fornitore per questo servizio, spiega perché vuoi cambiare. 
+              Ci aiuta a trovare chi fa meglio.
+            </p>
+            <Textarea
+              placeholder="Es: tempi troppo lunghi, costi elevati, scarsa qualità, poca disponibilità..."
+              value={formData.current_issue}
+              onChange={e => updateField('current_issue', e.target.value)}
+              className="bg-slate-700 border-slate-600 text-white min-h-20"
             />
           </div>
 
