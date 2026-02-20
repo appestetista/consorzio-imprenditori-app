@@ -214,6 +214,64 @@ export default function SupplierRequestWizard({ user, onClose, onSuccess }) {
             />
           </div>
 
+          {/* Parole chiave */}
+          <div>
+            <label className="text-slate-400 text-sm mb-1.5 flex items-center gap-1.5">
+              <Tag className="w-3 h-3" /> Parole chiave (facoltativo)
+            </label>
+            <p className="text-slate-500 text-xs mb-2">
+              Aggiungi termini specifici che conosci per migliorare la ricerca AI. 
+              Es: "stampa offset", "packaging alimentare", "saldatura TIG". 
+              Più sono precise, migliori saranno i risultati.
+            </p>
+            <div className="flex gap-2">
+              <Input
+                placeholder="Scrivi una parola chiave e premi +"
+                value={keywordInput}
+                onChange={e => setKeywordInput(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' && keywordInput.trim()) {
+                    e.preventDefault();
+                    if (!keywords.includes(keywordInput.trim())) {
+                      setKeywords(prev => [...prev, keywordInput.trim()]);
+                    }
+                    setKeywordInput('');
+                  }
+                }}
+                className="bg-slate-700 border-slate-600 text-white flex-1"
+              />
+              <Button
+                type="button"
+                size="icon"
+                disabled={!keywordInput.trim()}
+                onClick={() => {
+                  if (keywordInput.trim() && !keywords.includes(keywordInput.trim())) {
+                    setKeywords(prev => [...prev, keywordInput.trim()]);
+                  }
+                  setKeywordInput('');
+                }}
+                className="bg-lime-400 text-slate-900 hover:bg-lime-500 shrink-0"
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
+            {keywords.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {keywords.map((kw, i) => (
+                  <Badge key={i} className="bg-lime-400/15 text-lime-300 border border-lime-400/30 text-xs pr-1">
+                    {kw}
+                    <button
+                      onClick={() => setKeywords(prev => prev.filter((_, j) => j !== i))}
+                      className="ml-1.5 hover:text-red-400"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </Badge>
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* Località e raggio */}
           <div className="grid grid-cols-2 gap-3">
             <div>
