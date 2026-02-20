@@ -817,7 +817,7 @@ Fornisci:
                 </Card>
 
                 {/* Classificazione HS obbligatoria prima dell'analisi */}
-                {exportForm.prodotto && exportForm.settore && exportForm.mercati_interesse.length > 0 && !exportLimitReached && !analyzing && (
+                {exportForm.prodotto && exportForm.settore && exportForm.mercati_interesse.length > 0 && !exportLimitReached && !analyzing && !confirmedExportHS && (
                   <HSCodeClassifier
                     productDescription={`${exportForm.prodotto}${exportForm.descrizione_prodotto ? ' - ' + exportForm.descrizione_prodotto : ''} (Settore: ${exportForm.settore})`}
                     onConfirm={handleExportHSConfirm}
