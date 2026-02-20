@@ -973,34 +973,32 @@ Fornisci:
               <div className="space-y-4">
                 {/* Codice HS Confermato */}
                 {confirmedExportHS && (
-                  <Card className="bg-amber-500/10 border-amber-500/30">
-                    <CardContent className="p-3 flex items-center gap-3">
-                      <span className="text-amber-400 text-lg">📦</span>
-                      <div>
-                        <p className="text-amber-400 text-xs font-semibold">Codice HS confermato</p>
-                        <p className="text-white font-mono font-bold text-sm">{confirmedExportHS.hs_code}</p>
-                        <p className="text-slate-400 text-[10px]">{confirmedExportHS.descrizione_ufficiale}</p>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <div className="flex items-center gap-3 bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-3">
+                    <div className="w-9 h-9 rounded-lg bg-amber-500/20 flex items-center justify-center">
+                      <Package className="w-4 h-4 text-amber-400" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-amber-400 text-[10px] font-semibold uppercase tracking-wider">Codice HS</p>
+                      <p className="text-white font-mono font-bold text-sm">{confirmedExportHS.hs_code}</p>
+                      <p className="text-slate-400 text-[10px] truncate">{confirmedExportHS.descrizione_ufficiale}</p>
+                    </div>
+                  </div>
                 )}
 
                 {/* Anomalie Dataset Export */}
                 {tradeMetrics?.anomalie_presenti && (
-                  <Card className="bg-yellow-500/15 border-yellow-500/40">
-                    <CardContent className="p-4">
-                      <h3 className="text-yellow-400 font-semibold mb-2 flex items-center gap-2">
-                        <AlertTriangle className="w-5 h-5" />
-                        Dataset presenta anomalie statistiche
-                      </h3>
-                      <ul className="text-yellow-200/80 text-sm space-y-1">
-                        {tradeMetrics.anomalie.map((a, i) => <li key={i}>• {a}</li>)}
-                      </ul>
-                    </CardContent>
-                  </Card>
+                  <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4">
+                    <h3 className="text-yellow-400 font-semibold mb-2 flex items-center gap-2 text-xs">
+                      <AlertTriangle className="w-4 h-4" />
+                      Anomalie nel dataset
+                    </h3>
+                    <ul className="text-yellow-200/80 text-xs space-y-1">
+                      {tradeMetrics.anomalie.map((a, i) => <li key={i}>• {a}</li>)}
+                    </ul>
+                  </div>
                 )}
 
-                {/* Risk Alerts — solo dati reali */}
+                {/* Risk Alerts */}
                 <ExportRiskAlerts
                   priceMetrics={priceMetrics}
                   tradeMetrics={tradeMetrics}
@@ -1008,32 +1006,40 @@ Fornisci:
                   userPriceData={userPriceData}
                 />
 
-                {/* Readiness Score */}
-                <Card className="bg-slate-800 border-slate-700">
-                  <CardContent className="p-4">
+                {/* Readiness Score — Hero Card */}
+                <div className="relative rounded-2xl overflow-hidden">
+                  <div className={`absolute inset-0 ${
+                    analysisResult.readiness_score >= 7 ? 'bg-gradient-to-br from-green-600/80 to-emerald-700/80' :
+                    analysisResult.readiness_score >= 5 ? 'bg-gradient-to-br from-amber-600/80 to-yellow-700/80' : 'bg-gradient-to-br from-red-600/80 to-rose-700/80'
+                  }`} />
+                  <div className="relative p-5">
                     <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-white font-semibold">Export Readiness</h3>
-                      <div className={`text-2xl font-bold ${
-                        analysisResult.readiness_score >= 7 ? 'text-green-400' :
-                        analysisResult.readiness_score >= 5 ? 'text-yellow-400' : 'text-red-400'
-                      }`}>
-                        {analysisResult.readiness_score}/10
+                      <div>
+                        <p className="text-white/60 text-xs uppercase tracking-wider font-medium">Export Readiness</p>
+                        <p className="text-white/90 text-sm mt-1 max-w-[200px]">{analysisResult.readiness_commento}</p>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-5xl font-black text-white drop-shadow-lg">
+                          {analysisResult.readiness_score}
+                        </div>
+                        <p className="text-white/50 text-xs font-medium">/10</p>
                       </div>
                     </div>
-                    <p className="text-slate-300 text-sm">{analysisResult.readiness_commento}</p>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
 
                 {/* Raccomandazione */}
-                <Card className="bg-emerald-500/20 border-emerald-500/50">
-                  <CardContent className="p-4">
-                    <h3 className="text-emerald-400 font-semibold mb-2 flex items-center gap-2">
-                      <CheckCircle className="w-5 h-5" />
-                      Raccomandazione
-                    </h3>
-                    <p className="text-emerald-200 text-sm">{analysisResult.raccomandazione_generale}</p>
-                  </CardContent>
-                </Card>
+                <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <CheckCircle className="w-4 h-4 text-emerald-400" />
+                    </div>
+                    <div>
+                      <p className="text-emerald-400 text-xs font-bold uppercase tracking-wider mb-1">Raccomandazione</p>
+                      <p className="text-emerald-100 text-sm leading-relaxed">{analysisResult.raccomandazione_generale}</p>
+                    </div>
+                  </div>
+                </div>
 
                 {/* Classifica Comparativa */}
                 {tradeMetrics?.metriche?.length > 1 && (
