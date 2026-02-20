@@ -33,10 +33,8 @@ async function fetchWBIndicator(alpha3, indicatorCode) {
     const resp = await fetch(url);
     if (!resp.ok) return { value: null, year: null };
     const json = await resp.json();
-    // json[1] contiene i record, ordinati dal più recente
     const records = json?.[1];
     if (!Array.isArray(records) || records.length === 0) return { value: null, year: null };
-    // Cerca il primo record con valore non null
     for (const rec of records) {
       if (rec.value !== null && rec.value !== undefined) {
         return { value: rec.value, year: String(rec.date) };
@@ -46,6 +44,27 @@ async function fetchWBIndicator(alpha3, indicatorCode) {
   } catch (err) {
     console.error(`[WB API] Errore fetch ${indicatorCode} per ${alpha3}:`, err);
     return { value: null, year: null };
+  }
+}
+
+/**
+ * Recupera serie storica di un indicatore World Bank (ultimi N anni).
+ * Ritorna array [{ year, value }] ordinato per anno crescente.
+ */
+async function fetchWBSeries(alpha3, indicatorCode, years = 5) {
+  try {
+    const url = `https://api.worldbank.org/v2/country/${alpha3}/indicator/${indicatorCode}?format=json&per_page=${years + 2}&mrv=${years + 2}`;
+    const resp = await fetch(url);
+    if (!resp.ok) return [];
+    const json = await resp.json();
+    const records = json?.[1];
+    if (!Array.isArray(records)) return [];
+    return records
+      .filter(r => r.value !== null && r.value !== undefined)
+      .map(r => ({ year: parseInt(r.date), value: r.value }))
+      .sort((a, b) => a.year - b.year);
+  } catch (err) {
+    return [];
   }
 }
 
