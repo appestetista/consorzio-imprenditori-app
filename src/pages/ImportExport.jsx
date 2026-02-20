@@ -1890,56 +1890,28 @@ Fornisci:
                   </Card>
                 )}
 
+                {/* Indicatori Economia Cinese (World Bank) */}
+                <ImportMarketIndicators 
+                  chinaMacro={importRawData?.china_macro} 
+                  topImportatori={importRawData?.top_importatori_mondiali}
+                />
+
                 {/* Landed Cost Table — dati TARIC + calcolo */}
                 <LandedCostTable landedCost={importLandedCost} importData={importRawData} />
 
-                {/* Flussi Commerciali Cina→Italia */}
-                {importRawData?.flussi_comtrade && (
-                  <Card className="bg-slate-800/80 border-slate-700">
-                    <CardContent className="p-4">
-                      <h3 className="text-white font-bold mb-3 flex items-center gap-2">
-                        📊 Flussi Commerciali Cina→Italia (UN Comtrade)
-                      </h3>
-                      <div className="grid grid-cols-2 gap-3 text-sm">
-                        {importRawData.flussi_comtrade.import_italia_da_cina_usd && (
-                          <div className="bg-slate-700/50 rounded-lg p-2">
-                            <p className="text-slate-400 text-xs">Import ITA da CN:</p>
-                            {importLandedCost?.flussi_convertiti_eur?.import_italia_da_cina_eur ? (
-                              <>
-                                <p className="text-white font-semibold">€{importLandedCost.flussi_convertiti_eur.import_italia_da_cina_eur.toLocaleString('it-IT')}</p>
-                                <p className="text-slate-500 text-[10px]">USD: {importRawData.flussi_comtrade.import_italia_da_cina_usd}</p>
-                              </>
-                            ) : (
-                              <p className="text-white font-semibold">{importRawData.flussi_comtrade.import_italia_da_cina_usd}</p>
-                            )}
-                            {importRawData.flussi_comtrade.anno && (
-                              <p className="text-slate-500 text-[10px]">{importRawData.flussi_comtrade.anno}</p>
-                            )}
-                          </div>
-                        )}
-                        {importRawData.flussi_comtrade.serie_storica?.length > 0 && (
-                          <div className="bg-slate-700/50 rounded-lg p-2">
-                            <p className="text-slate-400 text-xs">Serie storica:</p>
-                            <p className="text-white text-xs">
-                              {importLandedCost?.flussi_convertiti_eur?.serie_storica_eur?.length > 0
-                                ? importLandedCost.flussi_convertiti_eur.serie_storica_eur.map(s => `${s.anno}: €${s.valore_eur.toLocaleString('it-IT')}`).join(' | ')
-                                : importRawData.flussi_comtrade.serie_storica.map(s => `${s.anno}: ${s.valore_usd}`).join(' | ')
-                              }
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                      {importRawData.flussi_comtrade.fonte && (
-                        <p className="text-slate-500 text-[10px] mt-2">📌 {importRawData.flussi_comtrade.fonte}</p>
-                      )}
-                      {importLandedCost?.tasso_cambio && (
-                        <p className="text-blue-400/70 text-[10px] mt-1">
-                          💱 {importLandedCost.tasso_cambio.nota}
-                        </p>
-                      )}
-                    </CardContent>
-                  </Card>
-                )}
+                {/* Grafico Flussi Commerciali Cina→Italia con quantità */}
+                <ImportTradeChart 
+                  flussiComtrade={importRawData?.flussi_comtrade}
+                  flussiConvertitiEur={importLandedCost?.flussi_convertiti_eur}
+                  tassoCambio={importLandedCost?.tasso_cambio}
+                  unita={importRawData?.flussi_comtrade?.import_italia_da_cina_unita}
+                />
+
+                {/* Classifica Top Importatori Mondiali con grafici */}
+                <ImportTopImportersChart 
+                  topImportatori={importRawData?.top_importatori_mondiali}
+                  landedCost={importLandedCost}
+                />
 
                 {/* Anomalie Dataset Import */}
                 {importLandedCost?.anomalie_presenti && (
