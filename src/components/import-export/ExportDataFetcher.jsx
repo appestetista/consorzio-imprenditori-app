@@ -548,11 +548,14 @@ ${riepilogoDati}
 ${datiNonDisponibili}${notaCambio}
 
 STRUTTURA RICHIESTA per ogni mercato:
-1. DOMANDA REALE: commenta il valore import totale — c'è domanda reale? Quanto è grande?
+1. DIMENSIONE MERCATO: commenta il valore import totale — c'è domanda reale? Quanto è grande?
 2. TREND STORICO: commenta CAGR e crescita 3 anni — mercato in crescita, stabile, o in calo?
-3. STABILITÀ: commenta la volatilità — mercato stabile o volatile?
-4. COERENZA CON AZIENDA: questa azienda ha le caratteristiche per competere in questo mercato?
-5. CONCLUSIONE OPERATIVA: consiglio concreto (entrare, attendere, evitare) con motivazione basata sui numeri.
+3. COMPETIZIONE: chi sono i principali fornitori? C'è spazio per l'Italia?
+4. BARRIERE NORMATIVE E DAZI: dazi MFN, anti-dumping, certificazioni richieste.
+5. STABILITÀ ECONOMICA: inflazione, Ease of Doing Business, volatilità cambio — che impatto hanno sull'operatività?
+6. LOGISTICA: Logistics Performance Index — quanto è affidabile la catena logistica?
+7. COERENZA CON AZIENDA: questa azienda ha le caratteristiche per competere?
+8. CONCLUSIONE OPERATIVA: consiglio concreto (entrare, attendere, evitare) con motivazione basata sui numeri.
 
 Fornisci anche una classifica dei mercati per priorità e i primi passi concreti.`,
     response_json_schema: {
