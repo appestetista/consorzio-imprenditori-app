@@ -57,9 +57,48 @@ function getFlagUrl(code) {
   return `https://flagcdn.com/w40/${code.toLowerCase()}.png`;
 }
 
+// Continente per ogni paese
+const CONTINENT_MAP = {
+  // Europa
+  AL: 'Europa', AT: 'Europa', BA: 'Europa', BE: 'Europa', BG: 'Europa', BY: 'Europa',
+  CH: 'Europa', CY: 'Europa', CZ: 'Europa', DE: 'Europa', DK: 'Europa', EE: 'Europa',
+  ES: 'Europa', FI: 'Europa', FR: 'Europa', GB: 'Europa', GE: 'Europa', GR: 'Europa',
+  HR: 'Europa', HU: 'Europa', IE: 'Europa', IS: 'Europa', IT: 'Europa', LT: 'Europa',
+  LU: 'Europa', LV: 'Europa', MD: 'Europa', ME: 'Europa', MT: 'Europa', NL: 'Europa',
+  NO: 'Europa', PL: 'Europa', PT: 'Europa', RO: 'Europa', RS: 'Europa', RU: 'Europa',
+  SE: 'Europa', SI: 'Europa', SK: 'Europa', UA: 'Europa',
+  // America
+  AR: 'America', BO: 'America', BR: 'America', CA: 'America', CL: 'America', CO: 'America',
+  CR: 'America', CU: 'America', DO: 'America', EC: 'America', GT: 'America', HN: 'America',
+  JM: 'America', MX: 'America', NI: 'America', PA: 'America', PE: 'America', PY: 'America',
+  SV: 'America', US: 'America', UY: 'America', VE: 'America',
+  // Asia & Oceania
+  AE: 'Asia', AF: 'Asia', AM: 'Asia', AZ: 'Asia', BD: 'Asia', BH: 'Asia', BN: 'Asia',
+  CN: 'Asia', HK: 'Asia', ID: 'Asia', IL: 'Asia', IN: 'Asia', IQ: 'Asia', IR: 'Asia',
+  JO: 'Asia', JP: 'Asia', KH: 'Asia', KR: 'Asia', KW: 'Asia', KZ: 'Asia', LB: 'Asia',
+  LK: 'Asia', MM: 'Asia', MN: 'Asia', MO: 'Asia', MY: 'Asia', NP: 'Asia', OM: 'Asia',
+  PH: 'Asia', PK: 'Asia', QA: 'Asia', SA: 'Asia', SG: 'Asia', TH: 'Asia', TR: 'Asia',
+  TW: 'Asia', UZ: 'Asia', VN: 'Asia', AU: 'Asia', NZ: 'Asia',
+  // Africa
+  AO: 'Africa', BF: 'Africa', BJ: 'Africa', BW: 'Africa', CM: 'Africa', CG: 'Africa',
+  CI: 'Africa', DZ: 'Africa', EG: 'Africa', ET: 'Africa', GA: 'Africa', GH: 'Africa',
+  GN: 'Africa', KE: 'Africa', LY: 'Africa', MA: 'Africa', MG: 'Africa', ML: 'Africa',
+  MZ: 'Africa', NA: 'Africa', NE: 'Africa', NG: 'Africa', RW: 'Africa', SD: 'Africa',
+  SN: 'Africa', TN: 'Africa', TZ: 'Africa', ZA: 'Africa', ZM: 'Africa', ZW: 'Africa',
+};
+
+const CONTINENT_ORDER = ['Europa', 'America', 'Asia', 'Africa'];
+const CONTINENT_COLORS = {
+  Europa: 'from-blue-500 to-indigo-500',
+  America: 'from-emerald-500 to-teal-500',
+  Asia: 'from-amber-500 to-orange-500',
+  Africa: 'from-rose-500 to-pink-500',
+};
+
 export default function CountrySearchSelect({ selected = [], onChange, maxSelections = 5 }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
+  const [activeContinent, setActiveContinent] = useState(null);
   const dropdownRef = useRef(null);
 
   useEffect(() => {
@@ -72,14 +111,36 @@ export default function CountrySearchSelect({ selected = [], onChange, maxSelect
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  const filtered = useMemo(() => {
+  // Raggruppamento per continente
+  const grouped = useMemo(() => {
     const q = search.toLowerCase().trim();
-    const allOpts = [WORLD_OPTION, ...ALL_COUNTRIES];
-    if (!q) return allOpts.filter(c => !selected.includes(c.code)).slice(0, 30);
-    return allOpts
-      .filter(c => !selected.includes(c.code) && (c.name.toLowerCase().includes(q) || c.code.toLowerCase().includes(q)))
-      .slice(0, 20);
+    const groups = {};
+    CONTINENT_ORDER.forEach(c => { groups[c] = []; });
+
+    const allOpts = ALL_COUNTRIES.filter(c => !selected.includes(c.code));
+    const matching = q
+      ? allOpts.filter(c => c.name.toLowerCase().includes(q) || c.code.toLowerCase().includes(q))
+      : allOpts;
+
+    matching.forEach(c => {
+      const cont = CONTINENT_MAP[c.code] || 'Africa';
+      if (groups[cont]) groups[cont].push(c);
+    });
+
+    return groups;
   }, [search, selected]);
+
+  // Paesi da mostrare (filtrati per continente attivo o tutti se ricerca)
+  const visibleCountries = useMemo(() => {
+    if (search.trim()) {
+      // In ricerca, mostra tutto flat
+      return CONTINENT_ORDER.flatMap(c => grouped[c]);
+    }
+    if (activeContinent) {
+      return grouped[activeContinent] || [];
+    }
+    return [];
+  }, [grouped, activeContinent, search]);
 
   const selectedCountries = useMemo(() => {
     return selected.map(code => {
@@ -112,7 +173,7 @@ export default function CountrySearchSelect({ selected = [], onChange, maxSelect
                 <Globe className="w-4 h-4 text-lime-400" />
               )}
               <span className="text-lime-300 text-xs font-medium">{c.name}</span>
-              <button onClick={() => handleRemove(c.code)} className="text-lime-400/60 hover:text-lime-400 ml-0.5">
+              <button type="button" onClick={() => handleRemove(c.code)} className="text-lime-400/60 hover:text-lime-400 ml-0.5">
                 <X className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -129,7 +190,7 @@ export default function CountrySearchSelect({ selected = [], onChange, maxSelect
         <Input
           placeholder={selected.length >= maxSelections ? `Massimo ${maxSelections} Paesi` : "Cerca Paese... (es. Germania, US, Brasile)"}
           value={search}
-          onChange={(e) => { setSearch(e.target.value); setOpen(true); }}
+          onChange={(e) => { setSearch(e.target.value); setActiveContinent(null); setOpen(true); }}
           onFocus={() => { if (selected.length < maxSelections) setOpen(true); }}
           className="bg-slate-900 border-slate-700 text-white pl-9 pr-8"
           disabled={selected.length >= maxSelections}
@@ -140,26 +201,68 @@ export default function CountrySearchSelect({ selected = [], onChange, maxSelect
 
       {/* Dropdown */}
       {open && selected.length < maxSelections && (
-        <div className="absolute z-50 mt-1 w-full bg-slate-800 border border-slate-700 rounded-lg shadow-xl max-h-60 overflow-y-auto">
-          {filtered.length === 0 ? (
-            <p className="text-slate-500 text-sm p-3 text-center">Nessun risultato</p>
-          ) : (
-            filtered.map(c => (
+        <div className="absolute z-50 mt-1 w-full bg-slate-800 border border-slate-700 rounded-xl shadow-xl overflow-hidden">
+          
+          {/* World option + Continent tabs orizzontali */}
+          <div className="border-b border-slate-700/50">
+            {/* World */}
+            {!selected.includes('WLD') && !search.trim() && (
               <button
-                key={c.code}
-                onClick={() => handleSelect(c.code)}
-                className="w-full flex items-center gap-2.5 px-3 py-2 hover:bg-slate-700 transition-colors text-left"
+                type="button"
+                onClick={() => handleSelect('WLD')}
+                className="w-full flex items-center gap-2.5 px-3 py-2.5 hover:bg-slate-700/50 transition-colors text-left border-b border-slate-700/30"
               >
-                {c.code !== 'WLD' ? (
-                  <img src={getFlagUrl(c.code)} alt="" className="w-6 h-4 object-cover rounded-sm flex-shrink-0" />
-                ) : (
-                  <Globe className="w-5 h-4 text-blue-400 flex-shrink-0" />
-                )}
-                <span className="text-white text-sm">{c.name}</span>
-                <span className="text-slate-500 text-xs ml-auto">{c.code}</span>
+                <Globe className="w-5 h-4 text-blue-400 flex-shrink-0" />
+                <span className="text-white text-sm font-semibold">World (Mondo intero)</span>
               </button>
-            ))
-          )}
+            )}
+
+            {/* Continent tabs - scroll orizzontale */}
+            {!search.trim() && (
+              <div className="flex overflow-x-auto gap-1.5 p-2 scrollbar-hide">
+                {CONTINENT_ORDER.map(cont => {
+                  const count = grouped[cont]?.length || 0;
+                  const isActive = activeContinent === cont;
+                  return (
+                    <button
+                      key={cont}
+                      type="button"
+                      onClick={() => setActiveContinent(isActive ? null : cont)}
+                      className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                        isActive
+                          ? `bg-gradient-to-r ${CONTINENT_COLORS[cont]} text-white shadow-lg`
+                          : 'bg-slate-700/50 text-slate-400 hover:text-white hover:bg-slate-700'
+                      }`}
+                    >
+                      {cont} ({count})
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Country list */}
+          <div className="max-h-48 overflow-y-auto">
+            {search.trim() && visibleCountries.length === 0 ? (
+              <p className="text-slate-500 text-sm p-3 text-center">Nessun risultato</p>
+            ) : !search.trim() && !activeContinent ? (
+              <p className="text-slate-500 text-xs p-3 text-center">Seleziona un continente sopra</p>
+            ) : (
+              visibleCountries.map(c => (
+                <button
+                  key={c.code}
+                  type="button"
+                  onClick={() => handleSelect(c.code)}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 hover:bg-slate-700/50 transition-colors text-left"
+                >
+                  <img src={getFlagUrl(c.code)} alt="" className="w-6 h-4 object-cover rounded-sm flex-shrink-0" />
+                  <span className="text-white text-sm">{c.name}</span>
+                  <span className="text-slate-500 text-xs ml-auto">{c.code}</span>
+                </button>
+              ))
+            )}
+          </div>
         </div>
       )}
     </div>
