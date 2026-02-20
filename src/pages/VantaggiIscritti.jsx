@@ -330,23 +330,26 @@ export default function VantaggiIscritti() {
         </div>
 
         {/* Pulsanti fissi in alto */}
-        <div className="grid grid-cols-3 gap-2 mb-4">
-          <Link to={createPageUrl('MioQRCode')}>
-            <Button variant="outline" className="w-full border-lime-400 text-lime-400 hover:bg-lime-400/10 text-xs h-10">
-              Il Mio QR
-            </Button>
+        <div className="grid grid-cols-3 gap-2 mb-3">
+          <Link to={createPageUrl('MioQRCode')} className="flex flex-col items-center gap-1 p-2 rounded-xl border border-lime-400/30 hover:bg-lime-400/10 transition-colors">
+            <QrCode className="w-6 h-6 text-lime-400" />
           </Link>
-          <Link to={createPageUrl('MiePrenotazioniVantaggi')}>
-            <Button variant="outline" className="w-full border-amber-400 text-amber-400 hover:bg-amber-400/10 text-xs h-10">
-              Prenotazioni
-            </Button>
+          <Link to={createPageUrl('MiePrenotazioniVantaggi')} className="flex flex-col items-center gap-1 p-2 rounded-xl border border-amber-400/30 hover:bg-amber-400/10 transition-colors">
+            <span className="text-black text-xs font-semibold bg-amber-400 px-3 py-1 rounded-full">Prenotazioni</span>
           </Link>
-          <Link to={createPageUrl('GestioneVantaggi')}>
-            <Button variant="outline" className="w-full border-purple-400 text-purple-400 hover:bg-purple-400/10 text-xs h-10">
-              I Miei Vantaggi
-            </Button>
+          <Link to={createPageUrl('GestioneVantaggi')} className="flex flex-col items-center gap-1 p-2 rounded-xl border border-purple-400/30 hover:bg-purple-400/10 transition-colors">
+            <span className="text-black text-xs font-semibold bg-purple-400 px-3 py-1 rounded-full">Vantaggi prenotati</span>
           </Link>
         </div>
+
+        {/* Crea nuovo vantaggio */}
+        <Button
+          onClick={() => setShowCreatePanel(true)}
+          className="w-full mb-4 bg-lime-400 hover:bg-lime-500 text-black font-bold h-11 text-sm"
+        >
+          <Plus className="w-5 h-5 mr-2" />
+          Crea nuovo vantaggio
+        </Button>
 
         {/* Info box */}
         <div className="bg-lime-400/10 border border-lime-400/30 rounded-xl p-3 mb-4">
