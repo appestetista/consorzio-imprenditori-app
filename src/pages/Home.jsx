@@ -633,6 +633,20 @@ export default function Home() {
   const isEmailNotAuthorized = effectiveUser?.block_reason === 'email_non_autorizzata';
   const isAdmin = appMode === 'admin';
 
+  // Ripristina posizione scroll istantaneamente PRIMA del paint
+  const scrollRestoredRef = useRef(false);
+  useLayoutEffect(() => {
+    if (loading || scrollRestoredRef.current) return;
+    try {
+      const savedY = sessionStorage.getItem('home_scroll_y');
+      if (savedY) {
+        sessionStorage.removeItem('home_scroll_y');
+        scrollRestoredRef.current = true;
+        window.scrollTo(0, parseInt(savedY, 10));
+      }
+    } catch {}
+  }, [loading]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center">
