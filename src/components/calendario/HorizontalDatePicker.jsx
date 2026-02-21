@@ -42,6 +42,9 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
   const [editFolderName, setEditFolderName] = useState('');
   const [editFolderColor, setEditFolderColor] = useState('#f59e0b');
   const [userEmail, setUserEmail] = useState(null);
+  const [showNewFilePopup, setShowNewFilePopup] = useState(false);
+  const [newFileName, setNewFileName] = useState('');
+  const [newFileCartellaId, setNewFileCartellaId] = useState('');
   const queryClient = useQueryClient();
 
   // Colori disponibili per le cartelle
