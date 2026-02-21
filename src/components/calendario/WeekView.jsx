@@ -80,10 +80,18 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     setTimeout(() => { if (scrollRef.current) scrollRef.current.scrollTop = Math.max(0, (idx - 5) * 26); }, 200);
   }, [currentWeekDays]);
 
-  // Scroll iniziale del nastro al giorno corrente
+  // Scroll iniziale del nastro al giorno visibile nella vista giornaliera
   useEffect(() => {
     if (!ribbonRef.current || initialScrollDone.current) return;
-    const targetDate = selectedDate ? new Date(selectedDate) : today;
+    // Usa il giorno visibile dalla vista giornaliera se disponibile
+    let targetDate;
+    if (initialVisibleDay && initialVisibleMonth !== undefined && initialVisibleYear) {
+      targetDate = new Date(initialVisibleYear, initialVisibleMonth, initialVisibleDay);
+    } else if (selectedDate) {
+      targetDate = new Date(selectedDate);
+    } else {
+      targetDate = today;
+    }
     const dayOfYear = getDayOfYear(targetDate, displayYear);
     if (dayOfYear >= 0) {
       const barWidth = ribbonRef.current.clientWidth;
