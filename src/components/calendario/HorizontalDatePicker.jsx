@@ -450,7 +450,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
           const hasDocuments = itemCount > 0;
           
           return (
-            <div key={cartella.id} className="relative flex-shrink-0 pt-2 pr-2">
+            <div key={cartella.id} data-cartella-id={cartella.id} className="relative flex-shrink-0 pt-2 pr-2">
               <button 
                 onClick={() => setOpenCartella(cartella)}
                 className="flex flex-col items-center gap-1 px-0.5 rounded transition-all hover:scale-105 active:scale-95"
