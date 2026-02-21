@@ -168,17 +168,6 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
                 draggedFile?.id === file.id && "opacity-30 scale-90 transition-all duration-200"
               )}
             >
-              {/* Penna per aprire pannello modifica - in alto a sinistra */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setContextFile(file);
-                }}
-                className="absolute -top-0.5 -left-0.5 z-10 w-4 h-4 rounded-full bg-amber-500 hover:bg-amber-400 flex items-center justify-center shadow-lg"
-              >
-                <Pencil className="w-2 h-2 text-white" />
-              </button>
-
               {/* X per eliminare - in alto a destra */}
               <button
                 onClick={(e) => {
@@ -191,38 +180,58 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
               </button>
 
               <div
-                className="flex flex-col items-center gap-0.5 cursor-pointer"
+                className="flex flex-row items-start gap-0 cursor-pointer"
                 onClick={() => {
                   if (!draggedFile && !contextFile) onFileClick?.(file);
                 }}
                 onTouchStart={(e) => handleTouchStart(e, file)}
               >
-                {/* Icona nota colorata */}
-                <div 
-                  className="relative w-8 h-9 rounded-sm shadow-md flex items-center justify-center"
-                  style={{ 
-                    background: `linear-gradient(160deg, ${fileColor} 0%, ${fileColor}cc 100%)`,
-                    boxShadow: `0 2px 6px ${fileColor}44`
+                {/* Linguetta penna a sinistra del file */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setContextFile(file);
+                  }}
+                  className="flex-shrink-0 flex items-center justify-center rounded-l-md shadow-md self-stretch"
+                  style={{
+                    width: '14px',
+                    background: `linear-gradient(180deg, ${fileColor} 0%, ${fileColor}aa 100%)`,
+                    borderRight: '1px solid rgba(255,255,255,0.15)',
+                    marginTop: '2px',
+                    marginBottom: '2px',
                   }}
                 >
-                  <div 
-                    className="absolute top-0 right-0 w-2 h-2"
-                    style={{ background: 'linear-gradient(135deg, transparent 50%, rgba(0,0,0,0.15) 50%)', borderBottomLeftRadius: '2px' }}
-                  />
-                  <div className="flex flex-col gap-[2px] items-center">
-                    <div className="w-4 h-[1.5px] rounded-full bg-white/40" />
-                    <div className="w-3 h-[1.5px] rounded-full bg-white/30" />
-                    <div className="w-4 h-[1.5px] rounded-full bg-white/25" />
-                  </div>
-                  {hasFolders && (
-                    <GripVertical className="absolute bottom-0.5 right-0 w-2.5 h-2.5 text-white/30" />
-                  )}
-                </div>
+                  <Pencil className="w-2 h-2 text-white/90" />
+                </button>
 
-                {/* Nome max 7 */}
-                <span className="text-[9px] text-slate-300 font-medium text-center leading-tight max-w-[40px] truncate">
-                  {shortName}
-                </span>
+                <div className="flex flex-col items-center gap-0.5">
+                  {/* Icona nota colorata */}
+                  <div 
+                    className="relative w-8 h-9 rounded-r-sm shadow-md flex items-center justify-center"
+                    style={{ 
+                      background: `linear-gradient(160deg, ${fileColor} 0%, ${fileColor}cc 100%)`,
+                      boxShadow: `0 2px 6px ${fileColor}44`
+                    }}
+                  >
+                    <div 
+                      className="absolute top-0 right-0 w-2 h-2"
+                      style={{ background: 'linear-gradient(135deg, transparent 50%, rgba(0,0,0,0.15) 50%)', borderBottomLeftRadius: '2px' }}
+                    />
+                    <div className="flex flex-col gap-[2px] items-center">
+                      <div className="w-4 h-[1.5px] rounded-full bg-white/40" />
+                      <div className="w-3 h-[1.5px] rounded-full bg-white/30" />
+                      <div className="w-4 h-[1.5px] rounded-full bg-white/25" />
+                    </div>
+                    {hasFolders && (
+                      <GripVertical className="absolute bottom-0.5 right-0 w-2.5 h-2.5 text-white/30" />
+                    )}
+                  </div>
+
+                  {/* Nome max 7 */}
+                  <span className="text-[9px] text-slate-300 font-medium text-center leading-tight max-w-[40px] truncate">
+                    {shortName}
+                  </span>
+                </div>
               </div>
             </div>
           );

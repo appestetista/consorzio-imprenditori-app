@@ -80,6 +80,18 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     setTimeout(() => { if (scrollRef.current) scrollRef.current.scrollTop = Math.max(0, (idx - 5) * 26); }, 200);
   }, [currentWeekDays]);
 
+  // Resetta lo scroll iniziale ogni volta che cambiano i props visibili dalla giornaliera
+  // (cioè ogni volta che la WeekView viene riaperta con un mese diverso)
+  const prevInitialMonth = useRef(initialVisibleMonth);
+  const prevInitialYear = useRef(initialVisibleYear);
+  useEffect(() => {
+    if (prevInitialMonth.current !== initialVisibleMonth || prevInitialYear.current !== initialVisibleYear) {
+      initialScrollDone.current = false;
+      prevInitialMonth.current = initialVisibleMonth;
+      prevInitialYear.current = initialVisibleYear;
+    }
+  }, [initialVisibleMonth, initialVisibleYear]);
+
   // Scroll iniziale del nastro al giorno visibile nella vista giornaliera
   useEffect(() => {
     if (!ribbonRef.current || initialScrollDone.current) return;
@@ -98,7 +110,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
       ribbonRef.current.scrollLeft = dayOfYear * ITEM_W - barWidth / 2 + ITEM_W / 2;
     }
     initialScrollDone.current = true;
-  }, [yearDays]);
+  }, [yearDays, initialVisibleMonth, initialVisibleYear]);
 
   function getDayOfYear(date, year) {
     if (date.getFullYear() !== year) return -1;
