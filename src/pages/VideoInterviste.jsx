@@ -420,8 +420,8 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
       <main className="px-4 py-6 max-w-md mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <Link to={createPageUrl('Home')} className="text-[#d4af37]">
-              <ArrowLeft className="w-6 h-6" />
+            <Link to={createPageUrl('Home')} className="text-[#d4af37] p-3 -m-3 rounded-full active:bg-[#d4af37]/20 transition-colors">
+              <ArrowLeft className="w-7 h-7" />
             </Link>
             <h1 className="text-white text-xl font-bold">Video Interviste</h1>
             {/* Badge messaggi video non letti */}

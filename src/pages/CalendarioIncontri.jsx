@@ -511,8 +511,8 @@ export default function CalendarioIncontri() {
       <main className="px-4 py-6 max-w-md mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <Link to={createPageUrl('Home')} className="text-lime-400">
-              <ArrowLeft className="w-6 h-6" />
+            <Link to={createPageUrl('Home')} className="text-lime-400 p-3 -m-3 rounded-full active:bg-lime-400/20 transition-colors">
+              <ArrowLeft className="w-7 h-7" />
             </Link>
             {/* Cerchio con conteggio eventi a sinistra */}
             <div className="w-10 h-10 rounded-full bg-lime-400 flex items-center justify-center">
