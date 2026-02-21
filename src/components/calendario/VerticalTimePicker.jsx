@@ -6,7 +6,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import NoteEditor from './NoteEditor';
 import DayNotesSummaryPopup from './DayNotesSummaryPopup';
 
-export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMonth, visibleYear, onClose, onTimeSelect, onDateChange, monthColor = '#a3e635', onSelectedTimeChange, onOpenToolsPopup }) {
+export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMonth, visibleYear, onClose, onTimeSelect, onDateChange, monthColor = '#a3e635', onSelectedTimeChange, onOpenToolsPopup, navigateToNote, onNavigateToNoteDone }) {
   const scrollRef = useRef(null);
   const currentHourRef = useRef(null);
   const isScrollingRef = useRef(false);
@@ -187,12 +187,34 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
 
   // Scroll all'ora corrente quando è oggi (all'apertura o quando si torna a oggi)
   useEffect(() => {
-    if (isToday && currentHourRef.current) {
+    if (isToday && currentHourRef.current && !navigateToNote) {
       setTimeout(() => {
         currentHourRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }, 100);
     }
   }, [isToday, selectedDate]);
+
+  // Naviga all'orario preciso di una nota (dal popup note del giorno)
+  useEffect(() => {
+    if (!navigateToNote || !scrollRef.current) return;
+    const time = navigateToNote.time;
+    if (!time) return;
+
+    // Apri l'editor sulla nota
+    setSelectedTime(time);
+    setShowNoteEditor(true);
+    if (onSelectedTimeChange) onSelectedTimeChange(true);
+
+    // Scrolla all'orario
+    setTimeout(() => {
+      const el = scrollRef.current?.querySelector(`[data-time="${time}"]`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 150);
+
+    if (onNavigateToNoteDone) onNavigateToNoteDone();
+  }, [navigateToNote]);
 
   // Gestisce il ciclo continuo: quando si raggiunge il top o il bottom, cambia giorno
   useEffect(() => {
