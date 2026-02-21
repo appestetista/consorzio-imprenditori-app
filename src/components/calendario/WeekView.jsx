@@ -588,7 +588,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
       {/* Popup riepilogo note del giorno */}
       {daySummaryDate && (
         <DayNotesSummaryPopup
-          notes={notes.filter(n => n.data === daySummaryDate)}
+          notes={allMonthNotes.filter(n => n.data === daySummaryDate)}
           cartelleMap={cm}
           selectedDate={new Date(daySummaryDate + 'T00:00:00')}
           monthColor={ac}
