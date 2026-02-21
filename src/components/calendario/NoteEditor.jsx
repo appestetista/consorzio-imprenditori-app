@@ -441,7 +441,7 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
       </div>
 
       {/* Content */}
-      <div className="flex-1 px-3 py-2 overflow-y-auto">
+      <div className="flex-1 px-3 py-2 flex flex-col min-h-0">
         {/* Titolo */}
         <input
           type="text"
@@ -452,7 +452,7 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
           autoCorrect="off"
           spellCheck="false"
           className={cn(
-            "w-full bg-transparent text-white font-light outline-none mb-2 truncate",
+            "w-full bg-transparent text-white font-light outline-none mb-2 truncate flex-shrink-0",
             inline ? "text-base" : "text-3xl",
             titleError 
               ? "placeholder:text-red-500 border-b-2 border-red-500" 
@@ -461,7 +461,7 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
           autoFocus
         />
         {titleError && (
-          <span className="text-red-500 text-[10px] -mt-1 mb-1 block">Il titolo è obbligatorio</span>
+          <span className="text-red-500 text-[10px] -mt-1 mb-1 block flex-shrink-0">Il titolo è obbligatorio</span>
         )}
 
         {/* Area testo libero */}
@@ -470,7 +470,7 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="Scrivi qui..."
-            className="w-full min-h-[120px] bg-transparent text-white text-sm outline-none placeholder:text-slate-600 resize-none"
+            className="w-full flex-1 min-h-0 bg-transparent text-white text-sm outline-none placeholder:text-slate-600 resize-none"
           />
         )}
 
