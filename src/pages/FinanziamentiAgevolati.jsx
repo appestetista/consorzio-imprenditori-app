@@ -25,8 +25,16 @@ import { useImpersonation } from '../components/admin/ImpersonationContext';
 import SectionConsultantPanel from '../components/consulenze/SectionConsultantPanel';
 
 export default function FinanziamentiAgevolati() {
-  const [user, setUser] = useState(null);
-  const [userLoaded, setUserLoaded] = useState(false);
+  const [user, setUser] = useState(() => {
+    // Pre-carica dallo stato cached per evitare flash
+    try {
+      const cached = sessionStorage.getItem('finanziamenti_user_cache');
+      return cached ? JSON.parse(cached) : null;
+    } catch { return null; }
+  });
+  const [userLoaded, setUserLoaded] = useState(() => {
+    try { return !!sessionStorage.getItem('finanziamenti_user_cache'); } catch { return false; }
+  });
   const [selectedGrant, setSelectedGrant] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
   const [showConsultationDialog, setShowConsultationDialog] = useState(false);
