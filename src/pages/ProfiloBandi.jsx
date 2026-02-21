@@ -248,8 +248,8 @@ export default function ProfiloBandi() {
       
       <main className="px-4 py-6 max-w-md mx-auto">
         <div className="flex items-center gap-3 mb-6">
-          <button onClick={() => navigate(createPageUrl('FinanziamentiAgevolati'))} className="text-lime-400 p-2 -m-2 active:opacity-60">
-            <ArrowLeft className="w-6 h-6" />
+          <button onClick={() => navigate(createPageUrl('FinanziamentiAgevolati'))} className="text-lime-400 p-3 -m-3 rounded-full active:bg-lime-400/20 transition-colors">
+            <ArrowLeft className="w-7 h-7" />
           </button>
           <div>
             <h1 className="text-white text-xl font-bold">Profilo Bandi</h1>
