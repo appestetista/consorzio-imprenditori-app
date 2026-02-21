@@ -709,6 +709,74 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
         document.body
       )}
 
+      {/* Popup crea file */}
+      {showNewFilePopup && ReactDOM.createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-start justify-center pt-20 bg-black/60" onClick={() => setShowNewFilePopup(false)}>
+          <div className="bg-slate-800 rounded-xl p-5 w-80 shadow-2xl relative" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => setShowNewFilePopup(false)}
+              className="absolute top-3 right-3 w-6 h-6 rounded-full bg-slate-700 hover:bg-slate-600 flex items-center justify-center"
+            >
+              <X className="w-4 h-4 text-slate-300" />
+            </button>
+            
+            <h3 className="text-white font-semibold text-base mb-4">Nuovo File</h3>
+            
+            <input
+              type="text"
+              value={newFileName}
+              onChange={(e) => setNewFileName(e.target.value)}
+              placeholder="Nome file"
+              className="w-full bg-slate-700 text-white text-sm rounded-lg px-4 py-3 mb-4 outline-none focus:ring-2 focus:ring-cyan-400"
+              autoFocus
+            />
+
+            {/* Selettore cartella */}
+            <div className="mb-4">
+              <p className="text-slate-400 text-xs mb-2">Salva nella cartella:</p>
+              {cartelle.length === 0 ? (
+                <p className="text-slate-500 text-xs italic">Nessuna cartella. Creane una prima.</p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {cartelle.map((c) => (
+                    <button
+                      key={c.id}
+                      onClick={() => setNewFileCartellaId(c.id)}
+                      className={cn(
+                        "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-all",
+                        newFileCartellaId === c.id 
+                          ? "ring-2 ring-white bg-slate-600 text-white" 
+                          : "bg-slate-700 text-slate-400 hover:bg-slate-600"
+                      )}
+                    >
+                      <div className="w-3 h-3 rounded" style={{ backgroundColor: c.colore }} />
+                      {c.nome}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowNewFilePopup(false)}
+                className="flex-1 px-4 py-2 rounded-lg bg-slate-600 hover:bg-slate-500 text-white text-sm"
+              >
+                Annulla
+              </button>
+              <button
+                onClick={handleCreateFile}
+                disabled={!newFileName.trim() || !newFileCartellaId || createFileMutation.isPending}
+                className="flex-1 px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-900 text-sm font-semibold disabled:opacity-50"
+              >
+                {createFileMutation.isPending ? 'Creo...' : 'Crea File'}
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
       {/* Popup conferma eliminazione - in alto con X */}
       {showDeletePopup && ReactDOM.createPortal(
         <div className="fixed inset-0 z-[9999] flex items-start justify-center pt-20 bg-black/60" onClick={() => setShowDeletePopup(null)}>
