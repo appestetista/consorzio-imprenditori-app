@@ -66,6 +66,7 @@ export default function FinanziamentiAgevolati() {
       try {
         const currentUser = await base44.auth.me();
         setUser(currentUser);
+        setUserLoaded(true);
         
         // Aggiorna timestamp ultima visita per utenti non admin (anche in impersonation)
         const effectiveRole = impersonation.active ? impersonation.role : currentUser?.role;
