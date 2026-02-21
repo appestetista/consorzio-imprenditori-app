@@ -542,6 +542,20 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
         </div>
       )}
 
+      {/* Editor File - stessa struttura del NoteEditor */}
+      {editingFile && (
+        <div className="fixed inset-0 z-[70] bg-black">
+          <FileNoteEditor
+            key={`file-${editingFile.id}`}
+            file={editingFile}
+            onClose={() => setEditingFile(null)}
+            onSave={() => setEditingFile(null)}
+            onDelete={() => setEditingFile(null)}
+            monthColor={currentMonthColor}
+          />
+        </div>
+      )}
+
       {/* Popup Strumenti - overlay in sovraimpressione */}
       {showToolsPopup && ReactDOM.createPortal(
         <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/70" onClick={() => setShowToolsPopup(false)}>
