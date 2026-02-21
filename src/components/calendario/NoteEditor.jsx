@@ -100,6 +100,25 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
     }
   });
 
+  // Query file non associati a cartella (standalone) per il giorno corrente
+  const dateStr = selectedDate 
+    ? `${new Date(selectedDate).getFullYear()}-${String(new Date(selectedDate).getMonth() + 1).padStart(2, '0')}-${String(new Date(selectedDate).getDate()).padStart(2, '0')}`
+    : null;
+
+  // Crea file standalone (senza cartella o con cartella selezionata)
+  const createFileMutation = useMutation({
+    mutationFn: (data) => base44.entities.FileCartella.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['fileCartella'] });
+      queryClient.invalidateQueries({ queryKey: ['fileCartella-day'] });
+      queryClient.invalidateQueries({ queryKey: ['allFileCartella'] });
+      queryClient.invalidateQueries({ queryKey: ['file-week'] });
+      setShowNewFileInline(false);
+      setNewFileName('');
+      setShowFileDropdown(false);
+    }
+  });
+
   // Tieni aggiornati i ref
   titleRef.current = title;
   contentRef.current = content;
