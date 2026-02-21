@@ -9,7 +9,7 @@ import VerticalTimePicker from './VerticalTimePicker';
 import FatturatoBarra from './FatturatoBarra';
 import WeekView from './WeekView';
 import NoteEditor from './NoteEditor';
-import FileNoteEditor from './FileNoteEditor';
+import FileNoteEditor from './FileNoteEditor.jsx';
 import WhisperDictation from './WhisperDictation';
 import AudioRecorder from './AudioRecorder';
 import MonthBar from './MonthBar';
