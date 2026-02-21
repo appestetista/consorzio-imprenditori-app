@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Check, Paperclip, X, ChevronDown, Folder, FolderPlus, Trash2, Pencil } from 'lucide-react';
+import { Check, Paperclip, X, ChevronDown, Folder, FolderPlus, Trash2, Pencil, FileText, FilePlus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
