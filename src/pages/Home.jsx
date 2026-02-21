@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Calendar, Video, Briefcase, User, Euro, ShoppingBag, BookOpen, Handshake, Truck, Heart, FileSearch, Globe, Shield, PiggyBank, Gavel, Gift, QrCode, ScanLine, Star, Calculator, Users } from 'lucide-react';
@@ -731,26 +731,6 @@ export default function Home() {
   const isConsultant = isUserConsultant(effectiveUser);
 
   // Leggi tab da URL per filtrare le features
-  // Ripristina posizione scroll alla card da cui l'utente è tornato
-  const scrollRestoredRef = React.useRef(false);
-  useEffect(() => {
-    if (loading || scrollRestoredRef.current) return;
-    try {
-      const scrollTarget = sessionStorage.getItem('home_scroll_to');
-      if (scrollTarget) {
-        sessionStorage.removeItem('home_scroll_to');
-        scrollRestoredRef.current = true;
-        // Usa timeout 0 per aspettare il paint del DOM
-        setTimeout(() => {
-          const el = document.querySelector(`[data-feature-card="${scrollTarget}"]`);
-          if (el) {
-            el.scrollIntoView({ block: 'center', behavior: 'instant' });
-          }
-        }, 0);
-      }
-    } catch {}
-  }, [loading]);
-
   const urlParams = new URLSearchParams(window.location.search);
   const activeTab = urlParams.get('tab'); // null = tutte, 'relazioni', 'strumenti', 'consulenza'
 
