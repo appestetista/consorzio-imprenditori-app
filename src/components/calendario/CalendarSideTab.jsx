@@ -247,6 +247,8 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
               visibleYear={visibleMonthLabel.year}
               onClose={() => setShowTimePicker(false)}
               onTimeSelect={handleTimeSelect}
+              navigateToNote={pendingNoteNavigate}
+              onNavigateToNoteDone={() => setPendingNoteNavigate(null)}
               onDateChange={(newDate) => {
                 if (onDateSelect) {
                   onDateSelect(newDate);
