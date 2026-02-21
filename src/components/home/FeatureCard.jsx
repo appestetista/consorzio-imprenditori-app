@@ -94,11 +94,14 @@ export default function FeatureCard({
   
   const hasHelpVideo = helpVideos[pageName];
 
+  const saveScrollSource = () => {
+    try { sessionStorage.setItem('home_scroll_to', pageName); } catch {}
+  };
+
   const handleVideoCardClick = async (e) => {
     e.preventDefault();
-    // Segna come visitato nel context PRIMA di tutto (per aggiornare UI immediatamente)
+    saveScrollSource();
     markVideosAsVisited();
-    // Aggiorna last_video_view_at in background
     try {
       await base44.auth.updateMe({ last_video_view_at: new Date().toISOString() });
       queryClient.invalidateQueries({ queryKey: ['videos-data'] });
@@ -109,7 +112,7 @@ export default function FeatureCard({
   };
 
   const content = (
-    <div className="relative">
+    <div className="relative" data-feature-card={pageName}>
                 {/* Icona Video Help - posizionata sull'angolo esterno in basso a sinistra */}
                 {!disabled && hasHelpVideo && (
                   <div 
@@ -312,7 +315,7 @@ export default function FeatureCard({
 
   return (
     <>
-      <Link to={createPageUrl(pageName)} className="cursor-pointer block">
+      <Link to={createPageUrl(pageName)} onClick={saveScrollSource} className="cursor-pointer block">
         {content}
       </Link>
       
