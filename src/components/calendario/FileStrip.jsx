@@ -6,12 +6,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 
 export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFileDragToFolder }) {
-  const [showNewFilePopup, setShowNewFilePopup] = useState(false);
-  const [newFileName, setNewFileName] = useState('');
   const [draggedFile, setDraggedFile] = useState(null);
   const [dragOverCartella, setDragOverCartella] = useState(null);
+  const [deleteFilePopup, setDeleteFilePopup] = useState(null); // file da eliminare
   const touchStartRef = useRef(null);
-  const dragCloneRef = useRef(null);
   const queryClient = useQueryClient();
 
   // Query tutti i file standalone (senza cartella) dell'utente
@@ -24,16 +22,16 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
     enabled: !!userEmail
   });
 
-  // Mutation crea file standalone
+  // Mutation crea file standalone (senza titolo, si apre subito l'editor)
   const createFileMutation = useMutation({
     mutationFn: (data) => base44.entities.FileCartella.create(data),
-    onSuccess: () => {
+    onSuccess: (newFile) => {
       queryClient.invalidateQueries({ queryKey: ['standalone-files'] });
       queryClient.invalidateQueries({ queryKey: ['allFileCartella'] });
       queryClient.invalidateQueries({ queryKey: ['fileCartella'] });
       queryClient.invalidateQueries({ queryKey: ['file-week'] });
-      setShowNewFilePopup(false);
-      setNewFileName('');
+      // Apri subito l'editor sul file appena creato
+      if (onFileClick) onFileClick(newFile);
     }
   });
 
@@ -48,29 +46,42 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
     }
   });
 
+  // Mutation elimina file
+  const deleteFileMutation = useMutation({
+    mutationFn: (fileId) => base44.entities.FileCartella.delete(fileId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['standalone-files'] });
+      queryClient.invalidateQueries({ queryKey: ['allFileCartella'] });
+      queryClient.invalidateQueries({ queryKey: ['fileCartella'] });
+      queryClient.invalidateQueries({ queryKey: ['file-week'] });
+      setDeleteFilePopup(null);
+    }
+  });
+
   const handleCreateFile = () => {
-    if (!newFileName.trim() || !userEmail) return;
+    if (!userEmail || createFileMutation.isPending) return;
     createFileMutation.mutate({
       user_email: userEmail,
-      titolo: newFileName.trim(),
+      titolo: 'Nuovo file',
       contenuto: '',
       cartella_id: null
     });
   };
 
-  // Touch drag handlers
+  // Touch drag handlers - solo se ci sono cartelle
+  const hasFolders = cartelle.length > 0;
+
   const handleTouchStart = (e, file) => {
+    if (!hasFolders) return; // No drag se non ci sono cartelle
     const touch = e.touches[0];
     touchStartRef.current = { x: touch.clientX, y: touch.clientY, file, moved: false };
   };
 
   const handleTouchMove = (e) => {
-    if (!touchStartRef.current) return;
+    if (!touchStartRef.current || !hasFolders) return;
     const touch = e.touches[0];
-    const dx = Math.abs(touch.clientX - touchStartRef.current.x);
     const dy = Math.abs(touch.clientY - touchStartRef.current.y);
 
-    // Inizia drag solo se ha mosso abbastanza verticalmente (verso le cartelle sotto)
     if (dy > 15 && !touchStartRef.current.moved) {
       touchStartRef.current.moved = true;
       setDraggedFile(touchStartRef.current.file);
@@ -78,7 +89,6 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
 
     if (touchStartRef.current.moved) {
       e.preventDefault();
-      // Trova l'elemento cartella sotto il dito
       const el = document.elementFromPoint(touch.clientX, touch.clientY);
       const cartellaEl = el?.closest('[data-cartella-id]');
       if (cartellaEl) {
@@ -110,13 +120,16 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        {/* Pulsante crea file */}
+        {/* Pulsante crea file - apre direttamente l'editor */}
         <button
-          onClick={() => setShowNewFilePopup(true)}
-          className="flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded bg-slate-700/60 hover:bg-slate-600 transition-colors"
+          onClick={handleCreateFile}
+          disabled={createFileMutation.isPending}
+          className="flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded bg-slate-700/60 hover:bg-slate-600 transition-colors disabled:opacity-50"
         >
           <FilePlus className="w-5 h-5 text-cyan-400" />
-          <span className="text-[10px] text-slate-300 font-medium">File</span>
+          <span className="text-[10px] text-slate-300 font-medium">
+            {createFileMutation.isPending ? '...' : 'File'}
+          </span>
         </button>
 
         {/* File standalone */}
@@ -124,20 +137,37 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
           <div
             key={file.id}
             className={cn(
-              "flex-shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg transition-all cursor-pointer",
-              "bg-slate-800/80 border border-slate-700/50 hover:bg-slate-700",
+              "flex-shrink-0 relative pt-3",
               draggedFile?.id === file.id && "opacity-40 scale-95"
             )}
-            onClick={() => {
-              if (!draggedFile) onFileClick?.(file);
-            }}
-            onTouchStart={(e) => handleTouchStart(e, file)}
           >
-            <GripVertical className="w-3 h-3 text-slate-600 flex-shrink-0" />
-            <FileText className="w-4 h-4 text-cyan-400 flex-shrink-0" />
-            <span className="text-[11px] text-slate-200 font-medium whitespace-nowrap max-w-[80px] truncate">
-              {file.titolo}
-            </span>
+            {/* X per eliminare - sopra il file */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setDeleteFilePopup(file);
+              }}
+              className="absolute -top-0.5 right-0 z-10 w-4 h-4 rounded-full bg-red-500 hover:bg-red-400 flex items-center justify-center shadow-lg"
+            >
+              <X className="w-2.5 h-2.5 text-white" />
+            </button>
+
+            <div
+              className={cn(
+                "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg transition-all cursor-pointer",
+                "bg-slate-800/80 border border-slate-700/50 hover:bg-slate-700"
+              )}
+              onClick={() => {
+                if (!draggedFile) onFileClick?.(file);
+              }}
+              onTouchStart={(e) => handleTouchStart(e, file)}
+            >
+              {hasFolders && <GripVertical className="w-3 h-3 text-slate-600 flex-shrink-0" />}
+              <FileText className="w-4 h-4 text-cyan-400 flex-shrink-0" />
+              <span className="text-[11px] text-slate-200 font-medium whitespace-nowrap max-w-[80px] truncate">
+                {file.titolo}
+              </span>
+            </div>
           </div>
         ))}
       </div>
@@ -151,44 +181,28 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
         </div>
       )}
 
-      {/* Popup crea file */}
-      {showNewFilePopup && ReactDOM.createPortal(
-        <div className="fixed inset-0 z-[9999] flex items-start justify-center pt-20 bg-black/60" onClick={() => setShowNewFilePopup(false)}>
-          <div className="bg-slate-800 rounded-xl p-5 w-80 shadow-2xl relative" onClick={(e) => e.stopPropagation()}>
-            <button
-              onClick={() => setShowNewFilePopup(false)}
-              className="absolute top-3 right-3 w-6 h-6 rounded-full bg-slate-700 hover:bg-slate-600 flex items-center justify-center"
-            >
-              <X className="w-4 h-4 text-slate-300" />
-            </button>
-            
-            <h3 className="text-white font-semibold text-base mb-4">Nuovo File</h3>
-            
-            <input
-              type="text"
-              value={newFileName}
-              onChange={(e) => setNewFileName(e.target.value)}
-              placeholder="Nome file"
-              className="w-full bg-slate-700 text-white text-sm rounded-lg px-4 py-3 mb-4 outline-none focus:ring-2 focus:ring-cyan-400"
-              autoFocus
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') handleCreateFile();
-              }}
-            />
-            
+      {/* Popup conferma eliminazione file */}
+      {deleteFilePopup && ReactDOM.createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70" onClick={() => setDeleteFilePopup(null)}>
+          <div className="bg-slate-800 rounded-xl p-5 w-72 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-white font-semibold text-base mb-2">⚠️ Eliminare file?</h3>
+            <p className="text-slate-300 text-sm mb-1">
+              <span className="font-semibold text-cyan-400">{deleteFilePopup.titolo}</span>
+            </p>
+            <p className="text-slate-400 text-xs mb-5">Questa azione non può essere annullata.</p>
             <div className="flex gap-3">
-              <button
-                onClick={() => setShowNewFilePopup(false)}
+              <button 
+                onClick={() => setDeleteFilePopup(null)} 
                 className="flex-1 px-4 py-2 rounded-lg bg-slate-600 hover:bg-slate-500 text-white text-sm"
               >
                 Annulla
               </button>
-              <button
-                onClick={handleCreateFile}
-                disabled={!newFileName.trim() || createFileMutation.isPending}
-                className="flex-1 px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-900 text-sm font-semibold disabled:opacity-50"
+              <button 
+                onClick={() => deleteFileMutation.mutate(deleteFilePopup.id)} 
+                disabled={deleteFileMutation.isPending}
+                className="flex-1 px-4 py-2 rounded-lg bg-red-500 hover:bg-red-400 text-white text-sm font-semibold disabled:opacity-50"
               >
-                {createFileMutation.isPending ? 'Creo...' : 'Crea File'}
+                {deleteFileMutation.isPending ? 'Elimino...' : 'Elimina'}
               </button>
             </div>
           </div>
