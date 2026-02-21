@@ -440,6 +440,9 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                         }
                       }, 100);
                     }}
+                    initialVisibleDay={visibleDay}
+                    initialVisibleMonth={visibleMonthLabel.month}
+                    initialVisibleYear={visibleMonthLabel.year}
                     onSlotClick={handleWeekSlotClick}
                     onMonthChange={(month) => setWeekViewMonth(month)}
                     onRegisterMonthSelect={(fn) => { weekViewMonthSelectRef.current = fn; }}
