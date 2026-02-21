@@ -28,7 +28,7 @@ const MONTH_COLORS = [
 
 const MONTHS_SHORT = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
 
-export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoToToday, onMonthColorChange, onVisibleMonthChange, onVisibleDayChange, onScrollSync, scrollRef: externalScrollRef, goToTodayButton, monthNameLabel, monthLabelButton, showFatturato, onToggleFatturato, currentMonthColor, onClose, onOpenTools, hasSelectedTime, onFileClick }) {
+export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoToToday, onMonthColorChange, onVisibleMonthChange, onVisibleDayChange, onScrollSync, scrollRef: externalScrollRef, goToTodayButton, monthNameLabel, monthLabelButton, showFatturato, onToggleFatturato, currentMonthColor, onClose, onOpenTools, hasSelectedTime, onFileClick, onNoteNavigate }) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   
@@ -812,16 +812,21 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                   </span>
                 </div>
 
-                {/* Conteggio appuntamenti */}
+                {/* Conteggio appuntamenti con freccettina */}
                 {noteCount > 0 ? (
-                  <span
-                    className="text-[11px] font-bold leading-none cursor-pointer mt-0.5"
-                    style={{ color: '#a3e635' }}
+                  <div
+                    className="flex flex-col items-center cursor-pointer mt-0.5"
                     onClick={(e) => {
                       e.stopPropagation();
                       setDaySummaryDate(dayKey);
                     }}
-                  >{noteCount}</span>
+                  >
+                    <span className="text-[7px] leading-none" style={{ color: '#a3e635' }}>▼</span>
+                    <span
+                      className="text-[11px] font-bold leading-none"
+                      style={{ color: '#a3e635' }}
+                    >{noteCount}</span>
+                  </div>
                 ) : (
                   <span className="text-[11px] leading-none mt-0.5" style={{ color: 'transparent' }}>0</span>
                 )}
@@ -933,6 +938,14 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
           onClose={() => setDaySummaryDate(null)}
           onNoteClick={(note) => {
             setDaySummaryDate(null);
+            // Naviga al giorno e orario preciso
+            if (note.data && note.time) {
+              const [y, m, d] = note.data.split('-').map(Number);
+              const noteDate = new Date(y, m - 1, d);
+              noteDate.setHours(0, 0, 0, 0);
+              if (onDateSelect) onDateSelect(noteDate);
+              if (onNoteNavigate) onNoteNavigate(note);
+            }
           }}
         />
       )}
