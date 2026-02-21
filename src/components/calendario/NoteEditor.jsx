@@ -441,7 +441,7 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
       </div>
 
       {/* Content */}
-      <div className="flex-1 px-3 py-2 flex flex-col min-h-0">
+      <div className="flex-1 px-3 py-2 flex flex-col min-h-0 overflow-hidden">
         {/* Titolo */}
         <input
           type="text"
@@ -470,7 +470,7 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="Scrivi qui..."
-            className="w-full flex-1 min-h-0 bg-transparent text-white text-sm outline-none placeholder:text-slate-600 resize-none"
+            className="w-full flex-1 min-h-0 bg-transparent text-white text-sm outline-none placeholder:text-slate-600 resize-none overflow-y-auto"
           />
         )}
 
