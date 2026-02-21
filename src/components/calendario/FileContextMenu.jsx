@@ -1,58 +1,241 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import ReactDOM from 'react-dom';
-import { Palette, Share2, Bell } from 'lucide-react';
+import { Check, ChevronDown, Mail, MessageCircle } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-export default function FileContextMenu({ file, onAction, onClose }) {
+const FILE_COLORS = [
+  '#e8c4b0', '#c2185b', '#e65100', '#b8860b',
+  '#1565c0', '#00838f', '#00897b', '#2e7d32',
+  '#9c27b0', '#ad1457', '#827717', '#546e7a',
+];
+
+const REPEAT_OPTIONS = [
+  { value: 'none', label: 'Non si ripete' },
+  { value: 'daily', label: 'Ogni giorno' },
+  { value: 'weekly', label: 'Ogni settimana' },
+  { value: 'monthly', label: 'Ogni mese' },
+];
+
+const TIME_OPTIONS = (() => {
+  const opts = [];
+  for (let h = 0; h < 24; h++) {
+    for (let m of [0, 30]) {
+      opts.push(`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`);
+    }
+  }
+  return opts;
+})();
+
+export default function FileContextMenu({ file, onSave, onClose }) {
   if (!file) return null;
 
-  const actions = [
-    { id: 'colors', icon: Palette, label: 'Colori', color: '#f59e0b' },
-    { id: 'share', icon: Share2, label: 'Condividi', color: '#22c55e' },
-    { id: 'notify', icon: Bell, label: 'Promemoria', color: '#a855f7' },
-  ];
+  const [title, setTitle] = useState(file.titolo || '');
+  const [color, setColor] = useState(file.colore || '#06b6d4');
+  const [section, setSection] = useState('main'); // 'main' | 'colors' | 'share' | 'reminder'
+
+  // Promemoria
+  const now = new Date();
+  const [remDate, setRemDate] = useState(file.data || now.toISOString().split('T')[0]);
+  const [remTime, setRemTime] = useState(file.time || '19:00');
+  const [remRepeat, setRemRepeat] = useState('none');
+  const [openDropdown, setOpenDropdown] = useState(null);
+
+  const dateOptions = useMemo(() => {
+    const opts = [];
+    const today = new Date();
+    for (let i = 0; i < 60; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() + i);
+      opts.push({ value: d.toISOString().split('T')[0], label: d.toLocaleDateString('it-IT', { day: 'numeric', month: 'long' }) });
+    }
+    return opts;
+  }, []);
+
+  const formatDateLabel = (dateStr) => {
+    if (!dateStr) return 'Scegli data';
+    return new Date(dateStr + 'T00:00:00').toLocaleDateString('it-IT', { day: 'numeric', month: 'long' });
+  };
+
+  const handleSave = () => {
+    onSave({
+      titolo: title.trim() || file.titolo,
+      colore: color,
+      data: remDate,
+      time: remTime,
+    });
+  };
+
+  const handleShare = (type) => {
+    const shareText = `📄 ${title || file.titolo}\n${file.contenuto || ''}`.trim();
+    const encoded = encodeURIComponent(shareText);
+    if (type === 'whatsapp') {
+      window.open(`https://wa.me/?text=${encoded}`, '_blank');
+    } else {
+      window.open(`mailto:?subject=${encodeURIComponent(`File: ${title || file.titolo}`)}&body=${encoded}`, '_blank');
+    }
+  };
 
   return ReactDOM.createPortal(
     <div className="fixed inset-0 z-[9998] flex items-end justify-center" onClick={onClose}>
       <div className="absolute inset-0 bg-black/60" />
-      
-      <div 
-        className="relative w-full max-w-sm mx-4 mb-8 bg-[#2a2420] rounded-2xl overflow-hidden shadow-2xl"
+
+      <div
+        className="relative w-full max-w-sm mx-4 mb-6 bg-[#2a2420] rounded-2xl overflow-hidden shadow-2xl max-h-[85vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
         style={{ animation: 'sheetUp 0.3s ease-out' }}
       >
-        <div className="flex justify-center pt-3 pb-2">
+        {/* Handle */}
+        <div className="flex justify-center pt-3 pb-1 flex-shrink-0">
           <div className="w-10 h-1 rounded-full bg-white/20" />
         </div>
 
-        <div className="px-5 pb-3 border-b border-white/10">
-          <p className="text-white/60 text-xs">File selezionato</p>
-          <p className="text-white font-semibold text-base truncate">{file.titolo}</p>
-        </div>
+        {/* Contenuto scrollabile */}
+        <div className="flex-1 overflow-y-auto px-5 pb-2" style={{ scrollbarWidth: 'none' }}>
 
-        <div className="grid grid-cols-3 gap-1 px-4 py-4">
-          {actions.map((action) => (
-            <button
-              key={action.id}
-              onClick={() => onAction(action.id)}
-              className="flex flex-col items-center gap-2 py-3 rounded-xl hover:bg-white/5 active:bg-white/10 transition-colors"
-            >
-              <div
-                className="w-12 h-12 rounded-full flex items-center justify-center"
-                style={{ backgroundColor: `${action.color}25` }}
+          {/* Nome file editabile */}
+          <div className="mb-4">
+            <label className="text-white/50 text-[10px] uppercase tracking-wider mb-1 block">Nome</label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Titolo"
+              className="w-full bg-[#3a3430] text-white text-sm rounded-xl px-4 py-3 outline-none focus:ring-1 focus:ring-white/20"
+            />
+          </div>
+
+          {/* Sezione Colore */}
+          <div className="mb-4">
+            <label className="text-white/50 text-[10px] uppercase tracking-wider mb-2 block">Colore</label>
+            <div className="grid grid-cols-6 gap-3">
+              {FILE_COLORS.map((c) => (
+                <button
+                  key={c}
+                  onClick={() => setColor(c)}
+                  className="flex items-center justify-center"
+                >
+                  <div
+                    className={cn(
+                      "w-9 h-9 rounded-full transition-all",
+                      color === c && "ring-2 ring-white ring-offset-2 ring-offset-[#2a2420]"
+                    )}
+                    style={{ backgroundColor: c }}
+                  >
+                    {color === c && <Check className="w-4 h-4 text-white mx-auto mt-2.5" strokeWidth={2.5} />}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Sezione Condivisione */}
+          <div className="mb-4">
+            <label className="text-white/50 text-[10px] uppercase tracking-wider mb-2 block">Condividi</label>
+            <div className="flex gap-3">
+              <button
+                onClick={() => handleShare('whatsapp')}
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-green-600/20 hover:bg-green-600/30 active:bg-green-600/40 transition-colors"
               >
-                <action.icon className="w-5 h-5" style={{ color: action.color }} />
-              </div>
-              <span className="text-[10px] text-white/70 font-medium">{action.label}</span>
-            </button>
-          ))}
+                <MessageCircle className="w-5 h-5 text-green-400" />
+                <span className="text-xs text-green-300 font-semibold">WhatsApp</span>
+              </button>
+              <button
+                onClick={() => handleShare('email')}
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 active:bg-blue-600/40 transition-colors"
+              >
+                <Mail className="w-5 h-5 text-blue-400" />
+                <span className="text-xs text-blue-300 font-semibold">Email</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Sezione Promemoria */}
+          <div className="mb-2">
+            <label className="text-white/50 text-[10px] uppercase tracking-wider mb-2 block">Promemoria</label>
+
+            {/* Data */}
+            <div className="mb-2 relative">
+              <button
+                onClick={() => setOpenDropdown(openDropdown === 'date' ? null : 'date')}
+                className="w-full flex items-center justify-between bg-[#3a3430] rounded-xl px-4 py-3"
+              >
+                <span className="text-white text-sm">{formatDateLabel(remDate)}</span>
+                <ChevronDown className="w-4 h-4 text-white/50" />
+              </button>
+              {openDropdown === 'date' && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-[#3a3430] rounded-xl max-h-40 overflow-y-auto z-10 shadow-xl border border-white/10">
+                  {dateOptions.map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => { setRemDate(opt.value); setOpenDropdown(null); }}
+                      className={`w-full text-left px-4 py-2 text-sm ${remDate === opt.value ? 'text-[#e8c4b0] bg-white/5 font-semibold' : 'text-white/80 hover:bg-white/5'}`}
+                    >{opt.label}</button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Ora */}
+            <div className="mb-2 relative">
+              <button
+                onClick={() => setOpenDropdown(openDropdown === 'time' ? null : 'time')}
+                className="w-full flex items-center justify-between bg-[#3a3430] rounded-xl px-4 py-3"
+              >
+                <span className="text-white text-sm">{remTime}</span>
+                <ChevronDown className="w-4 h-4 text-white/50" />
+              </button>
+              {openDropdown === 'time' && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-[#3a3430] rounded-xl max-h-40 overflow-y-auto z-10 shadow-xl border border-white/10">
+                  {TIME_OPTIONS.map((t) => (
+                    <button
+                      key={t}
+                      onClick={() => { setRemTime(t); setOpenDropdown(null); }}
+                      className={`w-full text-left px-4 py-2 text-sm ${remTime === t ? 'text-[#e8c4b0] bg-white/5 font-semibold' : 'text-white/80 hover:bg-white/5'}`}
+                    >{t}</button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Ripetizione */}
+            <div className="relative">
+              <button
+                onClick={() => setOpenDropdown(openDropdown === 'repeat' ? null : 'repeat')}
+                className="w-full flex items-center justify-between bg-[#3a3430] rounded-xl px-4 py-3"
+              >
+                <span className="text-white text-sm">{REPEAT_OPTIONS.find(o => o.value === remRepeat)?.label}</span>
+                <ChevronDown className="w-4 h-4 text-white/50" />
+              </button>
+              {openDropdown === 'repeat' && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-[#3a3430] rounded-xl max-h-40 overflow-y-auto z-10 shadow-xl border border-white/10">
+                  {REPEAT_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => { setRemRepeat(opt.value); setOpenDropdown(null); }}
+                      className={`w-full text-left px-4 py-2 text-sm ${remRepeat === opt.value ? 'text-[#e8c4b0] bg-white/5 font-semibold' : 'text-white/80 hover:bg-white/5'}`}
+                    >{opt.label}</button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
-        <button
-          onClick={onClose}
-          className="w-full py-3.5 border-t border-white/10 text-white/50 text-sm font-medium active:bg-white/5"
-        >
-          Annulla
-        </button>
+        {/* Pulsanti Salva / Annulla - fissi in basso */}
+        <div className="flex gap-3 px-5 py-3 border-t border-white/10 flex-shrink-0">
+          <button
+            onClick={onClose}
+            className="flex-1 py-2.5 rounded-xl bg-white/5 text-white/60 text-sm font-semibold active:bg-white/10 transition-colors"
+          >
+            Annulla
+          </button>
+          <button
+            onClick={handleSave}
+            className="flex-1 py-2.5 rounded-xl bg-[#e8c4b0] text-[#2a2420] text-sm font-bold active:opacity-80 transition-opacity"
+          >
+            Salva
+          </button>
+        </div>
       </div>
 
       <style>{`

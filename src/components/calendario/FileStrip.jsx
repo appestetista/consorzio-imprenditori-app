@@ -5,9 +5,6 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import FileContextMenu from './FileContextMenu.jsx';
-import FileShareDialog from './FileShareDialog.jsx';
-import FileColorPicker from './FileColorPicker.jsx';
-import FileReminderDialog from './FileReminderDialog.jsx';
 
 export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFileDragToFolder }) {
   const [draggedFile, setDraggedFile] = useState(null);
@@ -17,10 +14,7 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
   // Context menu (long press)
   const [contextFile, setContextFile] = useState(null);
   const [contextPos, setContextPos] = useState({ x: 0, y: 0 });
-  // Dialoghi
-  const [shareFile, setShareFile] = useState(null);
-  const [colorFile, setColorFile] = useState(null);
-  const [reminderFile, setReminderFile] = useState(null);
+
 
   const touchStartRef = useRef(null);
   const longPressTimerRef = useRef(null);
@@ -55,11 +49,12 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
     }
   });
 
-  const updateColorMutation = useMutation({
-    mutationFn: ({ fileId, colore }) => base44.entities.FileCartella.update(fileId, { colore }),
+  const updateFileMutation = useMutation({
+    mutationFn: ({ fileId, data }) => base44.entities.FileCartella.update(fileId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['standalone-files'] });
       queryClient.invalidateQueries({ queryKey: ['allFileCartella'] });
+      queryClient.invalidateQueries({ queryKey: ['fileCartella'] });
     }
   });
 
@@ -150,17 +145,11 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
     touchStartRef.current = null;
   }, [draggedFile, dragOverCartella, moveToFolderMutation, onFileDragToFolder]);
 
-  // Context menu actions
-  const handleContextAction = (action) => {
-    const file = contextFile;
+  // Context menu save
+  const handleContextSave = (data) => {
+    if (!contextFile) return;
+    updateFileMutation.mutate({ fileId: contextFile.id, data });
     setContextFile(null);
-    if (!file) return;
-
-    switch (action) {
-      case 'colors': setColorFile(file); break;
-      case 'share': setShareFile(file); break;
-      case 'notify': setReminderFile(file); break;
-    }
   };
 
   if (!userEmail) return null;
@@ -284,47 +273,12 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
         </div>
       )}
 
-      {/* Context menu (long press) */}
+      {/* Context menu (long press) - pannello unico con tutto */}
       <FileContextMenu
         file={contextFile}
-        position={contextPos}
-        onAction={handleContextAction}
+        onSave={handleContextSave}
         onClose={() => setContextFile(null)}
       />
-
-      {/* Dialog condivisione */}
-      {shareFile && <FileShareDialog file={shareFile} onClose={() => setShareFile(null)} />}
-
-      {/* Dialog colori */}
-      {colorFile && (
-        <FileColorPicker
-          file={colorFile}
-          onSelectColor={(c) => {
-            updateColorMutation.mutate({ fileId: colorFile.id, colore: c });
-            setColorFile(null);
-          }}
-          onClose={() => setColorFile(null)}
-        />
-      )}
-
-      {/* Dialog promemoria */}
-      {reminderFile && (
-        <FileReminderDialog
-          file={reminderFile}
-          onSave={(data) => {
-            // Salva data/ora promemoria sul file
-            base44.entities.FileCartella.update(reminderFile.id, { 
-              data: data.date, 
-              time: data.time 
-            }).then(() => {
-              queryClient.invalidateQueries({ queryKey: ['standalone-files'] });
-              queryClient.invalidateQueries({ queryKey: ['allFileCartella'] });
-            });
-            setReminderFile(null);
-          }}
-          onClose={() => setReminderFile(null)}
-        />
-      )}
 
       {/* Popup conferma eliminazione */}
       {deleteFilePopup && ReactDOM.createPortal(
