@@ -121,17 +121,17 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
     }
 
     if (touchStartRef.current.moved) {
-      e.preventDefault();
-      // Posizione clone visivo
-      setDragClonePos({ x: touch.clientX, y: touch.clientY });
+    e.preventDefault();
+    setDragClonePos({ x: touch.clientX, y: touch.clientY });
 
-      const el = document.elementFromPoint(touch.clientX, touch.clientY);
-      const cartellaEl = el?.closest('[data-cartella-id]');
-      if (cartellaEl) {
-        setDragOverCartella(cartellaEl.dataset.cartellaId);
-      } else {
-        setDragOverCartella(null);
-      }
+    const el = document.elementFromPoint(touch.clientX, touch.clientY);
+    const cartellaEl = el?.closest('[data-cartella-id]');
+    const newId = cartellaEl ? cartellaEl.dataset.cartellaId : null;
+    if (newId !== dragOverCartella) {
+      setDragOverCartella(newId);
+      // Comunica alla cartella nel HorizontalDatePicker
+      document.dispatchEvent(new CustomEvent('file-drag-over-folder', { detail: { cartellaId: newId } }));
+    }
     }
   }, [hasFolders]);
 
