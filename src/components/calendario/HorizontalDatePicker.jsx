@@ -43,9 +43,6 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
   const [editFolderName, setEditFolderName] = useState('');
   const [editFolderColor, setEditFolderColor] = useState('#f59e0b');
   const [userEmail, setUserEmail] = useState(null);
-  const [showNewFilePopup, setShowNewFilePopup] = useState(false);
-  const [newFileName, setNewFileName] = useState('');
-  const [newFileCartellaId, setNewFileCartellaId] = useState('');
   const queryClient = useQueryClient();
 
   // Colori disponibili per le cartelle
@@ -154,34 +151,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
     }
   });
 
-  // Mutation crea file
-  const createFileMutation = useMutation({
-    mutationFn: (data) => base44.entities.FileCartella.create(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['fileCartella'] });
-      queryClient.invalidateQueries({ queryKey: ['fileCartella-day'] });
-      queryClient.invalidateQueries({ queryKey: ['allFileCartella'] });
-      queryClient.invalidateQueries({ queryKey: ['file-week'] });
-      setShowNewFilePopup(false);
-      setNewFileName('');
-      setNewFileCartellaId('');
-    }
-  });
-
-  const handleCreateFile = () => {
-    if (!newFileName.trim() || !newFileCartellaId || !userEmail) return;
-    const dateStr = selectedDate
-      ? `${new Date(selectedDate).getFullYear()}-${String(new Date(selectedDate).getMonth() + 1).padStart(2, '0')}-${String(new Date(selectedDate).getDate()).padStart(2, '0')}`
-      : null;
-    createFileMutation.mutate({
-      user_email: userEmail,
-      cartella_id: newFileCartellaId,
-      titolo: newFileName.trim(),
-      contenuto: '',
-      data: dateStr,
-      time: null
-    });
-  };
+  
 
   const handleCreateFolder = () => {
     if (!newFolderName.trim() || !userEmail) return;
