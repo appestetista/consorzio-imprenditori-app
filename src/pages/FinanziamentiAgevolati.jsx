@@ -757,15 +757,12 @@ export default function FinanziamentiAgevolati() {
   };
 
   // Verifica profilo incompleto - usa i dati dell'utente impersonificato se attivo
-  // IMPORTANTE: non calcolare prima che l'utente sia caricato, altrimenti flash del banner
   const effectiveUserForProfile = getEffectiveUserProfile();
-  const hasIncompleteProfile = userLoaded && (
-                                !effectiveUserForProfile?.company_size || 
+  const hasIncompleteProfile = !effectiveUserForProfile?.company_size || 
                                 !effectiveUserForProfile?.region || 
                                 !effectiveUserForProfile?.sector || 
                                 !effectiveUserForProfile?.ateco_code ||
-                                !effectiveUserForProfile?.interested_regions?.length
-                              );
+                                !effectiveUserForProfile?.interested_regions?.length;
 
   // Gestione autoSearch da URL (dopo compilazione profilo)
   useEffect(() => {
