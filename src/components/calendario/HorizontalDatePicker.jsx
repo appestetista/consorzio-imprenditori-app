@@ -422,8 +422,19 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
         transition: 'background-color 1.2s ease'
       }}
     >
+      {/* Fascia file standalone orizzontale - SOPRA le cartelle */}
+      <FileStrip 
+        userEmail={userEmail} 
+        cartelle={cartelle}
+        onFileClick={(file) => onFileClick?.(file)}
+        onFileDragToFolder={(fileId, cartellaId) => {
+          queryClient.invalidateQueries({ queryKey: ['allFileCartella'] });
+          queryClient.invalidateQueries({ queryKey: ['cartelle'] });
+        }}
+      />
+
       {/* Fascia cartelle scrollabile */}
-      <div className="flex items-center gap-2 px-2 pt-5 pb-2 overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+      <div className="flex items-center gap-2 px-2 pb-2 overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {/* Pulsante nuova cartella */}
         <button 
           onClick={() => setShowNewFolderPopup(true)}
@@ -431,20 +442,6 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
         >
           <FolderPlus className="w-8 h-8 text-lime-400" />
           <span className="text-[10px] text-slate-300 font-medium">Nuova</span>
-        </button>
-        
-        {/* Pulsante crea file */}
-        <button 
-          onClick={() => {
-            if (cartelle.length > 0) {
-              setNewFileCartellaId(cartelle[0].id);
-            }
-            setShowNewFilePopup(true);
-          }}
-          className="flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 transition-colors"
-        >
-          <FilePlus className="w-8 h-8 text-cyan-400" />
-          <span className="text-[10px] text-slate-300 font-medium">File</span>
         </button>
         
         {/* Cartelle dell'utente - stile cartella 3D come immagine */}
