@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { ChevronLeft, ChevronRight, Calendar, Folder, FolderPlus, X, Pencil, ChevronDown } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, Folder, FolderPlus, X, Pencil, ChevronDown, FilePlus } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
