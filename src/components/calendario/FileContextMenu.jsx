@@ -1,13 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
-import { X, Move, Palette, Share2, Bell } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Palette, Share2, Bell } from 'lucide-react';
 
 export default function FileContextMenu({ file, onAction, onClose }) {
   if (!file) return null;
 
   const actions = [
-    { id: 'move', icon: Move, label: 'Sposta', color: '#3b82f6' },
     { id: 'colors', icon: Palette, label: 'Colori', color: '#f59e0b' },
     { id: 'share', icon: Share2, label: 'Condividi', color: '#22c55e' },
     { id: 'notify', icon: Bell, label: 'Promemoria', color: '#a855f7' },
@@ -17,25 +15,21 @@ export default function FileContextMenu({ file, onAction, onClose }) {
     <div className="fixed inset-0 z-[9998] flex items-end justify-center" onClick={onClose}>
       <div className="absolute inset-0 bg-black/60" />
       
-      {/* Bottom sheet stile Samsung */}
       <div 
         className="relative w-full max-w-sm mx-4 mb-8 bg-[#2a2420] rounded-2xl overflow-hidden shadow-2xl"
         onClick={(e) => e.stopPropagation()}
         style={{ animation: 'sheetUp 0.3s ease-out' }}
       >
-        {/* Handle */}
         <div className="flex justify-center pt-3 pb-2">
           <div className="w-10 h-1 rounded-full bg-white/20" />
         </div>
 
-        {/* Titolo file */}
         <div className="px-5 pb-3 border-b border-white/10">
           <p className="text-white/60 text-xs">File selezionato</p>
           <p className="text-white font-semibold text-base truncate">{file.titolo}</p>
         </div>
 
-        {/* Azioni in griglia */}
-        <div className="grid grid-cols-4 gap-1 px-4 py-4">
+        <div className="grid grid-cols-3 gap-1 px-4 py-4">
           {actions.map((action) => (
             <button
               key={action.id}
@@ -53,7 +47,6 @@ export default function FileContextMenu({ file, onAction, onClose }) {
           ))}
         </div>
 
-        {/* Annulla */}
         <button
           onClick={onClose}
           className="w-full py-3.5 border-t border-white/10 text-white/50 text-sm font-medium active:bg-white/5"

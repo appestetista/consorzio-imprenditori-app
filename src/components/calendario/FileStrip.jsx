@@ -7,7 +7,6 @@ import { cn } from '@/lib/utils';
 import FileContextMenu from './FileContextMenu.jsx';
 import FileShareDialog from './FileShareDialog.jsx';
 import FileColorPicker from './FileColorPicker.jsx';
-import FileMoveDialog from './FileMoveDialog.jsx';
 import FileReminderDialog from './FileReminderDialog.jsx';
 
 export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFileDragToFolder }) {
@@ -21,7 +20,6 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
   // Dialoghi
   const [shareFile, setShareFile] = useState(null);
   const [colorFile, setColorFile] = useState(null);
-  const [moveFile, setMoveFile] = useState(null);
   const [reminderFile, setReminderFile] = useState(null);
 
   const touchStartRef = useRef(null);
@@ -159,7 +157,6 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
     if (!file) return;
 
     switch (action) {
-      case 'move': setMoveFile(file); break;
       case 'colors': setColorFile(file); break;
       case 'share': setShareFile(file); break;
       case 'notify': setReminderFile(file); break;
@@ -307,19 +304,6 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
             setColorFile(null);
           }}
           onClose={() => setColorFile(null)}
-        />
-      )}
-
-      {/* Dialog sposta in cartella */}
-      {moveFile && (
-        <FileMoveDialog
-          file={moveFile}
-          cartelle={cartelle}
-          onMove={(cartellaId) => {
-            moveToFolderMutation.mutate({ fileId: moveFile.id, cartellaId });
-            setMoveFile(null);
-          }}
-          onClose={() => setMoveFile(null)}
         />
       )}
 
