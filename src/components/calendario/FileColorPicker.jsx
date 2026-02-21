@@ -1,13 +1,21 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { X } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const FILE_COLORS = [
-  '#06b6d4', '#f59e0b', '#3b82f6', '#ec4899',
-  '#22c55e', '#a855f7', '#ef4444', '#f97316',
-  '#14b8a6', '#8b5cf6', '#eab308', '#64748b',
-  '#be185d', '#0ea5e9', '#84cc16', '#78716c',
+  '#e8c4b0', // beige/rosa chiaro (come Samsung default)
+  '#c2185b', // rosa scuro
+  '#e65100', // arancione scuro
+  '#b8860b', // dorato
+  '#1565c0', // blu
+  '#00838f', // teal scuro
+  '#00897b', // teal
+  '#2e7d32', // verde scuro
+  '#9c27b0', // viola
+  '#ad1457', // magenta
+  '#827717', // oliva
+  '#546e7a', // grigio-blu
 ];
 
 export default function FileColorPicker({ file, onSelectColor, onClose }) {
@@ -15,29 +23,48 @@ export default function FileColorPicker({ file, onSelectColor, onClose }) {
   const currentColor = file.colore || '#06b6d4';
 
   return ReactDOM.createPortal(
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70" onClick={onClose}>
-      <div className="bg-slate-800 rounded-xl p-5 w-72 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-white font-semibold text-base">Colore file</h3>
-          <button onClick={onClose} className="w-6 h-6 rounded-full bg-slate-700 hover:bg-slate-600 flex items-center justify-center">
-            <X className="w-4 h-4 text-slate-300" />
-          </button>
-        </div>
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/60" />
+      
+      <div 
+        className="relative bg-[#2a2420] rounded-2xl p-6 w-72 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+        style={{ animation: 'popIn 0.2s ease-out' }}
+      >
+        <h3 className="text-white font-semibold text-lg mb-5">Colore nota</h3>
 
-        <div className="grid grid-cols-4 gap-3 mb-4">
-          {FILE_COLORS.map((c) => (
-            <button
-              key={c}
-              onClick={() => onSelectColor(c)}
-              className={cn(
-                "w-12 h-12 rounded-full transition-all mx-auto",
-                currentColor === c && "ring-3 ring-white ring-offset-2 ring-offset-slate-800 scale-110"
-              )}
-              style={{ backgroundColor: c }}
-            />
-          ))}
+        <div className="grid grid-cols-4 gap-4 mb-2">
+          {FILE_COLORS.map((c) => {
+            const isSelected = currentColor === c;
+            return (
+              <button
+                key={c}
+                onClick={() => onSelectColor(c)}
+                className="flex items-center justify-center"
+              >
+                <div
+                  className={cn(
+                    "w-12 h-12 rounded-full transition-all",
+                    isSelected && "ring-2 ring-white ring-offset-2 ring-offset-[#2a2420]"
+                  )}
+                  style={{ backgroundColor: c }}
+                >
+                  {isSelected && (
+                    <Check className="w-5 h-5 text-white mx-auto mt-3.5" strokeWidth={2.5} />
+                  )}
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
+
+      <style>{`
+        @keyframes popIn {
+          from { transform: scale(0.9); opacity: 0; }
+          to { transform: scale(1); opacity: 1; }
+        }
+      `}</style>
     </div>,
     document.body
   );
