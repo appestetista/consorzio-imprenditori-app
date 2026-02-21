@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react';
 import ReactDOM from 'react-dom';
-import { FilePlus, FileText, X, GripVertical } from 'lucide-react';
+import { FilePlus, FileText, X, GripVertical, Pencil } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
@@ -81,21 +81,10 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
 
   const hasFolders = cartelle.length > 0;
 
-  // --- Long press + drag handlers ---
+  // --- Touch drag handlers (solo drag, niente long press per menu) ---
   const handleTouchStart = useCallback((e, file) => {
     const touch = e.touches[0];
-    touchStartRef.current = { x: touch.clientX, y: touch.clientY, file, moved: false, longPressed: false };
-
-    // Long press timer (500ms)
-    longPressTimerRef.current = setTimeout(() => {
-      if (touchStartRef.current && !touchStartRef.current.moved) {
-        touchStartRef.current.longPressed = true;
-        // Vibrazione haptic se disponibile
-        if (navigator.vibrate) navigator.vibrate(30);
-        setContextFile(file);
-        setContextPos({ x: touch.clientX, y: touch.clientY });
-      }
-    }, 500);
+    touchStartRef.current = { x: touch.clientX, y: touch.clientY, file, moved: false };
   }, []);
 
   const handleTouchMove = useCallback((e) => {
@@ -104,35 +93,28 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
     const dx = Math.abs(touch.clientX - touchStartRef.current.x);
     const dy = Math.abs(touch.clientY - touchStartRef.current.y);
 
-    // Se muove cancella il long press timer
-    if (dx > 8 || dy > 8) {
-      clearTimeout(longPressTimerRef.current);
-      
-      // Se long press non attivato e ci sono cartelle, inizia drag
-      if (!touchStartRef.current.longPressed && hasFolders && dy > 15 && !touchStartRef.current.moved) {
-        touchStartRef.current.moved = true;
-        setDraggedFile(touchStartRef.current.file);
-      }
+    // Inizia drag se si muove abbastanza e ci sono cartelle
+    if ((dx > 10 || dy > 10) && hasFolders && !touchStartRef.current.moved) {
+      touchStartRef.current.moved = true;
+      if (navigator.vibrate) navigator.vibrate(20);
+      setDraggedFile(touchStartRef.current.file);
     }
 
     if (touchStartRef.current.moved) {
-    e.preventDefault();
-    setDragClonePos({ x: touch.clientX, y: touch.clientY });
+      e.preventDefault();
+      setDragClonePos({ x: touch.clientX, y: touch.clientY });
 
-    const el = document.elementFromPoint(touch.clientX, touch.clientY);
-    const cartellaEl = el?.closest('[data-cartella-id]');
-    const newId = cartellaEl ? cartellaEl.dataset.cartellaId : null;
-    if (newId !== dragOverCartella) {
-      setDragOverCartella(newId);
-      // Comunica alla cartella nel HorizontalDatePicker
-      document.dispatchEvent(new CustomEvent('file-drag-over-folder', { detail: { cartellaId: newId } }));
-    }
+      const el = document.elementFromPoint(touch.clientX, touch.clientY);
+      const cartellaEl = el?.closest('[data-cartella-id]');
+      const newId = cartellaEl ? cartellaEl.dataset.cartellaId : null;
+      if (newId !== dragOverCartella) {
+        setDragOverCartella(newId);
+        document.dispatchEvent(new CustomEvent('file-drag-over-folder', { detail: { cartellaId: newId } }));
+      }
     }
   }, [hasFolders]);
 
   const handleTouchEnd = useCallback(() => {
-    clearTimeout(longPressTimerRef.current);
-
     if (draggedFile && dragOverCartella) {
       moveToFolderMutation.mutate({ fileId: draggedFile.id, cartellaId: dragOverCartella });
       if (onFileDragToFolder) onFileDragToFolder(draggedFile.id, dragOverCartella);
@@ -186,7 +168,18 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
                 draggedFile?.id === file.id && "opacity-30 scale-90 transition-all duration-200"
               )}
             >
-              {/* X per eliminare */}
+              {/* Penna per aprire pannello modifica - in alto a sinistra */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setContextFile(file);
+                }}
+                className="absolute -top-0.5 -left-0.5 z-10 w-4 h-4 rounded-full bg-amber-500 hover:bg-amber-400 flex items-center justify-center shadow-lg"
+              >
+                <Pencil className="w-2 h-2 text-white" />
+              </button>
+
+              {/* X per eliminare - in alto a destra */}
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -273,9 +266,10 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
         </div>
       )}
 
-      {/* Context menu (long press) - pannello unico con tutto */}
+      {/* Pannello modifica file */}
       <FileContextMenu
         file={contextFile}
+        cartelle={cartelle}
         onSave={handleContextSave}
         onClose={() => setContextFile(null)}
       />
