@@ -84,9 +84,15 @@ export default function FileContextMenu({ file, onSave, onClose }) {
         onClick={(e) => e.stopPropagation()}
         style={{ animation: 'sheetUp 0.3s ease-out' }}
       >
-        {/* Handle */}
-        <div className="flex justify-center pt-3 pb-1 flex-shrink-0">
-          <div className="w-10 h-1 rounded-full bg-white/20" />
+        {/* Header con X */}
+        <div className="flex items-center justify-between px-5 pt-4 pb-2 flex-shrink-0">
+          <div />
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 active:bg-white/30 flex items-center justify-center transition-colors"
+          >
+            <span className="text-white text-lg font-bold leading-none">✕</span>
+          </button>
         </div>
 
         {/* Contenuto scrollabile */}
