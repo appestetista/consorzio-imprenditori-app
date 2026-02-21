@@ -76,11 +76,11 @@ export default function FileContextMenu({ file, onSave, onClose }) {
   };
 
   return ReactDOM.createPortal(
-    <div className="fixed inset-0 z-[9998] flex items-end justify-center" onClick={onClose}>
+    <div className="fixed inset-0 z-[9998] flex items-center justify-center" onClick={onClose}>
       <div className="absolute inset-0 bg-black/60" />
 
       <div
-        className="relative w-full max-w-sm mx-4 mb-6 bg-[#2a2420] rounded-2xl overflow-hidden shadow-2xl max-h-[85vh] flex flex-col"
+        className="relative w-full max-w-sm mx-4 bg-[#2a2420] rounded-2xl overflow-hidden shadow-2xl max-h-[80vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
         style={{ animation: 'sheetUp 0.3s ease-out' }}
       >
