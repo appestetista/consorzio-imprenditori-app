@@ -26,6 +26,7 @@ import SectionConsultantPanel from '../components/consulenze/SectionConsultantPa
 
 export default function FinanziamentiAgevolati() {
   const [user, setUser] = useState(null);
+  const [userLoaded, setUserLoaded] = useState(false);
   const [selectedGrant, setSelectedGrant] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
   const [showConsultationDialog, setShowConsultationDialog] = useState(false);
