@@ -1087,10 +1087,7 @@ export default function FinanziamentiAgevolati() {
           </div>
         )}
 
-        {/* Accesso Profilo Bandi / Banner incompleto - nascosto fino a caricamento utente */}
-        {!isRealAdmin && !userLoaded && (
-          <div className="mb-6 h-[72px]" />
-        )}
+        {/* Accesso Profilo Bandi / Banner incompleto */}
         {!isRealAdmin && userLoaded && hasIncompleteProfile && (
           <Card className="bg-gradient-to-br from-purple-600/20 to-indigo-600/20 border-2 border-purple-500/50 mb-6">
             <CardContent className="p-5">
