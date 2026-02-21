@@ -1088,7 +1088,7 @@ export default function FinanziamentiAgevolati() {
         )}
 
         {/* Accesso Profilo Bandi - sempre visibile per utenti non admin */}
-        {!isRealAdmin && !hasIncompleteProfile && (
+        {!isRealAdmin && userLoaded && !hasIncompleteProfile && (
           <Link to={createPageUrl('ProfiloBandi')}>
             <Card className="bg-gradient-to-r from-purple-600 to-indigo-600 border-2 border-purple-400 mb-6 hover:from-purple-700 hover:to-indigo-700 transition-all cursor-pointer shadow-lg shadow-purple-500/30 animate-pulse">
               <CardContent className="p-4 flex items-center gap-3">
