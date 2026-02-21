@@ -9,6 +9,7 @@ import VerticalTimePicker from './VerticalTimePicker';
 import FatturatoBarra from './FatturatoBarra';
 import WeekView from './WeekView';
 import NoteEditor from './NoteEditor';
+import FileNoteEditor from './FileNoteEditor';
 import WhisperDictation from './WhisperDictation';
 import AudioRecorder from './AudioRecorder';
 import MonthBar from './MonthBar';
@@ -44,6 +45,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
     const [showWeekNoteEditor, setShowWeekNoteEditor] = useState(false);
     const [hasSelectedTime, setHasSelectedTime] = useState(false);
     const [showToolsPopup, setShowToolsPopup] = useState(false);
+    const [editingFile, setEditingFile] = useState(null); // file aperto per modifica
 
     const weekNoteEditorSaveRef = useRef(null);
     const verticalTimePickerRef = useRef(null);
