@@ -330,8 +330,8 @@ export default function VantaggiIscritti() {
 
       <main className="px-4 py-6 max-w-4xl mx-auto">
         <div className="flex items-center gap-3 mb-6">
-          <Link to={createPageUrl('Home')} className="text-lime-400">
-            <ArrowLeft className="w-6 h-6" />
+          <Link to={createPageUrl('Home')} className="text-lime-400 p-3 -m-3 rounded-full active:bg-lime-400/20 transition-colors">
+            <ArrowLeft className="w-7 h-7" />
           </Link>
           <Gift className="w-6 h-6 text-lime-400" />
           <h1 className="text-white text-xl font-bold">Vantaggi per gli Iscritti</h1>

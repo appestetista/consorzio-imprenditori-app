@@ -67,8 +67,8 @@ export default function SimulatoreFiscale() {
         {/* Header pagina */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <Link to={createPageUrl('Home')} className="text-[#d4af37]">
-              <ArrowLeft className="w-6 h-6" />
+            <Link to={createPageUrl('Home')} className="text-[#d4af37] p-3 -m-3 rounded-full active:bg-[#d4af37]/20 transition-colors">
+              <ArrowLeft className="w-7 h-7" />
             </Link>
             <div className="flex items-center gap-2">
               <Calculator className="w-5 h-5 text-[#d4af37]" />

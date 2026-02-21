@@ -578,8 +578,8 @@ Fornisci:
       <main className="px-4 py-6 max-w-md mx-auto">
         {/* Minimal Header */}
         <div className="flex items-center gap-3 mb-5">
-          <Link to={createPageUrl('Home')} className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors">
-            <ArrowLeft className="w-4 h-4 text-white" />
+          <Link to={createPageUrl('Home')} className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 active:bg-lime-400/20 transition-colors">
+            <ArrowLeft className="w-5 h-5 text-white" />
           </Link>
           <div>
             <h1 className="text-white text-lg font-bold tracking-tight">Import / Export</h1>

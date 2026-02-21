@@ -87,8 +87,8 @@ export default function Fornitori() {
               } else {
                 navigate(createPageUrl('Home'));
               }
-            }} className="text-lime-400">
-              <ArrowLeft className="w-6 h-6" />
+            }} className="text-lime-400 p-3 -m-3 rounded-full active:bg-lime-400/20 transition-colors">
+              <ArrowLeft className="w-7 h-7" />
             </button>
             <h1 className="text-lime-400 text-xl font-bold">Fornitori</h1>
           </div>

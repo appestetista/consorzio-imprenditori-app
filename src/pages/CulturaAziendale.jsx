@@ -221,8 +221,8 @@ export default function CulturaAziendale() {
       <main className="px-4 py-6 max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <Link to={createPageUrl('Home')} className="text-[#d4af37]">
-              <ArrowLeft className="w-6 h-6" />
+            <Link to={createPageUrl('Home')} className="text-[#d4af37] p-3 -m-3 rounded-full active:bg-[#d4af37]/20 transition-colors">
+              <ArrowLeft className="w-7 h-7" />
             </Link>
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-[#d4af37] rounded-full flex items-center justify-center">
