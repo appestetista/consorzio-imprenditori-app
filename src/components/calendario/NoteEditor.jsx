@@ -354,13 +354,19 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
         {/* Dropdown file: mostra opzione per creare file standalone o in cartella */}
         {showFileDropdown && !showNewFileInline && (
           <div className="absolute left-3 right-3 top-full z-50 bg-slate-800 border border-slate-700 rounded-lg shadow-xl overflow-hidden">
-            <button
-              onClick={() => { setShowFileDropdown(false); setShowNewFileInline(true); }}
-              className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-cyan-400 hover:bg-slate-700 transition-colors"
-            >
-              <FilePlus className="w-4 h-4" />
-              {selectedCartella ? 'Crea file nella cartella selezionata' : 'Crea file (seleziona prima una cartella)'}
-            </button>
+            {selectedCartella ? (
+              <button
+                onClick={() => { setShowFileDropdown(false); setShowNewFileInline(true); }}
+                className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-cyan-400 hover:bg-slate-700 transition-colors"
+              >
+                <FilePlus className="w-4 h-4" />
+                Crea file in "{cartelle.find(c => c.id === selectedCartella)?.nome}"
+              </button>
+            ) : (
+              <div className="px-3 py-2.5 text-sm text-slate-400">
+                <p className="text-[11px]">⚠️ Seleziona o crea prima una cartella qui sotto</p>
+              </div>
+            )}
           </div>
         )}
       </div>
