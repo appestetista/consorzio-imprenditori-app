@@ -1106,7 +1106,7 @@ export default function FinanziamentiAgevolati() {
         )}
 
         {/* Banner profilo bandi incompleto - ben evidente */}
-        {!isRealAdmin && hasIncompleteProfile && (
+        {!isRealAdmin && userLoaded && hasIncompleteProfile && (
           <Card className="bg-gradient-to-br from-purple-600/20 to-indigo-600/20 border-2 border-purple-500/50 mb-6 animate-pulse-slow">
             <CardContent className="p-5">
               <div className="flex items-start gap-3">
