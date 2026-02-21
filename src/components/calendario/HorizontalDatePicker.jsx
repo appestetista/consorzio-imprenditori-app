@@ -6,6 +6,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import CartellaView from './CartellaView';
 import FileStrip from './FileStrip.jsx';
+import DayNotesSummaryPopup from './DayNotesSummaryPopup';
 
 const DAYS_SHORT = ['D', 'L', 'M', 'M', 'G', 'V', 'S'];
 const DAYS_FULL = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
@@ -95,6 +96,16 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
     queryFn: () => base44.entities.Nota.filter({ user_email: userEmail }),
     enabled: !!userEmail
   });
+
+  // Conteggio note per giorno (per badge sotto i numeri)
+  const noteCountByDay = {};
+  tutteNote.forEach(n => {
+    if (n.data) noteCountByDay[n.data] = (noteCountByDay[n.data] || 0) + 1;
+  });
+
+  // Mappa cartelle per popup
+  const cartelleMap = {};
+  cartelle.forEach(c => { cartelleMap[c.id] = c; });
 
   // Mappa conteggio per cartella_id
   const fileCountMap = {};
@@ -191,6 +202,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
   const [openCartella, setOpenCartella] = useState(null); // Cartella aperta in vista completa
   const [showToolsTooltip, setShowToolsTooltip] = useState(false); // Fumetto strumenti disabilitati
   const [dragOverFolderId, setDragOverFolderId] = useState(null); // Cartella evidenziata durante drag
+  const [daySummaryDate, setDaySummaryDate] = useState(null); // data per popup appuntamenti
 
   // Ascolta evento drag-over da FileStrip
   useEffect(() => {
@@ -746,7 +758,11 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
             data-month={`${monthData.year}-${monthData.month}`}
             className="flex items-end"
           >
-            {monthData.days.map((dayData, idx) => (
+            {monthData.days.map((dayData, idx) => {
+              const dayKey = `${monthData.year}-${String(monthData.month + 1).padStart(2, '0')}-${String(dayData.day).padStart(2, '0')}`;
+              const noteCount = noteCountByDay[dayKey] || 0;
+
+              return (
               <div
                 key={`${monthData.year}-${monthData.month}-${idx}`}
                 ref={dayData.isToday ? todayRef : null}
@@ -795,8 +811,23 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                     {dayData.day}
                   </span>
                 </div>
+
+                {/* Conteggio appuntamenti */}
+                {noteCount > 0 ? (
+                  <span
+                    className="text-[11px] font-bold leading-none cursor-pointer mt-0.5"
+                    style={{ color: '#a3e635' }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setDaySummaryDate(dayKey);
+                    }}
+                  >{noteCount}</span>
+                ) : (
+                  <span className="text-[11px] leading-none mt-0.5" style={{ color: 'transparent' }}>0</span>
+                )}
               </div>
-            ))}
+              );
+            })}
           </div>
         ))}
       </div>
@@ -891,6 +922,20 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
           </div>
         </div>
         </div>
+
+      {/* Popup riepilogo appuntamenti del giorno */}
+      {daySummaryDate && (
+        <DayNotesSummaryPopup
+          notes={tutteNote.filter(n => n.data === daySummaryDate)}
+          cartelleMap={cartelleMap}
+          selectedDate={new Date(daySummaryDate + 'T00:00:00')}
+          monthColor={MONTH_COLORS[parseInt(daySummaryDate.split('-')[1]) - 1]}
+          onClose={() => setDaySummaryDate(null)}
+          onNoteClick={(note) => {
+            setDaySummaryDate(null);
+          }}
+        />
+      )}
 
       {/* Vista cartella aperta (full-screen overlay) */}
       {openCartella && ReactDOM.createPortal(
