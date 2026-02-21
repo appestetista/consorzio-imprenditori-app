@@ -190,6 +190,14 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
   const [selectedMonthIdx, setSelectedMonthIdx] = useState(null); // Mese selezionato dalla barra in basso
   const [openCartella, setOpenCartella] = useState(null); // Cartella aperta in vista completa
   const [showToolsTooltip, setShowToolsTooltip] = useState(false); // Fumetto strumenti disabilitati
+  const [dragOverFolderId, setDragOverFolderId] = useState(null); // Cartella evidenziata durante drag
+
+  // Ascolta evento drag-over da FileStrip
+  useEffect(() => {
+    const handler = (e) => setDragOverFolderId(e.detail?.cartellaId || null);
+    document.addEventListener('file-drag-over-folder', handler);
+    return () => document.removeEventListener('file-drag-over-folder', handler);
+  }, []);
 
   // Genera tutti i giorni del mese corrente
   const getDaysInMonth = (month, year) => {
