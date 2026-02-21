@@ -1090,48 +1090,47 @@ export default function FinanziamentiAgevolati() {
           </div>
         )}
 
-        {/* Accesso Profilo Bandi - sempre visibile per utenti non admin */}
-        {!isRealAdmin && userLoaded && !hasIncompleteProfile && (
-          <Link to={createPageUrl('ProfiloBandi')}>
-            <Card className="bg-gradient-to-r from-purple-600 to-indigo-600 border-2 border-purple-400 mb-6 hover:from-purple-700 hover:to-indigo-700 transition-all cursor-pointer shadow-lg shadow-purple-500/30 animate-pulse">
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Briefcase className="w-5 h-5 text-white" />
+        {/* Accesso Profilo Bandi / Banner incompleto - solo dopo caricamento utente */}
+        {!isRealAdmin && userLoaded && (
+          hasIncompleteProfile ? (
+            <Card className="bg-gradient-to-br from-purple-600/20 to-indigo-600/20 border-2 border-purple-500/50 mb-6">
+              <CardContent className="p-5">
+                <div className="flex items-start gap-3">
+                  <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center flex-shrink-0">
+                    <AlertCircle className="w-6 h-6 text-purple-400" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-white font-bold text-base mb-1">Completa il tuo Profilo Bandi</h3>
+                    <p className="text-slate-300 text-sm mb-3">
+                      Per trovare i bandi compatibili con la tua azienda, devi compilare alcune informazioni essenziali.
+                    </p>
+                    <Button
+                      onClick={() => setShowProfilePopup(true)}
+                      className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold w-full"
+                    >
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      Compila ora il Profilo Bandi
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <p className="text-white font-bold text-sm">Il tuo Profilo Bandi</p>
-                  <p className="text-purple-100 text-xs">Modifica dati aziendali, regione, ATECO, requisiti per il matching</p>
-                </div>
-                <Edit className="w-4 h-4 text-white" />
               </CardContent>
             </Card>
-          </Link>
-        )}
-
-        {/* Banner profilo bandi incompleto - ben evidente */}
-        {!isRealAdmin && userLoaded && hasIncompleteProfile && (
-          <Card className="bg-gradient-to-br from-purple-600/20 to-indigo-600/20 border-2 border-purple-500/50 mb-6 animate-pulse-slow">
-            <CardContent className="p-5">
-              <div className="flex items-start gap-3">
-                <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center flex-shrink-0">
-                  <AlertCircle className="w-6 h-6 text-purple-400" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-white font-bold text-base mb-1">Completa il tuo Profilo Bandi</h3>
-                  <p className="text-slate-300 text-sm mb-3">
-                    Per trovare i bandi compatibili con la tua azienda, devi compilare alcune informazioni essenziali.
-                  </p>
-                  <Button
-                    onClick={() => setShowProfilePopup(true)}
-                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold w-full"
-                  >
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    Compila ora il Profilo Bandi
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          ) : (
+            <Link to={createPageUrl('ProfiloBandi')}>
+              <Card className="bg-gradient-to-r from-purple-600 to-indigo-600 border-2 border-purple-400 mb-6 hover:from-purple-700 hover:to-indigo-700 transition-all cursor-pointer shadow-lg shadow-purple-500/30 animate-pulse">
+                <CardContent className="p-4 flex items-center gap-3">
+                  <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Briefcase className="w-5 h-5 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-white font-bold text-sm">Il tuo Profilo Bandi</p>
+                    <p className="text-purple-100 text-xs">Modifica dati aziendali, regione, ATECO, requisiti per il matching</p>
+                  </div>
+                  <Edit className="w-4 h-4 text-white" />
+                </CardContent>
+              </Card>
+            </Link>
+          )
         )}
 
         {/* Sezione Ricerca Bandi Compatibili - Solo per utenti non admin */}
