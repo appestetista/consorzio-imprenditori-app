@@ -142,6 +142,8 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
       moveToFolderMutation.mutate({ fileId: draggedFile.id, cartellaId: dragOverCartella });
       if (onFileDragToFolder) onFileDragToFolder(draggedFile.id, dragOverCartella);
     }
+    // Reset folder highlight
+    document.dispatchEvent(new CustomEvent('file-drag-over-folder', { detail: { cartellaId: null } }));
     setDraggedFile(null);
     setDragOverCartella(null);
     setDragClonePos(null);
