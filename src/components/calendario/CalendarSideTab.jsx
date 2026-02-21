@@ -342,6 +342,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
               }}
               hasSelectedTime={hasSelectedTime}
               onOpenTools={() => setShowToolsPopup(true)}
+              onFileClick={(file) => setEditingFile(file)}
             />
         </div>
 
