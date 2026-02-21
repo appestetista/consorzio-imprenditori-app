@@ -92,7 +92,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
   });
 
   const { data: tutteNote = [] } = useQuery({
-    queryKey: ['allNoteCartella', userEmail],
+    queryKey: ['all-user-notes', userEmail],
     queryFn: () => base44.entities.Nota.filter({ user_email: userEmail }),
     enabled: !!userEmail
   });
