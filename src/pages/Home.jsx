@@ -731,19 +731,22 @@ export default function Home() {
   const isConsultant = isUserConsultant(effectiveUser);
 
   // Leggi tab da URL per filtrare le features
-  // Scroll alla card da cui l'utente è tornato indietro
+  // Ripristina posizione scroll alla card da cui l'utente è tornato
+  const scrollRestoredRef = React.useRef(false);
   useEffect(() => {
+    if (loading || scrollRestoredRef.current) return;
     try {
       const scrollTarget = sessionStorage.getItem('home_scroll_to');
       if (scrollTarget) {
         sessionStorage.removeItem('home_scroll_to');
-        // Piccolo delay per assicurarsi che il DOM sia renderizzato
-        requestAnimationFrame(() => {
+        scrollRestoredRef.current = true;
+        // Usa timeout 0 per aspettare il paint del DOM
+        setTimeout(() => {
           const el = document.querySelector(`[data-feature-card="${scrollTarget}"]`);
           if (el) {
             el.scrollIntoView({ block: 'center', behavior: 'instant' });
           }
-        });
+        }, 0);
       }
     } catch {}
   }, [loading]);
