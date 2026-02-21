@@ -731,6 +731,23 @@ export default function Home() {
   const isConsultant = isUserConsultant(effectiveUser);
 
   // Leggi tab da URL per filtrare le features
+  // Scroll alla card da cui l'utente è tornato indietro
+  useEffect(() => {
+    try {
+      const scrollTarget = sessionStorage.getItem('home_scroll_to');
+      if (scrollTarget) {
+        sessionStorage.removeItem('home_scroll_to');
+        // Piccolo delay per assicurarsi che il DOM sia renderizzato
+        requestAnimationFrame(() => {
+          const el = document.querySelector(`[data-feature-card="${scrollTarget}"]`);
+          if (el) {
+            el.scrollIntoView({ block: 'center', behavior: 'instant' });
+          }
+        });
+      }
+    } catch {}
+  }, [loading]);
+
   const urlParams = new URLSearchParams(window.location.search);
   const activeTab = urlParams.get('tab'); // null = tutte, 'relazioni', 'strumenti', 'consulenza'
 
