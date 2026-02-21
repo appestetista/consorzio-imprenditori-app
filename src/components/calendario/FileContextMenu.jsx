@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import ReactDOM from 'react-dom';
-import { Check, ChevronDown, Mail, MessageCircle } from 'lucide-react';
+import { Check, ChevronDown, Mail, MessageCircle, Folder } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const FILE_COLORS = [
@@ -26,12 +26,12 @@ const TIME_OPTIONS = (() => {
   return opts;
 })();
 
-export default function FileContextMenu({ file, onSave, onClose }) {
+export default function FileContextMenu({ file, cartelle = [], onSave, onClose }) {
   if (!file) return null;
 
   const [title, setTitle] = useState(file.titolo || '');
   const [color, setColor] = useState(file.colore || '#06b6d4');
-  const [section, setSection] = useState('main'); // 'main' | 'colors' | 'share' | 'reminder'
+  const [selectedCartella, setSelectedCartella] = useState(file.cartella_id || '');
 
   // Promemoria
   const now = new Date();
@@ -57,12 +57,17 @@ export default function FileContextMenu({ file, onSave, onClose }) {
   };
 
   const handleSave = () => {
-    onSave({
+    const data = {
       titolo: title.trim() || file.titolo,
       colore: color,
       data: remDate,
       time: remTime,
-    });
+    };
+    // Se ha scelto una cartella (o "nessuna")
+    if (selectedCartella !== (file.cartella_id || '')) {
+      data.cartella_id = selectedCartella || null;
+    }
+    onSave(data);
   };
 
   const handleShare = (type) => {
@@ -154,6 +159,49 @@ export default function FileContextMenu({ file, onSave, onClose }) {
               </button>
             </div>
           </div>
+
+          {/* Sezione Cartella */}
+          {cartelle.length > 0 && (
+            <div className="mb-4">
+              <label className="text-white/50 text-[10px] uppercase tracking-wider mb-2 block">Cartella</label>
+              <div className="relative">
+                <button
+                  onClick={() => setOpenDropdown(openDropdown === 'folder' ? null : 'folder')}
+                  className="w-full flex items-center justify-between bg-[#3a3430] rounded-xl px-4 py-3"
+                >
+                  <div className="flex items-center gap-2">
+                    <Folder className="w-4 h-4 text-white/40" />
+                    <span className="text-white text-sm">
+                      {selectedCartella 
+                        ? cartelle.find(c => c.id === selectedCartella)?.nome || 'Cartella'
+                        : 'Nessuna cartella'}
+                    </span>
+                  </div>
+                  <ChevronDown className="w-4 h-4 text-white/50" />
+                </button>
+                {openDropdown === 'folder' && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-[#3a3430] rounded-xl max-h-40 overflow-y-auto z-10 shadow-xl border border-white/10">
+                    <button
+                      onClick={() => { setSelectedCartella(''); setOpenDropdown(null); }}
+                      className={`w-full text-left px-4 py-2.5 text-sm flex items-center gap-2 ${!selectedCartella ? 'text-[#e8c4b0] bg-white/5 font-semibold' : 'text-white/80 hover:bg-white/5'}`}
+                    >
+                      <span>Nessuna cartella</span>
+                    </button>
+                    {cartelle.map((c) => (
+                      <button
+                        key={c.id}
+                        onClick={() => { setSelectedCartella(c.id); setOpenDropdown(null); }}
+                        className={`w-full text-left px-4 py-2.5 text-sm flex items-center gap-2 ${selectedCartella === c.id ? 'text-[#e8c4b0] bg-white/5 font-semibold' : 'text-white/80 hover:bg-white/5'}`}
+                      >
+                        <div className="w-3 h-3 rounded-sm" style={{ backgroundColor: c.colore || '#64748b' }} />
+                        <span>{c.nome}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Sezione Promemoria */}
           <div className="mb-2">
