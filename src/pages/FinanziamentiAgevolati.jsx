@@ -790,7 +790,7 @@ export default function FinanziamentiAgevolati() {
       
       <main className="px-4 py-6 max-w-md mx-auto">
         <div className="flex items-center gap-3 mb-6">
-          <Link to={createPageUrl('Home')} className="text-lime-400 p-3 -m-3 rounded-full active:bg-lime-400/20 transition-colors">
+          <Link to={createPageUrl('Home')} className="text-lime-400 p-3 -m-3 rounded-full back-arrow-tap">
                         <ArrowLeft className="w-7 h-7" />
                       </Link>
           <div>
