@@ -285,8 +285,88 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
         )}
       </div>
 
-      {/* Riga 3: Selettore cartella */}
+      {/* Riga 3: Crea file */}
       <div className="px-3 py-1 border-b border-slate-800/50 relative">
+        {!showNewFileInline ? (
+          <button
+            onClick={() => setShowFileDropdown(!showFileDropdown)}
+            className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-slate-800 transition-colors w-full"
+          >
+            <FilePlus className="w-4 h-4 text-cyan-400" />
+            <span className="text-sm text-cyan-400 font-medium">Crea file</span>
+            <ChevronDown className={cn(
+              "w-4 h-4 text-slate-500 ml-auto transition-transform flex-shrink-0",
+              showFileDropdown && "rotate-180"
+            )} />
+          </button>
+        ) : (
+          <div className="px-1 py-2 space-y-2">
+            <input
+              type="text"
+              value={newFileName}
+              onChange={(e) => setNewFileName(e.target.value)}
+              placeholder="Nome file *"
+              className="w-full bg-slate-700 text-white text-xs rounded px-2.5 py-1.5 outline-none focus:ring-1 focus:ring-cyan-400"
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && newFileName.trim() && userEmail) {
+                  createFileMutation.mutate({
+                    user_email: userEmail,
+                    cartella_id: selectedCartella || 'standalone',
+                    titolo: newFileName.trim(),
+                    contenuto: '',
+                    data: dateStr,
+                    time: selectedTime || null
+                  });
+                }
+              }}
+            />
+            {selectedCartella && cartelle.find(c => c.id === selectedCartella) && (
+              <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
+                <div className="w-3 h-3 rounded" style={{ backgroundColor: cartelle.find(c => c.id === selectedCartella)?.colore }} />
+                <span>Verrà salvato in: <strong className="text-slate-200">{cartelle.find(c => c.id === selectedCartella)?.nome}</strong></span>
+              </div>
+            )}
+            <div className="flex gap-2">
+              <button onClick={() => { setShowNewFileInline(false); setNewFileName(''); }} className="flex-1 text-[10px] py-1 rounded bg-slate-600 text-white">Annulla</button>
+              <button
+                onClick={() => {
+                  if (newFileName.trim() && userEmail) {
+                    createFileMutation.mutate({
+                      user_email: userEmail,
+                      cartella_id: selectedCartella || 'standalone',
+                      titolo: newFileName.trim(),
+                      contenuto: '',
+                      data: dateStr,
+                      time: selectedTime || null
+                    });
+                  }
+                }}
+                disabled={!newFileName.trim() || createFileMutation.isPending}
+                className="flex-1 text-[10px] py-1 rounded bg-cyan-500 text-slate-900 font-bold disabled:opacity-40"
+              >
+                {createFileMutation.isPending ? 'Creo...' : 'Crea'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Dropdown file: mostra opzione per creare file standalone o in cartella */}
+        {showFileDropdown && !showNewFileInline && (
+          <div className="absolute left-3 right-3 top-full z-50 bg-slate-800 border border-slate-700 rounded-lg shadow-xl overflow-hidden">
+            <button
+              onClick={() => { setShowFileDropdown(false); setShowNewFileInline(true); }}
+              className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-cyan-400 hover:bg-slate-700 transition-colors"
+            >
+              <FilePlus className="w-4 h-4" />
+              {selectedCartella ? 'Crea file nella cartella selezionata' : 'Crea file (seleziona prima una cartella)'}
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Riga 4: Selettore cartella */}
+      <div className="px-3 py-1.5 border-b border-slate-800/50 relative">
         <button
           onClick={() => setShowCartellaDropdown(!showCartellaDropdown)}
           className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-slate-800 transition-colors w-full"
