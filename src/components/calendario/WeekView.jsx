@@ -42,7 +42,7 @@ function generateYearDays(year) {
   return days;
 }
 
-export default function WeekView({ selectedDate, monthColor, onMonthColorChange, onDateSelect, onSlotClick, onMonthChange, onRegisterMonthSelect, onBackToDaily, allMonthNotes = [] }) {
+export default function WeekView({ selectedDate, monthColor, onMonthColorChange, onDateSelect, onSlotClick, onMonthChange, onRegisterMonthSelect, onBackToDaily, allMonthNotes = [], initialVisibleDay, initialVisibleMonth, initialVisibleYear }) {
   const [userEmail, setUserEmail] = useState(null);
   const [viewDate, setViewDate] = useState(() => selectedDate ? new Date(selectedDate) : new Date());
   const [selectedSlot, setSelectedSlot] = useState(null);
