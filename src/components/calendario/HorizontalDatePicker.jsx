@@ -456,22 +456,34 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
         {cartelle.map((cartella) => {
           const itemCount = fileCountMap[cartella.id] || 0;
           const hasDocuments = itemCount > 0;
+          const isDragTarget = dragOverFolderId === cartella.id;
           
           return (
-            <div key={cartella.id} data-cartella-id={cartella.id} className="relative flex-shrink-0 pt-2 pr-2">
+            <div key={cartella.id} data-cartella-id={cartella.id} className={cn(
+              "relative flex-shrink-0 pt-2 pr-2 transition-transform duration-300",
+              isDragTarget && "scale-125"
+            )}>
               <button 
                 onClick={() => setOpenCartella(cartella)}
                 className="flex flex-col items-center gap-1 px-0.5 rounded transition-all hover:scale-105 active:scale-95"
               >
-                {/* Cartella 3D stile immagine */}
-                <div className="relative w-7 h-6">
+                {/* Cartella 3D - aperta se drag target */}
+                <div className={cn("relative transition-all duration-300", isDragTarget ? "w-9 h-8" : "w-7 h-6")}>
+                  {/* Glow quando drag over */}
+                  {isDragTarget && (
+                    <div 
+                      className="absolute -inset-2 rounded-lg animate-pulse"
+                      style={{ boxShadow: `0 0 20px ${cartella.colore}88, 0 0 40px ${cartella.colore}44` }}
+                    />
+                  )}
+
                   {/* Ombra morbida sotto */}
                   <div 
                     className="absolute bottom-0 left-0.5 right-0.5 h-1 rounded-full blur-sm opacity-40"
                     style={{ backgroundColor: cartella.colore }}
                   />
                   
-                  {/* Parte posteriore della cartella (dietro) */}
+                  {/* Parte posteriore (dietro) */}
                   <div 
                     className="absolute top-1 left-0 right-0 bottom-0.5 rounded"
                     style={{ 
@@ -479,87 +491,69 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                       boxShadow: `inset 0 -1px 2px rgba(0,0,0,0.15)`
                     }}
                   >
-                    {/* Linguetta/Tab in alto a sinistra */}
                     <div 
                       className="absolute -top-1 left-0 w-3 h-1.5 rounded-t-sm"
-                      style={{ 
-                        background: `linear-gradient(180deg, ${cartella.colore} 0%, ${cartella.colore}dd 100%)`,
-                      }}
+                      style={{ background: `linear-gradient(180deg, ${cartella.colore} 0%, ${cartella.colore}dd 100%)` }}
                     />
                   </div>
                   
-                  {/* Fogli bianchi che sporgono (se ha documenti) */}
-                  {hasDocuments && (
+                  {/* Fogli bianchi */}
+                  {hasDocuments && !isDragTarget && (
                     <>
-                      {/* Foglio dietro - sporge di più */}
-                      <div 
-                        className="absolute left-0.5 right-0.5 rounded-t-sm"
-                        style={{ 
-                          top: '2px',
-                          height: '12px',
-                          background: 'linear-gradient(180deg, #e2e8f0 0%, #cbd5e1 100%)',
-                          boxShadow: '0 -1px 2px rgba(0,0,0,0.08)'
-                        }}
-                      />
-                      {/* Foglio davanti - sporge meno */}
-                      <div 
-                        className="absolute left-1 right-1 rounded-t-sm"
-                        style={{ 
-                          top: '4px',
-                          height: '10px',
-                          background: 'linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%)',
-                          boxShadow: '0 -1px 2px rgba(0,0,0,0.06)'
-                        }}
-                      />
+                      <div className="absolute left-0.5 right-0.5 rounded-t-sm" style={{ top: '2px', height: '12px', background: 'linear-gradient(180deg, #e2e8f0 0%, #cbd5e1 100%)' }} />
+                      <div className="absolute left-1 right-1 rounded-t-sm" style={{ top: '4px', height: '10px', background: 'linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%)' }} />
                     </>
                   )}
                   
-                  {/* Parte frontale della cartella (davanti) */}
+                  {/* Parte frontale - abbassata se drag over (cartella aperta) */}
                   <div 
-                    className="absolute top-2.5 left-0 right-0 bottom-0 rounded"
+                    className="absolute left-0 right-0 bottom-0 rounded transition-all duration-300"
                     style={{ 
+                      top: isDragTarget ? '65%' : '42%',
                       background: `linear-gradient(180deg, ${cartella.colore} 0%, ${cartella.colore}dd 60%, ${cartella.colore}bb 100%)`,
-                      boxShadow: `
-                        0 1px 2px rgba(0,0,0,0.2),
-                        inset 0 1px 0 rgba(255,255,255,0.25),
-                        inset 0 -1px 2px rgba(0,0,0,0.1)
-                      `
+                      boxShadow: `0 1px 2px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.25), inset 0 -1px 2px rgba(0,0,0,0.1)`,
+                      transformOrigin: 'bottom center',
+                      transform: isDragTarget ? 'perspective(40px) rotateX(8deg)' : 'none'
                     }}
                   >
-                    {/* Linea decorativa orizzontale */}
-                    <div 
-                      className="absolute top-1 left-1 right-1 h-[1px] rounded-full"
-                      style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}
-                    />
+                    <div className="absolute top-1 left-1 right-1 h-[1px] rounded-full" style={{ backgroundColor: 'rgba(255,255,255,0.2)' }} />
                   </div>
 
-                  {/* Badge conteggio file - al centro della cartella */}
-                  {hasDocuments && (
-                    <div 
-                      className="absolute inset-0 flex items-center justify-center z-10"
-                      style={{ top: '6px' }}
-                    >
+                  {/* Badge conteggio */}
+                  {hasDocuments && !isDragTarget && (
+                    <div className="absolute inset-0 flex items-center justify-center z-10" style={{ top: '6px' }}>
                       <span className="text-[9px] font-extrabold text-white leading-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]">{itemCount}</span>
+                    </div>
+                  )}
+
+                  {/* Freccia "entra qui" quando drag over */}
+                  {isDragTarget && (
+                    <div className="absolute inset-0 flex items-center justify-center z-10" style={{ top: '0px' }}>
+                      <span className="text-white text-[10px] font-bold animate-bounce">↓</span>
                     </div>
                   )}
                 </div>
                 
-                {/* Nome cartella */}
-                <span className="text-[12px] text-slate-300 font-medium">
+                <span className={cn(
+                  "text-[12px] font-medium transition-colors duration-300",
+                  isDragTarget ? "text-white" : "text-slate-300"
+                )}>
                   {cartella.nome.length > 6 ? cartella.nome.substring(0, 6) + '..' : cartella.nome}
                 </span>
               </button>
               
-              {/* X per eliminare */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowDeletePopup(cartella.id);
-                }}
-                className="absolute top-0 right-0 w-4 h-4 rounded-full bg-red-500 hover:bg-red-400 flex items-center justify-center shadow-lg"
-              >
-                <X className="w-2.5 h-2.5 text-white" />
-              </button>
+              {/* X per eliminare - nascosta durante drag */}
+              {!isDragTarget && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowDeletePopup(cartella.id);
+                  }}
+                  className="absolute top-0 right-0 w-4 h-4 rounded-full bg-red-500 hover:bg-red-400 flex items-center justify-center shadow-lg"
+                >
+                  <X className="w-2.5 h-2.5 text-white" />
+                </button>
+              )}
             </div>
           );
         })}
