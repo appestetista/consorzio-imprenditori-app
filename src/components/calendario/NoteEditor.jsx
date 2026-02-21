@@ -28,6 +28,10 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
   const [editCartellaColor, setEditCartellaColor] = useState('#f59e0b');
   const [deleteCartellaConfirm, setDeleteCartellaConfirm] = useState(null); // cartella id
   const [userEmail, setUserEmail] = useState(null);
+  // File inline creation
+  const [showNewFileInline, setShowNewFileInline] = useState(false);
+  const [newFileName, setNewFileName] = useState('');
+  const [showFileDropdown, setShowFileDropdown] = useState(false);
   const queryClient = useQueryClient();
   const cameraInputRef = useRef(null);
   const fileInputRef = useRef(null);
