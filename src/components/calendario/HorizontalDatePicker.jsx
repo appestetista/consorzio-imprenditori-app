@@ -462,6 +462,20 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
           <span className="text-[10px] text-slate-300 font-medium">Nuova</span>
         </button>
         
+        {/* Pulsante crea file */}
+        <button 
+          onClick={() => {
+            if (cartelle.length > 0) {
+              setNewFileCartellaId(cartelle[0].id);
+            }
+            setShowNewFilePopup(true);
+          }}
+          className="flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 transition-colors"
+        >
+          <FilePlus className="w-8 h-8 text-cyan-400" />
+          <span className="text-[10px] text-slate-300 font-medium">File</span>
+        </button>
+        
         {/* Cartelle dell'utente - stile cartella 3D come immagine */}
         {cartelle.map((cartella) => {
           const itemCount = fileCountMap[cartella.id] || 0;
