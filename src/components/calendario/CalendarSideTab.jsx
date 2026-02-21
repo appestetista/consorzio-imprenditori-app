@@ -49,6 +49,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
 
     const weekNoteEditorSaveRef = useRef(null);
     const verticalTimePickerRef = useRef(null);
+    const [pendingNoteNavigate, setPendingNoteNavigate] = useState(null);
     const queryClient = useQueryClient();
     const [monthNotesPopup, setMonthNotesPopup] = useState(null); // { monthIndex, year }
   const goToTodayRef = useRef(null);
@@ -343,6 +344,10 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
               hasSelectedTime={hasSelectedTime}
               onOpenTools={() => setShowToolsPopup(true)}
               onFileClick={(file) => setEditingFile(file)}
+              onNoteNavigate={(note) => {
+                // Setta la nota pendente — il VerticalTimePicker la leggerà per scrollare
+                setPendingNoteNavigate(note);
+              }}
             />
         </div>
 
