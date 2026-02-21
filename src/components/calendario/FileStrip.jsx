@@ -8,6 +8,7 @@ import FileContextMenu from './FileContextMenu.jsx';
 import FileShareDialog from './FileShareDialog.jsx';
 import FileColorPicker from './FileColorPicker.jsx';
 import FileMoveDialog from './FileMoveDialog.jsx';
+import FileReminderDialog from './FileReminderDialog.jsx';
 
 export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFileDragToFolder }) {
   const [draggedFile, setDraggedFile] = useState(null);
@@ -21,6 +22,7 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
   const [shareFile, setShareFile] = useState(null);
   const [colorFile, setColorFile] = useState(null);
   const [moveFile, setMoveFile] = useState(null);
+  const [reminderFile, setReminderFile] = useState(null);
 
   const touchStartRef = useRef(null);
   const longPressTimerRef = useRef(null);
@@ -160,10 +162,7 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
       case 'move': setMoveFile(file); break;
       case 'colors': setColorFile(file); break;
       case 'share': setShareFile(file); break;
-      case 'notify':
-        // Campanella - placeholder notifica
-        alert(`🔔 Notifica impostata per "${file.titolo}"`);
-        break;
+      case 'notify': setReminderFile(file); break;
     }
   };
 
@@ -321,6 +320,25 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
             setMoveFile(null);
           }}
           onClose={() => setMoveFile(null)}
+        />
+      )}
+
+      {/* Dialog promemoria */}
+      {reminderFile && (
+        <FileReminderDialog
+          file={reminderFile}
+          onSave={(data) => {
+            // Salva data/ora promemoria sul file
+            base44.entities.FileCartella.update(reminderFile.id, { 
+              data: data.date, 
+              time: data.time 
+            }).then(() => {
+              queryClient.invalidateQueries({ queryKey: ['standalone-files'] });
+              queryClient.invalidateQueries({ queryKey: ['allFileCartella'] });
+            });
+            setReminderFile(null);
+          }}
+          onClose={() => setReminderFile(null)}
         />
       )}
 
