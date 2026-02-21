@@ -186,7 +186,7 @@ export default function FileNoteEditor({ file, onClose, onSave, onDelete, monthC
           type="text"
           value={title}
           onChange={(e) => { setTitle(e.target.value); if (e.target.value.trim()) setTitleError(false); }}
-          placeholder="Titolo *"
+          placeholder="Titolo"
           autoComplete="off"
           className={cn(
             "w-full bg-transparent text-white text-3xl font-light outline-none mb-2 truncate flex-shrink-0",

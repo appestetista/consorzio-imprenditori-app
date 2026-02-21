@@ -77,7 +77,7 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
     if (!userEmail || createFileMutation.isPending) return;
     createFileMutation.mutate({
       user_email: userEmail,
-      titolo: 'Nuovo file',
+      titolo: '',
       contenuto: '',
       colore: '#06b6d4',
       cartella_id: null
