@@ -42,7 +42,7 @@ function generateYearDays(year) {
   return days;
 }
 
-export default function WeekView({ selectedDate, monthColor, onMonthColorChange, onDateSelect, onSlotClick, onMonthChange, onRegisterMonthSelect, onBackToDaily, allMonthNotes = [], initialVisibleDay, initialVisibleMonth, initialVisibleYear }) {
+export default function WeekView({ selectedDate, monthColor, onMonthColorChange, onDateSelect, onSlotClick, onMonthChange, onRegisterMonthSelect, onBackToDaily, allMonthNotes = [], initialVisibleDay, initialVisibleMonth, initialVisibleYear, navigateToSlot, onNavigateToSlotDone }) {
   const [userEmail, setUserEmail] = useState(null);
   const [viewDate, setViewDate] = useState(() => selectedDate ? new Date(selectedDate) : new Date());
   const [selectedSlot, setSelectedSlot] = useState(null);
@@ -290,6 +290,33 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     if (!n.data) return;
     noteCountByDayKey[n.data] = (noteCountByDayKey[n.data] || 0) + 1;
   });
+
+  // Navigazione esterna a uno slot preciso (giorno + orario) dalla popup mensile
+  useEffect(() => {
+    if (!navigateToSlot || !scrollRef.current || !ribbonRef.current) return;
+    const { date: navDate, time: navTime } = navigateToSlot;
+    
+    // Seleziona il giorno nel nastro
+    const [y, mo, d] = navDate.split('-').map(Number);
+    const targetDate = new Date(y, mo - 1, d);
+    targetDate.setHours(0, 0, 0, 0);
+    handleDayClick(targetDate);
+
+    // Evidenzia lo slot selezionato
+    const [h, m] = navTime.split(':').map(Number);
+    const sk = `${String(h).padStart(2,'0')}:${String(Math.floor(m/5)*5).padStart(2,'0')}`;
+    setSelectedSlot({ date: navDate, time: sk });
+
+    // Scroll verticale all'orario preciso
+    const slotIdx = h * 12 + Math.floor(m / 5);
+    setTimeout(() => {
+      if (scrollRef.current) {
+        scrollRef.current.scrollTop = Math.max(0, (slotIdx - 3) * 26);
+      }
+    }, 300);
+
+    if (onNavigateToSlotDone) onNavigateToSlotDone();
+  }, [navigateToSlot]);
 
   const handleSlotClick = (dayStr, timeLabel, e) => {
     if (selectedSlot?.date === dayStr && selectedSlot?.time === timeLabel) {
