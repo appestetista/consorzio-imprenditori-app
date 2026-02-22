@@ -485,14 +485,14 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                   {isDragTarget && (
                     <div 
                       className="absolute -inset-2 rounded-lg animate-pulse"
-                      style={{ boxShadow: `0 0 20px ${cartella.colore}88, 0 0 40px ${cartella.colore}44` }}
+                      style={{ boxShadow: '0 0 20px rgba(75,85,99,0.5), 0 0 40px rgba(55,65,81,0.3)' }}
                     />
                   )}
 
                   {/* Ombra morbida sotto */}
                   <div 
                     className="absolute bottom-0 left-0.5 right-0.5 h-1 rounded-full blur-sm opacity-40"
-                    style={{ backgroundColor: cartella.colore }}
+                    style={{ backgroundColor: '#374151' }}
                   />
                   
                   {/* Parte posteriore (dietro) - grigio scuro */}
