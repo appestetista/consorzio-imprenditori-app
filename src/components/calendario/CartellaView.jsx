@@ -360,12 +360,20 @@ export default function CartellaView({ cartella, userEmail, onClose }) {
     }
   };
 
+  // Query cartelle per il FileEditor
+  const { data: allCartelle = [] } = useQuery({
+    queryKey: ['cartelle', userEmail],
+    queryFn: () => base44.entities.Cartella.filter({ user_email: userEmail }),
+    enabled: !!userEmail
+  });
+
   // Se un file è aperto, mostra l'editor
   if (openFile || showNewFile) {
     return (
       <FileEditor
         file={openFile}
         cartellaId={cartella.id}
+        cartelle={allCartelle}
         userEmail={userEmail}
         onClose={() => { setOpenFile(null); setShowNewFile(false); }}
         onSaved={() => { setOpenFile(null); setShowNewFile(false); }}
