@@ -193,6 +193,9 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
     setEditFolderColor(cartella.colore);
     setShowEditPopup(cartella);
   };
+  const [deleteModeCartellaId, setDeleteModeCartellaId] = useState(null);
+  const cartellaLongPressRef = useRef(null);
+
   const scrollRef = useRef(null);
   const todayRef = useRef(null);
   const [visibleMonth, setVisibleMonth] = useState({ name: MONTHS[today.getMonth()], year: today.getFullYear(), color: MONTH_COLORS[today.getMonth()] });
@@ -471,12 +474,26 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
           const isDragTarget = dragOverFolderId === cartella.id;
           
           return (
-            <div key={cartella.id} data-cartella-id={cartella.id} className={cn(
-              "relative flex-shrink-0 pt-2 pr-2 transition-transform duration-300",
-              isDragTarget && "scale-125"
-            )}>
-              <button 
-                onClick={() => setOpenCartella(cartella)}
+              <div key={cartella.id} data-cartella-id={cartella.id} className={cn(
+                "relative flex-shrink-0 pt-2 pr-2 transition-transform duration-300",
+                isDragTarget && "scale-125"
+              )}
+              onTouchStart={() => {
+                if (cartellaLongPressRef.current) clearTimeout(cartellaLongPressRef.current);
+                cartellaLongPressRef.current = setTimeout(() => {
+                  if (navigator.vibrate) navigator.vibrate(50);
+                  setDeleteModeCartellaId(cartella.id);
+                }, 3000);
+              }}
+              onTouchMove={() => {
+                if (cartellaLongPressRef.current) { clearTimeout(cartellaLongPressRef.current); cartellaLongPressRef.current = null; }
+              }}
+              onTouchEnd={() => {
+                if (cartellaLongPressRef.current) { clearTimeout(cartellaLongPressRef.current); cartellaLongPressRef.current = null; }
+              }}
+              >
+                <button 
+                  onClick={() => setOpenCartella(cartella)}
                 className="flex flex-col items-center gap-1 px-0.5 rounded transition-all hover:scale-105 active:scale-95"
               >
                 {/* Cartella 3D - aperta se drag target */}
@@ -554,18 +571,19 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                 </span>
               </button>
               
-              {/* X per eliminare - nascosta durante drag */}
-              {!isDragTarget && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowDeletePopup(cartella.id);
-                  }}
-                  className="absolute top-0 right-0 w-4 h-4 rounded-full bg-red-500 hover:bg-red-400 flex items-center justify-center shadow-lg"
-                >
-                  <X className="w-2.5 h-2.5 text-white" />
-                </button>
-              )}
+              {/* X per eliminare - visibile solo dopo long press 3s */}
+              {!isDragTarget && deleteModeCartellaId === cartella.id && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowDeletePopup(cartella.id);
+                        setDeleteModeCartellaId(null);
+                      }}
+                      className="absolute top-0 right-0 w-5 h-5 rounded-full bg-red-500 hover:bg-red-400 flex items-center justify-center shadow-lg animate-pulse"
+                    >
+                      <X className="w-3 h-3 text-white" />
+                    </button>
+                  )}
             </div>
           );
         })}
