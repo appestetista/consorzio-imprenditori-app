@@ -499,11 +499,13 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
               const dayItems = items[dk] || {};
               const dayAllNotes = Object.entries(dayItems).flatMap(([time, arr]) => arr.map(a => ({ ...a, time })));
               const isDropOpen = openDropdownDay === i;
+              const isDayFocused = focusedDay === dk;
+              const isDayDimmed = focusedDay && !isDayFocused;
               return (
                 <div
                   key={i}
-                  className={cn("flex-1 flex border-l border-slate-700/50 relative", isT && "bg-slate-800/40")}
-                  style={{ minHeight: '38px', ...(isSel && !isT ? { backgroundColor: ac + '20' } : {}) }}
+                  className={cn("flex-1 flex border-l border-slate-700/50 relative", isT && !isDayDimmed && "bg-slate-800/40")}
+                  style={{ minHeight: '38px', opacity: isDayDimmed ? 0.3 : 1, transition: 'opacity 0.4s ease', ...(isSel && !isT && !isDayDimmed ? { backgroundColor: ac + '20' } : {}) }}
                 >
                   <div
                     className="flex-1 flex flex-col items-center justify-center cursor-pointer z-10 py-0.5"
