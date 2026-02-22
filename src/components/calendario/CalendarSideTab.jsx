@@ -532,10 +532,25 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
               onClose={() => setMonthNotesPopup(null)}
               onNoteClick={(note) => {
                 setMonthNotesPopup(null);
-                if (note.data && note.time) {
-                  const [h, m] = (note.time || '00:00').split(':').map(Number);
-                  const sk = `${String(h).padStart(2,'0')}:${String(Math.floor(m/5)*5).padStart(2,'0')}`;
-                  handleWeekSlotClick({ date: note.data, time: sk, existingNote: note });
+                if (note.data) {
+                  // Torna alla vista giornaliera e naviga all'appuntamento senza aprirlo
+                  const [y, mo, d] = note.data.split('-').map(Number);
+                  const targetDate = new Date(y, mo - 1, d);
+                  targetDate.setHours(0, 0, 0, 0);
+                  handleDateSelect(targetDate);
+                  setShowWeekView(false);
+                  setIsOpen(true);
+                  setShowTimePicker(true);
+                  // Scrolla al giorno nel calendario orizzontale
+                  setTimeout(() => {
+                    if (goToTodayRef.scrollToDate) {
+                      goToTodayRef.scrollToDate(targetDate);
+                    }
+                  }, 200);
+                  // Naviga all'orario preciso senza aprire l'editor
+                  if (note.time) {
+                    setPendingNoteNavigate(note);
+                  }
                 }
               }}
               onDeleteNote={(note) => {
