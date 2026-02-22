@@ -84,7 +84,6 @@ export default function MonthNotesSummaryPopup({ notes, cartelleMap, monthIndex,
                         setSelectedNoteId(note.id || idx);
                         lastClickedNoteRef.current = note;
                         if (onNoteClick) onNoteClick(note);
-                        setMonthNotesPopup(null);
                       }}
                     >
                       <div className="flex items-center gap-1.5">
