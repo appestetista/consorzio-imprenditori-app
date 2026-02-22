@@ -195,13 +195,13 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
                   className="flex-shrink-0 flex items-center justify-center rounded-l-md shadow-md self-stretch"
                   style={{
                     width: '14px',
-                    background: `linear-gradient(180deg, ${fileColor} 0%, ${fileColor}aa 100%)`,
-                    borderRight: '1px solid rgba(255,255,255,0.15)',
+                    background: '#ffffff',
+                    borderRight: '1px solid rgba(0,0,0,0.1)',
                     marginTop: '2px',
                     marginBottom: '2px',
                   }}
                 >
-                  <Pencil className="w-2 h-2 text-white/90" />
+                  <Pencil className="w-2 h-2 text-black" />
                 </button>
 
                 <div className="flex flex-col items-center gap-0.5">
