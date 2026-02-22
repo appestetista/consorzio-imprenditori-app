@@ -309,14 +309,8 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     const targetDate = new Date(y, mo - 1, d);
     targetDate.setHours(0, 0, 0, 0);
 
-    // Prima: scrolla il nastro al giorno preciso (senza smooth, immediato)
-    if (ribbonRef.current) {
-      const dayIdx = getDayOfYear(targetDate, displayYear);
-      if (dayIdx >= 0) {
-        const barWidth = ribbonRef.current.clientWidth;
-        ribbonRef.current.scrollLeft = dayIdx * ITEM_W - barWidth / 2 + ITEM_W / 2;
-      }
-    }
+    // Attiva modalità focus PRIMA dello scroll per evitare che handleRibbonScroll lo resetti
+    setFocusedDay(navDate);
 
     // Aggiorna settimana e highlighting immediatamente
     setHighlightedDay({ day: d, month: mo - 1, year: y });
@@ -325,8 +319,18 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     updateCursorPosition(newWeek);
     if (onDateSelect) onDateSelect(targetDate);
 
-    // Attiva modalità focus
-    setFocusedDay(navDate);
+    // Scrolla il nastro al giorno preciso (senza smooth, immediato)
+    // Usa flag per evitare che handleRibbonScroll resetti il focusedDay
+    programmaticScrollRef.current = true;
+    if (ribbonRef.current) {
+      const dayIdx = getDayOfYear(targetDate, displayYear);
+      if (dayIdx >= 0) {
+        const barWidth = ribbonRef.current.clientWidth;
+        ribbonRef.current.scrollLeft = dayIdx * ITEM_W - barWidth / 2 + ITEM_W / 2;
+      }
+    }
+    // Rilascia il flag dopo un breve delay per assicurarsi che l'evento scroll sia passato
+    setTimeout(() => { programmaticScrollRef.current = false; }, 100);
 
     // Evidenzia lo slot selezionato
     const [h, m] = navTime.split(':').map(Number);
