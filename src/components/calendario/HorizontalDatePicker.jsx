@@ -483,7 +483,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                 cartellaLongPressRef.current = setTimeout(() => {
                                   if (navigator.vibrate) navigator.vibrate(50);
                                   setDeleteModeCartellaId(cartella.id);
-                                }, 2000);
+                                }, 1000);
               }}
               onTouchMove={() => {
                 if (cartellaLongPressRef.current) { clearTimeout(cartellaLongPressRef.current); cartellaLongPressRef.current = null; }

@@ -92,7 +92,7 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
     deleteLongPressRef.current = setTimeout(() => {
       if (navigator.vibrate) navigator.vibrate(50);
       setDeleteModeFileId(fileId);
-    }, 2000);
+    }, 1000);
   }, []);
 
   const handleFileLongPressEnd = useCallback(() => {
