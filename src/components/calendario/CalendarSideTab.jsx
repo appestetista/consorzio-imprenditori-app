@@ -377,7 +377,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                 showWeekView && !showWeekNoteEditor ? "translate-y-0" : "translate-y-full"
               )}
               style={{
-                backgroundColor: `color-mix(in srgb, ${weekViewColor || currentMonthColor} 6%, #0f172a)`,
+                backgroundColor: `color-mix(in srgb, ${weekViewColor || currentMonthColor} 15%, #0f172a)`,
                 transition: 'background-color 1.2s ease, transform 0.7s ease-in-out'
               }}
             >
@@ -391,7 +391,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                   left: '50%',
                   transform: 'translate(-50%, -50%) rotate(90deg) translateY(calc(-50vw + 31px))',
                   transformOrigin: 'center center',
-                  backgroundColor: `color-mix(in srgb, ${weekViewColor || currentMonthColor} 6%, #0f172a)`,
+                  backgroundColor: `color-mix(in srgb, ${weekViewColor || currentMonthColor} 15%, #0f172a)`,
                   borderBottom: '1px solid rgba(51,65,85,0.5)',
                   pointerEvents: 'auto'
                 }}

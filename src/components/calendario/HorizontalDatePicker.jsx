@@ -438,7 +438,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
     <div 
       className="overflow-hidden flex flex-col relative"
       style={{ 
-        backgroundColor: `color-mix(in srgb, ${bgColor} 6%, #0f172a)`,
+        backgroundColor: `color-mix(in srgb, ${bgColor} 15%, #0f172a)`,
         transition: 'background-color 1.2s ease'
       }}
     >

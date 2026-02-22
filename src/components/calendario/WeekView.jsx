@@ -97,17 +97,22 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     if (!ribbonRef.current || initialScrollDone.current) return;
     // Usa il giorno visibile dalla vista giornaliera se disponibile
     let targetDate;
-    if (initialVisibleDay && initialVisibleMonth !== undefined && initialVisibleYear) {
-      targetDate = new Date(initialVisibleYear, initialVisibleMonth, initialVisibleDay);
+    let targetMonth;
+    if (initialVisibleMonth !== undefined && initialVisibleYear) {
+      targetMonth = initialVisibleMonth;
+      targetDate = new Date(initialVisibleYear, initialVisibleMonth, 1);
     } else if (selectedDate) {
       targetDate = new Date(selectedDate);
+      targetMonth = targetDate.getMonth();
     } else {
       targetDate = today;
+      targetMonth = today.getMonth();
     }
-    const dayOfYear = getDayOfYear(targetDate, displayYear);
+    // Scrolla all'inizio del mese (giorno 1)
+    const firstOfMonth = new Date(displayYear, targetMonth, 1);
+    const dayOfYear = getDayOfYear(firstOfMonth, displayYear);
     if (dayOfYear >= 0) {
-      const barWidth = ribbonRef.current.clientWidth;
-      ribbonRef.current.scrollLeft = dayOfYear * ITEM_W - barWidth / 2 + ITEM_W / 2;
+      ribbonRef.current.scrollLeft = dayOfYear * ITEM_W;
     }
     initialScrollDone.current = true;
   }, [yearDays, initialVisibleMonth, initialVisibleYear]);
@@ -313,7 +318,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   const nowSlot = `${String(nH).padStart(2,'0')}:${String(nM).padStart(2,'0')}`;
 
   const bgStyle = {
-    backgroundColor: `color-mix(in srgb, ${ac} 6%, #0f172a)`,
+    backgroundColor: `color-mix(in srgb, ${ac} 15%, #0f172a)`,
     transition: 'background-color 1.2s ease'
   };
 
@@ -509,7 +514,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
             return (
               <div key={slot.label} className={cn("flex", slot.isFullHour ? "h-10" : "h-6")}>
                 {/* Colonna ore */}
-                <div className={cn("flex-shrink-0 flex items-center justify-end px-0", isSlotRow && "bg-amber-500/10")} style={{ width: '70px', paddingRight: '6px', borderRight: '2px solid rgba(100,116,139,0.6)', backgroundColor: isSlotRow ? undefined : `color-mix(in srgb, ${ac} 6%, #0f172a)` }}>
+                <div className={cn("flex-shrink-0 flex items-center justify-end px-0", isSlotRow && "bg-amber-500/10")} style={{ width: '70px', paddingRight: '6px', borderRight: '2px solid rgba(100,116,139,0.6)', backgroundColor: isSlotRow ? undefined : `color-mix(in srgb, ${ac} 15%, #0f172a)` }}>
                   {isSlotRow ? (
                     <div className="w-4 h-4 rounded-full bg-amber-500 flex items-center justify-center mr-1 animate-pulse shadow-lg shadow-amber-500/40 flex-shrink-0"><Plus className="w-2.5 h-2.5 text-white" /></div>
                   ) : (
