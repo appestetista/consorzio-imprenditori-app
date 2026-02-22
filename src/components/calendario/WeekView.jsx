@@ -594,10 +594,13 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                     const isSel = selectedDate && day.toDateString() === new Date(selectedDate).toDateString();
                     const its = items[dk]?.[slot.label] || [];
                     const isSlotSelected = selectedSlot?.date === dk && selectedSlot?.time === slot.label;
+                    const isCellFocused = focusedDay === dk;
+                    const isCellDimmed = focusedDay && !isCellFocused;
                     return (
                       <div
                         key={di}
-                        className={cn("flex-1 border-l border-slate-700/20 relative cursor-pointer", isNC && "bg-white/5", isT && "bg-slate-800/20", isSel && !isT && "bg-slate-700/15", isSlotSelected && "ring-1 ring-amber-500/60")}
+                        className={cn("flex-1 border-l border-slate-700/20 relative cursor-pointer", isNC && !isCellDimmed && "bg-white/5", isT && !isCellDimmed && "bg-slate-800/20", isSel && !isT && !isCellDimmed && "bg-slate-700/15", isSlotSelected && "ring-1 ring-amber-500/60")}
+                        style={{ opacity: isCellDimmed ? 0.25 : 1, transition: 'opacity 0.4s ease' }}
                         onClick={(e) => handleSlotClick(dk, slot.label, e)}
                       >
                         {isNC && <div className="absolute left-0 right-0 top-0 h-[2px] bg-white animate-pulse z-10" />}
