@@ -551,8 +551,17 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                 }
               }}
               onNoteClick={(note) => {
-                // Evidenzia la nota nel popup, resta nella visione mensile
-                // La navigazione al giorno avviene alla chiusura del popup
+                // Naviga nella WeekView al giorno della nota (resta nella visione mensile)
+                if (note?.data) {
+                  const [y, mo, d] = note.data.split('-').map(Number);
+                  const targetDate = new Date(y, mo - 1, d);
+                  targetDate.setHours(0, 0, 0, 0);
+                  handleDateSelect(targetDate);
+                  // Scrolla il nastro della WeekView a quel giorno
+                  if (weekViewMonthSelectRef.current) {
+                    weekViewMonthSelectRef.current(mo - 1);
+                  }
+                }
               }}
               onDeleteNote={(note) => {
                 if (note?.id) {
