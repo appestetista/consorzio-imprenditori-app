@@ -269,31 +269,6 @@ function FileEditor({ file, cartellaId, cartelle = [], userEmail, onClose, onSav
         )}
       </div>
 
-      {/* Barra strumenti in basso - stile calendario inline */}
-      <div className="flex-shrink-0 flex items-center justify-around px-2 py-1.5 border-t border-slate-800 bg-black">
-        <button onClick={() => cameraRef.current?.click()} className="w-9 h-9 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center transition-colors active:scale-90">
-          <Camera className="w-4 h-4 text-slate-300" />
-        </button>
-        <button onClick={() => fileRef.current?.click()} className="w-9 h-9 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center transition-colors active:scale-90">
-          <Paperclip className="w-4 h-4 text-slate-300" />
-        </button>
-        <button
-          onClick={toggleChecklist}
-          className={cn("w-9 h-9 rounded-full flex items-center justify-center transition-colors active:scale-90", showChecklist ? "bg-lime-500/30" : "bg-slate-800 hover:bg-slate-700")}
-        >
-          <ListChecks className={cn("w-4 h-4", showChecklist ? "text-lime-400" : "text-slate-300")} />
-        </button>
-        <WhisperDictation
-          isDictating={isDictating}
-          setIsDictating={setIsDictating}
-          onTranscription={(text) => setContenuto(prev => prev ? prev + ' ' + text : text)}
-        />
-        <AudioRecorder
-          onAudioSaved={(audioAtt) => setAllegati(prev => [...prev, audioAtt])}
-          onTranscription={(text) => setContenuto(prev => prev ? prev + '\n' + text : text)}
-        />
-      </div>
-
       {/* FileContextMenu per modifica colore/cartella/promemoria */}
       {showContextMenu && file && (
         <FileContextMenu
