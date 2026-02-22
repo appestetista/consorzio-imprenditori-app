@@ -399,9 +399,10 @@ export default function CartellaView({ cartella, userEmail, onClose }) {
         </button>
         <button 
           onClick={() => setShowColorPicker(!showColorPicker)}
-          className="w-5 h-5 rounded-full flex-shrink-0 ring-2 ring-white/20 hover:ring-white/50 transition-all"
-          style={{ backgroundColor: folderColor }}
-        />
+          className="flex-shrink-0 hover:opacity-80 transition-all"
+        >
+          <Folder className="w-6 h-6" style={{ color: folderColor, fill: folderColor }} />
+        </button>
         {editingName ? (
           <input
             type="text"
