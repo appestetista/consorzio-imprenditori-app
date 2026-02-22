@@ -431,14 +431,14 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
               {/* Titolo nota salvata + X per eliminare */}
               {hasNote && (
                 <div className="ml-2 flex items-center gap-1 flex-1 min-w-0">
-                  <span className="text-xs truncate" style={{ color: note.cartella_id && cartelleMap[note.cartella_id] ? cartelleMap[note.cartella_id].colore : currentMonthColor }}>
-                    📄 {note.title}
-                    {note.cartella_id && cartelleMap[note.cartella_id] && (
-                      <span style={{ color: cartelleMap[note.cartella_id].colore }}> / cartella {cartelleMap[note.cartella_id].nome}</span>
-                    )}
-                    {(note.content || note.checklist_items?.length > 0 || note.attachments?.length > 0) && (
-                      <span className="ml-1" style={{ color: note.cartella_id && cartelleMap[note.cartella_id] ? cartelleMap[note.cartella_id].colore + '99' : currentMonthColor + '99' }}>•••</span>
-                    )}
+                  <span className="text-xs truncate" style={{ color: currentMonthColor }}>
+                        📄 {note.title}
+                        {note.cartella_id && cartelleMap[note.cartella_id] && (
+                          <span style={{ color: cartelleMap[note.cartella_id].colore }}> / cartella {cartelleMap[note.cartella_id].nome}</span>
+                        )}
+                        {(note.content || note.checklist_items?.length > 0 || note.attachments?.length > 0) && (
+                          <span className="ml-1" style={{ color: currentMonthColor + '99' }}>•••</span>
+                        )}
                   </span>
                   <button
                     onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); setDeleteConfirm(slot.timeString); }}

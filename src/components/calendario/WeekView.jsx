@@ -265,7 +265,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     if (!items[n.data]) items[n.data] = {};
     if (!items[n.data][sk]) items[n.data][sk] = [];
     const noteMonth = parseInt(n.data.split('-')[1]) - 1;
-    const noteColor = n.cartella_id && cm[n.cartella_id] ? cm[n.cartella_id].colore : MONTH_COLORS[noteMonth];
+    const noteColor = MONTH_COLORS[noteMonth];
     items[n.data][sk].push({ title: n.title, color: noteColor });
     if (!notesByDateAndTime[n.data]) notesByDateAndTime[n.data] = {};
     notesByDateAndTime[n.data][sk] = n;
