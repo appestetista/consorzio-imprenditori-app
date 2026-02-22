@@ -178,7 +178,7 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
           className="flex-shrink-0 flex flex-col items-center gap-0.5 px-1 py-0.5 transition-colors disabled:opacity-50"
         >
           <FilePlus className="w-6 h-6 text-white" />
-          <span className="text-[9px] text-slate-400 font-medium">Nuovo</span>
+          <span className="text-[9px] text-slate-400 font-medium">File</span>
         </button>
 
         {/* File standalone - stile icona nota */}
