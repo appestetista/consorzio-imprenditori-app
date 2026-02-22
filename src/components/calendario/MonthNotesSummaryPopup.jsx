@@ -25,11 +25,11 @@ export default function MonthNotesSummaryPopup({ notes, cartelleMap, monthIndex,
   let lastDay = null;
 
   return (
-    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/70" onClick={() => {
+    <div className="fixed inset-0 z-[999] flex items-start justify-center pt-4 bg-black/70" onClick={() => {
       if (onClose) onClose(lastClickedNoteRef.current);
     }}>
       <div
-        className="bg-slate-900 rounded-2xl shadow-2xl border border-slate-700/60 w-[90vw] max-w-sm max-h-[80vh] flex flex-col overflow-hidden"
+        className="bg-slate-900 rounded-2xl shadow-2xl border border-slate-700/60 w-[90vw] max-w-sm max-h-[92vh] flex flex-col overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -46,7 +46,7 @@ export default function MonthNotesSummaryPopup({ notes, cartelleMap, monthIndex,
         </div>
 
         {/* Lista note */}
-        <div className="flex-1 overflow-y-auto px-3 py-2" style={{ scrollbarWidth: 'none' }}>
+        <div className="flex-1 overflow-y-auto px-3 py-2">
           {sortedNotes.length === 0 ? (
             <div className="text-center py-8 text-slate-500 text-sm">Nessuna nota questo mese</div>
           ) : (
@@ -81,9 +81,8 @@ export default function MonthNotesSummaryPopup({ notes, cartelleMap, monthIndex,
                     <div 
                       className="flex-1 min-w-0 cursor-pointer"
                       onClick={() => {
-                        setSelectedNoteId(note.id || idx);
                         lastClickedNoteRef.current = note;
-                        if (onNoteClick) onNoteClick(note);
+                        if (onClose) onClose(note);
                       }}
                     >
                       <div className="flex items-center gap-1.5">
