@@ -551,7 +551,8 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                 }
               }}
               onNoteClick={(note) => {
-                // Naviga nella WeekView al giorno della nota (resta nella visione mensile)
+                // Chiudi il popup, resta nella visione mensile, vai al giorno+orario
+                setMonthNotesPopup(null);
                 if (note?.data) {
                   const [y, mo, d] = note.data.split('-').map(Number);
                   const targetDate = new Date(y, mo - 1, d);
