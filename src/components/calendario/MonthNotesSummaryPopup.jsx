@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Check, Folder, Trash2 } from 'lucide-react';
+import { X, Folder, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const MONTH_COLORS = [
@@ -9,7 +9,6 @@ const MONTH_COLORS = [
 const MONTHS_FULL = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
 
 export default function MonthNotesSummaryPopup({ notes, cartelleMap, monthIndex, year, onClose, onNoteClick, onDeleteNote }) {
-  const [completedNotes, setCompletedNotes] = useState({});
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [selectedNoteId, setSelectedNoteId] = useState(null);
   const lastClickedNoteRef = React.useRef(null);
@@ -21,10 +20,6 @@ export default function MonthNotesSummaryPopup({ notes, cartelleMap, monthIndex,
     if (dc !== 0) return dc;
     return (a.time || '00:00').localeCompare(b.time || '00:00');
   });
-
-  const toggleCompleted = (noteId) => {
-    setCompletedNotes(prev => ({ ...prev, [noteId]: !prev[noteId] }));
-  };
 
   // Raggruppa per giorno
   let lastDay = null;
@@ -83,19 +78,7 @@ export default function MonthNotesSummaryPopup({ notes, cartelleMap, monthIndex,
                       selectedNoteId === (note.id || idx) && "ring-1 ring-lime-400/60 bg-lime-400/10"
                     )}
                   >
-                    {/* Checkbox completamento */}
-                    <button
-                      onClick={(e) => { e.stopPropagation(); toggleCompleted(note.id || idx); }}
-                      className={`w-5 h-5 rounded flex-shrink-0 flex items-center justify-center border transition-all touch-manipulation ${
-                        isCompleted 
-                          ? 'border-lime-500 bg-lime-500/20' 
-                          : 'border-slate-600 bg-transparent hover:border-slate-400'
-                      }`}
-                    >
-                      {isCompleted && <Check className="w-3 h-3 text-lime-400" />}
-                    </button>
-
-                    {/* Contenuto nota - cliccabile per evidenziare */}
+                    {/* Contenuto nota - cliccabile per navigare */}
                     <div 
                       className="flex-1 min-w-0 cursor-pointer"
                       onClick={() => {
@@ -107,18 +90,18 @@ export default function MonthNotesSummaryPopup({ notes, cartelleMap, monthIndex,
                       <div className="flex items-center gap-1.5">
                         <span 
                           className="text-[10px] font-mono font-bold flex-shrink-0" 
-                          style={{ color: isCompleted ? '#475569' : noteColor }}
+                          style={{ color: noteColor }}
                         >
                           {noteTime}
                         </span>
                         <span 
-                          className={`text-sm font-medium truncate ${isCompleted ? 'line-through text-slate-600' : 'text-white'}`}
+                          className="text-sm font-medium truncate text-white"
                         >
                           {note.title}
                         </span>
                       </div>
                       {cart && (
-                        <div className="flex items-center gap-1 ml-12 mt-0.5" style={{ color: isCompleted ? '#475569' : cart.colore }}>
+                        <div className="flex items-center gap-1 ml-12 mt-0.5" style={{ color: cart.colore }}>
                           <Folder className="w-3 h-3 flex-shrink-0" />
                           <span className="text-[10px]">/ {cart.nome}</span>
                         </div>
@@ -142,7 +125,7 @@ export default function MonthNotesSummaryPopup({ notes, cartelleMap, monthIndex,
         {/* Footer */}
         <div className="px-4 py-2 border-t border-slate-700/50 flex items-center justify-between">
           <span className="text-[10px] text-slate-500">
-            {Object.values(completedNotes).filter(Boolean).length} / {sortedNotes.length} completate
+            {sortedNotes.length} {sortedNotes.length === 1 ? 'nota' : 'note'}
           </span>
         </div>
 
