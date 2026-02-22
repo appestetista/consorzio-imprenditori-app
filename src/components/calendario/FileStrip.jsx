@@ -180,34 +180,15 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
               </button>
 
               <div
-                className="flex flex-row items-start gap-0 cursor-pointer"
-                onClick={() => {
-                  if (!draggedFile && !contextFile) onFileClick?.(file);
-                }}
-                onTouchStart={(e) => handleTouchStart(e, file)}
-              >
-                {/* Linguetta penna a sinistra del file */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setContextFile(file);
+                  className="flex flex-col items-center gap-0 cursor-pointer"
+                  onClick={() => {
+                    if (!draggedFile && !contextFile) onFileClick?.(file);
                   }}
-                  className="flex-shrink-0 flex items-center justify-center rounded-l-md shadow-md self-stretch"
-                  style={{
-                    width: '14px',
-                    background: '#ffffff',
-                    borderRight: '1px solid rgba(0,0,0,0.1)',
-                    marginTop: '2px',
-                    marginBottom: '2px',
-                  }}
+                  onTouchStart={(e) => handleTouchStart(e, file)}
                 >
-                  <Pencil className="w-2 h-2 text-black" />
-                </button>
-
-                <div className="flex flex-col items-center gap-0.5">
                   {/* Icona nota colorata - grigio chiaro di default */}
                   <div 
-                    className="relative w-8 h-9 rounded-r-sm shadow-md flex items-center justify-center"
+                    className="relative w-8 h-9 rounded-sm shadow-md flex items-center justify-center"
                     style={{ 
                       background: 'linear-gradient(160deg, #64748b 0%, #475569 100%)',
                       boxShadow: '0 2px 6px rgba(71,85,105,0.3)'
@@ -231,8 +212,25 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
                   <span className="text-[9px] text-slate-300 font-medium text-center leading-tight max-w-[40px] truncate">
                     {shortName}
                   </span>
+
+                  {/* Linguetta modifica sotto il nome */}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setContextFile(file);
+                    }}
+                    className="flex items-center justify-center rounded-b-md shadow-md"
+                    style={{
+                      width: '24px',
+                      height: '12px',
+                      background: '#ffffff',
+                      borderTop: '1px solid rgba(0,0,0,0.1)',
+                      marginTop: '1px',
+                    }}
+                  >
+                    <Pencil className="w-2 h-2 text-black" />
+                  </button>
                 </div>
-              </div>
             </div>
           );
         })}
