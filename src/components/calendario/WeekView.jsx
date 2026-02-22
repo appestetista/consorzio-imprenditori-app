@@ -403,37 +403,42 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
               const isHL = highlightedDay && highlightedDay.day === dayNum && highlightedDay.month === mIdx && highlightedDay.year === displayYear;
               const mColor = MONTH_COLORS[mIdx];
               const isFirstOfMonth = dayNum === 1;
+              // Focus mode: se focusedDay è attivo, solo quel giorno è colorato, il resto grigio
+              const isFocused = focusedDay === dk;
+              const isDimmed = focusedDay && !isFocused;
 
               return (
                 <div
                   key={idx}
                   className="flex flex-col items-center cursor-pointer flex-shrink-0"
-                  style={{ width: `${ITEM_W}px` }}
-                  onClick={() => handleDayClick(dayDate)}
+                  style={{ width: `${ITEM_W}px`, opacity: isDimmed ? 0.35 : 1, transition: 'opacity 0.4s ease' }}
+                  onClick={() => { setFocusedDay(null); handleDayClick(dayDate); }}
                 >
                   <div
-                    className={cn("rounded-full flex items-center justify-center transition-all", isToday && "animate-pulse")}
+                    className={cn("rounded-full flex items-center justify-center transition-all", isToday && !isDimmed && "animate-pulse")}
                     style={{
                       width: '20px', height: '20px',
-                      backgroundColor: isSelectedDay && !isToday ? mColor : 'transparent',
-                      border: isHL ? '2px solid #f59e0b' : (isSelectedDay && !isToday ? `2px solid ${mColor}` : 'none'),
+                      backgroundColor: isFocused ? mColor : (isSelectedDay && !isToday && !isDimmed ? mColor : 'transparent'),
+                      border: isFocused ? `2px solid ${mColor}` : (isHL ? '2px solid #f59e0b' : (isSelectedDay && !isToday && !isDimmed ? `2px solid ${mColor}` : 'none')),
+                      boxShadow: isFocused ? `0 0 10px ${mColor}80` : 'none'
                     }}
                   >
-                    <span className={cn("text-[8px] font-bold leading-none", isToday && "animate-pulse")} style={{
-                      color: isToday ? '#fff' : (isSelectedDay ? '#fff' : (isHL ? '#f59e0b' : (isInWeek ? '#fff' : mColor)))
+                    <span className={cn("text-[8px] font-bold leading-none", isToday && !isDimmed && "animate-pulse")} style={{
+                      color: isDimmed ? '#475569' : (isFocused ? '#fff' : (isToday ? '#fff' : (isSelectedDay ? '#fff' : (isHL ? '#f59e0b' : (isInWeek ? '#fff' : mColor)))))
                     }}>{dayNum}</span>
                   </div>
                   <span className={cn("text-[6px] font-bold leading-tight")} style={{
-                    color: isWeekend ? '#ef4444' : (isInWeek ? '#94a3b8' : mColor + '80')
+                    color: isDimmed ? '#334155' : (isWeekend ? '#ef4444' : (isInWeek ? '#94a3b8' : mColor + '80'))
                   }}>
                     {DAY_LETTERS[dow]}
                   </span>
                   {dayNoteCount > 0 ? (
                     <span 
                       className="text-[16px] font-bold leading-none cursor-pointer"
-                      style={{ color: '#a3e635' }}
+                      style={{ color: isDimmed ? '#334155' : '#a3e635', transition: 'color 0.4s ease' }}
                       onClick={(e) => {
                         e.stopPropagation();
+                        setFocusedDay(null);
                         setDaySummaryDate(dk);
                       }}
                     >{dayNoteCount}</span>
