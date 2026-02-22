@@ -14,10 +14,11 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
   // Context menu (long press)
   const [contextFile, setContextFile] = useState(null);
   const [contextPos, setContextPos] = useState({ x: 0, y: 0 });
-
+  const [deleteModeFileId, setDeleteModeFileId] = useState(null); // file con X visibile dopo long press
 
   const touchStartRef = useRef(null);
   const longPressTimerRef = useRef(null);
+  const deleteLongPressRef = useRef(null);
   const queryClient = useQueryClient();
 
   const { data: allFiles = [] } = useQuery({
@@ -85,11 +86,28 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
 
   const hasFolders = cartelle.length > 0;
 
+  // Long press 3s per mostrare X di eliminazione
+  const handleFileLongPressStart = useCallback((fileId) => {
+    if (deleteLongPressRef.current) clearTimeout(deleteLongPressRef.current);
+    deleteLongPressRef.current = setTimeout(() => {
+      if (navigator.vibrate) navigator.vibrate(50);
+      setDeleteModeFileId(fileId);
+    }, 3000);
+  }, []);
+
+  const handleFileLongPressEnd = useCallback(() => {
+    if (deleteLongPressRef.current) {
+      clearTimeout(deleteLongPressRef.current);
+      deleteLongPressRef.current = null;
+    }
+  }, []);
+
   // --- Touch drag handlers (solo drag, niente long press per menu) ---
   const handleTouchStart = useCallback((e, file) => {
     const touch = e.touches[0];
     touchStartRef.current = { x: touch.clientX, y: touch.clientY, file, moved: false };
-  }, []);
+    handleFileLongPressStart(file.id);
+  }, [handleFileLongPressStart]);
 
   const handleTouchMove = useCallback((e) => {
     if (!touchStartRef.current) return;
@@ -98,6 +116,9 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
     const dy = Math.abs(touch.clientY - touchStartRef.current.y);
 
     // Inizia drag se si muove abbastanza e ci sono cartelle
+    if ((dx > 10 || dy > 10) && !touchStartRef.current.moved) {
+      handleFileLongPressEnd(); // annulla long press se si muove
+    }
     if ((dx > 10 || dy > 10) && hasFolders && !touchStartRef.current.moved) {
       touchStartRef.current.moved = true;
       if (navigator.vibrate) navigator.vibrate(20);
@@ -119,6 +140,7 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
   }, [hasFolders]);
 
   const handleTouchEnd = useCallback(() => {
+    handleFileLongPressEnd();
     if (draggedFile && dragOverCartella) {
       moveToFolderMutation.mutate({ fileId: draggedFile.id, cartellaId: dragOverCartella });
       if (onFileDragToFolder) onFileDragToFolder(draggedFile.id, dragOverCartella);
@@ -174,16 +196,19 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
                 draggedFile?.id === file.id && "opacity-30 scale-90 transition-all duration-200"
               )}
             >
-              {/* X per eliminare - in alto a destra */}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setDeleteFilePopup(file);
-                }}
-                className="absolute -top-0.5 -right-0.5 z-10 w-4 h-4 rounded-full bg-red-500 hover:bg-red-400 flex items-center justify-center shadow-lg"
-              >
-                <X className="w-2.5 h-2.5 text-white" />
-              </button>
+              {/* X per eliminare - visibile solo dopo long press 3s */}
+              {deleteModeFileId === file.id && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDeleteFilePopup(file);
+                    setDeleteModeFileId(null);
+                  }}
+                  className="absolute -top-0.5 -right-0.5 z-10 w-5 h-5 rounded-full bg-red-500 hover:bg-red-400 flex items-center justify-center shadow-lg animate-pulse"
+                >
+                  <X className="w-3 h-3 text-white" />
+                </button>
+              )}
 
               <div
                   className="flex flex-col items-center gap-0 cursor-pointer"
