@@ -463,7 +463,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
           onClick={() => setShowNewFolderPopup(true)}
           className="flex-shrink-0 flex items-center gap-1 px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 transition-colors"
         >
-          <FolderPlus className="w-8 h-8 text-lime-400" />
+          <FolderPlus className="w-8 h-8 text-white" />
           <span className="text-[10px] text-slate-300 font-medium">Nuova</span>
         </button>
         
