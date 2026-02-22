@@ -907,42 +907,15 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
             </button>
           )}
           
-          {/* MESI - al centro (apre vista settimanale) */}
+          {/* VISIONE MENSILE - occupa tutto lo spazio restante */}
           {onToggleFatturato && (
             <button
               onClick={onToggleFatturato}
-              className="flex-1 h-10 rounded-md transition-all touch-manipulation active:scale-90 flex items-center justify-center bg-white"
+              className="flex-[2] h-10 rounded-md transition-all touch-manipulation active:scale-90 flex items-center justify-center bg-white"
             >
-              <span className="text-[12px] font-bold uppercase text-black">Mesi</span>
+              <span className="text-[12px] font-bold uppercase text-black">Visione Mensile</span>
             </button>
           )}
-
-          {/* STRUMENTI - a destra (apre strumenti) */}
-          <div className="flex-1 relative">
-            <button
-              onClick={() => {
-                if (hasSelectedTime && onOpenTools) {
-                  onOpenTools();
-                } else {
-                  setShowToolsTooltip(true);
-                  setTimeout(() => setShowToolsTooltip(false), 3000);
-                }
-              }}
-              className={cn(
-                "w-full h-10 rounded-md transition-all touch-manipulation active:scale-90 flex items-center justify-center bg-white",
-                !hasSelectedTime && "opacity-50"
-              )}
-            >
-              <span className="text-[12px] font-bold uppercase text-black">Strumenti</span>
-            </button>
-            {/* Fumetto tooltip */}
-            {showToolsTooltip && (
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-slate-700 text-white text-[10px] rounded-lg shadow-xl whitespace-nowrap z-50">
-                Prima seleziona un orario per creare la nota
-                <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-slate-700" />
-              </div>
-            )}
-          </div>
         </div>
         </div>
 
