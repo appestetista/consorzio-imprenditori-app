@@ -52,6 +52,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
     const [pendingNoteNavigate, setPendingNoteNavigate] = useState(null);
     const queryClient = useQueryClient();
     const [monthNotesPopup, setMonthNotesPopup] = useState(null); // { monthIndex, year }
+    const [pendingWeekSlotNavigate, setPendingWeekSlotNavigate] = useState(null); // { date, time }
   const goToTodayRef = useRef(null);
   const [currentMonthColor, setCurrentMonthColor] = useState(MONTH_COLORS[new Date().getMonth()]);
   const [visibleMonthLabel, setVisibleMonthLabel] = useState({ month: new Date().getMonth(), year: new Date().getFullYear() });
@@ -454,6 +455,8 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                     onMonthChange={(month) => setWeekViewMonth(month)}
                     onRegisterMonthSelect={(fn) => { weekViewMonthSelectRef.current = fn; }}
                     allMonthNotes={allUserNotes}
+                    navigateToSlot={pendingWeekSlotNavigate}
+                    onNavigateToSlotDone={() => setPendingWeekSlotNavigate(null)}
                     onBackToDaily={() => {
                       const targetDate = selectedDate 
                         ? new Date(selectedDate) 
@@ -551,7 +554,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                 }
               }}
               onNoteClick={(note) => {
-                // Chiudi il popup, resta nella visione mensile, vai al giorno+orario
+                // Chiudi il popup, resta nella visione mensile, vai al giorno+orario preciso
                 setMonthNotesPopup(null);
                 if (note?.data) {
                   const [y, mo, d] = note.data.split('-').map(Number);
@@ -561,6 +564,10 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                   // Scrolla il nastro della WeekView a quel giorno
                   if (weekViewMonthSelectRef.current) {
                     weekViewMonthSelectRef.current(mo - 1);
+                  }
+                  // Passa l'orario preciso alla WeekView per scroll verticale
+                  if (note.time) {
+                    setPendingWeekSlotNavigate({ date: note.data, time: note.time });
                   }
                 }
               }}
