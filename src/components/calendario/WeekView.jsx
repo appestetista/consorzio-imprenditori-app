@@ -51,6 +51,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   const [strikethroughItems, setStrikethroughItems] = useState({});
   const [daySummaryDate, setDaySummaryDate] = useState(null);
   const [slotMenuPos, setSlotMenuPos] = useState(null); // { date, time, x, y }
+  const [focusedDay, setFocusedDay] = useState(null); // "YYYY-MM-DD" — giorno evidenziato da navigazione popup, gli altri diventano grigi
   // La settimana visualizzata (derivata dal giorno centrale visibile nel nastro)
   const [currentWeekDays, setCurrentWeekDays] = useState(() => getWeekDays(selectedDate || new Date()));
   // Cursore: posizione px nel nastro
@@ -129,6 +130,10 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   // Quando il nastro scrolla, determina il giorno al centro e aggiorna la settimana
   const handleRibbonScroll = useCallback(() => {
     if (!ribbonRef.current) return;
+
+    // Se l'utente scrolla il nastro, resetta il focus (torna tutto colorato)
+    if (focusedDay) setFocusedDay(null);
+
     const scrollLeft = ribbonRef.current.scrollLeft;
     const barWidth = ribbonRef.current.clientWidth;
     const centerOffset = scrollLeft + barWidth / 2;
@@ -146,7 +151,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
 
     // Aggiorna cursore in px — posizionato sopra i giorni reali della settimana nel nastro
     updateCursorPosition(newWeek);
-  }, [yearDays]);
+  }, [yearDays, focusedDay]);
 
   const updateCursorPosition = useCallback((week) => {
     if (!ribbonRef.current) return;
@@ -301,6 +306,9 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     const targetDate = new Date(y, mo - 1, d);
     targetDate.setHours(0, 0, 0, 0);
     handleDayClick(targetDate);
+
+    // Attiva modalità focus: questo giorno resta colorato, il resto diventa grigio
+    setFocusedDay(navDate);
 
     // Evidenzia lo slot selezionato
     const [h, m] = navTime.split(':').map(Number);
