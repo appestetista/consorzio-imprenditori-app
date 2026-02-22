@@ -213,7 +213,9 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
     <div className={cn(
       "bg-black flex flex-col",
       inline ? "h-full" : "fixed inset-0 z-[60]"
-    )}>
+    )}
+    style={{ touchAction: 'manipulation' }}
+    >
       {/* Riga 1: Data e ora centrati */}
       <div className="px-3 py-2 border-b border-slate-800">
         <div className="text-slate-400 text-xs font-mono text-center">
@@ -456,11 +458,12 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
           placeholder="Titolo *"
           autoComplete="off"
           autoCorrect="off"
-          autoCapitalize="off"
+          autoCapitalize="sentences"
           spellCheck="false"
-          inputMode="text"
+          enterKeyHint="done"
           data-form-type="other"
           data-lpignore="true"
+          aria-autocomplete="none"
           className={cn(
             "w-full bg-transparent text-white font-light outline-none mb-2 truncate flex-shrink-0",
             inline ? "text-base" : "text-3xl",
@@ -482,10 +485,12 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
             placeholder="Scrivi qui..."
             autoComplete="off"
             autoCorrect="off"
-            autoCapitalize="off"
+            autoCapitalize="sentences"
             spellCheck="false"
+            enterKeyHint="done"
             data-form-type="other"
             data-lpignore="true"
+            aria-autocomplete="none"
             className="w-full flex-1 min-h-0 bg-transparent text-white text-sm outline-none placeholder:text-slate-600 resize-none overflow-y-auto"
           />
         )}
