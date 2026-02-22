@@ -161,7 +161,9 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
 
         {/* File standalone - stile icona nota */}
         {allFiles.map((file) => {
-          const fileColor = file.colore || '#06b6d4';
+          const defaultColor = '#06b6d4';
+          const hasCustomColor = file.colore && file.colore !== defaultColor;
+          const fileColor = hasCustomColor ? file.colore : null;
           const shortName = file.titolo?.length > 7 ? file.titolo.substring(0, 7) : file.titolo;
 
           return (
@@ -190,12 +192,16 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
                   }}
                   onTouchStart={(e) => handleTouchStart(e, file)}
                 >
-                  {/* Icona nota colorata - grigio chiaro di default */}
+                  {/* Icona nota - grigio di default, colore personalizzato se impostato */}
                   <div 
                     className="relative w-8 h-9 rounded-sm shadow-md flex items-center justify-center"
                     style={{ 
-                      background: 'linear-gradient(160deg, #64748b 0%, #475569 100%)',
-                      boxShadow: '0 2px 6px rgba(71,85,105,0.3)'
+                      background: fileColor 
+                        ? `linear-gradient(160deg, ${fileColor} 0%, ${fileColor}cc 100%)`
+                        : 'linear-gradient(160deg, #64748b 0%, #475569 100%)',
+                      boxShadow: fileColor 
+                        ? `0 2px 6px ${fileColor}40`
+                        : '0 2px 6px rgba(71,85,105,0.3)'
                     }}
                   >
                     <div 
