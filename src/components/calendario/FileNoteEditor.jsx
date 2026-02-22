@@ -38,8 +38,15 @@ export default function FileNoteEditor({ file, onClose, onSave, onDelete, monthC
     enabled: !!userEmail
   });
 
+  const isNewFile = file?._isNew === true;
+
   const saveMutation = useMutation({
-    mutationFn: (data) => base44.entities.FileCartella.update(file.id, data),
+    mutationFn: (data) => {
+      if (isNewFile) {
+        return base44.entities.FileCartella.create({ ...data, user_email: file.user_email });
+      }
+      return base44.entities.FileCartella.update(file.id, data);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['standalone-files'] });
       queryClient.invalidateQueries({ queryKey: ['allFileCartella'] });
@@ -101,12 +108,14 @@ export default function FileNoteEditor({ file, onClose, onSave, onDelete, monthC
 
       {/* Riga 2: Cestino | Salva | X */}
       <div className="flex items-center gap-2 px-3 py-2 border-b border-slate-800">
-        <button
-          onClick={() => setShowDeleteConfirm(true)}
-          className="w-9 h-9 rounded-full bg-red-500/20 hover:bg-red-500/40 flex items-center justify-center active:scale-90 transition-all touch-manipulation flex-shrink-0"
-        >
-          <Trash2 className="w-4 h-4 text-red-400" />
-        </button>
+        {!isNewFile && (
+          <button
+            onClick={() => setShowDeleteConfirm(true)}
+            className="w-9 h-9 rounded-full bg-red-500/20 hover:bg-red-500/40 flex items-center justify-center active:scale-90 transition-all touch-manipulation flex-shrink-0"
+          >
+            <Trash2 className="w-4 h-4 text-red-400" />
+          </button>
+        )}
 
         <a
           href="#"
