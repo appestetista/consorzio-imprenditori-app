@@ -536,7 +536,54 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
         )}
       </div>
 
-  
+      {/* Barra strumenti in basso */}
+      {inline && (
+        <div className="flex-shrink-0 flex items-center justify-around px-2 py-1.5 border-t border-slate-800 bg-black">
+          {/* Foto */}
+          <button
+            onClick={() => cameraInputRef.current?.click()}
+            className="w-9 h-9 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center transition-colors active:scale-90"
+          >
+            <Camera className="w-4 h-4 text-slate-300" />
+          </button>
+          {/* Allegato */}
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            className="w-9 h-9 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center transition-colors active:scale-90"
+          >
+            <Paperclip className="w-4 h-4 text-slate-300" />
+          </button>
+          {/* Checklist */}
+          <button
+            onClick={() => {
+              if (!showChecklist && checklistItems.length === 0) {
+                setChecklistItems([{ id: Date.now().toString(), text: '', checked: false }]);
+              }
+              setShowChecklist(prev => !prev);
+            }}
+            className={cn(
+              "w-9 h-9 rounded-full flex items-center justify-center transition-colors active:scale-90",
+              showChecklist ? "bg-lime-500/30" : "bg-slate-800 hover:bg-slate-700"
+            )}
+          >
+            <ListChecks className={cn("w-4 h-4", showChecklist ? "text-lime-400" : "text-slate-300")} />
+          </button>
+          {/* Dettatura */}
+          <WhisperDictation
+            isDictating={isDictating}
+            setIsDictating={setIsDictating}
+            onTranscription={(text) => {
+              setContent(prev => prev ? prev + ' ' + text : text);
+            }}
+          />
+          {/* Registratore audio */}
+          <AudioRecorder
+            onAudioSaved={(audioAtt) => {
+              setAttachments(prev => [...prev, audioAtt]);
+            }}
+          />
+        </div>
+      )}
 
       {/* Popup conferma eliminazione */}
       {showDeleteConfirm && (
