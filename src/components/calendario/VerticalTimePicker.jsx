@@ -231,6 +231,11 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
       if (scrollBottom < 10 && scrollTop > lastScrollTop.current) {
         isScrollingRef.current = true;
         
+        // Chiudi editor e resetta selezione prima di cambiare giorno
+        setShowNoteEditor(false);
+        setSelectedTime(null);
+        if (onSelectedTimeChange) onSelectedTimeChange(false);
+        
         // Passa al giorno successivo
         if (onDateChange && selectedDate) {
           const nextDay = new Date(selectedDate);
@@ -249,6 +254,11 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
       // Se siamo arrivati in cima (scrollando verso l'alto)
       else if (scrollTop < 10 && scrollTop < lastScrollTop.current) {
         isScrollingRef.current = true;
+        
+        // Chiudi editor e resetta selezione prima di cambiare giorno
+        setShowNoteEditor(false);
+        setSelectedTime(null);
+        if (onSelectedTimeChange) onSelectedTimeChange(false);
         
         // Passa al giorno precedente
         if (onDateChange && selectedDate) {
