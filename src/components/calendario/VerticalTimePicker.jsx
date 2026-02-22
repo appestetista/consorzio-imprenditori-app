@@ -195,15 +195,18 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
   }, [isToday, selectedDate]);
 
   // Naviga all'orario preciso di una nota (dal popup note del giorno)
+  // NON apre l'editor, solo scrolla all'orario e lo evidenzia
   useEffect(() => {
     if (!navigateToNote || !scrollRef.current) return;
     const time = navigateToNote.time;
     if (!time) return;
 
-    // Apri l'editor sulla nota
+    // Chiudi l'editor se aperto
+    setShowNoteEditor(false);
+    if (onSelectedTimeChange) onSelectedTimeChange(false);
+
+    // Seleziona l'orario per evidenziarlo senza aprire l'editor
     setSelectedTime(time);
-    setShowNoteEditor(true);
-    if (onSelectedTimeChange) onSelectedTimeChange(true);
 
     // Scrolla all'orario
     setTimeout(() => {
