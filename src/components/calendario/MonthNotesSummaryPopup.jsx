@@ -55,7 +55,6 @@ export default function MonthNotesSummaryPopup({ notes, cartelleMap, monthIndex,
               const noteDay = note.data ? parseInt(note.data.split('-')[2]) : 0;
               const cart = note.cartella_id ? cartelleMap?.[note.cartella_id] : null;
               const noteColor = cart?.colore || mc;
-              const isCompleted = !!completedNotes[note.id || idx];
               const showDayHeader = noteDay !== lastDay;
               lastDay = noteDay;
 
