@@ -673,10 +673,40 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
           onClose={() => setDaySummaryDate(null)}
           onNoteClick={(note) => {
             setDaySummaryDate(null);
-            if (onSlotClick) {
-              const [h, m] = (note.time || '00:00').split(':').map(Number);
+            if (note?.data && note?.time) {
+              // Naviga allo slot preciso con focus/dimming (stesso comportamento di navigateToSlot)
+              const navDate = note.data;
+              const navTime = note.time;
+              const [y, mo, d] = navDate.split('-').map(Number);
+              const targetDate = new Date(y, mo - 1, d);
+              targetDate.setHours(0, 0, 0, 0);
+
+              setFocusedDay(navDate);
+              setHighlightedDay({ day: d, month: mo - 1, year: y });
+              const newWeek = getWeekDays(targetDate);
+              setCurrentWeekDays(newWeek);
+              updateCursorPosition(newWeek);
+              if (onDateSelect) onDateSelect(targetDate);
+
+              programmaticScrollRef.current = true;
+              if (ribbonRef.current) {
+                const dayIdx = getDayOfYear(targetDate, displayYear);
+                if (dayIdx >= 0) {
+                  const barWidth = ribbonRef.current.clientWidth;
+                  ribbonRef.current.scrollLeft = dayIdx * ITEM_W - barWidth / 2 + ITEM_W / 2;
+                }
+              }
+              setTimeout(() => { programmaticScrollRef.current = false; }, 100);
+
+              const [h, m] = navTime.split(':').map(Number);
               const sk = `${String(h).padStart(2,'0')}:${String(Math.floor(m/5)*5).padStart(2,'0')}`;
-              onSlotClick({ date: note.data, time: sk, existingNote: note });
+              setSelectedSlot({ date: navDate, time: sk });
+
+              setTimeout(() => {
+                if (scrollRef.current) {
+                  scrollRef.current.scrollTop = Math.max(0, (h * 12 + Math.floor(m / 5) - 3) * 26);
+                }
+              }, 150);
             }
           }}
         />
