@@ -458,9 +458,9 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                     navigateToSlot={pendingWeekSlotNavigate}
                     onNavigateToSlotDone={() => setPendingWeekSlotNavigate(null)}
                     onBackToDaily={() => {
-                      const targetDate = selectedDate 
-                        ? new Date(selectedDate) 
-                        : new Date();
+                      // Usa il mese attualmente visibile nella WeekView, non selectedDate
+                      const nowYear = new Date().getFullYear();
+                      const targetDate = new Date(nowYear, weekViewMonth, 15);
                       targetDate.setHours(0,0,0,0);
                       handleDateSelect(targetDate);
                       setShowWeekView(false);
