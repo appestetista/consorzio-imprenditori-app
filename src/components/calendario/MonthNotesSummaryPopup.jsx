@@ -81,8 +81,9 @@ export default function MonthNotesSummaryPopup({ notes, cartelleMap, monthIndex,
                     <div 
                       className="flex-1 min-w-0 cursor-pointer"
                       onClick={() => {
+                        setSelectedNoteId(note.id || idx);
                         lastClickedNoteRef.current = note;
-                        if (onClose) onClose(note);
+                        if (onNoteClick) onNoteClick(note);
                       }}
                     >
                       <div className="flex items-center gap-1.5">
