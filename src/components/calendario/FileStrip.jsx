@@ -205,12 +205,12 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
                 </button>
 
                 <div className="flex flex-col items-center gap-0.5">
-                  {/* Icona nota colorata */}
+                  {/* Icona nota colorata - grigio chiaro di default */}
                   <div 
                     className="relative w-8 h-9 rounded-r-sm shadow-md flex items-center justify-center"
                     style={{ 
-                      background: `linear-gradient(160deg, ${fileColor} 0%, ${fileColor}cc 100%)`,
-                      boxShadow: `0 2px 6px ${fileColor}44`
+                      background: 'linear-gradient(160deg, #64748b 0%, #475569 100%)',
+                      boxShadow: '0 2px 6px rgba(71,85,105,0.3)'
                     }}
                   >
                     <div 
@@ -251,8 +251,8 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
           <div 
             className="w-8 h-9 rounded-sm shadow-2xl flex items-center justify-center opacity-80"
             style={{ 
-              background: `linear-gradient(160deg, ${draggedFile.colore || '#06b6d4'} 0%, ${draggedFile.colore || '#06b6d4'}cc 100%)`,
-              boxShadow: `0 8px 25px ${draggedFile.colore || '#06b6d4'}66`,
+              background: 'linear-gradient(160deg, #64748b 0%, #475569 100%)',
+              boxShadow: '0 8px 25px rgba(71,85,105,0.4)',
               transform: 'scale(1.2) rotate(-5deg)'
             }}
           >

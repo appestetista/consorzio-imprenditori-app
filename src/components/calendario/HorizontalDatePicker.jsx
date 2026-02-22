@@ -495,19 +495,19 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                     style={{ backgroundColor: cartella.colore }}
                   />
                   
-                  {/* Parte posteriore (dietro) */}
-                  <div 
-                    className="absolute top-1 left-0 right-0 bottom-0.5 rounded"
-                    style={{ 
-                      background: `linear-gradient(180deg, ${cartella.colore}ee 0%, ${cartella.colore}cc 100%)`,
-                      boxShadow: `inset 0 -1px 2px rgba(0,0,0,0.15)`
-                    }}
-                  >
-                    <div 
-                      className="absolute -top-1 left-0 w-3 h-1.5 rounded-t-sm"
-                      style={{ background: `linear-gradient(180deg, ${cartella.colore} 0%, ${cartella.colore}dd 100%)` }}
-                    />
-                  </div>
+                  {/* Parte posteriore (dietro) - grigio scuro */}
+                      <div 
+                        className="absolute top-1 left-0 right-0 bottom-0.5 rounded"
+                        style={{ 
+                          background: 'linear-gradient(180deg, #374151 0%, #1f2937 100%)',
+                          boxShadow: 'inset 0 -1px 2px rgba(0,0,0,0.15)'
+                        }}
+                      >
+                        <div 
+                          className="absolute -top-1 left-0 w-3 h-1.5 rounded-t-sm"
+                          style={{ background: 'linear-gradient(180deg, #374151 0%, #2d3748 100%)' }}
+                        />
+                      </div>
                   
                   {/* Fogli bianchi */}
                   {hasDocuments && !isDragTarget && (
@@ -517,13 +517,13 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                     </>
                   )}
                   
-                  {/* Parte frontale - abbassata se drag over (cartella aperta) */}
+                  {/* Parte frontale - abbassata se drag over (cartella aperta) - grigio scuro */}
                   <div 
                     className="absolute left-0 right-0 bottom-0 rounded transition-all duration-300"
                     style={{ 
                       top: isDragTarget ? '65%' : '42%',
-                      background: `linear-gradient(180deg, ${cartella.colore} 0%, ${cartella.colore}dd 60%, ${cartella.colore}bb 100%)`,
-                      boxShadow: `0 1px 2px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.25), inset 0 -1px 2px rgba(0,0,0,0.1)`,
+                      background: 'linear-gradient(180deg, #4b5563 0%, #374151 60%, #2d3748 100%)',
+                      boxShadow: '0 1px 2px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 2px rgba(0,0,0,0.1)',
                       transformOrigin: 'bottom center',
                       transform: isDragTarget ? 'perspective(40px) rotateX(8deg)' : 'none'
                     }}

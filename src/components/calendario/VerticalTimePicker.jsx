@@ -369,8 +369,8 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
                 )}
                 style={{
                 backgroundColor: isSelected ? 'rgba(100, 100, 100, 0.3)' : 
-                  hasNote ? 'rgba(163, 230, 53, 0.08)' : 
-                  hasCartellaFile ? `color-mix(in srgb, ${cartelleMap[cartellaFiles[slot.timeString]?.[0]?.cartella_id]?.colore || '#64748b'} 8%, transparent)` : undefined
+                  hasNote ? (() => { const parts = note.data?.split('-'); const nc = parts ? MONTH_COLORS[parseInt(parts[1]) - 1] : '#a3e635'; return `color-mix(in srgb, ${nc} 8%, transparent)`; })() : 
+                  hasCartellaFile ? `color-mix(in srgb, #64748b 8%, transparent)` : undefined
                 }}
             >
               {/* Pulsante + colore mese se selezionato, altrimenti linea o icona nota */}
@@ -421,7 +421,7 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
                 style={{
                   color: isSelected ? currentMonthColor :
                     (isCurrentTime && isToday) ? '#ffffff' :
-                    hasNote ? '#a3e635' :
+                    hasNote ? (() => { const parts = note.data?.split('-'); return parts ? MONTH_COLORS[parseInt(parts[1]) - 1] : '#a3e635'; })() :
                     slot.isFullHour ? activeColor : '#94a3b8'
                 }}
               >
@@ -431,13 +431,13 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
               {/* Titolo nota salvata + X per eliminare */}
               {hasNote && (
                 <div className="ml-2 flex items-center gap-1 flex-1 min-w-0">
-                  <span className="text-xs truncate" style={{ color: currentMonthColor }}>
+                  <span className="text-xs truncate" style={{ color: (() => { const parts = note.data?.split('-'); return parts ? MONTH_COLORS[parseInt(parts[1]) - 1] : currentMonthColor; })() }}>
                         📄 {note.title}
                         {note.cartella_id && cartelleMap[note.cartella_id] && (
                           <span style={{ color: cartelleMap[note.cartella_id].colore }}> / cartella {cartelleMap[note.cartella_id].nome}</span>
                         )}
                         {(note.content || note.checklist_items?.length > 0 || note.attachments?.length > 0) && (
-                          <span className="ml-1" style={{ color: currentMonthColor + '99' }}>•••</span>
+                          <span className="ml-1" style={{ color: (() => { const parts = note.data?.split('-'); return (parts ? MONTH_COLORS[parseInt(parts[1]) - 1] : currentMonthColor) + '99'; })() }}>•••</span>
                         )}
                   </span>
                   <button
