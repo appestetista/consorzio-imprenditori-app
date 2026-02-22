@@ -69,14 +69,18 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
   });
 
   const handleCreateFile = () => {
-    if (!userEmail || createFileMutation.isPending) return;
-    createFileMutation.mutate({
-      user_email: userEmail,
-      titolo: '',
-      contenuto: '',
-      colore: '#06b6d4',
-      cartella_id: null
-    });
+    if (!userEmail) return;
+    // Apri l'editor con un file temporaneo (non ancora salvato nel DB)
+    if (onFileClick) {
+      onFileClick({
+        _isNew: true,
+        user_email: userEmail,
+        titolo: '',
+        contenuto: '',
+        colore: '#06b6d4',
+        cartella_id: null
+      });
+    }
   };
 
   const hasFolders = cartelle.length > 0;
