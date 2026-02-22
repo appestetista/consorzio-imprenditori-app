@@ -40,9 +40,9 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
   const [showDeletePopup, setShowDeletePopup] = useState(null); // ID cartella da eliminare
   const [showEditPopup, setShowEditPopup] = useState(null); // Cartella da modificare
   const [newFolderName, setNewFolderName] = useState('');
-  const [newFolderColor, setNewFolderColor] = useState('#f59e0b');
+  const [newFolderColor, setNewFolderColor] = useState('#64748b');
   const [editFolderName, setEditFolderName] = useState('');
-  const [editFolderColor, setEditFolderColor] = useState('#f59e0b');
+  const [editFolderColor, setEditFolderColor] = useState('#64748b');
   const [userEmail, setUserEmail] = useState(null);
   const queryClient = useQueryClient();
 
@@ -123,7 +123,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
       queryClient.invalidateQueries({ queryKey: ['cartelle'] });
       setShowNewFolderPopup(false);
       setNewFolderName('');
-      setNewFolderColor('#f59e0b');
+      setNewFolderColor('#64748b');
     }
   });
 
@@ -158,7 +158,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
       queryClient.invalidateQueries({ queryKey: ['cartelle'] });
       setShowEditPopup(null);
       setEditFolderName('');
-      setEditFolderColor('#f59e0b');
+      setEditFolderColor('#64748b');
     }
   });
 

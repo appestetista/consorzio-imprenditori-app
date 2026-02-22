@@ -25,10 +25,10 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
   const [showCartellaDropdown, setShowCartellaDropdown] = useState(false);
   const [showNewFolderInline, setShowNewFolderInline] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
-  const [newFolderColor, setNewFolderColor] = useState('#f59e0b');
+  const [newFolderColor, setNewFolderColor] = useState('#64748b');
   const [editingCartella, setEditingCartella] = useState(null); // { id, nome, colore }
   const [editCartellaName, setEditCartellaName] = useState('');
-  const [editCartellaColor, setEditCartellaColor] = useState('#f59e0b');
+  const [editCartellaColor, setEditCartellaColor] = useState('#64748b');
   const [deleteCartellaConfirm, setDeleteCartellaConfirm] = useState(null); // cartella id
   const [userEmail, setUserEmail] = useState(null);
   
