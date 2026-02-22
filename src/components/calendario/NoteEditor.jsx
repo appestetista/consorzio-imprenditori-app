@@ -453,7 +453,11 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
           placeholder="Titolo *"
           autoComplete="off"
           autoCorrect="off"
+          autoCapitalize="off"
           spellCheck="false"
+          inputMode="text"
+          data-form-type="other"
+          data-lpignore="true"
           className={cn(
             "w-full bg-transparent text-white font-light outline-none mb-2 truncate flex-shrink-0",
             inline ? "text-base" : "text-3xl",
@@ -473,6 +477,12 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="Scrivi qui..."
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck="false"
+            data-form-type="other"
+            data-lpignore="true"
             className="w-full flex-1 min-h-0 bg-transparent text-white text-sm outline-none placeholder:text-slate-600 resize-none overflow-y-auto"
           />
         )}
