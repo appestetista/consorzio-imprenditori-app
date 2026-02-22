@@ -216,10 +216,22 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
     )}
     style={{ touchAction: 'manipulation' }}
     >
-      {/* Riga 1: Data e ora centrati */}
+      {/* Riga 1: Data e ora centrati con pallino colore */}
       <div className="px-3 py-2 border-b border-slate-800">
-        <div className="text-slate-400 text-xs font-mono text-center">
-          {formattedDate} • {saveTime}
+        <div className="flex items-center justify-center gap-2 text-xs font-mono">
+          <div 
+            className="w-3 h-3 rounded-full flex-shrink-0"
+            style={{ backgroundColor: (() => {
+              const cart = selectedCartella ? cartelle.find(c => c.id === selectedCartella) : null;
+              return cart?.colore || '#64748b';
+            })() }}
+          />
+          <span style={{ color: (() => {
+            const cart = selectedCartella ? cartelle.find(c => c.id === selectedCartella) : null;
+            return cart?.colore || '#64748b';
+          })() }}>
+            {formattedDate} • {saveTime}
+          </span>
         </div>
       </div>
 
@@ -247,7 +259,10 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
             isSaving && "opacity-60"
           )}
           style={{ 
-            backgroundColor: isSaving ? '#64748b' : (monthColor || '#a3e635'),
+            backgroundColor: isSaving ? '#64748b' : (() => {
+              const cart = selectedCartella ? cartelle.find(c => c.id === selectedCartella) : null;
+              return cart?.colore || '#64748b';
+            })(),
             color: '#0f172a'
           }}
         >

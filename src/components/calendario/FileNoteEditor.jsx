@@ -99,10 +99,24 @@ export default function FileNoteEditor({ file, onClose, onSave, onDelete, monthC
 
   return (
     <div className="bg-black flex flex-col fixed inset-0 z-[60]">
-      {/* Riga 1: Info file */}
+      {/* Riga 1: Info file con pallino colore */}
       <div className="px-3 py-2 border-b border-slate-800">
-        <div className="text-slate-400 text-xs font-mono text-center">
-          📄 {formattedDate} {file?.time ? `• ${file.time}` : ''}
+        <div className="flex items-center justify-center gap-2 text-xs font-mono">
+          <div 
+            className="w-3 h-3 rounded-full flex-shrink-0"
+            style={{ backgroundColor: (() => {
+              if (file?.colore && file.colore !== '#06b6d4') return file.colore;
+              const cart = selectedCartella ? cartelle.find(c => c.id === selectedCartella) : null;
+              return cart?.colore || '#64748b';
+            })() }}
+          />
+          <span style={{ color: (() => {
+            if (file?.colore && file.colore !== '#06b6d4') return file.colore;
+            const cart = selectedCartella ? cartelle.find(c => c.id === selectedCartella) : null;
+            return cart?.colore || '#64748b';
+          })() }}>
+            📄 {formattedDate} {file?.time ? `• ${file.time}` : ''}
+          </span>
         </div>
       </div>
 
@@ -125,7 +139,11 @@ export default function FileNoteEditor({ file, onClose, onSave, onDelete, monthC
             isSaving && "opacity-60"
           )}
           style={{
-            backgroundColor: isSaving ? '#64748b' : (monthColor || '#06b6d4'),
+            backgroundColor: isSaving ? '#64748b' : (() => {
+              if (file?.colore && file.colore !== '#06b6d4') return file.colore;
+              const cart = selectedCartella ? cartelle.find(c => c.id === selectedCartella) : null;
+              return cart?.colore || '#64748b';
+            })(),
             color: '#0f172a'
           }}
         >
