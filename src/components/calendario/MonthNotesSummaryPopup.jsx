@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, Check, Folder, Trash2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const MONTH_COLORS = [
   '#3b82f6','#8b5cf6','#ec4899','#14b8a6','#22c55e','#eab308',
@@ -29,7 +30,9 @@ export default function MonthNotesSummaryPopup({ notes, cartelleMap, monthIndex,
   let lastDay = null;
 
   return (
-    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/70" onClick={onClose}>
+    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/70" onClick={() => {
+      if (onClose) onClose(lastClickedNoteRef.current);
+    }}>
       <div
         className="bg-slate-900 rounded-2xl shadow-2xl border border-slate-700/60 w-[90vw] max-w-sm max-h-[80vh] flex flex-col overflow-hidden"
         onClick={(e) => e.stopPropagation()}
@@ -40,7 +43,9 @@ export default function MonthNotesSummaryPopup({ notes, cartelleMap, monthIndex,
             <h3 className="text-white font-bold text-sm">📋 Note di {MONTHS_FULL[monthIndex]} {year}</h3>
             <p className="text-[11px]" style={{ color: mc }}>{sortedNotes.length} {sortedNotes.length === 1 ? 'nota' : 'note'}</p>
           </div>
-          <button onClick={onClose} className="w-7 h-7 rounded-full bg-slate-700 flex items-center justify-center hover:bg-slate-600">
+          <button onClick={() => {
+            if (onClose) onClose(lastClickedNoteRef.current);
+          }} className="w-7 h-7 rounded-full bg-slate-700 flex items-center justify-center hover:bg-slate-600">
             <X className="w-4 h-4 text-slate-300" />
           </button>
         </div>
