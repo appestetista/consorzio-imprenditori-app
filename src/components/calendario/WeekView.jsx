@@ -298,16 +298,30 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
 
   // Navigazione esterna a uno slot preciso (giorno + orario) dalla popup mensile
   useEffect(() => {
-    if (!navigateToSlot || !scrollRef.current || !ribbonRef.current) return;
+    if (!navigateToSlot) return;
     const { date: navDate, time: navTime } = navigateToSlot;
     
-    // Seleziona il giorno nel nastro
     const [y, mo, d] = navDate.split('-').map(Number);
     const targetDate = new Date(y, mo - 1, d);
     targetDate.setHours(0, 0, 0, 0);
-    handleDayClick(targetDate);
 
-    // Attiva modalità focus: questo giorno resta colorato, il resto diventa grigio
+    // Prima: scrolla il nastro al giorno preciso (senza smooth, immediato)
+    if (ribbonRef.current) {
+      const dayIdx = getDayOfYear(targetDate, displayYear);
+      if (dayIdx >= 0) {
+        const barWidth = ribbonRef.current.clientWidth;
+        ribbonRef.current.scrollLeft = dayIdx * ITEM_W - barWidth / 2 + ITEM_W / 2;
+      }
+    }
+
+    // Aggiorna settimana e highlighting immediatamente
+    setHighlightedDay({ day: d, month: mo - 1, year: y });
+    const newWeek = getWeekDays(targetDate);
+    setCurrentWeekDays(newWeek);
+    updateCursorPosition(newWeek);
+    if (onDateSelect) onDateSelect(targetDate);
+
+    // Attiva modalità focus
     setFocusedDay(navDate);
 
     // Evidenzia lo slot selezionato
@@ -315,13 +329,12 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     const sk = `${String(h).padStart(2,'0')}:${String(Math.floor(m/5)*5).padStart(2,'0')}`;
     setSelectedSlot({ date: navDate, time: sk });
 
-    // Scroll verticale all'orario preciso
-    const slotIdx = h * 12 + Math.floor(m / 5);
+    // Scroll verticale all'orario preciso — con delay per dare tempo al render
     setTimeout(() => {
       if (scrollRef.current) {
-        scrollRef.current.scrollTop = Math.max(0, (slotIdx - 3) * 26);
+        scrollRef.current.scrollTop = Math.max(0, (h * 12 + Math.floor(m / 5) - 3) * 26);
       }
-    }, 300);
+    }, 150);
 
     if (onNavigateToSlotDone) onNavigateToSlotDone();
   }, [navigateToSlot]);
