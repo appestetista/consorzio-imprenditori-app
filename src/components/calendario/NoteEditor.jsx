@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Check, Paperclip, X, ChevronDown, Folder, FolderPlus, Trash2, Pencil } from 'lucide-react';
+import { Check, Paperclip, X, ChevronDown, Folder, FolderPlus, Trash2, Pencil, Camera, ListChecks } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import ChecklistEditor from './ChecklistEditor';
 import AttachmentViewer from './AttachmentViewer';
+import WhisperDictation from './WhisperDictation';
+import AudioRecorder from './AudioRecorder';
 
 export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave, onDelete, inline = false, existingNote = null, onRegisterSave, monthColor }) {
   const [title, setTitle] = useState(existingNote?.title || '');
