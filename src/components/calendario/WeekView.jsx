@@ -670,6 +670,8 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                         // Primo click: evidenzia + espandi subito
                         setHighlightedDay({ day: day.getDate(), month: day.getMonth(), year: day.getFullYear() });
                         setExpandedDayIdx(i);
+                        // Scroll verticale al primo appuntamento >= ora attuale
+                        scrollToNextAppointment(fk(day));
                       }
                       setSelectedSlot(null);
                       setOpenDropdownDay(null);
