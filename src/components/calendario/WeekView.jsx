@@ -54,6 +54,14 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
       }
       return null;
     });
+    // Inizializza expandedDayIdx dalla selectedDate — espandi subito la colonna del giorno selezionato
+    const initialExpandedIdx = React.useMemo(() => {
+      if (!selectedDate) return null;
+      const d = new Date(selectedDate);
+      d.setHours(0,0,0,0);
+      const week = getWeekDays(d);
+      return week.findIndex(wd => wd.getDate() === d.getDate() && wd.getMonth() === d.getMonth() && wd.getFullYear() === d.getFullYear());
+    }, []);
   const [openDropdownDay, setOpenDropdownDay] = useState(null);
   const [strikethroughItems, setStrikethroughItems] = useState({});
   
