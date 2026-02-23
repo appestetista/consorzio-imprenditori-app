@@ -554,17 +554,14 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                 }
               }}
               onNoteClick={(note) => {
-                // Chiudi il popup e naviga al giorno+orario preciso
+                // Chiudi il popup SUBITO, poi naviga con delay
+                setMonthNotesPopup(null);
                 if (note?.data && note.time) {
-                  // PRIMA setta il navigateToSlot, POI chiudi il popup
-                  // Così la WeekView riceve il comando prima che il popup si smonti
-                  setPendingWeekSlotNavigate({ date: note.data, time: note.time, _ts: Date.now() });
-                  // Chiudi popup con un microtask di ritardo per assicurare che lo state navigate sia processato
-                  requestAnimationFrame(() => {
-                    setMonthNotesPopup(null);
-                  });
+                  // Delay sufficiente perché React smonta il popup e ri-rende la WeekView
+                  setTimeout(() => {
+                    setPendingWeekSlotNavigate({ date: note.data, time: note.time, _ts: Date.now() });
+                  }, 250);
                 } else if (note?.data) {
-                  setMonthNotesPopup(null);
                   const [y, mo, d] = note.data.split('-').map(Number);
                   const targetDate = new Date(y, mo - 1, d);
                   targetDate.setHours(0, 0, 0, 0);
@@ -572,8 +569,6 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                   if (weekViewMonthSelectRef.current) {
                     weekViewMonthSelectRef.current(mo - 1);
                   }
-                } else {
-                  setMonthNotesPopup(null);
                 }
               }}
               onDeleteNote={(note) => {
