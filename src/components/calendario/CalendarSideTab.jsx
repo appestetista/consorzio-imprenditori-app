@@ -566,8 +566,11 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                     weekViewMonthSelectRef.current(mo - 1);
                   }
                   // Passa l'orario preciso alla WeekView per scroll verticale
+                  // Delay per permettere alla WeekView di aggiornarsi dopo chiusura popup
                   if (note.time) {
-                    setPendingWeekSlotNavigate({ date: note.data, time: note.time, _ts: Date.now() });
+                    setTimeout(() => {
+                      setPendingWeekSlotNavigate({ date: note.data, time: note.time, _ts: Date.now() });
+                    }, 150);
                   }
                 }
               }}
