@@ -282,6 +282,9 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     const dayIdx = newWeek.findIndex(wd => wd.getDate() === date.getDate() && wd.getMonth() === date.getMonth() && wd.getFullYear() === date.getFullYear());
     if (dayIdx >= 0) setExpandedDayIdx(dayIdx);
     
+    // Mostra frecce scroll laterali (si dissolveranno quando l'utente scrolla)
+    setShowScrollArrows(true);
+    
     // Scrolla il nastro allineato al centro del mese nella MonthBar
     scrollRibbonToDate(date, true);
   }, [onDateSelect, displayYear, updateCursorPosition, scrollRibbonToDate]);
