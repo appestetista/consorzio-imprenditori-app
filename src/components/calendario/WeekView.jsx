@@ -57,6 +57,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   const [focusedMonth, setFocusedMonth] = useState(null); // indice mese evidenziato (0-11) quando focusedDay è attivo
   const focusedDayRef = useRef(null); // ref mirror per evitare stale closure in scroll handler
   const focusLockRef = useRef(false); // focus lock: quando true, handleRibbonScroll è bloccato. Si sblocca SOLO su interazione manuale utente.
+  const [showScrollArrows, setShowScrollArrows] = useState(false); // frecce laterali nel nastro durante focus
   // La settimana visualizzata (derivata dal giorno centrale visibile nel nastro)
   const [currentWeekDays, setCurrentWeekDays] = useState(() => getWeekDays(selectedDate || new Date()));
   // Cursore: posizione px nel nastro
