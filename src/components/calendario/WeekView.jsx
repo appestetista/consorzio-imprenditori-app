@@ -868,10 +868,16 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
             onClick={(e) => e.stopPropagation()}
           >
             <div className="p-3">
-              <div className="flex items-center gap-1.5 mb-1.5">
-                <span className="text-[10px] font-mono text-slate-400">{previewNote.time}</span>
-              </div>
-              <h4 className="text-sm font-semibold text-white leading-tight mb-1">{previewNote.note.title}</h4>
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[10px] font-mono text-slate-400">{previewNote.time}</span>
+                  <button
+                    onClick={() => setPreviewNote(null)}
+                    className="w-5 h-5 rounded-full flex items-center justify-center bg-slate-700 hover:bg-slate-600 transition-colors"
+                  >
+                    <X className="w-3 h-3 text-slate-300" />
+                  </button>
+                </div>
+                <h4 className="text-sm font-semibold text-white leading-tight mb-1">{previewNote.note.title}</h4>
               {previewNote.note.content && (
                 <p className="text-[11px] text-slate-400 leading-snug line-clamp-3">{previewNote.note.content}</p>
               )}
