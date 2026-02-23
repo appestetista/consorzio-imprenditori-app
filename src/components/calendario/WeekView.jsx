@@ -308,12 +308,15 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   // Navigazione esterna a uno slot preciso (giorno + orario) dalla popup mensile
   const lastNavigateTs = useRef(null);
   useEffect(() => {
-    console.log('[WeekView] navigateToSlot changed:', navigateToSlot);
+    console.log('[WeekView] navigateToSlot changed:', JSON.stringify(navigateToSlot));
     if (!navigateToSlot) return;
     // Evita di rieseguire per lo stesso navigateToSlot
     const ts = navigateToSlot._ts || null;
-    console.log('[WeekView] ts:', ts, 'lastTs:', lastNavigateTs.current, 'same?', ts === lastNavigateTs.current);
-    if (ts && ts === lastNavigateTs.current) return;
+    console.log('[WeekView] Processing navigate - ts:', ts, 'lastTs:', lastNavigateTs.current);
+    if (ts && ts === lastNavigateTs.current) {
+      console.log('[WeekView] SKIPPED - same timestamp');
+      return;
+    }
     lastNavigateTs.current = ts;
 
     const { date: navDate, time: navTime } = navigateToSlot;
