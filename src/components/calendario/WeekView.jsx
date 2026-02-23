@@ -171,22 +171,23 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     initialScrollDone.current = true;
   }, [yearDays, initialVisibleMonth, initialVisibleYear, scrollRibbonToAlignWithGrid]);
 
-  // Quando il nastro scrolla, determina il giorno al centro e aggiorna la settimana
-  const handleRibbonScroll = useCallback(() => {
-    if (!ribbonRef.current) return;
-
-    // Se lo scroll è programmatico (navigazione da popup), non toccare nulla
-    if (programmaticScrollRef.current) return;
-    // Protezione temporale: ignora scroll events per 500ms dopo navigazione programmatica
-    if (Date.now() < programmaticScrollEndTime.current) return;
-
-    // Se l'utente scrolla il nastro manualmente, resetta il focus (torna tutto colorato)
-    if (focusedDayRef.current) {
+  // Sblocca focus lock su interazione manuale dell'utente sul nastro
+  const handleUserInteraction = useCallback(() => {
+    if (focusLockRef.current) {
+      focusLockRef.current = false;
       setFocusedDay(null);
       setFocusedMonth(null);
       focusedDayRef.current = null;
       if (onFocusedMonthChange) onFocusedMonthChange(null);
     }
+  }, [onFocusedMonthChange]);
+
+  // Quando il nastro scrolla, determina il giorno al centro e aggiorna la settimana
+  const handleRibbonScroll = useCallback(() => {
+    if (!ribbonRef.current) return;
+
+    // Se focus è bloccato (navigazione da popup), non toccare nulla
+    if (focusLockRef.current) return;
 
     const scrollLeft = ribbonRef.current.scrollLeft;
     const barWidth = ribbonRef.current.clientWidth;
