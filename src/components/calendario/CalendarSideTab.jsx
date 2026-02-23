@@ -554,11 +554,14 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                 }
               }}
               onNoteClick={(note) => {
-                // Setta PRIMA il navigate, POI chiudi il popup nello stesso tick
-                // La WeekView è sempre montata sotto il popup, riceverà lo state update
+                // Chiudi popup prima, poi naviga con un piccolo delay
+                // per assicurare che la WeekView sia visibile e pronta
                 if (note?.data && note.time) {
-                  setPendingWeekSlotNavigate({ date: note.data, time: note.time, _ts: Date.now() });
                   setMonthNotesPopup(null);
+                  // Delay minimo per permettere al React di rimuovere il popup e rendere la WeekView interagibile
+                  setTimeout(() => {
+                    setPendingWeekSlotNavigate({ date: note.data, time: note.time, _ts: Date.now() });
+                  }, 50);
                 } else if (note?.data) {
                   setMonthNotesPopup(null);
                   const [y, mo, d] = note.data.split('-').map(Number);
