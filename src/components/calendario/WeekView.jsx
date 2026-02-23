@@ -75,53 +75,6 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     if (selectedDate) setViewDate(new Date(selectedDate));
   }, [selectedDate]);
 
-  // Scroll verticale ore all'ora corrente — solo se NON stiamo navigando a uno slot specifico
-  useEffect(() => {
-    if (!scrollRef.current) return;
-    if (skipAutoScrollToNow.current) {
-      skipAutoScrollToNow.current = false;
-      return;
-    }
-    const now = new Date();
-    const idx = now.getHours() * 12 + Math.floor(now.getMinutes() / 5);
-    setTimeout(() => { if (scrollRef.current) scrollRef.current.scrollTop = Math.max(0, (idx - 5) * 26); }, 200);
-  }, [currentWeekDays]);
-
-  // Resetta lo scroll iniziale ogni volta che cambiano i props visibili dalla giornaliera
-  // (cioè ogni volta che la WeekView viene riaperta con un mese diverso)
-  const prevInitialMonth = useRef(initialVisibleMonth);
-  const prevInitialYear = useRef(initialVisibleYear);
-  useEffect(() => {
-    if (prevInitialMonth.current !== initialVisibleMonth || prevInitialYear.current !== initialVisibleYear) {
-      initialScrollDone.current = false;
-      prevInitialMonth.current = initialVisibleMonth;
-      prevInitialYear.current = initialVisibleYear;
-    }
-  }, [initialVisibleMonth, initialVisibleYear]);
-
-  // Scroll iniziale del nastro al giorno visibile nella vista giornaliera
-  useEffect(() => {
-    if (!ribbonRef.current || initialScrollDone.current) return;
-    // Usa il giorno visibile dalla vista giornaliera se disponibile
-    let targetDate;
-    if (initialVisibleDay && initialVisibleMonth !== undefined && initialVisibleYear) {
-      targetDate = new Date(initialVisibleYear, initialVisibleMonth, initialVisibleDay);
-    } else if (initialVisibleMonth !== undefined && initialVisibleYear) {
-      targetDate = new Date(initialVisibleYear, initialVisibleMonth, 15);
-    } else if (selectedDate) {
-      targetDate = new Date(selectedDate);
-    } else {
-      targetDate = today;
-    }
-    // Allinea il nastro con la griglia settimanale
-    scrollRibbonToAlignWithGrid(targetDate, false);
-    // Aggiorna anche la settimana visualizzata
-    const newWeek = getWeekDays(targetDate);
-    setCurrentWeekDays(newWeek);
-    updateCursorPosition(newWeek);
-    initialScrollDone.current = true;
-  }, [yearDays, initialVisibleMonth, initialVisibleYear, scrollRibbonToAlignWithGrid]);
-
   function getDayOfYear(date, year) {
     if (date.getFullYear() !== year) return -1;
     let count = 0;
@@ -134,10 +87,10 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   // Calcola la posizione X della colonna di un giorno nella griglia settimanale
   const getWeekColumnCenterX = useCallback((date) => {
     if (!ribbonRef.current) return null;
-    const dow = date.getDay(); // 0=dom, 6=sab
-    const weekIdx = dow === 0 ? 6 : dow - 1; // 0=lun, 6=dom
+    const dow = date.getDay();
+    const weekIdx = dow === 0 ? 6 : dow - 1;
     const totalWidth = ribbonRef.current.clientWidth;
-    const oreColWidth = 70; // larghezza colonna ore
+    const oreColWidth = 70;
     const gridWidth = totalWidth - oreColWidth;
     const colWidth = gridWidth / 7;
     return oreColWidth + colWidth * weekIdx + colWidth / 2;
@@ -157,6 +110,49 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
       ribbonRef.current.scrollLeft = targetScrollLeft;
     }
   }, [displayYear, getWeekColumnCenterX]);
+
+  // Scroll verticale ore all'ora corrente — solo se NON stiamo navigando a uno slot specifico
+  useEffect(() => {
+    if (!scrollRef.current) return;
+    if (skipAutoScrollToNow.current) {
+      skipAutoScrollToNow.current = false;
+      return;
+    }
+    const now = new Date();
+    const idx = now.getHours() * 12 + Math.floor(now.getMinutes() / 5);
+    setTimeout(() => { if (scrollRef.current) scrollRef.current.scrollTop = Math.max(0, (idx - 5) * 26); }, 200);
+  }, [currentWeekDays]);
+
+  // Resetta lo scroll iniziale ogni volta che cambiano i props visibili dalla giornaliera
+  const prevInitialMonth = useRef(initialVisibleMonth);
+  const prevInitialYear = useRef(initialVisibleYear);
+  useEffect(() => {
+    if (prevInitialMonth.current !== initialVisibleMonth || prevInitialYear.current !== initialVisibleYear) {
+      initialScrollDone.current = false;
+      prevInitialMonth.current = initialVisibleMonth;
+      prevInitialYear.current = initialVisibleYear;
+    }
+  }, [initialVisibleMonth, initialVisibleYear]);
+
+  // Scroll iniziale del nastro al giorno visibile nella vista giornaliera
+  useEffect(() => {
+    if (!ribbonRef.current || initialScrollDone.current) return;
+    let targetDate;
+    if (initialVisibleDay && initialVisibleMonth !== undefined && initialVisibleYear) {
+      targetDate = new Date(initialVisibleYear, initialVisibleMonth, initialVisibleDay);
+    } else if (initialVisibleMonth !== undefined && initialVisibleYear) {
+      targetDate = new Date(initialVisibleYear, initialVisibleMonth, 15);
+    } else if (selectedDate) {
+      targetDate = new Date(selectedDate);
+    } else {
+      targetDate = today;
+    }
+    scrollRibbonToAlignWithGrid(targetDate, false);
+    const newWeek = getWeekDays(targetDate);
+    setCurrentWeekDays(newWeek);
+    updateCursorPosition(newWeek);
+    initialScrollDone.current = true;
+  }, [yearDays, initialVisibleMonth, initialVisibleYear, scrollRibbonToAlignWithGrid]);
 
   // Quando il nastro scrolla, determina il giorno al centro e aggiorna la settimana
   const handleRibbonScroll = useCallback(() => {
