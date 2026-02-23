@@ -259,9 +259,9 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     setCurrentWeekDays(newWeek);
     updateCursorPosition(newWeek);
     
-    // Scrolla il nastro allineato con la griglia settimanale
-    scrollRibbonToAlignWithGrid(date, true);
-  }, [onDateSelect, displayYear, updateCursorPosition, scrollRibbonToAlignWithGrid]);
+    // Scrolla il nastro allineato al centro del mese nella MonthBar
+    scrollRibbonToDate(date, true);
+  }, [onDateSelect, displayYear, updateCursorPosition, scrollRibbonToDate]);
 
   // Quando selectedDate cambia dall'esterno, scrolla il nastro a quel giorno allineato con la griglia
   // MA NON durante focus lock (navigazione da popup)
