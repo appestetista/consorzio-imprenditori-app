@@ -12,7 +12,7 @@ const MONTH_COLORS = [
   '#f97316','#ef4444','#06b6d4','#a855f7','#6366f1','#0ea5e9'
 ];
 const MONTHS_IT = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
-const ITEM_W = 28; // larghezza fissa di ogni giorno nel nastro
+const ITEM_W = 28;
 
 function generateTimeSlots() {
   const slots = [];
