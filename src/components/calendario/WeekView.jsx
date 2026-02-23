@@ -895,7 +895,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
               )}
               <button
                 className="mt-2.5 w-full py-1.5 rounded-lg text-xs font-semibold transition-colors"
-                style={{ backgroundColor: ac, color: '#0f172a' }}
+                style={{ backgroundColor: MONTH_COLORS[parseInt(previewNote.date.split('-')[1]) - 1], color: '#0f172a' }}
                 onClick={() => {
                   setPreviewNote(null);
                   if (onSlotClick) {
