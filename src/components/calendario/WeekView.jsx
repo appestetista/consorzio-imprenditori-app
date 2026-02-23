@@ -261,8 +261,10 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   }, [onDateSelect, displayYear, updateCursorPosition, scrollRibbonToAlignWithGrid]);
 
   // Quando selectedDate cambia dall'esterno, scrolla il nastro a quel giorno allineato con la griglia
+  // MA NON durante focus lock (navigazione da popup)
   useEffect(() => {
     if (!selectedDate || !ribbonRef.current || !initialScrollDone.current) return;
+    if (focusLockRef.current) return; // non interferire con la navigazione da popup
     const d = new Date(selectedDate);
     const dayIdx = getDayOfYear(d, displayYear);
     if (dayIdx >= 0) {
@@ -270,7 +272,6 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
       if (columnCenterX === null) return;
       const targetScrollLeft = dayIdx * ITEM_W + ITEM_W / 2 - columnCenterX;
       const currentScrollLeft = ribbonRef.current.scrollLeft;
-      // Solo se distante dalla posizione attuale
       if (Math.abs(currentScrollLeft - targetScrollLeft) > 50) {
         ribbonRef.current.scrollTo({ left: targetScrollLeft, behavior: 'smooth' });
       }
