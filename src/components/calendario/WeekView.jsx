@@ -67,6 +67,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   const ribbonRef = useRef(null); // scroll orizzontale nastro giorni
   const initialScrollDone = useRef(false);
   const skipAutoScrollToNow = useRef(false); // flag per evitare che lo scroll automatico all'ora corrente sovrascriva la navigazione
+  const pendingScrollToSlot = useRef(null); // { h, m } — scroll verticale pendente da applicare dopo render
 
   const today = new Date(); today.setHours(0,0,0,0);
   const displayYear = viewDate.getFullYear();
