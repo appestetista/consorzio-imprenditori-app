@@ -205,16 +205,12 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     if (onRegisterMonthSelect) {
       onRegisterMonthSelect((mIdx) => {
         if (!ribbonRef.current) return;
-        // Scrolla il nastro al 15 del mese
+        // Scrolla il nastro al 15 del mese, allineato con la griglia
         const targetDate = new Date(displayYear, mIdx, 15);
-        const dayIdx = getDayOfYear(targetDate, displayYear);
-        if (dayIdx >= 0) {
-          const barWidth = ribbonRef.current.clientWidth;
-          ribbonRef.current.scrollTo({ left: dayIdx * ITEM_W - barWidth / 2 + ITEM_W / 2, behavior: 'smooth' });
-        }
+        scrollRibbonToAlignWithGrid(targetDate, true);
       });
     }
-  }, [onRegisterMonthSelect, displayYear]);
+  }, [onRegisterMonthSelect, displayYear, scrollRibbonToAlignWithGrid]);
 
   // Calcola la posizione X della colonna di un giorno nella griglia settimanale
   // In modo da allineare il nastro sopra con la griglia sotto
