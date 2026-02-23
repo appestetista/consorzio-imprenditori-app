@@ -54,6 +54,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
     const queryClient = useQueryClient();
     const [monthNotesPopup, setMonthNotesPopup] = useState(null); // { monthIndex, year }
     const [pendingWeekSlotNavigate, setPendingWeekSlotNavigate] = useState(null); // { date, time }
+    const [weekDaySummaryDate, setWeekDaySummaryDate] = useState(null); // "YYYY-MM-DD" per il popup giornaliero nella week view
   const goToTodayRef = useRef(null);
   const [currentMonthColor, setCurrentMonthColor] = useState(MONTH_COLORS[new Date().getMonth()]);
   const [visibleMonthLabel, setVisibleMonthLabel] = useState({ month: new Date().getMonth(), year: new Date().getFullYear() });
