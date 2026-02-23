@@ -365,6 +365,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     setFocusedDay(navDate);
     focusedDayRef.current = navDate;
     setFocusedMonth(targetMonth);
+    setShowScrollArrows(true);
     if (onFocusedMonthChange) onFocusedMonthChange(targetMonth);
 
     // 3. Blocca scroll automatico all'ora corrente
