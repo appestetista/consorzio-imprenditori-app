@@ -350,21 +350,12 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     updateCursorPosition(newWeek);
     if (onDateSelect) onDateSelect(targetDate);
 
-    // Scrolla il nastro al giorno preciso — ISTANTANEO per evitare disallineamenti
+    // Scrolla il nastro allineato con la griglia — ISTANTANEO per evitare disallineamenti
     programmaticScrollRef.current = true;
-    if (ribbonRef.current) {
-      const dayIdx = getDayOfYear(targetDate, displayYear);
-      if (dayIdx >= 0) {
-        const barWidth = ribbonRef.current.clientWidth;
-        const targetScrollLeft = dayIdx * ITEM_W - barWidth / 2 + ITEM_W / 2;
-        // Scroll istantaneo per garantire allineamento, poi il browser non genera eventi inerziali
-        ribbonRef.current.scrollLeft = targetScrollLeft;
-      }
-    }
+    scrollRibbonToAlignWithGrid(targetDate, false);
     // Rilascia il flag dopo un breve delay e ri-forza la settimana corretta
     setTimeout(() => {
       programmaticScrollRef.current = false;
-      // Ri-forza la settimana del giorno target nel caso scroll inerziale l'abbia sovrascritta
       setCurrentWeekDays(getWeekDays(targetDate));
       updateCursorPosition(getWeekDays(targetDate));
     }, 100);
