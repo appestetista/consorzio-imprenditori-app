@@ -704,6 +704,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
               targetDate.setHours(0, 0, 0, 0);
 
               setFocusedDay(navDate);
+              skipAutoScrollToNow.current = true;
               setHighlightedDay({ day: d, month: mo - 1, year: y });
               const newWeek = getWeekDays(targetDate);
               setCurrentWeekDays(newWeek);
