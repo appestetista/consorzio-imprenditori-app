@@ -423,6 +423,10 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
     if (selectedDate && dayData.date.toDateString() === new Date(selectedDate).toDateString()) {
       return;
     }
+    
+    // Blocca l'handler scroll durante il click su un giorno
+    manualNavLockRef.current = true;
+    
     if (onDateSelect) {
       onDateSelect(dayData.date);
     }
@@ -441,6 +445,9 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
     if (onVisibleDayChange) {
       onVisibleDayChange(dayData.day, newMonth, newYear);
     }
+    
+    // Sblocca dopo un breve ritardo
+    setTimeout(() => { manualNavLockRef.current = false; }, 500);
   };
 
   // Calcola percentuale anno trascorso
