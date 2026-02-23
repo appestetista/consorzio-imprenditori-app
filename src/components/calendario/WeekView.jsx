@@ -532,7 +532,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                       onClick={(e) => {
                         e.stopPropagation();
                         setFocusedDay(null);
-                        setDaySummaryDate(dk);
+                        if (onDaySummaryRequest) onDaySummaryRequest(dk);
                       }}
                     >{dayNoteCount}</span>
                   ) : (
