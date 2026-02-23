@@ -651,13 +651,13 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                   <div
                     className="flex-1 flex flex-col items-center justify-center cursor-pointer z-10 py-0.5"
                     onClick={() => {
-                      const alreadyHL = highlightedDay && highlightedDay.day === day.getDate() && highlightedDay.month === day.getMonth() && highlightedDay.year === day.getFullYear();
-                      if (alreadyHL) {
-                        // Toggle espansione: se già espanso chiudi, altrimenti apri
-                        setExpandedDayIdx(isExpanded ? null : i);
-                      } else {
+                      if (isExpanded) {
+                        // Se già espanso, chiudi
                         setExpandedDayIdx(null);
+                      } else {
+                        // Primo click: evidenzia + espandi subito
                         setHighlightedDay({ day: day.getDate(), month: day.getMonth(), year: day.getFullYear() });
+                        setExpandedDayIdx(i);
                       }
                       setSelectedSlot(null);
                       setOpenDropdownDay(null);
