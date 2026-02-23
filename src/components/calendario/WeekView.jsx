@@ -583,7 +583,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                   <div
                     className={cn("rounded-full flex items-center justify-center transition-all", isToday && !isDimmed && "animate-pulse")}
                     style={{
-                      width: isFocused ? '24px' : '20px', height: isFocused ? '24px' : '20px',
+                      width: isFocused ? '28px' : '26px', height: isFocused ? '28px' : '26px',
                       backgroundColor: 'transparent',
                       border: isFocused ? '2px solid #f59e0b' : (isHL ? '2px solid #f59e0b' : (isSelectedDay && !isToday && !isDimmed ? `2px solid ${mColor}` : 'none')),
                       boxShadow: isFocused ? '0 0 12px rgba(249,115,22,0.6)' : 'none',
