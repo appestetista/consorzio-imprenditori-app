@@ -597,6 +597,41 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
         </div>
       )}
 
+      {/* Popup riepilogo note del giorno dalla WeekView - ruotato 90° */}
+      {weekDaySummaryDate && (
+        <div 
+          className="fixed inset-0 z-[75]"
+          style={{
+            width: '100vh',
+            height: '100vw',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%) rotate(90deg)',
+            transformOrigin: 'center center'
+          }}
+        >
+          <div className="w-full h-full flex items-center justify-center bg-black/70" onClick={() => setWeekDaySummaryDate(null)}>
+            <div onClick={(e) => e.stopPropagation()}>
+              <DayNotesSummaryPopup
+                notes={allUserNotes.filter(n => n.data === weekDaySummaryDate)}
+                cartelleMap={cartelleMapForPopup}
+                selectedDate={new Date(weekDaySummaryDate + 'T00:00:00')}
+                monthColor={weekViewColor || currentMonthColor}
+                onClose={() => setWeekDaySummaryDate(null)}
+                onNoteClick={(note) => {
+                  setWeekDaySummaryDate(null);
+                  if (note?.data && note?.time) {
+                    setTimeout(() => {
+                      setPendingWeekSlotNavigate({ date: note.data, time: note.time, _ts: Date.now() });
+                    }, 50);
+                  }
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Editor File - stessa struttura del NoteEditor */}
       {editingFile && (
         <div className="fixed inset-0 z-[70] bg-black">
