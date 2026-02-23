@@ -139,7 +139,8 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   }, [initialVisibleMonth, initialVisibleYear]);
 
   // Scroll iniziale del nastro al giorno visibile nella vista giornaliera
-  useEffect(() => {
+  // useLayoutEffect per evitare il "bank" visivo: centra PRIMA del paint
+  useLayoutEffect(() => {
     if (!ribbonRef.current || initialScrollDone.current) return;
     let targetDate;
     if (initialVisibleDay && initialVisibleMonth !== undefined && initialVisibleYear) {
@@ -151,12 +152,12 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     } else {
       targetDate = today;
     }
-    scrollRibbonToAlignWithGrid(targetDate, false);
+    scrollRibbonToDate(targetDate, false);
     const newWeek = getWeekDays(targetDate);
     setCurrentWeekDays(newWeek);
     updateCursorPosition(newWeek);
     initialScrollDone.current = true;
-  }, [yearDays, initialVisibleMonth, initialVisibleYear, scrollRibbonToAlignWithGrid]);
+  }, [yearDays, initialVisibleMonth, initialVisibleYear, scrollRibbonToDate]);
 
   // Sblocca focus lock su interazione manuale dell'utente sul nastro
   const handleUserInteraction = useCallback(() => {
