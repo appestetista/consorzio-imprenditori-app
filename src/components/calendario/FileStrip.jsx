@@ -183,9 +183,7 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
 
         {/* File standalone - stile icona nota */}
         {allFiles.map((file) => {
-          const defaultColor = '#06b6d4';
-          const hasCustomColor = file.colore && file.colore !== defaultColor;
-          const fileColor = hasCustomColor ? file.colore : null;
+          const fileColor = file.colore && file.colore !== '#06b6d4' ? file.colore : null;
           const shortName = file.titolo?.length > 7 ? file.titolo.substring(0, 7) : file.titolo;
 
           return (
