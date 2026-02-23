@@ -739,8 +739,8 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
         </div>
       )}
 
-      {/* Popup riepilogo note del giorno */}
-      {daySummaryDate && (
+      {/* Popup riepilogo note del giorno — portal per evitare problemi con transform parent */}
+      {daySummaryDate && ReactDOM.createPortal(
         <DayNotesSummaryPopup
           notes={allMonthNotes.filter(n => n.data === daySummaryDate)}
           cartelleMap={cm}
@@ -753,7 +753,8 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
               executeSlotNavigation(note.data, note.time);
             }
           }}
-        />
+        />,
+        document.body
       )}
     </div>
   );
