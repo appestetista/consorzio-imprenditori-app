@@ -478,8 +478,43 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
 
       {/* NASTRO GIORNI continuo gen-dic con cursore */}
       <div className="flex-shrink-0 flex flex-col border-b border-slate-700/30 relative">
-        {/* Cursore bianco — posizionato in px assoluti dentro il nastro scrollabile */}
-        {/* Usiamo un div dentro lo scroll container per allineamento perfetto */}
+        {/* Frecce scroll laterali — appaiono durante focus mode */}
+        {showScrollArrows && (
+          <>
+            <div 
+              className="absolute left-0 top-0 bottom-0 z-20 flex items-center pointer-events-none"
+              style={{ 
+                opacity: showScrollArrows ? 1 : 0, 
+                transition: 'opacity 0.3s ease',
+                background: 'linear-gradient(to right, rgba(15,23,42,0.9) 0%, transparent 100%)',
+                width: '60px',
+                paddingLeft: '4px'
+              }}
+            >
+              <div className="flex items-center gap-0">
+                <ChevronLeft className="w-5 h-5 text-amber-400 animate-pulse" />
+                <ChevronLeft className="w-4 h-4 text-amber-400/60 -ml-2 animate-pulse" />
+                <ChevronLeft className="w-3 h-3 text-amber-400/30 -ml-1.5 animate-pulse" />
+              </div>
+            </div>
+            <div 
+              className="absolute right-0 top-0 bottom-0 z-20 flex items-center justify-end pointer-events-none"
+              style={{ 
+                opacity: showScrollArrows ? 1 : 0, 
+                transition: 'opacity 0.3s ease',
+                background: 'linear-gradient(to left, rgba(15,23,42,0.9) 0%, transparent 100%)',
+                width: '60px',
+                paddingRight: '4px'
+              }}
+            >
+              <div className="flex items-center gap-0">
+                <ChevronRight className="w-3 h-3 text-amber-400/30 -mr-1.5 animate-pulse" />
+                <ChevronRight className="w-4 h-4 text-amber-400/60 -mr-2 animate-pulse" />
+                <ChevronRight className="w-5 h-5 text-amber-400 animate-pulse" />
+              </div>
+            </div>
+          </>
+        )}
         
         {/* Nastro scrollabile */}
         <div
