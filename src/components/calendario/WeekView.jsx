@@ -444,10 +444,10 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   }, [currentWeekDays, selectedSlot]);
 
   const handleSlotClick = (dayStr, timeLabel, e) => {
-    // Se la colonna è espansa E c'è una nota in questo slot → mostra anteprima
-    const dayIdx = weekDays.findIndex(wd => fk(wd) === dayStr);
     const existingNote = notesByDateAndTime[dayStr]?.[timeLabel] || null;
-    if (expandedDayIdx === dayIdx && existingNote) {
+    
+    // Se c'è una nota in questo slot → mostra anteprima
+    if (existingNote) {
       const rect = e?.currentTarget?.getBoundingClientRect();
       setPreviewNote({
         note: existingNote,
@@ -459,26 +459,12 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
       return;
     }
 
-    if (selectedSlot?.date === dayStr && selectedSlot?.time === timeLabel) {
-      // Secondo tap: mostra menu opzioni
-      const rect = e?.currentTarget?.getBoundingClientRect();
-      setSlotMenuPos({
-        date: dayStr,
-        time: timeLabel,
-        x: rect ? rect.left + rect.width / 2 : 100,
-        y: rect ? rect.top : 100
-      });
-      return;
-    }
+    // Slot vuoto: apri direttamente l'editor nota
     setSlotMenuPos(null);
     setPreviewNote(null);
     setSelectedSlot({ date: dayStr, time: timeLabel });
-    const [y, m, d] = dayStr.split('-').map(Number);
-    setHighlightedDay(null);
-    if (onDateSelect) {
-      const newDate = new Date(y, m - 1, d);
-      newDate.setHours(0, 0, 0, 0);
-      onDateSelect(newDate);
+    if (onSlotClick) {
+      onSlotClick({ date: dayStr, time: timeLabel, existingNote: null });
     }
   };
 
