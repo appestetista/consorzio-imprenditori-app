@@ -392,12 +392,21 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
 
   const scrollToMonth = (monthIdx) => {
     if (!scrollRef.current) return;
-    // Usa l'anno della data selezionata o l'anno corrente
+    // Blocca l'handler scroll durante la navigazione programmata
+    manualNavLockRef.current = true;
+    
+    // Aggiorna subito il mese visibile e la barra
+    setVisibleMonth({ name: MONTHS[monthIdx], year: selectedDate ? new Date(selectedDate).getFullYear() : currentYear, color: MONTH_COLORS[monthIdx] });
+    setSelectedMonthIdx(monthIdx);
+    
     const targetYear = selectedDate ? new Date(selectedDate).getFullYear() : currentYear;
     const monthElement = scrollRef.current.querySelector(`[data-month="${targetYear}-${monthIdx}"]`);
     if (monthElement) {
       monthElement.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
     }
+    
+    // Sblocca dopo che lo smooth scroll è finito
+    setTimeout(() => { manualNavLockRef.current = false; }, 800);
   };
 
   // Esponi la funzione goToToday e scrollToDate
