@@ -287,8 +287,11 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     // Mostra frecce scroll laterali (si dissolveranno quando l'utente scrolla)
     setShowScrollArrows(true);
     
-    // Scrolla il nastro allineato al centro del mese nella MonthBar
+    // Blocca handleRibbonScroll durante lo smooth scroll per non sovrascrivere la settimana
+    clickLockRef.current = true;
     scrollRibbonToDate(date, true);
+    // Sblocca dopo che lo smooth scroll è terminato (~500ms)
+    setTimeout(() => { clickLockRef.current = false; }, 600);
   }, [onDateSelect, displayYear, updateCursorPosition, scrollRibbonToDate]);
 
   // Quando selectedDate cambia dall'esterno, scrolla il nastro a quel giorno
