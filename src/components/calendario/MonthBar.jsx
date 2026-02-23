@@ -6,11 +6,14 @@ const MONTH_COLORS = [
   '#f97316','#ef4444','#06b6d4','#a855f7','#6366f1','#0ea5e9'
 ];
 
-export default function MonthBar({ currentMonth, onSelectMonth }) {
+export default function MonthBar({ currentMonth, onSelectMonth, focusedMonth }) {
+  const hasFocus = focusedMonth !== null && focusedMonth !== undefined;
   return (
     <div className="flex items-center gap-0 pl-3 pr-0 py-1 w-full">
       {MONTHS_SHORT.map((mName, mIdx) => {
         const isCurrent = mIdx === Number(currentMonth);
+        const isFocusedMonth = hasFocus && mIdx === focusedMonth;
+        const isDimmedMonth = hasFocus && mIdx !== focusedMonth;
         const mColor = MONTH_COLORS[mIdx];
         return (
           <button
@@ -18,13 +21,15 @@ export default function MonthBar({ currentMonth, onSelectMonth }) {
             onClick={() => onSelectMonth(mIdx)}
             className="flex-1 flex items-center justify-center py-1 rounded transition-all touch-manipulation active:scale-90 select-none"
             style={{
-              backgroundColor: isCurrent ? mColor : 'transparent',
+              backgroundColor: isFocusedMonth ? mColor : (isCurrent && !hasFocus ? mColor : 'transparent'),
               minHeight: '28px',
+              opacity: isDimmedMonth ? 0.15 : 1,
+              transition: 'all 0.4s ease',
             }}
           >
             <span
               className="text-[11px] font-bold uppercase"
-              style={{ color: isCurrent ? '#0f172a' : '#64748b' }}
+              style={{ color: isFocusedMonth ? '#0f172a' : (isCurrent && !hasFocus ? '#0f172a' : '#64748b') }}
             >
               {mName}
             </span>
