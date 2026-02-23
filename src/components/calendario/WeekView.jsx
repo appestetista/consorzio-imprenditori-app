@@ -169,6 +169,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
 
   // Sblocca focus lock su interazione manuale dell'utente sul nastro
   const handleUserInteraction = useCallback(() => {
+    setExpandedDayIdx(null); // Chiudi espansione quando l'utente naviga
     if (focusLockRef.current) {
       focusLockRef.current = false;
       setFocusedDay(null);
