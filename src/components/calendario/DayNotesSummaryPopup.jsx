@@ -29,11 +29,8 @@ export default function DayNotesSummaryPopup({ notes, cartelleMap, selectedDate,
     : '';
 
   return (
-    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/70" onClick={onClose}>
-      <div
-        className="bg-slate-900 rounded-2xl shadow-2xl border border-slate-700/60 w-[90vw] max-w-sm max-h-[80vh] flex flex-col overflow-hidden"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className="w-[90vw] max-w-sm max-h-[80vh] flex flex-col overflow-hidden bg-slate-900 rounded-2xl shadow-2xl border border-slate-700/60">
+      <div>
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700/50">
           <div>
