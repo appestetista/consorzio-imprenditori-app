@@ -55,6 +55,7 @@ function FileEditor({ file, cartellaId, cartelle = [], userEmail, onClose, onSav
       cartella_id: cartellaId,
       titolo: titolo.trim(),
       contenuto,
+      colore: fileColore || null,
       data: data || null,
       time: time || null,
       allegati,
