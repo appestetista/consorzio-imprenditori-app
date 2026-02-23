@@ -524,7 +524,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                 <div
                   key={i}
                   className={cn("flex-1 flex border-l border-slate-700/50 relative", isT && !isDayDimmed && "bg-slate-800/40")}
-                  style={{ minHeight: '38px', opacity: isDayDimmed ? 0.3 : 1, transition: 'opacity 0.4s ease', ...(isSel && !isT && !isDayDimmed ? { backgroundColor: ac + '20' } : {}) }}
+                  style={{ minHeight: '38px', opacity: isDayDimmed ? 0.1 : 1, transition: 'opacity 0.4s ease', ...(isSel && !isT && !isDayDimmed ? { backgroundColor: ac + '20' } : {}) }}
                 >
                   <div
                     className="flex-1 flex flex-col items-center justify-center cursor-pointer z-10 py-0.5"
