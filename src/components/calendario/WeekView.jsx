@@ -368,27 +368,16 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     updateCursorPosition(newWeek);
     if (onDateSelect) onDateSelect(targetDate);
 
-    // 4. Scrolla il nastro: posiziona il giorno al centro orizzontale (sotto Luglio nella MonthBar)
-    //    MA il giorno nell'header settimanale deve anche trovarsi sotto lo stesso punto.
-    //    Strategia: calcoliamo dove il giorno target cade nella colonna dell'header settimanale,
-    //    e scrolliamo il nastro in modo che il giorno nel nastro e nel header siano allineati.
+    // 4. Scrolla il nastro: posiziona il giorno al centro orizzontale del nastro
+    //    (sotto Luglio nella MonthBar, che è al centro)
     programmaticScrollRef.current = true;
     
     if (ribbonRef.current) {
       const dayIdx = getDayOfYear(targetDate, displayYear);
       if (dayIdx >= 0) {
-        // Calcola la posizione X della colonna settimanale del giorno target
-        const dow = targetDate.getDay();
-        const weekIdx = dow === 0 ? 6 : dow - 1;
-        const totalWidth = ribbonRef.current.clientWidth;
-        const oreColWidth = 70;
-        const gridWidth = totalWidth - oreColWidth;
-        const colWidth = gridWidth / 7;
-        const columnCenterX = oreColWidth + colWidth * weekIdx + colWidth / 2;
-        
-        // Scrolla il nastro in modo che il giorno target nel nastro si trovi
-        // alla stessa posizione X della sua colonna nell'header settimanale
-        const targetScrollLeft = dayIdx * ITEM_W + ITEM_W / 2 - columnCenterX;
+        // Centro orizzontale del nastro = metà della clientWidth = sotto Luglio
+        const ribbonCenter = ribbonRef.current.clientWidth / 2;
+        const targetScrollLeft = dayIdx * ITEM_W + ITEM_W / 2 - ribbonCenter;
         ribbonRef.current.scrollLeft = targetScrollLeft;
       }
     }
