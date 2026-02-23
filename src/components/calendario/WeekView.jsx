@@ -181,29 +181,24 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     }
   }, [onFocusedMonthChange, showScrollArrows]);
 
-  // Quando il nastro scrolla, determina il giorno sotto il centro del mese corrente e aggiorna la settimana
+  // Quando il nastro scrolla, determina il giorno al bordo sinistro e aggiorna la settimana
   const handleRibbonScroll = useCallback(() => {
     if (!ribbonRef.current) return;
-    // NON nascondere frecce durante click lock (scroll programmatico da handleDayClick)
     if (!clickLockRef.current) setShowScrollArrows(false);
     if (focusLockRef.current) return;
-    if (clickLockRef.current) return; // blocca durante smooth scroll da handleDayClick
+    if (clickLockRef.current) return;
 
     const scrollLeft = ribbonRef.current.scrollLeft;
-    const barWidth = ribbonRef.current.clientWidth;
-    // Usa il centro dello schermo come riferimento (barWidth/2)
-    const centerOffset = scrollLeft + barWidth / 2;
-    const centerIdx = Math.floor(centerOffset / ITEM_W);
-    const clampedIdx = Math.max(0, Math.min(yearDays.length - 1, centerIdx));
-    const centerDate = yearDays[clampedIdx];
-    if (!centerDate) return;
+    const leftIdx = Math.floor(scrollLeft / ITEM_W);
+    const clampedIdx = Math.max(0, Math.min(yearDays.length - 1, leftIdx));
+    const leftDate = yearDays[clampedIdx];
+    if (!leftDate) return;
 
-    const newWeek = getWeekDays(centerDate);
+    const newWeek = getWeekDays(leftDate);
     setCurrentWeekDays(prev => {
       if (prev[0].getTime() !== newWeek[0].getTime()) return newWeek;
       return prev;
     });
-    updateCursorPosition(newWeek);
   }, [yearDays]);
 
   const updateCursorPosition = useCallback((week) => {
