@@ -345,44 +345,68 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     const targetDate = new Date(y, mo - 1, d);
     targetDate.setHours(0, 0, 0, 0);
 
-    // Attiva modalità focus PRIMA dello scroll per evitare che handleRibbonScroll lo resetti
-    setFocusedDay(navDate);
     const focusMonth = mo - 1;
+
+    // 1. Attiva modalità focus — evidenzia solo il mese dell'appuntamento
+    setFocusedDay(navDate);
     setFocusedMonth(focusMonth);
     if (onFocusedMonthChange) onFocusedMonthChange(focusMonth);
 
-    // IMPORTANTE: blocca lo scroll automatico all'ora corrente che scatterebbe quando cambia currentWeekDays
+    // 2. Blocca scroll automatico all'ora corrente
     skipAutoScrollToNow.current = true;
 
-    // Aggiorna settimana e highlighting immediatamente
-    setHighlightedDay({ day: d, month: mo - 1, year: y });
+    // 3. Imposta la settimana del giorno target
+    setHighlightedDay({ day: d, month: focusMonth, year: y });
     const newWeek = getWeekDays(targetDate);
     setCurrentWeekDays(newWeek);
     updateCursorPosition(newWeek);
     if (onDateSelect) onDateSelect(targetDate);
 
-    // Scrolla il nastro per centrare il giorno sotto Luglio (centro dello schermo)
+    // 4. Scrolla il nastro: posiziona il giorno al centro orizzontale (sotto Luglio nella MonthBar)
+    //    MA il giorno nell'header settimanale deve anche trovarsi sotto lo stesso punto.
+    //    Strategia: calcoliamo dove il giorno target cade nella colonna dell'header settimanale,
+    //    e scrolliamo il nastro in modo che il giorno nel nastro e nel header siano allineati.
     programmaticScrollRef.current = true;
-    scrollRibbonToCenterUnderJuly(targetDate, false);
-    // Rilascia il flag dopo un breve delay e ri-forza la settimana corretta
+    
+    if (ribbonRef.current) {
+      const dayIdx = getDayOfYear(targetDate, displayYear);
+      if (dayIdx >= 0) {
+        // Calcola la posizione X della colonna settimanale del giorno target
+        const dow = targetDate.getDay();
+        const weekIdx = dow === 0 ? 6 : dow - 1;
+        const totalWidth = ribbonRef.current.clientWidth;
+        const oreColWidth = 70;
+        const gridWidth = totalWidth - oreColWidth;
+        const colWidth = gridWidth / 7;
+        const columnCenterX = oreColWidth + colWidth * weekIdx + colWidth / 2;
+        
+        // Scrolla il nastro in modo che il giorno target nel nastro si trovi
+        // alla stessa posizione X della sua colonna nell'header settimanale
+        const targetScrollLeft = dayIdx * ITEM_W + ITEM_W / 2 - columnCenterX;
+        ribbonRef.current.scrollLeft = targetScrollLeft;
+      }
+    }
+
+    // Rilascia il flag e ri-forza la settimana corretta dopo che lo scroll si è assestato
     setTimeout(() => {
       programmaticScrollRef.current = false;
+      // Ri-forza la settimana — in caso handleRibbonScroll l'abbia cambiata
       setCurrentWeekDays(getWeekDays(targetDate));
       updateCursorPosition(getWeekDays(targetDate));
-    }, 100);
+    }, 150);
 
-    // Evidenzia lo slot selezionato
+    // 5. Evidenzia lo slot selezionato
     const [h, m] = navTime.split(':').map(Number);
     const sk = `${String(h).padStart(2,'0')}:${String(Math.floor(m/5)*5).padStart(2,'0')}`;
     setSelectedSlot({ date: navDate, time: sk });
 
-    // Scroll verticale all'orario preciso — con delay per dare tempo al render
+    // 6. Scroll verticale all'orario preciso
     setTimeout(() => {
       if (scrollRef.current) {
         scrollRef.current.scrollTop = Math.max(0, (h * 12 + Math.floor(m / 5) - 3) * 26);
       }
       if (onNavigateToSlotDone) onNavigateToSlotDone();
-    }, 300);
+    }, 350);
   }, [displayYear, onDateSelect, onNavigateToSlotDone, updateCursorPosition]);
 
   useEffect(() => {
