@@ -53,6 +53,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   const [slotMenuPos, setSlotMenuPos] = useState(null); // { date, time, x, y }
   const [focusedDay, setFocusedDay] = useState(null); // "YYYY-MM-DD" — giorno evidenziato da navigazione popup, gli altri diventano grigi
   const [focusedMonth, setFocusedMonth] = useState(null); // indice mese evidenziato (0-11) quando focusedDay è attivo
+  const focusedDayRef = useRef(null); // ref mirror per evitare stale closure in scroll handler
   // La settimana visualizzata (derivata dal giorno centrale visibile nel nastro)
   const [currentWeekDays, setCurrentWeekDays] = useState(() => getWeekDays(selectedDate || new Date()));
   // Cursore: posizione px nel nastro
