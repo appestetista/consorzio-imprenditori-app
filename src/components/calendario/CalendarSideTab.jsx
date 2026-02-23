@@ -457,7 +457,8 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                     onSlotClick={handleWeekSlotClick}
                     onMonthChange={(month) => setWeekViewMonth(month)}
                     onRegisterMonthSelect={(fn) => { weekViewMonthSelectRef.current = fn; }}
-                    allMonthNotes={allUserNotes}
+                      onFocusedMonthChange={setWeekViewFocusedMonth}
+                      allMonthNotes={allUserNotes}
                     navigateToSlot={pendingWeekSlotNavigate}
                     onNavigateToSlotDone={() => setPendingWeekSlotNavigate(null)}
                     onBackToDaily={() => {
