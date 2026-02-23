@@ -367,6 +367,10 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     updateCursorPosition(newWeek);
     if (onDateSelect) onDateSelect(targetDate);
 
+    // 4b. Espandi automaticamente la colonna del giorno target per vedere i titoli
+    const dayIdx = newWeek.findIndex(wd => wd.getDate() === d && wd.getMonth() === targetMonth);
+    if (dayIdx >= 0) setExpandedDayIdx(dayIdx);
+
     // 5. Scrolla il nastro: posiziona il giorno sotto il centro del suo mese nella MonthBar
     scrollRibbonToDate(targetDate, false);
 
