@@ -173,6 +173,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   // Sblocca focus lock su interazione manuale dell'utente sul nastro
   const handleUserInteraction = useCallback(() => {
     setExpandedDayIdx(null); // Chiudi espansione quando l'utente naviga
+    if (showScrollArrows) setShowScrollArrows(false);
     if (focusLockRef.current) {
       focusLockRef.current = false;
       setFocusedDay(null);
@@ -180,7 +181,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
       focusedDayRef.current = null;
       if (onFocusedMonthChange) onFocusedMonthChange(null);
     }
-  }, [onFocusedMonthChange]);
+  }, [onFocusedMonthChange, showScrollArrows]);
 
   // Quando il nastro scrolla, determina il giorno sotto il centro del mese corrente e aggiorna la settimana
   const handleRibbonScroll = useCallback(() => {
