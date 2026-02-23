@@ -547,16 +547,26 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
               const isDropOpen = openDropdownDay === i;
               const isDayFocused = focusedDay === dk;
               const isDayDimmed = focusedDay && !isDayFocused;
+              const isExpanded = expandedDayIdx === i;
+              // flex: colonna espansa prende 3x, le altre si comprimono
+              const flexVal = expandedDayIdx !== null ? (isExpanded ? 3 : 0.66) : 1;
               return (
                 <div
                   key={i}
-                  className={cn("flex-1 flex border-l border-slate-700/50 relative", isT && !isDayDimmed && "bg-slate-800/40")}
-                  style={{ minHeight: '38px', opacity: isDayDimmed ? 0.1 : 1, transition: 'opacity 0.4s ease', ...(isSel && !isT && !isDayDimmed ? { backgroundColor: ac + '20' } : {}) }}
+                  className={cn("flex border-l border-slate-700/50 relative", isT && !isDayDimmed && "bg-slate-800/40")}
+                  style={{ minHeight: '38px', flex: flexVal, opacity: isDayDimmed ? 0.1 : 1, transition: 'flex 0.35s ease, opacity 0.4s ease', ...(isSel && !isT && !isDayDimmed ? { backgroundColor: ac + '20' } : {}) }}
                 >
                   <div
                     className="flex-1 flex flex-col items-center justify-center cursor-pointer z-10 py-0.5"
                     onClick={() => {
-                      setHighlightedDay({ day: day.getDate(), month: day.getMonth(), year: day.getFullYear() });
+                      const alreadyHL = highlightedDay && highlightedDay.day === day.getDate() && highlightedDay.month === day.getMonth() && highlightedDay.year === day.getFullYear();
+                      if (alreadyHL) {
+                        // Toggle espansione: se già espanso chiudi, altrimenti apri
+                        setExpandedDayIdx(isExpanded ? null : i);
+                      } else {
+                        setExpandedDayIdx(null);
+                        setHighlightedDay({ day: day.getDate(), month: day.getMonth(), year: day.getFullYear() });
+                      }
                       setSelectedSlot(null);
                       setOpenDropdownDay(null);
                       if (onDateSelect) onDateSelect(day);
