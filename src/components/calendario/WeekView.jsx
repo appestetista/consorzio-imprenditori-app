@@ -395,6 +395,21 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   }, [navigateToSlot, executeSlotNavigation]);
 
   const handleSlotClick = (dayStr, timeLabel, e) => {
+    // Se la colonna è espansa E c'è una nota in questo slot → mostra anteprima
+    const dayIdx = weekDays.findIndex(wd => fk(wd) === dayStr);
+    const existingNote = notesByDateAndTime[dayStr]?.[timeLabel] || null;
+    if (expandedDayIdx === dayIdx && existingNote) {
+      const rect = e?.currentTarget?.getBoundingClientRect();
+      setPreviewNote({
+        note: existingNote,
+        date: dayStr,
+        time: timeLabel,
+        x: rect ? rect.left + rect.width / 2 : 100,
+        y: rect ? rect.top : 100
+      });
+      return;
+    }
+
     if (selectedSlot?.date === dayStr && selectedSlot?.time === timeLabel) {
       // Secondo tap: mostra menu opzioni
       const rect = e?.currentTarget?.getBoundingClientRect();
@@ -407,6 +422,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
       return;
     }
     setSlotMenuPos(null);
+    setPreviewNote(null);
     setSelectedSlot({ date: dayStr, time: timeLabel });
     const [y, m, d] = dayStr.split('-').map(Number);
     setHighlightedDay(null);
