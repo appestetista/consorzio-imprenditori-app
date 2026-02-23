@@ -15,6 +15,7 @@ import AudioRecorder from './AudioRecorder';
 import MonthBar from './MonthBar';
 import MonthNotesCountBar from './MonthNotesCountBar';
 import MonthNotesSummaryPopup from './MonthNotesSummaryPopup';
+import DayNotesSummaryPopup from './DayNotesSummaryPopup';
 
 
 const MONTH_COLORS = [
