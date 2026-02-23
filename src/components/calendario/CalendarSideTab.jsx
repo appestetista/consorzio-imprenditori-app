@@ -554,24 +554,26 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                 }
               }}
               onNoteClick={(note) => {
-                // Chiudi il popup, resta nella visione mensile, vai al giorno+orario preciso
-                setMonthNotesPopup(null);
-                if (note?.data) {
+                // Chiudi il popup e naviga al giorno+orario preciso
+                if (note?.data && note.time) {
+                  // PRIMA setta il navigateToSlot, POI chiudi il popup
+                  // Così la WeekView riceve il comando prima che il popup si smonti
+                  setPendingWeekSlotNavigate({ date: note.data, time: note.time, _ts: Date.now() });
+                  // Chiudi popup con un microtask di ritardo per assicurare che lo state navigate sia processato
+                  requestAnimationFrame(() => {
+                    setMonthNotesPopup(null);
+                  });
+                } else if (note?.data) {
+                  setMonthNotesPopup(null);
                   const [y, mo, d] = note.data.split('-').map(Number);
                   const targetDate = new Date(y, mo - 1, d);
                   targetDate.setHours(0, 0, 0, 0);
                   handleDateSelect(targetDate);
-                  // Scrolla il nastro della WeekView a quel giorno
                   if (weekViewMonthSelectRef.current) {
                     weekViewMonthSelectRef.current(mo - 1);
                   }
-                  // Passa l'orario preciso alla WeekView per scroll verticale
-                  // Delay per permettere alla WeekView di aggiornarsi dopo chiusura popup
-                  if (note.time) {
-                    setTimeout(() => {
-                      setPendingWeekSlotNavigate({ date: note.data, time: note.time, _ts: Date.now() });
-                    }, 150);
-                  }
+                } else {
+                  setMonthNotesPopup(null);
                 }
               }}
               onDeleteNote={(note) => {
