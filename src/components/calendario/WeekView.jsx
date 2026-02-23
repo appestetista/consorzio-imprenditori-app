@@ -142,6 +142,8 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   // useLayoutEffect per evitare il "bank" visivo: centra PRIMA del paint
   useLayoutEffect(() => {
     if (!ribbonRef.current || initialScrollDone.current) return;
+    // Se il container non ha ancora dimensioni (transizione CSS in corso), ritenta al prossimo render
+    if (ribbonRef.current.clientWidth === 0) return;
     let targetDate;
     if (initialVisibleDay && initialVisibleMonth !== undefined && initialVisibleYear) {
       targetDate = new Date(initialVisibleYear, initialVisibleMonth, initialVisibleDay);
@@ -156,6 +158,12 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     const newWeek = getWeekDays(targetDate);
     setCurrentWeekDays(newWeek);
     updateCursorPosition(newWeek);
+    // Scroll verticale all'ora corrente (sincrono, prima del paint)
+    if (scrollRef.current) {
+      const now = new Date();
+      const idx = now.getHours() * 12 + Math.floor(now.getMinutes() / 5);
+      scrollRef.current.scrollTop = Math.max(0, (idx - 5) * 26);
+    }
     initialScrollDone.current = true;
   }, [yearDays, initialVisibleMonth, initialVisibleYear, scrollRibbonToDate]);
 
