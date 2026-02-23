@@ -49,7 +49,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   const [highlightedDay, setHighlightedDay] = useState(null);
   const [openDropdownDay, setOpenDropdownDay] = useState(null);
   const [strikethroughItems, setStrikethroughItems] = useState({});
-  const [daySummaryDate, setDaySummaryDate] = useState(null);
+  
   const [slotMenuPos, setSlotMenuPos] = useState(null); // { date, time, x, y }
   const [focusedDay, setFocusedDay] = useState(null); // "YYYY-MM-DD" — giorno evidenziato da navigazione popup, gli altri diventano grigi
   const [focusedMonth, setFocusedMonth] = useState(null); // indice mese evidenziato (0-11) quando focusedDay è attivo
