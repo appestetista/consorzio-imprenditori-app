@@ -478,6 +478,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                         }
                       }, 200);
                     }}
+                    onDaySummaryRequest={(dk) => setWeekDaySummaryDate(dk)}
                   />
                 </div>
               </div>
