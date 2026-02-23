@@ -248,12 +248,20 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     if (onRegisterMonthSelect) {
       onRegisterMonthSelect((mIdx) => {
         if (!ribbonRef.current) return;
-        // Scrolla il nastro al 15 del mese, allineato con la griglia
         const targetDate = new Date(displayYear, mIdx, 15);
+        // Forza aggiornamento settimana immediatamente (non aspettare lo scroll asincrono)
+        const newWeek = getWeekDays(targetDate);
+        setCurrentWeekDays(newWeek);
+        updateCursorPosition(newWeek);
+        setHighlightedDay(null);
+        setSelectedSlot(null);
+        setExpandedDayIdx(null);
+        if (onDateSelect) onDateSelect(targetDate);
+        // Poi scrolla il nastro smooth
         scrollRibbonToDate(targetDate, true);
       });
     }
-  }, [onRegisterMonthSelect, displayYear, scrollRibbonToDate]);
+  }, [onRegisterMonthSelect, displayYear, scrollRibbonToDate, updateCursorPosition, onDateSelect]);
 
   // Quando cliccano un giorno nel nastro, aggiorna la settimana e scrolla
   const handleDayClick = useCallback((date) => {
