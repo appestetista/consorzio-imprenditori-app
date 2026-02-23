@@ -178,7 +178,11 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     if (programmaticScrollRef.current) return;
 
     // Se l'utente scrolla il nastro manualmente, resetta il focus (torna tutto colorato)
-    if (focusedDay) setFocusedDay(null);
+    if (focusedDay) {
+      setFocusedDay(null);
+      setFocusedMonth(null);
+      if (onFocusedMonthChange) onFocusedMonthChange(null);
+    }
 
     const scrollLeft = ribbonRef.current.scrollLeft;
     const barWidth = ribbonRef.current.clientWidth;
