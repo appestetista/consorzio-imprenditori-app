@@ -451,7 +451,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   const ribbonTotalWidth = yearDays.length * ITEM_W;
 
   return (
-    <div className="flex flex-col h-full overflow-hidden" style={bgStyle}>
+    <div className="flex flex-col h-full overflow-hidden relative" style={bgStyle}>
 
       {/* NASTRO GIORNI continuo gen-dic con cursore */}
       <div className="flex-shrink-0 flex flex-col border-b border-slate-700/30 relative">
