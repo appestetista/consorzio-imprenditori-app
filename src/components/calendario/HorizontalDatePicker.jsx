@@ -945,7 +945,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
       {openCartella && ReactDOM.createPortal(
         <div className="fixed inset-0 z-[9998] bg-black">
           <CartellaView
-            cartella={openCartella}
+            cartella={cartelle.find(c => c.id === openCartella.id) || openCartella}
             userEmail={userEmail}
             onClose={() => setOpenCartella(null)}
           />
