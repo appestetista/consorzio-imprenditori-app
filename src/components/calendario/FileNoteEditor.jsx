@@ -19,6 +19,8 @@ export default function FileNoteEditor({ file, onClose, onSave, onDelete, monthC
   const [viewingAttachment, setViewingAttachment] = useState(null);
   const [selectedCartella, setSelectedCartella] = useState(file?.cartella_id || '');
   const [showCartellaDropdown, setShowCartellaDropdown] = useState(false);
+  const [fileColore, setFileColore] = useState(file?.colore || '');
+  const [showColorPicker, setShowColorPicker] = useState(false);
   const [userEmail, setUserEmail] = useState(null);
   const queryClient = useQueryClient();
   const cameraInputRef = useRef(null);
