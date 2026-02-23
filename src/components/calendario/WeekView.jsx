@@ -379,9 +379,15 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     const sk = `${String(h).padStart(2,'0')}:${String(Math.floor(m/5)*5).padStart(2,'0')}`;
     setSelectedSlot({ date: navDate, time: sk });
 
-    // 7. Scroll verticale all'orario preciso
+    // 7. Scroll verticale all'orario preciso — posiziona lo slot a filo della linea orizzontale (header)
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = Math.max(0, (h * 12 + Math.floor(m / 5) - 3) * 26);
+      const slotIdx = h * 12 + Math.floor(m / 5);
+      // Calcola altezza cumulativa degli slot precedenti (h-10=40px per ore piene, h-6=24px per i 5-min)
+      let totalH = 0;
+      for (let si = 0; si < slotIdx && si < TIME_SLOTS.length; si++) {
+        totalH += TIME_SLOTS[si].isFullHour ? 40 : 24;
+      }
+      scrollRef.current.scrollTop = totalH;
     }
     if (onNavigateToSlotDone) onNavigateToSlotDone();
   }, [displayYear, onDateSelect, onNavigateToSlotDone, updateCursorPosition, scrollRibbonToDate]);

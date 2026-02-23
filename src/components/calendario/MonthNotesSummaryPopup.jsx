@@ -25,11 +25,12 @@ export default function MonthNotesSummaryPopup({ notes, cartelleMap, monthIndex,
   let lastDay = null;
 
   return (
-    <div className="fixed inset-0 z-[999] flex items-start justify-center pt-4 bg-black/70" onClick={() => {
+    <div className="fixed inset-0 z-[999] flex items-start justify-center pt-2 pb-2 bg-black/70" onClick={() => {
       if (onClose) onClose(lastClickedNoteRef.current);
     }}>
       <div
-        className="bg-slate-900 rounded-2xl shadow-2xl border border-slate-700/60 w-[90vw] max-w-sm max-h-[92vh] flex flex-col overflow-hidden"
+        className="bg-slate-900 rounded-2xl shadow-2xl border border-slate-700/60 flex flex-col overflow-hidden"
+        style={{ width: '90%', maxWidth: '360px', maxHeight: 'calc(100% - 16px)' }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
