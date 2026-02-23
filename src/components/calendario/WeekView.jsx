@@ -368,17 +368,15 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     updateCursorPosition(newWeek);
     if (onDateSelect) onDateSelect(targetDate);
 
-    // 4. Scrolla il nastro: posiziona il giorno sotto il SUO mese nella MonthBar
-    //    MonthBar: pl-3 (12px) + 12 mesi flex-1. Centro del mese mIdx = 12 + (mIdx + 0.5) / 12 * (barWidth - 12)
+    // 4. Scrolla il nastro: posiziona il giorno al centro dello schermo
+    //    Così il suo mese nella MonthBar risulta centrato
     programmaticScrollRef.current = true;
     
     if (ribbonRef.current) {
       const dayIdx = getDayOfYear(targetDate, displayYear);
       if (dayIdx >= 0) {
         const cw = ribbonRef.current.clientWidth;
-        // Posizione X del centro del mese del giorno target nella MonthBar
-        const monthCenterX = 12 + ((focusMonth + 0.5) / 12) * (cw - 12);
-        const targetScrollLeft = dayIdx * ITEM_W + ITEM_W / 2 - monthCenterX;
+        const targetScrollLeft = dayIdx * ITEM_W + ITEM_W / 2 - cw / 2;
         ribbonRef.current.scrollLeft = targetScrollLeft;
       }
     }
