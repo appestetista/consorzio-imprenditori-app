@@ -930,12 +930,15 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
           onNoteClick={(note) => {
             setDaySummaryDate(null);
             // Naviga al giorno e orario preciso
-            if (note.data && note.time) {
+            if (note.data) {
               const [y, m, d] = note.data.split('-').map(Number);
               const noteDate = new Date(y, m - 1, d);
               noteDate.setHours(0, 0, 0, 0);
+              // Seleziona il giorno della nota nel calendario
               if (onDateSelect) onDateSelect(noteDate);
-              if (onNoteNavigate) onNoteNavigate(note);
+              // Scrolla il calendario a quel giorno
+              scrollToDate(noteDate);
+              if (note.time && onNoteNavigate) onNoteNavigate(note);
             }
           }}
         />
