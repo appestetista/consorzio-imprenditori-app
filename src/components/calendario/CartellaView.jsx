@@ -84,11 +84,16 @@ function FileEditor({ file, cartellaId, cartelle = [], userEmail, onClose, onSav
     setShowContextMenu(false);
   };
 
-  // Colore del file
-  const fileColor = file?.colore && file.colore !== '#06b6d4' ? file.colore : '#64748b';
+  // Colore del file: se ha colore proprio usa quello, sennò grigio
+  const fileColor = fileColore || '#64748b';
+
+  const FILE_EDITOR_COLORS = [
+    '#e8c4b0', '#c2185b', '#e65100', '#b8860b', '#1565c0', '#00838f',
+    '#00897b', '#2e7d32', '#9c27b0', '#ad1457', '#827717', '#546e7a',
+  ];
 
   return (
-    <div className="flex flex-col h-full bg-black">
+    <div className="flex flex-col h-full" style={{ backgroundColor: fileColore ? `color-mix(in srgb, ${fileColore} 15%, #000)` : '#000' }}>
       {/* Riga 1: Pallino colore + Data e ora centrati */}
       <div className="px-3 py-2 border-b border-slate-800">
         <div className="flex items-center justify-center gap-2 text-xs font-mono">
@@ -103,7 +108,7 @@ function FileEditor({ file, cartellaId, cartelle = [], userEmail, onClose, onSav
         </div>
       </div>
 
-      {/* Riga 2: Cestino | Salva | X */}
+      {/* Riga 2: Freccia indietro | Salva | Colore file | X */}
       <div className="flex items-center gap-2 px-3 py-2 border-b border-slate-800">
         <button
           onClick={onClose}
@@ -132,6 +137,15 @@ function FileEditor({ file, cartellaId, cartelle = [], userEmail, onClose, onSav
           SALVA
         </a>
 
+        {/* Icona file colorata — apre il color picker */}
+        <button
+          onClick={() => setShowColorPicker(!showColorPicker)}
+          className="w-9 h-9 rounded-full flex items-center justify-center active:scale-90 transition-all touch-manipulation flex-shrink-0"
+          style={{ backgroundColor: fileColore ? fileColore + '30' : '#334155' }}
+        >
+          <FileText className="w-4 h-4" style={{ color: fileColore || '#64748b' }} />
+        </button>
+
         <button
           onClick={onClose}
           className="w-9 h-9 rounded-full bg-slate-700 hover:bg-slate-600 flex items-center justify-center active:scale-90 transition-all touch-manipulation flex-shrink-0"
@@ -139,6 +153,28 @@ function FileEditor({ file, cartellaId, cartelle = [], userEmail, onClose, onSav
           <X className="w-4 h-4 text-slate-300" />
         </button>
       </div>
+
+      {/* Color picker inline */}
+      {showColorPicker && (
+        <div className="flex items-center gap-2 px-3 py-2 border-b border-slate-800/50 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+          {/* Nessun colore (reset) */}
+          <button
+            onClick={() => { setFileColore(''); setShowColorPicker(false); }}
+            className={cn("w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center border-2 transition-all", !fileColore ? "border-white" : "border-slate-600")}
+            style={{ backgroundColor: '#1e293b' }}
+          >
+            <X className="w-3 h-3 text-slate-400" />
+          </button>
+          {FILE_EDITOR_COLORS.map((c) => (
+            <button
+              key={c}
+              onClick={() => { setFileColore(c); setShowColorPicker(false); }}
+              className={cn("w-7 h-7 rounded-full flex-shrink-0 transition-all", fileColore === c && "ring-2 ring-white ring-offset-1 ring-offset-black scale-110")}
+              style={{ backgroundColor: c }}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Riga 3: Barra strumenti */}
       <div className="flex-shrink-0 flex items-center justify-around px-2 py-1.5 border-b border-slate-800/50 bg-black">
