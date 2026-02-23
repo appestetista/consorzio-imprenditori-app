@@ -190,6 +190,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     // Nascondi frecce appena l'utente scrolla (anche durante focus lock)
     setShowScrollArrows(false);
     if (focusLockRef.current) return;
+    if (clickLockRef.current) return; // blocca durante smooth scroll da handleDayClick
 
     const scrollLeft = ribbonRef.current.scrollLeft;
     const barWidth = ribbonRef.current.clientWidth;
