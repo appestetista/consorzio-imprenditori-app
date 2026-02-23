@@ -206,6 +206,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
   const [showToolsTooltip, setShowToolsTooltip] = useState(false); // Fumetto strumenti disabilitati
   const [dragOverFolderId, setDragOverFolderId] = useState(null); // Cartella evidenziata durante drag
   const [daySummaryDate, setDaySummaryDate] = useState(null); // data per popup appuntamenti
+  const manualNavLockRef = useRef(false); // Blocca aggiornamento da scroll durante navigazione manuale
 
   // Ascolta evento drag-over da FileStrip
   useEffect(() => {
