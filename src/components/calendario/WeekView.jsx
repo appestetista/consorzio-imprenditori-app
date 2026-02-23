@@ -596,7 +596,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                       transition: 'all 0.3s ease'
                     }}>{dayNum}</span>
                   </div>
-                  <span className={cn("text-[6px] font-bold leading-tight")} style={{
+                  <span className={cn("text-[10px] font-bold leading-tight")} style={{
                     color: isDimmed ? '#334155' : (isWeekend ? '#ef4444' : (isInWeek ? '#94a3b8' : mColor + '80'))
                   }}>
                     {DAY_LETTERS[dow]}
