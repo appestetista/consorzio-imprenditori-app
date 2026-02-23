@@ -748,6 +748,58 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
         </div>
       )}
 
+      {/* Anteprima nota — popup inline quando clicchi una nota nella colonna espansa */}
+      {previewNote && (
+        <div 
+          className="fixed inset-0 z-[60]" 
+          onClick={() => setPreviewNote(null)}
+        >
+          <div 
+            className="absolute z-[61] bg-black rounded-xl shadow-2xl border border-slate-700/50 overflow-hidden"
+            style={{
+              left: `${Math.max(10, Math.min(previewNote.x - 100, window.innerWidth - 220))}px`,
+              top: `${Math.max(10, previewNote.y - 130)}px`,
+              width: '200px'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-3">
+              <div className="flex items-center gap-1.5 mb-1.5">
+                <span className="text-[10px] font-mono text-slate-400">{previewNote.time}</span>
+              </div>
+              <h4 className="text-sm font-semibold text-white leading-tight mb-1">{previewNote.note.title}</h4>
+              {previewNote.note.content && (
+                <p className="text-[11px] text-slate-400 leading-snug line-clamp-3">{previewNote.note.content}</p>
+              )}
+              {previewNote.note.checklist_items?.length > 0 && (
+                <div className="mt-1.5 flex items-center gap-1">
+                  <Check className="w-3 h-3 text-slate-500" />
+                  <span className="text-[10px] text-slate-500">{previewNote.note.checklist_items.filter(c => c.checked).length}/{previewNote.note.checklist_items.length}</span>
+                </div>
+              )}
+              {previewNote.note.attachments?.length > 0 && (
+                <div className="mt-1 flex items-center gap-1">
+                  <FileText className="w-3 h-3 text-slate-500" />
+                  <span className="text-[10px] text-slate-500">{previewNote.note.attachments.length} allegat{previewNote.note.attachments.length === 1 ? 'o' : 'i'}</span>
+                </div>
+              )}
+              <button
+                className="mt-2.5 w-full py-1.5 rounded-lg text-xs font-semibold transition-colors"
+                style={{ backgroundColor: ac, color: '#0f172a' }}
+                onClick={() => {
+                  setPreviewNote(null);
+                  if (onSlotClick) {
+                    onSlotClick({ date: previewNote.date, time: previewNote.time, existingNote: previewNote.note });
+                  }
+                }}
+              >
+                Apri nota
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* DayNotesSummaryPopup è gestito dal parent CalendarSideTab */}
     </div>
   );
