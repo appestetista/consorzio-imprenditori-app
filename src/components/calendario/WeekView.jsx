@@ -54,6 +54,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   const [focusedDay, setFocusedDay] = useState(null); // "YYYY-MM-DD" — giorno evidenziato da navigazione popup, gli altri diventano grigi
   const [focusedMonth, setFocusedMonth] = useState(null); // indice mese evidenziato (0-11) quando focusedDay è attivo
   const focusedDayRef = useRef(null); // ref mirror per evitare stale closure in scroll handler
+  const focusLockRef = useRef(false); // focus lock: quando true, handleRibbonScroll è bloccato. Si sblocca SOLO su interazione manuale utente.
   // La settimana visualizzata (derivata dal giorno centrale visibile nel nastro)
   const [currentWeekDays, setCurrentWeekDays] = useState(() => getWeekDays(selectedDate || new Date()));
   // Cursore: posizione px nel nastro
@@ -64,8 +65,6 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   const ribbonRef = useRef(null); // scroll orizzontale nastro giorni
   const dayRefsMap = useRef({}); // ref per ogni giorno del nastro: "YYYY-M-D" -> element
   const initialScrollDone = useRef(false);
-  const programmaticScrollRef = useRef(false); // flag per ignorare scroll programmatico nel nastro
-  const programmaticScrollEndTime = useRef(0); // timestamp fino a cui ignorare scroll events
   const skipAutoScrollToNow = useRef(false); // flag per evitare che lo scroll automatico all'ora corrente sovrascriva la navigazione
 
   const today = new Date(); today.setHours(0,0,0,0);
