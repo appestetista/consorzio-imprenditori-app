@@ -78,7 +78,7 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
         user_email: userEmail,
         titolo: '',
         contenuto: '',
-        colore: '#06b6d4',
+        colore: '',
         cartella_id: null
       });
     }
