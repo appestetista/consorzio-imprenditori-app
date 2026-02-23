@@ -629,14 +629,25 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
 
         {/* HEADER GIORNI SETTIMANA */}
         <div className="flex flex-shrink-0 border-b border-slate-700/50">
-          <div className="flex-shrink-0 flex items-center justify-end" style={{ width: '70px', paddingRight: '8px', borderRight: '2px solid rgba(100,116,139,0.6)' }}>
+          <div className="flex-shrink-0 flex items-center justify-between" style={{ width: '70px', paddingLeft: '4px', paddingRight: '4px', borderRight: '2px solid rgba(100,116,139,0.6)' }}>
+            <button
+              onClick={() => {
+                const prevWeekDate = new Date(weekDays[0]);
+                prevWeekDate.setDate(prevWeekDate.getDate() - 1);
+                handleDayClick(prevWeekDate);
+              }}
+              className="w-7 h-7 rounded-full flex items-center justify-center touch-manipulation active:scale-90 transition-all"
+              style={{ backgroundColor: ac + '30' }}
+            >
+              <ChevronLeft className="w-4 h-4" style={{ color: ac }} />
+            </button>
             {onBackToDaily && (
               <button
                 onClick={onBackToDaily}
-                className="w-9 h-9 rounded-lg flex items-center justify-center touch-manipulation active:scale-90 transition-all"
+                className="w-7 h-7 rounded-lg flex items-center justify-center touch-manipulation active:scale-90 transition-all"
                 style={{ backgroundColor: '#a3e635', boxShadow: '0 0 10px rgba(163,230,53,0.5)' }}
               >
-                <X className="w-4 h-4 text-slate-900" strokeWidth={3} />
+                <X className="w-3.5 h-3.5 text-slate-900" strokeWidth={3} />
               </button>
             )}
           </div>
