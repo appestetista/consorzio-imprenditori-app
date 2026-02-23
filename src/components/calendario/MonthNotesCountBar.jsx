@@ -6,12 +6,14 @@ const MONTH_COLORS = [
   '#f97316','#ef4444','#06b6d4','#a855f7','#6366f1','#0ea5e9'
 ];
 
-export default function MonthNotesCountBar({ noteCountsByMonth, currentMonth, onMonthClick }) {
+export default function MonthNotesCountBar({ noteCountsByMonth, currentMonth, onMonthClick, focusedMonth }) {
+  const hasFocus = focusedMonth !== null && focusedMonth !== undefined;
   return (
     <div className="flex items-center gap-0 pl-3 pr-0 w-full border-t border-slate-700/30">
       {Array.from({ length: 12 }, (_, mIdx) => {
         const count = noteCountsByMonth[mIdx] || 0;
         const isCurrent = mIdx === currentMonth;
+        const isDimmedMonth = hasFocus && mIdx !== focusedMonth;
         const mc = MONTH_COLORS[mIdx];
         return (
           <button
