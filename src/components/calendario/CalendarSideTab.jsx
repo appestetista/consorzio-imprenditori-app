@@ -567,7 +567,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                   }
                   // Passa l'orario preciso alla WeekView per scroll verticale
                   if (note.time) {
-                    setPendingWeekSlotNavigate({ date: note.data, time: note.time });
+                    setPendingWeekSlotNavigate({ date: note.data, time: note.time, _ts: Date.now() });
                   }
                 }
               }}
