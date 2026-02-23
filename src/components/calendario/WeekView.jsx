@@ -124,7 +124,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     }
     const now = new Date();
     const idx = now.getHours() * 12 + Math.floor(now.getMinutes() / 5);
-    setTimeout(() => { if (scrollRef.current) scrollRef.current.scrollTop = Math.max(0, (idx - 5) * 26); }, 200);
+    if (scrollRef.current) scrollRef.current.scrollTop = Math.max(0, (idx - 5) * 26);
   }, [currentWeekDays]);
 
   // Resetta lo scroll iniziale ogni volta che cambiano i props visibili dalla giornaliera
