@@ -601,7 +601,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                     className="absolute right-0 bottom-0 flex items-center cursor-pointer z-20 touch-manipulation active:scale-90 pb-0.5 pr-0.5"
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (dayAllNotes.length > 0) { setDaySummaryDate(dk); } else { setOpenDropdownDay(isDropOpen ? null : i); }
+                      if (dayAllNotes.length > 0) { if (onDaySummaryRequest) onDaySummaryRequest(dk); } else { setOpenDropdownDay(isDropOpen ? null : i); }
                     }}
                   >
                     {dayAllNotes.length > 0 && <span className="text-[10px] font-bold leading-none" style={{ color: '#a3e635' }}>{dayAllNotes.length}</span>}
