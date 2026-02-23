@@ -187,8 +187,8 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   // Quando il nastro scrolla, determina il giorno sotto il centro del mese corrente e aggiorna la settimana
   const handleRibbonScroll = useCallback(() => {
     if (!ribbonRef.current) return;
-    // Nascondi frecce appena l'utente scrolla (anche durante focus lock)
-    setShowScrollArrows(false);
+    // NON nascondere frecce durante click lock (scroll programmatico da handleDayClick)
+    if (!clickLockRef.current) setShowScrollArrows(false);
     if (focusLockRef.current) return;
     if (clickLockRef.current) return; // blocca durante smooth scroll da handleDayClick
 
