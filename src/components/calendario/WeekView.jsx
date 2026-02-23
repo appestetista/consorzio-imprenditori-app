@@ -176,13 +176,16 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   const handleRibbonScroll = useCallback(() => {
     if (!ribbonRef.current) return;
 
-    // Se lo scroll è programmatico (navigazione da popup), non resettare il focus
+    // Se lo scroll è programmatico (navigazione da popup), non toccare nulla
     if (programmaticScrollRef.current) return;
+    // Protezione temporale: ignora scroll events per 500ms dopo navigazione programmatica
+    if (Date.now() < programmaticScrollEndTime.current) return;
 
     // Se l'utente scrolla il nastro manualmente, resetta il focus (torna tutto colorato)
-    if (focusedDay) {
+    if (focusedDayRef.current) {
       setFocusedDay(null);
       setFocusedMonth(null);
+      focusedDayRef.current = null;
       if (onFocusedMonthChange) onFocusedMonthChange(null);
     }
 
@@ -203,7 +206,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
 
     // Aggiorna cursore in px — posizionato sopra i giorni reali della settimana nel nastro
     updateCursorPosition(newWeek);
-  }, [yearDays, focusedDay]);
+  }, [yearDays]);
 
   const updateCursorPosition = useCallback((week) => {
     if (!ribbonRef.current) return;
