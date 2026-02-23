@@ -177,7 +177,7 @@ function FileEditor({ file, cartellaId, cartelle = [], userEmail, onClose, onSav
       )}
 
       {/* Riga 3: Barra strumenti */}
-      <div className="flex-shrink-0 flex items-center justify-around px-2 py-1.5 border-b border-slate-800/50 bg-black">
+      <div className="flex-shrink-0 flex items-center justify-around px-2 py-1.5 border-b border-slate-800/50">
         <button onClick={() => cameraRef.current?.click()} className="w-9 h-9 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center transition-colors active:scale-90">
           <Camera className="w-4 h-4 text-slate-300" />
         </button>
