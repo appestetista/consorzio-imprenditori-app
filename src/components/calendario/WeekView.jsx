@@ -359,9 +359,9 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
       if (scrollRef.current) {
         scrollRef.current.scrollTop = Math.max(0, (h * 12 + Math.floor(m / 5) - 3) * 26);
       }
-    }, 150);
-
-    if (onNavigateToSlotDone) onNavigateToSlotDone();
+      // Resetta DOPO che lo scroll è completato, non prima
+      if (onNavigateToSlotDone) onNavigateToSlotDone();
+    }, 300);
   }, [navigateToSlot]);
 
   const handleSlotClick = (dayStr, timeLabel, e) => {
