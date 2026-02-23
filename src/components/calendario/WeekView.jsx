@@ -278,6 +278,10 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     setCurrentWeekDays(newWeek);
     updateCursorPosition(newWeek);
     
+    // Espandi subito la colonna del giorno cliccato
+    const dayIdx = newWeek.findIndex(wd => wd.getDate() === date.getDate() && wd.getMonth() === date.getMonth() && wd.getFullYear() === date.getFullYear());
+    if (dayIdx >= 0) setExpandedDayIdx(dayIdx);
+    
     // Scrolla il nastro allineato al centro del mese nella MonthBar
     scrollRibbonToDate(date, true);
   }, [onDateSelect, displayYear, updateCursorPosition, scrollRibbonToDate]);
