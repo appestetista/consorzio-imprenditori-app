@@ -43,10 +43,17 @@ function generateYearDays(year) {
 }
 
 export default function WeekView({ selectedDate, monthColor, onMonthColorChange, onDateSelect, onSlotClick, onMonthChange, onRegisterMonthSelect, onBackToDaily, allMonthNotes = [], initialVisibleDay, initialVisibleMonth, initialVisibleYear, navigateToSlot, onNavigateToSlotDone, onFocusedMonthChange, onDaySummaryRequest }) {
-  const [userEmail, setUserEmail] = useState(null);
-  const [viewDate, setViewDate] = useState(() => selectedDate ? new Date(selectedDate) : new Date());
-  const [selectedSlot, setSelectedSlot] = useState(null);
-  const [highlightedDay, setHighlightedDay] = useState(null);
+    const [userEmail, setUserEmail] = useState(null);
+    const [viewDate, setViewDate] = useState(() => selectedDate ? new Date(selectedDate) : new Date());
+    const [selectedSlot, setSelectedSlot] = useState(null);
+    // Inizializza highlightedDay dal selectedDate se presente
+    const [highlightedDay, setHighlightedDay] = useState(() => {
+      if (selectedDate) {
+        const d = new Date(selectedDate);
+        return { day: d.getDate(), month: d.getMonth(), year: d.getFullYear() };
+      }
+      return null;
+    });
   const [openDropdownDay, setOpenDropdownDay] = useState(null);
   const [strikethroughItems, setStrikethroughItems] = useState({});
   
