@@ -170,29 +170,25 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     }
   }, [onFocusedMonthChange]);
 
-  // Quando il nastro scrolla, determina il giorno al centro e aggiorna la settimana
+  // Quando il nastro scrolla, determina il giorno sotto il centro del mese corrente e aggiorna la settimana
   const handleRibbonScroll = useCallback(() => {
     if (!ribbonRef.current) return;
-
-    // Se focus è bloccato (navigazione da popup), non toccare nulla
     if (focusLockRef.current) return;
 
     const scrollLeft = ribbonRef.current.scrollLeft;
     const barWidth = ribbonRef.current.clientWidth;
+    // Usa il centro dello schermo come riferimento (barWidth/2)
     const centerOffset = scrollLeft + barWidth / 2;
     const centerIdx = Math.floor(centerOffset / ITEM_W);
     const clampedIdx = Math.max(0, Math.min(yearDays.length - 1, centerIdx));
     const centerDate = yearDays[clampedIdx];
     if (!centerDate) return;
 
-    // Aggiorna settimana se cambiata
     const newWeek = getWeekDays(centerDate);
     setCurrentWeekDays(prev => {
       if (prev[0].getTime() !== newWeek[0].getTime()) return newWeek;
       return prev;
     });
-
-    // Aggiorna cursore in px — posizionato sopra i giorni reali della settimana nel nastro
     updateCursorPosition(newWeek);
   }, [yearDays]);
 
