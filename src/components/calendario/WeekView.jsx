@@ -103,21 +103,18 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     return paddingLeft + slotWidth * monthIdx + slotWidth / 2;
   }, []);
 
-  // Scrolla il nastro posizionando il giorno target esattamente sotto il centro del suo mese nella MonthBar
+  // Scrolla il nastro posizionando il giorno target al bordo sinistro
   const scrollRibbonToDate = useCallback((date, smooth = true) => {
     if (!ribbonRef.current) return;
     const dayIdx = getDayOfYear(date, displayYear);
     if (dayIdx < 0) return;
-    const monthCenterX = getMonthCenterX(date);
-    if (monthCenterX === null) return;
-    const dayCenter = dayIdx * ITEM_W + ITEM_W / 2;
-    const targetScrollLeft = dayCenter - monthCenterX;
+    const targetScrollLeft = dayIdx * ITEM_W;
     if (smooth) {
       ribbonRef.current.scrollTo({ left: targetScrollLeft, behavior: 'smooth' });
     } else {
       ribbonRef.current.scrollLeft = targetScrollLeft;
     }
-  }, [displayYear, getMonthCenterX]);
+  }, [displayYear]);
 
   // Scroll verticale ore all'ora corrente — solo se NON stiamo navigando a uno slot specifico
   useEffect(() => {
