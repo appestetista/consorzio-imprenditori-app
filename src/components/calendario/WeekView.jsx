@@ -437,6 +437,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
         for (let si = 0; si < slotIdx && si < TIME_SLOTS.length; si++) {
           totalH += TIME_SLOTS[si].isFullHour ? 40 : 24;
         }
+        // Posiziona lo slot a filo con la parte superiore dell'area scrollabile
         scrollRef.current.scrollTop = totalH;
       });
     });
