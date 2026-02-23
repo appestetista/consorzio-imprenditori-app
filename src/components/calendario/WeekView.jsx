@@ -630,7 +630,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                         )}
                         {its.map((it, ii) => (
                           <div key={ii} className="absolute inset-x-0.5 top-0.5 bottom-0.5 rounded overflow-hidden flex items-center" style={{ backgroundColor: it.color+'30', borderLeft: `2px solid ${it.color}` }}>
-                            <span className="text-[7px] font-medium px-0.5 truncate" style={{ color: it.color }}>{it.title}</span>
+                            <span className="text-[14px] font-semibold px-0.5 truncate" style={{ color: it.color }}>{it.title}</span>
                           </div>
                         ))}
                       </div>
