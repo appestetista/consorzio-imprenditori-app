@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Check, Paperclip, X, ChevronDown, Folder, FolderPlus, Trash2, Pencil, FileText } from 'lucide-react';
+import { Check, Paperclip, X, ChevronDown, Folder, FolderPlus, Trash2, Pencil, FileText, Camera, ListChecks, Calendar as CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import ChecklistEditor from './ChecklistEditor';
 import AttachmentViewer from './AttachmentViewer';
+import WhisperDictation from './WhisperDictation';
+import AudioRecorder from './AudioRecorder';
 
 export default function FileNoteEditor({ file, onClose, onSave, onDelete, monthColor }) {
   const [title, setTitle] = useState(file?.titolo || '');
@@ -21,6 +23,9 @@ export default function FileNoteEditor({ file, onClose, onSave, onDelete, monthC
   const [showCartellaDropdown, setShowCartellaDropdown] = useState(false);
   const [fileColore, setFileColore] = useState(file?.colore || '');
   const [showColorPicker, setShowColorPicker] = useState(false);
+  const [isDictating, setIsDictating] = useState(false);
+  const [fileData, setFileData] = useState(file?.data || '');
+  const [fileTime, setFileTime] = useState(file?.time || '');
   const [userEmail, setUserEmail] = useState(null);
   const queryClient = useQueryClient();
   const cameraInputRef = useRef(null);
@@ -90,7 +95,9 @@ export default function FileNoteEditor({ file, onClose, onSave, onDelete, monthC
       colore: fileColore || null,
       allegati: attachments,
       checklist_items: checklistItems,
-      cartella_id: selectedCartella || null
+      cartella_id: selectedCartella || null,
+      data: fileData || null,
+      time: fileTime || null
     });
   };
 
@@ -101,11 +108,17 @@ export default function FileNoteEditor({ file, onClose, onSave, onDelete, monthC
     setIsUploading(false);
   };
 
-  const formattedDate = file?.data
-    ? new Date(file.data + 'T00:00:00').toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'long' })
+  const toggleChecklist = () => {
+    if (!showChecklist && checklistItems.length === 0) {
+      setChecklistItems([{ id: Date.now().toString(), text: '', checked: false }]);
+    }
+    setShowChecklist(!showChecklist);
+  };
+
+  const formattedDate = fileData
+    ? new Date(fileData + 'T00:00:00').toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'long' })
     : 'File senza data';
 
-  // Colore effettivo del file
   const displayColor = fileColore || (() => {
     const cart = selectedCartella ? cartelle.find(c => c.id === selectedCartella) : null;
     return cart?.colore || '#64748b';
@@ -116,12 +129,9 @@ export default function FileNoteEditor({ file, onClose, onSave, onDelete, monthC
       {/* Riga 1: Info file con pallino colore */}
       <div className="px-3 py-2 border-b border-slate-800">
         <div className="flex items-center justify-center gap-2 text-xs font-mono">
-          <div 
-            className="w-3 h-3 rounded-full flex-shrink-0"
-            style={{ backgroundColor: displayColor }}
-          />
+          <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: displayColor }} />
           <span style={{ color: displayColor }}>
-            📄 {formattedDate} {file?.time ? `• ${file.time}` : ''}
+            📄 {formattedDate} {fileTime ? `• ${fileTime}` : ''}
           </span>
         </div>
       </div>
@@ -144,10 +154,7 @@ export default function FileNoteEditor({ file, onClose, onSave, onDelete, monthC
             "flex-1 flex items-center justify-center gap-1 py-2 rounded-full font-bold text-xs no-underline touch-manipulation select-none",
             isSaving && "opacity-60"
           )}
-          style={{
-            backgroundColor: isSaving ? '#64748b' : displayColor,
-            color: '#0f172a'
-          }}
+          style={{ backgroundColor: isSaving ? '#64748b' : displayColor, color: '#0f172a' }}
         >
           {isSaving ? (
             <div className="w-3 h-3 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
@@ -157,7 +164,6 @@ export default function FileNoteEditor({ file, onClose, onSave, onDelete, monthC
           SALVA
         </a>
 
-        {/* Icona file colorata — apre il color picker */}
         <button
           onClick={() => setShowColorPicker(!showColorPicker)}
           className="w-9 h-9 rounded-full flex items-center justify-center active:scale-90 transition-all touch-manipulation flex-shrink-0"
@@ -195,48 +201,70 @@ export default function FileNoteEditor({ file, onClose, onSave, onDelete, monthC
         </div>
       )}
 
-      {/* Riga 3: Selettore cartella */}
-      <div className="px-3 py-1 border-b border-slate-800/50 relative">
-        <button
-          onClick={() => setShowCartellaDropdown(!showCartellaDropdown)}
-          className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-slate-800 transition-colors w-full"
-        >
-          {selectedCartella && cartelle.find(c => c.id === selectedCartella) ? (
-            <>
-              <div className="w-4 h-4 rounded flex-shrink-0" style={{ backgroundColor: cartelle.find(c => c.id === selectedCartella)?.colore || '#64748b' }} />
-              <span className="text-sm text-slate-200 truncate font-medium">
-                {cartelle.find(c => c.id === selectedCartella)?.nome || 'Cartella'}
-              </span>
-            </>
-          ) : (
-            <>
-              <Folder className="w-4 h-4 text-slate-500" />
-              <span className="text-sm text-slate-500">Nessuna cartella (standalone)</span>
-            </>
-          )}
-          <ChevronDown className={cn("w-4 h-4 text-slate-500 ml-auto transition-transform flex-shrink-0", showCartellaDropdown && "rotate-180")} />
+      {/* Riga 3: Barra strumenti */}
+      <div className="flex-shrink-0 flex items-center justify-around px-2 py-1.5 border-b border-slate-800/50">
+        <button onClick={() => cameraInputRef.current?.click()} className="w-9 h-9 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center transition-colors active:scale-90">
+          <Camera className="w-4 h-4 text-slate-300" />
         </button>
+        <button onClick={() => fileInputRef.current?.click()} className="w-9 h-9 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center transition-colors active:scale-90">
+          <Paperclip className="w-4 h-4 text-slate-300" />
+        </button>
+        <button
+          onClick={toggleChecklist}
+          className={cn("w-9 h-9 rounded-full flex items-center justify-center transition-colors active:scale-90", showChecklist ? "bg-lime-500/30" : "bg-slate-800 hover:bg-slate-700")}
+        >
+          <ListChecks className={cn("w-4 h-4", showChecklist ? "text-lime-400" : "text-slate-300")} />
+        </button>
+        <WhisperDictation
+          isDictating={isDictating}
+          setIsDictating={setIsDictating}
+          onTranscription={(text) => setContent(prev => prev ? prev + ' ' + text : text)}
+        />
+        <AudioRecorder
+          onAudioSaved={(audioAtt) => setAttachments(prev => [...prev, audioAtt])}
+        />
+      </div>
 
-        {showCartellaDropdown && (
-          <div className="absolute left-3 right-3 top-full z-50 bg-slate-800 border border-slate-700 rounded-lg shadow-xl overflow-hidden">
-            <button
-              onClick={() => { setSelectedCartella(''); setShowCartellaDropdown(false); }}
-              className={cn("w-full flex items-center gap-2 px-3 py-2.5 text-sm hover:bg-slate-700 transition-colors", !selectedCartella ? "text-white" : "text-slate-400")}
-            >
-              <X className="w-4 h-4" /> Nessuna cartella
-            </button>
-            {cartelle.map((c) => (
-              <button
-                key={c.id}
-                onClick={() => { setSelectedCartella(c.id); setShowCartellaDropdown(false); }}
-                className={cn("w-full flex items-center gap-2 px-3 py-2.5 text-sm hover:bg-slate-700 transition-colors", selectedCartella === c.id ? "text-white" : "text-slate-400")}
-              >
-                <div className="w-4 h-4 rounded flex-shrink-0" style={{ backgroundColor: c.colore }} />
-                <span className="truncate">{c.nome}</span>
-              </button>
-            ))}
-          </div>
+      {/* Riga 4: Data/Ora picker */}
+      <div className="flex items-center gap-2 px-3 py-1.5 border-b border-slate-800/50">
+        <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border flex-1" style={{ borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)' }}>
+          <CalendarIcon className="w-3.5 h-3.5" style={{ color: '#3b82f6' }} />
+          <input
+            type="date"
+            value={fileData}
+            onChange={(e) => setFileData(e.target.value)}
+            className="bg-transparent text-xs font-medium outline-none flex-1 min-w-0"
+            style={{ color: fileData ? '#60a5fa' : '#3b82f6', colorScheme: 'dark' }}
+          />
+        </div>
+        <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border flex-1" style={{ borderColor: '#a855f7', backgroundColor: 'rgba(168, 85, 247, 0.1)' }}>
+          <svg className="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="#a855f7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <input
+            type="time"
+            value={fileTime}
+            step="300"
+            onChange={(e) => {
+              const val = e.target.value;
+              if (val) {
+                const [h, m] = val.split(':').map(Number);
+                const rounded = Math.round(m / 5) * 5;
+                const finalM = rounded === 60 ? 0 : rounded;
+                const finalH = rounded === 60 ? (h + 1) % 24 : h;
+                setFileTime(`${String(finalH).padStart(2, '0')}:${String(finalM).padStart(2, '0')}`);
+              } else {
+                setFileTime('');
+              }
+            }}
+            className="bg-transparent text-xs font-medium outline-none flex-1 min-w-0"
+            style={{ color: fileTime ? '#c084fc' : '#a855f7', colorScheme: 'dark' }}
+          />
+        </div>
+        {fileData && (
+          <button onClick={() => { setFileData(''); setFileTime(''); }} className="p-1 rounded-full hover:bg-slate-700 flex-shrink-0">
+            <X className="w-3.5 h-3.5 text-slate-400" />
+          </button>
         )}
+        <Pencil className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
       </div>
 
       {/* Content */}
@@ -248,7 +276,7 @@ export default function FileNoteEditor({ file, onClose, onSave, onDelete, monthC
           placeholder="Titolo"
           autoComplete="off"
           className={cn(
-            "w-full bg-transparent text-white text-3xl font-light outline-none mb-2 truncate flex-shrink-0",
+            "w-full bg-transparent text-white text-base font-light outline-none mb-2 truncate flex-shrink-0",
             titleError ? "placeholder:text-red-500 border-b-2 border-red-500" : "placeholder:text-slate-500"
           )}
           autoFocus
