@@ -250,7 +250,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
         scrollRibbonToDate(targetDate, true);
       });
     }
-  }, [onRegisterMonthSelect, displayYear, scrollRibbonToAlignWithGrid]);
+  }, [onRegisterMonthSelect, displayYear, scrollRibbonToDate]);
 
   // Quando cliccano un giorno nel nastro, aggiorna la settimana e scrolla
   const handleDayClick = useCallback((date) => {
