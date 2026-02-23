@@ -343,6 +343,9 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
 
     // Attiva modalità focus PRIMA dello scroll per evitare che handleRibbonScroll lo resetti
     setFocusedDay(navDate);
+    const focusMonth = mo - 1;
+    setFocusedMonth(focusMonth);
+    if (onFocusedMonthChange) onFocusedMonthChange(focusMonth);
 
     // IMPORTANTE: blocca lo scroll automatico all'ora corrente che scatterebbe quando cambia currentWeekDays
     skipAutoScrollToNow.current = true;
@@ -354,9 +357,9 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     updateCursorPosition(newWeek);
     if (onDateSelect) onDateSelect(targetDate);
 
-    // Scrolla il nastro allineato con la griglia — ISTANTANEO per evitare disallineamenti
+    // Scrolla il nastro per centrare il giorno sotto Luglio (centro dello schermo)
     programmaticScrollRef.current = true;
-    scrollRibbonToAlignWithGrid(targetDate, false);
+    scrollRibbonToCenterUnderJuly(targetDate, false);
     // Rilascia il flag dopo un breve delay e ri-forza la settimana corretta
     setTimeout(() => {
       programmaticScrollRef.current = false;
