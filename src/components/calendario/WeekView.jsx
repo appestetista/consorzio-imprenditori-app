@@ -63,7 +63,6 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
 
   const scrollRef = useRef(null); // scroll verticale ore
   const ribbonRef = useRef(null); // scroll orizzontale nastro giorni
-  const dayRefsMap = useRef({}); // ref per ogni giorno del nastro: "YYYY-M-D" -> element
   const initialScrollDone = useRef(false);
   const skipAutoScrollToNow = useRef(false); // flag per evitare che lo scroll automatico all'ora corrente sovrascriva la navigazione
 
