@@ -326,17 +326,24 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     updateCursorPosition(newWeek);
     if (onDateSelect) onDateSelect(targetDate);
 
-    // Scrolla il nastro al giorno preciso con animazione smooth
+    // Scrolla il nastro al giorno preciso — ISTANTANEO per evitare disallineamenti
     programmaticScrollRef.current = true;
     if (ribbonRef.current) {
       const dayIdx = getDayOfYear(targetDate, displayYear);
       if (dayIdx >= 0) {
         const barWidth = ribbonRef.current.clientWidth;
-        ribbonRef.current.scrollTo({ left: dayIdx * ITEM_W - barWidth / 2 + ITEM_W / 2, behavior: 'smooth' });
+        const targetScrollLeft = dayIdx * ITEM_W - barWidth / 2 + ITEM_W / 2;
+        // Scroll istantaneo per garantire allineamento, poi il browser non genera eventi inerziali
+        ribbonRef.current.scrollLeft = targetScrollLeft;
       }
     }
-    // Rilascia il flag dopo che lo smooth scroll è completato (~500ms)
-    setTimeout(() => { programmaticScrollRef.current = false; }, 600);
+    // Rilascia il flag dopo un breve delay e ri-forza la settimana corretta
+    setTimeout(() => {
+      programmaticScrollRef.current = false;
+      // Ri-forza la settimana del giorno target nel caso scroll inerziale l'abbia sovrascritta
+      setCurrentWeekDays(getWeekDays(targetDate));
+      updateCursorPosition(getWeekDays(targetDate));
+    }, 100);
 
     // Evidenzia lo slot selezionato
     const [h, m] = navTime.split(':').map(Number);
@@ -348,7 +355,6 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
       if (scrollRef.current) {
         scrollRef.current.scrollTop = Math.max(0, (h * 12 + Math.floor(m / 5) - 3) * 26);
       }
-      // Resetta DOPO che lo scroll è completato, non prima
       if (onNavigateToSlotDone) onNavigateToSlotDone();
     }, 300);
   }, [displayYear, onDateSelect, onNavigateToSlotDone, updateCursorPosition]);
