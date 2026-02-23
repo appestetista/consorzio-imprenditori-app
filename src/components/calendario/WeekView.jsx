@@ -718,10 +718,10 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                 const dayIdx = getDayOfYear(targetDate, displayYear);
                 if (dayIdx >= 0) {
                   const barWidth = ribbonRef.current.clientWidth;
-                  ribbonRef.current.scrollLeft = dayIdx * ITEM_W - barWidth / 2 + ITEM_W / 2;
+                  ribbonRef.current.scrollTo({ left: dayIdx * ITEM_W - barWidth / 2 + ITEM_W / 2, behavior: 'smooth' });
                 }
               }
-              setTimeout(() => { programmaticScrollRef.current = false; }, 100);
+              setTimeout(() => { programmaticScrollRef.current = false; }, 600);
 
               const [h, m] = navTime.split(':').map(Number);
               const sk = `${String(h).padStart(2,'0')}:${String(Math.floor(m/5)*5).padStart(2,'0')}`;
