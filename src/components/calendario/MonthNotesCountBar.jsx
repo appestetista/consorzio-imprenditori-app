@@ -20,7 +20,7 @@ export default function MonthNotesCountBar({ noteCountsByMonth, currentMonth, on
             key={mIdx}
             onClick={() => onMonthClick(mIdx)}
             className="flex-1 flex flex-col items-center justify-center py-0.5 transition-all touch-manipulation active:scale-90 select-none"
-            style={{ minHeight: '24px' }}
+            style={{ minHeight: '24px', opacity: isDimmedMonth ? 0.15 : 1, transition: 'opacity 0.4s ease' }}
           >
             <ChevronDown 
               className="transition-colors"
