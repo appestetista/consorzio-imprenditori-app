@@ -457,14 +457,17 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                   <div
                     className={cn("rounded-full flex items-center justify-center transition-all", isToday && !isDimmed && "animate-pulse")}
                     style={{
-                      width: '20px', height: '20px',
-                      backgroundColor: isFocused ? mColor : (isSelectedDay && !isToday && !isDimmed ? mColor : 'transparent'),
-                      border: isFocused ? `2px solid ${mColor}` : (isHL ? '2px solid #f59e0b' : (isSelectedDay && !isToday && !isDimmed ? `2px solid ${mColor}` : 'none')),
-                      boxShadow: isFocused ? `0 0 10px ${mColor}80` : 'none'
+                      width: isFocused ? '24px' : '20px', height: isFocused ? '24px' : '20px',
+                      backgroundColor: 'transparent',
+                      border: isFocused ? '2px solid #f59e0b' : (isHL ? '2px solid #f59e0b' : (isSelectedDay && !isToday && !isDimmed ? `2px solid ${mColor}` : 'none')),
+                      boxShadow: isFocused ? '0 0 12px rgba(249,115,22,0.6)' : 'none',
+                      transition: 'all 0.3s ease'
                     }}
                   >
-                    <span className={cn("text-[8px] font-bold leading-none", isToday && !isDimmed && "animate-pulse")} style={{
-                      color: isDimmed ? '#475569' : (isFocused ? '#fff' : (isToday ? '#fff' : (isSelectedDay ? '#fff' : (isHL ? '#f59e0b' : (isInWeek ? '#fff' : mColor)))))
+                    <span className={cn("font-bold leading-none", isToday && !isDimmed && "animate-pulse")} style={{
+                      fontSize: isFocused ? '12px' : '8px',
+                      color: isDimmed ? '#475569' : (isFocused ? '#f59e0b' : (isToday ? '#fff' : (isSelectedDay ? '#fff' : (isHL ? '#f59e0b' : (isInWeek ? '#fff' : mColor))))),
+                      transition: 'all 0.3s ease'
                     }}>{dayNum}</span>
                   </div>
                   <span className={cn("text-[6px] font-bold leading-tight")} style={{
@@ -472,7 +475,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                   }}>
                     {DAY_LETTERS[dow]}
                   </span>
-                  {dayNoteCount > 0 ? (
+                  {dayNoteCount > 0 && !isFocused ? (
                     <span 
                       className="text-[16px] font-bold leading-none cursor-pointer"
                       style={{ color: isDimmed ? '#334155' : '#a3e635', transition: 'color 0.4s ease' }}
