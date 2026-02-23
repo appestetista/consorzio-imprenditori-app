@@ -63,6 +63,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   const dayRefsMap = useRef({}); // ref per ogni giorno del nastro: "YYYY-M-D" -> element
   const initialScrollDone = useRef(false);
   const programmaticScrollRef = useRef(false); // flag per ignorare scroll programmatico nel nastro
+  const skipAutoScrollToNow = useRef(false); // flag per evitare che lo scroll automatico all'ora corrente sovrascriva la navigazione
 
   const today = new Date(); today.setHours(0,0,0,0);
   const displayYear = viewDate.getFullYear();
