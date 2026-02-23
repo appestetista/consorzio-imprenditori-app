@@ -281,15 +281,14 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     // Mostra frecce scroll laterali (si dissolveranno quando l'utente scrolla)
     setShowScrollArrows(true);
     
-    // Scrolla il nastro — NON smooth, istantaneo, per evitare che eventi scroll intermedi sovrascrivano la settimana
-    scrollRibbonToDate(date, false);
+    // NON scrollare il nastro: il giorno cliccato resta fermo nella sua posizione visiva
     
     // Notifica parent DOPO aver impostato tutto
     if (onDateSelect) onDateSelect(date);
     
     // Sblocca dopo un frame per sicurezza
     requestAnimationFrame(() => { clickLockRef.current = false; });
-  }, [onDateSelect, displayYear, updateCursorPosition, scrollRibbonToDate]);
+  }, [onDateSelect, updateCursorPosition]);
 
   // Quando selectedDate cambia dall'esterno, scrolla il nastro a quel giorno
   // MA NON durante focus lock (navigazione da popup)
