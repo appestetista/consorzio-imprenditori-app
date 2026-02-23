@@ -557,7 +557,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
               const isToday = dayDate.getTime() === today.getTime();
               const dk = fk(dayDate);
               const dayNoteCount = noteCountByDayKey[dk] || 0;
-              const isInWeek = weekDays.some(wd => wd.getTime() === dayDate.getTime());
+              const isInWeek = false; // disabilitato: non evidenziare i giorni della settimana
               const isSelectedDay = selectedDate && dayDate.getTime() === new Date(new Date(selectedDate).setHours(0,0,0,0)).getTime();
               const isHL = highlightedDay && highlightedDay.day === dayNum && highlightedDay.month === mIdx && highlightedDay.year === displayYear;
               const mColor = MONTH_COLORS[mIdx];
