@@ -485,6 +485,24 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   const nH = new Date().getHours(), nM = Math.floor(new Date().getMinutes()/5)*5;
   const nowSlot = `${String(nH).padStart(2,'0')}:${String(nM).padStart(2,'0')}`;
 
+  // Scroll verticale al primo appuntamento >= ora attuale per il giorno dato
+  const scrollToNextAppointment = useCallback((dayKey) => {
+    if (!scrollRef.current) return;
+    const dayItems = items[dayKey] || {};
+    const slotKeys = Object.keys(dayItems).sort();
+    const nowStr = nowSlot;
+    // Trova il primo slot con appuntamento >= ora attuale
+    const nextSlot = slotKeys.find(sk => sk >= nowStr) || slotKeys[0];
+    if (!nextSlot) return;
+    const [h, m] = nextSlot.split(':').map(Number);
+    const slotIdx = h * 12 + Math.floor(m / 5);
+    let totalH = 0;
+    for (let si = 0; si < slotIdx && si < TIME_SLOTS.length; si++) {
+      totalH += TIME_SLOTS[si].isFullHour ? 40 : 24;
+    }
+    scrollRef.current.scrollTop = totalH;
+  }, [items, nowSlot]);
+
   const bgStyle = {
     backgroundColor: `color-mix(in srgb, ${ac} 15%, #0f172a)`,
     transition: 'background-color 1.2s ease'
