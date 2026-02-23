@@ -777,19 +777,15 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
         </div>
       )}
 
-      {/* Anteprima nota — popup inline quando clicchi una nota nella colonna espansa */}
+      {/* Anteprima nota — popup centrato sullo schermo */}
       {previewNote && (
         <div 
-          className="fixed inset-0 z-[60]" 
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50" 
           onClick={() => setPreviewNote(null)}
         >
           <div 
-            className="absolute z-[61] bg-black rounded-xl shadow-2xl border border-slate-700/50 overflow-hidden"
-            style={{
-              left: `${Math.max(10, Math.min(previewNote.x - 100, window.innerWidth - 220))}px`,
-              top: `${Math.max(10, previewNote.y - 130)}px`,
-              width: '200px'
-            }}
+            className="z-[61] bg-black rounded-xl shadow-2xl border border-slate-700/50 overflow-hidden"
+            style={{ width: '220px', maxWidth: '80%' }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="p-3">
