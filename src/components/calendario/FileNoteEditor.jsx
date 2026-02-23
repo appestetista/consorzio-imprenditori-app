@@ -73,6 +73,11 @@ export default function FileNoteEditor({ file, onClose, onSave, onDelete, monthC
     }
   });
 
+  const FILE_EDITOR_COLORS = [
+    '#e8c4b0', '#c2185b', '#e65100', '#b8860b', '#1565c0', '#00838f',
+    '#00897b', '#2e7d32', '#9c27b0', '#ad1457', '#827717', '#546e7a',
+  ];
+
   const handleSave = () => {
     if (!title.trim()) {
       setTitleError(true);
@@ -82,6 +87,7 @@ export default function FileNoteEditor({ file, onClose, onSave, onDelete, monthC
     saveMutation.mutate({
       titolo: title.trim(),
       contenuto: content,
+      colore: fileColore || null,
       allegati: attachments,
       checklist_items: checklistItems,
       cartella_id: selectedCartella || null
