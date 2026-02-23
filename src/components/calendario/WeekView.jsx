@@ -113,21 +113,6 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     }
   }, [displayYear, getWeekColumnCenterX]);
 
-  // Scrolla il nastro per posizionare il giorno target sotto il centro (Luglio nella MonthBar)
-  const scrollRibbonToCenterUnderJuly = useCallback((date, smooth = true) => {
-    if (!ribbonRef.current) return;
-    const dayIdx = getDayOfYear(date, displayYear);
-    if (dayIdx < 0) return;
-    // Posizioniamo il giorno al centro orizzontale del nastro (sotto Luglio)
-    const barWidth = ribbonRef.current.clientWidth;
-    const targetScrollLeft = dayIdx * ITEM_W + ITEM_W / 2 - barWidth / 2;
-    if (smooth) {
-      ribbonRef.current.scrollTo({ left: targetScrollLeft, behavior: 'smooth' });
-    } else {
-      ribbonRef.current.scrollLeft = targetScrollLeft;
-    }
-  }, [displayYear]);
-
   // Scroll verticale ore all'ora corrente — solo se NON stiamo navigando a uno slot specifico
   useEffect(() => {
     if (!scrollRef.current) return;
