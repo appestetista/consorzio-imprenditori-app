@@ -393,6 +393,25 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     executeSlotNavigation(navigateToSlot.date, navigateToSlot.time);
   }, [navigateToSlot, executeSlotNavigation]);
 
+  // Applica scroll verticale pendente dopo che il DOM si è aggiornato con i nuovi dati settimana
+  useEffect(() => {
+    if (!pendingScrollToSlot.current) return;
+    const { h, m } = pendingScrollToSlot.current;
+    pendingScrollToSlot.current = null;
+    // Usa doppio rAF per essere sicuri che il DOM sia renderizzato
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (!scrollRef.current) return;
+        const slotIdx = h * 12 + Math.floor(m / 5);
+        let totalH = 0;
+        for (let si = 0; si < slotIdx && si < TIME_SLOTS.length; si++) {
+          totalH += TIME_SLOTS[si].isFullHour ? 40 : 24;
+        }
+        scrollRef.current.scrollTop = totalH;
+      });
+    });
+  }, [currentWeekDays, selectedSlot]);
+
   const handleSlotClick = (dayStr, timeLabel, e) => {
     // Se la colonna è espansa E c'è una nota in questo slot → mostra anteprima
     const dayIdx = weekDays.findIndex(wd => fk(wd) === dayStr);
