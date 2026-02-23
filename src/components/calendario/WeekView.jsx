@@ -243,7 +243,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
         if (!ribbonRef.current) return;
         // Scrolla il nastro al 15 del mese, allineato con la griglia
         const targetDate = new Date(displayYear, mIdx, 15);
-        scrollRibbonToAlignWithGrid(targetDate, true);
+        scrollRibbonToDate(targetDate, true);
       });
     }
   }, [onRegisterMonthSelect, displayYear, scrollRibbonToAlignWithGrid]);
