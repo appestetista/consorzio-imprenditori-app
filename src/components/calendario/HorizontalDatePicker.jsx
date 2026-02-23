@@ -280,6 +280,10 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
       if (onScrollSync) {
         onScrollSync(scrollContainer.scrollLeft);
       }
+
+      // Blocca aggiornamenti da scroll durante navigazione manuale (click su mese/giorno)
+      if (manualNavLockRef.current) return;
+
       const containerRect = scrollContainer.getBoundingClientRect();
       const centerX = containerRect.left + containerRect.width / 2;
 
