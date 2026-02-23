@@ -740,22 +740,25 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
         </div>
       )}
 
-      {/* Popup riepilogo note del giorno — portal per evitare problemi con transform parent */}
-      {daySummaryDate && ReactDOM.createPortal(
-        <DayNotesSummaryPopup
-          notes={allMonthNotes.filter(n => n.data === daySummaryDate)}
-          cartelleMap={cm}
-          selectedDate={new Date(daySummaryDate + 'T00:00:00')}
-          monthColor={ac}
-          onClose={() => setDaySummaryDate(null)}
-          onNoteClick={(note) => {
-            setDaySummaryDate(null);
-            if (note?.data && note?.time) {
-              executeSlotNavigation(note.data, note.time);
-            }
-          }}
-        />,
-        document.body
+      {/* Popup riepilogo note del giorno — inline, dentro il contesto ruotato */}
+      {daySummaryDate && (
+        <div className="absolute inset-0 z-[999] flex items-center justify-center bg-black/70" onClick={() => setDaySummaryDate(null)}>
+          <div onClick={(e) => e.stopPropagation()}>
+            <DayNotesSummaryPopup
+              notes={allMonthNotes.filter(n => n.data === daySummaryDate)}
+              cartelleMap={cm}
+              selectedDate={new Date(daySummaryDate + 'T00:00:00')}
+              monthColor={ac}
+              onClose={() => setDaySummaryDate(null)}
+              onNoteClick={(note) => {
+                setDaySummaryDate(null);
+                if (note?.data && note?.time) {
+                  executeSlotNavigation(note.data, note.time);
+                }
+              }}
+            />
+          </div>
+        </div>
       )}
     </div>
   );
