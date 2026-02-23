@@ -307,21 +307,8 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
 
   // Navigazione esterna a uno slot preciso (giorno + orario) dalla popup mensile
   const lastNavigateTs = useRef(null);
-  useEffect(() => {
-    console.log('[WeekView] navigateToSlot changed:', JSON.stringify(navigateToSlot));
-    if (!navigateToSlot) return;
-    // Evita di rieseguire per lo stesso navigateToSlot
-    const ts = navigateToSlot._ts || null;
-    console.log('[WeekView] Processing navigate - ts:', ts, 'lastTs:', lastNavigateTs.current);
-    if (ts && ts === lastNavigateTs.current) {
-      console.log('[WeekView] SKIPPED - same timestamp');
-      return;
-    }
-    lastNavigateTs.current = ts;
-
-    const { date: navDate, time: navTime } = navigateToSlot;
-    console.log('[WeekView] NAVIGATING to', navDate, navTime);
-    
+  
+  const executeSlotNavigation = useCallback((navDate, navTime) => {
     const [y, mo, d] = navDate.split('-').map(Number);
     const targetDate = new Date(y, mo - 1, d);
     targetDate.setHours(0, 0, 0, 0);
@@ -364,7 +351,15 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
       // Resetta DOPO che lo scroll è completato, non prima
       if (onNavigateToSlotDone) onNavigateToSlotDone();
     }, 300);
-  }, [navigateToSlot]);
+  }, [displayYear, onDateSelect, onNavigateToSlotDone, updateCursorPosition]);
+
+  useEffect(() => {
+    if (!navigateToSlot) return;
+    const ts = navigateToSlot._ts || null;
+    if (ts && ts === lastNavigateTs.current) return;
+    lastNavigateTs.current = ts;
+    executeSlotNavigation(navigateToSlot.date, navigateToSlot.time);
+  }, [navigateToSlot, executeSlotNavigation]);
 
   const handleSlotClick = (dayStr, timeLabel, e) => {
     if (selectedSlot?.date === dayStr && selectedSlot?.time === timeLabel) {
