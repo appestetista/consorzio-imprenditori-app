@@ -394,6 +394,8 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     }
 
     // Rilascia il flag e ri-forza la settimana corretta dopo che lo scroll si è assestato
+    // Imposta la protezione temporale: ignora scroll events per 500ms
+    programmaticScrollEndTime.current = Date.now() + 500;
     setTimeout(() => {
       programmaticScrollRef.current = false;
       // Ri-forza la settimana — in caso handleRibbonScroll l'abbia cambiata
