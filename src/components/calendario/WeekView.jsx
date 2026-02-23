@@ -479,7 +479,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                   key={idx}
                   className="flex flex-col items-center cursor-pointer flex-shrink-0"
                   style={{ width: `${ITEM_W}px`, opacity: isDimmed ? 0.15 : 1, transition: 'opacity 0.4s ease' }}
-                  onClick={() => { setFocusedDay(null); handleDayClick(dayDate); }}
+                  onClick={() => { setFocusedDay(null); setFocusedMonth(null); if (onFocusedMonthChange) onFocusedMonthChange(null); handleDayClick(dayDate); }}
                 >
                   <div
                     className={cn("rounded-full flex items-center justify-center transition-all", isToday && !isDimmed && "animate-pulse")}
