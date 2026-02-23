@@ -374,7 +374,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
       scrollRef.current.scrollTop = Math.max(0, (h * 12 + Math.floor(m / 5) - 3) * 26);
     }
     if (onNavigateToSlotDone) onNavigateToSlotDone();
-  }, [displayYear, onDateSelect, onNavigateToSlotDone, updateCursorPosition]);
+  }, [displayYear, onDateSelect, onNavigateToSlotDone, updateCursorPosition, scrollRibbonToDate]);
 
   useEffect(() => {
     if (!navigateToSlot) return;
