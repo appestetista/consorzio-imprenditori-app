@@ -405,8 +405,10 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                   <MonthBar 
                     currentMonth={weekViewMonth}
                     onSelectMonth={(mIdx) => {
+                      setWeekViewFocusedMonth(null); // resetta focus quando si seleziona un mese manualmente
                       if (weekViewMonthSelectRef.current) weekViewMonthSelectRef.current(mIdx);
                     }}
+                    focusedMonth={weekViewFocusedMonth}
                   />
                 </div>
                 {/* Riga 3: Conteggio note per mese */}
