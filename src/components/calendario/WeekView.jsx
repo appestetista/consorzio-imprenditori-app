@@ -86,32 +86,34 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     return count + date.getDate() - 1;
   }
 
-  // Calcola la posizione X della colonna di un giorno nella griglia settimanale
-  const getWeekColumnCenterX = useCallback((date) => {
+  // === UNICA FUNZIONE DI CENTRATURA ===
+  // Calcola la posizione X del centro del mese nella MonthBar per un dato giorno.
+  // MonthBar layout: pl-3 (12px) + 12 flex-1 items. Il ribbon ha la stessa larghezza.
+  // Allineiamo il giorno del ribbon al centro del suo mese nella MonthBar.
+  const getMonthCenterX = useCallback((date) => {
     if (!ribbonRef.current) return null;
-    const dow = date.getDay();
-    const weekIdx = dow === 0 ? 6 : dow - 1;
-    const totalWidth = ribbonRef.current.clientWidth;
-    const oreColWidth = 70;
-    const gridWidth = totalWidth - oreColWidth;
-    const colWidth = gridWidth / 7;
-    return oreColWidth + colWidth * weekIdx + colWidth / 2;
+    const barWidth = ribbonRef.current.clientWidth;
+    const paddingLeft = 12; // pl-3
+    const slotWidth = (barWidth - paddingLeft) / 12;
+    const monthIdx = date.getMonth();
+    return paddingLeft + slotWidth * monthIdx + slotWidth / 2;
   }, []);
 
-  // Scrolla il nastro in modo che il giorno target sia allineato con la sua colonna nella griglia
-  const scrollRibbonToAlignWithGrid = useCallback((date, smooth = true) => {
+  // Scrolla il nastro posizionando il giorno target esattamente sotto il centro del suo mese nella MonthBar
+  const scrollRibbonToDate = useCallback((date, smooth = true) => {
     if (!ribbonRef.current) return;
     const dayIdx = getDayOfYear(date, displayYear);
     if (dayIdx < 0) return;
-    const columnCenterX = getWeekColumnCenterX(date);
-    if (columnCenterX === null) return;
-    const targetScrollLeft = dayIdx * ITEM_W + ITEM_W / 2 - columnCenterX;
+    const monthCenterX = getMonthCenterX(date);
+    if (monthCenterX === null) return;
+    const dayCenter = dayIdx * ITEM_W + ITEM_W / 2;
+    const targetScrollLeft = dayCenter - monthCenterX;
     if (smooth) {
       ribbonRef.current.scrollTo({ left: targetScrollLeft, behavior: 'smooth' });
     } else {
       ribbonRef.current.scrollLeft = targetScrollLeft;
     }
-  }, [displayYear, getWeekColumnCenterX]);
+  }, [displayYear, getMonthCenterX]);
 
   // Scroll verticale ore all'ora corrente — solo se NON stiamo navigando a uno slot specifico
   useEffect(() => {
