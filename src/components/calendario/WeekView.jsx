@@ -131,6 +131,33 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     return count + date.getDate() - 1;
   }
 
+  // Calcola la posizione X della colonna di un giorno nella griglia settimanale
+  const getWeekColumnCenterX = useCallback((date) => {
+    if (!ribbonRef.current) return null;
+    const dow = date.getDay(); // 0=dom, 6=sab
+    const weekIdx = dow === 0 ? 6 : dow - 1; // 0=lun, 6=dom
+    const totalWidth = ribbonRef.current.clientWidth;
+    const oreColWidth = 70; // larghezza colonna ore
+    const gridWidth = totalWidth - oreColWidth;
+    const colWidth = gridWidth / 7;
+    return oreColWidth + colWidth * weekIdx + colWidth / 2;
+  }, []);
+
+  // Scrolla il nastro in modo che il giorno target sia allineato con la sua colonna nella griglia
+  const scrollRibbonToAlignWithGrid = useCallback((date, smooth = true) => {
+    if (!ribbonRef.current) return;
+    const dayIdx = getDayOfYear(date, displayYear);
+    if (dayIdx < 0) return;
+    const columnCenterX = getWeekColumnCenterX(date);
+    if (columnCenterX === null) return;
+    const targetScrollLeft = dayIdx * ITEM_W + ITEM_W / 2 - columnCenterX;
+    if (smooth) {
+      ribbonRef.current.scrollTo({ left: targetScrollLeft, behavior: 'smooth' });
+    } else {
+      ribbonRef.current.scrollLeft = targetScrollLeft;
+    }
+  }, [displayYear, getWeekColumnCenterX]);
+
   // Quando il nastro scrolla, determina il giorno al centro e aggiorna la settimana
   const handleRibbonScroll = useCallback(() => {
     if (!ribbonRef.current) return;
