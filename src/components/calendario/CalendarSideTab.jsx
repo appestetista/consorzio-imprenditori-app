@@ -419,6 +419,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                     onMonthClick={(mIdx) => {
                       setMonthNotesPopup({ monthIndex: mIdx, year: new Date().getFullYear() });
                     }}
+                    focusedMonth={weekViewFocusedMonth}
                   />
                 </div>
               </div>
