@@ -619,12 +619,10 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                 monthColor={weekViewColor || currentMonthColor}
                 onClose={() => setWeekDaySummaryDate(null)}
                 onNoteClick={(note) => {
-                  setWeekDaySummaryDate(null);
                   if (note?.data && note?.time) {
-                    setTimeout(() => {
-                      setPendingWeekSlotNavigate({ date: note.data, time: note.time, _ts: Date.now() });
-                    }, 50);
+                    setPendingWeekSlotNavigate({ date: note.data, time: note.time, _ts: Date.now() });
                   }
+                  setWeekDaySummaryDate(null);
                 }}
               />
             </div>
