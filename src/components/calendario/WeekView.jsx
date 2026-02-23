@@ -545,18 +545,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
           onTouchStart={handleUserInteraction}
           onMouseDown={handleUserInteraction}
         >
-          {/* Cursore bianco — assoluto dentro il container scrollabile, si muove col contenuto */}
-          <div
-            className="absolute top-0 rounded-full z-10 pointer-events-none"
-            style={{
-              left: `${cursorLeft}px`,
-              width: `${cursorWidth}px`,
-              height: '3px',
-              backgroundColor: 'rgba(255,255,255,0.9)',
-              boxShadow: '0 0 8px rgba(255,255,255,0.5)',
-              transition: 'left 0.25s ease, width 0.25s ease'
-            }}
-          />
+          {/* Cursore settimana rimosso */}
           
           {/* Contenitore giorni a larghezza fissa */}
           <div className="flex" style={{ width: `${ribbonTotalWidth}px`, paddingTop: '4px' }}>
