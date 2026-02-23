@@ -51,6 +51,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   const [strikethroughItems, setStrikethroughItems] = useState({});
   
   const [slotMenuPos, setSlotMenuPos] = useState(null); // { date, time, x, y }
+  const [expandedDayIdx, setExpandedDayIdx] = useState(null); // indice 0-6 della colonna giorno espansa
   const [focusedDay, setFocusedDay] = useState(null); // "YYYY-MM-DD" — giorno evidenziato da navigazione popup, gli altri diventano grigi
   const [focusedMonth, setFocusedMonth] = useState(null); // indice mese evidenziato (0-11) quando focusedDay è attivo
   const focusedDayRef = useRef(null); // ref mirror per evitare stale closure in scroll handler
