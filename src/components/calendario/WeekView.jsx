@@ -361,19 +361,8 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     updateCursorPosition(newWeek);
     if (onDateSelect) onDateSelect(targetDate);
 
-    // 5. Scrolla il nastro: posiziona il giorno ESATTAMENTE sotto il centro di Luglio nella MonthBar
-    //    MonthBar: pl-3 (12px) + 12 mesi flex-1. Centro di Luglio (index 6) = 12 + 6.5/12 * (barWidth - 12)
-    if (ribbonRef.current) {
-      const dayIdx = getDayOfYear(targetDate, displayYear);
-      if (dayIdx >= 0) {
-        const barWidth = ribbonRef.current.clientWidth;
-        const monthPaddingLeft = 12; // pl-3
-        const monthSlotWidth = (barWidth - monthPaddingLeft) / 12;
-        const julyCenter = monthPaddingLeft + monthSlotWidth * 6 + monthSlotWidth / 2;
-        const dayCenter = dayIdx * ITEM_W + ITEM_W / 2;
-        ribbonRef.current.scrollLeft = dayCenter - julyCenter;
-      }
-    }
+    // 5. Scrolla il nastro: posiziona il giorno sotto il centro del suo mese nella MonthBar
+    scrollRibbonToDate(targetDate, false);
 
     // 6. Evidenzia lo slot selezionato
     const [h, m] = navTime.split(':').map(Number);
