@@ -470,11 +470,17 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                       allMonthNotes={allUserNotes}
                     navigateToSlot={pendingWeekSlotNavigate}
                     onNavigateToSlotDone={() => setPendingWeekSlotNavigate(null)}
-                    onBackToDaily={() => {
-                      // Usa il mese attualmente visibile nella WeekView, non selectedDate
-                      const nowYear = new Date().getFullYear();
-                      const targetDate = new Date(nowYear, weekViewMonth, 15);
-                      targetDate.setHours(0,0,0,0);
+                    onBackToDaily={(highlightedDate) => {
+                      // Se c'è un giorno evidenziato nella WeekView, vai a quel giorno specifico
+                      let targetDate;
+                      if (highlightedDate) {
+                        targetDate = new Date(highlightedDate);
+                        targetDate.setHours(0,0,0,0);
+                      } else {
+                        const nowYear = new Date().getFullYear();
+                        targetDate = new Date(nowYear, weekViewMonth, 15);
+                        targetDate.setHours(0,0,0,0);
+                      }
                       handleDateSelect(targetDate);
                       setShowWeekView(false);
                       setIsOpen(true);
