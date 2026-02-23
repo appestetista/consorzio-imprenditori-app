@@ -301,8 +301,14 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
   });
 
   // Navigazione esterna a uno slot preciso (giorno + orario) dalla popup mensile
+  const lastNavigateTs = useRef(null);
   useEffect(() => {
     if (!navigateToSlot) return;
+    // Evita di rieseguire per lo stesso navigateToSlot
+    const ts = navigateToSlot._ts || null;
+    if (ts && ts === lastNavigateTs.current) return;
+    lastNavigateTs.current = ts;
+
     const { date: navDate, time: navTime } = navigateToSlot;
     
     const [y, mo, d] = navDate.split('-').map(Number);
