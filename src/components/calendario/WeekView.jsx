@@ -104,25 +104,23 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     if (!ribbonRef.current || initialScrollDone.current) return;
     // Usa il giorno visibile dalla vista giornaliera se disponibile
     let targetDate;
-    let targetMonth;
-    if (initialVisibleMonth !== undefined && initialVisibleYear) {
-      targetMonth = initialVisibleMonth;
-      targetDate = new Date(initialVisibleYear, initialVisibleMonth, 1);
+    if (initialVisibleDay && initialVisibleMonth !== undefined && initialVisibleYear) {
+      targetDate = new Date(initialVisibleYear, initialVisibleMonth, initialVisibleDay);
+    } else if (initialVisibleMonth !== undefined && initialVisibleYear) {
+      targetDate = new Date(initialVisibleYear, initialVisibleMonth, 15);
     } else if (selectedDate) {
       targetDate = new Date(selectedDate);
-      targetMonth = targetDate.getMonth();
     } else {
       targetDate = today;
-      targetMonth = today.getMonth();
     }
-    // Scrolla all'inizio del mese (giorno 1)
-    const firstOfMonth = new Date(displayYear, targetMonth, 1);
-    const dayOfYear = getDayOfYear(firstOfMonth, displayYear);
-    if (dayOfYear >= 0) {
-      ribbonRef.current.scrollLeft = dayOfYear * ITEM_W;
-    }
+    // Allinea il nastro con la griglia settimanale
+    scrollRibbonToAlignWithGrid(targetDate, false);
+    // Aggiorna anche la settimana visualizzata
+    const newWeek = getWeekDays(targetDate);
+    setCurrentWeekDays(newWeek);
+    updateCursorPosition(newWeek);
     initialScrollDone.current = true;
-  }, [yearDays, initialVisibleMonth, initialVisibleYear]);
+  }, [yearDays, initialVisibleMonth, initialVisibleYear, scrollRibbonToAlignWithGrid]);
 
   function getDayOfYear(date, year) {
     if (date.getFullYear() !== year) return -1;
