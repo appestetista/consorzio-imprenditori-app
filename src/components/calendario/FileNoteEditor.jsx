@@ -105,30 +105,28 @@ export default function FileNoteEditor({ file, onClose, onSave, onDelete, monthC
     ? new Date(file.data + 'T00:00:00').toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'long' })
     : 'File senza data';
 
+  // Colore effettivo del file
+  const displayColor = fileColore || (() => {
+    const cart = selectedCartella ? cartelle.find(c => c.id === selectedCartella) : null;
+    return cart?.colore || '#64748b';
+  })();
+
   return (
-    <div className="bg-black flex flex-col fixed inset-0 z-[60]">
+    <div className="flex flex-col fixed inset-0 z-[60]" style={{ backgroundColor: fileColore ? `color-mix(in srgb, ${fileColore} 15%, #000)` : '#000' }}>
       {/* Riga 1: Info file con pallino colore */}
       <div className="px-3 py-2 border-b border-slate-800">
         <div className="flex items-center justify-center gap-2 text-xs font-mono">
           <div 
             className="w-3 h-3 rounded-full flex-shrink-0"
-            style={{ backgroundColor: (() => {
-              if (file?.colore && file.colore !== '#06b6d4') return file.colore;
-              const cart = selectedCartella ? cartelle.find(c => c.id === selectedCartella) : null;
-              return cart?.colore || '#64748b';
-            })() }}
+            style={{ backgroundColor: displayColor }}
           />
-          <span style={{ color: (() => {
-            if (file?.colore && file.colore !== '#06b6d4') return file.colore;
-            const cart = selectedCartella ? cartelle.find(c => c.id === selectedCartella) : null;
-            return cart?.colore || '#64748b';
-          })() }}>
+          <span style={{ color: displayColor }}>
             📄 {formattedDate} {file?.time ? `• ${file.time}` : ''}
           </span>
         </div>
       </div>
 
-      {/* Riga 2: Cestino | Salva | X */}
+      {/* Riga 2: Cestino | Salva | Colore file | X */}
       <div className="flex items-center gap-2 px-3 py-2 border-b border-slate-800">
         {!isNewFile && (
           <button
@@ -147,11 +145,7 @@ export default function FileNoteEditor({ file, onClose, onSave, onDelete, monthC
             isSaving && "opacity-60"
           )}
           style={{
-            backgroundColor: isSaving ? '#64748b' : (() => {
-              if (file?.colore && file.colore !== '#06b6d4') return file.colore;
-              const cart = selectedCartella ? cartelle.find(c => c.id === selectedCartella) : null;
-              return cart?.colore || '#64748b';
-            })(),
+            backgroundColor: isSaving ? '#64748b' : displayColor,
             color: '#0f172a'
           }}
         >
@@ -163,6 +157,15 @@ export default function FileNoteEditor({ file, onClose, onSave, onDelete, monthC
           SALVA
         </a>
 
+        {/* Icona file colorata — apre il color picker */}
+        <button
+          onClick={() => setShowColorPicker(!showColorPicker)}
+          className="w-9 h-9 rounded-full flex items-center justify-center active:scale-90 transition-all touch-manipulation flex-shrink-0"
+          style={{ backgroundColor: fileColore ? fileColore + '30' : '#334155' }}
+        >
+          <FileText className="w-4 h-4" style={{ color: fileColore || '#64748b' }} />
+        </button>
+
         <button
           onClick={onClose}
           className="w-9 h-9 rounded-full bg-slate-700 hover:bg-slate-600 flex items-center justify-center active:scale-90 transition-all touch-manipulation flex-shrink-0"
@@ -170,6 +173,27 @@ export default function FileNoteEditor({ file, onClose, onSave, onDelete, monthC
           <X className="w-4 h-4 text-slate-300" />
         </button>
       </div>
+
+      {/* Color picker inline */}
+      {showColorPicker && (
+        <div className="flex items-center gap-2 px-3 py-2 border-b border-slate-800/50 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+          <button
+            onClick={() => { setFileColore(''); setShowColorPicker(false); }}
+            className={cn("w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center border-2 transition-all", !fileColore ? "border-white" : "border-slate-600")}
+            style={{ backgroundColor: '#1e293b' }}
+          >
+            <X className="w-3 h-3 text-slate-400" />
+          </button>
+          {FILE_EDITOR_COLORS.map((c) => (
+            <button
+              key={c}
+              onClick={() => { setFileColore(c); setShowColorPicker(false); }}
+              className={cn("w-7 h-7 rounded-full flex-shrink-0 transition-all", fileColore === c && "ring-2 ring-white ring-offset-1 ring-offset-black scale-110")}
+              style={{ backgroundColor: c }}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Riga 3: Selettore cartella */}
       <div className="px-3 py-1 border-b border-slate-800/50 relative">
