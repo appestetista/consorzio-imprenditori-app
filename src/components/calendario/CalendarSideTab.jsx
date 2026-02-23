@@ -40,6 +40,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
     const [weekViewColor, setWeekViewColor] = useState(null);
     const [weekViewMonth, setWeekViewMonth] = useState(new Date().getMonth());
     const weekViewMonthSelectRef = useRef(null);
+    const [weekViewFocusedMonth, setWeekViewFocusedMonth] = useState(null); // mese evidenziato durante navigazione popup
     // NoteEditor dalla WeekView - orientamento normale
     const [weekNoteSlot, setWeekNoteSlot] = useState(null); // { date, time, existingNote }
     const [showWeekNoteEditor, setShowWeekNoteEditor] = useState(false);
