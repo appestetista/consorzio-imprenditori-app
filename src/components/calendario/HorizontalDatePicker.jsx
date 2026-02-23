@@ -534,12 +534,12 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
                     </>
                   )}
                   
-                  {/* Parte frontale - abbassata se drag over (cartella aperta) - grigio scuro */}
+                  {/* Parte frontale - abbassata se drag over (cartella aperta) - usa colore cartella */}
                   <div 
                     className="absolute left-0 right-0 bottom-0 rounded transition-all duration-300"
                     style={{ 
                       top: isDragTarget ? '65%' : '42%',
-                      background: 'linear-gradient(180deg, #4b5563 0%, #374151 60%, #2d3748 100%)',
+                      background: `linear-gradient(180deg, ${cartella.colore || '#4b5563'} 0%, color-mix(in srgb, ${cartella.colore || '#374151'} 80%, #000) 60%, color-mix(in srgb, ${cartella.colore || '#2d3748'} 65%, #000) 100%)`,
                       boxShadow: '0 1px 2px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 -1px 2px rgba(0,0,0,0.1)',
                       transformOrigin: 'bottom center',
                       transform: isDragTarget ? 'perspective(40px) rotateX(8deg)' : 'none'
