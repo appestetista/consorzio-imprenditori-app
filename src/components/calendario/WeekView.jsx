@@ -591,7 +591,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                     }}
                   >
                     <span className={cn("font-bold leading-none", isToday && !isDimmed && "animate-pulse")} style={{
-                      fontSize: isFocused ? '12px' : '8px',
+                      fontSize: isFocused ? '16px' : '14px',
                       color: isDimmed ? '#475569' : (isFocused ? '#f59e0b' : (isToday ? '#fff' : (isSelectedDay ? '#fff' : (isHL ? '#f59e0b' : (isInWeek ? '#fff' : mColor))))),
                       transition: 'all 0.3s ease'
                     }}>{dayNum}</span>
