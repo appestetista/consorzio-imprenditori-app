@@ -738,6 +738,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                 </div>
               );
             })}
+          </div>
           {/* Freccia settimana successiva */}
           <div className="flex-shrink-0 flex items-center justify-center" style={{ width: '30px', borderLeft: '2px solid rgba(100,116,139,0.6)' }}>
             <button
