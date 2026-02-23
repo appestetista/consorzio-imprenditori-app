@@ -622,7 +622,16 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
           <div className="flex-shrink-0 flex items-center justify-center" style={{ width: '70px', paddingLeft: '4px', paddingRight: '4px', borderRight: '2px solid rgba(100,116,139,0.6)' }}>
             {onBackToDaily && (
               <button
-                onClick={onBackToDaily}
+                onClick={() => {
+                  // Passa la data del giorno evidenziato se presente
+                  if (highlightedDay) {
+                    const hlDate = new Date(highlightedDay.year, highlightedDay.month, highlightedDay.day);
+                    hlDate.setHours(0,0,0,0);
+                    onBackToDaily(hlDate);
+                  } else {
+                    onBackToDaily(null);
+                  }
+                }}
                 className="w-7 h-7 rounded-lg flex items-center justify-center touch-manipulation active:scale-90 transition-all"
                 style={{ backgroundColor: '#a3e635', boxShadow: '0 0 10px rgba(163,230,53,0.5)' }}
               >
