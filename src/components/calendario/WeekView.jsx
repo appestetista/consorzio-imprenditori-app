@@ -75,9 +75,13 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     if (selectedDate) setViewDate(new Date(selectedDate));
   }, [selectedDate]);
 
-  // Scroll verticale ore all'ora corrente
+  // Scroll verticale ore all'ora corrente — solo se NON stiamo navigando a uno slot specifico
   useEffect(() => {
     if (!scrollRef.current) return;
+    if (skipAutoScrollToNow.current) {
+      skipAutoScrollToNow.current = false;
+      return;
+    }
     const now = new Date();
     const idx = now.getHours() * 12 + Math.floor(now.getMinutes() / 5);
     setTimeout(() => { if (scrollRef.current) scrollRef.current.scrollTop = Math.max(0, (idx - 5) * 26); }, 200);
