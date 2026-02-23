@@ -453,6 +453,8 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
           className="overflow-x-auto relative"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
           onScroll={handleRibbonScroll}
+          onTouchStart={handleUserInteraction}
+          onMouseDown={handleUserInteraction}
         >
           {/* Cursore bianco — assoluto dentro il container scrollabile, si muove col contenuto */}
           <div
