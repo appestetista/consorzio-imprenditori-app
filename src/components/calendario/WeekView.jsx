@@ -410,8 +410,8 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     const sk = `${String(h).padStart(2,'0')}:${String(Math.floor(m/5)*5).padStart(2,'0')}`;
     setSelectedSlot({ date: navDate, time: sk });
 
-    // 7. Scroll verticale all'orario preciso — pendente, verrà applicato via useEffect/rAF
-    pendingScrollToSlot.current = { h, m };
+    // 7. Scroll verticale all'orario preciso — posiziona lo slot a filo con la parte superiore della griglia
+    pendingScrollToSlot.current = { h, m, alignTop: true };
     if (onNavigateToSlotDone) onNavigateToSlotDone();
   }, [displayYear, onDateSelect, onNavigateToSlotDone, updateCursorPosition, scrollRibbonToDate]);
 
