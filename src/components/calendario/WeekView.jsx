@@ -451,7 +451,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                 <div
                   key={idx}
                   className="flex flex-col items-center cursor-pointer flex-shrink-0"
-                  style={{ width: `${ITEM_W}px`, opacity: isDimmed ? 0.35 : 1, transition: 'opacity 0.4s ease' }}
+                  style={{ width: `${ITEM_W}px`, opacity: isDimmed ? 0.15 : 1, transition: 'opacity 0.4s ease' }}
                   onClick={() => { setFocusedDay(null); handleDayClick(dayDate); }}
                 >
                   <div
