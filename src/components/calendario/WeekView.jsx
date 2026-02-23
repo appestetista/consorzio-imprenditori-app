@@ -326,6 +326,9 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     // Attiva modalità focus PRIMA dello scroll per evitare che handleRibbonScroll lo resetti
     setFocusedDay(navDate);
 
+    // IMPORTANTE: blocca lo scroll automatico all'ora corrente che scatterebbe quando cambia currentWeekDays
+    skipAutoScrollToNow.current = true;
+
     // Aggiorna settimana e highlighting immediatamente
     setHighlightedDay({ day: d, month: mo - 1, year: y });
     const newWeek = getWeekDays(targetDate);
