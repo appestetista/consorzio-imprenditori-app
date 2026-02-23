@@ -149,10 +149,16 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
 
   const handleWeekNoteSave = (noteData) => {
     if (!weekNoteSlot) return;
+    // Usa data/ora dall'editor se disponibili, altrimenti fallback allo slot
+    const dateStr = noteData.date
+      ? (typeof noteData.date === 'string' && noteData.date.includes('-')
+          ? noteData.date
+          : (() => { const d = new Date(noteData.date); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; })())
+      : weekNoteSlot.date;
     weekSaveNoteMutation.mutate({
       ...noteData,
-      dateStr: weekNoteSlot.date,
-      time: weekNoteSlot.time,
+      dateStr,
+      time: noteData.time || weekNoteSlot.time,
       existingNote: weekNoteSlot.existingNote
     });
   };
