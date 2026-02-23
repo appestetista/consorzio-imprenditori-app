@@ -629,18 +629,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
 
         {/* HEADER GIORNI SETTIMANA */}
         <div className="flex flex-shrink-0 border-b border-slate-700/50">
-          <div className="flex-shrink-0 flex items-center justify-between" style={{ width: '70px', paddingLeft: '4px', paddingRight: '4px', borderRight: '2px solid rgba(100,116,139,0.6)' }}>
-            <button
-              onClick={() => {
-                const prevWeekDate = new Date(weekDays[0]);
-                prevWeekDate.setDate(prevWeekDate.getDate() - 1);
-                handleDayClick(prevWeekDate);
-              }}
-              className="w-7 h-7 rounded-full flex items-center justify-center touch-manipulation active:scale-90 transition-all"
-              style={{ backgroundColor: ac + '30' }}
-            >
-              <ChevronLeft className="w-4 h-4" style={{ color: ac }} />
-            </button>
+          <div className="flex-shrink-0 flex items-center justify-center" style={{ width: '70px', paddingLeft: '4px', paddingRight: '4px', borderRight: '2px solid rgba(100,116,139,0.6)' }}>
             {onBackToDaily && (
               <button
                 onClick={onBackToDaily}
