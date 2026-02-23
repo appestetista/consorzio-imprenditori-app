@@ -354,6 +354,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
 
     // 1. Attiva modalità focus — evidenzia solo il mese dell'appuntamento
     setFocusedDay(navDate);
+    focusedDayRef.current = navDate;
     setFocusedMonth(focusMonth);
     if (onFocusedMonthChange) onFocusedMonthChange(focusMonth);
 
