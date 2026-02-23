@@ -271,9 +271,11 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
 
   // Quando cliccano un giorno nel nastro, aggiorna la settimana e scrolla
   const handleDayClick = useCallback((date) => {
+    // Blocca PRIMA di tutto per evitare race condition con onScroll
+    clickLockRef.current = true;
+    
     setHighlightedDay({ day: date.getDate(), month: date.getMonth(), year: date.getFullYear() });
     setSelectedSlot(null);
-    if (onDateSelect) onDateSelect(date);
     
     // Forza aggiornamento settimana al giorno cliccato
     const newWeek = getWeekDays(date);
@@ -287,11 +289,14 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     // Mostra frecce scroll laterali (si dissolveranno quando l'utente scrolla)
     setShowScrollArrows(true);
     
-    // Blocca handleRibbonScroll durante lo smooth scroll per non sovrascrivere la settimana
-    clickLockRef.current = true;
-    scrollRibbonToDate(date, true);
-    // Sblocca dopo che lo smooth scroll è terminato (~500ms)
-    setTimeout(() => { clickLockRef.current = false; }, 600);
+    // Scrolla il nastro — NON smooth, istantaneo, per evitare che eventi scroll intermedi sovrascrivano la settimana
+    scrollRibbonToDate(date, false);
+    
+    // Notifica parent DOPO aver impostato tutto
+    if (onDateSelect) onDateSelect(date);
+    
+    // Sblocca dopo un frame per sicurezza
+    requestAnimationFrame(() => { clickLockRef.current = false; });
   }, [onDateSelect, displayYear, updateCursorPosition, scrollRibbonToDate]);
 
   // Quando selectedDate cambia dall'esterno, scrolla il nastro a quel giorno
