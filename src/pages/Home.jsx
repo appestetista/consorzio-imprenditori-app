@@ -156,6 +156,19 @@ Domanda dell'utente: ${msg}`,
 
   const hasMessages = messages.length > 0;
 
+  // Notifiche non lette per badge messaggi
+  const { data: notifications = [] } = useRQQuery({
+    queryKey: ['home-notifications', effectiveUser?.email],
+    queryFn: () => base44.entities.Notification.filter({ user_email: effectiveUser?.email, is_read: false }),
+    enabled: !!effectiveUser?.email,
+    refetchInterval: 10000,
+  });
+  const unreadCount = notifications.length;
+
+  // Logo utente
+  const DEFAULT_LOGO = "https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=100&h=100&fit=crop";
+  const userLogo = effectiveUser?.company_logo || DEFAULT_LOGO;
+
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#0a0f1a' }}>
       
@@ -172,14 +185,55 @@ Domanda dell'utente: ${msg}`,
       {/* Area messaggi / stato iniziale */}
       <div className="flex-1 flex flex-col overflow-hidden">
         
-        {/* Top bar con hamburger */}
-        <div className="flex items-center px-4 pt-4 pb-2">
+        {/* Top bar */}
+        <div className="flex items-center justify-between px-4 pt-4 pb-2">
+          {/* Sinistra: hamburger sidebar chat */}
           <button
             onClick={() => setSidebarOpen(true)}
             className="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-slate-800 transition-colors"
           >
             <Menu className="w-5 h-5 text-slate-400" />
           </button>
+
+          {/* Destra: profilo + messaggi + menu hamburger */}
+          <div className="flex items-center gap-2">
+            {/* Profilo */}
+            <Link to={createPageUrl('MyProfile')}>
+              <img src={userLogo} alt="Profilo" className="w-9 h-9 rounded-full object-cover border-2 border-[#d4af37]/50" />
+            </Link>
+
+            {/* Messaggi */}
+            <Link to={createPageUrl('Messaggi')} className="relative p-1">
+              <img 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/cd5e7b92b_Immagine_2026-02-03_182832-removebg-preview.png" 
+                alt="Messaggi" 
+                className="w-9 h-9 object-contain"
+              />
+              {unreadCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] rounded-full min-w-4 h-4 px-1 flex items-center justify-center font-bold">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
+            </Link>
+
+            {/* Hamburger menu premium */}
+            <Link 
+              to={createPageUrl('Esplora')}
+              className="relative w-11 h-11 transition-transform duration-100 active:scale-95"
+            >
+              <div className="absolute inset-0 rounded-xl" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.2)' }} />
+              <div className="absolute inset-0 rounded-xl p-[2.5px]" style={{ background: 'linear-gradient(145deg, #f0e68c 0%, #d4af37 30%, #b8860b 60%, #8b7355 100%)' }}>
+                <div className="relative w-full h-full rounded-[10px] flex items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #252525 0%, #1a1a1a 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5), inset 0 -1px 1px rgba(255,255,255,0.03)' }}>
+                  <div className="absolute top-0 left-0 w-full h-[40%] pointer-events-none" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.06) 0%, transparent 100%)', borderRadius: '10px 10px 50% 50%' }} />
+                  <div className="flex flex-col gap-[5px] relative z-10">
+                    <div className="w-5 h-[2px] rounded-full" style={{ background: 'linear-gradient(90deg, #d4af37, #f0e68c, #d4af37)' }} />
+                    <div className="w-5 h-[2px] rounded-full" style={{ background: 'linear-gradient(90deg, #d4af37, #f0e68c, #d4af37)' }} />
+                    <div className="w-5 h-[2px] rounded-full" style={{ background: 'linear-gradient(90deg, #d4af37, #f0e68c, #d4af37)' }} />
+                  </div>
+                </div>
+              </div>
+            </Link>
+          </div>
         </div>
 
         {!hasMessages ? (
