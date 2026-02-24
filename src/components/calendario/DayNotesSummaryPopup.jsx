@@ -41,7 +41,7 @@ export default function DayNotesSummaryPopup({ notes = [], files = [], cartelleM
             <p className="text-[11px] capitalize" style={{ color: monthColor }}>{dateLabel}</p>
           </div>
           <button onClick={onClose} className="w-7 h-7 rounded-full bg-slate-700 flex items-center justify-center hover:bg-slate-600">
-            <X className="w-4 h-4 text-slate-300" />
+            <X className="w-4 h-4 text-black" />
           </button>
         </div>
 
@@ -85,12 +85,12 @@ export default function DayNotesSummaryPopup({ notes = [], files = [], cartelleM
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5">
                       {isFile ? (
-                        <FileText className="w-3 h-3 flex-shrink-0" style={{ color: itemColor }} />
+                        <FileText className="w-3 h-3 flex-shrink-0" style={{ color: itemColor, fill: itemColor }} />
                       ) : (
                         <div className="w-2 h-2 rounded-sm flex-shrink-0" style={{ backgroundColor: itemColor }} />
                       )}
                       <span className="text-sm font-semibold text-white truncate">{item.title}</span>
-                      {isFile && <span className="text-[9px] text-slate-500 flex-shrink-0">file</span>}
+                      {isFile && <span className="text-[9px] text-slate-500 flex-shrink-0">nota</span>}
                     </div>
                     {cart && (
                       <span className="text-[10px] mt-0.5 block" style={{ color: cart.colore }}>
