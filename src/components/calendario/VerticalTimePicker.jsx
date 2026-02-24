@@ -400,7 +400,7 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
                     setShowNoteEditor(true);
                   }}
                 >
-                  <FileText className="w-4 h-4 text-lime-400" />
+                  <FileText className="w-4 h-4 text-lime-400" fill="currentColor" />
                 </button>
               ) : (
                 <div className="flex items-center mr-2">
