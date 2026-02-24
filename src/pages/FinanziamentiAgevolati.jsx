@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Sparkles, AlertCircle, Info, Briefcase, XCircle, Building2, CalendarDays, MessageSquare, Mail, Eye, Trash2, User, Phone, Search, Loader2, Plus, Edit, Share2, Archive, ExternalLink, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Sparkles, AlertCircle, Info, Briefcase, XCircle, Building2, CalendarDays, MessageSquare, Mail, Eye, Trash2, User, Phone, Search, Loader2, Plus, Edit, Share2, Archive, ExternalLink, CheckCircle2, ChevronDown, Filter, SlidersHorizontal } from 'lucide-react';
 
 import { toast } from 'sonner';
 import { format } from 'date-fns';
@@ -19,6 +19,9 @@ import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import GrantCard from '../components/grants/GrantCard';
 import GrantFilters from '../components/grants/GrantFilters';
+import GrantDecisionHero from '../components/grants/GrantDecisionHero';
+import GrantRecommendedCard from '../components/grants/GrantRecommendedCard';
+import GrantCardCompact from '../components/grants/GrantCardCompact';
 import BandoStats from '../components/admin/BandoStats';
 import BandoForm from '../components/admin/BandoForm';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
