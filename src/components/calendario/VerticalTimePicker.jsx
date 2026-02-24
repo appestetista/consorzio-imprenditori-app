@@ -552,13 +552,15 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
       {showDaySummary && (
         <DayNotesSummaryPopup
           notes={noteDelGiorno}
+          files={fileDelGiorno}
           cartelleMap={cartelleMap}
           selectedDate={selectedDate}
           monthColor={currentMonthColor}
           onClose={() => setShowDaySummary(false)}
-          onNoteClick={(note) => {
+          onNoteClick={(item) => {
             setShowDaySummary(false);
-            setSelectedTime(note.time);
+            if (item._type === 'file') return; // file non aprono l'editor note
+            setSelectedTime(item.time);
             setShowNoteEditor(true);
           }}
         />
