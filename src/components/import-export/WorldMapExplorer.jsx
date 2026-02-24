@@ -338,6 +338,7 @@ Rispondi in italiano.`,
     const rect = containerRef.current.getBoundingClientRect();
     const pos = getPointerPos(e, rect);
     isDragging.current = true;
+    startMouse.current = { x: pos.px, y: pos.py };
     previousMouse.current = { x: pos.px, y: pos.py };
     autoRotate.current = false;
     rotationVelocity.current = { x: 0, y: 0 };
