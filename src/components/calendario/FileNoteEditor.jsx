@@ -7,6 +7,7 @@ import ChecklistEditor from './ChecklistEditor';
 import AttachmentViewer from './AttachmentViewer';
 import WhisperDictation from './WhisperDictation';
 import AudioRecorder from './AudioRecorder';
+import FileContextMenu from './FileContextMenu';
 
 export default function FileNoteEditor({ file, onClose, onSave, onDelete, monthColor }) {
   const [title, setTitle] = useState(file?.titolo || '');
@@ -26,6 +27,7 @@ export default function FileNoteEditor({ file, onClose, onSave, onDelete, monthC
   const [isDictating, setIsDictating] = useState(false);
   const [fileData, setFileData] = useState(file?.data || '');
   const [fileTime, setFileTime] = useState(file?.time || '');
+  const [showContextMenu, setShowContextMenu] = useState(false);
   const [userEmail, setUserEmail] = useState(null);
   const queryClient = useQueryClient();
   const cameraInputRef = useRef(null);
@@ -169,11 +171,11 @@ export default function FileNoteEditor({ file, onClose, onSave, onDelete, monthC
         </a>
 
         <button
-          onClick={() => setShowColorPicker(!showColorPicker)}
+          onClick={() => setShowContextMenu(true)}
           className="w-9 h-9 rounded-full flex items-center justify-center active:scale-90 transition-all touch-manipulation flex-shrink-0"
           style={{ backgroundColor: fileColore ? fileColore + '30' : '#334155' }}
         >
-          <FileText className="w-4 h-4" style={{ color: fileColore || '#64748b' }} />
+          <Pencil className="w-4 h-4" style={{ color: fileColore || '#64748b' }} />
         </button>
 
         <button
