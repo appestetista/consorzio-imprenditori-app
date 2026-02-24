@@ -4,6 +4,7 @@ import { Plus, FileText, X, CalendarOff, ChevronDown } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import NoteEditor from './NoteEditor';
+import FileNoteEditor from './FileNoteEditor';
 import DayNotesSummaryPopup from './DayNotesSummaryPopup';
 
 export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMonth, visibleYear, onClose, onTimeSelect, onDateChange, monthColor = '#a3e635', onSelectedTimeChange, onOpenToolsPopup, navigateToNote, onNavigateToNoteDone }) {
