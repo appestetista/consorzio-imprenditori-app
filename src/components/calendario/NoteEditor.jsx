@@ -436,8 +436,8 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
         </div>
       )}
 
-      {/* FileContextMenu (pennetta) */}
-      {showContextMenu && (
+      {/* FileContextMenu (pennetta) — sempre via portale per superare z-index e overflow */}
+      {showContextMenu && ReactDOM.createPortal(
         <FileContextMenu
           file={{
             titolo: title,
@@ -459,7 +459,8 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
             setShowContextMenu(false);
           }}
           onClose={() => setShowContextMenu(false)}
-        />
+        />,
+        document.body
       )}
 
       {/* Input nascosti per camera e file */}
