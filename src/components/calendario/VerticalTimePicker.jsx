@@ -17,6 +17,7 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
   const [userEmail, setUserEmail] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null); // timeString della nota da eliminare
   const [showDaySummary, setShowDaySummary] = useState(false);
+  const [editingFile, setEditingFile] = useState(null); // FileCartella da aprire nell'editor
     const noteEditorSaveRef = useRef(null);
     const queryClient = useQueryClient();
 
