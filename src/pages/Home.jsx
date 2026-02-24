@@ -136,6 +136,47 @@ Domanda dell'utente: ${msg}`,
     }
   };
 
+  const toggleRecording = () => {
+    if (isRecording) {
+      recognitionRef.current?.stop();
+      setIsRecording(false);
+      return;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert('Il tuo browser non supporta il riconoscimento vocale.');
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'it-IT';
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognitionRef.current = recognition;
+
+    let finalTranscript = '';
+    recognition.onresult = (event) => {
+      let interim = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        if (event.results[i].isFinal) {
+          finalTranscript += event.results[i][0].transcript;
+        } else {
+          interim += event.results[i][0].transcript;
+        }
+      }
+      setInputText(prev => {
+        const base = prev.endsWith(' ') || prev === '' ? prev : prev + ' ';
+        return finalTranscript ? base.trimEnd() + (base ? ' ' : '') + finalTranscript : base + interim;
+      });
+    };
+
+    recognition.onerror = () => setIsRecording(false);
+    recognition.onend = () => setIsRecording(false);
+    recognition.start();
+    setIsRecording(true);
+  };
+
   const handleNewChat = () => {
     setMessages([]);
     setActiveConversationId(null);
