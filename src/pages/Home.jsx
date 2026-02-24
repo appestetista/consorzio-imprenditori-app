@@ -239,13 +239,8 @@ Domanda dell'utente: ${msg}`,
             <Menu className="w-5 h-5 text-slate-400" />
           </button>
 
-          {/* Destra: profilo + messaggi + menu hamburger */}
+          {/* Destra: messaggi + menu hamburger */}
           <div className="flex items-center gap-2">
-            {/* Profilo */}
-            <Link to={createPageUrl('MyProfile')}>
-              <img src={userLogo} alt="Profilo" className="w-9 h-9 rounded-full object-cover border-2 border-[#d4af37]/50" />
-            </Link>
-
             {/* Messaggi */}
             <Link to={createPageUrl('Messaggi')} className="relative p-1">
               <img 
@@ -381,16 +376,19 @@ Domanda dell'utente: ${msg}`,
           "absolute right-0 top-0 h-full w-72 bg-slate-900 border-l border-lime-400/30 p-6 transition-transform duration-300",
           menuOpen ? "translate-x-0" : "translate-x-full"
         )}>
-          <div className="flex justify-end mb-6">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <img src={userLogo} alt="Profilo" className="w-10 h-10 rounded-full object-cover border-2 border-[#d4af37]/50" />
+              <p className="text-lime-400 font-semibold text-sm">
+                {effectiveUser?.company_name || effectiveUser?.full_name || 'Utente'}
+              </p>
+            </div>
             <button onClick={() => setMenuOpen(false)}>
               <X className="w-6 h-6 text-lime-400" />
             </button>
           </div>
           
           <div className="space-y-2">
-            <p className="text-lime-400 font-semibold mb-4">
-              {effectiveUser?.company_name || effectiveUser?.full_name || 'Utente'}
-            </p>
             
             {impersonation.active && (
               <Link
