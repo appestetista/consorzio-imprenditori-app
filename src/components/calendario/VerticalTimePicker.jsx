@@ -417,7 +417,7 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
                 }}
             >
               {/* Pulsante + colore mese se selezionato, altrimenti linea o icona nota */}
-              {isSelected && !hasNote ? (
+              {isSelected && !hasNote && !hasCartellaFile ? (
                 <div className="w-6 h-6 rounded-full flex items-center justify-center mr-2 animate-pulse shadow-lg" style={{ backgroundColor: currentMonthColor, boxShadow: `0 0 12px ${currentMonthColor}80` }}>
                   <Plus className="w-4 h-4 text-white" />
                 </div>
@@ -431,6 +431,16 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
                   }}
                 >
                   <FileText className="w-4 h-4 text-lime-400" fill="currentColor" />
+                </button>
+              ) : hasCartellaFile ? (
+                <button
+                  className="flex-shrink-0 mr-2"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setEditingFile(cartellaFiles[slot.timeString][0]);
+                  }}
+                >
+                  <FileText className="w-4 h-4" style={{ color: cartellaFiles[slot.timeString][0].colore || cartelleMap[cartellaFiles[slot.timeString][0].cartella_id]?.colore || '#64748b' }} fill="currentColor" />
                 </button>
               ) : (
                 <div className="flex items-center mr-2">
