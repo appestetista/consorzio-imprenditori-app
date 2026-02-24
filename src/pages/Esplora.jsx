@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Calendar, Video, Briefcase, User, Euro, ShoppingBag, BookOpen, Handshake, Truck, Heart, FileSearch, Globe, Shield, PiggyBank, Gavel, Gift, QrCode, ScanLine, Star, Calculator, Users, ArrowLeft } from 'lucide-react';
+import { Calendar, Video, Briefcase, User, Euro, ShoppingBag, BookOpen, Handshake, Truck, Heart, FileSearch, Globe, Shield, PiggyBank, Gavel, Gift, QrCode, ScanLine, Star, Calculator, Users, Home } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import Header from '../components/layout/Header';
@@ -416,9 +416,8 @@ export default function Esplora() {
       {/* Header con freccia indietro */}
       <div className="sticky top-0 z-30 px-4 py-3 flex items-center gap-3" style={{ backgroundColor: '#001d3b' }}>
         <button onClick={() => navigate(createPageUrl('Home'))} className="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center">
-          <ArrowLeft className="w-5 h-5 text-[#d4af37]" />
+          <Home className="w-5 h-5 text-[#d4af37]" />
         </button>
-        <h1 className="text-[#d4af37] font-bold text-lg">Esplora</h1>
       </div>
       
       <main className="px-4 py-2 max-w-md mx-auto">
