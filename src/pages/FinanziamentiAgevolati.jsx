@@ -57,6 +57,9 @@ export default function FinanziamentiAgevolati() {
   const [showOnlyMatching, setShowOnlyMatching] = useState(false);
   const [loadingMatch, setLoadingMatch] = useState(false);
   const [matchedGrantIds, setMatchedGrantIds] = useState([]);
+  const [showAllGrants, setShowAllGrants] = useState(false); // "Esplora altri bandi"
+  const [showFiltersPanel, setShowFiltersPanel] = useState(false);
+  const autoMatchTriggered = useRef(false);
   
   // Stati per gestione bandi admin
   const [showBandoForm, setShowBandoForm] = useState(false);
