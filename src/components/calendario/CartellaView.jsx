@@ -563,7 +563,7 @@ export default function CartellaView({ cartella, userEmail, onClose }) {
                 {isNota ? (
                   <FileText className="w-4 h-4 flex-shrink-0 text-lime-400" />
                 ) : (
-                  <FileText className="w-4 h-4 flex-shrink-0" style={{ color: cartella.colore }} />
+                  <FileText className="w-4 h-4 flex-shrink-0" style={{ color: item.colore || cartella.colore }} />
                 )}
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-1.5">
