@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { Check, Paperclip, X, ChevronDown, Folder, FolderPlus, Trash2, Pencil, Camera, ListChecks, Calendar as CalendarIcon, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { base44 } from '@/api/base44Client';
