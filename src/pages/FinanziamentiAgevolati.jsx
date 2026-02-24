@@ -1016,288 +1016,244 @@ export default function FinanziamentiAgevolati() {
           </>
         )}
 
-        {/* Profile Warning - solo per utenti non admin */}
-        {/* Data odierna */}
-        <div className="bg-slate-800 rounded-lg p-4 border border-slate-700 mb-4 flex items-center gap-3">
-          <CalendarDays className="w-6 h-6 text-lime-400" />
-          <div>
-            <p className="text-slate-400 text-xs">Data odierna</p>
-            <p className="text-white font-bold text-lg">
-              {format(new Date(), "EEEE d MMMM yyyy", { locale: it })}
-            </p>
-          </div>
-        </div>
-
-        {/* Sezione Messaggi Richieste Consulenza - Solo Admin (non in impersonificazione) */}
+        {/* ===== ADMIN: sezioni admin-only ===== */}
         {isRealAdmin && (
-          <div className="bg-slate-800 rounded-lg p-4 border border-slate-700 mb-6">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <div className="relative">
-                  <MessageSquare className={`w-5 h-5 ${consultationRequests.length > 0 ? 'text-lime-400' : 'text-slate-400'}`} />
-                  {consultationRequests.length > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold animate-pulse">
-                      {consultationRequests.length}
-                    </span>
+          <>
+            {/* Data odierna */}
+            <div className="bg-slate-800 rounded-lg p-4 border border-slate-700 mb-4 flex items-center gap-3">
+              <CalendarDays className="w-6 h-6 text-lime-400" />
+              <div>
+                <p className="text-slate-400 text-xs">Data odierna</p>
+                <p className="text-white font-bold text-lg">
+                  {format(new Date(), "EEEE d MMMM yyyy", { locale: it })}
+                </p>
+              </div>
+            </div>
+
+            {/* Richieste Consulenza Admin */}
+            <div className="bg-slate-800 rounded-lg p-4 border border-slate-700 mb-6">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="relative">
+                    <MessageSquare className={`w-5 h-5 ${consultationRequests.length > 0 ? 'text-lime-400' : 'text-slate-400'}`} />
+                    {consultationRequests.length > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold animate-pulse">
+                        {consultationRequests.length}
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-white font-medium">Richieste Consulenza</span>
+                </div>
+                <Button size="sm" variant="outline" className="border-lime-400 text-lime-400 hover:bg-lime-400/20" onClick={() => setShowConsultationMessages(true)}>
+                  <Mail className="w-4 h-4 mr-1" />
+                  Vedi tutte ({consultationRequests.length})
+                </Button>
+              </div>
+              {consultationRequests.length === 0 ? (
+                <p className="text-slate-400 text-sm">Nessuna nuova richiesta di consulenza</p>
+              ) : (
+                <div className="space-y-2">
+                  {consultationRequests.slice(0, 3).map((req) => (
+                    <div key={req.id} className="bg-lime-400/10 border border-lime-400/30 rounded-lg p-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-white font-medium text-sm truncate">{req.user?.company_name || 'N/A'}</p>
+                          <p className="text-slate-400 text-xs">👤 {req.user?.referente || req.user?.full_name || 'N/A'}</p>
+                          <p className="text-lime-400 text-xs mt-1 truncate">📋 {req.grant?.title || 'Bando non trovato'}</p>
+                        </div>
+                        <span className="bg-lime-400 text-slate-900 text-xs font-bold px-2 py-0.5 rounded flex-shrink-0">NUOVO</span>
+                      </div>
+                    </div>
+                  ))}
+                  {consultationRequests.length > 3 && (
+                    <p className="text-lime-400 text-xs text-center">+ altre {consultationRequests.length - 3} richieste</p>
                   )}
                 </div>
-                <span className="text-white font-medium">Richieste Consulenza</span>
-              </div>
-              <Button
-                size="sm"
-                variant="outline"
-                className="border-lime-400 text-lime-400 hover:bg-lime-400/20"
-                onClick={() => setShowConsultationMessages(true)}
-              >
-                <Mail className="w-4 h-4 mr-1" />
-                Vedi tutte ({consultationRequests.length})
-              </Button>
+              )}
             </div>
-            {consultationRequests.length === 0 ? (
-              <p className="text-slate-400 text-sm">Nessuna nuova richiesta di consulenza</p>
+
+            {/* Stats Admin */}
+            <div className="bg-slate-800 rounded-lg p-4 border border-slate-700 mb-6">
+              <div className="text-2xl font-bold text-lime-400 mb-2">{allGrants.length}</div>
+              <div className="text-slate-400 text-sm mb-3">Totale bandi trovati dai siti</div>
+              <div className="border-t border-slate-700 pt-3">
+                <p className="text-slate-500 text-xs mb-2">Siti scansionati:</p>
+                <div className="flex flex-wrap gap-2">
+                  {['incentivi.gov.it','simest.it','invitalia.it','regione.lombardia.it','regione.veneto.it','regione.emilia-romagna.it','regione.piemonte.it','regione.toscana.it','regione.lazio.it','regione.campania.it','regione.sicilia.it','regione.puglia.it','regione.marche.it','regione.liguria.it','regione.fvg.it','regione.abruzzo.it','regione.umbria.it','regione.calabria.it','regione.sardegna.it','regione.basilicata.it','regione.molise.it','regione.vda.it','provincia.tn.it','provincia.bz.it'].map(s => (
+                    <Badge key={s} variant="outline" className="text-xs text-slate-300 border-slate-600">{s}</Badge>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Filters + full list for admin */}
+            <div className="mb-6">
+              <GrantFilters filters={filters} onFilterChange={handleFilterChange} />
+            </div>
+
+            {/* Grants List Admin — usa GrantCard originale con tutte le info */}
+            {isLoading ? (
+              <div className="text-center py-12">
+                <div className="animate-spin w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full mx-auto"></div>
+              </div>
             ) : (
-              <div className="space-y-2">
-                {consultationRequests.slice(0, 3).map((req) => (
-                  <div key={req.id} className="bg-lime-400/10 border border-lime-400/30 rounded-lg p-3">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-white font-medium text-sm truncate">{req.user?.company_name || 'N/A'}</p>
-                        <p className="text-slate-400 text-xs">👤 {req.user?.referente || req.user?.full_name || 'N/A'}</p>
-                        <p className="text-lime-400 text-xs mt-1 truncate">📋 {req.grant?.title || 'Bando non trovato'}</p>
-                      </div>
-                      <span className="bg-lime-400 text-slate-900 text-xs font-bold px-2 py-0.5 rounded flex-shrink-0">NUOVO</span>
-                    </div>
+              <div className="space-y-4">
+                {displayGrants.map((grant) => {
+                  const interest = userInterests.find(i => i.grant_id === grant.id);
+                  return (
+                    <GrantCard
+                      key={grant.id}
+                      grant={grant}
+                      userInterest={interest}
+                      onDetails={handleShowDetails}
+                      onToggleAlerts={() => handleToggleAlerts(grant)}
+                      onRequestConsultation={() => handleRequestConsultation(grant)}
+                      userProfile={user}
+                      isAdmin={isRealAdmin}
+                    />
+                  );
+                })}
+              </div>
+            )}
+          </>
+        )}
+
+        {/* ===== UTENTE: Design decision-first ===== */}
+        {!isRealAdmin && (
+          <>
+            {/* 1. HERO DECISIONALE */}
+            <div className="mb-6">
+              <GrantDecisionHero
+                matchedGrants={matchedGrants}
+                isMatching={loadingMatch}
+                hasIncompleteProfile={hasIncompleteProfile}
+                onCompleteProfile={() => setShowProfilePopup(true)}
+                onShowBestGrant={(g) => { if (g) handleShowDetails(g); }}
+                totalGrants={filteredGrants.length}
+              />
+            </div>
+
+            {/* 2. BANDO CONSIGLIATO */}
+            {!loadingMatch && !hasIncompleteProfile && recommendedGrant && (
+              <div className="mb-6">
+                <GrantRecommendedCard
+                  grant={recommendedGrant}
+                  onDetails={handleShowDetails}
+                  onRequestConsultation={() => handleRequestConsultation(recommendedGrant)}
+                  userInterest={userInterests.find(i => i.grant_id === recommendedGrant.id)}
+                />
+              </div>
+            )}
+
+            {/* 3. CONSULENTI */}
+            {user && (
+              <div className="mb-6">
+                <SectionConsultantPanel 
+                  sectionId="finanziamenti" 
+                  sectionLabel="Finanziamenti Agevolati" 
+                  user={user} 
+                />
+              </div>
+            )}
+
+            {/* 4. LINK PROFILO BANDI (sottile) */}
+            {userLoaded && !hasIncompleteProfile && (
+              <Link to={createPageUrl('ProfiloBandi')} className="block mb-6">
+                <div className="flex items-center justify-between rounded-xl bg-slate-800/60 border border-slate-700/50 px-4 py-3">
+                  <div className="flex items-center gap-2.5">
+                    <Briefcase className="w-4 h-4 text-slate-400" />
+                    <span className="text-slate-300 text-sm">Il tuo profilo bandi</span>
                   </div>
-                ))}
-                {consultationRequests.length > 3 && (
-                  <p className="text-lime-400 text-xs text-center">+ altre {consultationRequests.length - 3} richieste</p>
+                  <Edit className="w-3.5 h-3.5 text-slate-500" />
+                </div>
+              </Link>
+            )}
+
+            {/* 5. ESPLORA ALTRI BANDI — collassato di default */}
+            {!loadingMatch && matchedGrants.length > 0 && (
+              <div className="mb-6">
+                {/* Toggle */}
+                <button
+                  onClick={() => setShowAllGrants(!showAllGrants)}
+                  className="w-full flex items-center justify-between rounded-xl bg-slate-800/60 border border-slate-700/50 px-4 py-3 text-sm"
+                >
+                  <span className="text-slate-300">
+                    {showAllGrants ? 'Nascondi elenco' : `Esplora altri ${otherMatchedGrants.length} bandi compatibili`}
+                  </span>
+                  <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${showAllGrants ? 'rotate-180' : ''}`} />
+                </button>
+
+                {showAllGrants && (
+                  <div className="mt-3 space-y-3">
+                    {/* Filtri compatti */}
+                    <button
+                      onClick={() => setShowFiltersPanel(!showFiltersPanel)}
+                      className="flex items-center gap-2 text-xs text-slate-400 hover:text-slate-200 transition-colors"
+                    >
+                      <SlidersHorizontal className="w-3.5 h-3.5" />
+                      <span>Ordina e filtra</span>
+                    </button>
+                    {showFiltersPanel && (
+                      <GrantFilters filters={filters} onFilterChange={handleFilterChange} />
+                    )}
+
+                    {otherMatchedGrants.map((grant) => (
+                      <GrantCardCompact
+                        key={grant.id}
+                        grant={grant}
+                        onDetails={handleShowDetails}
+                      />
+                    ))}
+                  </div>
                 )}
               </div>
             )}
-          </div>
-        )}
 
-        {/* Alert profilo incompleto spostato sopra - ora mostrato solo se non admin */}
-
-        {/* Stats */}
-        {isRealAdmin ? (
-                        <div className="bg-slate-800 rounded-lg p-4 border border-slate-700 mb-6">
-                          <div className="text-2xl font-bold text-lime-400 mb-2">{allGrants.length}</div>
-                          <div className="text-slate-400 text-sm mb-3">Totale bandi trovati dai siti</div>
-                          <div className="border-t border-slate-700 pt-3">
-                            <p className="text-slate-500 text-xs mb-2">Siti scansionati:</p>
-                            <div className="flex flex-wrap gap-2">
-                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">incentivi.gov.it</Badge>
-                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">simest.it</Badge>
-                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">invitalia.it</Badge>
-                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.lombardia.it</Badge>
-                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.veneto.it</Badge>
-                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.emilia-romagna.it</Badge>
-                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.piemonte.it</Badge>
-                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.toscana.it</Badge>
-                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.lazio.it</Badge>
-                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.campania.it</Badge>
-                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.sicilia.it</Badge>
-                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.puglia.it</Badge>
-                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.marche.it</Badge>
-                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.liguria.it</Badge>
-                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.fvg.it</Badge>
-                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.abruzzo.it</Badge>
-                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.umbria.it</Badge>
-                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.calabria.it</Badge>
-                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.sardegna.it</Badge>
-                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.basilicata.it</Badge>
-                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.molise.it</Badge>
-                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">regione.vda.it</Badge>
-                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">provincia.tn.it</Badge>
-                              <Badge variant="outline" className="text-xs text-slate-300 border-slate-600">provincia.bz.it</Badge>
-                            </div>
-                          </div>
-                        </div>
-                      ) : (
-          <div className="grid grid-cols-2 gap-3 mb-6">
-            <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
-              <div className="text-2xl font-bold text-lime-400 mb-1">{filteredGrants.length}</div>
-              <div className="text-slate-400 text-sm">Bandi compatibili</div>
-            </div>
-            <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
-              <div className="text-2xl font-bold text-lime-400 mb-1">
-                {filteredGrants.filter(g => g.easy_access).length}
-              </div>
-              <div className="text-slate-400 text-sm flex items-center gap-1">
-                <Sparkles className="w-3 h-3" />
-                Attivabili subito
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Accesso Profilo Bandi / Banner incompleto */}
-        {!isRealAdmin && userLoaded && hasIncompleteProfile && (
-          <Card className="bg-gradient-to-br from-purple-600/20 to-indigo-600/20 border-2 border-purple-500/50 mb-6">
-            <CardContent className="p-5">
-              <div className="flex items-start gap-3">
-                <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center flex-shrink-0">
-                  <AlertCircle className="w-6 h-6 text-purple-400" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-white font-bold text-base mb-1">Completa il tuo Profilo Bandi</h3>
-                  <p className="text-slate-300 text-sm mb-3">
-                    Per trovare i bandi compatibili con la tua azienda, devi compilare alcune informazioni essenziali.
-                  </p>
-                  <Button
-                    onClick={() => setShowProfilePopup(true)}
-                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold w-full"
-                  >
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    Compila ora il Profilo Bandi
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-        {!isRealAdmin && userLoaded && !hasIncompleteProfile && (
-          <Link to={createPageUrl('ProfiloBandi')}>
-            <Card className="bg-gradient-to-r from-purple-600 to-indigo-600 border-2 border-purple-400 mb-6 hover:from-purple-700 hover:to-indigo-700 transition-all cursor-pointer shadow-lg shadow-purple-500/30 animate-pulse">
-              <CardContent className="p-4 flex items-center gap-3">
-                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Briefcase className="w-5 h-5 text-white" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-white font-bold text-sm">Il tuo Profilo Bandi</p>
-                  <p className="text-purple-100 text-xs">Modifica dati aziendali, regione, ATECO, requisiti per il matching</p>
-                </div>
-                <Edit className="w-4 h-4 text-white" />
-              </CardContent>
-            </Card>
-          </Link>
-        )}
-
-        {/* Sezione Ricerca Bandi Compatibili - Solo per utenti non admin */}
-        {!isRealAdmin && (
-          <div className="mb-4">
-            <div className="flex gap-2">
-              <Button
-                onClick={() => {
-                  if (hasIncompleteProfile) {
-                    setShowProfilePopup(true);
-                  } else {
-                    handleMatchWithProfile();
-                  }
-                }}
-                disabled={loadingMatch}
-                className={`flex-1 ${showOnlyMatching ? 'bg-purple-600 hover:bg-purple-700' : 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700'} text-white`}
-              >
-                {loadingMatch ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Analisi in corso...
-                  </>
-                ) : (
-                  <>
-                    <Search className="w-4 h-4 mr-2" />
-                    {showOnlyMatching ? `Compatibili: ${matchedGrantIds.length}` : 'Filtra bandi per il mio profilo'}
-                  </>
-                )}
-              </Button>
-              {showOnlyMatching && (
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setShowOnlyMatching(false);
-                    setMatchedGrantIds([]);
-                  }}
-                  className="border-slate-600 text-slate-300"
+            {/* 6. Se nessun match ma ci sono bandi → mostra elenco completo compatto */}
+            {!loadingMatch && matchedGrants.length === 0 && !hasIncompleteProfile && filteredGrants.length > 0 && (
+              <div className="mb-6">
+                <button
+                  onClick={() => setShowAllGrants(!showAllGrants)}
+                  className="w-full flex items-center justify-between rounded-xl bg-slate-800/60 border border-slate-700/50 px-4 py-3 text-sm mb-3"
                 >
-                  Mostra tutti
-                </Button>
-              )}
-            </div>
-          </div>
-        )}
+                  <span className="text-slate-300">
+                    {showAllGrants ? 'Nascondi elenco' : `Esplora tutti i ${filteredGrants.length} bandi disponibili`}
+                  </span>
+                  <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${showAllGrants ? 'rotate-180' : ''}`} />
+                </button>
 
-        {/* Filters */}
-        <div className="mb-6">
-          <GrantFilters filters={filters} onFilterChange={handleFilterChange} />
-        </div>
+                {showAllGrants && (
+                  <div className="space-y-3">
+                    <button
+                      onClick={() => setShowFiltersPanel(!showFiltersPanel)}
+                      className="flex items-center gap-2 text-xs text-slate-400 hover:text-slate-200 transition-colors"
+                    >
+                      <SlidersHorizontal className="w-3.5 h-3.5" />
+                      <span>Ordina e filtra</span>
+                    </button>
+                    {showFiltersPanel && (
+                      <GrantFilters filters={filters} onFilterChange={handleFilterChange} />
+                    )}
 
-        {/* Pannello Consulenti per questa sezione - solo utenti non admin */}
-        {!isRealAdmin && user && (
-          <div className="mb-6">
-            <SectionConsultantPanel 
-              sectionId="finanziamenti" 
-              sectionLabel="Finanziamenti Agevolati" 
-              user={user} 
-            />
-          </div>
-        )}
+                    {sortedGrants.map((grant) => (
+                      <GrantCardCompact
+                        key={grant.id}
+                        grant={grant}
+                        onDetails={handleShowDetails}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
-        {/* Info Box - solo per utenti non admin */}
-        {user?.role !== 'admin' && (
-          <Alert className="mb-6 bg-lime-400/10 border-lime-400/30">
-            <Info className="h-4 w-4 text-lime-400" />
-            <AlertDescription className="text-slate-300 text-sm">
-              I bandi mostrati sono già filtrati in base al tuo profilo aziendale (dimensione, regione, settore).
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {/* AI Match Loading */}
-        {loadingMatch && (
-          <Alert className="mb-6 bg-purple-500/10 border-purple-500/30">
-            <Sparkles className="h-4 w-4 text-purple-400 animate-pulse" />
-            <AlertDescription className="text-purple-300 text-sm">
-              🤖 Sto analizzando i bandi più adatti al tuo profilo...
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {/* Banner risultati filtrati AI */}
-        {showOnlyMatching && matchedGrantIds.length > 0 && (
-          <Alert className="mb-6 bg-gradient-to-r from-purple-500/20 to-indigo-500/20 border-purple-500/50">
-            <CheckCircle2 className="h-5 w-5 text-purple-400" />
-            <AlertDescription className="text-purple-200 text-sm">
-              <strong className="text-purple-100">🎯 Questi sono i bandi a cui puoi accedere</strong> con le caratteristiche del tuo profilo aziendale. Trovati <span className="font-bold text-lime-400">{matchedGrantIds.length}</span> bandi compatibili.
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {/* Grants List */}
-        {isLoading ? (
-          <div className="text-center py-12">
-            <div className="animate-spin w-8 h-8 border-2 border-lime-400 border-t-transparent rounded-full mx-auto"></div>
-          </div>
-        ) : displayGrants.length === 0 ? (
-          <div className="text-center py-12">
-            <Sparkles className="w-16 h-16 text-slate-600 mx-auto mb-4" />
-            <p className="text-slate-400">
-              {showOnlyMatching ? 'Nessun bando compatibile trovato con il tuo profilo' : 'Nessun bando compatibile trovato'}
-            </p>
-            <p className="text-slate-500 text-sm mt-2">
-              {showOnlyMatching 
-                ? 'Prova a completare il profilo bandi per risultati migliori'
-                : 'Prova a modificare i filtri o completa il profilo aziendale'}
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {displayGrants.map((grant) => {
-              const interest = userInterests.find(i => i.grant_id === grant.id);
-              return (
-                <GrantCard
-                  key={grant.id}
-                  grant={grant}
-                  userInterest={interest}
-                  onDetails={handleShowDetails}
-                  onToggleAlerts={() => handleToggleAlerts(grant)}
-                  onRequestConsultation={() => handleRequestConsultation(grant)}
-                  userProfile={user}
-                  isAdmin={isRealAdmin}
-                />
-              );
-            })}
-          </div>
+            {/* Loading state */}
+            {isLoading && (
+              <div className="text-center py-12">
+                <div className="animate-spin w-8 h-8 border-2 border-white/20 border-t-white/60 rounded-full mx-auto"></div>
+              </div>
+            )}
+          </>
         )}
       </main>
 
