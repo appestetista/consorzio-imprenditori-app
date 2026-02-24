@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { X, Plus, FileText, Camera, Paperclip, ListChecks, Check, Calendar as CalendarIcon, ChevronLeft, Trash2, Folder, Pencil } from 'lucide-react';
+import { X, Plus, FileText, Camera, Paperclip, ListChecks, Check, Calendar as CalendarIcon, ChevronLeft, ChevronDown, Trash2, Folder, Pencil } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
