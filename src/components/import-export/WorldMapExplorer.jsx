@@ -493,8 +493,8 @@ Rispondi in italiano.`,
     if (selectedMeshRef.current) {
       countryMeshesRef.current.forEach(m => {
         if (m.userData.countryName === selectedMeshRef.current.userData.countryName) {
-          m.material.color.setHex(0x1e3a2f);
-          m.material.opacity = 0.7;
+          m.material.color.setHex(0x6ee7b7);
+          m.material.opacity = 0.75;
         }
       });
       selectedMeshRef.current = null;
