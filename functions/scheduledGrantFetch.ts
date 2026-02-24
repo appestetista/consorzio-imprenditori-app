@@ -1,21 +1,16 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
-// Questa function viene chiamata dall'automazione schedulata settimanale
-// Usa ricerca web reale (add_context_from_internet) per trovare bandi verificati
+// Ricerca bandi con web search reale — molte query tematiche per massimizzare i risultati
 
 Deno.serve(async (req) => {
     try {
         const base44 = createClientFromRequest(req);
-        
-        const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+        const today = new Date().toISOString().split('T')[0];
         console.log(`[GrantFetch] Started at ${today}`);
 
-        // =============================================
         // FASE 1: Pulizia bandi scaduti
-        // =============================================
         const allExisting = await base44.asServiceRole.entities.FinancialGrant.list();
         let archivedCount = 0;
-
         for (const grant of allExisting) {
             if (grant.deadline && grant.deadline < today) {
                 await base44.asServiceRole.entities.FinancialGrant.update(grant.id, {
@@ -27,52 +22,100 @@ Deno.serve(async (req) => {
         }
         console.log(`[GrantFetch] Archived ${archivedCount} expired grants`);
 
-        // Bandi attivi rimasti (per deduplicazione)
-        const activeGrants = allExisting.filter(g => 
+        const activeGrants = allExisting.filter(g =>
             !g.is_archived && g.status !== 'Chiuso' && (!g.deadline || g.deadline >= today)
         );
         const activeTitlesNormalized = activeGrants.map(g => normalizeTitle(g.title));
 
-        // =============================================
-        // FASE 2: Ricerca nuovi bandi con web search reale
-        // =============================================
+        // FASE 2: Query multiple — tematiche + territoriali + fonti diverse
         const searchQueries = [
-            // Nazionali
+            // === NAZIONALI ===
             {
-                query: `Cerca su incentivi.gov.it, invitalia.it e mise.gov.it tutti i bandi di finanziamento agevolato per imprese attualmente APERTI in Italia nel 2026. Per ogni bando trovato fornisci: titolo ufficiale esatto, ente erogatore, data scadenza (YYYY-MM-DD), importo minimo e massimo finanziabile in euro, percentuale di copertura, tipologia (fondo perduto/finanziamento agevolato/credito d'imposta/misto), dimensioni aziendali ammesse, link diretto alla pagina ufficiale del bando. INCLUDI SOLO bandi con scadenza successiva al ${today} o senza scadenza indicata. NON inventare nessun dato.`,
-                livello: 'Nazionale',
-                ente_default: 'Stato'
+                query: `Cerca su incentivi.gov.it tutti i bandi e incentivi per imprese attualmente aperti nel 2026 in Italia. Elenca OGNI bando presente sul portale con: titolo ufficiale esatto, ente erogatore, scadenza (YYYY-MM-DD), importo minimo e massimo in euro, percentuale copertura, tipo agevolazione, link diretto. SOLO bandi con scadenza dopo ${today} o senza scadenza. NON inventare.`,
+                livello: 'Nazionale', ente_default: 'Stato'
             },
-            // SIMEST / Internazionalizzazione
             {
-                query: `Cerca su simest.it e sace.it tutti i finanziamenti agevolati per internazionalizzazione ed export delle PMI italiane attualmente APERTI nel 2026. Per ogni bando: titolo ufficiale esatto, scadenza (YYYY-MM-DD), importi min/max in euro, percentuale copertura, link pagina ufficiale. SOLO bandi con scadenza dopo il ${today} o senza scadenza. NON inventare dati.`,
-                livello: 'Nazionale',
-                ente_default: 'Stato'
+                query: `Cerca su invitalia.it tutti gli incentivi e bandi attualmente aperti nel 2026 per creare imprese, startup, PMI in Italia. Includi: Resto al Sud, Smart&Start, ON - Oltre Nuove Imprese, Cultura Crea, e qualsiasi altro bando Invitalia attivo. Per ognuno: titolo esatto, scadenza, importi, percentuale copertura, link. SOLO aperti dopo ${today}. NON inventare.`,
+                livello: 'Nazionale', ente_default: 'Stato'
             },
-            // Europei
             {
-                query: `Cerca bandi europei aperti nel 2026 per PMI italiane su ec.europa.eu e horizon-europe.it. Per ogni bando: titolo ufficiale, scadenza (YYYY-MM-DD), importi, percentuale copertura, link ufficiale. SOLO bandi con deadline dopo ${today}. NON inventare.`,
-                livello: 'Europeo',
-                ente_default: 'UE'
+                query: `Cerca su mise.gov.it e mimit.gov.it (Ministero Imprese Made in Italy) tutti i bandi aperti 2026 per imprese italiane: Nuova Sabatini, Patent Box, Marchi+, Disegni+, contratti di sviluppo, credito d'imposta ricerca e sviluppo, transizione 5.0. Per ognuno: titolo esatto, scadenza, importi, link. NON inventare.`,
+                livello: 'Nazionale', ente_default: 'Stato'
             },
-            // Regioni Nord
+            // === INTERNAZIONALIZZAZIONE ===
             {
-                query: `Cerca bandi regionali aperti nel 2026 per imprese in Lombardia, Veneto, Emilia-Romagna, Piemonte, Liguria, Friuli Venezia Giulia, Trentino-Alto Adige, Valle d'Aosta. Per ogni bando: titolo ufficiale, regione, scadenza (YYYY-MM-DD), importi min/max euro, percentuale copertura, link ufficiale. SOLO bandi con scadenza dopo ${today}. NON inventare.`,
-                livello: 'Regionale',
-                ente_default: 'Regione'
+                query: `Cerca su simest.it tutti i finanziamenti agevolati SIMEST attualmente aperti nel 2026 per internazionalizzazione PMI italiane: fiere internazionali, e-commerce, inserimento mercati esteri, patrimonializzazione, transizione digitale ed ecologica, temporary manager. Per ognuno: titolo esatto, scadenza, importo max, percentuale fondo perduto, link. NON inventare.`,
+                livello: 'Nazionale', ente_default: 'Stato'
             },
-            // Regioni Centro
+            // === EUROPEI ===
             {
-                query: `Cerca bandi regionali aperti nel 2026 per imprese in Toscana, Lazio, Marche, Umbria, Abruzzo. Per ogni bando: titolo ufficiale, regione, scadenza (YYYY-MM-DD), importi min/max euro, percentuale copertura, link ufficiale. SOLO bandi con scadenza dopo ${today}. NON inventare.`,
-                livello: 'Regionale',
-                ente_default: 'Regione'
+                query: `Cerca bandi europei Horizon Europe aperti nel 2026 per PMI e imprese innovative italiane. Includi: EIC Accelerator, EIC Pathfinder, EIC Transition, MSCA, EIT bandi. Per ognuno: titolo, scadenza (YYYY-MM-DD), importo massimo, percentuale copertura, link ec.europa.eu. SOLO aperti dopo ${today}. NON inventare.`,
+                livello: 'Europeo', ente_default: 'UE'
             },
-            // Regioni Sud e Isole
             {
-                query: `Cerca bandi regionali aperti nel 2026 per imprese in Campania, Puglia, Calabria, Sicilia, Sardegna, Basilicata, Molise. Per ogni bando: titolo ufficiale, regione, scadenza (YYYY-MM-DD), importi min/max euro, percentuale copertura, link ufficiale. SOLO bandi con scadenza dopo ${today}. NON inventare.`,
-                livello: 'Regionale',
-                ente_default: 'Regione'
-            }
+                query: `Cerca bandi europei COSME, Digital Europe Programme, LIFE programme, programmi interreg, e fondi strutturali europei aperti nel 2026 per PMI italiane. Per ognuno: titolo ufficiale, scadenza, importi, link. NON inventare.`,
+                livello: 'Europeo', ente_default: 'UE'
+            },
+            // === TEMATICI NAZIONALI ===
+            {
+                query: `Cerca tutti i bandi e incentivi aperti nel 2026 in Italia per digitalizzazione, industria 4.0, transizione digitale delle imprese: voucher digitalizzazione, credito d'imposta beni strumentali 4.0, bandi camere di commercio per digitale. Per ognuno: titolo esatto, scadenza, importi, ente, link. NON inventare.`,
+                livello: 'Nazionale', ente_default: 'Stato'
+            },
+            {
+                query: `Cerca tutti i bandi e incentivi aperti nel 2026 in Italia per energia, efficientamento energetico, transizione ecologica, fotovoltaico, comunità energetiche: conto termico, bandi GSE, incentivi PNRR energia. Per ognuno: titolo, scadenza, importi, link. NON inventare.`,
+                livello: 'Nazionale', ente_default: 'Stato'
+            },
+            {
+                query: `Cerca bandi aperti 2026 in Italia per startup innovative, imprenditoria giovanile under 35, imprenditoria femminile: Fondo Impresa Donna, bandi per giovani imprenditori, Smart Money, SELFIEmployment. Per ognuno: titolo, scadenza, importi, link. NON inventare.`,
+                livello: 'Nazionale', ente_default: 'Stato'
+            },
+            {
+                query: `Cerca bandi aperti 2026 in Italia per formazione aziendale, competenze digitali, Fondo Nuove Competenze, bandi ANPAL, fondi interprofessionali per formazione dipendenti. Per ognuno: titolo, scadenza, importi, link. NON inventare.`,
+                livello: 'Nazionale', ente_default: 'Stato'
+            },
+            {
+                query: `Cerca bandi aperti 2026 in Italia per agricoltura, agroalimentare, turismo, commercio, artigianato: PSR regionali, bandi GAL, bandi per turismo e ristorazione, Decontribuzione Sud, ZES Unica Mezzogiorno. Per ognuno: titolo, scadenza, importi, link. NON inventare.`,
+                livello: 'Nazionale', ente_default: 'Stato'
+            },
+            // === REGIONALI — ogni macro-area con regioni specifiche ===
+            {
+                query: `Cerca TUTTI i bandi regionali aperti nel 2026 per imprese in Lombardia. Cerca su regione.lombardia.it e su bandi.servizirl.it. Per ogni bando: titolo ufficiale esatto, scadenza (YYYY-MM-DD), importi min/max euro, percentuale copertura, link ufficiale. SOLO aperti dopo ${today}. NON inventare.`,
+                livello: 'Regionale', ente_default: 'Regione'
+            },
+            {
+                query: `Cerca TUTTI i bandi regionali aperti nel 2026 per imprese in Veneto e Emilia-Romagna. Cerca su regione.veneto.it e imprese.regione.emilia-romagna.it. Per ogni bando: titolo, scadenza, importi, link. NON inventare.`,
+                livello: 'Regionale', ente_default: 'Regione'
+            },
+            {
+                query: `Cerca TUTTI i bandi regionali aperti nel 2026 per imprese in Piemonte, Liguria, Friuli Venezia Giulia e Trentino-Alto Adige. Per ogni bando: titolo, regione, scadenza, importi, link. NON inventare.`,
+                livello: 'Regionale', ente_default: 'Regione'
+            },
+            {
+                query: `Cerca TUTTI i bandi regionali aperti nel 2026 per imprese in Toscana e Lazio. Cerca su regione.toscana.it e regione.lazio.it. Per ogni bando: titolo, regione, scadenza, importi, link. NON inventare.`,
+                livello: 'Regionale', ente_default: 'Regione'
+            },
+            {
+                query: `Cerca TUTTI i bandi regionali aperti nel 2026 per imprese in Marche, Umbria e Abruzzo. Per ogni bando: titolo, regione, scadenza, importi, link. NON inventare.`,
+                livello: 'Regionale', ente_default: 'Regione'
+            },
+            {
+                query: `Cerca TUTTI i bandi regionali aperti nel 2026 per imprese in Campania e Puglia. Cerca sui portali regionali ufficiali. Per ogni bando: titolo, regione, scadenza, importi, link. NON inventare.`,
+                livello: 'Regionale', ente_default: 'Regione'
+            },
+            {
+                query: `Cerca TUTTI i bandi regionali aperti nel 2026 per imprese in Sicilia, Sardegna, Calabria, Basilicata e Molise. Per ogni bando: titolo, regione, scadenza, importi, link. NON inventare.`,
+                livello: 'Regionale', ente_default: 'Regione'
+            },
+            // === CAMERE DI COMMERCIO ===
+            {
+                query: `Cerca bandi delle Camere di Commercio italiane aperti nel 2026 per PMI: voucher digitali, bandi PID (Punto Impresa Digitale), voucher internazionalizzazione, contributi export, bandi Unioncamere. Per ognuno: titolo, camera di commercio, scadenza, importi, link. NON inventare.`,
+                livello: 'Nazionale', ente_default: 'Altro'
+            },
+            // === PNRR ===
+            {
+                query: `Cerca bandi PNRR (Piano Nazionale Ripresa e Resilienza) ancora aperti nel 2026 per imprese italiane: bandi per ricerca e sviluppo, innovazione, infrastrutture digitali, transizione verde, partenariati estesi. Per ognuno: titolo, scadenza, importi, link. NON inventare.`,
+                livello: 'Nazionale', ente_default: 'Stato'
+            },
         ];
 
         const jsonSchema = {
@@ -101,7 +144,7 @@ Deno.serve(async (req) => {
                             eligible_regions: { type: "array", items: { type: "string" }, description: "Regioni ammesse, vuoto se nazionale" },
                             website_url: { type: "string", description: "URL diretto pagina ufficiale del bando" },
                             confidence_level: { type: "string", enum: ["alto", "medio", "basso"] },
-                            extraction_notes: { type: "string", description: "Note su incertezze o fonte dei dati" }
+                            extraction_notes: { type: "string", description: "Fonte dati e note" }
                         }
                     }
                 }
@@ -110,21 +153,20 @@ Deno.serve(async (req) => {
 
         const allNewGrants = [];
 
-        // Esegui ricerche in sequenza (per evitare rate limiting)
+        // Esegui ricerche in sequenza con pausa
         for (let i = 0; i < searchQueries.length; i++) {
             const sq = searchQueries[i];
             console.log(`[GrantFetch] Query ${i + 1}/${searchQueries.length}: ${sq.livello}`);
 
             try {
                 const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
-                    prompt: sq.query + `\n\nIMPORTANTE: Restituisci SOLO bandi che hai EFFETTIVAMENTE trovato online con fonte verificabile. Per ogni bando indica il confidence_level: "alto" se hai trovato la pagina ufficiale con tutti i dati, "medio" se hai trovato info parziali, "basso" se sei incerto. Se non trovi bandi reali, restituisci {"grants": []}.`,
+                    prompt: sq.query + `\n\nIMPORTANTE: Restituisci il MASSIMO numero possibile di bandi reali trovati. Per ogni bando indica confidence_level: "alto" se hai la pagina ufficiale, "medio" se info parziali, "basso" se incerto. Se non trovi bandi, restituisci {"grants": []}.`,
                     add_context_from_internet: true,
                     response_json_schema: jsonSchema
                 });
 
                 if (result?.grants && Array.isArray(result.grants)) {
                     for (const g of result.grants) {
-                        // Applica defaults dal gruppo di ricerca
                         g.livello = g.livello || sq.livello;
                         g.ente_erogatore = g.ente_erogatore || sq.ente_default;
                         allNewGrants.push(g);
@@ -135,57 +177,75 @@ Deno.serve(async (req) => {
                 console.error(`[GrantFetch] Error in query ${i + 1}:`, err.message);
             }
 
-            // Pausa tra ricerche
-            await new Promise(r => setTimeout(r, 3000));
+            // Pausa 2s tra ricerche
+            if (i < searchQueries.length - 1) {
+                await new Promise(r => setTimeout(r, 2000));
+            }
         }
 
         console.log(`[GrantFetch] Total raw grants: ${allNewGrants.length}`);
 
-        // =============================================
         // FASE 3: Filtra, deduplica, salva
-        // =============================================
-        let created = 0;
-        let skippedExpired = 0;
-        let skippedDuplicate = 0;
-        let skippedNoTitle = 0;
+        let created = 0, updated = 0, skippedExpired = 0, skippedDuplicate = 0, skippedNoTitle = 0, skippedLowConf = 0;
 
         for (const grant of allNewGrants) {
-            // Skip senza titolo
-            if (!grant.title || grant.title.trim().length < 5) {
-                skippedNoTitle++;
-                continue;
-            }
+            if (!grant.title || grant.title.trim().length < 5) { skippedNoTitle++; continue; }
+            if (grant.deadline && grant.deadline < today) { skippedExpired++; continue; }
+            if (grant.confidence_level === 'basso') { skippedLowConf++; continue; }
 
-            // Skip bandi con deadline passata
-            if (grant.deadline && grant.deadline < today) {
-                skippedExpired++;
-                continue;
-            }
-
-            // Skip bandi con confidence basso
-            if (grant.confidence_level === 'basso') {
-                console.log(`[GrantFetch] Skipped low confidence: ${grant.title}`);
-                continue;
-            }
-
-            // Deduplica: confronta titolo normalizzato con bandi attivi
             const normTitle = normalizeTitle(grant.title);
-            const isDuplicate = activeTitlesNormalized.some(existing => {
-                // Match esatto
+
+            // Cerca duplicato tra bandi attivi in DB
+            const duplicateIdx = activeTitlesNormalized.findIndex(existing => {
                 if (existing === normTitle) return true;
-                // Match parziale (>80% sovrapposizione parole)
                 const wordsNew = normTitle.split(' ').filter(w => w.length > 2);
                 const wordsExisting = existing.split(' ').filter(w => w.length > 2);
                 if (wordsNew.length === 0 || wordsExisting.length === 0) return false;
                 const common = wordsNew.filter(w => wordsExisting.includes(w));
-                const overlap = common.length / Math.max(wordsNew.length, wordsExisting.length);
-                return overlap > 0.75;
+                return (common.length / Math.max(wordsNew.length, wordsExisting.length)) > 0.75;
             });
 
-            if (isDuplicate) {
-                skippedDuplicate++;
+            if (duplicateIdx >= 0) {
+                // Se il duplicato esiste ma il nuovo ha più dati → aggiorna
+                const existingGrant = activeGrants[duplicateIdx];
+                const hasMoreData = (grant.deadline && !existingGrant.deadline) ||
+                    (grant.max_amount && !existingGrant.max_amount) ||
+                    (grant.website_url && !existingGrant.website_url) ||
+                    (grant.coverage_percentage && !existingGrant.coverage_percentage);
+
+                if (hasMoreData) {
+                    const updateData = {};
+                    if (grant.deadline && !existingGrant.deadline) updateData.deadline = grant.deadline;
+                    if (grant.max_amount && !existingGrant.max_amount) updateData.max_amount = grant.max_amount;
+                    if (grant.min_amount && !existingGrant.min_amount) updateData.min_amount = grant.min_amount;
+                    if (grant.website_url && !existingGrant.website_url) updateData.website_url = grant.website_url;
+                    if (grant.coverage_percentage && !existingGrant.coverage_percentage) updateData.coverage_percentage = grant.coverage_percentage;
+                    if (grant.description && (!existingGrant.description || existingGrant.description.length < grant.description.length)) updateData.description = grant.description;
+
+                    if (Object.keys(updateData).length > 0) {
+                        await base44.asServiceRole.entities.FinancialGrant.update(existingGrant.id, updateData);
+                        updated++;
+                        console.log(`[GrantFetch] Updated: ${existingGrant.title}`);
+                    }
+                } else {
+                    skippedDuplicate++;
+                }
                 continue;
             }
+
+            // Cerca duplicato nello stesso batch
+            const batchDup = allNewGrants.slice(0, allNewGrants.indexOf(grant)).some(prev => {
+                if (!prev.title || prev.title.trim().length < 5) return false;
+                const prevNorm = normalizeTitle(prev.title);
+                if (prevNorm === normTitle) return true;
+                const w1 = normTitle.split(' ').filter(w => w.length > 2);
+                const w2 = prevNorm.split(' ').filter(w => w.length > 2);
+                if (w1.length === 0 || w2.length === 0) return false;
+                const c = w1.filter(w => w2.includes(w));
+                return (c.length / Math.max(w1.length, w2.length)) > 0.75;
+            });
+
+            if (batchDup) { skippedDuplicate++; continue; }
 
             // Crea il bando
             const grantData = {
@@ -217,7 +277,6 @@ Deno.serve(async (req) => {
             try {
                 await base44.asServiceRole.entities.FinancialGrant.create(grantData);
                 created++;
-                // Aggiungi il titolo normalizzato per evitare duplicati nello stesso batch
                 activeTitlesNormalized.push(normTitle);
                 console.log(`[GrantFetch] Created: ${grant.title}`);
             } catch (createErr) {
@@ -231,9 +290,11 @@ Deno.serve(async (req) => {
             archived_expired: archivedCount,
             total_extracted: allNewGrants.length,
             created,
+            updated,
             skipped_expired: skippedExpired,
             skipped_duplicate: skippedDuplicate,
             skipped_no_title: skippedNoTitle,
+            skipped_low_confidence: skippedLowConf,
             active_grants_total: activeGrants.length + created
         };
 
@@ -246,64 +307,51 @@ Deno.serve(async (req) => {
     }
 });
 
-// === UTILITY FUNCTIONS ===
-
 function normalizeTitle(title) {
     if (!title) return '';
-    return title
-        .toLowerCase()
-        .replace(/[^a-z0-9àèéìòùç]/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim();
+    return title.toLowerCase().replace(/[^a-z0-9àèéìòùç]/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
 function validateEnum(value, allowed, defaultValue) {
     if (!value) return defaultValue;
     if (allowed.includes(value)) return value;
-    const valueLower = value.toLowerCase();
+    const vl = value.toLowerCase();
     for (const opt of allowed) {
-        if (valueLower.includes(opt.toLowerCase()) || opt.toLowerCase().includes(valueLower)) {
-            return opt;
-        }
+        if (vl.includes(opt.toLowerCase()) || opt.toLowerCase().includes(vl)) return opt;
     }
     return defaultValue;
 }
 
 function isValidDate(dateStr) {
     if (!dateStr || typeof dateStr !== 'string') return false;
-    const match = dateStr.match(/^\d{4}-\d{2}-\d{2}$/);
-    if (!match) return false;
-    const d = new Date(dateStr);
-    return !isNaN(d.getTime());
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return false;
+    return !isNaN(new Date(dateStr).getTime());
 }
 
 function extractTags(title, description) {
     const text = `${title || ''} ${description || ''}`.toLowerCase();
     const tags = [];
-    
-    const tagRules = {
+    const rules = {
         'startup': ['start-up', 'startup', 'start up', 'nuove imprese', 'nuova impresa'],
-        'femminile': ['femminile', 'donne', 'imprenditrici'],
+        'femminile': ['femminile', 'donne', 'imprenditrici', 'impresa donna'],
         'giovanile': ['giovanile', 'giovani', 'under 35', 'under35'],
-        'mezzogiorno': ['mezzogiorno', 'sud italia', 'zes', 'zona economica speciale'],
-        'digitalizzazione': ['digital', 'industria 4.0', '4.0', 'software', 'e-commerce'],
-        'innovazione': ['innovazion', 'innovativ', 'brevett'],
-        'energia': ['energia', 'energetic', 'fotovoltaic', 'rinnovabil'],
-        'sostenibilita': ['sostenibil', 'green', 'circolare', 'ecologic'],
-        'export': ['export', 'internazional', 'estero', 'fiere'],
-        'formazione': ['formazione', 'competenze', 'training'],
+        'mezzogiorno': ['mezzogiorno', 'sud italia', 'zes', 'zona economica speciale', 'decontribuzione sud'],
+        'digitalizzazione': ['digital', 'industria 4.0', '4.0', 'software', 'e-commerce', 'transizione digitale'],
+        'innovazione': ['innovazion', 'innovativ', 'brevett', 'transizione 5.0'],
+        'energia': ['energia', 'energetic', 'fotovoltaic', 'rinnovabil', 'conto termico'],
+        'sostenibilita': ['sostenibil', 'green', 'circolare', 'ecologic', 'transizione ecologica'],
+        'export': ['export', 'internazional', 'estero', 'fiere', 'simest'],
+        'formazione': ['formazione', 'competenze', 'training', 'nuove competenze'],
         'fondo_perduto': ['fondo perduto'],
         'credito_imposta': ["credito d'imposta", 'credito di imposta', 'tax credit'],
-        'agricoltura': ['agricol', 'agroalimentar', 'rurale'],
+        'agricoltura': ['agricol', 'agroalimentar', 'rurale', 'psr'],
         'turismo': ['turism', 'albergh', 'ristorazion'],
-        'commercio': ['commerc', 'negozio', 'retail'],
+        'commercio': ['commerc', 'negozio', 'retail', 'artigian'],
+        'pnrr': ['pnrr', 'piano nazionale ripresa', 'next generation'],
+        'ricerca': ['ricerca', 'sviluppo', 'r&s', 'r&d'],
     };
-
-    for (const [tag, keywords] of Object.entries(tagRules)) {
-        if (keywords.some(kw => text.includes(kw))) {
-            tags.push(tag);
-        }
+    for (const [tag, keywords] of Object.entries(rules)) {
+        if (keywords.some(kw => text.includes(kw))) tags.push(tag);
     }
-
     return [...new Set(tags)];
 }
