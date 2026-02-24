@@ -237,12 +237,12 @@ Rispondi in italiano.`,
       const res = await fetch(GEOJSON_URL);
       const data = await res.json();
       
-      const borderMat = new THREE.LineBasicMaterial({ color: 0x34d399, transparent: true, opacity: 0.5 });
+      const borderMat = new THREE.LineBasicMaterial({ color: 0x94a3b8, transparent: true, opacity: 0.45 });
       const defaultMat = new THREE.MeshPhongMaterial({
-        color: 0x1e3a2f,
+        color: 0x6ee7b7,
         transparent: true,
-        opacity: 0.7,
-        shininess: 5,
+        opacity: 0.75,
+        shininess: 15,
         side: THREE.DoubleSide,
       });
 
