@@ -41,6 +41,43 @@ function FitBoundsOnSelect({ selectedLayer }) {
   return null;
 }
 
+// Componente per bloccare/sbloccare drag su mobile
+function MapInteractionLock({ locked }) {
+  const map = useMap();
+  useEffect(() => {
+    if (locked) {
+      map.dragging.disable();
+      map.touchZoom.disable();
+      map.doubleClickZoom.disable();
+      map.scrollWheelZoom.disable();
+    } else {
+      map.dragging.enable();
+      map.touchZoom.enable();
+      map.doubleClickZoom.enable();
+      map.scrollWheelZoom.enable();
+    }
+  }, [locked, map]);
+  return null;
+}
+
+// Controlli zoom custom
+function CustomZoomControls({ onReset }) {
+  const map = useMap();
+  return (
+    <div className="absolute top-2 right-2 z-[1000] flex flex-col gap-1">
+      <button onClick={() => map.zoomIn()} className="w-8 h-8 bg-slate-800/90 backdrop-blur-sm border border-slate-600/50 rounded-lg flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-700/90 transition-colors">
+        <ZoomIn className="w-3.5 h-3.5" />
+      </button>
+      <button onClick={() => map.zoomOut()} className="w-8 h-8 bg-slate-800/90 backdrop-blur-sm border border-slate-600/50 rounded-lg flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-700/90 transition-colors">
+        <ZoomOut className="w-3.5 h-3.5" />
+      </button>
+      <button onClick={onReset} className="w-8 h-8 bg-slate-800/90 backdrop-blur-sm border border-slate-600/50 rounded-lg flex items-center justify-center text-slate-300 hover:text-white hover:bg-slate-700/90 transition-colors">
+        <RotateCcw className="w-3.5 h-3.5" />
+      </button>
+    </div>
+  );
+}
+
 export default function WorldMapExplorer() {
   const [geoData, setGeoData] = useState(null);
   const [loadingGeo, setLoadingGeo] = useState(true);
