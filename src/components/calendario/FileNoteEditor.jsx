@@ -221,11 +221,6 @@ export default function FileNoteEditor({ file, onClose, onSave, onDelete, monthC
         >
           <ListChecks className={cn("w-4 h-4", showChecklist ? "text-lime-400" : "text-slate-300")} />
         </button>
-        <WhisperDictation
-          isDictating={isDictating}
-          setIsDictating={setIsDictating}
-          onTranscription={(text) => setContent(prev => prev ? prev + ' ' + text : text)}
-        />
         <AudioRecorder
           onAudioSaved={(audioAtt) => setAttachments(prev => [...prev, audioAtt])}
         />
