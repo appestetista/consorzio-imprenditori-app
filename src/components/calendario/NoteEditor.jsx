@@ -19,9 +19,9 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
   const [isSaving, setIsSaving] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [viewingAttachment, setViewingAttachment] = useState(null);
-  const [isDictating, setIsDictating] = useState(false);
   const [selectedCartella, setSelectedCartella] = useState(existingNote?.cartella_id || '');
   const [showCartellaDropdown, setShowCartellaDropdown] = useState(false);
+  const [showContextMenu, setShowContextMenu] = useState(false);
   const [showNewFolderInline, setShowNewFolderInline] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
   const [newFolderColor, setNewFolderColor] = useState('#64748b');
