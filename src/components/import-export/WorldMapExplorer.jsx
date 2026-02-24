@@ -383,8 +383,8 @@ Rispondi in italiano.`,
       container.style.cursor = 'pointer';
     } else {
       if (hoveredRef.current && hoveredRef.current !== selectedMeshRef.current) {
-        hoveredRef.current.material.color.setHex(0x1e3a2f);
-        hoveredRef.current.material.opacity = 0.7;
+        hoveredRef.current.material.color.setHex(0x6ee7b7);
+        hoveredRef.current.material.opacity = 0.75;
       }
       hoveredRef.current = null;
       setHoveredName('');
