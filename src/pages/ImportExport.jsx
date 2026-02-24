@@ -50,7 +50,6 @@ const SETTORI = [
   'Altro'
 ];
 
-// MERCATI_TARGET kept for backward compat (used in buildExportSummary)
 const MERCATI_TARGET = ALL_COUNTRIES;
 
 const EXPORTER_COUNTRIES = [
