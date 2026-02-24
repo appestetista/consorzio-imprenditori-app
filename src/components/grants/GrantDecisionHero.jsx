@@ -14,13 +14,15 @@ export default function GrantDecisionHero({
   onShowBestGrant,
   totalGrants = 0,
 }) {
-  // Stima beneficio economico: somma dei max_amount dei bandi compatibili (cap top 3)
-  const topGrants = [...matchedGrants]
-    .sort((a, b) => (b.max_amount || 0) - (a.max_amount || 0))
-    .slice(0, 3);
-  const estimatedBenefit = topGrants.reduce((sum, g) => sum + (g.max_amount || 0), 0);
+  // Miglior bando compatibile (per max_amount, preferendo easy_access)
+  const sortedByBest = [...matchedGrants]
+    .sort((a, b) => {
+      if (a.easy_access && !b.easy_access) return -1;
+      if (!a.easy_access && b.easy_access) return 1;
+      return (b.max_amount || 0) - (a.max_amount || 0);
+    });
+  const bestGrant = sortedByBest[0] || null;
   const hasMatch = matchedGrants.length > 0;
-  const bestGrant = topGrants[0];
 
   if (isMatching) {
     return (
