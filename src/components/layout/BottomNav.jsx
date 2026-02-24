@@ -7,8 +7,8 @@ import { cn } from '@/lib/utils';
 export default function BottomNav({ currentPage, unreadMessages = 0, activeTab = null, isAdmin = false }) {
   const navItems = [
     { name: 'investimenti', label: 'Investimenti', icon: TrendingUp, page: 'Esplora', tab: null, isEsplora: true },
-    { name: 'relazioni', label: 'Relazioni', icon: Users, page: 'Esplora?tab=relazioni', tab: 'relazioni' },
     { name: 'consulenza', label: 'Consulenza', icon: Briefcase, page: 'Esplora?tab=consulenza', tab: 'consulenza' },
+    { name: 'relazioni', label: 'Relazioni', icon: Users, page: 'Esplora?tab=relazioni', tab: 'relazioni' },
     { name: 'strumenti', label: 'Strumenti', icon: Wrench, page: 'Esplora?tab=strumenti', tab: 'strumenti' },
   ];
 
