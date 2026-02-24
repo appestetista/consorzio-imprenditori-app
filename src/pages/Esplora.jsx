@@ -415,8 +415,8 @@ export default function Esplora() {
     <div className="min-h-screen pb-24" style={{ backgroundColor: '#001d3b' }}>
       {/* Header con freccia indietro */}
       <div className="sticky top-0 z-30 px-4 py-3 flex items-center gap-3" style={{ backgroundColor: '#001d3b' }}>
-        <button onClick={() => navigate(createPageUrl('Home'))} className="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center">
-          <Home className="w-5 h-5 text-[#d4af37]" />
+        <button onClick={() => navigate(createPageUrl('Home'))} className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center ml-2">
+          <Home className="w-7 h-7 text-[#d4af37]" />
         </button>
       </div>
       
