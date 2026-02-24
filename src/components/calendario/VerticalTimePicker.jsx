@@ -580,6 +580,27 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
         </div>
       )}
 
+      {/* FileNoteEditor overlay per file da cartelle */}
+      {editingFile && (
+        <FileNoteEditor
+          file={editingFile}
+          onClose={() => setEditingFile(null)}
+          onSave={() => {
+            setEditingFile(null);
+            queryClient.invalidateQueries({ queryKey: ['fileCartella-day'] });
+            queryClient.invalidateQueries({ queryKey: ['allFileCartella'] });
+            queryClient.invalidateQueries({ queryKey: ['file-week'] });
+          }}
+          onDelete={() => {
+            setEditingFile(null);
+            queryClient.invalidateQueries({ queryKey: ['fileCartella-day'] });
+            queryClient.invalidateQueries({ queryKey: ['allFileCartella'] });
+            queryClient.invalidateQueries({ queryKey: ['file-week'] });
+          }}
+          monthColor={currentMonthColor}
+        />
+      )}
+
       {/* Popup riepilogo note del giorno */}
       {showDaySummary && (
         <DayNotesSummaryPopup
