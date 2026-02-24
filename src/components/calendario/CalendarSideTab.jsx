@@ -280,7 +280,8 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           <HorizontalDatePicker
             goToTodayButton={
               (() => {
-                const isToday = selectedDate && new Date(selectedDate).toDateString() === new Date().toDateString();
+                const now = new Date();
+                const visibleIsToday = visibleDay === now.getDate() && visibleMonthLabel.month === now.getMonth() && visibleMonthLabel.year === now.getFullYear();
                 return (
                   <button
                     onClick={() => {
@@ -298,14 +299,14 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                     }}
                     className="rounded text-[10px] font-semibold"
                     style={{ 
-                      backgroundColor: isToday ? '#334155' : currentMonthColor,
-                      color: isToday ? '#64748b' : '#0f172a',
+                      backgroundColor: visibleIsToday ? '#334155' : currentMonthColor,
+                      color: visibleIsToday ? '#64748b' : '#0f172a',
                       width: '80px',
                       padding: '2px 0',
                       textAlign: 'center'
                     }}
                   >
-                    {isToday ? 'OGGI' : 'TORNA A OGGI'}
+                    {visibleIsToday ? 'OGGI' : 'TORNA A OGGI'}
                   </button>
                 );
               })()
