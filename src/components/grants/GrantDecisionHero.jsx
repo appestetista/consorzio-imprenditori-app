@@ -35,27 +35,37 @@ export default function GrantDecisionHero({
 
   if (hasIncompleteProfile) {
     return (
-      <div className="rounded-2xl bg-gradient-to-br from-slate-800 to-slate-800/60 border border-amber-500/30 p-6">
-        <div className="flex items-start gap-4">
-          <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center flex-shrink-0">
-            <AlertCircle className="w-6 h-6 text-amber-400" />
-          </div>
-          <div className="flex-1">
-            <h2 className="text-white text-lg font-semibold leading-tight mb-1">
+      <div className="space-y-3">
+        <div className="rounded-2xl bg-gradient-to-br from-amber-950/40 to-slate-800/80 border-2 border-amber-500/40 p-6">
+          <div className="text-center mb-4">
+            <div className="w-14 h-14 rounded-full bg-amber-500/20 flex items-center justify-center mx-auto mb-3">
+              <AlertCircle className="w-7 h-7 text-amber-400" />
+            </div>
+            <h2 className="text-white text-xl font-bold leading-tight mb-2">
               Oggi ti conviene un bando agevolato?
             </h2>
-            <p className="text-slate-400 text-sm mb-4">
-              Completa il tuo profilo aziendale per scoprirlo in pochi secondi.
+            <p className="text-slate-400 text-sm">
+              Compila il tuo profilo aziendale e scopri in pochi secondi quali bandi sono compatibili con la tua azienda.
             </p>
-            <Button
-              onClick={onCompleteProfile}
-              className="bg-white text-slate-900 hover:bg-slate-100 font-semibold w-full"
-            >
-              Completa il profilo
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
           </div>
+          <Button
+            onClick={onCompleteProfile}
+            className="bg-amber-500 hover:bg-amber-400 text-slate-900 font-bold w-full h-12 text-base"
+          >
+            Compila il profilo bandi
+            <ArrowRight className="w-5 h-5 ml-2" />
+          </Button>
         </div>
+
+        {totalGrants > 0 && (
+          <button
+            onClick={() => onShowBestGrant(null)}
+            className="w-full flex items-center justify-center gap-2 rounded-xl bg-slate-800/80 border border-slate-700/50 px-4 py-3.5 text-sm font-semibold text-white hover:bg-slate-700/60 transition-colors"
+          >
+            Esplora tutti i {totalGrants} bandi disponibili
+            <ArrowRight className="w-4 h-4 text-slate-400" />
+          </button>
+        )}
       </div>
     );
   }
