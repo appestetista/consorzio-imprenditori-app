@@ -183,7 +183,7 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
           disabled={createFileMutation.isPending}
           className="flex-shrink-0 flex flex-col items-center gap-0.5 px-1 py-0.5 transition-colors disabled:opacity-50"
         >
-          <FilePlus className="w-6 h-6 text-white" />
+          <FilePlus className="w-6 h-6 text-white" fill="white" />
           <span className="text-[9px] text-slate-400 font-medium">File</span>
         </button>
 
