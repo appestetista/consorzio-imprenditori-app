@@ -1,14 +1,17 @@
 import React from 'react';
-import { X } from 'lucide-react';
+import { X, FileText } from 'lucide-react';
 
 const MONTH_COLORS = [
   '#3b82f6','#8b5cf6','#ec4899','#14b8a6','#22c55e','#eab308',
   '#f97316','#ef4444','#06b6d4','#a855f7','#6366f1','#0ea5e9'
 ];
 
-export default function DayNotesSummaryPopup({ notes, cartelleMap, selectedDate, monthColor, onClose, onNoteClick }) {
-  // Ordina note per orario
-  const sortedNotes = [...notes].sort((a, b) => (a.time || '00:00').localeCompare(b.time || '00:00'));
+export default function DayNotesSummaryPopup({ notes = [], files = [], cartelleMap = {}, selectedDate, monthColor, onClose, onNoteClick }) {
+  // Unifica note e file in un unico array ordinato per orario
+  const allItems = [
+    ...notes.map(n => ({ ...n, _type: 'nota' })),
+    ...files.map(f => ({ ...f, title: f.titolo, _type: 'file' }))
+  ].sort((a, b) => (a.time || '00:00').localeCompare(b.time || '00:00'));
 
   // Orario corrente arrotondato a 5 min
   const now = new Date();
@@ -34,7 +37,7 @@ export default function DayNotesSummaryPopup({ notes, cartelleMap, selectedDate,
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-slate-700/50">
           <div>
-            <h3 className="text-white font-bold text-sm">📋 Note del giorno</h3>
+            <h3 className="text-white font-bold text-sm">📋 Appuntamenti del giorno</h3>
             <p className="text-[11px] capitalize" style={{ color: monthColor }}>{dateLabel}</p>
           </div>
           <button onClick={onClose} className="w-7 h-7 rounded-full bg-slate-700 flex items-center justify-center hover:bg-slate-600">
@@ -42,31 +45,31 @@ export default function DayNotesSummaryPopup({ notes, cartelleMap, selectedDate,
           </button>
         </div>
 
-        {/* Lista note */}
+        {/* Lista */}
         <div className="flex-1 overflow-y-auto px-3 py-2" style={{ scrollbarWidth: 'none' }}>
-          {sortedNotes.length === 0 ? (
-            <div className="text-center py-8 text-slate-500 text-sm">Nessuna nota per oggi</div>
+          {allItems.length === 0 ? (
+            <div className="text-center py-8 text-slate-500 text-sm">Nessun appuntamento per oggi</div>
           ) : (
-            sortedNotes.map((note, idx) => {
-              const noteTime = note.time || '00:00';
-              const cart = note.cartella_id ? cartelleMap[note.cartella_id] : null;
-              const noteMonth = note.data ? parseInt(note.data.split('-')[1]) - 1 : new Date().getMonth();
-              const noteColor = cart?.colore || MONTH_COLORS[noteMonth];
+            allItems.map((item, idx) => {
+              const itemTime = item.time || '00:00';
+              const isFile = item._type === 'file';
+              const cart = item.cartella_id ? cartelleMap[item.cartella_id] : null;
+              const itemMonth = item.data ? parseInt(item.data.split('-')[1]) - 1 : new Date().getMonth();
+              const itemColor = isFile
+                ? (item.colore || cart?.colore || '#64748b')
+                : (cart?.colore || MONTH_COLORS[itemMonth]);
 
-              // Il puntino "adesso" si mostra sulla nota il cui orario è <= currentTimeStr
-              // e la nota successiva ha orario > currentTimeStr (o è l'ultima)
-              const isCurrentSlot = isToday && noteTime === currentTimeStr;
-              const isClosest = isToday && !sortedNotes.some(n => n.time === currentTimeStr) &&
-                noteTime <= currentTimeStr &&
-                (idx === sortedNotes.length - 1 || (sortedNotes[idx + 1]?.time || '23:59') > currentTimeStr);
-
+              const isCurrentSlot = isToday && itemTime === currentTimeStr;
+              const isClosest = isToday && !allItems.some(n => n.time === currentTimeStr) &&
+                itemTime <= currentTimeStr &&
+                (idx === allItems.length - 1 || (allItems[idx + 1]?.time || '23:59') > currentTimeStr);
               const showNowDot = isCurrentSlot || isClosest;
 
               return (
                 <div
-                  key={note.id || idx}
+                  key={item.id || idx}
                   className="flex items-start gap-2.5 py-2.5 border-b border-slate-800/60 last:border-b-0 cursor-pointer hover:bg-slate-800/40 rounded-lg px-2 transition-colors"
-                  onClick={() => onNoteClick?.(note)}
+                  onClick={() => onNoteClick?.(item)}
                 >
                   {/* Orario + puntino now */}
                   <div className="flex items-center gap-1.5 flex-shrink-0 pt-0.5" style={{ minWidth: '60px' }}>
@@ -75,33 +78,40 @@ export default function DayNotesSummaryPopup({ notes, cartelleMap, selectedDate,
                     ) : (
                       <div className="w-2.5 h-2.5 flex-shrink-0" />
                     )}
-                    <span className="text-xs font-mono font-bold" style={{ color: noteColor }}>{noteTime}</span>
+                    <span className="text-xs font-mono font-bold" style={{ color: itemColor }}>{itemTime}</span>
                   </div>
 
-                  {/* Dettagli nota */}
+                  {/* Dettagli */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5">
-                      <div className="w-2 h-2 rounded-sm flex-shrink-0" style={{ backgroundColor: noteColor }} />
-                      <span className="text-sm font-semibold text-white truncate">{note.title}</span>
+                      {isFile ? (
+                        <FileText className="w-3 h-3 flex-shrink-0" style={{ color: itemColor }} />
+                      ) : (
+                        <div className="w-2 h-2 rounded-sm flex-shrink-0" style={{ backgroundColor: itemColor }} />
+                      )}
+                      <span className="text-sm font-semibold text-white truncate">{item.title}</span>
+                      {isFile && <span className="text-[9px] text-slate-500 flex-shrink-0">file</span>}
                     </div>
                     {cart && (
                       <span className="text-[10px] mt-0.5 block" style={{ color: cart.colore }}>
                         📁 {cart.nome}
                       </span>
                     )}
-                    {note.content && (
-                      <p className="text-[11px] text-slate-400 mt-0.5 line-clamp-2">{note.content}</p>
+                    {item.content && !isFile && (
+                      <p className="text-[11px] text-slate-400 mt-0.5 line-clamp-2">{item.content}</p>
                     )}
-                    {/* Indicatori: checklist, allegati */}
+                    {isFile && item.contenuto && (
+                      <p className="text-[11px] text-slate-400 mt-0.5 line-clamp-2">{item.contenuto}</p>
+                    )}
                     <div className="flex items-center gap-2 mt-1">
-                      {note.checklist_items?.length > 0 && (
+                      {item.checklist_items?.length > 0 && (
                         <span className="text-[10px] text-slate-500">
-                          ☑ {note.checklist_items.filter(c => c.checked).length}/{note.checklist_items.length}
+                          ☑ {item.checklist_items.filter(c => c.checked).length}/{item.checklist_items.length}
                         </span>
                       )}
-                      {note.attachments?.length > 0 && (
+                      {(item.attachments?.length > 0 || item.allegati?.length > 0) && (
                         <span className="text-[10px] text-slate-500">
-                          📎 {note.attachments.length}
+                          📎 {(item.attachments || item.allegati || []).length}
                         </span>
                       )}
                     </div>
@@ -114,7 +124,7 @@ export default function DayNotesSummaryPopup({ notes, cartelleMap, selectedDate,
 
         {/* Footer con conteggio */}
         <div className="px-4 py-2 border-t border-slate-700/50 flex items-center justify-between">
-          <span className="text-[10px] text-slate-500">{sortedNotes.length} {sortedNotes.length === 1 ? 'nota' : 'note'}</span>
+          <span className="text-[10px] text-slate-500">{allItems.length} {allItems.length === 1 ? 'elemento' : 'elementi'}</span>
           {isToday && (
             <div className="flex items-center gap-1">
               <div className="w-2 h-2 rounded-full bg-lime-400 animate-pulse" />
