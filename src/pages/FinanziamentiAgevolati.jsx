@@ -790,6 +790,36 @@ export default function FinanziamentiAgevolati() {
     }
   }, [hasIncompleteProfile, loadingMatch, showOnlyMatching, user]);
 
+  // Auto-match al caricamento per utenti non-admin con profilo completo
+  useEffect(() => {
+    if (autoMatchTriggered.current) return;
+    if (!userLoaded || !user || isRealAdmin || hasIncompleteProfile || loadingMatch || isLoading) return;
+    if (allGrants.length === 0) return;
+    autoMatchTriggered.current = true;
+    handleMatchWithProfile();
+  }, [userLoaded, user, isRealAdmin, hasIncompleteProfile, allGrants, isLoading]);
+
+  // Bandi compatibili (matched) da mostrare nel decision hero e consigliato
+  const matchedGrants = matchedGrantIds.length > 0
+    ? sortedGrants.filter(g => matchedGrantIds.includes(g.id))
+    : [];
+
+  // Bando consigliato = quello con max_amount più alto tra i compatibili, preferendo easy_access
+  const recommendedGrant = (() => {
+    if (matchedGrants.length === 0) return null;
+    const sorted = [...matchedGrants].sort((a, b) => {
+      // Preferisci easy_access
+      if (a.easy_access && !b.easy_access) return -1;
+      if (!a.easy_access && b.easy_access) return 1;
+      // Poi per importo max
+      return (b.max_amount || 0) - (a.max_amount || 0);
+    });
+    return sorted[0];
+  })();
+
+  // Altri bandi (escluso il consigliato)
+  const otherMatchedGrants = matchedGrants.filter(g => g.id !== recommendedGrant?.id);
+
   return (
     <div className="min-h-screen bg-slate-900 pb-24">
       <Header user={user} />
