@@ -261,7 +261,7 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
         </a>
 
         <button
-          onClick={() => setShowCartellaDropdown(!showCartellaDropdown)}
+          onClick={() => setShowContextMenu(true)}
           className="w-9 h-9 rounded-full flex items-center justify-center active:scale-90 transition-all touch-manipulation flex-shrink-0"
           style={{ backgroundColor: cartColor + '30' }}
         >
