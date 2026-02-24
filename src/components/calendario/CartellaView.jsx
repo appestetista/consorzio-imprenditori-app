@@ -94,29 +94,26 @@ function FileEditor({ file, cartellaId, cartelle = [], userEmail, onClose, onSav
 
   return (
     <div className="flex flex-col h-full" style={{ backgroundColor: fileColore ? `color-mix(in srgb, ${fileColore} 15%, #000)` : '#000' }}>
-      {/* Riga 1: Pallino colore + Data e ora centrati */}
+      {/* Riga 1: Pallino colore + Info centrati */}
       <div className="px-3 py-2 border-b border-slate-800">
         <div className="flex items-center justify-center gap-2 text-xs font-mono">
-          <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: fileColor }} />
+          <button
+            onClick={() => setShowColorPicker(!showColorPicker)}
+            className="w-4 h-4 rounded-full flex-shrink-0 border border-white/20 active:scale-110 transition-transform touch-manipulation"
+            style={{ backgroundColor: fileColor }}
+          />
           <span style={{ color: fileColor }}>
-            {data 
+            📄 {data 
               ? new Date(data + 'T00:00:00').toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'long' })
-              : 'File senza data'
+              : 'Nota senza data'
             }
             {time ? ` • ${time}` : ''}
           </span>
         </div>
       </div>
 
-      {/* Riga 2: Freccia indietro | Salva | Colore file | X */}
+      {/* Riga 2: Salva | Penna | X */}
       <div className="flex items-center gap-2 px-3 py-2 border-b border-slate-800">
-        <button
-          onClick={onClose}
-          className="w-9 h-9 rounded-full bg-slate-800/50 flex items-center justify-center active:scale-90 transition-all touch-manipulation flex-shrink-0"
-        >
-          <ChevronLeft className="w-4 h-4 text-slate-400" />
-        </button>
-
         <a
           href="#"
           onClick={(e) => { e.preventDefault(); handleSave(); }}
@@ -137,14 +134,15 @@ function FileEditor({ file, cartellaId, cartelle = [], userEmail, onClose, onSav
           SALVA
         </a>
 
-        {/* Icona file colorata — apre il color picker */}
-        <button
-          onClick={() => setShowColorPicker(!showColorPicker)}
-          className="w-9 h-9 rounded-full flex items-center justify-center active:scale-90 transition-all touch-manipulation flex-shrink-0"
-          style={{ backgroundColor: fileColore ? fileColore + '30' : '#334155' }}
-        >
-          <FileText className="w-4 h-4" style={{ color: fileColore || '#64748b' }} />
-        </button>
+        {file?.id && (
+          <button
+            onClick={() => setShowContextMenu(true)}
+            className="w-9 h-9 rounded-full flex items-center justify-center active:scale-90 transition-all touch-manipulation flex-shrink-0"
+            style={{ backgroundColor: fileColore ? fileColore + '30' : '#334155' }}
+          >
+            <Pencil className="w-4 h-4" style={{ color: fileColore || '#64748b' }} />
+          </button>
+        )}
 
         <button
           onClick={onClose}
