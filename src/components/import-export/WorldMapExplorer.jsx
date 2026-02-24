@@ -192,29 +192,29 @@ Rispondi in italiano.`,
     scene.add(globeGroup);
     globeGroupRef.current = globeGroup;
 
-    // Sfera oceano
+    // Sfera oceano - tema chiaro
     const sphereGeom = new THREE.SphereGeometry(1, 64, 64);
     const sphereMat = new THREE.MeshPhongMaterial({
-      color: 0x0a1628,
+      color: 0xd4eaf7,
       transparent: true,
       opacity: 0.95,
-      shininess: 20,
+      shininess: 40,
     });
     const sphere = new THREE.Mesh(sphereGeom, sphereMat);
     globeGroup.add(sphere);
 
     // Atmosfera glow
-    const glowGeom = new THREE.SphereGeometry(1.02, 64, 64);
+    const glowGeom = new THREE.SphereGeometry(1.03, 64, 64);
     const glowMat = new THREE.MeshBasicMaterial({
-      color: 0x10b981,
+      color: 0x93c5fd,
       transparent: true,
-      opacity: 0.05,
+      opacity: 0.08,
       side: THREE.BackSide,
     });
     globeGroup.add(new THREE.Mesh(glowGeom, glowMat));
 
     // Griglia lat/lng
-    const gridMat = new THREE.LineBasicMaterial({ color: 0x1e293b, transparent: true, opacity: 0.3 });
+    const gridMat = new THREE.LineBasicMaterial({ color: 0xbfdbfe, transparent: true, opacity: 0.25 });
     for (let lat = -80; lat <= 80; lat += 20) {
       const pts = [];
       for (let lng = -180; lng <= 180; lng += 2) {
