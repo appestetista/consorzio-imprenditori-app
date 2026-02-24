@@ -2,34 +2,31 @@ import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Send, Sparkles, ArrowUp, Loader2 } from 'lucide-react';
+import { Send, Sparkles, ArrowUp, Loader2, Menu } from 'lucide-react';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import { normalizeUser } from '../components/utils/normalizeUser';
 import BottomNav from '../components/layout/BottomNav';
 import ChatMessage from '../components/home/ChatMessage';
-
-const SUGGESTIONS = [
-  "Come posso ridurre i costi energetici?",
-  "Vorrei trovare un nuovo fornitore",
-  "Ho bisogno di un consulente fiscale",
-  "Come accedere ai bandi europei?",
-];
+import ChatSidebar from '../components/home/ChatSidebar';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function Home() {
   const [user, setUser] = useState(null);
   const [effectiveUser, setEffectiveUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [redirecting, setRedirecting] = useState(false);
   const { impersonation, setCurrentUserRole, appMode } = useImpersonation();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const [inputText, setInputText] = useState('');
   const [messages, setMessages] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeConversationId, setActiveConversationId] = useState(null);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
-  // Caricamento utente — identico alla vecchia Home
+  // Caricamento utente
   useEffect(() => {
     const loadUser = async () => {
       setLoading(true);
@@ -83,12 +80,29 @@ export default function Home() {
 
   const handleSend = async (text) => {
     const msg = text || inputText.trim();
-    if (!msg) return;
+    if (!msg || !effectiveUser?.email) return;
 
     const userMsg = { role: 'user', content: msg };
-    setMessages(prev => [...prev, userMsg]);
+    const newMessages = [...messages, userMsg];
+    setMessages(newMessages);
     setInputText('');
     setIsTyping(true);
+
+    // Se è una nuova conversazione, creala
+    let convId = activeConversationId;
+    if (!convId) {
+      const titolo = msg.length > 50 ? msg.substring(0, 50) + '...' : msg;
+      const conv = await base44.entities.ChatConversation.create({
+        user_email: effectiveUser.email,
+        titolo,
+        messages: newMessages
+      });
+      convId = conv.id;
+      setActiveConversationId(convId);
+      queryClient.invalidateQueries({ queryKey: ['chatConversations'] });
+    } else {
+      await base44.entities.ChatConversation.update(convId, { messages: newMessages });
+    }
 
     try {
       const result = await base44.integrations.Core.InvokeLLM({
@@ -97,9 +111,15 @@ export default function Home() {
 Domanda dell'utente: ${msg}`,
       });
 
-      setMessages(prev => [...prev, { role: 'assistant', content: result }]);
+      const assistantMsg = { role: 'assistant', content: result };
+      const updatedMessages = [...newMessages, assistantMsg];
+      setMessages(updatedMessages);
+      await base44.entities.ChatConversation.update(convId, { messages: updatedMessages });
     } catch (e) {
-      setMessages(prev => [...prev, { role: 'assistant', content: 'Mi dispiace, si è verificato un errore. Riprova tra un momento.' }]);
+      const errMsg = { role: 'assistant', content: 'Mi dispiace, si è verificato un errore. Riprova tra un momento.' };
+      const updatedMessages = [...newMessages, errMsg];
+      setMessages(updatedMessages);
+      await base44.entities.ChatConversation.update(convId, { messages: updatedMessages });
     } finally {
       setIsTyping(false);
     }
@@ -112,6 +132,18 @@ Domanda dell'utente: ${msg}`,
     }
   };
 
+  const handleNewChat = () => {
+    setMessages([]);
+    setActiveConversationId(null);
+    setInputText('');
+  };
+
+  const handleSelectConversation = (conv) => {
+    setActiveConversationId(conv.id);
+    setMessages(conv.messages || []);
+    setInputText('');
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center">
@@ -120,33 +152,47 @@ Domanda dell'utente: ${msg}`,
     );
   }
 
-  const firstName = effectiveUser?.full_name?.split(' ')[0] || '';
   const hasMessages = messages.length > 0;
 
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#0a0f1a' }}>
       
+      {/* Sidebar */}
+      <ChatSidebar
+        open={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        userEmail={effectiveUser?.email}
+        activeConversationId={activeConversationId}
+        onSelectConversation={handleSelectConversation}
+        onNewChat={handleNewChat}
+      />
+
       {/* Area messaggi / stato iniziale */}
       <div className="flex-1 flex flex-col overflow-hidden">
         
+        {/* Top bar con hamburger */}
+        <div className="flex items-center px-4 pt-4 pb-2">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-slate-800 transition-colors"
+          >
+            <Menu className="w-5 h-5 text-slate-400" />
+          </button>
+        </div>
+
         {!hasMessages ? (
-          // Stato iniziale — stile ChatGPT
+          // Stato iniziale
           <div className="flex-1 flex flex-col items-center justify-center px-6 pb-32">
-            {/* Logo / icona */}
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#d4af37] to-[#b8860b] flex items-center justify-center mb-6 shadow-lg shadow-[#d4af37]/20">
               <Sparkles className="w-8 h-8 text-white" />
             </div>
-
-            {/* Titolo */}
             <h1 className="text-white text-2xl font-bold text-center mb-8 leading-tight">
               Come possiamo aiutarti oggi?
             </h1>
-
-
           </div>
         ) : (
           // Conversazione attiva
-          <div className="flex-1 overflow-y-auto px-4 pt-6 pb-32">
+          <div className="flex-1 overflow-y-auto px-4 pt-2 pb-32">
             <div className="max-w-2xl mx-auto space-y-4">
               {messages.map((msg, i) => (
                 <ChatMessage key={i} message={msg} />
@@ -171,7 +217,7 @@ Domanda dell'utente: ${msg}`,
         )}
       </div>
 
-      {/* Campo di input — fisso in basso sopra la BottomNav */}
+      {/* Campo di input */}
       <div className="fixed bottom-[88px] left-0 right-0 z-40 px-4 pb-3 pt-2" style={{ background: 'linear-gradient(to top, #0a0f1a 70%, transparent)' }}>
         <div className="max-w-2xl mx-auto">
           <div className="relative flex items-end rounded-2xl border border-slate-700/60 bg-slate-800/80 backdrop-blur-lg overflow-hidden">
@@ -196,14 +242,15 @@ Domanda dell'utente: ${msg}`,
               {isTyping ? (
                 <Loader2 className="w-4 h-4 text-slate-400 animate-spin" />
               ) : (
-                <ArrowUp className="w-4 h-4 text-white" strokeWidth={2.5} />
+                <ArrowUp className="w-4 h-4 text-white" />
               )}
             </button>
           </div>
         </div>
       </div>
 
-      <BottomNav currentPage="Home" activeTab={null} isAdmin={effectiveUser?.role === 'admin' && !impersonation.active} />
+      {/* Bottom Nav */}
+      <BottomNav currentPage="Home" />
     </div>
   );
 }
