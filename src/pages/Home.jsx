@@ -230,11 +230,11 @@ Domanda dell'utente: ${msg}`,
       <div className="flex-1 flex flex-col overflow-hidden">
         
         {/* Top bar */}
-        <div className="flex items-center justify-between px-4 pt-4 pb-2">
+        <div className="flex items-center justify-between px-6 pt-4 pb-2">
           {/* Sinistra: hamburger sidebar chat */}
           <button
             onClick={() => setSidebarOpen(true)}
-            className="w-12 h-12 rounded-xl flex items-center justify-center hover:bg-slate-800 transition-colors"
+            className="w-14 h-14 rounded-xl flex items-center justify-center hover:bg-slate-800 active:bg-slate-700 transition-colors -webkit-tap-highlight-color-transparent touch-manipulation"
           >
             <Menu className="w-7 h-7 text-slate-400" />
           </button>
