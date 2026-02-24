@@ -138,12 +138,9 @@ Domanda dell'utente: ${msg}`,
             </div>
 
             {/* Titolo */}
-            <h1 className="text-white text-2xl font-bold text-center mb-2 leading-tight">
-              Hai un problema?
+            <h1 className="text-white text-2xl font-bold text-center mb-8 leading-tight">
+              Come possiamo aiutarti oggi?
             </h1>
-            <h2 className="text-white text-2xl font-bold text-center mb-8 leading-tight">
-              Come posso aiutarti?
-            </h2>
 
             {/* Suggerimenti */}
             <div className="w-full max-w-md space-y-2.5">
