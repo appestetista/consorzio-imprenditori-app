@@ -185,7 +185,28 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
   // Colore da usare: lime se oggi, colore del mese altrimenti
   const activeColor = isToday ? '#a3e635' : currentMonthColor;
 
-  // Scroll all'ora corrente quando è oggi (all'apertura o quando si torna a oggi)
+  // Scroll all'ora corrente all'apertura (sempre, non solo oggi)
+  const initialScrollDone = useRef(false);
+  useEffect(() => {
+    if (!scrollRef.current || navigateToNote) return;
+    // All'apertura iniziale, scrolla vicino all'ora attuale
+    if (!initialScrollDone.current) {
+      initialScrollDone.current = true;
+      setTimeout(() => {
+        if (currentHourRef.current) {
+          currentHourRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          // Se non è oggi, scrolla comunque alla stessa posizione oraria
+          const now = new Date();
+          const targetSlot = `${String(now.getHours()).padStart(2,'0')}:${String(Math.floor(now.getMinutes()/5)*5).padStart(2,'0')}`;
+          const el = scrollRef.current?.querySelector(`[data-time="${targetSlot}"]`);
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
+    }
+  }, []);
+
+  // Quando torna a oggi, centra sull'ora corrente
   useEffect(() => {
     if (isToday && currentHourRef.current && !navigateToNote) {
       setTimeout(() => {
