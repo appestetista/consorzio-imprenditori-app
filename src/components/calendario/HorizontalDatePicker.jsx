@@ -947,22 +947,21 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
       {daySummaryDate && (
         <DayNotesSummaryPopup
           notes={tutteNote.filter(n => n.data === daySummaryDate)}
+          files={tuttiFile.filter(f => f.data === daySummaryDate)}
           cartelleMap={cartelleMap}
           selectedDate={new Date(daySummaryDate + 'T00:00:00')}
           monthColor={MONTH_COLORS[parseInt(daySummaryDate.split('-')[1]) - 1]}
           onClose={() => setDaySummaryDate(null)}
-          onNoteClick={(note) => {
+          onNoteClick={(item) => {
             setDaySummaryDate(null);
-            // Naviga al giorno e orario preciso
-            if (note.data) {
-              const [y, m, d] = note.data.split('-').map(Number);
-              const noteDate = new Date(y, m - 1, d);
-              noteDate.setHours(0, 0, 0, 0);
-              // Seleziona il giorno della nota nel calendario
-              if (onDateSelect) onDateSelect(noteDate);
-              // Scrolla il calendario a quel giorno
-              scrollToDate(noteDate);
-              if (note.time && onNoteNavigate) onNoteNavigate(note);
+            const d = item.data || item._type === 'file' ? item.data : null;
+            if (d) {
+              const [y, m, dd] = d.split('-').map(Number);
+              const itemDate = new Date(y, m - 1, dd);
+              itemDate.setHours(0, 0, 0, 0);
+              if (onDateSelect) onDateSelect(itemDate);
+              scrollToDate(itemDate);
+              if (item.time && onNoteNavigate) onNoteNavigate(item);
             }
           }}
         />
