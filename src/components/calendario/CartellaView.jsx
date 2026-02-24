@@ -199,20 +199,21 @@ function FileEditor({ file, cartellaId, cartelle = [], userEmail, onClose, onSav
         />
       </div>
 
-      {/* Riga 4: Data/Ora picker + Penna modifica */}
+      {/* Riga 4: Data/Ora picker con ChevronDown */}
       <div className="flex items-center gap-2 px-3 py-1.5 border-b border-slate-800/50">
-        <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border" style={{ borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)' }}>
-          <CalendarIcon className="w-3.5 h-3.5" style={{ color: '#3b82f6' }} />
+        <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border flex-1" style={{ borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)' }}>
+          <CalendarIcon className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#3b82f6' }} />
           <input
             type="date"
             value={data}
             onChange={(e) => setData(e.target.value)}
-            className="bg-transparent text-xs font-medium outline-none"
+            className="bg-transparent text-xs font-medium outline-none flex-1 min-w-0"
             style={{ color: data ? '#60a5fa' : '#3b82f6', colorScheme: 'dark' }}
           />
+          <ChevronDown className="w-3 h-3 flex-shrink-0" style={{ color: '#3b82f6' }} />
         </div>
-        <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border" style={{ borderColor: '#a855f7', backgroundColor: 'rgba(168, 85, 247, 0.1)' }}>
-          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="#a855f7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border flex-1" style={{ borderColor: '#a855f7', backgroundColor: 'rgba(168, 85, 247, 0.1)' }}>
+          <svg className="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="#a855f7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           <input
             type="time"
             value={time}
@@ -229,24 +230,11 @@ function FileEditor({ file, cartellaId, cartelle = [], userEmail, onClose, onSav
                 setTime('');
               }
             }}
-            className="bg-transparent text-xs font-medium outline-none"
+            className="bg-transparent text-xs font-medium outline-none flex-1 min-w-0"
             style={{ color: time ? '#c084fc' : '#a855f7', colorScheme: 'dark' }}
           />
+          <ChevronDown className="w-3 h-3 flex-shrink-0" style={{ color: '#a855f7' }} />
         </div>
-        {data && (
-          <button onClick={() => { setData(''); setTime(''); }} className="p-1 rounded-full hover:bg-slate-700">
-            <X className="w-3.5 h-3.5 text-slate-400" />
-          </button>
-        )}
-        {/* Penna per aprire modifica colori/cartella/promemoria */}
-        {file?.id && (
-          <button
-            onClick={() => setShowContextMenu(true)}
-            className="ml-auto w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 flex items-center justify-center active:scale-90 transition-all"
-          >
-            <Pencil className="w-3.5 h-3.5 text-slate-300" />
-          </button>
-        )}
       </div>
 
       {/* Titolo */}
