@@ -496,14 +496,16 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
               {/* File da cartelle con data corrispondente */}
               {!hasNote && cartellaFiles[slot.timeString]?.map((cf, cfIdx) => {
                 const cart = cartelleMap[cf.cartella_id];
+                const fileColor = cf.colore || cart?.colore || '#64748b';
                 return (
                   <div key={cfIdx} className="ml-2 flex items-center gap-1 flex-1 min-w-0">
                     <div 
                       className="w-2.5 h-2.5 rounded-sm flex-shrink-0"
-                      style={{ backgroundColor: cart?.colore || '#64748b' }}
+                      style={{ backgroundColor: fileColor }}
                     />
-                    <span className="text-xs truncate" style={{ color: cart?.colore || '#94a3b8' }}>
-                      📁 {cf.titolo} / cartella {cart?.nome || ''}
+                    <span className="text-xs truncate" style={{ color: fileColor }}>
+                      📄 {cf.titolo}
+                      {cart && <span style={{ color: cart.colore || '#64748b' }}> / cartella {cart.nome}</span>}
                     </span>
                     <button
                       onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); removeFileFromCalendarMutation.mutate(cf.id); }}
