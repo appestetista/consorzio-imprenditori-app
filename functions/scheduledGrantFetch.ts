@@ -25,7 +25,11 @@ Deno.serve(async (req) => {
         const activeGrants = allExisting.filter(g =>
             !g.is_archived && g.status !== 'Chiuso' && (!g.deadline || g.deadline >= today)
         );
+        // Mappa parallela: stessi indici tra activeGrants e activeTitlesNormalized
         const activeTitlesNormalized = activeGrants.map(g => normalizeTitle(g.title));
+        // Mappa title → grant per lookup sicuro
+        const activeGrantsByNormTitle = {};
+        activeGrants.forEach((g, idx) => { activeGrantsByNormTitle[activeTitlesNormalized[idx]] = g; });
 
         // FASE 2: 12 query ottimizzate — nazionali, europee, tematiche, regionali accorpate
         const searchQueries = [
