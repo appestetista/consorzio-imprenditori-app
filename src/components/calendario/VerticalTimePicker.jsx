@@ -475,6 +475,7 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
                   color: isSelected ? currentMonthColor :
                     (isCurrentTime && isToday) ? '#ffffff' :
                     hasNote ? (() => { const parts = note.data?.split('-'); return parts ? MONTH_COLORS[parseInt(parts[1]) - 1] : '#a3e635'; })() :
+                    hasCartellaFile ? (() => { const cf = cartellaFiles[slot.timeString][0]; return cf.colore || cartelleMap[cf.cartella_id]?.colore || '#64748b'; })() :
                     slot.isFullHour ? activeColor : '#94a3b8'
                 }}
               >
