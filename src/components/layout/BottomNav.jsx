@@ -16,7 +16,7 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
     <nav className="fixed bottom-0 left-0 right-0 z-50">
         <div className="py-3 px-4" style={{ backgroundColor: '#061018' }}>
         <div className="max-w-md mx-auto">
-          <div className="flex justify-between items-center gap-1">
+          <div className="flex justify-between items-center gap-0">
             {navItems.map((item) => {
               const isActive = item.isEsplora
                 ? (currentPage === 'Esplora' && activeTab === null)
@@ -32,7 +32,7 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
                   {/* Pulsante 3D Premium con cornice oro */}
                   <div 
                     className={cn(
-                      "relative w-[64px] h-[64px] transition-transform duration-100 ease-out",
+                      "relative w-[76px] h-[76px] transition-transform duration-100 ease-out",
                       "active:scale-[0.96]"
                     )}
                   >
@@ -66,7 +66,7 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
                         {/* Icona */}
                         <item.icon 
                           className={cn(
-                            "w-5 h-5 mb-0.5 relative z-10 transition-all duration-150",
+                            "w-6 h-6 mb-1 relative z-10 transition-all duration-150",
                             isActive 
                               ? "text-[#d4af37] stroke-[2px]" 
                               : "text-[#a0a0a0]"
@@ -79,7 +79,7 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
                         {/* Label */}
                         <span 
                           className={cn(
-                            "text-[8px] font-semibold relative z-10 tracking-wide",
+                            "text-[10px] font-semibold relative z-10 tracking-wide",
                             isActive ? "text-[#d4af37]" : "text-[#909090]"
                           )}
                         >
