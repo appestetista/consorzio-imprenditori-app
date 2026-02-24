@@ -97,10 +97,13 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
     enabled: !!userEmail
   });
 
-  // Conteggio note per giorno (per badge sotto i numeri)
+  // Conteggio note + file con data per giorno (per badge sotto i numeri)
   const noteCountByDay = {};
   tutteNote.forEach(n => {
     if (n.data) noteCountByDay[n.data] = (noteCountByDay[n.data] || 0) + 1;
+  });
+  tuttiFile.forEach(f => {
+    if (f.data) noteCountByDay[f.data] = (noteCountByDay[f.data] || 0) + 1;
   });
 
   // Mappa cartelle per popup
