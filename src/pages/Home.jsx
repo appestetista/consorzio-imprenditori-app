@@ -142,18 +142,7 @@ Domanda dell'utente: ${msg}`,
               Come possiamo aiutarti oggi?
             </h1>
 
-            {/* Suggerimenti */}
-            <div className="w-full max-w-md space-y-2.5">
-              {SUGGESTIONS.map((s, i) => (
-                <button
-                  key={i}
-                  onClick={() => handleSend(s)}
-                  className="w-full text-left px-4 py-3 rounded-xl border border-slate-700/50 bg-slate-800/40 text-slate-300 text-sm hover:bg-slate-700/50 hover:border-slate-600 transition-all active:scale-[0.98]"
-                >
-                  {s}
-                </button>
-              ))}
-            </div>
+
           </div>
         ) : (
           // Conversazione attiva
