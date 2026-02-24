@@ -436,6 +436,32 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
         </div>
       )}
 
+      {/* FileContextMenu (pennetta) */}
+      {showContextMenu && (
+        <FileContextMenu
+          file={{
+            titolo: title,
+            colore: cartColor,
+            cartella_id: selectedCartella || null,
+            data: noteDate,
+            time: noteTime,
+          }}
+          cartelle={cartelle}
+          onSave={(data) => {
+            if (data.titolo) setTitle(data.titolo);
+            if (data.colore) {
+              // Il colore in FileContextMenu aggiorna il colore del file/nota
+              // Per le note il colore è legato alla cartella, non direttamente
+            }
+            if (data.data) setNoteDate(data.data);
+            if (data.time) setNoteTime(data.time);
+            if ('cartella_id' in data) setSelectedCartella(data.cartella_id || '');
+            setShowContextMenu(false);
+          }}
+          onClose={() => setShowContextMenu(false)}
+        />
+      )}
+
       {/* Input nascosti per camera e file */}
       <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileUpload(f); }} className="hidden" />
       <input ref={fileInputRef} type="file" accept="*/*" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileUpload(f); }} className="hidden" />
