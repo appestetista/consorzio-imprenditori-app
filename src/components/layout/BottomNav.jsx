@@ -1,13 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Home, Users, Wrench, Briefcase, Compass } from 'lucide-react';
+import { Users, Wrench, Briefcase, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function BottomNav({ currentPage, unreadMessages = 0, activeTab = null, isAdmin = false }) {
   const navItems = [
-    { name: 'home', label: 'Home', icon: Home, page: 'Home', tab: null },
-    { name: 'esplora', label: 'Esplora', icon: Compass, page: 'Esplora', tab: null, isEsplora: true },
+    { name: 'investimenti', label: 'Investimenti', icon: TrendingUp, page: 'Esplora', tab: null, isEsplora: true },
     { name: 'relazioni', label: 'Relazioni', icon: Users, page: 'Esplora?tab=relazioni', tab: 'relazioni' },
     { name: 'consulenza', label: 'Consulenza', icon: Briefcase, page: 'Esplora?tab=consulenza', tab: 'consulenza' },
     { name: 'strumenti', label: 'Strumenti', icon: Wrench, page: 'Esplora?tab=strumenti', tab: 'strumenti' },
