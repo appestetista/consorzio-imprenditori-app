@@ -18,9 +18,7 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
         <div className="max-w-md mx-auto">
           <div className="flex justify-between items-center gap-0">
             {navItems.map((item) => {
-              const isActive = item.isEsplora
-                ? (currentPage === 'Esplora' && activeTab === null)
-                : item.name === 'home'
+              const isActive = item.name === 'home'
                   ? currentPage === 'Home'
                   : activeTab === item.tab;
               return (
