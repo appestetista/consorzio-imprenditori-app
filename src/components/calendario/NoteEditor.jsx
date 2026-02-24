@@ -346,7 +346,7 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
           type="text"
           value={title}
           onChange={(e) => { setTitle(e.target.value); if (e.target.value.trim()) setTitleError(false); }}
-          placeholder="Titolo *"
+          placeholder="Titolo"
           autoComplete="off"
           autoCorrect="off"
           autoCapitalize="sentences"
