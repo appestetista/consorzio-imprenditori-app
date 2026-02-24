@@ -344,6 +344,23 @@ export default function FileNoteEditor({ file, onClose, onSave, onDelete, monthC
 
       <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileUpload(f); }} className="hidden" />
       <input ref={fileInputRef} type="file" accept="*/*" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileUpload(f); }} className="hidden" />
+
+      {/* Pannello di controllo completo (FileContextMenu) */}
+      {showContextMenu && !isNewFile && (
+        <FileContextMenu
+          file={{ ...file, titolo: title, colore: fileColore, cartella_id: selectedCartella, data: fileData, time: fileTime }}
+          cartelle={cartelle}
+          onSave={(data) => {
+            if (data.titolo) setTitle(data.titolo);
+            if (data.colore) setFileColore(data.colore);
+            if (data.data !== undefined) setFileData(data.data || '');
+            if (data.time !== undefined) setFileTime(data.time || '');
+            if (data.cartella_id !== undefined) setSelectedCartella(data.cartella_id || '');
+            setShowContextMenu(false);
+          }}
+          onClose={() => setShowContextMenu(false)}
+        />
+      )}
     </div>
   );
 }
