@@ -183,7 +183,10 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
           disabled={createFileMutation.isPending}
           className="flex-shrink-0 flex flex-col items-center gap-0.5 px-1 py-0.5 transition-colors disabled:opacity-50"
         >
-          <FilePlus className="w-6 h-6 text-white" fill="white" />
+          <div className="relative">
+            <FilePlus className="w-6 h-6 text-white" fill="white" />
+            <span className="absolute -top-1.5 -right-1.5 text-black text-[14px] font-black leading-none">+</span>
+          </div>
           <span className="text-[11px] text-slate-300 font-semibold">Nota</span>
         </button>
 
