@@ -132,23 +132,28 @@ Deno.serve(async (req) => {
             const sq = searchQueries[i];
             console.log(`[GrantFetch] Query ${i + 1}/${searchQueries.length}: ${sq.livello}`);
 
-            try {
-                const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
-                    prompt: sq.query + `\n\nRestituisci il MASSIMO numero di bandi reali trovati. confidence_level: "alto" se pagina ufficiale, "medio" se info parziali, "basso" se incerto. Se non trovi bandi: {"grants": []}.`,
-                    add_context_from_internet: true,
-                    response_json_schema: jsonSchema
-                });
-
-                if (result?.grants && Array.isArray(result.grants)) {
-                    for (const g of result.grants) {
-                        g.livello = g.livello || sq.livello;
-                        g.ente_erogatore = g.ente_erogatore || sq.ente_default;
-                        allNewGrants.push(g);
-                    }
-                    console.log(`[GrantFetch] Found ${result.grants.length} from query ${i + 1}`);
+            let result = null;
+            for (let attempt = 0; attempt < 2; attempt++) {
+                try {
+                    result = await base44.asServiceRole.integrations.Core.InvokeLLM({
+                        prompt: sq.query + `\n\nRestituisci il MASSIMO numero di bandi reali trovati. confidence_level: "alto" se pagina ufficiale, "medio" se info parziali, "basso" se incerto. Se non trovi bandi: {"grants": []}.`,
+                        add_context_from_internet: true,
+                        response_json_schema: jsonSchema
+                    });
+                    break;
+                } catch (err) {
+                    console.error(`[GrantFetch] Error query ${i + 1} attempt ${attempt + 1}:`, err.message);
+                    if (attempt === 0) await new Promise(r => setTimeout(r, 2000));
                 }
-            } catch (err) {
-                console.error(`[GrantFetch] Error query ${i + 1}:`, err.message);
+            }
+
+            if (result?.grants && Array.isArray(result.grants)) {
+                for (const g of result.grants) {
+                    g.livello = g.livello || sq.livello;
+                    g.ente_erogatore = g.ente_erogatore || sq.ente_default;
+                    allNewGrants.push(g);
+                }
+                console.log(`[GrantFetch] Found ${result.grants.length} from query ${i + 1}`);
             }
 
             if (i < searchQueries.length - 1) await new Promise(r => setTimeout(r, 1500));
