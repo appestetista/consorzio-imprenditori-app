@@ -1,242 +1,265 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import OpenAI from 'npm:openai';
 
-const openai = new OpenAI({
-    apiKey: Deno.env.get("OPENAI_API_KEY"),
-});
-
-// Questa function viene chiamata dall'automazione schedulata
-// Non richiede autenticazione utente perché è un task di sistema
+// Questa function viene chiamata dall'automazione schedulata settimanale
+// Usa ricerca web reale (add_context_from_internet) per trovare bandi verificati
 
 Deno.serve(async (req) => {
     try {
         const base44 = createClientFromRequest(req);
         
-        console.log('Scheduled grant fetch started at:', new Date().toISOString());
+        const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+        console.log(`[GrantFetch] Started at ${today}`);
 
-        // Fonti ufficiali da monitorare
-        const sources = [
-            // Nazionali
-            'https://www.incentivi.gov.it/it/incentivi',
-            'https://www.invitalia.it/cosa-facciamo/creiamo-nuove-aziende',
-            'https://www.mise.gov.it/it/incentivi',
-            'https://www.simest.it/prodotti-e-servizi',
-            'https://www.sace.it/soluzioni',
-            // Europei
-            'https://ec.europa.eu/info/funding-tenders/opportunities/portal/screen/programmes',
-            'https://www.horizon-europe.it/bandi',
-            // Camere di Commercio
-            'https://www.unioncamere.gov.it/bandi-e-finanziamenti',
-            // Regioni - Nord
-            'https://www.regione.lombardia.it/wps/portal/istituzionale/HP/servizi-e-informazioni/imprese/Imprese-incentivi-agevolazioni-contributi',
-            'https://www.regione.veneto.it/web/economia-e-sviluppo-montano/contributi-e-finanziamenti',
-            'https://imprese.regione.emilia-romagna.it/finanziamenti',
-            'https://www.regione.piemonte.it/web/temi/fondi-progetti-europei/fondo-europeo-sviluppo-regionale-fesr/bandi-finanziamenti-imprese',
-            'https://www.regione.liguria.it/homepage/economia/bandi-e-contributi.html',
-            'https://www.regione.fvg.it/rafvg/cms/RAFVG/economia-imprese/imprese/',
-            'https://www.provincia.tn.it/Servizi/Incentivi-e-finanziamenti-per-imprese',
-            'https://www.provincia.bz.it/economia-finanze/economia/contributi-agevolazioni-imprese.asp',
-            // Regioni - Centro
-            'https://www.regione.toscana.it/bandi',
-            'https://www.regione.lazio.it/cittadini/attivita-produttive-e-imprese',
-            'https://www.regione.marche.it/Regione-Utile/Attivit%C3%A0-Produttive/Bandi-e-Contributi',
-            'https://www.regione.umbria.it/imprese/incentivi-e-agevolazioni',
-            'https://www.regione.abruzzo.it/content/bandi-imprese',
-            // Regioni - Sud e Isole
-            'https://www.regione.campania.it/regione/it/tematiche/bandi-gare-contratti',
-            'https://www.regione.puglia.it/web/economia-e-sviluppo/-bandi',
-            'https://www.regione.calabria.it/website/organizzazione/dipartimento6/bandi/',
-            'https://pti.regione.sicilia.it/portal/page/portal/PIR_PORTALE/PIR_ArchivioLaRegioneInforma/PIR_BandiAvvisi',
-            'https://www.regione.sardegna.it/argomenti/incentivi/',
-            'https://www.regione.basilicata.it/giunta/site/giunta/department.jsp?dep=100066&area=109501',
-            'https://www.regione.molise.it/web/bandi/',
-            'https://www.regione.vda.it/economia/aiuti_stato/default_i.aspx'
-        ];
+        // =============================================
+        // FASE 1: Pulizia bandi scaduti
+        // =============================================
+        const allExisting = await base44.asServiceRole.entities.FinancialGrant.list();
+        let archivedCount = 0;
 
-        const allGrants = [];
-        
-        // Processa in batch paralleli di 5 siti alla volta per velocizzare
-        const batchSize = 5;
-        for (let i = 0; i < sources.length; i += batchSize) {
-            const batch = sources.slice(i, i + batchSize);
-            console.log(`Processing batch ${Math.floor(i/batchSize) + 1}/${Math.ceil(sources.length/batchSize)}: ${batch.length} sources`);
-            
-            const batchPromises = batch.map(async (url) => {
-                console.log(`Fetching from: ${url}`);
-                try {
-                    const response = await openai.chat.completions.create({
-                    model: "gpt-4o-mini",
-                    messages: [
-                    {
-                        role: "system",
-                        content: `Sei un sistema di estrazione dati strutturati da fonti pubbliche istituzionali.
-                    Il tuo compito è estrarre bandi di finanziamento agevolato in modo rigoroso.
-
-                    NON devi:
-                    - inventare bandi
-                    - completare dati mancanti
-                    - fare supposizioni
-
-                    DEVI:
-                    - dichiarare ogni incertezza
-                    - restituire solo informazioni esplicitamente presenti nella fonte
-                    - rispondere SOLO con JSON valido`
-                    },
-                    {
-                        role: "user",
-                        content: `Analizza il sito ${url} ed estrai i bandi di finanziamento agevolato.
-
-                    REGOLE DI ESTRAZIONE:
-                    1. Estrai al massimo 10 bandi distinti.
-                    2. Ogni bando deve avere almeno: titolo ufficiale, ente erogatore, stato (Aperto/In apertura/Chiuso).
-                    3. Se una informazione NON è presente o NON è chiara, imposta il campo a null.
-                    4. Se non sei sicuro che un elemento sia un bando, NON estrarlo.
-                    5. NON dedurre deadline, importi o percentuali.
-
-                    Per ogni bando estrai:
-                    - title: Titolo ufficiale completo
-                    - description: Descrizione breve (max 200 caratteri) o null
-                    - ente_erogatore: UE/Stato/Regione/Altro
-                    - livello: Europeo/Nazionale/Regionale
-                    - grant_type: Digitalizzazione/Innovazione/Ricerca e Sviluppo/Energia/Sostenibilità/Internazionalizzazione/Altro
-                    - funding_type: Contributo a fondo perduto/Finanziamento agevolato/Credito d'imposta/Misto
-                    - coverage_percentage: numero 0-100 o null
-                    - min_amount, max_amount: importi euro o null
-                    - status: Aperto/In apertura/Chiuso
-                    - deadline: YYYY-MM-DD o null
-                    - eligible_company_sizes: ["Micro","Piccola","Media","Grande"] o null
-                    - eligible_regions: array regioni o null (null se nazionale)
-                    - website_url: URL DIRETTO alla pagina ufficiale o null
-                    - confidence_level: "alto" (dati certi e verificabili), "medio" (alcuni dati incerti), "basso" (molte incertezze)
-                    - extraction_notes: breve nota su eventuali incertezze o problemi
-
-                    Se NON trovi bandi validi, restituisci: {"grants": []}
-                    Altrimenti: {"grants": [...]}`
-                    }
-                    ],
-                    max_tokens: 4096,
-                    temperature: 0.2
-                    });
-
-                    const text = response.choices[0].message.content;
-                    const jsonMatch = text.match(/\{[\s\S]*\}/);
-                    if (jsonMatch) {
-                        const parsed = JSON.parse(jsonMatch[0]);
-                        return parsed?.grants || [];
-                    }
-                    return [];
-                } catch (err) {
-                    console.error(`Error fetching ${url}:`, err.message);
-                    return [];
-                }
-            });
-            
-            const batchResults = await Promise.all(batchPromises);
-            for (const grants of batchResults) {
-                allGrants.push(...grants);
+        for (const grant of allExisting) {
+            if (grant.deadline && grant.deadline < today) {
+                await base44.asServiceRole.entities.FinancialGrant.update(grant.id, {
+                    status: 'Chiuso',
+                    is_archived: true
+                });
+                archivedCount++;
             }
         }
+        console.log(`[GrantFetch] Archived ${archivedCount} expired grants`);
 
-        console.log(`Total grants extracted: ${allGrants.length}`);
+        // Bandi attivi rimasti (per deduplicazione)
+        const activeGrants = allExisting.filter(g => 
+            !g.is_archived && g.status !== 'Chiuso' && (!g.deadline || g.deadline >= today)
+        );
+        const activeTitlesNormalized = activeGrants.map(g => normalizeTitle(g.title));
 
-        // Deduplica i bandi estratti PRIMA di salvare
-        const uniqueGrants = deduplicateGrants(allGrants);
-        console.log(`After deduplication: ${uniqueGrants.length} unique grants`);
+        // =============================================
+        // FASE 2: Ricerca nuovi bandi con web search reale
+        // =============================================
+        const searchQueries = [
+            // Nazionali
+            {
+                query: `Cerca su incentivi.gov.it, invitalia.it e mise.gov.it tutti i bandi di finanziamento agevolato per imprese attualmente APERTI in Italia nel 2026. Per ogni bando trovato fornisci: titolo ufficiale esatto, ente erogatore, data scadenza (YYYY-MM-DD), importo minimo e massimo finanziabile in euro, percentuale di copertura, tipologia (fondo perduto/finanziamento agevolato/credito d'imposta/misto), dimensioni aziendali ammesse, link diretto alla pagina ufficiale del bando. INCLUDI SOLO bandi con scadenza successiva al ${today} o senza scadenza indicata. NON inventare nessun dato.`,
+                livello: 'Nazionale',
+                ente_default: 'Stato'
+            },
+            // SIMEST / Internazionalizzazione
+            {
+                query: `Cerca su simest.it e sace.it tutti i finanziamenti agevolati per internazionalizzazione ed export delle PMI italiane attualmente APERTI nel 2026. Per ogni bando: titolo ufficiale esatto, scadenza (YYYY-MM-DD), importi min/max in euro, percentuale copertura, link pagina ufficiale. SOLO bandi con scadenza dopo il ${today} o senza scadenza. NON inventare dati.`,
+                livello: 'Nazionale',
+                ente_default: 'Stato'
+            },
+            // Europei
+            {
+                query: `Cerca bandi europei aperti nel 2026 per PMI italiane su ec.europa.eu e horizon-europe.it. Per ogni bando: titolo ufficiale, scadenza (YYYY-MM-DD), importi, percentuale copertura, link ufficiale. SOLO bandi con deadline dopo ${today}. NON inventare.`,
+                livello: 'Europeo',
+                ente_default: 'UE'
+            },
+            // Regioni Nord
+            {
+                query: `Cerca bandi regionali aperti nel 2026 per imprese in Lombardia, Veneto, Emilia-Romagna, Piemonte, Liguria, Friuli Venezia Giulia, Trentino-Alto Adige, Valle d'Aosta. Per ogni bando: titolo ufficiale, regione, scadenza (YYYY-MM-DD), importi min/max euro, percentuale copertura, link ufficiale. SOLO bandi con scadenza dopo ${today}. NON inventare.`,
+                livello: 'Regionale',
+                ente_default: 'Regione'
+            },
+            // Regioni Centro
+            {
+                query: `Cerca bandi regionali aperti nel 2026 per imprese in Toscana, Lazio, Marche, Umbria, Abruzzo. Per ogni bando: titolo ufficiale, regione, scadenza (YYYY-MM-DD), importi min/max euro, percentuale copertura, link ufficiale. SOLO bandi con scadenza dopo ${today}. NON inventare.`,
+                livello: 'Regionale',
+                ente_default: 'Regione'
+            },
+            // Regioni Sud e Isole
+            {
+                query: `Cerca bandi regionali aperti nel 2026 per imprese in Campania, Puglia, Calabria, Sicilia, Sardegna, Basilicata, Molise. Per ogni bando: titolo ufficiale, regione, scadenza (YYYY-MM-DD), importi min/max euro, percentuale copertura, link ufficiale. SOLO bandi con scadenza dopo ${today}. NON inventare.`,
+                livello: 'Regionale',
+                ente_default: 'Regione'
+            }
+        ];
 
-        // Recupera solo bandi attivi con stesso ente per confronto (ottimizzazione)
-        const allExistingGrants = await base44.asServiceRole.entities.FinancialGrant.list();
-        const activeGrants = allExistingGrants.filter(g => g.status !== 'Chiuso');
-        console.log(`Active grants for deduplication: ${activeGrants.length}`);
+        const jsonSchema = {
+            type: "object",
+            properties: {
+                grants: {
+                    type: "array",
+                    items: {
+                        type: "object",
+                        properties: {
+                            title: { type: "string", description: "Titolo ufficiale esatto del bando" },
+                            description: { type: "string", description: "Descrizione breve (max 300 char)" },
+                            ente_erogatore: { type: "string", enum: ["UE", "Stato", "Regione", "Altro"] },
+                            livello: { type: "string", enum: ["Europeo", "Nazionale", "Regionale"] },
+                            grant_type: { type: "string", enum: ["Digitalizzazione", "Innovazione", "Ricerca e Sviluppo", "Energia/Sostenibilità", "Internazionalizzazione", "Altro"] },
+                            funding_type: { type: "string", enum: ["Contributo a fondo perduto", "Finanziamento agevolato", "Credito d'imposta", "Misto"] },
+                            coverage_percentage: { type: "number", description: "Percentuale copertura 0-100 o null" },
+                            min_amount: { type: "number", description: "Importo minimo euro o null" },
+                            max_amount: { type: "number", description: "Importo massimo euro o null" },
+                            status: { type: "string", enum: ["Aperto", "In apertura"] },
+                            opening_date: { type: "string", description: "YYYY-MM-DD o null" },
+                            deadline: { type: "string", description: "YYYY-MM-DD o null" },
+                            access_mode: { type: "string", enum: ["Sportello", "Graduatoria"] },
+                            requires_cofinancing: { type: "boolean" },
+                            eligible_company_sizes: { type: "array", items: { type: "string", enum: ["Micro", "Piccola", "Media", "Grande"] } },
+                            eligible_regions: { type: "array", items: { type: "string" }, description: "Regioni ammesse, vuoto se nazionale" },
+                            website_url: { type: "string", description: "URL diretto pagina ufficiale del bando" },
+                            confidence_level: { type: "string", enum: ["alto", "medio", "basso"] },
+                            extraction_notes: { type: "string", description: "Note su incertezze o fonte dei dati" }
+                        }
+                    }
+                }
+            }
+        };
 
+        const allNewGrants = [];
+
+        // Esegui ricerche in sequenza (per evitare rate limiting)
+        for (let i = 0; i < searchQueries.length; i++) {
+            const sq = searchQueries[i];
+            console.log(`[GrantFetch] Query ${i + 1}/${searchQueries.length}: ${sq.livello}`);
+
+            try {
+                const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
+                    prompt: sq.query + `\n\nIMPORTANTE: Restituisci SOLO bandi che hai EFFETTIVAMENTE trovato online con fonte verificabile. Per ogni bando indica il confidence_level: "alto" se hai trovato la pagina ufficiale con tutti i dati, "medio" se hai trovato info parziali, "basso" se sei incerto. Se non trovi bandi reali, restituisci {"grants": []}.`,
+                    add_context_from_internet: true,
+                    response_json_schema: jsonSchema
+                });
+
+                if (result?.grants && Array.isArray(result.grants)) {
+                    for (const g of result.grants) {
+                        // Applica defaults dal gruppo di ricerca
+                        g.livello = g.livello || sq.livello;
+                        g.ente_erogatore = g.ente_erogatore || sq.ente_default;
+                        allNewGrants.push(g);
+                    }
+                    console.log(`[GrantFetch] Found ${result.grants.length} grants from query ${i + 1}`);
+                }
+            } catch (err) {
+                console.error(`[GrantFetch] Error in query ${i + 1}:`, err.message);
+            }
+
+            // Pausa tra ricerche
+            await new Promise(r => setTimeout(r, 3000));
+        }
+
+        console.log(`[GrantFetch] Total raw grants: ${allNewGrants.length}`);
+
+        // =============================================
+        // FASE 3: Filtra, deduplica, salva
+        // =============================================
         let created = 0;
-        let updated = 0;
-        let skipped = 0;
+        let skippedExpired = 0;
+        let skippedDuplicate = 0;
+        let skippedNoTitle = 0;
 
-        for (const grant of uniqueGrants) {
-            if (!grant.title) continue;
+        for (const grant of allNewGrants) {
+            // Skip senza titolo
+            if (!grant.title || grant.title.trim().length < 5) {
+                skippedNoTitle++;
+                continue;
+            }
 
+            // Skip bandi con deadline passata
+            if (grant.deadline && grant.deadline < today) {
+                skippedExpired++;
+                continue;
+            }
+
+            // Skip bandi con confidence basso
+            if (grant.confidence_level === 'basso') {
+                console.log(`[GrantFetch] Skipped low confidence: ${grant.title}`);
+                continue;
+            }
+
+            // Deduplica: confronta titolo normalizzato con bandi attivi
+            const normTitle = normalizeTitle(grant.title);
+            const isDuplicate = activeTitlesNormalized.some(existing => {
+                // Match esatto
+                if (existing === normTitle) return true;
+                // Match parziale (>80% sovrapposizione parole)
+                const wordsNew = normTitle.split(' ').filter(w => w.length > 2);
+                const wordsExisting = existing.split(' ').filter(w => w.length > 2);
+                if (wordsNew.length === 0 || wordsExisting.length === 0) return false;
+                const common = wordsNew.filter(w => wordsExisting.includes(w));
+                const overlap = common.length / Math.max(wordsNew.length, wordsExisting.length);
+                return overlap > 0.75;
+            });
+
+            if (isDuplicate) {
+                skippedDuplicate++;
+                continue;
+            }
+
+            // Crea il bando
             const grantData = {
-                title: grant.title,
+                title: grant.title.trim(),
                 description: grant.description || '',
                 ente_erogatore: validateEnum(grant.ente_erogatore, ['UE', 'Stato', 'Regione', 'Altro'], 'Stato'),
                 livello: validateEnum(grant.livello, ['Europeo', 'Nazionale', 'Regionale'], 'Nazionale'),
                 grant_type: validateEnum(grant.grant_type, ['Digitalizzazione', 'Innovazione', 'Ricerca e Sviluppo', 'Energia/Sostenibilità', 'Internazionalizzazione', 'Altro'], 'Altro'),
                 funding_type: validateEnum(grant.funding_type, ['Contributo a fondo perduto', 'Finanziamento agevolato', "Credito d'imposta", 'Misto'], 'Contributo a fondo perduto'),
-                coverage_percentage: grant.coverage_percentage || null,
-                min_amount: grant.min_amount || null,
-                max_amount: grant.max_amount || null,
-                status: validateEnum(grant.status, ['Aperto', 'In apertura', 'Chiuso'], 'Aperto'),
-                opening_date: grant.opening_date || null,
-                deadline: grant.deadline || null,
-                eligible_company_sizes: grant.eligible_company_sizes || null,
-                eligible_regions: grant.eligible_regions || null,
+                coverage_percentage: (typeof grant.coverage_percentage === 'number' && grant.coverage_percentage > 0 && grant.coverage_percentage <= 100) ? grant.coverage_percentage : null,
+                min_amount: (typeof grant.min_amount === 'number' && grant.min_amount > 0) ? grant.min_amount : null,
+                max_amount: (typeof grant.max_amount === 'number' && grant.max_amount > 0) ? grant.max_amount : null,
+                status: validateEnum(grant.status, ['Aperto', 'In apertura'], 'Aperto'),
+                opening_date: isValidDate(grant.opening_date) ? grant.opening_date : null,
+                deadline: isValidDate(grant.deadline) ? grant.deadline : null,
                 access_mode: validateEnum(grant.access_mode, ['Sportello', 'Graduatoria'], 'Sportello'),
-                requires_cofinancing: grant.requires_cofinancing || false,
+                requires_cofinancing: grant.requires_cofinancing === true,
+                eligible_company_sizes: Array.isArray(grant.eligible_company_sizes) ? grant.eligible_company_sizes : null,
+                eligible_regions: Array.isArray(grant.eligible_regions) && grant.eligible_regions.length > 0 ? grant.eligible_regions : null,
                 website_url: grant.website_url || null,
                 is_archived: false,
+                is_national: grant.livello !== 'Regionale',
                 confidence_level: validateEnum(grant.confidence_level, ['alto', 'medio', 'basso'], 'medio'),
-                extraction_notes: grant.extraction_notes || null
+                extraction_notes: grant.extraction_notes || null,
+                created_by_email: 'system@scheduled',
+                tags: extractTags(grant.title, grant.description)
             };
 
-            // Filtra bandi esistenti per stesso ente erogatore
-            const candidatesForMatch = activeGrants.filter(g => g.ente_erogatore === grantData.ente_erogatore);
-            
-            // Esegui deduplicazione intelligente con LLM
-            const dedupResult = await checkDuplicateWithLLM(grant, candidatesForMatch);
-            console.log(`Dedup result for "${grant.title}": ${dedupResult.match_type} (${dedupResult.confidence_score}%)`);
-
-            if (dedupResult.match_type === 'identico' && dedupResult.confidence_score >= 80) {
-                // Bando identico trovato - aggiorna solo se deadline o status sono cambiati
-                const matchedGrant = candidatesForMatch.find(g => g.id === dedupResult.matched_grant_id);
-                if (matchedGrant) {
-                    if (matchedGrant.status !== grantData.status || matchedGrant.deadline !== grantData.deadline) {
-                        await base44.asServiceRole.entities.FinancialGrant.update(matchedGrant.id, {
-                            status: grantData.status,
-                            deadline: grantData.deadline,
-                            last_modified_by_email: 'system@scheduled'
-                        });
-                        updated++;
-                        console.log(`Updated existing grant: ${matchedGrant.title}`);
-                    } else {
-                        skipped++;
-                        console.log(`Skipped identical grant: ${grant.title}`);
-                    }
-                } else {
-                    skipped++;
-                }
-            } else {
-                // Bando nuovo o simile - crea nuovo record
-                grantData.created_by_email = 'system@scheduled';
+            try {
                 await base44.asServiceRole.entities.FinancialGrant.create(grantData);
                 created++;
-                console.log(`Created new grant: ${grant.title}`);
+                // Aggiungi il titolo normalizzato per evitare duplicati nello stesso batch
+                activeTitlesNormalized.push(normTitle);
+                console.log(`[GrantFetch] Created: ${grant.title}`);
+            } catch (createErr) {
+                console.error(`[GrantFetch] Error creating "${grant.title}":`, createErr.message);
             }
         }
 
         const result = {
             success: true,
-            extracted: allGrants.length,
-            afterDedup: uniqueGrants.length,
+            date: today,
+            archived_expired: archivedCount,
+            total_extracted: allNewGrants.length,
             created,
-            updated,
-            skipped,
-            timestamp: new Date().toISOString()
+            skipped_expired: skippedExpired,
+            skipped_duplicate: skippedDuplicate,
+            skipped_no_title: skippedNoTitle,
+            active_grants_total: activeGrants.length + created
         };
 
-        console.log('Scheduled fetch completed:', result);
+        console.log('[GrantFetch] Completed:', JSON.stringify(result));
         return Response.json(result);
 
     } catch (error) {
-        console.error('Scheduled grant fetch error:', error);
+        console.error('[GrantFetch] Fatal error:', error);
         return Response.json({ error: error.message }, { status: 500 });
     }
 });
 
+// === UTILITY FUNCTIONS ===
+
+function normalizeTitle(title) {
+    if (!title) return '';
+    return title
+        .toLowerCase()
+        .replace(/[^a-z0-9àèéìòùç]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
 function validateEnum(value, allowed, defaultValue) {
     if (!value) return defaultValue;
     if (allowed.includes(value)) return value;
-    
-    // Prova matching parziale
     const valueLower = value.toLowerCase();
     for (const opt of allowed) {
         if (valueLower.includes(opt.toLowerCase()) || opt.toLowerCase().includes(valueLower)) {
@@ -246,134 +269,41 @@ function validateEnum(value, allowed, defaultValue) {
     return defaultValue;
 }
 
-// Normalizza titolo per confronto
-function normalizeTitle(title) {
-    if (!title) return '';
-    return title
-        .toLowerCase()
-        .replace(/[^a-z0-9àèéìòù]/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim();
+function isValidDate(dateStr) {
+    if (!dateStr || typeof dateStr !== 'string') return false;
+    const match = dateStr.match(/^\d{4}-\d{2}-\d{2}$/);
+    if (!match) return false;
+    const d = new Date(dateStr);
+    return !isNaN(d.getTime());
 }
 
-// Deduplica array di bandi estratti
-function deduplicateGrants(grants) {
-    const seen = new Map();
+function extractTags(title, description) {
+    const text = `${title || ''} ${description || ''}`.toLowerCase();
+    const tags = [];
     
-    for (const grant of grants) {
-        if (!grant.title) continue;
-        
-        const key = normalizeTitle(grant.title);
-        
-        // Se già visto, tieni quello con più dati
-        if (seen.has(key)) {
-            const existing = seen.get(key);
-            const existingScore = countFields(existing);
-            const newScore = countFields(grant);
-            if (newScore > existingScore) {
-                seen.set(key, grant);
-            }
-        } else {
-            seen.set(key, grant);
+    const tagRules = {
+        'startup': ['start-up', 'startup', 'start up', 'nuove imprese', 'nuova impresa'],
+        'femminile': ['femminile', 'donne', 'imprenditrici'],
+        'giovanile': ['giovanile', 'giovani', 'under 35', 'under35'],
+        'mezzogiorno': ['mezzogiorno', 'sud italia', 'zes', 'zona economica speciale'],
+        'digitalizzazione': ['digital', 'industria 4.0', '4.0', 'software', 'e-commerce'],
+        'innovazione': ['innovazion', 'innovativ', 'brevett'],
+        'energia': ['energia', 'energetic', 'fotovoltaic', 'rinnovabil'],
+        'sostenibilita': ['sostenibil', 'green', 'circolare', 'ecologic'],
+        'export': ['export', 'internazional', 'estero', 'fiere'],
+        'formazione': ['formazione', 'competenze', 'training'],
+        'fondo_perduto': ['fondo perduto'],
+        'credito_imposta': ["credito d'imposta", 'credito di imposta', 'tax credit'],
+        'agricoltura': ['agricol', 'agroalimentar', 'rurale'],
+        'turismo': ['turism', 'albergh', 'ristorazion'],
+        'commercio': ['commerc', 'negozio', 'retail'],
+    };
+
+    for (const [tag, keywords] of Object.entries(tagRules)) {
+        if (keywords.some(kw => text.includes(kw))) {
+            tags.push(tag);
         }
     }
-    
-    return Array.from(seen.values());
-}
 
-// Conta campi compilati per determinare quale record è più completo
-function countFields(obj) {
-    let count = 0;
-    for (const value of Object.values(obj)) {
-        if (value !== null && value !== undefined && value !== '') {
-            count++;
-        }
-    }
-    return count;
-}
-
-// Deduplicazione intelligente con LLM
-async function checkDuplicateWithLLM(newGrant, existingGrants) {
-    // Se non ci sono bandi esistenti, è sicuramente nuovo
-    if (!existingGrants || existingGrants.length === 0) {
-        return { match_type: 'nuovo', matched_grant_id: null, confidence_score: 100, reasoning: 'Nessun bando esistente per confronto' };
-    }
-
-    // Prepara lista bandi esistenti per il prompt (max 20 per evitare token limit)
-    const grantsForComparison = existingGrants.slice(0, 20).map(g => ({
-        id: g.id,
-        title: g.title,
-        ente_erogatore: g.ente_erogatore,
-        description: g.description?.substring(0, 100),
-        deadline: g.deadline,
-        status: g.status,
-        grant_type: g.grant_type
-    }));
-
-    try {
-        const response = await openai.chat.completions.create({
-            model: "gpt-4o-mini",
-            messages: [
-                {
-                    role: "system",
-                    content: `Sei un sistema di confronto e deduplicazione di bandi di finanziamento.
-
-Il tuo compito è stabilire se il nuovo bando è:
-- lo stesso di uno esistente (identico)
-- simile ma distinto
-- completamente nuovo
-
-REGOLE:
-1. Confronta su: ente erogatore, obiettivo del bando, beneficiari, periodo temporale
-2. Il titolo da solo NON è sufficiente
-3. Se il livello di confidenza è < 80%, considera il bando come nuovo
-4. NON eliminare nulla
-5. NON fondere record
-
-Rispondi SOLO con JSON valido.`
-                },
-                {
-                    role: "user",
-                    content: `NUOVO BANDO DA VERIFICARE:
-${JSON.stringify({
-    title: newGrant.title,
-    ente_erogatore: newGrant.ente_erogatore,
-    description: newGrant.description?.substring(0, 200),
-    deadline: newGrant.deadline,
-    grant_type: newGrant.grant_type
-}, null, 2)}
-
-BANDI ESISTENTI NEL DATABASE:
-${JSON.stringify(grantsForComparison, null, 2)}
-
-OUTPUT RICHIESTO (JSON):
-{
-  "match_type": "identico" | "simile" | "nuovo",
-  "matched_grant_id": "string o null",
-  "confidence_score": numero 0-100,
-  "reasoning": "breve spiegazione"
-}`
-                }
-            ],
-            max_tokens: 500,
-            temperature: 0.1
-        });
-
-        const text = response.choices[0].message.content;
-        const jsonMatch = text.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-            const result = JSON.parse(jsonMatch[0]);
-            return {
-                match_type: result.match_type || 'nuovo',
-                matched_grant_id: result.matched_grant_id || null,
-                confidence_score: result.confidence_score || 0,
-                reasoning: result.reasoning || ''
-            };
-        }
-    } catch (err) {
-        console.error('LLM deduplication error:', err.message);
-    }
-
-    // In caso di errore, considera come nuovo (safe default)
-    return { match_type: 'nuovo', matched_grant_id: null, confidence_score: 0, reasoning: 'Errore durante deduplicazione' };
+    return [...new Set(tags)];
 }
