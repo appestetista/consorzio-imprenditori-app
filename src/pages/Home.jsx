@@ -10,7 +10,7 @@ import { normalizeUser } from '../components/utils/normalizeUser';
 import BottomNav from '../components/layout/BottomNav';
 import ChatMessage from '../components/home/ChatMessage';
 import ChatSidebar from '../components/home/ChatSidebar';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, useQuery as useRQQuery } from '@tanstack/react-query';
 
 export default function Home() {
   const [user, setUser] = useState(null);
