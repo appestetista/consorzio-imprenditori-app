@@ -24,6 +24,7 @@ export default function Home() {
   const [isTyping, setIsTyping] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeConversationId, setActiveConversationId] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
