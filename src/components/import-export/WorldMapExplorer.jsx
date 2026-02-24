@@ -109,6 +109,7 @@ export default function WorldMapExplorer() {
 
   // Drag state
   const isDragging = useRef(false);
+  const startMouse = useRef({ x: 0, y: 0 });
   const previousMouse = useRef({ x: 0, y: 0 });
   const rotationVelocity = useRef({ x: 0, y: 0 });
   const autoRotate = useRef(true);
