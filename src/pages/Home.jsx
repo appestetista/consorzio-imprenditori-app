@@ -187,7 +187,7 @@ Domanda dell'utente: ${msg}`,
               <Sparkles className="w-8 h-8 text-white" />
             </div>
             <h1 className="text-white text-2xl font-bold text-center mb-8 leading-tight">
-              Come possiamo aiutarti oggi?
+              Scrivi il problema. Ti aiutiamo a risolverlo!
             </h1>
           </div>
         ) : (
