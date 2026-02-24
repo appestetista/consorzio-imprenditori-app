@@ -826,12 +826,11 @@ export default function FinanziamentiAgevolati() {
       
       <main className="px-4 py-6 max-w-md mx-auto">
         <div className="flex items-center gap-3 mb-6">
-          <Link to={createPageUrl('Home')} className="text-lime-400 p-3 -m-3 rounded-full back-arrow-tap">
-                        <ArrowLeft className="w-7 h-7" />
-                      </Link>
-          <div>
-            <h1 className="text-white text-xl font-bold">Finanziamenti Agevolati</h1>
-            <p className="text-slate-400 text-sm">Bandi compatibili con il tuo profilo</p>
+          <Link to={createPageUrl('Home')} className="text-slate-400 p-3 -m-3 rounded-full back-arrow-tap hover:text-white transition-colors">
+            <ArrowLeft className="w-6 h-6" />
+          </Link>
+          <div className="flex-1">
+            <h1 className="text-white text-lg font-bold">Bandi e Agevolazioni</h1>
           </div>
         </div>
 
