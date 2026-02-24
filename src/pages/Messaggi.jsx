@@ -689,11 +689,23 @@ export default function Messaggi() {
 
   return (
     <div className="min-h-screen bg-slate-900 pb-24">
-      {/* Header semplificato con Home */}
-      <div className="sticky top-0 z-30 px-4 py-3 flex items-center gap-3 bg-slate-900 border-b border-slate-800">
+      {/* Header semplificato con Home a sinistra e icona messaggi a destra */}
+      <div className="sticky top-0 z-30 px-4 py-3 flex items-center justify-between bg-slate-900 border-b border-slate-800">
         <Link to={createPageUrl('Home')} className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center">
           <ArrowLeft className="w-7 h-7 text-[#d4af37]" />
         </Link>
+        <div className="relative p-1">
+          <img 
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/cd5e7b92b_Immagine_2026-02-03_182832-removebg-preview.png" 
+            alt="Messaggi" 
+            className="w-9 h-9 object-contain"
+          />
+          {totalUnreadCount > 0 && (
+            <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] rounded-full min-w-4 h-4 px-1 flex items-center justify-center font-bold">
+              {totalUnreadCount > 99 ? '99+' : totalUnreadCount}
+            </span>
+          )}
+        </div>
       </div>
       
       <main className="px-2 flex flex-col" style={{ height: 'calc(100vh - 160px)' }}>
