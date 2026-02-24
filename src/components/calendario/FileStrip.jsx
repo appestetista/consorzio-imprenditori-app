@@ -46,6 +46,8 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
       queryClient.invalidateQueries({ queryKey: ['standalone-files'] });
       queryClient.invalidateQueries({ queryKey: ['allFileCartella'] });
       queryClient.invalidateQueries({ queryKey: ['fileCartella'] });
+      queryClient.invalidateQueries({ queryKey: ['fileCartella-day'] });
+      queryClient.invalidateQueries({ queryKey: ['file-week'] });
       queryClient.invalidateQueries({ queryKey: ['cartelle'] });
     }
   });
@@ -56,6 +58,8 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
       queryClient.invalidateQueries({ queryKey: ['standalone-files'] });
       queryClient.invalidateQueries({ queryKey: ['allFileCartella'] });
       queryClient.invalidateQueries({ queryKey: ['fileCartella'] });
+      queryClient.invalidateQueries({ queryKey: ['fileCartella-day'] });
+      queryClient.invalidateQueries({ queryKey: ['file-week'] });
     }
   });
 
@@ -65,6 +69,8 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
       queryClient.invalidateQueries({ queryKey: ['standalone-files'] });
       queryClient.invalidateQueries({ queryKey: ['allFileCartella'] });
       queryClient.invalidateQueries({ queryKey: ['fileCartella'] });
+      queryClient.invalidateQueries({ queryKey: ['fileCartella-day'] });
+      queryClient.invalidateQueries({ queryKey: ['file-week'] });
       setDeleteFilePopup(null);
     }
   });
