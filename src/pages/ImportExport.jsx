@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Globe, TrendingUp, Ship, FileText, Loader2, CheckCircle, AlertTriangle, Target, DollarSign, Package, MapPin, ArrowRight, Search, ExternalLink, Send, Paperclip, Camera, X, Users, Mail, BarChart3, Clock } from 'lucide-react';
+import { ArrowLeft, Globe, TrendingUp, Ship, FileText, Loader2, CheckCircle, AlertTriangle, Target, DollarSign, Package, MapPin, ArrowRight, Search, ExternalLink, X, Mail, BarChart3, Clock } from 'lucide-react';
 import { useAILimits } from '@/components/hooks/useAILimits';
 import LimitReachedBanner from '@/components/common/LimitReachedBanner';
 import UsageCounter from '@/components/common/UsageCounter';
@@ -12,7 +12,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
 import Header from '@/components/layout/Header';
 import BottomNav from '@/components/layout/BottomNav';
 import ImportMessagesSection from '@/components/import-export/ImportMessagesSection';
@@ -21,13 +20,10 @@ import SectionConsultantPanel from '../components/consulenze/SectionConsultantPa
 import HSCodeClassifier from '../components/import-export/HSCodeClassifier';
 import { fetchTradeData, computeMetrics, interpretData, fetchMacroData } from '../components/import-export/ExportDataFetcher';
 import { fetchPriceData, computePriceMetrics, interpretPriceData } from '../components/import-export/PriceMarginFetcher';
-import ExportTradeChart from '../components/import-export/ExportTradeChart';
-import ExportMetricsCard from '../components/import-export/ExportMetricsCard';
-import CountrySearchSelect, { ALL_COUNTRIES, WORLD_OPTION } from '../components/import-export/CountrySearchSelect';
+import CountrySearchSelect, { ALL_COUNTRIES } from '../components/import-export/CountrySearchSelect';
 import CountryInfoCard from '../components/import-export/CountryInfoCard';
 import ExportComparisonRanking from '../components/import-export/ExportComparisonRanking';
 import PriceMarginSection from '../components/import-export/PriceMarginCard';
-import ExportRiskAlerts from '../components/import-export/ExportRiskAlerts';
 import MarketSummaryCard from '../components/import-export/MarketSummaryCard';
 import { fetchImportData, computeLandedCost, interpretImportData } from '../components/import-export/ImportDataFetcher';
 import LandedCostTable from '../components/import-export/LandedCostTable';
@@ -36,6 +32,10 @@ import ImportTopImportersChart from '../components/import-export/ImportTopImport
 import ImportTradeChart from '../components/import-export/ImportTradeChart';
 import { buildExportSummary, buildImportSummary } from '../components/import-export/buildAnalysisSummary';
 import SearchHistory from '../components/import-export/SearchHistory';
+import WorldMapExplorer from '../components/import-export/WorldMapExplorer';
+import ImportContactCard from '../components/import-export/ImportContactCard';
+import ExportContactCard from '../components/import-export/ExportContactCard';
+import ImportLimitPopup from '../components/import-export/ImportLimitPopup';
 
 const SETTORI = [
   'Alimentare e bevande',
