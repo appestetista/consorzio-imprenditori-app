@@ -330,6 +330,13 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
       return;
     }
 
+    // Se c'è un FileCartella in questo slot e non una nota, apri il FileNoteEditor
+    const filesInSlot = cartellaFiles[slot.timeString];
+    if (!savedNotes[slot.timeString] && filesInSlot?.length > 0) {
+      setEditingFile(filesInSlot[0]);
+      return;
+    }
+
     // Apri l'editor (sia per note esistenti che nuove)
     setSelectedTime(slot.timeString);
     setShowNoteEditor(true);
