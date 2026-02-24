@@ -25,6 +25,8 @@ export default function Home() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeConversationId, setActiveConversationId] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const recognitionRef = useRef(null);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
