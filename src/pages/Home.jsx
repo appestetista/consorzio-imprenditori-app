@@ -258,7 +258,7 @@ Domanda dell'utente: ${msg}`,
             {/* Hamburger menu premium */}
             <button 
               onClick={() => setMenuOpen(!menuOpen)}
-              className="relative w-11 h-11 transition-transform duration-100 active:scale-95"
+              className="relative w-12 h-12 transition-transform duration-100 active:scale-95 touch-manipulation"
             >
               <div className="absolute inset-0 rounded-xl" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.2)' }} />
               <div className="absolute inset-0 rounded-xl p-[2.5px]" style={{ background: 'linear-gradient(145deg, #f0e68c 0%, #d4af37 30%, #b8860b 60%, #8b7355 100%)' }}>
