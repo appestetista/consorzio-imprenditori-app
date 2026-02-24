@@ -1127,7 +1127,10 @@ export default function FinanziamentiAgevolati() {
                 isMatching={loadingMatch}
                 hasIncompleteProfile={hasIncompleteProfile}
                 onCompleteProfile={() => setShowProfilePopup(true)}
-                onShowBestGrant={(g) => { if (g) handleShowDetails(g); }}
+                onShowBestGrant={(g) => { 
+                  if (g) handleShowDetails(g); 
+                  else setShowAllGrants(true); 
+                }}
                 totalGrants={filteredGrants.length}
               />
             </div>
