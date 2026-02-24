@@ -180,12 +180,15 @@ Rispondi in italiano.`,
     container.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
-    // Lighting
-    const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+    // Lighting - luminoso e morbido
+    const ambient = new THREE.AmbientLight(0xffffff, 1.0);
     scene.add(ambient);
-    const directional = new THREE.DirectionalLight(0xffffff, 0.8);
+    const directional = new THREE.DirectionalLight(0xffffff, 0.6);
     directional.position.set(5, 3, 5);
     scene.add(directional);
+    const fillLight = new THREE.DirectionalLight(0xe0f2fe, 0.3);
+    fillLight.position.set(-3, -2, -3);
+    scene.add(fillLight);
 
     // Globe group
     const globeGroup = new THREE.Group();
