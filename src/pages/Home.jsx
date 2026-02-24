@@ -234,9 +234,9 @@ Domanda dell'utente: ${msg}`,
           {/* Sinistra: hamburger sidebar chat */}
           <button
             onClick={() => setSidebarOpen(true)}
-            className="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-slate-800 transition-colors"
+            className="w-12 h-12 rounded-xl flex items-center justify-center hover:bg-slate-800 transition-colors"
           >
-            <Menu className="w-5 h-5 text-slate-400" />
+            <Menu className="w-7 h-7 text-slate-400" />
           </button>
 
           {/* Destra: messaggi + menu hamburger */}
