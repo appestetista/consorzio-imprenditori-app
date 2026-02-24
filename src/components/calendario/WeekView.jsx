@@ -359,19 +359,24 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
     notesByDateAndTime[n.data][sk] = n;
   });
   files.forEach(f => {
-    if (!f.data || !f.time) return;
-    const [h,m] = f.time.split(':').map(Number);
+    if (!f.data) return;
+    const t = f.time || '00:00';
+    const [h,m] = t.split(':').map(Number);
     const sk = `${String(h).padStart(2,'0')}:${String(Math.floor(m/5)*5).padStart(2,'0')}`;
     if (!items[f.data]) items[f.data] = {};
     if (!items[f.data][sk]) items[f.data][sk] = [];
-    items[f.data][sk].push({ title: f.titolo, color: cm[f.cartella_id]?.colore || '#64748b' });
+    items[f.data][sk].push({ title: f.titolo, color: f.colore || cm[f.cartella_id]?.colore || '#64748b' });
   });
 
-  // Conteggio note per giorno (tutto l'anno, per pallini)
+  // Conteggio note + file per giorno (tutto l'anno, per pallini)
   const noteCountByDayKey = {};
   allMonthNotes.forEach(n => {
     if (!n.data) return;
     noteCountByDayKey[n.data] = (noteCountByDayKey[n.data] || 0) + 1;
+  });
+  files.forEach(f => {
+    if (!f.data) return;
+    noteCountByDayKey[f.data] = (noteCountByDayKey[f.data] || 0) + 1;
   });
 
   // Navigazione esterna a uno slot preciso (giorno + orario) dalla popup mensile
