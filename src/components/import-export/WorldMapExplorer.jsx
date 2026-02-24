@@ -547,7 +547,7 @@ Rispondi in italiano.`,
           {/* Pannello dati paese */}
           {selectedCountry && (
             <div className="absolute bottom-0 left-0 right-0 z-10 p-3 md:absolute md:top-0 md:right-0 md:bottom-auto md:left-auto md:w-72 md:h-full md:p-0 md:overflow-y-auto">
-              <div className="md:h-full md:bg-slate-900/95 md:backdrop-blur-sm md:border-l md:border-slate-700/50">
+              <div className="md:h-full md:bg-white/95 md:backdrop-blur-sm md:border-l md:border-slate-200">
                 <div className="md:p-0">
                   <GlobeCountryPanel
                     country={selectedCountry}
