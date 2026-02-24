@@ -370,12 +370,12 @@ Rispondi in italiano.`,
       
       // Reset previous hover
       if (hoveredRef.current && hoveredRef.current !== mesh && hoveredRef.current !== selectedMeshRef.current) {
-        hoveredRef.current.material.color.setHex(0x1e3a2f);
-        hoveredRef.current.material.opacity = 0.7;
+        hoveredRef.current.material.color.setHex(0x6ee7b7);
+        hoveredRef.current.material.opacity = 0.75;
       }
       
       if (mesh !== selectedMeshRef.current) {
-        mesh.material.color.setHex(0x2d5a4a);
+        mesh.material.color.setHex(0x34d399);
         mesh.material.opacity = 0.9;
       }
       hoveredRef.current = mesh;
