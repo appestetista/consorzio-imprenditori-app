@@ -252,23 +252,7 @@ export default function FileStrip({ userEmail, cartelle = [], onFileClick, onFil
                     {shortName}
                   </span>
 
-                  {/* Linguetta modifica sotto il nome */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setContextFile(file);
-                    }}
-                    className="flex items-center justify-center rounded-b-md shadow-md"
-                    style={{
-                      width: '24px',
-                      height: '12px',
-                      background: '#ffffff',
-                      borderTop: '1px solid rgba(0,0,0,0.1)',
-                      marginTop: '1px',
-                    }}
-                  >
-                    <Pencil className="w-2 h-2 text-black" />
-                  </button>
+
                 </div>
             </div>
           );

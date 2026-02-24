@@ -117,7 +117,7 @@ export default function FileNoteEditor({ file, onClose, onSave, onDelete, monthC
 
   const formattedDate = fileData
     ? new Date(fileData + 'T00:00:00').toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric', month: 'long' })
-    : 'File senza data';
+    : 'Nota senza data';
 
   const displayColor = fileColore || (() => {
     const cart = selectedCartella ? cartelle.find(c => c.id === selectedCartella) : null;
@@ -126,10 +126,14 @@ export default function FileNoteEditor({ file, onClose, onSave, onDelete, monthC
 
   return (
     <div className="flex flex-col fixed inset-0 z-[60]" style={{ backgroundColor: fileColore ? `color-mix(in srgb, ${fileColore} 15%, #000)` : '#000' }}>
-      {/* Riga 1: Info file con pallino colore */}
+      {/* Riga 1: Info file con pallino colore cliccabile */}
       <div className="px-3 py-2 border-b border-slate-800">
         <div className="flex items-center justify-center gap-2 text-xs font-mono">
-          <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: displayColor }} />
+          <button
+            onClick={() => setShowColorPicker(!showColorPicker)}
+            className="w-4 h-4 rounded-full flex-shrink-0 border border-white/20 active:scale-110 transition-transform touch-manipulation"
+            style={{ backgroundColor: displayColor }}
+          />
           <span style={{ color: displayColor }}>
             📄 {formattedDate} {fileTime ? `• ${fileTime}` : ''}
           </span>
