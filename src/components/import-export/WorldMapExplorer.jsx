@@ -85,7 +85,9 @@ export default function WorldMapExplorer() {
   const [selectedLayerRef, setSelectedLayerRef] = useState(null);
   const [countryData, setCountryData] = useState(null);
   const [loadingData, setLoadingData] = useState(false);
+  const [mapLocked, setMapLocked] = useState(true); // Bloccata di default su mobile
   const geoJsonRef = useRef(null);
+  const mapRef = useRef(null);
   const previousLayerRef = useRef(null);
 
   // Carica GeoJSON
