@@ -280,17 +280,21 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           <HorizontalDatePicker
             goToTodayButton={
               (() => {
-                const isToday = new Date(selectedDate).toDateString() === new Date().toDateString();
+                const isToday = selectedDate && new Date(selectedDate).toDateString() === new Date().toDateString();
                 return (
                   <button
                     onClick={() => {
-                      if (isToday) return;
                       const today = new Date();
                       today.setHours(0, 0, 0, 0);
                       if (onDateSelect) {
                         onDateSelect(today);
                       }
-                      goToTodayRef.current?.();
+                      // Scrolla il calendario orizzontale al giorno di oggi
+                      if (goToTodayRef.scrollToDate) {
+                        goToTodayRef.scrollToDate(today);
+                      } else if (goToTodayRef.current) {
+                        goToTodayRef.current();
+                      }
                     }}
                     className="rounded text-[10px] font-semibold"
                     style={{ 
