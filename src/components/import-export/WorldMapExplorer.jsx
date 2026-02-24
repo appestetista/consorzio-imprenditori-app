@@ -255,24 +255,42 @@ Rispondi in italiano.`,
                 .world-map-container .leaflet-container {
                   background: #0f172a !important;
                 }
-                .world-map-container .leaflet-control-zoom a {
-                  background: #1e293b !important;
-                  color: #94a3b8 !important;
-                  border-color: #334155 !important;
+                .world-map-container .leaflet-control-zoom {
+                  display: none !important;
                 }
                 .world-map-container .leaflet-control-attribution {
                   display: none !important;
                 }
               `}</style>
+
+              {/* Lock/Unlock toggle per mobile */}
+              <div className="md:hidden absolute top-2 left-2 z-[1000]">
+                <button
+                  onClick={() => setMapLocked(!mapLocked)}
+                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-semibold backdrop-blur-sm border transition-all ${
+                    mapLocked
+                      ? 'bg-amber-500/20 border-amber-500/40 text-amber-300'
+                      : 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300'
+                  }`}
+                >
+                  {mapLocked ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
+                  {mapLocked ? 'Sblocca mappa' : 'Blocca mappa'}
+                </button>
+              </div>
+
               <div className="world-map-container" style={{ height: 300 }}>
                 <MapContainer
+                  ref={mapRef}
                   center={[20, 0]}
                   zoom={2}
                   minZoom={2}
                   maxZoom={7}
                   style={{ height: '100%', width: '100%', background: '#0f172a' }}
                   scrollWheelZoom={true}
-                  zoomControl={true}
+                  zoomControl={false}
+                  dragging={!mapLocked}
+                  touchZoom={!mapLocked}
+                  doubleClickZoom={!mapLocked}
                 >
                   {geoData && (
                     <GeoJSON
@@ -283,6 +301,13 @@ Rispondi in italiano.`,
                     />
                   )}
                   <FitBoundsOnSelect selectedLayer={selectedLayerRef} />
+                  <MapInteractionLock locked={mapLocked} />
+                  <CustomZoomControls onReset={() => {
+                    if (mapRef.current) {
+                      mapRef.current.setView([20, 0], 2);
+                    }
+                    closePanel();
+                  }} />
                 </MapContainer>
               </div>
             </div>
