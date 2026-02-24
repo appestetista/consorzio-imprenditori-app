@@ -139,10 +139,10 @@ Domanda dell'utente: ${msg}`,
 
             {/* Titolo */}
             <h1 className="text-white text-2xl font-bold text-center mb-2 leading-tight">
-              Dimmi il problema.
+              Hai un problema?
             </h1>
             <h2 className="text-white text-2xl font-bold text-center mb-8 leading-tight">
-              Ti dico cosa fare.
+              Come posso aiutarti?
             </h2>
 
             {/* Suggerimenti */}
