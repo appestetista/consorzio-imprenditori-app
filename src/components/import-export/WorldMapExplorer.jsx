@@ -396,7 +396,6 @@ Rispondi in italiano.`,
     const wasDragging = isDragging.current;
     isDragging.current = false;
 
-    // Se il mouse si è mosso poco => è un click
     if (!wasDragging) return;
     
     const container = containerRef.current;
@@ -412,11 +411,11 @@ Rispondi in italiano.`,
       clientY = e.clientY;
     }
     
-    const dx = Math.abs(clientX - previousMouse.current.x);
-    const dy = Math.abs(clientY - previousMouse.current.y);
+    // Tolleranza drag dal punto iniziale
+    const dx = Math.abs(clientX - startMouse.current.x);
+    const dy = Math.abs(clientY - startMouse.current.y);
     
-    // Tolleranza drag: se si è mosso poco è un click
-    if (dx > 5 || dy > 5) return;
+    if (dx > 8 || dy > 8) return;
 
     const mouse = new THREE.Vector2(
       ((clientX - rect.left) / rect.width) * 2 - 1,
