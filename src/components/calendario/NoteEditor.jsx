@@ -220,29 +220,28 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
     )}
     style={{ touchAction: 'manipulation' }}
     >
-      {/* Riga 1: Data e ora centrati con pallino colore */}
+      {/* Riga 1: Pallino colore + Info nota centrati */}
       <div className="px-3 py-2 border-b border-slate-800">
         <div className="flex items-center justify-center gap-2 text-xs font-mono">
           <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: cartColor }} />
           <span style={{ color: cartColor }}>
-            {formattedDate} • {saveTime}
+            📄 {noteDate ? formattedDate : 'Nota senza data'} {noteTime ? `• ${noteTime}` : ''}
           </span>
         </div>
       </div>
 
-      {/* Riga 2: Cestino | Salva | X */}
+      {/* Riga 2: Cestino | Salva | Penna | X */}
       <div className="flex items-center gap-2 px-3 py-2 border-b border-slate-800">
-        <button
-          onClick={() => {
-            if (existingNote && onDelete) setShowDeleteConfirm(true);
-          }}
-          className={cn(
-            "w-9 h-9 rounded-full flex items-center justify-center active:scale-90 transition-all touch-manipulation flex-shrink-0",
-            existingNote ? "bg-red-500/20 hover:bg-red-500/40" : "bg-slate-800/50"
-          )}
-        >
-          <Trash2 className={cn("w-4 h-4", existingNote ? "text-red-400" : "text-slate-600")} />
-        </button>
+        {existingNote && (
+          <button
+            onClick={() => {
+              if (onDelete) setShowDeleteConfirm(true);
+            }}
+            className="w-9 h-9 rounded-full bg-red-500/20 hover:bg-red-500/40 flex items-center justify-center active:scale-90 transition-all touch-manipulation flex-shrink-0"
+          >
+            <Trash2 className="w-4 h-4 text-red-400" />
+          </button>
+        )}
 
         <a
           href="#"
@@ -260,6 +259,14 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
           )}
           SALVA
         </a>
+
+        <button
+          onClick={() => setShowCartellaDropdown(!showCartellaDropdown)}
+          className="w-9 h-9 rounded-full flex items-center justify-center active:scale-90 transition-all touch-manipulation flex-shrink-0"
+          style={{ backgroundColor: cartColor + '30' }}
+        >
+          <Pencil className="w-4 h-4" style={{ color: cartColor }} />
+        </button>
 
         {onClose && (
           <button
