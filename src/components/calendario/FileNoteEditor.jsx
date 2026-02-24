@@ -268,7 +268,7 @@ export default function FileNoteEditor({ file, onClose, onSave, onDelete, monthC
             <X className="w-3.5 h-3.5 text-slate-400" />
           </button>
         )}
-        <Pencil className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
+
       </div>
 
       {/* Content */}
