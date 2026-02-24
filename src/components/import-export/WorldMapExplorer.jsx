@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { MapContainer, GeoJSON, TileLayer, useMap } from 'react-leaflet';
 import { Card, CardContent } from '@/components/ui/card';
-import { X, Globe, Loader2, MapPin } from 'lucide-react';
+import { X, Globe, Loader2, MapPin, Lock, Unlock, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import 'leaflet/dist/leaflet.css';
 
