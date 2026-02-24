@@ -168,10 +168,11 @@ Deno.serve(async (req) => {
             const normTitle = normalizeTitle(grant.title);
 
             // Duplicato in DB?
-            const dbDupIdx = activeTitlesNormalized.findIndex(ex => titleOverlap(ex, normTitle) > 0.75);
+            const dbDupTitle = activeTitlesNormalized.find(ex => titleOverlap(ex, normTitle) > 0.75);
 
-            if (dbDupIdx >= 0) {
-                const existing = activeGrants[dbDupIdx];
+            if (dbDupTitle) {
+                const existing = activeGrantsByNormTitle[dbDupTitle];
+                if (!existing) { skippedDuplicate++; continue; }
                 const updates = {};
                 if (grant.deadline && !existing.deadline) updates.deadline = grant.deadline;
                 if (grant.max_amount && !existing.max_amount) updates.max_amount = grant.max_amount;
