@@ -302,7 +302,7 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
         />
       </div>
 
-      {/* Riga 4: Data/Ora picker + Penna */}
+      {/* Riga 4: Data/Ora picker con ChevronDown */}
       <div className="flex items-center gap-2 px-3 py-1.5 border-b border-slate-800/50">
         <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border flex-1" style={{ borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)' }}>
           <CalendarIcon className="w-3.5 h-3.5 flex-shrink-0" style={{ color: '#3b82f6' }} />
@@ -313,6 +313,7 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
             className="bg-transparent text-xs font-medium outline-none flex-1 min-w-0"
             style={{ color: noteDate ? '#60a5fa' : '#3b82f6', colorScheme: 'dark' }}
           />
+          <ChevronDown className="w-3 h-3 flex-shrink-0" style={{ color: '#3b82f6' }} />
         </div>
         <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border flex-1" style={{ borderColor: '#a855f7', backgroundColor: 'rgba(168, 85, 247, 0.1)' }}>
           <svg className="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="#a855f7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -335,8 +336,8 @@ export default function NoteEditor({ selectedDate, selectedTime, onClose, onSave
             className="bg-transparent text-xs font-medium outline-none flex-1 min-w-0"
             style={{ color: noteTime ? '#c084fc' : '#a855f7', colorScheme: 'dark' }}
           />
+          <ChevronDown className="w-3 h-3 flex-shrink-0" style={{ color: '#a855f7' }} />
         </div>
-        <Pencil className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
       </div>
 
       {/* Content */}
