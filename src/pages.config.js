@@ -62,6 +62,7 @@ import ContattaMembri from './pages/ContattaMembri';
 import ContattaMembriAdmin from './pages/ContattaMembriAdmin';
 import CulturaAziendale from './pages/CulturaAziendale';
 import DirectoryUtenti from './pages/DirectoryUtenti';
+import Esplora from './pages/Esplora';
 import FinanziamentiAgevolati from './pages/FinanziamentiAgevolati';
 import FiscalitaEnergetica from './pages/FiscalitaEnergetica';
 import Fornitori from './pages/Fornitori';
@@ -93,7 +94,6 @@ import WelfareNormativa from './pages/WelfareNormativa';
 import WelfareOrdina from './pages/WelfareOrdina';
 import WelfareStorico from './pages/WelfareStorico';
 import WelfareTipologie from './pages/WelfareTipologie';
-import Esplora from './pages/Esplora';
 import __Layout from './Layout.jsx';
 
 
@@ -113,6 +113,7 @@ export const PAGES = {
     "ContattaMembriAdmin": ContattaMembriAdmin,
     "CulturaAziendale": CulturaAziendale,
     "DirectoryUtenti": DirectoryUtenti,
+    "Esplora": Esplora,
     "FinanziamentiAgevolati": FinanziamentiAgevolati,
     "FiscalitaEnergetica": FiscalitaEnergetica,
     "Fornitori": Fornitori,
@@ -144,7 +145,6 @@ export const PAGES = {
     "WelfareOrdina": WelfareOrdina,
     "WelfareStorico": WelfareStorico,
     "WelfareTipologie": WelfareTipologie,
-    "Esplora": Esplora,
 }
 
 export const pagesConfig = {

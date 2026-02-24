@@ -189,16 +189,6 @@ Domanda dell'utente: ${msg}`,
     setInputText('');
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-lime-400"></div>
-      </div>
-    );
-  }
-
-  const hasMessages = messages.length > 0;
-
   // Notifiche non lette per badge messaggi
   const { data: notifications = [] } = useRQQuery({
     queryKey: ['home-notifications', effectiveUser?.email],
@@ -211,6 +201,16 @@ Domanda dell'utente: ${msg}`,
   // Logo utente
   const DEFAULT_LOGO = "https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=100&h=100&fit=crop";
   const userLogo = effectiveUser?.company_logo || DEFAULT_LOGO;
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-lime-400"></div>
+      </div>
+    );
+  }
+
+  const hasMessages = messages.length > 0;
 
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#0a0f1a' }}>
