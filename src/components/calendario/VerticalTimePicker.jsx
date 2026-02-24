@@ -413,7 +413,7 @@ export default function VerticalTimePicker({ selectedDate, visibleDay, visibleMo
                 style={{
                 backgroundColor: isSelected ? 'rgba(100, 100, 100, 0.3)' : 
                   hasNote ? (() => { const parts = note.data?.split('-'); const nc = parts ? MONTH_COLORS[parseInt(parts[1]) - 1] : '#a3e635'; return `color-mix(in srgb, ${nc} 8%, transparent)`; })() : 
-                  hasCartellaFile ? `color-mix(in srgb, #64748b 8%, transparent)` : undefined
+                  hasCartellaFile ? (() => { const cf = cartellaFiles[slot.timeString][0]; const fc = cf.colore || cartelleMap[cf.cartella_id]?.colore || '#64748b'; return `color-mix(in srgb, ${fc} 8%, transparent)`; })() : undefined
                 }}
             >
               {/* Pulsante + colore mese se selezionato, altrimenti linea o icona nota */}
