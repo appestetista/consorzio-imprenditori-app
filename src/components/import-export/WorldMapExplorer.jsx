@@ -507,30 +507,30 @@ Rispondi in italiano.`,
   return (
     <div className="mb-6">
       <div className="flex items-center gap-2 mb-3">
-        <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-          <Globe className="w-4 h-4 text-emerald-400" />
+        <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+          <Globe className="w-4 h-4 text-emerald-600" />
         </div>
         <div>
-          <h3 className="text-white font-bold text-sm">Mappa Stati</h3>
-          <p className="text-slate-500 text-[10px]">Ruota il globo e clicca su uno Stato</p>
+          <h3 className="text-slate-800 font-bold text-sm">Mappa Stati</h3>
+          <p className="text-slate-400 text-[10px]">Ruota il globo e clicca su uno Stato</p>
         </div>
       </div>
 
-      <Card className="bg-slate-800/60 border-white/5 overflow-hidden">
+      <Card className="bg-gradient-to-br from-sky-50 to-slate-100 border-slate-200/60 overflow-hidden shadow-sm">
         <CardContent className="p-0 relative">
           {loadingGeo && (
-            <div className="absolute inset-0 flex items-center justify-center bg-slate-900/80 z-10">
+            <div className="absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm z-10">
               <div className="text-center">
-                <Loader2 className="w-6 h-6 text-emerald-400 animate-spin mx-auto mb-2" />
-                <p className="text-slate-400 text-xs">Caricamento globo...</p>
+                <Loader2 className="w-6 h-6 text-emerald-500 animate-spin mx-auto mb-2" />
+                <p className="text-slate-500 text-xs">Caricamento globo...</p>
               </div>
             </div>
           )}
 
           {/* Tooltip hover */}
           {hoveredName && !selectedCountry && (
-            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10 bg-slate-900/90 backdrop-blur-sm border border-slate-600/40 rounded-lg px-3 py-1.5 pointer-events-none">
-              <span className="text-slate-200 text-xs font-semibold">{hoveredName}</span>
+            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10 bg-white/90 backdrop-blur-sm border border-slate-200 rounded-lg px-3 py-1.5 shadow-sm pointer-events-none">
+              <span className="text-slate-700 text-xs font-semibold">{hoveredName}</span>
             </div>
           )}
 
