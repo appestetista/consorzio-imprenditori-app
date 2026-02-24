@@ -319,15 +319,27 @@ Domanda dell'utente: ${msg}`,
       {/* Campo di input */}
       <div className="fixed bottom-[88px] left-0 right-0 z-40 px-4 pb-3 pt-2" style={{ background: 'linear-gradient(to top, #0a0f1a 70%, transparent)' }}>
         <div className="max-w-2xl mx-auto">
-          <div className="relative flex items-end rounded-2xl border border-slate-700/60 bg-slate-800/80 backdrop-blur-lg overflow-hidden">
+          <div className="relative flex items-end rounded-2xl border border-slate-700/60 bg-slate-800/80 backdrop-blur-lg overflow-hidden" style={isRecording ? { borderColor: '#ef4444' } : {}}>
+            {/* Microfono */}
+            <button
+              onClick={toggleRecording}
+              className="flex-shrink-0 ml-2 mb-2.5 w-8 h-8 rounded-full flex items-center justify-center transition-all"
+              style={{ backgroundColor: isRecording ? '#ef4444' : 'transparent' }}
+            >
+              {isRecording ? (
+                <MicOff className="w-4 h-4 text-white" />
+              ) : (
+                <Mic className="w-4 h-4 text-slate-400" />
+              )}
+            </button>
             <textarea
               ref={inputRef}
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Descrivi il tuo problema..."
+              placeholder={isRecording ? "Sto ascoltando..." : "Descrivi il tuo problema..."}
               rows={1}
-              className="flex-1 bg-transparent text-white text-sm px-4 py-3.5 resize-none outline-none placeholder:text-slate-500 max-h-32"
+              className="flex-1 bg-transparent text-white text-sm px-3 py-3.5 resize-none outline-none placeholder:text-slate-500 max-h-32"
               style={{ scrollbarWidth: 'none' }}
             />
             <button
