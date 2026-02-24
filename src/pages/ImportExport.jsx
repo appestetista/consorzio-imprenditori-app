@@ -587,20 +587,8 @@ Fornisci:
           </div>
         </div>
 
-        {/* Hero */}
-        <div className="relative mb-6 rounded-2xl overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-emerald-600/90 via-teal-600/90 to-cyan-700/90" />
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMSIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjA1KSIvPjwvc3ZnPg==')] opacity-40" />
-          <div className="relative px-5 py-6 flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur-sm flex items-center justify-center shadow-lg">
-              <Globe className="w-7 h-7 text-white" />
-            </div>
-            <div className="flex-1">
-              <h2 className="text-white text-lg font-bold">Internazionalizzazione</h2>
-              <p className="text-white/70 text-sm mt-0.5">Dati ufficiali · Analisi AI · Consulenza</p>
-            </div>
-          </div>
-        </div>
+        {/* Mappa Stati */}
+        <WorldMapExplorer />
 
         {/* Tab Switch */}
         <div className="flex gap-1.5 mb-6 bg-slate-800/50 p-1 rounded-xl border border-white/5">
