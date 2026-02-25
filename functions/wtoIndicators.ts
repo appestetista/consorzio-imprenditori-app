@@ -76,6 +76,59 @@ Deno.serve(async (req) => {
     });
   }
 
+  // === DATA_COUNT ===
+  if (endpoint === 'data_count') {
+    const i = (body.i || body.indicator_code || '').trim();
+    const r = (body.r || body.reporter || '').trim();
+    const p = body.p !== undefined ? String(body.p).trim() : '0';
+    const pc = (body.pc || body.product_code || '').trim();
+    const ps = (body.ps || body.years || '').trim();
+
+    if (!i) {
+      return Response.json({ error: 'i (indicator_code) is required' }, { status: 400 });
+    }
+    if (!r) {
+      return Response.json({ error: 'r (reporter country code) is required' }, { status: 400 });
+    }
+
+    const params = new URLSearchParams();
+    params.set('i', i);
+    params.set('r', r);
+    params.set('p', p);
+    if (pc) params.set('pc', pc);
+    if (ps) params.set('ps', ps);
+
+    const url = baseUrl + '/data_count?' + params.toString();
+    console.log('[wtoIndicators] data_count URL:', url);
+
+    const resp = await fetch(url, { headers: reqHeaders, signal: AbortSignal.timeout(20000) });
+    if (!resp.ok) {
+      const text = await resp.text();
+      return Response.json({ error: 'WTO API HTTP ' + resp.status, detail: text, url: url }, { status: resp.status });
+    }
+
+    const data = await resp.json();
+    const count = typeof data === 'number' ? data : (data.count !== undefined ? data.count : data);
+
+    if (count === 0) {
+      return Response.json({
+        success: true,
+        endpoint: 'data_count',
+        data_count: 0,
+        message: 'Nessun dato disponibile WTO',
+        query: { i, r, p, pc, ps }
+      });
+    }
+
+    return Response.json({
+      success: true,
+      endpoint: 'data_count',
+      data_count: count,
+      query: { i, r, p, pc, ps },
+      raw: data
+    });
+  }
+
   // === YEARS ===
   if (endpoint === 'years') {
     const resp = await fetch(baseUrl + '/years', { headers: reqHeaders, signal: AbortSignal.timeout(20000) });
