@@ -665,21 +665,7 @@ Rispondi in italiano.`,
           }}
         />
 
-        {/* Pannello dati paese */}
-        {selectedCountry && (
-          <div className="absolute bottom-0 left-0 right-0 z-10 p-3 md:absolute md:top-0 md:right-0 md:bottom-auto md:left-auto md:w-72 md:h-full md:p-0 md:overflow-y-auto">
-            <div className="md:h-full md:bg-slate-900/95 md:backdrop-blur-sm md:border-l md:border-white/10">
-              <div className="md:p-0">
-                <GlobeCountryPanel
-                  country={selectedCountry}
-                  data={countryData}
-                  loading={loadingData}
-                  onClose={closePanel}
-                />
-              </div>
-            </div>
-          </div>
-        )}
+
       </div>
     </div>
   );
