@@ -600,6 +600,20 @@ Fornisci:
           </button>
         </div>
 
+        {/* Ricerca rapida export */}
+        {activeTab === 'export' && !analysisResult && (
+          <div className="mb-5 space-y-3">
+            <p className="text-white font-semibold text-sm">Cosa vuoi esportare?</p>
+            <Input
+              placeholder="Es. Olio d'oliva, macchine tessili, vino..."
+              value={quickExportSearch}
+              onChange={(e) => setQuickExportSearch(e.target.value)}
+              className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl placeholder:text-slate-500"
+            />
+            <p className="text-white font-semibold text-sm">Indica il paese</p>
+          </div>
+        )}
+
         {/* Mappa Stati */}
         <WorldMapExplorer />
 
