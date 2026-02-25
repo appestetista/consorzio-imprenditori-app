@@ -106,8 +106,8 @@ Deno.serve(async (req) => {
     var records = [];
     for (var ri = 0; ri < dataArray.length; ri++) {
       var rec = dataArray[ri];
-      // Year: WTO uses PeriodCode (e.g. "2023") or Period
-      var yrStr = rec.PeriodCode || rec.Year || rec.year || rec.Period || rec.period || '';
+      // Year: WTO uses Year field directly. PeriodCode is "A" (Annual), not the year.
+      var yrStr = rec.Year || rec.year || '';
       var yr = parseInt(String(yrStr), 10);
       var val = parseFloat(rec.Value != null ? rec.Value : (rec.value != null ? rec.value : NaN));
       var parsed = {
