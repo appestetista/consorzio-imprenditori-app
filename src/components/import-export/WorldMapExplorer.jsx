@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import { Globe, Loader2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import * as THREE from 'three';
@@ -195,52 +194,21 @@ Rispondi in italiano.`,
     scene.add(globeGroup);
     globeGroupRef.current = globeGroup;
 
-    // Sfera oceano - tema chiaro
+    // Sfera oceano - nero
     const sphereGeom = new THREE.SphereGeometry(1, 64, 64);
     const sphereMat = new THREE.MeshPhongMaterial({
-      color: 0xd4eaf7,
-      transparent: true,
-      opacity: 0.95,
-      shininess: 40,
+      color: 0x000000,
+      shininess: 5,
     });
     const sphere = new THREE.Mesh(sphereGeom, sphereMat);
     globeGroup.add(sphere);
-
-    // Atmosfera glow
-    const glowGeom = new THREE.SphereGeometry(1.03, 64, 64);
-    const glowMat = new THREE.MeshBasicMaterial({
-      color: 0x93c5fd,
-      transparent: true,
-      opacity: 0.08,
-      side: THREE.BackSide,
-    });
-    globeGroup.add(new THREE.Mesh(glowGeom, glowMat));
-
-    // Griglia lat/lng
-    const gridMat = new THREE.LineBasicMaterial({ color: 0xbfdbfe, transparent: true, opacity: 0.25 });
-    for (let lat = -80; lat <= 80; lat += 20) {
-      const pts = [];
-      for (let lng = -180; lng <= 180; lng += 2) {
-        pts.push(latLngToVector3(lat, lng, 1.001));
-      }
-      const geom = new THREE.BufferGeometry().setFromPoints(pts);
-      globeGroup.add(new THREE.Line(geom, gridMat));
-    }
-    for (let lng = -180; lng < 180; lng += 30) {
-      const pts = [];
-      for (let lat = -90; lat <= 90; lat += 2) {
-        pts.push(latLngToVector3(lat, lng, 1.001));
-      }
-      const geom = new THREE.BufferGeometry().setFromPoints(pts);
-      globeGroup.add(new THREE.Line(geom, gridMat));
-    }
 
     // Carica GeoJSON
     const loadGeoJSON = async () => {
       const res = await fetch(GEOJSON_URL);
       const data = await res.json();
       
-      const borderMat = new THREE.LineBasicMaterial({ color: 0x94a3b8, transparent: true, opacity: 0.45 });
+      const borderMat = new THREE.LineBasicMaterial({ color: 0x374151, transparent: true, opacity: 0.7 });
       const defaultMat = new THREE.MeshPhongMaterial({
         color: 0xffffff,
         transparent: true,
@@ -291,12 +259,14 @@ Rispondi in italiano.`,
         globeGroup.rotation.y += 0.002;
       }
 
-      // Inerzia
+      // Inerzia fluida
       if (!isDragging.current) {
         globeGroup.rotation.y += rotationVelocity.current.x;
         globeGroup.rotation.x += rotationVelocity.current.y;
-        rotationVelocity.current.x *= 0.95;
-        rotationVelocity.current.y *= 0.95;
+        rotationVelocity.current.x *= 0.97;
+        rotationVelocity.current.y *= 0.97;
+        if (Math.abs(rotationVelocity.current.x) < 0.0001) rotationVelocity.current.x = 0;
+        if (Math.abs(rotationVelocity.current.y) < 0.0001) rotationVelocity.current.y = 0;
       }
 
       // Clamp rotazione X
@@ -356,9 +326,9 @@ Rispondi in italiano.`,
     if (isDragging.current && globeGroupRef.current) {
       const dx = pos.px - previousMouse.current.x;
       const dy = pos.py - previousMouse.current.y;
-      globeGroupRef.current.rotation.y += dx * 0.005;
-      globeGroupRef.current.rotation.x += dy * 0.005;
-      rotationVelocity.current = { x: dx * 0.002, y: dy * 0.002 };
+      globeGroupRef.current.rotation.y += dx * 0.006;
+      globeGroupRef.current.rotation.x += dy * 0.006;
+      rotationVelocity.current = { x: dx * 0.003, y: dy * 0.003 };
       previousMouse.current = { x: pos.px, y: pos.py };
     }
 
@@ -508,62 +478,60 @@ Rispondi in italiano.`,
   }, []);
 
   return (
-    <div className="mb-6">
+    <div className="mb-6 relative">
       <div className="flex items-center gap-2 mb-3">
-        <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
-          <Globe className="w-4 h-4 text-emerald-600" />
+        <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center">
+          <Globe className="w-4 h-4 text-slate-400" />
         </div>
         <div>
-          <h3 className="text-slate-800 font-bold text-sm">Mappa Stati</h3>
-          <p className="text-slate-400 text-[10px]">Ruota il globo e clicca su uno Stato</p>
+          <h3 className="text-white font-bold text-sm">Mappa Stati</h3>
+          <p className="text-slate-500 text-[10px]">Ruota il globo e clicca su uno Stato</p>
         </div>
       </div>
 
-      <Card className="bg-gradient-to-br from-sky-50 to-slate-100 border-slate-200/60 overflow-hidden shadow-sm">
-        <CardContent className="p-0 relative">
-          {loadingGeo && (
-            <div className="absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm z-10">
-              <div className="text-center">
-                <Loader2 className="w-6 h-6 text-emerald-500 animate-spin mx-auto mb-2" />
-                <p className="text-slate-500 text-xs">Caricamento globo...</p>
+      <div className="relative">
+        {loadingGeo && (
+          <div className="absolute inset-0 flex items-center justify-center z-10">
+            <div className="text-center">
+              <Loader2 className="w-6 h-6 text-slate-400 animate-spin mx-auto mb-2" />
+              <p className="text-slate-500 text-xs">Caricamento globo...</p>
+            </div>
+          </div>
+        )}
+
+        {/* Tooltip hover */}
+        {hoveredName && !selectedCountry && (
+          <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10 bg-slate-800/90 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-lg pointer-events-none">
+            <span className="text-white text-xs font-semibold">{hoveredName}</span>
+          </div>
+        )}
+
+        <div
+          ref={containerRef}
+          className="w-full cursor-grab active:cursor-grabbing"
+          style={{ height: 420, touchAction: 'none' }}
+          onMouseDown={handlePointerDown}
+          onMouseMove={handlePointerMove}
+          onMouseUp={handlePointerUp}
+          onMouseLeave={() => { isDragging.current = false; }}
+        />
+
+        {/* Pannello dati paese */}
+        {selectedCountry && (
+          <div className="absolute bottom-0 left-0 right-0 z-10 p-3 md:absolute md:top-0 md:right-0 md:bottom-auto md:left-auto md:w-72 md:h-full md:p-0 md:overflow-y-auto">
+            <div className="md:h-full md:bg-slate-900/95 md:backdrop-blur-sm md:border-l md:border-white/10">
+              <div className="md:p-0">
+                <GlobeCountryPanel
+                  country={selectedCountry}
+                  data={countryData}
+                  loading={loadingData}
+                  onClose={closePanel}
+                />
               </div>
             </div>
-          )}
-
-          {/* Tooltip hover */}
-          {hoveredName && !selectedCountry && (
-            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10 bg-slate-800/90 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-lg pointer-events-none">
-              <span className="text-white text-xs font-semibold">{hoveredName}</span>
-            </div>
-          )}
-
-          <div
-            ref={containerRef}
-            className="w-full cursor-grab active:cursor-grabbing"
-            style={{ height: 420, touchAction: 'none' }}
-            onMouseDown={handlePointerDown}
-            onMouseMove={handlePointerMove}
-            onMouseUp={handlePointerUp}
-            onMouseLeave={() => { isDragging.current = false; }}
-          />
-
-          {/* Pannello dati paese */}
-          {selectedCountry && (
-            <div className="absolute bottom-0 left-0 right-0 z-10 p-3 md:absolute md:top-0 md:right-0 md:bottom-auto md:left-auto md:w-72 md:h-full md:p-0 md:overflow-y-auto">
-              <div className="md:h-full md:bg-white/95 md:backdrop-blur-sm md:border-l md:border-slate-200">
-                <div className="md:p-0">
-                  <GlobeCountryPanel
-                    country={selectedCountry}
-                    data={countryData}
-                    loading={loadingData}
-                    onClose={closePanel}
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
