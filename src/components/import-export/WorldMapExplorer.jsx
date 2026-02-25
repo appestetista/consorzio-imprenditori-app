@@ -522,8 +522,17 @@ Rispondi in italiano.`,
     
     if (intersects.length > 0) {
       const mesh = intersects[0].object;
+      const countryName = mesh.userData.countryName;
       
-      // Deseleziona precedente
+      // Rimuovi bordi selezione precedente
+      selectedLinesRef.current.forEach(line => {
+        if (globeGroupRef.current) globeGroupRef.current.remove(line);
+        line.geometry.dispose();
+        line.material.dispose();
+      });
+      selectedLinesRef.current = [];
+
+      // Deseleziona mesh precedente
       if (selectedMeshRef.current) {
         countryMeshesRef.current.forEach(m => {
           if (m.userData.countryName === selectedMeshRef.current.userData.countryName) {
@@ -532,17 +541,28 @@ Rispondi in italiano.`,
         });
       }
 
-      // Seleziona nuovo
-      countryMeshesRef.current.forEach(m => {
-        if (m.userData.countryName === mesh.userData.countryName) {
-          m.material.color.setHex(0x3b82f6);
-          m.material.opacity = 0.5;
+      // Crea bordi luminosi per lo stato selezionato
+      if (geoDataRef.current && globeGroupRef.current) {
+        const feature = geoDataRef.current.features.find(f => {
+          const p = f.properties || {};
+          return (p.ADMIN || p.NAME || p.name || '') === countryName;
+        });
+        if (feature) {
+          const lineGroups = createCountryLines(feature, 1.004);
+          lineGroups.forEach(points => {
+            const lineGeom = new THREE.BufferGeometry().setFromPoints(points);
+            const lineMat = new THREE.LineBasicMaterial({ color: 0x00ff88, linewidth: 2 });
+            const line = new THREE.Line(lineGeom, lineMat);
+            globeGroupRef.current.add(line);
+            selectedLinesRef.current.push(line);
+          });
         }
-      });
+      }
+
       selectedMeshRef.current = mesh;
 
       setSelectedCountry({
-        name: mesh.userData.countryName,
+        name: countryName,
         iso_a2: mesh.userData.iso_a2,
         iso_a3: mesh.userData.iso_a3,
       });
@@ -604,6 +624,14 @@ Rispondi in italiano.`,
   }, [handlePointerDown, handlePointerMove, handlePointerUp]);
 
   const closePanel = useCallback(() => {
+    // Rimuovi bordi selezione
+    selectedLinesRef.current.forEach(line => {
+      if (globeGroupRef.current) globeGroupRef.current.remove(line);
+      line.geometry.dispose();
+      line.material.dispose();
+    });
+    selectedLinesRef.current = [];
+
     if (selectedMeshRef.current) {
       countryMeshesRef.current.forEach(m => {
         if (m.userData.countryName === selectedMeshRef.current.userData.countryName) {
