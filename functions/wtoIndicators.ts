@@ -249,6 +249,8 @@ Deno.serve(async (req) => {
     }
 
     var tsDataArray = Array.isArray(tsRaw) ? tsRaw : (tsRaw?.Dataset || []);
+    console.log('[wto v3] tsRaw type=' + typeof tsRaw + ' isArray=' + Array.isArray(tsRaw) + ' keys=' + (tsRaw && typeof tsRaw === 'object' ? Object.keys(tsRaw).join(',') : 'N/A'));
+    console.log('[wto v3] rawBody len=' + tsRawBody.length + ' first100=' + tsRawBody.substring(0, 100));
     console.log('[wto v3] top_suppliers total records: ' + tsDataArray.length + ' isArray=' + Array.isArray(tsDataArray));
     if (tsDataArray.length > 0) {
       console.log('[wto v3] top_suppliers sample[0] keys: ' + Object.keys(tsDataArray[0]).join(', '));
