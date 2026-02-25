@@ -366,21 +366,18 @@ Rispondi in italiano.`,
       
       // Reset previous hover
       if (hoveredRef.current && hoveredRef.current !== mesh && hoveredRef.current !== selectedMeshRef.current) {
-        hoveredRef.current.material.color.setHex(0xffffff);
-        hoveredRef.current.material.opacity = 0.9;
+        hoveredRef.current.material.color.setHex(0x1a3550);
       }
       
       if (mesh !== selectedMeshRef.current) {
-        mesh.material.color.setHex(0x374151);
-        mesh.material.opacity = 0.95;
+        mesh.material.color.setHex(0x2d5a7b);
       }
       hoveredRef.current = mesh;
       setHoveredName(name);
       container.style.cursor = 'pointer';
     } else {
       if (hoveredRef.current && hoveredRef.current !== selectedMeshRef.current) {
-        hoveredRef.current.material.color.setHex(0xffffff);
-        hoveredRef.current.material.opacity = 0.9;
+        hoveredRef.current.material.color.setHex(0x1a3550);
       }
       hoveredRef.current = null;
       setHoveredName('');
@@ -429,9 +426,7 @@ Rispondi in italiano.`,
         // Reset tutti i mesh con lo stesso paese
         countryMeshesRef.current.forEach(m => {
           if (m.userData.countryName === selectedMeshRef.current.userData.countryName) {
-            m.material.color.setHex(0xffffff);
-            m.material.opacity = 0.9;
-            m.material.emissive?.setHex(0x000000);
+            m.material.color.setHex(0x1a3550);
           }
         });
       }
@@ -439,8 +434,7 @@ Rispondi in italiano.`,
       // Seleziona nuovo
       countryMeshesRef.current.forEach(m => {
         if (m.userData.countryName === mesh.userData.countryName) {
-          m.material.color.setHex(0x1f2937);
-          m.material.opacity = 1;
+          m.material.color.setHex(0x3b82f6);
         }
       });
       selectedMeshRef.current = mesh;
@@ -489,8 +483,7 @@ Rispondi in italiano.`,
     if (selectedMeshRef.current) {
       countryMeshesRef.current.forEach(m => {
         if (m.userData.countryName === selectedMeshRef.current.userData.countryName) {
-          m.material.color.setHex(0xffffff);
-          m.material.opacity = 0.9;
+          m.material.color.setHex(0x1a3550);
         }
       });
       selectedMeshRef.current = null;
