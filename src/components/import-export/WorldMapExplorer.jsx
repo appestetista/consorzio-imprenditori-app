@@ -190,6 +190,8 @@ export default function WorldMapExplorer() {
   const mouseRef = useRef(new THREE.Vector2());
   const hoveredRef = useRef(null);
   const selectedMeshRef = useRef(null);
+  const selectedLinesRef = useRef([]);
+  const geoDataRef = useRef(null);
   const animFrameRef = useRef(null);
 
   const [loadingGeo, setLoadingGeo] = useState(true);
@@ -348,6 +350,7 @@ Rispondi in italiano.`,
       });
 
       countryMeshesRef.current = meshEntries;
+      geoDataRef.current = data;
       setLoadingGeo(false);
     };
     loadGeoJSON();
