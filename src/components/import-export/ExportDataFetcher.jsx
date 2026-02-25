@@ -871,9 +871,54 @@ FORMATO: paragrafi brevi e tecnici, nessun linguaggio motivazionale, nessuna nar
               requisiti_normativi: {
                 type: "object",
                 properties: {
-                  certificazioni: { type: "array", items: { type: "string" } },
+                  regulatory_framework: {
+                    type: "object",
+                    properties: {
+                      import_tariffs: {
+                        type: "object",
+                        properties: {
+                          standard_rate: { type: "string", description: "Dazio MFN %" },
+                          preferential_rate: { type: "string", description: "Dazio preferenziale % o N/A" },
+                          source: { type: "string", description: "Fonte: Access2Markets/MacMap/WITS" }
+                        }
+                      },
+                      internal_taxes: {
+                        type: "object",
+                        properties: {
+                          vat_gst: { type: "string", description: "Aliquota IVA/GST %" },
+                          tax_type: { type: "string", description: "Tipo imposta (VAT, GST, Sales Tax, ecc.)" },
+                          other_taxes: { type: "string", description: "Altre imposte (accise, eco-tax, ecc.) o N/A" }
+                        }
+                      }
+                    }
+                  },
+                  product_compliance: {
+                    type: "object",
+                    properties: {
+                      mandatory_certifications: { type: "array", items: { type: "string" }, description: "Certificazioni obbligatorie (es. CE, FDA, CCC)" },
+                      technical_standards: { type: "array", items: { type: "string" }, description: "Standard tecnici ISO/EN/nazionali" },
+                      labeling_requirements: { type: "string", description: "Requisiti etichettatura (lingua, info obbligatorie)" },
+                      source: { type: "string", description: "Fonte: WTO ePing / portale nazionale" }
+                    }
+                  },
+                  customs_logistics: {
+                    type: "object",
+                    properties: {
+                      required_documents: { type: "array", items: { type: "string" }, description: "Documenti doganali richiesti" },
+                      import_licenses: { type: "string", enum: ["Required", "Not Required", "Da verificare"], description: "Necessità licenza import" },
+                      packaging_regulations: { type: "string", description: "Regolamenti packaging (ISPM-15, materiali, ecc.)" }
+                    }
+                  },
+                  compliance_alerts: {
+                    type: "object",
+                    properties: {
+                      sps_measures: { type: "string", description: "Misure sanitarie/fitosanitarie attive" },
+                      tbt_notifications: { type: "string", description: "Notifiche TBT attive" }
+                    }
+                  },
                   tempi_autorizzazioni: { type: "string" },
-                  costi: { type: "string" }
+                  costi: { type: "string" },
+                  official_sources: { type: "array", items: { type: "string" }, description: "URL fonti ufficiali utilizzate" }
                 }
               },
               logistica: {
