@@ -684,23 +684,6 @@ Fornisci:
                     
                     <div className="space-y-4">
                       <div>
-                        <label className="text-slate-400 text-xs font-medium mb-1.5 block">Settore *</label>
-                        <Select
-                          value={exportForm.settore}
-                          onValueChange={(value) => setExportForm({ ...exportForm, settore: value })}
-                        >
-                          <SelectTrigger className="bg-slate-900/70 border-white/10 text-white h-11 rounded-xl">
-                            <SelectValue placeholder="Seleziona il tuo settore" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {SETTORI.map((s) => (
-                              <SelectItem key={s} value={s}>{s}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div>
                         <label className="text-slate-400 text-xs font-medium mb-1.5 block">Prodotto principale *</label>
                         <Input
                           placeholder="Es. Macchine per packaging alimentare"
