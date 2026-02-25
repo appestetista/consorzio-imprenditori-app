@@ -621,12 +621,12 @@ Fornisci:
         {activeTab === 'export' && !analysisResult && (
           <div className="mt-4 mb-2">
             <p className="text-white font-semibold text-sm mb-2">Settore *</p>
-            <div className="flex flex-wrap gap-2">
+            <div className="grid grid-cols-2 gap-2">
               {SETTORI.map((s) => (
                 <button
                   key={s}
                   onClick={() => setExportForm({ ...exportForm, settore: exportForm.settore === s ? '' : s })}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all border ${
+                  className={`px-3 py-2 rounded-xl text-xs font-medium transition-all border text-center ${
                     exportForm.settore === s
                       ? 'bg-lime-400 text-slate-900 border-lime-400 shadow-lg shadow-lime-400/20'
                       : 'bg-slate-800/60 text-slate-400 border-white/10 hover:border-white/20 hover:text-white'
