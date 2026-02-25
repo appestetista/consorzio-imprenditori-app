@@ -46,10 +46,10 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Prova /metadata
+    // /metadata?i={indicatorCode}
     var metadataResult = null;
     try {
-      const metaResp = await fetch(baseUrl + '/metadata', { headers: reqHeaders, signal: AbortSignal.timeout(20000) });
+      const metaResp = await fetch(baseUrl + '/metadata?i=' + encodeURIComponent(indicatorCode), { headers: reqHeaders, signal: AbortSignal.timeout(20000) });
       if (metaResp.ok) {
         metadataResult = await metaResp.json();
       } else {
