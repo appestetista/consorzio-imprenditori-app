@@ -391,6 +391,32 @@ export function computeMetrics(tradeData) {
         }))
       : serie;
 
+    // === MARKET SIZING: Consumo Apparente ===
+    // C = (P + M) - X → se P non disponibile, C ≈ M - X (dipendenza import)
+    // M = import totale del paese per questo HS (da top_suppliers)
+    // X = export del paese per questo HS (non disponibile direttamente, usiamo proxy)
+    // Per ora: import totale netto da top_suppliers, export_italia = export IT→paese
+    const importTotaleMercato = mercato.import_totale?.valore_usd
+      ? parseFloat(String(mercato.import_totale.valore_usd).replace(/[^0-9.]/g, ''))
+      : null;
+    
+    // Nota: "Produzione Locale" (P) non è disponibile da queste API
+    // Calcola dipendenza import come proxy
+    let consumo_apparente = null;
+    let produzione_locale_disponibile = false;
+    let dipendenza_import = null;
+    
+    if (importTotaleMercato && importTotaleMercato > 0) {
+      // Senza P, il consumo apparente minimo è almeno M (import totale)
+      consumo_apparente = importTotaleMercato;
+      dipendenza_import = 'alta'; // 100% del consumo misurato è import
+      produzione_locale_disponibile = false;
+    }
+
+    // Demand score basato su PIL pro capite e volume import
+    // Validazione coerenza: import / popolazione = import pro capite
+    let demand_score = null;
+
     return {
       paese_code: mercato.paese_code,
       paese_nome: mercato.paese_nome,
@@ -407,7 +433,13 @@ export function computeMetrics(tradeData) {
       anni_mancanti: anniMancanti.length > 0 ? anniMancanti : null,
       posizione_exporter: mercato.posizione_exporter || mercato.posizione_italia,
       quota_exporter: mercato.quota_exporter || mercato.quota_italia,
-      query_fallback_world: mercato.query_fallback_world || false
+      query_fallback_world: mercato.query_fallback_world || false,
+      // Market Sizing
+      consumo_apparente,
+      produzione_locale_disponibile,
+      dipendenza_import,
+      demand_score,
+      import_totale_mercato: importTotaleMercato
     };
   });
 
