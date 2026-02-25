@@ -37,7 +37,8 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
                   <div 
                     className={cn(
                       "relative w-[76px] h-[76px] transition-transform duration-100 ease-out",
-                      "active:scale-[0.96]"
+                      !item.disabled && "active:scale-[0.96]",
+                    item.disabled && "opacity-40"
                     )}
                   >
                     {/* Ombra esterna per effetto flottante */}
