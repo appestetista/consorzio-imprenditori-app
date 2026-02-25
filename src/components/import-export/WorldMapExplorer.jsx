@@ -532,8 +532,8 @@ Rispondi in italiano.`,
 
           {/* Tooltip hover */}
           {hoveredName && !selectedCountry && (
-            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10 bg-white/90 backdrop-blur-sm border border-slate-200 rounded-lg px-3 py-1.5 shadow-sm pointer-events-none">
-              <span className="text-slate-700 text-xs font-semibold">{hoveredName}</span>
+            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10 bg-slate-800/90 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-lg pointer-events-none">
+              <span className="text-white text-xs font-semibold">{hoveredName}</span>
             </div>
           )}
 
