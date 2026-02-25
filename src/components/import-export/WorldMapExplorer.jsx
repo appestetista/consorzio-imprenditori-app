@@ -445,26 +445,6 @@ Rispondi in italiano.`,
       const mesh = intersects[0].object;
       const name = mesh.userData.countryName;
       
-      // Reset previous hover (tutti i mesh del paese precedente)
-      if (hoveredRef.current && hoveredRef.current !== mesh && hoveredRef.current !== selectedMeshRef.current) {
-        const prevName = hoveredRef.current.userData.countryName;
-        const selName = selectedMeshRef.current?.userData?.countryName;
-        countryMeshesRef.current.forEach(m => {
-          if (m.userData.countryName === prevName && m.userData.countryName !== selName) {
-            m.material.opacity = 0;
-          }
-        });
-      }
-      
-      if (mesh !== selectedMeshRef.current) {
-        // Colora tutti i mesh dello stesso paese
-        countryMeshesRef.current.forEach(m => {
-          if (m.userData.countryName === name) {
-            m.material.color.setHex(0x3b82f6);
-            m.material.opacity = 0.6;
-          }
-        });
-      }
       hoveredRef.current = mesh;
       setHoveredName(name);
       // Posizione tooltip relativa al container
@@ -472,15 +452,6 @@ Rispondi in italiano.`,
       setTooltipPos({ x: pos.px - containerRect.left, y: pos.py - containerRect.top });
       container.style.cursor = 'pointer';
     } else {
-      if (hoveredRef.current && hoveredRef.current !== selectedMeshRef.current) {
-        const prevName = hoveredRef.current.userData.countryName;
-        const selName = selectedMeshRef.current?.userData?.countryName;
-        countryMeshesRef.current.forEach(m => {
-          if (m.userData.countryName === prevName && m.userData.countryName !== selName) {
-            m.material.opacity = 0;
-          }
-        });
-      }
       hoveredRef.current = null;
       setHoveredName('');
       container.style.cursor = 'grab';
