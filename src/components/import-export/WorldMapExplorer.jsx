@@ -135,6 +135,7 @@ export default function WorldMapExplorer() {
   const previousMouse = useRef({ x: 0, y: 0 });
   const rotationVelocity = useRef({ x: 0, y: 0 });
   const autoRotate = useRef(true);
+  const pinchDistRef = useRef(null);
 
   // Fetch dati paese al click
   useEffect(() => {
@@ -453,18 +454,40 @@ Rispondi in italiano.`,
     if (!container) return;
 
     const onTouchStart = (e) => {
-      if (e.touches.length === 1) {
-        e.preventDefault();
+      e.preventDefault();
+      if (e.touches.length === 2) {
+        // Pinch start
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        pinchDistRef.current = Math.sqrt(dx * dx + dy * dy);
+        isDragging.current = false;
+      } else if (e.touches.length === 1) {
+        pinchDistRef.current = null;
         handlePointerDown(e);
       }
     };
     const onTouchMove = (e) => {
-      if (e.touches.length === 1) {
-        e.preventDefault();
+      e.preventDefault();
+      if (e.touches.length === 2 && cameraRef.current) {
+        // Pinch zoom
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (pinchDistRef.current !== null) {
+          const delta = (pinchDistRef.current - dist) * 0.008;
+          const newZ = cameraRef.current.position.z + delta;
+          cameraRef.current.position.z = Math.max(1.8, Math.min(5, newZ));
+        }
+        pinchDistRef.current = dist;
+        autoRotate.current = false;
+      } else if (e.touches.length === 1 && pinchDistRef.current === null) {
         handlePointerMove(e);
       }
     };
     const onTouchEnd = (e) => {
+      if (e.touches.length < 2) {
+        pinchDistRef.current = null;
+      }
       handlePointerUp(e);
     };
 
