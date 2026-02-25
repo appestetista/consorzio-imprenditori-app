@@ -453,7 +453,7 @@ export default function ImportExport() {
 
       // STEP 2: Analisi Prezzo & Marginalità (in parallelo dopo risultati principali)
       setPriceStep('fetching');
-      const priceRaw = await fetchPriceData(hsData.hs_code, exportForm.mercati_interesse, mercatiNames, exporterCountry, parseInt(periodoAnalisi));
+      const priceRaw = await fetchPriceData(hsData.hs_code, mercatiInteresse, mercatiNames, exporterCountry, parseInt(periodoAnalisi));
       if (priceRaw?._api_error) {
         setPriceMetrics(null);
         setPriceStep('');
@@ -467,7 +467,7 @@ export default function ImportExport() {
           const pInterp = await interpretPriceData(pMetrics, hsData.hs_code, hsData.descrizione_ufficiale, {
             settore: exportForm.settore,
             prodotto: exportForm.prodotto,
-            fatturato_annuo: exportForm.fatturato_annuo
+            fatturato_annuo: user?.export_fatturato_annuo || ''
           });
           setPriceInterpretation(pInterp);
         }
@@ -480,70 +480,6 @@ export default function ImportExport() {
       setAnalyzing(false);
       setExportStep('');
       setPriceStep('');
-    }
-  };
-
-  const searchHsCode = async () => {
-    if (!hsCodeSearch.trim()) return;
-    
-    setSearchingHsCode(true);
-    try {
-      const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Cerca informazioni doganali per il prodotto: "${hsCodeSearch}"
-
-FONTI DATI OBBLIGATORIE:
-1) TARIC (ec.europa.eu/taxation_customs/dds2/taric) — Dazio MFN, dazi preferenziali, misure anti-dumping, restrizioni merceologiche.
-2) UN Comtrade (comtradeplus.un.org) — Flussi commerciali per codice HS, valore USD.
-3) Eurostat Comext — Import/Export UE per codice HS, valore EUR.
-
-REGOLE INDEROGABILI:
-- OGNI dato (codice HS, aliquota dazio, percentuale IVA, restrizione) DEVE provenire da TARIC, UN Comtrade o Eurostat.
-- Per ogni dato indica: (Fonte, anno), es: "(TARIC, 2025)".
-- Se un codice HS NON è determinabile con certezza, fornisci i possibili capitoli/voci e scrivi "Codice esatto da verificare su TARIC".
-- NON INVENTARE MAI codici HS, dazi o percentuali. Scrivi "Da verificare su TARIC" se incerto.
-- Per le certificazioni, citare la normativa UE (Regolamento/Direttiva).
-
-Fornisci:
-1. Codice HS più probabile con livello di certezza e fonte
-2. Descrizione ufficiale dalla nomenclatura combinata UE
-3. Dazi import in Italia dalla Cina — da TARIC con HS specifico (MFN + anti-dumping se attivo)
-4. Dazi export dall'Italia verso USA, Cina, UK — da TARIC/WTO
-5. Restrizioni o certificazioni obbligatorie con riferimento normativo
-6. IVA applicabile con base normativa
-7. Documentazione necessaria per import/export`,
-        add_context_from_internet: true,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            hs_code: { type: "string" },
-            descrizione_doganale: { type: "string" },
-            capitolo_hs: { type: "string" },
-            dazi_import_cina_italia: { type: "string" },
-            dazi_export: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  paese: { type: "string" },
-                  dazio_percentuale: { type: "string" },
-                  note: { type: "string" }
-                }
-              }
-            },
-            iva_italia: { type: "string" },
-            restrizioni: { type: "array", items: { type: "string" } },
-            certificazioni_obbligatorie: { type: "array", items: { type: "string" } },
-            documenti_necessari: { type: "array", items: { type: "string" } },
-            fonti: { type: "array", items: { type: "string" } }
-          }
-        }
-      });
-
-      setHsCodeResult(result);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setSearchingHsCode(false);
     }
   };
 
@@ -560,11 +496,6 @@ Fornisci:
     setExportForm({
       settore: '',
       prodotto: '',
-      descrizione_prodotto: '',
-      fatturato_annuo: '',
-      esperienza_export: '',
-      mercati_interesse: [],
-      certificazioni: '',
       capacita_produttiva: ''
     });
   };
@@ -602,8 +533,8 @@ Fornisci:
             <p className="text-white font-semibold text-sm">Cosa vuoi esportare?</p>
             <Input
               placeholder="Es. Olio d'oliva, macchine tessili, vino..."
-              value={quickExportSearch}
-              onChange={(e) => setQuickExportSearch(e.target.value)}
+              value={exportForm.prodotto}
+              onChange={(e) => setExportForm({ ...exportForm, prodotto: e.target.value })}
               className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl placeholder:text-slate-500"
             />
             <p className="text-white font-semibold text-sm">Indica il paese</p>
@@ -687,7 +618,7 @@ Fornisci:
                 </div>
               ) :
               <div className="space-y-4">
-                {/* Form Export */}
+                {/* Form Export - solo capacità produttiva (il resto è nel profilo) */}
                 <Card className="bg-slate-800/60 border-white/5 backdrop-blur-sm shadow-xl">
                   <CardContent className="p-5">
                     <div className="flex items-center gap-3 mb-5">
@@ -702,76 +633,6 @@ Fornisci:
                     
                     <div className="space-y-4">
                       <div>
-                        <label className="text-slate-400 text-xs font-medium mb-1.5 block">Prodotto principale *</label>
-                        <Input
-                          placeholder="Es. Macchine per packaging alimentare"
-                          value={exportForm.prodotto}
-                          onChange={(e) => setExportForm({ ...exportForm, prodotto: e.target.value })}
-                          className="bg-slate-900/70 border-white/10 text-white h-11 rounded-xl"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="text-slate-400 text-xs font-medium mb-1.5 block">Descrizione prodotto</label>
-                        <Textarea
-                          placeholder="Descrivi brevemente il tuo prodotto, caratteristiche distintive, vantaggi competitivi..."
-                          value={exportForm.descrizione_prodotto}
-                          onChange={(e) => setExportForm({ ...exportForm, descrizione_prodotto: e.target.value })}
-                          className="bg-slate-900/70 border-white/10 text-white min-h-[80px] rounded-xl"
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <label className="text-slate-400 text-xs font-medium mb-1.5 block">Fatturato annuo</label>
-                          <Select
-                            value={exportForm.fatturato_annuo}
-                            onValueChange={(value) => setExportForm({ ...exportForm, fatturato_annuo: value })}
-                          >
-                            <SelectTrigger className="bg-slate-900/70 border-white/10 text-white h-11 rounded-xl">
-                              <SelectValue placeholder="Range" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="< 500k">{'< 500.000€'}</SelectItem>
-                              <SelectItem value="500k-1M">500k - 1M €</SelectItem>
-                              <SelectItem value="1M-5M">1M - 5M €</SelectItem>
-                              <SelectItem value="5M-10M">5M - 10M €</SelectItem>
-                              <SelectItem value="> 10M">{'> 10M €'}</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        <div>
-                          <label className="text-slate-400 text-xs font-medium mb-1.5 block">Esperienza export</label>
-                          <Select
-                            value={exportForm.esperienza_export}
-                            onValueChange={(value) => setExportForm({ ...exportForm, esperienza_export: value })}
-                          >
-                            <SelectTrigger className="bg-slate-900/70 border-white/10 text-white h-11 rounded-xl">
-                              <SelectValue placeholder="Livello" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="nessuna">Nessuna</SelectItem>
-                              <SelectItem value="occasionale">Occasionale</SelectItem>
-                              <SelectItem value="regolare_eu">Regolare (solo UE)</SelectItem>
-                              <SelectItem value="regolare_extra_eu">Regolare (extra UE)</SelectItem>
-                              <SelectItem value="consolidata">Consolidata</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-
-                      <div>
-                        <label className="text-slate-400 text-xs font-medium mb-1.5 block">Certificazioni possedute</label>
-                        <Input
-                          placeholder="Es. ISO 9001, CE, FDA, HACCP..."
-                          value={exportForm.certificazioni}
-                          onChange={(e) => setExportForm({ ...exportForm, certificazioni: e.target.value })}
-                          className="bg-slate-900/70 border-white/10 text-white h-11 rounded-xl"
-                        />
-                      </div>
-
-                      <div>
                         <label className="text-slate-400 text-xs font-medium mb-1.5 block">Capacità produttiva per export</label>
                         <Input
                           placeholder="Es. 30% della produzione, 1000 unità/mese"
@@ -780,53 +641,42 @@ Fornisci:
                           className="bg-slate-900/70 border-white/10 text-white h-11 rounded-xl"
                         />
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
 
-                {/* Parametri Analisi */}
-                <Card className="bg-slate-800/60 border-white/5 backdrop-blur-sm">
-                  <CardContent className="p-5">
-                    <h3 className="text-white font-semibold mb-3 flex items-center gap-2 text-sm">
-                      <Globe className="w-4 h-4 text-lime-400" />
-                      Parametri Analisi
-                    </h3>
-                    <div>
-                      <label className="text-slate-400 text-xs font-medium mb-1.5 block">Paese esportatore</label>
-                      <Select value={exporterCountry} onValueChange={setExporterCountry}>
-                        <SelectTrigger className="bg-slate-900/70 border-white/10 text-white h-11 rounded-xl">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent position="popper" sideOffset={4} className="z-[9999]">
-                          {EXPORTER_COUNTRIES.map(c => (
-                            <SelectItem key={c.code} value={c.code}>{c.name}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      {/* Info: dati presi dal profilo */}
+                      {user && (
+                        <div className="bg-slate-900/50 rounded-xl p-3 border border-white/5">
+                          <p className="text-slate-500 text-[10px] uppercase tracking-wider font-medium mb-2">Dal tuo profilo</p>
+                          <div className="grid grid-cols-2 gap-2 text-xs">
+                            <div>
+                              <span className="text-slate-500">Paese:</span>{' '}
+                              <span className="text-slate-300">{EXPORTER_COUNTRIES.find(c => c.code === (user.export_paese_esportatore || 'IT'))?.name || 'Italia'}</span>
+                            </div>
+                            <div>
+                              <span className="text-slate-500">Mercati:</span>{' '}
+                              <span className="text-slate-300">{(user.export_mercati_target || []).length > 0 ? `${(user.export_mercati_target || []).length} selezionati` : 'Nessuno'}</span>
+                            </div>
+                            <div>
+                              <span className="text-slate-500">Esperienza:</span>{' '}
+                              <span className="text-slate-300">{user.export_esperienza || 'Non impostata'}</span>
+                            </div>
+                            <div>
+                              <span className="text-slate-500">Fatturato:</span>{' '}
+                              <span className="text-slate-300">{user.export_fatturato_annuo || 'Non impostato'}</span>
+                            </div>
+                          </div>
+                          <Link to={createPageUrl('MyProfile')} className="text-lime-400 text-xs mt-2 inline-block hover:underline">
+                            Modifica nel profilo →
+                          </Link>
+                        </div>
+                      )}
                     </div>
-                  </CardContent>
-                </Card>
-
-                {/* Selezione Mercati */}
-                <Card className="bg-slate-800/60 border-white/5 backdrop-blur-sm">
-                  <CardContent className="p-5">
-                    <h3 className="text-white font-semibold mb-2 flex items-center gap-2 text-sm">
-                      <MapPin className="w-4 h-4 text-lime-400" />
-                      Mercati target *
-                    </h3>
-                    <p className="text-slate-500 text-xs mb-3">Seleziona fino a 5 Paesi (o "World")</p>
-                    <CountrySearchSelect
-                      selected={exportForm.mercati_interesse}
-                      onChange={(codes) => setExportForm({ ...exportForm, mercati_interesse: codes })}
-                      maxSelections={5}
-                    />
                   </CardContent>
                 </Card>
 
                 {/* Classificazione HS obbligatoria prima dell'analisi */}
-                {exportForm.prodotto && exportForm.settore && exportForm.mercati_interesse.length > 0 && !exportLimitReached && !analyzing && !confirmedExportHS && (
+                {exportForm.prodotto && exportForm.settore && (user?.export_mercati_target || []).length > 0 && !exportLimitReached && !analyzing && !confirmedExportHS && (
                   <HSCodeClassifier
-                    productDescription={`${exportForm.prodotto}${exportForm.descrizione_prodotto ? ' - ' + exportForm.descrizione_prodotto : ''} (Settore: ${exportForm.settore})`}
+                    productDescription={`${exportForm.prodotto} (Settore: ${exportForm.settore})`}
                     onConfirm={handleExportHSConfirm}
                     onError={() => {}}
                   />
