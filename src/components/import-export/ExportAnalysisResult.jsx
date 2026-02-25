@@ -121,22 +121,38 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
               </CollapsibleSection>
             )}
 
-            {/* Domanda Locale */}
+            {/* Domanda Locale & Market Sizing */}
             {m.domanda_locale && (
-              <CollapsibleSection title="Domanda Locale" icon={Target} iconColor="text-purple-400">
-                <DataRow label="Segmentazione" value={m.domanda_locale.segmentazione} />
-                <DataRow label="Volumi consumo" value={m.domanda_locale.volumi_consumo} />
-                <DataRow label="Trend" value={m.domanda_locale.trend} />
-                {m.domanda_locale.canali_distributivi?.length > 0 && (
-                  <div className="mt-2">
-                    <p className="text-slate-500 text-[10px] mb-1">Canali distributivi</p>
-                    <div className="flex flex-wrap gap-1">
-                      {m.domanda_locale.canali_distributivi.map((c, i) => (
-                        <span key={i} className="bg-white/5 text-slate-300 px-2 py-0.5 rounded-md text-[10px]">{c}</span>
-                      ))}
+              <CollapsibleSection title="Domanda Locale & Market Sizing" icon={Target} iconColor="text-purple-400" defaultOpen={true}>
+                {/* Market Sizing quantitativo */}
+                <div className="bg-purple-500/5 border border-purple-500/10 rounded-lg p-2.5 mb-3">
+                  <p className="text-purple-400 text-[10px] font-bold uppercase tracking-wider mb-1.5">Market Sizing (C = P + M − X)</p>
+                  <DataRow label="Consumo Apparente (C)" value={m.domanda_locale.consumo_apparente} />
+                  <DataRow label="Produzione Locale (P)" value={m.domanda_locale.produzione_locale} />
+                  <DataRow label="Import (M)" value={m.domanda_locale.import_value} />
+                  <DataRow label="Export (X)" value={m.domanda_locale.export_value} />
+                  <DataRow label="Dipendenza Import" value={m.domanda_locale.dipendenza_import} />
+                </div>
+                {/* Indicatori domanda */}
+                <DataRow label="Demand Score" value={m.domanda_locale.demand_score} />
+                <DataRow label="Import pro capite" value={m.domanda_locale.import_pro_capite} />
+                <DataRow label="Validazione coerenza" value={m.domanda_locale.validazione_coerenza} warning={m.domanda_locale.validazione_coerenza?.toLowerCase()?.includes('anomal')} />
+                {/* Analisi qualitativa */}
+                <div className="mt-2 pt-2 border-t border-white/5">
+                  <DataRow label="Segmentazione" value={m.domanda_locale.segmentazione} />
+                  <DataRow label="Volumi consumo" value={m.domanda_locale.volumi_consumo} />
+                  <DataRow label="Trend" value={m.domanda_locale.trend} />
+                  {m.domanda_locale.canali_distributivi?.length > 0 && (
+                    <div className="mt-2">
+                      <p className="text-slate-500 text-[10px] mb-1">Canali distributivi</p>
+                      <div className="flex flex-wrap gap-1">
+                        {m.domanda_locale.canali_distributivi.map((c, i) => (
+                          <span key={i} className="bg-white/5 text-slate-300 px-2 py-0.5 rounded-md text-[10px]">{c}</span>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </CollapsibleSection>
             )}
 
