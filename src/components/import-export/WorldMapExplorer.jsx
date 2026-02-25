@@ -180,7 +180,7 @@ function createCountryHitMesh(feature, radius) {
   return meshes;
 }
 
-export default function WorldMapExplorer() {
+export default function WorldMapExplorer({ onCountrySelect, selectedCountries = [] }) {
   const containerRef = useRef(null);
   const sceneRef = useRef(null);
   const rendererRef = useRef(null);
@@ -534,12 +534,16 @@ Rispondi in italiano.`,
         }
       }
 
-      setSelectedCountry({
+      const countryInfo = {
         name: translateCountryName(countryName),
         nameEN: countryName,
         iso_a2: mesh.userData.iso_a2,
         iso_a3: mesh.userData.iso_a3,
-      });
+      };
+      setSelectedCountry(countryInfo);
+      if (onCountrySelect) {
+        onCountrySelect(countryInfo);
+      }
     }
   }, []);
 
