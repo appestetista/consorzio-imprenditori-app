@@ -74,6 +74,7 @@ export default function ImportExport() {
   });
   const [selectedMapCountry, setSelectedMapCountry] = useState(null);
   const [showHSClassifier, setShowHSClassifier] = useState(false);
+  const [exportValidationErrors, setExportValidationErrors] = useState({});
   const [analyzing, setAnalyzing] = useState(false);
   const [exportStep, setExportStep] = useState(''); // '', 'fetching', 'computing', 'interpreting'
   const [analysisResult, setAnalysisResult] = useState(null);
@@ -545,12 +546,15 @@ export default function ImportExport() {
         {activeTab === 'export' && !analysisResult && (
           <div className="mb-5 space-y-3">
             <p className="text-white font-semibold text-sm">Cosa vuoi esportare?</p>
-            <Input
-              placeholder="Es. Olio d'oliva, macchine tessili, vino..."
-              value={exportForm.prodotto}
-              onChange={(e) => setExportForm({ ...exportForm, prodotto: e.target.value })}
-              className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl placeholder:text-slate-500"
-            />
+            <div>
+              <Input
+                placeholder="Es. Olio d'oliva, macchine tessili, vino..."
+                value={exportForm.prodotto}
+                onChange={(e) => { setExportForm({ ...exportForm, prodotto: e.target.value }); setExportValidationErrors(prev => ({ ...prev, prodotto: '' })); }}
+                className={`bg-slate-800/60 text-white h-11 rounded-xl placeholder:text-slate-500 ${exportValidationErrors.prodotto ? 'border-red-500 border-2' : 'border-white/10'}`}
+              />
+              {exportValidationErrors.prodotto && <p className="text-red-400 text-xs mt-1">{exportValidationErrors.prodotto}</p>}
+            </div>
             <p className="text-white font-semibold text-sm">Indica dove</p>
           </div>
         )}
@@ -565,13 +569,16 @@ export default function ImportExport() {
         {/* Settore - Toggle chips sotto la mappa */}
         {activeTab === 'export' && !analysisResult && (
           <div className="mt-4 mb-2">
-            <p className="text-white font-semibold text-sm mb-2">Settore *</p>
+            <div className="flex items-center gap-2 mb-2">
+              <p className="text-white font-semibold text-sm">Settore *</p>
+              {exportValidationErrors.settore && <p className="text-red-400 text-xs">{exportValidationErrors.settore}</p>}
+            </div>
             <div className="grid grid-cols-2 gap-2">
               {SETTORI.map((s) => (
-                <button
-                  key={s}
-                  onClick={() => setExportForm({ ...exportForm, settore: exportForm.settore === s ? '' : s })}
-                  className={`px-3 py-2 rounded-xl text-xs font-medium transition-all border text-center ${
+              <button
+                key={s}
+                onClick={() => { setExportForm({ ...exportForm, settore: exportForm.settore === s ? '' : s }); setExportValidationErrors(prev => ({ ...prev, settore: '' })); }}
+                className={`px-3 py-2 rounded-xl text-xs font-medium transition-all border text-center ${
                     exportForm.settore === s
                       ? 'bg-lime-400 text-slate-900 border-lime-400 shadow-lg shadow-lime-400/20'
                       : 'bg-slate-800/60 text-slate-400 border-white/10 hover:border-white/20 hover:text-white'
