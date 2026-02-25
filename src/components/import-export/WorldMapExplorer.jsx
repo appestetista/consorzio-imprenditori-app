@@ -553,6 +553,15 @@ Rispondi in italiano.`,
           onMouseMove={handlePointerMove}
           onMouseUp={handlePointerUp}
           onMouseLeave={() => { isDragging.current = false; }}
+          onWheel={(e) => {
+            e.preventDefault();
+            if (cameraRef.current) {
+              const delta = e.deltaY * 0.002;
+              const newZ = cameraRef.current.position.z + delta;
+              cameraRef.current.position.z = Math.max(1.8, Math.min(5, newZ));
+              autoRotate.current = false;
+            }
+          }}
         />
 
         {/* Pannello dati paese */}
