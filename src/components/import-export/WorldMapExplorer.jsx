@@ -226,17 +226,6 @@ Rispondi in italiano.`,
     const sphere = new THREE.Mesh(sphereGeom, sphereMat);
     globeGroup.add(sphere);
 
-    // Sfera terra (continenti) - colore uniforme sopra l'oceano
-    // Usiamo una texture generata da GeoJSON per coprire la terra
-    const landGeom = new THREE.SphereGeometry(1.001, 64, 64);
-    const landCanvas = document.createElement('canvas');
-    landCanvas.width = 2048;
-    landCanvas.height = 1024;
-    const landCtx = landCanvas.getContext('2d');
-    // Sfondo trasparente
-    landCtx.clearRect(0, 0, 2048, 1024);
-    landCanvasRef.current = { canvas: landCanvas, ctx: landCtx, geom: landGeom, group: globeGroup };
-
     // Carica GeoJSON
     const loadGeoJSON = async () => {
       const res = await fetch(GEOJSON_URL);
