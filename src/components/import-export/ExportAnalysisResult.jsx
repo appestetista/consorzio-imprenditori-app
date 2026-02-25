@@ -156,21 +156,127 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
               </CollapsibleSection>
             )}
 
-            {/* Analisi Competitiva + SWOT */}
+            {/* Analisi Competitiva — Competitive Intelligence */}
             {m.analisi_competitiva && (
-              <CollapsibleSection title="Analisi Competitiva (SWOT)" icon={Shield} iconColor="text-orange-400">
-                <DataRow label="Posizionamento Italia" value={m.analisi_competitiva.posizionamento_italia} />
-                {m.analisi_competitiva.top_competitor?.length > 0 && (
-                  <div className="mt-2 mb-2">
-                    <p className="text-slate-500 text-[10px] mb-1">Competitor principali</p>
-                    {m.analisi_competitiva.top_competitor.map((c, i) => (
-                      <div key={i} className="flex justify-between text-xs py-0.5">
-                        <span className="text-slate-300">{c.paese}</span>
-                        <span className="text-white font-medium">{c.quota}</span>
+              <CollapsibleSection title="Competitive Intelligence" icon={Shield} iconColor="text-orange-400">
+                {/* Landscape & Concentrazione */}
+                {m.analisi_competitiva.competitive_landscape && (
+                  <div className="mb-3">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-[10px] text-slate-500 uppercase tracking-wider">Concentrazione mercato</span>
+                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                        m.analisi_competitiva.competitive_landscape.market_concentration === 'High' ? 'bg-red-500/15 text-red-400' :
+                        m.analisi_competitiva.competitive_landscape.market_concentration === 'Medium' ? 'bg-amber-500/15 text-amber-400' : 'bg-green-500/15 text-green-400'
+                      }`}>{m.analisi_competitiva.competitive_landscape.market_concentration}</span>
+                    </div>
+                    {m.analisi_competitiva.competitive_landscape.top_competitors?.length > 0 && (
+                      <div className="space-y-1.5">
+                        {m.analisi_competitiva.competitive_landscape.top_competitors.map((c, i) => (
+                          <div key={i} className="bg-white/[0.03] border border-white/5 rounded-lg p-2">
+                            <div className="flex items-center justify-between mb-0.5">
+                              <span className="text-white text-xs font-medium">{c.name}</span>
+                              <div className="flex gap-1">
+                                <span className={`text-[9px] px-1.5 py-0.5 rounded ${c.origin === 'Local' ? 'bg-blue-500/15 text-blue-400' : 'bg-purple-500/15 text-purple-400'}`}>{c.origin}</span>
+                                <span className={`text-[9px] px-1.5 py-0.5 rounded ${
+                                  c.positioning === 'Premium' ? 'bg-amber-500/15 text-amber-400' :
+                                  c.positioning === 'Value' ? 'bg-cyan-500/15 text-cyan-400' : 'bg-slate-500/15 text-slate-400'
+                                }`}>{c.positioning}</span>
+                              </div>
+                            </div>
+                            {c.value_proposition && <p className="text-slate-400 text-[10px]">{c.value_proposition}</p>}
+                            {c.estimated_market_share && c.estimated_market_share !== 'N/D' && (
+                              <p className="text-slate-500 text-[10px] mt-0.5">Quota: {c.estimated_market_share}</p>
+                            )}
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    )}
                   </div>
                 )}
+
+                {/* Pricing Intelligence */}
+                {m.analisi_competitiva.pricing_intelligence && (
+                  <div className="bg-indigo-500/5 border border-indigo-500/10 rounded-lg p-2.5 mb-3">
+                    <p className="text-indigo-400 text-[10px] font-bold uppercase tracking-wider mb-1.5">Pricing Intelligence</p>
+                    <div className="flex items-center gap-3 mb-1">
+                      {m.analisi_competitiva.pricing_intelligence.local_price_range_min && (
+                        <span className="text-white text-xs font-medium">
+                          {m.analisi_competitiva.pricing_intelligence.local_price_range_min} — {m.analisi_competitiva.pricing_intelligence.local_price_range_max}
+                        </span>
+                      )}
+                    </div>
+                    {m.analisi_competitiva.pricing_intelligence.benchmark_product && (
+                      <p className="text-slate-400 text-[10px]">Rif: {m.analisi_competitiva.pricing_intelligence.benchmark_product}</p>
+                    )}
+                    {m.analisi_competitiva.pricing_intelligence.notes && (
+                      <p className="text-slate-500 text-[10px] mt-1 italic">{m.analisi_competitiva.pricing_intelligence.notes}</p>
+                    )}
+                  </div>
+                )}
+
+                {/* Distribution Channels */}
+                {m.analisi_competitiva.distribution_channels && (
+                  <div className="mb-3">
+                    <p className="text-slate-500 text-[10px] font-bold uppercase tracking-wider mb-1.5">Canali Distributivi</p>
+                    {m.analisi_competitiva.distribution_channels.online_share && (
+                      <DataRow label="Quota online" value={m.analisi_competitiva.distribution_channels.online_share} />
+                    )}
+                    {m.analisi_competitiva.distribution_channels.standard_trade_margin && (
+                      <DataRow label="Margine trade" value={m.analisi_competitiva.distribution_channels.standard_trade_margin} />
+                    )}
+                    {m.analisi_competitiva.distribution_channels.primary_entry_mode && (
+                      <DataRow label="Modalità ingresso" value={m.analisi_competitiva.distribution_channels.primary_entry_mode} />
+                    )}
+                    {m.analisi_competitiva.distribution_channels.offline_key_players?.length > 0 && (
+                      <div className="mt-1.5">
+                        <p className="text-slate-500 text-[10px] mb-1">Player offline</p>
+                        <div className="flex flex-wrap gap-1">
+                          {m.analisi_competitiva.distribution_channels.offline_key_players.map((p, i) => (
+                            <span key={i} className="bg-white/5 text-slate-300 px-2 py-0.5 rounded-md text-[10px]">{p}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Differentiation Factors */}
+                {m.analisi_competitiva.differentiation_factors?.length > 0 && (
+                  <div className="mb-3">
+                    <p className="text-slate-500 text-[10px] font-bold uppercase tracking-wider mb-1.5">Leve Competitive</p>
+                    <div className="flex flex-wrap gap-1">
+                      {m.analisi_competitiva.differentiation_factors.map((f, i) => (
+                        <span key={i} className="bg-lime-500/10 text-lime-400 px-2 py-0.5 rounded-md text-[10px] border border-lime-500/20">{f}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Entry Barriers */}
+                {m.analisi_competitiva.entry_barriers && (
+                  <div className="bg-red-500/5 border border-red-500/10 rounded-lg p-2.5 mb-3">
+                    <p className="text-red-400 text-[10px] font-bold uppercase tracking-wider mb-1.5">Barriere all'Ingresso</p>
+                    <DataRow label="Brand Loyalty" value={m.analisi_competitiva.entry_barriers.brand_loyalty_level} />
+                    {m.analisi_competitiva.entry_barriers.required_certifications?.length > 0 && (
+                      <div className="mt-1.5">
+                        <p className="text-slate-500 text-[10px] mb-1">Certificazioni richieste</p>
+                        <div className="flex flex-wrap gap-1">
+                          {m.analisi_competitiva.entry_barriers.required_certifications.map((c, i) => (
+                            <span key={i} className="bg-red-500/10 text-red-300 px-2 py-0.5 rounded-md text-[10px] border border-red-500/20">{c}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {m.analisi_competitiva.entry_barriers.notes && (
+                      <p className="text-slate-500 text-[10px] mt-1 italic">{m.analisi_competitiva.entry_barriers.notes}</p>
+                    )}
+                  </div>
+                )}
+
+                {/* Posizionamento Italia */}
+                <DataRow label="Posizionamento Italia" value={m.analisi_competitiva.posizionamento_italia} />
+
+                {/* SWOT */}
                 {m.analisi_competitiva.swot && (
                   <div className="grid grid-cols-2 gap-2 mt-2">
                     {[
@@ -188,6 +294,18 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
                         </div>
                       )
                     ))}
+                  </div>
+                )}
+
+                {/* Fonti */}
+                {m.analisi_competitiva.sources?.length > 0 && (
+                  <div className="mt-2 pt-2 border-t border-white/5">
+                    <p className="text-slate-600 text-[10px] mb-1">Fonti:</p>
+                    <div className="space-y-0.5">
+                      {m.analisi_competitiva.sources.map((s, i) => (
+                        <p key={i} className="text-slate-500 text-[10px] truncate">{s}</p>
+                      ))}
+                    </div>
                   </div>
                 )}
               </CollapsibleSection>
