@@ -501,6 +501,7 @@ export default function ImportExport() {
     });
     setSelectedMapCountry(null);
     setShowHSClassifier(false);
+    setExportValidationErrors({});
   };
 
   return (
@@ -563,6 +564,7 @@ export default function ImportExport() {
         <WorldMapExplorer onCountrySelect={(country) => {
           if (activeTab === 'export' && !analysisResult) {
             setSelectedMapCountry(country);
+            setExportValidationErrors(prev => ({ ...prev, mercato: false }));
           }
         }} />
 
