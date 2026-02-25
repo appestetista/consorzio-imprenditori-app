@@ -602,22 +602,18 @@ Fornisci:
         {/* Mappa Stati */}
         <WorldMapExplorer />
 
-        {/* Tab Switch */}
-        <div className="flex gap-1.5 mb-6 bg-slate-800/50 p-1 rounded-xl border border-white/5">
-          {[
-            { key: 'export', label: 'Export', icon: TrendingUp, active: 'bg-gradient-to-r from-lime-400 to-emerald-400 text-slate-900 shadow-lg shadow-lime-400/20' },
-            { key: 'import', label: 'Import CN', icon: Ship, active: 'bg-gradient-to-r from-red-500 to-rose-500 text-white shadow-lg shadow-red-500/20', hideWhen: 'export' },
-            { key: 'history', label: 'Storico', icon: Clock, active: 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/20' },
-          ].filter(t => !t.hideWhen || activeTab !== t.hideWhen).map(t => (
-            <button key={t.key} onClick={() => setActiveTab(t.key)} className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all ${activeTab === t.key ? t.active : 'text-slate-400 hover:text-white'}`}>
-              <t.icon className="w-4 h-4" />{t.label}
+        {/* Tab Switch — solo per Import/Messaggi (visibile quando non su export/history) */}
+        {(activeTab === 'import' || activeTab === 'messages') && (
+          <div className="flex gap-1.5 mb-6 bg-slate-800/50 p-1 rounded-xl border border-white/5">
+            <button onClick={() => setActiveTab('import')} className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all ${activeTab === 'import' ? 'bg-gradient-to-r from-red-500 to-rose-500 text-white shadow-lg shadow-red-500/20' : 'text-slate-400 hover:text-white'}`}>
+              <Ship className="w-4 h-4" />Import CN
             </button>
-          ))}
-          <button onClick={() => setActiveTab('messages')} className={`relative px-4 flex items-center justify-center py-2.5 rounded-lg text-sm font-semibold transition-all ${activeTab === 'messages' ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg shadow-blue-500/20' : 'text-slate-400 hover:text-white'}`}>
-            <Mail className="w-4 h-4" />
-            {importUnreadCount > 0 && (<span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full w-4.5 h-4.5 flex items-center justify-center font-bold ring-2 ring-slate-900">{importUnreadCount}</span>)}
-          </button>
-        </div>
+            <button onClick={() => setActiveTab('messages')} className={`relative px-4 flex items-center justify-center py-2.5 rounded-lg text-sm font-semibold transition-all ${activeTab === 'messages' ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg shadow-blue-500/20' : 'text-slate-400 hover:text-white'}`}>
+              <Mail className="w-4 h-4" />
+              {importUnreadCount > 0 && (<span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full w-4.5 h-4.5 flex items-center justify-center font-bold ring-2 ring-slate-900">{importUnreadCount}</span>)}
+            </button>
+          </div>
+        )}
 
         {activeTab === 'messages' ? (
           <ImportMessagesSection user={user} />
