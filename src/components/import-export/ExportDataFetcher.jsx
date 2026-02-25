@@ -782,7 +782,56 @@ FORMATO: paragrafi brevi e tecnici, nessun linguaggio motivazionale, nessuna nar
               analisi_competitiva: {
                 type: "object",
                 properties: {
-                  top_competitor: { type: "array", items: { type: "object", properties: { paese: { type: "string" }, quota: { type: "string" } } } },
+                  competitive_landscape: {
+                    type: "object",
+                    properties: {
+                      market_concentration: { type: "string", enum: ["High", "Medium", "Low"], description: "Concentrazione mercato basata su HHI proxy" },
+                      top_competitors: {
+                        type: "array",
+                        items: {
+                          type: "object",
+                          properties: {
+                            name: { type: "string", description: "Nome azienda o Cluster di competitor" },
+                            origin: { type: "string", enum: ["Local", "International"], description: "Origine" },
+                            positioning: { type: "string", enum: ["Premium", "Value", "Mass Market"], description: "Posizionamento" },
+                            value_proposition: { type: "string" },
+                            estimated_market_share: { type: "string", description: "Quota stimata o N/D" }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  pricing_intelligence: {
+                    type: "object",
+                    properties: {
+                      local_price_range_min: { type: "string", description: "Prezzo minimo con valuta" },
+                      local_price_range_max: { type: "string", description: "Prezzo massimo con valuta" },
+                      benchmark_product: { type: "string", description: "Prodotto di riferimento per il range" },
+                      notes: { type: "string" }
+                    }
+                  },
+                  distribution_channels: {
+                    type: "object",
+                    properties: {
+                      online_share: { type: "string", description: "% vendite online stimata" },
+                      offline_key_players: { type: "array", items: { type: "string" }, description: "Principali distributori/retailer offline" },
+                      standard_trade_margin: { type: "string", description: "Margine trade standard stimato" },
+                      primary_entry_mode: { type: "string", description: "Modalità principale di accesso al mercato" }
+                    }
+                  },
+                  differentiation_factors: {
+                    type: "array",
+                    items: { type: "string" },
+                    description: "Leve competitive più efficaci nel mercato specifico"
+                  },
+                  entry_barriers: {
+                    type: "object",
+                    properties: {
+                      brand_loyalty_level: { type: "string", enum: ["High", "Medium", "Low"] },
+                      required_certifications: { type: "array", items: { type: "string" } },
+                      notes: { type: "string" }
+                    }
+                  },
                   posizionamento_italia: { type: "string" },
                   swot: {
                     type: "object",
@@ -792,7 +841,8 @@ FORMATO: paragrafi brevi e tecnici, nessun linguaggio motivazionale, nessuna nar
                       opportunities: { type: "array", items: { type: "string" } },
                       threats: { type: "array", items: { type: "string" } }
                     }
-                  }
+                  },
+                  sources: { type: "array", items: { type: "string" }, description: "Fonti utilizzate per l'analisi competitiva" }
                 }
               },
               requisiti_normativi: {
