@@ -32,5 +32,5 @@ Deno.serve(async (req) => {
     name: p.name
   })) : [];
 
-  return Response.json({ count: partners.length, partners });
+  return Response.json({ success: true, count: partners.length, partners });
 });
