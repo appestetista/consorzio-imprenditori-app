@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
+// WTO Timeseries v1 multi-endpoint handler v2
 Deno.serve(async (req) => {
   const base44 = createClientFromRequest(req);
   const user = await base44.auth.me();
@@ -11,182 +12,160 @@ Deno.serve(async (req) => {
   const endpoint = String(body.endpoint || 'indicators').trim().toLowerCase();
   const searchTerm = String(body.search || '').trim().toLowerCase();
 
-  console.log('[wtoIndicators] endpoint:', endpoint, 'body:', JSON.stringify(body));
+  console.log('[wtoInd v2] endpoint=' + endpoint + ' body=' + JSON.stringify(body));
 
   const apiKey = Deno.env.get('WTO_API_KEY') || '';
   if (!apiKey) {
     return Response.json({ error: 'WTO_API_KEY not set' }, { status: 500 });
   }
 
-  const baseUrl = 'https://api.wto.org/timeseries/v1';
-  const apiHeaders = {
+  const BASE = 'https://api.wto.org/timeseries/v1';
+  const H = {
     'Ocp-Apim-Subscription-Key': apiKey,
     'Accept': 'application/json'
   };
 
-  // ========================
-  // ENDPOINT: data_count
-  // ========================
+  // ========== data_count ==========
   if (endpoint === 'data_count') {
-    const i = String(body.i || body.indicator_code || '').trim();
-    const r = String(body.r || body.reporter || '').trim();
-    const p = body.p !== undefined ? String(body.p).trim() : '0';
-    const pc = String(body.pc || body.product_code || '').trim();
-    const ps = String(body.ps || body.years || '').trim();
+    var dc_i = String(body.i || body.indicator_code || '').trim();
+    var dc_r = String(body.r || body.reporter || '').trim();
+    var dc_p = body.p !== undefined ? String(body.p).trim() : '0';
+    var dc_pc = String(body.pc || body.product_code || '').trim();
+    var dc_ps = String(body.ps || body.years || '').trim();
 
-    if (!i) {
-      return Response.json({ error: 'i (indicator_code) is required' }, { status: 400 });
-    }
-    if (!r) {
-      return Response.json({ error: 'r (reporter country code) is required' }, { status: 400 });
-    }
+    if (!dc_i) return Response.json({ error: 'i (indicator) required' }, { status: 400 });
+    if (!dc_r) return Response.json({ error: 'r (reporter) required' }, { status: 400 });
 
-    const params = new URLSearchParams();
-    params.set('i', i);
-    params.set('r', r);
-    params.set('p', p);
-    if (pc) params.set('pc', pc);
-    if (ps) params.set('ps', ps);
+    var qp = new URLSearchParams();
+    qp.set('i', dc_i);
+    qp.set('r', dc_r);
+    qp.set('p', dc_p);
+    if (dc_pc) qp.set('pc', dc_pc);
+    if (dc_ps) qp.set('ps', dc_ps);
 
-    const url = baseUrl + '/data_count?' + params.toString();
-    console.log('[wtoIndicators] data_count URL:', url);
+    var dcUrl = BASE + '/data_count?' + qp.toString();
+    console.log('[wtoInd v2] fetching: ' + dcUrl);
 
-    const resp = await fetch(url, { headers: apiHeaders, signal: AbortSignal.timeout(20000) });
-    if (!resp.ok) {
-      const text = await resp.text();
-      return Response.json({ error: 'WTO API HTTP ' + resp.status, detail: text, url: url }, { status: resp.status });
+    var dcResp = await fetch(dcUrl, { headers: H, signal: AbortSignal.timeout(20000) });
+    if (!dcResp.ok) {
+      var dcErr = await dcResp.text();
+      return Response.json({ error: 'WTO HTTP ' + dcResp.status, detail: dcErr, url: dcUrl }, { status: dcResp.status });
     }
 
-    const raw = await resp.text();
-    console.log('[wtoIndicators] data_count raw response:', raw);
+    var dcRaw = await dcResp.text();
+    console.log('[wtoInd v2] data_count raw: ' + dcRaw);
 
-    var count = null;
+    var dcCount = null;
     try {
-      var parsed = JSON.parse(raw);
-      if (typeof parsed === 'number') {
-        count = parsed;
-      } else if (parsed && typeof parsed.count === 'number') {
-        count = parsed.count;
-      } else if (parsed && typeof parsed.DataCount === 'number') {
-        count = parsed.DataCount;
-      } else {
-        count = parsed;
-      }
-    } catch (e) {
-      var num = parseInt(raw, 10);
-      count = isNaN(num) ? raw : num;
+      var dcParsed = JSON.parse(dcRaw);
+      if (typeof dcParsed === 'number') dcCount = dcParsed;
+      else if (dcParsed && typeof dcParsed.count === 'number') dcCount = dcParsed.count;
+      else if (dcParsed && typeof dcParsed.DataCount === 'number') dcCount = dcParsed.DataCount;
+      else dcCount = dcParsed;
+    } catch (_e) {
+      var dcNum = parseInt(dcRaw, 10);
+      dcCount = isNaN(dcNum) ? dcRaw : dcNum;
     }
 
-    if (count === 0) {
+    if (dcCount === 0) {
       return Response.json({
         success: true,
         endpoint: 'data_count',
         data_count: 0,
         message: 'Nessun dato disponibile WTO',
-        query: { i: i, r: r, p: p, pc: pc, ps: ps }
+        query: { i: dc_i, r: dc_r, p: dc_p, pc: dc_pc, ps: dc_ps }
       });
     }
 
     return Response.json({
       success: true,
       endpoint: 'data_count',
-      data_count: count,
-      query: { i: i, r: r, p: p, pc: pc, ps: ps }
+      data_count: dcCount,
+      query: { i: dc_i, r: dc_r, p: dc_p, pc: dc_pc, ps: dc_ps }
     });
   }
 
-  // ========================
-  // ENDPOINT: metadata
-  // ========================
+  // ========== metadata ==========
   if (endpoint === 'metadata') {
-    var indicatorCode = String(body.indicator_code || '').trim();
-    if (!indicatorCode) {
-      return Response.json({ error: 'indicator_code required for metadata endpoint' }, { status: 400 });
-    }
+    var mdCode = String(body.indicator_code || '').trim();
+    if (!mdCode) return Response.json({ error: 'indicator_code required' }, { status: 400 });
 
-    var indResp = await fetch(baseUrl + '/indicators', { headers: apiHeaders, signal: AbortSignal.timeout(20000) });
-    if (!indResp.ok) {
-      var text = await indResp.text();
-      return Response.json({ error: 'WTO indicators HTTP ' + indResp.status, detail: text }, { status: indResp.status });
+    var mdResp = await fetch(BASE + '/indicators', { headers: H, signal: AbortSignal.timeout(20000) });
+    if (!mdResp.ok) {
+      var mdErr = await mdResp.text();
+      return Response.json({ error: 'WTO HTTP ' + mdResp.status, detail: mdErr }, { status: mdResp.status });
     }
-    var allIndicators = await indResp.json();
-
-    var indicatorMatch = null;
-    if (Array.isArray(allIndicators)) {
-      indicatorMatch = allIndicators.find(function(item) {
-        return (item.code || '').toLowerCase() === indicatorCode.toLowerCase();
+    var mdAll = await mdResp.json();
+    var mdMatch = null;
+    if (Array.isArray(mdAll)) {
+      mdMatch = mdAll.find(function(x) {
+        return (x.code || '').toLowerCase() === mdCode.toLowerCase();
       });
     }
 
     return Response.json({
       success: true,
       endpoint: 'metadata',
-      indicator_code: indicatorCode,
-      indicator_info: indicatorMatch ? {
-        code: indicatorMatch.code,
-        name: indicatorMatch.name || indicatorMatch.description,
-        unit: indicatorMatch.unitCode || indicatorMatch.unit,
-        unitLabel: indicatorMatch.unitLabel,
-        category: indicatorMatch.categoryCode || indicatorMatch.category,
-        categoryLabel: indicatorMatch.categoryLabel,
-        subcategory: indicatorMatch.subcategoryCode,
-        subcategoryLabel: indicatorMatch.subcategoryLabel,
-        frequency: indicatorMatch.frequencyCode || indicatorMatch.frequency,
-        frequencyLabel: indicatorMatch.frequencyLabel,
-        startYear: indicatorMatch.startYear,
-        endYear: indicatorMatch.endYear,
-        numberReporters: indicatorMatch.numberReporters,
-        numberDatapoints: indicatorMatch.numberDatapoints,
-        productClassification: indicatorMatch.productSectorClassificationLabel,
-        updateFrequency: indicatorMatch.updateFrequency,
-        description: indicatorMatch.description
+      indicator_code: mdCode,
+      indicator_info: mdMatch ? {
+        code: mdMatch.code,
+        name: mdMatch.name || mdMatch.description,
+        unit: mdMatch.unitCode,
+        unitLabel: mdMatch.unitLabel,
+        category: mdMatch.categoryCode,
+        categoryLabel: mdMatch.categoryLabel,
+        subcategory: mdMatch.subcategoryCode,
+        subcategoryLabel: mdMatch.subcategoryLabel,
+        frequency: mdMatch.frequencyCode,
+        frequencyLabel: mdMatch.frequencyLabel,
+        startYear: mdMatch.startYear,
+        endYear: mdMatch.endYear,
+        numberReporters: mdMatch.numberReporters,
+        numberDatapoints: mdMatch.numberDatapoints,
+        productClassification: mdMatch.productSectorClassificationLabel,
+        updateFrequency: mdMatch.updateFrequency,
+        description: mdMatch.description
       } : null
     });
   }
 
-  // ========================
-  // ENDPOINT: years
-  // ========================
+  // ========== years ==========
   if (endpoint === 'years') {
-    var resp = await fetch(baseUrl + '/years', { headers: apiHeaders, signal: AbortSignal.timeout(20000) });
-    if (!resp.ok) {
-      var text = await resp.text();
-      return Response.json({ error: 'WTO API HTTP ' + resp.status, detail: text }, { status: resp.status });
+    var yrResp = await fetch(BASE + '/years', { headers: H, signal: AbortSignal.timeout(20000) });
+    if (!yrResp.ok) {
+      var yrErr = await yrResp.text();
+      return Response.json({ error: 'WTO HTTP ' + yrResp.status, detail: yrErr }, { status: yrResp.status });
     }
-    var data = await resp.json();
+    var yrData = await yrResp.json();
     return Response.json({
       success: true,
       endpoint: 'years',
-      count: Array.isArray(data) ? data.length : null,
-      years: data
+      count: Array.isArray(yrData) ? yrData.length : null,
+      years: yrData
     });
   }
 
-  // ========================
-  // ENDPOINT: indicators (default)
-  // ========================
-  var resp2 = await fetch(baseUrl + '/indicators', { headers: apiHeaders, signal: AbortSignal.timeout(20000) });
-  if (!resp2.ok) {
-    var text2 = await resp2.text();
-    return Response.json({ error: 'WTO API HTTP ' + resp2.status, detail: text2 }, { status: resp2.status });
+  // ========== indicators (default) ==========
+  var indResp = await fetch(BASE + '/indicators', { headers: H, signal: AbortSignal.timeout(20000) });
+  if (!indResp.ok) {
+    var indErr = await indResp.text();
+    return Response.json({ error: 'WTO HTTP ' + indResp.status, detail: indErr }, { status: indResp.status });
   }
+  var indData = await indResp.json();
 
-  var data2 = await resp2.json();
-
-  var indicators = Array.isArray(data2) ? data2.map(function(item) {
+  var indicators = Array.isArray(indData) ? indData.map(function(x) {
     return {
-      indicator_code: item.code || null,
-      description: item.name || item.description || null,
-      unit: item.unitCode || item.unit || null,
-      category: item.categoryCode || item.category || null
+      indicator_code: x.code || null,
+      description: x.name || x.description || null,
+      unit: x.unitCode || x.unit || null,
+      category: x.categoryCode || x.category || null
     };
   }) : [];
 
   if (searchTerm) {
-    indicators = indicators.filter(function(item) {
-      var code = (item.indicator_code || '').toLowerCase();
-      var desc = (item.description || '').toLowerCase();
-      return code.includes(searchTerm) || desc.includes(searchTerm);
+    indicators = indicators.filter(function(x) {
+      return (x.indicator_code || '').toLowerCase().includes(searchTerm) ||
+             (x.description || '').toLowerCase().includes(searchTerm);
     });
   }
 
