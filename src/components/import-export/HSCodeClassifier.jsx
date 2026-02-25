@@ -72,8 +72,14 @@ REGOLE INDEROGABILI:
 
       const codes = result.codici.slice(0, 3);
       setCandidates(codes);
-      if (codes.length === 1) {
-        setSelectedCode(codes[0].hs_code);
+      // Auto-confirm: select the highest-confidence code automatically
+      const best = codes.find(c => c.certezza === 'alto') || codes[0];
+      if (best) {
+        setSelectedCode(best.hs_code);
+        // Auto-confirm immediately
+        if (onConfirm) {
+          onConfirm(best);
+        }
       }
     } catch (err) {
       console.error('[HSCodeClassifier] Errore LLM:', err);
