@@ -729,12 +729,39 @@ STRUTTURA OBBLIGATORIA DELL'OUTPUT (9 sezioni):
    - Ogni requisito deve citare la fonte ufficiale (URL o ente).
    - Converti i termini tecnici in istruzioni chiare per l'utente.
 
-5️⃣ ANALISI LOGISTICA — Per ogni Paese:
-   - Incoterms consigliati
-   - Costo medio spedizione (se disponibile)
-   - Tempo medio transito
-   - LPI (Logistics Performance Index) dal dato World Bank fornito
-   No stime non supportate.
+5️⃣ ANALISI LOGISTICA (Logistics & Supply Chain Analyzer) — Per ogni Paese:
+   Agisci come Esperto di Logistica Internazionale e Supply Chain.
+   
+   PROTOCOLLO OBBLIGATORIO:
+   a) INFRASTRUCTURE ASSESSMENT:
+      - LPI Global Rank del Paese Target (dal dato World Bank fornito se disponibile)
+      - Efficienza doganale (Customs score)
+      - Qualità infrastrutture (High/Medium/Low)
+   
+   b) TRANSIT NODES:
+      - Principali porti marittimi di ingresso nel Paese Target
+      - Principali aeroporti cargo
+      - Se Paese landlocked: identifica OBBLIGATORIAMENTE i porti di transito dei paesi limitrofi
+   
+   c) FREIGHT ESTIMATION:
+      - Costo stimato nolo marittimo (container 20ft/40ft) dall'Italia al Paese Target — range min-max USD
+      - Costo stimato nolo aereo (USD/kg proxy)
+      - Tempo di transito stimato: via mare (giorni) e via aerea (giorni)
+      - Incoterms consigliati per il prodotto/mercato
+   
+   d) LAST-MILE & STORAGE:
+      - Complessità ultimo miglio (Low/Medium/High)
+      - Rete ferroviaria/stradale (Available/Not Available)
+      - Hub logistici principali e zone franche disponibili
+   
+   e) LOGISTICS RISKS:
+      - Congestione portuale, scioperi frequenti, carenze infrastrutturali documentate
+      - Criticità specifiche per il prodotto (catena del freddo, merci pericolose, dimensioni)
+   
+   INTEGRITY CONSTRAINTS:
+   - NON inventare costi o tempi: usa range medi di mercato indicati come "stime".
+   - Ogni dato deve citare la fonte (es. [World Bank LPI 2024], [Freightos Benchmark], [SeaRates]).
+   - Se dato non disponibile, scrivi "Stima non disponibile — consultare spedizioniere".
 
 6️⃣ ANALISI ECONOMICA EXPORT:
    - Simulazione prezzo export (se dati sufficienti)
