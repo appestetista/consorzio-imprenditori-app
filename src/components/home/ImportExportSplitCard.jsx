@@ -19,7 +19,7 @@ export default function ImportExportSplitCard({ disabled = false }) {
   };
 
   return (
-    <div className="col-span-2">
+    <div>
       <style>{`
         @keyframes cardGlow {
           0%, 100% { box-shadow: 0 0 10px 3px rgba(212, 175, 55, 0.4), 0 0 20px 6px rgba(212, 175, 55, 0.2); }
@@ -60,22 +60,14 @@ export default function ImportExportSplitCard({ disabled = false }) {
               onPointerLeave={() => setPressedSide(null)}
               disabled={disabled}
               className={cn(
-                "flex-1 flex flex-col items-center justify-center p-5 relative z-10 transition-all duration-100 border-r border-white/10",
+                "flex-1 flex flex-col items-center justify-center p-4 relative z-10 transition-all duration-100 border-r border-white/10",
                 !disabled && "active:bg-white/10 hover:bg-white/5",
                 pressedSide === 'export' && !disabled && "scale-[0.95] bg-white/10"
               )}
               style={{ cursor: disabled ? 'not-allowed' : 'pointer' }}
             >
-              <div className={cn(
-                "w-11 h-11 rounded-xl flex items-center justify-center mb-2 transition-transform duration-100",
-                pressedSide === 'export' && "scale-90"
-              )}
-                style={{ background: 'linear-gradient(135deg, #84cc16, #22c55e)' }}
-              >
-                <TrendingUp className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-sm font-semibold text-white/95">Export</span>
-              <span className="text-[10px] text-slate-400 mt-0.5">Analisi mercati</span>
+              <TrendingUp className={cn("w-8 h-8 mb-2 text-white/90 transition-transform duration-100", pressedSide === 'export' && "scale-90")} />
+              <span className="text-[13px] font-medium text-white/95 leading-tight text-center">Export</span>
             </button>
 
             {/* Metà destra - IMPORT */}
@@ -86,22 +78,14 @@ export default function ImportExportSplitCard({ disabled = false }) {
               onPointerLeave={() => setPressedSide(null)}
               disabled={disabled}
               className={cn(
-                "flex-1 flex flex-col items-center justify-center p-5 relative z-10 transition-all duration-100",
+                "flex-1 flex flex-col items-center justify-center p-4 relative z-10 transition-all duration-100",
                 !disabled && "active:bg-white/10 hover:bg-white/5",
                 pressedSide === 'import' && !disabled && "scale-[0.95] bg-white/10"
               )}
               style={{ cursor: disabled ? 'not-allowed' : 'pointer' }}
             >
-              <div className={cn(
-                "w-11 h-11 rounded-xl flex items-center justify-center mb-2 transition-transform duration-100",
-                pressedSide === 'import' && "scale-90"
-              )}
-                style={{ background: 'linear-gradient(135deg, #ef4444, #f43f5e)' }}
-              >
-                <Ship className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-sm font-semibold text-white/95">Import</span>
-              <span className="text-[10px] text-slate-400 mt-0.5">Dalla Cina</span>
+              <Ship className={cn("w-8 h-8 mb-2 text-white/90 transition-transform duration-100", pressedSide === 'import' && "scale-90")} />
+              <span className="text-[13px] font-medium text-white/95 leading-tight text-center">Import</span>
             </button>
           </div>
         </div>
