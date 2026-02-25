@@ -290,7 +290,7 @@ Rispondi in italiano.`,
     // Sfera oceano - blu scuro
     const sphereGeom = new THREE.SphereGeometry(1, 64, 64);
     const sphereMat = new THREE.MeshPhongMaterial({
-      color: 0x0c1929,
+      color: 0x0f2847,
       shininess: 5,
     });
     const sphere = new THREE.Mesh(sphereGeom, sphereMat);
