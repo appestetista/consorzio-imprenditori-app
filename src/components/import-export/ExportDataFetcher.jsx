@@ -522,15 +522,15 @@ MERCATO: ${m.paese_nome} (${m.paese_code})
   let result;
   try {
   result = await base44.integrations.Core.InvokeLLM({
-    prompt: `Sei un Export Manager con 20 anni di esperienza. Siamo nel ${currentYear}.
+    prompt: `Agisci come consulente senior di internazionalizzazione con metodologia conforme a ICE, SACE, World Bank, International Trade Centre. Siamo nel ${currentYear}.
 
-COMPITO: Interpreta i seguenti DATI GIÀ VERIFICATI e fornisci una valutazione strategica.
-
-IMPORTANTE:
-- NON inventare nuovi dati. Usa SOLO i numeri forniti sotto.
-- Se un dato è "N/D" o "Non calcolabile", dillo esplicitamente — NON lo sostituire con stime.
-- La tua analisi DEVE essere coerente con i numeri forniti.
-- Se i dati sono insufficienti per un mercato, scrivi "Dati insufficienti per una valutazione affidabile di questo mercato."
+REGOLE ANTI-ALLUCINAZIONE INDEROGABILI:
+- Usa ESCLUSIVAMENTE i dati numerici forniti sotto. NON inventare dati.
+- Ogni dato numerico deve avere: fonte e anno.
+- Se un dato è "N/D" o "Non calcolabile", scrivi: "Dato non disponibile da fonti ufficiali verificabili". NON stimare, NON dedurre, NON interpolare.
+- NON usare espressioni generiche come "in forte crescita" senza numero.
+- Separa chiaramente: dati oggettivi vs analisi interpretativa.
+- Se il livello di affidabilità è basso, indicarlo esplicitamente.
 
 CODICE HS: ${hsCode}
 DESCRIZIONE: ${hsDescrizione}
@@ -547,17 +547,67 @@ DATI COMMERCIALI VERIFICATI:
 ${riepilogoDati}
 ${datiNonDisponibili}${notaCambio}
 
-STRUTTURA RICHIESTA per ogni mercato:
-1. DIMENSIONE MERCATO: commenta il valore import totale — c'è domanda reale? Quanto è grande?
-2. TREND STORICO: commenta CAGR e crescita 3 anni — mercato in crescita, stabile, o in calo?
-3. COMPETIZIONE: chi sono i principali fornitori? C'è spazio per l'Italia?
-4. BARRIERE NORMATIVE E DAZI: dazi MFN, anti-dumping, certificazioni richieste.
-5. STABILITÀ ECONOMICA: inflazione, Ease of Doing Business, volatilità cambio — che impatto hanno sull'operatività?
-6. LOGISTICA: Logistics Performance Index — quanto è affidabile la catena logistica?
-7. COERENZA CON AZIENDA: questa azienda ha le caratteristiche per competere?
-8. CONCLUSIONE OPERATIVA: consiglio concreto (entrare, attendere, evitare) con motivazione basata sui numeri.
+STRUTTURA OBBLIGATORIA DELL'OUTPUT (9 sezioni):
 
-Fornisci anche una classifica dei mercati per priorità e i primi passi concreti.`,
+1️⃣ MARKET SCREENING — Per ogni Paese:
+   - Valore import totale del prodotto (ultimo anno, €) con fonte e anno
+   - CAGR 3-5 anni (tasso annuo composto di crescita)
+   - Dazi applicati (%)
+   - Barriere non tariffarie (certificazioni obbligatorie)
+   - Ranking finale con punteggio motivato
+   Se mancano dati → dichiararlo esplicitamente.
+
+2️⃣ ANALISI DOMANDA LOCALE — Per ogni Paese:
+   - Segmentazione mercato (premium / medio / entry level)
+   - Volumi di consumo ufficiali (se disponibili nei dati)
+   - Canali distributivi dominanti
+   - Trend misurabili con percentuali
+   No frasi descrittive senza dati numerici.
+
+3️⃣ ANALISI COMPETITIVA — Per ogni Paese:
+   - Top competitor (dai dati top_fornitori)
+   - Quota di mercato dei competitor
+   - Posizionamento Italia
+   - SWOT (Strengths/Weaknesses/Opportunities/Threats)
+
+4️⃣ REQUISITI NORMATIVI — Per ogni Paese:
+   - Certificazioni obbligatorie
+   - Tempi medi ottenimento autorizzazioni (se noti)
+   - Costi ufficiali (se pubblici)
+   Se non disponibili → dichiararlo.
+
+5️⃣ ANALISI LOGISTICA — Per ogni Paese:
+   - Incoterms consigliati
+   - Costo medio spedizione (se disponibile)
+   - Tempo medio transito
+   - LPI (Logistics Performance Index) dal dato World Bank fornito
+   No stime non supportate.
+
+6️⃣ ANALISI ECONOMICA EXPORT:
+   - Simulazione prezzo export (se dati sufficienti)
+   - Margine lordo stimato con formula esplicitata
+   - Break even point
+   - Investimento iniziale stimato con suddivisione costi
+   Se non calcolabile → spiegare perché.
+
+7️⃣ CANALI DI INGRESSO — Per ogni Paese:
+   - Importatori/distributori (tipologia)
+   - Fiere di settore ufficiali rilevanti
+   - Marketplace dominanti
+
+8️⃣ ANALISI RISCHIO PAESE — Per ogni Paese (basata su dati World Bank/SACE forniti):
+   - Rischio politico
+   - Rischio economico (inflazione, partite correnti)
+   - Rischio cambio (volatilità cambio)
+   - Rischio credito
+   Con indicatori numerici dai dati forniti.
+
+9️⃣ ROADMAP OPERATIVA 12 MESI:
+   - Timeline mensile con milestone
+   - KPI misurabili
+   - Budget allocato stimato
+
+FORMATO: paragrafi brevi e tecnici, nessun linguaggio motivazionale, nessuna narrativa generica.`,
     response_json_schema: {
       type: "object",
       properties: {
@@ -570,36 +620,133 @@ Fornisci anche una classifica dei mercati per priorità e i primi passi concreti
             properties: {
               paese_code: { type: "string" },
               paese_nome: { type: "string" },
-              punteggio_opportunita: { type: "number" },
-              domanda_reale: { type: "string", description: "Commento sulla domanda reale del mercato basato su import totale" },
-              trend_storico: { type: "string", description: "Commento su CAGR e trend basato sui numeri" },
-              stabilita: { type: "string", description: "Commento sulla volatilità della serie storica" },
-              coerenza_azienda: { type: "string", description: "Compatibilità azienda-mercato" },
-              conclusione_operativa: { type: "string", description: "Consiglio concreto: entrare/attendere/evitare" },
+              mercato: { type: "string", description: "Nome mercato per display" },
+              punteggio_opportunita: { type: "number", description: "1-10" },
+              market_screening: {
+                type: "object",
+                properties: {
+                  import_totale: { type: "string", description: "Valore import totale con fonte e anno" },
+                  cagr: { type: "string", description: "CAGR con percentuale e periodo" },
+                  dazi: { type: "string", description: "Dazi applicati %" },
+                  barriere_non_tariffarie: { type: "string" },
+                  ranking_motivazione: { type: "string" }
+                }
+              },
+              domanda_locale: {
+                type: "object",
+                properties: {
+                  segmentazione: { type: "string", description: "premium/medio/entry level" },
+                  volumi_consumo: { type: "string" },
+                  canali_distributivi: { type: "array", items: { type: "string" } },
+                  trend: { type: "string", description: "Con percentuali" }
+                }
+              },
+              analisi_competitiva: {
+                type: "object",
+                properties: {
+                  top_competitor: { type: "array", items: { type: "object", properties: { paese: { type: "string" }, quota: { type: "string" } } } },
+                  posizionamento_italia: { type: "string" },
+                  swot: {
+                    type: "object",
+                    properties: {
+                      strengths: { type: "array", items: { type: "string" } },
+                      weaknesses: { type: "array", items: { type: "string" } },
+                      opportunities: { type: "array", items: { type: "string" } },
+                      threats: { type: "array", items: { type: "string" } }
+                    }
+                  }
+                }
+              },
+              requisiti_normativi: {
+                type: "object",
+                properties: {
+                  certificazioni: { type: "array", items: { type: "string" } },
+                  tempi_autorizzazioni: { type: "string" },
+                  costi: { type: "string" }
+                }
+              },
+              logistica: {
+                type: "object",
+                properties: {
+                  incoterms_consigliati: { type: "string" },
+                  costo_spedizione: { type: "string" },
+                  tempo_transito: { type: "string" },
+                  lpi_score: { type: "string" }
+                }
+              },
+              rischio_paese: {
+                type: "object",
+                properties: {
+                  rischio_politico: { type: "string" },
+                  rischio_economico: { type: "string" },
+                  rischio_cambio: { type: "string" },
+                  rischio_credito: { type: "string" }
+                }
+              },
+              canali_ingresso: {
+                type: "object",
+                properties: {
+                  importatori: { type: "string" },
+                  fiere_settore: { type: "array", items: { type: "string" } },
+                  marketplace: { type: "array", items: { type: "string" } }
+                }
+              },
+              flussi_commerciali: {
+                type: "object",
+                properties: {
+                  valore_import_annuo: { type: "string" },
+                  export_italia_verso_paese: { type: "string" },
+                  trend_yoy_percentuale: { type: "string" },
+                  crescita_o_calo: { type: "string", enum: ["crescita", "calo", "stabile"] },
+                  quota_italia: { type: "string" },
+                  principali_fornitori: { type: "array", items: { type: "object", properties: { paese: { type: "string" }, quota_percentuale: { type: "string" } } } }
+                }
+              },
+              dazi_taric: {
+                type: "object",
+                properties: {
+                  dazio_mfn: { type: "string" },
+                  dazio_preferenziale: { type: "string" },
+                  anti_dumping: { type: "string" },
+                  restrizioni: { type: "string" }
+                }
+              },
               opportunita: { type: "array", items: { type: "string" } },
               sfide: { type: "array", items: { type: "string" } },
-              documenti_necessari: { type: "array", items: { type: "string" } },
               certificazioni_richieste: { type: "array", items: { type: "string" } },
-              canali_distribuzione: { type: "array", items: { type: "string" } },
-              dati_insufficienti: { type: "boolean", description: "true se dati insufficienti per analisi affidabile" }
+              conclusione_operativa: { type: "string" },
+              dati_insufficienti: { type: "boolean" }
             }
           }
         },
-        classifica_mercati: {
+        analisi_economica: {
+          type: "object",
+          properties: {
+            simulazione_prezzo: { type: "string" },
+            margine_lordo: { type: "string", description: "Con formula esplicitata" },
+            break_even: { type: "string" },
+            investimento_iniziale: { type: "string", description: "Con suddivisione costi" },
+            note: { type: "string" }
+          }
+        },
+        roadmap_12_mesi: {
           type: "array",
           items: {
             type: "object",
             properties: {
-              posizione: { type: "number" },
-              paese: { type: "string" },
-              motivazione: { type: "string" }
+              mese: { type: "string", description: "Es. Mese 1-2, Mese 3-4, etc." },
+              attivita: { type: "string" },
+              kpi: { type: "string" },
+              budget_stimato: { type: "string" }
             }
           }
         },
+        mercati_prioritari: { type: "array", items: { type: "string" } },
         raccomandazione_generale: { type: "string" },
         timeline_consigliata: { type: "string" },
         rischi_principali: { type: "array", items: { type: "string" } },
-        primi_passi: { type: "array", items: { type: "string" } }
+        primi_passi: { type: "array", items: { type: "string" } },
+        risorse_utili: { type: "array", items: { type: "object", properties: { nome: { type: "string" }, url: { type: "string" } } } }
       }
     }
   });
