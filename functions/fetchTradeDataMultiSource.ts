@@ -1,8 +1,13 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
 /**
- * Backend function: Recupera dati commerciali da API reali (OEC, UN Comtrade, WITS)
- * e li salva/restituisce in formato normalizzato.
+ * Backend function: Recupera dati commerciali da API REALI multiple:
+ * 1) UN Comtrade (Public + Premium se chiave disponibile)
+ * 2) OEC (BACI data)
+ * 3) WITS Trade Stats (World Bank)
+ * 4) WITS TRAINS (Tariffe MFN + Preferenziali)
+ * 5) Eurostat Comext (EU trade data)
+ * 6) World Bank (Macro indicators)
  * 
  * Payload:
  *   reporter_code: string (ISO2, es. "IT")
@@ -11,9 +16,12 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
  *   flow_type: "import" | "export"
  *   period_years: number (default 5)
  *   skip_cache: boolean (default false)
+ *   include_tariffs: boolean (default true)
+ *   include_eurostat: boolean (default true)
  */
 
-// OEC country code mapping: ISO2 → OEC prefix+iso3
+// ===== COUNTRY CODE MAPPINGS =====
+
 const ISO2_TO_OEC = {
   AF:'asafg',AL:'eualb',DZ:'afdza',AO:'afago',AR:'saarg',AM:'asarm',AU:'ocaus',AT:'euaut',AZ:'asaze',
   BH:'asbhr',BD:'asbgd',BY:'eublr',BE:'eubel',BJ:'afben',BO:'sabol',BA:'eubih',BW:'afbwa',BR:'sabra',
@@ -50,90 +58,6 @@ const ISO2_TO_ISO3 = {
   UY:'URY',UZ:'UZB',VE:'VEN',VN:'VNM',ZM:'ZMB',ZW:'ZWE'
 };
 
-/**
- * Fetch from OEC API (BACI data, no auth required)
- * Returns array of { year, trade_value, net_weight_kg }
- */
-async function fetchFromOEC(reporterISO2, partnerISO2, hsCode, flowType, startYear, endYear) {
-  const hs4 = String(hsCode).replace(/\D/g, '').substring(0, 4);
-  const cube = 'trade_i_baci_a_22'; // HS 2022 revision for recent data
-  
-  // Build OEC drilldowns based on flow
-  const reporterOEC = ISO2_TO_OEC[reporterISO2];
-  const partnerOEC = ISO2_TO_OEC[partnerISO2];
-  if (!reporterOEC || !partnerOEC) return null;
-  
-  // Map HS4 to OEC format (section prefix + hs4)
-  // OEC HS4 IDs have a section prefix, we need to search without it
-  const yearRange = [];
-  for (let y = startYear; y <= endYear; y++) yearRange.push(y);
-  const yearsStr = yearRange.join(',');
-  
-  let exporterKey, importerKey, exporterVal, importerVal;
-  if (flowType === 'export') {
-    exporterKey = 'Exporter+Country';
-    importerKey = 'Importer+Country';
-    exporterVal = reporterOEC;
-    importerVal = partnerOEC;
-  } else {
-    exporterKey = 'Exporter+Country';
-    importerKey = 'Importer+Country';
-    exporterVal = partnerOEC;
-    importerVal = reporterOEC;
-  }
-  
-  const url = `https://api-v2.oec.world/tesseract/data.jsonrecords?cube=${cube}&drilldowns=Year,HS4,${exporterKey},${importerKey}&measures=Trade+Value&include=Year:${yearsStr};${exporterKey}:${exporterVal};${importerKey}:${importerVal}&limit=500,0`;
-  
-  console.log(`[OEC] Fetching: ${reporterISO2}->${partnerISO2} HS${hs4} ${flowType}`);
-  
-  const resp = await fetch(url, { 
-    headers: { 'Accept': 'application/json' },
-    signal: AbortSignal.timeout(15000)
-  });
-  
-  if (!resp.ok) {
-    console.log(`[OEC] HTTP ${resp.status} for ${url}`);
-    return null;
-  }
-  
-  const json = await resp.json();
-  const records = json?.data || [];
-  
-  if (records.length === 0) {
-    console.log(`[OEC] No data for ${reporterISO2}->${partnerISO2} HS${hs4}`);
-    return null;
-  }
-  
-  // Filter by HS4 code (OEC IDs have section prefix, so check if code ends with our hs4)
-  const filtered = records.filter(r => {
-    const id = String(r['HS4 ID'] || r['HS4'] || '');
-    return id.endsWith(hs4) || id.includes(hs4);
-  });
-  
-  // If no filtered results, try aggregating all HS4 results (OEC might return all)
-  const dataToUse = filtered.length > 0 ? filtered : records;
-  
-  // Aggregate by year
-  const byYear = {};
-  for (const r of dataToUse) {
-    const year = r.Year;
-    if (!byYear[year]) byYear[year] = { trade_value: 0 };
-    byYear[year].trade_value += (r['Trade Value'] || 0);
-  }
-  
-  const result = Object.entries(byYear)
-    .map(([year, data]) => ({
-      year: parseInt(year),
-      trade_value_usd: Math.round(data.trade_value),
-      source: 'oec',
-      source_detail: cube
-    }))
-    .sort((a, b) => a.year - b.year);
-  
-  return result.length > 0 ? result : null;
-}
-
-// ISO2 → UN Comtrade numeric reporter codes (M49)
 const ISO2_TO_M49 = {
   AF:4,AL:8,DZ:12,AO:24,AR:32,AM:51,AU:36,AT:40,AZ:31,
   BH:48,BD:50,BY:112,BE:56,BJ:204,BO:68,BA:70,BW:72,BR:76,
@@ -152,265 +76,472 @@ const ISO2_TO_M49 = {
   UY:858,UZ:860,VE:862,VN:704,ZM:894,ZW:716
 };
 
-/**
- * Fetch from UN Comtrade PUBLIC API (free, no key required)
- * Limits: 1 period per call, max 500 records. We call year by year.
- */
+// Eurostat country codes (ISO2 → Eurostat partner code)
+const EU_MEMBERS = ['AT','BE','BG','HR','CY','CZ','DK','EE','FI','FR','DE','GR','HU','IE','IT','LV','LT','LU','MT','NL','PL','PT','RO','SK','SI','ES','SE'];
+
+// ===== SOURCE 1: OEC (BACI data) =====
+
+async function fetchFromOEC(reporterISO2, partnerISO2, hsCode, flowType, startYear, endYear) {
+  const hs4 = String(hsCode).replace(/\D/g, '').substring(0, 4);
+  const cube = 'trade_i_baci_a_22';
+  const reporterOEC = ISO2_TO_OEC[reporterISO2];
+  const partnerOEC = ISO2_TO_OEC[partnerISO2];
+  if (!reporterOEC || !partnerOEC) return null;
+
+  const yearRange = [];
+  for (let y = startYear; y <= endYear; y++) yearRange.push(y);
+  const yearsStr = yearRange.join(',');
+
+  let exporterVal, importerVal;
+  if (flowType === 'export') {
+    exporterVal = reporterOEC;
+    importerVal = partnerOEC;
+  } else {
+    exporterVal = partnerOEC;
+    importerVal = reporterOEC;
+  }
+
+  const url = `https://api-v2.oec.world/tesseract/data.jsonrecords?cube=${cube}&drilldowns=Year,HS4,Exporter+Country,Importer+Country&measures=Trade+Value&include=Year:${yearsStr};Exporter+Country:${exporterVal};Importer+Country:${importerVal}&limit=500,0`;
+  console.log(`[OEC] Fetching: ${reporterISO2}->${partnerISO2} HS${hs4} ${flowType}`);
+
+  const resp = await fetch(url, { headers: { 'Accept': 'application/json' }, signal: AbortSignal.timeout(15000) });
+  if (!resp.ok) { console.log(`[OEC] HTTP ${resp.status}`); return null; }
+
+  const json = await resp.json();
+  const records = json?.data || [];
+  if (records.length === 0) return null;
+
+  const filtered = records.filter(r => {
+    const id = String(r['HS4 ID'] || r['HS4'] || '');
+    return id.endsWith(hs4) || id.includes(hs4);
+  });
+  const dataToUse = filtered.length > 0 ? filtered : records;
+
+  const byYear = {};
+  for (const r of dataToUse) {
+    const year = r.Year;
+    if (!byYear[year]) byYear[year] = { trade_value: 0 };
+    byYear[year].trade_value += (r['Trade Value'] || 0);
+  }
+
+  return Object.entries(byYear)
+    .map(([year, data]) => ({ year: parseInt(year), trade_value_usd: Math.round(data.trade_value), source: 'oec', source_detail: cube }))
+    .sort((a, b) => a.year - b.year);
+}
+
+// ===== SOURCE 2: UN Comtrade Public API =====
+
 async function fetchFromComtradePublic(reporterISO2, partnerISO2, hsCode, flowType, startYear, endYear) {
   const reporterM49 = ISO2_TO_M49[reporterISO2];
   const partnerM49 = ISO2_TO_M49[partnerISO2];
   if (!reporterM49 || !partnerM49) return null;
-  
+
   const hs4 = String(hsCode).replace(/\D/g, '').substring(0, 4);
   const flowCode = flowType === 'export' ? 'X' : 'M';
-  
+
   const years = [];
   for (let y = startYear; y <= endYear; y++) years.push(y);
-  
-  console.log(`[Comtrade-Public] Fetching: ${reporterISO2}(${reporterM49})->${partnerISO2}(${partnerM49}) HS${hs4} ${flowType} years=${years.join(',')}`);
-  
-  // Call one year at a time (API limit: 1 period per call)
+
+  console.log(`[Comtrade-Public] Fetching: ${reporterISO2}(${reporterM49})->${partnerISO2}(${partnerM49}) HS${hs4} ${flowType}`);
+
   const yearPromises = years.map(async (year) => {
     const url = `https://comtradeapi.un.org/public/v1/preview/C/A/HS?reporterCode=${reporterM49}&partnerCode=${partnerM49}&cmdCode=${hs4}&flowCode=${flowCode}&period=${year}`;
-    
-    const resp = await fetch(url, {
-      headers: { 'Accept': 'application/json' },
-      signal: AbortSignal.timeout(12000)
-    });
-    
-    if (!resp.ok) {
-      console.log(`[Comtrade-Public] HTTP ${resp.status} for year ${year}`);
-      return null;
-    }
-    
+    const resp = await fetch(url, { headers: { 'Accept': 'application/json' }, signal: AbortSignal.timeout(12000) });
+    if (!resp.ok) return null;
+
     const json = await resp.json();
-    if (json.error && json.error.length > 0) {
-      console.log(`[Comtrade-Public] API error for year ${year}: ${json.error}`);
-    }
-    
     const records = json?.data || [];
     if (records.length === 0) return null;
-    
-    // Sum all matching records for this year (could be sub-headings)
-    let totalValue = 0;
-    let totalNetWgt = 0;
-    let totalQty = 0;
-    let qtyUnit = null;
-    
+
+    let totalValue = 0, totalNetWgt = 0, totalQty = 0, qtyUnit = null;
     for (const r of records) {
       if (r.primaryValue != null) totalValue += r.primaryValue;
       if (r.netWgt) totalNetWgt += r.netWgt;
       if (r.qty) totalQty += r.qty;
       if (r.qtyUnitAbbr && !qtyUnit) qtyUnit = r.qtyUnitAbbr;
     }
-    
     if (totalValue <= 0) return null;
-    
+
     return {
-      year: year,
-      trade_value_usd: Math.round(totalValue),
+      year, trade_value_usd: Math.round(totalValue),
       net_weight_kg: totalNetWgt > 0 ? Math.round(totalNetWgt) : null,
       quantity: totalQty > 0 ? Math.round(totalQty) : null,
       quantity_unit: qtyUnit,
-      source: 'comtrade',
-      source_detail: `public-${reporterM49}-${partnerM49}-${hs4}`
+      source: 'comtrade', source_detail: `public-${reporterM49}-${partnerM49}-${hs4}`
     };
   });
-  
+
   const results = await Promise.allSettled(yearPromises);
-  const data = results
-    .filter(r => r.status === 'fulfilled' && r.value != null)
-    .map(r => r.value)
-    .sort((a, b) => a.year - b.year);
-  
-  if (data.length > 0) {
-    console.log(`[Comtrade-Public] Got ${data.length} years of data`);
-  }
-  
+  const data = results.filter(r => r.status === 'fulfilled' && r.value != null).map(r => r.value).sort((a, b) => a.year - b.year);
   return data.length > 0 ? data : null;
 }
 
-/**
- * Fetch from UN Comtrade Premium API (requires subscription key)
- * Falls back gracefully if no key is set.
- */
-async function fetchFromComtradePremium(reporterISO2, partnerISO2, hsCode, flowType, startYear, endYear) {
-  const envVars = Deno.env.toObject();
-  const apiKey = envVars['COMTRADE_API_KEY'] || '';
-  if (!apiKey || apiKey.length < 10) {
-    return null; // silently skip, public endpoint handles it
+// ===== SOURCE 2b: UN Comtrade — Top suppliers for a market =====
+
+async function fetchComtradeTopSuppliers(importerISO2, hsCode, year) {
+  const importerM49 = ISO2_TO_M49[importerISO2];
+  if (!importerM49) return null;
+
+  const hs4 = String(hsCode).replace(/\D/g, '').substring(0, 4);
+  // Get all exporters to this importer for this HS code
+  const url = `https://comtradeapi.un.org/public/v1/preview/C/A/HS?reporterCode=${importerM49}&partnerCode=0&cmdCode=${hs4}&flowCode=M&period=${year}`;
+  console.log(`[Comtrade-TopSuppliers] Fetching top suppliers for ${importerISO2} HS${hs4} year=${year}`);
+
+  const resp = await fetch(url, { headers: { 'Accept': 'application/json' }, signal: AbortSignal.timeout(15000) });
+  if (!resp.ok) return null;
+
+  const json = await resp.json();
+  const records = json?.data || [];
+  if (records.length === 0) return null;
+
+  // Aggregate by partner
+  const byPartner = {};
+  let totalImport = 0;
+  for (const r of records) {
+    const partnerCode = r.partnerCode;
+    const partnerDesc = r.partnerDesc || r.partner || `M49:${partnerCode}`;
+    if (partnerCode === 0) continue; // Skip "World" aggregate
+    const val = r.primaryValue || 0;
+    if (val <= 0) continue;
+    if (!byPartner[partnerCode]) byPartner[partnerCode] = { name: partnerDesc, value: 0 };
+    byPartner[partnerCode].value += val;
+    totalImport += val;
   }
-  
+
+  const sorted = Object.values(byPartner).sort((a, b) => b.value - a.value);
+  const top10 = sorted.slice(0, 10).map(s => ({
+    paese: s.name,
+    valore_usd: Math.round(s.value),
+    quota_percentuale: totalImport > 0 ? ((s.value / totalImport) * 100).toFixed(1) + '%' : 'N/D',
+    fonte: 'UN Comtrade'
+  }));
+
+  return { top_fornitori: top10, import_totale_usd: Math.round(totalImport), fonte: 'UN Comtrade', anno: year };
+}
+
+// ===== SOURCE 3: UN Comtrade Premium =====
+
+async function fetchFromComtradePremium(reporterISO2, partnerISO2, hsCode, flowType, startYear, endYear) {
+  const apiKey = Deno.env.get('COMTRADE_API_KEY') || '';
+  if (!apiKey || apiKey.length < 10) return null;
+
   const reporterM49 = ISO2_TO_M49[reporterISO2];
   const partnerM49 = ISO2_TO_M49[partnerISO2];
   if (!reporterM49 || !partnerM49) return null;
-  
+
   const hs4 = String(hsCode).replace(/\D/g, '').substring(0, 4);
   const flowCode = flowType === 'export' ? 'X' : 'M';
-  
   const years = [];
   for (let y = startYear; y <= endYear; y++) years.push(y);
-  const periodsStr = years.join(',');
-  
-  const url = `https://comtradeapi.un.org/data/v1/get/C/A/HS?reporterCode=${reporterM49}&partnerCode=${partnerM49}&cmdCode=${hs4}&flowCode=${flowCode}&period=${periodsStr}&subscription-key=${apiKey}`;
-  
-  console.log(`[Comtrade-Premium] Fetching: ${reporterISO2}->${partnerISO2} HS${hs4} ${flowType}`);
-  
-  const resp = await fetch(url, {
-    headers: { 'Accept': 'application/json' },
-    signal: AbortSignal.timeout(20000)
-  });
-  
-  if (!resp.ok) {
-    console.log(`[Comtrade-Premium] HTTP ${resp.status}`);
-    return null;
-  }
-  
+
+  const url = `https://comtradeapi.un.org/data/v1/get/C/A/HS?reporterCode=${reporterM49}&partnerCode=${partnerM49}&cmdCode=${hs4}&flowCode=${flowCode}&period=${years.join(',')}&subscription-key=${apiKey}`;
+  console.log(`[Comtrade-Premium] Fetching: ${reporterISO2}->${partnerISO2} HS${hs4}`);
+
+  const resp = await fetch(url, { headers: { 'Accept': 'application/json' }, signal: AbortSignal.timeout(20000) });
+  if (!resp.ok) return null;
+
   const json = await resp.json();
   const records = json?.data || [];
-  
   if (records.length === 0) return null;
-  
-  const result = records
-    .filter(r => r.primaryValue != null)
-    .map(r => ({
-      year: parseInt(r.period || r.refYear),
-      trade_value_usd: Math.round(r.primaryValue || 0),
-      net_weight_kg: r.netWgt ? Math.round(r.netWgt) : null,
-      quantity: r.qty ? Math.round(r.qty) : null,
-      quantity_unit: r.qtyUnitAbbr || null,
-      source: 'comtrade',
-      source_detail: `premium-${r.reporterCode}-${r.partnerCode}-${r.cmdCode}`
-    }))
-    .sort((a, b) => a.year - b.year);
-  
-  return result.length > 0 ? result : null;
+
+  return records.filter(r => r.primaryValue != null).map(r => ({
+    year: parseInt(r.period || r.refYear),
+    trade_value_usd: Math.round(r.primaryValue || 0),
+    net_weight_kg: r.netWgt ? Math.round(r.netWgt) : null,
+    quantity: r.qty ? Math.round(r.qty) : null,
+    quantity_unit: r.qtyUnitAbbr || null,
+    source: 'comtrade', source_detail: `premium`
+  })).sort((a, b) => a.year - b.year);
 }
 
-/**
- * Fetch from WITS API (World Bank, no auth)
- */
-async function fetchFromWITS(reporterISO3, partnerISO3, hsCode, flowType, year) {
+// ===== SOURCE 4: WITS Trade Stats =====
+
+async function fetchFromWITS(reporterISO3, partnerISO3, hsCode, flowType, startYear, endYear) {
   const indicator = flowType === 'export' ? 'XPRT-TRD-VL' : 'MPRT-TRD-VL';
-  const hs4 = String(hsCode).replace(/\D/g, '').substring(0, 4);
-  
-  const url = `https://wits.worldbank.org/API/V1/SDMX/V21/rest/data/DF_WITS_TradeStats_Trade/${reporterISO3}.${partnerISO3}.${hs4}.${year}.${indicator}?format=JSON`;
-  
-  console.log(`[WITS] Fetching: ${reporterISO3}->${partnerISO3} HS${hs4} ${year}`);
-  
-  const resp = await fetch(url, {
-    headers: { 'Accept': 'application/json' },
-    signal: AbortSignal.timeout(15000)
-  });
-  
-  if (!resp.ok) {
-    console.log(`[WITS] HTTP ${resp.status}`);
-    return null;
-  }
-  
-  const json = await resp.json();
-  // WITS SDMX response parsing
-  const observations = json?.dataSets?.[0]?.observations || json?.dataSets?.[0]?.series;
-  if (!observations) return null;
-  
-  // Extract value from SDMX structure
-  let value = null;
-  if (typeof observations === 'object') {
-    const keys = Object.keys(observations);
-    if (keys.length > 0) {
-      const obs = observations[keys[0]];
-      value = Array.isArray(obs) ? obs[0] : obs?.observations?.['0']?.[0];
+  const hs6 = String(hsCode).replace(/\D/g, '').substring(0, 6);
+
+  const results = [];
+  for (let year = startYear; year <= endYear; year++) {
+    const url = `https://wits.worldbank.org/API/V1/SDMX/V21/rest/data/DF_WITS_TradeStats_Trade/${reporterISO3}.${partnerISO3}.${hs6}.${year}.${indicator}?format=JSON`;
+    console.log(`[WITS-Trade] ${reporterISO3}->${partnerISO3} HS${hs6} ${year}`);
+
+    try {
+      const resp = await fetch(url, { headers: { 'Accept': 'application/json' }, signal: AbortSignal.timeout(10000) });
+      if (!resp.ok) continue;
+
+      const json = await resp.json();
+      const observations = json?.dataSets?.[0]?.observations || json?.dataSets?.[0]?.series;
+      if (!observations) continue;
+
+      let value = null;
+      if (typeof observations === 'object') {
+        const keys = Object.keys(observations);
+        if (keys.length > 0) {
+          const obs = observations[keys[0]];
+          value = Array.isArray(obs) ? obs[0] : obs?.observations?.['0']?.[0];
+        }
+      }
+      if (value != null && !isNaN(value) && value > 0) {
+        results.push({ year, trade_value_usd: Math.round(value), source: 'wits', source_detail: indicator });
+      }
+    } catch (e) {
+      console.log(`[WITS-Trade] Error year ${year}: ${e.message}`);
     }
   }
-  
-  if (value == null || isNaN(value)) return null;
-  
-  return {
-    year: parseInt(year),
-    trade_value_usd: Math.round(value),
-    source: 'wits',
-    source_detail: `${indicator}`
-  };
+
+  return results.length > 0 ? results : null;
 }
 
-/**
- * Fetch macro data from World Bank API
- */
+// ===== SOURCE 5: WITS TRAINS — Tariffe (MFN + Preferenziali) =====
+
+async function fetchWITSTariffs(importerISO3, hsCode, year) {
+  const hs6 = String(hsCode).replace(/\D/g, '').substring(0, 6);
+  const url = `https://wits.worldbank.org/API/V1/SDMX/V21/datasource/tradestats-tariff/reporter/${importerISO3}/year/${year}/partner/000/product/${hs6}?format=JSON`;
+  console.log(`[WITS-Tariff] ${importerISO3} HS${hs6} year=${year}`);
+
+  try {
+    const resp = await fetch(url, { headers: { 'Accept': 'application/json' }, signal: AbortSignal.timeout(12000) });
+    if (!resp.ok) {
+      // Fallback: try TRAINS SDMX endpoint
+      const urlTrains = `https://wits.worldbank.org/API/V1/SDMX/V21/rest/data/DF_WITS_Tariff_TRAINS/${importerISO3}.000.${hs6}.${year}?format=JSON`;
+      const resp2 = await fetch(urlTrains, { headers: { 'Accept': 'application/json' }, signal: AbortSignal.timeout(12000) });
+      if (!resp2.ok) return null;
+      const json2 = await resp2.json();
+      return parseTariffResponse(json2, year);
+    }
+    const json = await resp.json();
+    return parseTariffResponse(json, year);
+  } catch (e) {
+    console.log(`[WITS-Tariff] Error: ${e.message}`);
+    return null;
+  }
+}
+
+function parseTariffResponse(json, year) {
+  try {
+    const series = json?.dataSets?.[0]?.series || json?.dataSets?.[0]?.observations;
+    if (!series) return null;
+
+    let mfnRate = null, prefRate = null;
+    // Try to extract from SDMX structure
+    for (const key of Object.keys(series)) {
+      const obs = series[key]?.observations || series[key];
+      if (!obs) continue;
+      const values = Object.values(obs);
+      if (values.length > 0) {
+        const val = Array.isArray(values[0]) ? values[0][0] : values[0];
+        if (val != null && !isNaN(val)) {
+          if (mfnRate === null) mfnRate = val;
+          else if (prefRate === null) prefRate = val;
+        }
+      }
+    }
+
+    return {
+      dazio_mfn: mfnRate !== null ? `${mfnRate}%` : null,
+      dazio_preferenziale: prefRate !== null ? `${prefRate}%` : null,
+      anno: year,
+      fonte: 'WITS/TRAINS'
+    };
+  } catch (e) {
+    return null;
+  }
+}
+
+// ===== SOURCE 6: Eurostat Comext API =====
+
+async function fetchFromEurostat(reporterISO2, partnerISO2, hsCode, flowType, startYear, endYear) {
+  // Eurostat Comext is only for EU member states as reporters
+  if (!EU_MEMBERS.includes(reporterISO2) && !EU_MEMBERS.includes(partnerISO2)) return null;
+
+  const hs4 = String(hsCode).replace(/\D/g, '').substring(0, 4);
+  // Use CN8 (Combined Nomenclature) which starts with HS digits
+  const flow = flowType === 'export' ? '2' : '1'; // 1=import, 2=export
+  
+  // Eurostat dataset: DS-045409 (EU trade since 1988 by HS2-4-6)
+  // API endpoint: https://ec.europa.eu/eurostat/api/comext/dissemination/sdmx/2.1/data/DS-045409/...
+  const reporter = reporterISO2;
+  const partner = partnerISO2;
+
+  const years = [];
+  for (let y = startYear; y <= endYear; y++) years.push(y);
+
+  console.log(`[Eurostat] Fetching: ${reporter}->${partner} HS${hs4} ${flowType} years=${years.join(',')}`);
+
+  const results = [];
+  for (const year of years) {
+    // Use annual frequency (A), trade flow, reporter, partner, product
+    const url = `https://ec.europa.eu/eurostat/api/comext/dissemination/sdmx/2.1/data/DS-045409/A.${flow}.${reporter}.${partner}.${hs4}?format=JSON&startPeriod=${year}&endPeriod=${year}`;
+    
+    try {
+      const resp = await fetch(url, { headers: { 'Accept': 'application/json' }, signal: AbortSignal.timeout(12000) });
+      if (!resp.ok) {
+        // Try alternative dataset DS-059268 (monthly data aggregated)
+        const url2 = `https://ec.europa.eu/eurostat/api/comext/dissemination/sdmx/2.1/data/DS-059268/M.${flow}.${reporter}.${partner}.${hs4}?format=JSON&startPeriod=${year}-01&endPeriod=${year}-12`;
+        const resp2 = await fetch(url2, { headers: { 'Accept': 'application/json' }, signal: AbortSignal.timeout(12000) });
+        if (!resp2.ok) continue;
+        const json2 = await resp2.json();
+        const val2 = extractEurostatValue(json2);
+        if (val2 !== null) {
+          results.push({ year, trade_value_eur: Math.round(val2), source: 'eurostat', source_detail: 'DS-059268' });
+        }
+        continue;
+      }
+      const json = await resp.json();
+      const val = extractEurostatValue(json);
+      if (val !== null) {
+        results.push({ year, trade_value_eur: Math.round(val), source: 'eurostat', source_detail: 'DS-045409' });
+      }
+    } catch (e) {
+      console.log(`[Eurostat] Error year ${year}: ${e.message}`);
+    }
+  }
+
+  return results.length > 0 ? results : null;
+}
+
+function extractEurostatValue(json) {
+  try {
+    // SDMX-JSON format
+    const observations = json?.dataSets?.[0]?.observations || json?.dataSets?.[0]?.series;
+    if (!observations) {
+      // Try flat observations
+      const obs = json?.value;
+      if (obs && typeof obs === 'object') {
+        let total = 0;
+        for (const v of Object.values(obs)) {
+          if (v != null && !isNaN(v)) total += v;
+        }
+        return total > 0 ? total : null;
+      }
+      return null;
+    }
+
+    let total = 0;
+    for (const key of Object.keys(observations)) {
+      const obs = observations[key];
+      if (typeof obs === 'object' && obs.observations) {
+        for (const v of Object.values(obs.observations)) {
+          const val = Array.isArray(v) ? v[0] : v;
+          if (val != null && !isNaN(val)) total += val;
+        }
+      } else if (Array.isArray(obs)) {
+        if (obs[0] != null && !isNaN(obs[0])) total += obs[0];
+      }
+    }
+    return total > 0 ? total : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+// ===== SOURCE 7: World Bank Macro =====
+
 async function fetchWorldBankMacro(iso2) {
   const iso3 = ISO2_TO_ISO3[iso2];
   if (!iso3) return null;
-  
+
   const indicators = {
     population: 'SP.POP.TOTL',
     gdp: 'NY.GDP.MKTP.CD',
-    gdp_per_capita: 'NY.GDP.PCAP.CD'
+    gdp_per_capita: 'NY.GDP.PCAP.CD',
+    inflation: 'FP.CPI.TOTL.ZG',
+    lpi: 'LP.LPI.OVRL.XQ',
+    doing_business: 'IC.BUS.EASE.XQ',
+    current_account: 'BN.CAB.XOKA.CD',
+    exchange_rate: 'PA.NUS.FCRF'
   };
-  
+
   const results = {};
   const promises = Object.entries(indicators).map(async ([key, code]) => {
     const url = `https://api.worldbank.org/v2/country/${iso3}/indicator/${code}?format=json&per_page=5&mrv=3`;
-    const resp = await fetch(url, { signal: AbortSignal.timeout(10000) });
-    if (!resp.ok) return;
-    const json = await resp.json();
-    const records = json?.[1];
-    if (!Array.isArray(records)) return;
-    for (const rec of records) {
-      if (rec.value !== null) {
-        results[key] = { value: rec.value, year: String(rec.date) };
-        return;
+    try {
+      const resp = await fetch(url, { signal: AbortSignal.timeout(10000) });
+      if (!resp.ok) return;
+      const json = await resp.json();
+      const records = json?.[1];
+      if (!Array.isArray(records)) return;
+      for (const rec of records) {
+        if (rec.value !== null) {
+          results[key] = { value: rec.value, year: String(rec.date) };
+          return;
+        }
       }
-    }
+    } catch (e) { /* skip */ }
   });
-  
+
   await Promise.allSettled(promises);
-  return results;
+  return Object.keys(results).length > 0 ? results : null;
 }
 
-/**
- * Deduplication: merge data from multiple sources
- * Priority: comtrade > oec > wits (comtrade is the primary source, OEC uses BACI which is derived from Comtrade)
- */
-function deduplicateAndMerge(oecData, comtradeData, witsData) {
+// ===== DEDUPLICATION & MERGE =====
+
+function deduplicateAndMerge(oecData, comtradeData, witsData, eurostatData) {
   const merged = {};
-  
-  // Start with OEC (usually most complete)
+
+  // Layer 1: OEC
   if (oecData) {
     for (const d of oecData) {
-      merged[d.year] = { ...d, sources: [{ source: 'oec', value: d.trade_value_usd }] };
+      merged[d.year] = { ...d, sources: [{ source: 'oec', value_usd: d.trade_value_usd }] };
     }
   }
-  
-  // Overlay Comtrade (higher priority)
+
+  // Layer 2: WITS (higher priority than OEC)
+  if (witsData) {
+    for (const d of witsData) {
+      if (merged[d.year]) {
+        merged[d.year].sources.push({ source: 'wits', value_usd: d.trade_value_usd });
+        merged[d.year].trade_value_usd = d.trade_value_usd;
+        merged[d.year].source = 'wits';
+      } else {
+        merged[d.year] = { ...d, sources: [{ source: 'wits', value_usd: d.trade_value_usd }] };
+      }
+    }
+  }
+
+  // Layer 3: Comtrade (highest priority for USD values)
   if (comtradeData) {
     for (const d of comtradeData) {
       if (merged[d.year]) {
-        merged[d.year].sources.push({ source: 'comtrade', value: d.trade_value_usd });
-        // If values differ significantly (>10%), keep both; otherwise prefer comtrade
+        merged[d.year].sources.push({ source: 'comtrade', value_usd: d.trade_value_usd });
         const existing = merged[d.year].trade_value_usd;
         const diff = Math.abs(d.trade_value_usd - existing) / Math.max(existing, 1);
-        if (diff < 0.1) {
-          // Similar values, use comtrade
-          merged[d.year].trade_value_usd = d.trade_value_usd;
-          merged[d.year].source = 'comtrade';
-        } else {
-          // Keep comtrade as primary, note discrepancy
-          merged[d.year].trade_value_usd = d.trade_value_usd;
-          merged[d.year].source = 'comtrade';
+        merged[d.year].trade_value_usd = d.trade_value_usd;
+        merged[d.year].source = 'comtrade';
+        if (diff > 0.1) {
           merged[d.year].discrepancy = true;
           merged[d.year].alt_value_usd = existing;
         }
-        // Add weight/quantity from comtrade
         if (d.net_weight_kg) merged[d.year].net_weight_kg = d.net_weight_kg;
         if (d.quantity) merged[d.year].quantity = d.quantity;
         if (d.quantity_unit) merged[d.year].quantity_unit = d.quantity_unit;
       } else {
-        merged[d.year] = { ...d, sources: [{ source: 'comtrade', value: d.trade_value_usd }] };
+        merged[d.year] = { ...d, sources: [{ source: 'comtrade', value_usd: d.trade_value_usd }] };
       }
     }
   }
-  
+
+  // Layer 4: Eurostat (EUR values, complementary — don't override USD)
+  if (eurostatData) {
+    for (const d of eurostatData) {
+      if (merged[d.year]) {
+        merged[d.year].trade_value_eur_eurostat = d.trade_value_eur;
+        merged[d.year].sources.push({ source: 'eurostat', value_eur: d.trade_value_eur });
+      } else {
+        // Only Eurostat has data for this year — store EUR value
+        merged[d.year] = {
+          year: d.year, trade_value_usd: null, trade_value_eur_eurostat: d.trade_value_eur,
+          source: 'eurostat', source_detail: d.source_detail,
+          sources: [{ source: 'eurostat', value_eur: d.trade_value_eur }]
+        };
+      }
+    }
+  }
+
   return Object.values(merged).sort((a, b) => a.year - b.year);
 }
+
+// ===== MAIN HANDLER =====
 
 Deno.serve(async (req) => {
   const base44 = createClientFromRequest(req);
@@ -426,7 +557,9 @@ Deno.serve(async (req) => {
     hs_code,
     flow_type = 'export',
     period_years = 5,
-    skip_cache = false
+    skip_cache = false,
+    include_tariffs = true,
+    include_eurostat = true
   } = payload;
 
   if (!hs_code || partner_codes.length === 0) {
@@ -435,17 +568,19 @@ Deno.serve(async (req) => {
 
   const currentYear = new Date().getFullYear();
   const startYear = currentYear - period_years;
-  const endYear = currentYear - 1; // Most recent complete year
+  const endYear = currentYear - 1;
   const timestamp = new Date().toISOString();
+  const reporterISO3 = ISO2_TO_ISO3[reporter_code] || reporter_code;
 
   const results = {};
   const errors = [];
-  const sourceStatus = { oec: 'unknown', comtrade: 'unknown', wits: 'unknown' };
+  const sourceStatus = { oec: 'pending', comtrade: 'pending', wits: 'pending', eurostat: 'pending', wits_tariff: 'pending' };
 
-  // Process each partner in parallel
+  // Process each partner
   const partnerPromises = partner_codes.map(async (partnerCode) => {
     const cacheKey = `${reporter_code}|${partnerCode}|${hs_code}|${startYear}-${endYear}|${flow_type}`;
-    
+    const partnerISO3 = ISO2_TO_ISO3[partnerCode] || partnerCode;
+
     // Check cache first
     if (!skip_cache) {
       try {
@@ -453,129 +588,117 @@ Deno.serve(async (req) => {
         if (cached && cached.length > 0) {
           const freshEnough = cached.some(c => {
             const retrievedAt = new Date(c.retrieved_at);
-            const daysSince = (Date.now() - retrievedAt.getTime()) / (1000 * 60 * 60 * 24);
-            return daysSince < 7; // Cache valid for 7 days
+            return (Date.now() - retrievedAt.getTime()) / (1000 * 60 * 60 * 24) < 7;
           });
-          
           if (freshEnough) {
             console.log(`[Cache] Hit for ${cacheKey}`);
-            const serieData = cached
-              .filter(c => !c.is_stale)
-              .map(c => ({
-                year: parseInt(c.period),
-                trade_value_usd: c.trade_value_usd,
-                net_weight_kg: c.net_weight_kg,
-                quantity: c.quantity,
-                quantity_unit: c.quantity_unit,
-                price_per_kg_usd: c.price_per_kg_usd,
-                source: c.source,
-                source_detail: c.source_detail,
-                from_cache: true
-              }))
-              .sort((a, b) => a.year - b.year);
-            
-            return { partnerCode, data: serieData, from_cache: true };
+            const serieData = cached.filter(c => !c.is_stale).map(c => ({
+              year: parseInt(c.period), trade_value_usd: c.trade_value_usd,
+              net_weight_kg: c.net_weight_kg, quantity: c.quantity, quantity_unit: c.quantity_unit,
+              price_per_kg_usd: c.price_per_kg_usd, source: c.source, source_detail: c.source_detail, from_cache: true
+            })).sort((a, b) => a.year - b.year);
+            return { partnerCode, data: serieData, from_cache: true, tariffs: null, top_suppliers: null };
           }
         }
-      } catch (e) {
-        console.log(`[Cache] Error checking cache: ${e.message}`);
-      }
+      } catch (e) { console.log(`[Cache] Error: ${e.message}`); }
     }
 
-    // Fetch from APIs in parallel: OEC + Comtrade Public + Comtrade Premium (if key exists)
-    let oecData = null, comtradeData = null;
-    
-    try {
-      const [oecResult, comtradePublicResult, comtradePremiumResult] = await Promise.allSettled([
-        fetchFromOEC(reporter_code, partnerCode, hs_code, flow_type, startYear, endYear),
-        fetchFromComtradePublic(reporter_code, partnerCode, hs_code, flow_type, startYear, endYear),
-        fetchFromComtradePremium(reporter_code, partnerCode, hs_code, flow_type, startYear, endYear)
-      ]);
-      
-      oecData = oecResult.status === 'fulfilled' ? oecResult.value : null;
-      // Prefer premium over public comtrade data
-      const premiumData = comtradePremiumResult.status === 'fulfilled' ? comtradePremiumResult.value : null;
-      const publicData = comtradePublicResult.status === 'fulfilled' ? comtradePublicResult.value : null;
-      comtradeData = premiumData || publicData;
-      
-      if (oecData) sourceStatus.oec = 'ok';
-      if (premiumData) sourceStatus.comtrade = 'ok (premium)';
-      else if (publicData) sourceStatus.comtrade = 'ok (public)';
-      
-      if (oecResult.status === 'rejected') {
-        console.log(`[OEC] Error for ${partnerCode}: ${oecResult.reason}`);
-        sourceStatus.oec = 'error';
-      }
-      if (comtradePublicResult.status === 'rejected' && comtradePremiumResult.status === 'rejected') {
-        console.log(`[Comtrade] Both public & premium failed for ${partnerCode}`);
-        sourceStatus.comtrade = 'error';
-      }
-    } catch (e) {
-      errors.push(`Fetch error for ${partnerCode}: ${e.message}`);
+    // Fetch from ALL sources in parallel
+    const fetchPromises = [
+      fetchFromOEC(reporter_code, partnerCode, hs_code, flow_type, startYear, endYear).catch(e => { console.log(`[OEC] Error: ${e.message}`); return null; }),
+      fetchFromComtradePublic(reporter_code, partnerCode, hs_code, flow_type, startYear, endYear).catch(e => { console.log(`[Comtrade] Error: ${e.message}`); return null; }),
+      fetchFromComtradePremium(reporter_code, partnerCode, hs_code, flow_type, startYear, endYear).catch(e => null),
+      fetchFromWITS(reporterISO3, partnerISO3, hs_code, flow_type, startYear, endYear).catch(e => { console.log(`[WITS] Error: ${e.message}`); return null; }),
+    ];
+
+    // Add Eurostat if applicable (EU reporter or EU partner)
+    if (include_eurostat) {
+      fetchPromises.push(
+        fetchFromEurostat(reporter_code, partnerCode, hs_code, flow_type, startYear, endYear).catch(e => { console.log(`[Eurostat] Error: ${e.message}`); return null; })
+      );
+    } else {
+      fetchPromises.push(Promise.resolve(null));
     }
 
-    // Deduplicate and merge
-    const merged = deduplicateAndMerge(oecData, comtradeData, null);
-    
-    // Calculate price per kg where possible
+    // Add tariff fetch
+    if (include_tariffs) {
+      fetchPromises.push(
+        fetchWITSTariffs(partnerISO3, hs_code, endYear).catch(e => { console.log(`[WITS-Tariff] Error: ${e.message}`); return null; })
+      );
+    } else {
+      fetchPromises.push(Promise.resolve(null));
+    }
+
+    // Add top suppliers fetch (who exports to this market?)
+    fetchPromises.push(
+      fetchComtradeTopSuppliers(partnerCode, hs_code, endYear).catch(e => { console.log(`[TopSuppliers] Error: ${e.message}`); return null; })
+    );
+
+    const [oecData, comtradePublicData, comtradePremiumData, witsData, eurostatData, tariffData, topSuppliersData] = await Promise.allSettled(fetchPromises).then(r => r.map(p => p.status === 'fulfilled' ? p.value : null));
+
+    // Update source status
+    if (oecData) sourceStatus.oec = 'ok';
+    const comtradeData = comtradePremiumData || comtradePublicData;
+    if (comtradePremiumData) sourceStatus.comtrade = 'ok (premium)';
+    else if (comtradePublicData) sourceStatus.comtrade = 'ok (public)';
+    if (witsData) sourceStatus.wits = 'ok';
+    if (eurostatData) sourceStatus.eurostat = 'ok';
+    if (tariffData) sourceStatus.wits_tariff = 'ok';
+
+    // Merge all sources
+    const merged = deduplicateAndMerge(oecData, comtradeData, witsData, eurostatData);
+
+    // Calculate price per kg
     for (const d of merged) {
       if (d.net_weight_kg && d.net_weight_kg > 0 && d.trade_value_usd > 0) {
         d.price_per_kg_usd = Math.round((d.trade_value_usd / d.net_weight_kg) * 100) / 100;
       }
     }
 
-    // Save to cache (async, don't await)
+    // Save to cache (don't await)
     try {
-      const cacheRecords = merged.map(d => ({
+      const cacheRecords = merged.filter(d => d.trade_value_usd != null).map(d => ({
         cache_key: `${reporter_code}|${partnerCode}|${hs_code}|${d.year}|${flow_type}`,
-        reporter_code: reporter_code,
-        partner_code: partnerCode,
-        hs_code: hs_code,
+        reporter_code, partner_code: partnerCode, hs_code,
         hs_depth: String(hs_code).replace(/\D/g, '').length,
-        period: String(d.year),
-        flow_type: flow_type,
+        period: String(d.year), flow_type,
         trade_value_usd: d.trade_value_usd,
         net_weight_kg: d.net_weight_kg || null,
-        quantity: d.quantity || null,
-        quantity_unit: d.quantity_unit || null,
+        quantity: d.quantity || null, quantity_unit: d.quantity_unit || null,
         price_per_kg_usd: d.price_per_kg_usd || null,
-        source: d.source,
-        source_detail: d.source_detail || null,
-        retrieved_at: timestamp,
-        is_stale: false
+        source: d.source, source_detail: d.source_detail || null,
+        retrieved_at: timestamp, is_stale: false
       }));
-      
       if (cacheRecords.length > 0) {
         await base44.asServiceRole.entities.TradeDataCache.bulkCreate(cacheRecords);
-        console.log(`[Cache] Saved ${cacheRecords.length} records for ${partnerCode}`);
       }
-    } catch (e) {
-      console.log(`[Cache] Error saving: ${e.message}`);
-    }
+    } catch (e) { console.log(`[Cache] Save error: ${e.message}`); }
 
-    return { partnerCode, data: merged, from_cache: false };
+    return { partnerCode, data: merged, from_cache: false, tariffs: tariffData, top_suppliers: topSuppliersData };
   });
 
   const partnerResults = await Promise.allSettled(partnerPromises);
-  
+
   for (const pr of partnerResults) {
     if (pr.status === 'fulfilled' && pr.value) {
-      results[pr.value.partnerCode] = {
-        serie_storica: pr.value.data,
-        from_cache: pr.value.from_cache,
-        records_count: pr.value.data.length
+      const v = pr.value;
+      results[v.partnerCode] = {
+        serie_storica: v.data,
+        from_cache: v.from_cache,
+        records_count: v.data.length,
+        tariffs: v.tariffs,
+        top_suppliers: v.top_suppliers
       };
     } else if (pr.status === 'rejected') {
       errors.push(`Partner error: ${pr.reason}`);
     }
   }
 
-  // Fetch macro data for all partners in parallel
+  // Fetch macro data for all partners
   const macroPromises = partner_codes.map(async (code) => {
     const macro = await fetchWorldBankMacro(code);
     return { code, macro };
   });
-  
   const macroResults = await Promise.allSettled(macroPromises);
   const macroData = {};
   for (const mr of macroResults) {
@@ -587,8 +710,8 @@ Deno.serve(async (req) => {
   return Response.json({
     success: true,
     reporter: reporter_code,
-    hs_code: hs_code,
-    flow_type: flow_type,
+    hs_code,
+    flow_type,
     period: `${startYear}-${endYear}`,
     partners: results,
     macro_data: macroData,
