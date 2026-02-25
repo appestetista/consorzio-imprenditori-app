@@ -3,6 +3,7 @@ import { Globe, Loader2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import * as THREE from 'three';
 import GlobeCountryPanel from './GlobeCountryPanel';
+import { translateCountryName } from './countryNamesIT';
 
 // GeoJSON a bassa risoluzione (110m) — solo stati principali, niente isole minuscole
 const GEOJSON_URL = 'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson';
@@ -446,7 +447,7 @@ Rispondi in italiano.`,
       const name = mesh.userData.countryName;
       
       hoveredRef.current = mesh;
-      setHoveredName(name);
+      setHoveredName(translateCountryName(name));
       // Posizione tooltip relativa al container
       const containerRect = container.getBoundingClientRect();
       setTooltipPos({ x: pos.px - containerRect.left, y: pos.py - containerRect.top });
@@ -534,7 +535,8 @@ Rispondi in italiano.`,
       }
 
       setSelectedCountry({
-        name: countryName,
+        name: translateCountryName(countryName),
+        nameEN: countryName,
         iso_a2: mesh.userData.iso_a2,
         iso_a3: mesh.userData.iso_a3,
       });
