@@ -20,7 +20,7 @@ import SectionConsultantPanel from '../components/consulenze/SectionConsultantPa
 import HSCodeClassifier from '../components/import-export/HSCodeClassifier';
 import { fetchTradeData, computeMetrics, interpretData, fetchMacroData } from '../components/import-export/ExportDataFetcher';
 import { fetchPriceData, computePriceMetrics, interpretPriceData } from '../components/import-export/PriceMarginFetcher';
-import CountrySearchSelect, { ALL_COUNTRIES } from '../components/import-export/CountrySearchSelect';
+import { ALL_COUNTRIES } from '../components/import-export/CountrySearchSelect';
 import CountryInfoCard from '../components/import-export/CountryInfoCard';
 import ExportComparisonRanking from '../components/import-export/ExportComparisonRanking';
 import PriceMarginSection from '../components/import-export/PriceMarginCard';
@@ -49,8 +49,6 @@ const SETTORI = [
   'Agricoltura e agroalimentare',
   'Altro'
 ];
-
-const MERCATI_TARGET = ALL_COUNTRIES;
 
 const EXPORTER_COUNTRIES = [
   { code: 'IT', name: 'Italia' },
