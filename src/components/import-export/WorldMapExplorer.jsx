@@ -642,10 +642,10 @@ Rispondi in italiano.`,
         {/* Tooltip hover - segue il puntatore */}
         {(hoveredName || selectedCountry) && (
           <div
-            className="absolute z-10 bg-slate-800/90 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-lg pointer-events-none"
+            className="absolute z-10 pointer-events-none"
             style={{ left: tooltipPos.x, top: tooltipPos.y - 36, transform: 'translateX(-50%)' }}
           >
-            <span className="text-white text-xs font-semibold">{hoveredName || selectedCountry?.name}</span>
+            <span className="text-slate-300 text-xs font-semibold drop-shadow-md">{hoveredName || selectedCountry?.name}</span>
           </div>
         )}
 
