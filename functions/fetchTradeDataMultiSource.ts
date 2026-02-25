@@ -350,7 +350,131 @@ function parseTariffResponse(json, year) {
   }
 }
 
-// ===== SOURCE 6: Eurostat Comext API =====
+// ===== SOURCE 6: WTO Timeseries API (Tariff data) =====
+
+async function fetchWTOTariffs(importerISO3, hsCode, year) {
+  const apiKey = Deno.env.get('WTO_API_KEY') || '';
+  if (!apiKey || apiKey.length < 5) return null;
+
+  const hs4 = String(hsCode).replace(/\D/g, '').substring(0, 4);
+  // WTO Timeseries: indicator HS_M_0010 = MFN Applied, HS_M_0020 = MFN Bound
+  const indicators = ['HS_M_0010', 'HS_M_0020'];
+  const results = { mfn_applied: null, mfn_bound: null, anno: year, fonte: 'WTO Timeseries' };
+
+  for (let i = 0; i < indicators.length; i++) {
+    const indicator = indicators[i];
+    const url = `https://api.wto.org/timeseries/v1/data?i=${indicator}&r=${importerISO3}&ps=${year}&pc=${hs4}&fmt=json&mode=codes&lang=1&max=100`;
+    console.log(`[WTO-TS] Fetching ${indicator} for ${importerISO3} HS${hs4} year=${year}`);
+
+    try {
+      const resp = await fetch(url, {
+        headers: { 'Ocp-Apim-Subscription-Key': apiKey, 'Accept': 'application/json' },
+        signal: AbortSignal.timeout(15000)
+      });
+      if (!resp.ok) { console.log(`[WTO-TS] HTTP ${resp.status} for ${indicator}`); continue; }
+
+      const json = await resp.json();
+      const dataset = json?.Dataset || [];
+      if (dataset.length === 0) continue;
+
+      // Average the values for HS4 aggregation
+      let sum = 0, count = 0;
+      for (const rec of dataset) {
+        const val = parseFloat(rec.Value);
+        if (!isNaN(val) && val >= 0) { sum += val; count++; }
+      }
+      if (count > 0) {
+        const avg = (sum / count).toFixed(2);
+        if (i === 0) results.mfn_applied = `${avg}%`;
+        else results.mfn_bound = `${avg}%`;
+      }
+    } catch (e) {
+      console.log(`[WTO-TS] Error ${indicator}: ${e.message}`);
+    }
+  }
+
+  return (results.mfn_applied || results.mfn_bound) ? results : null;
+}
+
+// ===== SOURCE 7: LLM Web Enrichment (Access2Markets, Trade Map, ICE) =====
+
+async function fetchLLMWebEnrichment(base44, importerISO2, importerName, hsCode, exporterISO2) {
+  const hs4 = String(hsCode).replace(/\D/g, '').substring(0, 4);
+  const hs6 = String(hsCode).replace(/\D/g, '').substring(0, 6);
+
+  console.log(`[LLM-Web] Enrichment for ${importerName} (${importerISO2}) HS${hs6} exporter=${exporterISO2}`);
+
+  try {
+    const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
+      prompt: `Cerca dati REALI e AGGIORNATI per l'export dal paese ${exporterISO2} verso ${importerName} (${importerISO2}) per il codice HS ${hs6} (heading ${hs4}).
+
+Cerca su queste fonti SPECIFICHE:
+1. Access2Markets (trade.ec.europa.eu/access-to-markets): dazi doganali EU, requisiti di prodotto, certificazioni obbligatorie, documenti necessari, regole di origine
+2. Trade Map (trademap.org): flussi commerciali, top esportatori, trend di mercato
+3. ICE - Italian Trade Agency (ice.it): opportunità per aziende italiane, guide paese, fiere settoriali
+
+Per ogni informazione trovata, indica SEMPRE la fonte specifica (nome sito + sezione).
+Se un dato NON è trovabile, scrivi "Non trovato" — NON inventare dati.
+
+IMPORTANTE: cerca dati il più recenti possibile (2024-2025).`,
+      add_context_from_internet: true,
+      response_json_schema: {
+        type: "object",
+        properties: {
+          access2markets: {
+            type: "object",
+            properties: {
+              dazio_convenzionale: { type: "string", description: "Dazio MFN/convenzionale con % e fonte" },
+              dazio_preferenziale: { type: "string", description: "Dazio preferenziale se esiste accordo EU" },
+              iva_locale: { type: "string", description: "IVA/GST del paese destinazione" },
+              certificazioni_obbligatorie: { type: "array", items: { type: "string" }, description: "Lista certificazioni obbligatorie per questo HS" },
+              documenti_doganali: { type: "array", items: { type: "string" }, description: "Documenti richiesti per l'import" },
+              regole_origine: { type: "string", description: "Regole di origine applicabili" },
+              restrizioni: { type: "string", description: "Restrizioni, quote, embargo, anti-dumping" },
+              fonte: { type: "string" }
+            }
+          },
+          trade_map: {
+            type: "object",
+            properties: {
+              import_totale_usd: { type: "string", description: "Import totale del paese per questo HS in USD" },
+              export_italia_usd: { type: "string", description: "Export Italia verso questo paese per questo HS" },
+              top_esportatori: { type: "array", items: { type: "object", properties: { paese: { type: "string" }, quota: { type: "string" } } }, description: "Top 5 esportatori verso questo mercato" },
+              trend: { type: "string", description: "Trend crescita/decrescita ultimi anni" },
+              anno_dati: { type: "string" },
+              fonte: { type: "string" }
+            }
+          },
+          ice_italia: {
+            type: "object",
+            properties: {
+              opportunita: { type: "string", description: "Opportunità segnalate da ICE per questo settore/paese" },
+              fiere_rilevanti: { type: "array", items: { type: "string" }, description: "Fiere di settore rilevanti nel paese" },
+              guide_paese: { type: "string", description: "Link o riferimento guide ICE per il paese" },
+              ufficio_ice_locale: { type: "string", description: "Ufficio ICE nel paese destinazione" },
+              fonte: { type: "string" }
+            }
+          },
+          data_quality: {
+            type: "object",
+            properties: {
+              fonti_consultate: { type: "array", items: { type: "string" } },
+              affidabilita: { type: "string", enum: ["alta", "media", "bassa"], description: "Livello di affidabilità complessivo" },
+              note: { type: "string", description: "Note su limitazioni o dati mancanti" }
+            }
+          }
+        }
+      }
+    });
+    console.log(`[LLM-Web] Enrichment completato per ${importerISO2}`);
+    return result;
+  } catch (e) {
+    console.log(`[LLM-Web] Error: ${e.message}`);
+    return null;
+  }
+}
+
+// ===== SOURCE 8: Eurostat Comext API =====
 
 async function fetchFromEurostat(reporterISO2, partnerISO2, hsCode, flowType, startYear, endYear) {
   // Eurostat Comext is only for EU member states as reporters
