@@ -91,19 +91,25 @@ Deno.serve(async (req) => {
     if (!dataArray || dataArray.length === 0) {
       return Response.json({
         success: true, endpoint: 'data', records: 0, data: [], metrics: null,
-        message: 'Nessun dato disponibile WTO', query: { i: i, r: r, p: p, pc: pc, ps: ps },
-        _debug_raw_type: typeof rawData, _debug_raw_keys: rawData && typeof rawData === 'object' ? Object.keys(rawData) : null,
-        _debug_raw_preview: rawBody.substring(0, 500)
+        message: 'Nessun dato disponibile WTO', query: { i: i, r: r, p: p, pc: pc, ps: ps }
       });
     }
 
-    // Parse records
+    // Log first record keys for debugging
+    if (dataArray.length > 0) {
+      console.log('[wto v3] first record keys: ' + Object.keys(dataArray[0]).join(', '));
+      console.log('[wto v3] first record sample: ' + JSON.stringify(dataArray[0]).substring(0, 500));
+    }
+
+    // Parse records — WTO field names: PeriodCode/Period, Value, IndicatorCode, etc.
     var yearlyMap = {};
     var records = [];
-    for (var ri = 0; ri < rawData.length; ri++) {
-      var rec = rawData[ri];
-      var yr = parseInt(rec.Year || rec.year || rec.Period || rec.period, 10);
-      var val = parseFloat(rec.Value || rec.value);
+    for (var ri = 0; ri < dataArray.length; ri++) {
+      var rec = dataArray[ri];
+      // Year: WTO uses PeriodCode (e.g. "2023") or Period
+      var yrStr = rec.PeriodCode || rec.Year || rec.year || rec.Period || rec.period || '';
+      var yr = parseInt(String(yrStr), 10);
+      var val = parseFloat(rec.Value != null ? rec.Value : (rec.value != null ? rec.value : NaN));
       var parsed = {
         year: yr,
         value: isNaN(val) ? null : val,
