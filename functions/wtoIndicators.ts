@@ -91,7 +91,9 @@ Deno.serve(async (req) => {
     if (!dataArray || dataArray.length === 0) {
       return Response.json({
         success: true, endpoint: 'data', records: 0, data: [], metrics: null,
-        message: 'Nessun dato disponibile WTO', query: { i: i, r: r, p: p, pc: pc, ps: ps }
+        message: 'Nessun dato disponibile WTO', query: { i: i, r: r, p: p, pc: pc, ps: ps },
+        _debug_raw_type: typeof rawData, _debug_raw_keys: rawData && typeof rawData === 'object' ? Object.keys(rawData) : null,
+        _debug_raw_preview: rawBody.substring(0, 500)
       });
     }
 
