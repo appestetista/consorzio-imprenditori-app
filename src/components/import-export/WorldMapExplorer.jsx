@@ -211,8 +211,8 @@ Rispondi in italiano.`,
       const borderMat = new THREE.LineBasicMaterial({ color: 0x374151, transparent: true, opacity: 0.7 });
       const defaultMat = new THREE.MeshPhongMaterial({
         color: 0xffffff,
-        transparent: true,
-        opacity: 0.9,
+        transparent: false,
+        opacity: 1.0,
         shininess: 15,
         side: THREE.DoubleSide,
       });
