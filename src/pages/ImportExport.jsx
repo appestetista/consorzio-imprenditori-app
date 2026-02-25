@@ -378,7 +378,10 @@ export default function ImportExport() {
   };
 
   const analyzeExportPotential = async (hsData) => {
-    if (!exportForm.settore || !exportForm.prodotto || exportForm.mercati_interesse.length === 0) return;
+    const mercatiInteresse = user?.export_mercati_target || [];
+    const exporterCountry = user?.export_paese_esportatore || 'IT';
+    
+    if (!exportForm.settore || !exportForm.prodotto || mercatiInteresse.length === 0) return;
     if (!hsData) return;
     if (exportLimitReached) return;
     
@@ -388,7 +391,7 @@ export default function ImportExport() {
     setAnalysisResult(null);
     setMacroData({});
 
-    const mercatiNames = exportForm.mercati_interesse.map(code => {
+    const mercatiNames = mercatiInteresse.map(code => {
       if (code === 'WLD') return 'World';
       const c = ALL_COUNTRIES.find(c => c.code === code);
       return c ? c.name : code;
