@@ -627,60 +627,54 @@ export default function ImportExport() {
                 </div>
               ) :
               <div className="space-y-4">
-                {/* Form Export - solo capacità produttiva (il resto è nel profilo) */}
-                <Card className="bg-slate-800/60 border-white/5 backdrop-blur-sm shadow-xl">
-                  <CardContent className="p-5">
-                    <div className="flex items-center gap-3 mb-5">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-lime-400 to-emerald-500 flex items-center justify-center shadow-lg shadow-lime-400/20">
-                        <Target className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="text-white font-bold">Valuta il tuo potenziale</h3>
-                        <p className="text-slate-500 text-xs">Compila i dati per l'analisi di mercato</p>
-                      </div>
+                {/* Paese selezionato dalla mappa */}
+                {selectedMapCountry && (
+                  <div className="flex items-center gap-3 bg-cyan-500/10 border border-cyan-500/20 rounded-xl px-4 py-3">
+                    <MapPin className="w-5 h-5 text-cyan-400 flex-shrink-0" />
+                    <div className="flex-1">
+                      <p className="text-cyan-400 text-[10px] font-semibold uppercase tracking-wider">Mercato selezionato</p>
+                      <p className="text-white font-bold text-sm">{selectedMapCountry.name}</p>
                     </div>
-                    
-                    <div className="space-y-4">
-                      <div>
-                        <label className="text-slate-400 text-xs font-medium mb-1.5 block">Capacità produttiva per export</label>
-                        <Input
-                          placeholder="Es. 30% della produzione, 1000 unità/mese"
-                          value={exportForm.capacita_produttiva}
-                          onChange={(e) => setExportForm({ ...exportForm, capacita_produttiva: e.target.value })}
-                          className="bg-slate-900/70 border-white/10 text-white h-11 rounded-xl"
-                        />
-                      </div>
+                    <button onClick={() => setSelectedMapCountry(null)} className="text-slate-500 hover:text-white">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
 
-                      {/* Info: dati presi dal profilo */}
-                      {user && (
-                        <div className="bg-slate-900/50 rounded-xl p-3 border border-white/5">
-                          <p className="text-slate-500 text-[10px] uppercase tracking-wider font-medium mb-2">Dal tuo profilo</p>
-                          <div className="grid grid-cols-2 gap-2 text-xs">
-                            <div>
-                              <span className="text-slate-500">Paese:</span>{' '}
-                              <span className="text-slate-300">{EXPORTER_COUNTRIES.find(c => c.code === (user.export_paese_esportatore || 'IT'))?.name || 'Italia'}</span>
-                            </div>
-                            <div>
-                              <span className="text-slate-500">Mercati:</span>{' '}
-                              <span className="text-slate-300">{(user.export_mercati_target || []).length > 0 ? `${(user.export_mercati_target || []).length} selezionati` : 'Nessuno'}</span>
-                            </div>
-                            <div>
-                              <span className="text-slate-500">Esperienza:</span>{' '}
-                              <span className="text-slate-300">{user.export_esperienza || 'Non impostata'}</span>
-                            </div>
-                            <div>
-                              <span className="text-slate-500">Fatturato:</span>{' '}
-                              <span className="text-slate-300">{user.export_fatturato_annuo || 'Non impostato'}</span>
-                            </div>
-                          </div>
-                          <Link to={createPageUrl('MyProfile')} className="text-lime-400 text-xs mt-2 inline-block hover:underline">
-                            Modifica nel profilo →
-                          </Link>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
+                {/* Capacità produttiva */}
+                <div>
+                  <label className="text-slate-400 text-xs font-medium mb-1.5 block">Capacità produttiva per export</label>
+                  <Input
+                    placeholder="Es. 30% della produzione, 1000 unità/mese"
+                    value={exportForm.capacita_produttiva}
+                    onChange={(e) => setExportForm({ ...exportForm, capacita_produttiva: e.target.value })}
+                    className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl"
+                  />
+                </div>
+
+                {/* Avviso se mancano dati profilo */}
+                {user && !selectedMapCountry && (user.export_mercati_target || []).length === 0 && (
+                  <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3">
+                    <p className="text-amber-400 text-xs font-medium mb-1">Seleziona un paese dalla mappa oppure imposta i mercati target nel tuo profilo.</p>
+                    <Link to={createPageUrl('MyProfile')} className="text-lime-400 text-xs hover:underline">
+                      Vai al profilo →
+                    </Link>
+                  </div>
+                )}
+
+                {/* Tasto Avvia Analisi */}
+                {exportForm.prodotto && exportForm.settore && (selectedMapCountry || (user?.export_mercati_target || []).length > 0) && !exportLimitReached && !analyzing && !confirmedExportHS && (
+                  <Button
+                    onClick={() => {
+                      // Avvia classificazione HS che poi chiama handleExportHSConfirm → analyzeExportPotential
+                    }}
+                    className="w-full bg-gradient-to-r from-lime-400 to-emerald-500 text-slate-900 font-bold h-12 rounded-xl shadow-lg shadow-lime-400/20 hover:shadow-lime-400/30"
+                    disabled={analyzing}
+                  >
+                    <TrendingUp className="w-5 h-5 mr-2" />
+                    Avvia Analisi Export
+                  </Button>
+                )}
 
                 {/* Classificazione HS obbligatoria prima dell'analisi */}
                 {exportForm.prodotto && exportForm.settore && (user?.export_mercati_target || []).length > 0 && !exportLimitReached && !analyzing && !confirmedExportHS && (
