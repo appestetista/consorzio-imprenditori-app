@@ -761,7 +761,26 @@ Deno.serve(async (req) => {
       fetchComtradeTopSuppliers(partnerCode, hs_code, endYear).catch(e => { console.log(`[TopSuppliers] Error: ${e.message}`); return null; })
     );
 
-    const [oecData, comtradePublicData, comtradePremiumData, witsData, eurostatData, tariffData, topSuppliersData] = await Promise.allSettled(fetchPromises).then(r => r.map(p => p.status === 'fulfilled' ? p.value : null));
+    // Add WTO tariff fetch
+    if (include_tariffs) {
+      fetchPromises.push(
+        fetchWTOTariffs(partnerISO3, hs_code, endYear).catch(e => { console.log(`[WTO-TS] Error: ${e.message}`); return null; })
+      );
+    } else {
+      fetchPromises.push(Promise.resolve(null));
+    }
+
+    // Add LLM Web Enrichment (Access2Markets, Trade Map, ICE)
+    const partnerName = ISO2_TO_NAME[partnerCode] || partnerCode;
+    if (include_web_enrichment) {
+      fetchPromises.push(
+        fetchLLMWebEnrichment(base44, partnerCode, partnerName, hs_code, reporter_code).catch(e => { console.log(`[LLM-Web] Error: ${e.message}`); return null; })
+      );
+    } else {
+      fetchPromises.push(Promise.resolve(null));
+    }
+
+    const [oecData, comtradePublicData, comtradePremiumData, witsData, eurostatData, tariffData, topSuppliersData, wtoTariffData, llmWebData] = await Promise.allSettled(fetchPromises).then(r => r.map(p => p.status === 'fulfilled' ? p.value : null));
 
     // Update source status
     if (oecData) sourceStatus.oec = 'ok';
@@ -771,6 +790,8 @@ Deno.serve(async (req) => {
     if (witsData) sourceStatus.wits = 'ok';
     if (eurostatData) sourceStatus.eurostat = 'ok';
     if (tariffData) sourceStatus.wits_tariff = 'ok';
+    if (wtoTariffData) sourceStatus.wto_tariff = 'ok';
+    if (llmWebData) sourceStatus.llm_web = 'ok';
 
     // Merge all sources
     const merged = deduplicateAndMerge(oecData, comtradeData, witsData, eurostatData);
