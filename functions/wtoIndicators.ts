@@ -250,6 +250,15 @@ Deno.serve(async (req) => {
 
     var tsDataArray = Array.isArray(tsRaw) ? tsRaw : (tsRaw?.Dataset || []);
     console.log('[wto v3] top_suppliers total records: ' + tsDataArray.length);
+    if (tsDataArray.length > 0) {
+      console.log('[wto v3] top_suppliers sample[0] keys: ' + Object.keys(tsDataArray[0]).join(', '));
+      // Log first 5 partner codes to understand data shape
+      var sampleCodes = [];
+      for (var sci = 0; sci < Math.min(5, tsDataArray.length); sci++) {
+        sampleCodes.push(tsDataArray[sci].PartnerEconomyCode + '=' + tsDataArray[sci].PartnerEconomy);
+      }
+      console.log('[wto v3] top_suppliers sample partners: ' + sampleCodes.join(' | '));
+    }
 
     // Separate World (000) record for total, and individual partners
     var importTotal = null;
