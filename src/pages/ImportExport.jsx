@@ -427,12 +427,14 @@ export default function ImportExport() {
 
       // STEP 2-3: Verifica completezza e calcolo metriche (lato client)
       setExportStep('computing');
-      const metrics = computeMetrics(rawData);
-      if (metrics?._api_error) {
-        setTradeMetrics(metrics);
+      const metricsRaw = computeMetrics(rawData);
+      if (metricsRaw?._api_error) {
+        setTradeMetrics(metricsRaw);
         setAnalysisResult({ _api_error: true });
         return;
       }
+      // Arricchisci con demand_score e validazione coerenza
+      const metrics = enrichMetricsWithDemand(metricsRaw, macro || {});
       setTradeMetrics(metrics);
 
       // STEP 4: Interpretazione strategica AI (include dati macro stabilità)
