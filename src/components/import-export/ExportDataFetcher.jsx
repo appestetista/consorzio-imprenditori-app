@@ -773,47 +773,87 @@ export async function interpretData(tradeData, metricsResult, hsCode, hsDescrizi
   // Attendi tutti i moduli in parallelo
   const [resA, resB, resC, resD, resE] = await Promise.all([modA, modB, modC, modD, modE]);
 
+  console.log('[ExportModular] Risultati moduli:', {
+    A: resA ? `${resA.mercati?.length || 0} mercati` : 'NULL',
+    B: resB ? `${resB.mercati?.length || 0} mercati` : 'NULL',
+    C: resC ? `${resC.mercati?.length || 0} mercati` : 'NULL',
+    D: resD ? `${resD.mercati?.length || 0} mercati` : 'NULL',
+    E: resE ? `${resE.mercati?.length || 0} mercati, score=${resE.readiness_score}` : 'NULL'
+  });
+
   // === ASSEMBLAGGIO RISULTATO FINALE ===
-  // Usa i Paesi dal modulo E come base, poi arricchisci con gli altri
-  const mercatiE = resE?.mercati || [];
+  // Usa i Paesi noti dal tradeData come base — così non dipendiamo dall'LLM per la struttura
+  const expectedCountries = tradeData.mercati.map(m => ({ paese_code: m.paese_code, paese_nome: m.paese_nome }));
   const mercatiMap = {};
 
-  // Inizializza con modulo E (GTM + sintesi)
-  mercatiE.forEach(m => {
-    mercatiMap[m.paese_code] = { ...m, mercato: m.paese_nome };
+  // Inizializza con i paesi attesi
+  expectedCountries.forEach(c => {
+    mercatiMap[c.paese_code] = { paese_code: c.paese_code, paese_nome: c.paese_nome, mercato: c.paese_nome };
+  });
+
+  // Helper: trova la chiave corretta nel mercatiMap per un risultato LLM
+  // L'LLM potrebbe usare paese_code diversi (es. "SE" vs "SWE", o nome invece di codice)
+  function findKey(item) {
+    if (!item) return null;
+    // Match diretto per paese_code
+    if (item.paese_code && mercatiMap[item.paese_code]) return item.paese_code;
+    // Match per nome
+    const byName = Object.values(mercatiMap).find(m => 
+      m.paese_nome?.toLowerCase() === (item.paese_nome || item.mercato || '').toLowerCase()
+    );
+    if (byName) return byName.paese_code;
+    // Se un solo paese, usa quello
+    if (Object.keys(mercatiMap).length === 1) return Object.keys(mercatiMap)[0];
+    // Fallback: crea nuova entry
+    if (item.paese_code) {
+      mercatiMap[item.paese_code] = { paese_code: item.paese_code, paese_nome: item.paese_nome || item.paese_code, mercato: item.paese_nome || item.paese_code };
+      return item.paese_code;
+    }
+    return null;
+  }
+
+  // Merge modulo E (GTM + sintesi) — ha punteggio_opportunita
+  (resE?.mercati || []).forEach(m => {
+    const key = findKey(m);
+    if (key) Object.assign(mercatiMap[key], m, { paese_code: key });
   });
 
   // Merge modulo A (screening + domanda + flussi)
   (resA?.mercati || []).forEach(m => {
-    if (!mercatiMap[m.paese_code]) mercatiMap[m.paese_code] = { paese_code: m.paese_code, paese_nome: m.paese_nome, mercato: m.paese_nome };
-    Object.assign(mercatiMap[m.paese_code], {
-      market_screening: m.market_screening,
-      domanda_locale: m.domanda_locale,
-      flussi_commerciali: m.flussi_commerciali
-    });
+    const key = findKey(m);
+    if (key) {
+      mercatiMap[key].market_screening = m.market_screening;
+      mercatiMap[key].domanda_locale = m.domanda_locale;
+      mercatiMap[key].flussi_commerciali = m.flussi_commerciali;
+    }
   });
 
   // Merge modulo B (competitive)
   (resB?.mercati || []).forEach(m => {
-    if (!mercatiMap[m.paese_code]) mercatiMap[m.paese_code] = { paese_code: m.paese_code, paese_nome: m.paese_nome, mercato: m.paese_nome };
-    mercatiMap[m.paese_code].analisi_competitiva = m.analisi_competitiva;
+    const key = findKey(m);
+    if (key) mercatiMap[key].analisi_competitiva = m.analisi_competitiva;
   });
 
   // Merge modulo C (regulatory)
   (resC?.mercati || []).forEach(m => {
-    if (!mercatiMap[m.paese_code]) mercatiMap[m.paese_code] = { paese_code: m.paese_code, paese_nome: m.paese_nome, mercato: m.paese_nome };
-    mercatiMap[m.paese_code].requisiti_normativi = m.requisiti_normativi;
-    mercatiMap[m.paese_code].dazi_taric = m.dazi_taric;
+    const key = findKey(m);
+    if (key) {
+      mercatiMap[key].requisiti_normativi = m.requisiti_normativi;
+      mercatiMap[key].dazi_taric = m.dazi_taric;
+    }
   });
 
   // Merge modulo D (logistica + rischio)
   (resD?.mercati || []).forEach(m => {
-    if (!mercatiMap[m.paese_code]) mercatiMap[m.paese_code] = { paese_code: m.paese_code, paese_nome: m.paese_nome, mercato: m.paese_nome };
-    mercatiMap[m.paese_code].logistica = m.logistica;
-    mercatiMap[m.paese_code].rischio_paese = m.rischio_paese;
+    const key = findKey(m);
+    if (key) {
+      mercatiMap[key].logistica = m.logistica;
+      mercatiMap[key].rischio_paese = m.rischio_paese;
+    }
   });
 
   const mercati_analisi = Object.values(mercatiMap);
+  console.log('[ExportModular] Mercati assemblati:', mercati_analisi.length, mercati_analisi.map(m => m.paese_code));
 
   return {
     readiness_score: resE?.readiness_score || 5,
