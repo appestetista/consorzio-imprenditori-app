@@ -647,7 +647,7 @@ Rispondi in italiano.`,
             className="absolute z-10 pointer-events-none"
             style={{ left: tooltipPos.x, top: tooltipPos.y - 36, transform: 'translateX(-50%)' }}
           >
-            <span className="text-slate-300 text-xs font-semibold drop-shadow-md">{hoveredName || selectedCountry?.name}</span>
+            <span className="text-black text-xs font-semibold drop-shadow-md">{hoveredName || selectedCountry?.name}</span>
           </div>
         )}
 
