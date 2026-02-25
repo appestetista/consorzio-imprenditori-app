@@ -625,16 +625,6 @@ Rispondi in italiano.`,
 
   return (
     <div className="mb-6 relative">
-      <div className="flex items-center gap-2 mb-3">
-        <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center">
-          <Globe className="w-4 h-4 text-slate-400" />
-        </div>
-        <div>
-          <h3 className="text-white font-bold text-sm">Mappa Stati</h3>
-          <p className="text-slate-500 text-[10px]">Ruota il globo e clicca su uno Stato</p>
-        </div>
-      </div>
-
       <div className="relative">
         {loadingGeo && (
           <div className="absolute inset-0 flex items-center justify-center z-10">
