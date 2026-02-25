@@ -951,10 +951,43 @@ FORMATO: paragrafi brevi e tecnici, nessun linguaggio motivazionale, nessuna nar
               logistica: {
                 type: "object",
                 properties: {
+                  logistics_performance: {
+                    type: "object",
+                    properties: {
+                      lpi_global_rank: { type: "string", description: "Ranking LPI es. 25/160" },
+                      customs_efficiency_score: { type: "string", description: "Score efficienza doganale" },
+                      infrastructure_quality: { type: "string", enum: ["High", "Medium", "Low"] }
+                    }
+                  },
+                  shipping_routes: {
+                    type: "object",
+                    properties: {
+                      main_entry_ports: { type: "array", items: { type: "string" }, description: "Porti marittimi principali" },
+                      main_cargo_airports: { type: "array", items: { type: "string" }, description: "Aeroporti cargo principali" },
+                      transit_ports: { type: "array", items: { type: "string" }, description: "Porti di transito se landlocked" },
+                      transit_time_sea: { type: "string", description: "Tempo transito mare (giorni)" },
+                      transit_time_air: { type: "string", description: "Tempo transito aereo (giorni)" }
+                    }
+                  },
+                  estimated_costs: {
+                    type: "object",
+                    properties: {
+                      sea_freight_range: { type: "string", description: "Range nolo marittimo USD (es. $1,500-$2,800)" },
+                      air_freight_per_kg: { type: "string", description: "Nolo aereo USD/kg proxy" },
+                      last_mile_complexity: { type: "string", enum: ["Low", "Medium", "High"] }
+                    }
+                  },
+                  infrastructure_details: {
+                    type: "object",
+                    properties: {
+                      rail_connection: { type: "string", enum: ["Available", "Not Available", "Limited"] },
+                      major_logistics_hubs: { type: "array", items: { type: "string" } },
+                      free_trade_zones: { type: "array", items: { type: "string" } }
+                    }
+                  },
                   incoterms_consigliati: { type: "string" },
-                  costo_spedizione: { type: "string" },
-                  tempo_transito: { type: "string" },
-                  lpi_score: { type: "string" }
+                  logistics_risks: { type: "array", items: { type: "string" }, description: "Rischi logistici specifici" },
+                  data_sources: { type: "array", items: { type: "string" }, description: "Fonti dati logistici" }
                 }
               },
               rischio_paese: {
