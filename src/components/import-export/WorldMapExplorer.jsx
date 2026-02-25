@@ -103,9 +103,9 @@ function drawCountriesOnCanvas(ctx, features, width, height, excludedSet) {
     }
   });
 
-  // Bordi sopra
-  ctx.strokeStyle = '#1e3a5f';
-  ctx.lineWidth = 1;
+  // Bordi sopra - netti e visibili
+  ctx.strokeStyle = '#60a5fa';
+  ctx.lineWidth = 1.5;
   features.forEach(feature => {
     const props = feature.properties || {};
     const name = props.ADMIN || props.NAME || props.name || '';
