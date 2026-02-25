@@ -599,6 +599,35 @@ function buildDataContext(tradeData, metricsResult, hsCode, hsDescrizione, profi
       if (macro.doing_business_score !== null) parts.push(`DoingBiz: ${macro.doing_business_score}/100`);
       if (parts.length > 0) base += `\n- Macro WB: ${parts.join(', ')}`;
     }
+    // Web enrichment data (Access2Markets, Trade Map, ICE)
+    const webE = m.web_enrichment;
+    if (webE) {
+      if (webE.access2markets) {
+        const a2m = webE.access2markets;
+        const a2mParts = [];
+        if (a2m.dazio_convenzionale) a2mParts.push(`Dazio conv: ${a2m.dazio_convenzionale}`);
+        if (a2m.dazio_preferenziale) a2mParts.push(`Dazio pref: ${a2m.dazio_preferenziale}`);
+        if (a2m.iva_locale) a2mParts.push(`IVA: ${a2m.iva_locale}`);
+        if (a2m.certificazioni_obbligatorie?.length > 0) a2mParts.push(`Cert.obbl: ${a2m.certificazioni_obbligatorie.join(', ')}`);
+        if (a2m.restrizioni) a2mParts.push(`Restrizioni: ${a2m.restrizioni}`);
+        if (a2mParts.length > 0) base += `\n- Access2Markets: ${a2mParts.join('; ')}`;
+      }
+      if (webE.trade_map) {
+        const tm = webE.trade_map;
+        const tmParts = [];
+        if (tm.import_totale_usd) tmParts.push(`Import totale: ${tm.import_totale_usd}`);
+        if (tm.export_italia_usd) tmParts.push(`Export IT: ${tm.export_italia_usd}`);
+        if (tm.trend) tmParts.push(`Trend: ${tm.trend}`);
+        if (tmParts.length > 0) base += `\n- Trade Map: ${tmParts.join('; ')}`;
+      }
+      if (webE.ice_italia) {
+        const ice = webE.ice_italia;
+        const iceParts = [];
+        if (ice.opportunita) iceParts.push(`Opp: ${ice.opportunita}`);
+        if (ice.fiere_rilevanti?.length > 0) iceParts.push(`Fiere: ${ice.fiere_rilevanti.join(', ')}`);
+        if (iceParts.length > 0) base += `\n- ICE Italia: ${iceParts.join('; ')}`;
+      }
+    }
     return base;
   }).join('\n');
 
