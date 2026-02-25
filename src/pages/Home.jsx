@@ -239,44 +239,19 @@ Domanda dell'utente: ${msg}`,
             <Menu className="w-7 h-7 text-slate-400" />
           </button>
 
-          {/* Destra: messaggi + menu hamburger */}
-          <div className="flex items-center gap-2">
-            {/* Messaggi */}
-            <Link to={createPageUrl('Messaggi')} className="relative p-1">
-              <img 
-                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/cd5e7b92b_Immagine_2026-02-03_182832-removebg-preview.png" 
-                alt="Messaggi" 
-                className="w-9 h-9 object-contain"
-              />
-              {unreadCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] rounded-full min-w-4 h-4 px-1 flex items-center justify-center font-bold">
-                  {unreadCount > 99 ? '99+' : unreadCount}
-                </span>
-              )}
-            </Link>
-
-            {/* Hamburger menu premium */}
-            <button 
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="relative w-12 h-12 transition-transform duration-100 active:scale-95 touch-manipulation"
-            >
-              <div className="absolute inset-0 rounded-xl" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.2)' }} />
-              <div className="absolute inset-0 rounded-xl p-[2.5px]" style={{ background: 'linear-gradient(145deg, #f0e68c 0%, #d4af37 30%, #b8860b 60%, #8b7355 100%)' }}>
-                <div className="relative w-full h-full rounded-[10px] flex items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #252525 0%, #1a1a1a 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5), inset 0 -1px 1px rgba(255,255,255,0.03)' }}>
-                  <div className="absolute top-0 left-0 w-full h-[40%] pointer-events-none" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.06) 0%, transparent 100%)', borderRadius: '10px 10px 50% 50%' }} />
-                  {menuOpen ? (
-                    <X className="w-5 h-5 relative z-10" style={{ color: '#d4af37' }} />
-                  ) : (
-                    <div className="flex flex-col gap-[5px] relative z-10">
-                      <div className="w-5 h-[2px] rounded-full" style={{ background: 'linear-gradient(90deg, #d4af37, #f0e68c, #d4af37)' }} />
-                      <div className="w-5 h-[2px] rounded-full" style={{ background: 'linear-gradient(90deg, #d4af37, #f0e68c, #d4af37)' }} />
-                      <div className="w-5 h-[2px] rounded-full" style={{ background: 'linear-gradient(90deg, #d4af37, #f0e68c, #d4af37)' }} />
-                    </div>
-                  )}
-                </div>
-              </div>
-            </button>
-          </div>
+          {/* Destra: messaggi */}
+          <Link to={createPageUrl('Messaggi')} className="relative p-1">
+            <img 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/cd5e7b92b_Immagine_2026-02-03_182832-removebg-preview.png" 
+              alt="Messaggi" 
+              className="w-9 h-9 object-contain"
+            />
+            {unreadCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] rounded-full min-w-4 h-4 px-1 flex items-center justify-center font-bold">
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+            )}
+          </Link>
         </div>
 
         {!hasMessages ? (
