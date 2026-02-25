@@ -582,9 +582,9 @@ export async function interpretData(tradeData, metricsResult, hsCode, hsDescrizi
     let base = `
 MERCATO: ${m.paese_nome} (${m.paese_code})
 - Import totale HS ${hsCode}: ${m.import_totale?.valore_usd || 'N/D'}${met?.import_totale_eur ? ` (≈ €${met.import_totale_eur.toLocaleString('it-IT')})` : ''} (${m.import_totale?.anno || 'N/D'}, ${m.import_totale?.fonte || 'N/D'})
-- Export Italia→${m.paese_nome}: ${m.export_italia?.valore_usd || 'N/D'}${met?.export_italia_eur ? ` (≈ €${met.export_italia_eur.toLocaleString('it-IT')})` : ''} (${m.export_italia?.anno || 'N/D'}, ${m.export_italia?.fonte || 'N/D'})
-- Quota Italia: ${m.quota_italia || 'N/D'}
-- Posizione Italia tra fornitori: ${m.posizione_italia || 'N/D'}
+- Export Italia→${m.paese_nome}: ${m.export_from_exporter?.valore_usd || m.export_italia?.valore_usd || 'N/D'}${met?.export_italia_eur ? ` (≈ €${met.export_italia_eur.toLocaleString('it-IT')})` : ''} (${m.export_from_exporter?.anno || m.export_italia?.anno || 'N/D'}, ${m.export_from_exporter?.fonte || m.export_italia?.fonte || 'N/D'})
+- Quota Italia: ${m.quota_exporter || m.quota_italia || 'N/D'}
+- Posizione Italia tra fornitori: ${m.posizione_exporter || m.posizione_italia || 'N/D'}
 - CAGR serie storica: ${met?.cagr ? met.cagr + '%' : 'Non calcolabile'}
 - Crescita ultimi 3 anni: ${met?.crescita_3_anni ? met.crescita_3_anni + '%' : 'Non calcolabile'}
 - Volatilità serie storica: ${met?.volatilita ? met.volatilita + '%' : 'Non calcolabile'}
@@ -592,6 +592,14 @@ MERCATO: ${m.paese_nome} (${m.paese_code})
 - Dazio MFN: ${m.dazi?.dazio_mfn || 'N/D'} (${m.dazi?.fonte || 'N/D'})
 - Anti-dumping: ${m.dazi?.anti_dumping || 'Nessuna'}
 - Dati completi: ${met?.dati_completi ? 'Sì' : 'Parziali/Insufficienti'}`;
+    // --- MARKET SIZING & DOMANDA LOCALE ---
+    base += '\n--- MARKET SIZING (calcolato) ---';
+    if (met?.consumo_apparente) base += `\n- Consumo Apparente (proxy): $${met.consumo_apparente.toLocaleString('en-US')} [Nota: P non disponibile, C ≈ Import totale]`;
+    base += `\n- Produzione Locale (P): ${met?.produzione_locale_disponibile ? 'Disponibile' : 'Non rilevata — dato non reperibile da API disponibili'}`;
+    base += `\n- Dipendenza dall'Import: ${met?.dipendenza_import || 'N/D'}`;
+    if (met?.demand_score) base += `\n- Demand Score: ${met.demand_score} [basato su: volume import, PIL pc, CAGR]`;
+    if (met?.import_pro_capite) base += `\n- Import pro capite: $${met.import_pro_capite.toFixed(2)}`;
+    if (met?.coerenza_nota) base += `\n- ⚠ Validazione coerenza: ${met.coerenza_nota}`;
     if (macro) {
       base += '\n--- STABILITÀ ECONOMICA (World Bank API) ---';
       if (macro.inflazione !== null) base += `\n- Inflazione CPI: ${macro.inflazione}% (${macro.inflazione_anno})`;
