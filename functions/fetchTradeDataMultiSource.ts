@@ -222,7 +222,8 @@ async function fetchComtradeTopSuppliers(importerISO2, hsCode, year) {
 // ===== SOURCE 3: UN Comtrade Premium =====
 
 async function fetchFromComtradePremium(reporterISO2, partnerISO2, hsCode, flowType, startYear, endYear) {
-  const apiKey = Deno.env.get('COMTRADE_API_KEY') || '';
+  let apiKey = '';
+  try { apiKey = Deno.env.get('COMTRADE_API_KEY') || ''; } catch (e) { /* env not set */ }
   if (!apiKey || apiKey.length < 10) return null;
 
   const reporterM49 = ISO2_TO_M49[reporterISO2];
