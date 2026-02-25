@@ -145,7 +145,7 @@ function createCountryHitMesh(feature, radius) {
     const indices = [];
     
     for (let i = 0; i < ring.length; i += step) {
-      const v = latLngToVector3(ring[i][1], ring[i][0], radius * 1.001);
+      const v = latLngToVector3(ring[i][1], ring[i][0], radius * 1.003);
       vertices.push(v.x, v.y, v.z);
     }
     
@@ -442,14 +442,25 @@ Rispondi in italiano.`,
       const mesh = intersects[0].object;
       const name = mesh.userData.countryName;
       
-      // Reset previous hover
+      // Reset previous hover (tutti i mesh del paese precedente)
       if (hoveredRef.current && hoveredRef.current !== mesh && hoveredRef.current !== selectedMeshRef.current) {
-        hoveredRef.current.material.opacity = 0;
+        const prevName = hoveredRef.current.userData.countryName;
+        const selName = selectedMeshRef.current?.userData?.countryName;
+        countryMeshesRef.current.forEach(m => {
+          if (m.userData.countryName === prevName && m.userData.countryName !== selName) {
+            m.material.opacity = 0;
+          }
+        });
       }
       
       if (mesh !== selectedMeshRef.current) {
-        mesh.material.color.setHex(0x3b82f6);
-        mesh.material.opacity = 0.5;
+        // Colora tutti i mesh dello stesso paese
+        countryMeshesRef.current.forEach(m => {
+          if (m.userData.countryName === name) {
+            m.material.color.setHex(0x3b82f6);
+            m.material.opacity = 0.6;
+          }
+        });
       }
       hoveredRef.current = mesh;
       setHoveredName(name);
@@ -459,7 +470,13 @@ Rispondi in italiano.`,
       container.style.cursor = 'pointer';
     } else {
       if (hoveredRef.current && hoveredRef.current !== selectedMeshRef.current) {
-        hoveredRef.current.material.opacity = 0;
+        const prevName = hoveredRef.current.userData.countryName;
+        const selName = selectedMeshRef.current?.userData?.countryName;
+        countryMeshesRef.current.forEach(m => {
+          if (m.userData.countryName === prevName && m.userData.countryName !== selName) {
+            m.material.opacity = 0;
+          }
+        });
       }
       hoveredRef.current = null;
       setHoveredName('');
