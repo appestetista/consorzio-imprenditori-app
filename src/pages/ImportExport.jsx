@@ -69,7 +69,6 @@ export default function ImportExport() {
   const urlParamsIE = new URLSearchParams(window.location.search);
   const initialTab = urlParamsIE.get('tab') === 'import' ? 'import' : 'export';
   const [activeTab, setActiveTab] = useState(initialTab); // 'export' | 'import' | 'messages' | 'history'
-  const [quickExportSearch, setQuickExportSearch] = useState('');
   const [exportForm, setExportForm] = useState({
     settore: '',
     prodotto: '',
