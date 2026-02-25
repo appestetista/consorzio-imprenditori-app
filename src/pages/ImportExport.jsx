@@ -25,6 +25,7 @@ import CountryInfoCard from '../components/import-export/CountryInfoCard';
 import ExportComparisonRanking from '../components/import-export/ExportComparisonRanking';
 import PriceMarginSection from '../components/import-export/PriceMarginCard';
 import MarketSummaryCard from '../components/import-export/MarketSummaryCard';
+import ExportAnalysisResult from '../components/import-export/ExportAnalysisResult';
 import { fetchImportData, computeLandedCost, interpretImportData } from '../components/import-export/ImportDataFetcher';
 import LandedCostTable from '../components/import-export/LandedCostTable';
 import ImportMarketIndicators from '../components/import-export/ImportMarketIndicators';
@@ -876,44 +877,16 @@ export default function ImportExport() {
                   </div>
                 )}
 
-                {/* Risk Alerts rimossi — dati non sufficientemente precisi */}
+                {/* Risultati analisi strutturata */}
+                <ExportAnalysisResult
+                  analysisResult={analysisResult}
+                  tradeMetrics={tradeMetrics}
+                  macroData={macroData}
+                  confirmedExportHS={confirmedExportHS}
+                  tradeData={tradeData}
+                />
 
-                {/* Readiness Score — Hero Card */}
-                <div className="relative rounded-2xl overflow-hidden">
-                  <div className={`absolute inset-0 ${
-                    analysisResult.readiness_score >= 7 ? 'bg-gradient-to-br from-green-600/80 to-emerald-700/80' :
-                    analysisResult.readiness_score >= 5 ? 'bg-gradient-to-br from-amber-600/80 to-yellow-700/80' : 'bg-gradient-to-br from-red-600/80 to-rose-700/80'
-                  }`} />
-                  <div className="relative p-5">
-                    <div className="flex items-center justify-between mb-3">
-                      <div>
-                        <p className="text-white/60 text-xs uppercase tracking-wider font-medium">Export Readiness</p>
-                        <p className="text-white/90 text-sm mt-1 max-w-[200px]">{analysisResult.readiness_commento}</p>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-5xl font-black text-white drop-shadow-lg">
-                          {analysisResult.readiness_score}
-                        </div>
-                        <p className="text-white/50 text-xs font-medium">/10</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Raccomandazione */}
-                <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4">
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <CheckCircle className="w-4 h-4 text-emerald-400" />
-                    </div>
-                    <div>
-                      <p className="text-emerald-400 text-xs font-bold uppercase tracking-wider mb-1">Raccomandazione</p>
-                      <p className="text-emerald-100 text-sm leading-relaxed">{analysisResult.raccomandazione_generale}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Classifica Comparativa — ordinata per punteggio opportunità AI */}
+                {/* Classifica Comparativa */}
                 {tradeMetrics?.metriche?.length > 1 && analysisResult?.mercati_analisi && (
                   <ExportComparisonRanking 
                     metriche={tradeMetrics.metriche} 
@@ -971,18 +944,8 @@ export default function ImportExport() {
                   </Card>
                 )}
 
-                {!priceStep && !confirmedExportHS && priceMetrics === null && analysisResult && (
-                  <Card className="bg-red-500/10 border-red-500/30">
-                    <CardContent className="p-4 flex items-center gap-3">
-                      <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0" />
-                      <p className="text-red-300 text-sm">Codice HS non confermato. Impossibile avviare l'analisi Prezzo & Marginalità.</p>
-                    </CardContent>
-                  </Card>
-                )}
-
                 {!priceStep && priceMetrics && (
                   <>
-                    {/* Schede Riepilogo per mercato */}
                     {priceMetrics.metriche?.length > 0 && (
                       <div className="space-y-2">
                         <h3 className="text-white font-bold text-sm flex items-center gap-2 px-1">
@@ -1011,236 +974,6 @@ export default function ImportExport() {
                     <PriceMarginSection priceMetrics={priceMetrics} interpretation={priceInterpretation} userPriceData={userPriceData} />
                   </>
                 )}
-
-                {/* Mercati Prioritari */}
-                {analysisResult.mercati_prioritari?.length > 0 && (
-                  <div className="bg-slate-800/60 border border-white/5 rounded-2xl p-4">
-                    <p className="text-white font-bold text-sm mb-3 flex items-center gap-2">
-                      <Target className="w-4 h-4 text-lime-400" />
-                      Mercati Prioritari
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {analysisResult.mercati_prioritari.map((m, i) => (
-                        <span key={i} className="bg-lime-400/10 text-lime-400 px-3 py-1.5 rounded-lg text-xs font-semibold border border-lime-400/20">
-                          {m}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Analisi per Mercato */}
-                {analysisResult.mercati_analisi?.map((mercato, idx) => (
-                  <Card key={idx} className="bg-slate-800/60 border-white/5 backdrop-blur-sm overflow-hidden">
-                    <CardContent className="p-0">
-                      <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
-                        <h3 className="text-white font-bold text-sm">{mercato.mercato}</h3>
-                        {mercato.punteggio_opportunita != null && (
-                          <div className="flex flex-col items-center gap-0.5">
-                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm ${
-                              mercato.punteggio_opportunita >= 7 ? 'bg-green-500/20 text-green-400' :
-                              mercato.punteggio_opportunita >= 5 ? 'bg-yellow-500/20 text-yellow-400' : 'bg-red-500/20 text-red-400'
-                            }`}>
-                              {mercato.punteggio_opportunita}
-                            </div>
-                            <span className="text-slate-500 text-[8px] uppercase tracking-wider">Opportunità</span>
-                          </div>
-                        )}
-                      </div>
-                      <div className="p-4">
-
-                      {/* Flussi Commerciali */}
-                      {mercato.flussi_commerciali && (
-                        <div className="mb-3 bg-white/5 rounded-xl p-3">
-                          <p className="text-lime-400 text-[10px] font-bold uppercase tracking-wider mb-2">Flussi Commerciali</p>
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="bg-white/5 rounded-lg p-2">
-                              <p className="text-slate-500 text-[10px]">Import totale</p>
-                              <p className="text-white font-bold text-xs">{mercato.flussi_commerciali.valore_import_annuo}</p>
-                            </div>
-                            <div className="bg-white/5 rounded-lg p-2">
-                              <p className="text-slate-500 text-[10px]">Export ITA→paese</p>
-                              <p className="text-white font-bold text-xs">{mercato.flussi_commerciali.export_italia_verso_paese || 'N/D'}</p>
-                            </div>
-                            <div className="bg-white/5 rounded-lg p-2">
-                              <p className="text-slate-500 text-[10px]">Trend</p>
-                              <p className={`font-bold text-xs ${mercato.flussi_commerciali.crescita_o_calo === 'crescita' ? 'text-green-400' : 'text-red-400'}`}>
-                                {mercato.flussi_commerciali.trend_yoy_percentuale}
-                              </p>
-                            </div>
-                            <div className="bg-white/5 rounded-lg p-2">
-                              <p className="text-slate-500 text-[10px]">Quota ITA</p>
-                              <p className="text-white font-bold text-xs">{mercato.flussi_commerciali.quota_italia}</p>
-                            </div>
-                          </div>
-                          {mercato.flussi_commerciali.principali_fornitori?.length > 0 && (
-                            <div className="mt-2 pt-2 border-t border-white/5">
-                              <p className="text-slate-500 text-[10px] mb-1.5">Top fornitori</p>
-                              <div className="flex flex-wrap gap-1">
-                                {mercato.flussi_commerciali.principali_fornitori.slice(0, 5).map((f, i) => (
-                                  <span key={i} className="bg-white/5 text-slate-300 px-2 py-0.5 rounded-md text-[10px]">
-                                    {f.paese} {f.quota_percentuale}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Dazi e Barriere */}
-                      {mercato.dazi_taric && (
-                        <div className="mb-3 bg-amber-500/5 rounded-xl p-3 border border-amber-500/10">
-                          <p className="text-amber-400 text-[10px] font-bold uppercase tracking-wider mb-2">Dazi e Barriere</p>
-                          <div className="grid grid-cols-2 gap-2">
-                            {mercato.dazi_taric.dazio_mfn && (
-                              <div className="bg-white/5 rounded-lg p-2">
-                                <p className="text-slate-500 text-[10px]">Dazio MFN</p>
-                                <p className="text-white font-bold text-xs">{mercato.dazi_taric.dazio_mfn}</p>
-                              </div>
-                            )}
-                            {mercato.dazi_taric.dazio_preferenziale && (
-                              <div className="bg-white/5 rounded-lg p-2">
-                                <p className="text-slate-500 text-[10px]">Preferenziale</p>
-                                <p className="text-green-400 font-bold text-xs">{mercato.dazi_taric.dazio_preferenziale}</p>
-                              </div>
-                            )}
-                          </div>
-                          {mercato.dazi_taric.anti_dumping && mercato.dazi_taric.anti_dumping !== 'Nessuna' && (
-                            <p className="text-red-400 text-xs mt-2">⚠ Anti-dumping: {mercato.dazi_taric.anti_dumping}</p>
-                          )}
-                          {mercato.dazi_taric.restrizioni && mercato.dazi_taric.restrizioni !== 'Nessuna' && (
-                            <p className="text-orange-400 text-xs mt-1">🔒 {mercato.dazi_taric.restrizioni}</p>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Opportunità e Sfide */}
-                      <div className="grid grid-cols-2 gap-2 mb-3">
-                        {mercato.opportunita?.length > 0 && (
-                          <div className="bg-green-500/5 rounded-xl p-3 border border-green-500/10">
-                            <p className="text-green-400 text-[10px] font-bold uppercase tracking-wider mb-1.5">Opportunità</p>
-                            <ul className="text-slate-300 text-xs space-y-1">
-                              {mercato.opportunita.map((o, i) => <li key={i} className="leading-snug">• {o}</li>)}
-                            </ul>
-                          </div>
-                        )}
-                        {mercato.sfide?.length > 0 && (
-                          <div className="bg-orange-500/5 rounded-xl p-3 border border-orange-500/10">
-                            <p className="text-orange-400 text-[10px] font-bold uppercase tracking-wider mb-1.5">Sfide</p>
-                            <ul className="text-slate-300 text-xs space-y-1">
-                              {mercato.sfide.map((s, i) => <li key={i} className="leading-snug">• {s}</li>)}
-                            </ul>
-                          </div>
-                        )}
-                      </div>
-
-                      {(mercato.barriere_tariffarie || mercato.costo_ingresso_stimato) && (
-                        <div className="grid grid-cols-2 gap-2 mb-3">
-                          {mercato.barriere_tariffarie && (
-                            <div className="bg-white/5 rounded-lg p-2">
-                              <p className="text-slate-500 text-[10px]">Barriere tariffarie</p>
-                              <p className="text-white text-xs">{mercato.barriere_tariffarie}</p>
-                            </div>
-                          )}
-                          {mercato.costo_ingresso_stimato && (
-                            <div className="bg-white/5 rounded-lg p-2">
-                              <p className="text-slate-500 text-[10px]">Costo ingresso</p>
-                              <p className="text-white text-xs">{mercato.costo_ingresso_stimato}</p>
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      {mercato.certificazioni_richieste?.length > 0 && (
-                        <div>
-                          <p className="text-slate-500 text-[10px] mb-1.5">Certificazioni</p>
-                          <div className="flex flex-wrap gap-1">
-                            {mercato.certificazioni_richieste.map((c, i) => (
-                              <span key={i} className="bg-white/5 text-slate-300 px-2 py-0.5 rounded-md text-[10px] border border-white/5">{c}</span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-
-                {/* Timeline */}
-                {analysisResult.timeline_consigliata && (
-                  <div className="bg-slate-800/60 border border-white/5 rounded-2xl p-4">
-                    <p className="text-white font-bold text-sm mb-2 flex items-center gap-2">
-                      <ArrowRight className="w-4 h-4 text-blue-400" />
-                      Timeline Consigliata
-                    </p>
-                    <p className="text-slate-300 text-sm leading-relaxed">{analysisResult.timeline_consigliata}</p>
-                  </div>
-                )}
-
-                {/* Primi Passi */}
-                {analysisResult.primi_passi?.length > 0 && (
-                  <div className="bg-blue-500/10 border border-blue-500/15 rounded-2xl p-4">
-                    <p className="text-blue-400 font-bold text-sm mb-3">Primi Passi</p>
-                    <div className="space-y-2.5">
-                      {analysisResult.primi_passi.map((p, i) => (
-                        <div key={i} className="flex items-start gap-3">
-                          <div className="w-7 h-7 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0">
-                            <span className="text-blue-400 text-xs font-bold">{i + 1}</span>
-                          </div>
-                          <p className="text-blue-100 text-sm pt-0.5">{p}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Rischi */}
-                {analysisResult.rischi_principali?.length > 0 && (
-                  <div className="bg-orange-500/10 border border-orange-500/15 rounded-2xl p-4">
-                    <p className="text-orange-400 font-bold text-sm mb-2 flex items-center gap-2">
-                      <AlertTriangle className="w-4 h-4" />
-                      Rischi Principali
-                    </p>
-                    <ul className="text-orange-200/90 text-sm space-y-1.5">
-                      {analysisResult.rischi_principali.map((r, i) => <li key={i} className="leading-snug">• {r}</li>)}
-                    </ul>
-                  </div>
-                )}
-
-                {/* Risorse Utili */}
-                {analysisResult.risorse_utili?.length > 0 && (
-                  <div className="bg-slate-800/60 border border-white/5 rounded-2xl p-4">
-                    <p className="text-white font-bold text-sm mb-3">Risorse Utili</p>
-                    <div className="space-y-2">
-                      {analysisResult.risorse_utili.map((r, i) => (
-                        <a
-                          key={i}
-                          href={r.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-2 text-lime-400 hover:text-lime-300 text-sm bg-white/5 rounded-lg px-3 py-2 transition-colors"
-                        >
-                          <ExternalLink className="w-4 h-4 flex-shrink-0" />
-                          {r.nome}
-                        </a>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Trasparenza */}
-                <div className="bg-white/[0.02] border border-white/5 rounded-xl p-3">
-                  <p className="text-slate-600 text-[10px] font-semibold uppercase tracking-wider mb-2">Trasparenza dati</p>
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[10px] text-slate-500">
-                    <div><span className="text-slate-600">Fonte:</span> UN Comtrade</div>
-                    <div><span className="text-slate-600">Macro:</span> World Bank</div>
-                    <div><span className="text-slate-600">HS:</span> {confirmedExportHS?.hs_code}</div>
-                    <div><span className="text-slate-600">Esportatore:</span> {tradeData?._query_log?.exporter || 'IT'}</div>
-                    <div><span className="text-slate-600">Periodo:</span> {tradeData?._query_log?.periodo || `${new Date().getFullYear() - 5}-${new Date().getFullYear() - 1}`}</div>
-                    <div><span className="text-slate-600">Data:</span> {tradeData?._timestamp_recupero ? new Date(tradeData._timestamp_recupero).toLocaleString('it-IT') : 'N/D'}</div>
-                  </div>
-                </div>
 
                 {/* Form Contatto Export Manager */}
                 <ExportContactCard
