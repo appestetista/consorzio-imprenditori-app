@@ -72,6 +72,7 @@ export default function ImportExport() {
     prodotto: '',
     capacita_produttiva: ''
   });
+  const [selectedMapCountry, setSelectedMapCountry] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [exportStep, setExportStep] = useState(''); // '', 'fetching', 'computing', 'interpreting'
   const [analysisResult, setAnalysisResult] = useState(null);
@@ -375,7 +376,7 @@ export default function ImportExport() {
   };
 
   const analyzeExportPotential = async (hsData) => {
-    const mercatiInteresse = user?.export_mercati_target || [];
+    const mercatiInteresse = selectedMapCountry ? [selectedMapCountry.iso_a2] : (user?.export_mercati_target || []);
     const exporterCountry = user?.export_paese_esportatore || 'IT';
     
     if (!exportForm.settore || !exportForm.prodotto || mercatiInteresse.length === 0) return;
@@ -552,7 +553,11 @@ export default function ImportExport() {
         )}
 
         {/* Mappa Stati */}
-        <WorldMapExplorer />
+        <WorldMapExplorer onCountrySelect={(country) => {
+          if (activeTab === 'export' && !analysisResult) {
+            setSelectedMapCountry(country);
+          }
+        }} />
 
         {/* Settore - Toggle chips sotto la mappa */}
         {activeTab === 'export' && !analysisResult && (
