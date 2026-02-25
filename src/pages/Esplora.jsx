@@ -338,10 +338,6 @@ export default function Esplora() {
   const isBlocked = effectiveUser?.is_blocked && appMode !== 'user-preview' && effectiveUser?.role !== 'admin';
   const isEmailNotAuthorized = effectiveUser?.block_reason === 'email_non_autorizzata';
   const isConsultant = isUserConsultant(effectiveUser);
-  const normalizedUser = effectiveUser;
-  const isAdmin = normalizedUser?.role === 'admin';
-  const { startImpersonation, stopImpersonation } = impersonation.active ? { startImpersonation: null, stopImpersonation: null } : { startImpersonation: null, stopImpersonation: null };
-  // Re-use impersonation from context for menu
 
   const urlParams = new URLSearchParams(window.location.search);
   const activeTab = urlParams.get('tab');
