@@ -207,6 +207,187 @@ Deno.serve(async (req) => {
     });
   }
 
+  // ==================== TOP_SUPPLIERS (Ranking fornitori) ====================
+  if (endpoint === 'top_suppliers') {
+    var tsI = String(body.i || 'ITS_MTV_AM').trim();
+    var tsR = String(body.r || '').trim(); // reporter = importing country
+    var tsPc = String(body.pc || '').trim(); // product code
+    var tsPs = String(body.ps || '').trim(); // period (latest year)
+
+    if (!tsR) return Response.json({ error: 'r (reporter/importing country) required' }, { status: 400 });
+    if (!tsPs) return Response.json({ error: 'ps (year) required' }, { status: 400 });
+
+    // Step 1: Get import from World (p=000) to have the total
+    var totalParams = new URLSearchParams();
+    totalParams.set('i', tsI);
+    totalParams.set('r', tsR);
+    totalParams.set('p', '000'); // World
+    if (tsPc) totalParams.set('pc', tsPc);
+    totalParams.set('ps', tsPs);
+    totalParams.set('fmt', 'json');
+    totalParams.set('mode', 'full');
+    totalParams.set('dec', '2');
+    totalParams.set('max', '100');
+    totalParams.set('head', 'H');
+    totalParams.set('lang', '1');
+
+    var totalUrl = BASE + '/data?' + totalParams.toString();
+    console.log('[wto v3] top_suppliers total GET ' + totalUrl);
+
+    var totalResp = await fetch(totalUrl, { headers: HEADERS, signal: AbortSignal.timeout(30000) });
+    var importTotal = null;
+    if (totalResp.ok) {
+      var totalRaw = await totalResp.json();
+      var totalArr = Array.isArray(totalRaw) ? totalRaw : (totalRaw?.Dataset || []);
+      // Find the record for the requested year
+      for (var ti = 0; ti < totalArr.length; ti++) {
+        var tYear = parseInt(String(totalArr[ti].Year || ''), 10);
+        var tVal = parseFloat(totalArr[ti].Value);
+        if (!isNaN(tVal) && (String(tYear) === String(tsPs) || totalArr.length === 1)) {
+          importTotal = tVal;
+          break;
+        }
+      }
+      // If single year requested and no exact match, take first valid
+      if (importTotal === null) {
+        for (var ti2 = 0; ti2 < totalArr.length; ti2++) {
+          var tVal2 = parseFloat(totalArr[ti2].Value);
+          if (!isNaN(tVal2)) { importTotal = tVal2; break; }
+        }
+      }
+    }
+    console.log('[wto v3] top_suppliers importTotal=' + importTotal);
+
+    // Step 2: Get all partners. WTO does not support p=* wildcard easily,
+    // so we use the "reporters" approach — query with specific known top trading partners.
+    // Better approach: use the WTO API with a large list of economies.
+    // The WTO API supports comma-separated partner codes.
+    
+    // Fetch list of WTO reporting economies to use as partner codes
+    var partnersUrl = BASE + '/reporters';
+    var partnersResp = await fetch(partnersUrl, { headers: HEADERS, signal: AbortSignal.timeout(20000) });
+    var partnerCodes = [];
+    if (partnersResp.ok) {
+      var partnersData = await partnersResp.json();
+      if (Array.isArray(partnersData)) {
+        // Collect all economy codes, exclude "000" (World) and groups
+        for (var pi = 0; pi < partnersData.length; pi++) {
+          var pCode = String(partnersData[pi].code || '').trim();
+          // Skip World, groups (codes starting with letters or > 900 typically)
+          if (pCode && pCode !== '000' && pCode !== tsR) {
+            partnerCodes.push(pCode);
+          }
+        }
+      }
+    }
+    console.log('[wto v3] top_suppliers found ' + partnerCodes.length + ' partner codes');
+
+    // Step 3: Query in batches (WTO limits comma-separated params)
+    // Split partner codes into batches of 50
+    var BATCH_SIZE = 50;
+    var allPartnerRecords = [];
+
+    for (var bi = 0; bi < partnerCodes.length; bi += BATCH_SIZE) {
+      var batch = partnerCodes.slice(bi, bi + BATCH_SIZE);
+      var batchP = batch.join(',');
+
+      var bParams = new URLSearchParams();
+      bParams.set('i', tsI);
+      bParams.set('r', tsR);
+      bParams.set('p', batchP);
+      if (tsPc) bParams.set('pc', tsPc);
+      bParams.set('ps', tsPs);
+      bParams.set('fmt', 'json');
+      bParams.set('mode', 'full');
+      bParams.set('dec', '2');
+      bParams.set('max', '1000');
+      bParams.set('head', 'H');
+      bParams.set('lang', '1');
+
+      var bUrl = BASE + '/data?' + bParams.toString();
+      console.log('[wto v3] top_suppliers batch ' + Math.floor(bi / BATCH_SIZE + 1) + ' GET ' + bUrl.substring(0, 200) + '...');
+
+      var bResp = await fetch(bUrl, { headers: HEADERS, signal: AbortSignal.timeout(30000) });
+      if (bResp.ok) {
+        var bRaw = await bResp.json();
+        var bArr = Array.isArray(bRaw) ? bRaw : (bRaw?.Dataset || []);
+        for (var bri = 0; bri < bArr.length; bri++) {
+          allPartnerRecords.push(bArr[bri]);
+        }
+      } else {
+        console.log('[wto v3] top_suppliers batch error: ' + bResp.status);
+      }
+    }
+
+    console.log('[wto v3] top_suppliers total records fetched: ' + allPartnerRecords.length);
+
+    // Step 4: Aggregate by partner — pick latest year value per partner
+    var partnerMap = {};
+    for (var ari = 0; ari < allPartnerRecords.length; ari++) {
+      var arec = allPartnerRecords[ari];
+      var aPartnerCode = arec.PartnerEconomyCode || '';
+      var aPartnerName = arec.PartnerEconomy || aPartnerCode;
+      var aYear = parseInt(String(arec.Year || ''), 10);
+      var aVal = parseFloat(arec.Value);
+
+      if (!aPartnerCode || aPartnerCode === '000' || isNaN(aVal)) continue;
+
+      // Keep highest value if multiple records per partner (e.g. different sub-years)
+      if (!partnerMap[aPartnerCode] || aVal > partnerMap[aPartnerCode].value) {
+        partnerMap[aPartnerCode] = {
+          partner_code: aPartnerCode,
+          partner_name: aPartnerName,
+          value: aVal,
+          year: aYear
+        };
+      }
+    }
+
+    // Step 5: Sort by value descending, take top 10
+    var sortedPartners = Object.values(partnerMap).sort(function(a, b) { return b.value - a.value; });
+    var top10 = sortedPartners.slice(0, 10);
+
+    // Step 6: Calculate market share
+    // If importTotal from World query is available, use it; otherwise sum all partners as fallback
+    var sumAll = 0;
+    for (var si2 = 0; si2 < sortedPartners.length; si2++) sumAll += sortedPartners[si2].value;
+    var denominator = importTotal || sumAll;
+
+    var topSuppliers = top10.map(function(s) {
+      var share = denominator > 0 ? parseFloat(((s.value / denominator) * 100).toFixed(2)) : null;
+      return {
+        rank: 0, // will set below
+        partner_code: s.partner_code,
+        partner_name: s.partner_name,
+        import_value: s.value,
+        year: s.year,
+        market_share_pct: share
+      };
+    });
+    for (var ri2 = 0; ri2 < topSuppliers.length; ri2++) topSuppliers[ri2].rank = ri2 + 1;
+
+    // "Others" aggregation
+    var top10Sum = 0;
+    for (var ts2 = 0; ts2 < top10.length; ts2++) top10Sum += top10[ts2].value;
+    var othersValue = denominator > 0 ? parseFloat((denominator - top10Sum).toFixed(2)) : null;
+    var othersShare = denominator > 0 ? parseFloat((((denominator - top10Sum) / denominator) * 100).toFixed(2)) : null;
+
+    return Response.json({
+      success: true,
+      endpoint: 'top_suppliers',
+      reporter_code: tsR,
+      product_code: tsPc || null,
+      year: tsPs,
+      import_total: importTotal,
+      import_total_source: importTotal ? 'WTO (World)' : 'sum_partners',
+      total_partners_found: sortedPartners.length,
+      top_suppliers: topSuppliers,
+      others: { value: othersValue, market_share_pct: othersShare },
+      unit: top10.length > 0 ? allPartnerRecords[0]?.Unit || null : null,
+      query: { i: tsI, r: tsR, pc: tsPc, ps: tsPs }
+    });
+  }
+
   // ==================== DATA_COUNT ====================
   if (endpoint === 'data_count') {
     var dci = String(body.i || '').trim();
