@@ -662,20 +662,18 @@ export default function ImportExport() {
                   />
                 </div>
 
-                {/* Avviso se mancano dati profilo */}
-                {user && !selectedMapCountry && (user.export_mercati_target || []).length === 0 && (
-                  <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3">
-                    <p className="text-amber-400 text-xs font-medium mb-1">Seleziona un paese dalla mappa oppure imposta i mercati target nel tuo profilo.</p>
-                    <Link to={createPageUrl('MyProfile')} className="text-lime-400 text-xs hover:underline">
-                      Vai al profilo →
-                    </Link>
-                  </div>
-                )}
-
-                {/* Tasto Avvia Analisi */}
-                {exportForm.prodotto && exportForm.settore && (selectedMapCountry || (user?.export_mercati_target || []).length > 0) && !exportLimitReached && !analyzing && !confirmedExportHS && !showHSClassifier && (
+                {/* Tasto Avvia Analisi — sempre visibile se non in analisi */}
+                {!exportLimitReached && !analyzing && !confirmedExportHS && !showHSClassifier && (
                   <Button
-                    onClick={() => setShowHSClassifier(true)}
+                    onClick={() => {
+                      const errors = {};
+                      if (!exportForm.prodotto?.trim()) errors.prodotto = 'Inserisci il prodotto da esportare';
+                      if (!exportForm.settore) errors.settore = 'Seleziona un settore';
+                      if (!selectedMapCountry && (user?.export_mercati_target || []).length === 0) errors.mercato = true;
+                      setExportValidationErrors(errors);
+                      if (Object.keys(errors).length > 0) return;
+                      setShowHSClassifier(true);
+                    }}
                     className="w-full bg-gradient-to-r from-lime-400 to-emerald-500 text-slate-900 font-bold h-12 rounded-xl shadow-lg shadow-lime-400/20 hover:shadow-lime-400/30"
                   >
                     <TrendingUp className="w-5 h-5 mr-2" />
@@ -683,12 +681,23 @@ export default function ImportExport() {
                   </Button>
                 )}
 
-                {/* Classificazione HS obbligatoria prima dell'analisi */}
-                {showHSClassifier && exportForm.prodotto && exportForm.settore && !analyzing && !confirmedExportHS && (
+                {/* Avviso mercato mancante */}
+                {exportValidationErrors.mercato && (
+                  <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3">
+                    <p className="text-red-400 text-xs font-medium">Seleziona un paese dalla mappa oppure imposta i mercati target nel tuo profilo.</p>
+                    <Link to={createPageUrl('MyProfile')} className="text-lime-400 text-xs hover:underline mt-1 inline-block">
+                      Vai al profilo →
+                    </Link>
+                  </div>
+                )}
+
+                {/* Classificazione HS automatica */}
+                {showHSClassifier && !analyzing && !confirmedExportHS && (
                   <HSCodeClassifier
                     productDescription={`${exportForm.prodotto} (Settore: ${exportForm.settore})`}
                     onConfirm={handleExportHSConfirm}
                     onError={() => {}}
+                    autoStart={true}
                   />
                 )}
 
