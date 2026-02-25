@@ -9,6 +9,7 @@ import { createPageUrl } from '@/utils';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import FeatureCard from '../components/home/FeatureCard';
+import ImportExportSplitCard from '../components/home/ImportExportSplitCard';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import EventInvitePopup from '../components/calendario/EventInvitePopup';
 import useNotificationSound from '../components/hooks/useNotificationSound';
@@ -386,30 +387,36 @@ export default function Esplora() {
 
   const filteredFeatures = activeTab ? features.filter(f => f.category === activeTab) : features;
 
-  const renderFeatureCard = (feature) => (
-    <FeatureCard
-      key={feature.page}
-      title={feature.title}
-      icon={feature.icon}
-      pageName={feature.page}
-      notificationCount={feature.notifications}
-      disabled={permissions[feature.permission] === false}
-      variant={feature.variant}
-      bottomBadge={feature.bottomBadge}
-      bottomBadgeType={feature.bottomBadgeType}
-      eventCount={feature.eventCount || 0}
-      pendingInvites={feature.pendingInvites || 0}
-      newVideosCount={feature.newVideosCount || 0}
-      totalVideosCount={feature.totalVideosCount || 0}
-      hasVisitedVideos={feature.hasVisitedVideos || false}
-      latestVideoDate={feature.latestVideoDate || null}
-      consulenzeMessagesCount={feature.page === 'Consulenze' ? consultationMessagesCount : 0}
-      contractUsageCount={feature.contractUsage?.count || 0}
-      contractUsageLimit={feature.contractUsage?.limit || 5}
-      contractMessagesCount={feature.page === 'AnalisiContratti' ? contractMessagesCount : 0}
-      vantaggiNotifications={feature.page === 'VantaggiIscritti' ? vantaggiNotificationsCount : 0}
-    />
-  );
+  const renderFeatureCard = (feature) => {
+    // Import/Export usa la split card dedicata
+    if (feature.page === 'ImportExport') {
+      return <ImportExportSplitCard key={feature.page} disabled={permissions[feature.permission] === false} />;
+    }
+    return (
+      <FeatureCard
+        key={feature.page}
+        title={feature.title}
+        icon={feature.icon}
+        pageName={feature.page}
+        notificationCount={feature.notifications}
+        disabled={permissions[feature.permission] === false}
+        variant={feature.variant}
+        bottomBadge={feature.bottomBadge}
+        bottomBadgeType={feature.bottomBadgeType}
+        eventCount={feature.eventCount || 0}
+        pendingInvites={feature.pendingInvites || 0}
+        newVideosCount={feature.newVideosCount || 0}
+        totalVideosCount={feature.totalVideosCount || 0}
+        hasVisitedVideos={feature.hasVisitedVideos || false}
+        latestVideoDate={feature.latestVideoDate || null}
+        consulenzeMessagesCount={feature.page === 'Consulenze' ? consultationMessagesCount : 0}
+        contractUsageCount={feature.contractUsage?.count || 0}
+        contractUsageLimit={feature.contractUsage?.limit || 5}
+        contractMessagesCount={feature.page === 'AnalisiContratti' ? contractMessagesCount : 0}
+        vantaggiNotifications={feature.page === 'VantaggiIscritti' ? vantaggiNotificationsCount : 0}
+      />
+    );
+  };
 
   return (
     <div className="min-h-screen pb-24" style={{ backgroundColor: '#001d3b' }}>
