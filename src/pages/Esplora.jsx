@@ -424,12 +424,89 @@ export default function Esplora() {
 
   return (
     <div className="min-h-screen pb-24" style={{ backgroundColor: '#001d3b' }}>
-      {/* Header con freccia indietro */}
-      <div className="sticky top-0 z-30 px-6 py-3 flex items-center gap-3" style={{ backgroundColor: '#001d3b' }}>
-        <button onClick={() => navigate(createPageUrl('Home'))} className="w-14 h-14 rounded-full bg-slate-800 flex items-center justify-center touch-manipulation active:scale-95 transition-transform">
-          <Home className="w-7 h-7 text-[#d4af37]" />
+      {/* Header con Home + Hamburger */}
+      <div className="sticky top-0 z-30 px-4 py-3 flex items-center justify-between" style={{ backgroundColor: '#001d3b' }}>
+        <button onClick={() => navigate(createPageUrl('Home'))} className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center touch-manipulation active:scale-95 transition-transform">
+          <Home className="w-6 h-6 text-[#d4af37]" />
+        </button>
+        
+        {/* Hamburger menu */}
+        <button 
+          onClick={() => setMenuOpen(!menuOpen)}
+          className="relative w-11 h-11 transition-transform duration-100 active:scale-95"
+        >
+          <div className="absolute inset-0 rounded-xl" style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.2)' }} />
+          <div className="absolute inset-0 rounded-xl p-[2.5px]" style={{ background: 'linear-gradient(145deg, #f0e68c 0%, #d4af37 30%, #b8860b 60%, #8b7355 100%)' }}>
+            <div className="relative w-full h-full rounded-[10px] flex items-center justify-center overflow-hidden" style={{ background: 'linear-gradient(160deg, #252525 0%, #1a1a1a 100%)', boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5), inset 0 -1px 1px rgba(255,255,255,0.03)' }}>
+              <div className="absolute top-0 left-0 w-full h-[40%] pointer-events-none" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.06) 0%, transparent 100%)', borderRadius: '10px 10px 50% 50%' }} />
+              {menuOpen ? (
+                <X className="w-5 h-5 relative z-10" style={{ color: '#d4af37' }} />
+              ) : (
+                <div className="flex flex-col gap-[5px] relative z-10">
+                  <div className="w-5 h-[2px] rounded-full" style={{ background: 'linear-gradient(90deg, #d4af37, #f0e68c, #d4af37)' }} />
+                  <div className="w-5 h-[2px] rounded-full" style={{ background: 'linear-gradient(90deg, #d4af37, #f0e68c, #d4af37)' }} />
+                  <div className="w-5 h-[2px] rounded-full" style={{ background: 'linear-gradient(90deg, #d4af37, #f0e68c, #d4af37)' }} />
+                </div>
+              )}
+            </div>
+          </div>
         </button>
       </div>
+
+      {/* Menu Drawer */}
+      <div className={cn("fixed inset-0 z-50 transition-all duration-300", menuOpen ? "visible" : "invisible")}>
+        <div className={cn("absolute inset-0 bg-black/50 transition-opacity", menuOpen ? "opacity-100" : "opacity-0")} onClick={() => setMenuOpen(false)} />
+        <div className={cn("absolute right-0 top-0 h-full w-72 bg-slate-900 border-l border-[#d4af37]/30 p-6 transition-transform duration-300", menuOpen ? "translate-x-0" : "translate-x-full")}>
+          <div className="flex justify-end mb-6">
+            <button onClick={() => setMenuOpen(false)}><X className="w-6 h-6 text-[#d4af37]" /></button>
+          </div>
+          <div className="space-y-2">
+            <p className="text-[#d4af37] font-semibold mb-4">{effectiveUser?.company_name || effectiveUser?.full_name || 'Utente'}</p>
+            
+            {impersonation.active && (
+              <button onClick={() => { impersonation.active = false; setMenuOpen(false); window.location.href = createPageUrl('Home'); }} className="flex items-center gap-3 text-white py-3 px-4 rounded-lg bg-orange-600 hover:bg-orange-700 transition-colors w-full mb-3">
+                <XCircle className="w-5 h-5" /><span>Torna ad Admin</span>
+              </button>
+            )}
+            
+            {effectiveUser?.role === 'admin' && !impersonation.active && (
+              <>
+                <Link to={createPageUrl('AdminPanel')} onClick={() => setMenuOpen(false)} className="flex items-center gap-3 text-white py-3 px-4 rounded-lg hover:bg-slate-800 transition-colors">
+                  <Settings className="w-5 h-5 text-[#d4af37]" /><span>Pannello Admin</span>
+                </Link>
+                <button onClick={() => { setImpersonationDialogOpen(true); setMenuOpen(false); }} className="flex items-center gap-3 text-white py-3 px-4 rounded-lg hover:bg-slate-800 transition-colors w-full">
+                  <Eye className="w-5 h-5 text-[#d4af37]" /><span>Visualizza come...</span>
+                </button>
+              </>
+            )}
+            
+            {(effectiveUser?.role === 'user' || isUserConsultant(effectiveUser) || impersonation.active) && (
+              <Link to={createPageUrl('MyProfile')} onClick={() => setMenuOpen(false)} className="flex items-center gap-3 text-white py-3 px-4 rounded-lg hover:bg-slate-800 transition-colors">
+                <User className="w-5 h-5 text-[#d4af37]" /><span>Il Mio Profilo</span>
+              </Link>
+            )}
+            
+            <Link to={createPageUrl('ContattaConsorzio')} onClick={() => setMenuOpen(false)} className="flex items-center gap-3 text-white py-3 px-4 rounded-lg hover:bg-slate-800 transition-colors">
+              <Phone className="w-5 h-5 text-[#d4af37]" /><span>Contatta Consorzio</span>
+            </Link>
+            
+            <button onClick={() => base44.auth.logout()} className="flex items-center gap-3 text-white py-3 px-4 rounded-lg hover:bg-slate-800 transition-colors w-full text-left">
+              <LogOut className="w-5 h-5 text-red-400" /><span>Esci</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Dialog Impersonation */}
+      <ImpersonationDialog
+        open={impersonationDialogOpen}
+        onClose={() => setImpersonationDialogOpen(false)}
+        onStart={(role, targetId, targetEmail, targetName, targetUserData) => {
+          const { startImpersonation: startImp } = impersonation;
+          // use context method
+          setTimeout(() => { window.location.href = createPageUrl('Home'); }, 100);
+        }}
+      />
       
       <main className="px-4 py-2 max-w-md mx-auto">
         {eventResponse === 'accepted' ? (
