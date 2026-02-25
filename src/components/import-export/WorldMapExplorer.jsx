@@ -317,8 +317,14 @@ Rispondi in italiano.`,
       const landSphere = new THREE.Mesh(landSphereGeom, landSphereMat);
       globeGroup.add(landSphere);
 
-      // Hit-test mesh invisibili per il click/hover
-      const hitMat = new THREE.MeshBasicMaterial({ visible: false, side: THREE.DoubleSide });
+      // Hit-test mesh trasparenti per click/hover (diventano visibili su hover/selezione)
+      const hitMat = new THREE.MeshBasicMaterial({
+        color: 0x3d80b0,
+        side: THREE.DoubleSide,
+        transparent: true,
+        opacity: 0,
+        depthWrite: false,
+      });
       const meshEntries = [];
 
       data.features.forEach(feature => {
@@ -328,7 +334,8 @@ Rispondi in italiano.`,
 
         const geometries = createCountryHitMesh(feature, 1);
         geometries.forEach(g => {
-          const mesh = new THREE.Mesh(g, hitMat.clone());
+          const mat = hitMat.clone();
+          const mesh = new THREE.Mesh(g, mat);
           mesh.userData = {
             countryName: name,
             iso_a2: props.ISO_A2 || props.iso_a2 || '-99',
