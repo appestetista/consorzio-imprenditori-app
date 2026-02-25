@@ -242,9 +242,9 @@ Rispondi in italiano.`,
       
       const borderMat = new THREE.LineBasicMaterial({ color: 0x94a3b8, transparent: true, opacity: 0.45 });
       const defaultMat = new THREE.MeshPhongMaterial({
-        color: 0x6ee7b7,
+        color: 0xffffff,
         transparent: true,
-        opacity: 0.75,
+        opacity: 0.9,
         shininess: 15,
         side: THREE.DoubleSide,
       });
