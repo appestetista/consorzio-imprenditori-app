@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Calendar, Video, Briefcase, User, Euro, ShoppingBag, BookOpen, Handshake, Truck, Heart, FileSearch, Globe, Shield, PiggyBank, Gavel, Gift, QrCode, ScanLine, Star, Calculator, Users, Home } from 'lucide-react';
+import { Calendar, Video, Briefcase, User, Euro, ShoppingBag, BookOpen, Handshake, Truck, Heart, FileSearch, Globe, Shield, PiggyBank, Gavel, Gift, QrCode, ScanLine, Star, Calculator, Users, Home, Menu, X, LogOut, Settings, Eye, XCircle, Phone } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import Header from '../components/layout/Header';
@@ -17,6 +17,8 @@ import ChangeResponsePopup from '@/components/calendario/ChangeResponsePopup';
 import ProfileCompletionModal from '@/components/profile/ProfileCompletionModal';
 import { normalizeUser, isUserConsultant, getUserPermissions } from '../components/utils/normalizeUser';
 import SoundPermissionPopup from '../components/notifications/SoundPermissionPopup';
+import ImpersonationDialog from '../components/admin/ImpersonationDialog';
+import { cn } from '@/lib/utils';
 
 export default function Esplora() {
   const [user, setUser] = useState(null);
@@ -28,6 +30,8 @@ export default function Esplora() {
   const [showChangeResponse, setShowChangeResponse] = useState(false);
   const [hasNewNotification, setHasNewNotification] = useState(false);
   const [lastNotificationCount, setLastNotificationCount] = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [impersonationDialogOpen, setImpersonationDialogOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -377,11 +381,11 @@ export default function Esplora() {
     { title: 'Benefit\nDipendenti', icon: Heart, page: 'WelfareAziendale', notifications: 0, permission: 'welfare_aziendale', variant: 'pink', category: 'strumenti' },
     { title: 'Simulatore\nFiscale', icon: Calculator, page: 'SimulatoreFiscale', notifications: 0, permission: 'simulatore_fiscale', category: 'strumenti' },
     { title: 'Costo del\nPersonale', icon: Users, page: 'SimulatoreCostoPersonale', notifications: 0, permission: 'simulatore_fiscale', category: 'strumenti' },
-    { title: isConsultant ? 'Richieste di\nConsulenza' : 'Consulenze', icon: Briefcase, page: 'Consulenze', notifications: consultationNotifications, permission: 'consulenze', bottomBadge: isConsultant ? (pendingConsultationRequests > 0 ? pendingConsultationRequests : null) : (freeConsultationsCount > 0 ? freeConsultationsCount : null), bottomBadgeType: isConsultant ? 'requests' : 'consultations', category: 'consulenza' },
-    { title: 'Import /\nExport', icon: Globe, page: 'ImportExport', notifications: 0, permission: 'import_export', category: 'consulenza' },
-    { title: 'Risparmio', icon: PiggyBank, page: 'RisparmioEnergetico', notifications: 0, permission: 'risparmio_energetico', category: 'consulenza' },
-    { title: 'Bandi', icon: Euro, page: 'FinanziamentiAgevolati', notifications: isNotAdmin ? newGrantsCount : 0, permission: 'finanziamenti', category: 'consulenza' },
-    { title: 'Aste\nImmobiliari', icon: Gavel, page: 'AsteImmobiliari', notifications: 0, permission: 'aste_immobiliari', category: 'investimenti' },
+    { title: isConsultant ? 'Richieste di\nConsulenza' : 'Consulenze', icon: Briefcase, page: 'Consulenze', notifications: consultationNotifications, permission: 'consulenze', bottomBadge: isConsultant ? (pendingConsultationRequests > 0 ? pendingConsultationRequests : null) : (freeConsultationsCount > 0 ? freeConsultationsCount : null), bottomBadgeType: isConsultant ? 'requests' : 'consultations', category: 'relazioni' },
+    { title: 'Import /\nExport', icon: Globe, page: 'ImportExport', notifications: 0, permission: 'import_export', category: 'strumenti' },
+    { title: 'Risparmio', icon: PiggyBank, page: 'RisparmioEnergetico', notifications: 0, permission: 'risparmio_energetico', category: 'strumenti' },
+    { title: 'Bandi', icon: Euro, page: 'FinanziamentiAgevolati', notifications: isNotAdmin ? newGrantsCount : 0, permission: 'finanziamenti', category: 'strumenti' },
+    { title: 'Aste\nImmobiliari', icon: Gavel, page: 'AsteImmobiliari', notifications: 0, permission: 'aste_immobiliari', category: 'strumenti' },
     { title: 'Vantaggi\nIscritti', icon: Gift, page: 'VantaggiIscritti', notifications: vantaggiNotificationsCount, permission: 'vantaggi_iscritti', category: 'relazioni', variant: 'gold' },
   ];
 
@@ -457,8 +461,8 @@ export default function Esplora() {
           <>
             <h3 className="text-[#d4af37] font-bold text-lg mb-4 capitalize flex items-center gap-2">
               {activeTab === 'relazioni' && <span>👥</span>}
-              {activeTab === 'consulenza' && <span>💼</span>}
               {activeTab === 'strumenti' && <span>🔧</span>}
+              {activeTab === 'personale' && <span>👤</span>}
               {activeTab}
             </h3>
             <div className="grid grid-cols-2 gap-4 mb-4">{filteredFeatures.map(renderFeatureCard)}</div>
@@ -467,12 +471,10 @@ export default function Esplora() {
           <>
             <div className="flex items-center gap-2 mb-3 mt-2"><span className="text-lg">👥</span><h3 className="text-[#d4af37] font-bold text-base tracking-wide">RELAZIONI</h3><div className="flex-1 h-px bg-gradient-to-r from-[#d4af37]/40 to-transparent ml-2"></div></div>
             <div className="grid grid-cols-2 gap-4 mb-6">{features.filter(f => f.category === 'relazioni').map(renderFeatureCard)}</div>
-            <div className="flex items-center gap-2 mb-3 mt-4"><span className="text-lg">💼</span><h3 className="text-[#d4af37] font-bold text-base tracking-wide">CONSULENZA</h3><div className="flex-1 h-px bg-gradient-to-r from-[#d4af37]/40 to-transparent ml-2"></div></div>
-            <div className="grid grid-cols-2 gap-4 mb-6">{features.filter(f => f.category === 'consulenza').map(renderFeatureCard)}</div>
             <div className="flex items-center gap-2 mb-3 mt-4"><span className="text-lg">🔧</span><h3 className="text-[#d4af37] font-bold text-base tracking-wide">STRUMENTI</h3><div className="flex-1 h-px bg-gradient-to-r from-[#d4af37]/40 to-transparent ml-2"></div></div>
             <div className="grid grid-cols-2 gap-4 mb-6">{features.filter(f => f.category === 'strumenti').map(renderFeatureCard)}</div>
-            <div className="flex items-center gap-2 mb-3 mt-4"><span className="text-lg">📈</span><h3 className="text-[#d4af37] font-bold text-base tracking-wide">INVESTIMENTI</h3><div className="flex-1 h-px bg-gradient-to-r from-[#d4af37]/40 to-transparent ml-2"></div></div>
-            <div className="grid grid-cols-2 gap-4 mb-4">{features.filter(f => f.category === 'investimenti').map(renderFeatureCard)}</div>
+            <div className="flex items-center gap-2 mb-3 mt-4"><span className="text-lg">👤</span><h3 className="text-[#d4af37] font-bold text-base tracking-wide">PERSONALE</h3><div className="flex-1 h-px bg-gradient-to-r from-[#d4af37]/40 to-transparent ml-2"></div></div>
+            <div className="grid grid-cols-2 gap-4 mb-4">{features.filter(f => f.category === 'personale').map(renderFeatureCard)}</div>
           </>
         )}
       </main>
