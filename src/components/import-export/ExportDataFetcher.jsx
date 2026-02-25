@@ -657,12 +657,22 @@ STRUTTURA OBBLIGATORIA DELL'OUTPUT (9 sezioni):
    - Ranking finale con punteggio motivato
    Se mancano dati → dichiararlo esplicitamente.
 
-2️⃣ ANALISI DOMANDA LOCALE — Per ogni Paese:
+2️⃣ ANALISI DOMANDA LOCALE & MARKET SIZING — Per ogni Paese:
+   PROTOCOLLO MARKET SIZING:
+   - Consumo Apparente C = (P + M) - X dove:
+     • P = Produzione Locale (indica se disponibile o "Non rilevata")
+     • M = Import totale (dai dati Comtrade forniti)
+     • X = Export del paese (dai dati forniti)
+   - Se P non disponibile: calcola Dipendenza Import = M / (M - X), indica "Produzione Locale non rilevata"
+   - Import pro capite (import / popolazione): confronta con PIL pro capite per validazione coerenza
+   - Demand Score (fornito nei dati): Low/Medium/High
+   
+   ANALISI QUALITATIVA:
    - Segmentazione mercato (premium / medio / entry level)
    - Volumi di consumo ufficiali (se disponibili nei dati)
    - Canali distributivi dominanti
    - Trend misurabili con percentuali
-   No frasi descrittive senza dati numerici.
+   No frasi descrittive senza dati numerici. Ogni valore con [Fonte, Anno].
 
 3️⃣ ANALISI COMPETITIVA — Per ogni Paese:
    - Top competitor (dai dati top_fornitori)
