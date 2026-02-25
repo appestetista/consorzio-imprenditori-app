@@ -233,7 +233,7 @@ Rispondi in italiano.`,
       
       const borderMat = new THREE.LineBasicMaterial({ color: 0x1e3a5f, transparent: true, opacity: 0.8 });
       const defaultMat = new THREE.MeshBasicMaterial({
-        color: 0x1a3550,
+        color: 0x2a6090,
         side: THREE.DoubleSide,
       });
 
@@ -366,18 +366,18 @@ Rispondi in italiano.`,
       
       // Reset previous hover
       if (hoveredRef.current && hoveredRef.current !== mesh && hoveredRef.current !== selectedMeshRef.current) {
-        hoveredRef.current.material.color.setHex(0x1a3550);
+        hoveredRef.current.material.color.setHex(0x2a6090);
       }
       
       if (mesh !== selectedMeshRef.current) {
-        mesh.material.color.setHex(0x2d5a7b);
+        mesh.material.color.setHex(0x3d80b0);
       }
       hoveredRef.current = mesh;
       setHoveredName(name);
       container.style.cursor = 'pointer';
     } else {
       if (hoveredRef.current && hoveredRef.current !== selectedMeshRef.current) {
-        hoveredRef.current.material.color.setHex(0x1a3550);
+        hoveredRef.current.material.color.setHex(0x2a6090);
       }
       hoveredRef.current = null;
       setHoveredName('');
@@ -426,7 +426,7 @@ Rispondi in italiano.`,
         // Reset tutti i mesh con lo stesso paese
         countryMeshesRef.current.forEach(m => {
           if (m.userData.countryName === selectedMeshRef.current.userData.countryName) {
-            m.material.color.setHex(0x1a3550);
+            m.material.color.setHex(0x2a6090);
           }
         });
       }
@@ -483,7 +483,7 @@ Rispondi in italiano.`,
     if (selectedMeshRef.current) {
       countryMeshesRef.current.forEach(m => {
         if (m.userData.countryName === selectedMeshRef.current.userData.countryName) {
-          m.material.color.setHex(0x1a3550);
+          m.material.color.setHex(0x2a6090);
         }
       });
       selectedMeshRef.current = null;
