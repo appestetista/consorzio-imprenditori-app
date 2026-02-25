@@ -1321,6 +1321,8 @@ export default function MyProfile() {
           </CardContent>
         </Card>
 
+        <ExportProfileSection formData={formData} setFormData={setFormData} />
+
         <Button
           onClick={handleSave}
           disabled={saving}
