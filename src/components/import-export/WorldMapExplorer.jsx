@@ -446,7 +446,7 @@ Rispondi in italiano.`,
       // Seleziona nuovo
       countryMeshesRef.current.forEach(m => {
         if (m.userData.countryName === mesh.userData.countryName) {
-          m.material.color.setHex(0x059669);
+          m.material.color.setHex(0x1f2937);
           m.material.opacity = 1;
         }
       });
