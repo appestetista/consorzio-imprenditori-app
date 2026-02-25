@@ -62,25 +62,94 @@ function createCountryLines(feature, radius) {
   return coords;
 }
 
-// Crea mesh cliccabile per ogni paese (facce riempite)
-function createCountryMesh(feature, radius) {
+// Disegna i paesi su una texture canvas 2D (equirettangolare)
+function drawCountriesOnCanvas(ctx, features, width, height, excludedSet) {
+  const lngToX = (lng) => ((lng + 180) / 360) * width;
+  const latToY = (lat) => ((90 - lat) / 180) * height;
+
+  const drawPolygon = (coords, fillColor) => {
+    coords.forEach((ring, ringIdx) => {
+      if (ring.length < 3) return;
+      ctx.beginPath();
+      ctx.moveTo(lngToX(ring[0][0]), latToY(ring[0][1]));
+      for (let i = 1; i < ring.length; i++) {
+        ctx.lineTo(lngToX(ring[i][0]), latToY(ring[i][1]));
+      }
+      ctx.closePath();
+      if (ringIdx === 0) {
+        ctx.fillStyle = fillColor;
+        ctx.fill();
+      } else {
+        // Hole
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.fill();
+        ctx.globalCompositeOperation = 'source-over';
+      }
+    });
+  };
+
+  features.forEach(feature => {
+    const props = feature.properties || {};
+    const name = props.ADMIN || props.NAME || props.name || '';
+    if (excludedSet.has(name)) return;
+
+    const geom = feature.geometry;
+    const fillColor = '#2a6090';
+
+    if (geom.type === 'Polygon') {
+      drawPolygon(geom.coordinates, fillColor);
+    } else if (geom.type === 'MultiPolygon') {
+      geom.coordinates.forEach(polygon => drawPolygon(polygon, fillColor));
+    }
+  });
+
+  // Bordi sopra
+  ctx.strokeStyle = '#1e3a5f';
+  ctx.lineWidth = 1;
+  features.forEach(feature => {
+    const props = feature.properties || {};
+    const name = props.ADMIN || props.NAME || props.name || '';
+    if (excludedSet.has(name)) return;
+
+    const geom = feature.geometry;
+    const drawBorders = (coords) => {
+      coords.forEach(ring => {
+        if (ring.length < 3) return;
+        ctx.beginPath();
+        ctx.moveTo(lngToX(ring[0][0]), latToY(ring[0][1]));
+        for (let i = 1; i < ring.length; i++) {
+          ctx.lineTo(lngToX(ring[i][0]), latToY(ring[i][1]));
+        }
+        ctx.closePath();
+        ctx.stroke();
+      });
+    };
+
+    if (geom.type === 'Polygon') {
+      drawBorders(geom.coordinates);
+    } else if (geom.type === 'MultiPolygon') {
+      geom.coordinates.forEach(polygon => drawBorders(polygon));
+    }
+  });
+}
+
+// Crea mesh invisibile per hit-testing (fan triangulation ok per raycast)
+function createCountryHitMesh(feature, radius) {
   const geom = feature.geometry;
   const meshes = [];
 
   const processRing = (ring) => {
     if (ring.length < 4) return null;
-    // Semplifica mesh come le linee
     const step = ring.length > 200 ? 3 : ring.length > 80 ? 2 : 1;
     const vertices = [];
     const indices = [];
     
     for (let i = 0; i < ring.length; i += step) {
-      const v = latLngToVector3(ring[i][1], ring[i][0], radius * 0.999);
+      const v = latLngToVector3(ring[i][1], ring[i][0], radius * 1.001);
       vertices.push(v.x, v.y, v.z);
     }
     
     const numVerts = vertices.length / 3;
-    // Fan triangulation dal primo punto
     for (let i = 1; i < numVerts - 1; i++) {
       indices.push(0, i, i + 1);
     }
