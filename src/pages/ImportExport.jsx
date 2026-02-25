@@ -595,9 +595,9 @@ Fornisci:
         <div className="flex gap-1.5 mb-6 bg-slate-800/50 p-1 rounded-xl border border-white/5">
           {[
             { key: 'export', label: 'Export', icon: TrendingUp, active: 'bg-gradient-to-r from-lime-400 to-emerald-400 text-slate-900 shadow-lg shadow-lime-400/20' },
-            { key: 'import', label: 'Import CN', icon: Ship, active: 'bg-gradient-to-r from-red-500 to-rose-500 text-white shadow-lg shadow-red-500/20' },
+            { key: 'import', label: 'Import CN', icon: Ship, active: 'bg-gradient-to-r from-red-500 to-rose-500 text-white shadow-lg shadow-red-500/20', hideWhen: 'export' },
             { key: 'history', label: 'Storico', icon: Clock, active: 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/20' },
-          ].map(t => (
+          ].filter(t => !t.hideWhen || activeTab !== t.hideWhen).map(t => (
             <button key={t.key} onClick={() => setActiveTab(t.key)} className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all ${activeTab === t.key ? t.active : 'text-slate-400 hover:text-white'}`}>
               <t.icon className="w-4 h-4" />{t.label}
             </button>
