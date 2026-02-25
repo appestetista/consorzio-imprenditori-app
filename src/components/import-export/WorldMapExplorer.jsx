@@ -436,8 +436,8 @@ Rispondi in italiano.`,
         // Reset tutti i mesh con lo stesso paese
         countryMeshesRef.current.forEach(m => {
           if (m.userData.countryName === selectedMeshRef.current.userData.countryName) {
-            m.material.color.setHex(0x6ee7b7);
-            m.material.opacity = 0.75;
+            m.material.color.setHex(0xffffff);
+            m.material.opacity = 0.9;
             m.material.emissive?.setHex(0x000000);
           }
         });
