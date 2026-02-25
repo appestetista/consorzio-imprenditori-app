@@ -252,10 +252,11 @@ Deno.serve(async (req) => {
     console.log('[wto v3] top_suppliers total records: ' + tsDataArray.length);
     if (tsDataArray.length > 0) {
       console.log('[wto v3] top_suppliers sample[0] keys: ' + Object.keys(tsDataArray[0]).join(', '));
-      // Log first 5 partner codes to understand data shape
+      // Log first 10 partner codes to understand data shape
       var sampleCodes = [];
-      for (var sci = 0; sci < Math.min(5, tsDataArray.length); sci++) {
-        sampleCodes.push(tsDataArray[sci].PartnerEconomyCode + '=' + tsDataArray[sci].PartnerEconomy);
+      for (var sci = 0; sci < Math.min(10, tsDataArray.length); sci++) {
+        var scRec = tsDataArray[sci];
+        sampleCodes.push((scRec.PartnerEconomyCode || 'null') + '="' + (scRec.PartnerEconomy || 'null') + '" v=' + scRec.Value);
       }
       console.log('[wto v3] top_suppliers sample partners: ' + sampleCodes.join(' | '));
     }
