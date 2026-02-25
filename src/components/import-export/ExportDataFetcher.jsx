@@ -155,9 +155,15 @@ export async function fetchMacroData(countryCodes) {
 }
 
 /**
- * STEP 1-2: Recupera dati ufficiali da UN Comtrade / Eurostat / TARIC
- * Usa HS a 4 cifre per analisi domanda globale.
- * Fallback: se dataset vuoto, riprova con Partner=World.
+ * STEP 1-2: Recupera dati ufficiali da API REALI multiple:
+ * - UN Comtrade (Public + Premium)
+ * - OEC (BACI data)
+ * - WITS Trade Stats + TRAINS (Tariffe)
+ * - Eurostat Comext (EU trade data)
+ * - World Bank (Macro)
+ * 
+ * Usa la backend function fetchTradeDataMultiSource per chiamate API dirette.
+ * NESSUNA AI per il recupero dati — solo API ufficiali.
  */
 export async function fetchTradeData(hsCode6, mercatiCodes, mercatiNames, exporterCode = 'IT', periodoAnni = 5) {
   const hs4 = toHS4(hsCode6);
@@ -166,141 +172,123 @@ export async function fetchTradeData(hsCode6, mercatiCodes, mercatiNames, export
   const periodoEnd = currentYear - 1;
   const timestamp = new Date().toISOString();
 
-  const mercatiNomi = mercatiCodes.map((code, i) => {
-    const name = mercatiNames?.[i] || code;
-    return `${name} (${code})`;
-  }).join(', ');
-
-  const exporterLabel = exporterCode === 'IT' ? 'Italia' : exporterCode;
-
-  let result;
+  let backendResult;
   try {
-    result = await base44.integrations.Core.InvokeLLM({
-      prompt: `Sei un analista di dati commerciali. Siamo nel ${currentYear}.
+    const response = await base44.functions.invoke('fetchTradeDataMultiSource', {
+      reporter_code: exporterCode,
+      partner_codes: mercatiCodes.filter(c => c !== 'WLD'),
+      hs_code: hsCode6,
+      flow_type: 'export',
+      period_years: periodoAnni,
+      include_tariffs: true,
+      include_eurostat: true
+    });
+    backendResult = response.data;
+  } catch (err) {
+    console.error('[ExportDataFetcher] fetchTradeDataMultiSource error:', err);
+    return { _api_error: true, _error_message: err?.message || 'Backend function error' };
+  }
 
-COMPITO: Recupera ESCLUSIVAMENTE dati numerici ufficiali per il codice HS ${hs4} (livello 4 cifre, heading) esportato da ${exporterLabel} (${exporterCode}) verso i seguenti mercati target: ${mercatiNomi}.
+  if (!backendResult || !backendResult.success) {
+    console.error('[ExportDataFetcher] Backend returned error:', backendResult);
+    return { _api_error: true, _error_message: backendResult?.error || 'Backend error' };
+  }
 
-PARAMETRI QUERY:
-- Codice HS: ${hs4} (4 cifre — livello heading per analisi domanda globale)
-- Codice HS originale 6 cifre: ${hsCode6} (per riferimento dazi/normative specifiche)
-- Reporter (importatore): ciascun Paese target
-- Partner (esportatore): ${exporterLabel} (${exporterCode})
-- Periodo: ${periodoStart}-${periodoEnd} (${periodoAnni} anni)
+  // Trasforma il risultato backend nel formato atteso dal frontend
+  const mercati = mercatiCodes.filter(c => c !== 'WLD').map((code, i) => {
+    const partnerData = backendResult.partners?.[code];
+    const serie = partnerData?.serie_storica || [];
+    const tariffs = partnerData?.tariffs;
+    const topSuppliers = partnerData?.top_suppliers;
+    const name = mercatiNames?.[i] || code;
 
-FONTI DA CONSULTARE (OBBLIGATORIE):
-1) UN Comtrade (comtradeplus.un.org) — Reporter: ciascun Paese target, Partner: ${exporterCode}, HS heading ${hs4}, serie annuale ${periodoStart}-${periodoEnd}.
-   - Se dati vuoti per un Paese con Partner=${exporterCode}: RIPETERE query con Partner=World per quel Paese.
-   - Se ancora vuoti: segnalare in dati_non_disponibili.
-2) Eurostat Comext (ec.europa.eu/eurostat) — Export ${exporterLabel} verso ciascun paese per HS ${hs4}.
-3) TARIC (ec.europa.eu/taxation_customs/dds2/taric) — Dazi MFN per HS ${hsCode6}, misure anti-dumping.
+    // Ultimo anno con dati per import totale
+    const lastYearData = serie.length > 0 ? serie[serie.length - 1] : null;
 
-REGOLE INDEROGABILI:
-- Restituisci SOLO dati numerici verificati. NESSUNA interpretazione.
-- Per ogni dato indica la fonte esatta e l'anno.
-- Se un dato NON è reperibile dopo doppia verifica (partner specifico + World), restituisci null.
-- NON inventare, NON stimare, NON approssimare.
-- Per la serie storica: array con anno e valore per ogni anno disponibile nel periodo ${periodoStart}-${periodoEnd}.
-- Per i fornitori: top 5 Paesi esportatori verso ciascun Paese target per HS ${hs4}.
-- CONVERSIONE VALUTA: Tasso cambio medio annuale EUR/USD dalla BCE per ultimo anno disponibile.
-
-OUTPUT: JSON strutturato con dati grezzi per ciascun mercato.`,
-    add_context_from_internet: true,
-    response_json_schema: {
-      type: "object",
-      properties: {
-        hs_code_heading: { type: "string", description: "Codice HS 4 cifre usato per query" },
-        hs_code_full: { type: "string", description: "Codice HS 6 cifre originale" },
-        exporter: { type: "string", description: "Paese esportatore (Reporter)" },
-        periodo: { type: "string", description: "Periodo analizzato" },
-        data_retrieval_date: { type: "string" },
-        mercati: {
-          type: "array",
-          items: {
-            type: "object",
-            properties: {
-              paese_code: { type: "string" },
-              paese_nome: { type: "string" },
-              import_totale: {
-                type: "object",
-                properties: {
-                  valore_usd: { type: "string" },
-                  anno: { type: "string" },
-                  fonte: { type: "string" }
-                }
-              },
-              export_from_exporter: {
-                type: "object",
-                properties: {
-                  valore_usd: { type: "string", description: "Valore export dall'exporter verso Paese target, USD" },
-                  anno: { type: "string" },
-                  fonte: { type: "string" }
-                }
-              },
-              serie_storica: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    anno: { type: "number" },
-                    valore_usd: { type: "string" },
-                    fonte: { type: "string" }
-                  }
-                }
-              },
-              top_fornitori: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    paese: { type: "string" },
-                    valore_usd: { type: "string" },
-                    quota_percentuale: { type: "string" },
-                    fonte: { type: "string" }
-                  }
-                }
-              },
-              posizione_exporter: { type: "string", description: "Ranking dell'exporter tra i fornitori" },
-              quota_exporter: { type: "string", description: "Quota % dell'exporter sul totale import" },
-              dazi: {
-                type: "object",
-                properties: {
-                  dazio_mfn: { type: "string" },
-                  dazio_preferenziale: { type: "string" },
-                  anti_dumping: { type: "string" },
-                  restrizioni: { type: "string" },
-                  fonte: { type: "string" }
-                }
-              },
-              query_fallback_world: { type: "boolean", description: "true se dati ottenuti con Partner=World" }
-            }
-          }
-        },
-        tasso_cambio_eur_usd: {
-          type: "object",
-          properties: {
-            tasso: { type: "string" },
-            anno: { type: "string" },
-            fonte: { type: "string" }
-          }
-        },
-        dati_non_disponibili: {
-          type: "array",
-          items: { type: "string" }
-        }
+    // Trova posizione e quota dell'esportatore dai top suppliers
+    let posizioneExporter = null;
+    let quotaExporter = null;
+    if (topSuppliers?.top_fornitori) {
+      const exporterName = exporterCode === 'IT' ? 'Italy' : exporterCode;
+      const idx = topSuppliers.top_fornitori.findIndex(f =>
+        f.paese?.toLowerCase().includes(exporterName.toLowerCase()) ||
+        f.paese?.toLowerCase().includes('ital')
+      );
+      if (idx >= 0) {
+        posizioneExporter = `#${idx + 1}`;
+        quotaExporter = topSuppliers.top_fornitori[idx].quota_percentuale;
       }
     }
-    });
-  } catch (err) {
-    console.error('[ExportDataFetcher] fetchTradeData API error:', err);
-    return { _api_error: true, _error_message: err?.message || 'Unknown error' };
-  }
 
-  if (!result || typeof result !== 'object') {
-    console.error('[ExportDataFetcher] fetchTradeData: risposta vuota o non valida', result);
-    return { _api_error: true, _error_message: 'Risposta API non valida' };
-  }
+    return {
+      paese_code: code,
+      paese_nome: name,
+      import_totale: topSuppliers ? {
+        valore_usd: topSuppliers.import_totale_usd ? `$${topSuppliers.import_totale_usd.toLocaleString('en-US')}` : (lastYearData ? `$${lastYearData.trade_value_usd.toLocaleString('en-US')}` : null),
+        anno: String(topSuppliers.anno || (lastYearData?.year)),
+        fonte: topSuppliers.fonte || lastYearData?.source || 'N/D'
+      } : (lastYearData ? {
+        valore_usd: `$${lastYearData.trade_value_usd.toLocaleString('en-US')}`,
+        anno: String(lastYearData.year),
+        fonte: lastYearData.source || 'N/D'
+      } : { valore_usd: null, anno: null, fonte: null }),
+      export_from_exporter: {
+        valore_usd: lastYearData ? `$${lastYearData.trade_value_usd.toLocaleString('en-US')}` : null,
+        anno: lastYearData ? String(lastYearData.year) : null,
+        fonte: lastYearData?.source || 'N/D'
+      },
+      serie_storica: serie.map(s => ({
+        anno: s.year,
+        valore_usd: `$${s.trade_value_usd?.toLocaleString('en-US') || '0'}`,
+        fonte: s.source || 'multi-source',
+        sources: s.sources,
+        trade_value_eur_eurostat: s.trade_value_eur_eurostat || null,
+        net_weight_kg: s.net_weight_kg || null,
+        quantity: s.quantity || null,
+        quantity_unit: s.quantity_unit || null,
+        price_per_kg_usd: s.price_per_kg_usd || null,
+        discrepancy: s.discrepancy || false
+      })),
+      top_fornitori: (topSuppliers?.top_fornitori || []).map(f => ({
+        paese: f.paese,
+        valore_usd: `$${f.valore_usd?.toLocaleString('en-US') || '0'}`,
+        quota_percentuale: f.quota_percentuale,
+        fonte: f.fonte || 'UN Comtrade'
+      })),
+      posizione_exporter: posizioneExporter,
+      quota_exporter: quotaExporter,
+      dazi: tariffs ? {
+        dazio_mfn: tariffs.dazio_mfn,
+        dazio_preferenziale: tariffs.dazio_preferenziale,
+        anti_dumping: null,
+        restrizioni: null,
+        fonte: tariffs.fonte || 'WITS/TRAINS'
+      } : { dazio_mfn: null, dazio_preferenziale: null, anti_dumping: null, restrizioni: null, fonte: null },
+      query_fallback_world: false
+    };
+  });
 
-  // Aggiunge metadata di query per trasparenza
+  const result = {
+    hs_code_heading: hs4,
+    hs_code_full: hsCode6,
+    exporter: exporterCode,
+    periodo: `${periodoStart}-${periodoEnd}`,
+    data_retrieval_date: timestamp,
+    mercati,
+    tasso_cambio_eur_usd: null, // Verrà calcolato se Eurostat ha dati EUR
+    dati_non_disponibili: [],
+    source_status: backendResult.source_status,
+    errors_backend: backendResult.errors
+  };
+
+  // Identifica dati non disponibili
+  mercati.forEach(m => {
+    if (!m.import_totale?.valore_usd) result.dati_non_disponibili.push(`${m.paese_nome}: import totale non disponibile`);
+    if (m.serie_storica.length < 3) result.dati_non_disponibili.push(`${m.paese_nome}: serie storica incompleta (${m.serie_storica.length} anni)`);
+    if (!m.dazi?.dazio_mfn) result.dati_non_disponibili.push(`${m.paese_nome}: dazi MFN non disponibili`);
+  });
+
+  // Metadata di query per trasparenza
   result._query_log = {
     hs_code_heading: hs4,
     hs_code_full: hsCode6,
@@ -308,7 +296,8 @@ OUTPUT: JSON strutturato con dati grezzi per ciascun mercato.`,
     partners: mercatiCodes,
     periodo: `${periodoStart}-${periodoEnd}`,
     timestamp,
-    records_returned: result.mercati?.length || 0
+    records_returned: mercati.length,
+    sources_used: backendResult.source_status
   };
   result._timestamp_recupero = timestamp;
 
