@@ -270,7 +270,7 @@ export default function ImportExport() {
 
       // Genera riepilogo analisi automatico
       const analysisSummary = (confirmedExportHS || tradeData || tradeMetrics || analysisResult)
-        ? '\n\n' + buildExportSummary({ confirmedHS: confirmedExportHS, tradeData, tradeMetrics, analysisResult, exportForm, MERCATI_TARGET })
+        ? '\n\n' + buildExportSummary({ confirmedHS: confirmedExportHS, tradeData, tradeMetrics, analysisResult, exportForm, MERCATI_TARGET: ALL_COUNTRIES })
         : '';
 
       // Crea messaggio
