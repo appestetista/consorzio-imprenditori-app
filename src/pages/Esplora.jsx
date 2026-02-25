@@ -24,7 +24,7 @@ export default function Esplora() {
   const [user, setUser] = useState(null);
   const [effectiveUser, setEffectiveUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const { impersonation, setCurrentUserRole, appMode } = useImpersonation();
+  const { impersonation, setCurrentUserRole, appMode, startImpersonation, stopImpersonation } = useImpersonation();
   const queryClient = useQueryClient();
   const { playSound } = useNotificationSound();
   const [showChangeResponse, setShowChangeResponse] = useState(false);
@@ -464,7 +464,7 @@ export default function Esplora() {
             <p className="text-[#d4af37] font-semibold mb-4">{effectiveUser?.company_name || effectiveUser?.full_name || 'Utente'}</p>
             
             {impersonation.active && (
-              <button onClick={() => { impersonation.active = false; setMenuOpen(false); window.location.href = createPageUrl('Home'); }} className="flex items-center gap-3 text-white py-3 px-4 rounded-lg bg-orange-600 hover:bg-orange-700 transition-colors w-full mb-3">
+              <button onClick={() => { stopImpersonation(); setMenuOpen(false); window.location.href = createPageUrl('Home'); }} className="flex items-center gap-3 text-white py-3 px-4 rounded-lg bg-orange-600 hover:bg-orange-700 transition-colors w-full mb-3">
                 <XCircle className="w-5 h-5" /><span>Torna ad Admin</span>
               </button>
             )}
@@ -502,8 +502,7 @@ export default function Esplora() {
         open={impersonationDialogOpen}
         onClose={() => setImpersonationDialogOpen(false)}
         onStart={(role, targetId, targetEmail, targetName, targetUserData) => {
-          const { startImpersonation: startImp } = impersonation;
-          // use context method
+          startImpersonation(role, targetId, targetEmail, targetName, targetUserData);
           setTimeout(() => { window.location.href = createPageUrl('Home'); }, 100);
         }}
       />
