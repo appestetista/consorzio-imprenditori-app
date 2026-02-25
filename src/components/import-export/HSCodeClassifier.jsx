@@ -4,11 +4,19 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, CheckCircle, AlertTriangle, RotateCcw, Package } from 'lucide-react';
 
-export default function HSCodeClassifier({ productDescription, onConfirm, onError }) {
+export default function HSCodeClassifier({ productDescription, onConfirm, onError, autoStart = false }) {
   const [loading, setLoading] = useState(false);
   const [candidates, setCandidates] = useState(null);
   const [selectedCode, setSelectedCode] = useState(null);
   const [error, setError] = useState(null);
+  const [lastClassified, setLastClassified] = useState(null);
+
+  // Auto-start classification when productDescription changes and autoStart is true
+  React.useEffect(() => {
+    if (autoStart && productDescription?.trim() && productDescription !== lastClassified && !loading) {
+      classify();
+    }
+  }, [productDescription, autoStart]);
 
   const classify = async () => {
     if (!productDescription?.trim()) return;
@@ -16,6 +24,7 @@ export default function HSCodeClassifier({ productDescription, onConfirm, onErro
     setError(null);
     setCandidates(null);
     setSelectedCode(null);
+    setLastClassified(productDescription);
 
     try {
       const result = await base44.integrations.Core.InvokeLLM({
@@ -91,8 +100,9 @@ REGOLE INDEROGABILI:
     basso: 'bg-red-500/20 text-red-400 border-red-500/30',
   };
 
-  // Stato iniziale: mostra bottone per avviare classificazione
+  // Stato iniziale: se autoStart, non mostra nulla (parte da solo); altrimenti mostra bottone
   if (!loading && !candidates && !error) {
+    if (autoStart) return null;
     return (
       <Card className="bg-slate-800/60 border-white/5 backdrop-blur-sm shadow-xl">
         <CardContent className="p-5">
@@ -212,27 +222,14 @@ REGOLE INDEROGABILI:
           </p>
         )}
 
-        <div className="flex gap-2 mt-3">
+        <div className="mt-3">
           <button
             type="button"
-            onClick={() => { setCandidates(null); setSelectedCode(null); setError(null); }}
-            className="flex-1 flex items-center justify-center gap-1.5 h-12 rounded-xl border-2 border-slate-500 text-white font-bold text-sm bg-slate-700 hover:bg-slate-600 active:scale-95 transition-all"
+            onClick={() => { setCandidates(null); setSelectedCode(null); setError(null); setLastClassified(null); }}
+            className="w-full flex items-center justify-center gap-1.5 h-10 rounded-xl border border-slate-600 text-slate-400 text-xs font-medium bg-slate-800 hover:bg-slate-700 active:scale-95 transition-all"
           >
-            <RotateCcw className="w-4 h-4" />
-            Reclassifica
-          </button>
-          <button
-            type="button"
-            onClick={handleConfirm}
-            disabled={!selectedCode}
-            className={`flex-1 flex items-center justify-center gap-1.5 h-12 rounded-xl font-bold text-sm transition-all active:scale-95 ${
-              selectedCode 
-                ? 'bg-lime-400 hover:bg-lime-300 text-black shadow-lg shadow-lime-400/30' 
-                : 'bg-slate-700 text-slate-500 cursor-not-allowed opacity-60'
-            }`}
-          >
-            <CheckCircle className="w-4 h-4" />
-            Conferma e Analizza
+            <RotateCcw className="w-3.5 h-3.5" />
+            Codice errato? Reclassifica
           </button>
         </div>
       </CardContent>
