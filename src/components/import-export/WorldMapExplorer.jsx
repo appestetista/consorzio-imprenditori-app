@@ -217,14 +217,25 @@ Rispondi in italiano.`,
     scene.add(globeGroup);
     globeGroupRef.current = globeGroup;
 
-    // Sfera oceano - nero
+    // Sfera oceano - blu scuro
     const sphereGeom = new THREE.SphereGeometry(1, 64, 64);
     const sphereMat = new THREE.MeshPhongMaterial({
-      color: 0x000000,
+      color: 0x0c1929,
       shininess: 5,
     });
     const sphere = new THREE.Mesh(sphereGeom, sphereMat);
     globeGroup.add(sphere);
+
+    // Sfera terra (continenti) - colore uniforme sopra l'oceano
+    // Usiamo una texture generata da GeoJSON per coprire la terra
+    const landGeom = new THREE.SphereGeometry(1.001, 64, 64);
+    const landCanvas = document.createElement('canvas');
+    landCanvas.width = 2048;
+    landCanvas.height = 1024;
+    const landCtx = landCanvas.getContext('2d');
+    // Sfondo trasparente
+    landCtx.clearRect(0, 0, 2048, 1024);
+    landCanvasRef.current = { canvas: landCanvas, ctx: landCtx, geom: landGeom, group: globeGroup };
 
     // Carica GeoJSON
     const loadGeoJSON = async () => {
