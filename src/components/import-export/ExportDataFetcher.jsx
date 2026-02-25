@@ -640,12 +640,30 @@ PROFILO AZIENDA:
 - Prodotto: ${profiloAzienda.prodotto}
 - Fatturato: ${profiloAzienda.fatturato_annuo || 'Non specificato'}
 - Esperienza export: ${profiloAzienda.esperienza_export || 'Nessuna'}
-- Certificazioni: ${profiloAzienda.certificazioni || 'Non specificate'}
+- Certificazioni possedute: ${profiloAzienda.certificazioni || 'Non specificate'}
 - Capacità produttiva export: ${profiloAzienda.capacita_produttiva || 'Non specificata'}
+- Posizionamento di prezzo: ${profiloAzienda.posizionamento || 'Non specificato'}
+- Business Model: ${profiloAzienda.business_model || 'Non specificato'}
+- Canale preferito: ${profiloAzienda.canale_preferito || 'Non specificato'}
 
 DATI COMMERCIALI VERIFICATI:
 ${riepilogoDati}
 ${datiNonDisponibili}${notaCambio}
+
+ISTRUZIONI ENTERPRISE (usa i parametri profilo per filtrare l'analisi):
+
+⚙️ SMART REGULATORY CHECK: Confronta le "Certificazioni possedute" con i requisiti del Paese Target. Se mancano certificazioni obbligatorie, segnalalo come "⛔ Blocco Operativo: [certificazione] mancante". Se le certificazioni possedute danno vantaggi (es. BIO → accordi preferenziali), evidenzialo.
+
+⚙️ COMPETITIVE PRICING BENCHMARK: Filtra l'analisi competitiva in base al "Posizionamento di prezzo". Se Premium/Luxury: escludi competitor mass-market, focalizza su segmento alto. Se Entry Level: confronta con fornitori a basso costo.
+
+⚙️ GTM STRATEGY ALIGNMENT: Proponi canali d'ingresso coerenti con "Business Model" e "Canale preferito":
+   - Se B2B → privilegia reti agenti, distributori, fiere, piattaforme B2B
+   - Se B2C → privilegia marketplace, GDO, e-commerce
+   - Se Canale = Online → focus su marketplace digitali e penetrazione e-commerce
+   - Se Canale = Distributore → focus su reti distribuzione fisica e margini
+   - Se Canale = Retail → focus su GDO e retail fisico
+
+⚙️ SUPPLY CHAIN FEASIBILITY: Valuta se la "Capacità produttiva" è sufficiente per la domanda stimata. Se insufficiente, consiglia ingresso in nicchia/regione specifica.
 
 STRUTTURA OBBLIGATORIA DELL'OUTPUT (9 sezioni):
 

@@ -71,7 +71,11 @@ export default function ImportExport() {
   const [exportForm, setExportForm] = useState({
     settore: '',
     prodotto: '',
-    capacita_produttiva: ''
+    capacita_produttiva: '',
+    posizionamento: '',
+    certificazioni: '',
+    business_model: '',
+    canale_preferito: ''
   });
   const [selectedMapCountry, setSelectedMapCountry] = useState(null);
   const [showHSClassifier, setShowHSClassifier] = useState(false);
@@ -445,8 +449,11 @@ export default function ImportExport() {
         descrizione: '',
         fatturato_annuo: user?.export_fatturato_annuo || '',
         esperienza_export: user?.export_esperienza || '',
-        certificazioni: user?.export_certificazioni || '',
-        capacita_produttiva: exportForm.capacita_produttiva
+        certificazioni: exportForm.certificazioni || user?.export_certificazioni || '',
+        capacita_produttiva: exportForm.capacita_produttiva,
+        posizionamento: exportForm.posizionamento,
+        business_model: exportForm.business_model,
+        canale_preferito: exportForm.canale_preferito
       }, macro || {});
 
       if (interpretation?._api_error) {
@@ -500,7 +507,11 @@ export default function ImportExport() {
     setExportForm({
       settore: '',
       prodotto: '',
-      capacita_produttiva: ''
+      capacita_produttiva: '',
+      posizionamento: '',
+      certificazioni: '',
+      business_model: '',
+      canale_preferito: ''
     });
     setSelectedMapCountry(null);
     setShowHSClassifier(false);
@@ -664,6 +675,72 @@ export default function ImportExport() {
                     value={exportForm.capacita_produttiva}
                     onChange={(e) => setExportForm({ ...exportForm, capacita_produttiva: e.target.value })}
                     className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl"
+                  />
+                </div>
+
+                {/* Posizionamento di prezzo */}
+                <div>
+                  <label className="text-slate-400 text-xs font-medium mb-1.5 block">Posizionamento di prezzo</label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {['Entry Level', 'Mid-range', 'Premium', 'Luxury'].map(p => (
+                      <button
+                        key={p}
+                        onClick={() => setExportForm({ ...exportForm, posizionamento: exportForm.posizionamento === p ? '' : p })}
+                        className={`px-2 py-2 rounded-xl text-[11px] font-medium transition-all border text-center ${
+                          exportForm.posizionamento === p
+                            ? 'bg-lime-400 text-slate-900 border-lime-400 shadow-lg shadow-lime-400/20'
+                            : 'bg-slate-800/60 text-slate-400 border-white/10 hover:border-white/20 hover:text-white'
+                        }`}
+                      >{p}</button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Business Model e Canale */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-slate-400 text-xs font-medium mb-1.5 block">Business Model</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {['B2B', 'B2C'].map(bm => (
+                        <button
+                          key={bm}
+                          onClick={() => setExportForm({ ...exportForm, business_model: exportForm.business_model === bm ? '' : bm })}
+                          className={`px-2 py-2 rounded-xl text-xs font-bold transition-all border text-center ${
+                            exportForm.business_model === bm
+                              ? 'bg-lime-400 text-slate-900 border-lime-400'
+                              : 'bg-slate-800/60 text-slate-400 border-white/10 hover:text-white'
+                          }`}
+                        >{bm}</button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-slate-400 text-xs font-medium mb-1.5 block">Canale preferito</label>
+                    <Select
+                      value={exportForm.canale_preferito}
+                      onValueChange={(v) => setExportForm({ ...exportForm, canale_preferito: v })}
+                    >
+                      <SelectTrigger className="bg-slate-800/60 border-white/10 text-white h-10 rounded-xl text-xs">
+                        <SelectValue placeholder="Seleziona" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Online">Online / Marketplace</SelectItem>
+                        <SelectItem value="Distributore">Distributore / Agente</SelectItem>
+                        <SelectItem value="Retail">Retail fisico / GDO</SelectItem>
+                        <SelectItem value="Diretto">Export diretto</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Certificazioni possedute */}
+                <div>
+                  <label className="text-slate-400 text-xs font-medium mb-1.5 block">Certificazioni possedute</label>
+                  <Input
+                    placeholder="Es. CE, ISO 9001, BIO, FDA, HACCP..."
+                    value={exportForm.certificazioni}
+                    onChange={(e) => setExportForm({ ...exportForm, certificazioni: e.target.value })}
+                    className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl placeholder:text-slate-500"
                   />
                 </div>
 
