@@ -496,8 +496,8 @@ Rispondi in italiano.`,
     if (selectedMeshRef.current) {
       countryMeshesRef.current.forEach(m => {
         if (m.userData.countryName === selectedMeshRef.current.userData.countryName) {
-          m.material.color.setHex(0x6ee7b7);
-          m.material.opacity = 0.75;
+          m.material.color.setHex(0xffffff);
+          m.material.opacity = 0.9;
         }
       });
       selectedMeshRef.current = null;
