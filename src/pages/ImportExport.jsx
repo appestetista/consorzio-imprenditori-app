@@ -439,10 +439,10 @@ export default function ImportExport() {
       const interpretation = await interpretData(rawData, metrics, hsData.hs_code, hsData.descrizione_ufficiale, {
         settore: exportForm.settore,
         prodotto: exportForm.prodotto,
-        descrizione: exportForm.descrizione_prodotto,
-        fatturato_annuo: exportForm.fatturato_annuo,
-        esperienza_export: exportForm.esperienza_export,
-        certificazioni: exportForm.certificazioni,
+        descrizione: '',
+        fatturato_annuo: user?.export_fatturato_annuo || '',
+        esperienza_export: user?.export_esperienza || '',
+        certificazioni: user?.export_certificazioni || '',
         capacita_produttiva: exportForm.capacita_produttiva
       }, macro || {});
 
