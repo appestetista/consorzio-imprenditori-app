@@ -412,8 +412,8 @@ export default function ImportExport() {
       // STEP 1: Recupero dati ufficiali + macro World Bank in parallelo
       setExportStep('fetching');
       const [rawData, macro] = await Promise.all([
-        fetchTradeData(hsData.hs_code, exportForm.mercati_interesse, mercatiNames, exporterCountry, parseInt(periodoAnalisi)),
-        fetchMacroData(exportForm.mercati_interesse)
+        fetchTradeData(hsData.hs_code, mercatiInteresse, mercatiNames, exporterCountry, parseInt(periodoAnalisi)),
+        fetchMacroData(mercatiInteresse)
       ]);
       
       if (rawData?._api_error) {
