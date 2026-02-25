@@ -300,35 +300,35 @@ Rispondi in italiano.`,
     const loadGeoJSON = async () => {
       const res = await fetch(GEOJSON_URL);
       const data = await res.json();
-      
-      const borderMat = new THREE.LineBasicMaterial({ color: 0x1e3a5f, transparent: true, opacity: 0.8 });
-      const defaultMat = new THREE.MeshBasicMaterial({
-        color: 0x2a6090,
-        side: THREE.DoubleSide,
-      });
 
+      // Disegna i paesi su una texture canvas (riempimento uniforme + bordi)
+      const texCanvas = document.createElement('canvas');
+      texCanvas.width = 2048;
+      texCanvas.height = 1024;
+      const texCtx = texCanvas.getContext('2d');
+      // Sfondo trasparente (l'oceano è la sfera sotto)
+      texCtx.clearRect(0, 0, 2048, 1024);
+      drawCountriesOnCanvas(texCtx, data.features, 2048, 1024, EXCLUDED_COUNTRIES);
+
+      const texture = new THREE.CanvasTexture(texCanvas);
+      texture.needsUpdate = true;
+      const landSphereGeom = new THREE.SphereGeometry(1.001, 64, 64);
+      const landSphereMat = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
+      const landSphere = new THREE.Mesh(landSphereGeom, landSphereMat);
+      globeGroup.add(landSphere);
+
+      // Hit-test mesh invisibili per il click/hover
+      const hitMat = new THREE.MeshBasicMaterial({ visible: false, side: THREE.DoubleSide });
       const meshEntries = [];
 
       data.features.forEach(feature => {
         const props = feature.properties || {};
         const name = props.ADMIN || props.NAME || props.name || '';
-        
-        // Escludi microstati e isole minuscole
         if (EXCLUDED_COUNTRIES.has(name)) return;
-        
-        // Bordi
-        const lineGroups = createCountryLines(feature, 1.002);
-        lineGroups.forEach(points => {
-          if (points.length < 2) return;
-          const geom = new THREE.BufferGeometry().setFromPoints(points);
-          globeGroup.add(new THREE.Line(geom, borderMat));
-        });
 
-        // Facce cliccabili
-        const geometries = createCountryMesh(feature, 1);
+        const geometries = createCountryHitMesh(feature, 1);
         geometries.forEach(g => {
-          const mat = defaultMat.clone();
-          const mesh = new THREE.Mesh(g, mat);
+          const mesh = new THREE.Mesh(g, hitMat.clone());
           mesh.userData = {
             countryName: name,
             iso_a2: props.ISO_A2 || props.iso_a2 || '-99',
