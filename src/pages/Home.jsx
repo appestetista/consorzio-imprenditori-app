@@ -446,7 +446,7 @@ Domanda dell'utente: ${msg}`,
       </div>
 
       {/* Bottom Nav */}
-      <BottomNav currentPage="Home" />
+      <BottomNav currentPage="Home" onMenuOpen={() => setMenuOpen(true)} />
     </div>
   );
 }
