@@ -503,6 +503,18 @@ export default function ImportExport() {
       <Header user={user} />
       
       <main className="px-4 py-6 max-w-md mx-auto">
+        {/* Usage Counter sopra header */}
+        {activeTab === 'export' && !analysisResult && !exportLimitReached && user && (
+          <div className="mb-3">
+            <UsageCounter usageCount={exportUsage} limit={exportLimit} label="Analisi export disponibili questa settimana" />
+          </div>
+        )}
+        {activeTab === 'export' && !analysisResult && exportLimitReached && (
+          <div className="mb-3">
+            <LimitReachedBanner actionType="export_analysis" usageCount={exportUsage} limit={exportLimit} isWeekly={true} />
+          </div>
+        )}
+
         {/* Minimal Header */}
         <div className="flex items-center gap-3 mb-5">
           <Link to={createPageUrl('Home')} className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center back-arrow-tap">
@@ -535,7 +547,7 @@ export default function ImportExport() {
               onChange={(e) => setExportForm({ ...exportForm, prodotto: e.target.value })}
               className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl placeholder:text-slate-500"
             />
-            <p className="text-white font-semibold text-sm">Indica il paese</p>
+            <p className="text-white font-semibold text-sm">Indica dove</p>
           </div>
         )}
 
@@ -594,13 +606,7 @@ export default function ImportExport() {
               </div>
             )}
 
-            {/* Limite Export */}
-            {exportLimitReached && !analysisResult && (
-              <LimitReachedBanner actionType="export_analysis" usageCount={exportUsage} limit={exportLimit} isWeekly={true} />
-            )}
-            {!exportLimitReached && user && !analysisResult && (
-              <UsageCounter usageCount={exportUsage} limit={exportLimit} label="Analisi export disponibili questa settimana" />
-            )}
+            {/* Limite Export — spostato in alto sopra header */}
 
             {!analysisResult ? (
               exportLimitReached ? (
