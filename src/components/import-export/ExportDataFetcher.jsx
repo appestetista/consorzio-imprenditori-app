@@ -770,10 +770,36 @@ STRUTTURA OBBLIGATORIA DELL'OUTPUT (9 sezioni):
    - Investimento iniziale stimato con suddivisione costi
    Se non calcolabile → spiegare perché.
 
-7️⃣ CANALI DI INGRESSO — Per ogni Paese:
-   - Importatori/distributori (tipologia)
-   - Fiere di settore ufficiali rilevanti
-   - Marketplace dominanti
+7️⃣ CANALI DI INGRESSO (Go-to-Market & Distribution Strategy) — Per ogni Paese:
+   Agisci come Consulente di Strategia Internazionale esperto in canali di distribuzione e modelli Go-to-Market (GTM).
+   
+   PROTOCOLLO OBBLIGATORIO:
+   a) ENTRY MODE MAPPING:
+      - Modello di ingresso raccomandato (Esportazione Diretta / Agente-Distributore / Franchising / Joint Venture / Filiale Locale)
+      - Giustificazione del modello basata sulla struttura del mercato
+      - Complessità stimata dell'ingresso (Low/Medium/High)
+   
+   b) CANALI DIGITALI:
+      - Top marketplace B2C nel Paese Target (es. Amazon, Mercado Libre, Lazada, Noon, Allegro)
+      - Top piattaforme B2B (es. Alibaba, TradeIndia, Global Sources)
+      - Tasso penetrazione e-commerce nel Paese (% se disponibile)
+   
+   c) DISTRIBUZIONE FISICA:
+      - Principali catene GDO / retailer nel Paese Target per il settore
+      - Reti grossisti / distributori specializzati
+      - Margini di distribuzione tipici nel settore (range %)
+   
+   d) PARTNERSHIP & NETWORKING:
+      - Fiere di settore rilevanti nel Paese Target (nome, periodo/date)
+      - Associazioni di categoria / camere di commercio bilaterali
+   
+   e) RACCOMANDAZIONI STRATEGICHE:
+      - 2-3 raccomandazioni operative per l'ingresso
+   
+   INTEGRITY CONSTRAINTS:
+   - NON inventare nomi di distributori o piattaforme. Se un canale non è rilevante per il settore, indicarlo.
+   - Ogni raccomandazione basata su struttura di mercato attuale con fonte (es. [Santander Trade], [Export.gov], [ICE]).
+   - Distingui tra canali Digitali e canali Fisici.
 
 8️⃣ ANALISI RISCHIO PAESE — Per ogni Paese (basata su dati World Bank/SACE forniti):
    - Rischio politico
@@ -1002,9 +1028,39 @@ FORMATO: paragrafi brevi e tecnici, nessun linguaggio motivazionale, nessuna nar
               canali_ingresso: {
                 type: "object",
                 properties: {
-                  importatori: { type: "string" },
-                  fiere_settore: { type: "array", items: { type: "string" } },
-                  marketplace: { type: "array", items: { type: "string" } }
+                  entry_strategy: {
+                    type: "object",
+                    properties: {
+                      recommended_model: { type: "string", description: "Direct Export / Distributor / Agent / Joint Venture / Franchise / Filiale Locale" },
+                      model_justification: { type: "string", description: "Giustificazione basata sulla struttura del mercato" },
+                      estimated_entry_complexity: { type: "string", enum: ["Low", "Medium", "High"] }
+                    }
+                  },
+                  digital_channels: {
+                    type: "object",
+                    properties: {
+                      top_b2c_marketplaces: { type: "array", items: { type: "string" }, description: "Top marketplace B2C" },
+                      top_b2b_platforms: { type: "array", items: { type: "string" }, description: "Top piattaforme B2B" },
+                      ecommerce_penetration_rate: { type: "string", description: "Tasso penetrazione e-commerce %" }
+                    }
+                  },
+                  physical_distribution: {
+                    type: "object",
+                    properties: {
+                      key_retailers_gdo: { type: "array", items: { type: "string" }, description: "Principali catene GDO/retailer" },
+                      wholesale_networks: { type: "array", items: { type: "string" }, description: "Reti grossisti/distributori" },
+                      typical_distribution_margins: { type: "string", description: "Margini distribuzione tipici %" }
+                    }
+                  },
+                  partnership_opportunities: {
+                    type: "object",
+                    properties: {
+                      relevant_trade_fairs: { type: "array", items: { type: "string" }, description: "Fiere settore (nome + periodo)" },
+                      industrial_associations: { type: "array", items: { type: "string" }, description: "Associazioni categoria / camere commercio" }
+                    }
+                  },
+                  strategic_recommendations: { type: "array", items: { type: "string" }, description: "2-3 raccomandazioni operative" },
+                  verified_sources: { type: "array", items: { type: "string" }, description: "Fonti verificate (URL)" }
                 }
               },
               flussi_commerciali: {

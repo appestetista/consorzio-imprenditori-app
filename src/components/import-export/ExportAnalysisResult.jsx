@@ -588,11 +588,140 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
               </CollapsibleSection>
             )}
 
-            {/* Canali di Ingresso */}
+            {/* Canali di Ingresso — Go-to-Market */}
             {m.canali_ingresso && (
-              <CollapsibleSection title="Canali di Ingresso" icon={MapPin} iconColor="text-teal-400">
-                <DataRow label="Importatori" value={m.canali_ingresso.importatori} />
-                {m.canali_ingresso.fiere_settore?.length > 0 && (
+              <CollapsibleSection title="Go-to-Market & Canali" icon={MapPin} iconColor="text-teal-400">
+                {/* Entry Strategy */}
+                {m.canali_ingresso.entry_strategy && (
+                  <div className="bg-teal-500/5 border border-teal-500/10 rounded-lg p-2.5 mb-3">
+                    <p className="text-teal-400 text-[10px] font-bold uppercase tracking-wider mb-1.5">Strategia di Ingresso</p>
+                    {m.canali_ingresso.entry_strategy.recommended_model && (
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <span className="text-white text-xs font-bold">{m.canali_ingresso.entry_strategy.recommended_model}</span>
+                        {m.canali_ingresso.entry_strategy.estimated_entry_complexity && (
+                          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                            m.canali_ingresso.entry_strategy.estimated_entry_complexity === 'Low' ? 'bg-green-500/15 text-green-400' :
+                            m.canali_ingresso.entry_strategy.estimated_entry_complexity === 'Medium' ? 'bg-amber-500/15 text-amber-400' : 'bg-red-500/15 text-red-400'
+                          }`}>{m.canali_ingresso.entry_strategy.estimated_entry_complexity}</span>
+                        )}
+                      </div>
+                    )}
+                    {m.canali_ingresso.entry_strategy.model_justification && (
+                      <p className="text-slate-400 text-[10px] leading-relaxed">{m.canali_ingresso.entry_strategy.model_justification}</p>
+                    )}
+                  </div>
+                )}
+
+                {/* Digital Channels */}
+                {m.canali_ingresso.digital_channels && (
+                  <div className="mb-3">
+                    <p className="text-slate-500 text-[10px] font-bold uppercase tracking-wider mb-1.5">🌐 Canali Digitali</p>
+                    {m.canali_ingresso.digital_channels.ecommerce_penetration_rate && (
+                      <DataRow label="Penetrazione e-commerce" value={m.canali_ingresso.digital_channels.ecommerce_penetration_rate} />
+                    )}
+                    {m.canali_ingresso.digital_channels.top_b2c_marketplaces?.length > 0 && (
+                      <div className="mt-1.5">
+                        <p className="text-slate-500 text-[10px] mb-1">Marketplace B2C</p>
+                        <div className="flex flex-wrap gap-1">
+                          {m.canali_ingresso.digital_channels.top_b2c_marketplaces.map((mp, i) => (
+                            <span key={i} className="bg-cyan-500/10 text-cyan-300 px-2 py-0.5 rounded-md text-[10px] border border-cyan-500/20">{mp}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {m.canali_ingresso.digital_channels.top_b2b_platforms?.length > 0 && (
+                      <div className="mt-1.5">
+                        <p className="text-slate-500 text-[10px] mb-1">Piattaforme B2B</p>
+                        <div className="flex flex-wrap gap-1">
+                          {m.canali_ingresso.digital_channels.top_b2b_platforms.map((p, i) => (
+                            <span key={i} className="bg-indigo-500/10 text-indigo-300 px-2 py-0.5 rounded-md text-[10px] border border-indigo-500/20">{p}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Physical Distribution */}
+                {m.canali_ingresso.physical_distribution && (
+                  <div className="bg-slate-700/30 border border-white/5 rounded-lg p-2.5 mb-3">
+                    <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1.5">🏪 Distribuzione Fisica</p>
+                    {m.canali_ingresso.physical_distribution.key_retailers_gdo?.length > 0 && (
+                      <div className="mb-1.5">
+                        <p className="text-slate-500 text-[10px] mb-1">GDO / Retailer</p>
+                        <div className="flex flex-wrap gap-1">
+                          {m.canali_ingresso.physical_distribution.key_retailers_gdo.map((r, i) => (
+                            <span key={i} className="bg-white/5 text-slate-300 px-2 py-0.5 rounded-md text-[10px]">{r}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {m.canali_ingresso.physical_distribution.wholesale_networks?.length > 0 && (
+                      <div className="mb-1.5">
+                        <p className="text-slate-500 text-[10px] mb-1">Grossisti / Distributori</p>
+                        <div className="flex flex-wrap gap-1">
+                          {m.canali_ingresso.physical_distribution.wholesale_networks.map((w, i) => (
+                            <span key={i} className="bg-white/5 text-slate-300 px-2 py-0.5 rounded-md text-[10px]">{w}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {m.canali_ingresso.physical_distribution.typical_distribution_margins && (
+                      <DataRow label="Margini distribuzione" value={m.canali_ingresso.physical_distribution.typical_distribution_margins} />
+                    )}
+                  </div>
+                )}
+
+                {/* Partnership & Networking */}
+                {m.canali_ingresso.partnership_opportunities && (
+                  <div className="mb-3">
+                    <p className="text-slate-500 text-[10px] font-bold uppercase tracking-wider mb-1.5">🤝 Partnership & Networking</p>
+                    {m.canali_ingresso.partnership_opportunities.relevant_trade_fairs?.length > 0 && (
+                      <div className="mb-1.5">
+                        <p className="text-slate-500 text-[10px] mb-1">Fiere di settore</p>
+                        <ul className="text-slate-300 text-[10px] space-y-0.5">
+                          {m.canali_ingresso.partnership_opportunities.relevant_trade_fairs.map((f, i) => <li key={i}>• {f}</li>)}
+                        </ul>
+                      </div>
+                    )}
+                    {m.canali_ingresso.partnership_opportunities.industrial_associations?.length > 0 && (
+                      <div className="mt-1.5">
+                        <p className="text-slate-500 text-[10px] mb-1">Associazioni / Camere di commercio</p>
+                        <div className="flex flex-wrap gap-1">
+                          {m.canali_ingresso.partnership_opportunities.industrial_associations.map((a, i) => (
+                            <span key={i} className="bg-teal-500/10 text-teal-300 px-2 py-0.5 rounded-md text-[10px] border border-teal-500/20">{a}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Strategic Recommendations */}
+                {m.canali_ingresso.strategic_recommendations?.length > 0 && (
+                  <div className="bg-lime-500/5 border border-lime-500/10 rounded-lg p-2.5 mb-2">
+                    <p className="text-lime-400 text-[10px] font-bold uppercase tracking-wider mb-1.5">Raccomandazioni Strategiche</p>
+                    <ul className="text-slate-300 text-[10px] space-y-1">
+                      {m.canali_ingresso.strategic_recommendations.map((r, i) => <li key={i}>• {r}</li>)}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Fallback per vecchio schema (importatori, marketplace, fiere) */}
+                {!m.canali_ingresso.entry_strategy && m.canali_ingresso.importatori && (
+                  <DataRow label="Importatori" value={m.canali_ingresso.importatori} />
+                )}
+                {!m.canali_ingresso.digital_channels && m.canali_ingresso.marketplace?.length > 0 && (
+                  <div className="mt-1.5">
+                    <p className="text-slate-500 text-[10px] mb-1">Marketplace</p>
+                    <div className="flex flex-wrap gap-1">
+                      {m.canali_ingresso.marketplace.map((mp, i) => (
+                        <span key={i} className="bg-white/5 text-slate-300 px-2 py-0.5 rounded-md text-[10px]">{mp}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {!m.canali_ingresso.partnership_opportunities && m.canali_ingresso.fiere_settore?.length > 0 && (
                   <div className="mt-1.5">
                     <p className="text-slate-500 text-[10px] mb-1">Fiere di settore</p>
                     <ul className="text-slate-300 text-[10px] space-y-0.5">
@@ -600,12 +729,14 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
                     </ul>
                   </div>
                 )}
-                {m.canali_ingresso.marketplace?.length > 0 && (
-                  <div className="mt-1.5">
-                    <p className="text-slate-500 text-[10px] mb-1">Marketplace</p>
-                    <div className="flex flex-wrap gap-1">
-                      {m.canali_ingresso.marketplace.map((mp, i) => (
-                        <span key={i} className="bg-white/5 text-slate-300 px-2 py-0.5 rounded-md text-[10px]">{mp}</span>
+
+                {/* Verified Sources */}
+                {m.canali_ingresso.verified_sources?.length > 0 && (
+                  <div className="mt-2 pt-2 border-t border-white/5">
+                    <p className="text-slate-600 text-[10px] mb-1">Fonti:</p>
+                    <div className="space-y-0.5">
+                      {m.canali_ingresso.verified_sources.map((s, i) => (
+                        <p key={i} className="text-slate-500 text-[10px] truncate">{s}</p>
                       ))}
                     </div>
                   </div>
