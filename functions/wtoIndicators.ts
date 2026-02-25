@@ -8,6 +8,7 @@ Deno.serve(async (req) => {
   }
 
   const body = await req.json().catch(() => ({}));
+  const endpoint = (body.endpoint || 'indicators').trim().toLowerCase();
   const searchTerm = (body.search || '').trim().toLowerCase();
 
   const apiKey = Deno.env.get('WTO_API_KEY') || '';
@@ -15,14 +16,30 @@ Deno.serve(async (req) => {
     return Response.json({ error: 'WTO_API_KEY not set' }, { status: 500 });
   }
 
-  const resp = await fetch('https://api.wto.org/timeseries/v1/indicators', {
-    headers: {
-      'Ocp-Apim-Subscription-Key': apiKey,
-      'Accept': 'application/json'
-    },
-    signal: AbortSignal.timeout(20000)
-  });
+  const baseUrl = 'https://api.wto.org/timeseries/v1';
+  const headers = {
+    'Ocp-Apim-Subscription-Key': apiKey,
+    'Accept': 'application/json'
+  };
 
+  // Endpoint: /years
+  if (endpoint === 'years') {
+    const resp = await fetch(`${baseUrl}/years`, { headers, signal: AbortSignal.timeout(20000) });
+    if (!resp.ok) {
+      const text = await resp.text();
+      return Response.json({ error: `WTO API HTTP ${resp.status}`, detail: text }, { status: resp.status });
+    }
+    const data = await resp.json();
+    return Response.json({
+      success: true,
+      endpoint: 'years',
+      count: Array.isArray(data) ? data.length : null,
+      years: data
+    });
+  }
+
+  // Endpoint: /indicators (default)
+  const resp = await fetch(`${baseUrl}/indicators`, { headers, signal: AbortSignal.timeout(20000) });
   if (!resp.ok) {
     const text = await resp.text();
     return Response.json({ error: `WTO API HTTP ${resp.status}`, detail: text }, { status: resp.status });
@@ -49,6 +66,7 @@ Deno.serve(async (req) => {
 
   return Response.json({
     success: true,
+    endpoint: 'indicators',
     count: indicators.length,
     search: searchTerm || null,
     indicators: indicators
