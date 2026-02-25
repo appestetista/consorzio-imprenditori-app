@@ -443,18 +443,19 @@ Rispondi in italiano.`,
       
       // Reset previous hover
       if (hoveredRef.current && hoveredRef.current !== mesh && hoveredRef.current !== selectedMeshRef.current) {
-        hoveredRef.current.material.color.setHex(0x2a6090);
+        hoveredRef.current.material.opacity = 0;
       }
       
       if (mesh !== selectedMeshRef.current) {
-        mesh.material.color.setHex(0x3d80b0);
+        mesh.material.color.setHex(0x4a9fd4);
+        mesh.material.opacity = 0.4;
       }
       hoveredRef.current = mesh;
       setHoveredName(name);
       container.style.cursor = 'pointer';
     } else {
       if (hoveredRef.current && hoveredRef.current !== selectedMeshRef.current) {
-        hoveredRef.current.material.color.setHex(0x2a6090);
+        hoveredRef.current.material.opacity = 0;
       }
       hoveredRef.current = null;
       setHoveredName('');
@@ -500,10 +501,9 @@ Rispondi in italiano.`,
       
       // Deseleziona precedente
       if (selectedMeshRef.current) {
-        // Reset tutti i mesh con lo stesso paese
         countryMeshesRef.current.forEach(m => {
           if (m.userData.countryName === selectedMeshRef.current.userData.countryName) {
-            m.material.color.setHex(0x2a6090);
+            m.material.opacity = 0;
           }
         });
       }
@@ -512,6 +512,7 @@ Rispondi in italiano.`,
       countryMeshesRef.current.forEach(m => {
         if (m.userData.countryName === mesh.userData.countryName) {
           m.material.color.setHex(0x3b82f6);
+          m.material.opacity = 0.5;
         }
       });
       selectedMeshRef.current = mesh;
@@ -582,7 +583,7 @@ Rispondi in italiano.`,
     if (selectedMeshRef.current) {
       countryMeshesRef.current.forEach(m => {
         if (m.userData.countryName === selectedMeshRef.current.userData.countryName) {
-          m.material.color.setHex(0x2a6090);
+          m.material.opacity = 0;
         }
       });
       selectedMeshRef.current = null;
