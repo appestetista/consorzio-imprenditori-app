@@ -200,6 +200,7 @@ export async function fetchTradeData(hsCode6, mercatiCodes, mercatiNames, export
     const serie = partnerData?.serie_storica || [];
     const tariffs = partnerData?.tariffs;
     const topSuppliers = partnerData?.top_suppliers;
+    const webEnrichment = partnerData?.web_enrichment || null;
     const name = mercatiNames?.[i] || code;
 
     // Ultimo anno con dati per import totale
@@ -260,10 +261,14 @@ export async function fetchTradeData(hsCode6, mercatiCodes, mercatiNames, export
       dazi: tariffs ? {
         dazio_mfn: tariffs.dazio_mfn,
         dazio_preferenziale: tariffs.dazio_preferenziale,
+        dazio_mfn_wto: tariffs.dazio_mfn_wto || null,
+        dazio_bound_wto: tariffs.dazio_bound_wto || null,
+        fonte_wto: tariffs.fonte_wto || null,
         anti_dumping: null,
         restrizioni: null,
         fonte: tariffs.fonte || 'WITS/TRAINS'
-      } : { dazio_mfn: null, dazio_preferenziale: null, anti_dumping: null, restrizioni: null, fonte: null },
+      } : { dazio_mfn: null, dazio_preferenziale: null, dazio_mfn_wto: null, dazio_bound_wto: null, fonte_wto: null, anti_dumping: null, restrizioni: null, fonte: null },
+      web_enrichment: webEnrichment,
       query_fallback_world: false
     };
   });
