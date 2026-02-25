@@ -379,8 +379,8 @@ export default function Esplora() {
     { title: 'Market Place', icon: ShoppingBag, page: 'Marketplace', notifications: marketplaceNotifications, permission: 'marketplace', category: 'strumenti' },
     { title: 'Evita\nSanzioni', icon: Shield, page: 'ComplianceAziendale', notifications: complianceAlerts, permission: 'compliance', variant: 'blue', category: 'strumenti' },
     { title: 'Benefit\nDipendenti', icon: Heart, page: 'WelfareAziendale', notifications: 0, permission: 'welfare_aziendale', variant: 'pink', category: 'strumenti' },
-    { title: 'Simulatore\nFiscale', icon: Calculator, page: 'SimulatoreFiscale', notifications: 0, permission: 'simulatore_fiscale', category: 'personale' },
-    { title: 'Costo del\nPersonale', icon: Users, page: 'SimulatoreCostoPersonale', notifications: 0, permission: 'simulatore_fiscale', category: 'personale' },
+    { title: 'Simulatore\nFiscale', icon: Calculator, page: 'SimulatoreFiscale', notifications: 0, permission: 'simulatore_fiscale', category: 'strumenti' },
+    { title: 'Costo del\nPersonale', icon: Users, page: 'SimulatoreCostoPersonale', notifications: 0, permission: 'simulatore_fiscale', category: 'strumenti' },
     { title: isConsultant ? 'Richieste di\nConsulenza' : 'Consulenze', icon: Briefcase, page: 'Consulenze', notifications: consultationNotifications, permission: 'consulenze', bottomBadge: isConsultant ? (pendingConsultationRequests > 0 ? pendingConsultationRequests : null) : (freeConsultationsCount > 0 ? freeConsultationsCount : null), bottomBadgeType: isConsultant ? 'requests' : 'consultations', category: 'relazioni' },
     { title: 'Import /\nExport', icon: Globe, page: 'ImportExport', notifications: 0, permission: 'import_export', category: 'strumenti' },
     { title: 'Risparmio', icon: PiggyBank, page: 'RisparmioEnergetico', notifications: 0, permission: 'risparmio_energetico', category: 'strumenti' },
@@ -541,7 +541,16 @@ export default function Esplora() {
               {activeTab === 'personale' && <span>👤</span>}
               {activeTab}
             </h3>
-            <div className="grid grid-cols-2 gap-4 mb-4">{filteredFeatures.map(renderFeatureCard)}</div>
+            {activeTab === 'personale' && filteredFeatures.length === 0 ? (
+              <div className="text-center py-12">
+                <div className="w-16 h-16 rounded-2xl bg-[#d4af37]/10 flex items-center justify-center mx-auto mb-4">
+                  <span className="text-3xl">👤</span>
+                </div>
+                <p className="text-slate-400 text-sm">Prossimamente</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-4 mb-4">{filteredFeatures.map(renderFeatureCard)}</div>
+            )}
           </>
         ) : (
           <>
@@ -550,7 +559,7 @@ export default function Esplora() {
             <div className="flex items-center gap-2 mb-3 mt-4"><span className="text-lg">🔧</span><h3 className="text-[#d4af37] font-bold text-base tracking-wide">STRUMENTI</h3><div className="flex-1 h-px bg-gradient-to-r from-[#d4af37]/40 to-transparent ml-2"></div></div>
             <div className="grid grid-cols-2 gap-4 mb-6">{features.filter(f => f.category === 'strumenti').map(renderFeatureCard)}</div>
             <div className="flex items-center gap-2 mb-3 mt-4"><span className="text-lg">👤</span><h3 className="text-[#d4af37] font-bold text-base tracking-wide">PERSONALE</h3><div className="flex-1 h-px bg-gradient-to-r from-[#d4af37]/40 to-transparent ml-2"></div></div>
-            <div className="grid grid-cols-2 gap-4 mb-4">{features.filter(f => f.category === 'personale').map(renderFeatureCard)}</div>
+            <div className="text-center py-8"><p className="text-slate-500 text-sm">Prossimamente</p></div>
           </>
         )}
       </main>
