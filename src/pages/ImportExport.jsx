@@ -582,10 +582,21 @@ Fornisci:
           <Link to={createPageUrl('Home')} className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center back-arrow-tap">
             <ArrowLeft className="w-5 h-5 text-white" />
           </Link>
-          <div>
-            <h1 className="text-white text-lg font-bold tracking-tight">Import / Export</h1>
+          <div className="flex-1">
+            <h1 className="text-white text-lg font-bold tracking-tight">Export</h1>
             <p className="text-slate-500 text-xs">Analisi mercati internazionali</p>
           </div>
+          <button
+            onClick={() => setActiveTab(activeTab === 'history' ? 'export' : 'history')}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border transition-all ${
+              activeTab === 'history' 
+                ? 'bg-amber-500/20 border-amber-500/40 text-amber-400' 
+                : 'bg-white/5 border-white/10 text-slate-400 hover:text-white'
+            }`}
+          >
+            <Clock className="w-4 h-4" />
+            <span className="text-xs font-medium">Storico</span>
+          </button>
         </div>
 
         {/* Mappa Stati */}
