@@ -1,0 +1,416 @@
+import React, { useState } from 'react';
+import { base44 } from '@/api/base44Client';
+import { TrendingUp, Loader2, CheckCircle, AlertTriangle, DollarSign, Package, MapPin, X, BarChart3, Clock } from 'lucide-react';
+import { useAILimits } from '@/components/hooks/useAILimits';
+import LimitReachedBanner from '@/components/common/LimitReachedBanner';
+import UsageCounter from '@/components/common/UsageCounter';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import SectionConsultantPanel from '../consulenze/SectionConsultantPanel';
+import HSCodeClassifier from './HSCodeClassifier';
+import { fetchTradeData, computeMetrics, interpretData, fetchMacroData, enrichMetricsWithDemand } from './ExportDataFetcher';
+import { fetchPriceData, computePriceMetrics, interpretPriceData } from './PriceMarginFetcher';
+import { ALL_COUNTRIES } from './CountrySearchSelect';
+import CountryInfoCard from './CountryInfoCard';
+import ExportComparisonRanking from './ExportComparisonRanking';
+import PriceMarginSection from './PriceMarginCard';
+import MarketSummaryCard from './MarketSummaryCard';
+import ExportAnalysisResult from './ExportAnalysisResult';
+import ExportContactCard from './ExportContactCard';
+import { buildExportSummary } from './buildAnalysisSummary';
+
+const SETTORI = [
+  'Alimentare e bevande', 'Moda e tessile', 'Arredamento e design',
+  'Meccanica e automazione', 'Cosmetica e cura persona', 'Tecnologia e elettronica',
+  'Automotive e componentistica', 'Farmaceutico e medicale', 'Agricoltura e agroalimentare', 'Altro'
+];
+
+export default function ExportSection({ user, exportManagers, selectedMapCountry, setSelectedMapCountry, onMapInteraction }) {
+  const [exportForm, setExportForm] = useState({
+    settore: '', prodotto: '', capacita_produttiva: '',
+    posizionamento: '', certificazioni: '', business_model: '', canale_preferito: ''
+  });
+  const [showHSClassifier, setShowHSClassifier] = useState(false);
+  const [exportValidationErrors, setExportValidationErrors] = useState({});
+  const [analyzing, setAnalyzing] = useState(false);
+  const [exportStep, setExportStep] = useState('');
+  const [analysisResult, setAnalysisResult] = useState(null);
+  const [tradeData, setTradeData] = useState(null);
+  const [tradeMetrics, setTradeMetrics] = useState(null);
+  const [confirmedExportHS, setConfirmedExportHS] = useState(null);
+  const [periodoAnalisi] = useState('5');
+  const [macroData, setMacroData] = useState({});
+  const [priceMetrics, setPriceMetrics] = useState(null);
+  const [priceInterpretation, setPriceInterpretation] = useState(null);
+  const [priceStep, setPriceStep] = useState('');
+  const [userPriceData, setUserPriceData] = useState({ prezzo_vendita: '', costo_produzione: '', unita: '', costo_logistica: '', commissioni: '', dazi: '' });
+  const [contactForm, setContactForm] = useState({ subject: '', message: '', exportManagerId: '', attachments: [] });
+  const [uploadingAttachment, setUploadingAttachment] = useState(false);
+  const [contactSent, setContactSent] = useState(false);
+  const queryClient = useQueryClient();
+
+  const { usageCount: exportUsage, limit: exportLimit, isLimitReached: exportLimitReached, trackUsage: trackExportUsage } = useAILimits(user?.email, 'export_analysis');
+
+  const handleAttachmentUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploadingAttachment(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setContactForm(prev => ({ ...prev, attachments: [...prev.attachments, { name: file.name, url: file_url }] }));
+    } catch (err) { console.error('Errore upload:', err); }
+    finally { setUploadingAttachment(false); e.target.value = ''; }
+  };
+
+  const removeAttachment = (index) => {
+    setContactForm(prev => ({ ...prev, attachments: prev.attachments.filter((_, i) => i !== index) }));
+  };
+
+  const sendContactMutation = useMutation({
+    mutationFn: async () => {
+      const exportManager = exportManagers.find(e => e.id === contactForm.exportManagerId);
+      if (!exportManager) throw new Error('Seleziona un Export Manager');
+      const analysisSummary = (confirmedExportHS || tradeData || tradeMetrics || analysisResult)
+        ? '\n\n' + buildExportSummary({ confirmedHS: confirmedExportHS, tradeData, tradeMetrics, analysisResult, exportForm, MERCATI_TARGET: ALL_COUNTRIES })
+        : '';
+      await base44.entities.Message.create({
+        from_email: user.email, to_email: exportManager.email,
+        content: `**Richiesta consulenza Export**\n\nOggetto: ${contactForm.subject}\n\n${contactForm.message}${analysisSummary}\n\n---\nInviato da: ${user.company_name || user.full_name}\nEmail: ${user.email}`,
+        source: 'import_export', source_reference: 'Export',
+        attachments: contactForm.attachments.map(a => ({ url: a.url, name: a.name, type: 'document' }))
+      });
+      await base44.integrations.Core.SendEmail({ to: exportManager.email, subject: `Nuova richiesta consulenza Export: ${contactForm.subject}`, body: `Hai ricevuto una nuova richiesta di consulenza export.\n\nDa: ${user.company_name || user.full_name}\nEmail: ${user.email}\n\nOggetto: ${contactForm.subject}\n\n${contactForm.message}\n\nAccedi all'app per rispondere.` });
+      await base44.entities.Notification.create({ user_email: exportManager.email, type: 'consultation', title: 'Nuova richiesta consulenza Export', content: `${user.company_name || user.full_name} richiede consulenza export: ${contactForm.subject}` });
+    },
+    onSuccess: () => {
+      setContactSent(true);
+      setContactForm({ subject: '', message: '', exportManagerId: '', attachments: [] });
+      queryClient.invalidateQueries({ queryKey: ['import-unread-count'] });
+    }
+  });
+
+  const handleExportHSConfirm = (hsData) => {
+    setConfirmedExportHS(hsData);
+    analyzeExportPotential(hsData);
+  };
+
+  const analyzeExportPotential = async (hsData) => {
+    const mercatiInteresse = selectedMapCountry ? [selectedMapCountry.iso_a2] : (user?.export_mercati_target || []);
+    const exporterCountry = user?.export_paese_esportatore || 'IT';
+    if (!exportForm.settore || !exportForm.prodotto || mercatiInteresse.length === 0) return;
+    if (!hsData || exportLimitReached) return;
+
+    setAnalyzing(true); setTradeData(null); setTradeMetrics(null); setAnalysisResult(null); setMacroData({});
+    const mercatiNames = mercatiInteresse.map(code => { if (code === 'WLD') return 'World'; const c = ALL_COUNTRIES.find(c => c.code === code); return c ? c.name : code; });
+
+    try {
+      await trackExportUsage({ search_label: `${exportForm.prodotto} → ${mercatiNames.slice(0, 3).join(', ')}`, search_meta: { prodotto: exportForm.prodotto, settore: exportForm.settore, hs_code: hsData.hs_code, mercati: mercatiNames } });
+      setExportStep('fetching');
+      const [rawData, macro] = await Promise.all([ fetchTradeData(hsData.hs_code, mercatiInteresse, mercatiNames, exporterCountry, parseInt(periodoAnalisi)), fetchMacroData(mercatiInteresse) ]);
+      if (rawData?._api_error) { setTradeData(rawData); setAnalysisResult({ _api_error: true }); return; }
+      setTradeData(rawData); setMacroData(macro || {});
+
+      setExportStep('computing');
+      const metricsRaw = computeMetrics(rawData);
+      if (metricsRaw?._api_error) { setTradeMetrics(metricsRaw); setAnalysisResult({ _api_error: true }); return; }
+      const metrics = enrichMetricsWithDemand(metricsRaw, macro || {});
+      setTradeMetrics(metrics);
+
+      setExportStep('interpreting');
+      const interpretation = await interpretData(rawData, metrics, hsData.hs_code, hsData.descrizione_ufficiale, {
+        settore: exportForm.settore, prodotto: exportForm.prodotto, descrizione: '',
+        fatturato_annuo: user?.export_fatturato_annuo || '', esperienza_export: user?.export_esperienza || '',
+        certificazioni: exportForm.certificazioni || user?.export_certificazioni || '',
+        capacita_produttiva: exportForm.capacita_produttiva, posizionamento: exportForm.posizionamento,
+        business_model: exportForm.business_model, canale_preferito: exportForm.canale_preferito
+      }, macro || {});
+      if (interpretation?._api_error) { setAnalysisResult({ _api_error: true }); return; }
+      setAnalysisResult(interpretation);
+
+      setPriceStep('fetching');
+      const priceRaw = await fetchPriceData(hsData.hs_code, mercatiInteresse, mercatiNames, exporterCountry, parseInt(periodoAnalisi));
+      if (priceRaw?._api_error) { setPriceMetrics(null); setPriceStep(''); }
+      else {
+        setPriceStep('computing');
+        const pMetrics = computePriceMetrics(priceRaw);
+        setPriceMetrics(pMetrics);
+        if (pMetrics && !pMetrics._api_error) {
+          setPriceStep('interpreting');
+          const pInterp = await interpretPriceData(pMetrics, hsData.hs_code, hsData.descrizione_ufficiale, { settore: exportForm.settore, prodotto: exportForm.prodotto, fatturato_annuo: user?.export_fatturato_annuo || '' });
+          setPriceInterpretation(pInterp);
+        }
+        setPriceStep('');
+      }
+    } catch (e) { console.error('[Export] Errore analisi:', e); setAnalysisResult({ _api_error: true }); }
+    finally { setAnalyzing(false); setExportStep(''); setPriceStep(''); }
+  };
+
+  const resetAnalysis = () => {
+    setAnalysisResult(null); setConfirmedExportHS(null); setTradeData(null); setTradeMetrics(null);
+    setMacroData({}); setPriceMetrics(null); setPriceInterpretation(null); setPriceStep('');
+    setUserPriceData({ prezzo_vendita: '', costo_produzione: '', unita: '', costo_logistica: '', commissioni: '', dazi: '' });
+    setExportForm({ settore: '', prodotto: '', capacita_produttiva: '', posizionamento: '', certificazioni: '', business_model: '', canale_preferito: '' });
+    setSelectedMapCountry(null); setShowHSClassifier(false); setExportValidationErrors({});
+  };
+
+  return (
+    <>
+      {/* Usage Counter */}
+      {!analysisResult && !exportLimitReached && user && (
+        <div className="mb-3"><UsageCounter usageCount={exportUsage} limit={exportLimit} label="Analisi export disponibili questa settimana" /></div>
+      )}
+      {!analysisResult && exportLimitReached && (
+        <div className="mb-3"><LimitReachedBanner actionType="export_analysis" usageCount={exportUsage} limit={exportLimit} isWeekly={true} /></div>
+      )}
+
+      {/* Ricerca rapida export */}
+      {!analysisResult && (
+        <div className="mb-5 space-y-3">
+          <p className="text-white font-semibold text-sm">Cosa vuoi esportare?</p>
+          <div>
+            <Input placeholder="Es. Olio d'oliva, macchine tessili, vino..." value={exportForm.prodotto}
+              onChange={(e) => { setExportForm({ ...exportForm, prodotto: e.target.value }); setExportValidationErrors(prev => ({ ...prev, prodotto: '' })); }}
+              className={`bg-slate-800/60 text-white h-11 rounded-xl placeholder:text-slate-500 ${exportValidationErrors.prodotto ? 'border-red-500 border-2' : 'border-white/10'}`} />
+            {exportValidationErrors.prodotto && <p className="text-red-400 text-xs mt-1">{exportValidationErrors.prodotto}</p>}
+          </div>
+          <p className="text-white font-semibold text-sm">Indica dove</p>
+        </div>
+      )}
+
+      {/* Settore chips */}
+      {!analysisResult && (
+        <div className="mt-4 mb-2">
+          <div className="flex items-center gap-2 mb-2">
+            <p className="text-white font-semibold text-sm">Settore *</p>
+            {exportValidationErrors.settore && <p className="text-red-400 text-xs">{exportValidationErrors.settore}</p>}
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {SETTORI.map((s) => (
+              <button key={s} onClick={() => { setExportForm({ ...exportForm, settore: exportForm.settore === s ? '' : s }); setExportValidationErrors(prev => ({ ...prev, settore: '' })); }}
+                className={`px-3 py-2 rounded-xl text-xs font-medium transition-all border text-center ${exportForm.settore === s ? 'bg-lime-400 text-slate-900 border-lime-400 shadow-lg shadow-lime-400/20' : 'bg-slate-800/60 text-slate-400 border-white/10 hover:border-white/20 hover:text-white'}`}>
+                {s}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Pannello Consulenti */}
+      {user && <div className="mb-6"><SectionConsultantPanel sectionId="import_export" sectionLabel="Import / Export" user={user} /></div>}
+
+      {!analysisResult ? (
+        exportLimitReached ? (
+          <div className="space-y-4">
+            <Card className="bg-slate-800/60 border-white/5 backdrop-blur-sm">
+              <CardContent className="p-5 text-center">
+                <p className="text-slate-400 text-sm">Le analisi si ricaricheranno la prossima settimana. Puoi comunque contattare i nostri consulenti export per assistenza personalizzata.</p>
+              </CardContent>
+            </Card>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {selectedMapCountry && (
+              <div className="flex items-center gap-3 bg-cyan-500/10 border border-cyan-500/20 rounded-xl px-4 py-3">
+                <MapPin className="w-5 h-5 text-cyan-400 flex-shrink-0" />
+                <div className="flex-1">
+                  <p className="text-cyan-400 text-[10px] font-semibold uppercase tracking-wider">Mercato selezionato</p>
+                  <p className="text-white font-bold text-sm">{selectedMapCountry.name}</p>
+                </div>
+                <button onClick={() => setSelectedMapCountry(null)} className="text-slate-500 hover:text-white"><X className="w-4 h-4" /></button>
+              </div>
+            )}
+
+            <div>
+              <label className="text-slate-400 text-xs font-medium mb-1.5 block">Capacità produttiva per export</label>
+              <Input placeholder="Es. 30% della produzione, 1000 unità/mese" value={exportForm.capacita_produttiva}
+                onChange={(e) => setExportForm({ ...exportForm, capacita_produttiva: e.target.value })}
+                className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl" />
+            </div>
+
+            <div>
+              <label className="text-slate-400 text-xs font-medium mb-1.5 block">Posizionamento di prezzo</label>
+              <div className="grid grid-cols-4 gap-2">
+                {['Entry Level', 'Mid-range', 'Premium', 'Luxury'].map(p => (
+                  <button key={p} onClick={() => setExportForm({ ...exportForm, posizionamento: exportForm.posizionamento === p ? '' : p })}
+                    className={`px-2 py-2 rounded-xl text-[11px] font-medium transition-all border text-center ${exportForm.posizionamento === p ? 'bg-lime-400 text-slate-900 border-lime-400 shadow-lg shadow-lime-400/20' : 'bg-slate-800/60 text-slate-400 border-white/10 hover:border-white/20 hover:text-white'}`}>{p}</button>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-slate-400 text-xs font-medium mb-1.5 block">Business Model</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {['B2B', 'B2C'].map(bm => (
+                    <button key={bm} onClick={() => setExportForm({ ...exportForm, business_model: exportForm.business_model === bm ? '' : bm })}
+                      className={`px-2 py-2 rounded-xl text-xs font-bold transition-all border text-center ${exportForm.business_model === bm ? 'bg-lime-400 text-slate-900 border-lime-400' : 'bg-slate-800/60 text-slate-400 border-white/10 hover:text-white'}`}>{bm}</button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="text-slate-400 text-xs font-medium mb-1.5 block">Canale preferito</label>
+                <Select value={exportForm.canale_preferito} onValueChange={(v) => setExportForm({ ...exportForm, canale_preferito: v })}>
+                  <SelectTrigger className="bg-slate-800/60 border-white/10 text-white h-10 rounded-xl text-xs"><SelectValue placeholder="Seleziona" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Online">Online / Marketplace</SelectItem>
+                    <SelectItem value="Distributore">Distributore / Agente</SelectItem>
+                    <SelectItem value="Retail">Retail fisico / GDO</SelectItem>
+                    <SelectItem value="Diretto">Export diretto</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div>
+              <label className="text-slate-400 text-xs font-medium mb-1.5 block">Certificazioni possedute</label>
+              <Input placeholder="Es. CE, ISO 9001, BIO, FDA, HACCP..." value={exportForm.certificazioni}
+                onChange={(e) => setExportForm({ ...exportForm, certificazioni: e.target.value })}
+                className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl placeholder:text-slate-500" />
+            </div>
+
+            {!exportLimitReached && !analyzing && !confirmedExportHS && !showHSClassifier && (
+              <Button onClick={() => {
+                const errors = {};
+                if (!exportForm.prodotto?.trim()) errors.prodotto = 'Inserisci il prodotto da esportare';
+                if (!exportForm.settore) errors.settore = 'Seleziona un settore';
+                if (!selectedMapCountry && (user?.export_mercati_target || []).length === 0) errors.mercato = true;
+                setExportValidationErrors(errors);
+                if (Object.keys(errors).length > 0) return;
+                setShowHSClassifier(true);
+              }} className="w-full bg-gradient-to-r from-lime-400 to-emerald-500 text-slate-900 font-bold h-12 rounded-xl shadow-lg shadow-lime-400/20 hover:shadow-lime-400/30">
+                <TrendingUp className="w-5 h-5 mr-2" /> Avvia Analisi Export
+              </Button>
+            )}
+
+            {exportValidationErrors.mercato && (
+              <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-3">
+                <p className="text-red-400 text-xs font-medium">Seleziona un paese dalla mappa oppure imposta i mercati target nel tuo profilo.</p>
+                <Link to={createPageUrl('MyProfile')} className="text-lime-400 text-xs hover:underline mt-1 inline-block">Vai al profilo →</Link>
+              </div>
+            )}
+
+            {showHSClassifier && !analyzing && !confirmedExportHS && (
+              <HSCodeClassifier productDescription={`${exportForm.prodotto} (Settore: ${exportForm.settore})`} onConfirm={handleExportHSConfirm} onError={() => {}} autoStart={true} />
+            )}
+
+            {confirmedExportHS && !analyzing && !analysisResult && (
+              <Card className="bg-slate-800 border-slate-700">
+                <CardContent className="p-4">
+                  <h3 className="text-white font-semibold mb-3 flex items-center gap-2"><DollarSign className="w-5 h-5 text-lime-400" /> Prezzo e Costo (opzionale)</h3>
+                  <p className="text-slate-400 text-xs mb-3">Per calcolare il Margine Lordo %. L'unità di misura è libera.</p>
+                  <div className="space-y-3">
+                    <div><label className="text-slate-400 text-sm mb-1 block">Unità di misura</label><Input placeholder="Es. pezzo, kg, litro, metro..." value={userPriceData.unita} onChange={(e) => setUserPriceData({ ...userPriceData, unita: e.target.value })} className="bg-slate-900 border-slate-700 text-white" /></div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div><label className="text-slate-400 text-sm mb-1 block">Prezzo di vendita (€)</label><Input type="number" step="0.01" min="0" placeholder="Es. 25.00" value={userPriceData.prezzo_vendita} onChange={(e) => setUserPriceData({ ...userPriceData, prezzo_vendita: e.target.value })} className="bg-slate-900 border-slate-700 text-white" /></div>
+                      <div><label className="text-slate-400 text-sm mb-1 block">Costo produzione (€)</label><Input type="number" step="0.01" min="0" placeholder="Es. 12.50" value={userPriceData.costo_produzione} onChange={(e) => setUserPriceData({ ...userPriceData, costo_produzione: e.target.value })} className="bg-slate-900 border-slate-700 text-white" /></div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-3">
+                      <div><label className="text-slate-400 text-sm mb-1 block">Logistica (€)</label><Input type="number" step="0.01" min="0" placeholder="0.00" value={userPriceData.costo_logistica} onChange={(e) => setUserPriceData({ ...userPriceData, costo_logistica: e.target.value })} className="bg-slate-900 border-slate-700 text-white" /></div>
+                      <div><label className="text-slate-400 text-sm mb-1 block">Commissioni (€)</label><Input type="number" step="0.01" min="0" placeholder="0.00" value={userPriceData.commissioni} onChange={(e) => setUserPriceData({ ...userPriceData, commissioni: e.target.value })} className="bg-slate-900 border-slate-700 text-white" /></div>
+                      <div><label className="text-slate-400 text-sm mb-1 block">Dazi (€)</label><Input type="number" step="0.01" min="0" placeholder="0.00" value={userPriceData.dazi} onChange={(e) => setUserPriceData({ ...userPriceData, dazi: e.target.value })} className="bg-slate-900 border-slate-700 text-white" /></div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {analyzing && (
+              <Card className="bg-slate-800/60 border-white/5 backdrop-blur-sm shadow-2xl">
+                <CardContent className="p-5">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-lime-400/10 flex items-center justify-center"><Loader2 className="w-5 h-5 animate-spin text-lime-400" /></div>
+                      <div><p className="text-white font-bold text-sm">Analisi in corso</p><p className="text-slate-500 text-xs">Recupero e analisi dati reali</p></div>
+                    </div>
+                    <div className="space-y-2">
+                      {['fetching', 'computing', 'interpreting'].map((step, i) => {
+                        const labels = { fetching: 'Recupero dati ufficiali', computing: 'Calcolo metriche', interpreting: 'Elaborazione analisi' };
+                        const isActive = exportStep === step;
+                        const isDone = ['fetching', 'computing', 'interpreting'].indexOf(exportStep) > i;
+                        return (<div key={step} className={`flex items-center gap-2 text-xs px-3 py-1.5 rounded-lg ${isActive ? 'bg-lime-400/10 text-lime-400' : isDone ? 'bg-green-500/10 text-green-400' : 'text-slate-500'}`}>
+                          {isActive ? <Loader2 className="w-3 h-3 animate-spin" /> : isDone ? <CheckCircle className="w-3 h-3" /> : <span className="w-3 h-3 rounded-full border border-slate-600 block" />}{labels[step]}
+                        </div>);
+                      })}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        )
+      ) : analysisResult?._api_error ? (
+        <div className="space-y-4">
+          <Card className="bg-red-500/15 border-red-500/40"><CardContent className="p-6 text-center"><AlertTriangle className="w-10 h-10 text-red-400 mx-auto mb-3" /><h3 className="text-red-400 font-bold text-lg mb-2">Dati temporaneamente non disponibili dal database ufficiale.</h3><p className="text-slate-400 text-sm">Non è possibile completare l'analisi. Riprova tra qualche minuto.</p></CardContent></Card>
+          <Button onClick={resetAnalysis} variant="outline" className="w-full border-slate-600 text-slate-400 hover:bg-slate-800">Riprova</Button>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {confirmedExportHS && (
+            <div className="flex items-center gap-3 bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-3">
+              <div className="w-9 h-9 rounded-lg bg-amber-500/20 flex items-center justify-center"><Package className="w-4 h-4 text-amber-400" /></div>
+              <div className="flex-1 min-w-0">
+                <p className="text-amber-400 text-[10px] font-semibold uppercase tracking-wider">Codice HS</p>
+                <p className="text-white font-mono font-bold text-sm">{confirmedExportHS.hs_code}</p>
+                <p className="text-slate-400 text-[10px] truncate">{confirmedExportHS.descrizione_ufficiale}</p>
+              </div>
+            </div>
+          )}
+
+          {tradeMetrics?.anomalie_presenti && (
+            <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4">
+              <h3 className="text-yellow-400 font-semibold mb-2 flex items-center gap-2 text-xs"><AlertTriangle className="w-4 h-4" /> Anomalie nel dataset</h3>
+              <ul className="text-yellow-200/80 text-xs space-y-1">{tradeMetrics.anomalie.map((a, i) => <li key={i}>• {a}</li>)}</ul>
+            </div>
+          )}
+
+          <ExportAnalysisResult analysisResult={analysisResult} tradeMetrics={tradeMetrics} macroData={macroData} confirmedExportHS={confirmedExportHS} tradeData={tradeData} />
+
+          {tradeMetrics?.metriche?.length > 1 && analysisResult?.mercati_analisi && (
+            <ExportComparisonRanking metriche={tradeMetrics.metriche} macroData={macroData} mercatiAnalisi={analysisResult.mercati_analisi} />
+          )}
+
+          {tradeMetrics?.metriche?.length > 0 && (
+            <div className="space-y-2">{tradeMetrics.metriche.map(m => (
+              <CountryInfoCard key={m.paese_code} countryCode={m.paese_code} countryName={m.paese_nome} macroData={macroData?.[m.paese_code]} metrics={m} isCompact={tradeMetrics.metriche.length > 3} />
+            ))}</div>
+          )}
+
+          {priceStep && (
+            <Card className="bg-slate-800 border-slate-700"><CardContent className="p-4"><div className="space-y-3">
+              <div className="flex items-center gap-3"><Loader2 className="w-5 h-5 animate-spin text-indigo-400" /><p className="text-white font-semibold text-sm">Analisi Prezzo & Marginalità...</p></div>
+              <div className="space-y-2">{['fetching', 'computing', 'interpreting'].map((step, i) => {
+                const labels = { fetching: '1. Recupero prezzi unitari da UN Comtrade...', computing: '2. Calcolo premium/discount e trend...', interpreting: '3. Interpretazione strategica AI...' };
+                const isActive = priceStep === step; const isDone = ['fetching', 'computing', 'interpreting'].indexOf(priceStep) > i;
+                return (<div key={step} className={`flex items-center gap-2 text-xs px-3 py-1.5 rounded-lg ${isActive ? 'bg-indigo-400/10 text-indigo-400' : isDone ? 'bg-green-500/10 text-green-400' : 'text-slate-500'}`}>
+                  {isActive ? <Loader2 className="w-3 h-3 animate-spin" /> : isDone ? <CheckCircle className="w-3 h-3" /> : <span className="w-3 h-3 rounded-full border border-slate-600 block" />}{labels[step]}
+                </div>);
+              })}</div>
+            </div></CardContent></Card>
+          )}
+
+          {!priceStep && priceMetrics && (<>
+            {priceMetrics.metriche?.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="text-white font-bold text-sm flex items-center gap-2 px-1"><BarChart3 className="w-4 h-4 text-indigo-400" /> Riepilogo per mercato</h3>
+                {priceMetrics.metriche.map(pm => {
+                  const tm = tradeMetrics?.metriche?.find(t => t.paese_code === pm.paese_code);
+                  return (<MarketSummaryCard key={pm.paese_code} priceM={pm} tradeM={tm} macro={macroData?.[pm.paese_code]} userPriceData={userPriceData}
+                    dataSourceInfo={{ periodo: tradeData?._query_log?.periodo, annoCambio: priceMetrics?.tasso_cambio?.anno || tradeMetrics?.tasso_cambio?.anno, dataRecupero: tradeData?._timestamp_recupero }} />);
+                })}
+              </div>
+            )}
+            <PriceMarginSection priceMetrics={priceMetrics} interpretation={priceInterpretation} userPriceData={userPriceData} />
+          </>)}
+
+          <ExportContactCard contactForm={contactForm} setContactForm={setContactForm} contactSent={contactSent} setContactSent={setContactSent} sendContactMutation={sendContactMutation} uploadingAttachment={uploadingAttachment} handleAttachmentUpload={handleAttachmentUpload} removeAttachment={removeAttachment} exportManagers={exportManagers} />
+          <Button onClick={resetAnalysis} variant="outline" className="w-full border-slate-600 text-slate-400 hover:bg-slate-800">Nuova Analisi</Button>
+        </div>
+      )}
+    </>
+  );
+}
