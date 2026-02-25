@@ -700,11 +700,34 @@ STRUTTURA OBBLIGATORIA DELL'OUTPUT (9 sezioni):
    - I dati top_fornitori (Paesi esportatori) sono GIÀ forniti sotto — usali come base per il competitive mapping dei Paesi fornitori concorrenti.
    - Usa i dati Comtrade forniti + conoscenza del settore per il posizionamento.
 
-4️⃣ REQUISITI NORMATIVI — Per ogni Paese:
-   - Certificazioni obbligatorie
-   - Tempi medi ottenimento autorizzazioni (se noti)
-   - Costi ufficiali (se pubblici)
-   Se non disponibili → dichiararlo.
+4️⃣ REQUISITI NORMATIVI (Regulatory Compliance & Market Access Specialist) — Per ogni Paese:
+   Agisci come Agente di Trade Compliance specializzato in barriere tecniche (TBT), misure sanitarie (SPS) e procedure doganali.
+   
+   PROTOCOLLO OBBLIGATORIO:
+   a) TARIFFS & TAXES:
+      - Dazio MFN e preferenziale (da Access2Markets / MacMap / dati già forniti)
+      - IVA/GST/tasse interne nazionali con aliquota %
+      - Fonte API/URL per ogni dato
+   
+   b) PRODUCT COMPLIANCE:
+      - Certificazioni obbligatorie per il prodotto HS ${hsCode} nel Paese Target
+      - Standard tecnici (ISO, EN, norme nazionali)
+      - Requisiti di etichettatura (lingua, contenuto obbligatorio, normativa)
+      - Fonte: WTO ePing / portali nazionali (FDA, CEN/CENELEC, ecc.)
+   
+   c) CUSTOMS & LOGISTICS DOCUMENTATION:
+      - Documenti doganali richiesti (certificato origine, fattura commerciale, packing list, ecc.)
+      - Licenze di importazione: Required / Not Required
+      - Regolamenti packaging (materiali ammessi, fitosanitari per legno, ISPM-15, ecc.)
+   
+   d) COMPLIANCE ALERTS:
+      - Misure SPS attive (sanitarie/fitosanitarie)
+      - Notifiche TBT (barriere tecniche al commercio)
+   
+   INTEGRITY CONSTRAINTS:
+   - NON inventare requisiti normativi. Se dato non verificabile, scrivi "Informazione da verificare con broker doganale".
+   - Ogni requisito deve citare la fonte ufficiale (URL o ente).
+   - Converti i termini tecnici in istruzioni chiare per l'utente.
 
 5️⃣ ANALISI LOGISTICA — Per ogni Paese:
    - Incoterms consigliati
