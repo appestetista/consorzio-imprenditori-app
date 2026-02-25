@@ -197,6 +197,7 @@ export default function WorldMapExplorer() {
   const [countryData, setCountryData] = useState(null);
   const [loadingData, setLoadingData] = useState(false);
   const [hoveredName, setHoveredName] = useState('');
+  const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
 
   // Drag state
   const isDragging = useRef(false);
@@ -447,11 +448,14 @@ Rispondi in italiano.`,
       }
       
       if (mesh !== selectedMeshRef.current) {
-        mesh.material.color.setHex(0x4a9fd4);
-        mesh.material.opacity = 0.4;
+        mesh.material.color.setHex(0x3b82f6);
+        mesh.material.opacity = 0.5;
       }
       hoveredRef.current = mesh;
       setHoveredName(name);
+      // Posizione tooltip relativa al container
+      const containerRect = container.getBoundingClientRect();
+      setTooltipPos({ x: pos.px - containerRect.left, y: pos.py - containerRect.top });
       container.style.cursor = 'pointer';
     } else {
       if (hoveredRef.current && hoveredRef.current !== selectedMeshRef.current) {
@@ -615,9 +619,12 @@ Rispondi in italiano.`,
           </div>
         )}
 
-        {/* Tooltip hover */}
+        {/* Tooltip hover - segue il puntatore */}
         {hoveredName && !selectedCountry && (
-          <div className="absolute top-3 left-1/2 -translate-x-1/2 z-10 bg-slate-800/90 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-lg pointer-events-none">
+          <div
+            className="absolute z-10 bg-slate-800/90 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-lg pointer-events-none"
+            style={{ left: tooltipPos.x, top: tooltipPos.y - 36, transform: 'translateX(-50%)' }}
+          >
             <span className="text-white text-xs font-semibold">{hoveredName}</span>
           </div>
         )}
