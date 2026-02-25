@@ -5,6 +5,7 @@ import {
   DollarSign, MapPin, AlertTriangle, Calendar, CheckCircle, 
   BarChart3, Package, ExternalLink, ArrowRight 
 } from 'lucide-react';
+import WebEnrichmentCard from './WebEnrichmentCard';
 
 function CollapsibleSection({ title, icon: Icon, iconColor, children, defaultOpen = false }) {
   const [open, setOpen] = useState(defaultOpen);
@@ -587,6 +588,14 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
                 <DataRow label="Rischio credito" value={m.rischio_paese.rischio_credito} />
               </CollapsibleSection>
             )}
+
+            {/* Web Intelligence (Access2Markets, Trade Map, ICE) */}
+            {(() => {
+              const mercatoTD = tradeData?.mercati?.find(td => td.paese_code === m.paese_code);
+              return mercatoTD?.web_enrichment ? (
+                <WebEnrichmentCard webData={mercatoTD.web_enrichment} countryName={m.paese_nome || m.mercato} />
+              ) : null;
+            })()}
 
             {/* Canali di Ingresso — Go-to-Market */}
             {m.canali_ingresso && (
