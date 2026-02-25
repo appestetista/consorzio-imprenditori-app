@@ -4,7 +4,18 @@ import { base44 } from '@/api/base44Client';
 import * as THREE from 'three';
 import GlobeCountryPanel from './GlobeCountryPanel';
 
-const GEOJSON_URL = 'https://raw.githubusercontent.com/datasets/geo-countries/main/data/countries.geojson';
+// GeoJSON a bassa risoluzione (110m) — solo stati principali, niente isole minuscole
+const GEOJSON_URL = 'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_110m_admin_0_countries.geojson';
+
+// Stati troppo piccoli da escludere (isole, microstati)
+const EXCLUDED_COUNTRIES = new Set([
+  'Antigua and Barbuda', 'Barbados', 'Dominica', 'Grenada', 'Saint Kitts and Nevis',
+  'Saint Lucia', 'Saint Vincent and the Grenadines', 'Trinidad and Tobago',
+  'Comoros', 'Maldives', 'Seychelles', 'Sao Tome and Principe', 'Cape Verde',
+  'Mauritius', 'Kiribati', 'Marshall Islands', 'Micronesia', 'Nauru', 'Palau',
+  'Samoa', 'Tonga', 'Tuvalu', 'Vanuatu', 'Malta', 'Monaco', 'San Marino',
+  'Liechtenstein', 'Andorra', 'Vatican', 'Singapore', 'Bahrain',
+]);
 
 // Converti lat/lng in coordinate 3D sulla sfera
 function latLngToVector3(lat, lng, radius) {
@@ -23,18 +34,28 @@ function createCountryLines(feature, radius) {
   const geom = feature.geometry;
   
   const processRing = (ring) => {
+    // Semplifica: prendi solo 1 punto ogni N per ring molto grandi
+    const step = ring.length > 200 ? 3 : ring.length > 80 ? 2 : 1;
     const points = [];
-    for (let i = 0; i < ring.length; i++) {
+    for (let i = 0; i < ring.length; i += step) {
       points.push(latLngToVector3(ring[i][1], ring[i][0], radius));
+    }
+    // Chiudi il ring
+    if (points.length > 1) {
+      points.push(points[0].clone());
     }
     return points;
   };
 
   if (geom.type === 'Polygon') {
-    geom.coordinates.forEach(ring => coords.push(processRing(ring)));
+    geom.coordinates.forEach(ring => {
+      if (ring.length >= 4) coords.push(processRing(ring));
+    });
   } else if (geom.type === 'MultiPolygon') {
     geom.coordinates.forEach(polygon => {
-      polygon.forEach(ring => coords.push(processRing(ring)));
+      polygon.forEach(ring => {
+        if (ring.length >= 4) coords.push(processRing(ring));
+      });
     });
   }
 
@@ -47,18 +68,20 @@ function createCountryMesh(feature, radius) {
   const meshes = [];
 
   const processRing = (ring) => {
-    // Triangolazione semplice tramite fan dal centroide
-    if (ring.length < 3) return null;
+    if (ring.length < 4) return null;
+    // Semplifica mesh come le linee
+    const step = ring.length > 200 ? 3 : ring.length > 80 ? 2 : 1;
     const vertices = [];
     const indices = [];
     
-    for (let i = 0; i < ring.length; i++) {
+    for (let i = 0; i < ring.length; i += step) {
       const v = latLngToVector3(ring[i][1], ring[i][0], radius * 0.999);
       vertices.push(v.x, v.y, v.z);
     }
     
+    const numVerts = vertices.length / 3;
     // Fan triangulation dal primo punto
-    for (let i = 1; i < ring.length - 1; i++) {
+    for (let i = 1; i < numVerts - 1; i++) {
       indices.push(0, i, i + 1);
     }
     
@@ -221,7 +244,10 @@ Rispondi in italiano.`,
 
       data.features.forEach(feature => {
         const props = feature.properties || {};
-        const name = props.ADMIN || props.name || '';
+        const name = props.ADMIN || props.NAME || props.name || '';
+        
+        // Escludi microstati e isole minuscole
+        if (EXCLUDED_COUNTRIES.has(name)) return;
         
         // Bordi
         const lineGroups = createCountryLines(feature, 1.002);
