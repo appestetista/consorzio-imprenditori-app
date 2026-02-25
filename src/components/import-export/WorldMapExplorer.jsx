@@ -386,8 +386,8 @@ Rispondi in italiano.`,
       container.style.cursor = 'pointer';
     } else {
       if (hoveredRef.current && hoveredRef.current !== selectedMeshRef.current) {
-        hoveredRef.current.material.color.setHex(0x6ee7b7);
-        hoveredRef.current.material.opacity = 0.75;
+        hoveredRef.current.material.color.setHex(0xffffff);
+        hoveredRef.current.material.opacity = 0.9;
       }
       hoveredRef.current = null;
       setHoveredName('');
