@@ -73,11 +73,6 @@ export default function ImportExport() {
   const [exportForm, setExportForm] = useState({
     settore: '',
     prodotto: '',
-    descrizione_prodotto: '',
-    fatturato_annuo: '',
-    esperienza_export: '',
-    mercati_interesse: [],
-    certificazioni: '',
     capacita_produttiva: ''
   });
   const [analyzing, setAnalyzing] = useState(false);
