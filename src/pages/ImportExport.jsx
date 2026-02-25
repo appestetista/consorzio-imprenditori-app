@@ -18,7 +18,7 @@ import ImportMessagesSection from '@/components/import-export/ImportMessagesSect
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import SectionConsultantPanel from '../components/consulenze/SectionConsultantPanel';
 import HSCodeClassifier from '../components/import-export/HSCodeClassifier';
-import { fetchTradeData, computeMetrics, interpretData, fetchMacroData } from '../components/import-export/ExportDataFetcher';
+import { fetchTradeData, computeMetrics, interpretData, fetchMacroData, enrichMetricsWithDemand } from '../components/import-export/ExportDataFetcher';
 import { fetchPriceData, computePriceMetrics, interpretPriceData } from '../components/import-export/PriceMarginFetcher';
 import { ALL_COUNTRIES } from '../components/import-export/CountrySearchSelect';
 import CountryInfoCard from '../components/import-export/CountryInfoCard';
