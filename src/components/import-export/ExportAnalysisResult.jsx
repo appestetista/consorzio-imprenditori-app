@@ -321,17 +321,111 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
               </CollapsibleSection>
             )}
 
-            {/* Requisiti Normativi */}
+            {/* Requisiti Normativi — Regulatory Compliance */}
             {m.requisiti_normativi && (
-              <CollapsibleSection title="Requisiti Normativi" icon={Package} iconColor="text-indigo-400">
+              <CollapsibleSection title="Regulatory Compliance" icon={Package} iconColor="text-indigo-400">
+                {/* Tariffs & Taxes */}
+                {m.requisiti_normativi.regulatory_framework && (
+                  <div className="bg-indigo-500/5 border border-indigo-500/10 rounded-lg p-2.5 mb-3">
+                    <p className="text-indigo-400 text-[10px] font-bold uppercase tracking-wider mb-1.5">Dazi & Imposte</p>
+                    {m.requisiti_normativi.regulatory_framework.import_tariffs && (
+                      <>
+                        <DataRow label="Dazio MFN" value={m.requisiti_normativi.regulatory_framework.import_tariffs.standard_rate} />
+                        <DataRow label="Dazio preferenziale" value={m.requisiti_normativi.regulatory_framework.import_tariffs.preferential_rate} />
+                        {m.requisiti_normativi.regulatory_framework.import_tariffs.source && (
+                          <p className="text-slate-600 text-[9px] mt-1">Fonte: {m.requisiti_normativi.regulatory_framework.import_tariffs.source}</p>
+                        )}
+                      </>
+                    )}
+                    {m.requisiti_normativi.regulatory_framework.internal_taxes && (
+                      <div className="mt-2 pt-2 border-t border-white/5">
+                        <DataRow label={m.requisiti_normativi.regulatory_framework.internal_taxes.tax_type || 'IVA/GST'} value={m.requisiti_normativi.regulatory_framework.internal_taxes.vat_gst} />
+                        {m.requisiti_normativi.regulatory_framework.internal_taxes.other_taxes && m.requisiti_normativi.regulatory_framework.internal_taxes.other_taxes !== 'N/A' && (
+                          <DataRow label="Altre imposte" value={m.requisiti_normativi.regulatory_framework.internal_taxes.other_taxes} />
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Product Compliance */}
+                {m.requisiti_normativi.product_compliance && (
+                  <div className="mb-3">
+                    <p className="text-slate-500 text-[10px] font-bold uppercase tracking-wider mb-1.5">Conformità Prodotto</p>
+                    {m.requisiti_normativi.product_compliance.mandatory_certifications?.length > 0 && (
+                      <div className="mb-2">
+                        <p className="text-slate-500 text-[10px] mb-1">Certificazioni obbligatorie</p>
+                        <div className="flex flex-wrap gap-1">
+                          {m.requisiti_normativi.product_compliance.mandatory_certifications.map((c, i) => (
+                            <span key={i} className="bg-indigo-500/10 text-indigo-300 px-2 py-0.5 rounded-md text-[10px] border border-indigo-500/20">{c}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {m.requisiti_normativi.product_compliance.technical_standards?.length > 0 && (
+                      <div className="mb-2">
+                        <p className="text-slate-500 text-[10px] mb-1">Standard tecnici</p>
+                        <div className="flex flex-wrap gap-1">
+                          {m.requisiti_normativi.product_compliance.technical_standards.map((s, i) => (
+                            <span key={i} className="bg-white/5 text-slate-300 px-2 py-0.5 rounded-md text-[10px]">{s}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {m.requisiti_normativi.product_compliance.labeling_requirements && (
+                      <DataRow label="Etichettatura" value={m.requisiti_normativi.product_compliance.labeling_requirements} />
+                    )}
+                    {m.requisiti_normativi.product_compliance.source && (
+                      <p className="text-slate-600 text-[9px] mt-1">Fonte: {m.requisiti_normativi.product_compliance.source}</p>
+                    )}
+                  </div>
+                )}
+
+                {/* Customs & Logistics Documentation */}
+                {m.requisiti_normativi.customs_logistics && (
+                  <div className="bg-slate-700/30 border border-white/5 rounded-lg p-2.5 mb-3">
+                    <p className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-1.5">Documentazione Doganale</p>
+                    {m.requisiti_normativi.customs_logistics.required_documents?.length > 0 && (
+                      <div className="mb-2">
+                        {m.requisiti_normativi.customs_logistics.required_documents.map((d, i) => (
+                          <div key={i} className="flex items-center gap-1.5 py-0.5">
+                            <span className="w-1 h-1 rounded-full bg-slate-500 flex-shrink-0" />
+                            <span className="text-slate-300 text-[10px]">{d}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <DataRow label="Licenza import" value={m.requisiti_normativi.customs_logistics.import_licenses} warning={m.requisiti_normativi.customs_logistics.import_licenses === 'Required'} />
+                    {m.requisiti_normativi.customs_logistics.packaging_regulations && (
+                      <DataRow label="Packaging" value={m.requisiti_normativi.customs_logistics.packaging_regulations} />
+                    )}
+                  </div>
+                )}
+
+                {/* Compliance Alerts */}
+                {m.requisiti_normativi.compliance_alerts && (m.requisiti_normativi.compliance_alerts.sps_measures || m.requisiti_normativi.compliance_alerts.tbt_notifications) && (
+                  <div className="bg-amber-500/5 border border-amber-500/10 rounded-lg p-2.5 mb-3">
+                    <p className="text-amber-400 text-[10px] font-bold uppercase tracking-wider mb-1.5">⚠ Compliance Alerts</p>
+                    {m.requisiti_normativi.compliance_alerts.sps_measures && (
+                      <DataRow label="Misure SPS" value={m.requisiti_normativi.compliance_alerts.sps_measures} warning />
+                    )}
+                    {m.requisiti_normativi.compliance_alerts.tbt_notifications && (
+                      <DataRow label="Notifiche TBT" value={m.requisiti_normativi.compliance_alerts.tbt_notifications} warning />
+                    )}
+                  </div>
+                )}
+
+                {/* Tempi e Costi */}
                 <DataRow label="Tempi autorizzazioni" value={m.requisiti_normativi.tempi_autorizzazioni} />
                 <DataRow label="Costi" value={m.requisiti_normativi.costi} />
-                {m.requisiti_normativi.certificazioni?.length > 0 && (
-                  <div className="mt-2">
-                    <p className="text-slate-500 text-[10px] mb-1">Certificazioni obbligatorie</p>
-                    <div className="flex flex-wrap gap-1">
-                      {m.requisiti_normativi.certificazioni.map((c, i) => (
-                        <span key={i} className="bg-indigo-500/10 text-indigo-300 px-2 py-0.5 rounded-md text-[10px] border border-indigo-500/20">{c}</span>
+
+                {/* Fonti ufficiali */}
+                {m.requisiti_normativi.official_sources?.length > 0 && (
+                  <div className="mt-2 pt-2 border-t border-white/5">
+                    <p className="text-slate-600 text-[10px] mb-1">Fonti ufficiali:</p>
+                    <div className="space-y-0.5">
+                      {m.requisiti_normativi.official_sources.map((s, i) => (
+                        <p key={i} className="text-slate-500 text-[10px] truncate">{s}</p>
                       ))}
                     </div>
                   </div>
