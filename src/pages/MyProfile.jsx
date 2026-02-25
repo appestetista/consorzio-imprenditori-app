@@ -850,7 +850,12 @@ export default function MyProfile() {
           codice_fiscale: effectiveUser.codice_fiscale || '',
           regione: effectiveUser.regione || '',
           paese: effectiveUser.paese || '',
-          region: effectiveUser.region || ''
+          region: effectiveUser.region || '',
+          export_fatturato_annuo: effectiveUser.export_fatturato_annuo || '',
+          export_esperienza: effectiveUser.export_esperienza || '',
+          export_certificazioni: effectiveUser.export_certificazioni || '',
+          export_paese_esportatore: effectiveUser.export_paese_esportatore || 'IT',
+          export_mercati_target: effectiveUser.export_mercati_target || []
         });
 
         // Se l'utente è un consulente, carica i dati del consulente
