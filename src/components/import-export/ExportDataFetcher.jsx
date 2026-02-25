@@ -674,11 +674,31 @@ STRUTTURA OBBLIGATORIA DELL'OUTPUT (9 sezioni):
    - Trend misurabili con percentuali
    No frasi descrittive senza dati numerici. Ogni valore con [Fonte, Anno].
 
-3️⃣ ANALISI COMPETITIVA — Per ogni Paese:
-   - Top competitor (dai dati top_fornitori)
-   - Quota di mercato dei competitor
-   - Posizionamento Italia
-   - SWOT (Strengths/Weaknesses/Opportunities/Threats)
+3️⃣ ANALISI COMPETITIVA (Competitive Intelligence & Rivalry Analyzer) — Per ogni Paese:
+   Agisci come Analista Strategico specializzato in Competitive Intelligence e Market Entry Strategy.
+   
+   PROTOCOLLO OBBLIGATORIO:
+   a) COMPETITOR MAPPING: Identifica i primi 3-5 player (locali e internazionali) operanti nel Paese Target per la categoria merceologica HS ${hsCode}. Per ognuno definisci:
+      - Nome azienda o "Cluster di competitor" se dato granulare non pubblico
+      - Origine (Local/International)
+      - Posizionamento (Premium / Value / Mass Market)
+      - Value proposition sintetica
+   
+   b) PRICING BENCHMARKING: Rileva i prezzi medi di vendita (retail o wholesale) nel Paese Target per prodotti della stessa categoria HS. Indica range min-max con valuta locale e fonte.
+   
+   c) DISTRIBUTION ANALYSIS: Identifica i principali canali di vendita (e-commerce, GDO, distributori specializzati) e le modalità comuni di accesso al mercato. Stima % online vs offline se possibile.
+   
+   d) DIFFERENTIATION FACTORS: Individua le leve competitive più efficaci (certificazioni qualità, post-vendita, sostenibilità, packaging, prezzo).
+   
+   e) ENTRY BARRIERS: Brand loyalty level (High/Medium/Low), concentrazione mercato (HHI proxy da top_fornitori), certificazioni obbligatorie per competere.
+   
+   f) SWOT dell'azienda nel contesto competitivo specifico del Paese.
+   
+   INTEGRITY CONSTRAINTS:
+   - NON generare nomi di aziende o prezzi fittizi. Se dati granulari non pubblici, descrivi il "Cluster di competitor".
+   - Ogni dato numerico con anno e fonte.
+   - I dati top_fornitori (Paesi esportatori) sono GIÀ forniti sotto — usali come base per il competitive mapping dei Paesi fornitori concorrenti.
+   - Usa i dati Comtrade forniti + conoscenza del settore per il posizionamento.
 
 4️⃣ REQUISITI NORMATIVI — Per ogni Paese:
    - Certificazioni obbligatorie
