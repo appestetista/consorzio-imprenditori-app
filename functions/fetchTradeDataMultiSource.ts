@@ -79,6 +79,25 @@ const ISO2_TO_M49 = {
 // Eurostat country codes (ISO2 → Eurostat partner code)
 const EU_MEMBERS = ['AT','BE','BG','HR','CY','CZ','DK','EE','FI','FR','DE','GR','HU','IE','IT','LV','LT','LU','MT','NL','PL','PT','RO','SK','SI','ES','SE'];
 
+// ISO2 → Country name (English) for LLM web enrichment
+const ISO2_TO_NAME = {
+  AF:'Afghanistan',AL:'Albania',DZ:'Algeria',AO:'Angola',AR:'Argentina',AM:'Armenia',AU:'Australia',AT:'Austria',AZ:'Azerbaijan',
+  BH:'Bahrain',BD:'Bangladesh',BY:'Belarus',BE:'Belgium',BJ:'Benin',BO:'Bolivia',BA:'Bosnia',BW:'Botswana',BR:'Brazil',
+  BN:'Brunei',BG:'Bulgaria',BF:'Burkina Faso',KH:'Cambodia',CM:'Cameroon',CA:'Canada',CL:'Chile',CN:'China',CO:'Colombia',
+  CG:'Congo',CR:'Costa Rica',CI:'Ivory Coast',HR:'Croatia',CU:'Cuba',CY:'Cyprus',CZ:'Czech Republic',DK:'Denmark',DO:'Dominican Republic',
+  EC:'Ecuador',EG:'Egypt',SV:'El Salvador',EE:'Estonia',ET:'Ethiopia',FI:'Finland',FR:'France',GA:'Gabon',GE:'Georgia',
+  DE:'Germany',GH:'Ghana',GR:'Greece',GT:'Guatemala',GN:'Guinea',HN:'Honduras',HK:'Hong Kong',HU:'Hungary',IS:'Iceland',
+  IN:'India',ID:'Indonesia',IR:'Iran',IQ:'Iraq',IE:'Ireland',IL:'Israel',IT:'Italy',JM:'Jamaica',JP:'Japan',
+  JO:'Jordan',KZ:'Kazakhstan',KE:'Kenya',KR:'South Korea',KW:'Kuwait',LV:'Latvia',LB:'Lebanon',LY:'Libya',LT:'Lithuania',
+  LU:'Luxembourg',MO:'Macao',MG:'Madagascar',MY:'Malaysia',ML:'Mali',MT:'Malta',MX:'Mexico',MD:'Moldova',MN:'Mongolia',
+  ME:'Montenegro',MA:'Morocco',MZ:'Mozambique',MM:'Myanmar',NA:'Namibia',NP:'Nepal',NL:'Netherlands',NZ:'New Zealand',NI:'Nicaragua',
+  NE:'Niger',NG:'Nigeria',NO:'Norway',OM:'Oman',PK:'Pakistan',PA:'Panama',PY:'Paraguay',PE:'Peru',PH:'Philippines',
+  PL:'Poland',PT:'Portugal',QA:'Qatar',RO:'Romania',RU:'Russia',RW:'Rwanda',SA:'Saudi Arabia',SN:'Senegal',RS:'Serbia',
+  SG:'Singapore',SK:'Slovakia',SI:'Slovenia',ZA:'South Africa',ES:'Spain',LK:'Sri Lanka',SD:'Sudan',SE:'Sweden',CH:'Switzerland',
+  TW:'Taiwan',TZ:'Tanzania',TH:'Thailand',TN:'Tunisia',TR:'Turkey',UA:'Ukraine',AE:'UAE',GB:'United Kingdom',US:'United States',
+  UY:'Uruguay',UZ:'Uzbekistan',VE:'Venezuela',VN:'Vietnam',ZM:'Zambia',ZW:'Zimbabwe'
+};
+
 // ===== SOURCE 1: OEC (BACI data) =====
 
 async function fetchFromOEC(reporterISO2, partnerISO2, hsCode, flowType, startYear, endYear) {
@@ -822,7 +841,16 @@ Deno.serve(async (req) => {
       }
     } catch (e) { console.log(`[Cache] Save error: ${e.message}`); }
 
-    return { partnerCode, data: merged, from_cache: false, tariffs: tariffData, top_suppliers: topSuppliersData };
+    // Merge tariff data: prefer WTO if available, fallback to WITS
+    let mergedTariffs = tariffData || null;
+    if (wtoTariffData) {
+      mergedTariffs = mergedTariffs || {};
+      if (wtoTariffData.mfn_applied) mergedTariffs.dazio_mfn_wto = wtoTariffData.mfn_applied;
+      if (wtoTariffData.mfn_bound) mergedTariffs.dazio_bound_wto = wtoTariffData.mfn_bound;
+      mergedTariffs.fonte_wto = wtoTariffData.fonte;
+    }
+
+    return { partnerCode, data: merged, from_cache: false, tariffs: mergedTariffs, top_suppliers: topSuppliersData, web_enrichment: llmWebData || null };
   });
 
   const partnerResults = await Promise.allSettled(partnerPromises);
@@ -835,7 +863,8 @@ Deno.serve(async (req) => {
         from_cache: v.from_cache,
         records_count: v.data.length,
         tariffs: v.tariffs,
-        top_suppliers: v.top_suppliers
+        top_suppliers: v.top_suppliers,
+        web_enrichment: v.web_enrichment || null
       };
     } else if (pr.status === 'rejected') {
       errors.push(`Partner error: ${pr.reason}`);
