@@ -73,6 +73,7 @@ export default function ImportExport() {
     capacita_produttiva: ''
   });
   const [selectedMapCountry, setSelectedMapCountry] = useState(null);
+  const [showHSClassifier, setShowHSClassifier] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [exportStep, setExportStep] = useState(''); // '', 'fetching', 'computing', 'interpreting'
   const [analysisResult, setAnalysisResult] = useState(null);
@@ -497,6 +498,8 @@ export default function ImportExport() {
       prodotto: '',
       capacita_produttiva: ''
     });
+    setSelectedMapCountry(null);
+    setShowHSClassifier(false);
   };
 
   return (
@@ -663,13 +666,10 @@ export default function ImportExport() {
                 )}
 
                 {/* Tasto Avvia Analisi */}
-                {exportForm.prodotto && exportForm.settore && (selectedMapCountry || (user?.export_mercati_target || []).length > 0) && !exportLimitReached && !analyzing && !confirmedExportHS && (
+                {exportForm.prodotto && exportForm.settore && (selectedMapCountry || (user?.export_mercati_target || []).length > 0) && !exportLimitReached && !analyzing && !confirmedExportHS && !showHSClassifier && (
                   <Button
-                    onClick={() => {
-                      // Avvia classificazione HS che poi chiama handleExportHSConfirm → analyzeExportPotential
-                    }}
+                    onClick={() => setShowHSClassifier(true)}
                     className="w-full bg-gradient-to-r from-lime-400 to-emerald-500 text-slate-900 font-bold h-12 rounded-xl shadow-lg shadow-lime-400/20 hover:shadow-lime-400/30"
-                    disabled={analyzing}
                   >
                     <TrendingUp className="w-5 h-5 mr-2" />
                     Avvia Analisi Export
@@ -677,7 +677,7 @@ export default function ImportExport() {
                 )}
 
                 {/* Classificazione HS obbligatoria prima dell'analisi */}
-                {exportForm.prodotto && exportForm.settore && (user?.export_mercati_target || []).length > 0 && !exportLimitReached && !analyzing && !confirmedExportHS && (
+                {showHSClassifier && exportForm.prodotto && exportForm.settore && !analyzing && !confirmedExportHS && (
                   <HSCodeClassifier
                     productDescription={`${exportForm.prodotto} (Settore: ${exportForm.settore})`}
                     onConfirm={handleExportHSConfirm}
