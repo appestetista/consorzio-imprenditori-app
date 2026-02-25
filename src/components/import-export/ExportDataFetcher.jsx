@@ -745,6 +745,14 @@ FORMATO: paragrafi brevi e tecnici, nessun linguaggio motivazionale, nessuna nar
               domanda_locale: {
                 type: "object",
                 properties: {
+                  consumo_apparente: { type: "string", description: "Valore C = (P + M) - X con formula, fonte e anno" },
+                  produzione_locale: { type: "string", description: "'Non rilevata' se assente, altrimenti valore con fonte" },
+                  import_value: { type: "string", description: "Valore M (import totale) con fonte e anno" },
+                  export_value: { type: "string", description: "Valore X (export dal paese) con fonte e anno, o N/D" },
+                  dipendenza_import: { type: "string", description: "Alta/Media/Bassa con calcolo M/(M-X) se possibile" },
+                  import_pro_capite: { type: "string", description: "Import / Popolazione con validazione vs PIL pc" },
+                  demand_score: { type: "string", enum: ["Low", "Medium", "High"], description: "Score basato su volume, PIL pc, CAGR" },
+                  validazione_coerenza: { type: "string", description: "Confronto import pc vs PIL pc — coerente o anomalia" },
                   segmentazione: { type: "string", description: "premium/medio/entry level" },
                   volumi_consumo: { type: "string" },
                   canali_distributivi: { type: "array", items: { type: "string" } },
