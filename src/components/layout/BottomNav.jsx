@@ -22,10 +22,10 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
                   ? currentPage === 'Home'
                   : activeTab === item.tab;
               
-              const Wrapper = item.isMenu ? 'button' : Link;
+              const Wrapper = item.isMenu ? 'button' : item.disabled ? 'div' : Link;
               const wrapperProps = item.isMenu 
                 ? { onClick: onMenuOpen } 
-                : { to: createPageUrl(item.page) };
+                : item.disabled ? {} : { to: createPageUrl(item.page) };
               
               return (
                 <Wrapper
