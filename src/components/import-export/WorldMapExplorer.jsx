@@ -541,6 +541,9 @@ Rispondi in italiano.`,
         });
       }
 
+      // Nessun riempimento mesh - solo bordi
+      selectedMeshRef.current = mesh;
+
       // Crea bordi luminosi per lo stato selezionato
       if (geoDataRef.current && globeGroupRef.current) {
         const feature = geoDataRef.current.features.find(f => {
@@ -551,15 +554,13 @@ Rispondi in italiano.`,
           const lineGroups = createCountryLines(feature, 1.004);
           lineGroups.forEach(points => {
             const lineGeom = new THREE.BufferGeometry().setFromPoints(points);
-            const lineMat = new THREE.LineBasicMaterial({ color: 0x00ff88, linewidth: 2 });
+            const lineMat = new THREE.LineBasicMaterial({ color: 0x67e8f9, linewidth: 2 });
             const line = new THREE.Line(lineGeom, lineMat);
             globeGroupRef.current.add(line);
             selectedLinesRef.current.push(line);
           });
         }
       }
-
-      selectedMeshRef.current = mesh;
 
       setSelectedCountry({
         name: countryName,
