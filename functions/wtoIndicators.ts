@@ -1,6 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
-// WTO Timeseries v1 multi-endpoint handler v2
+// WTO Timeseries v1 multi-endpoint handler v3 (fresh deploy)
 Deno.serve(async (req) => {
   const base44 = createClientFromRequest(req);
   const user = await base44.auth.me();
@@ -10,9 +10,8 @@ Deno.serve(async (req) => {
 
   const body = await req.json().catch(() => ({}));
   const endpoint = String(body.endpoint || 'indicators').trim().toLowerCase();
-  const searchTerm = String(body.search || '').trim().toLowerCase();
 
-  console.log('[wtoInd v2] endpoint=' + endpoint + ' body=' + JSON.stringify(body));
+  console.log('[wto v3] ep=' + endpoint);
 
   const apiKey = Deno.env.get('WTO_API_KEY') || '';
   if (!apiKey) {
@@ -20,233 +19,219 @@ Deno.serve(async (req) => {
   }
 
   const BASE = 'https://api.wto.org/timeseries/v1';
-  const H = {
-    'Ocp-Apim-Subscription-Key': apiKey,
-    'Accept': 'application/json'
-  };
+  const HEADERS = { 'Ocp-Apim-Subscription-Key': apiKey, 'Accept': 'application/json' };
 
-  // ========== data_count ==========
-  if (endpoint === 'data_count') {
-    var dc_i = String(body.i || body.indicator_code || '').trim();
-    var dc_r = String(body.r || body.reporter || '').trim();
-    var dc_p = body.p !== undefined ? String(body.p).trim() : '0';
-    var dc_pc = String(body.pc || body.product_code || '').trim();
-    var dc_ps = String(body.ps || body.years || '').trim();
-
-    if (!dc_i) return Response.json({ error: 'i (indicator) required' }, { status: 400 });
-    if (!dc_r) return Response.json({ error: 'r (reporter) required' }, { status: 400 });
-
-    var qp = new URLSearchParams();
-    qp.set('i', dc_i);
-    qp.set('r', dc_r);
-    qp.set('p', dc_p);
-    if (dc_pc) qp.set('pc', dc_pc);
-    if (dc_ps) qp.set('ps', dc_ps);
-
-    var dcUrl = BASE + '/data_count?' + qp.toString();
-    console.log('[wtoInd v2] fetching: ' + dcUrl);
-
-    var dcResp = await fetch(dcUrl, { headers: H, signal: AbortSignal.timeout(20000) });
-    if (!dcResp.ok) {
-      var dcErr = await dcResp.text();
-      return Response.json({ error: 'WTO HTTP ' + dcResp.status, detail: dcErr, url: dcUrl }, { status: dcResp.status });
-    }
-
-    var dcRaw = await dcResp.text();
-    console.log('[wtoInd v2] data_count raw: ' + dcRaw);
-
-    var dcCount = null;
-    try {
-      var dcParsed = JSON.parse(dcRaw);
-      if (typeof dcParsed === 'number') dcCount = dcParsed;
-      else if (dcParsed && typeof dcParsed.count === 'number') dcCount = dcParsed.count;
-      else if (dcParsed && typeof dcParsed.DataCount === 'number') dcCount = dcParsed.DataCount;
-      else dcCount = dcParsed;
-    } catch (_e) {
-      var dcNum = parseInt(dcRaw, 10);
-      dcCount = isNaN(dcNum) ? dcRaw : dcNum;
-    }
-
-    if (dcCount === 0) {
-      return Response.json({
-        success: true,
-        endpoint: 'data_count',
-        data_count: 0,
-        message: 'Nessun dato disponibile WTO',
-        query: { i: dc_i, r: dc_r, p: dc_p, pc: dc_pc, ps: dc_ps }
-      });
-    }
-
-    return Response.json({
-      success: true,
-      endpoint: 'data_count',
-      data_count: dcCount,
-      query: { i: dc_i, r: dc_r, p: dc_p, pc: dc_pc, ps: dc_ps }
-    });
+  // Helper: ensure partner code is 3-digit
+  function fixP(val) {
+    var s = String(val || '000').trim();
+    if (s === '0') return '000';
+    return s;
   }
 
-  // ========== data ==========
+  // ==================== DATA ====================
   if (endpoint === 'data') {
-    var d_i = String(body.i || body.indicator_code || '').trim();
-    var d_r = String(body.r || body.reporter || '').trim();
-    var d_p = body.p !== undefined ? String(body.p).trim() : '000';
-    var d_pc = String(body.pc || body.product_code || '').trim();
-    var d_ps = String(body.ps || body.years || '').trim();
+    var i = String(body.i || '').trim();
+    var r = String(body.r || '').trim();
+    var p = fixP(body.p);
+    var pc = String(body.pc || '').trim();
+    var ps = String(body.ps || '').trim();
 
-    if (!d_i) return Response.json({ error: 'i (indicator) required' }, { status: 400 });
-    if (!d_r) return Response.json({ error: 'r (reporter) required' }, { status: 400 });
+    if (!i) return Response.json({ error: 'i (indicator) required' }, { status: 400 });
+    if (!r) return Response.json({ error: 'r (reporter) required' }, { status: 400 });
 
-    // Ensure p is 3-digit format
-    if (d_p === '0') d_p = '000';
+    var params = new URLSearchParams();
+    params.set('i', i);
+    params.set('r', r);
+    params.set('p', p);
+    if (pc) params.set('pc', pc);
+    if (ps) params.set('ps', ps);
+    params.set('fmt', 'json');
+    params.set('mode', 'full');
+    params.set('dec', '2');
+    params.set('max', '500');
+    params.set('head', 'H');
+    params.set('lang', '1');
 
-    var dqp = new URLSearchParams();
-    dqp.set('i', d_i);
-    dqp.set('r', d_r);
-    dqp.set('p', d_p);
-    if (d_pc) dqp.set('pc', d_pc);
-    if (d_ps) dqp.set('ps', d_ps);
-    dqp.set('fmt', 'json');
-    dqp.set('mode', 'full');
-    dqp.set('dec', '2');
-    dqp.set('max', '500');
-    dqp.set('head', 'H');
-    dqp.set('lang', '1');
+    var url = BASE + '/data?' + params.toString();
+    console.log('[wto v3] GET ' + url);
 
-    var dUrl = BASE + '/data?' + dqp.toString();
-    console.log('[wtoInd v2] data fetch: ' + dUrl);
-
-    var dResp = await fetch(dUrl, { headers: H, signal: AbortSignal.timeout(30000) });
-    if (!dResp.ok) {
-      var dErr = await dResp.text();
-      return Response.json({ error: 'WTO HTTP ' + dResp.status, detail: dErr, url: dUrl }, { status: dResp.status });
+    var resp = await fetch(url, { headers: HEADERS, signal: AbortSignal.timeout(30000) });
+    if (!resp.ok) {
+      var errText = await resp.text();
+      console.log('[wto v3] data error: ' + resp.status + ' ' + errText);
+      return Response.json({ error: 'WTO HTTP ' + resp.status, detail: errText, url: url }, { status: resp.status });
     }
 
-    var dData = await dResp.json();
-    console.log('[wtoInd v2] data records: ' + (Array.isArray(dData) ? dData.length : 'non-array'));
+    var rawData = await resp.json();
+    console.log('[wto v3] data rows: ' + (Array.isArray(rawData) ? rawData.length : typeof rawData));
 
-    if (!Array.isArray(dData) || dData.length === 0) {
+    if (!Array.isArray(rawData) || rawData.length === 0) {
       return Response.json({
-        success: true,
-        endpoint: 'data',
-        records: 0,
-        data: [],
-        metrics: null,
-        message: 'Nessun dato disponibile WTO per questi parametri',
-        query: { i: d_i, r: d_r, p: d_p, pc: d_pc, ps: d_ps }
+        success: true, endpoint: 'data', records: 0, data: [], metrics: null,
+        message: 'Nessun dato disponibile WTO', query: { i: i, r: r, p: p, pc: pc, ps: ps }
       });
     }
 
-    // Parse records and build yearly series
+    // Parse records
     var yearlyMap = {};
-    var records = dData.map(function(rec) {
+    var records = [];
+    for (var ri = 0; ri < rawData.length; ri++) {
+      var rec = rawData[ri];
       var yr = parseInt(rec.Year || rec.year || rec.Period || rec.period, 10);
       var val = parseFloat(rec.Value || rec.value);
       var parsed = {
         year: yr,
         value: isNaN(val) ? null : val,
-        indicator: rec.IndicatorCode || rec.Indicator || d_i,
-        reporter: rec.ReportingEconomyCode || rec.ReportingEconomy || d_r,
-        reporter_name: rec.ReportingEconomy || rec.ReporterName || null,
-        partner: rec.PartnerEconomyCode || rec.PartnerEconomy || d_p,
-        partner_name: rec.PartnerEconomy || rec.PartnerName || null,
-        product_code: rec.ProductOrSectorCode || rec.ProductCode || d_pc,
-        product_name: rec.ProductOrSector || rec.ProductName || null,
-        unit: rec.Unit || rec.UnitCode || null,
-        frequency: rec.FrequencyCode || rec.Frequency || null
+        indicator: rec.IndicatorCode || rec.Indicator || i,
+        reporter_code: rec.ReportingEconomyCode || r,
+        reporter_name: rec.ReportingEconomy || null,
+        partner_code: rec.PartnerEconomyCode || p,
+        partner_name: rec.PartnerEconomy || null,
+        product_code: rec.ProductOrSectorCode || pc,
+        product_name: rec.ProductOrSector || null,
+        unit: rec.Unit || null,
+        frequency: rec.FrequencyCode || null
       };
+      records.push(parsed);
       if (!isNaN(yr) && parsed.value !== null) {
         if (!yearlyMap[yr] || parsed.value > yearlyMap[yr]) {
           yearlyMap[yr] = parsed.value;
         }
       }
-      return parsed;
-    });
+    }
 
-    // Build sorted yearly series
-    var years_sorted = Object.keys(yearlyMap).map(Number).sort(function(a, b) { return a - b; });
-    var serie = years_sorted.map(function(yr) { return { year: yr, value: yearlyMap[yr] }; });
+    // Sorted series
+    var sortedYears = Object.keys(yearlyMap).map(Number).sort(function(a, b) { return a - b; });
+    var serie = sortedYears.map(function(y) { return { year: y, value: yearlyMap[y] }; });
 
-    // === METRICS CALCULATION ===
+    // === METRICS ===
     var metrics = null;
     if (serie.length > 0) {
-      // Import totale: sum of all yearly values
-      var import_totale = serie.reduce(function(s, x) { return s + x.value; }, 0);
+      var total = 0;
+      for (var si = 0; si < serie.length; si++) total += serie[si].value;
 
-      // Latest year value
-      var latest = serie[serie.length - 1];
-
-      // Year-on-year growth
+      // YoY growth
       var yoy = [];
-      for (var idx = 1; idx < serie.length; idx++) {
-        var prev = serie[idx - 1].value;
-        var curr = serie[idx].value;
-        var growth_pct = prev > 0 ? ((curr - prev) / prev * 100) : null;
+      for (var yi = 1; yi < serie.length; yi++) {
+        var prevV = serie[yi - 1].value;
+        var currV = serie[yi].value;
+        var gPct = prevV > 0 ? ((currV - prevV) / prevV * 100) : null;
         yoy.push({
-          from_year: serie[idx - 1].year,
-          to_year: serie[idx].year,
-          from_value: prev,
-          to_value: curr,
-          growth_pct: growth_pct !== null ? parseFloat(growth_pct.toFixed(2)) : null
+          from_year: serie[yi - 1].year,
+          to_year: serie[yi].year,
+          from_value: prevV,
+          to_value: currV,
+          growth_pct: gPct !== null ? parseFloat(gPct.toFixed(2)) : null
         });
       }
 
       // CAGR
       var cagr = null;
       if (serie.length >= 2) {
-        var first_val = serie[0].value;
-        var last_val = serie[serie.length - 1].value;
-        var n_years = serie[serie.length - 1].year - serie[0].year;
-        if (first_val > 0 && n_years > 0) {
-          cagr = parseFloat(((Math.pow(last_val / first_val, 1 / n_years) - 1) * 100).toFixed(2));
+        var fVal = serie[0].value;
+        var lVal = serie[serie.length - 1].value;
+        var nY = serie[serie.length - 1].year - serie[0].year;
+        if (fVal > 0 && nY > 0) {
+          cagr = parseFloat(((Math.pow(lVal / fVal, 1 / nY) - 1) * 100).toFixed(2));
         }
       }
 
-      // Trend: average annual growth
-      var avg_growth = null;
-      var valid_yoy = yoy.filter(function(x) { return x.growth_pct !== null; });
-      if (valid_yoy.length > 0) {
-        avg_growth = parseFloat((valid_yoy.reduce(function(s, x) { return s + x.growth_pct; }, 0) / valid_yoy.length).toFixed(2));
+      // Average annual growth
+      var avgG = null;
+      var validYoy = yoy.filter(function(x) { return x.growth_pct !== null; });
+      if (validYoy.length > 0) {
+        var sumG = 0;
+        for (var gi = 0; gi < validYoy.length; gi++) sumG += validYoy[gi].growth_pct;
+        avgG = parseFloat((sumG / validYoy.length).toFixed(2));
       }
 
-      // Volatility (coefficient of variation)
-      var volatility = null;
+      // Volatility
+      var volat = null;
       if (serie.length >= 3) {
-        var mean = import_totale / serie.length;
+        var mean = total / serie.length;
         if (mean > 0) {
-          var variance = serie.reduce(function(s, x) { return s + Math.pow(x.value - mean, 2); }, 0) / serie.length;
-          volatility = parseFloat(((Math.sqrt(variance) / mean) * 100).toFixed(2));
+          var sumSq = 0;
+          for (var vi = 0; vi < serie.length; vi++) sumSq += Math.pow(serie[vi].value - mean, 2);
+          volat = parseFloat(((Math.sqrt(sumSq / serie.length) / mean) * 100).toFixed(2));
         }
       }
 
       metrics = {
-        import_totale_cumulato: parseFloat(import_totale.toFixed(2)),
-        ultimo_anno: { year: latest.year, value: latest.value },
+        import_totale_cumulato: parseFloat(total.toFixed(2)),
+        ultimo_anno: { year: serie[serie.length - 1].year, value: serie[serie.length - 1].value },
         primo_anno: { year: serie[0].year, value: serie[0].value },
         numero_anni: serie.length,
         trend_annuale: yoy,
-        crescita_media_annua_pct: avg_growth,
+        crescita_media_annua_pct: avgG,
         cagr_pct: cagr,
-        volatilita_pct: volatility,
+        volatilita_pct: volat,
         serie_storica: serie
       };
     }
 
+    console.log('[wto v3] data OK, records=' + records.length + ' metrics=' + (metrics ? 'yes' : 'null'));
     return Response.json({
-      success: true,
-      endpoint: 'data',
-      records: records.length,
-      data: records,
-      metrics: metrics,
-      query: { i: d_i, r: d_r, p: d_p, pc: d_pc, ps: d_ps }
+      success: true, endpoint: 'data', records: records.length,
+      data: records, metrics: metrics, query: { i: i, r: r, p: p, pc: pc, ps: ps }
     });
   }
 
-  // ========== metadata ==========
+  // ==================== DATA_COUNT ====================
+  if (endpoint === 'data_count') {
+    var dci = String(body.i || '').trim();
+    var dcr = String(body.r || '').trim();
+    var dcp = fixP(body.p);
+    var dcpc = String(body.pc || '').trim();
+    var dcps = String(body.ps || '').trim();
+
+    if (!dci) return Response.json({ error: 'i required' }, { status: 400 });
+    if (!dcr) return Response.json({ error: 'r required' }, { status: 400 });
+
+    var dcParams = new URLSearchParams();
+    dcParams.set('i', dci);
+    dcParams.set('r', dcr);
+    dcParams.set('p', dcp);
+    if (dcpc) dcParams.set('pc', dcpc);
+    if (dcps) dcParams.set('ps', dcps);
+
+    var dcUrl = BASE + '/data_count?' + dcParams.toString();
+    console.log('[wto v3] GET ' + dcUrl);
+
+    var dcResp = await fetch(dcUrl, { headers: HEADERS, signal: AbortSignal.timeout(20000) });
+    if (!dcResp.ok) {
+      var dcErr = await dcResp.text();
+      return Response.json({ error: 'WTO HTTP ' + dcResp.status, detail: dcErr, url: dcUrl }, { status: dcResp.status });
+    }
+
+    var dcRaw = await dcResp.text();
+    console.log('[wto v3] data_count raw: ' + dcRaw);
+    var dcCount = parseInt(dcRaw, 10);
+    if (isNaN(dcCount)) dcCount = dcRaw;
+
+    return Response.json({
+      success: true, endpoint: 'data_count', data_count: dcCount,
+      message: dcCount === 0 ? 'Nessun dato disponibile' : null,
+      query: { i: dci, r: dcr, p: dcp, pc: dcpc, ps: dcps }
+    });
+  }
+
+  // ==================== YEARS ====================
+  if (endpoint === 'years') {
+    var yrResp = await fetch(BASE + '/years', { headers: HEADERS, signal: AbortSignal.timeout(20000) });
+    if (!yrResp.ok) {
+      var yrErr = await yrResp.text();
+      return Response.json({ error: 'WTO HTTP ' + yrResp.status, detail: yrErr }, { status: yrResp.status });
+    }
+    var yrData = await yrResp.json();
+    return Response.json({ success: true, endpoint: 'years', count: Array.isArray(yrData) ? yrData.length : null, years: yrData });
+  }
+
+  // ==================== METADATA ====================
   if (endpoint === 'metadata') {
     var mdCode = String(body.indicator_code || '').trim();
     if (!mdCode) return Response.json({ error: 'indicator_code required' }, { status: 400 });
 
-    var mdResp = await fetch(BASE + '/indicators', { headers: H, signal: AbortSignal.timeout(20000) });
+    var mdResp = await fetch(BASE + '/indicators', { headers: HEADERS, signal: AbortSignal.timeout(20000) });
     if (!mdResp.ok) {
       var mdErr = await mdResp.text();
       return Response.json({ error: 'WTO HTTP ' + mdResp.status, detail: mdErr }, { status: mdResp.status });
@@ -254,82 +239,44 @@ Deno.serve(async (req) => {
     var mdAll = await mdResp.json();
     var mdMatch = null;
     if (Array.isArray(mdAll)) {
-      mdMatch = mdAll.find(function(x) {
-        return (x.code || '').toLowerCase() === mdCode.toLowerCase();
-      });
+      for (var mi = 0; mi < mdAll.length; mi++) {
+        if ((mdAll[mi].code || '').toLowerCase() === mdCode.toLowerCase()) { mdMatch = mdAll[mi]; break; }
+      }
     }
-
     return Response.json({
-      success: true,
-      endpoint: 'metadata',
-      indicator_code: mdCode,
+      success: true, endpoint: 'metadata', indicator_code: mdCode,
       indicator_info: mdMatch ? {
-        code: mdMatch.code,
-        name: mdMatch.name || mdMatch.description,
-        unit: mdMatch.unitCode,
-        unitLabel: mdMatch.unitLabel,
-        category: mdMatch.categoryCode,
-        categoryLabel: mdMatch.categoryLabel,
-        subcategory: mdMatch.subcategoryCode,
-        subcategoryLabel: mdMatch.subcategoryLabel,
-        frequency: mdMatch.frequencyCode,
-        frequencyLabel: mdMatch.frequencyLabel,
-        startYear: mdMatch.startYear,
-        endYear: mdMatch.endYear,
-        numberReporters: mdMatch.numberReporters,
-        numberDatapoints: mdMatch.numberDatapoints,
-        productClassification: mdMatch.productSectorClassificationLabel,
-        updateFrequency: mdMatch.updateFrequency,
-        description: mdMatch.description
+        code: mdMatch.code, name: mdMatch.name || mdMatch.description,
+        unit: mdMatch.unitCode, category: mdMatch.categoryCode,
+        frequency: mdMatch.frequencyCode, startYear: mdMatch.startYear, endYear: mdMatch.endYear,
+        numberDatapoints: mdMatch.numberDatapoints, description: mdMatch.description
       } : null
     });
   }
 
-  // ========== years ==========
-  if (endpoint === 'years') {
-    var yrResp = await fetch(BASE + '/years', { headers: H, signal: AbortSignal.timeout(20000) });
-    if (!yrResp.ok) {
-      var yrErr = await yrResp.text();
-      return Response.json({ error: 'WTO HTTP ' + yrResp.status, detail: yrErr }, { status: yrResp.status });
-    }
-    var yrData = await yrResp.json();
-    return Response.json({
-      success: true,
-      endpoint: 'years',
-      count: Array.isArray(yrData) ? yrData.length : null,
-      years: yrData
-    });
-  }
-
-  // ========== indicators (default) ==========
-  var indResp = await fetch(BASE + '/indicators', { headers: H, signal: AbortSignal.timeout(20000) });
+  // ==================== INDICATORS (default) ====================
+  var searchTerm = String(body.search || '').trim().toLowerCase();
+  var indResp = await fetch(BASE + '/indicators', { headers: HEADERS, signal: AbortSignal.timeout(20000) });
   if (!indResp.ok) {
     var indErr = await indResp.text();
     return Response.json({ error: 'WTO HTTP ' + indResp.status, detail: indErr }, { status: indResp.status });
   }
   var indData = await indResp.json();
-
-  var indicators = Array.isArray(indData) ? indData.map(function(x) {
-    return {
-      indicator_code: x.code || null,
-      description: x.name || x.description || null,
-      unit: x.unitCode || x.unit || null,
-      category: x.categoryCode || x.category || null
-    };
-  }) : [];
-
-  if (searchTerm) {
-    indicators = indicators.filter(function(x) {
-      return (x.indicator_code || '').toLowerCase().includes(searchTerm) ||
-             (x.description || '').toLowerCase().includes(searchTerm);
-    });
+  var indicators = [];
+  if (Array.isArray(indData)) {
+    for (var ii = 0; ii < indData.length; ii++) {
+      var x = indData[ii];
+      var item = {
+        indicator_code: x.code || null,
+        description: x.name || x.description || null,
+        unit: x.unitCode || null,
+        category: x.categoryCode || null
+      };
+      if (!searchTerm || (item.indicator_code || '').toLowerCase().includes(searchTerm) || (item.description || '').toLowerCase().includes(searchTerm)) {
+        indicators.push(item);
+      }
+    }
   }
 
-  return Response.json({
-    success: true,
-    endpoint: 'indicators',
-    count: indicators.length,
-    search: searchTerm || null,
-    indicators: indicators
-  });
+  return Response.json({ success: true, endpoint: 'indicators', count: indicators.length, search: searchTerm || null, indicators: indicators });
 });
