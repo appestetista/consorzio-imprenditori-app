@@ -493,6 +493,77 @@ export function computeMetrics(tradeData) {
 }
 
 /**
+ * Arricchisce le metriche con demand_score e validazione coerenza usando dati macro.
+ * Chiamato dopo computeMetrics + fetchMacroData.
+ */
+export function enrichMetricsWithDemand(metricsResult, macroDataMap) {
+  if (!metricsResult?.metriche || !macroDataMap) return metricsResult;
+
+  const enriched = metricsResult.metriche.map(m => {
+    const macro = macroDataMap[m.paese_code];
+    if (!macro) return m;
+
+    const pop = macro.popolazione;
+    const gdpPc = macro.pil_pro_capite;
+    const importVal = m.import_totale_raw;
+
+    // Import pro capite (validazione coerenza)
+    let import_pro_capite = null;
+    if (importVal && pop && pop > 0) {
+      import_pro_capite = parseFloat((importVal / pop).toFixed(2));
+    }
+
+    // Demand Score: Low / Medium / High
+    // Basato su: 1) Volume import (>$100M=alto), 2) PIL pro capite (>$20k=medio/alto), 3) Crescita (CAGR>5=alto)
+    let demand_score = 'Low';
+    let demandPoints = 0;
+
+    if (importVal) {
+      if (importVal > 500000000) demandPoints += 3;      // >$500M
+      else if (importVal > 100000000) demandPoints += 2;  // >$100M
+      else if (importVal > 10000000) demandPoints += 1;   // >$10M
+    }
+
+    if (gdpPc) {
+      if (gdpPc > 40000) demandPoints += 2;
+      else if (gdpPc > 20000) demandPoints += 1;
+    }
+
+    const cagrVal = m.cagr ? parseFloat(m.cagr) : null;
+    if (cagrVal !== null) {
+      if (cagrVal > 10) demandPoints += 2;
+      else if (cagrVal > 5) demandPoints += 1;
+      else if (cagrVal < -5) demandPoints -= 1;
+    }
+
+    if (demandPoints >= 5) demand_score = 'High';
+    else if (demandPoints >= 3) demand_score = 'Medium';
+    else demand_score = 'Low';
+
+    // Validazione coerenza: se import pro capite > GDP pro capite → anomalia
+    let coerenza_ok = true;
+    let coerenza_nota = null;
+    if (import_pro_capite && gdpPc && import_pro_capite > gdpPc * 0.05) {
+      coerenza_ok = false;
+      coerenza_nota = `Import pro capite ($${import_pro_capite.toFixed(2)}) elevato rispetto a PIL pc ($${Math.round(gdpPc)})`;
+    }
+
+    return {
+      ...m,
+      demand_score,
+      import_pro_capite,
+      coerenza_ok,
+      coerenza_nota,
+      consumo_apparente: m.consumo_apparente || m.import_totale_raw,
+      produzione_locale_disponibile: m.produzione_locale_disponibile || false,
+      dipendenza_import: m.dipendenza_import || (m.import_totale_raw ? 'alta' : null)
+    };
+  });
+
+  return { ...metricsResult, metriche: enriched };
+}
+
+/**
  * STEP 4: Interpretazione strategica AI (riceve SOLO dati calcolati, produce SOLO interpretazione)
  */
 export async function interpretData(tradeData, metricsResult, hsCode, hsDescrizione, profiloAzienda, macroDataMap = {}) {
