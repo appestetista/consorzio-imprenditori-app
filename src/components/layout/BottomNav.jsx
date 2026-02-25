@@ -1,14 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Users, Wrench, UserCircle } from 'lucide-react';
+import { Users, Wrench, UserCircle, Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export default function BottomNav({ currentPage, unreadMessages = 0, activeTab = null, isAdmin = false }) {
+export default function BottomNav({ currentPage, unreadMessages = 0, activeTab = null, isAdmin = false, onMenuOpen }) {
   const navItems = [
     { name: 'relazioni', label: 'Relazioni', icon: Users, page: 'Esplora?tab=relazioni', tab: 'relazioni' },
     { name: 'strumenti', label: 'Strumenti', icon: Wrench, page: 'Esplora?tab=strumenti', tab: 'strumenti' },
     { name: 'personale', label: 'Personale', icon: UserCircle, page: 'Esplora?tab=personale', tab: 'personale' },
+    { name: 'menu', label: 'Menu', icon: Menu, isMenu: true },
   ];
 
   return (
@@ -20,10 +21,16 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
               const isActive = item.name === 'home'
                   ? currentPage === 'Home'
                   : activeTab === item.tab;
+              
+              const Wrapper = item.isMenu ? 'button' : Link;
+              const wrapperProps = item.isMenu 
+                ? { onClick: onMenuOpen } 
+                : { to: createPageUrl(item.page) };
+              
               return (
-                <Link
+                <Wrapper
                   key={item.name}
-                  to={createPageUrl(item.page)}
+                  {...wrapperProps}
                   className="flex-1 flex justify-center"
                 >
                   {/* Pulsante 3D Premium con cornice oro */}
@@ -95,7 +102,7 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
                       </div>
                     </div>
                   </div>
-                </Link>
+                </Wrapper>
               );
             })}
           </div>
