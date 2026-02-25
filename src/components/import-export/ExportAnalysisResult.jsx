@@ -433,13 +433,148 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
               </CollapsibleSection>
             )}
 
-            {/* Logistica */}
+            {/* Logistica — Logistics & Supply Chain */}
             {m.logistica && (
-              <CollapsibleSection title="Analisi Logistica" icon={Truck} iconColor="text-blue-400">
-                <DataRow label="Incoterms" value={m.logistica.incoterms_consigliati} />
-                <DataRow label="Costo spedizione" value={m.logistica.costo_spedizione} />
-                <DataRow label="Tempo transito" value={m.logistica.tempo_transito} />
-                <DataRow label="LPI Score" value={m.logistica.lpi_score} />
+              <CollapsibleSection title="Logistics & Supply Chain" icon={Truck} iconColor="text-blue-400">
+                {/* LPI & Infrastructure */}
+                {m.logistica.logistics_performance && (
+                  <div className="bg-blue-500/5 border border-blue-500/10 rounded-lg p-2.5 mb-3">
+                    <p className="text-blue-400 text-[10px] font-bold uppercase tracking-wider mb-1.5">Performance Logistica</p>
+                    <DataRow label="LPI Ranking" value={m.logistica.logistics_performance.lpi_global_rank} />
+                    <DataRow label="Efficienza doganale" value={m.logistica.logistics_performance.customs_efficiency_score} />
+                    {m.logistica.logistics_performance.infrastructure_quality && (
+                      <div className="flex justify-between items-center py-1.5 border-b border-white/5">
+                        <span className="text-slate-400 text-xs">Qualità infrastrutture</span>
+                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                          m.logistica.logistics_performance.infrastructure_quality === 'High' ? 'bg-green-500/15 text-green-400' :
+                          m.logistica.logistics_performance.infrastructure_quality === 'Medium' ? 'bg-amber-500/15 text-amber-400' : 'bg-red-500/15 text-red-400'
+                        }`}>{m.logistica.logistics_performance.infrastructure_quality}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Shipping Routes */}
+                {m.logistica.shipping_routes && (
+                  <div className="mb-3">
+                    <p className="text-slate-500 text-[10px] font-bold uppercase tracking-wider mb-1.5">Rotte & Nodi di Transito</p>
+                    {m.logistica.shipping_routes.main_entry_ports?.length > 0 && (
+                      <div className="mb-1.5">
+                        <p className="text-slate-500 text-[10px] mb-1">🚢 Porti</p>
+                        <div className="flex flex-wrap gap-1">
+                          {m.logistica.shipping_routes.main_entry_ports.map((p, i) => (
+                            <span key={i} className="bg-blue-500/10 text-blue-300 px-2 py-0.5 rounded-md text-[10px] border border-blue-500/20">{p}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {m.logistica.shipping_routes.main_cargo_airports?.length > 0 && (
+                      <div className="mb-1.5">
+                        <p className="text-slate-500 text-[10px] mb-1">✈️ Aeroporti cargo</p>
+                        <div className="flex flex-wrap gap-1">
+                          {m.logistica.shipping_routes.main_cargo_airports.map((a, i) => (
+                            <span key={i} className="bg-cyan-500/10 text-cyan-300 px-2 py-0.5 rounded-md text-[10px] border border-cyan-500/20">{a}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {m.logistica.shipping_routes.transit_ports?.length > 0 && (
+                      <div className="mb-1.5">
+                        <p className="text-slate-500 text-[10px] mb-1">🔄 Porti di transito</p>
+                        <div className="flex flex-wrap gap-1">
+                          {m.logistica.shipping_routes.transit_ports.map((t, i) => (
+                            <span key={i} className="bg-amber-500/10 text-amber-300 px-2 py-0.5 rounded-md text-[10px] border border-amber-500/20">{t}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    <div className="grid grid-cols-2 gap-2 mt-2">
+                      {m.logistica.shipping_routes.transit_time_sea && (
+                        <div className="bg-slate-700/40 rounded-lg p-2 text-center">
+                          <p className="text-slate-500 text-[9px]">🚢 Via mare</p>
+                          <p className="text-white text-xs font-bold">{m.logistica.shipping_routes.transit_time_sea}</p>
+                        </div>
+                      )}
+                      {m.logistica.shipping_routes.transit_time_air && (
+                        <div className="bg-slate-700/40 rounded-lg p-2 text-center">
+                          <p className="text-slate-500 text-[9px]">✈️ Via aerea</p>
+                          <p className="text-white text-xs font-bold">{m.logistica.shipping_routes.transit_time_air}</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Estimated Costs */}
+                {m.logistica.estimated_costs && (
+                  <div className="bg-emerald-500/5 border border-emerald-500/10 rounded-lg p-2.5 mb-3">
+                    <p className="text-emerald-400 text-[10px] font-bold uppercase tracking-wider mb-1.5">Costi Stimati</p>
+                    <DataRow label="Nolo marittimo" value={m.logistica.estimated_costs.sea_freight_range} />
+                    <DataRow label="Nolo aereo (USD/kg)" value={m.logistica.estimated_costs.air_freight_per_kg} />
+                    {m.logistica.estimated_costs.last_mile_complexity && (
+                      <div className="flex justify-between items-center py-1.5">
+                        <span className="text-slate-400 text-xs">Complessità ultimo miglio</span>
+                        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                          m.logistica.estimated_costs.last_mile_complexity === 'Low' ? 'bg-green-500/15 text-green-400' :
+                          m.logistica.estimated_costs.last_mile_complexity === 'Medium' ? 'bg-amber-500/15 text-amber-400' : 'bg-red-500/15 text-red-400'
+                        }`}>{m.logistica.estimated_costs.last_mile_complexity}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Infrastructure Details */}
+                {m.logistica.infrastructure_details && (
+                  <div className="mb-3">
+                    <p className="text-slate-500 text-[10px] font-bold uppercase tracking-wider mb-1.5">Infrastrutture</p>
+                    <DataRow label="Collegamento ferroviario" value={m.logistica.infrastructure_details.rail_connection} />
+                    {m.logistica.infrastructure_details.major_logistics_hubs?.length > 0 && (
+                      <div className="mt-1.5">
+                        <p className="text-slate-500 text-[10px] mb-1">Hub logistici</p>
+                        <div className="flex flex-wrap gap-1">
+                          {m.logistica.infrastructure_details.major_logistics_hubs.map((h, i) => (
+                            <span key={i} className="bg-white/5 text-slate-300 px-2 py-0.5 rounded-md text-[10px]">{h}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {m.logistica.infrastructure_details.free_trade_zones?.length > 0 && (
+                      <div className="mt-1.5">
+                        <p className="text-slate-500 text-[10px] mb-1">Zone franche</p>
+                        <div className="flex flex-wrap gap-1">
+                          {m.logistica.infrastructure_details.free_trade_zones.map((z, i) => (
+                            <span key={i} className="bg-teal-500/10 text-teal-300 px-2 py-0.5 rounded-md text-[10px] border border-teal-500/20">{z}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Incoterms */}
+                <DataRow label="Incoterms consigliati" value={m.logistica.incoterms_consigliati} />
+
+                {/* Logistics Risks */}
+                {m.logistica.logistics_risks?.length > 0 && (
+                  <div className="bg-orange-500/5 border border-orange-500/10 rounded-lg p-2.5 mt-2">
+                    <p className="text-orange-400 text-[10px] font-bold uppercase tracking-wider mb-1.5">⚠ Rischi Logistici</p>
+                    <ul className="text-slate-300 text-[10px] space-y-0.5">
+                      {m.logistica.logistics_risks.map((r, i) => <li key={i}>• {r}</li>)}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Data Sources */}
+                {m.logistica.data_sources?.length > 0 && (
+                  <div className="mt-2 pt-2 border-t border-white/5">
+                    <p className="text-slate-600 text-[10px] mb-1">Fonti:</p>
+                    <div className="space-y-0.5">
+                      {m.logistica.data_sources.map((s, i) => (
+                        <p key={i} className="text-slate-500 text-[10px] truncate">{s}</p>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </CollapsibleSection>
             )}
 
