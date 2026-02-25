@@ -81,7 +81,6 @@ export default function ImportExport() {
   const [tradeData, setTradeData] = useState(null);
   const [tradeMetrics, setTradeMetrics] = useState(null);
   const [confirmedExportHS, setConfirmedExportHS] = useState(null);
-  const [exporterCountry, setExporterCountry] = useState('IT');
   const [periodoAnalisi] = useState('5');
   const [macroData, setMacroData] = useState({});
   const [priceMetrics, setPriceMetrics] = useState(null);
