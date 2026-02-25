@@ -62,10 +62,33 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'WTO HTTP ' + resp.status, detail: errText, url: url }, { status: resp.status });
     }
 
-    var rawData = await resp.json();
-    console.log('[wto v3] data rows: ' + (Array.isArray(rawData) ? rawData.length : typeof rawData));
+    var rawBody = await resp.text();
+    console.log('[wto v3] data raw preview: ' + rawBody.substring(0, 500));
+    var rawData;
+    try { rawData = JSON.parse(rawBody); } catch (_e) {
+      return Response.json({ success: false, error: 'JSON parse failed', raw: rawBody.substring(0, 1000) }, { status: 500 });
+    }
 
-    if (!Array.isArray(rawData) || rawData.length === 0) {
+    // WTO /data may return { Dataset: [...] } or array directly
+    var dataArray = null;
+    if (Array.isArray(rawData)) {
+      dataArray = rawData;
+    } else if (rawData && Array.isArray(rawData.Dataset)) {
+      dataArray = rawData.Dataset;
+    } else if (rawData && typeof rawData === 'object') {
+      // Try to find the first array property
+      var keys = Object.keys(rawData);
+      console.log('[wto v3] response keys: ' + keys.join(', '));
+      for (var ki = 0; ki < keys.length; ki++) {
+        if (Array.isArray(rawData[keys[ki]])) {
+          dataArray = rawData[keys[ki]];
+          console.log('[wto v3] using key: ' + keys[ki] + ' (' + dataArray.length + ' items)');
+          break;
+        }
+      }
+    }
+
+    if (!dataArray || dataArray.length === 0) {
       return Response.json({
         success: true, endpoint: 'data', records: 0, data: [], metrics: null,
         message: 'Nessun dato disponibile WTO', query: { i: i, r: r, p: p, pc: pc, ps: ps }
