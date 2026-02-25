@@ -22,6 +22,38 @@ Deno.serve(async (req) => {
     'Accept': 'application/json'
   };
 
+  // Endpoint: /metadata (per indicatore specifico)
+  if (endpoint === 'metadata') {
+    const indicatorCode = (body.indicator_code || '').trim();
+    if (!indicatorCode) {
+      return Response.json({ error: 'indicator_code required for metadata endpoint' }, { status: 400 });
+    }
+    const resp = await fetch(`${baseUrl}/metadata`, { headers, signal: AbortSignal.timeout(20000) });
+    if (!resp.ok) {
+      const text = await resp.text();
+      return Response.json({ error: `WTO API HTTP ${resp.status}`, detail: text }, { status: resp.status });
+    }
+    const data = await resp.json();
+    // Cerca l'indicatore richiesto nei metadata
+    let match = null;
+    if (Array.isArray(data)) {
+      match = data.find(function(m) {
+        return (m.code || '').toLowerCase() === indicatorCode.toLowerCase() ||
+               (m.indicatorCode || '').toLowerCase() === indicatorCode.toLowerCase();
+      });
+    }
+    return Response.json({
+      success: true,
+      endpoint: 'metadata',
+      indicator_code: indicatorCode,
+      match: match || null,
+      raw_sample: Array.isArray(data) ? data.slice(0, 3) : data,
+      raw_type: typeof data,
+      raw_is_array: Array.isArray(data),
+      raw_length: Array.isArray(data) ? data.length : null
+    });
+  }
+
   // Endpoint: /years
   if (endpoint === 'years') {
     const resp = await fetch(`${baseUrl}/years`, { headers, signal: AbortSignal.timeout(20000) });
