@@ -183,13 +183,13 @@ REGOLE INDEROGABILI:
   return (
     <Card className="bg-slate-800/60 border-white/5 backdrop-blur-sm shadow-xl">
       <CardContent className="p-5">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-xl bg-amber-500/15 flex items-center justify-center">
-            <Package className="w-5 h-5 text-amber-400" />
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-8 h-8 rounded-lg bg-amber-500/15 flex items-center justify-center">
+            <Package className="w-4 h-4 text-amber-400" />
           </div>
           <div>
-            <h3 className="text-white font-bold text-sm">Seleziona codice HS</h3>
-            <p className="text-slate-500 text-xs">Conferma prima di procedere</p>
+            <h3 className="text-white font-bold text-xs">Codice HS identificato</h3>
+            <p className="text-slate-500 text-[10px]">Selezionato automaticamente — cambia se errato</p>
           </div>
         </div>
 
@@ -197,45 +197,39 @@ REGOLE INDEROGABILI:
           {candidates.map((c) => (
             <button
               key={c.hs_code}
-              onClick={() => setSelectedCode(c.hs_code)}
+              onClick={() => {
+                setSelectedCode(c.hs_code);
+                if (onConfirm) onConfirm(c);
+              }}
               className={`w-full text-left p-3 rounded-xl border transition-all ${
                 selectedCode === c.hs_code
-                  ? 'bg-amber-500/10 border-amber-500/30 shadow-lg shadow-amber-500/5'
+                  ? 'bg-amber-500/10 border-amber-500/30'
                   : 'bg-white/[0.03] border-white/5 hover:border-white/10'
               }`}
             >
               <div className="flex items-center justify-between mb-1">
                 <span className="text-white font-mono font-bold text-sm">{c.hs_code}</span>
-                <span className={`text-[10px] px-2 py-0.5 rounded-full border ${certezzaStyle[c.certezza] || certezzaStyle.basso}`}>
-                  {c.certezza === 'alto' ? 'Alta' : c.certezza === 'medio' ? 'Media' : 'Bassa'}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full border ${certezzaStyle[c.certezza] || certezzaStyle.basso}`}>
+                    {c.certezza === 'alto' ? 'Alta' : c.certezza === 'medio' ? 'Media' : 'Bassa'}
+                  </span>
+                  {selectedCode === c.hs_code && <CheckCircle className="w-4 h-4 text-amber-400" />}
+                </div>
               </div>
               <p className="text-slate-400 text-xs leading-relaxed">{c.descrizione_ufficiale}</p>
               {c.nota && <p className="text-slate-600 text-[10px] mt-1 italic">{c.nota}</p>}
-              {selectedCode === c.hs_code && (
-                <div className="flex items-center gap-1 mt-2 text-amber-400 text-xs">
-                  <CheckCircle className="w-3.5 h-3.5" />
-                  Selezionato
-                </div>
-              )}
             </button>
           ))}
         </div>
 
-        {!selectedCode && (
-          <p className="text-amber-400/80 text-xs text-center mt-3 animate-pulse">
-            ☝️ Tocca il codice HS sopra per selezionarlo
-          </p>
-        )}
-
-        <div className="mt-3">
+        <div className="mt-2">
           <button
             type="button"
             onClick={() => { setCandidates(null); setSelectedCode(null); setError(null); setLastClassified(null); }}
-            className="w-full flex items-center justify-center gap-1.5 h-10 rounded-xl border border-slate-600 text-slate-400 text-xs font-medium bg-slate-800 hover:bg-slate-700 active:scale-95 transition-all"
+            className="w-full flex items-center justify-center gap-1.5 h-9 rounded-xl border border-slate-600 text-slate-400 text-[10px] font-medium bg-slate-800 hover:bg-slate-700 active:scale-95 transition-all"
           >
-            <RotateCcw className="w-3.5 h-3.5" />
-            Codice errato? Reclassifica
+            <RotateCcw className="w-3 h-3" />
+            Nessuno corretto? Reclassifica
           </button>
         </div>
       </CardContent>
