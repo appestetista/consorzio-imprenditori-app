@@ -564,409 +564,268 @@ export function enrichMetricsWithDemand(metricsResult, macroDataMap) {
 }
 
 /**
- * STEP 4: Interpretazione strategica AI (riceve SOLO dati calcolati, produce SOLO interpretazione)
+ * Helper: prepara il contesto dati comune per tutti i moduli LLM
+ */
+function buildDataContext(tradeData, metricsResult, hsCode, hsDescrizione, profiloAzienda, macroDataMap) {
+  const currentYear = new Date().getFullYear();
+  const metrics = metricsResult?.metriche || metricsResult || [];
+  const tassoCambio = metricsResult?.tasso_cambio;
+
+  const riepilogoDati = tradeData.mercati.map((m, i) => {
+    const met = Array.isArray(metrics) ? metrics[i] : null;
+    const macro = macroDataMap[m.paese_code];
+    let base = `\nMERCATO: ${m.paese_nome} (${m.paese_code})
+- Import totale HS ${hsCode}: ${m.import_totale?.valore_usd || 'N/D'}${met?.import_totale_eur ? ` (≈ €${met.import_totale_eur.toLocaleString('it-IT')})` : ''} (${m.import_totale?.anno || 'N/D'}, ${m.import_totale?.fonte || 'N/D'})
+- Export Italia→${m.paese_nome}: ${m.export_from_exporter?.valore_usd || m.export_italia?.valore_usd || 'N/D'}${met?.export_italia_eur ? ` (≈ €${met.export_italia_eur.toLocaleString('it-IT')})` : ''} (${m.export_from_exporter?.anno || m.export_italia?.anno || 'N/D'})
+- Quota Italia: ${m.quota_exporter || m.quota_italia || 'N/D'}, Posizione: ${m.posizione_exporter || m.posizione_italia || 'N/D'}
+- CAGR: ${met?.cagr ? met.cagr + '%' : 'N/C'}, Crescita 3a: ${met?.crescita_3_anni ? met.crescita_3_anni + '%' : 'N/C'}, Volatilità: ${met?.volatilita ? met.volatilita + '%' : 'N/C'}
+- Top fornitori: ${(m.top_fornitori || []).map(f => `${f.paese} ${f.quota_percentuale}`).join(', ') || 'N/D'}
+- Dazio MFN: ${m.dazi?.dazio_mfn || 'N/D'}, Anti-dumping: ${m.dazi?.anti_dumping || 'Nessuna'}`;
+    if (met?.consumo_apparente) base += `\n- Consumo Apparente proxy: $${met.consumo_apparente.toLocaleString('en-US')}`;
+    if (met?.demand_score) base += `, Demand Score: ${met.demand_score}`;
+    if (met?.import_pro_capite) base += `, Import pc: $${met.import_pro_capite.toFixed(2)}`;
+    if (met?.coerenza_nota) base += `\n- ⚠ ${met.coerenza_nota}`;
+    if (macro) {
+      const parts = [];
+      if (macro.inflazione !== null) parts.push(`Inflaz: ${macro.inflazione}%`);
+      if (macro.lpi_score !== null) parts.push(`LPI: ${macro.lpi_score}/5`);
+      if (macro.volatilita_cambio !== null) parts.push(`Volat.cambio: ${macro.volatilita_cambio}%`);
+      if (macro.partite_correnti_usd !== null) parts.push(`Part.corr: $${Math.round(macro.partite_correnti_usd).toLocaleString('en-US')}`);
+      if (macro.doing_business_score !== null) parts.push(`DoingBiz: ${macro.doing_business_score}/100`);
+      if (parts.length > 0) base += `\n- Macro WB: ${parts.join(', ')}`;
+    }
+    return base;
+  }).join('\n');
+
+  const datiNonDisponibili = tradeData.dati_non_disponibili?.length > 0
+    ? `\nDATI MANCANTI: ${tradeData.dati_non_disponibili.join('; ')}` : '';
+  const notaCambio = tassoCambio ? `\nCambio: 1EUR=${tassoCambio.tasso}USD (${tassoCambio.fonte})` : '';
+
+  const header = `Anno ${currentYear}. HS: ${hsCode} — ${hsDescrizione}
+AZIENDA: Settore=${profiloAzienda.settore}, Prodotto=${profiloAzienda.prodotto}, Fatturato=${profiloAzienda.fatturato_annuo || 'N/S'}, Export=${profiloAzienda.esperienza_export || 'Nessuna'}, Cert=${profiloAzienda.certificazioni || 'N/S'}, Capacità=${profiloAzienda.capacita_produttiva || 'N/S'}, Posiz=${profiloAzienda.posizionamento || 'N/S'}, Model=${profiloAzienda.business_model || 'N/S'}, Canale=${profiloAzienda.canale_preferito || 'N/S'}
+DATI:${riepilogoDati}${datiNonDisponibili}${notaCambio}`;
+
+  const paeseNames = tradeData.mercati.map(m => `${m.paese_nome} (${m.paese_code})`).join(', ');
+  return { header, paeseNames, currentYear };
+}
+
+/**
+ * Helper: chiama LLM per un singolo modulo con schema ridotto
+ */
+async function callModule(moduleName, prompt, schema) {
+  try {
+    console.log(`[ExportModular] Avvio modulo: ${moduleName}`);
+    const result = await base44.integrations.Core.InvokeLLM({
+      add_context_from_internet: true,
+      prompt,
+      response_json_schema: schema
+    });
+    console.log(`[ExportModular] Modulo ${moduleName} completato`);
+    return result;
+  } catch (err) {
+    console.error(`[ExportModular] Errore modulo ${moduleName}:`, err);
+    return null;
+  }
+}
+
+/**
+ * STEP 4: Interpretazione strategica AI — MODULARE
+ * Divide l'analisi in 5 chiamate LLM parallele, ciascuna focalizzata su 1-2 sezioni.
+ * Poi assembla il risultato finale.
  */
 export async function interpretData(tradeData, metricsResult, hsCode, hsDescrizione, profiloAzienda, macroDataMap = {}) {
   if (tradeData?._api_error || metricsResult?._api_error) {
     console.error('[ExportDataFetcher] interpretData skipped: upstream API error');
     return { _api_error: true };
   }
-  const currentYear = new Date().getFullYear();
-  const metrics = metricsResult?.metriche || metricsResult || [];
-  const tassoCambio = metricsResult?.tasso_cambio;
 
-  // Prepara il riepilogo dati per l'AI
-  const riepilogoDati = tradeData.mercati.map((m, i) => {
-    const met = Array.isArray(metrics) ? metrics[i] : null;
-    const macro = macroDataMap[m.paese_code];
-    let base = `
-MERCATO: ${m.paese_nome} (${m.paese_code})
-- Import totale HS ${hsCode}: ${m.import_totale?.valore_usd || 'N/D'}${met?.import_totale_eur ? ` (≈ €${met.import_totale_eur.toLocaleString('it-IT')})` : ''} (${m.import_totale?.anno || 'N/D'}, ${m.import_totale?.fonte || 'N/D'})
-- Export Italia→${m.paese_nome}: ${m.export_from_exporter?.valore_usd || m.export_italia?.valore_usd || 'N/D'}${met?.export_italia_eur ? ` (≈ €${met.export_italia_eur.toLocaleString('it-IT')})` : ''} (${m.export_from_exporter?.anno || m.export_italia?.anno || 'N/D'}, ${m.export_from_exporter?.fonte || m.export_italia?.fonte || 'N/D'})
-- Quota Italia: ${m.quota_exporter || m.quota_italia || 'N/D'}
-- Posizione Italia tra fornitori: ${m.posizione_exporter || m.posizione_italia || 'N/D'}
-- CAGR serie storica: ${met?.cagr ? met.cagr + '%' : 'Non calcolabile'}
-- Crescita ultimi 3 anni: ${met?.crescita_3_anni ? met.crescita_3_anni + '%' : 'Non calcolabile'}
-- Volatilità serie storica: ${met?.volatilita ? met.volatilita + '%' : 'Non calcolabile'}
-- Top fornitori: ${(m.top_fornitori || []).map(f => `${f.paese} ${f.quota_percentuale} (${f.valore_usd})`).join(', ') || 'N/D'}
-- Dazio MFN: ${m.dazi?.dazio_mfn || 'N/D'} (${m.dazi?.fonte || 'N/D'})
-- Anti-dumping: ${m.dazi?.anti_dumping || 'Nessuna'}
-- Dati completi: ${met?.dati_completi ? 'Sì' : 'Parziali/Insufficienti'}`;
-    // --- MARKET SIZING & DOMANDA LOCALE ---
-    base += '\n--- MARKET SIZING (calcolato) ---';
-    if (met?.consumo_apparente) base += `\n- Consumo Apparente (proxy): $${met.consumo_apparente.toLocaleString('en-US')} [Nota: P non disponibile, C ≈ Import totale]`;
-    base += `\n- Produzione Locale (P): ${met?.produzione_locale_disponibile ? 'Disponibile' : 'Non rilevata — dato non reperibile da API disponibili'}`;
-    base += `\n- Dipendenza dall'Import: ${met?.dipendenza_import || 'N/D'}`;
-    if (met?.demand_score) base += `\n- Demand Score: ${met.demand_score} [basato su: volume import, PIL pc, CAGR]`;
-    if (met?.import_pro_capite) base += `\n- Import pro capite: $${met.import_pro_capite.toFixed(2)}`;
-    if (met?.coerenza_nota) base += `\n- ⚠ Validazione coerenza: ${met.coerenza_nota}`;
-    if (macro) {
-      base += '\n--- STABILITÀ ECONOMICA (World Bank API) ---';
-      if (macro.inflazione !== null) base += `\n- Inflazione CPI: ${macro.inflazione}% (${macro.inflazione_anno})`;
-      if (macro.doing_business_score !== null) base += `\n- Ease of Doing Business: ${macro.doing_business_score}/100 (${macro.doing_business_anno})`;
-      if (macro.lpi_score !== null) base += `\n- Logistics Performance Index: ${macro.lpi_score}/5 (${macro.lpi_anno})`;
-      if (macro.volatilita_cambio !== null) base += `\n- Volatilità cambio (5 anni): ${macro.volatilita_cambio}%`;
-      if (macro.partite_correnti_usd !== null) base += `\n- Saldo partite correnti: $${Math.round(macro.partite_correnti_usd).toLocaleString('en-US')} (${macro.partite_correnti_anno})`;
-    }
-    return base;
-  }).join('\n');
+  const ctx = buildDataContext(tradeData, metricsResult, hsCode, hsDescrizione, profiloAzienda, macroDataMap);
+  const rules = `Regole: ogni numero con fonte e anno. Se N/D scrivi "Non disponibile". No frasi generiche. Rispondi per OGNI Paese: ${ctx.paeseNames}`;
 
-  const datiNonDisponibili = tradeData.dati_non_disponibili?.length > 0
-    ? `\nDATI NON DISPONIBILI:\n${tradeData.dati_non_disponibili.join('\n')}`
-    : '';
-
-  const notaCambio = tassoCambio
-    ? `\nNOTA CONVERSIONE: ${tassoCambio.nota} (1 EUR = ${tassoCambio.tasso} USD, ${tassoCambio.fonte})`
-    : '';
-
-  let result;
-  try {
-  result = await base44.integrations.Core.InvokeLLM({
-    add_context_from_internet: true,
-    prompt: `Sei un consulente senior di internazionalizzazione (ICE, SACE, ITC). Anno: ${currentYear}. Cerca informazioni aggiornate sul web per ogni Paese Target.
-
-REGOLE: Usa i dati forniti sotto + contesto web. Ogni numero con fonte e anno. Se dato N/D, scrivi "Non disponibile". No frasi generiche senza numeri.
-
-HS: ${hsCode} — ${hsDescrizione}
-
-AZIENDA: Settore=${profiloAzienda.settore}, Prodotto=${profiloAzienda.prodotto}, Fatturato=${profiloAzienda.fatturato_annuo || 'N/S'}, Export exp=${profiloAzienda.esperienza_export || 'Nessuna'}, Certificazioni=${profiloAzienda.certificazioni || 'N/S'}, Capacità=${profiloAzienda.capacita_produttiva || 'N/S'}, Posizionamento=${profiloAzienda.posizionamento || 'N/S'}, Model=${profiloAzienda.business_model || 'N/S'}, Canale=${profiloAzienda.canale_preferito || 'N/S'}
-
-DATI TRADE:
-${riepilogoDati}${datiNonDisponibili}${notaCambio}
-
-ISTRUZIONI ENTERPRISE:
-- REGULATORY GAP: Confronta certificazioni possedute vs requisiti paese. Segnala "⛔ Blocco Operativo" se mancano certificazioni obbligatorie.
-- PRICING FILTER: Filtra competitor per segmento di posizionamento dell'azienda.
-- GTM ALIGNMENT: Canali coerenti con Business Model e Canale preferito.
-- CAPACITY CHECK: Valuta se capacità produttiva copre domanda target.
-
-COMPILA TUTTE LE 9 SEZIONI per ogni Paese:
-1) MARKET SCREENING: import totale, CAGR, dazi, barriere, ranking
-2) DOMANDA LOCALE: consumo apparente C=(P+M)-X, dipendenza import, demand score, segmentazione, canali, trend
-3) COMPETITIVE INTELLIGENCE: competitor mapping (3-5 player, origine, posizionamento), pricing benchmark, distribuzione, SWOT
-4) REGULATORY COMPLIANCE: dazi+IVA, certificazioni obbligatorie, standard tecnici, etichettatura, documenti doganali, SPS/TBT alerts
-5) LOGISTICS: LPI rank, porti/aeroporti, costi nolo mare/aereo, tempi transito, infrastrutture, zone franche, rischi
-6) ANALISI ECONOMICA: simulazione prezzo, margine lordo, break even, investimento iniziale
-7) CANALI INGRESSO: modello entry, marketplace B2C/B2B, GDO/distributori, fiere, raccomandazioni strategiche
-8) RISCHIO PAESE: politico, economico, cambio, credito con indicatori numerici
-9) ROADMAP 12 MESI: timeline, KPI, budget`,
-    response_json_schema: {
-      type: "object",
-      properties: {
-        readiness_score: { type: "number", description: "Punteggio readiness export 1-10" },
-        readiness_commento: { type: "string" },
-        mercati_analisi: {
-          type: "array",
-          items: {
-            type: "object",
-            properties: {
-              paese_code: { type: "string" },
-              paese_nome: { type: "string" },
-              mercato: { type: "string", description: "Nome mercato per display" },
-              punteggio_opportunita: { type: "number", description: "1-10" },
-              market_screening: {
-                type: "object",
-                properties: {
-                  import_totale: { type: "string", description: "Valore import totale con fonte e anno" },
-                  cagr: { type: "string", description: "CAGR con percentuale e periodo" },
-                  dazi: { type: "string", description: "Dazi applicati %" },
-                  barriere_non_tariffarie: { type: "string" },
-                  ranking_motivazione: { type: "string" }
-                }
-              },
-              domanda_locale: {
-                type: "object",
-                properties: {
-                  consumo_apparente: { type: "string", description: "Valore C = (P + M) - X con formula, fonte e anno" },
-                  produzione_locale: { type: "string", description: "'Non rilevata' se assente, altrimenti valore con fonte" },
-                  import_value: { type: "string", description: "Valore M (import totale) con fonte e anno" },
-                  export_value: { type: "string", description: "Valore X (export dal paese) con fonte e anno, o N/D" },
-                  dipendenza_import: { type: "string", description: "Alta/Media/Bassa con calcolo M/(M-X) se possibile" },
-                  import_pro_capite: { type: "string", description: "Import / Popolazione con validazione vs PIL pc" },
-                  demand_score: { type: "string", enum: ["Low", "Medium", "High"], description: "Score basato su volume, PIL pc, CAGR" },
-                  validazione_coerenza: { type: "string", description: "Confronto import pc vs PIL pc — coerente o anomalia" },
-                  segmentazione: { type: "string", description: "premium/medio/entry level" },
-                  volumi_consumo: { type: "string" },
-                  canali_distributivi: { type: "array", items: { type: "string" } },
-                  trend: { type: "string", description: "Con percentuali" }
-                }
-              },
-              analisi_competitiva: {
-                type: "object",
-                properties: {
-                  competitive_landscape: {
-                    type: "object",
-                    properties: {
-                      market_concentration: { type: "string", enum: ["High", "Medium", "Low"], description: "Concentrazione mercato basata su HHI proxy" },
-                      top_competitors: {
-                        type: "array",
-                        items: {
-                          type: "object",
-                          properties: {
-                            name: { type: "string", description: "Nome azienda o Cluster di competitor" },
-                            origin: { type: "string", enum: ["Local", "International"], description: "Origine" },
-                            positioning: { type: "string", enum: ["Premium", "Value", "Mass Market"], description: "Posizionamento" },
-                            value_proposition: { type: "string" },
-                            estimated_market_share: { type: "string", description: "Quota stimata o N/D" }
-                          }
-                        }
-                      }
-                    }
-                  },
-                  pricing_intelligence: {
-                    type: "object",
-                    properties: {
-                      local_price_range_min: { type: "string", description: "Prezzo minimo con valuta" },
-                      local_price_range_max: { type: "string", description: "Prezzo massimo con valuta" },
-                      benchmark_product: { type: "string", description: "Prodotto di riferimento per il range" },
-                      notes: { type: "string" }
-                    }
-                  },
-                  distribution_channels: {
-                    type: "object",
-                    properties: {
-                      online_share: { type: "string", description: "% vendite online stimata" },
-                      offline_key_players: { type: "array", items: { type: "string" }, description: "Principali distributori/retailer offline" },
-                      standard_trade_margin: { type: "string", description: "Margine trade standard stimato" },
-                      primary_entry_mode: { type: "string", description: "Modalità principale di accesso al mercato" }
-                    }
-                  },
-                  differentiation_factors: {
-                    type: "array",
-                    items: { type: "string" },
-                    description: "Leve competitive più efficaci nel mercato specifico"
-                  },
-                  entry_barriers: {
-                    type: "object",
-                    properties: {
-                      brand_loyalty_level: { type: "string", enum: ["High", "Medium", "Low"] },
-                      required_certifications: { type: "array", items: { type: "string" } },
-                      notes: { type: "string" }
-                    }
-                  },
-                  posizionamento_italia: { type: "string" },
-                  swot: {
-                    type: "object",
-                    properties: {
-                      strengths: { type: "array", items: { type: "string" } },
-                      weaknesses: { type: "array", items: { type: "string" } },
-                      opportunities: { type: "array", items: { type: "string" } },
-                      threats: { type: "array", items: { type: "string" } }
-                    }
-                  },
-                  sources: { type: "array", items: { type: "string" }, description: "Fonti utilizzate per l'analisi competitiva" }
-                }
-              },
-              requisiti_normativi: {
-                type: "object",
-                properties: {
-                  regulatory_framework: {
-                    type: "object",
-                    properties: {
-                      import_tariffs: {
-                        type: "object",
-                        properties: {
-                          standard_rate: { type: "string", description: "Dazio MFN %" },
-                          preferential_rate: { type: "string", description: "Dazio preferenziale % o N/A" },
-                          source: { type: "string", description: "Fonte: Access2Markets/MacMap/WITS" }
-                        }
-                      },
-                      internal_taxes: {
-                        type: "object",
-                        properties: {
-                          vat_gst: { type: "string", description: "Aliquota IVA/GST %" },
-                          tax_type: { type: "string", description: "Tipo imposta (VAT, GST, Sales Tax, ecc.)" },
-                          other_taxes: { type: "string", description: "Altre imposte (accise, eco-tax, ecc.) o N/A" }
-                        }
-                      }
-                    }
-                  },
-                  product_compliance: {
-                    type: "object",
-                    properties: {
-                      mandatory_certifications: { type: "array", items: { type: "string" }, description: "Certificazioni obbligatorie (es. CE, FDA, CCC)" },
-                      technical_standards: { type: "array", items: { type: "string" }, description: "Standard tecnici ISO/EN/nazionali" },
-                      labeling_requirements: { type: "string", description: "Requisiti etichettatura (lingua, info obbligatorie)" },
-                      source: { type: "string", description: "Fonte: WTO ePing / portale nazionale" }
-                    }
-                  },
-                  customs_logistics: {
-                    type: "object",
-                    properties: {
-                      required_documents: { type: "array", items: { type: "string" }, description: "Documenti doganali richiesti" },
-                      import_licenses: { type: "string", enum: ["Required", "Not Required", "Da verificare"], description: "Necessità licenza import" },
-                      packaging_regulations: { type: "string", description: "Regolamenti packaging (ISPM-15, materiali, ecc.)" }
-                    }
-                  },
-                  compliance_alerts: {
-                    type: "object",
-                    properties: {
-                      sps_measures: { type: "string", description: "Misure sanitarie/fitosanitarie attive" },
-                      tbt_notifications: { type: "string", description: "Notifiche TBT attive" }
-                    }
-                  },
-                  tempi_autorizzazioni: { type: "string" },
-                  costi: { type: "string" },
-                  official_sources: { type: "array", items: { type: "string" }, description: "URL fonti ufficiali utilizzate" }
-                }
-              },
-              logistica: {
-                type: "object",
-                properties: {
-                  logistics_performance: {
-                    type: "object",
-                    properties: {
-                      lpi_global_rank: { type: "string", description: "Ranking LPI es. 25/160" },
-                      customs_efficiency_score: { type: "string", description: "Score efficienza doganale" },
-                      infrastructure_quality: { type: "string", enum: ["High", "Medium", "Low"] }
-                    }
-                  },
-                  shipping_routes: {
-                    type: "object",
-                    properties: {
-                      main_entry_ports: { type: "array", items: { type: "string" }, description: "Porti marittimi principali" },
-                      main_cargo_airports: { type: "array", items: { type: "string" }, description: "Aeroporti cargo principali" },
-                      transit_ports: { type: "array", items: { type: "string" }, description: "Porti di transito se landlocked" },
-                      transit_time_sea: { type: "string", description: "Tempo transito mare (giorni)" },
-                      transit_time_air: { type: "string", description: "Tempo transito aereo (giorni)" }
-                    }
-                  },
-                  estimated_costs: {
-                    type: "object",
-                    properties: {
-                      sea_freight_range: { type: "string", description: "Range nolo marittimo USD (es. $1,500-$2,800)" },
-                      air_freight_per_kg: { type: "string", description: "Nolo aereo USD/kg proxy" },
-                      last_mile_complexity: { type: "string", enum: ["Low", "Medium", "High"] }
-                    }
-                  },
-                  infrastructure_details: {
-                    type: "object",
-                    properties: {
-                      rail_connection: { type: "string", enum: ["Available", "Not Available", "Limited"] },
-                      major_logistics_hubs: { type: "array", items: { type: "string" } },
-                      free_trade_zones: { type: "array", items: { type: "string" } }
-                    }
-                  },
-                  incoterms_consigliati: { type: "string" },
-                  logistics_risks: { type: "array", items: { type: "string" }, description: "Rischi logistici specifici" },
-                  data_sources: { type: "array", items: { type: "string" }, description: "Fonti dati logistici" }
-                }
-              },
-              rischio_paese: {
-                type: "object",
-                properties: {
-                  rischio_politico: { type: "string" },
-                  rischio_economico: { type: "string" },
-                  rischio_cambio: { type: "string" },
-                  rischio_credito: { type: "string" }
-                }
-              },
-              canali_ingresso: {
-                type: "object",
-                properties: {
-                  entry_strategy: {
-                    type: "object",
-                    properties: {
-                      recommended_model: { type: "string", description: "Direct Export / Distributor / Agent / Joint Venture / Franchise / Filiale Locale" },
-                      model_justification: { type: "string", description: "Giustificazione basata sulla struttura del mercato" },
-                      estimated_entry_complexity: { type: "string", enum: ["Low", "Medium", "High"] }
-                    }
-                  },
-                  digital_channels: {
-                    type: "object",
-                    properties: {
-                      top_b2c_marketplaces: { type: "array", items: { type: "string" }, description: "Top marketplace B2C" },
-                      top_b2b_platforms: { type: "array", items: { type: "string" }, description: "Top piattaforme B2B" },
-                      ecommerce_penetration_rate: { type: "string", description: "Tasso penetrazione e-commerce %" }
-                    }
-                  },
-                  physical_distribution: {
-                    type: "object",
-                    properties: {
-                      key_retailers_gdo: { type: "array", items: { type: "string" }, description: "Principali catene GDO/retailer" },
-                      wholesale_networks: { type: "array", items: { type: "string" }, description: "Reti grossisti/distributori" },
-                      typical_distribution_margins: { type: "string", description: "Margini distribuzione tipici %" }
-                    }
-                  },
-                  partnership_opportunities: {
-                    type: "object",
-                    properties: {
-                      relevant_trade_fairs: { type: "array", items: { type: "string" }, description: "Fiere settore (nome + periodo)" },
-                      industrial_associations: { type: "array", items: { type: "string" }, description: "Associazioni categoria / camere commercio" }
-                    }
-                  },
-                  strategic_recommendations: { type: "array", items: { type: "string" }, description: "2-3 raccomandazioni operative" },
-                  verified_sources: { type: "array", items: { type: "string" }, description: "Fonti verificate (URL)" }
-                }
-              },
-              flussi_commerciali: {
-                type: "object",
-                properties: {
-                  valore_import_annuo: { type: "string" },
-                  export_italia_verso_paese: { type: "string" },
-                  trend_yoy_percentuale: { type: "string" },
-                  crescita_o_calo: { type: "string", enum: ["crescita", "calo", "stabile"] },
-                  quota_italia: { type: "string" },
-                  principali_fornitori: { type: "array", items: { type: "object", properties: { paese: { type: "string" }, quota_percentuale: { type: "string" } } } }
-                }
-              },
-              dazi_taric: {
-                type: "object",
-                properties: {
-                  dazio_mfn: { type: "string" },
-                  dazio_preferenziale: { type: "string" },
-                  anti_dumping: { type: "string" },
-                  restrizioni: { type: "string" }
-                }
-              },
-              opportunita: { type: "array", items: { type: "string" } },
-              sfide: { type: "array", items: { type: "string" } },
-              certificazioni_richieste: { type: "array", items: { type: "string" } },
-              conclusione_operativa: { type: "string" },
-              dati_insufficienti: { type: "boolean" }
-            }
-          }
-        },
-        analisi_economica: {
+  // === MODULO A: Market Screening + Domanda Locale + Flussi Commerciali ===
+  const modA = callModule('MarketScreening+Domanda', `${rules}\n${ctx.header}\n\nAnalizza per ogni Paese:\n1) MARKET SCREENING: import totale, CAGR, dazi, barriere non tariffarie, ranking motivato\n2) DOMANDA LOCALE: consumo apparente C=(P+M)-X, produzione locale, dipendenza import, demand score, segmentazione, canali distributivi, trend con %\n3) FLUSSI COMMERCIALI: import annuo, export IT→paese, trend YoY, quota Italia, principali fornitori`, {
+    type: "object",
+    properties: {
+      mercati: {
+        type: "array",
+        items: {
           type: "object",
           properties: {
-            simulazione_prezzo: { type: "string" },
-            margine_lordo: { type: "string", description: "Con formula esplicitata" },
-            break_even: { type: "string" },
-            investimento_iniziale: { type: "string", description: "Con suddivisione costi" },
-            note: { type: "string" }
+            paese_code: { type: "string" }, paese_nome: { type: "string" },
+            market_screening: { type: "object", properties: { import_totale: { type: "string" }, cagr: { type: "string" }, dazi: { type: "string" }, barriere_non_tariffarie: { type: "string" }, ranking_motivazione: { type: "string" } } },
+            domanda_locale: { type: "object", properties: { consumo_apparente: { type: "string" }, produzione_locale: { type: "string" }, import_value: { type: "string" }, export_value: { type: "string" }, dipendenza_import: { type: "string" }, import_pro_capite: { type: "string" }, demand_score: { type: "string", enum: ["Low","Medium","High"] }, validazione_coerenza: { type: "string" }, segmentazione: { type: "string" }, volumi_consumo: { type: "string" }, canali_distributivi: { type: "array", items: { type: "string" } }, trend: { type: "string" } } },
+            flussi_commerciali: { type: "object", properties: { valore_import_annuo: { type: "string" }, export_italia_verso_paese: { type: "string" }, trend_yoy_percentuale: { type: "string" }, crescita_o_calo: { type: "string", enum: ["crescita","calo","stabile"] }, quota_italia: { type: "string" }, principali_fornitori: { type: "array", items: { type: "object", properties: { paese: { type: "string" }, quota_percentuale: { type: "string" } } } } } }
           }
-        },
-        roadmap_12_mesi: {
-          type: "array",
-          items: {
-            type: "object",
-            properties: {
-              mese: { type: "string", description: "Es. Mese 1-2, Mese 3-4, etc." },
-              attivita: { type: "string" },
-              kpi: { type: "string" },
-              budget_stimato: { type: "string" }
-            }
-          }
-        },
-        mercati_prioritari: { type: "array", items: { type: "string" } },
-        raccomandazione_generale: { type: "string" },
-        timeline_consigliata: { type: "string" },
-        rischi_principali: { type: "array", items: { type: "string" } },
-        primi_passi: { type: "array", items: { type: "string" } },
-        risorse_utili: { type: "array", items: { type: "object", properties: { nome: { type: "string" }, url: { type: "string" } } } }
+        }
       }
     }
   });
-  } catch (err) {
-    console.error('[ExportDataFetcher] interpretData API error:', err);
-    return { _api_error: true, _error_message: err?.message || 'Unknown error' };
-  }
 
-  if (!result || typeof result !== 'object') {
-    console.error('[ExportDataFetcher] interpretData: risposta vuota o non valida');
-    return { _api_error: true, _error_message: 'Risposta API non valida' };
-  }
+  // === MODULO B: Competitive Intelligence ===
+  const modB = callModule('CompetitiveIntelligence', `${rules}\n${ctx.header}\n\nPer ogni Paese, analisi competitiva:\n- Competitor mapping (3-5 player, origine Local/International, posizionamento Premium/Value/Mass Market)\n- Pricing benchmark (range min-max con valuta locale)\n- Distribution channels (online share %, offline key players, trade margin)\n- Differentiation factors\n- Entry barriers (brand loyalty, certificazioni)\n- SWOT dell'azienda nel contesto\nFiltra per posizionamento azienda: ${profiloAzienda.posizionamento || 'generico'}`, {
+    type: "object",
+    properties: {
+      mercati: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            paese_code: { type: "string" }, paese_nome: { type: "string" },
+            analisi_competitiva: { type: "object", properties: {
+              competitive_landscape: { type: "object", properties: { market_concentration: { type: "string", enum: ["High","Medium","Low"] }, top_competitors: { type: "array", items: { type: "object", properties: { name: { type: "string" }, origin: { type: "string", enum: ["Local","International"] }, positioning: { type: "string", enum: ["Premium","Value","Mass Market"] }, value_proposition: { type: "string" }, estimated_market_share: { type: "string" } } } } } },
+              pricing_intelligence: { type: "object", properties: { local_price_range_min: { type: "string" }, local_price_range_max: { type: "string" }, benchmark_product: { type: "string" }, notes: { type: "string" } } },
+              distribution_channels: { type: "object", properties: { online_share: { type: "string" }, offline_key_players: { type: "array", items: { type: "string" } }, standard_trade_margin: { type: "string" }, primary_entry_mode: { type: "string" } } },
+              differentiation_factors: { type: "array", items: { type: "string" } },
+              entry_barriers: { type: "object", properties: { brand_loyalty_level: { type: "string", enum: ["High","Medium","Low"] }, required_certifications: { type: "array", items: { type: "string" } }, notes: { type: "string" } } },
+              posizionamento_italia: { type: "string" },
+              swot: { type: "object", properties: { strengths: { type: "array", items: { type: "string" } }, weaknesses: { type: "array", items: { type: "string" } }, opportunities: { type: "array", items: { type: "string" } }, threats: { type: "array", items: { type: "string" } } } },
+              sources: { type: "array", items: { type: "string" } }
+            } }
+          }
+        }
+      }
+    }
+  });
 
-  return result;
+  // === MODULO C: Regulatory Compliance + Dazi ===
+  const modC = callModule('RegulatoryCompliance', `${rules}\n${ctx.header}\n\nPer ogni Paese, regulatory compliance:\n- Dazi MFN e preferenziali, IVA/GST\n- Certificazioni obbligatorie per HS ${hsCode} (confronta con cert. azienda: ${profiloAzienda.certificazioni || 'nessuna'}. Se mancano cert obbligatorie segnala ⛔ Blocco Operativo)\n- Standard tecnici, etichettatura\n- Documenti doganali, licenze import\n- SPS/TBT alerts`, {
+    type: "object",
+    properties: {
+      mercati: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            paese_code: { type: "string" }, paese_nome: { type: "string" },
+            requisiti_normativi: { type: "object", properties: {
+              regulatory_framework: { type: "object", properties: { import_tariffs: { type: "object", properties: { standard_rate: { type: "string" }, preferential_rate: { type: "string" }, source: { type: "string" } } }, internal_taxes: { type: "object", properties: { vat_gst: { type: "string" }, tax_type: { type: "string" }, other_taxes: { type: "string" } } } } },
+              product_compliance: { type: "object", properties: { mandatory_certifications: { type: "array", items: { type: "string" } }, technical_standards: { type: "array", items: { type: "string" } }, labeling_requirements: { type: "string" }, source: { type: "string" } } },
+              customs_logistics: { type: "object", properties: { required_documents: { type: "array", items: { type: "string" } }, import_licenses: { type: "string", enum: ["Required","Not Required","Da verificare"] }, packaging_regulations: { type: "string" } } },
+              compliance_alerts: { type: "object", properties: { sps_measures: { type: "string" }, tbt_notifications: { type: "string" } } },
+              tempi_autorizzazioni: { type: "string" }, costi: { type: "string" },
+              official_sources: { type: "array", items: { type: "string" } }
+            } },
+            dazi_taric: { type: "object", properties: { dazio_mfn: { type: "string" }, dazio_preferenziale: { type: "string" }, anti_dumping: { type: "string" }, restrizioni: { type: "string" } } }
+          }
+        }
+      }
+    }
+  });
+
+  // === MODULO D: Logistica + Rischio Paese ===
+  const modD = callModule('Logistica+Rischio', `${rules}\n${ctx.header}\n\nPer ogni Paese:\n1) LOGISTICA: LPI rank, porti/aeroporti ingresso, porti transito se landlocked, costi nolo mare/aereo, tempi transito, infrastrutture, zone franche, incoterms, rischi logistici\n2) RISCHIO PAESE: politico, economico (inflazione, partite correnti), cambio (volatilità), credito — con indicatori numerici dai dati World Bank`, {
+    type: "object",
+    properties: {
+      mercati: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            paese_code: { type: "string" }, paese_nome: { type: "string" },
+            logistica: { type: "object", properties: {
+              logistics_performance: { type: "object", properties: { lpi_global_rank: { type: "string" }, customs_efficiency_score: { type: "string" }, infrastructure_quality: { type: "string", enum: ["High","Medium","Low"] } } },
+              shipping_routes: { type: "object", properties: { main_entry_ports: { type: "array", items: { type: "string" } }, main_cargo_airports: { type: "array", items: { type: "string" } }, transit_ports: { type: "array", items: { type: "string" } }, transit_time_sea: { type: "string" }, transit_time_air: { type: "string" } } },
+              estimated_costs: { type: "object", properties: { sea_freight_range: { type: "string" }, air_freight_per_kg: { type: "string" }, last_mile_complexity: { type: "string", enum: ["Low","Medium","High"] } } },
+              infrastructure_details: { type: "object", properties: { rail_connection: { type: "string", enum: ["Available","Not Available","Limited"] }, major_logistics_hubs: { type: "array", items: { type: "string" } }, free_trade_zones: { type: "array", items: { type: "string" } } } },
+              incoterms_consigliati: { type: "string" }, logistics_risks: { type: "array", items: { type: "string" } }, data_sources: { type: "array", items: { type: "string" } }
+            } },
+            rischio_paese: { type: "object", properties: { rischio_politico: { type: "string" }, rischio_economico: { type: "string" }, rischio_cambio: { type: "string" }, rischio_credito: { type: "string" } } }
+          }
+        }
+      }
+    }
+  });
+
+  // === MODULO E: GTM + Economia + Roadmap + Sintesi ===
+  const modE = callModule('GTM+Economia+Roadmap', `${rules}\n${ctx.header}\n\nPer ogni Paese:\n1) CANALI INGRESSO (coerenti con model=${profiloAzienda.business_model || 'N/S'}, canale=${profiloAzienda.canale_preferito || 'N/S'}): modello entry, marketplace B2C/B2B, GDO/distributori, fiere, raccomandazioni\n2) OPPORTUNITÀ e SFIDE\n\nGLOBALE:\n3) ANALISI ECONOMICA: simulazione prezzo, margine, break even, investimento iniziale\n4) ROADMAP 12 MESI: timeline, KPI, budget\n5) SINTESI: readiness score 1-10, raccomandazione, mercati prioritari, rischi, primi passi, risorse`, {
+    type: "object",
+    properties: {
+      mercati: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            paese_code: { type: "string" }, paese_nome: { type: "string" }, punteggio_opportunita: { type: "number" },
+            canali_ingresso: { type: "object", properties: {
+              entry_strategy: { type: "object", properties: { recommended_model: { type: "string" }, model_justification: { type: "string" }, estimated_entry_complexity: { type: "string", enum: ["Low","Medium","High"] } } },
+              digital_channels: { type: "object", properties: { top_b2c_marketplaces: { type: "array", items: { type: "string" } }, top_b2b_platforms: { type: "array", items: { type: "string" } }, ecommerce_penetration_rate: { type: "string" } } },
+              physical_distribution: { type: "object", properties: { key_retailers_gdo: { type: "array", items: { type: "string" } }, wholesale_networks: { type: "array", items: { type: "string" } }, typical_distribution_margins: { type: "string" } } },
+              partnership_opportunities: { type: "object", properties: { relevant_trade_fairs: { type: "array", items: { type: "string" } }, industrial_associations: { type: "array", items: { type: "string" } } } },
+              strategic_recommendations: { type: "array", items: { type: "string" } }, verified_sources: { type: "array", items: { type: "string" } }
+            } },
+            opportunita: { type: "array", items: { type: "string" } },
+            sfide: { type: "array", items: { type: "string" } },
+            conclusione_operativa: { type: "string" }
+          }
+        }
+      },
+      readiness_score: { type: "number" }, readiness_commento: { type: "string" },
+      analisi_economica: { type: "object", properties: { simulazione_prezzo: { type: "string" }, margine_lordo: { type: "string" }, break_even: { type: "string" }, investimento_iniziale: { type: "string" }, note: { type: "string" } } },
+      roadmap_12_mesi: { type: "array", items: { type: "object", properties: { mese: { type: "string" }, attivita: { type: "string" }, kpi: { type: "string" }, budget_stimato: { type: "string" } } } },
+      mercati_prioritari: { type: "array", items: { type: "string" } },
+      raccomandazione_generale: { type: "string" }, timeline_consigliata: { type: "string" },
+      rischi_principali: { type: "array", items: { type: "string" } },
+      primi_passi: { type: "array", items: { type: "string" } },
+      risorse_utili: { type: "array", items: { type: "object", properties: { nome: { type: "string" }, url: { type: "string" } } } }
+    }
+  });
+
+  // Attendi tutti i moduli in parallelo
+  const [resA, resB, resC, resD, resE] = await Promise.all([modA, modB, modC, modD, modE]);
+
+  // === ASSEMBLAGGIO RISULTATO FINALE ===
+  // Usa i Paesi dal modulo E come base, poi arricchisci con gli altri
+  const mercatiE = resE?.mercati || [];
+  const mercatiMap = {};
+
+  // Inizializza con modulo E (GTM + sintesi)
+  mercatiE.forEach(m => {
+    mercatiMap[m.paese_code] = { ...m, mercato: m.paese_nome };
+  });
+
+  // Merge modulo A (screening + domanda + flussi)
+  (resA?.mercati || []).forEach(m => {
+    if (!mercatiMap[m.paese_code]) mercatiMap[m.paese_code] = { paese_code: m.paese_code, paese_nome: m.paese_nome, mercato: m.paese_nome };
+    Object.assign(mercatiMap[m.paese_code], {
+      market_screening: m.market_screening,
+      domanda_locale: m.domanda_locale,
+      flussi_commerciali: m.flussi_commerciali
+    });
+  });
+
+  // Merge modulo B (competitive)
+  (resB?.mercati || []).forEach(m => {
+    if (!mercatiMap[m.paese_code]) mercatiMap[m.paese_code] = { paese_code: m.paese_code, paese_nome: m.paese_nome, mercato: m.paese_nome };
+    mercatiMap[m.paese_code].analisi_competitiva = m.analisi_competitiva;
+  });
+
+  // Merge modulo C (regulatory)
+  (resC?.mercati || []).forEach(m => {
+    if (!mercatiMap[m.paese_code]) mercatiMap[m.paese_code] = { paese_code: m.paese_code, paese_nome: m.paese_nome, mercato: m.paese_nome };
+    mercatiMap[m.paese_code].requisiti_normativi = m.requisiti_normativi;
+    mercatiMap[m.paese_code].dazi_taric = m.dazi_taric;
+  });
+
+  // Merge modulo D (logistica + rischio)
+  (resD?.mercati || []).forEach(m => {
+    if (!mercatiMap[m.paese_code]) mercatiMap[m.paese_code] = { paese_code: m.paese_code, paese_nome: m.paese_nome, mercato: m.paese_nome };
+    mercatiMap[m.paese_code].logistica = m.logistica;
+    mercatiMap[m.paese_code].rischio_paese = m.rischio_paese;
+  });
+
+  const mercati_analisi = Object.values(mercatiMap);
+
+  return {
+    readiness_score: resE?.readiness_score || 5,
+    readiness_commento: resE?.readiness_commento || '',
+    mercati_analisi,
+    analisi_economica: resE?.analisi_economica || null,
+    roadmap_12_mesi: resE?.roadmap_12_mesi || [],
+    mercati_prioritari: resE?.mercati_prioritari || [],
+    raccomandazione_generale: resE?.raccomandazione_generale || '',
+    timeline_consigliata: resE?.timeline_consigliata || '',
+    rischi_principali: resE?.rischi_principali || [],
+    primi_passi: resE?.primi_passi || [],
+    risorse_utili: resE?.risorse_utili || []
+  };
 }
