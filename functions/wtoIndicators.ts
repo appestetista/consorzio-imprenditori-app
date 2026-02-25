@@ -280,8 +280,14 @@ Deno.serve(async (req) => {
         continue;
       }
 
-      // Skip economic groups (non 3-digit-numeric codes)
-      if (!/^\d{3}$/.test(tsPCode)) continue;
+      // Log the first few non-World partner codes for debugging
+      if (Object.keys(partnerMap).length < 3 && tsPCode !== '000') {
+        console.log('[wto v3] partner sample: code="' + tsPCode + '" name="' + tsPName + '" val=' + tsVal + ' test3digit=' + /^\d{3}$/.test(tsPCode));
+      }
+
+      // Skip economic groups — keep only numeric codes (3-digit individual countries)
+      // Some WTO codes are alphanumeric for groups (e.g. "EEC", "OCI")
+      if (!/^\d+$/.test(tsPCode)) continue;
 
       // Keep highest value per partner
       if (!partnerMap[tsPCode] || tsVal > partnerMap[tsPCode].value) {
