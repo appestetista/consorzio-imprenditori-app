@@ -622,216 +622,34 @@ MERCATO: ${m.paese_nome} (${m.paese_code})
   let result;
   try {
   result = await base44.integrations.Core.InvokeLLM({
-    prompt: `Agisci come consulente senior di internazionalizzazione con metodologia conforme a ICE, SACE, World Bank, International Trade Centre. Siamo nel ${currentYear}.
+    add_context_from_internet: true,
+    prompt: `Sei un consulente senior di internazionalizzazione (ICE, SACE, ITC). Anno: ${currentYear}. Cerca informazioni aggiornate sul web per ogni Paese Target.
 
-REGOLE ANTI-ALLUCINAZIONE INDEROGABILI:
-- Usa ESCLUSIVAMENTE i dati numerici forniti sotto. NON inventare dati.
-- Ogni dato numerico deve avere: fonte e anno.
-- Se un dato è "N/D" o "Non calcolabile", scrivi: "Dato non disponibile da fonti ufficiali verificabili". NON stimare, NON dedurre, NON interpolare.
-- NON usare espressioni generiche come "in forte crescita" senza numero.
-- Separa chiaramente: dati oggettivi vs analisi interpretativa.
-- Se il livello di affidabilità è basso, indicarlo esplicitamente.
+REGOLE: Usa i dati forniti sotto + contesto web. Ogni numero con fonte e anno. Se dato N/D, scrivi "Non disponibile". No frasi generiche senza numeri.
 
-CODICE HS: ${hsCode}
-DESCRIZIONE: ${hsDescrizione}
+HS: ${hsCode} — ${hsDescrizione}
 
-PROFILO AZIENDA:
-- Settore: ${profiloAzienda.settore}
-- Prodotto: ${profiloAzienda.prodotto}
-- Fatturato: ${profiloAzienda.fatturato_annuo || 'Non specificato'}
-- Esperienza export: ${profiloAzienda.esperienza_export || 'Nessuna'}
-- Certificazioni possedute: ${profiloAzienda.certificazioni || 'Non specificate'}
-- Capacità produttiva export: ${profiloAzienda.capacita_produttiva || 'Non specificata'}
-- Posizionamento di prezzo: ${profiloAzienda.posizionamento || 'Non specificato'}
-- Business Model: ${profiloAzienda.business_model || 'Non specificato'}
-- Canale preferito: ${profiloAzienda.canale_preferito || 'Non specificato'}
+AZIENDA: Settore=${profiloAzienda.settore}, Prodotto=${profiloAzienda.prodotto}, Fatturato=${profiloAzienda.fatturato_annuo || 'N/S'}, Export exp=${profiloAzienda.esperienza_export || 'Nessuna'}, Certificazioni=${profiloAzienda.certificazioni || 'N/S'}, Capacità=${profiloAzienda.capacita_produttiva || 'N/S'}, Posizionamento=${profiloAzienda.posizionamento || 'N/S'}, Model=${profiloAzienda.business_model || 'N/S'}, Canale=${profiloAzienda.canale_preferito || 'N/S'}
 
-DATI COMMERCIALI VERIFICATI:
-${riepilogoDati}
-${datiNonDisponibili}${notaCambio}
+DATI TRADE:
+${riepilogoDati}${datiNonDisponibili}${notaCambio}
 
-ISTRUZIONI ENTERPRISE (usa i parametri profilo per filtrare l'analisi):
+ISTRUZIONI ENTERPRISE:
+- REGULATORY GAP: Confronta certificazioni possedute vs requisiti paese. Segnala "⛔ Blocco Operativo" se mancano certificazioni obbligatorie.
+- PRICING FILTER: Filtra competitor per segmento di posizionamento dell'azienda.
+- GTM ALIGNMENT: Canali coerenti con Business Model e Canale preferito.
+- CAPACITY CHECK: Valuta se capacità produttiva copre domanda target.
 
-⚙️ SMART REGULATORY CHECK: Confronta le "Certificazioni possedute" con i requisiti del Paese Target. Se mancano certificazioni obbligatorie, segnalalo come "⛔ Blocco Operativo: [certificazione] mancante". Se le certificazioni possedute danno vantaggi (es. BIO → accordi preferenziali), evidenzialo.
-
-⚙️ COMPETITIVE PRICING BENCHMARK: Filtra l'analisi competitiva in base al "Posizionamento di prezzo". Se Premium/Luxury: escludi competitor mass-market, focalizza su segmento alto. Se Entry Level: confronta con fornitori a basso costo.
-
-⚙️ GTM STRATEGY ALIGNMENT: Proponi canali d'ingresso coerenti con "Business Model" e "Canale preferito":
-   - Se B2B → privilegia reti agenti, distributori, fiere, piattaforme B2B
-   - Se B2C → privilegia marketplace, GDO, e-commerce
-   - Se Canale = Online → focus su marketplace digitali e penetrazione e-commerce
-   - Se Canale = Distributore → focus su reti distribuzione fisica e margini
-   - Se Canale = Retail → focus su GDO e retail fisico
-
-⚙️ SUPPLY CHAIN FEASIBILITY: Valuta se la "Capacità produttiva" è sufficiente per la domanda stimata. Se insufficiente, consiglia ingresso in nicchia/regione specifica.
-
-STRUTTURA OBBLIGATORIA DELL'OUTPUT (9 sezioni):
-
-1️⃣ MARKET SCREENING — Per ogni Paese:
-   - Valore import totale del prodotto (ultimo anno, €) con fonte e anno
-   - CAGR 3-5 anni (tasso annuo composto di crescita)
-   - Dazi applicati (%)
-   - Barriere non tariffarie (certificazioni obbligatorie)
-   - Ranking finale con punteggio motivato
-   Se mancano dati → dichiararlo esplicitamente.
-
-2️⃣ ANALISI DOMANDA LOCALE & MARKET SIZING — Per ogni Paese:
-   PROTOCOLLO MARKET SIZING:
-   - Consumo Apparente C = (P + M) - X dove:
-     • P = Produzione Locale (indica se disponibile o "Non rilevata")
-     • M = Import totale (dai dati Comtrade forniti)
-     • X = Export del paese (dai dati forniti)
-   - Se P non disponibile: calcola Dipendenza Import = M / (M - X), indica "Produzione Locale non rilevata"
-   - Import pro capite (import / popolazione): confronta con PIL pro capite per validazione coerenza
-   - Demand Score (fornito nei dati): Low/Medium/High
-   
-   ANALISI QUALITATIVA:
-   - Segmentazione mercato (premium / medio / entry level)
-   - Volumi di consumo ufficiali (se disponibili nei dati)
-   - Canali distributivi dominanti
-   - Trend misurabili con percentuali
-   No frasi descrittive senza dati numerici. Ogni valore con [Fonte, Anno].
-
-3️⃣ ANALISI COMPETITIVA (Competitive Intelligence & Rivalry Analyzer) — Per ogni Paese:
-   Agisci come Analista Strategico specializzato in Competitive Intelligence e Market Entry Strategy.
-   
-   PROTOCOLLO OBBLIGATORIO:
-   a) COMPETITOR MAPPING: Identifica i primi 3-5 player (locali e internazionali) operanti nel Paese Target per la categoria merceologica HS ${hsCode}. Per ognuno definisci:
-      - Nome azienda o "Cluster di competitor" se dato granulare non pubblico
-      - Origine (Local/International)
-      - Posizionamento (Premium / Value / Mass Market)
-      - Value proposition sintetica
-   
-   b) PRICING BENCHMARKING: Rileva i prezzi medi di vendita (retail o wholesale) nel Paese Target per prodotti della stessa categoria HS. Indica range min-max con valuta locale e fonte.
-   
-   c) DISTRIBUTION ANALYSIS: Identifica i principali canali di vendita (e-commerce, GDO, distributori specializzati) e le modalità comuni di accesso al mercato. Stima % online vs offline se possibile.
-   
-   d) DIFFERENTIATION FACTORS: Individua le leve competitive più efficaci (certificazioni qualità, post-vendita, sostenibilità, packaging, prezzo).
-   
-   e) ENTRY BARRIERS: Brand loyalty level (High/Medium/Low), concentrazione mercato (HHI proxy da top_fornitori), certificazioni obbligatorie per competere.
-   
-   f) SWOT dell'azienda nel contesto competitivo specifico del Paese.
-   
-   INTEGRITY CONSTRAINTS:
-   - NON generare nomi di aziende o prezzi fittizi. Se dati granulari non pubblici, descrivi il "Cluster di competitor".
-   - Ogni dato numerico con anno e fonte.
-   - I dati top_fornitori (Paesi esportatori) sono GIÀ forniti sotto — usali come base per il competitive mapping dei Paesi fornitori concorrenti.
-   - Usa i dati Comtrade forniti + conoscenza del settore per il posizionamento.
-
-4️⃣ REQUISITI NORMATIVI (Regulatory Compliance & Market Access Specialist) — Per ogni Paese:
-   Agisci come Agente di Trade Compliance specializzato in barriere tecniche (TBT), misure sanitarie (SPS) e procedure doganali.
-   
-   PROTOCOLLO OBBLIGATORIO:
-   a) TARIFFS & TAXES:
-      - Dazio MFN e preferenziale (da Access2Markets / MacMap / dati già forniti)
-      - IVA/GST/tasse interne nazionali con aliquota %
-      - Fonte API/URL per ogni dato
-   
-   b) PRODUCT COMPLIANCE:
-      - Certificazioni obbligatorie per il prodotto HS ${hsCode} nel Paese Target
-      - Standard tecnici (ISO, EN, norme nazionali)
-      - Requisiti di etichettatura (lingua, contenuto obbligatorio, normativa)
-      - Fonte: WTO ePing / portali nazionali (FDA, CEN/CENELEC, ecc.)
-   
-   c) CUSTOMS & LOGISTICS DOCUMENTATION:
-      - Documenti doganali richiesti (certificato origine, fattura commerciale, packing list, ecc.)
-      - Licenze di importazione: Required / Not Required
-      - Regolamenti packaging (materiali ammessi, fitosanitari per legno, ISPM-15, ecc.)
-   
-   d) COMPLIANCE ALERTS:
-      - Misure SPS attive (sanitarie/fitosanitarie)
-      - Notifiche TBT (barriere tecniche al commercio)
-   
-   INTEGRITY CONSTRAINTS:
-   - NON inventare requisiti normativi. Se dato non verificabile, scrivi "Informazione da verificare con broker doganale".
-   - Ogni requisito deve citare la fonte ufficiale (URL o ente).
-   - Converti i termini tecnici in istruzioni chiare per l'utente.
-
-5️⃣ ANALISI LOGISTICA (Logistics & Supply Chain Analyzer) — Per ogni Paese:
-   Agisci come Esperto di Logistica Internazionale e Supply Chain.
-   
-   PROTOCOLLO OBBLIGATORIO:
-   a) INFRASTRUCTURE ASSESSMENT:
-      - LPI Global Rank del Paese Target (dal dato World Bank fornito se disponibile)
-      - Efficienza doganale (Customs score)
-      - Qualità infrastrutture (High/Medium/Low)
-   
-   b) TRANSIT NODES:
-      - Principali porti marittimi di ingresso nel Paese Target
-      - Principali aeroporti cargo
-      - Se Paese landlocked: identifica OBBLIGATORIAMENTE i porti di transito dei paesi limitrofi
-   
-   c) FREIGHT ESTIMATION:
-      - Costo stimato nolo marittimo (container 20ft/40ft) dall'Italia al Paese Target — range min-max USD
-      - Costo stimato nolo aereo (USD/kg proxy)
-      - Tempo di transito stimato: via mare (giorni) e via aerea (giorni)
-      - Incoterms consigliati per il prodotto/mercato
-   
-   d) LAST-MILE & STORAGE:
-      - Complessità ultimo miglio (Low/Medium/High)
-      - Rete ferroviaria/stradale (Available/Not Available)
-      - Hub logistici principali e zone franche disponibili
-   
-   e) LOGISTICS RISKS:
-      - Congestione portuale, scioperi frequenti, carenze infrastrutturali documentate
-      - Criticità specifiche per il prodotto (catena del freddo, merci pericolose, dimensioni)
-   
-   INTEGRITY CONSTRAINTS:
-   - NON inventare costi o tempi: usa range medi di mercato indicati come "stime".
-   - Ogni dato deve citare la fonte (es. [World Bank LPI 2024], [Freightos Benchmark], [SeaRates]).
-   - Se dato non disponibile, scrivi "Stima non disponibile — consultare spedizioniere".
-
-6️⃣ ANALISI ECONOMICA EXPORT:
-   - Simulazione prezzo export (se dati sufficienti)
-   - Margine lordo stimato con formula esplicitata
-   - Break even point
-   - Investimento iniziale stimato con suddivisione costi
-   Se non calcolabile → spiegare perché.
-
-7️⃣ CANALI DI INGRESSO (Go-to-Market & Distribution Strategy) — Per ogni Paese:
-   Agisci come Consulente di Strategia Internazionale esperto in canali di distribuzione e modelli Go-to-Market (GTM).
-   
-   PROTOCOLLO OBBLIGATORIO:
-   a) ENTRY MODE MAPPING:
-      - Modello di ingresso raccomandato (Esportazione Diretta / Agente-Distributore / Franchising / Joint Venture / Filiale Locale)
-      - Giustificazione del modello basata sulla struttura del mercato
-      - Complessità stimata dell'ingresso (Low/Medium/High)
-   
-   b) CANALI DIGITALI:
-      - Top marketplace B2C nel Paese Target (es. Amazon, Mercado Libre, Lazada, Noon, Allegro)
-      - Top piattaforme B2B (es. Alibaba, TradeIndia, Global Sources)
-      - Tasso penetrazione e-commerce nel Paese (% se disponibile)
-   
-   c) DISTRIBUZIONE FISICA:
-      - Principali catene GDO / retailer nel Paese Target per il settore
-      - Reti grossisti / distributori specializzati
-      - Margini di distribuzione tipici nel settore (range %)
-   
-   d) PARTNERSHIP & NETWORKING:
-      - Fiere di settore rilevanti nel Paese Target (nome, periodo/date)
-      - Associazioni di categoria / camere di commercio bilaterali
-   
-   e) RACCOMANDAZIONI STRATEGICHE:
-      - 2-3 raccomandazioni operative per l'ingresso
-   
-   INTEGRITY CONSTRAINTS:
-   - NON inventare nomi di distributori o piattaforme. Se un canale non è rilevante per il settore, indicarlo.
-   - Ogni raccomandazione basata su struttura di mercato attuale con fonte (es. [Santander Trade], [Export.gov], [ICE]).
-   - Distingui tra canali Digitali e canali Fisici.
-
-8️⃣ ANALISI RISCHIO PAESE — Per ogni Paese (basata su dati World Bank/SACE forniti):
-   - Rischio politico
-   - Rischio economico (inflazione, partite correnti)
-   - Rischio cambio (volatilità cambio)
-   - Rischio credito
-   Con indicatori numerici dai dati forniti.
-
-9️⃣ ROADMAP OPERATIVA 12 MESI:
-   - Timeline mensile con milestone
-   - KPI misurabili
-   - Budget allocato stimato
-
-FORMATO: paragrafi brevi e tecnici, nessun linguaggio motivazionale, nessuna narrativa generica.`,
+COMPILA TUTTE LE 9 SEZIONI per ogni Paese:
+1) MARKET SCREENING: import totale, CAGR, dazi, barriere, ranking
+2) DOMANDA LOCALE: consumo apparente C=(P+M)-X, dipendenza import, demand score, segmentazione, canali, trend
+3) COMPETITIVE INTELLIGENCE: competitor mapping (3-5 player, origine, posizionamento), pricing benchmark, distribuzione, SWOT
+4) REGULATORY COMPLIANCE: dazi+IVA, certificazioni obbligatorie, standard tecnici, etichettatura, documenti doganali, SPS/TBT alerts
+5) LOGISTICS: LPI rank, porti/aeroporti, costi nolo mare/aereo, tempi transito, infrastrutture, zone franche, rischi
+6) ANALISI ECONOMICA: simulazione prezzo, margine lordo, break even, investimento iniziale
+7) CANALI INGRESSO: modello entry, marketplace B2C/B2B, GDO/distributori, fiere, raccomandazioni strategiche
+8) RISCHIO PAESE: politico, economico, cambio, credito con indicatori numerici
+9) ROADMAP 12 MESI: timeline, KPI, budget`,
     response_json_schema: {
       type: "object",
       properties: {
