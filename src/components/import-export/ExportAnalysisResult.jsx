@@ -600,7 +600,7 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
             <VerificaNormativaCard data={m.verifica_normativa} />
 
             {/* FASE 2 — Struttura di Ingresso */}
-            <StrutturaIngressoCard data={m.canali_ingresso} />
+            <StrutturaIngressoCard data={m.canali_ingresso} countryCode={m.paese_code} countryName={m.paese_nome || m.mercato} hsCode={confirmedExportHS?.hs_code} productDescription={exportForm?.prodotto} />
 
             {/* FASE 3 — Canali Realistici di Vendita */}
             <CanaliVenditaCard data={m.canali_ingresso} />
