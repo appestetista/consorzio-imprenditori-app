@@ -293,28 +293,33 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
                 />
               )}
               {/* Volatilità cambio con ? info */}
-              <div className="flex items-center justify-between py-1 px-3">
-                <div className="flex items-center gap-1">
-                  <span className="text-slate-500 text-[10px]">💱 Volatilità cambio</span>
-                  <button onClick={(e) => { e.stopPropagation(); setShowVolatilitaInfo(true); }}
-                    className="w-3.5 h-3.5 rounded-full border border-slate-600 flex items-center justify-center hover:border-amber-400 transition-colors">
-                    <span className="text-slate-400 text-[8px] font-bold leading-none">?</span>
-                  </button>
+              <div className="px-3 py-1">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1">
+                    <span className="text-slate-500 text-[10px]">💱 Volatilità cambio</span>
+                    <button onClick={(e) => { e.stopPropagation(); setShowVolatilitaInfo(true); }}
+                      className="w-3.5 h-3.5 rounded-full border border-slate-600 flex items-center justify-center hover:border-amber-400 transition-colors">
+                      <span className="text-slate-400 text-[8px] font-bold leading-none">?</span>
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    {macroData.volatilita_cambio !== null && macroData.volatilita_cambio !== undefined ? (
+                      <>
+                        <span className={`text-xs font-semibold ${getVolatilitaCambioStyle(macroData.volatilita_cambio)?.color || 'text-white'}`}>
+                          {macroData.volatilita_cambio}%
+                        </span>
+                        <span className={`text-[9px] ${getVolatilitaCambioStyle(macroData.volatilita_cambio)?.color}`}>
+                          ({getVolatilitaCambioStyle(macroData.volatilita_cambio)?.label})
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-slate-500 text-xs italic">N/D</span>
+                    )}
+                  </div>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  {macroData.volatilita_cambio !== null && macroData.volatilita_cambio !== undefined ? (
-                    <>
-                      <span className={`text-xs font-semibold ${getVolatilitaCambioStyle(macroData.volatilita_cambio)?.color || 'text-white'}`}>
-                        {macroData.volatilita_cambio}%
-                      </span>
-                      <span className={`text-[9px] ${getVolatilitaCambioStyle(macroData.volatilita_cambio)?.color}`}>
-                        ({getVolatilitaCambioStyle(macroData.volatilita_cambio)?.label})
-                      </span>
-                    </>
-                  ) : (
-                    <span className="text-slate-500 text-xs italic">N/D</span>
-                  )}
-                </div>
+                {macroData.volatilita_cambio_fonte && (
+                  <p className="text-slate-600 text-[9px] mt-0.5">{macroData.volatilita_cambio_fonte}</p>
+                )}
               </div>
               {macroData.partite_correnti_usd !== null && (
                 <MacroRow 
