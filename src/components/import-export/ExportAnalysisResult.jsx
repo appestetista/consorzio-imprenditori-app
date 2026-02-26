@@ -672,6 +672,16 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
             {/* FASE 5 — Logistica e Dogane (complementare) */}
             <LogisticaDoganeGTMCard data={m.logistica_dogane_gtm} />
 
+            {/* Guida Doganale Operativa — fonte ufficiale paese */}
+            {confirmedExportHS?.hs_code && (
+              <CustomsDutyGuideCard
+                countryCode={m.paese_code}
+                countryName={m.paese_nome || m.mercato}
+                hsCode={confirmedExportHS.hs_code}
+                productDescription={exportForm?.prodotto || confirmedExportHS?.description}
+              />
+            )}
+
             {/* FASE 6 — Validazione Commerciale */}
             <ValidazioneCommercialeCard data={m.validazione_commerciale} />
 
