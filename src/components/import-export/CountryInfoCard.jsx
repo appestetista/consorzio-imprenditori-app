@@ -444,6 +444,13 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
         </div>
       )}
 
+      {/* Profilo Rischio Paese — subito dopo Stabilità Economica */}
+      {macroData?.risk_profile && (
+        <div className="border-t border-white/5">
+          <CountryRiskProfileCard data={macroData.risk_profile} loading={false} />
+        </div>
+      )}
+
       {/* Popup Volatilità Cambio Info */}
       {showVolatilitaInfo && (
         <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/70 backdrop-blur-sm pt-4 px-4 pb-4 overflow-y-auto" onClick={() => setShowVolatilitaInfo(false)}>
