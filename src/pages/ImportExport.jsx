@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, TrendingUp, Ship, Mail, Clock } from 'lucide-react';
+import { ArrowLeft, TrendingUp, Ship, Mail, Clock, UserRound } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import Header from '@/components/layout/Header';
@@ -11,6 +11,7 @@ import SearchHistory from '@/components/import-export/SearchHistory';
 import WorldMapExplorer from '@/components/import-export/WorldMapExplorer';
 import ExportSection from '@/components/import-export/ExportSection';
 import ImportSection from '@/components/import-export/ImportSection';
+import ContactExportManagerPopup from '@/components/import-export/ContactExportManagerPopup';
 
 export default function ImportExport() {
   const [user, setUser] = useState(null);
@@ -19,6 +20,7 @@ export default function ImportExport() {
   const [activeTab, setActiveTab] = useState(initialTab);
   const [selectedMapCountry, setSelectedMapCountry] = useState(null);
   const [historySnapshot, setHistorySnapshot] = useState(null);
+  const [showContactPopup, setShowContactPopup] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -70,17 +72,26 @@ export default function ImportExport() {
             </p>
           </div>
           {(isExport || activeTab === 'history') && (
-            <button
-              onClick={() => setActiveTab(activeTab === 'history' ? 'export' : 'history')}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border transition-all ${
-                activeTab === 'history'
-                  ? 'bg-amber-500/20 border-amber-500/40 text-amber-400'
-                  : 'bg-white/5 border-white/10 text-slate-400 hover:text-white'
-              }`}
-            >
-              <Clock className="w-4 h-4" />
-              <span className="text-xs font-medium">Storico</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowContactPopup(true)}
+                className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-lime-400 hover:border-lime-400/30 transition-all"
+                title="Contatta Export Manager"
+              >
+                <UserRound className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setActiveTab(activeTab === 'history' ? 'export' : 'history')}
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border transition-all ${
+                  activeTab === 'history'
+                    ? 'bg-amber-500/20 border-amber-500/40 text-amber-400'
+                    : 'bg-white/5 border-white/10 text-slate-400 hover:text-white'
+                }`}
+              >
+                <Clock className="w-4 h-4" />
+                <span className="text-xs font-medium">Storico</span>
+              </button>
+            </div>
           )}
         </div>
 
@@ -112,6 +123,7 @@ export default function ImportExport() {
         )}
       </main>
 
+      <ContactExportManagerPopup open={showContactPopup} onClose={() => setShowContactPopup(false)} exportManagers={exportManagers} user={user} />
       <BottomNav currentPage="ImportExport" unreadMessages={messages.length} />
     </div>
   );
