@@ -359,12 +359,14 @@ export default function CountryRiskProfileCard({ data, loading }) {
       )}
 
       {/* Footer: timestamp + fonti */}
-      <div className="px-4 py-2">
-        <p className="text-slate-600 text-[9px]">
-          Ultimo aggiornamento: {new Date(data.timestamp).toLocaleString('it-IT')} · 
-          Fonti: World Bank WGI, S&P, Moody's, Transparency Int., Fund for Peace{data.is_eu ? ', Eurostat' : ''}
-        </p>
-      </div>
+      {data.timestamp && (
+        <div className="px-4 py-2">
+          <p className="text-slate-600 text-[9px]">
+            Ultimo aggiornamento: {new Date(data.timestamp).toLocaleString('it-IT')} · 
+            Fonti: World Bank WGI, S&P, Moody's, Transparency Int., Fund for Peace{data.is_eu ? ', Eurostat' : ''}
+          </p>
+        </div>
+      )}
 
       {/* Info Popup - Indice Affidabilità */}
       <RiskInfoPopup show={showInfoPopup} onClose={() => setShowInfoPopup(false)} title="Indice Affidabilità Paese">
