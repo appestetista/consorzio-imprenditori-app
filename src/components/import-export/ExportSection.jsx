@@ -33,8 +33,8 @@ const SETTORI = [
 
 export default function ExportSection({ user, exportManagers, selectedMapCountry, setSelectedMapCountry, onMapInteraction }) {
   const [exportForm, setExportForm] = useState({
-    settore: '', prodotto: '', capacita_produttiva: '',
-    posizionamento: '', certificazioni: '', business_model: '', canale_preferito: ''
+    settore: '', prodotto: '', capacita_produttiva: '', unita_capacita: '',
+    posizionamento: '', prezzo_medio: '', certificazioni: '', business_model: '', canale_preferito: ''
   });
   const [showHSClassifier, setShowHSClassifier] = useState(false);
   const [exportValidationErrors, setExportValidationErrors] = useState({});
@@ -127,7 +127,8 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
         settore: exportForm.settore, prodotto: exportForm.prodotto, descrizione: '',
         fatturato_annuo: user?.export_fatturato_annuo || '', esperienza_export: user?.export_esperienza || '',
         certificazioni: exportForm.certificazioni || user?.export_certificazioni || '',
-        capacita_produttiva: exportForm.capacita_produttiva, posizionamento: exportForm.posizionamento,
+        capacita_produttiva: exportForm.capacita_produttiva, unita_capacita: exportForm.unita_capacita,
+        posizionamento: exportForm.posizionamento, prezzo_medio: exportForm.prezzo_medio,
         business_model: exportForm.business_model, canale_preferito: exportForm.canale_preferito
       }, macro || {});
       if (interpretation?._api_error) { setAnalysisResult({ _api_error: true }); return; }
@@ -155,7 +156,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
     setAnalysisResult(null); setConfirmedExportHS(null); setTradeData(null); setTradeMetrics(null);
     setMacroData({}); setPriceMetrics(null); setPriceInterpretation(null); setPriceStep('');
     setUserPriceData({ prezzo_vendita: '', costo_produzione: '', unita: '', costo_logistica: '', commissioni: '', dazi: '' });
-    setExportForm({ settore: '', prodotto: '', capacita_produttiva: '', posizionamento: '', certificazioni: '', business_model: '', canale_preferito: '' });
+    setExportForm({ settore: '', prodotto: '', capacita_produttiva: '', unita_capacita: '', posizionamento: '', prezzo_medio: '', certificazioni: '', business_model: '', canale_preferito: '' });
     setSelectedMapCountry(null); setShowHSClassifier(false); setExportValidationErrors({});
   };
 
@@ -231,9 +232,20 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
           <div className="space-y-4">
             <div>
               <label className="text-slate-400 text-xs font-medium mb-1.5 block">Capacità produttiva per export</label>
-              <Input placeholder="Es. 30% della produzione, 1000 unità/mese" value={exportForm.capacita_produttiva}
-                onChange={(e) => setExportForm({ ...exportForm, capacita_produttiva: e.target.value })}
-                className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl" />
+              <div className="grid grid-cols-2 gap-2">
+                <Input placeholder="Es. 1000/mese" value={exportForm.capacita_produttiva}
+                  onChange={(e) => setExportForm({ ...exportForm, capacita_produttiva: e.target.value })}
+                  className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl" />
+                <Select value={exportForm.unita_capacita} onValueChange={(v) => setExportForm({ ...exportForm, unita_capacita: v })}>
+                  <SelectTrigger className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl text-xs"><SelectValue placeholder="Unità di misura" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pezzi">Pezzi</SelectItem>
+                    <SelectItem value="litri">Litri</SelectItem>
+                    <SelectItem value="kg">Chili (kg)</SelectItem>
+                    <SelectItem value="m3">Metri cubi (m³)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <div>
@@ -244,6 +256,13 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
                     className={`px-2 py-2 rounded-xl text-[11px] font-medium transition-all border text-center ${exportForm.posizionamento === p ? 'bg-lime-400 text-slate-900 border-lime-400 shadow-lg shadow-lime-400/20' : 'bg-slate-800/60 text-slate-400 border-white/10 hover:border-white/20 hover:text-white'}`}>{p}</button>
                 ))}
               </div>
+            </div>
+
+            <div>
+              <label className="text-slate-400 text-xs font-medium mb-1.5 block">Prezzo medio dei prodotti (€)</label>
+              <Input type="number" step="0.01" min="0" placeholder="Es. 15.00" value={exportForm.prezzo_medio}
+                onChange={(e) => setExportForm({ ...exportForm, prezzo_medio: e.target.value })}
+                className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl placeholder:text-slate-500" />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
