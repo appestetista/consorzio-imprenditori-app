@@ -19,10 +19,19 @@ function DataRow({ label, value, warning }) {
 }
 
 function PhaseSection({ title, icon: Icon, iconColor, phaseNum, children }) {
+  const bgMap = {
+    'text-red-400': 'bg-red-500/20',
+    'text-teal-400': 'bg-teal-500/20',
+    'text-cyan-400': 'bg-cyan-500/20',
+    'text-emerald-400': 'bg-emerald-500/20',
+    'text-blue-400': 'bg-blue-500/20',
+    'text-purple-400': 'bg-purple-500/20',
+  };
+  const bgClass = bgMap[iconColor] || 'bg-slate-500/20';
   return (
     <div className="bg-slate-800/60 border border-white/5 rounded-xl overflow-hidden">
       <div className="flex items-center gap-2 px-4 py-3 border-b border-white/5">
-        <div className={`w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-black ${iconColor.replace('text-', 'bg-').replace('400', '500/20')} ${iconColor}`}>
+        <div className={`w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-black ${bgClass} ${iconColor}`}>
           {phaseNum}
         </div>
         <Icon className={`w-4 h-4 ${iconColor}`} />
