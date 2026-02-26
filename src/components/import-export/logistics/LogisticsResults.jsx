@@ -1,5 +1,5 @@
 import React from 'react';
-import { Ship, Plane, Truck, AlertTriangle, CheckCircle, XCircle, Clock, Shield, Info, Scale } from 'lucide-react';
+import { Ship, Plane, Truck, AlertTriangle, CheckCircle, XCircle, Clock, Shield, Info, Landmark } from 'lucide-react';
 
 function SourceBadge({ source }) {
   if (!source) return null;
