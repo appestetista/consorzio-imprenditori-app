@@ -14,12 +14,11 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import SectionConsultantPanel from '../consulenze/SectionConsultantPanel';
 import HSCodeClassifier from './HSCodeClassifier';
 import { fetchTradeData, computeMetrics, interpretData, fetchMacroData, enrichMetricsWithDemand } from './ExportDataFetcher';
-import { fetchPriceData, computePriceMetrics, interpretPriceData } from './PriceMarginFetcher';
+
 import { ALL_COUNTRIES } from './CountrySearchSelect';
 import CountryInfoCard from './CountryInfoCard';
 import ExportComparisonRanking from './ExportComparisonRanking';
-import PriceMarginSection from './PriceMarginCard';
-import MarketSummaryCard from './MarketSummaryCard';
+
 import ExportAnalysisResult from './ExportAnalysisResult';
 import ExportContactCard from './ExportContactCard';
 import { buildExportSummary } from './buildAnalysisSummary';
@@ -51,10 +50,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
   const [confirmedExportHS, setConfirmedExportHS] = useState(initialSnapshot?.confirmedHS || null);
   const [periodoAnalisi] = useState('5');
   const [macroData, setMacroData] = useState(initialSnapshot?.macroData || {});
-  const [priceMetrics, setPriceMetrics] = useState(initialSnapshot?.priceMetrics || null);
-  const [priceInterpretation, setPriceInterpretation] = useState(initialSnapshot?.priceInterpretation || null);
-  const [priceStep, setPriceStep] = useState('');
-  const [userPriceData, setUserPriceData] = useState({ prezzo_vendita: '', costo_produzione: '', unita: '', costo_logistica: '', commissioni: '', dazi: '' });
+
   const [contactForm, setContactForm] = useState({ subject: '', message: '', exportManagerId: '', attachments: [] });
   const [uploadingAttachment, setUploadingAttachment] = useState(false);
   const [contactSent, setContactSent] = useState(false);
@@ -146,29 +142,11 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
         exportForm: { ...exportForm }
       };
 
-      setPriceStep('fetching');
-      let finalPriceMetrics = null;
-      let finalPriceInterp = null;
-      const priceRaw = await fetchPriceData(hsData.hs_code, mercatiInteresse, mercatiNames, exporterCountry, parseInt(periodoAnalisi));
-      if (priceRaw?._api_error) { setPriceMetrics(null); setPriceStep(''); }
-      else {
-        setPriceStep('computing');
-        const pMetrics = computePriceMetrics(priceRaw);
-        setPriceMetrics(pMetrics);
-        finalPriceMetrics = pMetrics;
-        if (pMetrics && !pMetrics._api_error) {
-          setPriceStep('interpreting');
-          const pInterp = await interpretPriceData(pMetrics, hsData.hs_code, hsData.descrizione_ufficiale, { settore: exportForm.settore, prodotto: exportForm.prodotto, fatturato_annuo: user?.export_fatturato_annuo || '' });
-          setPriceInterpretation(pInterp);
-          finalPriceInterp = pInterp;
-        }
-        setPriceStep('');
-      }
-      // Salva snapshot completo nel UsageLog
+      // Salva snapshot nel UsageLog
       if (usageLogId) {
         try {
           await base44.entities.UsageLog.update(usageLogId, {
-            analysis_snapshot: { ...snapshotPartial, priceMetrics: finalPriceMetrics, priceInterpretation: finalPriceInterp }
+            analysis_snapshot: snapshotPartial
           });
         } catch (e2) { console.error('[Export] Errore salvataggio snapshot:', e2); }
       }
@@ -178,8 +156,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
 
   const resetAnalysis = () => {
     setAnalysisResult(null); setConfirmedExportHS(null); setTradeData(null); setTradeMetrics(null);
-    setMacroData({}); setPriceMetrics(null); setPriceInterpretation(null); setPriceStep('');
-    setUserPriceData({ prezzo_vendita: '', costo_produzione: '', unita: '', costo_logistica: '', commissioni: '', dazi: '' });
+    setMacroData({});
     setExportForm({ settore: '', prodotto: '', capacita_produttiva: '', unita_capacita: '', posizionamento: '', prezzo_medio: '', certificazioni: '', business_model: '', canale_preferito: '' });
     setSelectedMapCountry(null); setShowHSClassifier(false); setExportValidationErrors({});
     if (onClearSnapshot) onClearSnapshot();
@@ -399,26 +376,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
               <HSCodeClassifier productDescription={`${exportForm.prodotto} (Settore: ${exportForm.settore})`} onConfirm={handleExportHSConfirm} onError={() => {}} autoStart={true} />
             )}
 
-            {confirmedExportHS && !analyzing && !analysisResult && (
-              <Card className="bg-slate-800 border-slate-700">
-                <CardContent className="p-4">
-                  <h3 className="text-white font-semibold mb-3 flex items-center gap-2"><DollarSign className="w-5 h-5 text-lime-400" /> Prezzo e Costo (opzionale)</h3>
-                  <p className="text-slate-400 text-xs mb-3">Per calcolare il Margine Lordo %. L'unità di misura è libera.</p>
-                  <div className="space-y-3">
-                    <div><label className="text-slate-400 text-sm mb-1 block">Unità di misura</label><Input placeholder="Es. pezzo, kg, litro, metro..." value={userPriceData.unita} onChange={(e) => setUserPriceData({ ...userPriceData, unita: e.target.value })} className="bg-slate-900 border-slate-700 text-white" /></div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div><label className="text-slate-400 text-sm mb-1 block">Prezzo di vendita (€)</label><Input type="number" step="0.01" min="0" placeholder="Es. 25.00" value={userPriceData.prezzo_vendita} onChange={(e) => setUserPriceData({ ...userPriceData, prezzo_vendita: e.target.value })} className="bg-slate-900 border-slate-700 text-white" /></div>
-                      <div><label className="text-slate-400 text-sm mb-1 block">Costo produzione (€)</label><Input type="number" step="0.01" min="0" placeholder="Es. 12.50" value={userPriceData.costo_produzione} onChange={(e) => setUserPriceData({ ...userPriceData, costo_produzione: e.target.value })} className="bg-slate-900 border-slate-700 text-white" /></div>
-                    </div>
-                    <div className="grid grid-cols-3 gap-3">
-                      <div><label className="text-slate-400 text-sm mb-1 block">Logistica (€)</label><Input type="number" step="0.01" min="0" placeholder="0.00" value={userPriceData.costo_logistica} onChange={(e) => setUserPriceData({ ...userPriceData, costo_logistica: e.target.value })} className="bg-slate-900 border-slate-700 text-white" /></div>
-                      <div><label className="text-slate-400 text-sm mb-1 block">Commissioni (€)</label><Input type="number" step="0.01" min="0" placeholder="0.00" value={userPriceData.commissioni} onChange={(e) => setUserPriceData({ ...userPriceData, commissioni: e.target.value })} className="bg-slate-900 border-slate-700 text-white" /></div>
-                      <div><label className="text-slate-400 text-sm mb-1 block">Dazi (€)</label><Input type="number" step="0.01" min="0" placeholder="0.00" value={userPriceData.dazi} onChange={(e) => setUserPriceData({ ...userPriceData, dazi: e.target.value })} className="bg-slate-900 border-slate-700 text-white" /></div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+
 
           </div>
         )
@@ -460,32 +418,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
 
           <ExportAnalysisResult analysisResult={analysisResult} tradeMetrics={tradeMetrics} macroData={macroData} confirmedExportHS={confirmedExportHS} tradeData={tradeData} exportForm={exportForm} />
 
-          {priceStep && (
-            <Card className="bg-slate-800 border-slate-700"><CardContent className="p-4"><div className="space-y-3">
-              <div className="flex items-center gap-3"><Loader2 className="w-5 h-5 animate-spin text-indigo-400" /><p className="text-white font-semibold text-sm">Analisi Prezzo & Marginalità...</p></div>
-              <div className="space-y-2">{['fetching', 'computing', 'interpreting'].map((step, i) => {
-                const labels = { fetching: '1. Recupero prezzi unitari da UN Comtrade...', computing: '2. Calcolo premium/discount e trend...', interpreting: '3. Interpretazione strategica AI...' };
-                const isActive = priceStep === step; const isDone = ['fetching', 'computing', 'interpreting'].indexOf(priceStep) > i;
-                return (<div key={step} className={`flex items-center gap-2 text-xs px-3 py-1.5 rounded-lg ${isActive ? 'bg-indigo-400/10 text-indigo-400' : isDone ? 'bg-green-500/10 text-green-400' : 'text-slate-500'}`}>
-                  {isActive ? <Loader2 className="w-3 h-3 animate-spin" /> : isDone ? <CheckCircle className="w-3 h-3" /> : <span className="w-3 h-3 rounded-full border border-slate-600 block" />}{labels[step]}
-                </div>);
-              })}</div>
-            </div></CardContent></Card>
-          )}
 
-          {!priceStep && priceMetrics && (<>
-            {priceMetrics.metriche?.length > 0 && (
-              <div className="space-y-2">
-                <h3 className="text-white font-bold text-sm flex items-center gap-2 px-1"><BarChart3 className="w-4 h-4 text-indigo-400" /> Riepilogo per mercato</h3>
-                {priceMetrics.metriche.map(pm => {
-                  const tm = tradeMetrics?.metriche?.find(t => t.paese_code === pm.paese_code);
-                  return (<MarketSummaryCard key={pm.paese_code} priceM={pm} tradeM={tm} macro={macroData?.[pm.paese_code]} userPriceData={userPriceData}
-                    dataSourceInfo={{ periodo: tradeData?._query_log?.periodo, annoCambio: priceMetrics?.tasso_cambio?.anno || tradeMetrics?.tasso_cambio?.anno, dataRecupero: tradeData?._timestamp_recupero }} />);
-                })}
-              </div>
-            )}
-            <PriceMarginSection priceMetrics={priceMetrics} interpretation={priceInterpretation} userPriceData={userPriceData} />
-          </>)}
 
           <ExportContactCard contactForm={contactForm} setContactForm={setContactForm} contactSent={contactSent} setContactSent={setContactSent} sendContactMutation={sendContactMutation} uploadingAttachment={uploadingAttachment} handleAttachmentUpload={handleAttachmentUpload} removeAttachment={removeAttachment} exportManagers={exportManagers} />
           <Button onClick={resetAnalysis} variant="outline" className="w-full border-slate-600 text-slate-400 hover:bg-slate-800">Nuova Analisi</Button>

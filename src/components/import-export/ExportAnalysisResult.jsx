@@ -5,7 +5,7 @@ import {
   DollarSign, MapPin, AlertTriangle, Calendar, CheckCircle, 
   BarChart3, Package, ExternalLink, ArrowRight 
 } from 'lucide-react';
-import WebEnrichmentCard from './WebEnrichmentCard';
+
 import { 
   VerificaNormativaCard, StrutturaIngressoCard, CanaliVenditaCard, 
   StrutturaMarginiCard, LogisticaDoganeGTMCard, ValidazioneCommercialeCard, DatiMancantiCard 
@@ -592,15 +592,7 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
               </OpenSection>
             )}
 
-            {/* Web Intelligence (Access2Markets, Trade Map, ICE) */}
-            {(() => {
-              try {
-                const mercatoTD = tradeData?.mercati?.find(td => td.paese_code === m.paese_code);
-                return mercatoTD?.web_enrichment ? (
-                  <WebEnrichmentCard webData={mercatoTD.web_enrichment} countryName={m.paese_nome || m.mercato} />
-                ) : null;
-              } catch { return null; }
-            })()}
+
 
             {/* ====== STRATEGIA EXPORT UNIVERSALE — 6 FASI ====== */}
 
