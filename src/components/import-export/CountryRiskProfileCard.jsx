@@ -94,8 +94,8 @@ export default function CountryRiskProfileCard({ data, loading }) {
               <Shield className="w-4 h-4 text-cyan-400" />
               <span className="text-cyan-400 text-[10px] font-semibold uppercase tracking-wider">Indice Affidabilità Paese</span>
               <button onClick={() => setShowInfoPopup(true)}
-                className="w-3.5 h-3.5 rounded-full border border-slate-600 flex items-center justify-center hover:border-cyan-400">
-                <span className="text-slate-400 text-[8px] font-bold">?</span>
+                className="w-5 h-5 rounded-full bg-red-500/20 border border-red-500/50 flex items-center justify-center hover:bg-red-500/30 transition-colors">
+                <span className="text-red-400 text-[10px] font-bold">?</span>
               </button>
             </div>
             <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${getReliabilityColor(fri.level)}`}>
@@ -320,14 +320,18 @@ export default function CountryRiskProfileCard({ data, loading }) {
 
       {/* Info Popup */}
       {showInfoPopup && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={() => setShowInfoPopup(false)}>
-          <div className="bg-slate-900 border border-white/10 rounded-2xl p-5 max-w-sm w-full shadow-2xl max-h-[80vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/70 backdrop-blur-sm pt-4 px-4 pb-4 overflow-y-auto" onClick={() => setShowInfoPopup(false)}>
+          <div className="bg-slate-900 border border-white/10 rounded-2xl p-5 max-w-sm w-full shadow-2xl" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-white font-bold text-sm">Indice Affidabilità Paese</h3>
               <button onClick={() => setShowInfoPopup(false)} className="text-slate-400 hover:text-white"><X className="w-4 h-4" /></button>
             </div>
             <div className="space-y-2 text-slate-300 text-xs leading-relaxed">
-              <p>L'indice è calcolato come <strong className="text-white">media aritmetica</strong> di 4 componenti normalizzate 0-100:</p>
+              <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-3 mb-2">
+                <p className="text-cyan-400 text-[10px] font-bold uppercase tracking-wider mb-1">Cos'è e perché è importante per l'export</p>
+                <p className="text-slate-300 text-xs">L'Indice Affidabilità sintetizza quanto un paese è stabile e sicuro per le tue operazioni export. <strong className="text-white">Per chi esporta</strong>, un punteggio alto significa minore rischio di insolvenza dei clienti, migliore governance e meno corruzione — tutti fattori che influenzano i pagamenti, la tutela contrattuale e la facilità di fare affari.</p>
+              </div>
+              <p>Calcolato come <strong className="text-white">media aritmetica</strong> di 4 componenti normalizzate 0-100:</p>
               <div className="bg-slate-800 rounded-lg p-3 space-y-1.5">
                 <div><strong className="text-cyan-400">Rating</strong> — Rating sovrano S&P/Moody's normalizzato (AAA=100, D=0)</div>
                 <div><strong className="text-cyan-400">Governance</strong> — Media 6 indicatori WGI World Bank (percentile 0-100)</div>
