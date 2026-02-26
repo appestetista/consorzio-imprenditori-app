@@ -41,7 +41,7 @@ function DataRow({ label, value, warning }) {
   );
 }
 
-export default function ExportAnalysisResult({ analysisResult, tradeMetrics, macroData, confirmedExportHS, tradeData }) {
+export default function ExportAnalysisResult({ analysisResult, tradeMetrics, macroData, confirmedExportHS, tradeData, exportForm }) {
   if (!analysisResult || typeof analysisResult !== 'object') return null;
 
   const readinessScore = typeof analysisResult.readiness_score === 'number' ? analysisResult.readiness_score : 0;
