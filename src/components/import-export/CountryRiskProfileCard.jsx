@@ -59,30 +59,6 @@ function WGIRow({ label, estimate, percentile, year }) {
   );
 }
 
-function InfoButton({ onClick }) {
-  return (
-    <button onClick={(e) => { e.stopPropagation(); onClick(); }}
-      className="w-5 h-5 rounded-full bg-red-500/20 border border-red-500/50 flex items-center justify-center hover:bg-red-500/30 transition-colors flex-shrink-0">
-      <span className="text-red-400 text-[10px] font-bold leading-none">?</span>
-    </button>
-  );
-}
-
-function InfoPopup({ show, onClose, title, children }) {
-  if (!show) return null;
-  return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/70 backdrop-blur-sm pt-4 px-4 pb-4 overflow-y-auto" onClick={onClose}>
-      <div className="bg-slate-900 border border-white/10 rounded-2xl p-5 max-w-sm w-full shadow-2xl" onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-white font-bold text-sm">{title}</h3>
-          <button onClick={onClose} className="text-slate-400 hover:text-white"><X className="w-4 h-4" /></button>
-        </div>
-        <div className="space-y-2 text-slate-300 text-xs leading-relaxed">{children}</div>
-      </div>
-    </div>
-  );
-}
-
 export default function CountryRiskProfileCard({ data, loading }) {
   const [showInfoPopup, setShowInfoPopup] = useState(false);
   const [showRatingInfo, setShowRatingInfo] = useState(false);
