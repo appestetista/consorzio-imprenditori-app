@@ -655,6 +655,14 @@ Rispondi in italiano.`,
     });
     selectedLinesRef.current = [];
 
+    // Rimuovi mesh rialzate
+    raisedMeshesRef.current.forEach(rm => {
+      if (globeGroupRef.current) globeGroupRef.current.remove(rm);
+      rm.geometry.dispose();
+      rm.material.dispose();
+    });
+    raisedMeshesRef.current = [];
+
     if (selectedMeshRef.current) {
       countryMeshesRef.current.forEach(m => {
         if (m.userData.countryName === selectedMeshRef.current.userData.countryName) {
