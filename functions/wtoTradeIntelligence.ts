@@ -67,17 +67,30 @@ Deno.serve(async (req) => {
     var reporters = await rResp.json();
     if (Array.isArray(reporters)) {
       var sL = countryName.toLowerCase().trim();
+      // 1) Exact name match
       for (var ri = 0; ri < reporters.length; ri++) {
         if ((reporters[ri].name || '').toLowerCase() === sL) { reporterCode = String(reporters[ri].code); reporterName = reporters[ri].name; break; }
       }
-      if (!reporterCode) {
-        for (var ri2 = 0; ri2 < reporters.length; ri2++) {
-          if ((reporters[ri2].name || '').toLowerCase().indexOf(sL) >= 0) { reporterCode = String(reporters[ri2].code); reporterName = reporters[ri2].name; break; }
-        }
-      }
+      // 2) Exact code match
       if (!reporterCode) {
         for (var ri3 = 0; ri3 < reporters.length; ri3++) {
           if (String(reporters[ri3].code) === countryName.trim()) { reporterCode = String(reporters[ri3].code); reporterName = reporters[ri3].name; break; }
+        }
+      }
+      // 3) Partial match — prefer shortest name (most specific match)
+      if (!reporterCode) {
+        var candidates = [];
+        for (var ri2 = 0; ri2 < reporters.length; ri2++) {
+          var rName = (reporters[ri2].name || '').toLowerCase();
+          if (rName.indexOf(sL) >= 0) {
+            candidates.push(reporters[ri2]);
+          }
+        }
+        // Sort by name length ascending — shortest name = most likely the country itself
+        candidates.sort(function(a, b) { return (a.name || '').length - (b.name || '').length; });
+        if (candidates.length > 0) {
+          reporterCode = String(candidates[0].code);
+          reporterName = candidates[0].name;
         }
       }
     }
