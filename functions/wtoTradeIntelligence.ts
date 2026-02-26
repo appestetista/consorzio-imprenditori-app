@@ -251,7 +251,7 @@ Deno.serve(async (req) => {
         }
       };
 
-      var ctUrl = 'https://comtradeapi.un.org/public/v1/preview/C/A/HS?reporterCode=' + m49 + '&partnerCode=0&cmdCode=' + hs4 + '&flowCode=M&period=' + cqY;
+      var ctUrl = 'https://comtradeapi.un.org/public/v1/preview/C/A/HS?reporterCode=' + m49 + '&cmdCode=' + hs4 + '&flowCode=M&period=' + cqY;
       console.log('[TI] ' + ctUrl);
       try {
         var ctR = await fetch(ctUrl, { headers: { 'Accept': 'application/json' }, signal: AbortSignal.timeout(20000) });
