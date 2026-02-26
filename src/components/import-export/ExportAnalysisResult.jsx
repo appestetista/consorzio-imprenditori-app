@@ -37,24 +37,26 @@ function DataRow({ label, value, warning }) {
 }
 
 export default function ExportAnalysisResult({ analysisResult, tradeMetrics, macroData, confirmedExportHS, tradeData }) {
-  if (!analysisResult) return null;
+  if (!analysisResult || typeof analysisResult !== 'object') return null;
+
+  const readinessScore = typeof analysisResult.readiness_score === 'number' ? analysisResult.readiness_score : 0;
 
   return (
     <div className="space-y-3">
       {/* Readiness Score */}
       <div className="relative rounded-2xl overflow-hidden">
         <div className={`absolute inset-0 ${
-          analysisResult.readiness_score >= 7 ? 'bg-gradient-to-br from-green-600/80 to-emerald-700/80' :
-          analysisResult.readiness_score >= 5 ? 'bg-gradient-to-br from-amber-600/80 to-yellow-700/80' : 'bg-gradient-to-br from-red-600/80 to-rose-700/80'
+          readinessScore >= 7 ? 'bg-gradient-to-br from-green-600/80 to-emerald-700/80' :
+          readinessScore >= 5 ? 'bg-gradient-to-br from-amber-600/80 to-yellow-700/80' : 'bg-gradient-to-br from-red-600/80 to-rose-700/80'
         }`} />
         <div className="relative p-5">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-white/60 text-xs uppercase tracking-wider font-medium">Export Readiness</p>
-              <p className="text-white/90 text-sm mt-1 max-w-[200px]">{analysisResult.readiness_commento}</p>
+              <p className="text-white/90 text-sm mt-1 max-w-[200px]">{analysisResult.readiness_commento || ''}</p>
             </div>
             <div className="text-right">
-              <div className="text-5xl font-black text-white drop-shadow-lg">{analysisResult.readiness_score}</div>
+              <div className="text-5xl font-black text-white drop-shadow-lg">{readinessScore}</div>
               <p className="text-white/50 text-xs font-medium">/10</p>
             </div>
           </div>
@@ -73,7 +75,7 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
       </div>
 
       {/* Per ogni mercato */}
-      {analysisResult.mercati_analisi?.map((m, idx) => (
+      {Array.isArray(analysisResult.mercati_analisi) && analysisResult.mercati_analisi.map((m, idx) => (
         <Card key={idx} className="bg-slate-800/60 border-white/5 overflow-hidden">
           <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
             <h3 className="text-white font-bold text-sm">{m.mercato || m.paese_nome}</h3>
@@ -587,10 +589,12 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
 
             {/* Web Intelligence (Access2Markets, Trade Map, ICE) */}
             {(() => {
-              const mercatoTD = tradeData?.mercati?.find(td => td.paese_code === m.paese_code);
-              return mercatoTD?.web_enrichment ? (
-                <WebEnrichmentCard webData={mercatoTD.web_enrichment} countryName={m.paese_nome || m.mercato} />
-              ) : null;
+              try {
+                const mercatoTD = tradeData?.mercati?.find(td => td.paese_code === m.paese_code);
+                return mercatoTD?.web_enrichment ? (
+                  <WebEnrichmentCard webData={mercatoTD.web_enrichment} countryName={m.paese_nome || m.mercato} />
+                ) : null;
+              } catch { return null; }
             })()}
 
             {/* Canali di Ingresso — Go-to-Market */}
