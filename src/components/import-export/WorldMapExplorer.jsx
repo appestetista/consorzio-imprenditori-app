@@ -521,7 +521,6 @@ export default function WorldMapExplorer({ onCountrySelect, selectedCountries = 
   const [countryData, setCountryData] = useState(null);
   const [loadingData, setLoadingData] = useState(false);
   const [hoveredName, setHoveredName] = useState('');
-  const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
 
   // Drag state
   const isDragging = useRef(false);
