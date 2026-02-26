@@ -83,7 +83,7 @@ export default function ImportExport() {
           )}
         </div>
 
-        {/* Tab Switch principale — Export / Import */}
+        {/* Tab Switch principale — Export / Messaggi */}
         <div className="flex gap-1.5 mb-6 bg-slate-800/50 p-1 rounded-xl border border-white/5">
           <button
             onClick={() => setActiveTab('export')}
@@ -94,16 +94,6 @@ export default function ImportExport() {
             }`}
           >
             <TrendingUp className="w-4 h-4" /> Export
-          </button>
-          <button
-            onClick={() => setActiveTab('import')}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-              isImport || activeTab === 'messages'
-                ? 'bg-gradient-to-r from-red-500 to-rose-500 text-white shadow-lg shadow-red-500/20'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            <Ship className="w-4 h-4" /> Import CN
           </button>
           <button
             onClick={() => setActiveTab('messages')}
