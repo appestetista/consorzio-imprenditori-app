@@ -144,17 +144,28 @@ Deno.serve(async (req) => {
   var wtoFreq = null;
   var wtoOk = false;
 
-  var dcP = new URLSearchParams();
-  dcP.set('i', 'ITS_MTV_AM'); dcP.set('r', reporterCode); dcP.set('p', '000');
-  dcP.set('pc', productCode); dcP.set('ps', yearsParam);
-  var dcResp = await fetch(WTO_BASE + '/data_count?' + dcP.toString(), { headers: HEADERS, signal: AbortSignal.timeout(20000) });
-  var dataCount = 0;
-  if (dcResp.ok) { var dcRaw = await dcResp.text(); dataCount = parseInt(dcRaw, 10) || 0; }
-  console.log('[TI] data_count=' + dataCount);
+  // WTO ITS_MTV_AM only supports product groups (AG, TO, MA, MI, etc.) not HS codes
+  var cleanPCForWto = String(productCode).replace(/\D/g, '');
+  var isHSProduct = /^\d{2,6}$/.test(cleanPCForWto);
+  
+  if (isHSProduct) {
+    notes.push('WTO ITS_MTV_AM does not support HS codes (only product groups like AG, TO, MA). WTO macro data skipped for HS ' + productCode + '.');
+    console.log('[TI] HS product detected, skipping WTO macro');
+  }
 
-  if (dataCount === 0) {
+  var dataCount = 0;
+  if (!isHSProduct) {
+    var dcP = new URLSearchParams();
+    dcP.set('i', 'ITS_MTV_AM'); dcP.set('r', reporterCode); dcP.set('p', '000');
+    dcP.set('pc', productCode); dcP.set('ps', yearsParam);
+    var dcResp = await fetch(WTO_BASE + '/data_count?' + dcP.toString(), { headers: HEADERS, signal: AbortSignal.timeout(20000) });
+    if (dcResp.ok) { var dcRaw = await dcResp.text(); dataCount = parseInt(dcRaw, 10) || 0; }
+    console.log('[TI] data_count=' + dataCount);
+  }
+
+  if (dataCount === 0 && !isHSProduct) {
     notes.push('WTO: no data for ITS_MTV_AM p=World');
-  } else {
+  } else if (dataCount > 0) {
     var dP = new URLSearchParams();
     dP.set('i', 'ITS_MTV_AM'); dP.set('r', reporterCode); dP.set('p', '000');
     dP.set('pc', productCode); dP.set('ps', yearsParam);
