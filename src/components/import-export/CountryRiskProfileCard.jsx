@@ -365,7 +365,7 @@ export default function CountryRiskProfileCard({ data, loading }) {
       </div>
 
       {/* Info Popup - Indice Affidabilità */}
-      <InfoPopup show={showInfoPopup} onClose={() => setShowInfoPopup(false)} title="Indice Affidabilità Paese">
+      <RiskInfoPopup show={showInfoPopup} onClose={() => setShowInfoPopup(false)} title="Indice Affidabilità Paese">
         <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-3 mb-2">
           <p className="text-cyan-400 text-[10px] font-bold uppercase tracking-wider mb-1">Cos'è e perché è importante per l'export</p>
           <p className="text-slate-300 text-xs">L'Indice Affidabilità sintetizza quanto un paese è stabile e sicuro per le tue operazioni export. <strong className="text-white">Per chi esporta</strong>, un punteggio alto significa minore rischio di insolvenza dei clienti, migliore governance e meno corruzione.</p>
@@ -387,10 +387,10 @@ export default function CountryRiskProfileCard({ data, loading }) {
             <div className="flex justify-between"><span className="text-red-400">&lt; 30</span><span className="text-slate-400">Critico</span></div>
           </div>
         </div>
-      </InfoPopup>
+      </RiskInfoPopup>
 
       {/* Info Popup - Rating Sovrano */}
-      <InfoPopup show={showRatingInfo} onClose={() => setShowRatingInfo(false)} title="Rating Sovrano">
+      <RiskInfoPopup show={showRatingInfo} onClose={() => setShowRatingInfo(false)} title="Rating Sovrano">
         <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-3 mb-2">
           <p className="text-cyan-400 text-[10px] font-bold uppercase tracking-wider mb-1">Cos'è e perché è importante per l'export</p>
           <p className="text-slate-300 text-xs">Il rating sovrano è il giudizio delle principali agenzie (S&P, Moody's) sulla capacità di un paese di onorare i propri debiti. <strong className="text-white">Per chi esporta</strong>, un rating alto indica un ambiente economico stabile, dove i partner commerciali hanno accesso al credito e i pagamenti sono più sicuri. Un rating basso segnala rischio di default e instabilità finanziaria.</p>
@@ -405,10 +405,10 @@ export default function CountryRiskProfileCard({ data, loading }) {
             <div className="flex justify-between"><span className="text-red-400">BB e sotto</span><span className="text-slate-400">Speculativo (rischio)</span></div>
           </div>
         </div>
-      </InfoPopup>
+      </RiskInfoPopup>
 
       {/* Info Popup - CPI Corruzione */}
-      <InfoPopup show={showCPIInfo} onClose={() => setShowCPIInfo(false)} title="Indice di Corruzione (CPI)">
+      <RiskInfoPopup show={showCPIInfo} onClose={() => setShowCPIInfo(false)} title="Indice di Corruzione (CPI)">
         <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-3 mb-2">
           <p className="text-cyan-400 text-[10px] font-bold uppercase tracking-wider mb-1">Cos'è e perché è importante per l'export</p>
           <p className="text-slate-300 text-xs">Il CPI (Corruption Perceptions Index) di Transparency International misura il livello percepito di corruzione nel settore pubblico di un paese, su scala 0-100. <strong className="text-white">Per chi esporta</strong>, un CPI basso indica che potresti incontrare richieste di tangenti, procedure opache, difficoltà doganali e minore certezza del diritto.</p>
@@ -422,10 +422,10 @@ export default function CountryRiskProfileCard({ data, loading }) {
             <div className="flex justify-between"><span className="text-red-400">&lt; 30</span><span className="text-slate-400">Corruzione grave</span></div>
           </div>
         </div>
-      </InfoPopup>
+      </RiskInfoPopup>
 
       {/* Info Popup - FSI Fragilità */}
-      <InfoPopup show={showFSIInfo} onClose={() => setShowFSIInfo(false)} title="Indice di Fragilità (FSI)">
+      <RiskInfoPopup show={showFSIInfo} onClose={() => setShowFSIInfo(false)} title="Indice di Fragilità (FSI)">
         <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-3 mb-2">
           <p className="text-cyan-400 text-[10px] font-bold uppercase tracking-wider mb-1">Cos'è e perché è importante per l'export</p>
           <p className="text-slate-300 text-xs">Il Fragile States Index (Fund for Peace) misura la vulnerabilità di uno stato su una scala 0-120, considerando pressioni demografiche, economiche, politiche e sociali. <strong className="text-white">Per chi esporta</strong>, un FSI alto indica instabilità politica, rischi di conflitto, interruzioni della supply chain e difficoltà nell'esecuzione dei contratti.</p>
@@ -439,10 +439,10 @@ export default function CountryRiskProfileCard({ data, loading }) {
             <div className="flex justify-between"><span className="text-red-400">&gt; 90</span><span className="text-slate-400">Stato fragile/critico</span></div>
           </div>
         </div>
-      </InfoPopup>
+      </RiskInfoPopup>
 
       {/* Info Popup - WGI Governance */}
-      <InfoPopup show={showWGIInfo} onClose={() => setShowWGIInfo(false)} title="Governance (WGI)">
+      <RiskInfoPopup show={showWGIInfo} onClose={() => setShowWGIInfo(false)} title="Governance (WGI)">
         <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-3 mb-2">
           <p className="text-cyan-400 text-[10px] font-bold uppercase tracking-wider mb-1">Cos'è e perché è importante per l'export</p>
           <p className="text-slate-300 text-xs">I Worldwide Governance Indicators (WGI) della World Bank misurano la qualità della governance su 6 dimensioni. <strong className="text-white">Per chi esporta</strong>, una governance alta significa regole chiare, contratti rispettati, burocrazia efficiente e tutela degli investitori. Una governance bassa comporta incertezza legale, corruzione e rischi operativi.</p>
@@ -459,10 +459,10 @@ export default function CountryRiskProfileCard({ data, loading }) {
           </div>
         </div>
         <p className="text-slate-500 text-[10px]">Percentile 0-100: più alto = migliore governance.</p>
-      </InfoPopup>
+      </RiskInfoPopup>
 
       {/* Info Popup - Macro-Economici */}
-      <InfoPopup show={showMacroInfo} onClose={() => setShowMacroInfo(false)} title="Indicatori Macro-Economici">
+      <RiskInfoPopup show={showMacroInfo} onClose={() => setShowMacroInfo(false)} title="Indicatori Macro-Economici">
         <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-3 mb-2">
           <p className="text-cyan-400 text-[10px] font-bold uppercase tracking-wider mb-1">Cos'è e perché è importante per l'export</p>
           <p className="text-slate-300 text-xs">Gli indicatori macroeconomici forniscono una fotografia della salute economica del paese. <strong className="text-white">Per chi esporta</strong>, servono a capire se l'economia è in crescita (più domanda), se l'inflazione erode i margini, se la disoccupazione limita il potere d'acquisto e se il debito pubblico mette a rischio la stabilità.</p>
@@ -477,10 +477,10 @@ export default function CountryRiskProfileCard({ data, loading }) {
             <div><strong className="text-white">Saldo C/C su PIL</strong> — bilancia commerciale in % del PIL</div>
           </div>
         </div>
-      </InfoPopup>
+      </RiskInfoPopup>
 
       {/* Info Popup - Demografici */}
-      <InfoPopup show={showDemoInfo} onClose={() => setShowDemoInfo(false)} title="Indicatori Demografici">
+      <RiskInfoPopup show={showDemoInfo} onClose={() => setShowDemoInfo(false)} title="Indicatori Demografici">
         <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-3 mb-2">
           <p className="text-cyan-400 text-[10px] font-bold uppercase tracking-wider mb-1">Cos'è e perché è importante per l'export</p>
           <p className="text-slate-300 text-xs">I dati demografici descrivono la struttura della popolazione del paese. <strong className="text-white">Per chi esporta</strong>, sono fondamentali per dimensionare il mercato potenziale: una popolazione giovane e urbanizzata con alta speranza di vita indica maggiore capacità di consumo e propensione all'acquisto di beni importati.</p>
@@ -494,7 +494,7 @@ export default function CountryRiskProfileCard({ data, loading }) {
             <div><strong className="text-white">Età lavorativa</strong> — forza lavoro e potere d'acquisto</div>
           </div>
         </div>
-      </InfoPopup>
+      </RiskInfoPopup>
     </div>
   );
 }
