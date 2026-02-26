@@ -751,9 +751,9 @@ Rispondi in italiano.`,
     if (isDragging.current && globeGroupRef.current) {
       const dx = pos.px - previousMouse.current.x;
       const dy = pos.py - previousMouse.current.y;
-      globeGroupRef.current.rotation.y += dx * 0.006;
-      globeGroupRef.current.rotation.x += dy * 0.006;
-      rotationVelocity.current = { x: dx * 0.003, y: dy * 0.003 };
+      globeGroupRef.current.rotation.y += dx * 0.005;
+      globeGroupRef.current.rotation.x += dy * 0.005;
+      rotationVelocity.current = { x: dx * 0.002, y: dy * 0.002 };
       previousMouse.current = { x: pos.px, y: pos.py };
     }
 
