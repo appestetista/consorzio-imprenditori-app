@@ -445,7 +445,7 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
       )}
 
       {/* Profilo Rischio Paese — subito dopo Stabilità Economica */}
-      {macroData?.risk_profile && (
+      {macroData?.risk_profile && typeof macroData.risk_profile === 'object' && (
         <div className="border-t border-white/5">
           <CountryRiskProfileCard data={macroData.risk_profile} loading={false} />
         </div>
