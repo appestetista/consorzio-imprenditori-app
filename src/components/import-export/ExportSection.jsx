@@ -34,7 +34,7 @@ const SETTORI = [
   'Edilizia e materiali da costruzione', 'Energia e ambiente', 'Altro'
 ];
 
-export default function ExportSection({ user, exportManagers, selectedMapCountry, setSelectedMapCountry, onMapInteraction, initialSnapshot }) {
+export default function ExportSection({ user, exportManagers, selectedMapCountry, setSelectedMapCountry, onMapInteraction, initialSnapshot, onClearSnapshot }) {
   const [exportForm, setExportForm] = useState(
     initialSnapshot?.exportForm || {
       settore: '', prodotto: '', capacita_produttiva: '', unita_capacita: '',
@@ -182,6 +182,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
     setUserPriceData({ prezzo_vendita: '', costo_produzione: '', unita: '', costo_logistica: '', commissioni: '', dazi: '' });
     setExportForm({ settore: '', prodotto: '', capacita_produttiva: '', unita_capacita: '', posizionamento: '', prezzo_medio: '', certificazioni: '', business_model: '', canale_preferito: '' });
     setSelectedMapCountry(null); setShowHSClassifier(false); setExportValidationErrors({});
+    if (onClearSnapshot) onClearSnapshot();
   };
 
   return (

@@ -102,6 +102,7 @@ export default function ImportExport() {
             selectedMapCountry={selectedMapCountry}
             setSelectedMapCountry={setSelectedMapCountry}
             initialSnapshot={historySnapshot}
+            onClearSnapshot={() => setHistorySnapshot(null)}
           />
         ) : (
           <ImportSection
