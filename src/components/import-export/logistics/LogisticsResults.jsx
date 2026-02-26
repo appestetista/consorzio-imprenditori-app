@@ -193,7 +193,7 @@ function CustomsCard({ data }) {
   return (
     <div className="bg-indigo-500/5 border border-indigo-500/20 rounded-xl p-4">
       <div className="flex items-center gap-2 mb-3">
-        <Scale className="w-5 h-5 text-indigo-400" />
+        <Landmark className="w-5 h-5 text-indigo-400" />
         <span className="text-white font-bold text-sm">Dazi & Imposte</span>
         <ConfidenceBadge level={data.confidence} />
       </div>
