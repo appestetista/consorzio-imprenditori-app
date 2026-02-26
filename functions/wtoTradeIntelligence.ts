@@ -1,14 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
-/**
- * Trade Intelligence Engine
- * 
- * FASE 1: Normalizzazione input (WTO reporters, products, years)
- * FASE 2: WTO macro data (market_size, trend, CAGR) — solo p=000 (World)
- * FASE 3: Comtrade bilateral data (top suppliers, market share)
- * FASE 4: Output strutturato
- */
-
 var WTO_BASE = 'https://api.wto.org/timeseries/v1';
 
 var ISO2_TO_M49 = {
@@ -56,7 +47,7 @@ Deno.serve(async (req) => {
   var yearsRange = payload.years_range || '';
 
   if (!countryName || !productDescription) {
-    return Response.json({ error: 'country_name and product_description are required' }, { status: 400 });
+    return Response.json({ error: 'country_name and product_description required' }, { status: 400 });
   }
 
   var apiKey = Deno.env.get('WTO_API_KEY') || '';
@@ -66,354 +57,216 @@ Deno.serve(async (req) => {
   var notes = [];
   var timestamp = new Date().toISOString();
 
-  // ===========================
-  // FASE 1
-  // ===========================
-  console.log('[TI] FASE 1 — country=' + countryName + ' product=' + productDescription + ' years=' + yearsRange);
+  // FASE 1 — Normalizzazione
+  console.log('[TI] F1 country=' + countryName + ' product=' + productDescription);
 
   var reporterCode = null;
   var reporterName = null;
-  try {
-    var rResp = await fetch(WTO_BASE + '/reporters', { headers: HEADERS, signal: AbortSignal.timeout(15000) });
-    if (!rResp.ok) throw new Error('HTTP ' + rResp.status);
+  var rResp = await fetch(WTO_BASE + '/reporters', { headers: HEADERS, signal: AbortSignal.timeout(15000) });
+  if (rResp.ok) {
     var reporters = await rResp.json();
     if (Array.isArray(reporters)) {
       var sL = countryName.toLowerCase().trim();
-      var rMatch = null;
       for (var ri = 0; ri < reporters.length; ri++) {
-        if ((reporters[ri].name || '').toLowerCase() === sL) { rMatch = reporters[ri]; break; }
+        if ((reporters[ri].name || '').toLowerCase() === sL) { reporterCode = String(reporters[ri].code); reporterName = reporters[ri].name; break; }
       }
-      if (!rMatch) {
+      if (!reporterCode) {
         for (var ri2 = 0; ri2 < reporters.length; ri2++) {
-          if ((reporters[ri2].name || '').toLowerCase().indexOf(sL) >= 0) { rMatch = reporters[ri2]; break; }
+          if ((reporters[ri2].name || '').toLowerCase().indexOf(sL) >= 0) { reporterCode = String(reporters[ri2].code); reporterName = reporters[ri2].name; break; }
         }
       }
-      if (!rMatch) {
+      if (!reporterCode) {
         for (var ri3 = 0; ri3 < reporters.length; ri3++) {
-          if (String(reporters[ri3].code) === countryName.trim()) { rMatch = reporters[ri3]; break; }
+          if (String(reporters[ri3].code) === countryName.trim()) { reporterCode = String(reporters[ri3].code); reporterName = reporters[ri3].name; break; }
         }
-      }
-      if (rMatch) {
-        reporterCode = String(rMatch.code);
-        reporterName = rMatch.name;
-        console.log('[TI] Reporter: ' + reporterCode + ' = ' + reporterName);
       }
     }
-  } catch (e) {
-    console.log('[TI] Reporters err: ' + e.message);
   }
-
-  if (!reporterCode) {
-    return Response.json({ error: 'Reporter non trovato per "' + countryName + '"', phase: 'FASE 1' }, { status: 400 });
-  }
+  if (!reporterCode) return Response.json({ error: 'Reporter not found: ' + countryName }, { status: 400 });
+  console.log('[TI] Reporter=' + reporterCode + ' ' + reporterName);
 
   var productCode = productDescription.trim();
   var productName = null;
-  try {
-    var pResp = await fetch(WTO_BASE + '/products', { headers: HEADERS, signal: AbortSignal.timeout(15000) });
-    if (pResp.ok) {
-      var products = await pResp.json();
-      if (Array.isArray(products)) {
-        var pL = productDescription.toLowerCase().trim();
-        var pMatch = null;
-        for (var pi = 0; pi < products.length; pi++) {
-          if ((products[pi].code || '').toLowerCase() === pL) { pMatch = products[pi]; break; }
-        }
-        if (!pMatch) {
-          for (var pi2 = 0; pi2 < products.length; pi2++) {
-            if ((products[pi2].name || '').toLowerCase().indexOf(pL) >= 0) { pMatch = products[pi2]; break; }
-          }
-        }
-        if (pMatch) {
-          productCode = pMatch.code;
-          productName = pMatch.name;
-          console.log('[TI] Product: ' + productCode + ' = ' + productName);
-        } else {
-          notes.push('Product "' + productDescription + '" used as-is.');
+  var pResp = await fetch(WTO_BASE + '/products', { headers: HEADERS, signal: AbortSignal.timeout(15000) });
+  if (pResp.ok) {
+    var products = await pResp.json();
+    if (Array.isArray(products)) {
+      var pL = productDescription.toLowerCase().trim();
+      for (var pi = 0; pi < products.length; pi++) {
+        if ((products[pi].code || '').toLowerCase() === pL) { productCode = products[pi].code; productName = products[pi].name; break; }
+      }
+      if (!productName) {
+        for (var pi2 = 0; pi2 < products.length; pi2++) {
+          if ((products[pi2].name || '').toLowerCase().indexOf(pL) >= 0) { productCode = products[pi2].code; productName = products[pi2].name; break; }
         }
       }
     }
-  } catch (e) {
-    notes.push('Products API error.');
   }
-
-  var availableYears = [];
-  try {
-    var yResp = await fetch(WTO_BASE + '/years', { headers: HEADERS, signal: AbortSignal.timeout(15000) });
-    if (yResp.ok) availableYears = await yResp.json();
-  } catch (e) { /* skip */ }
+  console.log('[TI] Product=' + productCode + ' ' + productName);
 
   var yearsArray = [];
   if (yearsRange) {
     var yrStr = String(yearsRange).trim();
     if (yrStr.indexOf('-') >= 0 && yrStr.indexOf(',') < 0) {
       var pts = yrStr.split('-').map(Number);
-      if (pts.length === 2 && !isNaN(pts[0]) && !isNaN(pts[1])) {
-        for (var yy1 = pts[0]; yy1 <= pts[1]; yy1++) yearsArray.push(yy1);
-      }
+      if (pts.length === 2) for (var y1 = pts[0]; y1 <= pts[1]; y1++) yearsArray.push(y1);
     } else {
-      var yrParts = yrStr.split(',');
-      for (var yp = 0; yp < yrParts.length; yp++) {
-        var parsed = parseInt(yrParts[yp].trim(), 10);
-        if (!isNaN(parsed)) yearsArray.push(parsed);
-      }
+      var yrP = yrStr.split(',');
+      for (var yp = 0; yp < yrP.length; yp++) { var pv = parseInt(yrP[yp], 10); if (!isNaN(pv)) yearsArray.push(pv); }
     }
   }
   if (yearsArray.length === 0) {
     var cY = new Date().getFullYear();
-    for (var yy2 = cY - 5; yy2 <= cY - 1; yy2++) yearsArray.push(yy2);
-    notes.push('No years_range. Default ' + yearsArray[0] + '-' + yearsArray[yearsArray.length - 1] + '.');
+    for (var y2 = cY - 5; y2 <= cY - 1; y2++) yearsArray.push(y2);
+    notes.push('Default years: ' + yearsArray[0] + '-' + yearsArray[yearsArray.length - 1]);
   }
-
   var yearsParam = yearsArray.join(',');
 
-  // ===========================
   // FASE 2 — WTO MACRO
-  // ===========================
-  console.log('[TI] FASE 2 — WTO macro');
-
+  console.log('[TI] F2 WTO macro');
   var wtoMarketSize = null;
   var wtoTrend = [];
   var wtoCagr = null;
   var wtoUnit = null;
-  var wtoFrequency = null;
-  var wtoDataAvailable = false;
+  var wtoFreq = null;
+  var wtoOk = false;
 
+  var dcP = new URLSearchParams();
+  dcP.set('i', 'ITS_MTV_AM'); dcP.set('r', reporterCode); dcP.set('p', '000');
+  dcP.set('pc', productCode); dcP.set('ps', yearsParam);
+  var dcResp = await fetch(WTO_BASE + '/data_count?' + dcP.toString(), { headers: HEADERS, signal: AbortSignal.timeout(20000) });
   var dataCount = 0;
-  try {
-    var dcP = new URLSearchParams();
-    dcP.set('i', 'ITS_MTV_AM'); dcP.set('r', reporterCode); dcP.set('p', '000');
-    dcP.set('pc', productCode); dcP.set('ps', yearsParam);
-    var dcUrl = WTO_BASE + '/data_count?' + dcP.toString();
-    console.log('[TI] ' + dcUrl);
-    var dcR = await fetch(dcUrl, { headers: HEADERS, signal: AbortSignal.timeout(20000) });
-    if (dcR.ok) {
-      var dcRaw = await dcR.text();
-      dataCount = parseInt(dcRaw, 10);
-      if (isNaN(dataCount)) dataCount = 0;
-      console.log('[TI] data_count=' + dataCount);
-    }
-  } catch (e) {
-    console.log('[TI] data_count err: ' + e.message);
-  }
+  if (dcResp.ok) { var dcRaw = await dcResp.text(); dataCount = parseInt(dcRaw, 10) || 0; }
+  console.log('[TI] data_count=' + dataCount);
 
   if (dataCount === 0) {
-    notes.push('WTO data not available for selected combination (ITS_MTV_AM, p=World).');
+    notes.push('WTO: no data for ITS_MTV_AM p=World');
   } else {
-    try {
-      var dP = new URLSearchParams();
-      dP.set('i', 'ITS_MTV_AM'); dP.set('r', reporterCode); dP.set('p', '000');
-      dP.set('pc', productCode); dP.set('ps', yearsParam);
-      dP.set('fmt', 'json'); dP.set('mode', 'full'); dP.set('dec', '2');
-      dP.set('max', '500'); dP.set('head', 'H'); dP.set('lang', '1');
-      var dUrl = WTO_BASE + '/data?' + dP.toString();
-      console.log('[TI] ' + dUrl);
-      var dResp = await fetch(dUrl, { headers: HEADERS, signal: AbortSignal.timeout(30000) });
-
-      if (dResp.ok) {
-        var rawBody = await dResp.text();
-        console.log('[TI] raw len=' + rawBody.length + ' preview=' + rawBody.substring(0, 200));
-        var rawData = null;
-        try { rawData = JSON.parse(rawBody); } catch (_e) {}
-
-        if (rawData) {
-          var dataArray = null;
-          if (Array.isArray(rawData)) dataArray = rawData;
-          else if (rawData.Dataset && Array.isArray(rawData.Dataset)) dataArray = rawData.Dataset;
-          else if (typeof rawData === 'object') {
-            var oKeys = Object.keys(rawData);
-            for (var oki = 0; oki < oKeys.length; oki++) {
-              if (Array.isArray(rawData[oKeys[oki]])) { dataArray = rawData[oKeys[oki]]; break; }
-            }
+    var dP = new URLSearchParams();
+    dP.set('i', 'ITS_MTV_AM'); dP.set('r', reporterCode); dP.set('p', '000');
+    dP.set('pc', productCode); dP.set('ps', yearsParam);
+    dP.set('fmt', 'json'); dP.set('mode', 'full'); dP.set('dec', '2');
+    dP.set('max', '500'); dP.set('head', 'H'); dP.set('lang', '1');
+    var dResp = await fetch(WTO_BASE + '/data?' + dP.toString(), { headers: HEADERS, signal: AbortSignal.timeout(30000) });
+    if (dResp.ok) {
+      var rawBody = await dResp.text();
+      console.log('[TI] raw len=' + rawBody.length);
+      var rawData = null;
+      try { rawData = JSON.parse(rawBody); } catch (_) {}
+      if (rawData) {
+        var arr = null;
+        if (Array.isArray(rawData)) arr = rawData;
+        else if (rawData.Dataset) arr = rawData.Dataset;
+        else { var ks = Object.keys(rawData); for (var ki = 0; ki < ks.length; ki++) { if (Array.isArray(rawData[ks[ki]])) { arr = rawData[ks[ki]]; break; } } }
+        if (arr && arr.length > 0) {
+          wtoOk = true;
+          var ym = {};
+          for (var ai = 0; ai < arr.length; ai++) {
+            var yr = parseInt(String(arr[ai].Year || ''), 10);
+            var vl = parseFloat(arr[ai].Value);
+            if (!isNaN(yr) && !isNaN(vl) && vl >= 0) ym[yr] = vl;
+            if (!wtoUnit && arr[ai].Unit) wtoUnit = arr[ai].Unit;
+            if (!wtoFreq && arr[ai].Frequency) wtoFreq = arr[ai].Frequency;
           }
-
-          if (dataArray && dataArray.length > 0) {
-            wtoDataAvailable = true;
-            console.log('[TI] WTO records=' + dataArray.length);
-            var yearlyMap = {};
-            for (var dai = 0; dai < dataArray.length; dai++) {
-              var rec = dataArray[dai];
-              var yrV = parseInt(String(rec.Year || ''), 10);
-              var valV = parseFloat(rec.Value);
-              if (!isNaN(yrV) && !isNaN(valV) && valV >= 0) yearlyMap[yrV] = valV;
-              if (!wtoUnit && rec.Unit) wtoUnit = rec.Unit;
-              if (!wtoFrequency && rec.Frequency) wtoFrequency = rec.Frequency;
-            }
-            var sYears = Object.keys(yearlyMap).map(Number).sort(function(a, b) { return a - b; });
-            for (var si = 0; si < sYears.length; si++) {
-              wtoTrend.push({ year: sYears[si], value: yearlyMap[sYears[si]], unit: wtoUnit || 'Million US dollar', source: 'WTO Timeseries API v1' });
-            }
-            if (wtoTrend.length > 0) {
-              var last = wtoTrend[wtoTrend.length - 1];
-              wtoMarketSize = { value: last.value, unit: wtoUnit || 'Million US dollar', year: last.year, source: 'WTO Timeseries API v1' };
-            }
-            if (wtoTrend.length >= 2) {
-              var f = wtoTrend[0]; var l = wtoTrend[wtoTrend.length - 1];
-              var nY = l.year - f.year;
-              if (f.value > 0 && nY > 0) {
-                wtoCagr = parseFloat(((Math.pow(l.value / f.value, 1 / nY) - 1) * 100).toFixed(2)) + '%';
-              }
-            }
-          } else {
-            notes.push('WTO /data returned empty dataset.');
-          }
-        } else {
-          notes.push('WTO /data response not parseable.');
+          var sk = Object.keys(ym).map(Number).sort(function(a, b) { return a - b; });
+          for (var si = 0; si < sk.length; si++) wtoTrend.push({ year: sk[si], value: ym[sk[si]], unit: wtoUnit || 'Million US dollar', source: 'WTO Timeseries API v1' });
+          if (wtoTrend.length > 0) { var lt = wtoTrend[wtoTrend.length - 1]; wtoMarketSize = { value: lt.value, unit: wtoUnit || 'Million US dollar', year: lt.year, source: 'WTO Timeseries API v1' }; }
+          if (wtoTrend.length >= 2) { var ft = wtoTrend[0]; var lt2 = wtoTrend[wtoTrend.length - 1]; var n = lt2.year - ft.year; if (ft.value > 0 && n > 0) wtoCagr = parseFloat(((Math.pow(lt2.value / ft.value, 1 / n) - 1) * 100).toFixed(2)) + '%'; }
         }
-      } else {
-        notes.push('WTO /data HTTP ' + dResp.status);
       }
-    } catch (e) {
-      notes.push('WTO data error: ' + e.message);
     }
-  }
-
-  if (!wtoUnit || !wtoFrequency) {
-    try {
-      var mdR = await fetch(WTO_BASE + '/indicators', { headers: HEADERS, signal: AbortSignal.timeout(15000) });
-      if (mdR.ok) {
-        var mdAll = await mdR.json();
-        if (Array.isArray(mdAll)) {
-          for (var mdi = 0; mdi < mdAll.length; mdi++) {
-            if ((mdAll[mdi].code || '').toLowerCase() === 'its_mtv_am') {
-              if (!wtoUnit) wtoUnit = mdAll[mdi].unitCode || 'USM';
-              if (!wtoFrequency) wtoFrequency = mdAll[mdi].frequencyCode || 'A';
-              break;
-            }
-          }
-        }
-      }
-    } catch (_e) {}
   }
 
   var uMap = { 'USM': 'Million US dollar', 'USD': 'US dollar', 'PCT': 'Percentage' };
-  var unitReadable = uMap[wtoUnit] || wtoUnit || 'Million US dollar';
+  var unitR = uMap[wtoUnit] || wtoUnit || 'Million US dollar';
   var fMap = { 'A': 'Annual', 'Q': 'Quarterly', 'M': 'Monthly' };
-  var freqReadable = fMap[wtoFrequency] || wtoFrequency || 'Annual';
+  var freqR = fMap[wtoFreq] || wtoFreq || 'Annual';
 
-  // ===========================
   // FASE 3 — COMTRADE
-  // ===========================
-  console.log('[TI] FASE 3 — Comtrade');
-
+  console.log('[TI] F3 Comtrade');
   var topSuppliers = [];
   var marketShare = [];
-  var comtradeImportTotal = null;
-  var comtradeYear = null;
-  var comtradeAvailable = false;
+  var ctImportTotal = null;
+  var ctYear = null;
+  var ctOk = false;
 
   var iso2 = WTO_TO_ISO2[reporterCode] || null;
   var m49 = iso2 ? ISO2_TO_M49[iso2] : null;
 
   if (!m49) {
-    notes.push('No M49 mapping for WTO ' + reporterCode + '. Bilateral data skipped.');
+    notes.push('No M49 for WTO ' + reporterCode);
   } else {
-    var cqYear = yearsArray[yearsArray.length - 1];
     var cleanPC = String(productCode).replace(/\D/g, '');
-    var isHS = /^\d{2,6}$/.test(cleanPC);
-
-    if (!isHS) {
-      notes.push('Product "' + productCode + '" is not HS code. Top suppliers not available.');
+    if (!/^\d{2,6}$/.test(cleanPC)) {
+      notes.push('Product "' + productCode + '" not HS code. Bilateral skipped.');
     } else {
       var hs4 = cleanPC.substring(0, 4);
+      var cqY = yearsArray[yearsArray.length - 1];
 
-      var processRecords = function(records, year) {
+      var doProcess = function(recs, year) {
         var byP = {};
-        var totImp = 0;
-        for (var ci = 0; ci < records.length; ci++) {
-          var r = records[ci];
-          var pc = r.partnerCode;
-          var pd = r.partnerDesc || ('M49:' + pc);
-          if (pc === 0 || pc === '0') continue;
+        var tot = 0;
+        for (var i = 0; i < recs.length; i++) {
+          var r = recs[i];
+          if (r.partnerCode === 0 || r.partnerCode === '0') continue;
           var v = r.primaryValue || 0;
           if (v <= 0) continue;
-          if (!byP[pc]) byP[pc] = { name: pd, value: 0 };
-          byP[pc].value += v;
-          totImp += v;
+          var k = r.partnerCode;
+          if (!byP[k]) byP[k] = { name: r.partnerDesc || ('M49:' + k), value: 0 };
+          byP[k].value += v;
+          tot += v;
         }
-        if (totImp > 0) {
-          comtradeAvailable = true;
-          comtradeImportTotal = Math.round(totImp);
-          comtradeYear = year;
-          var sorted = Object.values(byP).sort(function(a, b) { return b.value - a.value; });
-          var top10 = sorted.slice(0, 10);
-          for (var ti = 0; ti < top10.length; ti++) {
-            topSuppliers.push({
-              rank: ti + 1,
-              partner_name: top10[ti].name,
-              import_value_usd: Math.round(top10[ti].value),
-              market_share_pct: parseFloat(((top10[ti].value / totImp) * 100).toFixed(2)),
-              source: 'UN Comtrade'
-            });
-            marketShare.push({
-              partner_name: top10[ti].name,
-              share_pct: parseFloat(((top10[ti].value / totImp) * 100).toFixed(2))
-            });
+        if (tot > 0) {
+          ctOk = true; ctImportTotal = Math.round(tot); ctYear = year;
+          var srt = Object.values(byP).sort(function(a, b) { return b.value - a.value; });
+          var t10 = srt.slice(0, 10);
+          for (var j = 0; j < t10.length; j++) {
+            topSuppliers.push({ rank: j + 1, partner_name: t10[j].name, import_value_usd: Math.round(t10[j].value), market_share_pct: parseFloat(((t10[j].value / tot) * 100).toFixed(2)), source: 'UN Comtrade' });
+            marketShare.push({ partner_name: t10[j].name, share_pct: parseFloat(((t10[j].value / tot) * 100).toFixed(2)) });
           }
-          console.log('[TI] Comtrade: ' + sorted.length + ' partners, $' + totImp);
-        } else {
-          notes.push('Comtrade total=0 for year ' + year);
         }
       };
 
-      var ctUrl = 'https://comtradeapi.un.org/public/v1/preview/C/A/HS?reporterCode=' + m49 + '&partnerCode=0&cmdCode=' + hs4 + '&flowCode=M&period=' + cqYear;
+      var ctUrl = 'https://comtradeapi.un.org/public/v1/preview/C/A/HS?reporterCode=' + m49 + '&partnerCode=0&cmdCode=' + hs4 + '&flowCode=M&period=' + cqY;
       console.log('[TI] ' + ctUrl);
       try {
         var ctR = await fetch(ctUrl, { headers: { 'Accept': 'application/json' }, signal: AbortSignal.timeout(20000) });
         if (ctR.ok) {
           var ctJ = await ctR.json();
           var ctRecs = (ctJ && ctJ.data) ? ctJ.data : [];
-          console.log('[TI] Comtrade records=' + ctRecs.length);
-          if (ctRecs.length === 0) {
-            notes.push('No Comtrade data for HS' + hs4 + ' year=' + cqYear);
-            var prevY = cqYear - 1;
-            try {
-              var retUrl = 'https://comtradeapi.un.org/public/v1/preview/C/A/HS?reporterCode=' + m49 + '&partnerCode=0&cmdCode=' + hs4 + '&flowCode=M&period=' + prevY;
-              var retR = await fetch(retUrl, { headers: { 'Accept': 'application/json' }, signal: AbortSignal.timeout(20000) });
-              if (retR.ok) {
-                var retJ = await retR.json();
-                var retRecs = (retJ && retJ.data) ? retJ.data : [];
-                if (retRecs.length > 0) {
-                  notes.push('Using Comtrade year ' + prevY + ' instead.');
-                  processRecords(retRecs, prevY);
-                }
-              }
-            } catch (re) {}
-          } else {
-            processRecords(ctRecs, cqYear);
+          console.log('[TI] Comtrade recs=' + ctRecs.length);
+          if (ctRecs.length > 0) { doProcess(ctRecs, cqY); }
+          else {
+            notes.push('No Comtrade for HS' + hs4 + ' y=' + cqY);
+            var pY = cqY - 1;
+            var rUrl = 'https://comtradeapi.un.org/public/v1/preview/C/A/HS?reporterCode=' + m49 + '&partnerCode=0&cmdCode=' + hs4 + '&flowCode=M&period=' + pY;
+            var rR = await fetch(rUrl, { headers: { 'Accept': 'application/json' }, signal: AbortSignal.timeout(20000) });
+            if (rR.ok) { var rJ = await rR.json(); var rRecs = (rJ && rJ.data) ? rJ.data : []; if (rRecs.length > 0) { notes.push('Using year ' + pY); doProcess(rRecs, pY); } }
           }
-        } else {
-          notes.push('Comtrade HTTP ' + ctR.status);
         }
-      } catch (e) {
-        notes.push('Comtrade error: ' + e.message);
-      }
+      } catch (e) { notes.push('Comtrade err: ' + e.message); }
     }
   }
 
-  // ===========================
   // FASE 4 — OUTPUT
-  // ===========================
-  var output = {
+  return Response.json({
     country: reporterName || countryName,
     country_code_wto: reporterCode,
     country_code_iso2: iso2 || null,
     product: productName || productDescription,
     product_code: productCode,
     years_requested: yearsArray,
-    market_size: wtoMarketSize || { value: null, unit: unitReadable, year: null, source: 'WTO Timeseries API v1', note: 'No data available' },
+    market_size: wtoMarketSize || { value: null, unit: unitR, year: null, source: 'WTO Timeseries API v1', note: 'No data available' },
     trend: wtoTrend,
     cagr: wtoCagr || null,
     top_suppliers: topSuppliers,
     market_share: marketShare,
-    comtrade_import_total: comtradeImportTotal ? { value_usd: comtradeImportTotal, year: comtradeYear, source: 'UN Comtrade' } : null,
-    unit: unitReadable,
-    frequency: freqReadable,
-    sources: { macro: 'WTO Timeseries API v1', bilateral: comtradeAvailable ? 'UN Comtrade' : 'UN Comtrade (no data available)' },
-    data_availability: { wto_macro: wtoDataAvailable, comtrade_bilateral: comtradeAvailable },
+    comtrade_import_total: ctImportTotal ? { value_usd: ctImportTotal, year: ctYear, source: 'UN Comtrade' } : null,
+    unit: unitR,
+    frequency: freqR,
+    sources: { macro: 'WTO Timeseries API v1', bilateral: ctOk ? 'UN Comtrade' : 'UN Comtrade (no data)' },
+    data_availability: { wto_macro: wtoOk, comtrade_bilateral: ctOk },
     notes: notes,
     timestamp: timestamp
-  };
-
-  return Response.json(output);
+  });
 });
