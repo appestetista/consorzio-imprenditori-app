@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Globe, TrendingUp, TrendingDown, Minus, ChevronDown, ChevronUp, ShieldCheck, ShieldAlert, Truck, HelpCircle, X } from 'lucide-react';
+import { Globe, TrendingUp, TrendingDown, Minus, ShieldCheck, ShieldAlert, Truck, X } from 'lucide-react';
 import { getFlagUrl } from './CountrySearchSelect';
 import CountryRiskProfileCard from './CountryRiskProfileCard';
 
