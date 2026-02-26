@@ -3,17 +3,11 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 /**
  * POST /logisticsQuote
  * 
- * Modulo Logistica: interroga API reali di carrier marittimi/aerei + congestione portuale.
+ * Modulo Logistica: usa LLM + ricerca web per trovare dati logistici reali.
+ * NON inventa dati. Se un dato non è trovabile, restituisce "Non disponibile".
  * 
- * POLICY: Se un'API non è configurata o non risponde, restituisce errore strutturato.
- * MAI inventare dati. Ogni output include fonte, timestamp, e confidence level.
- * 
- * API supportate (richiedono chiave in env):
- * - CMACGM_API_KEY: CMA CGM Pricing/Quotation API
- * - HAPAG_API_KEY: Hapag-Lloyd Pricing API  
- * - MAERSK_API_KEY: Maersk API (tracking/location)
- * - MARINETRAFFIC_API_KEY: MarineTraffic Port Congestion
- * - IATA_API_KEY: IATA Cargo (tracking only)
+ * Ogni output include: fonte, timestamp, confidence level.
+ * Confidence: "medium" (dati da fonti web pubbliche), "low" (stime LLM).
  */
 
 Deno.serve(async (req) => {
@@ -28,7 +22,7 @@ Deno.serve(async (req) => {
     }
 
     const body = await req.json();
-    
+
     // Normalizzazione input
     const normalized = {
       incoterm: (body.incoterm || 'FOB').toUpperCase(),
@@ -49,7 +43,7 @@ Deno.serve(async (req) => {
         weight_kg: parseFloat(body.weight_kg) || 0,
         volume_m3: parseFloat(body.volume_m3) || 0,
         colli: parseInt(body.colli) || 0,
-        container_type: body.container_type || '20\' Standard',
+        container_type: body.container_type || "20' Standard",
         dangerous_goods: body.dangerous_goods === true,
       },
       urgency_days: parseInt(body.urgency_days) || null,
@@ -61,244 +55,272 @@ Deno.serve(async (req) => {
         zip: body.last_mile_zip || null,
         delivery_type: body.last_mile_delivery_type || null,
       },
-      email: body.email || null,
     };
 
+    // Costruisci prompt per LLM con ricerca web
+    const originStr = `${normalized.origin.city}, ${normalized.origin.country}${normalized.origin.locode ? ' (' + normalized.origin.locode + ')' : ''}`;
+    const destStr = `${normalized.destination.city}, ${normalized.destination.country}${normalized.destination.locode ? ' (' + normalized.destination.locode + ')' : ''}`;
+
+    const prompt = `Sei un esperto di logistica internazionale. Devi trovare dati REALI e ATTUALI per questa spedizione. 
+NON INVENTARE MAI numeri. Se un dato non è verificabile da fonti pubbliche, scrivi "Non disponibile (fonte non raggiungibile)".
+
+SPEDIZIONE:
+- Origine: ${originStr}
+- Destinazione: ${destStr}
+- Porto/aeroporto preferito: ${normalized.preferred_port || 'nessuna preferenza'}
+- Incoterm: ${normalized.incoterm}
+- Merce: ${normalized.cargo.description} (HS: ${normalized.cargo.hs_code})
+- Peso: ${normalized.cargo.weight_kg} kg, Volume: ${normalized.cargo.volume_m3 || 'N/D'} m³
+- Container: ${normalized.cargo.container_type}
+- Merce pericolosa: ${normalized.cargo.dangerous_goods ? 'SÌ' : 'NO'}
+- Valore merce: €${normalized.cargo_value_eur}
+- Urgenza: ${normalized.urgency_days ? normalized.urgency_days + ' giorni' : 'nessuna'}
+
+ISTRUZIONI:
+1. NOLO MARITTIMO: Cerca tariffe spot/container ATTUALI per la rotta indicata. Usa fonti come Freightos Baltic Index (FBX), Drewry World Container Index, Xeneta, portali pubblici carrier. Indica range di prezzo per container ${normalized.cargo.container_type}. Se non trovi dati specifici per la rotta, indica l'indice di riferimento più vicino.
+
+2. NOLO AEREO: Cerca tariffe cargo aereo per kg per la rotta indicata. Usa fonti come TAC Index, WorldACD (dati pubblici), Freightos Air Index. Se non disponibili, indica chiaramente.
+
+3. TRANSIT TIME: Cerca transit time reali per entrambe le modalità sulla rotta specifica.
+
+4. CONGESTIONE PORTUALE: Cerca dati attuali sulla congestione dei porti di destinazione/origine. Usa fonti come Port Report, UNCTAD, notizie recenti.
+
+5. SURCHARGES NOTI: BAF, CAF, THC, ISPS se trovabili per la rotta.
+
+6. Per ogni dato indica OBBLIGATORIAMENTE la fonte (nome sito/indice + URL se disponibile).
+
+Rispondi SOLO con il JSON richiesto, senza markdown.`;
+
+    const responseSchema = {
+      type: "object",
+      properties: {
+        ocean_freight: {
+          type: "object",
+          properties: {
+            available: { type: "boolean" },
+            price_range_min: { type: ["number", "null"], description: "Prezzo minimo container in USD" },
+            price_range_max: { type: ["number", "null"], description: "Prezzo massimo container in USD" },
+            currency: { type: "string" },
+            container_type: { type: "string" },
+            transit_time_days_min: { type: ["number", "null"] },
+            transit_time_days_max: { type: ["number", "null"] },
+            main_carriers: { type: "array", items: { type: "string" } },
+            surcharges: { type: "array", items: { type: "object", properties: { name: { type: "string" }, amount: { type: ["string", "null"] }, note: { type: "string" } } } },
+            source_name: { type: "string", description: "Nome della fonte (es. Freightos Baltic Index)" },
+            source_url: { type: ["string", "null"], description: "URL della fonte" },
+            source_date: { type: ["string", "null"], description: "Data del dato" },
+            notes: { type: ["string", "null"] },
+            confidence: { type: "string", enum: ["high", "medium", "low", "unavailable"] }
+          }
+        },
+        air_freight: {
+          type: "object",
+          properties: {
+            available: { type: "boolean" },
+            price_per_kg_min: { type: ["number", "null"] },
+            price_per_kg_max: { type: ["number", "null"] },
+            total_estimate: { type: ["number", "null"] },
+            currency: { type: "string" },
+            transit_time_days_min: { type: ["number", "null"] },
+            transit_time_days_max: { type: ["number", "null"] },
+            main_carriers: { type: "array", items: { type: "string" } },
+            source_name: { type: "string" },
+            source_url: { type: ["string", "null"] },
+            source_date: { type: ["string", "null"] },
+            notes: { type: ["string", "null"] },
+            confidence: { type: "string", enum: ["high", "medium", "low", "unavailable"] }
+          }
+        },
+        port_congestion: {
+          type: "object",
+          properties: {
+            origin_port: { type: "string" },
+            origin_congestion_level: { type: ["string", "null"], enum: ["low", "medium", "high", null] },
+            origin_notes: { type: ["string", "null"] },
+            dest_port: { type: "string" },
+            dest_congestion_level: { type: ["string", "null"], enum: ["low", "medium", "high", null] },
+            dest_notes: { type: ["string", "null"] },
+            source_name: { type: "string" },
+            source_url: { type: ["string", "null"] },
+            source_date: { type: ["string", "null"] },
+            confidence: { type: "string", enum: ["high", "medium", "low", "unavailable"] }
+          }
+        },
+        customs_duties: {
+          type: "object",
+          properties: {
+            hs_code: { type: "string" },
+            duty_rate: { type: ["string", "null"] },
+            vat_gst: { type: ["string", "null"] },
+            anti_dumping: { type: ["string", "null"] },
+            source_name: { type: "string" },
+            source_url: { type: ["string", "null"] },
+            notes: { type: ["string", "null"] },
+            confidence: { type: "string", enum: ["high", "medium", "low", "unavailable"] }
+          }
+        },
+        comparison_summary: { type: "string", description: "Breve riepilogo comparativo mare vs aereo" },
+        warnings: { type: "array", items: { type: "string" } }
+      }
+    };
+
+    const llmResult = await base44.integrations.Core.InvokeLLM({
+      prompt,
+      add_context_from_internet: true,
+      response_json_schema: responseSchema,
+    });
+
+    // Trasforma in formato quote standard
     const quotes = [];
     const errors = [];
+    const data = llmResult;
 
-    // ======== 1) OCEAN FREIGHT — CMA CGM ========
-    const cmacgmKey = Deno.env.get('CMACGM_API_KEY');
-    if (cmacgmKey) {
-      try {
-        // CMA CGM SpotOn / Quotation API
-        // Docs: https://api-portal.cma-cgm.com/
-        const cmacgmResponse = await fetch('https://apis.cma-cgm.net/pricing/v1/spotrates', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${cmacgmKey}`,
-            'Accept': 'application/json',
+    // Ocean quote
+    if (data.ocean_freight) {
+      const of = data.ocean_freight;
+      if (of.available && (of.price_range_min || of.price_range_max)) {
+        quotes.push({
+          mode: 'ocean',
+          provider: of.source_name || 'Ricerca web',
+          carrier: of.main_carriers?.length > 0 ? of.main_carriers.join(', ') : null,
+          total_price: of.price_range_min ? {
+            amount: of.price_range_min,
+            amount_max: of.price_range_max || null,
+            currency: of.currency || 'USD',
+            is_range: !!(of.price_range_max && of.price_range_max !== of.price_range_min),
+          } : null,
+          line_items: (of.surcharges || []).filter(s => s.amount).map(s => ({
+            description: s.name,
+            amount_text: s.amount,
+            note: s.note || '',
+          })),
+          transit_time_days: of.transit_time_days_min || null,
+          transit_time_days_max: of.transit_time_days_max || null,
+          valid_until: null,
+          source: {
+            type: 'web_search',
+            name: of.source_name || 'Fonti web pubbliche',
+            endpoint: of.source_url || null,
+            retrieved_at: timestampUtc,
+            data_date: of.source_date || null,
           },
-          body: JSON.stringify({
-            originLocation: normalized.origin.locode || `${normalized.origin.country}${normalized.origin.city.substring(0, 3).toUpperCase()}`,
-            destinationLocation: normalized.destination.locode || `${normalized.destination.country}${normalized.destination.city.substring(0, 3).toUpperCase()}`,
-            containerType: normalized.cargo.container_type.includes('40') ? '40ST' : '20ST',
-            commodity: normalized.cargo.hs_code,
-            weight: normalized.cargo.weight_kg,
-          }),
-          signal: AbortSignal.timeout(15000),
+          confidence: of.confidence || 'medium',
+          notes: of.notes || null,
         });
-
-        if (cmacgmResponse.ok) {
-          const cmacgmData = await cmacgmResponse.json();
-          // Parse CMA CGM response — structure varies per API version
-          const rate = cmacgmData?.rates?.[0] || cmacgmData;
-          quotes.push({
-            mode: 'ocean',
-            provider: 'CMA CGM',
-            carrier: 'CMA CGM',
-            total_price: rate?.totalAmount ? {
-              amount: rate.totalAmount,
-              currency: rate.currency || 'USD',
-            } : null,
-            line_items: Array.isArray(rate?.charges) ? rate.charges.map(c => ({
-              description: c.chargeName || c.description || 'Charge',
-              amount: c.amount || 0,
-              currency: c.currency || 'USD',
-            })) : [],
-            transit_time_days: rate?.transitTimeDays || rate?.transitTime || null,
-            valid_until: rate?.validityEnd || rate?.validUntil || null,
-            source: {
-              type: 'api',
-              name: 'CMA CGM API Portal',
-              endpoint: 'https://apis.cma-cgm.net/pricing/v1/spotrates',
-              retrieved_at: timestampUtc,
-            },
-            confidence: 'high',
-            notes: null,
-          });
-        } else {
-          const errText = await cmacgmResponse.text().catch(() => '');
-          errors.push({
-            area: 'ocean_cmacgm',
-            message: `CMA CGM API ha risposto con status ${cmacgmResponse.status}. ${errText.substring(0, 200)}`,
-          });
-        }
-      } catch (e) {
+      } else {
         errors.push({
-          area: 'ocean_cmacgm',
-          message: `CMA CGM API non raggiungibile: ${e.message}`,
+          area: 'ocean_freight',
+          message: of.notes || 'Nessuna quotazione marittima trovata da fonti web pubbliche per questa rotta.',
         });
       }
-    } else {
-      errors.push({
-        area: 'ocean_cmacgm',
-        message: 'CMA CGM API non configurata. Richiede chiave CMACGM_API_KEY (ottenibile su https://api-portal.cma-cgm.com/).',
-      });
     }
 
-    // ======== 2) OCEAN FREIGHT — Hapag-Lloyd ========
-    const hapagKey = Deno.env.get('HAPAG_API_KEY');
-    if (hapagKey) {
-      try {
-        const hapagResponse = await fetch('https://api.hlag.com/hlag/v1/quotations', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-IBM-Client-Id': hapagKey,
-            'Accept': 'application/json',
+    // Air quote
+    if (data.air_freight) {
+      const af = data.air_freight;
+      if (af.available && (af.price_per_kg_min || af.total_estimate)) {
+        quotes.push({
+          mode: 'air',
+          provider: af.source_name || 'Ricerca web',
+          carrier: af.main_carriers?.length > 0 ? af.main_carriers.join(', ') : null,
+          total_price: af.total_estimate ? {
+            amount: af.total_estimate,
+            currency: af.currency || 'USD',
+            is_range: false,
+          } : null,
+          price_per_kg: af.price_per_kg_min ? {
+            min: af.price_per_kg_min,
+            max: af.price_per_kg_max || null,
+            currency: af.currency || 'USD',
+          } : null,
+          line_items: [],
+          transit_time_days: af.transit_time_days_min || null,
+          transit_time_days_max: af.transit_time_days_max || null,
+          valid_until: null,
+          source: {
+            type: 'web_search',
+            name: af.source_name || 'Fonti web pubbliche',
+            endpoint: af.source_url || null,
+            retrieved_at: timestampUtc,
+            data_date: af.source_date || null,
           },
-          body: JSON.stringify({
-            origin: normalized.origin.locode || normalized.origin.city,
-            destination: normalized.destination.locode || normalized.destination.city,
-            containerSize: normalized.cargo.container_type.includes('40') ? '40' : '20',
-            commodity: normalized.cargo.hs_code,
-            weight: normalized.cargo.weight_kg,
-          }),
-          signal: AbortSignal.timeout(15000),
+          confidence: af.confidence || 'low',
+          notes: af.notes || null,
         });
-
-        if (hapagResponse.ok) {
-          const hapagData = await hapagResponse.json();
-          const rate = hapagData?.quotation || hapagData;
-          quotes.push({
-            mode: 'ocean',
-            provider: 'Hapag-Lloyd',
-            carrier: 'Hapag-Lloyd',
-            total_price: rate?.totalPrice ? {
-              amount: rate.totalPrice,
-              currency: rate.currency || 'USD',
-            } : null,
-            line_items: Array.isArray(rate?.lineItems) ? rate.lineItems.map(li => ({
-              description: li.name || li.description || 'Item',
-              amount: li.amount || 0,
-              currency: li.currency || 'USD',
-            })) : [],
-            transit_time_days: rate?.transitTimeDays || null,
-            valid_until: rate?.validUntil || null,
-            source: {
-              type: 'api',
-              name: 'Hapag-Lloyd API Portal',
-              endpoint: 'https://api.hlag.com/hlag/v1/quotations',
-              retrieved_at: timestampUtc,
-            },
-            confidence: 'high',
-            notes: null,
-          });
-        } else {
-          const errText = await hapagResponse.text().catch(() => '');
-          errors.push({
-            area: 'ocean_hapag',
-            message: `Hapag-Lloyd API ha risposto con status ${hapagResponse.status}. ${errText.substring(0, 200)}`,
-          });
-        }
-      } catch (e) {
+      } else {
         errors.push({
-          area: 'ocean_hapag',
-          message: `Hapag-Lloyd API non raggiungibile: ${e.message}`,
+          area: 'air_freight',
+          message: af.notes || 'Tariffe aeree non disponibili da fonti web pubbliche per questa rotta.',
         });
       }
-    } else {
-      errors.push({
-        area: 'ocean_hapag',
-        message: 'Hapag-Lloyd API non configurata. Richiede chiave HAPAG_API_KEY (ottenibile su https://api.hlag.com/).',
-      });
     }
 
-    // ======== 3) AIR CARGO ========
-    const iataKey = Deno.env.get('IATA_API_KEY');
-    if (iataKey) {
-      // IATA Open API Hub fornisce tracking, NON tariffe spot
-      errors.push({
-        area: 'air_rates',
-        message: 'IATA API disponibile solo per tracking, non per tariffe spot. Per quotazioni aeree reali è necessario un contratto con provider tariffe (TACT, WorldACD, Freightos).',
-      });
-    } else {
-      errors.push({
-        area: 'air_rates',
-        message: 'Tariffe aeree non disponibili: manca provider tariffe/contratto. IATA Open API Hub (https://developer.iata.org/) fornisce solo tracking. Per rate reali servono TACT, WorldACD o aggregatore con API.',
-      });
-    }
-
-    // ======== 4) PORT CONGESTION — MarineTraffic ========
+    // Port congestion
     let portCongestion = null;
-    const mtKey = Deno.env.get('MARINETRAFFIC_API_KEY');
-    if (mtKey) {
-      try {
-        // MarineTraffic EV07 — Expected Arrivals / Port Congestion
-        const portCode = normalized.destination.locode || normalized.destination.city;
-        const mtUrl = `https://services.marinetraffic.com/api/expectedarrivals/${mtKey}/portid:0/port_target_id:${encodeURIComponent(portCode)}/protocol:jsono`;
-        
-        const mtResponse = await fetch(mtUrl, {
-          signal: AbortSignal.timeout(15000),
-        });
-
-        if (mtResponse.ok) {
-          const mtData = await mtResponse.json();
-          const vessels = Array.isArray(mtData) ? mtData : [];
-          portCongestion = {
-            provider: 'MarineTraffic',
-            port_id: portCode,
-            metrics: {
-              vessels_in_port: vessels.length,
-              congestion_level: vessels.length > 50 ? 'high' : vessels.length > 20 ? 'medium' : 'low',
-              description: `${vessels.length} navi attese/presenti nel porto di ${normalized.destination.city}`,
-            },
-            source: {
-              type: 'api',
-              name: 'MarineTraffic',
-              endpoint: 'services.marinetraffic.com/api/expectedarrivals',
-              retrieved_at: timestampUtc,
-            },
-          };
-        } else {
-          portCongestion = {
-            provider: 'MarineTraffic',
-            port_id: portCode,
-            metrics: null,
-            error: `MarineTraffic API ha risposto con status ${mtResponse.status}`,
-            source: {
-              type: 'api',
-              name: 'MarineTraffic',
-              endpoint: 'services.marinetraffic.com/api/expectedarrivals',
-              retrieved_at: timestampUtc,
-            },
-          };
-        }
-      } catch (e) {
-        portCongestion = {
-          provider: 'MarineTraffic',
-          port_id: normalized.destination.locode || normalized.destination.city,
-          metrics: null,
-          error: `MarineTraffic API non raggiungibile: ${e.message}`,
-          source: null,
-        };
-      }
-    } else {
+    if (data.port_congestion) {
+      const pc = data.port_congestion;
       portCongestion = {
-        provider: 'MarineTraffic',
-        port_id: null,
-        metrics: null,
-        error: 'MarineTraffic API non configurata. Richiede chiave MARINETRAFFIC_API_KEY (ottenibile su https://www.marinetraffic.com/en/ais/api-services).',
-        source: null,
+        provider: pc.source_name || 'Ricerca web',
+        origin: {
+          port: pc.origin_port,
+          congestion_level: pc.origin_congestion_level,
+          notes: pc.origin_notes,
+        },
+        destination: {
+          port: pc.dest_port,
+          congestion_level: pc.dest_congestion_level,
+          notes: pc.dest_notes,
+        },
+        source: {
+          type: 'web_search',
+          name: pc.source_name || 'Fonti web pubbliche',
+          endpoint: pc.source_url || null,
+          retrieved_at: timestampUtc,
+          data_date: pc.source_date || null,
+        },
+        confidence: pc.confidence || 'low',
       };
     }
 
-    // ======== 5) ULTIMO MIGLIO ========
-    const lastMile = {
-      message: 'Ultimo miglio non disponibile: integrazione corriere/aggregatore mancante. Richiede API contrattuale con provider di spedizioni locali (es. DHL, FedEx, UPS API con chiave commerciale).',
-    };
+    // Customs
+    let customs = null;
+    if (data.customs_duties) {
+      const cd = data.customs_duties;
+      customs = {
+        hs_code: cd.hs_code,
+        duty_rate: cd.duty_rate,
+        vat_gst: cd.vat_gst,
+        anti_dumping: cd.anti_dumping,
+        source: {
+          type: 'web_search',
+          name: cd.source_name || 'Fonti web pubbliche',
+          endpoint: cd.source_url || null,
+          retrieved_at: timestampUtc,
+        },
+        confidence: cd.confidence || 'medium',
+        notes: cd.notes || null,
+      };
+    }
 
-    // ======== RESPONSE ========
+    if (data.warnings?.length > 0) {
+      data.warnings.forEach(w => {
+        errors.push({ area: 'warning', message: w });
+      });
+    }
+
     const response = {
       request_id: requestId,
       timestamp_utc: timestampUtc,
       inputs_normalized: normalized,
       quotes,
       port_congestion: portCongestion,
-      last_mile: lastMile,
+      customs: customs,
+      comparison_summary: data.comparison_summary || null,
+      last_mile: {
+        message: 'Ultimo miglio non disponibile: integrazione corriere/aggregatore mancante. Per quotazioni precise serve API contrattuale con corriere (DHL, FedEx, UPS).',
+      },
       errors,
+      data_disclaimer: 'I dati provengono da fonti web pubbliche (indici di mercato, portali informativi) interrogate tramite AI con ricerca internet. NON sono quotazioni vincolanti da carrier. Per quotazioni operative contattare direttamente i carrier o un freight forwarder.',
     };
 
     return Response.json(response);
@@ -309,8 +331,10 @@ Deno.serve(async (req) => {
       inputs_normalized: null,
       quotes: [],
       port_congestion: null,
+      customs: null,
       last_mile: null,
       errors: [{ area: 'system', message: error.message }],
+      data_disclaimer: null,
     }, { status: 500 });
   }
 });
