@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
-import { TrendingUp, Loader2, CheckCircle, AlertTriangle, DollarSign, Package, MapPin, X, BarChart3, Clock } from 'lucide-react';
+import { TrendingUp, Loader2, CheckCircle, AlertTriangle, Package, MapPin, X } from 'lucide-react';
 import { useAILimits } from '@/components/hooks/useAILimits';
 import LimitReachedBanner from '@/components/common/LimitReachedBanner';
 import UsageCounter from '@/components/common/UsageCounter';
@@ -17,7 +17,7 @@ import { fetchTradeData, computeMetrics, interpretData, fetchMacroData, enrichMe
 
 import { ALL_COUNTRIES } from './CountrySearchSelect';
 import CountryInfoCard from './CountryInfoCard';
-import ExportComparisonRanking from './ExportComparisonRanking';
+
 
 import ExportAnalysisResult from './ExportAnalysisResult';
 import ExportContactCard from './ExportContactCard';
