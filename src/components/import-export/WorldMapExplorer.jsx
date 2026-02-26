@@ -1047,13 +1047,10 @@ Rispondi in italiano.`,
           </div>
         )}
 
-        {/* Tooltip hover - segue il puntatore */}
-        {(hoveredName || selectedCountry) && (
-          <div
-            className="absolute z-10 pointer-events-none"
-            style={{ left: tooltipPos.x, top: tooltipPos.y - 36, transform: 'translateX(-50%)' }}
-          >
-            <span className="text-black text-xs font-semibold drop-shadow-md">{hoveredName || selectedCountry?.name}</span>
+        {/* Tooltip hover - centrato in alto */}
+        {hoveredName && (
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 z-10 pointer-events-none">
+            <span className="bg-black/70 text-white text-xs font-semibold px-3 py-1 rounded-full">{hoveredName}</span>
           </div>
         )}
 
