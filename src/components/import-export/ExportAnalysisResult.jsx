@@ -10,6 +10,7 @@ import {
   VerificaNormativaCard, StrutturaIngressoCard, CanaliVenditaCard, 
   StrutturaMarginiCard, LogisticaDoganeGTMCard, ValidazioneCommercialeCard, DatiMancantiCard 
 } from './ExportPhaseCards';
+import CustomsDutyGuideCard from './CustomsDutyGuideCard';
 
 function OpenSection({ title, icon: Icon, iconColor, children }) {
   return (
