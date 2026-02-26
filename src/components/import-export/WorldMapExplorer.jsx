@@ -1022,6 +1022,14 @@ Rispondi in italiano.`,
     });
     raisedMeshesRef.current = [];
 
+    // Rimuovi label 3D
+    if (labelSpriteRef.current && globeGroupRef.current) {
+      globeGroupRef.current.remove(labelSpriteRef.current);
+      labelSpriteRef.current.material.map.dispose();
+      labelSpriteRef.current.material.dispose();
+      labelSpriteRef.current = null;
+    }
+
     if (selectedMeshRef.current) {
       countryMeshesRef.current.forEach(m => {
         if (m.userData.countryName === selectedMeshRef.current.userData.countryName) {
