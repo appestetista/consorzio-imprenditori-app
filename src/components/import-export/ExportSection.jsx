@@ -34,23 +34,25 @@ const SETTORI = [
   'Edilizia e materiali da costruzione', 'Energia e ambiente', 'Altro'
 ];
 
-export default function ExportSection({ user, exportManagers, selectedMapCountry, setSelectedMapCountry, onMapInteraction }) {
-  const [exportForm, setExportForm] = useState({
-    settore: '', prodotto: '', capacita_produttiva: '', unita_capacita: '',
-    posizionamento: '', prezzo_medio: '', certificazioni: '', business_model: '', canale_preferito: ''
-  });
+export default function ExportSection({ user, exportManagers, selectedMapCountry, setSelectedMapCountry, onMapInteraction, initialSnapshot }) {
+  const [exportForm, setExportForm] = useState(
+    initialSnapshot?.exportForm || {
+      settore: '', prodotto: '', capacita_produttiva: '', unita_capacita: '',
+      posizionamento: '', prezzo_medio: '', certificazioni: '', business_model: '', canale_preferito: ''
+    }
+  );
   const [showHSClassifier, setShowHSClassifier] = useState(false);
   const [exportValidationErrors, setExportValidationErrors] = useState({});
   const [analyzing, setAnalyzing] = useState(false);
   const [exportStep, setExportStep] = useState('');
-  const [analysisResult, setAnalysisResult] = useState(null);
-  const [tradeData, setTradeData] = useState(null);
-  const [tradeMetrics, setTradeMetrics] = useState(null);
-  const [confirmedExportHS, setConfirmedExportHS] = useState(null);
+  const [analysisResult, setAnalysisResult] = useState(initialSnapshot?.analysisResult || null);
+  const [tradeData, setTradeData] = useState(initialSnapshot?.tradeData || null);
+  const [tradeMetrics, setTradeMetrics] = useState(initialSnapshot?.tradeMetrics || null);
+  const [confirmedExportHS, setConfirmedExportHS] = useState(initialSnapshot?.confirmedHS || null);
   const [periodoAnalisi] = useState('5');
-  const [macroData, setMacroData] = useState({});
-  const [priceMetrics, setPriceMetrics] = useState(null);
-  const [priceInterpretation, setPriceInterpretation] = useState(null);
+  const [macroData, setMacroData] = useState(initialSnapshot?.macroData || {});
+  const [priceMetrics, setPriceMetrics] = useState(initialSnapshot?.priceMetrics || null);
+  const [priceInterpretation, setPriceInterpretation] = useState(initialSnapshot?.priceInterpretation || null);
   const [priceStep, setPriceStep] = useState('');
   const [userPriceData, setUserPriceData] = useState({ prezzo_vendita: '', costo_produzione: '', unita: '', costo_logistica: '', commissioni: '', dazi: '' });
   const [contactForm, setContactForm] = useState({ subject: '', message: '', exportManagerId: '', attachments: [] });
