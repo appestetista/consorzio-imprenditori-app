@@ -400,7 +400,7 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
                   </div>
                 )}
               </div>
-              {macroData.partite_correnti_usd !== null && (
+              {macroData.partite_correnti_usd !== null && macroData.partite_correnti_usd !== undefined && (
                 <div className="flex items-center justify-between py-1.5 px-3">
                   <div className="flex items-center gap-1">
                     <span className="text-slate-400 text-xs">⚖️ Saldo partite correnti</span>
@@ -410,7 +410,29 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
                     </button>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <span className={`text-sm font-semibold ${macroData.partite_correnti_usd < 0 ? 'text-red-400' : 'text-green-400'}`}>{formatBigNum(macroData.partite_correnti_usd)}</span>
+                    {(() => {
+                      const raw = macroData.partite_correnti_usd;
+                      const num = typeof raw === 'number' ? raw : parseFloat(String(raw).replace(/[^0-9.\-]/g, ''));
+                      if (isNaN(num)) return <span className="text-slate-500 text-sm">N/D</span>;
+                      const mld = num / 1e9;
+                      const isNeg = mld < 0;
+                      const abs = Math.abs(mld);
+                      // Formatta con 1 decimale, separatore europeo
+                      const parts = abs.toFixed(1).split('.');
+                      const intPart = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                      const formatted = `${intPart},${parts[1]}`;
+                      const sign = isNeg ? '−' : '';
+                      const label = isNeg ? '(deficit)' : '(surplus)';
+                      const color = isNeg ? 'text-red-400' : 'text-green-400';
+                      return (
+                        <>
+                          <span className={`text-sm font-semibold ${color}`}>
+                            {sign}{formatted} mld USD
+                          </span>
+                          <span className={`text-[10px] font-medium ${color}`}>{label}</span>
+                        </>
+                      );
+                    })()}
                     {macroData.partite_correnti_anno && <span className="text-slate-500 text-[10px]">{macroData.partite_correnti_anno}</span>}
                   </div>
                 </div>
