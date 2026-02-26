@@ -114,10 +114,12 @@ export default function CountryRiskProfileCard({ data, loading }) {
   const demo = data.demographics;
   const eu = data.eurostat;
 
+  const friComponents = fri?.components || {};
+
   return (
     <div className="bg-slate-800/50 border border-white/5 rounded-2xl overflow-hidden backdrop-blur-sm">
       {/* Header: Financial Reliability Index */}
-      {fri && fri.score !== null && fri.score !== undefined && (
+      {fri && fri.score != null && (
         <div className="px-4 py-3 border-b border-white/5">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
@@ -148,15 +150,15 @@ export default function CountryRiskProfileCard({ data, loading }) {
           {/* Components */}
           <div className="grid grid-cols-4 gap-2 mt-2">
             {[
-              { label: 'Rating', value: fri.components.rating_normalized },
-              { label: 'Governance', value: fri.components.wgi_average },
-              { label: 'CPI', value: fri.components.cpi_score },
-              { label: 'Stabilità', value: fri.components.fsi_normalized },
+              { label: 'Rating', value: friComponents.rating_normalized ?? null },
+              { label: 'Governance', value: friComponents.wgi_average ?? null },
+              { label: 'CPI', value: friComponents.cpi_score ?? null },
+              { label: 'Stabilità', value: friComponents.fsi_normalized ?? null },
             ].map(c => (
               <div key={c.label} className="text-center">
                 <p className="text-slate-600 text-[9px]">{c.label}</p>
-                <p className={`text-[11px] font-bold ${c.value !== null ? 'text-white' : 'text-slate-600'}`}>
-                  {c.value !== null ? c.value : 'N/D'}
+                <p className={`text-[11px] font-bold ${c.value != null ? 'text-white' : 'text-slate-600'}`}>
+                  {c.value != null ? c.value : 'N/D'}
                 </p>
               </div>
             ))}
