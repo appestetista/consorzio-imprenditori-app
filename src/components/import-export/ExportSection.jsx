@@ -23,6 +23,7 @@ import MarketSummaryCard from './MarketSummaryCard';
 import ExportAnalysisResult from './ExportAnalysisResult';
 import ExportContactCard from './ExportContactCard';
 import { buildExportSummary } from './buildAnalysisSummary';
+import WorldMapExplorer from './WorldMapExplorer';
 
 const SETTORI = [
   'Alimentare e bevande', 'Moda e tessile', 'Arredamento e design',
