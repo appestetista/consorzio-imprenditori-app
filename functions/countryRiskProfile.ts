@@ -161,6 +161,7 @@ Deno.serve(async (req) => {
 - Score CPI Transparency International più recente (scala 0-100)
 - Rank mondiale
 - Anno di riferimento
+- IMPORTANTE: fornisci anche la classifica completa dei TOP 100 paesi per CPI (dal rank 1 al rank 100), con nome paese e score CPI per ciascuno. Ordina dal rank 1 (migliore) al rank 100. Usa i dati ufficiali Transparency International dell'anno più recente.
 
 3) FRAGILE STATES INDEX (FSI):
 - Score totale FSI Fund for Peace più recente
@@ -173,7 +174,8 @@ REGOLE CRITICHE:
 - Se un dato non è trovabile con certezza, metti null
 - Specifica SEMPRE la fonte esatta e l'anno
 - Non inventare MAI dati
-- Per i rating, usa la notazione ufficiale (AAA, AA+, Baa1, ecc.)`,
+- Per i rating, usa la notazione ufficiale (AAA, AA+, Baa1, ecc.)
+- Per la classifica CPI top 100 usa i nomi dei paesi in italiano`,
       add_context_from_internet: true,
       response_json_schema: {
         type: "object",
@@ -197,7 +199,18 @@ REGOLE CRITICHE:
               rank: { type: ["number", "null"] },
               total_countries: { type: ["number", "null"] },
               year: { type: ["string", "null"] },
-              source: { type: "string" }
+              source: { type: "string" },
+              top_100: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    rank: { type: "number" },
+                    country: { type: "string" },
+                    score: { type: "number" }
+                  }
+                }
+              }
             }
           },
           fsi: {
