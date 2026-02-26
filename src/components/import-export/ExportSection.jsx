@@ -418,7 +418,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
           <Button onClick={resetAnalysis} variant="outline" className="w-full border-slate-600 text-slate-400 hover:bg-slate-800">Riprova</Button>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-4" ref={el => { if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}>
           {confirmedExportHS && (
             <div className="flex items-center gap-3 bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-3">
               <div className="w-9 h-9 rounded-lg bg-amber-500/20 flex items-center justify-center"><Package className="w-4 h-4 text-amber-400" /></div>
