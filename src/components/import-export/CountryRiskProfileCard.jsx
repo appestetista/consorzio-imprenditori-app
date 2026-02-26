@@ -59,8 +59,38 @@ function WGIRow({ label, estimate, percentile, year }) {
   );
 }
 
+function InfoButton({ onClick }) {
+  return (
+    <button onClick={(e) => { e.stopPropagation(); onClick(); }}
+      className="w-5 h-5 rounded-full bg-red-500/20 border border-red-500/50 flex items-center justify-center hover:bg-red-500/30 transition-colors flex-shrink-0">
+      <span className="text-red-400 text-[10px] font-bold leading-none">?</span>
+    </button>
+  );
+}
+
+function InfoPopup({ show, onClose, title, children }) {
+  if (!show) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/70 backdrop-blur-sm pt-4 px-4 pb-4 overflow-y-auto" onClick={onClose}>
+      <div className="bg-slate-900 border border-white/10 rounded-2xl p-5 max-w-sm w-full shadow-2xl" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-white font-bold text-sm">{title}</h3>
+          <button onClick={onClose} className="text-slate-400 hover:text-white"><X className="w-4 h-4" /></button>
+        </div>
+        <div className="space-y-2 text-slate-300 text-xs leading-relaxed">{children}</div>
+      </div>
+    </div>
+  );
+}
+
 export default function CountryRiskProfileCard({ data, loading }) {
   const [showInfoPopup, setShowInfoPopup] = useState(false);
+  const [showRatingInfo, setShowRatingInfo] = useState(false);
+  const [showCPIInfo, setShowCPIInfo] = useState(false);
+  const [showFSIInfo, setShowFSIInfo] = useState(false);
+  const [showWGIInfo, setShowWGIInfo] = useState(false);
+  const [showMacroInfo, setShowMacroInfo] = useState(false);
+  const [showDemoInfo, setShowDemoInfo] = useState(false);
 
   if (loading) {
     return (
@@ -137,7 +167,10 @@ export default function CountryRiskProfileCard({ data, loading }) {
       {/* Rating Sovrano */}
       {sr && (sr.sp?.rating || sr.moodys?.rating) && (
         <div className="px-4 py-2.5 border-b border-white/5">
-          <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider mb-1.5">🏦 Rating Sovrano</p>
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider">🏦 Rating Sovrano</p>
+            <InfoButton onClick={() => setShowRatingInfo(true)} />
+          </div>
           <div className="grid grid-cols-2 gap-3">
             {sr.sp?.rating && (
               <div>
@@ -162,7 +195,10 @@ export default function CountryRiskProfileCard({ data, loading }) {
         <div className="px-4 py-2.5 border-b border-white/5 grid grid-cols-2 gap-3">
           {cor?.cpi_score !== null && (
             <div>
-              <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider mb-1">🔍 Corruzione (CPI)</p>
+              <div className="flex items-center gap-1 mb-1">
+                <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider">🔍 Corruzione (CPI)</p>
+                <InfoButton onClick={() => setShowCPIInfo(true)} />
+              </div>
               <div className="flex items-center gap-2">
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
                   cor.cpi_score >= 70 ? 'bg-green-500/20' : cor.cpi_score >= 50 ? 'bg-yellow-500/20' : cor.cpi_score >= 30 ? 'bg-orange-500/20' : 'bg-red-500/20'
@@ -180,7 +216,10 @@ export default function CountryRiskProfileCard({ data, loading }) {
           )}
           {frag?.fsi_score !== null && (
             <div>
-              <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider mb-1">⚠️ Fragilità (FSI)</p>
+              <div className="flex items-center gap-1 mb-1">
+                <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider">⚠️ Fragilità (FSI)</p>
+                <InfoButton onClick={() => setShowFSIInfo(true)} />
+              </div>
               <div className="flex items-center gap-2">
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
                   frag.fsi_score <= 40 ? 'bg-green-500/20' : frag.fsi_score <= 70 ? 'bg-yellow-500/20' : frag.fsi_score <= 90 ? 'bg-orange-500/20' : 'bg-red-500/20'
@@ -208,6 +247,7 @@ export default function CountryRiskProfileCard({ data, loading }) {
                 <ShieldCheck className="w-3.5 h-3.5 text-green-400" /> : 
                 <ShieldAlert className="w-3.5 h-3.5 text-orange-400" />}
               <span className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider">Governance (WGI)</span>
+              <InfoButton onClick={() => setShowWGIInfo(true)} />
               <span className="text-white text-[10px] font-bold ml-1">{gov.wgi_average_percentile}/100</span>
             </div>
           </div>
@@ -227,7 +267,10 @@ export default function CountryRiskProfileCard({ data, loading }) {
       {macro && (
         <div className="border-b border-white/5">
           <div className="px-4 py-2.5">
-            <span className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider">📊 Macro-Economici</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider">📊 Macro-Economici</span>
+              <InfoButton onClick={() => setShowMacroInfo(true)} />
+            </div>
           </div>
           <div className="px-4 pb-3 space-y-1">
               {macro.crescita_pil_pct !== null && (
@@ -277,7 +320,10 @@ export default function CountryRiskProfileCard({ data, loading }) {
       {demo && (
         <div className="border-b border-white/5">
           <div className="px-4 py-2.5">
-            <span className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider">👥 Demografici</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider">👥 Demografici</span>
+              <InfoButton onClick={() => setShowDemoInfo(true)} />
+            </div>
           </div>
           <div className="px-4 pb-3 space-y-1">
               {demo.speranza_vita !== null && (
