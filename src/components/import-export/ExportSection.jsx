@@ -239,10 +239,13 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
                 <Select value={exportForm.unita_capacita} onValueChange={(v) => setExportForm({ ...exportForm, unita_capacita: v })}>
                   <SelectTrigger className="bg-slate-800/60 border-white/10 text-white h-11 rounded-xl text-xs"><SelectValue placeholder="Unità di misura" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="pezzi">Pezzi</SelectItem>
-                    <SelectItem value="litri">Litri</SelectItem>
-                    <SelectItem value="kg">Chili (kg)</SelectItem>
-                    <SelectItem value="m3">Metri cubi (m³)</SelectItem>
+                    <SelectItem value="pezzi/anno">Pezzi/anno</SelectItem>
+                    <SelectItem value="kg/anno">kg/anno</SelectItem>
+                    <SelectItem value="t/anno">t/anno</SelectItem>
+                    <SelectItem value="L/anno">L/anno</SelectItem>
+                    <SelectItem value="m³/anno">m³/anno</SelectItem>
+                    <SelectItem value="m²/anno">m²/anno</SelectItem>
+                    <SelectItem value="kWh/anno">kWh/anno</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
