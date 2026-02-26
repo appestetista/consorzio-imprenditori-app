@@ -18,6 +18,7 @@ export default function ImportExport() {
   const initialTab = urlParamsIE.get('tab') === 'import' ? 'import' : 'export';
   const [activeTab, setActiveTab] = useState(initialTab);
   const [selectedMapCountry, setSelectedMapCountry] = useState(null);
+  const [historySnapshot, setHistorySnapshot] = useState(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -87,13 +88,20 @@ export default function ImportExport() {
         {activeTab === 'messages' ? (
           <ImportMessagesSection user={user} />
         ) : activeTab === 'history' ? (
-          <SearchHistory userEmail={user?.email} />
+          <SearchHistory userEmail={user?.email} onOpenAnalysis={(log) => {
+            if (log.analysis_snapshot) {
+              setHistorySnapshot(log.analysis_snapshot);
+              setActiveTab(log.action_type === 'export_analysis' ? 'export' : 'import');
+            }
+          }} />
         ) : isExport ? (
           <ExportSection
+            key={historySnapshot ? 'snapshot-' + JSON.stringify(historySnapshot.confirmedHS?.hs_code) : 'new'}
             user={user}
             exportManagers={exportManagers}
             selectedMapCountry={selectedMapCountry}
             setSelectedMapCountry={setSelectedMapCountry}
+            initialSnapshot={historySnapshot}
           />
         ) : (
           <ImportSection
