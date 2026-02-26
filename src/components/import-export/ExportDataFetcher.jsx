@@ -91,7 +91,7 @@ export async function fetchMacroData(countryCodes) {
   const promises = codes.map(async (code2) => {
     const alpha3 = ALPHA2_TO_ALPHA3[code2] || code2;
 
-    const [pop, gdp, gdpPc, inflazione, doingBusiness, lpi, partiteCorrenti, tassoUfficiale, ecbVolResult] = await Promise.all([
+    const [pop, gdp, gdpPc, inflazione, doingBusiness, lpi, partiteCorrenti, tassoUfficiale, ecbVolResult, riskProfile] = await Promise.all([
       fetchWBIndicator(alpha3, 'SP.POP.TOTL'),
       fetchWBIndicator(alpha3, 'NY.GDP.MKTP.CD'),
       fetchWBIndicator(alpha3, 'NY.GDP.PCAP.CD'),
@@ -107,6 +107,16 @@ export async function fetchMacroData(countryCodes) {
           return resp.data;
         } catch (e) {
           console.warn(`[fetchMacroData] ecbVolatility per ${code2} fallito:`, e);
+          return null;
+        }
+      })(),
+      // Profilo rischio paese (governance, rating, CPI, FSI, macro avanzati, demografici)
+      (async () => {
+        try {
+          const resp = await base44.functions.invoke('countryRiskProfile', { country_code: code2 });
+          return resp.data;
+        } catch (e) {
+          console.warn(`[fetchMacroData] countryRiskProfile per ${code2} fallito:`, e);
           return null;
         }
       })(),
@@ -157,6 +167,8 @@ export async function fetchMacroData(countryCodes) {
       volatilita_tasso_corrente,
       volatilita_cambio_fonte: volatilita_fonte,
       volatilita_periodo: volatilita_periodo,
+      // Profilo rischio paese completo
+      risk_profile: riskProfile || null,
       fonte: 'World Bank API + BCE',
       dati_mancanti: datiMancanti.length > 0 ? datiMancanti : null
     };
