@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Globe, TrendingUp, TrendingDown, Minus, ChevronDown, ChevronUp, ShieldCheck, ShieldAlert, Truck, HelpCircle, X } from 'lucide-react';
 import { getFlagUrl } from './CountrySearchSelect';
+import CountryRiskProfileCard from './CountryRiskProfileCard';
 
 function formatBigNum(val) {
   if (!val && val !== 0) return 'N/D';
@@ -502,6 +503,13 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
               <p className="text-slate-500 text-[10px] mt-2">Fonte: World Bank Logistics Performance Index 2023</p>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Profilo Rischio Paese completo */}
+      {macroData?.risk_profile && (
+        <div className="border-t border-white/5">
+          <CountryRiskProfileCard data={macroData.risk_profile} loading={false} />
         </div>
       )}
 
