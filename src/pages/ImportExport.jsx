@@ -89,22 +89,12 @@ export default function ImportExport() {
         ) : activeTab === 'history' ? (
           <SearchHistory userEmail={user?.email} />
         ) : isExport ? (
-          <>
-            <ExportSection
-              user={user}
-              exportManagers={exportManagers}
-              selectedMapCountry={selectedMapCountry}
-              setSelectedMapCountry={setSelectedMapCountry}
-            />
-            {/* Mappa — sotto il form */}
-            {!activeTab.includes('history') && (
-              <div className="mt-4">
-                <WorldMapExplorer onCountrySelect={(country) => {
-                  setSelectedMapCountry(country);
-                }} />
-              </div>
-            )}
-          </>
+          <ExportSection
+            user={user}
+            exportManagers={exportManagers}
+            selectedMapCountry={selectedMapCountry}
+            setSelectedMapCountry={setSelectedMapCountry}
+          />
         ) : (
           <ImportSection
             user={user}
