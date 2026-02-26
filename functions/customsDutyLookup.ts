@@ -18,33 +18,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'country_code and hs_code are required' }, { status: 400 });
     }
 
-    const promptText = [
-      'Sei un esperto doganale internazionale. Devi fornire una GUIDA OPERATIVA REALE per trovare dazi doganali, IVA/GST e imposte di importazione per il paese ' + country_name + ' (' + country_code + '), codice HS ' + hs_code + (product_description ? ' (' + product_description + ')' : '') + '.',
-      '',
-      'REGOLE TASSATIVE:',
-      '- Cerca DIRETTAMENTE sui siti ufficiali governativi/istituzionali del paese.',
-      '- ESCLUDI: siti commerciali, blog, marketplace, fonti non governative.',
-      '- NON inventare URL. Fornisci SOLO URL che sai ESISTERE REALMENTE e che sono governativi/istituzionali.',
-      '- NON stimare, approssimare o inventare percentuali di dazi/IVA. Se non trovi il dato esatto, scrivi "Consultare direttamente il sito indicato".',
-      '- NON usare frasi come "di solito", "generalmente", "in media".',
-      '- Se un dato non e reperibile, dichiaralo esplicitamente.',
-      '',
-      'STRUTTURA OBBLIGATORIA:',
-      '',
-      '1. FONTE UFFICIALE: Nome esatto ente doganale/fiscale nazionale, URL tariffario (SOLO governativo verificato), URL homepage, Classificazione, Portale ricerca tariffe se esiste.',
-      '',
-      '2. COME TROVARE I DAZI: Elenco NUMERATO passaggi navigazione sito, Dove inserire codice HS, Dove leggere dazio MFN/preferenziale, Dove leggere IVA/GST, Dove imposte aggiuntive, Come usare Access2Markets EU come complemento.',
-      '',
-      '3. DATI TROVATI (solo se visibili chiaramente): Dazio MFN per HS ' + hs_code + ', Dazio preferenziale EU, IVA/GST standard, Altre imposte, Fonte esatta. Se NON trovato: "Non reperito".',
-      '',
-      '4. AGGIORNAMENTI: URL sezione aggiornamenti/notices, Dove pubblicati cambi tariffari, Frequenza aggiornamento, Data ultimo aggiornamento visibile.',
-      '',
-      '5. LIMITI: Cosa il sito NON mostra, Se servono calcoli manuali, Se serve broker doganale, Complessita tariffaria, Lingue disponibili.',
-      '',
-      '6. RISORSE COMPLEMENTARI: WTO Tariff, Access2Markets, UNCTAD TRAINS, Camera commercio italiana, ICE ufficio locale.',
-      '',
-      'Per il paese ' + country_name + ': cerca il VERO sito dell autorita doganale nazionale.'
-    ].join('\n');
+    const promptText = 'Guida doganale operativa per ' + country_name + ' (' + country_code + '), HS ' + hs_code + (product_description ? ' (' + product_description + ')' : '') + '. Trova: 1) Sito ufficiale autorita doganale nazionale (nome ente, URL homepage e tariffario, solo governativi reali). 2) Passaggi navigazione numerati per trovare dazi e IVA sul sito. 3) Dazio MFN, dazio preferenziale EU, IVA/GST, altre imposte con fonti (se non trovato scrivi Non reperito). 4) Dove controllare aggiornamenti tariffari. 5) Limiti del sito e se serve broker. 6) Risorse complementari (WTO, Access2Markets, ICE). NON inventare URL o percentuali. Solo dati verificati.';
 
     const result = await base44.integrations.Core.InvokeLLM({
       prompt: promptText,
