@@ -292,33 +292,93 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
                   style={getDoingBusinessStyle(macroData.doing_business_score)}
                 />
               )}
-              {/* Volatilità cambio con ? info */}
-              <div className="px-3 py-1">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1">
-                    <span className="text-slate-500 text-[10px]">💱 Volatilità cambio</span>
-                    <button onClick={(e) => { e.stopPropagation(); setShowVolatilitaInfo(true); }}
-                      className="w-3.5 h-3.5 rounded-full border border-slate-600 flex items-center justify-center hover:border-amber-400 transition-colors">
-                      <span className="text-slate-400 text-[8px] font-bold leading-none">?</span>
-                    </button>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    {macroData.volatilita_cambio !== null && macroData.volatilita_cambio !== undefined ? (
-                      <>
-                        <span className={`text-xs font-semibold ${getVolatilitaCambioStyle(macroData.volatilita_cambio)?.color || 'text-white'}`}>
+              {/* Volatilità cambio BCE con ? info */}
+              <div className="px-3 py-2">
+                <div className="flex items-center gap-1 mb-1.5">
+                  <span className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider">💱 Volatilità cambio EUR/{macroData.volatilita_valuta || '?'}</span>
+                  <button onClick={(e) => { e.stopPropagation(); setShowVolatilitaInfo(true); }}
+                    className="w-3.5 h-3.5 rounded-full border border-slate-600 flex items-center justify-center hover:border-amber-400 transition-colors">
+                    <span className="text-slate-400 text-[8px] font-bold leading-none">?</span>
+                  </button>
+                </div>
+                {macroData.volatilita_cambio !== null && macroData.volatilita_cambio !== undefined ? (
+                  <div className="space-y-1.5">
+                    {/* Riga 1: volatilità 3 anni */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-400 text-[10px]">3 anni (annualizzata)</span>
+                      <div className="flex items-center gap-1.5">
+                        <span className={`text-xs font-bold ${getVolatilitaCambioStyle(macroData.volatilita_cambio)?.color || 'text-white'}`}>
                           {macroData.volatilita_cambio}%
                         </span>
-                        <span className={`text-[9px] ${getVolatilitaCambioStyle(macroData.volatilita_cambio)?.color}`}>
-                          ({getVolatilitaCambioStyle(macroData.volatilita_cambio)?.label})
+                        <span className={`text-[9px] font-medium px-1.5 py-0.5 rounded ${
+                          macroData.volatilita_livello === 'bassa' ? 'bg-green-500/15 text-green-400' :
+                          macroData.volatilita_livello === 'media' ? 'bg-yellow-500/15 text-yellow-400' :
+                          macroData.volatilita_livello === 'alta' ? 'bg-orange-500/15 text-orange-400' :
+                          macroData.volatilita_livello === 'molto_alta' ? 'bg-red-500/15 text-red-400' :
+                          macroData.volatilita_livello === 'nessuna' ? 'bg-green-500/15 text-green-400' :
+                          'bg-slate-500/15 text-slate-400'
+                        }`}>
+                          {macroData.volatilita_livello === 'nessuna' ? 'Stessa valuta' : 
+                           macroData.volatilita_livello === 'bassa' ? 'Bassa' :
+                           macroData.volatilita_livello === 'media' ? 'Media' :
+                           macroData.volatilita_livello === 'alta' ? 'Alta' :
+                           macroData.volatilita_livello === 'molto_alta' ? 'Molto alta' : macroData.volatilita_livello}
                         </span>
-                      </>
-                    ) : (
-                      <span className="text-slate-500 text-xs italic">N/D</span>
+                      </div>
+                    </div>
+                    {/* Riga 2: volatilità recente 6 mesi */}
+                    {macroData.volatilita_cambio_recente !== null && macroData.volatilita_cambio_recente !== undefined && macroData.volatilita_livello !== 'nessuna' && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-400 text-[10px]">Ultimi 6 mesi</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className={`text-xs font-bold ${getVolatilitaCambioStyle(macroData.volatilita_cambio_recente)?.color || 'text-white'}`}>
+                            {macroData.volatilita_cambio_recente}%
+                          </span>
+                          <span className={`text-[9px] font-medium px-1.5 py-0.5 rounded ${
+                            macroData.volatilita_livello_recente === 'bassa' ? 'bg-green-500/15 text-green-400' :
+                            macroData.volatilita_livello_recente === 'media' ? 'bg-yellow-500/15 text-yellow-400' :
+                            macroData.volatilita_livello_recente === 'alta' ? 'bg-orange-500/15 text-orange-400' :
+                            macroData.volatilita_livello_recente === 'molto_alta' ? 'bg-red-500/15 text-red-400' :
+                            'bg-slate-500/15 text-slate-400'
+                          }`}>
+                            {macroData.volatilita_livello_recente === 'bassa' ? 'Bassa' :
+                             macroData.volatilita_livello_recente === 'media' ? 'Media' :
+                             macroData.volatilita_livello_recente === 'alta' ? 'Alta' :
+                             macroData.volatilita_livello_recente === 'molto_alta' ? 'Molto alta' : macroData.volatilita_livello_recente}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                    {/* Riga 3: trend */}
+                    {macroData.volatilita_trend && macroData.volatilita_trend !== 'non_disponibile' && macroData.volatilita_livello !== 'nessuna' && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-400 text-[10px]">Trend</span>
+                        <span className={`text-[10px] font-medium ${
+                          macroData.volatilita_trend === 'in_aumento' ? 'text-red-400' :
+                          macroData.volatilita_trend === 'in_calo' ? 'text-green-400' : 'text-slate-400'
+                        }`}>
+                          {macroData.volatilita_trend === 'in_aumento' ? '↗ In aumento' :
+                           macroData.volatilita_trend === 'in_calo' ? '↘ In calo' : '→ Stabile'}
+                        </span>
+                      </div>
+                    )}
+                    {/* Tasso corrente */}
+                    {macroData.volatilita_tasso_corrente && macroData.volatilita_livello !== 'nessuna' && (
+                      <div className="flex items-center justify-between pt-1 border-t border-white/5">
+                        <span className="text-slate-500 text-[10px]">Tasso corrente</span>
+                        <span className="text-white text-[10px] font-mono">1 EUR = {macroData.volatilita_tasso_corrente} {macroData.volatilita_valuta}</span>
+                      </div>
+                    )}
+                    {/* Fonte */}
+                    {macroData.volatilita_cambio_fonte && (
+                      <p className="text-slate-600 text-[9px]">{macroData.volatilita_cambio_fonte}{macroData.volatilita_periodo ? ` · ${macroData.volatilita_periodo}` : ''}</p>
                     )}
                   </div>
-                </div>
-                {macroData.volatilita_cambio_fonte && (
-                  <p className="text-slate-600 text-[9px] mt-0.5">{macroData.volatilita_cambio_fonte}</p>
+                ) : (
+                  <div>
+                    <span className="text-slate-500 text-xs italic">Non disponibile per questa valuta</span>
+                    {macroData.volatilita_cambio_fonte && <p className="text-slate-600 text-[9px] mt-0.5">{macroData.volatilita_cambio_fonte}</p>}
+                  </div>
                 )}
               </div>
               {macroData.partite_correnti_usd !== null && (
@@ -352,7 +412,7 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
               )}
 
               <div className="px-3 pt-1.5">
-                <p className="text-slate-600 text-[9px]">Fonte: World Bank API — tutti dati ufficiali, nessuna stima</p>
+                <p className="text-slate-600 text-[9px]">Fonti: World Bank API + BCE — tutti dati ufficiali, nessuna stima</p>
               </div>
             </div>
           )}
@@ -369,33 +429,41 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
             </div>
             <div className="space-y-2 text-slate-300 text-xs leading-relaxed">
               <p>
-                La <strong className="text-white">volatilità del cambio</strong> misura quanto il tasso di cambio della valuta locale rispetto al dollaro USA (USD) è oscillato negli ultimi <strong className="text-amber-400">5 anni</strong>.
+                La <strong className="text-white">volatilità del cambio</strong> misura quanto il tasso EUR/valuta locale è oscillato nel tempo. Calcolata sui <strong className="text-amber-400">tassi giornalieri BCE</strong> (Banca Centrale Europea).
               </p>
               <p>
-                Viene calcolata come <strong className="text-white">coefficiente di variazione</strong> (deviazione standard / media × 100) del tasso di cambio ufficiale annuale (World Bank, indicatore PA.NUS.FCRF).
+                Si usa la <strong className="text-white">volatilità annualizzata</strong> dei rendimenti logaritmici giornalieri (formula standard: σ × √252).
               </p>
               <p className="text-slate-400">
-                Un valore alto significa che la valuta del paese è instabile: i tuoi ricavi in euro possono variare significativamente anche a parità di vendite.
+                Mostriamo due orizzonti: <strong className="text-white">3 anni</strong> (visione strutturale) e <strong className="text-white">6 mesi</strong> (situazione attuale). Il confronto tra i due indica se il rischio sta aumentando o diminuendo.
               </p>
               <div className="bg-slate-800 rounded-lg p-3 mt-3">
                 <p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold mb-2">Come leggere il valore</p>
                 <div className="space-y-1 text-[11px]">
-                  <div className="flex justify-between"><span className="text-green-400">&lt; 3%</span><span className="text-slate-400">Stabile (rischio basso)</span></div>
-                  <div className="flex justify-between"><span className="text-yellow-400">3% – 8%</span><span className="text-slate-400">Moderata (attenzione)</span></div>
-                  <div className="flex justify-between"><span className="text-orange-400">8% – 15%</span><span className="text-slate-400">Elevata (copertura consigliata)</span></div>
+                  <div className="flex justify-between"><span className="text-green-400">&lt; 4%</span><span className="text-slate-400">Bassa (rischio minimo)</span></div>
+                  <div className="flex justify-between"><span className="text-yellow-400">4% – 8%</span><span className="text-slate-400">Media (monitorare)</span></div>
+                  <div className="flex justify-between"><span className="text-orange-400">8% – 15%</span><span className="text-slate-400">Alta (copertura consigliata)</span></div>
                   <div className="flex justify-between"><span className="text-red-400">&gt; 15%</span><span className="text-slate-400">Molto alta (rischio critico)</span></div>
                 </div>
+              </div>
+              <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-2.5 mt-3">
+                <p className="text-blue-400 text-[10px] font-bold mb-1">📊 Trend</p>
+                <ul className="text-slate-400 text-[10px] space-y-0.5">
+                  <li><strong className="text-red-400">↗ In aumento</strong> — la volatilità recente è &gt;30% superiore alla media 3 anni</li>
+                  <li><strong className="text-green-400">↘ In calo</strong> — la volatilità recente è &lt;30% inferiore alla media 3 anni</li>
+                  <li><strong className="text-slate-300">→ Stabile</strong> — il rischio cambio è costante</li>
+                </ul>
               </div>
               <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-2.5 mt-3">
                 <p className="text-amber-400 text-[10px] font-bold mb-1">💡 Cosa fare se è alta?</p>
                 <ul className="text-slate-400 text-[10px] space-y-0.5">
-                  <li>• Fatturare in EUR o USD anziché valuta locale</li>
+                  <li>• Fatturare in EUR anziché valuta locale</li>
                   <li>• Usare coperture forward (hedging)</li>
                   <li>• Inserire clausole di revisione prezzo</li>
-                  <li>• Preferire pagamenti anticipati</li>
+                  <li>• Preferire pagamenti anticipati o L/C</li>
                 </ul>
               </div>
-              <p className="text-slate-500 text-[10px] mt-2">Fonte: World Bank — Official exchange rate (PA.NUS.FCRF), ultimi 5 anni</p>
+              <p className="text-slate-500 text-[10px] mt-2">Fonte: BCE — Euro foreign exchange reference rates (tassi giornalieri)</p>
             </div>
           </div>
         </div>
