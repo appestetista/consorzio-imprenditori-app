@@ -757,25 +757,22 @@ Rispondi in italiano.`,
       previousMouse.current = { x: pos.px, y: pos.py };
     }
 
-    // Hover detection
-    mouseRef.current.set(pos.x, pos.y);
-    raycasterRef.current.setFromCamera(mouseRef.current, cameraRef.current);
-    const intersects = raycasterRef.current.intersectObjects(countryMeshesRef.current);
-    
-    if (intersects.length > 0) {
-      const mesh = intersects[0].object;
-      const name = mesh.userData.countryName;
+    // Hover detection (solo quando non si sta trascinando)
+    if (!isDragging.current) {
+      mouseRef.current.set(pos.x, pos.y);
+      raycasterRef.current.setFromCamera(mouseRef.current, cameraRef.current);
+      const intersects = raycasterRef.current.intersectObjects(countryMeshesRef.current);
       
-      hoveredRef.current = mesh;
-      setHoveredName(translateCountryName(name));
-      // Posizione tooltip relativa al container
-      const containerRect = container.getBoundingClientRect();
-      setTooltipPos({ x: pos.px - containerRect.left, y: pos.py - containerRect.top });
-      container.style.cursor = 'pointer';
-    } else {
-      hoveredRef.current = null;
-      setHoveredName('');
-      container.style.cursor = 'grab';
+      if (intersects.length > 0) {
+        const mesh = intersects[0].object;
+        hoveredRef.current = mesh;
+        setHoveredName(translateCountryName(mesh.userData.countryName));
+        container.style.cursor = 'pointer';
+      } else {
+        hoveredRef.current = null;
+        setHoveredName('');
+        container.style.cursor = 'grab';
+      }
     }
   }, [getPointerPos]);
 
