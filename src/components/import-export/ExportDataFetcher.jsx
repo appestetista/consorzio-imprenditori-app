@@ -815,7 +815,17 @@ export async function interpretData(tradeData, metricsResult, hsCode, hsDescrizi
 
   // === MODULO E: GTM universale + Economia + Roadmap + Sintesi ===
   // Prompt strutturato per 6 FASI universali, adattivo a QUALSIASI prodotto/paese
-  const modE = callModule('GTM+Economia+Roadmap', `${rules}\n${ctx.header}\n\nIMPORTANTE: L'analisi deve essere CONCRETA e SPECIFICA per il prodotto HS ${hsCode} e il Paese target. NON inserire marketplace, retailer o distributori generici se non verificati per questo caso. Elimina canali non compatibili con la categoria merceologica. Se mancano dati, indica esplicitamente "Dato necessario per completare l'analisi" anziché inventare.
+  const modE = callModule('GTM+Economia+Roadmap', `${rules}\n${ctx.header}\n\nREGOLE ANTI-INVENZIONE (TASSATIVE):
+1. NON INVENTARE MAI nomi di aziende, distributori, retailer, marketplace, fiere, associazioni, certificazioni o qualsiasi altro dato specifico se non sei CERTO che esistano realmente.
+2. Se non hai dati verificati, scrivi esplicitamente "Non disponibile — verificare con fonti locali" oppure "Dato da confermare".
+3. NON inserire percentuali, range di margini, tempi o costi inventati. Se non hai dati reali, scrivi "Non disponibile".
+4. Per marketplace e piattaforme: inserisci SOLO quelli che sai ESISTERE REALMENTE e che operano nel Paese specifico per questa categoria merceologica. Se non sei sicuro, NON inserirli.
+5. Per fiere: inserisci SOLO fiere che sai esistere realmente con nome verificabile. Se non sei sicuro, scrivi "Verificare calendario fiere di settore nel Paese".
+6. Per certificazioni e normative: indica SOLO requisiti che sai essere reali per il codice HS ${hsCode} nel Paese target. Se non sei sicuro, scrivi "Da verificare con ente normativo locale".
+7. Ogni dato deve essere accompagnato da una indicazione se è VERIFICATO o DA CONFERMARE.
+8. Meglio un campo vuoto/non disponibile che un dato inventato.
+
+IMPORTANTE: L'analisi deve essere CONCRETA e SPECIFICA per il prodotto HS ${hsCode} e il Paese target. Elimina canali non compatibili con la categoria merceologica.
 
 Per ogni Paese, analizza secondo queste 6 FASI:
 
