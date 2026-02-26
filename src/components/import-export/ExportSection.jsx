@@ -173,7 +173,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
         } catch (e2) { console.error('[Export] Errore salvataggio snapshot:', e2); }
       }
     } catch (e) { console.error('[Export] Errore analisi:', e); setAnalysisResult({ _api_error: true }); }
-    finally { setAnalyzing(false); setExportStep(''); setPriceStep(''); }
+    finally { setAnalyzing(false); setExportStep(''); }
   };
 
   const resetAnalysis = () => {
