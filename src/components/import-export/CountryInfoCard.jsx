@@ -292,8 +292,8 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
                 <div className="flex items-center gap-1 mb-1.5">
                   <span className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider">💱 Volatilità cambio EUR/{macroData.volatilita_valuta || '?'}</span>
                   <button onClick={(e) => { e.stopPropagation(); setShowVolatilitaInfo(true); }}
-                    className="w-3.5 h-3.5 rounded-full border border-slate-600 flex items-center justify-center hover:border-amber-400 transition-colors">
-                    <span className="text-slate-400 text-[8px] font-bold leading-none">?</span>
+                    className="w-5 h-5 rounded-full bg-red-500/20 border border-red-500/50 flex items-center justify-center hover:bg-red-500/30 transition-colors">
+                    <span className="text-red-400 text-[10px] font-bold leading-none">?</span>
                   </button>
                 </div>
                 {macroData.volatilita_cambio !== null && macroData.volatilita_cambio !== undefined ? (
@@ -392,8 +392,8 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
                     <Truck className="w-3.5 h-3.5 text-blue-400" />
                     <span className="text-blue-400 text-[10px] font-semibold uppercase tracking-wider">Indici di Performance Logistica</span>
                     <button onClick={(e) => { e.stopPropagation(); setShowLPIInfo(true); }}
-                      className="w-4 h-4 rounded-full border border-slate-600 flex items-center justify-center hover:border-blue-400 transition-colors ml-0.5">
-                      <span className="text-slate-400 text-[9px] font-bold leading-none">?</span>
+                      className="w-5 h-5 rounded-full bg-red-500/20 border border-red-500/50 flex items-center justify-center hover:bg-red-500/30 transition-colors ml-0.5">
+                      <span className="text-red-400 text-[10px] font-bold leading-none">?</span>
                     </button>
                   </div>
                   <div className="flex items-center justify-between mb-1">
@@ -415,18 +415,19 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
 
       {/* Popup Volatilità Cambio Info */}
       {showVolatilitaInfo && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={() => setShowVolatilitaInfo(false)}>
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/70 backdrop-blur-sm pt-4 px-4 pb-4 overflow-y-auto" onClick={() => setShowVolatilitaInfo(false)}>
           <div className="bg-slate-900 border border-white/10 rounded-2xl p-5 max-w-sm w-full shadow-2xl" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-white font-bold text-sm">Volatilità del Cambio</h3>
               <button onClick={() => setShowVolatilitaInfo(false)} className="text-slate-400 hover:text-white"><X className="w-4 h-4" /></button>
             </div>
             <div className="space-y-2 text-slate-300 text-xs leading-relaxed">
+              <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-3 mb-2">
+                <p className="text-cyan-400 text-[10px] font-bold uppercase tracking-wider mb-1">Cos'è e perché è importante per l'export</p>
+                <p className="text-slate-300 text-xs">La volatilità del cambio indica quanto il tasso EUR/valuta locale oscilla nel tempo. <strong className="text-white">Per chi esporta</strong>, una volatilità alta significa che i margini di profitto possono variare in modo imprevedibile: il prezzo pattuito oggi potrebbe valere molto di più o molto di meno domani. Monitorarla ti aiuta a decidere se proteggerti con coperture finanziarie o clausole contrattuali.</p>
+              </div>
               <p>
-                La <strong className="text-white">volatilità del cambio</strong> misura quanto il tasso EUR/valuta locale è oscillato nel tempo. Calcolata sui <strong className="text-amber-400">tassi giornalieri BCE</strong> (Banca Centrale Europea).
-              </p>
-              <p>
-                Si usa la <strong className="text-white">volatilità annualizzata</strong> dei rendimenti logaritmici giornalieri (formula standard: σ × √252).
+                Calcolata sui <strong className="text-amber-400">tassi giornalieri BCE</strong> (Banca Centrale Europea), usando la <strong className="text-white">volatilità annualizzata</strong> dei rendimenti logaritmici giornalieri (formula standard: σ × √252).
               </p>
               <p className="text-slate-400">
                 Mostriamo due orizzonti: <strong className="text-white">3 anni</strong> (visione strutturale) e <strong className="text-white">6 mesi</strong> (situazione attuale). Il confronto tra i due indica se il rischio sta aumentando o diminuendo.
@@ -465,15 +466,19 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
 
       {/* Popup LPI Info */}
       {showLPIInfo && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={() => setShowLPIInfo(false)}>
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/70 backdrop-blur-sm pt-4 px-4 pb-4 overflow-y-auto" onClick={() => setShowLPIInfo(false)}>
           <div className="bg-slate-900 border border-white/10 rounded-2xl p-5 max-w-sm w-full shadow-2xl" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-white font-bold text-sm">Logistics Performance Index (LPI)</h3>
               <button onClick={() => setShowLPIInfo(false)} className="text-slate-400 hover:text-white"><X className="w-4 h-4" /></button>
             </div>
             <div className="space-y-2 text-slate-300 text-xs leading-relaxed">
+              <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-3 mb-2">
+                <p className="text-cyan-400 text-[10px] font-bold uppercase tracking-wider mb-1">Cos'è e perché è importante per l'export</p>
+                <p className="text-slate-300 text-xs">L'LPI misura quanto è efficiente la logistica di un paese: dogane, infrastrutture, spedizioni e puntualità. <strong className="text-white">Per chi esporta</strong>, un LPI alto significa che le merci arriveranno in tempo, con meno burocrazia e costi di trasporto più prevedibili. Un LPI basso indica possibili ritardi, costi extra e rischi operativi.</p>
+              </div>
               <p>
-                L'<strong className="text-white">LPI</strong> è un indice della <strong className="text-white">World Bank</strong> che misura l'efficienza logistica di un paese su una scala da <strong className="text-blue-400">1</strong> (peggiore) a <strong className="text-blue-400">5</strong> (migliore).
+                Indice della <strong className="text-white">World Bank</strong> su scala da <strong className="text-blue-400">1</strong> (peggiore) a <strong className="text-blue-400">5</strong> (migliore).
               </p>
               <p>Valuta 6 dimensioni chiave:</p>
               <ul className="space-y-1 text-slate-400">
