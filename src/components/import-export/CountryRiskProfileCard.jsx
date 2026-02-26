@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, ShieldCheck, ShieldAlert, Shield, Star, AlertTriangle, Globe, X, Loader2 } from 'lucide-react';
+import { ShieldCheck, ShieldAlert, Shield, X, Loader2 } from 'lucide-react';
 
 function ScoreBar({ value, max = 100, color = 'bg-cyan-400' }) {
   if (value === null || value === undefined) return <span className="text-slate-500 text-[10px] italic">N/D</span>;
@@ -60,9 +60,6 @@ function WGIRow({ label, estimate, percentile, year }) {
 }
 
 export default function CountryRiskProfileCard({ data, loading }) {
-  const [showGovernance, setShowGovernance] = useState(false);
-  const [showMacro, setShowMacro] = useState(false);
-  const [showDemographics, setShowDemographics] = useState(false);
   const [showInfoPopup, setShowInfoPopup] = useState(false);
 
   if (loading) {
@@ -202,11 +199,10 @@ export default function CountryRiskProfileCard({ data, loading }) {
         </div>
       )}
 
-      {/* Governance WGI — collapsible */}
+      {/* Governance WGI — sempre aperto */}
       {gov && gov.wgi_average_percentile !== null && (
         <div className="border-b border-white/5">
-          <button onClick={() => setShowGovernance(!showGovernance)}
-            className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-white/[0.02]">
+          <div className="px-4 py-2.5">
             <div className="flex items-center gap-1.5">
               {gov.wgi_average_percentile >= 60 ? 
                 <ShieldCheck className="w-3.5 h-3.5 text-green-400" /> : 
@@ -214,31 +210,25 @@ export default function CountryRiskProfileCard({ data, loading }) {
               <span className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider">Governance (WGI)</span>
               <span className="text-white text-[10px] font-bold ml-1">{gov.wgi_average_percentile}/100</span>
             </div>
-            {showGovernance ? <ChevronUp className="w-3.5 h-3.5 text-slate-600" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-600" />}
-          </button>
-          {showGovernance && (
-            <div className="px-4 pb-3 space-y-0.5">
-              <WGIRow label="Gov. Effectiveness" estimate={gov.government_effectiveness?.estimate} percentile={gov.government_effectiveness?.percentile} year={gov.government_effectiveness?.year} />
-              <WGIRow label="Rule of Law" estimate={gov.rule_of_law?.estimate} percentile={gov.rule_of_law?.percentile} year={gov.rule_of_law?.year} />
-              <WGIRow label="Anti-Corruzione" estimate={gov.control_of_corruption?.estimate} percentile={gov.control_of_corruption?.percentile} year={gov.control_of_corruption?.year} />
-              <WGIRow label="Stabilità Politica" estimate={gov.political_stability?.estimate} percentile={gov.political_stability?.percentile} year={gov.political_stability?.year} />
-              <WGIRow label="Voice & Account." estimate={gov.voice_accountability?.estimate} percentile={gov.voice_accountability?.percentile} year={gov.voice_accountability?.year} />
-              <WGIRow label="Regulatory Quality" estimate={gov.regulatory_quality?.estimate} percentile={gov.regulatory_quality?.percentile} year={gov.regulatory_quality?.year} />
-              <p className="text-slate-600 text-[9px] pt-1">Percentile 0-100 · Fonte: {gov.fonte}</p>
-            </div>
-          )}
+          </div>
+          <div className="px-4 pb-3 space-y-0.5">
+            <WGIRow label="Gov. Effectiveness" estimate={gov.government_effectiveness?.estimate} percentile={gov.government_effectiveness?.percentile} year={gov.government_effectiveness?.year} />
+            <WGIRow label="Rule of Law" estimate={gov.rule_of_law?.estimate} percentile={gov.rule_of_law?.percentile} year={gov.rule_of_law?.year} />
+            <WGIRow label="Anti-Corruzione" estimate={gov.control_of_corruption?.estimate} percentile={gov.control_of_corruption?.percentile} year={gov.control_of_corruption?.year} />
+            <WGIRow label="Stabilità Politica" estimate={gov.political_stability?.estimate} percentile={gov.political_stability?.percentile} year={gov.political_stability?.year} />
+            <WGIRow label="Voice & Account." estimate={gov.voice_accountability?.estimate} percentile={gov.voice_accountability?.percentile} year={gov.voice_accountability?.year} />
+            <WGIRow label="Regulatory Quality" estimate={gov.regulatory_quality?.estimate} percentile={gov.regulatory_quality?.percentile} year={gov.regulatory_quality?.year} />
+            <p className="text-slate-600 text-[9px] pt-1">Percentile 0-100 · Fonte: {gov.fonte}</p>
+          </div>
         </div>
       )}
 
-      {/* Macro — collapsible */}
+      {/* Macro — sempre aperto */}
       {macro && (
         <div className="border-b border-white/5">
-          <button onClick={() => setShowMacro(!showMacro)}
-            className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-white/[0.02]">
+          <div className="px-4 py-2.5">
             <span className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider">📊 Macro-Economici</span>
-            {showMacro ? <ChevronUp className="w-3.5 h-3.5 text-slate-600" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-600" />}
-          </button>
-          {showMacro && (
+          </div>
             <div className="px-4 pb-3 space-y-1">
               {macro.crescita_pil_pct !== null && (
                 <div className="flex justify-between"><span className="text-slate-400 text-[10px]">Crescita PIL</span>
@@ -280,19 +270,15 @@ export default function CountryRiskProfileCard({ data, loading }) {
               )}
               <p className="text-slate-600 text-[9px] pt-1">Fonte: {macro.fonte}{eu ? ' + Eurostat' : ''}</p>
             </div>
-          )}
         </div>
       )}
 
-      {/* Demographics — collapsible */}
+      {/* Demographics — sempre aperto */}
       {demo && (
         <div className="border-b border-white/5">
-          <button onClick={() => setShowDemographics(!showDemographics)}
-            className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-white/[0.02]">
+          <div className="px-4 py-2.5">
             <span className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider">👥 Demografici</span>
-            {showDemographics ? <ChevronUp className="w-3.5 h-3.5 text-slate-600" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-600" />}
-          </button>
-          {showDemographics && (
+          </div>
             <div className="px-4 pb-3 space-y-1">
               {demo.speranza_vita !== null && (
                 <div className="flex justify-between"><span className="text-slate-400 text-[10px]">Speranza di vita</span>
@@ -321,7 +307,6 @@ export default function CountryRiskProfileCard({ data, loading }) {
               )}
               <p className="text-slate-600 text-[9px] pt-1">Fonte: {demo.fonte}</p>
             </div>
-          )}
         </div>
       )}
 
