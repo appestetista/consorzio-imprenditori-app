@@ -383,6 +383,7 @@ REGOLE CRITICHE:
         rank: llmData.cpi.rank,
         total_countries: llmData.cpi.total_countries,
         year: llmData.cpi.year,
+        top_100: Array.isArray(llmData.cpi.top_100) ? llmData.cpi.top_100 : [],
         fonte: llmData.cpi.source || 'Transparency International - CPI'
       } : null,
 
