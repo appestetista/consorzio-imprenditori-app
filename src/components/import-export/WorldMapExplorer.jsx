@@ -889,9 +889,9 @@ Rispondi in italiano.`,
           const labelText = translateCountryName(countryName);
           const canvas = document.createElement('canvas');
           const ctx = canvas.getContext('2d');
-          canvas.width = 512;
-          canvas.height = 128;
-          ctx.clearRect(0, 0, 512, 128);
+          canvas.width = 1024;
+          canvas.height = 256;
+          ctx.clearRect(0, 0, 1024, 256);
           // Sfondo pill
           ctx.fillStyle = 'rgba(0,0,0,0.75)';
           ctx.font = 'bold 80px sans-serif';
