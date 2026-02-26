@@ -514,20 +514,46 @@ Rispondi in italiano.`,
         });
       }
 
-      // Nessun riempimento mesh - solo bordi
+      // Rimuovi mesh rialzate precedenti
+      raisedMeshesRef.current.forEach(rm => {
+        if (globeGroupRef.current) globeGroupRef.current.remove(rm);
+        rm.geometry.dispose();
+        rm.material.dispose();
+      });
+      raisedMeshesRef.current = [];
+
       selectedMeshRef.current = mesh;
 
-      // Crea bordi luminosi per lo stato selezionato
+      // Crea mesh rialzata + bordi luminosi per lo stato selezionato
       if (geoDataRef.current && globeGroupRef.current) {
         const feature = geoDataRef.current.features.find(f => {
           const p = f.properties || {};
           return (p.ADMIN || p.NAME || p.name || '') === countryName;
         });
         if (feature) {
-          const lineGroups = createCountryLines(feature, 1.004);
+          // Mesh rialzata colorata (raggio maggiore = effetto rilievo)
+          const raisedRadius = 1.018;
+          const raisedGeometries = createCountryHitMesh(feature, raisedRadius - 0.003);
+          raisedGeometries.forEach(g => {
+            const raisedMat = new THREE.MeshPhongMaterial({
+              color: 0xf59e0b, // Arancione/ambra
+              emissive: 0xf59e0b,
+              emissiveIntensity: 0.3,
+              side: THREE.DoubleSide,
+              transparent: true,
+              opacity: 0.85,
+              depthWrite: true,
+            });
+            const raisedMesh = new THREE.Mesh(g, raisedMat);
+            globeGroupRef.current.add(raisedMesh);
+            raisedMeshesRef.current.push(raisedMesh);
+          });
+
+          // Bordi luminosi sopra la mesh rialzata
+          const lineGroups = createCountryLines(feature, raisedRadius);
           lineGroups.forEach(points => {
             const lineGeom = new THREE.BufferGeometry().setFromPoints(points);
-            const lineMat = new THREE.LineBasicMaterial({ color: 0x67e8f9, linewidth: 2 });
+            const lineMat = new THREE.LineBasicMaterial({ color: 0xfbbf24, linewidth: 2 });
             const line = new THREE.Line(lineGeom, lineMat);
             globeGroupRef.current.add(line);
             selectedLinesRef.current.push(line);
