@@ -113,7 +113,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
     const mercatiNames = mercatiInteresse.map(code => { if (code === 'WLD') return 'World'; const c = ALL_COUNTRIES.find(c => c.code === code); return c ? c.name : code; });
 
     try {
-      await trackExportUsage({ search_label: `${exportForm.prodotto} → ${mercatiNames.slice(0, 3).join(', ')}`, search_meta: { prodotto: exportForm.prodotto, settore: exportForm.settore, hs_code: hsData.hs_code, mercati: mercatiNames } });
+      const usageLogId = await trackExportUsage({ search_label: `${exportForm.prodotto} → ${mercatiNames.slice(0, 3).join(', ')}`, search_meta: { prodotto: exportForm.prodotto, settore: exportForm.settore, hs_code: hsData.hs_code, mercati: mercatiNames } });
       setExportStep('fetching');
       const [rawData, macro] = await Promise.all([ fetchTradeData(hsData.hs_code, mercatiInteresse, mercatiNames, exporterCountry, parseInt(periodoAnalisi)), fetchMacroData(mercatiInteresse) ]);
       if (rawData?._api_error) { setTradeData(rawData); setAnalysisResult({ _api_error: true }); return; }
@@ -137,6 +137,13 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
       if (interpretation?._api_error) { setAnalysisResult({ _api_error: true }); return; }
       setAnalysisResult(interpretation);
 
+      // Salva snapshot parziale (senza price, che arriva dopo)
+      const snapshotPartial = {
+        analysisResult: interpretation, tradeMetrics: metrics, tradeData: rawData,
+        macroData: macro || {}, confirmedHS: hsData,
+        exportForm: { ...exportForm }
+      };
+
       setPriceStep('fetching');
       const priceRaw = await fetchPriceData(hsData.hs_code, mercatiInteresse, mercatiNames, exporterCountry, parseInt(periodoAnalisi));
       if (priceRaw?._api_error) { setPriceMetrics(null); setPriceStep(''); }
@@ -150,6 +157,20 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
           setPriceInterpretation(pInterp);
         }
         setPriceStep('');
+        // Aggiorna snapshot con dati prezzo
+        if (usageLogId && pMetrics && !pMetrics._api_error) {
+          try {
+            await base44.entities.UsageLog.update(usageLogId, {
+              analysis_snapshot: { ...snapshotPartial, priceMetrics: pMetrics, priceInterpretation: pInterp || null }
+            });
+          } catch (e2) { console.error('[Export] Errore salvataggio snapshot prezzo:', e2); }
+        }
+      }
+      // Salva snapshot anche se price fallisce
+      if (usageLogId && !snapshotPartial.priceMetrics) {
+        try {
+          await base44.entities.UsageLog.update(usageLogId, { analysis_snapshot: snapshotPartial });
+        } catch (e2) { console.error('[Export] Errore salvataggio snapshot:', e2); }
       }
     } catch (e) { console.error('[Export] Errore analisi:', e); setAnalysisResult({ _api_error: true }); }
     finally { setAnalyzing(false); setExportStep(''); setPriceStep(''); }
