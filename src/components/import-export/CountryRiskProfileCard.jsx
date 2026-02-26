@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ShieldCheck, ShieldAlert, Shield, X, Loader2 } from 'lucide-react';
 
 function ScoreBar({ value, max = 100, color = 'bg-cyan-400' }) {
