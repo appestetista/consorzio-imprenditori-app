@@ -378,7 +378,28 @@ function removeNode(p) { p.next.prev = p.prev; p.prev.next = p.next; if (p.prevZ
 function newNode(i, x, y) { return { i, x, y, prev: null, next: null, z: 0, prevZ: null, nextZ: null, steiner: false }; }
 function signedArea(data, start, end, dim) { let sum = 0; for (let i = start, j = end - dim; i < end; i += dim) { sum += (data[j] - data[i]) * (data[i + 1] + data[j + 1]); j = i; } return sum; }
 
-// Crea mesh per hit-testing con triangolazione ear-clipping (precisa per poligoni concavi)
+// Suddividi triangoli 2D (lng/lat) troppo grandi per evitare buchi sulla sfera
+function subdivideTri2D(ax, ay, bx, by, cx, cy, maxEdge) {
+  const d1 = Math.sqrt((bx - ax) ** 2 + (by - ay) ** 2);
+  const d2 = Math.sqrt((cx - bx) ** 2 + (cy - by) ** 2);
+  const d3 = Math.sqrt((ax - cx) ** 2 + (ay - cy) ** 2);
+  const maxD = Math.max(d1, d2, d3);
+  if (maxD <= maxEdge) {
+    return [[ax, ay, bx, by, cx, cy]];
+  }
+  // Suddividi a metà su ogni lato
+  const mx1 = (ax + bx) / 2, my1 = (ay + by) / 2;
+  const mx2 = (bx + cx) / 2, my2 = (by + cy) / 2;
+  const mx3 = (cx + ax) / 2, my3 = (cy + ay) / 2;
+  return [
+    ...subdivideTri2D(ax, ay, mx1, my1, mx3, my3, maxEdge),
+    ...subdivideTri2D(mx1, my1, bx, by, mx2, my2, maxEdge),
+    ...subdivideTri2D(mx3, my3, mx2, my2, cx, cy, maxEdge),
+    ...subdivideTri2D(mx1, my1, mx2, my2, mx3, my3, maxEdge),
+  ];
+}
+
+// Crea mesh per hit-testing con triangolazione ear-clipping + suddivisione sferica
 function createCountryHitMesh(feature, radius) {
   const geom = feature.geometry;
   const meshes = [];
@@ -392,12 +413,10 @@ function createCountryHitMesh(feature, radius) {
     const flatCoords = [];
     const holeIndices = [];
     
-    // Outer ring (senza duplicare l'ultimo punto = primo)
     for (let i = 0; i < outerRing.length - 1; i++) {
       flatCoords.push(outerRing[i][0], outerRing[i][1]);
     }
     
-    // Hole rings
     for (let h = 1; h < polygonCoords.length; h++) {
       const hole = polygonCoords[h];
       holeIndices.push(flatCoords.length / 2);
@@ -406,26 +425,42 @@ function createCountryHitMesh(feature, radius) {
       }
     }
 
-    // Triangola in 2D (lng/lat)
     const triIndices = earcut2D(flatCoords, holeIndices.length > 0 ? holeIndices : null, 2);
     if (triIndices.length === 0) return;
 
-    // Converti tutti i punti flat in 3D
-    const numPts = flatCoords.length / 2;
-    const vertices = new Float32Array(numPts * 3);
+    // Suddividi triangoli grandi (max ~5° per lato)
+    const MAX_EDGE = 5;
+    const allSubTris = [];
+    for (let t = 0; t < triIndices.length; t += 3) {
+      const i0 = triIndices[t], i1 = triIndices[t + 1], i2 = triIndices[t + 2];
+      const ax = flatCoords[i0 * 2], ay = flatCoords[i0 * 2 + 1];
+      const bx = flatCoords[i1 * 2], by = flatCoords[i1 * 2 + 1];
+      const cx = flatCoords[i2 * 2], cy = flatCoords[i2 * 2 + 1];
+      const subs = subdivideTri2D(ax, ay, bx, by, cx, cy, MAX_EDGE);
+      allSubTris.push(...subs);
+    }
+
+    // Converti in 3D
     const r = radius * 1.003;
-    for (let i = 0; i < numPts; i++) {
-      const lng = flatCoords[i * 2];
-      const lat = flatCoords[i * 2 + 1];
-      const v = latLngToVector3(lat, lng, r);
-      vertices[i * 3] = v.x;
-      vertices[i * 3 + 1] = v.y;
-      vertices[i * 3 + 2] = v.z;
+    const verts = new Float32Array(allSubTris.length * 3 * 3);
+    const indices = [];
+    for (let i = 0; i < allSubTris.length; i++) {
+      const tri = allSubTris[i];
+      for (let j = 0; j < 3; j++) {
+        const lng = tri[j * 2];
+        const lat = tri[j * 2 + 1];
+        const v = latLngToVector3(lat, lng, r);
+        const idx = i * 3 + j;
+        verts[idx * 3] = v.x;
+        verts[idx * 3 + 1] = v.y;
+        verts[idx * 3 + 2] = v.z;
+      }
+      indices.push(i * 3, i * 3 + 1, i * 3 + 2);
     }
 
     const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
-    geometry.setIndex(triIndices);
+    geometry.setAttribute('position', new THREE.BufferAttribute(verts, 3));
+    geometry.setIndex(indices);
     geometry.computeVertexNormals();
     meshes.push(geometry);
   };
