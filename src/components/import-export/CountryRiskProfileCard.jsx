@@ -83,6 +83,98 @@ function RiskInfoPopup({ show, onClose, title, children }) {
   );
 }
 
+function CPIRankingPopup({ show, onClose, corruptionData }) {
+  const highlightRef = useRef(null);
+
+  useEffect(() => {
+    if (show && highlightRef.current) {
+      setTimeout(() => {
+        highlightRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 200);
+    }
+  }, [show]);
+
+  if (!show) return null;
+
+  const top100 = corruptionData?.top_100 || [];
+  const currentRank = corruptionData?.rank;
+  const currentScore = corruptionData?.cpi_score;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4 overflow-y-auto" onClick={onClose}>
+      <div className="bg-slate-900 border border-white/10 rounded-2xl p-5 max-w-sm w-full shadow-2xl max-h-[85vh] flex flex-col" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between mb-3 flex-shrink-0">
+          <h3 className="text-white font-bold text-sm">Indice di Corruzione (CPI)</h3>
+          <button onClick={onClose} className="text-slate-400 hover:text-white"><X className="w-4 h-4" /></button>
+        </div>
+
+        <div className="flex-shrink-0 space-y-2 mb-3">
+          <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-3">
+            <p className="text-cyan-400 text-[10px] font-bold uppercase tracking-wider mb-1">Cos'è e perché è importante per l'export</p>
+            <p className="text-slate-300 text-xs">Il CPI (Corruption Perceptions Index) di Transparency International misura il livello percepito di corruzione nel settore pubblico di un paese, su scala 0-100. <strong className="text-white">Per chi esporta</strong>, un CPI basso indica che potresti incontrare richieste di tangenti, procedure opache, difficoltà doganali e minore certezza del diritto.</p>
+          </div>
+          <div className="bg-slate-800 rounded-lg p-3">
+            <p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold mb-2">Come leggere</p>
+            <div className="space-y-1 text-[11px]">
+              <div className="flex justify-between"><span className="text-green-400">≥ 70</span><span className="text-slate-400">Bassa corruzione</span></div>
+              <div className="flex justify-between"><span className="text-yellow-400">50 – 69</span><span className="text-slate-400">Corruzione moderata</span></div>
+              <div className="flex justify-between"><span className="text-orange-400">30 – 49</span><span className="text-slate-400">Corruzione significativa</span></div>
+              <div className="flex justify-between"><span className="text-red-400">&lt; 30</span><span className="text-slate-400">Corruzione grave</span></div>
+            </div>
+          </div>
+        </div>
+
+        {/* Classifica Top 100 scorrevole */}
+        {top100.length > 0 && (
+          <div className="flex-shrink-0 mb-2">
+            <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider">Classifica CPI — Top 100 ({corruptionData?.year || ''})</p>
+          </div>
+        )}
+        {top100.length > 0 ? (
+          <div className="flex-1 overflow-y-auto min-h-0 -mx-1 px-1">
+            <div className="space-y-0.5">
+              {top100.map((item) => {
+                const isHighlighted = item.rank === currentRank || item.score === currentScore;
+                return (
+                  <div
+                    key={item.rank}
+                    ref={isHighlighted ? highlightRef : null}
+                    className={`flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-[11px] transition-colors ${
+                      isHighlighted
+                        ? 'bg-orange-500/20 border border-orange-500/40'
+                        : 'bg-white/[0.02] border border-transparent'
+                    }`}
+                  >
+                    <span className={`w-7 text-right font-mono font-bold ${isHighlighted ? 'text-orange-400' : 'text-slate-500'}`}>
+                      {item.rank}
+                    </span>
+                    <span className={`flex-1 truncate font-medium ${isHighlighted ? 'text-orange-300' : 'text-slate-300'}`}>
+                      {item.country}
+                    </span>
+                    <span className={`w-8 text-right font-bold ${
+                      item.score >= 70 ? 'text-green-400' :
+                      item.score >= 50 ? 'text-yellow-400' :
+                      item.score >= 30 ? 'text-orange-400' : 'text-red-400'
+                    }`}>
+                      {item.score}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ) : (
+          <p className="text-slate-500 text-[10px] italic">Classifica non disponibile</p>
+        )}
+
+        <div className="flex-shrink-0 mt-2 pt-2 border-t border-white/5">
+          <p className="text-slate-600 text-[9px]">Fonte: Transparency International — CPI {corruptionData?.year || ''}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function CountryRiskProfileCard({ data, loading }) {
   const [showInfoPopup, setShowInfoPopup] = useState(false);
   const [showRatingInfo, setShowRatingInfo] = useState(false);
