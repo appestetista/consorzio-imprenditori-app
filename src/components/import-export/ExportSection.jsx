@@ -412,9 +412,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
             ))}</div>
           )}
 
-          {tradeMetrics?.metriche?.length > 1 && Array.isArray(analysisResult?.mercati_analisi) && (
-            <ExportComparisonRanking metriche={tradeMetrics.metriche} macroData={macroData} mercatiAnalisi={analysisResult.mercati_analisi} />
-          )}
+
 
           <ExportAnalysisResult analysisResult={analysisResult} tradeMetrics={tradeMetrics} macroData={macroData} confirmedExportHS={confirmedExportHS} tradeData={tradeData} exportForm={exportForm} />
 
