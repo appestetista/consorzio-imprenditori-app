@@ -843,6 +843,14 @@ Rispondi in italiano.`,
 
       selectedMeshRef.current = mesh;
 
+      // Rimuovi label 3D precedente
+      if (labelSpriteRef.current) {
+        globeGroupRef.current.remove(labelSpriteRef.current);
+        labelSpriteRef.current.material.map.dispose();
+        labelSpriteRef.current.material.dispose();
+        labelSpriteRef.current = null;
+      }
+
       // Crea mesh rialzata + bordi luminosi per lo stato selezionato
       if (geoDataRef.current && globeGroupRef.current) {
         const feature = geoDataRef.current.features.find(f => {
@@ -855,7 +863,7 @@ Rispondi in italiano.`,
           const raisedGeometries = createCountryHitMesh(feature, raisedRadius - 0.003);
           raisedGeometries.forEach(g => {
             const raisedMat = new THREE.MeshPhongMaterial({
-              color: 0xf59e0b, // Arancione/ambra
+              color: 0xf59e0b,
               emissive: 0xf59e0b,
               emissiveIntensity: 0.3,
               side: THREE.DoubleSide,
@@ -877,6 +885,41 @@ Rispondi in italiano.`,
             globeGroupRef.current.add(line);
             selectedLinesRef.current.push(line);
           });
+
+          // Label 3D ancorata al centroide del paese
+          const centroid = getFeatureCentroid(feature);
+          const labelPos = latLngToVector3(centroid.lat, centroid.lng, 1.06);
+          const labelText = translateCountryName(countryName);
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          canvas.width = 512;
+          canvas.height = 128;
+          ctx.clearRect(0, 0, 512, 128);
+          // Sfondo pill
+          ctx.fillStyle = 'rgba(0,0,0,0.7)';
+          ctx.font = 'bold 42px sans-serif';
+          const textW = ctx.measureText(labelText).width;
+          const pillW = Math.min(textW + 40, 500);
+          const pillH = 64;
+          const pillX = (512 - pillW) / 2;
+          const pillY = (128 - pillH) / 2;
+          ctx.beginPath();
+          ctx.roundRect(pillX, pillY, pillW, pillH, 32);
+          ctx.fill();
+          // Testo
+          ctx.fillStyle = '#ffffff';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(labelText, 256, 64);
+
+          const tex = new THREE.CanvasTexture(canvas);
+          tex.needsUpdate = true;
+          const spriteMat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false });
+          const sprite = new THREE.Sprite(spriteMat);
+          sprite.position.copy(labelPos);
+          sprite.scale.set(0.35, 0.09, 1);
+          globeGroupRef.current.add(sprite);
+          labelSpriteRef.current = sprite;
         }
       }
 
