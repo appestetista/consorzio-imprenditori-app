@@ -163,7 +163,7 @@ Deno.serve(async (req) => {
     var dResp = await fetch(WTO_BASE + '/data?' + dP.toString(), { headers: HEADERS, signal: AbortSignal.timeout(30000) });
     if (dResp.ok) {
       var rawBody = await dResp.text();
-      console.log('[TI] raw len=' + rawBody.length);
+      console.log('[TI] raw len=' + rawBody.length + ' preview=' + rawBody.substring(0, 200));
       var rawData = null;
       try { rawData = JSON.parse(rawBody); } catch (_) {}
       if (rawData) {
