@@ -6,6 +6,10 @@ import {
   BarChart3, Package, ExternalLink, ArrowRight 
 } from 'lucide-react';
 import WebEnrichmentCard from './WebEnrichmentCard';
+import { 
+  VerificaNormativaCard, StrutturaIngressoCard, CanaliVenditaCard, 
+  StrutturaMarginiCard, LogisticaDoganeGTMCard, ValidazioneCommercialeCard, DatiMancantiCard 
+} from './ExportPhaseCards';
 
 function OpenSection({ title, icon: Icon, iconColor, children }) {
   return (
