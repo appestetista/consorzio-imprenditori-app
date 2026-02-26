@@ -458,7 +458,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
             <ExportComparisonRanking metriche={tradeMetrics.metriche} macroData={macroData} mercatiAnalisi={analysisResult.mercati_analisi} />
           )}
 
-          <ExportAnalysisResult analysisResult={analysisResult} tradeMetrics={tradeMetrics} macroData={macroData} confirmedExportHS={confirmedExportHS} tradeData={tradeData} />
+          <ExportAnalysisResult analysisResult={analysisResult} tradeMetrics={tradeMetrics} macroData={macroData} confirmedExportHS={confirmedExportHS} tradeData={tradeData} exportForm={exportForm} />
 
           {priceStep && (
             <Card className="bg-slate-800 border-slate-700"><CardContent className="p-4"><div className="space-y-3">
