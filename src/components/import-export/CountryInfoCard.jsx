@@ -129,12 +129,12 @@ function StabilityBadge({ score }) {
 
 function MacroRow({ label, value, anno, style }) {
   return (
-    <div className="flex items-center justify-between py-1 px-3">
-      <span className="text-slate-500 text-[10px]">{label}</span>
+    <div className="flex items-center justify-between py-1.5 px-3">
+      <span className="text-slate-400 text-xs">{label}</span>
       <div className="flex items-center gap-1.5">
-        <span className={`text-xs font-semibold ${style?.color || 'text-white'}`}>{value}</span>
-        {style?.label && <span className={`text-[9px] ${style.color}`}>({style.label})</span>}
-        {anno && <span className="text-slate-600 text-[9px]">{anno}</span>}
+        <span className={`text-sm font-semibold ${style?.color || 'text-white'}`}>{value}</span>
+        {style?.label && <span className={`text-[10px] ${style.color}`}>({style.label})</span>}
+        {anno && <span className="text-slate-500 text-[10px]">{anno}</span>}
       </div>
     </div>
   );
@@ -213,22 +213,22 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
   return (
     <div className="bg-slate-800/50 border border-white/5 rounded-2xl overflow-hidden backdrop-blur-sm">
       {/* Header */}
-      <div className="px-4 py-3 flex items-center gap-3 border-b border-white/5">
+      <div className="px-4 py-3.5 flex items-center gap-3 border-b border-white/5">
         {countryCode !== 'WLD' ? (
-          <img src={flagUrl} alt="" className="w-10 h-7 object-cover rounded-md shadow" />
+          <img src={flagUrl} alt="" className="w-12 h-8 object-cover rounded-md shadow" />
         ) : (
-          <Globe className="w-8 h-6 text-blue-400" />
+          <Globe className="w-10 h-7 text-blue-400" />
         )}
         <div className="flex-1">
-          <p className="text-white font-bold text-sm">{countryName}</p>
+          <p className="text-white font-bold text-base">{countryName}</p>
           <div className="flex items-center gap-2 mt-0.5">
-            <span className="text-slate-500 text-xs">{countryCode}</span>
+            <span className="text-slate-400 text-sm">{countryCode}</span>
             {stabilityScore !== null && <StabilityBadge score={stabilityScore} />}
           </div>
         </div>
         {metrics?.crescita_3_anni !== undefined && (
           <div className="text-right">
-            <p className="text-slate-600 text-[9px]">Crescita 3Y</p>
+            <p className="text-slate-500 text-[10px]">Crescita 3Y</p>
             <GrowthIndicator value={metrics.crescita_3_anni} />
           </div>
         )}
@@ -239,16 +239,16 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
         <div className="border-t border-white/5">
           <div className="grid grid-cols-3 gap-0">
             <div className="px-3 py-2.5 border-r border-white/5">
-              <p className="text-slate-600 text-[9px] font-medium">Popolazione</p>
-              <p className="text-white text-xs font-semibold">{formatPop(macroData.popolazione)}</p>
+              <p className="text-slate-400 text-[10px] font-medium">Popolazione</p>
+              <p className="text-white text-sm font-semibold">{formatPop(macroData.popolazione)}</p>
             </div>
             <div className="px-3 py-2.5 border-r border-white/5">
-              <p className="text-slate-600 text-[9px] font-medium">PIL nominale</p>
-              <p className="text-white text-xs font-semibold">{formatBigNum(macroData.pil_nominale)}</p>
+              <p className="text-slate-400 text-[10px] font-medium">PIL nominale</p>
+              <p className="text-white text-sm font-semibold">{formatBigNum(macroData.pil_nominale)}</p>
             </div>
             <div className="px-3 py-2.5">
-              <p className="text-slate-600 text-[9px] font-medium">PIL p.c.</p>
-              <p className="text-white text-xs font-semibold">{formatBigNum(macroData.pil_pro_capite)}</p>
+              <p className="text-slate-400 text-[10px] font-medium">PIL p.c.</p>
+              <p className="text-white text-sm font-semibold">{formatBigNum(macroData.pil_pro_capite)}</p>
             </div>
           </div>
         </div>
