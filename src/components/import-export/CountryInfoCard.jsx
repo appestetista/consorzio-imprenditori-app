@@ -646,13 +646,6 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
         </div>
       )}
 
-      {/* Profilo Rischio Paese completo */}
-      {macroData?.risk_profile && (
-        <div className="border-t border-white/5">
-          <CountryRiskProfileCard data={macroData.risk_profile} loading={false} />
-        </div>
-      )}
-
       {macroData?.dati_mancanti && (
         <div className="px-3 py-1.5 border-t border-slate-700/50">
           <p className="text-yellow-400/70 text-[9px]">⚠ Non disponibili: {macroData.dati_mancanti.join(', ')}</p>
