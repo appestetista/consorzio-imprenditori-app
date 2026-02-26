@@ -91,7 +91,7 @@ export async function fetchMacroData(countryCodes) {
   const promises = codes.map(async (code2) => {
     const alpha3 = ALPHA2_TO_ALPHA3[code2] || code2;
 
-    const [pop, gdp, gdpPc, inflazione, doingBusiness, lpi, partiteCorrenti, tassoUfficiale, infSerie] = await Promise.all([
+    const [pop, gdp, gdpPc, inflazione, doingBusiness, lpi, partiteCorrenti, tassoUfficiale, ecbVolResult] = await Promise.all([
       fetchWBIndicator(alpha3, 'SP.POP.TOTL'),
       fetchWBIndicator(alpha3, 'NY.GDP.MKTP.CD'),
       fetchWBIndicator(alpha3, 'NY.GDP.PCAP.CD'),
@@ -100,42 +100,28 @@ export async function fetchMacroData(countryCodes) {
       fetchWBIndicator(alpha3, 'LP.LPI.OVRL.XQ'),
       fetchWBIndicator(alpha3, 'BN.CAB.XOKA.CD'),
       fetchWBIndicator(alpha3, 'PA.NUS.FCRF'),
-      fetchWBSeries(alpha3, 'PA.NUS.FCRF', 5),
+      // Volatilità cambio da BCE via backend function
+      (async () => {
+        try {
+          const resp = await base44.functions.invoke('ecbVolatility', { country_code: code2 });
+          return resp.data;
+        } catch (e) {
+          console.warn(`[fetchMacroData] ecbVolatility per ${code2} fallito:`, e);
+          return null;
+        }
+      })(),
     ]);
 
-    // Calcola volatilità cambio dagli ultimi 5 anni di tasso ufficiale
-    let volatilita_cambio = null;
-    let volatilita_fonte = 'World Bank PA.NUS.FCRF';
-
-    // Paesi Eurozona: stessa valuta dell'esportatore (IT=EUR) → volatilità = 0
-    const EUROZONE_CODES = ['AT','BE','CY','DE','EE','ES','FI','FR','GR','HR','IE','IT','LT','LU','LV','MT','NL','PT','SI','SK'];
-    if (EUROZONE_CODES.includes(code2)) {
-      volatilita_cambio = 0.0;
-      volatilita_fonte = 'Eurozona (stessa valuta EUR)';
-    } else if (infSerie.length >= 3) {
-      const valori = infSerie.map(s => s.value).filter(v => v > 0);
-      if (valori.length >= 3) {
-        const media = valori.reduce((a, b) => a + b, 0) / valori.length;
-        const varianza = valori.reduce((sum, v) => sum + Math.pow(v - media, 2), 0) / valori.length;
-        volatilita_cambio = parseFloat(((Math.sqrt(varianza) / media) * 100).toFixed(1));
-      }
-    }
-    
-    // Fallback: se World Bank non ha la serie storica, prova con serie più lunga (10 anni)
-    if (volatilita_cambio === null) {
-      try {
-        const extSerie = await fetchWBSeries(alpha3, 'PA.NUS.FCRF', 10);
-        const valoriExt = extSerie.map(s => s.value).filter(v => v > 0);
-        if (valoriExt.length >= 3) {
-          const media = valoriExt.reduce((a, b) => a + b, 0) / valoriExt.length;
-          const varianza = valoriExt.reduce((sum, v) => sum + Math.pow(v - media, 2), 0) / valoriExt.length;
-          volatilita_cambio = parseFloat(((Math.sqrt(varianza) / media) * 100).toFixed(1));
-          volatilita_fonte = 'World Bank PA.NUS.FCRF (10 anni)';
-        }
-      } catch (e) {
-        console.warn(`[fetchMacroData] Fallback volatilità cambio 10y per ${code2} fallito:`, e);
-      }
-    }
+    // Volatilità cambio da BCE (backend)
+    const volatilita_cambio = ecbVolResult?.volatilita_annualizzata_pct ?? null;
+    const volatilita_cambio_recente = ecbVolResult?.volatilita_recente_pct ?? null;
+    const volatilita_livello = ecbVolResult?.livello || null;
+    const volatilita_livello_recente = ecbVolResult?.livello_recente || null;
+    const volatilita_trend = ecbVolResult?.trend || null;
+    const volatilita_valuta = ecbVolResult?.currency || null;
+    const volatilita_tasso_corrente = ecbVolResult?.tasso_corrente || null;
+    const volatilita_fonte = ecbVolResult?.fonte || null;
+    const volatilita_periodo = ecbVolResult?.periodo_lungo || null;
 
     const datiMancanti = [];
     if (pop.value === null) datiMancanti.push('Popolazione');
@@ -163,8 +149,15 @@ export async function fetchMacroData(countryCodes) {
       tasso_cambio_ufficiale: tassoUfficiale.value,
       tasso_cambio_anno: tassoUfficiale.year,
       volatilita_cambio,
+      volatilita_cambio_recente,
+      volatilita_livello,
+      volatilita_livello_recente,
+      volatilita_trend,
+      volatilita_valuta,
+      volatilita_tasso_corrente,
       volatilita_cambio_fonte: volatilita_fonte,
-      fonte: 'World Bank API',
+      volatilita_periodo: volatilita_periodo,
+      fonte: 'World Bank API + BCE',
       dati_mancanti: datiMancanti.length > 0 ? datiMancanti : null
     };
   });
