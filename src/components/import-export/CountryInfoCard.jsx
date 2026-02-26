@@ -179,6 +179,7 @@ function LPIBenchmarkBar({ countryName, countryLPI }) {
 export default function CountryInfoCard({ countryCode, countryName, macroData, metrics, isCompact = false }) {
   const [showStability, setShowStability] = useState(true);
   const [showLPIInfo, setShowLPIInfo] = useState(false);
+  const [showVolatilitaInfo, setShowVolatilitaInfo] = useState(false);
   const flagUrl = getFlagUrl(countryCode);
   const stabilityScore = computeStabilityScore(macroData);
 
@@ -291,13 +292,30 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
                   style={getDoingBusinessStyle(macroData.doing_business_score)}
                 />
               )}
-              {macroData.volatilita_cambio !== null && (
-                <MacroRow 
-                  label="💱 Volatilità cambio"
-                  value={`${macroData.volatilita_cambio}%`}
-                  style={getVolatilitaCambioStyle(macroData.volatilita_cambio)}
-                />
-              )}
+              {/* Volatilità cambio con ? info */}
+              <div className="flex items-center justify-between py-1 px-3">
+                <div className="flex items-center gap-1">
+                  <span className="text-slate-500 text-[10px]">💱 Volatilità cambio</span>
+                  <button onClick={(e) => { e.stopPropagation(); setShowVolatilitaInfo(true); }}
+                    className="w-3.5 h-3.5 rounded-full border border-slate-600 flex items-center justify-center hover:border-amber-400 transition-colors">
+                    <span className="text-slate-400 text-[8px] font-bold leading-none">?</span>
+                  </button>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  {macroData.volatilita_cambio !== null && macroData.volatilita_cambio !== undefined ? (
+                    <>
+                      <span className={`text-xs font-semibold ${getVolatilitaCambioStyle(macroData.volatilita_cambio)?.color || 'text-white'}`}>
+                        {macroData.volatilita_cambio}%
+                      </span>
+                      <span className={`text-[9px] ${getVolatilitaCambioStyle(macroData.volatilita_cambio)?.color}`}>
+                        ({getVolatilitaCambioStyle(macroData.volatilita_cambio)?.label})
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-slate-500 text-xs italic">N/D</span>
+                  )}
+                </div>
+              </div>
               {macroData.partite_correnti_usd !== null && (
                 <MacroRow 
                   label="⚖️ Saldo partite correnti"
@@ -333,6 +351,48 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Popup Volatilità Cambio Info */}
+      {showVolatilitaInfo && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={() => setShowVolatilitaInfo(false)}>
+          <div className="bg-slate-900 border border-white/10 rounded-2xl p-5 max-w-sm w-full shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-white font-bold text-sm">Volatilità del Cambio</h3>
+              <button onClick={() => setShowVolatilitaInfo(false)} className="text-slate-400 hover:text-white"><X className="w-4 h-4" /></button>
+            </div>
+            <div className="space-y-2 text-slate-300 text-xs leading-relaxed">
+              <p>
+                La <strong className="text-white">volatilità del cambio</strong> misura quanto il tasso di cambio della valuta locale rispetto al dollaro USA (USD) è oscillato negli ultimi <strong className="text-amber-400">5 anni</strong>.
+              </p>
+              <p>
+                Viene calcolata come <strong className="text-white">coefficiente di variazione</strong> (deviazione standard / media × 100) del tasso di cambio ufficiale annuale (World Bank, indicatore PA.NUS.FCRF).
+              </p>
+              <p className="text-slate-400">
+                Un valore alto significa che la valuta del paese è instabile: i tuoi ricavi in euro possono variare significativamente anche a parità di vendite.
+              </p>
+              <div className="bg-slate-800 rounded-lg p-3 mt-3">
+                <p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold mb-2">Come leggere il valore</p>
+                <div className="space-y-1 text-[11px]">
+                  <div className="flex justify-between"><span className="text-green-400">&lt; 3%</span><span className="text-slate-400">Stabile (rischio basso)</span></div>
+                  <div className="flex justify-between"><span className="text-yellow-400">3% – 8%</span><span className="text-slate-400">Moderata (attenzione)</span></div>
+                  <div className="flex justify-between"><span className="text-orange-400">8% – 15%</span><span className="text-slate-400">Elevata (copertura consigliata)</span></div>
+                  <div className="flex justify-between"><span className="text-red-400">&gt; 15%</span><span className="text-slate-400">Molto alta (rischio critico)</span></div>
+                </div>
+              </div>
+              <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-2.5 mt-3">
+                <p className="text-amber-400 text-[10px] font-bold mb-1">💡 Cosa fare se è alta?</p>
+                <ul className="text-slate-400 text-[10px] space-y-0.5">
+                  <li>• Fatturare in EUR o USD anziché valuta locale</li>
+                  <li>• Usare coperture forward (hedging)</li>
+                  <li>• Inserire clausole di revisione prezzo</li>
+                  <li>• Preferire pagamenti anticipati</li>
+                </ul>
+              </div>
+              <p className="text-slate-500 text-[10px] mt-2">Fonte: World Bank — Official exchange rate (PA.NUS.FCRF), ultimi 5 anni</p>
+            </div>
+          </div>
         </div>
       )}
 
