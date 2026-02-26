@@ -364,41 +364,137 @@ export default function CountryRiskProfileCard({ data, loading }) {
         </p>
       </div>
 
-      {/* Info Popup */}
-      {showInfoPopup && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/70 backdrop-blur-sm pt-4 px-4 pb-4 overflow-y-auto" onClick={() => setShowInfoPopup(false)}>
-          <div className="bg-slate-900 border border-white/10 rounded-2xl p-5 max-w-sm w-full shadow-2xl" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-white font-bold text-sm">Indice Affidabilità Paese</h3>
-              <button onClick={() => setShowInfoPopup(false)} className="text-slate-400 hover:text-white"><X className="w-4 h-4" /></button>
-            </div>
-            <div className="space-y-2 text-slate-300 text-xs leading-relaxed">
-              <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-3 mb-2">
-                <p className="text-cyan-400 text-[10px] font-bold uppercase tracking-wider mb-1">Cos'è e perché è importante per l'export</p>
-                <p className="text-slate-300 text-xs">L'Indice Affidabilità sintetizza quanto un paese è stabile e sicuro per le tue operazioni export. <strong className="text-white">Per chi esporta</strong>, un punteggio alto significa minore rischio di insolvenza dei clienti, migliore governance e meno corruzione — tutti fattori che influenzano i pagamenti, la tutela contrattuale e la facilità di fare affari.</p>
-              </div>
-              <p>Calcolato come <strong className="text-white">media aritmetica</strong> di 4 componenti normalizzate 0-100:</p>
-              <div className="bg-slate-800 rounded-lg p-3 space-y-1.5">
-                <div><strong className="text-cyan-400">Rating</strong> — Rating sovrano S&P/Moody's normalizzato (AAA=100, D=0)</div>
-                <div><strong className="text-cyan-400">Governance</strong> — Media 6 indicatori WGI World Bank (percentile 0-100)</div>
-                <div><strong className="text-cyan-400">CPI</strong> — Corruption Perceptions Index (Transparency International, 0-100)</div>
-                <div><strong className="text-cyan-400">Stabilità</strong> — Inverso Fragile States Index (Fund for Peace, 0-120 invertito)</div>
-              </div>
-              <div className="bg-slate-800 rounded-lg p-3 mt-2">
-                <p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold mb-2">Come leggere</p>
-                <div className="space-y-1 text-[11px]">
-                  <div className="flex justify-between"><span className="text-green-400">≥ 75</span><span className="text-slate-400">Eccellente</span></div>
-                  <div className="flex justify-between"><span className="text-lime-400">60 – 74</span><span className="text-slate-400">Buono</span></div>
-                  <div className="flex justify-between"><span className="text-yellow-400">45 – 59</span><span className="text-slate-400">Medio</span></div>
-                  <div className="flex justify-between"><span className="text-orange-400">30 – 44</span><span className="text-slate-400">Basso</span></div>
-                  <div className="flex justify-between"><span className="text-red-400">&lt; 30</span><span className="text-slate-400">Critico</span></div>
-                </div>
-              </div>
-              <p className="text-slate-500 text-[10px] mt-2">Se un componente non è disponibile viene escluso dalla media. Servono almeno 2 componenti.</p>
-            </div>
+      {/* Info Popup - Indice Affidabilità */}
+      <InfoPopup show={showInfoPopup} onClose={() => setShowInfoPopup(false)} title="Indice Affidabilità Paese">
+        <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-3 mb-2">
+          <p className="text-cyan-400 text-[10px] font-bold uppercase tracking-wider mb-1">Cos'è e perché è importante per l'export</p>
+          <p className="text-slate-300 text-xs">L'Indice Affidabilità sintetizza quanto un paese è stabile e sicuro per le tue operazioni export. <strong className="text-white">Per chi esporta</strong>, un punteggio alto significa minore rischio di insolvenza dei clienti, migliore governance e meno corruzione.</p>
+        </div>
+        <p>Calcolato come <strong className="text-white">media aritmetica</strong> di 4 componenti normalizzate 0-100:</p>
+        <div className="bg-slate-800 rounded-lg p-3 space-y-1.5">
+          <div><strong className="text-cyan-400">Rating</strong> — Rating sovrano S&P/Moody's normalizzato (AAA=100, D=0)</div>
+          <div><strong className="text-cyan-400">Governance</strong> — Media 6 indicatori WGI World Bank (percentile 0-100)</div>
+          <div><strong className="text-cyan-400">CPI</strong> — Corruption Perceptions Index (Transparency International, 0-100)</div>
+          <div><strong className="text-cyan-400">Stabilità</strong> — Inverso Fragile States Index (Fund for Peace, 0-120 invertito)</div>
+        </div>
+        <div className="bg-slate-800 rounded-lg p-3 mt-2">
+          <p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold mb-2">Come leggere</p>
+          <div className="space-y-1 text-[11px]">
+            <div className="flex justify-between"><span className="text-green-400">≥ 75</span><span className="text-slate-400">Eccellente</span></div>
+            <div className="flex justify-between"><span className="text-lime-400">60 – 74</span><span className="text-slate-400">Buono</span></div>
+            <div className="flex justify-between"><span className="text-yellow-400">45 – 59</span><span className="text-slate-400">Medio</span></div>
+            <div className="flex justify-between"><span className="text-orange-400">30 – 44</span><span className="text-slate-400">Basso</span></div>
+            <div className="flex justify-between"><span className="text-red-400">&lt; 30</span><span className="text-slate-400">Critico</span></div>
           </div>
         </div>
-      )}
+      </InfoPopup>
+
+      {/* Info Popup - Rating Sovrano */}
+      <InfoPopup show={showRatingInfo} onClose={() => setShowRatingInfo(false)} title="Rating Sovrano">
+        <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-3 mb-2">
+          <p className="text-cyan-400 text-[10px] font-bold uppercase tracking-wider mb-1">Cos'è e perché è importante per l'export</p>
+          <p className="text-slate-300 text-xs">Il rating sovrano è il giudizio delle principali agenzie (S&P, Moody's) sulla capacità di un paese di onorare i propri debiti. <strong className="text-white">Per chi esporta</strong>, un rating alto indica un ambiente economico stabile, dove i partner commerciali hanno accesso al credito e i pagamenti sono più sicuri. Un rating basso segnala rischio di default e instabilità finanziaria.</p>
+        </div>
+        <div className="bg-slate-800 rounded-lg p-3">
+          <p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold mb-2">Come leggere</p>
+          <div className="space-y-1 text-[11px]">
+            <div className="flex justify-between"><span className="text-green-400">AAA/Aaa</span><span className="text-slate-400">Massima affidabilità</span></div>
+            <div className="flex justify-between"><span className="text-lime-400">AA/Aa</span><span className="text-slate-400">Alta qualità</span></div>
+            <div className="flex justify-between"><span className="text-yellow-400">A</span><span className="text-slate-400">Medio-alta qualità</span></div>
+            <div className="flex justify-between"><span className="text-amber-400">BBB/Baa</span><span className="text-slate-400">Investment grade (soglia)</span></div>
+            <div className="flex justify-between"><span className="text-red-400">BB e sotto</span><span className="text-slate-400">Speculativo (rischio)</span></div>
+          </div>
+        </div>
+      </InfoPopup>
+
+      {/* Info Popup - CPI Corruzione */}
+      <InfoPopup show={showCPIInfo} onClose={() => setShowCPIInfo(false)} title="Indice di Corruzione (CPI)">
+        <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-3 mb-2">
+          <p className="text-cyan-400 text-[10px] font-bold uppercase tracking-wider mb-1">Cos'è e perché è importante per l'export</p>
+          <p className="text-slate-300 text-xs">Il CPI (Corruption Perceptions Index) di Transparency International misura il livello percepito di corruzione nel settore pubblico di un paese, su scala 0-100. <strong className="text-white">Per chi esporta</strong>, un CPI basso indica che potresti incontrare richieste di tangenti, procedure opache, difficoltà doganali e minore certezza del diritto.</p>
+        </div>
+        <div className="bg-slate-800 rounded-lg p-3">
+          <p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold mb-2">Come leggere</p>
+          <div className="space-y-1 text-[11px]">
+            <div className="flex justify-between"><span className="text-green-400">≥ 70</span><span className="text-slate-400">Bassa corruzione</span></div>
+            <div className="flex justify-between"><span className="text-yellow-400">50 – 69</span><span className="text-slate-400">Corruzione moderata</span></div>
+            <div className="flex justify-between"><span className="text-orange-400">30 – 49</span><span className="text-slate-400">Corruzione significativa</span></div>
+            <div className="flex justify-between"><span className="text-red-400">&lt; 30</span><span className="text-slate-400">Corruzione grave</span></div>
+          </div>
+        </div>
+      </InfoPopup>
+
+      {/* Info Popup - FSI Fragilità */}
+      <InfoPopup show={showFSIInfo} onClose={() => setShowFSIInfo(false)} title="Indice di Fragilità (FSI)">
+        <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-3 mb-2">
+          <p className="text-cyan-400 text-[10px] font-bold uppercase tracking-wider mb-1">Cos'è e perché è importante per l'export</p>
+          <p className="text-slate-300 text-xs">Il Fragile States Index (Fund for Peace) misura la vulnerabilità di uno stato su una scala 0-120, considerando pressioni demografiche, economiche, politiche e sociali. <strong className="text-white">Per chi esporta</strong>, un FSI alto indica instabilità politica, rischi di conflitto, interruzioni della supply chain e difficoltà nell'esecuzione dei contratti.</p>
+        </div>
+        <div className="bg-slate-800 rounded-lg p-3">
+          <p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold mb-2">Come leggere</p>
+          <div className="space-y-1 text-[11px]">
+            <div className="flex justify-between"><span className="text-green-400">≤ 40</span><span className="text-slate-400">Stato stabile</span></div>
+            <div className="flex justify-between"><span className="text-yellow-400">40 – 70</span><span className="text-slate-400">Attenzione moderata</span></div>
+            <div className="flex justify-between"><span className="text-orange-400">70 – 90</span><span className="text-slate-400">Elevata fragilità</span></div>
+            <div className="flex justify-between"><span className="text-red-400">&gt; 90</span><span className="text-slate-400">Stato fragile/critico</span></div>
+          </div>
+        </div>
+      </InfoPopup>
+
+      {/* Info Popup - WGI Governance */}
+      <InfoPopup show={showWGIInfo} onClose={() => setShowWGIInfo(false)} title="Governance (WGI)">
+        <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-3 mb-2">
+          <p className="text-cyan-400 text-[10px] font-bold uppercase tracking-wider mb-1">Cos'è e perché è importante per l'export</p>
+          <p className="text-slate-300 text-xs">I Worldwide Governance Indicators (WGI) della World Bank misurano la qualità della governance su 6 dimensioni. <strong className="text-white">Per chi esporta</strong>, una governance alta significa regole chiare, contratti rispettati, burocrazia efficiente e tutela degli investitori. Una governance bassa comporta incertezza legale, corruzione e rischi operativi.</p>
+        </div>
+        <div className="bg-slate-800 rounded-lg p-3">
+          <p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold mb-2">6 dimensioni valutate</p>
+          <div className="space-y-1 text-[11px]">
+            <div><strong className="text-white">Gov. Effectiveness</strong> — qualità servizi pubblici e policy</div>
+            <div><strong className="text-white">Rule of Law</strong> — rispetto delle regole e contratti</div>
+            <div><strong className="text-white">Anti-Corruzione</strong> — controllo della corruzione</div>
+            <div><strong className="text-white">Stabilità Politica</strong> — assenza violenza/terrorismo</div>
+            <div><strong className="text-white">Voice & Accountability</strong> — libertà di espressione</div>
+            <div><strong className="text-white">Regulatory Quality</strong> — qualità della regolamentazione</div>
+          </div>
+        </div>
+        <p className="text-slate-500 text-[10px]">Percentile 0-100: più alto = migliore governance.</p>
+      </InfoPopup>
+
+      {/* Info Popup - Macro-Economici */}
+      <InfoPopup show={showMacroInfo} onClose={() => setShowMacroInfo(false)} title="Indicatori Macro-Economici">
+        <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-3 mb-2">
+          <p className="text-cyan-400 text-[10px] font-bold uppercase tracking-wider mb-1">Cos'è e perché è importante per l'export</p>
+          <p className="text-slate-300 text-xs">Gli indicatori macroeconomici forniscono una fotografia della salute economica del paese. <strong className="text-white">Per chi esporta</strong>, servono a capire se l'economia è in crescita (più domanda), se l'inflazione erode i margini, se la disoccupazione limita il potere d'acquisto e se il debito pubblico mette a rischio la stabilità.</p>
+        </div>
+        <div className="bg-slate-800 rounded-lg p-3">
+          <p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold mb-2">Indicatori</p>
+          <div className="space-y-1 text-[11px]">
+            <div><strong className="text-white">Crescita PIL</strong> — velocità di crescita economica</div>
+            <div><strong className="text-white">Inflazione</strong> — aumento prezzi al consumo</div>
+            <div><strong className="text-white">Disoccupazione</strong> — percentuale senza lavoro</div>
+            <div><strong className="text-white">Debito/PIL</strong> — sostenibilità del debito pubblico</div>
+            <div><strong className="text-white">Saldo C/C su PIL</strong> — bilancia commerciale in % del PIL</div>
+          </div>
+        </div>
+      </InfoPopup>
+
+      {/* Info Popup - Demografici */}
+      <InfoPopup show={showDemoInfo} onClose={() => setShowDemoInfo(false)} title="Indicatori Demografici">
+        <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-3 mb-2">
+          <p className="text-cyan-400 text-[10px] font-bold uppercase tracking-wider mb-1">Cos'è e perché è importante per l'export</p>
+          <p className="text-slate-300 text-xs">I dati demografici descrivono la struttura della popolazione del paese. <strong className="text-white">Per chi esporta</strong>, sono fondamentali per dimensionare il mercato potenziale: una popolazione giovane e urbanizzata con alta speranza di vita indica maggiore capacità di consumo e propensione all'acquisto di beni importati.</p>
+        </div>
+        <div className="bg-slate-800 rounded-lg p-3">
+          <p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold mb-2">Indicatori chiave</p>
+          <div className="space-y-1 text-[11px]">
+            <div><strong className="text-white">Speranza di vita</strong> — indica il livello di sviluppo</div>
+            <div><strong className="text-white">Tasso natalità/mortalità</strong> — trend demografico</div>
+            <div><strong className="text-white">Pop. urbana</strong> — concentrazione nei centri (logistica più facile)</div>
+            <div><strong className="text-white">Età lavorativa</strong> — forza lavoro e potere d'acquisto</div>
+          </div>
+        </div>
+      </InfoPopup>
     </div>
   );
 }
