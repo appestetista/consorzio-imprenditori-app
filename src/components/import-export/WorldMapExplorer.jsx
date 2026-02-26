@@ -666,7 +666,7 @@ Rispondi in italiano.`,
         <div
           ref={containerRef}
           className="w-full cursor-grab active:cursor-grabbing"
-          style={{ height: 420, touchAction: 'none' }}
+          style={{ height: 420, touchAction: 'pan-y' }}
           onMouseDown={handlePointerDown}
           onMouseMove={handlePointerMove}
           onMouseUp={handlePointerUp}
