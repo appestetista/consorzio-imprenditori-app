@@ -688,8 +688,8 @@ Rispondi in italiano.`,
       if (!isDragging.current) {
         globeGroup.rotation.y += rotationVelocity.current.x;
         globeGroup.rotation.x += rotationVelocity.current.y;
-        rotationVelocity.current.x *= 0.97;
-        rotationVelocity.current.y *= 0.97;
+        rotationVelocity.current.x *= 0.95;
+        rotationVelocity.current.y *= 0.95;
         if (Math.abs(rotationVelocity.current.x) < 0.0001) rotationVelocity.current.x = 0;
         if (Math.abs(rotationVelocity.current.y) < 0.0001) rotationVelocity.current.y = 0;
       }
