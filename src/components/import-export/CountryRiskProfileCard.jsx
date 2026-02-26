@@ -229,7 +229,7 @@ export default function CountryRiskProfileCard({ data, loading }) {
           <div className="px-4 py-2.5">
             <span className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider">📊 Macro-Economici</span>
           </div>
-            <div className="px-4 pb-3 space-y-1">
+          <div className="px-4 pb-3 space-y-1">
               {macro.crescita_pil_pct !== null && (
                 <div className="flex justify-between"><span className="text-slate-400 text-[10px]">Crescita PIL</span>
                   <span className={`text-[10px] font-bold ${macro.crescita_pil_pct >= 2 ? 'text-green-400' : macro.crescita_pil_pct >= 0 ? 'text-yellow-400' : 'text-red-400'}`}>{macro.crescita_pil_pct > 0 ? '+' : ''}{macro.crescita_pil_pct}% <span className="text-slate-600 font-normal">({macro.crescita_pil_anno})</span></span>
@@ -268,8 +268,8 @@ export default function CountryRiskProfileCard({ data, loading }) {
                   <span className="text-white text-[10px] font-bold">{eu.disoccupazione_pct}% <span className="text-slate-600 font-normal">({eu.disoccupazione_anno})</span></span>
                 </div>
               )}
-              <p className="text-slate-600 text-[9px] pt-1">Fonte: {macro.fonte}{eu ? ' + Eurostat' : ''}</p>
-            </div>
+            <p className="text-slate-600 text-[9px] pt-1">Fonte: {macro.fonte}{eu ? ' + Eurostat' : ''}</p>
+          </div>
         </div>
       )}
 
@@ -279,7 +279,7 @@ export default function CountryRiskProfileCard({ data, loading }) {
           <div className="px-4 py-2.5">
             <span className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider">👥 Demografici</span>
           </div>
-            <div className="px-4 pb-3 space-y-1">
+          <div className="px-4 pb-3 space-y-1">
               {demo.speranza_vita !== null && (
                 <div className="flex justify-between"><span className="text-slate-400 text-[10px]">Speranza di vita</span>
                   <span className="text-white text-[10px] font-bold">{demo.speranza_vita} anni <span className="text-slate-600 font-normal">({demo.speranza_vita_anno})</span></span>
@@ -305,8 +305,8 @@ export default function CountryRiskProfileCard({ data, loading }) {
                   <span className="text-white text-[10px] font-bold">{demo.eta_lavorativa_pct}% <span className="text-slate-600 font-normal">({demo.eta_lavorativa_anno})</span></span>
                 </div>
               )}
-              <p className="text-slate-600 text-[9px] pt-1">Fonte: {demo.fonte}</p>
-            </div>
+            <p className="text-slate-600 text-[9px] pt-1">Fonte: {demo.fonte}</p>
+          </div>
         </div>
       )}
 
