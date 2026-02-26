@@ -180,6 +180,9 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
             {exportValidationErrors.prodotto && <p className="text-red-400 text-xs mt-1">{exportValidationErrors.prodotto}</p>}
           </div>
           <p className="text-white font-semibold text-sm">Indica dove</p>
+          <WorldMapExplorer onCountrySelect={(country) => {
+            setSelectedMapCountry(country);
+          }} />
         </div>
       )}
 
