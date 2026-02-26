@@ -23,14 +23,14 @@ REGOLE TASSATIVE:
 - NON inventare URL. Fornisci SOLO URL che sai ESISTERE REALMENTE e che sono governativi/istituzionali.
 - NON stimare, approssimare o inventare percentuali di dazi/IVA. Se non trovi il dato esatto, scrivi "Consultare direttamente il sito indicato".
 - NON usare frasi come "di solito", "generalmente", "in media".
-- Se un dato non è reperibile, dichiaralo esplicitamente.
+- Se un dato non e reperibile, dichiaralo esplicitamente.
 
 STRUTTURA OBBLIGATORIA DELLA RISPOSTA:
 
 1. FONTE UFFICIALE:
-- Nome esatto dell'ente doganale/fiscale nazionale (es. Customs Authority, Revenue Service, Ministry of Finance)
+- Nome esatto dell ente doganale/fiscale nazionale (es. Customs Authority, Revenue Service, Ministry of Finance)
 - URL diretto alla sezione tariffaria (SOLO se governativo e VERIFICATO)
-- URL diretto alla homepage dell'ente
+- URL diretto alla homepage dell ente
 - Classificazione: "Ufficiale governativo" o "Istituzionale"
 - Se esiste un portale specifico per la ricerca tariffe online, indicalo
 
@@ -48,7 +48,7 @@ STRUTTURA OBBLIGATORIA DELLA RISPOSTA:
 - IVA/GST standard
 - Altre imposte (excise, cess, countervailing duty)
 - Fonte esatta del dato (URL specifico o sezione del sito)
-- Se NON trovato: scrivere "Non reperito — consultare direttamente [sito]"
+- Se NON trovato: scrivere "Non reperito - consultare direttamente [sito]"
 
 4. AGGIORNAMENTI:
 - URL della sezione aggiornamenti/notices/circolari del sito doganale
@@ -59,8 +59,8 @@ STRUTTURA OBBLIGATORIA DELLA RISPOSTA:
 5. LIMITI E AVVERTENZE:
 - Cosa il sito NON mostra (es. dazi anti-dumping specifici, accordi bilaterali)
 - Se servono calcoli manuali aggiuntivi
-- Se è necessario un broker doganale o importatore locale per completare l'informazione
-- Se il sistema tariffario è complesso (sottovoci, eccezioni)
+- Se e necessario un broker doganale o importatore locale per completare l informazione
+- Se il sistema tariffario e complesso (sottovoci, eccezioni)
 - Lingue disponibili sul sito
 
 6. RISORSE COMPLEMENTARI:
@@ -68,7 +68,7 @@ STRUTTURA OBBLIGATORIA DELLA RISPOSTA:
 - Camera di commercio italiana nel paese (se esistente)
 - ICE ufficio locale (se esistente)
 
-Per il paese ${country_name}: cerca il VERO sito dell'autorità doganale nazionale.`,
+Per il paese ${country_name}: cerca il VERO sito dell autorita doganale nazionale.`,
       add_context_from_internet: true,
       response_json_schema: {
         type: "object",
@@ -172,7 +172,6 @@ Per il paese ${country_name}: cerca il VERO sito dell'autorità doganale naziona
       }
     });
 
-    // Aggiungi metadata
     result.country_code = country_code;
     result.hs_code = hs_code;
     result.timestamp = new Date().toISOString();
