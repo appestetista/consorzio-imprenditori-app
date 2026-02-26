@@ -620,6 +620,7 @@ Rispondi in italiano.`,
     });
     const sphere = new THREE.Mesh(sphereGeom, sphereMat);
     globeGroup.add(sphere);
+    sphereRef.current = sphere;
 
     // Carica GeoJSON
     const loadGeoJSON = async () => {
