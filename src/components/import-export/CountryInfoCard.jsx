@@ -476,7 +476,7 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
       {/* Popup Volatilità Cambio Info */}
       {showVolatilitaInfo && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4 overflow-y-auto" onClick={() => setShowVolatilitaInfo(false)}>
-          <div className="bg-slate-900 border border-white/10 rounded-2xl p-5 max-w-sm w-full shadow-2xl" onClick={e => e.stopPropagation()}>
+          <div className="bg-slate-900 border border-white/10 rounded-2xl p-5 max-w-sm w-full shadow-2xl max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-white font-bold text-sm">Volatilità del Cambio</h3>
               <button onClick={() => setShowVolatilitaInfo(false)} className="text-slate-400 hover:text-white"><X className="w-4 h-4" /></button>
@@ -527,7 +527,7 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
       {/* Popup Inflazione Info */}
       {showInflazioneInfo && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4 overflow-y-auto" onClick={() => setShowInflazioneInfo(false)}>
-          <div className="bg-slate-900 border border-white/10 rounded-2xl p-5 max-w-sm w-full shadow-2xl" onClick={e => e.stopPropagation()}>
+          <div className="bg-slate-900 border border-white/10 rounded-2xl p-5 max-w-sm w-full shadow-2xl max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-white font-bold text-sm">Inflazione (CPI)</h3>
               <button onClick={() => setShowInflazioneInfo(false)} className="text-slate-400 hover:text-white"><X className="w-4 h-4" /></button>
@@ -555,7 +555,7 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
       {/* Popup Doing Business Info */}
       {showDoingBusinessInfo && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4 overflow-y-auto" onClick={() => setShowDoingBusinessInfo(false)}>
-          <div className="bg-slate-900 border border-white/10 rounded-2xl p-5 max-w-sm w-full shadow-2xl" onClick={e => e.stopPropagation()}>
+          <div className="bg-slate-900 border border-white/10 rounded-2xl p-5 max-w-sm w-full shadow-2xl max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-white font-bold text-sm">Ease of Doing Business</h3>
               <button onClick={() => setShowDoingBusinessInfo(false)} className="text-slate-400 hover:text-white"><X className="w-4 h-4" /></button>
@@ -583,7 +583,7 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
       {/* Popup Partite Correnti Info */}
       {showPartiteCorrentiInfo && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4 overflow-y-auto" onClick={() => setShowPartiteCorrentiInfo(false)}>
-          <div className="bg-slate-900 border border-white/10 rounded-2xl p-5 max-w-sm w-full shadow-2xl" onClick={e => e.stopPropagation()}>
+          <div className="bg-slate-900 border border-white/10 rounded-2xl p-5 max-w-sm w-full shadow-2xl max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-white font-bold text-sm">Saldo Partite Correnti</h3>
               <button onClick={() => setShowPartiteCorrentiInfo(false)} className="text-slate-400 hover:text-white"><X className="w-4 h-4" /></button>
@@ -609,7 +609,7 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
       {/* Popup Stabilità Economica Info */}
       {showStabilitaInfo && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4 overflow-y-auto" onClick={() => setShowStabilitaInfo(false)}>
-          <div className="bg-slate-900 border border-white/10 rounded-2xl p-5 max-w-sm w-full shadow-2xl" onClick={e => e.stopPropagation()}>
+          <div className="bg-slate-900 border border-white/10 rounded-2xl p-5 max-w-sm w-full shadow-2xl max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-white font-bold text-sm">Stabilità Economica</h3>
               <button onClick={() => setShowStabilitaInfo(false)} className="text-slate-400 hover:text-white"><X className="w-4 h-4" /></button>
@@ -638,7 +638,7 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
       {/* Popup LPI Info */}
       {showLPIInfo && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4 overflow-y-auto" onClick={() => setShowLPIInfo(false)}>
-          <div className="bg-slate-900 border border-white/10 rounded-2xl p-5 max-w-sm w-full shadow-2xl" onClick={e => e.stopPropagation()}>
+          <div className="bg-slate-900 border border-white/10 rounded-2xl p-5 max-w-sm w-full shadow-2xl max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-white font-bold text-sm">Logistics Performance Index (LPI)</h3>
               <button onClick={() => setShowLPIInfo(false)} className="text-slate-400 hover:text-white"><X className="w-4 h-4" /></button>
