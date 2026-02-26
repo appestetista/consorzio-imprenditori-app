@@ -935,26 +935,43 @@ Rispondi in italiano.`,
     }
   }, []);
 
-  // Registra i listener touch correttamente con passive: false
+  // Registra i listener touch: il globo cattura ENTRAMBE le direzioni solo se tocchi sulla sfera
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    // Track whether the gesture is horizontal (globe rotate) or vertical (page scroll)
-    const touchDirectionRef = { resolved: false, isHorizontal: false };
+    // touchOnGlobe: true se il touchStart ha colpito la sfera, false altrimenti
+    const touchState = { onGlobe: false };
+
+    // Raycast per verificare se il punto tocca la sfera del globo
+    const isTouchOnGlobe = (touch) => {
+      if (!cameraRef.current || !sphereRef.current) return false;
+      const rect = container.getBoundingClientRect();
+      const mouse = new THREE.Vector2(
+        ((touch.clientX - rect.left) / rect.width) * 2 - 1,
+        -((touch.clientY - rect.top) / rect.height) * 2 + 1
+      );
+      const rc = new THREE.Raycaster();
+      rc.setFromCamera(mouse, cameraRef.current);
+      const hits = rc.intersectObject(sphereRef.current);
+      return hits.length > 0;
+    };
 
     const onTouchStart = (e) => {
-      touchDirectionRef.resolved = false;
-      touchDirectionRef.isHorizontal = false;
       if (e.touches.length === 2) {
-        e.preventDefault();
+        // Pinch zoom — sempre sul globo
+        touchState.onGlobe = true;
         const dx = e.touches[0].clientX - e.touches[1].clientX;
         const dy = e.touches[0].clientY - e.touches[1].clientY;
         pinchDistRef.current = Math.sqrt(dx * dx + dy * dy);
         isDragging.current = false;
       } else if (e.touches.length === 1) {
         pinchDistRef.current = null;
-        handlePointerDown(e);
+        // Controlla se il dito è sulla sfera
+        touchState.onGlobe = isTouchOnGlobe(e.touches[0]);
+        if (touchState.onGlobe) {
+          handlePointerDown(e);
+        }
       }
     };
     const onTouchMove = (e) => {
@@ -971,29 +988,24 @@ Rispondi in italiano.`,
         pinchDistRef.current = dist;
         autoRotate.current = false;
       } else if (e.touches.length === 1 && pinchDistRef.current === null) {
-        // Determine direction on first significant move
-        if (!touchDirectionRef.resolved) {
-          const dx = Math.abs(e.touches[0].clientX - startMouse.current.x);
-          const dy = Math.abs(e.touches[0].clientY - startMouse.current.y);
-          if (dx > 6 || dy > 6) {
-            touchDirectionRef.resolved = true;
-            touchDirectionRef.isHorizontal = dx > dy;
-          }
-        }
-        if (touchDirectionRef.resolved && touchDirectionRef.isHorizontal) {
-          e.preventDefault(); // Block scroll, rotate globe
+        if (touchState.onGlobe) {
+          // Il tocco è partito sul globo → ruota il globo in ENTRAMBE le direzioni, blocca scroll
+          e.preventDefault();
           handlePointerMove(e);
-        } else {
-          // Vertical or not yet resolved — let the page scroll naturally
-          isDragging.current = false;
         }
+        // Se NON sul globo, non fare nulla → lo scroll della pagina procede naturalmente
       }
     };
     const onTouchEnd = (e) => {
       if (e.touches.length < 2) {
         pinchDistRef.current = null;
       }
-      handlePointerUp(e);
+      if (touchState.onGlobe) {
+        handlePointerUp(e);
+      }
+      if (e.touches.length === 0) {
+        touchState.onGlobe = false;
+      }
     };
 
     container.addEventListener('touchstart', onTouchStart, { passive: true });
