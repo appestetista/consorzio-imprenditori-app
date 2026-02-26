@@ -178,7 +178,6 @@ function LPIBenchmarkBar({ countryName, countryLPI }) {
 }
 
 export default function CountryInfoCard({ countryCode, countryName, macroData, metrics, isCompact = false }) {
-  const [showStability, setShowStability] = useState(true);
   const [showLPIInfo, setShowLPIInfo] = useState(false);
   const [showVolatilitaInfo, setShowVolatilitaInfo] = useState(false);
   const flagUrl = getFlagUrl(countryCode);
@@ -255,13 +254,10 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
         </div>
       )}
 
-      {/* Stabilità Economica — espandibile, aperto di default */}
+      {/* Stabilità Economica — sempre aperto */}
       {hasStabilityData && (
         <div className="border-t border-white/5">
-          <button
-            onClick={() => setShowStability(!showStability)}
-            className="w-full flex items-center justify-between px-3 py-2.5 hover:bg-white/[0.02] transition-colors"
-          >
+          <div className="px-3 py-2.5">
             <div className="flex items-center gap-1.5">
               {stabilityScore >= 55 ? (
                 <ShieldCheck className="w-3.5 h-3.5 text-green-400" />
@@ -272,10 +268,8 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
                 Stabilità economica
               </span>
             </div>
-            {showStability ? <ChevronUp className="w-3.5 h-3.5 text-slate-600" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-600" />}
-          </button>
+          </div>
           
-          {showStability && (
             <div className="pb-2 divide-y divide-slate-700/30">
               {macroData.inflazione !== null && (
                 <MacroRow 
@@ -416,7 +410,6 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
                 <p className="text-slate-600 text-[9px]">Fonti: World Bank API + BCE — tutti dati ufficiali, nessuna stima</p>
               </div>
             </div>
-          )}
         </div>
       )}
 
