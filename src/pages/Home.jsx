@@ -211,6 +211,32 @@ Domanda dell'utente: ${msg}`,
     );
   }
 
+  // Utente bloccato
+  if (effectiveUser?.is_blocked) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center px-6">
+        <div className="text-center">
+          <p className="text-white text-lg font-bold mb-2">Accesso non autorizzato</p>
+          <p className="text-slate-400 text-sm mb-6">La tua email non è stata autorizzata. Contatta il consorzio per ottenere l'accesso.</p>
+          <button onClick={() => base44.auth.logout()} className="px-6 py-2 bg-red-500 text-white rounded-lg text-sm font-semibold">Esci</button>
+        </div>
+      </div>
+    );
+  }
+
+  // Utente senza dati (non ancora caricato)
+  if (!effectiveUser) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center px-6">
+        <div className="text-center">
+          <p className="text-white text-lg font-bold mb-2">Sessione scaduta</p>
+          <p className="text-slate-400 text-sm mb-6">Effettua nuovamente l'accesso.</p>
+          <button onClick={() => base44.auth.redirectToLogin()} className="px-6 py-2 bg-lime-500 text-slate-900 rounded-lg text-sm font-semibold">Accedi</button>
+        </div>
+      </div>
+    );
+  }
+
   const hasMessages = messages.length > 0;
 
   return (
