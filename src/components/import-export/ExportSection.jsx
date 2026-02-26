@@ -229,17 +229,6 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
           </div>
         ) : (
           <div className="space-y-4">
-            {selectedMapCountry && (
-              <div className="flex items-center gap-3 bg-cyan-500/10 border border-cyan-500/20 rounded-xl px-4 py-3">
-                <MapPin className="w-5 h-5 text-cyan-400 flex-shrink-0" />
-                <div className="flex-1">
-                  <p className="text-cyan-400 text-[10px] font-semibold uppercase tracking-wider">Mercato selezionato</p>
-                  <p className="text-white font-bold text-sm">{selectedMapCountry.name}</p>
-                </div>
-                <button onClick={() => setSelectedMapCountry(null)} className="text-slate-500 hover:text-white"><X className="w-4 h-4" /></button>
-              </div>
-            )}
-
             <div>
               <label className="text-slate-400 text-xs font-medium mb-1.5 block">Capacità produttiva per export</label>
               <Input placeholder="Es. 30% della produzione, 1000 unità/mese" value={exportForm.capacita_produttiva}
