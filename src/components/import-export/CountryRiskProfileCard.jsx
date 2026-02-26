@@ -117,7 +117,7 @@ export default function CountryRiskProfileCard({ data, loading }) {
   return (
     <div className="bg-slate-800/50 border border-white/5 rounded-2xl overflow-hidden backdrop-blur-sm">
       {/* Header: Financial Reliability Index */}
-      {fri?.score !== null && (
+      {fri && fri.score !== null && fri.score !== undefined && (
         <div className="px-4 py-3 border-b border-white/5">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
