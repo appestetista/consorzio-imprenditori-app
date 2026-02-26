@@ -893,28 +893,28 @@ Rispondi in italiano.`,
           canvas.height = 128;
           ctx.clearRect(0, 0, 512, 128);
           // Sfondo pill
-          ctx.fillStyle = 'rgba(0,0,0,0.7)';
-          ctx.font = 'bold 42px sans-serif';
+          ctx.fillStyle = 'rgba(0,0,0,0.75)';
+          ctx.font = 'bold 80px sans-serif';
           const textW = ctx.measureText(labelText).width;
-          const pillW = Math.min(textW + 40, 500);
-          const pillH = 64;
-          const pillX = (512 - pillW) / 2;
-          const pillY = (128 - pillH) / 2;
+          const pillW = Math.min(textW + 60, 1000);
+          const pillH = 110;
+          const pillX = (1024 - pillW) / 2;
+          const pillY = (256 - pillH) / 2;
           ctx.beginPath();
-          ctx.roundRect(pillX, pillY, pillW, pillH, 32);
+          ctx.roundRect(pillX, pillY, pillW, pillH, 55);
           ctx.fill();
           // Testo
           ctx.fillStyle = '#ffffff';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
-          ctx.fillText(labelText, 256, 64);
+          ctx.fillText(labelText, 512, 128);
 
           const tex = new THREE.CanvasTexture(canvas);
           tex.needsUpdate = true;
           const spriteMat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false });
           const sprite = new THREE.Sprite(spriteMat);
           sprite.position.copy(labelPos);
-          sprite.scale.set(0.35, 0.09, 1);
+          sprite.scale.set(0.7, 0.18, 1);
           globeGroupRef.current.add(sprite);
           labelSpriteRef.current = sprite;
         }
