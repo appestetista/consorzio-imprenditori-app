@@ -28,7 +28,10 @@ import WorldMapExplorer from './WorldMapExplorer';
 const SETTORI = [
   'Alimentare e bevande', 'Moda e tessile', 'Arredamento e design',
   'Meccanica e automazione', 'Cosmetica e cura persona', 'Tecnologia e elettronica',
-  'Automotive e componentistica', 'Farmaceutico e medicale', 'Agricoltura e agroalimentare', 'Altro'
+  'Automotive e componentistica', 'Farmaceutico e medicale', 'Agricoltura e agroalimentare',
+  'Chimica e materiali', 'Metallurgia e lavorazioni metalli', 'Plastica e gomma',
+  'Vetro, ceramiche e materiali lapidei', 'Carta, cartone e imballaggi',
+  'Edilizia e materiali da costruzione', 'Energia e ambiente', 'Altro'
 ];
 
 export default function ExportSection({ user, exportManagers, selectedMapCountry, setSelectedMapCountry, onMapInteraction }) {
