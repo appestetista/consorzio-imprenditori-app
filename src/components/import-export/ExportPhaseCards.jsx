@@ -1,5 +1,6 @@
 import React from 'react';
 import { Shield, Building2, ShoppingBag, Percent, Truck, Search, AlertTriangle, CheckCircle, XCircle, Info } from 'lucide-react';
+import LogisticsModule from './logistics/LogisticsModule';
 
 function DataRow({ label, value, warning }) {
   if (!value || value === 'N/D' || value === 'Non disponibile') {
@@ -125,7 +126,7 @@ export function VerificaNormativaCard({ data }) {
 }
 
 // FASE 2 — Struttura di Ingresso
-export function StrutturaIngressoCard({ data }) {
+export function StrutturaIngressoCard({ data, countryCode, countryName, hsCode, productDescription }) {
   if (!data) return null;
   const si = data.struttura_ingresso;
   return (
@@ -194,6 +195,14 @@ export function StrutturaIngressoCard({ data }) {
       {/* Vincoli */}
       {si?.vincoli_contrattuali && <DataRow label="Vincoli contrattuali" value={si.vincoli_contrattuali} />}
       {si?.vincoli_fiscali && <DataRow label="Vincoli fiscali" value={si.vincoli_fiscali} />}
+
+      {/* Modulo Logistica */}
+      <LogisticsModule
+        countryOrigin="IT"
+        countryDest={countryCode || ''}
+        hsCode={hsCode || ''}
+        productDescription={productDescription || ''}
+      />
     </PhaseSection>
   );
 }
