@@ -447,17 +447,18 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
             </div>
           )}
 
-          <ExportAnalysisResult analysisResult={analysisResult} tradeMetrics={tradeMetrics} macroData={macroData} confirmedExportHS={confirmedExportHS} tradeData={tradeData} />
+          {/* Country cards con bandiera, macro, LPI, rischio — PRIMA dell'analisi AI */}
+          {Array.isArray(tradeMetrics?.metriche) && tradeMetrics.metriche.length > 0 && (
+            <div className="space-y-3">{tradeMetrics.metriche.map(m => (
+              m?.paese_code ? <CountryInfoCard key={m.paese_code} countryCode={m.paese_code} countryName={m.paese_nome} macroData={macroData?.[m.paese_code]} metrics={m} isCompact={false} /> : null
+            ))}</div>
+          )}
 
           {tradeMetrics?.metriche?.length > 1 && Array.isArray(analysisResult?.mercati_analisi) && (
             <ExportComparisonRanking metriche={tradeMetrics.metriche} macroData={macroData} mercatiAnalisi={analysisResult.mercati_analisi} />
           )}
 
-          {Array.isArray(tradeMetrics?.metriche) && tradeMetrics.metriche.length > 0 && (
-            <div className="space-y-2">{tradeMetrics.metriche.map(m => (
-              m?.paese_code ? <CountryInfoCard key={m.paese_code} countryCode={m.paese_code} countryName={m.paese_nome} macroData={macroData?.[m.paese_code]} metrics={m} isCompact={tradeMetrics.metriche.length > 3} /> : null
-            ))}</div>
-          )}
+          <ExportAnalysisResult analysisResult={analysisResult} tradeMetrics={tradeMetrics} macroData={macroData} confirmedExportHS={confirmedExportHS} tradeData={tradeData} />
 
           {priceStep && (
             <Card className="bg-slate-800 border-slate-700"><CardContent className="p-4"><div className="space-y-3">
