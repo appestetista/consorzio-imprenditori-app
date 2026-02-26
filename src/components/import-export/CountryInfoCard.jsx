@@ -271,6 +271,10 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
               <span className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider">
                 Stabilità economica
               </span>
+              <button onClick={(e) => { e.stopPropagation(); setShowStabilitaInfo(true); }}
+                className="w-5 h-5 rounded-full bg-red-500/20 border border-red-500/50 flex items-center justify-center hover:bg-red-500/30 transition-colors">
+                <span className="text-red-400 text-[10px] font-bold leading-none">?</span>
+              </button>
             </div>
           </div>
           
@@ -486,6 +490,117 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
                 </ul>
               </div>
               <p className="text-slate-500 text-[10px] mt-2">Fonte: BCE — Euro foreign exchange reference rates (tassi giornalieri)</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Popup Inflazione Info */}
+      {showInflazioneInfo && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/70 backdrop-blur-sm pt-4 px-4 pb-4 overflow-y-auto" onClick={() => setShowInflazioneInfo(false)}>
+          <div className="bg-slate-900 border border-white/10 rounded-2xl p-5 max-w-sm w-full shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-white font-bold text-sm">Inflazione (CPI)</h3>
+              <button onClick={() => setShowInflazioneInfo(false)} className="text-slate-400 hover:text-white"><X className="w-4 h-4" /></button>
+            </div>
+            <div className="space-y-2 text-slate-300 text-xs leading-relaxed">
+              <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-3 mb-2">
+                <p className="text-cyan-400 text-[10px] font-bold uppercase tracking-wider mb-1">Cos'è e perché è importante per l'export</p>
+                <p className="text-slate-300 text-xs">L'inflazione (CPI - Consumer Price Index) misura l'aumento medio dei prezzi al consumo in un paese. <strong className="text-white">Per chi esporta</strong>, un'inflazione alta nel paese target significa che i consumatori perdono potere d'acquisto, riducendo la domanda di beni importati. Inoltre può causare instabilità dei prezzi e svalutazione della valuta locale, complicando la pianificazione dei margini.</p>
+              </div>
+              <div className="bg-slate-800 rounded-lg p-3">
+                <p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold mb-2">Come leggere il valore</p>
+                <div className="space-y-1 text-[11px]">
+                  <div className="flex justify-between"><span className="text-green-400">&lt; 3%</span><span className="text-slate-400">Stabile (situazione ideale)</span></div>
+                  <div className="flex justify-between"><span className="text-yellow-400">3% – 6%</span><span className="text-slate-400">Moderata (monitorare)</span></div>
+                  <div className="flex justify-between"><span className="text-orange-400">6% – 10%</span><span className="text-slate-400">Elevata (rischio prezzi)</span></div>
+                  <div className="flex justify-between"><span className="text-red-400">&gt; 10%</span><span className="text-slate-400">Critica (forte rischio)</span></div>
+                </div>
+              </div>
+              <p className="text-slate-500 text-[10px] mt-2">Fonte: World Bank API</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Popup Doing Business Info */}
+      {showDoingBusinessInfo && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/70 backdrop-blur-sm pt-4 px-4 pb-4 overflow-y-auto" onClick={() => setShowDoingBusinessInfo(false)}>
+          <div className="bg-slate-900 border border-white/10 rounded-2xl p-5 max-w-sm w-full shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-white font-bold text-sm">Ease of Doing Business</h3>
+              <button onClick={() => setShowDoingBusinessInfo(false)} className="text-slate-400 hover:text-white"><X className="w-4 h-4" /></button>
+            </div>
+            <div className="space-y-2 text-slate-300 text-xs leading-relaxed">
+              <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-3 mb-2">
+                <p className="text-cyan-400 text-[10px] font-bold uppercase tracking-wider mb-1">Cos'è e perché è importante per l'export</p>
+                <p className="text-slate-300 text-xs">L'indice Ease of Doing Business (World Bank) misura quanto è facile fare impresa in un paese: burocrazia, tempi di apertura attività, accesso al credito, protezione degli investitori. <strong className="text-white">Per chi esporta</strong>, un punteggio alto indica che trovare partner locali, aprire filiali o gestire contratti sarà più semplice e prevedibile.</p>
+              </div>
+              <div className="bg-slate-800 rounded-lg p-3">
+                <p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold mb-2">Come leggere il valore</p>
+                <div className="space-y-1 text-[11px]">
+                  <div className="flex justify-between"><span className="text-green-400">≥ 75</span><span className="text-slate-400">Favorevole</span></div>
+                  <div className="flex justify-between"><span className="text-lime-400">60 – 74</span><span className="text-slate-400">Discreto</span></div>
+                  <div className="flex justify-between"><span className="text-yellow-400">45 – 59</span><span className="text-slate-400">Medio</span></div>
+                  <div className="flex justify-between"><span className="text-red-400">&lt; 45</span><span className="text-slate-400">Difficile</span></div>
+                </div>
+              </div>
+              <p className="text-slate-500 text-[10px] mt-2">Fonte: World Bank — Ease of Doing Business</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Popup Partite Correnti Info */}
+      {showPartiteCorrentiInfo && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/70 backdrop-blur-sm pt-4 px-4 pb-4 overflow-y-auto" onClick={() => setShowPartiteCorrentiInfo(false)}>
+          <div className="bg-slate-900 border border-white/10 rounded-2xl p-5 max-w-sm w-full shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-white font-bold text-sm">Saldo Partite Correnti</h3>
+              <button onClick={() => setShowPartiteCorrentiInfo(false)} className="text-slate-400 hover:text-white"><X className="w-4 h-4" /></button>
+            </div>
+            <div className="space-y-2 text-slate-300 text-xs leading-relaxed">
+              <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-3 mb-2">
+                <p className="text-cyan-400 text-[10px] font-bold uppercase tracking-wider mb-1">Cos'è e perché è importante per l'export</p>
+                <p className="text-slate-300 text-xs">Il saldo delle partite correnti indica la differenza tra ciò che un paese esporta e ciò che importa (beni, servizi, redditi). <strong className="text-white">Per chi esporta</strong>, un saldo fortemente negativo significa che il paese importa molto — potenzialmente un buon mercato per i tuoi prodotti. Tuttavia, deficit persistenti possono portare a svalutazione della valuta e restrizioni commerciali.</p>
+              </div>
+              <div className="bg-slate-800 rounded-lg p-3">
+                <p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold mb-2">Come leggere il valore</p>
+                <div className="space-y-1 text-[11px]">
+                  <div className="flex justify-between"><span className="text-green-400">Positivo</span><span className="text-slate-400">Paese esportatore netto</span></div>
+                  <div className="flex justify-between"><span className="text-red-400">Negativo</span><span className="text-slate-400">Paese importatore netto (opportunità)</span></div>
+                </div>
+              </div>
+              <p className="text-slate-500 text-[10px] mt-2">Fonte: World Bank API</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Popup Stabilità Economica Info */}
+      {showStabilitaInfo && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/70 backdrop-blur-sm pt-4 px-4 pb-4 overflow-y-auto" onClick={() => setShowStabilitaInfo(false)}>
+          <div className="bg-slate-900 border border-white/10 rounded-2xl p-5 max-w-sm w-full shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-white font-bold text-sm">Stabilità Economica</h3>
+              <button onClick={() => setShowStabilitaInfo(false)} className="text-slate-400 hover:text-white"><X className="w-4 h-4" /></button>
+            </div>
+            <div className="space-y-2 text-slate-300 text-xs leading-relaxed">
+              <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-3 mb-2">
+                <p className="text-cyan-400 text-[10px] font-bold uppercase tracking-wider mb-1">Cos'è e perché è importante per l'export</p>
+                <p className="text-slate-300 text-xs">La sezione Stabilità Economica raggruppa i principali indicatori macroeconomici che influenzano il rischio di esportare in un mercato. <strong className="text-white">Per chi esporta</strong>, questi dati aiutano a valutare se il paese è economicamente stabile, se la valuta è affidabile, se è facile fare affari e se la logistica funziona.</p>
+              </div>
+              <div className="bg-slate-800 rounded-lg p-3">
+                <p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold mb-2">Indicatori inclusi</p>
+                <div className="space-y-1.5 text-[11px]">
+                  <div><strong className="text-white">Inflazione (CPI)</strong> — aumento prezzi al consumo</div>
+                  <div><strong className="text-white">Doing Business</strong> — facilità di fare impresa</div>
+                  <div><strong className="text-white">Volatilità Cambio</strong> — rischio valutario</div>
+                  <div><strong className="text-white">Partite Correnti</strong> — bilancia commerciale</div>
+                  <div><strong className="text-white">LPI</strong> — efficienza logistica</div>
+                </div>
+              </div>
+              <p className="text-slate-500 text-[10px] mt-2">Fonti: World Bank API + BCE</p>
             </div>
           </div>
         </div>
