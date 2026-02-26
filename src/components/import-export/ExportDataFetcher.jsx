@@ -636,7 +636,7 @@ function buildDataContext(tradeData, metricsResult, hsCode, hsDescrizione, profi
   const notaCambio = tassoCambio ? `\nCambio: 1EUR=${tassoCambio.tasso}USD (${tassoCambio.fonte})` : '';
 
   const header = `Anno ${currentYear}. HS: ${hsCode} — ${hsDescrizione}
-AZIENDA: Settore=${profiloAzienda.settore}, Prodotto=${profiloAzienda.prodotto}, Fatturato=${profiloAzienda.fatturato_annuo || 'N/S'}, Export=${profiloAzienda.esperienza_export || 'Nessuna'}, Cert=${profiloAzienda.certificazioni || 'N/S'}, Capacità=${profiloAzienda.capacita_produttiva || 'N/S'}, Posiz=${profiloAzienda.posizionamento || 'N/S'}, Model=${profiloAzienda.business_model || 'N/S'}, Canale=${profiloAzienda.canale_preferito || 'N/S'}
+AZIENDA: Settore=${profiloAzienda.settore}, Prodotto=${profiloAzienda.prodotto}, Fatturato=${profiloAzienda.fatturato_annuo || 'N/S'}, Export=${profiloAzienda.esperienza_export || 'Nessuna'}, Cert=${profiloAzienda.certificazioni || 'N/S'}, Capacità=${profiloAzienda.capacita_produttiva || 'N/S'}${profiloAzienda.unita_capacita ? ` (${profiloAzienda.unita_capacita})` : ''}, Posiz=${profiloAzienda.posizionamento || 'N/S'}, PrezzoMedio=${profiloAzienda.prezzo_medio ? `€${profiloAzienda.prezzo_medio}` : 'N/S'}, Model=${profiloAzienda.business_model || 'N/S'}, Canale=${profiloAzienda.canale_preferito || 'N/S'}
 DATI:${riepilogoDati}${datiNonDisponibili}${notaCambio}`;
 
   const paeseNames = tradeData.mercati.map(m => `${m.paese_nome} (${m.paese_code})`).join(', ');
