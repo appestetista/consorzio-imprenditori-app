@@ -145,31 +145,29 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
       };
 
       setPriceStep('fetching');
+      let finalPriceMetrics = null;
+      let finalPriceInterp = null;
       const priceRaw = await fetchPriceData(hsData.hs_code, mercatiInteresse, mercatiNames, exporterCountry, parseInt(periodoAnalisi));
       if (priceRaw?._api_error) { setPriceMetrics(null); setPriceStep(''); }
       else {
         setPriceStep('computing');
         const pMetrics = computePriceMetrics(priceRaw);
         setPriceMetrics(pMetrics);
+        finalPriceMetrics = pMetrics;
         if (pMetrics && !pMetrics._api_error) {
           setPriceStep('interpreting');
           const pInterp = await interpretPriceData(pMetrics, hsData.hs_code, hsData.descrizione_ufficiale, { settore: exportForm.settore, prodotto: exportForm.prodotto, fatturato_annuo: user?.export_fatturato_annuo || '' });
           setPriceInterpretation(pInterp);
+          finalPriceInterp = pInterp;
         }
         setPriceStep('');
-        // Aggiorna snapshot con dati prezzo
-        if (usageLogId && pMetrics && !pMetrics._api_error) {
-          try {
-            await base44.entities.UsageLog.update(usageLogId, {
-              analysis_snapshot: { ...snapshotPartial, priceMetrics: pMetrics, priceInterpretation: pInterp || null }
-            });
-          } catch (e2) { console.error('[Export] Errore salvataggio snapshot prezzo:', e2); }
-        }
       }
-      // Salva snapshot anche se price fallisce
-      if (usageLogId && !snapshotPartial.priceMetrics) {
+      // Salva snapshot completo nel UsageLog
+      if (usageLogId) {
         try {
-          await base44.entities.UsageLog.update(usageLogId, { analysis_snapshot: snapshotPartial });
+          await base44.entities.UsageLog.update(usageLogId, {
+            analysis_snapshot: { ...snapshotPartial, priceMetrics: finalPriceMetrics, priceInterpretation: finalPriceInterp }
+          });
         } catch (e2) { console.error('[Export] Errore salvataggio snapshot:', e2); }
       }
     } catch (e) { console.error('[Export] Errore analisi:', e); setAnalysisResult({ _api_error: true }); }
