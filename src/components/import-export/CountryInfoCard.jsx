@@ -180,6 +180,10 @@ function LPIBenchmarkBar({ countryName, countryLPI }) {
 export default function CountryInfoCard({ countryCode, countryName, macroData, metrics, isCompact = false }) {
   const [showLPIInfo, setShowLPIInfo] = useState(false);
   const [showVolatilitaInfo, setShowVolatilitaInfo] = useState(false);
+  const [showInflazioneInfo, setShowInflazioneInfo] = useState(false);
+  const [showDoingBusinessInfo, setShowDoingBusinessInfo] = useState(false);
+  const [showPartiteCorrentiInfo, setShowPartiteCorrentiInfo] = useState(false);
+  const [showStabilitaInfo, setShowStabilitaInfo] = useState(false);
   const flagUrl = getFlagUrl(countryCode);
   const stabilityScore = computeStabilityScore(macroData);
 
@@ -272,20 +276,36 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
           
             <div className="pb-2 divide-y divide-slate-700/30">
               {macroData.inflazione !== null && (
-                <MacroRow 
-                  label="📈 Inflazione (CPI)"
-                  value={`${macroData.inflazione}%`}
-                  anno={macroData.inflazione_anno}
-                  style={getInflazioneStyle(macroData.inflazione)}
-                />
+                <div className="flex items-center justify-between py-1.5 px-3">
+                  <div className="flex items-center gap-1">
+                    <span className="text-slate-400 text-xs">📈 Inflazione (CPI)</span>
+                    <button onClick={(e) => { e.stopPropagation(); setShowInflazioneInfo(true); }}
+                      className="w-5 h-5 rounded-full bg-red-500/20 border border-red-500/50 flex items-center justify-center hover:bg-red-500/30 transition-colors">
+                      <span className="text-red-400 text-[10px] font-bold leading-none">?</span>
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className={`text-sm font-semibold ${getInflazioneStyle(macroData.inflazione)?.color || 'text-white'}`}>{macroData.inflazione}%</span>
+                    {getInflazioneStyle(macroData.inflazione)?.label && <span className={`text-[10px] ${getInflazioneStyle(macroData.inflazione).color}`}>({getInflazioneStyle(macroData.inflazione).label})</span>}
+                    {macroData.inflazione_anno && <span className="text-slate-500 text-[10px]">{macroData.inflazione_anno}</span>}
+                  </div>
+                </div>
               )}
               {macroData.doing_business_score !== null && (
-                <MacroRow 
-                  label="🏢 Ease of Doing Business"
-                  value={`${macroData.doing_business_score}/100`}
-                  anno={macroData.doing_business_anno}
-                  style={getDoingBusinessStyle(macroData.doing_business_score)}
-                />
+                <div className="flex items-center justify-between py-1.5 px-3">
+                  <div className="flex items-center gap-1">
+                    <span className="text-slate-400 text-xs">🏢 Doing Business</span>
+                    <button onClick={(e) => { e.stopPropagation(); setShowDoingBusinessInfo(true); }}
+                      className="w-5 h-5 rounded-full bg-red-500/20 border border-red-500/50 flex items-center justify-center hover:bg-red-500/30 transition-colors">
+                      <span className="text-red-400 text-[10px] font-bold leading-none">?</span>
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className={`text-sm font-semibold ${getDoingBusinessStyle(macroData.doing_business_score)?.color || 'text-white'}`}>{macroData.doing_business_score}/100</span>
+                    {getDoingBusinessStyle(macroData.doing_business_score)?.label && <span className={`text-[10px] ${getDoingBusinessStyle(macroData.doing_business_score).color}`}>({getDoingBusinessStyle(macroData.doing_business_score).label})</span>}
+                    {macroData.doing_business_anno && <span className="text-slate-500 text-[10px]">{macroData.doing_business_anno}</span>}
+                  </div>
+                </div>
               )}
               {/* Volatilità cambio BCE con ? info */}
               <div className="px-3 py-2">
@@ -377,12 +397,19 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
                 )}
               </div>
               {macroData.partite_correnti_usd !== null && (
-                <MacroRow 
-                  label="⚖️ Saldo partite correnti"
-                  value={formatBigNum(macroData.partite_correnti_usd)}
-                  anno={macroData.partite_correnti_anno}
-                  style={macroData.partite_correnti_usd < 0 ? { color: 'text-red-400' } : { color: 'text-green-400' }}
-                />
+                <div className="flex items-center justify-between py-1.5 px-3">
+                  <div className="flex items-center gap-1">
+                    <span className="text-slate-400 text-xs">⚖️ Saldo partite correnti</span>
+                    <button onClick={(e) => { e.stopPropagation(); setShowPartiteCorrentiInfo(true); }}
+                      className="w-5 h-5 rounded-full bg-red-500/20 border border-red-500/50 flex items-center justify-center hover:bg-red-500/30 transition-colors">
+                      <span className="text-red-400 text-[10px] font-bold leading-none">?</span>
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className={`text-sm font-semibold ${macroData.partite_correnti_usd < 0 ? 'text-red-400' : 'text-green-400'}`}>{formatBigNum(macroData.partite_correnti_usd)}</span>
+                    {macroData.partite_correnti_anno && <span className="text-slate-500 text-[10px]">{macroData.partite_correnti_anno}</span>}
+                  </div>
+                </div>
               )}
 
               {/* Indici di Performance Logistica (LPI) con benchmark */}
