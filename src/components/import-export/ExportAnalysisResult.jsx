@@ -1,24 +1,20 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { 
-  ChevronDown, ChevronUp, Target, TrendingUp, Shield, Truck, 
+  Target, TrendingUp, Shield, Truck, 
   DollarSign, MapPin, AlertTriangle, Calendar, CheckCircle, 
   BarChart3, Package, ExternalLink, ArrowRight 
 } from 'lucide-react';
 import WebEnrichmentCard from './WebEnrichmentCard';
 
-function CollapsibleSection({ title, icon: Icon, iconColor, children, defaultOpen = false }) {
-  const [open, setOpen] = useState(defaultOpen);
+function OpenSection({ title, icon: Icon, iconColor, children }) {
   return (
     <div className="bg-slate-800/60 border border-white/5 rounded-xl overflow-hidden">
-      <button onClick={() => setOpen(!open)} className="w-full flex items-center justify-between px-4 py-3 text-left">
-        <div className="flex items-center gap-2">
-          <Icon className={`w-4 h-4 ${iconColor}`} />
-          <span className="text-white font-bold text-sm">{title}</span>
-        </div>
-        {open ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
-      </button>
-      {open && <div className="px-4 pb-4 border-t border-white/5 pt-3">{children}</div>}
+      <div className="flex items-center gap-2 px-4 py-3 border-b border-white/5">
+        <Icon className={`w-4 h-4 ${iconColor}`} />
+        <span className="text-white font-bold text-sm">{title}</span>
+      </div>
+      <div className="px-4 pb-4 pt-3">{children}</div>
     </div>
   );
 }
@@ -91,18 +87,18 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
           <CardContent className="p-0">
             {/* Market Screening */}
             {m.market_screening && (
-              <CollapsibleSection title="Market Screening" icon={BarChart3} iconColor="text-lime-400" defaultOpen={true}>
+              <OpenSection title="Market Screening" icon={BarChart3} iconColor="text-lime-400">
                 <DataRow label="Import totale" value={m.market_screening.import_totale} />
                 <DataRow label="CAGR" value={m.market_screening.cagr} />
                 <DataRow label="Dazi" value={m.market_screening.dazi} />
                 <DataRow label="Barriere non tariffarie" value={m.market_screening.barriere_non_tariffarie} />
                 <DataRow label="Ranking" value={m.market_screening.ranking_motivazione} />
-              </CollapsibleSection>
+              </OpenSection>
             )}
 
             {/* Flussi Commerciali */}
             {m.flussi_commerciali && (
-              <CollapsibleSection title="Flussi Commerciali" icon={TrendingUp} iconColor="text-cyan-400">
+              <OpenSection title="Flussi Commerciali" icon={TrendingUp} iconColor="text-cyan-400">
                 <DataRow label="Import annuo" value={m.flussi_commerciali.valore_import_annuo} />
                 <DataRow label="Export ITA→paese" value={m.flussi_commerciali.export_italia_verso_paese} />
                 <DataRow label="Trend YoY" value={m.flussi_commerciali.trend_yoy_percentuale} />
@@ -119,12 +115,12 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
                     </div>
                   </div>
                 )}
-              </CollapsibleSection>
+              </OpenSection>
             )}
 
             {/* Domanda Locale & Market Sizing */}
             {m.domanda_locale && (
-              <CollapsibleSection title="Domanda Locale & Market Sizing" icon={Target} iconColor="text-purple-400" defaultOpen={true}>
+              <OpenSection title="Domanda Locale & Market Sizing" icon={Target} iconColor="text-purple-400">
                 {/* Market Sizing quantitativo */}
                 <div className="bg-purple-500/5 border border-purple-500/10 rounded-lg p-2.5 mb-3">
                   <p className="text-purple-400 text-[10px] font-bold uppercase tracking-wider mb-1.5">Market Sizing (C = P + M − X)</p>
@@ -154,12 +150,12 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
                     </div>
                   )}
                 </div>
-              </CollapsibleSection>
+              </OpenSection>
             )}
 
             {/* Analisi Competitiva — Competitive Intelligence */}
             {m.analisi_competitiva && (
-              <CollapsibleSection title="Competitive Intelligence" icon={Shield} iconColor="text-orange-400">
+              <OpenSection title="Competitive Intelligence" icon={Shield} iconColor="text-orange-400">
                 {/* Landscape & Concentrazione */}
                 {m.analisi_competitiva.competitive_landscape && (
                   <div className="mb-3">
@@ -309,22 +305,22 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
                     </div>
                   </div>
                 )}
-              </CollapsibleSection>
+              </OpenSection>
             )}
 
             {/* Dazi e Barriere */}
             {m.dazi_taric && (
-              <CollapsibleSection title="Dazi e Barriere" icon={AlertTriangle} iconColor="text-amber-400">
+              <OpenSection title="Dazi e Barriere" icon={AlertTriangle} iconColor="text-amber-400">
                 <DataRow label="Dazio MFN" value={m.dazi_taric.dazio_mfn} />
                 <DataRow label="Preferenziale" value={m.dazi_taric.dazio_preferenziale} />
                 <DataRow label="Anti-dumping" value={m.dazi_taric.anti_dumping} warning={m.dazi_taric.anti_dumping && m.dazi_taric.anti_dumping !== 'Nessuna'} />
                 <DataRow label="Restrizioni" value={m.dazi_taric.restrizioni} warning={m.dazi_taric.restrizioni && m.dazi_taric.restrizioni !== 'Nessuna'} />
-              </CollapsibleSection>
+              </OpenSection>
             )}
 
             {/* Requisiti Normativi — Regulatory Compliance */}
             {m.requisiti_normativi && (
-              <CollapsibleSection title="Regulatory Compliance" icon={Package} iconColor="text-indigo-400">
+              <OpenSection title="Regulatory Compliance" icon={Package} iconColor="text-indigo-400">
                 {/* Tariffs & Taxes */}
                 {m.requisiti_normativi.regulatory_framework && (
                   <div className="bg-indigo-500/5 border border-indigo-500/10 rounded-lg p-2.5 mb-3">
@@ -431,12 +427,12 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
                     </div>
                   </div>
                 )}
-              </CollapsibleSection>
+              </OpenSection>
             )}
 
             {/* Logistica — Logistics & Supply Chain */}
             {m.logistica && (
-              <CollapsibleSection title="Logistics & Supply Chain" icon={Truck} iconColor="text-blue-400">
+              <OpenSection title="Logistics & Supply Chain" icon={Truck} iconColor="text-blue-400">
                 {/* LPI & Infrastructure */}
                 {m.logistica.logistics_performance && (
                   <div className="bg-blue-500/5 border border-blue-500/10 rounded-lg p-2.5 mb-3">
@@ -576,17 +572,17 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
                     </div>
                   </div>
                 )}
-              </CollapsibleSection>
+              </OpenSection>
             )}
 
             {/* Rischio Paese */}
             {m.rischio_paese && (
-              <CollapsibleSection title="Rischio Paese" icon={Shield} iconColor="text-red-400">
+              <OpenSection title="Rischio Paese" icon={Shield} iconColor="text-red-400">
                 <DataRow label="Rischio politico" value={m.rischio_paese.rischio_politico} />
                 <DataRow label="Rischio economico" value={m.rischio_paese.rischio_economico} />
                 <DataRow label="Rischio cambio" value={m.rischio_paese.rischio_cambio} />
                 <DataRow label="Rischio credito" value={m.rischio_paese.rischio_credito} />
-              </CollapsibleSection>
+              </OpenSection>
             )}
 
             {/* Web Intelligence (Access2Markets, Trade Map, ICE) */}
@@ -599,7 +595,7 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
 
             {/* Canali di Ingresso — Go-to-Market */}
             {m.canali_ingresso && (
-              <CollapsibleSection title="Go-to-Market & Canali" icon={MapPin} iconColor="text-teal-400">
+              <OpenSection title="Go-to-Market & Canali" icon={MapPin} iconColor="text-teal-400">
                 {/* Entry Strategy */}
                 {m.canali_ingresso.entry_strategy && (
                   <div className="bg-teal-500/5 border border-teal-500/10 rounded-lg p-2.5 mb-3">
@@ -750,12 +746,12 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
                     </div>
                   </div>
                 )}
-              </CollapsibleSection>
+              </OpenSection>
             )}
 
             {/* Opportunità e Sfide */}
             {(m.opportunita?.length > 0 || m.sfide?.length > 0) && (
-              <CollapsibleSection title="Opportunità e Sfide" icon={TrendingUp} iconColor="text-lime-400">
+              <OpenSection title="Opportunità e Sfide" icon={TrendingUp} iconColor="text-lime-400">
                 <div className="grid grid-cols-2 gap-2">
                   {m.opportunita?.length > 0 && (
                     <div className="bg-green-500/5 rounded-lg p-2 border border-green-500/10">
@@ -774,7 +770,7 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
                     </div>
                   )}
                 </div>
-              </CollapsibleSection>
+              </OpenSection>
             )}
 
             {/* Conclusione operativa */}
@@ -790,7 +786,7 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
 
       {/* Analisi Economica Export */}
       {analysisResult.analisi_economica && (
-        <CollapsibleSection title="Analisi Economica Export" icon={DollarSign} iconColor="text-lime-400" defaultOpen={true}>
+        <OpenSection title="Analisi Economica Export" icon={DollarSign} iconColor="text-lime-400">
           <DataRow label="Simulazione prezzo" value={analysisResult.analisi_economica.simulazione_prezzo} />
           <DataRow label="Margine lordo" value={analysisResult.analisi_economica.margine_lordo} />
           <DataRow label="Break even" value={analysisResult.analisi_economica.break_even} />
@@ -798,12 +794,12 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
           {analysisResult.analisi_economica.note && (
             <p className="text-slate-500 text-[10px] mt-2 italic">{analysisResult.analisi_economica.note}</p>
           )}
-        </CollapsibleSection>
+        </OpenSection>
       )}
 
       {/* Roadmap 12 mesi */}
       {analysisResult.roadmap_12_mesi?.length > 0 && (
-        <CollapsibleSection title="Roadmap Operativa 12 Mesi" icon={Calendar} iconColor="text-blue-400" defaultOpen={false}>
+        <OpenSection title="Roadmap Operativa 12 Mesi" icon={Calendar} iconColor="text-blue-400">
           <div className="space-y-3">
             {analysisResult.roadmap_12_mesi.map((step, i) => (
               <div key={i} className="flex items-start gap-3">
@@ -818,7 +814,7 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
               </div>
             ))}
           </div>
-        </CollapsibleSection>
+        </OpenSection>
       )}
 
       {/* Mercati Prioritari */}
