@@ -186,7 +186,17 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
   };
 
   // L'analisi è finita ma i risultati stanno ancora renderizzando
-  const isLoadingResults = !analyzing && analysisResult && !analysisResult._api_error && !tradeMetrics;
+  // Timeout di sicurezza: se dopo 2 secondi tradeMetrics non c'è, mostriamo comunque
+  const [loadingTimeout, setLoadingTimeout] = useState(false);
+  React.useEffect(() => {
+    if (analysisResult && !analysisResult._api_error && !tradeMetrics && !analyzing) {
+      const timer = setTimeout(() => setLoadingTimeout(true), 3000);
+      return () => clearTimeout(timer);
+    }
+    setLoadingTimeout(false);
+  }, [analysisResult, tradeMetrics, analyzing]);
+
+  const isLoadingResults = !analyzing && analysisResult && !analysisResult._api_error && !tradeMetrics && !loadingTimeout;
 
   return (
     <>
