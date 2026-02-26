@@ -18,6 +18,31 @@ const EXCLUDED_COUNTRIES = new Set([
   'Liechtenstein', 'Andorra', 'Vatican', 'Singapore', 'Bahrain',
 ]);
 
+// Calcola centroide di un feature GeoJSON (media pesata delle coordinate)
+function getFeatureCentroid(feature) {
+  const geom = feature.geometry;
+  let sumLat = 0, sumLng = 0, count = 0;
+  const addRing = (ring) => {
+    for (let i = 0; i < ring.length; i++) {
+      sumLng += ring[i][0];
+      sumLat += ring[i][1];
+      count++;
+    }
+  };
+  if (geom.type === 'Polygon') {
+    addRing(geom.coordinates[0]);
+  } else if (geom.type === 'MultiPolygon') {
+    // Usa il poligono più grande (più punti)
+    let biggest = geom.coordinates[0][0];
+    for (const poly of geom.coordinates) {
+      if (poly[0].length > biggest.length) biggest = poly[0];
+    }
+    addRing(biggest);
+  }
+  if (count === 0) return { lat: 0, lng: 0 };
+  return { lat: sumLat / count, lng: sumLng / count };
+}
+
 // Converti lat/lng in coordinate 3D sulla sfera
 function latLngToVector3(lat, lng, radius) {
   const phi = (90 - lat) * (Math.PI / 180);
