@@ -411,22 +411,8 @@ export default function CountryRiskProfileCard({ data, loading }) {
         </div>
       </RiskInfoPopup>
 
-      {/* Info Popup - CPI Corruzione */}
-      <RiskInfoPopup show={showCPIInfo} onClose={() => setShowCPIInfo(false)} title="Indice di Corruzione (CPI)">
-        <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-3 mb-2">
-          <p className="text-cyan-400 text-[10px] font-bold uppercase tracking-wider mb-1">Cos'è e perché è importante per l'export</p>
-          <p className="text-slate-300 text-xs">Il CPI (Corruption Perceptions Index) di Transparency International misura il livello percepito di corruzione nel settore pubblico di un paese, su scala 0-100. <strong className="text-white">Per chi esporta</strong>, un CPI basso indica che potresti incontrare richieste di tangenti, procedure opache, difficoltà doganali e minore certezza del diritto.</p>
-        </div>
-        <div className="bg-slate-800 rounded-lg p-3">
-          <p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold mb-2">Come leggere</p>
-          <div className="space-y-1 text-[11px]">
-            <div className="flex justify-between"><span className="text-green-400">≥ 70</span><span className="text-slate-400">Bassa corruzione</span></div>
-            <div className="flex justify-between"><span className="text-yellow-400">50 – 69</span><span className="text-slate-400">Corruzione moderata</span></div>
-            <div className="flex justify-between"><span className="text-orange-400">30 – 49</span><span className="text-slate-400">Corruzione significativa</span></div>
-            <div className="flex justify-between"><span className="text-red-400">&lt; 30</span><span className="text-slate-400">Corruzione grave</span></div>
-          </div>
-        </div>
-      </RiskInfoPopup>
+      {/* Info Popup - CPI Corruzione con classifica top 100 */}
+      <CPIRankingPopup show={showCPIInfo} onClose={() => setShowCPIInfo(false)} corruptionData={cor} />
 
       {/* Info Popup - FSI Fragilità */}
       <RiskInfoPopup show={showFSIInfo} onClose={() => setShowFSIInfo(false)} title="Indice di Fragilità (FSI)">
