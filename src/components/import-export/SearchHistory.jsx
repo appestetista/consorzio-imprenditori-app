@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, Ship, Loader2, Clock, Package, MapPin } from 'lucide-react';
 
-export default function SearchHistory({ userEmail }) {
+export default function SearchHistory({ userEmail, onOpenAnalysis }) {
   const { data: logs = [], isLoading } = useQuery({
     queryKey: ['search-history', userEmail],
     queryFn: () => base44.entities.UsageLog.filter(
@@ -45,8 +45,11 @@ export default function SearchHistory({ userEmail }) {
         const formattedDate = date.toLocaleDateString('it-IT', { day: '2-digit', month: 'short', year: 'numeric' });
         const formattedTime = date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
 
+        const hasSnapshot = !!log.analysis_snapshot?.analysisResult;
+
         return (
-          <Card key={log.id} className="bg-slate-800/50 border-white/5 hover:border-white/10 transition-colors">
+          <Card key={log.id} className={`bg-slate-800/50 border-white/5 hover:border-white/10 transition-colors ${hasSnapshot ? 'cursor-pointer' : ''}`}
+            onClick={() => { if (hasSnapshot && onOpenAnalysis) onOpenAnalysis(log); }}>
             <CardContent className="p-4">
               <div className="flex items-start gap-3">
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${
@@ -65,6 +68,11 @@ export default function SearchHistory({ userEmail }) {
                       {isExport ? 'EXPORT' : 'IMPORT'}
                     </Badge>
                     <span className="text-slate-500 text-[10px]">{formattedDate} · {formattedTime}</span>
+                    {hasSnapshot && (
+                      <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-emerald-400 border-emerald-400/30">
+                        Rivedi
+                      </Badge>
+                    )}
                   </div>
                   
                   <p className="text-white text-sm font-medium truncate">
