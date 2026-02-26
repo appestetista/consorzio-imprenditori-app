@@ -121,29 +121,19 @@ export async function fetchMacroData(countryCodes) {
       }
     }
     
-    // Fallback: se World Bank non ha dati sufficienti, chiedi all'LLM con internet
+    // Fallback: se World Bank non ha la serie storica, prova con serie più lunga (10 anni)
     if (volatilita_cambio === null) {
       try {
-        const countryName = alpha3; // usa alpha3 come riferimento
-        const llmResult = await base44.integrations.Core.InvokeLLM({
-          prompt: `What is the exchange rate volatility (coefficient of variation %) of the currency of country ${code2} (${countryName}) against USD over the last 5 years (2020-2024)?
-Calculate it as: (standard deviation of annual average exchange rates / mean of annual average exchange rates) × 100.
-Use official IMF IFS, BIS, or central bank data. If the country uses EUR, volatility vs USD is approximately 4-6%.
-Return ONLY a number (the percentage), nothing else. If truly unknown, return -1.`,
-          response_json_schema: {
-            type: "object",
-            properties: {
-              volatility_pct: { type: "number", description: "Coefficient of variation % of exchange rate vs USD, -1 if unknown" },
-              source: { type: "string", description: "Data source used" }
-            }
-          }
-        });
-        if (llmResult?.volatility_pct !== undefined && llmResult.volatility_pct >= 0) {
-          volatilita_cambio = parseFloat(llmResult.volatility_pct.toFixed(1));
-          volatilita_fonte = llmResult.source || 'LLM + internet (IMF/BIS)';
+        const extSerie = await fetchWBSeries(alpha3, 'PA.NUS.FCRF', 10);
+        const valoriExt = extSerie.map(s => s.value).filter(v => v > 0);
+        if (valoriExt.length >= 3) {
+          const media = valoriExt.reduce((a, b) => a + b, 0) / valoriExt.length;
+          const varianza = valoriExt.reduce((sum, v) => sum + Math.pow(v - media, 2), 0) / valoriExt.length;
+          volatilita_cambio = parseFloat(((Math.sqrt(varianza) / media) * 100).toFixed(1));
+          volatilita_fonte = 'World Bank PA.NUS.FCRF (10 anni)';
         }
       } catch (e) {
-        console.warn(`[fetchMacroData] Fallback volatilità cambio per ${code2} fallito:`, e);
+        console.warn(`[fetchMacroData] Fallback volatilità cambio 10y per ${code2} fallito:`, e);
       }
     }
 
