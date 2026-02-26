@@ -370,28 +370,6 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
               </Card>
             )}
 
-            {analyzing && (
-              <Card className="bg-slate-800/60 border-white/5 backdrop-blur-sm shadow-2xl">
-                <CardContent className="p-5">
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-lime-400/10 flex items-center justify-center"><Loader2 className="w-5 h-5 animate-spin text-lime-400" /></div>
-                      <div><p className="text-white font-bold text-sm">Analisi in corso</p><p className="text-slate-500 text-xs">Recupero e analisi dati reali</p></div>
-                    </div>
-                    <div className="space-y-2">
-                      {['fetching', 'computing', 'interpreting'].map((step, i) => {
-                        const labels = { fetching: 'Recupero dati ufficiali', computing: 'Calcolo metriche', interpreting: 'Elaborazione analisi' };
-                        const isActive = exportStep === step;
-                        const isDone = ['fetching', 'computing', 'interpreting'].indexOf(exportStep) > i;
-                        return (<div key={step} className={`flex items-center gap-2 text-xs px-3 py-1.5 rounded-lg ${isActive ? 'bg-lime-400/10 text-lime-400' : isDone ? 'bg-green-500/10 text-green-400' : 'text-slate-500'}`}>
-                          {isActive ? <Loader2 className="w-3 h-3 animate-spin" /> : isDone ? <CheckCircle className="w-3 h-3" /> : <span className="w-3 h-3 rounded-full border border-slate-600 block" />}{labels[step]}
-                        </div>);
-                      })}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
           </div>
         )
       ) : analysisResult?._api_error ? (
