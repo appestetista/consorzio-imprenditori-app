@@ -529,6 +529,7 @@ export default function WorldMapExplorer({ onCountrySelect, selectedCountries = 
   const rotationVelocity = useRef({ x: 0, y: 0 });
   const autoRotate = useRef(true);
   const pinchDistRef = useRef(null);
+  const sphereRef = useRef(null); // Riferimento alla sfera oceano per hit-test touch
 
   // Fetch dati paese al click
   useEffect(() => {
