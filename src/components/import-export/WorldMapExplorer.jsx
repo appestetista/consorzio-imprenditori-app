@@ -512,6 +512,7 @@ export default function WorldMapExplorer({ onCountrySelect, selectedCountries = 
   const selectedMeshRef = useRef(null);
   const selectedLinesRef = useRef([]);
   const raisedMeshesRef = useRef([]);
+  const labelSpriteRef = useRef(null);
   const geoDataRef = useRef(null);
   const animFrameRef = useRef(null);
 
