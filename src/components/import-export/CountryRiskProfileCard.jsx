@@ -169,7 +169,7 @@ export default function CountryRiskProfileCard({ data, loading }) {
         <div className="px-4 py-2.5 border-b border-white/5">
           <div className="flex items-center gap-1.5 mb-1.5">
             <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider">🏦 Rating Sovrano</p>
-            <InfoButton onClick={() => setShowRatingInfo(true)} />
+            <RiskInfoButton onClick={() => setShowRatingInfo(true)} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             {sr.sp?.rating && (
@@ -197,7 +197,7 @@ export default function CountryRiskProfileCard({ data, loading }) {
             <div>
               <div className="flex items-center gap-1 mb-1">
                 <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider">🔍 Corruzione (CPI)</p>
-                <InfoButton onClick={() => setShowCPIInfo(true)} />
+                <RiskInfoButton onClick={() => setShowCPIInfo(true)} />
               </div>
               <div className="flex items-center gap-2">
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
@@ -218,7 +218,7 @@ export default function CountryRiskProfileCard({ data, loading }) {
             <div>
               <div className="flex items-center gap-1 mb-1">
                 <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider">⚠️ Fragilità (FSI)</p>
-                <InfoButton onClick={() => setShowFSIInfo(true)} />
+                <RiskInfoButton onClick={() => setShowFSIInfo(true)} />
               </div>
               <div className="flex items-center gap-2">
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
@@ -247,7 +247,7 @@ export default function CountryRiskProfileCard({ data, loading }) {
                 <ShieldCheck className="w-3.5 h-3.5 text-green-400" /> : 
                 <ShieldAlert className="w-3.5 h-3.5 text-orange-400" />}
               <span className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider">Governance (WGI)</span>
-              <InfoButton onClick={() => setShowWGIInfo(true)} />
+              <RiskInfoButton onClick={() => setShowWGIInfo(true)} />
               <span className="text-white text-[10px] font-bold ml-1">{gov.wgi_average_percentile}/100</span>
             </div>
           </div>
@@ -269,7 +269,7 @@ export default function CountryRiskProfileCard({ data, loading }) {
           <div className="px-4 py-2.5">
             <div className="flex items-center gap-1.5">
               <span className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider">📊 Macro-Economici</span>
-              <InfoButton onClick={() => setShowMacroInfo(true)} />
+              <RiskInfoButton onClick={() => setShowMacroInfo(true)} />
             </div>
           </div>
           <div className="px-4 pb-3 space-y-1">
@@ -322,7 +322,7 @@ export default function CountryRiskProfileCard({ data, loading }) {
           <div className="px-4 py-2.5">
             <div className="flex items-center gap-1.5">
               <span className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider">👥 Demografici</span>
-              <InfoButton onClick={() => setShowDemoInfo(true)} />
+              <RiskInfoButton onClick={() => setShowDemoInfo(true)} />
             </div>
           </div>
           <div className="px-4 pb-3 space-y-1">
