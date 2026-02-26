@@ -988,7 +988,7 @@ GLOBALE:
     return null;
   }
 
-  // Merge modulo E (GTM + sintesi) — ha punteggio_opportunita
+  // Merge modulo E (GTM universale + sintesi) — ha punteggio_opportunita + nuove sezioni fase 1-6
   (resE?.mercati || []).forEach(m => {
     const key = findKey(m);
     if (key) Object.assign(mercatiMap[key], m, { paese_code: key });
