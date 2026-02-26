@@ -552,10 +552,14 @@ Rispondi in italiano.`,
     const container = containerRef.current;
     if (!container) return;
 
+    // Track whether the gesture is horizontal (globe rotate) or vertical (page scroll)
+    const touchDirectionRef = { resolved: false, isHorizontal: false };
+
     const onTouchStart = (e) => {
-      e.preventDefault();
+      touchDirectionRef.resolved = false;
+      touchDirectionRef.isHorizontal = false;
       if (e.touches.length === 2) {
-        // Pinch start
+        e.preventDefault();
         const dx = e.touches[0].clientX - e.touches[1].clientX;
         const dy = e.touches[0].clientY - e.touches[1].clientY;
         pinchDistRef.current = Math.sqrt(dx * dx + dy * dy);
@@ -566,9 +570,8 @@ Rispondi in italiano.`,
       }
     };
     const onTouchMove = (e) => {
-      e.preventDefault();
       if (e.touches.length === 2 && cameraRef.current) {
-        // Pinch zoom
+        e.preventDefault();
         const dx = e.touches[0].clientX - e.touches[1].clientX;
         const dy = e.touches[0].clientY - e.touches[1].clientY;
         const dist = Math.sqrt(dx * dx + dy * dy);
@@ -580,7 +583,22 @@ Rispondi in italiano.`,
         pinchDistRef.current = dist;
         autoRotate.current = false;
       } else if (e.touches.length === 1 && pinchDistRef.current === null) {
-        handlePointerMove(e);
+        // Determine direction on first significant move
+        if (!touchDirectionRef.resolved) {
+          const dx = Math.abs(e.touches[0].clientX - startMouse.current.x);
+          const dy = Math.abs(e.touches[0].clientY - startMouse.current.y);
+          if (dx > 6 || dy > 6) {
+            touchDirectionRef.resolved = true;
+            touchDirectionRef.isHorizontal = dx > dy;
+          }
+        }
+        if (touchDirectionRef.resolved && touchDirectionRef.isHorizontal) {
+          e.preventDefault(); // Block scroll, rotate globe
+          handlePointerMove(e);
+        } else {
+          // Vertical or not yet resolved — let the page scroll naturally
+          isDragging.current = false;
+        }
       }
     };
     const onTouchEnd = (e) => {
@@ -590,9 +608,9 @@ Rispondi in italiano.`,
       handlePointerUp(e);
     };
 
-    container.addEventListener('touchstart', onTouchStart, { passive: false });
+    container.addEventListener('touchstart', onTouchStart, { passive: true });
     container.addEventListener('touchmove', onTouchMove, { passive: false });
-    container.addEventListener('touchend', onTouchEnd, { passive: false });
+    container.addEventListener('touchend', onTouchEnd, { passive: true });
 
     return () => {
       container.removeEventListener('touchstart', onTouchStart);
