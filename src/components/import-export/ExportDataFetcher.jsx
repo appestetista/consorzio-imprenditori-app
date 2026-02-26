@@ -813,8 +813,64 @@ export async function interpretData(tradeData, metricsResult, hsCode, hsDescrizi
     }
   });
 
-  // === MODULO E: GTM + Economia + Roadmap + Sintesi ===
-  const modE = callModule('GTM+Economia+Roadmap', `${rules}\n${ctx.header}\n\nPer ogni Paese:\n1) CANALI INGRESSO (coerenti con model=${profiloAzienda.business_model || 'N/S'}, canale=${profiloAzienda.canale_preferito || 'N/S'}): modello entry, marketplace B2C/B2B, GDO/distributori, fiere, raccomandazioni\n2) OPPORTUNITÀ e SFIDE\n\nGLOBALE:\n3) ANALISI ECONOMICA: simulazione prezzo, margine, break even, investimento iniziale\n4) ROADMAP 12 MESI: timeline, KPI, budget\n5) SINTESI: readiness score 1-10, raccomandazione, mercati prioritari, rischi, primi passi, risorse`, {
+  // === MODULO E: GTM universale + Economia + Roadmap + Sintesi ===
+  // Prompt strutturato per 6 FASI universali, adattivo a QUALSIASI prodotto/paese
+  const modE = callModule('GTM+Economia+Roadmap', `${rules}\n${ctx.header}\n\nIMPORTANTE: L'analisi deve essere CONCRETA e SPECIFICA per il prodotto HS ${hsCode} e il Paese target. NON inserire marketplace, retailer o distributori generici se non verificati per questo caso. Elimina canali non compatibili con la categoria merceologica. Se mancano dati, indica esplicitamente "Dato necessario per completare l'analisi" anziché inventare.
+
+Per ogni Paese, analizza secondo queste 6 FASI:
+
+FASE 1 – VERIFICA NORMATIVA OBBLIGATORIA
+- Normative di importazione specifiche del Paese per HS ${hsCode}
+- Autorizzazioni sanitarie/tecniche necessarie
+- Certificazioni obbligatorie (marchi, standard locali) — confronta con cert. azienda: ${profiloAzienda.certificazioni || 'nessuna'}
+- Restrizioni o divieti attivi
+- Requisiti etichettatura/conformità tecnica
+- Necessità di rappresentante o importatore locale registrato
+- Per ogni requisito specifica se è: OBBLIGATORIO, CONSIGLIATO, OPZIONALE, NON APPLICABILE
+
+FASE 2 – STRUTTURA DI INGRESSO NEL MERCATO (coerente con model=${profiloAzienda.business_model || 'N/S'}, canale=${profiloAzienda.canale_preferito || 'N/S'})
+- Modello entry raccomandato con giustificazione
+- Ruolo e necessità di importatore/distributore locale
+- Confronto: vendita diretta vs distributore esclusivo vs agente commerciale vs e-commerce cross-border
+- Vincoli contrattuali e fiscali specifici del Paese
+- Complessità stimata di ingresso
+
+FASE 3 – CANALI REALISTICI DI VENDITA
+- Retail fisico (SOLO se coerente con la categoria)
+- Foodservice (SOLO se prodotto alimentare/HoReCa)
+- B2B industriale (SOLO se prodotto tecnico/industriale)
+- Marketplace digitali (SOLO se verificati e compatibili — NO nomi generici)
+- Per ogni canale: giustificazione inclusione/esclusione
+- Distribuzione fisica: GDO/retailer, grossisti, reti wholesale (SOLO verificati)
+- Partnership: fiere di settore, associazioni industriali, camere di commercio
+
+FASE 4 – STRUTTURA DEI MARGINI
+- Margine importatore (range % realistico per questa categoria)
+- Margine distributore (range %)
+- Margine retail (range %)
+- Impatto cumulativo sul prezzo finale (moltiplicatore dalla fabbrica al consumatore)
+- Analisi di sostenibilità economica: il prezzo finale è competitivo nel mercato?
+
+FASE 5 – LOGISTICA E DOGANE (complementare al Modulo D)
+- HS code e classificazione confermata
+- Dazi applicabili (MFN, preferenziali)
+- IVA/GST locale
+- Incoterms consigliati per questa combinazione
+- Tempi medi sdoganamento
+
+FASE 6 – VALIDAZIONE COMMERCIALE
+- Domanda locale reale per questo prodotto
+- Livello concorrenza (alta/media/bassa)
+- Barriere culturali o di adattamento prodotto
+- Necessità di adattamento (packaging, formulazione, denominazione)
+- Canali non applicabili e perché
+
+Poi: OPPORTUNITÀ, SFIDE, CONCLUSIONE OPERATIVA per ogni Paese.
+
+GLOBALE:
+- ANALISI ECONOMICA: simulazione prezzo, margine, break even, investimento iniziale
+- ROADMAP 12 MESI: timeline, KPI, budget
+- SINTESI: readiness score 1-10, raccomandazione, mercati prioritari, rischi, primi passi, risorse`, {
     type: "object",
     properties: {
       mercati: {
@@ -823,16 +879,59 @@ export async function interpretData(tradeData, metricsResult, hsCode, hsDescrizi
           type: "object",
           properties: {
             paese_code: { type: "string" }, paese_nome: { type: "string" }, punteggio_opportunita: { type: "number" },
+            verifica_normativa: { type: "object", properties: {
+              normative_importazione: { type: "string" },
+              autorizzazioni_necessarie: { type: "array", items: { type: "object", properties: { requisito: { type: "string" }, tipo: { type: "string", enum: ["obbligatorio","consigliato","opzionale","non_applicabile"] }, dettaglio: { type: "string" } } } },
+              restrizioni_divieti: { type: "string" },
+              etichettatura_conformita: { type: "string" },
+              rappresentante_locale: { type: "object", properties: { necessario: { type: "string", enum: ["obbligatorio","consigliato","non_necessario"] }, dettaglio: { type: "string" } } },
+              blocchi_operativi: { type: "array", items: { type: "string" } }
+            } },
             canali_ingresso: { type: "object", properties: {
               entry_strategy: { type: "object", properties: { recommended_model: { type: "string" }, model_justification: { type: "string" }, estimated_entry_complexity: { type: "string", enum: ["Low","Medium","High"] } } },
+              struttura_ingresso: { type: "object", properties: {
+                importatore_locale: { type: "object", properties: { necessario: { type: "boolean" }, ruolo: { type: "string" } } },
+                confronto_modelli: { type: "array", items: { type: "object", properties: { modello: { type: "string" }, pro: { type: "string" }, contro: { type: "string" }, applicabile: { type: "boolean" } } } },
+                vincoli_contrattuali: { type: "string" },
+                vincoli_fiscali: { type: "string" }
+              } },
+              canali_vendita: { type: "object", properties: {
+                retail_fisico: { type: "object", properties: { applicabile: { type: "boolean" }, dettaglio: { type: "string" }, operatori: { type: "array", items: { type: "string" } } } },
+                foodservice: { type: "object", properties: { applicabile: { type: "boolean" }, dettaglio: { type: "string" } } },
+                b2b_industriale: { type: "object", properties: { applicabile: { type: "boolean" }, dettaglio: { type: "string" } } },
+                marketplace_digitali: { type: "object", properties: { applicabile: { type: "boolean" }, piattaforme_verificate: { type: "array", items: { type: "string" } }, note: { type: "string" } } },
+                canali_esclusi: { type: "array", items: { type: "object", properties: { canale: { type: "string" }, motivo: { type: "string" } } } }
+              } },
               digital_channels: { type: "object", properties: { top_b2c_marketplaces: { type: "array", items: { type: "string" } }, top_b2b_platforms: { type: "array", items: { type: "string" } }, ecommerce_penetration_rate: { type: "string" } } },
               physical_distribution: { type: "object", properties: { key_retailers_gdo: { type: "array", items: { type: "string" } }, wholesale_networks: { type: "array", items: { type: "string" } }, typical_distribution_margins: { type: "string" } } },
               partnership_opportunities: { type: "object", properties: { relevant_trade_fairs: { type: "array", items: { type: "string" } }, industrial_associations: { type: "array", items: { type: "string" } } } },
               strategic_recommendations: { type: "array", items: { type: "string" } }, verified_sources: { type: "array", items: { type: "string" } }
             } },
+            struttura_margini: { type: "object", properties: {
+              margine_importatore: { type: "string" },
+              margine_distributore: { type: "string" },
+              margine_retail: { type: "string" },
+              moltiplicatore_prezzo: { type: "string" },
+              sostenibilita_economica: { type: "string" }
+            } },
+            logistica_dogane_gtm: { type: "object", properties: {
+              hs_confermato: { type: "string" },
+              dazi_applicabili: { type: "string" },
+              iva_gst_locale: { type: "string" },
+              incoterms_consigliati: { type: "string" },
+              tempi_sdoganamento: { type: "string" }
+            } },
+            validazione_commerciale: { type: "object", properties: {
+              domanda_locale: { type: "string" },
+              livello_concorrenza: { type: "string", enum: ["alta","media","bassa"] },
+              barriere_culturali: { type: "string" },
+              adattamento_prodotto: { type: "string" },
+              canali_non_applicabili: { type: "array", items: { type: "object", properties: { canale: { type: "string" }, motivo: { type: "string" } } } }
+            } },
             opportunita: { type: "array", items: { type: "string" } },
             sfide: { type: "array", items: { type: "string" } },
-            conclusione_operativa: { type: "string" }
+            conclusione_operativa: { type: "string" },
+            dati_mancanti: { type: "array", items: { type: "string" } }
           }
         }
       },
