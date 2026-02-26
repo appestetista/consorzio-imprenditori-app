@@ -105,12 +105,45 @@ export async function fetchMacroData(countryCodes) {
 
     // Calcola volatilità cambio dagli ultimi 5 anni di tasso ufficiale
     let volatilita_cambio = null;
-    if (infSerie.length >= 3) {
+    let volatilita_fonte = 'World Bank PA.NUS.FCRF';
+
+    // Paesi Eurozona: stessa valuta dell'esportatore (IT=EUR) → volatilità = 0
+    const EUROZONE_CODES = ['AT','BE','CY','DE','EE','ES','FI','FR','GR','HR','IE','IT','LT','LU','LV','MT','NL','PT','SI','SK'];
+    if (EUROZONE_CODES.includes(code2)) {
+      volatilita_cambio = 0.0;
+      volatilita_fonte = 'Eurozona (stessa valuta EUR)';
+    } else if (infSerie.length >= 3) {
       const valori = infSerie.map(s => s.value).filter(v => v > 0);
       if (valori.length >= 3) {
         const media = valori.reduce((a, b) => a + b, 0) / valori.length;
         const varianza = valori.reduce((sum, v) => sum + Math.pow(v - media, 2), 0) / valori.length;
         volatilita_cambio = parseFloat(((Math.sqrt(varianza) / media) * 100).toFixed(1));
+      }
+    }
+    
+    // Fallback: se World Bank non ha dati sufficienti, chiedi all'LLM con internet
+    if (volatilita_cambio === null) {
+      try {
+        const countryName = alpha3; // usa alpha3 come riferimento
+        const llmResult = await base44.integrations.Core.InvokeLLM({
+          prompt: `What is the exchange rate volatility (coefficient of variation %) of the currency of country ${code2} (${countryName}) against USD over the last 5 years (2020-2024)?
+Calculate it as: (standard deviation of annual average exchange rates / mean of annual average exchange rates) × 100.
+Use official IMF IFS, BIS, or central bank data. If the country uses EUR, volatility vs USD is approximately 4-6%.
+Return ONLY a number (the percentage), nothing else. If truly unknown, return -1.`,
+          response_json_schema: {
+            type: "object",
+            properties: {
+              volatility_pct: { type: "number", description: "Coefficient of variation % of exchange rate vs USD, -1 if unknown" },
+              source: { type: "string", description: "Data source used" }
+            }
+          }
+        });
+        if (llmResult?.volatility_pct !== undefined && llmResult.volatility_pct >= 0) {
+          volatilita_cambio = parseFloat(llmResult.volatility_pct.toFixed(1));
+          volatilita_fonte = llmResult.source || 'LLM + internet (IMF/BIS)';
+        }
+      } catch (e) {
+        console.warn(`[fetchMacroData] Fallback volatilità cambio per ${code2} fallito:`, e);
       }
     }
 
@@ -140,6 +173,7 @@ export async function fetchMacroData(countryCodes) {
       tasso_cambio_ufficiale: tassoUfficiale.value,
       tasso_cambio_anno: tassoUfficiale.year,
       volatilita_cambio,
+      volatilita_cambio_fonte: volatilita_fonte,
       fonte: 'World Bank API',
       dati_mancanti: datiMancanti.length > 0 ? datiMancanti : null
     };
