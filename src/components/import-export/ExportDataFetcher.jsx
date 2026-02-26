@@ -627,6 +627,20 @@ function buildDataContext(tradeData, metricsResult, hsCode, hsDescrizione, profi
       if (macro.partite_correnti_usd !== null) parts.push(`Part.corr: $${Math.round(macro.partite_correnti_usd).toLocaleString('en-US')}`);
       if (macro.doing_business_score !== null) parts.push(`DoingBiz: ${macro.doing_business_score}/100`);
       if (parts.length > 0) base += `\n- Macro WB: ${parts.join(', ')}`;
+      // Risk profile avanzato
+      const rp = macro.risk_profile;
+      if (rp) {
+        const rpParts = [];
+        if (rp.financial_reliability_index?.score) rpParts.push(`Affidabilità: ${rp.financial_reliability_index.score}/100 (${rp.financial_reliability_index.level})`);
+        if (rp.sovereign_rating?.sp?.rating) rpParts.push(`S&P: ${rp.sovereign_rating.sp.rating}`);
+        if (rp.sovereign_rating?.moodys?.rating) rpParts.push(`Moody's: ${rp.sovereign_rating.moodys.rating}`);
+        if (rp.governance?.wgi_average_percentile) rpParts.push(`WGI: ${rp.governance.wgi_average_percentile}/100`);
+        if (rp.corruption?.cpi_score) rpParts.push(`CPI: ${rp.corruption.cpi_score}/100 (#${rp.corruption.rank})`);
+        if (rp.macro?.crescita_pil_pct !== null && rp.macro?.crescita_pil_pct !== undefined) rpParts.push(`Crescita PIL: ${rp.macro.crescita_pil_pct}%`);
+        if (rp.macro?.debito_pil_pct !== null && rp.macro?.debito_pil_pct !== undefined) rpParts.push(`Debito/PIL: ${rp.macro.debito_pil_pct}%`);
+        if (rp.macro?.disoccupazione_pct !== null && rp.macro?.disoccupazione_pct !== undefined) rpParts.push(`Disocc: ${rp.macro.disoccupazione_pct}%`);
+        if (rpParts.length > 0) base += `\n- Risk Profile: ${rpParts.join(', ')}`;
+      }
     }
     // Web enrichment data (Access2Markets, Trade Map, ICE)
     const webE = m.web_enrichment;
