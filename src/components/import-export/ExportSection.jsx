@@ -440,7 +440,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
             </div>
           )}
 
-          {tradeMetrics?.anomalie_presenti && (
+          {tradeMetrics?.anomalie_presenti && Array.isArray(tradeMetrics.anomalie) && (
             <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4">
               <h3 className="text-yellow-400 font-semibold mb-2 flex items-center gap-2 text-xs"><AlertTriangle className="w-4 h-4" /> Anomalie nel dataset</h3>
               <ul className="text-yellow-200/80 text-xs space-y-1">{tradeMetrics.anomalie.map((a, i) => <li key={i}>• {a}</li>)}</ul>
@@ -449,13 +449,13 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
 
           <ExportAnalysisResult analysisResult={analysisResult} tradeMetrics={tradeMetrics} macroData={macroData} confirmedExportHS={confirmedExportHS} tradeData={tradeData} />
 
-          {tradeMetrics?.metriche?.length > 1 && analysisResult?.mercati_analisi && (
+          {tradeMetrics?.metriche?.length > 1 && Array.isArray(analysisResult?.mercati_analisi) && (
             <ExportComparisonRanking metriche={tradeMetrics.metriche} macroData={macroData} mercatiAnalisi={analysisResult.mercati_analisi} />
           )}
 
-          {tradeMetrics?.metriche?.length > 0 && (
+          {Array.isArray(tradeMetrics?.metriche) && tradeMetrics.metriche.length > 0 && (
             <div className="space-y-2">{tradeMetrics.metriche.map(m => (
-              <CountryInfoCard key={m.paese_code} countryCode={m.paese_code} countryName={m.paese_nome} macroData={macroData?.[m.paese_code]} metrics={m} isCompact={tradeMetrics.metriche.length > 3} />
+              m?.paese_code ? <CountryInfoCard key={m.paese_code} countryCode={m.paese_code} countryName={m.paese_nome} macroData={macroData?.[m.paese_code]} metrics={m} isCompact={tradeMetrics.metriche.length > 3} /> : null
             ))}</div>
           )}
 
