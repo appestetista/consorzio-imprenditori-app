@@ -165,6 +165,64 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
             {m.analisi_competitiva && (
               <CompetitiveIntelligenceSection m={m} />
             )}
+
+            {/* STRATEGIA EXPORT — FASI */}
+            <VerificaNormativaCard data={m.verifica_normativa} />
+
+            <StrutturaIngressoCard data={m.canali_ingresso} countryCode={m.paese_code} countryName={m.paese_nome || m.mercato} hsCode={confirmedExportHS?.hs_code} productDescription={exportForm?.prodotto} />
+            <CanaliVenditaCard data={m.canali_ingresso} />
+
+            <LogisticaDoganeGTMCard data={m.logistica_dogane_gtm} />
+
+            {confirmedExportHS?.hs_code && (
+              <CustomsDutyGuideCard
+                countryCode={m.paese_code}
+                countryName={m.paese_nome || m.mercato}
+                hsCode={confirmedExportHS.hs_code}
+                productDescription={exportForm?.prodotto || confirmedExportHS?.description}
+              />
+            )}
+
+            <ValidazioneCommercialeCard data={m.validazione_commerciale} />
+            <DatiMancantiCard data={m.dati_mancanti} />
+
+            {m.canali_ingresso?.strategic_recommendations?.length > 0 && (
+              <OpenSection title="Raccomandazioni Strategiche" icon={CheckCircle} iconColor="text-lime-400">
+                <ul className="text-slate-300 text-[10px] space-y-1">
+                  {m.canali_ingresso.strategic_recommendations.map((r, i) => <li key={i}>• {r}</li>)}
+                </ul>
+              </OpenSection>
+            )}
+
+            {(m.opportunita?.length > 0 || m.sfide?.length > 0) && (
+              <OpenSection title="Opportunità e Sfide" icon={TrendingUp} iconColor="text-lime-400">
+                <div className="grid grid-cols-2 gap-2">
+                  {m.opportunita?.length > 0 && (
+                    <div className="bg-green-500/5 rounded-lg p-2 border border-green-500/10">
+                      <p className="text-green-400 text-[10px] font-bold uppercase mb-1">Opportunità</p>
+                      <ul className="text-slate-300 text-[10px] space-y-0.5">
+                        {m.opportunita.map((o, i) => <li key={i}>• {o}</li>)}
+                      </ul>
+                    </div>
+                  )}
+                  {m.sfide?.length > 0 && (
+                    <div className="bg-orange-500/5 rounded-lg p-2 border border-orange-500/10">
+                      <p className="text-orange-400 text-[10px] font-bold uppercase mb-1">Sfide</p>
+                      <ul className="text-slate-300 text-[10px] space-y-0.5">
+                        {m.sfide.map((s, i) => <li key={i}>• {s}</li>)}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </OpenSection>
+            )}
+
+            {m.conclusione_operativa && (
+              <div className="px-4 py-3 bg-white/[0.02] border-t border-white/5">
+                <p className="text-lime-400 text-[10px] font-bold uppercase tracking-wider mb-1">Conclusione Operativa</p>
+                <p className="text-slate-300 text-xs leading-relaxed">{m.conclusione_operativa}</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       ))}
