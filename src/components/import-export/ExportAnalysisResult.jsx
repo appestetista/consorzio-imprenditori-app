@@ -490,7 +490,7 @@ function CompetitiveIntelligenceSection({ m }) {
                 )}
 
                 {/* Posizionamento Italia */}
-                <DataRow label="Posizionamento Italia" value={m.analisi_competitiva.posizionamento_italia} />
+                <DataRow label="Posizionamento rispetto ai competitor italiani" value={m.analisi_competitiva.posizionamento_italia} />
 
                 {/* SWOT */}
                 {m.analisi_competitiva.swot && (
