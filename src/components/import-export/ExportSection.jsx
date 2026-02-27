@@ -177,42 +177,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
 
   return (
     <>
-      {/* Popup fullscreen analisi in corso */}
-      {(analyzing || isLoadingResults) && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-6">
-          <div className="bg-slate-900 border border-white/10 rounded-2xl p-8 max-w-sm w-full shadow-2xl">
-            <div className="flex flex-col items-center gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-lime-400/10 flex items-center justify-center">
-                <Loader2 className="w-8 h-8 animate-spin text-lime-400" />
-              </div>
-              <div className="text-center">
-                <p className="text-white font-bold text-lg">Analisi in corso</p>
-                <p className="text-slate-400 text-sm mt-1">Recupero e analisi dati reali</p>
-              </div>
-              <div className="w-full space-y-2.5 mt-2">
-                {['fetching', 'computing', 'interpreting'].map((step, i) => {
-                  const labels = { fetching: 'Recupero dati ufficiali', computing: 'Calcolo metriche', interpreting: 'Elaborazione analisi' };
-                  const isActive = exportStep === step;
-                  const isDone = ['fetching', 'computing', 'interpreting'].indexOf(exportStep) > i || (!analyzing && isLoadingResults);
-                  const allDone = !analyzing && isLoadingResults;
-                  return (
-                    <div key={step} className={`flex items-center gap-3 text-sm px-4 py-2.5 rounded-xl ${isActive ? 'bg-lime-400/10 text-lime-400' : isDone ? 'bg-green-500/10 text-green-400' : 'text-slate-500'}`}>
-                      {isActive ? <Loader2 className="w-4 h-4 animate-spin flex-shrink-0" /> : isDone ? <CheckCircle className="w-4 h-4 flex-shrink-0" /> : <span className="w-4 h-4 rounded-full border border-slate-600 block flex-shrink-0" />}
-                      {labels[step]}
-                    </div>
-                  );
-                })}
-                {isLoadingResults && (
-                  <div className="flex items-center gap-3 text-sm px-4 py-2.5 rounded-xl bg-lime-400/10 text-lime-400">
-                    <Loader2 className="w-4 h-4 animate-spin flex-shrink-0" />
-                    Caricamento risultati...
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Progress bar inline analisi in corso — non blocca la pagina */}
 
       {/* Usage Counter */}
       {!analysisResult && !exportLimitReached && user && (
