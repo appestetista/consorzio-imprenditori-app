@@ -411,41 +411,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
           <Button onClick={resetAnalysis} variant="outline" className="w-full border-slate-600 text-slate-400 hover:bg-slate-800">Riprova</Button>
         </div>
       ) : (
-        <div className="space-y-4" ref={el => { if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}>
-          {confirmedExportHS && (
-            <div className="flex items-center gap-3 bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-3">
-              <div className="w-9 h-9 rounded-lg bg-amber-500/20 flex items-center justify-center"><Package className="w-4 h-4 text-amber-400" /></div>
-              <div className="flex-1 min-w-0">
-                <p className="text-amber-400 text-[10px] font-semibold uppercase tracking-wider">Codice HS</p>
-                <p className="text-white font-mono font-bold text-sm">{confirmedExportHS.hs_code}</p>
-                <p className="text-slate-400 text-[10px] truncate">{confirmedExportHS.descrizione_ufficiale}</p>
-              </div>
-            </div>
-          )}
-
-          {tradeMetrics?.anomalie_presenti && Array.isArray(tradeMetrics.anomalie) && (
-            <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4">
-              <h3 className="text-yellow-400 font-semibold mb-2 flex items-center gap-2 text-xs"><AlertTriangle className="w-4 h-4" /> Anomalie nel dataset</h3>
-              <ul className="text-yellow-200/80 text-xs space-y-1">{tradeMetrics.anomalie.map((a, i) => <li key={i}>• {a}</li>)}</ul>
-            </div>
-          )}
-
-          {/* Country cards con bandiera, macro, LPI, rischio — PRIMA dell'analisi AI */}
-          {Array.isArray(tradeMetrics?.metriche) && tradeMetrics.metriche.length > 0 && (
-            <div className="space-y-3">{tradeMetrics.metriche.map(m => (
-              m?.paese_code ? <CountryInfoCard key={m.paese_code} countryCode={m.paese_code} countryName={m.paese_nome} macroData={macroData?.[m.paese_code]} metrics={m} isCompact={false} /> : null
-            ))}</div>
-          )}
-
-
-
-          <ExportAnalysisResult analysisResult={analysisResult} tradeMetrics={tradeMetrics} macroData={macroData} confirmedExportHS={confirmedExportHS} tradeData={tradeData} exportForm={exportForm} />
-
-
-
-          <ExportContactCard contactForm={contactForm} setContactForm={setContactForm} contactSent={contactSent} setContactSent={setContactSent} sendContactMutation={sendContactMutation} uploadingAttachment={uploadingAttachment} handleAttachmentUpload={handleAttachmentUpload} removeAttachment={removeAttachment} exportManagers={exportManagers} />
-          <Button onClick={resetAnalysis} variant="outline" className="w-full border-slate-600 text-slate-400 hover:bg-slate-800">Nuova Analisi</Button>
-        </div>
+        null
       )}
     </>
   );
