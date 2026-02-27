@@ -521,7 +521,7 @@ export default function Esplora() {
               {activeTab === 'relazioni' && <span>👥</span>}
               {activeTab === 'strumenti' && <span>🔧</span>}
               {activeTab === 'personale' && <span>👤</span>}
-              {activeTab}
+              {activeTab === 'personale' ? 'Area Personale' : activeTab}
             </h3>
             <div className="grid grid-cols-2 gap-4 mb-4">{filteredFeatures.map(renderFeatureCard)}</div>
           </>
