@@ -713,10 +713,8 @@ async function callModule(moduleName, prompt, schema) {
  * Poi assembla il risultato finale.
  */
 export async function interpretData(tradeData, metricsResult, hsCode, hsDescrizione, profiloAzienda, macroDataMap = {}) {
-  if (tradeData?._api_error || metricsResult?._api_error) {
-    console.error('[ExportDataFetcher] interpretData skipped: upstream API error');
-    return { _api_error: true };
-  }
+  // Non bloccare mai: anche con dati parziali o vuoti, procedi con l'analisi LLM
+  // L'LLM userà i dati macro e il web enrichment per generare l'analisi
 
   const ctx = buildDataContext(tradeData, metricsResult, hsCode, hsDescrizione, profiloAzienda, macroDataMap);
   const antiInventionRules = `REGOLE ANTI-INVENZIONE (TASSATIVE):
