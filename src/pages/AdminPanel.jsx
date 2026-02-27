@@ -242,7 +242,10 @@ export default function AdminPanel() {
       
       <main className="px-4 py-6 max-w-md mx-auto">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-red-500 text-2xl font-bold">Pannello Admin</h1>
+          <div>
+            <h2 className="text-green-400 text-sm font-semibold">Consorzio Imprenditori</h2>
+            <h1 className="text-red-500 text-2xl font-bold">Pannello Admin</h1>
+          </div>
           <p className="text-slate-400 text-xs">{new Date().toLocaleDateString('it-IT', { day: 'numeric', month: 'short' })}</p>
         </div>
 
