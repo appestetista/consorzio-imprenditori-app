@@ -215,12 +215,14 @@ export async function fetchTradeData(hsCode6, mercatiCodes, mercatiNames, export
     backendResult = response.data;
   } catch (err) {
     console.error('[ExportDataFetcher] fetchTradeDataMultiSource error:', err);
-    return { _api_error: true, _error_message: err?.message || 'Backend function error' };
+    // NON bloccare: procedi con dati vuoti, l'analisi LLM userà solo macro + web
+    backendResult = { success: true, partners: {}, _partial: true, _error_detail: err?.message };
   }
 
   if (!backendResult || !backendResult.success) {
-    console.error('[ExportDataFetcher] Backend returned error:', backendResult);
-    return { _api_error: true, _error_message: backendResult?.error || 'Backend error' };
+    console.warn('[ExportDataFetcher] Backend returned error, proceeding with empty data:', backendResult?.error);
+    // NON bloccare: procedi con struttura vuota
+    backendResult = { success: true, partners: {}, _partial: true, _error_detail: backendResult?.error || 'Backend error' };
   }
 
   // Trasforma il risultato backend nel formato atteso dal frontend
