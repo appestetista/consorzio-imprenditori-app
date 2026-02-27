@@ -523,16 +523,7 @@ export default function Esplora() {
               {activeTab === 'personale' && <span>👤</span>}
               {activeTab}
             </h3>
-            {activeTab === 'personale' && filteredFeatures.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 rounded-2xl bg-[#d4af37]/10 flex items-center justify-center mx-auto mb-4">
-                  <span className="text-3xl">👤</span>
-                </div>
-                <p className="text-slate-400 text-sm">Prossimamente</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-4 mb-4">{filteredFeatures.map(renderFeatureCard)}</div>
-            )}
+            <div className="grid grid-cols-2 gap-4 mb-4">{filteredFeatures.map(renderFeatureCard)}</div>
           </>
         ) : (
           <>
