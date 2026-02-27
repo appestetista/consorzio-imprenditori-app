@@ -9,9 +9,123 @@ import { useState } from 'react';
 
 import { 
   VerificaNormativaCard, StrutturaIngressoCard, CanaliVenditaCard, 
-  StrutturaMarginiCard, LogisticaDoganeGTMCard, ValidazioneCommercialeCard, DatiMancantiCard 
+  LogisticaDoganeGTMCard, ValidazioneCommercialeCard, DatiMancantiCard 
 } from './ExportPhaseCards';
 import CustomsDutyGuideCard from './CustomsDutyGuideCard';
+
+function EntryBarriersSection({ entryBarriers }) {
+  const [showBLInfo, setShowBLInfo] = useState(false);
+
+  const getBarrierType = (value) => {
+    if (!value) return null;
+    const v = value.toLowerCase();
+    if (v.includes('obbligat') || v.includes('required') || v.includes('high')) return 'obbligatoria';
+    if (v.includes('consigliat') || v.includes('recommended') || v.includes('medium')) return 'facoltativa';
+    if (v.includes('low') || v.includes('basso') || v.includes('opzional')) return 'bassa';
+    return null;
+  };
+
+  const brandLoyaltyType = getBarrierType(entryBarriers.brand_loyalty_level);
+
+  return (
+    <div className="bg-red-500/5 border border-red-500/10 rounded-lg p-2.5 mb-3">
+      <p className="text-red-400 text-[10px] font-bold uppercase tracking-wider mb-1.5">Barriere all'Ingresso</p>
+      
+      {/* Brand Loyalty con ? */}
+      <div className="flex justify-between items-start py-1.5 border-b border-white/5 gap-4">
+        <span className="text-slate-400 text-xs flex items-center gap-1.5">
+          Brand Loyalty
+          <button onClick={() => setShowBLInfo(true)}
+            className="w-4 h-4 rounded-full bg-white/10 border border-white/30 flex items-center justify-center hover:bg-white/20 transition-colors flex-shrink-0">
+            <span className="text-white text-[8px] font-bold leading-none">?</span>
+          </button>
+        </span>
+        <div className="flex items-center gap-1.5">
+          {entryBarriers.brand_loyalty_level && (
+            <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
+              brandLoyaltyType === 'obbligatoria' ? 'bg-red-500/15 text-red-400' :
+              brandLoyaltyType === 'facoltativa' ? 'bg-amber-500/15 text-amber-400' : 'bg-green-500/15 text-green-400'
+            }`}>
+              {brandLoyaltyType === 'obbligatoria' ? 'Alta → difficile entrare' :
+               brandLoyaltyType === 'facoltativa' ? 'Media → margine di manovra' : 'Bassa → accessibile'}
+            </span>
+          )}
+          <span className="text-white text-xs text-right">{entryBarriers.brand_loyalty_level || 'Non disponibile'}</span>
+        </div>
+      </div>
+
+      {showBLInfo && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4" onClick={() => setShowBLInfo(false)}>
+          <div className="bg-slate-900 border border-white/10 rounded-2xl p-5 max-w-sm w-full shadow-2xl" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-white font-bold text-sm">Brand Loyalty</h3>
+              <button onClick={() => setShowBLInfo(false)} className="text-slate-400 hover:text-white"><X className="w-4 h-4" /></button>
+            </div>
+            <div className="space-y-3 text-slate-300 text-xs leading-relaxed">
+              <p>La <strong className="text-white">Brand Loyalty</strong> misura quanto i consumatori del mercato target sono legati ai marchi già presenti.</p>
+              <div className="bg-slate-800 rounded-lg p-3 space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="bg-red-500/15 text-red-400 text-[9px] font-bold px-1.5 py-0.5 rounded">High</span>
+                  <span className="text-slate-400 text-[11px]">I consumatori comprano sempre gli stessi brand. Entrare è molto difficile.</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="bg-amber-500/15 text-amber-400 text-[9px] font-bold px-1.5 py-0.5 rounded">Medium</span>
+                  <span className="text-slate-400 text-[11px]">C'è fedeltà, ma i consumatori provano nuovi brand se il rapporto qualità/prezzo è interessante.</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="bg-green-500/15 text-green-400 text-[9px] font-bold px-1.5 py-0.5 rounded">Low</span>
+                  <span className="text-slate-400 text-[11px]">I consumatori cambiano brand facilmente. Mercato aperto a nuovi ingressi.</span>
+                </div>
+              </div>
+              <p className="text-slate-500 text-[10px]">Una brand loyalty alta non è un blocco assoluto, ma richiede investimenti maggiori in marketing e un posizionamento differenziante.</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Certificazioni con tag obbligatorie/facoltative */}
+      {entryBarriers.required_certifications?.length > 0 && (
+        <div className="mt-1.5">
+          <p className="text-slate-500 text-[10px] mb-1">Certificazioni richieste</p>
+          <div className="flex flex-wrap gap-1">
+            {entryBarriers.required_certifications.map((c, i) => (
+              <span key={i} className="bg-red-500/10 text-red-300 px-2 py-0.5 rounded-md text-[10px] border border-red-500/20 flex items-center gap-1">
+                {c}
+                <span className="bg-red-500/20 text-red-400 text-[8px] font-bold px-1 rounded">OBB.</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {entryBarriers.recommended_certifications?.length > 0 && (
+        <div className="mt-1.5">
+          <p className="text-slate-500 text-[10px] mb-1">Certificazioni consigliate</p>
+          <div className="flex flex-wrap gap-1">
+            {entryBarriers.recommended_certifications.map((c, i) => (
+              <span key={i} className="bg-amber-500/10 text-amber-300 px-2 py-0.5 rounded-md text-[10px] border border-amber-500/20 flex items-center gap-1">
+                {c}
+                <span className="bg-amber-500/20 text-amber-400 text-[8px] font-bold px-1 rounded">FAC.</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {entryBarriers.notes && (
+        <p className="text-slate-500 text-[10px] mt-1.5 italic">{entryBarriers.notes}</p>
+      )}
+
+      {/* Confronto rispetto ai competitor */}
+      {entryBarriers.competitor_comparison && (
+        <div className="mt-2 pt-2 border-t border-white/5">
+          <p className="text-slate-500 text-[10px] font-bold uppercase tracking-wider mb-1">Rispetto ai competitor</p>
+          <p className="text-slate-300 text-[10px] leading-relaxed">{entryBarriers.competitor_comparison}</p>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function OpenSection({ title, icon: Icon, iconColor, children }) {
   return (
