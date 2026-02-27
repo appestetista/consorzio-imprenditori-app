@@ -433,7 +433,7 @@ ${note || 'Nessuna'}
           <p><strong>Categoria:</strong> ${categoria}</p>
           <hr/>
           <pre style="white-space: pre-wrap; font-family: inherit;">${noteFinali}</pre>
-          ${fileUrl ? `<p><strong>Documento allegato:</strong> <a href="${fileUrl}">Visualizza</a></p>` : ''}
+          ${fileUrls.length > 0 ? `<p><strong>Documenti allegati (${fileUrls.length}):</strong></p><ul>${fileUrls.map((url, i) => `<li><a href="${url}">Pagina ${i+1}</a></li>`).join('')}</ul>` : ''}
         `
       });
     },
