@@ -345,7 +345,7 @@ export async function fetchTradeData(hsCode6, mercatiCodes, mercatiNames, export
  */
 export function computeMetrics(tradeData) {
   if (tradeData?._api_error) return { _api_error: true, _error_message: tradeData._error_message };
-  if (!tradeData?.mercati) return null;
+  if (!tradeData?.mercati || tradeData.mercati.length === 0) return { metriche: [], _partial: tradeData?._partial || false };
 
   const currentYearForMetrics = new Date().getFullYear();
 
