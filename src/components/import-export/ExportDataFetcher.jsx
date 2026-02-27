@@ -607,7 +607,7 @@ function buildDataContext(tradeData, metricsResult, hsCode, hsDescrizione, profi
   const metrics = metricsResult?.metriche || metricsResult || [];
   const tassoCambio = metricsResult?.tasso_cambio;
 
-  const riepilogoDati = tradeData.mercati.map((m, i) => {
+  const riepilogoDati = (tradeData.mercati || []).map((m, i) => {
     const met = Array.isArray(metrics) ? metrics[i] : null;
     const macro = macroDataMap[m.paese_code];
     let base = `\nMERCATO: ${m.paese_nome} (${m.paese_code})
