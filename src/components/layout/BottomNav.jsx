@@ -8,7 +8,7 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
   const navItems = [
     { name: 'relazioni', label: 'Relazioni', icon: Users, page: 'Esplora?tab=relazioni', tab: 'relazioni' },
     { name: 'strumenti', label: 'Strumenti', icon: Wrench, page: 'Esplora?tab=strumenti', tab: 'strumenti' },
-    { name: 'personale', label: 'Personale', icon: UserCircle, page: 'Esplora?tab=personale', tab: 'personale', disabled: true },
+    { name: 'personale', label: 'Personale', icon: UserCircle, page: 'Esplora?tab=personale', tab: 'personale' },
     { name: 'menu', label: 'Menu', icon: Menu, isMenu: true },
   ];
 
