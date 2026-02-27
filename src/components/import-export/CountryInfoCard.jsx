@@ -683,21 +683,7 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
         </div>
       )}
 
-      {/* Dati commerciali */}
-      {metrics && (
-        <div className="grid grid-cols-2 gap-0 border-t border-slate-700">
-          <div className="px-3 py-2 border-r border-slate-700">
-            <p className="text-slate-500 text-[10px]">Import totale HS</p>
-            <p className="text-white text-xs font-semibold">
-              {metrics.import_totale_eur ? `€${(metrics.import_totale_eur >= 1e6 ? (metrics.import_totale_eur / 1e6).toFixed(1) + 'M' : metrics.import_totale_eur >= 1e3 ? (metrics.import_totale_eur / 1e3).toFixed(0) + 'K' : metrics.import_totale_eur)}` : 'N/D'}
-            </p>
-          </div>
-          <div className="px-3 py-2">
-            <p className="text-slate-500 text-[10px]">Ranking import</p>
-            <p className="text-white text-xs font-semibold">{metrics.ranking_import || 'N/D'}</p>
-          </div>
-        </div>
-      )}
+
 
       {!macroData && (
         <div className="px-3 py-1 border-t border-slate-700/50">
