@@ -414,7 +414,7 @@ ${contactForm.attachments.length > 0 ? `\nALLEGATI: ${contactForm.attachments.le
 Accedi all'app per visualizzare gli allegati e rispondere direttamente al cliente.`
       });
 
-      // Crea UNA SOLA notifica per l'avvocato (in-app)
+      // Notifica in-app per l'avvocato
       await base44.entities.Notification.create({
         user_email: avvocato.email,
         type: 'message',
@@ -422,6 +422,33 @@ Accedi all'app per visualizzare gli allegati e rispondere direttamente al client
         content: `${user.company_name || user.full_name}: ${contactForm.subject}`,
         reference_id: conversationId
       });
+
+      // Notifica admin
+      const adminUsers = await base44.entities.User.filter({ role: 'admin' });
+      await Promise.all(adminUsers.map(admin => 
+        base44.entities.Notification.create({
+          user_email: admin.email,
+          type: 'message',
+          title: 'Nuova richiesta Avvocato - Analisi Contratti',
+          content: `${user.company_name || user.full_name} ha contattato ${avvocato.name}: ${contactForm.subject}`,
+          reference_id: conversationId
+        })
+      ));
+
+      // Email admin
+      if (adminUsers.length > 0) {
+        await base44.integrations.Core.SendEmail({
+          to: adminUsers[0].email,
+          subject: `🔔 Nuova richiesta Avvocato - Analisi Contratti`,
+          body: `<h2>Nuova richiesta di verifica contratto</h2>
+            <p><strong>Utente:</strong> ${user.company_name || user.full_name} (${user.email})</p>
+            <p><strong>Avvocato contattato:</strong> ${avvocato.name}</p>
+            <p><strong>Oggetto:</strong> ${contactForm.subject}</p>
+            <p><strong>Messaggio:</strong></p>
+            <p>${contactForm.message}</p>
+            ${contactForm.attachments.length > 0 ? `<p><strong>Allegati:</strong> ${contactForm.attachments.length} documento/i</p>` : ''}`
+        });
+      }
     },
     onSuccess: () => {
       setContactSent(true);
