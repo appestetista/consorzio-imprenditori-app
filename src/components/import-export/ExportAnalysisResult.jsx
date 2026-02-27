@@ -438,6 +438,7 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
           <div><span className="text-slate-600">Esportatore:</span> {tradeData?._query_log?.exporter || 'IT'}</div>
           <div><span className="text-slate-600">Periodo:</span> {tradeData?._query_log?.periodo || `${new Date().getFullYear() - 5}-${new Date().getFullYear() - 1}`}</div>
           <div><span className="text-slate-600">Data:</span> {tradeData?._timestamp_recupero ? new Date(tradeData._timestamp_recupero).toLocaleString('it-IT') : 'N/D'}</div>
+          {tradeData?._partial && <div className="col-span-2"><span className="text-amber-500 text-[9px]">⚠ Alcuni dati commerciali non disponibili — analisi basata su fonti web</span></div>}
         </div>
         <p className="text-slate-600 text-[10px] mt-2 italic">Metodologia conforme a ICE, SACE, World Bank, International Trade Centre.</p>
       </div>
