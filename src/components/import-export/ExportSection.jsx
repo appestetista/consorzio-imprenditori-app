@@ -345,6 +345,66 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
 
           </div>
         )
+      ) : (analyzing || analysisResult) && !analysisResult?._api_error ? (
+        <div className="space-y-4" ref={el => { if (el && !analyzing) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}>
+          {/* Progress inline durante l'analisi */}
+          {analyzing && (
+            <div className="bg-slate-800/60 border border-lime-400/20 rounded-2xl p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <Loader2 className="w-6 h-6 animate-spin text-lime-400" />
+                <div>
+                  <p className="text-white font-bold text-sm">Analisi in corso...</p>
+                  <p className="text-slate-400 text-[10px]">Recupero e analisi dati reali</p>
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                {['fetching', 'computing', 'interpreting'].map((step, i) => {
+                  const labels = { fetching: 'Recupero dati ufficiali', computing: 'Calcolo metriche', interpreting: 'Elaborazione analisi' };
+                  const isActive = exportStep === step;
+                  const isDone = ['fetching', 'computing', 'interpreting'].indexOf(exportStep) > i;
+                  return (
+                    <div key={step} className={`flex items-center gap-2 text-xs px-3 py-2 rounded-lg ${isActive ? 'bg-lime-400/10 text-lime-400' : isDone ? 'bg-green-500/10 text-green-400' : 'text-slate-500'}`}>
+                      {isActive ? <Loader2 className="w-3.5 h-3.5 animate-spin flex-shrink-0" /> : isDone ? <CheckCircle className="w-3.5 h-3.5 flex-shrink-0" /> : <span className="w-3.5 h-3.5 rounded-full border border-slate-600 block flex-shrink-0" />}
+                      {labels[step]}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {confirmedExportHS && (
+            <div className="flex items-center gap-3 bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-3">
+              <div className="w-9 h-9 rounded-lg bg-amber-500/20 flex items-center justify-center"><Package className="w-4 h-4 text-amber-400" /></div>
+              <div className="flex-1 min-w-0">
+                <p className="text-amber-400 text-[10px] font-semibold uppercase tracking-wider">Codice HS</p>
+                <p className="text-white font-mono font-bold text-sm">{confirmedExportHS.hs_code}</p>
+                <p className="text-slate-400 text-[10px] truncate">{confirmedExportHS.descrizione_ufficiale}</p>
+              </div>
+            </div>
+          )}
+
+          {tradeMetrics?.anomalie_presenti && Array.isArray(tradeMetrics.anomalie) && (
+            <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4">
+              <h3 className="text-yellow-400 font-semibold mb-2 flex items-center gap-2 text-xs"><AlertTriangle className="w-4 h-4" /> Anomalie nel dataset</h3>
+              <ul className="text-yellow-200/80 text-xs space-y-1">{tradeMetrics.anomalie.map((a, i) => <li key={i}>• {a}</li>)}</ul>
+            </div>
+          )}
+
+          {Array.isArray(tradeMetrics?.metriche) && tradeMetrics.metriche.length > 0 && (
+            <div className="space-y-3">{tradeMetrics.metriche.map(m => (
+              m?.paese_code ? <CountryInfoCard key={m.paese_code} countryCode={m.paese_code} countryName={m.paese_nome} macroData={macroData?.[m.paese_code]} metrics={m} isCompact={false} /> : null
+            ))}</div>
+          )}
+
+          {analysisResult && !analyzing && (
+            <>
+              <ExportAnalysisResult analysisResult={analysisResult} tradeMetrics={tradeMetrics} macroData={macroData} confirmedExportHS={confirmedExportHS} tradeData={tradeData} exportForm={exportForm} />
+              <ExportContactCard contactForm={contactForm} setContactForm={setContactForm} contactSent={contactSent} setContactSent={setContactSent} sendContactMutation={sendContactMutation} uploadingAttachment={uploadingAttachment} handleAttachmentUpload={handleAttachmentUpload} removeAttachment={removeAttachment} exportManagers={exportManagers} />
+            </>
+          )}
+          <Button onClick={resetAnalysis} variant="outline" className="w-full border-slate-600 text-slate-400 hover:bg-slate-800">Nuova Analisi</Button>
+        </div>
       ) : analysisResult?._api_error ? (
         <div className="space-y-4">
           <Card className="bg-red-500/15 border-red-500/40"><CardContent className="p-6 text-center"><AlertTriangle className="w-10 h-10 text-red-400 mx-auto mb-3" /><h3 className="text-red-400 font-bold text-lg mb-2">Dati temporaneamente non disponibili dal database ufficiale.</h3><p className="text-slate-400 text-sm">Non è possibile completare l'analisi. Riprova tra qualche minuto.</p></CardContent></Card>
