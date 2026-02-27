@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
-
+import WelfareSection from '../components/risparmio/WelfareSection';
 const CATEGORIE_INFO = {
   'Assicurazioni': {
     icon: Shield,
