@@ -718,13 +718,9 @@ function CompetitiveIntelligenceSection({ m, confirmedExportHS, exportForm }) {
               </OpenSection>
             )}
 
-            {/* FASE 4 — Struttura dei Margini */}
             <StrutturaMarginiCard data={m.struttura_margini} />
-
-            {/* FASE 5 — Logistica e Dogane (complementare) */}
             <LogisticaDoganeGTMCard data={m.logistica_dogane_gtm} />
 
-            {/* Guida Doganale Operativa — fonte ufficiale paese */}
             {confirmedExportHS?.hs_code && (
               <CustomsDutyGuideCard
                 countryCode={m.paese_code}
