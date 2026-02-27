@@ -661,11 +661,7 @@ function CompetitiveIntelligenceSection({ m, confirmedExportHS, exportForm }) {
               </OpenSection>
             )}
 
-
-
-            {/* ====== STRATEGIA EXPORT UNIVERSALE — 6 FASI ====== */}
-
-            {/* FASE 1 — Verifica Normativa */}
+            {/* STRATEGIA EXPORT — 6 FASI */}
             <VerificaNormativaCard data={m.verifica_normativa} />
 
             {/* FASE 2 — Struttura di Ingresso */}
