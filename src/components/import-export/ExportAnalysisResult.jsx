@@ -751,7 +751,6 @@ function CompetitiveIntelligenceSection({ m, confirmedExportHS, exportForm }) {
               </OpenSection>
             )}
 
-            {/* Opportunità e Sfide */}
             {(m.opportunita?.length > 0 || m.sfide?.length > 0) && (
               <OpenSection title="Opportunità e Sfide" icon={TrendingUp} iconColor="text-lime-400">
                 <div className="grid grid-cols-2 gap-2">
