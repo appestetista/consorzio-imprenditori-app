@@ -387,6 +387,10 @@ export default function Esplora() {
     { title: 'Bandi', icon: Euro, page: 'FinanziamentiAgevolati', notifications: isNotAdmin ? newGrantsCount : 0, permission: 'finanziamenti', category: 'strumenti' },
     { title: 'Aste\nImmobiliari', icon: Gavel, page: 'AsteImmobiliari', notifications: 0, permission: 'aste_immobiliari', category: 'strumenti' },
     { title: 'Vantaggi\nIscritti', icon: Gift, page: 'VantaggiIscritti', notifications: vantaggiNotificationsCount, permission: 'vantaggi_iscritti', category: 'relazioni', variant: 'gold' },
+    { title: 'Il Mio\nProfilo', icon: User, page: 'MyProfile', notifications: 0, category: 'personale' },
+    { title: 'Calendario\nPersonale', icon: Calendar, page: 'CalendarioIncontri', notifications: 0, category: 'personale' },
+    { title: 'Contatta\nil Consorzio', icon: Phone, page: 'ContattaConsorzio', notifications: 0, category: 'personale' },
+    { title: 'Le Mie\nPrenotazioni', icon: Gift, page: 'MiePrenotazioniVantaggi', notifications: 0, category: 'personale' },
   ];
 
   const filteredFeatures = activeTab ? features.filter(f => f.category === activeTab) : features;
