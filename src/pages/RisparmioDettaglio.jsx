@@ -1787,6 +1787,14 @@ ${note || 'Nessuna'}
                 Invia la tua {info.tipoDocumento}
               </h3>
               <p className="text-slate-400 text-sm mb-4">{info.descrizione}</p>
+              {categoria === 'Luce' && (
+                <Alert className="mb-4 bg-amber-500/15 border-amber-500/40">
+                  <Info className="h-4 w-4 text-amber-400" />
+                  <AlertDescription className="text-amber-200 text-sm">
+                    <strong>Importante:</strong> Invia la bolletta <strong>di dettaglio</strong>, non quella semplificata. Solo nella bolletta di dettaglio sono visibili tutti i parametri necessari per l'analisi (costo energia, oneri di sistema, trasporto, imposte, fasce orarie, ecc.).
+                  </AlertDescription>
+                </Alert>
+              )}
 
               {/* Preview */}
               {previewUrl && (
