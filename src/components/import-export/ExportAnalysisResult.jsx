@@ -695,7 +695,6 @@ function CompetitiveIntelligenceSection({ m, confirmedExportHS, exportForm }) {
               </OpenSection>
             )}
 
-            {/* Partnership & Network */}
             {m.canali_ingresso?.partnership_opportunities && (
               <OpenSection title="Partnership & Network" icon={Target} iconColor="text-indigo-400">
                 {m.canali_ingresso.partnership_opportunities.relevant_trade_fairs?.length > 0 && (
