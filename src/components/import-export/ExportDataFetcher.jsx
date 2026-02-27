@@ -676,8 +676,9 @@ function buildDataContext(tradeData, metricsResult, hsCode, hsDescrizione, profi
     return base;
   }).join('\n');
 
-  const datiNonDisponibili = tradeData.dati_non_disponibili?.length > 0
+  const datiNonDisponibili = tradeData?.dati_non_disponibili?.length > 0
     ? `\nDATI MANCANTI: ${tradeData.dati_non_disponibili.join('; ')}` : '';
+  const partialWarning = tradeData?._partial ? '\nATTENZIONE: i dati commerciali (serie storica, dazi, top fornitori) non sono stati reperiti dalle API. Usa ESCLUSIVAMENTE il tuo contesto internet per arricchire l\'analisi con dati reali disponibili online.' : '';
   const notaCambio = tassoCambio ? `\nCambio: 1EUR=${tassoCambio.tasso}USD (${tassoCambio.fonte})` : '';
 
   const header = `Anno ${currentYear}. HS: ${hsCode} — ${hsDescrizione}
