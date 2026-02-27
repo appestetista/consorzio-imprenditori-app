@@ -272,8 +272,8 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
                 Stabilità economica
               </span>
               <button onClick={(e) => { e.stopPropagation(); setShowStabilitaInfo(true); }}
-                className="w-5 h-5 rounded-full bg-red-500/20 border border-red-500/50 flex items-center justify-center hover:bg-red-500/30 transition-colors">
-                <span className="text-red-400 text-[10px] font-bold leading-none">?</span>
+              className="w-5 h-5 rounded-full bg-white/10 border border-white/30 flex items-center justify-center hover:bg-white/20 transition-colors">
+              <span className="text-white text-[10px] font-bold leading-none">?</span>
               </button>
             </div>
           </div>
@@ -284,8 +284,8 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
                   <div className="flex items-center gap-1">
                     <span className="text-slate-400 text-xs">📈 Inflazione (CPI)</span>
                     <button onClick={(e) => { e.stopPropagation(); setShowInflazioneInfo(true); }}
-                      className="w-5 h-5 rounded-full bg-red-500/20 border border-red-500/50 flex items-center justify-center hover:bg-red-500/30 transition-colors">
-                      <span className="text-red-400 text-[10px] font-bold leading-none">?</span>
+                      className="w-5 h-5 rounded-full bg-white/10 border border-white/30 flex items-center justify-center hover:bg-white/20 transition-colors">
+                      <span className="text-white text-[10px] font-bold leading-none">?</span>
                     </button>
                   </div>
                   <div className="flex items-center gap-1.5">
@@ -300,8 +300,8 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
                   <div className="flex items-center gap-1">
                     <span className="text-slate-400 text-xs">🏢 Doing Business</span>
                     <button onClick={(e) => { e.stopPropagation(); setShowDoingBusinessInfo(true); }}
-                      className="w-5 h-5 rounded-full bg-red-500/20 border border-red-500/50 flex items-center justify-center hover:bg-red-500/30 transition-colors">
-                      <span className="text-red-400 text-[10px] font-bold leading-none">?</span>
+                      className="w-5 h-5 rounded-full bg-white/10 border border-white/30 flex items-center justify-center hover:bg-white/20 transition-colors">
+                      <span className="text-white text-[10px] font-bold leading-none">?</span>
                     </button>
                   </div>
                   <div className="flex items-center gap-1.5">
@@ -316,8 +316,8 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
                 <div className="flex items-center gap-1 mb-1.5">
                   <span className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider">💱 Volatilità cambio EUR/{macroData.volatilita_valuta || '?'}</span>
                   <button onClick={(e) => { e.stopPropagation(); setShowVolatilitaInfo(true); }}
-                    className="w-5 h-5 rounded-full bg-red-500/20 border border-red-500/50 flex items-center justify-center hover:bg-red-500/30 transition-colors">
-                    <span className="text-red-400 text-[10px] font-bold leading-none">?</span>
+                   className="w-5 h-5 rounded-full bg-white/10 border border-white/30 flex items-center justify-center hover:bg-white/20 transition-colors">
+                   <span className="text-white text-[10px] font-bold leading-none">?</span>
                   </button>
                 </div>
                 {macroData.volatilita_cambio !== null && macroData.volatilita_cambio !== undefined ? (
@@ -405,8 +405,8 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
                   <div className="flex items-center gap-1">
                     <span className="text-slate-400 text-xs">⚖️ Saldo partite correnti</span>
                     <button onClick={(e) => { e.stopPropagation(); setShowPartiteCorrentiInfo(true); }}
-                      className="w-5 h-5 rounded-full bg-red-500/20 border border-red-500/50 flex items-center justify-center hover:bg-red-500/30 transition-colors">
-                      <span className="text-red-400 text-[10px] font-bold leading-none">?</span>
+                      className="w-5 h-5 rounded-full bg-white/10 border border-white/30 flex items-center justify-center hover:bg-white/20 transition-colors">
+                      <span className="text-white text-[10px] font-bold leading-none">?</span>
                     </button>
                   </div>
                   <div className="flex items-center gap-1.5">
@@ -445,8 +445,8 @@ export default function CountryInfoCard({ countryCode, countryName, macroData, m
                     <Truck className="w-3.5 h-3.5 text-blue-400" />
                     <span className="text-blue-400 text-[10px] font-semibold uppercase tracking-wider">Indici di Performance Logistica</span>
                     <button onClick={(e) => { e.stopPropagation(); setShowLPIInfo(true); }}
-                      className="w-5 h-5 rounded-full bg-red-500/20 border border-red-500/50 flex items-center justify-center hover:bg-red-500/30 transition-colors ml-0.5">
-                      <span className="text-red-400 text-[10px] font-bold leading-none">?</span>
+                      className="w-5 h-5 rounded-full bg-white/10 border border-white/30 flex items-center justify-center hover:bg-white/20 transition-colors ml-0.5">
+                      <span className="text-white text-[10px] font-bold leading-none">?</span>
                     </button>
                   </div>
                   <div className="flex items-center justify-between mb-1">
