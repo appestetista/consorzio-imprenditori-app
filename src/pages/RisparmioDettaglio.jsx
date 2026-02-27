@@ -223,19 +223,7 @@ export default function RisparmioDettaglio() {
     enabled: !!user?.email && !!categoria,
   });
 
-  const handleFileChangeTel = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setUploadedFiles(prev => [...prev, file]);
-    if (file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onloadend = () => setPreviewUrls(prev => [...prev, reader.result]);
-      reader.readAsDataURL(file);
-    } else {
-      setPreviewUrls(prev => [...prev, null]);
-    }
-    e.target.value = '';
-  };
+
 
   const submitMutation = useMutation({
     mutationFn: async () => {
