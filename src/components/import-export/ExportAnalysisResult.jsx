@@ -266,9 +266,18 @@ function CompetitiveIntelligenceSection({ m }) {
                       {m.analisi_competitiva.pricing_intelligence.local_price_range_min && (
                         <span className="text-white text-xs font-medium">
                           {m.analisi_competitiva.pricing_intelligence.local_price_range_min} — {m.analisi_competitiva.pricing_intelligence.local_price_range_max}
+                          {m.analisi_competitiva.pricing_intelligence.price_unit && (
+                            <span className="text-slate-400 text-[10px] font-normal ml-1">/{m.analisi_competitiva.pricing_intelligence.price_unit}</span>
+                          )}
+                          {m.analisi_competitiva.pricing_intelligence.currency && (
+                            <span className="text-slate-400 text-[10px] font-normal ml-1">({m.analisi_competitiva.pricing_intelligence.currency})</span>
+                          )}
                         </span>
                       )}
                     </div>
+                    {m.analisi_competitiva.pricing_intelligence.price_unit && (
+                      <p className="text-slate-500 text-[10px]">Unità di misura: {m.analisi_competitiva.pricing_intelligence.price_unit}</p>
+                    )}
                     {m.analisi_competitiva.pricing_intelligence.benchmark_product && (
                       <p className="text-slate-400 text-[10px]">Rif: {m.analisi_competitiva.pricing_intelligence.benchmark_product}</p>
                     )}
