@@ -123,8 +123,7 @@ export default function RisparmioDettaglio() {
   const [note, setNote] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const fileInputRefTel = useRef(null);
-  const cameraInputRefTel = useRef(null);
+
   const queryClient = useQueryClient();
 
   // Form fotovoltaico
