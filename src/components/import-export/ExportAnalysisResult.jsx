@@ -486,23 +486,7 @@ function CompetitiveIntelligenceSection({ m }) {
 
                 {/* Entry Barriers */}
                 {m.analisi_competitiva.entry_barriers && (
-                  <div className="bg-red-500/5 border border-red-500/10 rounded-lg p-2.5 mb-3">
-                    <p className="text-red-400 text-[10px] font-bold uppercase tracking-wider mb-1.5">Barriere all'Ingresso</p>
-                    <DataRow label="Brand Loyalty" value={m.analisi_competitiva.entry_barriers.brand_loyalty_level} />
-                    {m.analisi_competitiva.entry_barriers.required_certifications?.length > 0 && (
-                      <div className="mt-1.5">
-                        <p className="text-slate-500 text-[10px] mb-1">Certificazioni richieste</p>
-                        <div className="flex flex-wrap gap-1">
-                          {m.analisi_competitiva.entry_barriers.required_certifications.map((c, i) => (
-                            <span key={i} className="bg-red-500/10 text-red-300 px-2 py-0.5 rounded-md text-[10px] border border-red-500/20">{c}</span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    {m.analisi_competitiva.entry_barriers.notes && (
-                      <p className="text-slate-500 text-[10px] mt-1 italic">{m.analisi_competitiva.entry_barriers.notes}</p>
-                    )}
-                  </div>
+                  <EntryBarriersSection entryBarriers={m.analisi_competitiva.entry_barriers} />
                 )}
 
                 {/* Posizionamento Italia */}
