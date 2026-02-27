@@ -163,7 +163,7 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
 
             {/* Analisi Competitiva — Competitive Intelligence */}
             {m.analisi_competitiva && (
-              <CompetitiveIntelligenceSection m={m} />
+              <CompetitiveIntelligenceSection m={m} confirmedExportHS={confirmedExportHS} exportForm={exportForm} />
             )}
           </CardContent>
         </Card>
@@ -172,10 +172,11 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
   );
 }
 
-function CompetitiveIntelligenceSection({ m }) {
+function CompetitiveIntelligenceSection({ m, confirmedExportHS, exportForm }) {
   const [showCIInfo, setShowCIInfo] = useState(false);
   
   return (
+    <>
               <OpenSection title={
                 <span className="flex items-center gap-2">
                   Competitive Intelligence
