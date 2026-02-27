@@ -398,7 +398,7 @@ ${note || 'Nessuna'}
         })
       ));
 
-      // Invia email
+      // Invia email al consorzio
       await base44.integrations.Core.SendEmail({
         to: 'consorzioimprenditori@gmail.com',
         subject: `🔔 Nuova Richiesta Risparmio - ${categoria}`,
@@ -413,6 +413,25 @@ ${note || 'Nessuna'}
           ${fileUrls.length > 0 ? `<p><strong>Documenti allegati (${fileUrls.length}):</strong></p><ul>${fileUrls.map((url, i) => `<li><a href="${url}">Pagina ${i+1}</a></li>`).join('')}</ul>` : ''}
         `
       });
+
+      // Invia bollette a Gruppo Energia
+      if (fileUrls.length > 0) {
+        await base44.integrations.Core.SendEmail({
+          to: 'denis@gruppoenergia.eu',
+          subject: `Richiesta da parte del Consorzio - ${categoria} - ${user.company_name || user.full_name}`,
+          body: `
+            <h2>Richiesta da parte del Consorzio</h2>
+            <p><strong>Azienda:</strong> ${user.company_name || user.full_name}</p>
+            <p><strong>Email:</strong> ${user.email}</p>
+            <p><strong>Telefono:</strong> ${user.telefono_referente || 'Non specificato'}</p>
+            <p><strong>Categoria:</strong> ${categoria}</p>
+            <hr/>
+            <p><strong>Bollette allegate (${fileUrls.length}):</strong></p>
+            <ul>${fileUrls.map((url, i) => `<li><a href="${url}">Pagina ${i+1}</a></li>`).join('')}</ul>
+            ${noteFinali ? `<hr/><p><strong>Note:</strong></p><pre style="white-space: pre-wrap; font-family: inherit;">${noteFinali}</pre>` : ''}
+          `
+        });
+      }
     },
     onSuccess: () => {
       setSuccess(true);
