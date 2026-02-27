@@ -383,7 +383,6 @@ function CompetitiveIntelligenceSection({ m, confirmedExportHS, exportForm }) {
                   </div>
                 )}
               </OpenSection>
-            )}
 
             {/* Dazi e Barriere */}
             {m.dazi_taric && (
