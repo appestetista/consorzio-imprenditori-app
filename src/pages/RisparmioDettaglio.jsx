@@ -1745,6 +1745,14 @@ ${note || 'Nessuna'}
           /* Upload Section per altre categorie */
           <Card className="bg-slate-800 border-slate-700 mb-6">
             <CardContent className="p-4">
+              {categoria === 'Luce' && (
+                <Link to={createPageUrl('RisparmioEnergetico')}>
+                  <Button className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold mb-4">
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Torna a Risparmio
+                  </Button>
+                </Link>
+              )}
               <h3 className="text-white font-semibold mb-2 flex items-center gap-2">
                 <FileText className="w-5 h-5 text-lime-400" />
                 Invia la tua {info.tipoDocumento}
