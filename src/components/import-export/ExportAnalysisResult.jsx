@@ -485,7 +485,7 @@ function CompetitiveIntelligenceSection({ m }) {
               </OpenSection>
   );
 }
-              <OpenSection title="Dazi e Barriere" icon={AlertTriangle} iconColor="text-amber-400">
+
                 <DataRow label="Dazio MFN" value={m.dazi_taric.dazio_mfn} />
                 <DataRow label="Preferenziale" value={m.dazi_taric.dazio_preferenziale} />
                 <DataRow label="Anti-dumping" value={m.dazi_taric.anti_dumping} warning={m.dazi_taric.anti_dumping && m.dazi_taric.anti_dumping !== 'Nessuna'} />
