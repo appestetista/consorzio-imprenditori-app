@@ -52,7 +52,19 @@ export function useAILimits(userEmail, actionType) {
     enabled: !!userEmail && !!actionType,
   });
 
-  const limit = AI_LIMITS[actionType] || 0;
+  // Carica eventuali override personalizzati dall'utente
+  const { data: userOverride } = useQuery({
+    queryKey: ['ai-limits-override', userEmail],
+    queryFn: async () => {
+      if (!userEmail) return null;
+      const me = await base44.auth.me();
+      return me?.ai_limits_override || null;
+    },
+    enabled: !!userEmail,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const limit = (userOverride && userOverride[actionType]) || AI_LIMITS[actionType] || 0;
   const remaining = Math.max(0, limit - usageCount);
   const isLimitReached = usageCount >= limit;
 
