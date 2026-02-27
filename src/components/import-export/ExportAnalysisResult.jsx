@@ -730,13 +730,9 @@ function CompetitiveIntelligenceSection({ m, confirmedExportHS, exportForm }) {
               />
             )}
 
-            {/* FASE 6 — Validazione Commerciale */}
             <ValidazioneCommercialeCard data={m.validazione_commerciale} />
-
-            {/* Dati Mancanti */}
             <DatiMancantiCard data={m.dati_mancanti} />
 
-            {/* Raccomandazioni Strategiche */}
             {m.canali_ingresso?.strategic_recommendations?.length > 0 && (
               <OpenSection title="Raccomandazioni Strategiche" icon={CheckCircle} iconColor="text-lime-400">
                 <ul className="text-slate-300 text-[10px] space-y-1">
