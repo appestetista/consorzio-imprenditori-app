@@ -117,8 +117,8 @@ const CATEGORIE_INFO = {
 export default function RisparmioDettaglio() {
   const [user, setUser] = useState(null);
   const [categoria, setCategoria] = useState('');
-  const [uploadedFile, setUploadedFile] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState(null);
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [previewUrls, setPreviewUrls] = useState([]);
   const [note, setNote] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [success, setSuccess] = useState(false);
