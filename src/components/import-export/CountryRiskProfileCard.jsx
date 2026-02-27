@@ -62,8 +62,8 @@ function WGIRow({ label, estimate, percentile, year }) {
 function RiskInfoButton({ onClick }) {
   return (
     <button onClick={(e) => { e.stopPropagation(); onClick(); }}
-      className="w-5 h-5 rounded-full bg-red-500/20 border border-red-500/50 flex items-center justify-center hover:bg-red-500/30 transition-colors flex-shrink-0">
-      <span className="text-red-400 text-[10px] font-bold leading-none">?</span>
+      className="w-5 h-5 rounded-full bg-white/10 border border-white/30 flex items-center justify-center hover:bg-white/20 transition-colors flex-shrink-0">
+      <span className="text-white text-[10px] font-bold leading-none">?</span>
     </button>
   );
 }
@@ -218,8 +218,8 @@ export default function CountryRiskProfileCard({ data, loading }) {
               <Shield className="w-4 h-4 text-cyan-400" />
               <span className="text-cyan-400 text-[10px] font-semibold uppercase tracking-wider">Indice Affidabilità Paese</span>
               <button onClick={() => setShowInfoPopup(true)}
-                className="w-5 h-5 rounded-full bg-red-500/20 border border-red-500/50 flex items-center justify-center hover:bg-red-500/30 transition-colors">
-                <span className="text-red-400 text-[10px] font-bold">?</span>
+                className="w-5 h-5 rounded-full bg-white/10 border border-white/30 flex items-center justify-center hover:bg-white/20 transition-colors">
+                <span className="text-white text-[10px] font-bold">?</span>
               </button>
             </div>
             <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${getReliabilityColor(fri.level)}`}>
