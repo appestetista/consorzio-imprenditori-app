@@ -114,12 +114,11 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
       const usageLogId = await trackExportUsage({ search_label: `${exportForm.prodotto} → ${mercatiNames.slice(0, 3).join(', ')}`, search_meta: { prodotto: exportForm.prodotto, settore: exportForm.settore, hs_code: hsData.hs_code, mercati: mercatiNames } });
       setExportStep('fetching');
       const [rawData, macro] = await Promise.all([ fetchTradeData(hsData.hs_code, mercatiInteresse, mercatiNames, exporterCountry, parseInt(periodoAnalisi)), fetchMacroData(mercatiInteresse) ]);
-      if (rawData?._api_error) { setTradeData(rawData); setAnalysisResult({ _api_error: true }); return; }
+      // Non bloccare mai: anche se dati trade parziali/vuoti, procedi con l'analisi LLM
       setTradeData(rawData); setMacroData(macro || {});
 
       setExportStep('computing');
       const metricsRaw = computeMetrics(rawData);
-      if (metricsRaw?._api_error) { setTradeMetrics(metricsRaw); setAnalysisResult({ _api_error: true }); return; }
       const metrics = enrichMetricsWithDemand(metricsRaw, macro || {});
       setTradeMetrics(metrics);
 
