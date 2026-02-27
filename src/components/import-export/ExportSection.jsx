@@ -109,12 +109,12 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
 
     setAnalyzing(true); setTradeData(null); setTradeMetrics(null); setAnalysisResult(null); setMacroData({});
     const mercatiNames = mercatiInteresse.map(code => { if (code === 'WLD') return 'World'; const c = ALL_COUNTRIES.find(c => c.code === code); return c ? c.name : code; });
+    let interpretationSucceeded = false;
 
     try {
       const usageLogId = await trackExportUsage({ search_label: `${exportForm.prodotto} → ${mercatiNames.slice(0, 3).join(', ')}`, search_meta: { prodotto: exportForm.prodotto, settore: exportForm.settore, hs_code: hsData.hs_code, mercati: mercatiNames } });
       setExportStep('fetching');
       const [rawData, macro] = await Promise.all([ fetchTradeData(hsData.hs_code, mercatiInteresse, mercatiNames, exporterCountry, parseInt(periodoAnalisi)), fetchMacroData(mercatiInteresse) ]);
-      // Non bloccare mai: anche se dati trade parziali/vuoti, procedi con l'analisi LLM
       setTradeData(rawData); setMacroData(macro || {});
 
       setExportStep('computing');
@@ -131,29 +131,29 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
         posizionamento: exportForm.posizionamento, prezzo_medio: exportForm.prezzo_medio,
         business_model: exportForm.business_model, canale_preferito: exportForm.canale_preferito
       }, macro || {});
-      // Non bloccare mai: anche se l'interpretazione ha errori parziali, mostra i risultati disponibili
-      if (interpretation?._api_error && !interpretation?.mercati_analisi?.length) { setAnalysisResult({ _api_error: true, _error_message: interpretation._error_message }); return; }
-      setAnalysisResult(interpretation);
 
-      // Salva snapshot parziale (senza price, che arriva dopo)
-      const snapshotPartial = {
-        analysisResult: interpretation, tradeMetrics: metrics, tradeData: rawData,
-        macroData: macro || {}, confirmedHS: hsData,
-        exportForm: { ...exportForm }
-      };
+      if (interpretation && interpretation.mercati_analisi?.length > 0) {
+        interpretationSucceeded = true;
+        setAnalysisResult(interpretation);
+      } else {
+        setAnalysisResult({ _api_error: true, _error_message: 'Nessun risultato dai moduli di analisi' });
+        return;
+      }
 
       // Salva snapshot nel UsageLog
       if (usageLogId) {
         try {
           await base44.entities.UsageLog.update(usageLogId, {
-            analysis_snapshot: snapshotPartial
+            analysis_snapshot: {
+              analysisResult: interpretation, tradeMetrics: metrics, tradeData: rawData,
+              macroData: macro || {}, confirmedHS: hsData, exportForm: { ...exportForm }
+            }
           });
         } catch (e2) { console.error('[Export] Errore salvataggio snapshot:', e2); }
       }
     } catch (e) {
       console.error('[Export] Errore analisi:', e);
-      // Non mostrare mai schermata bloccante: riprova silenziosamente o mostra risultato parziale
-      if (!analysisResult || analysisResult._api_error) {
+      if (!interpretationSucceeded) {
         setAnalysisResult({ _api_error: true, _error_message: e?.message || 'Errore sconosciuto' });
       }
     }
