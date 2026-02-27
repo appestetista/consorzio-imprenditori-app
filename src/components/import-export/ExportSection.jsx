@@ -413,8 +413,8 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
         </div>
       ) : analysisResult?._api_error ? (
         <div className="space-y-4">
-          <Card className="bg-red-500/15 border-red-500/40"><CardContent className="p-6 text-center"><AlertTriangle className="w-10 h-10 text-red-400 mx-auto mb-3" /><h3 className="text-red-400 font-bold text-lg mb-2">Dati temporaneamente non disponibili dal database ufficiale.</h3><p className="text-slate-400 text-sm">Non è possibile completare l'analisi. Riprova tra qualche minuto.</p></CardContent></Card>
-          <Button onClick={resetAnalysis} variant="outline" className="w-full border-slate-600 text-slate-400 hover:bg-slate-800">Riprova</Button>
+          <Card className="bg-amber-500/10 border-amber-500/30"><CardContent className="p-6 text-center"><AlertTriangle className="w-8 h-8 text-amber-400 mx-auto mb-3" /><h3 className="text-amber-400 font-bold text-base mb-2">Si è verificato un problema durante l'analisi</h3><p className="text-slate-400 text-sm">L'analisi non è riuscita a completarsi. Puoi riprovare oppure contattare un consulente export per assistenza.</p></CardContent></Card>
+          <Button onClick={resetAnalysis} className="w-full bg-gradient-to-r from-lime-400 to-emerald-500 text-slate-900 font-bold h-11 rounded-xl">Riprova Analisi</Button>
         </div>
       ) : (
         null
