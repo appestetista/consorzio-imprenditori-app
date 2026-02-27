@@ -439,8 +439,8 @@ ${note || 'Nessuna'}
     },
     onSuccess: () => {
       setSuccess(true);
-      setUploadedFile(null);
-      setPreviewUrl(null);
+      setUploadedFiles([]);
+      setPreviewUrls([]);
       setNote('');
       queryClient.invalidateQueries({ queryKey: ['mie-richieste-risparmio'] });
     },
