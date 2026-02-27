@@ -168,14 +168,9 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
           </CardContent>
         </Card>
       ))}
-      {/* --- questo blocco viene chiuso e riaperto sotto --- */}
-      <CompetitiveIntelligenceDummy_REMOVE_ME />
     </div>
   );
 }
-
-// Placeholder per non rompere il flow — verrà rimosso
-function CompetitiveIntelligenceDummy_REMOVE_ME() { return null; }
 
 function CompetitiveIntelligenceSection({ m }) {
   const [showCIInfo, setShowCIInfo] = useState(false);
