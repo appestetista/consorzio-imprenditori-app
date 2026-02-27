@@ -261,10 +261,11 @@ export default function CountryRiskProfileCard({ data, loading }) {
       {/* Rating Sovrano */}
       {sr && (sr.sp?.rating || sr.moodys?.rating) && (
         <div className="px-4 py-2.5 border-b border-white/5">
-          <div className="flex items-center gap-1.5 mb-1.5">
+          <div className="flex items-center gap-1.5 mb-0.5">
             <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider">🏦 Rating Sovrano</p>
             <RiskInfoButton onClick={() => setShowRatingInfo(true)} />
           </div>
+          <p className="text-slate-600 text-[9px] mb-1.5">Giudizio sulla capacità del paese di ripagare i debiti (S&P / Moody's)</p>
           <div className="grid grid-cols-2 gap-3">
             {sr.sp?.rating && (
               <div>
@@ -289,10 +290,11 @@ export default function CountryRiskProfileCard({ data, loading }) {
         <div className="px-4 py-2.5 border-b border-white/5 grid grid-cols-2 gap-3">
           {cor?.cpi_score !== null && (
             <div>
-              <div className="flex items-center gap-1 mb-1">
+              <div className="flex items-center gap-1 mb-0.5">
                 <p className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider">🔍 Corruzione (CPI)</p>
                 <RiskInfoButton onClick={() => setShowCPIInfo(true)} />
               </div>
+              <p className="text-slate-600 text-[9px] mb-1">Indice percezione corruzione (0=alta, 100=bassa)</p>
               <div className="flex items-center gap-2">
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
                   cor.cpi_score >= 70 ? 'bg-green-500/20' : cor.cpi_score >= 50 ? 'bg-yellow-500/20' : cor.cpi_score >= 30 ? 'bg-orange-500/20' : 'bg-red-500/20'
@@ -344,6 +346,7 @@ export default function CountryRiskProfileCard({ data, loading }) {
               <RiskInfoButton onClick={() => setShowWGIInfo(true)} />
               <span className="text-white text-[10px] font-bold ml-1">{gov.wgi_average_percentile}/100</span>
             </div>
+            <p className="text-slate-600 text-[9px] mt-0.5">Qualità della governance: efficienza, stato di diritto, anti-corruzione (World Bank)</p>
           </div>
           <div className="px-4 pb-3 space-y-0.5">
             <WGIRow label="Gov. Effectiveness" estimate={gov.government_effectiveness?.estimate} percentile={gov.government_effectiveness?.percentile} year={gov.government_effectiveness?.year} />
@@ -383,12 +386,12 @@ export default function CountryRiskProfileCard({ data, loading }) {
                 </div>
               )}
               {macro.debito_pil_pct !== null && (
-                <div className="flex justify-between"><span className="text-slate-400 text-[10px]">Debito/PIL</span>
+                <div className="flex justify-between"><span className="text-slate-400 text-[10px]">Debito/PIL <span className="text-slate-600 font-normal">(debito pubblico in % del PIL)</span></span>
                   <span className={`text-[10px] font-bold ${macro.debito_pil_pct < 60 ? 'text-green-400' : macro.debito_pil_pct < 100 ? 'text-yellow-400' : 'text-red-400'}`}>{macro.debito_pil_pct}% <span className="text-slate-600 font-normal">({macro.debito_pil_anno})</span></span>
                 </div>
               )}
               {macro.partite_correnti_pil_pct !== null && (
-                <div className="flex justify-between"><span className="text-slate-400 text-[10px]">Saldo C/C su PIL</span>
+                <div className="flex justify-between"><span className="text-slate-400 text-[10px]">Saldo C/C su PIL <span className="text-slate-600 font-normal">(bilancia commerciale in % PIL)</span></span>
                   <span className={`text-[10px] font-bold ${macro.partite_correnti_pil_pct >= 0 ? 'text-green-400' : 'text-red-400'}`}>{macro.partite_correnti_pil_pct > 0 ? '+' : ''}{macro.partite_correnti_pil_pct}% <span className="text-slate-600 font-normal">({macro.partite_correnti_pil_anno})</span></span>
                 </div>
               )}
