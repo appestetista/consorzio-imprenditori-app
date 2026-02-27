@@ -252,11 +252,13 @@ export default function RisparmioDettaglio() {
     mutationFn: async () => {
       setIsUploading(true);
       
-      let fileUrl = null;
-      if (uploadedFile) {
-        const uploadResult = await base44.integrations.Core.UploadFile({ file: uploadedFile });
-        fileUrl = uploadResult.file_url;
+      // Upload tutti i file
+      let fileUrls = [];
+      for (const file of uploadedFiles) {
+        const uploadResult = await base44.integrations.Core.UploadFile({ file });
+        fileUrls.push(uploadResult.file_url);
       }
+      const fileUrl = fileUrls.length > 0 ? fileUrls[0] : null;
 
       // Per fotovoltaico, costruisci le note dal form
       let noteFinali = note;
