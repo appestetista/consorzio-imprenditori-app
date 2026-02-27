@@ -664,13 +664,9 @@ function CompetitiveIntelligenceSection({ m, confirmedExportHS, exportForm }) {
             {/* STRATEGIA EXPORT — 6 FASI */}
             <VerificaNormativaCard data={m.verifica_normativa} />
 
-            {/* FASE 2 — Struttura di Ingresso */}
             <StrutturaIngressoCard data={m.canali_ingresso} countryCode={m.paese_code} countryName={m.paese_nome || m.mercato} hsCode={confirmedExportHS?.hs_code} productDescription={exportForm?.prodotto} />
-
-            {/* FASE 3 — Canali Realistici di Vendita */}
             <CanaliVenditaCard data={m.canali_ingresso} />
 
-            {/* Distribuzione Fisica (legacy + nuovo) */}
             {m.canali_ingresso?.physical_distribution && (
               <OpenSection title="Distribuzione Fisica" icon={MapPin} iconColor="text-teal-400">
                 {m.canali_ingresso.physical_distribution.key_retailers_gdo?.length > 0 && (
