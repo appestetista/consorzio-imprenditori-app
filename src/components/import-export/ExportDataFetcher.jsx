@@ -976,7 +976,16 @@ GLOBALE:
 
   // === ASSEMBLAGGIO RISULTATO FINALE ===
   // Usa i Paesi noti dal tradeData come base — così non dipendiamo dall'LLM per la struttura
-  const expectedCountries = tradeData.mercati.map(m => ({ paese_code: m.paese_code, paese_nome: m.paese_nome }));
+  const expectedCountries = (tradeData.mercati || []).map(m => ({ paese_code: m.paese_code, paese_nome: m.paese_nome }));
+  // Se tradeData era vuoto (errore API), ricostruisci la lista paesi dal prompt
+  if (expectedCountries.length === 0) {
+    const allMercati = [...(resE?.mercati || []), ...(resA?.mercati || []), ...(resB?.mercati || []), ...(resC?.mercati || []), ...(resD?.mercati || [])];
+    const seen = new Set();
+    allMercati.forEach(m => {
+      const code = m.paese_code;
+      if (code && !seen.has(code)) { seen.add(code); expectedCountries.push({ paese_code: code, paese_nome: m.paese_nome || code }); }
+    });
+  }
   const mercatiMap = {};
 
   // Inizializza con i paesi attesi
