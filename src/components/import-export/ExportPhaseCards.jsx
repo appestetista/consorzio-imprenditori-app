@@ -209,9 +209,8 @@ export function StrutturaIngressoCard({ data, countryCode, countryName, hsCode, 
 
 // FASE 3 — Canali Realistici di Vendita
 export function CanaliVenditaCard({ data }) {
-  if (!data) return null;
+  if (!data || !data.canali_vendita) return null;
   const cv = data.canali_vendita;
-  if (!cv) return null;
 
   return (
     <PhaseSection title="Canali Realistici di Vendita" icon={ShoppingBag} iconColor="text-cyan-400" phaseNum="3">
