@@ -149,7 +149,13 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
           });
         } catch (e2) { console.error('[Export] Errore salvataggio snapshot:', e2); }
       }
-    } catch (e) { console.error('[Export] Errore analisi:', e); setAnalysisResult({ _api_error: true }); }
+    } catch (e) {
+      console.error('[Export] Errore analisi:', e);
+      // Non mostrare mai schermata bloccante: riprova silenziosamente o mostra risultato parziale
+      if (!analysisResult || analysisResult._api_error) {
+        setAnalysisResult({ _api_error: true, _error_message: e?.message || 'Errore sconosciuto' });
+      }
+    }
     finally { setAnalyzing(false); setExportStep(''); }
   };
 
