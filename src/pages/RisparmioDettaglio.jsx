@@ -15,6 +15,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import WelfareSection from '../components/risparmio/WelfareSection';
+import MultiFileUpload from '../components/risparmio/MultiFileUpload';
 const CATEGORIE_INFO = {
   'Assicurazioni': {
     icon: Shield,
