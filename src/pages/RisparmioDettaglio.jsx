@@ -227,14 +227,25 @@ export default function RisparmioDettaglio() {
     const file = e.target.files[0];
     if (!file) return;
 
-    setUploadedFile(file);
+    setUploadedFiles(prev => [...prev, file]);
     
     // Crea preview
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setPreviewUrl(reader.result);
-    };
-    reader.readAsDataURL(file);
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrls(prev => [...prev, reader.result]);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setPreviewUrls(prev => [...prev, null]); // PDF o altri file non hanno preview immagine
+    }
+    // Reset input per consentire di caricare lo stesso file di nuovo
+    e.target.value = '';
+  };
+
+  const removeFile = (index) => {
+    setUploadedFiles(prev => prev.filter((_, i) => i !== index));
+    setPreviewUrls(prev => prev.filter((_, i) => i !== index));
   };
 
   const submitMutation = useMutation({
