@@ -745,7 +745,7 @@ export async function interpretData(tradeData, metricsResult, hsCode, hsDescrizi
   });
 
   // === MODULO B: Competitive Intelligence ===
-  const modB = callModule('CompetitiveIntelligence', `${rules}\n${ctx.header}\n\nPer ogni Paese, analisi competitiva:\n- Competitor mapping (3-5 player, origine Local/International, posizionamento Premium/Value/Mass Market)\n- Pricing benchmark (range min-max con valuta locale)\n- Distribution channels (online share %, offline key players, trade margin)\n- Differentiation factors\n- Entry barriers (brand loyalty, certificazioni)\n- SWOT dell'azienda nel contesto\nFiltra per posizionamento azienda: ${profiloAzienda.posizionamento || 'generico'}`, {
+  const modB = callModule('CompetitiveIntelligence', `${rules}\n${ctx.header}\n\nPer ogni Paese, analisi competitiva:\n- Competitor mapping (3-5 player, origine Local/International, posizionamento Premium/Value/Mass Market)\n- Pricing benchmark (range min-max con valuta locale, specificando price_unit e currency)\n- Distribution channels (online share %, offline key players, trade margin)\n- Differentiation factors\n- Entry barriers: brand loyalty (High/Medium/Low), certificazioni OBBLIGATORIE (senza le quali non si può operare), certificazioni FACOLTATIVE (consigliate per competitività), confronto rispetto ai competitor già presenti (sono avvantaggiati? perché?)\n- SWOT dell'azienda nel contesto\nFiltra per posizionamento azienda: ${profiloAzienda.posizionamento || 'generico'}`, {
     type: "object",
     properties: {
       mercati: {
