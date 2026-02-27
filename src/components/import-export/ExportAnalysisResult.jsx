@@ -774,16 +774,15 @@ function CompetitiveIntelligenceSection({ m, confirmedExportHS, exportForm }) {
               </OpenSection>
             )}
 
-            {/* Conclusione operativa */}
             {m.conclusione_operativa && (
               <div className="px-4 py-3 bg-white/[0.02] border-t border-white/5">
                 <p className="text-lime-400 text-[10px] font-bold uppercase tracking-wider mb-1">Conclusione Operativa</p>
                 <p className="text-slate-300 text-xs leading-relaxed">{m.conclusione_operativa}</p>
               </div>
             )}
-          </CardContent>
-        </Card>
-      ))}
+    </>
+  );
+}
 
       {/* Analisi Economica Export */}
       {analysisResult.analisi_economica && (
