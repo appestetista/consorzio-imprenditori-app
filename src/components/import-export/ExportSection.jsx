@@ -180,15 +180,15 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
       {/* Progress bar inline analisi in corso — non blocca la pagina */}
 
       {/* Usage Counter */}
-      {!analysisResult && !exportLimitReached && user && (
+      {!analysisResult && !analyzing && !exportLimitReached && user && (
         <div className="mb-3"><UsageCounter usageCount={exportUsage} limit={exportLimit} label="Analisi export disponibili questa settimana" /></div>
       )}
-      {!analysisResult && exportLimitReached && (
+      {!analysisResult && !analyzing && exportLimitReached && (
         <div className="mb-3"><LimitReachedBanner actionType="export_analysis" usageCount={exportUsage} limit={exportLimit} isWeekly={true} /></div>
       )}
 
       {/* Ricerca rapida export */}
-      {!analysisResult && (
+      {!analysisResult && !analyzing && (
         <div className="mb-5 space-y-3">
           <p className="text-white font-semibold text-sm">Cosa vuoi esportare?</p>
           <div>
@@ -216,7 +216,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
       )}
 
       {/* Settore chips */}
-      {!analysisResult && (
+      {!analysisResult && !analyzing && (
         <div className="mt-4 mb-2">
           <div className="flex items-center gap-2 mb-2">
             <p className="text-white font-semibold text-sm">Settore *</p>
@@ -236,7 +236,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
       {/* Pannello Consulenti */}
       {user && <div className="mb-6"><SectionConsultantPanel sectionId="import_export" sectionLabel="Import / Export" user={user} /></div>}
 
-      {!analysisResult ? (
+      {!analysisResult && !analyzing ? (
         exportLimitReached ? (
           <div className="space-y-4">
             <Card className="bg-slate-800/60 border-white/5 backdrop-blur-sm">
