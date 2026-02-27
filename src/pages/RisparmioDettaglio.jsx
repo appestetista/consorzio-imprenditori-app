@@ -377,6 +377,7 @@ ${note || 'Nessuna'}
         user_phone: user.telefono_referente || '',
         categoria: categoria,
         foto_bolletta_url: fileUrl,
+        foto_bolletta_urls: fileUrls,
         note: noteFinali,
         status: 'pending'
       });
