@@ -448,6 +448,8 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
 function CompetitiveIntelligenceSection({ m }) {
   const [showCIInfo, setShowCIInfo] = useState(false);
   
+  if (!m?.analisi_competitiva) return null;
+
   return (
               <OpenSection title={
                 <span className="flex items-center gap-2">
@@ -497,7 +499,7 @@ function CompetitiveIntelligenceSection({ m }) {
                 )}
 
                 {/* Landscape & Concentrazione */}
-                {m.analisi_competitiva.competitive_landscape && (
+                {m.analisi_competitiva?.competitive_landscape && (
                   <div className="mb-3">
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-[10px] text-slate-500 uppercase tracking-wider">Concentrazione mercato</span>
@@ -532,7 +534,7 @@ function CompetitiveIntelligenceSection({ m }) {
                 )}
 
                 {/* Pricing Intelligence */}
-                {m.analisi_competitiva.pricing_intelligence && (
+                {m.analisi_competitiva?.pricing_intelligence && (
                   <div className="bg-indigo-500/5 border border-indigo-500/10 rounded-lg p-2.5 mb-3">
                     <p className="text-indigo-400 text-[10px] font-bold uppercase tracking-wider mb-1.5">Pricing Intelligence</p>
                     <div className="flex items-center gap-3 mb-1">
@@ -561,7 +563,7 @@ function CompetitiveIntelligenceSection({ m }) {
                 )}
 
                 {/* Distribution Channels */}
-                {m.analisi_competitiva.distribution_channels && (
+                {m.analisi_competitiva?.distribution_channels && (
                   <div className="mb-3">
                     <p className="text-slate-500 text-[10px] font-bold uppercase tracking-wider mb-1.5">Canali Distributivi</p>
                     {m.analisi_competitiva.distribution_channels.online_share && (
@@ -587,7 +589,7 @@ function CompetitiveIntelligenceSection({ m }) {
                 )}
 
                 {/* Differentiation Factors */}
-                {m.analisi_competitiva.differentiation_factors?.length > 0 && (
+                {m.analisi_competitiva?.differentiation_factors?.length > 0 && (
                   <div className="mb-3">
                     <p className="text-slate-500 text-[10px] font-bold uppercase tracking-wider mb-1.5">Leve Competitive</p>
                     <div className="flex flex-wrap gap-1">
@@ -599,15 +601,15 @@ function CompetitiveIntelligenceSection({ m }) {
                 )}
 
                 {/* Entry Barriers */}
-                {m.analisi_competitiva.entry_barriers && (
+                {m.analisi_competitiva?.entry_barriers && (
                   <EntryBarriersSection entryBarriers={m.analisi_competitiva.entry_barriers} />
                 )}
 
                 {/* Posizionamento Italia */}
-                <DataRow label="Posizionamento rispetto ai competitor italiani" value={m.analisi_competitiva.posizionamento_italia} />
+                <DataRow label="Posizionamento rispetto ai competitor italiani" value={m.analisi_competitiva?.posizionamento_italia} />
 
                 {/* SWOT */}
-                {m.analisi_competitiva.swot && (
+                {m.analisi_competitiva?.swot && (
                   <div className="grid grid-cols-2 gap-2 mt-2">
                     {[
                       { key: 'strengths', label: 'Punti di Forza', color: 'text-green-400', bg: 'bg-green-500/5' },
@@ -628,7 +630,7 @@ function CompetitiveIntelligenceSection({ m }) {
                 )}
 
                 {/* Fonti */}
-                {m.analisi_competitiva.sources?.length > 0 && (
+                {m.analisi_competitiva?.sources?.length > 0 && (
                   <div className="mt-2 pt-2 border-t border-white/5">
                     <p className="text-slate-600 text-[10px] mb-1">Fonti:</p>
                     <div className="space-y-0.5">
