@@ -1695,59 +1695,12 @@ ${note || 'Nessuna'}
               <div className="space-y-2">
                 <Label className="text-slate-300">Allega bolletta (opzionale)</Label>
                 <p className="text-slate-500 text-xs mb-2">Carica la tua bolletta per un'analisi più precisa</p>
-                
-                {previewUrl && (
-                  <div className="mb-3 relative">
-                    <img 
-                      src={previewUrl} 
-                      alt="Preview documento" 
-                      className="w-full rounded-lg max-h-32 object-cover"
-                    />
-                    <button 
-                      onClick={() => { setUploadedFile(null); setPreviewUrl(null); }}
-                      className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 text-xs"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                )}
-
-                <div className="grid grid-cols-2 gap-2">
-                  <input 
-                    type="file" 
-                    ref={cameraInputRef}
-                    accept="image/*"
-                    capture="environment"
-                    onChange={handleFileChange}
-                    className="hidden"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="border-slate-600 text-slate-300 hover:bg-slate-700 h-12 text-xs"
-                    onClick={() => cameraInputRef.current?.click()}
-                  >
-                    <Camera className="w-4 h-4 mr-1" />
-                    Scatta foto
-                  </Button>
-
-                  <input 
-                    type="file" 
-                    ref={fileInputRef}
-                    accept="image/*,application/pdf"
-                    onChange={handleFileChange}
-                    className="hidden"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="border-slate-600 text-slate-300 hover:bg-slate-700 h-12 text-xs"
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    <Upload className="w-4 h-4 mr-1" />
-                    Carica file
-                  </Button>
-                </div>
+                <MultiFileUpload
+                  uploadedFiles={uploadedFiles}
+                  previewUrls={previewUrls}
+                  onFilesChange={setUploadedFiles}
+                  onPreviewsChange={setPreviewUrls}
+                />
               </div>
 
               {/* Note aggiuntive */}
