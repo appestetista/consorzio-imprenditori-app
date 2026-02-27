@@ -3,8 +3,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { 
   Target, TrendingUp, Shield, Truck, 
   DollarSign, MapPin, AlertTriangle, Calendar, CheckCircle, 
-  BarChart3, Package, ExternalLink, ArrowRight 
+  BarChart3, Package, ExternalLink, ArrowRight, HelpCircle, X 
 } from 'lucide-react';
+import { useState } from 'react';
 
 import { 
   VerificaNormativaCard, StrutturaIngressoCard, CanaliVenditaCard, 
@@ -162,7 +163,71 @@ export default function ExportAnalysisResult({ analysisResult, tradeMetrics, mac
 
             {/* Analisi Competitiva — Competitive Intelligence */}
             {m.analisi_competitiva && (
-              <OpenSection title="Competitive Intelligence" icon={Shield} iconColor="text-orange-400">
+              <CompetitiveIntelligenceSection m={m} />
+            )}
+          </CardContent>
+        </Card>
+      ))}
+      {/* --- questo blocco viene chiuso e riaperto sotto --- */}
+      <CompetitiveIntelligenceDummy_REMOVE_ME />
+    </div>
+  );
+}
+
+// Placeholder per non rompere il flow — verrà rimosso
+function CompetitiveIntelligenceDummy_REMOVE_ME() { return null; }
+
+function CompetitiveIntelligenceSection({ m }) {
+  const [showCIInfo, setShowCIInfo] = useState(false);
+  
+  return (
+              <OpenSection title={
+                <span className="flex items-center gap-2">
+                  Competitive Intelligence
+                  <button onClick={(e) => { e.stopPropagation(); setShowCIInfo(true); }}
+                    className="w-5 h-5 rounded-full bg-white/10 border border-white/30 flex items-center justify-center hover:bg-white/20 transition-colors flex-shrink-0">
+                    <span className="text-white text-[10px] font-bold leading-none">?</span>
+                  </button>
+                </span>
+              } icon={Shield} iconColor="text-orange-400">
+
+                {showCIInfo && (
+                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4" onClick={() => setShowCIInfo(false)}>
+                    <div className="bg-slate-900 border border-white/10 rounded-2xl p-5 max-w-sm w-full shadow-2xl max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-white font-bold text-sm">Competitive Intelligence</h3>
+                        <button onClick={() => setShowCIInfo(false)} className="text-slate-400 hover:text-white"><X className="w-4 h-4" /></button>
+                      </div>
+                      <div className="space-y-3 text-slate-300 text-xs leading-relaxed">
+                        <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-3">
+                          <p className="text-orange-400 text-[10px] font-bold uppercase tracking-wider mb-1">Cos'è</p>
+                          <p>La sezione Competitive Intelligence analizza il panorama competitivo del mercato target: chi sono i concorrenti principali, come si posizionano, quali prezzi praticano e quali canali distributivi utilizzano.</p>
+                        </div>
+                        <div className="bg-slate-800 rounded-lg p-3">
+                          <p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold mb-2">Il punteggio opportunità (es. 7.5/10)</p>
+                          <p className="text-slate-300 text-xs mb-2">Il numero che vedi accanto al nome del paese rappresenta il <strong className="text-white">Punteggio Opportunità</strong>: una valutazione sintetica da 0 a 10 che riassume quanto è favorevole quel mercato per il tuo prodotto.</p>
+                          <div className="space-y-1 text-[11px]">
+                            <div className="flex justify-between"><span className="text-green-400 font-bold">≥ 7</span><span className="text-slate-400">Opportunità elevata</span></div>
+                            <div className="flex justify-between"><span className="text-yellow-400 font-bold">5 – 6.9</span><span className="text-slate-400">Opportunità moderata</span></div>
+                            <div className="flex justify-between"><span className="text-red-400 font-bold">&lt; 5</span><span className="text-slate-400">Opportunità limitata / rischiosa</span></div>
+                          </div>
+                        </div>
+                        <div className="bg-slate-800 rounded-lg p-3">
+                          <p className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold mb-2">Fattori inclusi nel punteggio</p>
+                          <div className="space-y-1 text-[11px] text-slate-400">
+                            <div>• Volume e crescita della domanda</div>
+                            <div>• Livello di concorrenza e concentrazione</div>
+                            <div>• Barriere all'ingresso e dazi</div>
+                            <div>• Rischio paese e stabilità economica</div>
+                            <div>• Compatibilità logistica e normativa</div>
+                          </div>
+                        </div>
+                        <p className="text-slate-500 text-[10px]">Fonte: elaborazione AI su dati UN Comtrade, World Bank, fonti settoriali</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Landscape & Concentrazione */}
                 {m.analisi_competitiva.competitive_landscape && (
                   <div className="mb-3">
