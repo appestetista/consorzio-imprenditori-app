@@ -131,7 +131,8 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
         posizionamento: exportForm.posizionamento, prezzo_medio: exportForm.prezzo_medio,
         business_model: exportForm.business_model, canale_preferito: exportForm.canale_preferito
       }, macro || {});
-      if (interpretation?._api_error) { setAnalysisResult({ _api_error: true }); return; }
+      // Non bloccare mai: anche se l'interpretazione ha errori parziali, mostra i risultati disponibili
+      if (interpretation?._api_error && !interpretation?.mercati_analisi?.length) { setAnalysisResult({ _api_error: true, _error_message: interpretation._error_message }); return; }
       setAnalysisResult(interpretation);
 
       // Salva snapshot parziale (senza price, che arriva dopo)
