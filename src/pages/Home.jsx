@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Send, Sparkles, ArrowUp, Loader2, Menu, Mic, MicOff, X, LogOut, Settings, User, Eye, Phone, XCircle, Target, Scale } from 'lucide-react';
+import { Send, Sparkles, ArrowUp, Loader2, Menu, Mic, MicOff, X, LogOut, Settings, User, Eye, Phone, XCircle, Target, Scale, BarChart3 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import { normalizeUser, isUserConsultant } from '../components/utils/normalizeUser';
@@ -755,6 +755,15 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
                 <span>Il Mio Profilo</span>
               </Link>
             )}
+
+            <Link
+              to={createPageUrl('Dashboard')}
+              onClick={() => setMenuOpen(false)}
+              className="flex items-center gap-3 text-white py-3 px-4 rounded-lg hover:bg-slate-800 transition-colors"
+            >
+              <BarChart3 className="w-5 h-5 text-[#d4af37]" />
+              <span>Dashboard Analisi</span>
+            </Link>
 
             <Link
               to={createPageUrl('ProfiloUtente')}
