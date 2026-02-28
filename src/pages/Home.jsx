@@ -600,6 +600,11 @@ Richiesta: "${msg}"`,
 
       {/* Bottom Nav */}
       <BottomNav currentPage="Home" onMenuOpen={() => setMenuOpen(true)} />
+
+      {/* Onboarding Modal */}
+      {showOnboarding && (
+        <ProfileOnboardingModal onClose={() => setShowOnboarding(false)} />
+      )}
     </div>
   );
 }
