@@ -113,14 +113,21 @@ export default function Home() {
 
     try {
       // FASE 1 – Classificazione intento
-      const classificationResult = await base44.integrations.Core.InvokeLLM({
-        prompt: `Classifica la seguente richiesta di un imprenditore in UNA SOLA categoria tra: Fiscale, Legale, Marketing, Personale/HR, Investimenti, Operativa, Strategica.
-
-Rispondi SOLO con il nome della categoria, nient'altro.
+      const classificazione = await base44.integrations.Core.InvokeLLM({
+        prompt: `Classifica questa richiesta in UNA sola categoria tra: Fiscale, Legale, Marketing, Personale/HR, Investimenti, Operativa, Strategica. Rispondi SOLO con un JSON: {"categoria": "nome", "confidenza": 85, "sottocategoria": "specifica"}
 
 Richiesta: "${msg}"`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            categoria: { type: "string" },
+            confidenza: { type: "number" },
+            sottocategoria: { type: "string" }
+          },
+          required: ["categoria", "confidenza", "sottocategoria"]
+        }
       });
-      const category = classificationResult?.trim() || 'Strategica';
+      const category = classificazione?.categoria || 'Strategica';
       setLastCategory(category);
 
       // FASE 2 + 3 – Analisi con system prompt strutturato
