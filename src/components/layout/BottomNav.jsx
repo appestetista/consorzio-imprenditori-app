@@ -1,11 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Users, Wrench, UserCircle, Menu } from 'lucide-react';
+import { Users, Wrench, UserCircle, Menu, Home } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function BottomNav({ currentPage, unreadMessages = 0, activeTab = null, isAdmin = false, onMenuOpen }) {
   const navItems = [
+    { name: 'home', label: 'Home', icon: Home, page: 'Home', tab: null },
     { name: 'relazioni', label: 'Relazioni', icon: Users, page: 'Esplora?tab=relazioni', tab: 'relazioni' },
     { name: 'strumenti', label: 'Strumenti', icon: Wrench, page: 'Esplora?tab=strumenti', tab: 'strumenti' },
     { name: 'personale', label: 'Personale', icon: UserCircle, page: 'Esplora?tab=personale', tab: 'personale' },
@@ -36,7 +37,7 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
                   {/* Pulsante 3D Premium con cornice oro */}
                   <div 
                     className={cn(
-                      "relative w-[76px] h-[76px] transition-transform duration-100 ease-out",
+                      "relative w-[66px] h-[66px] transition-transform duration-100 ease-out",
                       !item.disabled && "active:scale-[0.96]",
                     item.disabled && "opacity-40"
                     )}
