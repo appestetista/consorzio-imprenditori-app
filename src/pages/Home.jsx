@@ -95,7 +95,25 @@ export default function Home() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
 
+  const buildUserContext = () => {
+    if (!effectiveUser) return '';
+    const fields = [
+      ['azienda', effectiveUser.company_name],
+      ['settore', effectiveUser.settore],
+      ['forma giuridica', effectiveUser.forma_giuridica],
+      ['fatturato annuo', effectiveUser.fatturato_annuo],
+      ['dipendenti', effectiveUser.numero_dipendenti],
+      ['zona', effectiveUser.zona],
+      ['città', effectiveUser.city],
+      ['regime fiscale', effectiveUser.regime_fiscale],
+      ['obiettivo', effectiveUser.obiettivo_principale],
+    ];
+    const parts = fields.filter(([, v]) => v).map(([k, v]) => `${k}: ${v}`);
+    return parts.length > 0 ? `CONTESTO AZIENDALE: ${parts.join(', ')}. Personalizza la risposta in base a questo contesto.\n\n` : '';
+  };
+
   const runAnalysis = async ({ msg, category, sottocategoria, newMessages, convId }) => {
+    const userContext = buildUserContext();
     const result = await base44.integrations.Core.InvokeLLM({
       prompt: `Categoria identificata: ${category} — ${sottocategoria}.
 
