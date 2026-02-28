@@ -11,6 +11,7 @@ import BottomNav from '../components/layout/BottomNav';
 import ChatMessage from '../components/home/ChatMessage';
 import DecisionResponse from '../components/home/DecisionResponse';
 import ChatSidebar from '../components/home/ChatSidebar';
+import ProfileOnboardingModal from '../components/home/ProfileOnboardingModal';
 import { useQueryClient, useQuery as useRQQuery } from '@tanstack/react-query';
 
 export default function Home() {
