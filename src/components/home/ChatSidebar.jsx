@@ -1,12 +1,23 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { X, Plus, Folder, FolderPlus, MessageSquare, Search, Pencil, Trash2, Check, MoreVertical, ChevronRight } from 'lucide-react';
+import { X, Plus, Folder, FolderPlus, MessageSquare, Search, Pencil, Trash2, Check, MoreVertical, ChevronRight, Filter } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+const CATEGORY_COLORS = {
+  'Fiscale': { bg: 'bg-emerald-500/20', text: 'text-emerald-400', border: 'border-emerald-500/30' },
+  'Legale': { bg: 'bg-blue-500/20', text: 'text-blue-400', border: 'border-blue-500/30' },
+  'Marketing': { bg: 'bg-pink-500/20', text: 'text-pink-400', border: 'border-pink-500/30' },
+  'Personale/HR': { bg: 'bg-violet-500/20', text: 'text-violet-400', border: 'border-violet-500/30' },
+  'Investimenti': { bg: 'bg-amber-500/20', text: 'text-amber-400', border: 'border-amber-500/30' },
+  'Operativa': { bg: 'bg-cyan-500/20', text: 'text-cyan-400', border: 'border-cyan-500/30' },
+  'Strategica': { bg: 'bg-[#d4af37]/20', text: 'text-[#d4af37]', border: 'border-[#d4af37]/30' },
+};
 
 export default function ChatSidebar({ open, onClose, userEmail, activeConversationId, onSelectConversation, onNewChat }) {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('all');
   const [newFolderMode, setNewFolderMode] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
   const [editingFolderId, setEditingFolderId] = useState(null);
@@ -102,13 +113,18 @@ export default function ChatSidebar({ open, onClose, userEmail, activeConversati
     }
   });
 
-  // Filtro ricerca
+  // Filtro ricerca + categoria
   const matchSearch = (text) => !search || text?.toLowerCase().includes(search.toLowerCase());
-  const filteredLoose = looseConversations.filter(c => matchSearch(c.titolo));
+  const matchCategory = (conv) => categoryFilter === 'all' || conv.categoria === categoryFilter;
+  const matchConv = (conv) => matchSearch(conv.titolo) && matchCategory(conv);
+  const filteredLoose = looseConversations.filter(matchConv);
   const filteredFolders = folders.filter(f => {
-    if (matchSearch(f.nome)) return true;
-    return (convsByFolder[f.id] || []).some(c => matchSearch(c.titolo));
+    return (convsByFolder[f.id] || []).some(matchConv) || (matchSearch(f.nome) && categoryFilter === 'all');
   });
+
+  // Categorie presenti nelle conversazioni
+  const availableCategories = [...new Set(conversations.map(c => c.categoria).filter(Boolean))].sort();
+  const totalFiltered = filteredLoose.length + filteredFolders.reduce((acc, f) => acc + (convsByFolder[f.id] || []).filter(matchConv).length, 0);
 
   return (
     <>
@@ -144,18 +160,47 @@ export default function ChatSidebar({ open, onClose, userEmail, activeConversati
           </div>
         </div>
 
+        {/* Contatore */}
+        <div className="px-4 pb-1">
+          <span className="text-[11px] text-slate-500 font-medium">{totalFiltered} analis{totalFiltered === 1 ? 'i' : 'i'}</span>
+        </div>
+
         {/* Ricerca */}
-        <div className="px-3 pb-2">
+        <div className="px-3 pb-1.5">
           <div className="flex items-center gap-2 bg-slate-800 rounded-lg px-3 py-2">
             <Search className="w-4 h-4 text-slate-500" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Cerca"
+              placeholder="Cerca nelle conversazioni..."
               className="flex-1 bg-transparent text-sm text-white outline-none placeholder:text-slate-500"
             />
+            {search && (
+              <button onClick={() => setSearch('')} className="w-4 h-4 flex items-center justify-center">
+                <X className="w-3 h-3 text-slate-500" />
+              </button>
+            )}
           </div>
         </div>
+
+        {/* Filtro categoria */}
+        {availableCategories.length > 0 && (
+          <div className="px-3 pb-2">
+            <div className="flex items-center gap-2 bg-slate-800 rounded-lg px-3 py-1.5">
+              <Filter className="w-3.5 h-3.5 text-slate-500 flex-shrink-0" />
+              <select
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                className="flex-1 bg-transparent text-xs text-slate-300 outline-none appearance-none cursor-pointer"
+              >
+                <option value="all" className="bg-slate-800">Tutte le categorie</option>
+                {availableCategories.map(cat => (
+                  <option key={cat} value={cat} className="bg-slate-800">{cat}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
 
         {/* Nuova chat */}
         <button
@@ -251,7 +296,7 @@ export default function ChatSidebar({ open, onClose, userEmail, activeConversati
                 </div>
 
                 {/* Conversazioni nella cartella */}
-                {isExpanded && folderConvs.map(conv => (
+                {isExpanded && folderConvs.filter(matchConv).map(conv => (
                   <ConversationItem
                     key={conv.id}
                     conv={conv}
@@ -288,7 +333,7 @@ export default function ChatSidebar({ open, onClose, userEmail, activeConversati
 }
 
 function ConversationItem({ conv, isActive, onSelect, onDelete, indent }) {
-  const [showDelete, setShowDelete] = useState(false);
+  const catStyle = conv.categoria ? CATEGORY_COLORS[conv.categoria] : null;
 
   return (
     <div
@@ -300,10 +345,15 @@ function ConversationItem({ conv, isActive, onSelect, onDelete, indent }) {
     >
       <button
         onClick={onSelect}
-        className="flex-1 flex items-center gap-2.5 px-3 py-2 min-w-0"
+        className="flex-1 flex items-center gap-2 px-3 py-2 min-w-0"
       >
         <MessageSquare className="w-4 h-4 text-slate-600 flex-shrink-0" />
-        <span className="text-sm text-slate-400 truncate">{conv.titolo || 'Chat senza titolo'}</span>
+        <span className="text-sm text-slate-400 truncate flex-1">{conv.titolo || 'Chat senza titolo'}</span>
+        {catStyle && (
+          <span className={cn("text-[9px] font-semibold px-1.5 py-0.5 rounded-full flex-shrink-0 border", catStyle.bg, catStyle.text, catStyle.border)}>
+            {conv.categoria}
+          </span>
+        )}
       </button>
       <button
         onClick={(e) => { e.stopPropagation(); onDelete(); }}
