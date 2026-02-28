@@ -79,6 +79,7 @@ import MiePrenotazioniVantaggi from './pages/MiePrenotazioniVantaggi';
 import MioQRCode from './pages/MioQRCode';
 import MyProfile from './pages/MyProfile';
 import ProfiloBandi from './pages/ProfiloBandi';
+import ProfiloUtente from './pages/ProfiloUtente';
 import PromemoriaAste from './pages/PromemoriaAste';
 import RichiestaWelfare from './pages/RichiestaWelfare';
 import RisparmioDettaglio from './pages/RisparmioDettaglio';
@@ -94,7 +95,6 @@ import WelfareNormativa from './pages/WelfareNormativa';
 import WelfareOrdina from './pages/WelfareOrdina';
 import WelfareStorico from './pages/WelfareStorico';
 import WelfareTipologie from './pages/WelfareTipologie';
-import ProfiloUtente from './pages/ProfiloUtente';
 import __Layout from './Layout.jsx';
 
 
@@ -131,6 +131,7 @@ export const PAGES = {
     "MioQRCode": MioQRCode,
     "MyProfile": MyProfile,
     "ProfiloBandi": ProfiloBandi,
+    "ProfiloUtente": ProfiloUtente,
     "PromemoriaAste": PromemoriaAste,
     "RichiestaWelfare": RichiestaWelfare,
     "RisparmioDettaglio": RisparmioDettaglio,
@@ -146,7 +147,6 @@ export const PAGES = {
     "WelfareOrdina": WelfareOrdina,
     "WelfareStorico": WelfareStorico,
     "WelfareTipologie": WelfareTipologie,
-    "ProfiloUtente": ProfiloUtente,
 }
 
 export const pagesConfig = {

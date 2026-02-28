@@ -32,6 +32,7 @@ export default function Home() {
   const [lastCategory, setLastCategory] = useState(null);
   const [lastClassification, setLastClassification] = useState(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [activeConvData, setActiveConvData] = useState(null);
   const recognitionRef = useRef(null);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
@@ -312,12 +313,16 @@ Richiesta: "${msg}"`,
   const handleNewChat = () => {
     setMessages([]);
     setActiveConversationId(null);
+    setActiveConvData(null);
     setInputText('');
   };
 
   const handleSelectConversation = (conv) => {
     setActiveConversationId(conv.id);
     setMessages(conv.messages || []);
+    setActiveConvData(conv);
+    setLastCategory(conv.categoria || null);
+    setLastClassification(conv.categoria ? { categoria: conv.categoria, sottocategoria: conv.sottocategoria || '' } : null);
     setInputText('');
   };
 
@@ -453,7 +458,7 @@ Richiesta: "${msg}"`,
                     </div>
                   </div>
                 ) : msg.role === 'assistant' ? (
-                  <DecisionResponse key={i} message={msg} category={lastCategory} classification={lastClassification} onFollowup={(text) => handleSend(text)} conversationId={activeConversationId} />
+                  <DecisionResponse key={i} message={msg} category={lastCategory} classification={lastClassification} onFollowup={(text) => handleSend(text)} conversationId={activeConversationId} existingPlan={activeConvData?.ha_piano ? activeConvData.piano_json : null} />
                 ) : (
                   <ChatMessage key={i} message={msg} />
                 )
