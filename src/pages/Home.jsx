@@ -128,56 +128,32 @@ Richiesta: "${msg}"`,
         }
       });
       const category = classificazione?.categoria || 'Strategica';
+      const confidenza = classificazione?.confidenza ?? 100;
+      const sottocategoria = classificazione?.sottocategoria || '';
       setLastCategory(category);
 
+      // Se confidenza bassa, chiedi disambiguazione
+      if (confidenza < 70) {
+        const disambigMsg = {
+          role: 'assistant',
+          content: null,
+          disambiguation: {
+            text: "Per un'analisi più precisa, in quale area rientra la tua domanda?",
+            categories: ['Fiscale', 'Legale', 'Operativa', 'Strategica'],
+            originalMsg: msg,
+            sottocategoria,
+            convId,
+          }
+        };
+        const updatedMessages = [...newMessages, disambigMsg];
+        setMessages(updatedMessages);
+        await base44.entities.ChatConversation.update(convId, { messages: updatedMessages });
+        setIsTyping(false);
+        return;
+      }
+
       // FASE 2 + 3 – Analisi con system prompt strutturato
-      const sottocategoria = classificazione?.sottocategoria || '';
-      const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Categoria identificata: ${category} — ${sottocategoria}.
-
-Agisci come un consulente strategico per imprenditori italiani di PMI con responsabilità fiscale e finanziaria.
-
-Ogni richiesta deve essere analizzata con logica imprenditoriale.
-
-Valuta sempre obbligatoriamente:
-- Impatto sul flusso di cassa
-- Ritorno sull'investimento (ROI)
-- Rischio normativo e fiscale
-- Scalabilità
-- Tempo di implementazione
-
-Fornisci numeri stimati quando possibile.
-Evita risposte teoriche.
-Evita consigli vaghi.
-Fornisci solo analisi operative.
-
-Non usare tono da assistente virtuale.
-Non dire mai "come modello AI".
-Non fornire disclaimer legali automatici.
-Mantieni linguaggio professionale, concreto e orientato al risultato.
-
-Richiesta dell'imprenditore: ${msg}
-
-FORMATO OBBLIGATORIO: Rispondi SOLO con un oggetto JSON valido. Nessun testo prima o dopo il JSON. Nessun markdown. Nessun backtick. Le chiavi devono essere: categoria, sintesi_decisionale, impatto_economico, rischi_criticita, tempo_attuazione, raccomandazione_finale, followup_questions (lista di 3 domande pertinenti)`,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            categoria: { type: "string" },
-            sintesi_decisionale: { type: "string" },
-            impatto_economico: { type: "string" },
-            rischi_criticita: { type: "string" },
-            tempo_attuazione: { type: "string" },
-            raccomandazione_finale: { type: "string" },
-            followup_questions: { type: "array", items: { type: "string" } }
-          },
-          required: ["categoria", "sintesi_decisionale", "impatto_economico", "rischi_criticita", "tempo_attuazione", "raccomandazione_finale", "followup_questions"]
-        }
-      });
-
-      const assistantMsg = { role: 'assistant', content: result };
-      const updatedMessages = [...newMessages, assistantMsg];
-      setMessages(updatedMessages);
-      await base44.entities.ChatConversation.update(convId, { messages: updatedMessages });
+      await runAnalysis({ msg, category, sottocategoria, newMessages, convId });
     } catch (e) {
       const errMsg = { role: 'assistant', content: 'Mi dispiace, si è verificato un errore. Riprova tra un momento.' };
       const updatedMessages = [...newMessages, errMsg];
