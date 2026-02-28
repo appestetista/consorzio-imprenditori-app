@@ -138,7 +138,7 @@ Non dire mai "come modello AI".
 Non fornire disclaimer legali automatici.
 Mantieni linguaggio professionale, concreto e orientato al risultato.
 
-Richiesta dell'imprenditore: ${msg}
+${userContext}Richiesta dell'imprenditore: ${msg}
 
 FORMATO OBBLIGATORIO: Rispondi SOLO con un oggetto JSON valido. Nessun testo prima o dopo il JSON. Nessun markdown. Nessun backtick. Le chiavi devono essere: categoria, sintesi_decisionale, impatto_economico, rischi_criticita, tempo_attuazione, raccomandazione_finale, followup_questions (lista di 3 domande pertinenti)`,
       response_json_schema: {
