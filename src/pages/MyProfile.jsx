@@ -855,7 +855,13 @@ export default function MyProfile() {
           export_esperienza: effectiveUser.export_esperienza || '',
           export_certificazioni: effectiveUser.export_certificazioni || '',
           export_paese_esportatore: effectiveUser.export_paese_esportatore || 'IT',
-          export_mercati_target: effectiveUser.export_mercati_target || []
+          export_mercati_target: effectiveUser.export_mercati_target || [],
+          settore: effectiveUser.settore || '',
+          forma_giuridica: effectiveUser.forma_giuridica || '',
+          fatturato_annuo: effectiveUser.fatturato_annuo || '',
+          numero_dipendenti: effectiveUser.numero_dipendenti || '',
+          regime_fiscale: effectiveUser.regime_fiscale || '',
+          obiettivo_principale: effectiveUser.obiettivo_principale || ''
         });
 
         // Se l'utente è un consulente, carica i dati del consulente
