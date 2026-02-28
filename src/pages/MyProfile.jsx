@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { ArrowLeft, User, Building2, Phone, MapPin, Save, Upload, X, Image as ImageIcon, LogOut, FileText, AlertTriangle, Briefcase, Bell, Volume2, History, ChevronRight, Trash2, FileSearch, Gift, QrCode } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import Header from '../components/layout/Header';
+
 import BottomNav from '../components/layout/BottomNav';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import ProfiloBandiForm from '../components/profile/ProfiloBandiForm';
