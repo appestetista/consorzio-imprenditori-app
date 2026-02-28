@@ -13,35 +13,30 @@ const SECTIONS = [
 function parseStructuredResponse(content) {
   if (!content) return null;
 
-  const sections = {};
-  const patterns = [
-    { key: 'sintesi', regex: /(?:#+\s*)?(?:\*\*)?(?:1[.\s)]*)?Sintesi\s+[Dd]ecisionale(?:\*\*)?[:\s]*/i },
-    { key: 'impatto', regex: /(?:#+\s*)?(?:\*\*)?(?:2[.\s)]*)?Impatto\s+[Ee]conomico\s+[Ss]timato(?:\*\*)?[:\s]*/i },
-    { key: 'rischi', regex: /(?:#+\s*)?(?:\*\*)?(?:3[.\s)]*)?Rischi\s+e\s+[Cc]riticit[àa](?:\*\*)?[:\s]*/i },
-    { key: 'tempo', regex: /(?:#+\s*)?(?:\*\*)?(?:4[.\s)]*)?Tempo\s+di\s+[Aa]ttuazione(?:\*\*)?[:\s]*/i },
-    { key: 'raccomandazione', regex: /(?:#+\s*)?(?:\*\*)?(?:5[.\s)]*)?Raccomandazione\s+[Ff]inale(?:\s+[Oo]perativa)?(?:\*\*)?[:\s]*/i },
-  ];
-
-  // Find positions of each section
-  const positions = [];
-  for (const p of patterns) {
-    const match = content.match(p.regex);
-    if (match) {
-      positions.push({ key: p.key, index: match.index, length: match[0].length });
+  // Prova JSON.parse diretto (content può essere stringa JSON o già oggetto)
+  let json = null;
+  if (typeof content === 'object' && content !== null) {
+    json = content;
+  } else if (typeof content === 'string') {
+    try {
+      json = JSON.parse(content);
+    } catch (e) {
+      // Non è JSON valido
     }
   }
 
-  if (positions.length < 3) return null; // Not structured enough
-
-  positions.sort((a, b) => a.index - b.index);
-
-  for (let i = 0; i < positions.length; i++) {
-    const start = positions[i].index + positions[i].length;
-    const end = i + 1 < positions.length ? positions[i + 1].index : content.length;
-    sections[positions[i].key] = content.substring(start, end).trim();
+  if (json && json.sintesi_decisionale && json.impatto_economico && json.rischi_criticita && json.tempo_attuazione && json.raccomandazione_finale) {
+    return {
+      sintesi: json.sintesi_decisionale,
+      impatto: json.impatto_economico,
+      rischi: json.rischi_criticita,
+      tempo: json.tempo_attuazione,
+      raccomandazione: json.raccomandazione_finale,
+      followup_questions: json.followup_questions || [],
+    };
   }
 
-  return sections;
+  return null;
 }
 
 export default function DecisionResponse({ message, category }) {
