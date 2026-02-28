@@ -31,6 +31,7 @@ export default function Home() {
   const [isRecording, setIsRecording] = useState(false);
   const [lastCategory, setLastCategory] = useState(null);
   const [lastClassification, setLastClassification] = useState(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const recognitionRef = useRef(null);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
