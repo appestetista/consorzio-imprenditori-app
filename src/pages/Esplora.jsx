@@ -368,11 +368,11 @@ export default function Esplora() {
   const marketplaceNotifications = notifications.filter(n => n.type === 'message' && n.title?.includes('Marketplace')).length;
 
   const features = [
-    { title: 'Calendario\nincontri', icon: Calendar, page: 'CalendarioIncontri', notifications: eventNotifications, permission: 'calendario', eventCount: totalFutureEventsCount, pendingInvites: pendingEventInvites, category: 'relazioni' },
-    { title: 'Contatta\nImprenditori', icon: User, page: 'GestioneMembri', notifications: messages.length, permission: 'contatta_membri', category: 'relazioni' },
-    { title: 'Consigli da\nImprenditori', icon: Handshake, page: 'Imprenditori', notifications: unviewedPollsCount, permission: 'imprenditori', category: 'relazioni' },
-    { title: 'Academy', icon: BookOpen, page: 'CulturaAziendale', notifications: culturaAziendaleNotifications, permission: 'cultura_aziendale', category: 'relazioni' },
-    { title: 'Video\ninterviste', icon: Video, page: 'VideoInterviste', notifications: videoNotifications, permission: 'video_interviste', newVideosCount: videosData.newCount, totalVideosCount: videosData.totalCount, hasVisitedVideos: videosData.hasVisited, latestVideoDate: videosData.latestVideoDate, category: 'relazioni' },
+    { title: 'Calendario\nincontri', icon: Calendar, page: 'CalendarioIncontri', notifications: eventNotifications, permission: 'calendario', eventCount: totalFutureEventsCount, pendingInvites: pendingEventInvites, category: 'strumenti' },
+    { title: 'Contatta\nImprenditori', icon: User, page: 'GestioneMembri', notifications: messages.length, permission: 'contatta_membri', category: 'strumenti' },
+    { title: 'Consigli da\nImprenditori', icon: Handshake, page: 'Imprenditori', notifications: unviewedPollsCount, permission: 'imprenditori', category: 'strumenti' },
+    { title: 'Academy', icon: BookOpen, page: 'CulturaAziendale', notifications: culturaAziendaleNotifications, permission: 'cultura_aziendale', category: 'strumenti' },
+    { title: 'Video\ninterviste', icon: Video, page: 'VideoInterviste', notifications: videoNotifications, permission: 'video_interviste', newVideosCount: videosData.newCount, totalVideosCount: videosData.totalCount, hasVisitedVideos: videosData.hasVisited, latestVideoDate: videosData.latestVideoDate, category: 'strumenti' },
     { title: 'Risparmio', icon: PiggyBank, page: 'RisparmioEnergetico', notifications: 0, permission: 'risparmio_energetico', category: 'strumenti' },
     { title: 'Video\nRecensioni', icon: Star, page: 'VideoRecensioni', notifications: 0, permission: 'video_interviste', category: 'strumenti' },
     { title: 'Analisi Contratti', icon: FileSearch, page: 'AnalisiContratti', notifications: contractMessagesCount, permission: 'analisi_contratti', category: 'strumenti', contractUsage: contractUsageData },
@@ -382,11 +382,11 @@ export default function Esplora() {
     { title: 'Benefit\nDipendenti', icon: Heart, page: 'WelfareAziendale', notifications: 0, permission: 'welfare_aziendale', variant: 'pink', category: 'strumenti' },
     { title: 'Simulatore\nFiscale', icon: Calculator, page: 'SimulatoreFiscale', notifications: 0, permission: 'simulatore_fiscale', category: 'strumenti' },
     { title: 'Costo del\nPersonale', icon: Users, page: 'SimulatoreCostoPersonale', notifications: 0, permission: 'simulatore_fiscale', category: 'strumenti' },
-    { title: isConsultant ? 'Richieste di\nConsulenza' : 'Consulenze', icon: Briefcase, page: 'Consulenze', notifications: consultationNotifications, permission: 'consulenze', bottomBadge: isConsultant ? (pendingConsultationRequests > 0 ? pendingConsultationRequests : null) : (freeConsultationsCount > 0 ? freeConsultationsCount : null), bottomBadgeType: isConsultant ? 'requests' : 'consultations', category: 'relazioni' },
+    { title: isConsultant ? 'Richieste di\nConsulenza' : 'Consulenze', icon: Briefcase, page: 'Consulenze', notifications: consultationNotifications, permission: 'consulenze', bottomBadge: isConsultant ? (pendingConsultationRequests > 0 ? pendingConsultationRequests : null) : (freeConsultationsCount > 0 ? freeConsultationsCount : null), bottomBadgeType: isConsultant ? 'requests' : 'consultations', category: 'strumenti' },
     { title: 'Import /\nExport', icon: Globe, page: 'ImportExport', notifications: 0, permission: 'import_export', category: 'strumenti' },
     { title: 'Bandi', icon: Euro, page: 'FinanziamentiAgevolati', notifications: isNotAdmin ? newGrantsCount : 0, permission: 'finanziamenti', category: 'strumenti' },
     { title: 'Aste\nImmobiliari', icon: Gavel, page: 'AsteImmobiliari', notifications: 0, permission: 'aste_immobiliari', category: 'strumenti' },
-    { title: 'Vantaggi\nIscritti', icon: Gift, page: 'VantaggiIscritti', notifications: vantaggiNotificationsCount, permission: 'vantaggi_iscritti', category: 'relazioni', variant: 'gold' },
+    { title: 'Vantaggi\nIscritti', icon: Gift, page: 'VantaggiIscritti', notifications: vantaggiNotificationsCount, permission: 'vantaggi_iscritti', category: 'strumenti', variant: 'gold' },
     { title: 'Il Mio\nProfilo', icon: User, page: 'MyProfile', notifications: 0, category: 'personale' },
     { title: 'Calendario\nPersonale', icon: Calendar, page: 'CalendarioIncontri', notifications: 0, category: 'personale' },
     { title: 'Contatta\nil Consorzio', icon: Phone, page: 'ContattaConsorzio', notifications: 0, category: 'personale' },
@@ -518,7 +518,6 @@ export default function Esplora() {
         {activeTab ? (
           <>
             <h3 className="text-[#d4af37] font-bold text-lg mb-4 capitalize flex items-center gap-2">
-              {activeTab === 'relazioni' && <span>👥</span>}
               {activeTab === 'strumenti' && <span>🔧</span>}
               {activeTab === 'personale' && <span>👤</span>}
               {activeTab === 'personale' ? 'Area Personale' : activeTab}
@@ -527,9 +526,7 @@ export default function Esplora() {
           </>
         ) : (
           <>
-            <div className="flex items-center gap-2 mb-3 mt-2"><span className="text-lg">👥</span><h3 className="text-[#d4af37] font-bold text-base tracking-wide">RELAZIONI</h3><div className="flex-1 h-px bg-gradient-to-r from-[#d4af37]/40 to-transparent ml-2"></div></div>
-            <div className="grid grid-cols-2 gap-4 mb-6">{features.filter(f => f.category === 'relazioni').map(renderFeatureCard)}</div>
-            <div className="flex items-center gap-2 mb-3 mt-4"><span className="text-lg">🔧</span><h3 className="text-[#d4af37] font-bold text-base tracking-wide">STRUMENTI</h3><div className="flex-1 h-px bg-gradient-to-r from-[#d4af37]/40 to-transparent ml-2"></div></div>
+            <div className="flex items-center gap-2 mb-3 mt-2"><span className="text-lg">🔧</span><h3 className="text-[#d4af37] font-bold text-base tracking-wide">STRUMENTI</h3><div className="flex-1 h-px bg-gradient-to-r from-[#d4af37]/40 to-transparent ml-2"></div></div>
             <div className="grid grid-cols-2 gap-4 mb-6">{features.filter(f => f.category === 'strumenti').map(renderFeatureCard)}</div>
             <div className="flex items-center gap-2 mb-3 mt-4"><span className="text-lg">👤</span><h3 className="text-[#d4af37] font-bold text-base tracking-wide">PERSONALE</h3><div className="flex-1 h-px bg-gradient-to-r from-[#d4af37]/40 to-transparent ml-2"></div></div>
             <div className="grid grid-cols-2 gap-4 mb-6">{features.filter(f => f.category === 'personale').map(renderFeatureCard)}</div>
