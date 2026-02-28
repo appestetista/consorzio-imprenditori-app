@@ -39,7 +39,7 @@ function parseStructuredResponse(content) {
   return null;
 }
 
-export default function DecisionResponse({ message, category }) {
+export default function DecisionResponse({ message, category, onFollowup }) {
   const [showPlanCTA, setShowPlanCTA] = useState(true);
   const parsed = parseStructuredResponse(message.content);
 
@@ -106,6 +106,21 @@ export default function DecisionResponse({ message, category }) {
             </div>
           );
         })}
+
+        {/* Follow-up questions */}
+        {parsed.followup_questions?.length > 0 && (
+          <div className="flex flex-col gap-2 mt-1">
+            {parsed.followup_questions.map((q, idx) => (
+              <button
+                key={idx}
+                onClick={() => onFollowup?.(q)}
+                className="text-left text-sm text-white px-4 py-2.5 rounded-xl border border-slate-600/50 bg-transparent hover:border-[#C8A951] transition-colors"
+              >
+                {q}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* CTA piano operativo */}
         {showPlanCTA && (

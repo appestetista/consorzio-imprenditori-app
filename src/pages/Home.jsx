@@ -357,7 +357,7 @@ FORMATO OBBLIGATORIO: Rispondi SOLO con un oggetto JSON valido. Nessun testo pri
             <div className="max-w-2xl mx-auto space-y-4">
               {messages.map((msg, i) => (
                 msg.role === 'assistant' ? (
-                  <DecisionResponse key={i} message={msg} category={lastCategory} />
+                  <DecisionResponse key={i} message={msg} category={lastCategory} onFollowup={(text) => handleSend(text)} />
                 ) : (
                   <ChatMessage key={i} message={msg} />
                 )
