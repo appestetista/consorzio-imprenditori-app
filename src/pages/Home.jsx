@@ -458,7 +458,7 @@ Richiesta: "${msg}"`,
                     </div>
                   </div>
                 ) : msg.role === 'assistant' ? (
-                  <DecisionResponse key={i} message={msg} category={lastCategory} classification={lastClassification} onFollowup={(text) => handleSend(text)} conversationId={activeConversationId} existingPlan={activeConvData?.ha_piano ? activeConvData.piano_json : null} />
+                  <DecisionResponse key={i} message={msg} category={lastCategory} classification={lastClassification} onFollowup={(text) => handleSend(text)} conversationId={activeConversationId} existingPlan={activeConvData?.ha_piano ? activeConvData.piano_json : null} userQuestion={messages.slice(0, i).reverse().find(m => m.role === 'user')?.content} />
                 ) : (
                   <ChatMessage key={i} message={msg} />
                 )
