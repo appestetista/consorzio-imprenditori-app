@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Send, Sparkles, ArrowUp, Loader2, Menu, Mic, MicOff, X, LogOut, Settings, User, Eye, Phone, XCircle, Target } from 'lucide-react';
+import { Send, Sparkles, ArrowUp, Loader2, Menu, Mic, MicOff, X, LogOut, Settings, User, Eye, Phone, XCircle, Target, Scale } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import { normalizeUser, isUserConsultant } from '../components/utils/normalizeUser';
@@ -33,6 +33,9 @@ export default function Home() {
   const [lastClassification, setLastClassification] = useState(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [activeConvData, setActiveConvData] = useState(null);
+  const [compareMode, setCompareMode] = useState(false);
+  const [scenarioA, setScenarioA] = useState('');
+  const [scenarioB, setScenarioB] = useState('');
   const recognitionRef = useRef(null);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
@@ -486,47 +489,103 @@ Richiesta: "${msg}"`,
       {/* Campo di input */}
       <div className="fixed bottom-[88px] left-0 right-0 z-40 px-4 pb-3 pt-2" style={{ background: 'linear-gradient(to top, #0a0f1a 70%, transparent)' }}>
         <div className="max-w-2xl mx-auto">
-          <div className="relative flex items-end rounded-2xl border border-slate-700/60 bg-slate-800/80 backdrop-blur-lg overflow-hidden" style={isRecording ? { borderColor: '#ef4444' } : {}}>
-            {/* Microfono */}
-            <button
-              onClick={toggleRecording}
-              className="flex-shrink-0 ml-2 mb-2.5 w-8 h-8 rounded-full flex items-center justify-center transition-all"
-              style={{ backgroundColor: isRecording ? '#ef4444' : 'transparent' }}
-            >
-              {isRecording ? (
-                <MicOff className="w-4 h-4 text-white" />
-              ) : (
-                <Mic className="w-4 h-4 text-slate-400" />
-              )}
-            </button>
-            <textarea
-              ref={inputRef}
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={isRecording ? "Sto ascoltando..." : "Descrivi una decisione aziendale o un problema operativo…"}
-              rows={1}
-              className="flex-1 bg-transparent text-white text-sm px-3 py-3.5 resize-none outline-none placeholder:text-slate-500 max-h-32"
-              style={{ scrollbarWidth: 'none' }}
-            />
-            <button
-              onClick={() => handleSend()}
-              disabled={!inputText.trim() || isTyping}
-              className="flex-shrink-0 m-1.5 w-9 h-9 rounded-xl flex items-center justify-center transition-all disabled:opacity-30"
-              style={{
-                backgroundColor: inputText.trim() && !isTyping ? '#d4af37' : '#334155',
-              }}
-            >
-              {isTyping ? (
-                <Loader2 className="w-4 h-4 text-slate-400 animate-spin" />
-              ) : (
-                <ArrowUp className="w-4 h-4 text-white" />
-              )}
-            </button>
-          </div>
-          <p className="text-center text-[11px] text-slate-500 mt-2">
-            Ogni analisi valuta ROI, rischio e impatto sul flusso di cassa.
-          </p>
+          {!compareMode ? (
+            <>
+              <div className="relative flex items-end rounded-2xl border border-slate-700/60 bg-slate-800/80 backdrop-blur-lg overflow-hidden" style={isRecording ? { borderColor: '#ef4444' } : {}}>
+                {/* Microfono */}
+                <button
+                  onClick={toggleRecording}
+                  className="flex-shrink-0 ml-2 mb-2.5 w-8 h-8 rounded-full flex items-center justify-center transition-all"
+                  style={{ backgroundColor: isRecording ? '#ef4444' : 'transparent' }}
+                >
+                  {isRecording ? (
+                    <MicOff className="w-4 h-4 text-white" />
+                  ) : (
+                    <Mic className="w-4 h-4 text-slate-400" />
+                  )}
+                </button>
+                <textarea
+                  ref={inputRef}
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder={isRecording ? "Sto ascoltando..." : "Descrivi una decisione aziendale o un problema operativo…"}
+                  rows={1}
+                  className="flex-1 bg-transparent text-white text-sm px-3 py-3.5 resize-none outline-none placeholder:text-slate-500 max-h-32"
+                  style={{ scrollbarWidth: 'none' }}
+                />
+                <button
+                  onClick={() => handleSend()}
+                  disabled={!inputText.trim() || isTyping}
+                  className="flex-shrink-0 m-1.5 w-9 h-9 rounded-xl flex items-center justify-center transition-all disabled:opacity-30"
+                  style={{
+                    backgroundColor: inputText.trim() && !isTyping ? '#d4af37' : '#334155',
+                  }}
+                >
+                  {isTyping ? (
+                    <Loader2 className="w-4 h-4 text-slate-400 animate-spin" />
+                  ) : (
+                    <ArrowUp className="w-4 h-4 text-white" />
+                  )}
+                </button>
+              </div>
+              <div className="flex items-center justify-between mt-2">
+                <p className="text-[11px] text-slate-500">
+                  Ogni analisi valuta ROI, rischio e impatto sul flusso di cassa.
+                </p>
+                <button
+                  onClick={() => setCompareMode(true)}
+                  className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-slate-700/50 bg-slate-800/60 hover:border-[#d4af37]/40 transition-colors flex-shrink-0"
+                >
+                  <Scale className="w-3 h-3 text-[#d4af37]" />
+                  <span className="text-[11px] text-slate-400">Confronta scenari</span>
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="rounded-2xl border border-[#d4af37]/30 bg-slate-800/80 backdrop-blur-lg p-4 space-y-3">
+              <div className="flex items-center gap-2 mb-1">
+                <Scale className="w-4 h-4 text-[#d4af37]" />
+                <span className="text-xs font-semibold text-[#d4af37] uppercase tracking-wider">Confronta Scenari</span>
+              </div>
+              <div className="flex gap-2">
+                <textarea
+                  value={scenarioA}
+                  onChange={(e) => setScenarioA(e.target.value)}
+                  placeholder="Scenario A (es. Assumere dipendente)"
+                  rows={2}
+                  className="flex-1 bg-slate-900/60 border border-slate-700/50 rounded-xl text-white text-sm px-3 py-2.5 resize-none outline-none placeholder:text-slate-500 focus:border-[#d4af37]/40"
+                  style={{ scrollbarWidth: 'none' }}
+                />
+                <textarea
+                  value={scenarioB}
+                  onChange={(e) => setScenarioB(e.target.value)}
+                  placeholder="Scenario B (es. Usare freelance)"
+                  rows={2}
+                  className="flex-1 bg-slate-900/60 border border-slate-700/50 rounded-xl text-white text-sm px-3 py-2.5 resize-none outline-none placeholder:text-slate-500 focus:border-[#d4af37]/40"
+                  style={{ scrollbarWidth: 'none' }}
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={() => { setCompareMode(false); setScenarioA(''); setScenarioB(''); }}
+                  className="text-[11px] text-slate-500 hover:text-slate-300 transition-colors"
+                >
+                  ← Torna a modalità singola
+                </button>
+                <button
+                  disabled={!scenarioA.trim() || !scenarioB.trim()}
+                  className="px-5 py-2 rounded-xl text-sm font-semibold transition-all disabled:opacity-30"
+                  style={{
+                    backgroundColor: scenarioA.trim() && scenarioB.trim() ? '#d4af37' : '#334155',
+                    color: scenarioA.trim() && scenarioB.trim() ? '#1a1a2e' : '#94a3b8',
+                  }}
+                >
+                  Confronta
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
