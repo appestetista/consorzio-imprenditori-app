@@ -64,6 +64,13 @@ export default function Home() {
     }
   }, [loading, effectiveUser?.role, impersonation.active, navigate]);
 
+  // Profilo onboarding check
+  useEffect(() => {
+    if (!loading && effectiveUser && effectiveUser.role !== 'admin' && !effectiveUser.profilo_completato) {
+      setShowOnboarding(true);
+    }
+  }, [loading, effectiveUser]);
+
   // Assegnazione tipo utente
   useEffect(() => {
     const assignType = async () => {
