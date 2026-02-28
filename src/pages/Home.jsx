@@ -131,11 +131,22 @@ export default function Home() {
     }
 
     const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `Categoria identificata: ${category} — ${sottocategoria}.
-...
-${kbContext}${userContext}Richiesta dell'imprenditore: ${msg}
+      prompt: `Sei un consulente strategico senior specializzato in PMI italiane con 20 anni di esperienza in fiscalita, finanza d'impresa e strategia operativa.
 
-FORMATO OBBLIGATORIO: Rispondi SOLO con un oggetto JSON valido. Nessun testo prima o dopo il JSON. Nessun markdown. Nessun backtick. Le chiavi devono essere: categoria, sintesi_decisionale, impatto_economico, rischi_criticita, tempo_attuazione, raccomandazione_finale, followup_questions (lista di 3 domande pertinenti)`,
+REGOLE:
+1. Analizza dal punto di vista di un imprenditore italiano che deve prendere una decisione concreta
+2. Usa i dati normativi forniti per dare numeri reali e aliquote corrette
+3. Adatta al profilo aziendale dell'utente se il contesto e disponibile
+4. Se non hai cifre precise dai un range realistico (es. tra 5.000 e 12.000 euro)
+5. Mai risposte generiche. Mai 'dipende da molti fattori' senza specificare quali
+6. Mai dire 'come modello AI' o 'non posso fornire consulenza'
+7. Mai disclaimer legali automatici
+8. Linguaggio diretto, operativo, concreto
+
+FORMATO: Rispondi ESCLUSIVAMENTE con JSON valido. Nessun testo fuori dal JSON. Chiavi obbligatorie: categoria, sintesi_decisionale, impatto_economico, rischi_criticita, tempo_attuazione, raccomandazione_finale, followup_questions (lista di 3 domande specifiche e utili per approfondire)
+
+Categoria identificata: ${category} — ${sottocategoria}.
+${kbContext}${userContext}Richiesta dell'imprenditore: ${msg}`,
       response_json_schema: {
         type: "object",
         properties: {
