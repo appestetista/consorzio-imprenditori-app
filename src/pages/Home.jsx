@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import BottomNav from '../components/layout/BottomNav';
 import ChatMessage from '../components/home/ChatMessage';
 import DecisionResponse from '../components/home/DecisionResponse';
+import CompareResult from '../components/home/CompareResult';
 import ChatSidebar from '../components/home/ChatSidebar';
 import ProfileOnboardingModal from '../components/home/ProfileOnboardingModal';
 import { useQueryClient, useQuery as useRQQuery } from '@tanstack/react-query';
@@ -265,6 +266,104 @@ Richiesta: "${msg}"`,
     }
   };
 
+  const handleCompare = async () => {
+    const a = scenarioA.trim();
+    const b = scenarioB.trim();
+    if (!a || !b || !effectiveUser?.email) return;
+
+    const userMsg = { role: 'user', content: `⚖️ Confronto:\nA: ${a}\nB: ${b}` };
+    const newMessages = [...messages, userMsg];
+    setMessages(newMessages);
+    setIsTyping(true);
+
+    // Crea conversazione
+    let convId = activeConversationId;
+    if (!convId) {
+      const titolo = `Confronto: ${a.substring(0, 25)} vs ${b.substring(0, 25)}`;
+      const conv = await base44.entities.ChatConversation.create({
+        user_email: effectiveUser.email,
+        titolo,
+        messages: newMessages,
+      });
+      convId = conv.id;
+      setActiveConversationId(convId);
+      queryClient.invalidateQueries({ queryKey: ['chatConversations'] });
+    } else {
+      await base44.entities.ChatConversation.update(convId, { messages: newMessages });
+    }
+
+    try {
+      // Classificazione sul testo combinato
+      const combinedText = `${a}. ${b}`;
+      const classificazione = await base44.integrations.Core.InvokeLLM({
+        prompt: `Classifica questa richiesta in UNA sola categoria tra: Fiscale, Legale, Marketing, Personale/HR, Investimenti, Operativa, Strategica. Rispondi SOLO con un JSON: {"categoria": "nome", "confidenza": 85, "sottocategoria": "specifica"}\n\nRichiesta: "${combinedText}"`,
+        response_json_schema: {
+          type: "object",
+          properties: { categoria: { type: "string" }, confidenza: { type: "number" }, sottocategoria: { type: "string" } },
+          required: ["categoria", "confidenza", "sottocategoria"]
+        }
+      });
+      const category = classificazione?.categoria || 'Strategica';
+      const sottocategoria = classificazione?.sottocategoria || '';
+      setLastCategory('Confronto');
+      setLastClassification({ categoria: 'Confronto', sottocategoria: `${category} — ${sottocategoria}` });
+
+      // Contesto utente
+      const userContext = buildUserContext();
+
+      // Dati normativi KB
+      let kbContext = '';
+      const kbRecords = await base44.entities.KnowledgeBase.filter({ categoria: category, attivo: true });
+      if (kbRecords.length > 0) {
+        kbContext = `Dati normativi di riferimento:\n${kbRecords.map(r => `- ${r.titolo}: ${r.contenuto}`).join('\n')}\n\n`;
+      }
+
+      // Confronto LLM
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `Confronta questi scenari per un imprenditore italiano di PMI.
+${userContext}${kbContext}
+Scenario A: ${a}
+Scenario B: ${b}
+
+Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti con: nome, costo, roi, tempo, rischio, vantaggio, punteggio numerico da 1 a 10), verdetto (quale è meglio e perché), scenario_consigliato ("A" o "B").`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            tema: { type: "string" },
+            scenari: { type: "array", items: { type: "object", properties: { nome: { type: "string" }, costo: { type: "string" }, roi: { type: "string" }, tempo: { type: "string" }, rischio: { type: "string" }, vantaggio: { type: "string" }, punteggio: { type: "number" } }, required: ["nome", "costo", "roi", "tempo", "rischio", "vantaggio", "punteggio"] } },
+            verdetto: { type: "string" },
+            scenario_consigliato: { type: "string" }
+          },
+          required: ["tema", "scenari", "verdetto", "scenario_consigliato"]
+        }
+      });
+
+      const assistantMsg = { role: 'assistant', content: result, isCompare: true };
+      const updatedMessages = [...newMessages, assistantMsg];
+      setMessages(updatedMessages);
+
+      const rispostaStr = typeof result === 'string' ? result : JSON.stringify(result);
+      await base44.entities.ChatConversation.update(convId, {
+        messages: updatedMessages,
+        categoria: 'Confronto',
+        sottocategoria: `${category} — ${sottocategoria}`,
+        risposta_json: rispostaStr,
+      });
+
+      // Reset campi confronto
+      setScenarioA('');
+      setScenarioB('');
+      setCompareMode(false);
+    } catch (e) {
+      const errMsg = { role: 'assistant', content: 'Mi dispiace, si è verificato un errore nel confronto. Riprova tra un momento.' };
+      const updated = [...newMessages, errMsg];
+      setMessages(updated);
+      await base44.entities.ChatConversation.update(convId, { messages: updated });
+    } finally {
+      setIsTyping(false);
+    }
+  };
+
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -460,6 +559,8 @@ Richiesta: "${msg}"`,
                       </div>
                     </div>
                   </div>
+                ) : msg.role === 'assistant' && msg.isCompare ? (
+                  <CompareResult key={i} data={typeof msg.content === 'string' ? (() => { try { return JSON.parse(msg.content); } catch { return null; } })() : msg.content} />
                 ) : msg.role === 'assistant' ? (
                   <DecisionResponse key={i} message={msg} category={lastCategory} classification={lastClassification} onFollowup={(text) => handleSend(text)} conversationId={activeConversationId} existingPlan={activeConvData?.ha_piano ? activeConvData.piano_json : null} userQuestion={messages.slice(0, i).reverse().find(m => m.role === 'user')?.content} />
                 ) : (
@@ -574,14 +675,15 @@ Richiesta: "${msg}"`,
                   ← Torna a modalità singola
                 </button>
                 <button
-                  disabled={!scenarioA.trim() || !scenarioB.trim()}
+                  onClick={handleCompare}
+                  disabled={!scenarioA.trim() || !scenarioB.trim() || isTyping}
                   className="px-5 py-2 rounded-xl text-sm font-semibold transition-all disabled:opacity-30"
                   style={{
-                    backgroundColor: scenarioA.trim() && scenarioB.trim() ? '#d4af37' : '#334155',
-                    color: scenarioA.trim() && scenarioB.trim() ? '#1a1a2e' : '#94a3b8',
+                    backgroundColor: scenarioA.trim() && scenarioB.trim() && !isTyping ? '#d4af37' : '#334155',
+                    color: scenarioA.trim() && scenarioB.trim() && !isTyping ? '#1a1a2e' : '#94a3b8',
                   }}
                 >
-                  Confronta
+                  {isTyping ? 'Analisi...' : 'Confronta'}
                 </button>
               </div>
             </div>
