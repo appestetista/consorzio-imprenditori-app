@@ -114,31 +114,19 @@ export default function Home() {
 
   const runAnalysis = async ({ msg, category, sottocategoria, newMessages, convId }) => {
     const userContext = buildUserContext();
+
+    // Recupera dati normativi dalla KnowledgeBase per la categoria
+    let kbContext = '';
+    const kbRecords = await base44.entities.KnowledgeBase.filter({ categoria: category, attivo: true });
+    if (kbRecords.length > 0) {
+      const kbList = kbRecords.map(r => `- ${r.titolo}: ${r.contenuto}`).join('\n');
+      kbContext = `DATI NORMATIVI DI RIFERIMENTO:\n${kbList}\nUsa questi dati per dare risposte con numeri e aliquote reali quando pertinenti.\n\n`;
+    }
+
     const result = await base44.integrations.Core.InvokeLLM({
       prompt: `Categoria identificata: ${category} — ${sottocategoria}.
-
-Agisci come un consulente strategico per imprenditori italiani di PMI con responsabilità fiscale e finanziaria.
-
-Ogni richiesta deve essere analizzata con logica imprenditoriale.
-
-Valuta sempre obbligatoriamente:
-- Impatto sul flusso di cassa
-- Ritorno sull'investimento (ROI)
-- Rischio normativo e fiscale
-- Scalabilità
-- Tempo di implementazione
-
-Fornisci numeri stimati quando possibile.
-Evita risposte teoriche.
-Evita consigli vaghi.
-Fornisci solo analisi operative.
-
-Non usare tono da assistente virtuale.
-Non dire mai "come modello AI".
-Non fornire disclaimer legali automatici.
-Mantieni linguaggio professionale, concreto e orientato al risultato.
-
-${userContext}Richiesta dell'imprenditore: ${msg}
+...
+${kbContext}${userContext}Richiesta dell'imprenditore: ${msg}
 
 FORMATO OBBLIGATORIO: Rispondi SOLO con un oggetto JSON valido. Nessun testo prima o dopo il JSON. Nessun markdown. Nessun backtick. Le chiavi devono essere: categoria, sintesi_decisionale, impatto_economico, rischi_criticita, tempo_attuazione, raccomandazione_finale, followup_questions (lista di 3 domande pertinenti)`,
       response_json_schema: {
