@@ -792,14 +792,7 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
               <span>Dashboard Analisi</span>
             </Link>
 
-            <Link
-              to={createPageUrl('ProfiloUtente')}
-              onClick={() => setMenuOpen(false)}
-              className="flex items-center gap-3 text-white py-3 px-4 rounded-lg hover:bg-slate-800 transition-colors"
-            >
-              <User className="w-5 h-5 text-[#d4af37]" />
-              <span>Il mio profilo</span>
-            </Link>
+
 
             <Link
               to={createPageUrl('ContattaConsorzio')}
