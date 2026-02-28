@@ -125,7 +125,7 @@ function RatingSection({ conversationId }) {
   );
 }
 
-export default function DecisionResponse({ message, category, classification, onFollowup, conversationId, existingPlan }) {
+export default function DecisionResponse({ message, category, classification, onFollowup, conversationId, existingPlan, userQuestion }) {
   const [showPlanCTA, setShowPlanCTA] = useState(true);
   const [planLoading, setPlanLoading] = useState(false);
   const [plan, setPlan] = useState(() => {
@@ -318,14 +318,7 @@ Genera un piano operativo in JSON con: titolo_piano, durata_totale, budget_stima
 
         {/* Download PDF */}
         <button
-          onClick={() => {
-            const userQuestion = (() => {
-              // placeholder - passed via prop or extracted from DOM context is not available,
-              // so we look at the message's parent conversation context
-              return '';
-            })();
-            generateAnalysisPdf({ parsed, classification, category, userQuestion, plan });
-          }}
+          onClick={() => generateAnalysisPdf({ parsed, classification, category, userQuestion, plan })}
           className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-700/50 bg-slate-800/40 hover:border-[#d4af37]/40 transition-colors"
         >
           <Download className="w-4 h-4 text-[#d4af37]" />
