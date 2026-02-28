@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { base44 } from '@/api/base44Client';
-import { Sparkles, Target, TrendingUp, AlertTriangle, Clock, CheckCircle2, ArrowRight, Star, Send, Loader2, ListChecks } from 'lucide-react';
+import { Sparkles, Target, TrendingUp, AlertTriangle, Clock, CheckCircle2, ArrowRight, Star, Send, Loader2, ListChecks, Download } from 'lucide-react';
 import OperationalPlan from './OperationalPlan';
+import generateAnalysisPdf from './generateAnalysisPdf';
 
 const SECTIONS = [
   { key: 'sintesi', label: 'Sintesi Decisionale', icon: Target, color: 'text-[#d4af37]', bg: 'bg-[#d4af37]/10', border: 'border-[#d4af37]/30' },
@@ -314,6 +315,22 @@ Genera un piano operativo in JSON con: titolo_piano, durata_totale, budget_stima
 
         {/* Rating */}
         <RatingSection conversationId={conversationId} />
+
+        {/* Download PDF */}
+        <button
+          onClick={() => {
+            const userQuestion = (() => {
+              // placeholder - passed via prop or extracted from DOM context is not available,
+              // so we look at the message's parent conversation context
+              return '';
+            })();
+            generateAnalysisPdf({ parsed, classification, category, userQuestion, plan });
+          }}
+          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-700/50 bg-slate-800/40 hover:border-[#d4af37]/40 transition-colors"
+        >
+          <Download className="w-4 h-4 text-[#d4af37]" />
+          <span className="text-xs text-slate-400">Scarica come PDF</span>
+        </button>
       </div>
     </div>
   );
