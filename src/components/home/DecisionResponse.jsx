@@ -39,7 +39,7 @@ function parseStructuredResponse(content) {
   return null;
 }
 
-export default function DecisionResponse({ message, category, onFollowup }) {
+export default function DecisionResponse({ message, category, classification, onFollowup }) {
   const [showPlanCTA, setShowPlanCTA] = useState(true);
   const parsed = parseStructuredResponse(message.content);
 
@@ -72,10 +72,12 @@ export default function DecisionResponse({ message, category, onFollowup }) {
       </div>
       <div className="flex-1 max-w-[92%] space-y-3">
         {/* Category badge */}
-        {category && (
+        {(classification?.categoria || category) && (
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#d4af37]/15 border border-[#d4af37]/30">
             <div className="w-1.5 h-1.5 rounded-full bg-[#d4af37]" />
-            <span className="text-[11px] font-semibold text-[#d4af37] uppercase tracking-wider">{category}</span>
+            <span className="text-[11px] font-semibold text-[#d4af37] uppercase tracking-wider">
+              {classification?.categoria || category}{classification?.sottocategoria ? ` — ${classification.sottocategoria}` : ''}
+            </span>
           </div>
         )}
 

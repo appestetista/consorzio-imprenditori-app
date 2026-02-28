@@ -29,6 +29,7 @@ export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [lastCategory, setLastCategory] = useState(null);
+  const [lastClassification, setLastClassification] = useState(null);
   const recognitionRef = useRef(null);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
@@ -137,6 +138,7 @@ FORMATO OBBLIGATORIO: Rispondi SOLO con un oggetto JSON valido. Nessun testo pri
   const handleDisambiguationSelect = async (disambiguation, selectedCategory) => {
     setIsTyping(true);
     setLastCategory(selectedCategory);
+    setLastClassification({ categoria: selectedCategory, sottocategoria: disambiguation.sottocategoria, confidenza: 100 });
     // Rimuovi il messaggio di disambiguazione e sostituiscilo dopo l'analisi
     const msgsWithoutDisambig = messages.filter(m => !m.disambiguation);
     setMessages(msgsWithoutDisambig);
@@ -204,6 +206,7 @@ Richiesta: "${msg}"`,
       const confidenza = classificazione?.confidenza ?? 100;
       const sottocategoria = classificazione?.sottocategoria || '';
       setLastCategory(category);
+      setLastClassification({ categoria: category, sottocategoria, confidenza });
 
       // Se confidenza bassa, chiedi disambiguazione
       if (confidenza < 70) {
@@ -429,7 +432,7 @@ Richiesta: "${msg}"`,
                     </div>
                   </div>
                 ) : msg.role === 'assistant' ? (
-                  <DecisionResponse key={i} message={msg} category={lastCategory} onFollowup={(text) => handleSend(text)} />
+                  <DecisionResponse key={i} message={msg} category={lastCategory} classification={lastClassification} onFollowup={(text) => handleSend(text)} />
                 ) : (
                   <ChatMessage key={i} message={msg} />
                 )
