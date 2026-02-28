@@ -1,0 +1,256 @@
+import React, { useState } from 'react';
+import { base44 } from '@/api/base44Client';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Bell, X, Calendar, AlertTriangle, Clock, CheckCircle2, User as UserIcon } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
+import { cn } from '@/lib/utils';
+
+function getUpcomingScadenze(scadenze, userRegime) {
+  const now = new Date();
+  const currentMonth = now.getMonth() + 1; // 1-based
+  const currentYear = now.getFullYear();
+
+  const results = [];
+
+  for (const s of scadenze) {
+    // Filtra per regime
+    if (s.regime !== 'tutti' && userRegime && s.regime !== userRegime) continue;
+    if (!userRegime && s.regime !== 'tutti') continue;
+
+    // Parsing mesi
+    const mesiArr = s.mesi.split(',').map(m => parseInt(m.trim())).filter(m => !isNaN(m));
+
+    // Cerchiamo la prossima data nei prossimi 30 giorni
+    // Controlla mese corrente e successivo
+    for (const mese of [currentMonth, currentMonth === 12 ? 1 : currentMonth + 1]) {
+      if (!mesiArr.includes(mese)) continue;
+
+      const year = mese < currentMonth ? currentYear + 1 : currentYear;
+      const giorno = Math.min(s.giorno_mese, new Date(year, mese, 0).getDate());
+      const scadDate = new Date(year, mese - 1, giorno);
+
+      const diffMs = scadDate.getTime() - now.getTime();
+      const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+      if (diffDays >= 0 && diffDays <= 30) {
+        results.push({
+          ...s,
+          nextDate: scadDate,
+          daysLeft: diffDays,
+        });
+        break; // una sola data per scadenza
+      }
+    }
+  }
+
+  return results.sort((a, b) => a.daysLeft - b.daysLeft);
+}
+
+function NotificationItem({ notif, onMarkRead }) {
+  return (
+    <div className={cn(
+      "px-4 py-3 border-b border-slate-700/30 last:border-b-0 transition-colors",
+      !notif.is_read ? "bg-slate-800/40" : ""
+    )}>
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-medium text-white truncate">{notif.title}</p>
+          {notif.content && <p className="text-[11px] text-slate-400 mt-0.5 line-clamp-2">{notif.content}</p>}
+          <p className="text-[10px] text-slate-500 mt-1">
+            {notif.created_date ? new Date(notif.created_date).toLocaleDateString('it-IT', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : ''}
+          </p>
+        </div>
+        {!notif.is_read && (
+          <button onClick={() => onMarkRead(notif.id)} className="w-2 h-2 rounded-full bg-[#d4af37] flex-shrink-0 mt-1.5" title="Segna come letta" />
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ScadenzaItem({ scadenza }) {
+  const dateStr = scadenza.nextDate.toLocaleDateString('it-IT', { day: 'numeric', month: 'long' });
+
+  return (
+    <div className="px-4 py-3 border-b border-slate-700/30 last:border-b-0">
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <p className="text-xs font-medium text-white truncate">{scadenza.titolo}</p>
+            {scadenza.daysLeft < 7 ? (
+              <span className="flex-shrink-0 px-1.5 py-0.5 rounded text-[9px] font-bold bg-red-500/20 text-red-400 border border-red-500/30">Urgente</span>
+            ) : scadenza.daysLeft < 15 ? (
+              <span className="flex-shrink-0 px-1.5 py-0.5 rounded text-[9px] font-bold bg-orange-500/20 text-orange-400 border border-orange-500/30">In arrivo</span>
+            ) : null}
+          </div>
+          {scadenza.descrizione && <p className="text-[11px] text-slate-400 mt-0.5">{scadenza.descrizione}</p>}
+          <div className="flex items-center gap-1.5 mt-1">
+            <Calendar className="w-3 h-3 text-slate-500" />
+            <span className="text-[10px] text-slate-500">{dateStr} — tra {scadenza.daysLeft === 0 ? 'oggi' : scadenza.daysLeft === 1 ? 'domani' : `${scadenza.daysLeft} giorni`}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function NotificationsPanel({ open, onClose, userEmail, userRegime }) {
+  const [tab, setTab] = useState('notifiche');
+  const queryClient = useQueryClient();
+
+  // Notifiche
+  const { data: allNotifications = [] } = useQuery({
+    queryKey: ['panel-notifications', userEmail],
+    queryFn: () => base44.entities.Notification.filter({ user_email: userEmail }, '-created_date', 50),
+    enabled: !!userEmail && open,
+  });
+
+  // Scadenze
+  const { data: scadenzeRaw = [] } = useQuery({
+    queryKey: ['scadenze-fiscali'],
+    queryFn: () => base44.entities.ScadenzeFiscali.list(),
+    enabled: open,
+  });
+
+  const upcomingScadenze = getUpcomingScadenze(scadenzeRaw, userRegime);
+  const urgentCount = upcomingScadenze.filter(s => s.daysLeft < 7).length;
+
+  const markReadMutation = useMutation({
+    mutationFn: (id) => base44.entities.Notification.update(id, { is_read: true }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['panel-notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['home-notifications'] });
+    },
+  });
+
+  const markAllRead = async () => {
+    const unread = allNotifications.filter(n => !n.is_read);
+    for (const n of unread) {
+      await base44.entities.Notification.update(n.id, { is_read: true });
+    }
+    queryClient.invalidateQueries({ queryKey: ['panel-notifications'] });
+    queryClient.invalidateQueries({ queryKey: ['home-notifications'] });
+  };
+
+  if (!open) return null;
+
+  const unreadNotifs = allNotifications.filter(n => !n.is_read).length;
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div className="fixed inset-0 z-[60] bg-black/40" onClick={onClose} />
+
+      {/* Panel */}
+      <div className="fixed top-0 right-0 z-[61] w-full max-w-sm h-full bg-slate-900 border-l border-slate-700/50 flex flex-col shadow-2xl">
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 pt-4 pb-2">
+          <h2 className="text-white font-bold text-sm">Notifiche & Scadenze</h2>
+          <button onClick={onClose} className="p-1 rounded-lg hover:bg-slate-800 transition-colors">
+            <X className="w-5 h-5 text-slate-400" />
+          </button>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex border-b border-slate-700/50 px-4">
+          <button
+            onClick={() => setTab('notifiche')}
+            className={cn(
+              "flex-1 py-2.5 text-xs font-semibold text-center border-b-2 transition-colors",
+              tab === 'notifiche' ? 'border-[#d4af37] text-[#d4af37]' : 'border-transparent text-slate-400 hover:text-slate-300'
+            )}
+          >
+            Notifiche {unreadNotifs > 0 && <span className="ml-1 px-1.5 py-0.5 rounded-full bg-red-500/20 text-red-400 text-[9px] font-bold">{unreadNotifs}</span>}
+          </button>
+          <button
+            onClick={() => setTab('scadenze')}
+            className={cn(
+              "flex-1 py-2.5 text-xs font-semibold text-center border-b-2 transition-colors",
+              tab === 'scadenze' ? 'border-[#d4af37] text-[#d4af37]' : 'border-transparent text-slate-400 hover:text-slate-300'
+            )}
+          >
+            Scadenze {urgentCount > 0 && <span className="ml-1 px-1.5 py-0.5 rounded-full bg-red-500/20 text-red-400 text-[9px] font-bold">{urgentCount}</span>}
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto">
+          {tab === 'notifiche' ? (
+            <>
+              {unreadNotifs > 0 && (
+                <div className="px-4 py-2 flex justify-end">
+                  <button onClick={markAllRead} className="text-[10px] text-[#d4af37] hover:underline">Segna tutte come lette</button>
+                </div>
+              )}
+              {allNotifications.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16">
+                  <Bell className="w-8 h-8 text-slate-600 mb-3" />
+                  <p className="text-slate-400 text-xs">Nessuna notifica</p>
+                </div>
+              ) : (
+                allNotifications.map(n => (
+                  <NotificationItem key={n.id} notif={n} onMarkRead={(id) => markReadMutation.mutate(id)} />
+                ))
+              )}
+            </>
+          ) : (
+            <>
+              {!userRegime && (
+                <div className="mx-4 mt-3 px-3 py-2.5 rounded-xl bg-orange-500/10 border border-orange-500/30">
+                  <div className="flex items-start gap-2">
+                    <UserIcon className="w-4 h-4 text-orange-400 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-[11px] text-orange-300 font-medium">Completa il profilo per vedere tutte le scadenze</p>
+                      <Link
+                        to={createPageUrl('ProfiloUtente')}
+                        onClick={onClose}
+                        className="text-[10px] text-[#d4af37] hover:underline mt-1 inline-block"
+                      >
+                        Vai al profilo →
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {upcomingScadenze.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16">
+                  <CheckCircle2 className="w-8 h-8 text-emerald-500/40 mb-3" />
+                  <p className="text-slate-400 text-xs">Nessuna scadenza nei prossimi 30 giorni</p>
+                </div>
+              ) : (
+                <div className="mt-1">
+                  {upcomingScadenze.map((s, i) => (
+                    <ScadenzaItem key={s.id || i} scadenza={s} />
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
+
+// Export helper per badge count
+export function useNotificationsBadge(userEmail, userRegime) {
+  const { data: unreadNotifs = [] } = useQuery({
+    queryKey: ['home-notifications', userEmail],
+    queryFn: () => base44.entities.Notification.filter({ user_email: userEmail, is_read: false }),
+    enabled: !!userEmail,
+    refetchInterval: 10000,
+  });
+
+  const { data: scadenzeRaw = [] } = useQuery({
+    queryKey: ['scadenze-fiscali-badge'],
+    queryFn: () => base44.entities.ScadenzeFiscali.list(),
+    enabled: !!userEmail,
+    refetchInterval: 60000,
+  });
+
+  const urgentCount = getUpcomingScadenze(scadenzeRaw, userRegime).filter(s => s.daysLeft < 7).length;
+
+  return unreadNotifs.length + urgentCount;
+}
