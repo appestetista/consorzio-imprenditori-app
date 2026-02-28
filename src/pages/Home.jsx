@@ -147,7 +147,13 @@ FORMATO OBBLIGATORIO: Rispondi SOLO con un oggetto JSON valido. Nessun testo pri
     const assistantMsg = { role: 'assistant', content: result };
     const updatedMessages = [...newMessages, assistantMsg];
     setMessages(updatedMessages);
-    await base44.entities.ChatConversation.update(convId, { messages: updatedMessages });
+    const rispostaStr = typeof result === 'string' ? result : JSON.stringify(result);
+    await base44.entities.ChatConversation.update(convId, {
+      messages: updatedMessages,
+      categoria: category,
+      sottocategoria,
+      risposta_json: rispostaStr,
+    });
   };
 
   const handleDisambiguationSelect = async (disambiguation, selectedCategory) => {
