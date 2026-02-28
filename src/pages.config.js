@@ -94,6 +94,7 @@ import WelfareNormativa from './pages/WelfareNormativa';
 import WelfareOrdina from './pages/WelfareOrdina';
 import WelfareStorico from './pages/WelfareStorico';
 import WelfareTipologie from './pages/WelfareTipologie';
+import ProfiloUtente from './pages/ProfiloUtente';
 import __Layout from './Layout.jsx';
 
 
@@ -145,6 +146,7 @@ export const PAGES = {
     "WelfareOrdina": WelfareOrdina,
     "WelfareStorico": WelfareStorico,
     "WelfareTipologie": WelfareTipologie,
+    "ProfiloUtente": ProfiloUtente,
 }
 
 export const pagesConfig = {
