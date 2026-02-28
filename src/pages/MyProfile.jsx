@@ -1323,6 +1323,72 @@ export default function MyProfile() {
 
         <ExportProfileSection formData={formData} setFormData={setFormData} />
 
+        {/* Profilo Aziendale (ex ProfiloUtente) */}
+        <Card className="bg-slate-800 border-slate-700 mb-4">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center gap-2">
+              <Building2 className="w-5 h-5 text-[#d4af37]" />
+              Profilo Aziendale
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div>
+              <Label className="text-slate-400 text-sm mb-1 block">Settore</Label>
+              <Select value={formData.settore || undefined} onValueChange={(v) => setFormData({...formData, settore: v})}>
+                <SelectTrigger className="bg-slate-900 border-slate-700 text-white"><SelectValue placeholder="Seleziona settore" /></SelectTrigger>
+                <SelectContent>
+                  {['Manifattura','Commercio','Servizi','Tecnologia','Ristorazione','Edilizia','Trasporti','Sanita','Professioni','Altro'].map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-slate-400 text-sm mb-1 block">Forma giuridica</Label>
+              <Select value={formData.forma_giuridica || undefined} onValueChange={(v) => setFormData({...formData, forma_giuridica: v})}>
+                <SelectTrigger className="bg-slate-900 border-slate-700 text-white"><SelectValue placeholder="Seleziona forma" /></SelectTrigger>
+                <SelectContent>
+                  {['Ditta individuale','SRL','SRLS','SAS','SNC','SPA','Cooperativa','Altro'].map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-slate-400 text-sm mb-1 block">Fatturato annuo</Label>
+              <Select value={formData.fatturato_annuo || undefined} onValueChange={(v) => setFormData({...formData, fatturato_annuo: v})}>
+                <SelectTrigger className="bg-slate-900 border-slate-700 text-white"><SelectValue placeholder="Seleziona fatturato" /></SelectTrigger>
+                <SelectContent>
+                  {['Sotto 100K','100K-500K','500K-1M','1M-5M','5M-10M','Oltre 10M'].map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-slate-400 text-sm mb-1 block">Numero dipendenti</Label>
+              <Select value={formData.numero_dipendenti || undefined} onValueChange={(v) => setFormData({...formData, numero_dipendenti: v})}>
+                <SelectTrigger className="bg-slate-900 border-slate-700 text-white"><SelectValue placeholder="Seleziona" /></SelectTrigger>
+                <SelectContent>
+                  {['Solo io','1-5','6-15','16-50','51-200','Oltre 200'].map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-slate-400 text-sm mb-1 block">Regime fiscale</Label>
+              <Select value={formData.regime_fiscale || undefined} onValueChange={(v) => setFormData({...formData, regime_fiscale: v})}>
+                <SelectTrigger className="bg-slate-900 border-slate-700 text-white"><SelectValue placeholder="Seleziona regime" /></SelectTrigger>
+                <SelectContent>
+                  {['Forfettario','Semplificato','Ordinario','Non so'].map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-slate-400 text-sm mb-1 block">Obiettivo principale</Label>
+              <Select value={formData.obiettivo_principale || undefined} onValueChange={(v) => setFormData({...formData, obiettivo_principale: v})}>
+                <SelectTrigger className="bg-slate-900 border-slate-700 text-white"><SelectValue placeholder="Seleziona obiettivo" /></SelectTrigger>
+                <SelectContent>
+                  {['Crescita fatturato','Riduzione costi','Espansione','Digitalizzazione','Passaggio generazionale','Altro'].map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
+
         <Button
           onClick={handleSave}
           disabled={saving}
