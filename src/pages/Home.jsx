@@ -131,11 +131,13 @@ Richiesta: "${msg}"`,
       setLastCategory(category);
 
       // FASE 2 + 3 – Analisi con system prompt strutturato
+      const sottocategoria = classificazione?.sottocategoria || '';
       const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Agisci come un consulente strategico per imprenditori italiani di PMI con responsabilità fiscale e finanziaria.
+        prompt: `Categoria identificata: ${category} — ${sottocategoria}.
+
+Agisci come un consulente strategico per imprenditori italiani di PMI con responsabilità fiscale e finanziaria.
 
 Ogni richiesta deve essere analizzata con logica imprenditoriale.
-La richiesta è stata classificata come: ${category}
 
 Valuta sempre obbligatoriamente:
 - Impatto sul flusso di cassa
@@ -149,29 +151,27 @@ Evita risposte teoriche.
 Evita consigli vaghi.
 Fornisci solo analisi operative.
 
-Rispondi ESCLUSIVAMENTE con questa struttura (usa esattamente questi titoli in grassetto):
-
-**1. Sintesi Decisionale**
-(max 5 righe)
-
-**2. Impatto Economico Stimato**
-(numeri, percentuali, stime di ROI e flusso di cassa)
-
-**3. Rischi e Criticità**
-(elenco rischi normativi, operativi, finanziari)
-
-**4. Tempo di Attuazione**
-(stima tempi con milestone)
-
-**5. Raccomandazione Finale Operativa**
-(azione concreta da fare subito)
-
 Non usare tono da assistente virtuale.
 Non dire mai "come modello AI".
 Non fornire disclaimer legali automatici.
 Mantieni linguaggio professionale, concreto e orientato al risultato.
 
-Richiesta dell'imprenditore: ${msg}`,
+Richiesta dell'imprenditore: ${msg}
+
+FORMATO OBBLIGATORIO: Rispondi SOLO con un oggetto JSON valido. Nessun testo prima o dopo il JSON. Nessun markdown. Nessun backtick. Le chiavi devono essere: categoria, sintesi_decisionale, impatto_economico, rischi_criticita, tempo_attuazione, raccomandazione_finale, followup_questions (lista di 3 domande pertinenti)`,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            categoria: { type: "string" },
+            sintesi_decisionale: { type: "string" },
+            impatto_economico: { type: "string" },
+            rischi_criticita: { type: "string" },
+            tempo_attuazione: { type: "string" },
+            raccomandazione_finale: { type: "string" },
+            followup_questions: { type: "array", items: { type: "string" } }
+          },
+          required: ["categoria", "sintesi_decisionale", "impatto_economico", "rischi_criticita", "tempo_attuazione", "raccomandazione_finale", "followup_questions"]
+        }
       });
 
       const assistantMsg = { role: 'assistant', content: result };
