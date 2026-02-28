@@ -124,10 +124,14 @@ function RatingSection({ conversationId }) {
   );
 }
 
-export default function DecisionResponse({ message, category, classification, onFollowup, conversationId }) {
+export default function DecisionResponse({ message, category, classification, onFollowup, conversationId, existingPlan }) {
   const [showPlanCTA, setShowPlanCTA] = useState(true);
   const [planLoading, setPlanLoading] = useState(false);
-  const [plan, setPlan] = useState(null);
+  const [plan, setPlan] = useState(() => {
+    if (!existingPlan) return null;
+    if (typeof existingPlan === 'object') return existingPlan;
+    try { return JSON.parse(existingPlan); } catch { return null; }
+  });
   const parsed = parseStructuredResponse(message.content);
 
   const handleGeneratePlan = async () => {
@@ -286,7 +290,7 @@ Genera un piano operativo in JSON con: titolo_piano, durata_totale, budget_stima
         )}
 
         {/* CTA piano operativo */}
-        {showPlanCTA && !plan && (
+        {showPlanCTA && !plan && !existingPlan && (
           <button
             onClick={handleGeneratePlan}
             disabled={planLoading}

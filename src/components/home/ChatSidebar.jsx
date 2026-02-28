@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { X, Plus, Folder, FolderPlus, MessageSquare, Search, Pencil, Trash2, Check, MoreVertical, ChevronRight, Filter } from 'lucide-react';
+import { X, Plus, Folder, FolderPlus, MessageSquare, Search, Pencil, Trash2, Check, MoreVertical, ChevronRight, Filter, ListChecks } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const CATEGORY_COLORS = {
@@ -349,11 +349,18 @@ function ConversationItem({ conv, isActive, onSelect, onDelete, indent }) {
       >
         <MessageSquare className="w-4 h-4 text-slate-600 flex-shrink-0" />
         <span className="text-sm text-slate-400 truncate flex-1">{conv.titolo || 'Chat senza titolo'}</span>
-        {catStyle && (
-          <span className={cn("text-[9px] font-semibold px-1.5 py-0.5 rounded-full flex-shrink-0 border", catStyle.bg, catStyle.text, catStyle.border)}>
-            {conv.categoria}
-          </span>
-        )}
+        <div className="flex items-center gap-1 flex-shrink-0">
+          {conv.ha_piano && (
+            <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/30 flex items-center gap-0.5">
+              <ListChecks className="w-2.5 h-2.5" />Piano
+            </span>
+          )}
+          {catStyle && (
+            <span className={cn("text-[9px] font-semibold px-1.5 py-0.5 rounded-full border", catStyle.bg, catStyle.text, catStyle.border)}>
+              {conv.categoria}
+            </span>
+          )}
+        </div>
       </button>
       <button
         onClick={(e) => { e.stopPropagation(); onDelete(); }}
