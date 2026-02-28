@@ -966,22 +966,20 @@ export default function MyProfile() {
 
   return (
    <div className="min-h-screen bg-slate-900 pb-24">
-    <Header user={user} />
-
      <main className="px-4 py-6 max-w-2xl mx-auto">
-       <div className="flex items-center gap-3 mb-6">
+       <div className="flex items-center gap-3 mb-6 pt-2">
          {impersonation.active ? (
            <button
              onClick={() => {
                stopImpersonation();
                navigate(createPageUrl('AdminPanel'));
              }}
-             className="text-lime-400 hover:text-lime-500 transition-colors"
+             className="text-slate-400 hover:text-white transition-colors back-arrow-tap"
            >
-             <X className="w-6 h-6" />
+             <ArrowLeft className="w-6 h-6" />
            </button>
          ) : (
-           <Link to={createPageUrl('Home')} className="text-lime-400">
+           <Link to={createPageUrl('Home')} className="text-slate-400 hover:text-white transition-colors back-arrow-tap">
              <ArrowLeft className="w-6 h-6" />
            </Link>
          )}
