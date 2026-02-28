@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { Sparkles, Target, TrendingUp, AlertTriangle, Clock, CheckCircle2, ArrowRight } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
+import { Sparkles, Target, TrendingUp, AlertTriangle, Clock, CheckCircle2, ArrowRight, Star, Send, Loader2 } from 'lucide-react';
 
 const SECTIONS = [
   { key: 'sintesi', label: 'Sintesi Decisionale', icon: Target, color: 'text-[#d4af37]', bg: 'bg-[#d4af37]/10', border: 'border-[#d4af37]/30' },
@@ -39,7 +40,90 @@ function parseStructuredResponse(content) {
   return null;
 }
 
-export default function DecisionResponse({ message, category, classification, onFollowup }) {
+function RatingSection({ conversationId }) {
+  const [rating, setRating] = useState(0);
+  const [hovered, setHovered] = useState(0);
+  const [saved, setSaved] = useState(false);
+  const [comment, setComment] = useState('');
+  const [sendingComment, setSendingComment] = useState(false);
+  const [commentSent, setCommentSent] = useState(false);
+
+  const handleRate = async (value) => {
+    setRating(value);
+    setSaved(true);
+    if (conversationId) {
+      await base44.entities.ChatConversation.update(conversationId, { rating: value });
+    }
+  };
+
+  const handleSendComment = async () => {
+    if (!comment.trim() || !conversationId) return;
+    setSendingComment(true);
+    await base44.entities.ChatConversation.update(conversationId, { commento_feedback: comment.trim() });
+    setSendingComment(false);
+    setCommentSent(true);
+  };
+
+  if (!conversationId) return null;
+
+  return (
+    <div className="mt-2 pt-3 border-t border-slate-700/30">
+      <p className="text-[11px] text-slate-500 mb-2">Quanto è utile questa analisi?</p>
+      <div className="flex items-center gap-1 mb-2">
+        {[1, 2, 3, 4, 5].map((v) => (
+          <button
+            key={v}
+            onClick={() => handleRate(v)}
+            onMouseEnter={() => setHovered(v)}
+            onMouseLeave={() => setHovered(0)}
+            disabled={saved}
+            className="p-0.5 transition-transform hover:scale-110 disabled:hover:scale-100"
+          >
+            <Star
+              className="w-5 h-5 transition-colors"
+              fill={(hovered || rating) >= v ? '#C8A951' : 'transparent'}
+              stroke={(hovered || rating) >= v ? '#C8A951' : '#475569'}
+              strokeWidth={1.5}
+            />
+          </button>
+        ))}
+      </div>
+
+      {saved && rating <= 2 && !commentSent && (
+        <div className="flex items-center gap-2 mt-1">
+          <input
+            type="text"
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            placeholder="Cosa potremmo migliorare?"
+            className="flex-1 bg-slate-800/60 border border-slate-700/50 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-500 outline-none focus:border-[#C8A951]/50"
+          />
+          <button
+            onClick={handleSendComment}
+            disabled={!comment.trim() || sendingComment}
+            className="p-1.5 rounded-lg bg-[#C8A951]/20 text-[#C8A951] hover:bg-[#C8A951]/30 transition-colors disabled:opacity-40"
+          >
+            {sendingComment ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+          </button>
+        </div>
+      )}
+
+      {saved && rating <= 2 && commentSent && (
+        <p className="text-[11px] text-slate-500">Grazie per il feedback!</p>
+      )}
+
+      {saved && rating >= 4 && (
+        <p className="text-[11px] text-slate-500">Grazie! Analisi salvata nel tuo storico.</p>
+      )}
+
+      {saved && rating === 3 && (
+        <p className="text-[11px] text-slate-500">Grazie per la valutazione.</p>
+      )}
+    </div>
+  );
+}
+
+export default function DecisionResponse({ message, category, classification, onFollowup, conversationId }) {
   const [showPlanCTA, setShowPlanCTA] = useState(true);
   const parsed = parseStructuredResponse(message.content);
 
@@ -131,6 +215,9 @@ export default function DecisionResponse({ message, category, classification, on
             <ArrowRight className="w-4 h-4 text-[#d4af37]" />
           </div>
         )}
+
+        {/* Rating */}
+        <RatingSection conversationId={conversationId} />
       </div>
     </div>
   );

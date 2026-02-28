@@ -453,7 +453,7 @@ Richiesta: "${msg}"`,
                     </div>
                   </div>
                 ) : msg.role === 'assistant' ? (
-                  <DecisionResponse key={i} message={msg} category={lastCategory} classification={lastClassification} onFollowup={(text) => handleSend(text)} />
+                  <DecisionResponse key={i} message={msg} category={lastCategory} classification={lastClassification} onFollowup={(text) => handleSend(text)} conversationId={activeConversationId} />
                 ) : (
                   <ChatMessage key={i} message={msg} />
                 )
