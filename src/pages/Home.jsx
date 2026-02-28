@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Send, Sparkles, ArrowUp, Loader2, Menu, Mic, MicOff, X, LogOut, Settings, User, Eye, Phone, XCircle, Target, Scale, BarChart3 } from 'lucide-react';
+import { Send, Sparkles, ArrowUp, Loader2, Menu, Mic, MicOff, X, LogOut, Settings, User, Eye, Phone, XCircle, Target, Scale, BarChart3, Bell } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import { normalizeUser, isUserConsultant } from '../components/utils/normalizeUser';
@@ -13,6 +13,7 @@ import DecisionResponse from '../components/home/DecisionResponse';
 import CompareResult from '../components/home/CompareResult';
 import ChatSidebar from '../components/home/ChatSidebar';
 import ProfileOnboardingModal from '../components/home/ProfileOnboardingModal';
+import NotificationsPanel, { useNotificationsBadge } from '../components/home/NotificationsPanel';
 import { useQueryClient, useQuery as useRQQuery } from '@tanstack/react-query';
 
 export default function Home() {
@@ -37,6 +38,7 @@ export default function Home() {
   const [compareMode, setCompareMode] = useState(false);
   const [scenarioA, setScenarioA] = useState('');
   const [scenarioB, setScenarioB] = useState('');
+  const [notifPanelOpen, setNotifPanelOpen] = useState(false);
   const recognitionRef = useRef(null);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
@@ -428,14 +430,18 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
     setInputText('');
   };
 
-  // Notifiche non lette per badge messaggi
+  // Badge notifiche + scadenze urgenti
+  const userRegime = effectiveUser?.regime_fiscale || null;
+  const totalBadge = useNotificationsBadge(effectiveUser?.email, userRegime);
+
+  // Notifiche non lette per badge messaggi (solo messaggi)
   const { data: notifications = [] } = useRQQuery({
     queryKey: ['home-notifications', effectiveUser?.email],
     queryFn: () => base44.entities.Notification.filter({ user_email: effectiveUser?.email, is_read: false }),
     enabled: !!effectiveUser?.email,
     refetchInterval: 10000,
   });
-  const unreadCount = notifications.length;
+  const unreadCount = notifications.filter(n => n.type === 'message').length;
 
   // Logo utente
   const DEFAULT_LOGO = "https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=100&h=100&fit=crop";
@@ -503,19 +509,29 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
             <Menu className="w-7 h-7 text-slate-400" />
           </button>
 
-          {/* Destra: messaggi */}
-          <Link to={createPageUrl('Messaggi')} className="relative p-1">
-            <img 
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/cd5e7b92b_Immagine_2026-02-03_182832-removebg-preview.png" 
-              alt="Messaggi" 
-              className="w-9 h-9 object-contain"
-            />
-            {unreadCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] rounded-full min-w-4 h-4 px-1 flex items-center justify-center font-bold">
-                {unreadCount > 99 ? '99+' : unreadCount}
-              </span>
-            )}
-          </Link>
+          {/* Destra: notifiche + messaggi */}
+          <div className="flex items-center gap-2">
+            <button onClick={() => setNotifPanelOpen(true)} className="relative p-1.5 rounded-xl hover:bg-slate-800 transition-colors">
+              <Bell className="w-6 h-6 text-slate-400" />
+              {totalBadge > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] rounded-full min-w-4 h-4 px-1 flex items-center justify-center font-bold">
+                  {totalBadge > 99 ? '99+' : totalBadge}
+                </span>
+              )}
+            </button>
+            <Link to={createPageUrl('Messaggi')} className="relative p-1">
+              <img 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/cd5e7b92b_Immagine_2026-02-03_182832-removebg-preview.png" 
+                alt="Messaggi" 
+                className="w-9 h-9 object-contain"
+              />
+              {unreadCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] rounded-full min-w-4 h-4 px-1 flex items-center justify-center font-bold">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
+            </Link>
+          </div>
         </div>
 
         {!hasMessages ? (
@@ -793,6 +809,14 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
           </div>
         </div>
       </div>
+
+      {/* Notifications Panel */}
+      <NotificationsPanel
+        open={notifPanelOpen}
+        onClose={() => setNotifPanelOpen(false)}
+        userEmail={effectiveUser?.email}
+        userRegime={userRegime}
+      />
 
       {/* Bottom Nav */}
       <BottomNav currentPage="Home" onMenuOpen={() => setMenuOpen(true)} />
