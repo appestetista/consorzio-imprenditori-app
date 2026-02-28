@@ -405,7 +405,30 @@ Richiesta: "${msg}"`,
           <div className="flex-1 overflow-y-auto px-4 pt-2 pb-32">
             <div className="max-w-2xl mx-auto space-y-4">
               {messages.map((msg, i) => (
-                msg.role === 'assistant' ? (
+                msg.disambiguation ? (
+                  <div key={i} className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#d4af37] to-[#b8860b] flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Sparkles className="w-4 h-4 text-white" />
+                    </div>
+                    <div className="flex-1 max-w-[92%] space-y-3">
+                      <div className="bg-slate-800/60 rounded-2xl rounded-tl-sm px-4 py-3">
+                        <p className="text-sm text-slate-200">{msg.disambiguation.text}</p>
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        {msg.disambiguation.categories.map((cat) => (
+                          <button
+                            key={cat}
+                            onClick={() => handleDisambiguationSelect(msg.disambiguation, cat)}
+                            disabled={isTyping}
+                            className="text-left text-sm text-white px-4 py-2.5 rounded-xl border border-slate-600/50 bg-transparent hover:border-[#C8A951] transition-colors disabled:opacity-50"
+                          >
+                            {cat}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ) : msg.role === 'assistant' ? (
                   <DecisionResponse key={i} message={msg} category={lastCategory} onFollowup={(text) => handleSend(text)} />
                 ) : (
                   <ChatMessage key={i} message={msg} />
