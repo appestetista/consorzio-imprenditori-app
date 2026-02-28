@@ -2,13 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Send, Sparkles, ArrowUp, Loader2, Menu, Mic, MicOff, X, LogOut, Settings, User, Eye, Phone, XCircle } from 'lucide-react';
+import { Send, Sparkles, ArrowUp, Loader2, Menu, Mic, MicOff, X, LogOut, Settings, User, Eye, Phone, XCircle, Target } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import { normalizeUser, isUserConsultant } from '../components/utils/normalizeUser';
 import { cn } from '@/lib/utils';
 import BottomNav from '../components/layout/BottomNav';
 import ChatMessage from '../components/home/ChatMessage';
+import DecisionResponse from '../components/home/DecisionResponse';
 import ChatSidebar from '../components/home/ChatSidebar';
 import { useQueryClient, useQuery as useRQQuery } from '@tanstack/react-query';
 
@@ -27,6 +28,7 @@ export default function Home() {
   const [activeConversationId, setActiveConversationId] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
+  const [lastCategory, setLastCategory] = useState(null);
   const recognitionRef = useRef(null);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
@@ -110,10 +112,59 @@ export default function Home() {
     }
 
     try {
-      const result = await base44.integrations.Core.InvokeLLM({
-        prompt: `Sei un assistente esperto per imprenditori e consulenti di un consorzio aziendale italiano. L'utente ti chiede aiuto su un problema aziendale. Rispondi in modo chiaro, pratico e conciso in italiano. Se il problema rientra in una delle sezioni disponibili nell'app (consulenze, bandi, fornitori, risparmio energetico, analisi contratti, welfare, simulatore fiscale, compliance, marketplace, import/export), suggerisci anche di visitare la sezione corrispondente nell'area Esplora dell'app.
+      // FASE 1 – Classificazione intento
+      const classificationResult = await base44.integrations.Core.InvokeLLM({
+        prompt: `Classifica la seguente richiesta di un imprenditore in UNA SOLA categoria tra: Fiscale, Legale, Marketing, Personale/HR, Investimenti, Operativa, Strategica.
 
-Domanda dell'utente: ${msg}`,
+Rispondi SOLO con il nome della categoria, nient'altro.
+
+Richiesta: "${msg}"`,
+      });
+      const category = classificationResult?.trim() || 'Strategica';
+      setLastCategory(category);
+
+      // FASE 2 + 3 – Analisi con system prompt strutturato
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `Agisci come un consulente strategico per imprenditori italiani di PMI con responsabilità fiscale e finanziaria.
+
+Ogni richiesta deve essere analizzata con logica imprenditoriale.
+La richiesta è stata classificata come: ${category}
+
+Valuta sempre obbligatoriamente:
+- Impatto sul flusso di cassa
+- Ritorno sull'investimento (ROI)
+- Rischio normativo e fiscale
+- Scalabilità
+- Tempo di implementazione
+
+Fornisci numeri stimati quando possibile.
+Evita risposte teoriche.
+Evita consigli vaghi.
+Fornisci solo analisi operative.
+
+Rispondi ESCLUSIVAMENTE con questa struttura (usa esattamente questi titoli in grassetto):
+
+**1. Sintesi Decisionale**
+(max 5 righe)
+
+**2. Impatto Economico Stimato**
+(numeri, percentuali, stime di ROI e flusso di cassa)
+
+**3. Rischi e Criticità**
+(elenco rischi normativi, operativi, finanziari)
+
+**4. Tempo di Attuazione**
+(stima tempi con milestone)
+
+**5. Raccomandazione Finale Operativa**
+(azione concreta da fare subito)
+
+Non usare tono da assistente virtuale.
+Non dire mai "come modello AI".
+Non fornire disclaimer legali automatici.
+Mantieni linguaggio professionale, concreto e orientato al risultato.
+
+Richiesta dell'imprenditore: ${msg}`,
       });
 
       const assistantMsg = { role: 'assistant', content: result };
@@ -283,19 +334,26 @@ Domanda dell'utente: ${msg}`,
         {!hasMessages ? (
           // Stato iniziale
           <div className="flex-1 flex flex-col items-center justify-center px-6 pb-32">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#d4af37] to-[#b8860b] flex items-center justify-center mb-6 shadow-lg shadow-[#d4af37]/20">
-              <Sparkles className="w-8 h-8 text-white" />
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#d4af37] to-[#b8860b] flex items-center justify-center mb-5 shadow-lg shadow-[#d4af37]/20">
+              <Target className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-white text-2xl font-bold text-center mb-8 leading-tight">
-              Scrivi il problema. Ti aiutiamo a risolverlo!
+            <h1 className="text-white text-xl font-bold text-center mb-2 leading-tight">
+              Centro Decisionale Imprenditore
             </h1>
+            <p className="text-slate-400 text-sm text-center mb-6 max-w-xs leading-relaxed">
+              Analizza rischi, costi e opportunità prima di decidere.
+            </p>
           </div>
         ) : (
           // Conversazione attiva
           <div className="flex-1 overflow-y-auto px-4 pt-2 pb-32">
             <div className="max-w-2xl mx-auto space-y-4">
               {messages.map((msg, i) => (
-                <ChatMessage key={i} message={msg} />
+                msg.role === 'assistant' ? (
+                  <DecisionResponse key={i} message={msg} category={lastCategory} />
+                ) : (
+                  <ChatMessage key={i} message={msg} />
+                )
               ))}
               {isTyping && (
                 <div className="flex items-start gap-3">
@@ -338,7 +396,7 @@ Domanda dell'utente: ${msg}`,
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={isRecording ? "Sto ascoltando..." : "Descrivi il tuo problema..."}
+              placeholder={isRecording ? "Sto ascoltando..." : "Descrivi una decisione aziendale o un problema operativo…"}
               rows={1}
               className="flex-1 bg-transparent text-white text-sm px-3 py-3.5 resize-none outline-none placeholder:text-slate-500 max-h-32"
               style={{ scrollbarWidth: 'none' }}
@@ -358,6 +416,9 @@ Domanda dell'utente: ${msg}`,
               )}
             </button>
           </div>
+          <p className="text-center text-[11px] text-slate-500 mt-2">
+            Ogni analisi valuta ROI, rischio e impatto sul flusso di cassa.
+          </p>
         </div>
       </div>
 
