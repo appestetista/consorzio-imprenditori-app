@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { base44 } from '@/api/base44Client';
-import { Sparkles, Target, TrendingUp, AlertTriangle, Clock, CheckCircle2, ArrowRight, Star, Send, Loader2 } from 'lucide-react';
+import { Sparkles, Target, TrendingUp, AlertTriangle, Clock, CheckCircle2, ArrowRight, Star, Send, Loader2, ListChecks } from 'lucide-react';
+import OperationalPlan from './OperationalPlan';
 
 const SECTIONS = [
   { key: 'sintesi', label: 'Sintesi Decisionale', icon: Target, color: 'text-[#d4af37]', bg: 'bg-[#d4af37]/10', border: 'border-[#d4af37]/30' },
@@ -125,7 +126,83 @@ function RatingSection({ conversationId }) {
 
 export default function DecisionResponse({ message, category, classification, onFollowup, conversationId }) {
   const [showPlanCTA, setShowPlanCTA] = useState(true);
+  const [planLoading, setPlanLoading] = useState(false);
+  const [plan, setPlan] = useState(null);
   const parsed = parseStructuredResponse(message.content);
+
+  const handleGeneratePlan = async () => {
+    if (!conversationId || !parsed) return;
+    setPlanLoading(true);
+    setShowPlanCTA(false);
+
+    const rispostaJson = typeof message.content === 'string' ? message.content : JSON.stringify(message.content);
+
+    let userContext = '';
+    try {
+      const me = await base44.auth.me();
+      if (me) {
+        const fields = [
+          ['azienda', me.company_name],
+          ['settore', me.settore],
+          ['forma giuridica', me.forma_giuridica],
+          ['fatturato annuo', me.fatturato_annuo],
+          ['dipendenti', me.numero_dipendenti],
+          ['regime fiscale', me.regime_fiscale],
+          ['obiettivo', me.obiettivo_principale],
+        ];
+        userContext = fields.filter(([, v]) => v).map(([k, v]) => `${k}: ${v}`).join(', ');
+      }
+    } catch (e) { /* ignora */ }
+
+    const result = await base44.integrations.Core.InvokeLLM({
+      prompt: `Sei un project manager operativo per PMI italiane.
+
+Basandoti su questa analisi: ${rispostaJson}
+${userContext ? `Profilo aziendale: ${userContext}` : ''}
+
+Genera un piano operativo in JSON con: titolo_piano, durata_totale, budget_stimato, fasi (lista con: numero, nome, durata, azioni come lista di stringhe, responsabile, costo_stimato), primo_passo_domani. SOLO JSON valido, nessun testo fuori dal JSON.`,
+      response_json_schema: {
+        type: "object",
+        properties: {
+          titolo_piano: { type: "string" },
+          durata_totale: { type: "string" },
+          budget_stimato: { type: "string" },
+          fasi: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                numero: { type: "number" },
+                nome: { type: "string" },
+                durata: { type: "string" },
+                azioni: { type: "array", items: { type: "string" } },
+                responsabile: { type: "string" },
+                costo_stimato: { type: "string" }
+              }
+            }
+          },
+          primo_passo_domani: { type: "string" }
+        },
+        required: ["titolo_piano", "fasi", "primo_passo_domani"]
+      }
+    });
+
+    let planData = null;
+    if (typeof result === 'object' && result !== null) {
+      planData = result;
+    } else if (typeof result === 'string') {
+      planData = JSON.parse(result);
+    }
+
+    setPlan(planData);
+    setPlanLoading(false);
+
+    // Salva sul record
+    await base44.entities.ChatConversation.update(conversationId, {
+      ha_piano: true,
+      piano_json: JSON.stringify(planData),
+    });
+  };
 
   if (!parsed) {
     // Fallback: render come markdown normale
@@ -209,12 +286,27 @@ export default function DecisionResponse({ message, category, classification, on
         )}
 
         {/* CTA piano operativo */}
-        {showPlanCTA && (
-          <div className="rounded-xl border border-slate-700/50 bg-slate-800/40 px-4 py-3 flex items-center justify-between">
+        {showPlanCTA && !plan && (
+          <button
+            onClick={handleGeneratePlan}
+            disabled={planLoading}
+            className="w-full rounded-xl border border-slate-700/50 bg-slate-800/40 px-4 py-3 flex items-center justify-between hover:border-[#d4af37]/40 transition-colors text-left"
+          >
             <span className="text-xs text-slate-400">Vuoi trasformare questa analisi in piano operativo?</span>
             <ArrowRight className="w-4 h-4 text-[#d4af37]" />
+          </button>
+        )}
+
+        {/* Loading piano */}
+        {planLoading && (
+          <div className="rounded-xl border border-[#d4af37]/30 bg-[#d4af37]/5 px-4 py-3 flex items-center gap-3">
+            <Loader2 className="w-4 h-4 text-[#d4af37] animate-spin" />
+            <span className="text-xs text-[#d4af37]">Sto generando il piano operativo...</span>
           </div>
         )}
+
+        {/* Piano operativo generato */}
+        {plan && <OperationalPlan plan={plan} />}
 
         {/* Rating */}
         <RatingSection conversationId={conversationId} />
