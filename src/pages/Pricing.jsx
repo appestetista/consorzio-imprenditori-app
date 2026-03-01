@@ -226,6 +226,87 @@ export default function Pricing() {
           </div>
         </div>
       </div>
+
+      {/* Modale Attivazione */}
+      {showModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center px-4" style={{ backgroundColor: 'rgba(10, 15, 26, 0.92)', backdropFilter: 'blur(8px)' }}>
+          <div className="w-full max-w-md bg-[#111827] border border-slate-700/60 rounded-2xl overflow-hidden shadow-2xl">
+            {/* Header modale */}
+            <div className="flex items-center justify-between px-5 pt-5 pb-3">
+              <h2 className="text-white font-bold text-base">Attiva il Piano Impresa</h2>
+              <button onClick={() => { setShowModal(false); setSent(false); }} className="text-slate-500 hover:text-white transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {sent ? (
+              <div className="px-5 pb-6 text-center">
+                <div className="w-14 h-14 rounded-full bg-green-500/15 flex items-center justify-center mx-auto mb-3">
+                  <Check className="w-7 h-7 text-green-400" />
+                </div>
+                <h3 className="text-white font-bold text-lg mb-1">Richiesta inviata!</h3>
+                <p className="text-slate-400 text-sm mb-4">Ti attiviamo entro 24h dalla ricezione del pagamento.</p>
+                <button
+                  onClick={() => { setShowModal(false); setSent(false); }}
+                  className="px-6 py-2.5 rounded-xl border border-slate-600 text-white text-sm font-medium hover:border-slate-500 transition-colors"
+                >
+                  Chiudi
+                </button>
+              </div>
+            ) : (
+              <div className="px-5 pb-6 space-y-4">
+                {/* Riepilogo */}
+                <div className="bg-slate-800/60 rounded-xl px-4 py-3 flex items-center justify-between">
+                  <span className="text-sm text-slate-300">Piano Impresa</span>
+                  <span className="text-white font-bold">39€/mese <span className="text-xs text-slate-500 font-normal">+ IVA</span></span>
+                </div>
+
+                <p className="text-sm text-slate-400">Per attivare il piano, effettua un bonifico o contattaci:</p>
+
+                {/* IBAN */}
+                <div className="bg-slate-900/80 rounded-xl px-4 py-3 border border-slate-700/50">
+                  <p className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">IBAN</p>
+                  <p className="text-white text-sm font-mono select-all">INSERISCI_IBAN</p>
+                </div>
+
+                {/* Causale */}
+                <div className="bg-slate-900/80 rounded-xl px-4 py-3 border border-slate-700/50">
+                  <p className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Causale</p>
+                  <p className="text-white text-sm select-all">Abbonamento Consorzio — {user?.email || ''}</p>
+                </div>
+
+                {/* WhatsApp */}
+                <a
+                  href="https://wa.me/INSERISCI_NUMERO?text=Ciao,%20vorrei%20attivare%20il%20Piano%20Impresa"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-green-600 hover:bg-green-700 text-white text-sm font-medium transition-colors"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  Contattaci su WhatsApp
+                </a>
+
+                <p className="text-[11px] text-slate-500 text-center">
+                  Attiviamo il tuo account entro 24h dalla ricezione del pagamento.
+                </p>
+
+                {/* Bottone conferma richiesta */}
+                <button
+                  onClick={handleRichiestaAbbonamento}
+                  disabled={sending}
+                  className="w-full py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all"
+                  style={{
+                    background: 'linear-gradient(135deg, #d4af37 0%, #b8860b 100%)',
+                    color: '#fff',
+                  }}
+                >
+                  {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Check className="w-4 h-4" /> Ho effettuato il bonifico</>}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
