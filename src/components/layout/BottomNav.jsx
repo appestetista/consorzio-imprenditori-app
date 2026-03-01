@@ -8,7 +8,7 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
   const navItems = [
     { name: 'home', label: 'Home', icon: Home, page: 'Home', tab: null },
     { name: 'strumenti', label: 'Strumenti', icon: Wrench, page: 'Esplora?tab=strumenti', tab: 'strumenti' },
-    { name: 'qrcode', label: 'QR Code', icon: QrCode, page: 'QRCodeHub', tab: null },
+    { name: 'qrcode', label: '', icon: null, customImage: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/7b2173d04_istockphoto-1358621997-612x612.jpg', page: 'QRCodeHub', tab: null },
     { name: 'menu', label: 'Menu', icon: Menu, isMenu: true },
   ];
 
@@ -73,27 +73,45 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
                         }}
                       >
                         {/* Icona */}
-                        <item.icon 
-                          className={cn(
-                            "w-6 h-6 mb-1 relative z-10 transition-all duration-150",
-                            isActive 
-                              ? "text-[#d4af37] stroke-[2px]" 
-                              : "text-[#a0a0a0]"
-                          )}
-                          style={{
-                            filter: isActive ? 'drop-shadow(0 0 6px rgba(212,175,55,0.5))' : 'none'
-                          }}
-                        />
+                        {item.customImage ? (
+                          <img 
+                            src={item.customImage} 
+                            alt="QR" 
+                            className={cn(
+                              "w-10 h-10 relative z-10 object-contain transition-all duration-150",
+                              isActive ? "brightness-125" : "brightness-75 grayscale"
+                            )}
+                            style={{
+                              filter: isActive 
+                                ? 'drop-shadow(0 0 6px rgba(212,175,55,0.5)) brightness(1.25) sepia(1) hue-rotate(5deg) saturate(3)' 
+                                : 'brightness(0.6) grayscale(0.5)'
+                            }}
+                          />
+                        ) : item.icon ? (
+                          <item.icon 
+                            className={cn(
+                              "w-6 h-6 mb-1 relative z-10 transition-all duration-150",
+                              isActive 
+                                ? "text-[#d4af37] stroke-[2px]" 
+                                : "text-[#a0a0a0]"
+                            )}
+                            style={{
+                              filter: isActive ? 'drop-shadow(0 0 6px rgba(212,175,55,0.5))' : 'none'
+                            }}
+                          />
+                        ) : null}
 
                         {/* Label */}
-                        <span 
-                          className={cn(
-                            "text-[10px] font-semibold relative z-10 tracking-wide",
-                            isActive ? "text-[#d4af37]" : "text-[#909090]"
-                          )}
-                        >
-                          {item.label}
-                        </span>
+                        {item.label && (
+                          <span 
+                            className={cn(
+                              "text-[10px] font-semibold relative z-10 tracking-wide",
+                              isActive ? "text-[#d4af37]" : "text-[#909090]"
+                            )}
+                          >
+                            {item.label}
+                          </span>
+                        )}
 
                         {/* Badge notifiche */}
                         {item.badge > 0 && (
