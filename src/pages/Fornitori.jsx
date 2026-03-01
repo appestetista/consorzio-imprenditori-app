@@ -86,7 +86,7 @@ export default function Fornitori() {
               if (showNewRequest) {
                 setShowNewRequest(false);
               } else {
-                navigate(createPageUrl('Home'));
+                navigate(createPageUrl('Esplora?tab=strumenti'));
               }
             }} className="text-lime-400 p-3 -m-3 rounded-full back-arrow-tap">
               <ArrowLeft className="w-7 h-7" />

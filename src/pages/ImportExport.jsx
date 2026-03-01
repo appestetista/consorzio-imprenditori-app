@@ -61,7 +61,7 @@ export default function ImportExport() {
       <main className="px-4 py-6 max-w-md mx-auto">
         {/* Header con tab switch */}
         <div className="flex items-center gap-3 mb-5">
-          <Link to={createPageUrl('Home')} className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center back-arrow-tap">
+          <Link to={createPageUrl('Esplora?tab=strumenti')} className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center back-arrow-tap">
             <ArrowLeft className="w-5 h-5 text-white" />
           </Link>
           <div className="flex-1">

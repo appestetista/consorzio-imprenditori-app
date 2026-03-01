@@ -826,7 +826,7 @@ export default function FinanziamentiAgevolati() {
       
       <main className="px-4 py-6 max-w-md mx-auto">
         <div className="flex items-center gap-3 mb-6">
-          <Link to={createPageUrl('Home')} className="text-slate-400 p-3 -m-3 rounded-full back-arrow-tap hover:text-white transition-colors">
+          <Link to={createPageUrl('Esplora?tab=strumenti')} className="text-slate-400 p-3 -m-3 rounded-full back-arrow-tap hover:text-white transition-colors">
             <ArrowLeft className="w-6 h-6" />
           </Link>
           <div className="flex-1">
