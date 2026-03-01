@@ -236,20 +236,19 @@ ${kbContext}${userContext}Richiesta dell'imprenditore: ${msg}`
     try {
       // FASE 1 – Classificazione intento
       console.log('>>> STEP 1: Inizio classificazione');
-      const classificazione = await base44.integrations.Core.InvokeLLM({
+      const classResult = await base44.integrations.Core.InvokeLLM({
         prompt: `Classifica questa richiesta in UNA sola categoria tra: Fiscale, Legale, Marketing, Personale/HR, Investimenti, Operativa, Strategica. Rispondi SOLO con un JSON: {"categoria": "nome", "confidenza": 85, "sottocategoria": "specifica"}
 
-Richiesta: "${msg}"`,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            categoria: { type: "string" },
-            confidenza: { type: "number" },
-            sottocategoria: { type: "string" }
-          },
-          required: ["categoria", "confidenza", "sottocategoria"]
-        }
+Richiesta: "${msg}"`
       });
+      let classificazione = classResult;
+      if (typeof classResult === 'string') {
+        try {
+          let cleaned = classResult.trim();
+          if (cleaned.startsWith('```')) cleaned = cleaned.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
+          classificazione = JSON.parse(cleaned);
+        } catch (e) { classificazione = null; }
+      }
       console.log('>>> STEP 2: Classificazione OK', classificazione);
       const category = classificazione?.categoria || 'Strategica';
       const confidenza = classificazione?.confidenza ?? 100;
