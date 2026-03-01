@@ -1,14 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Wrench, QrCode, Menu, Home } from 'lucide-react';
+import { Wrench, ScanLine, Menu, Home } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function BottomNav({ currentPage, unreadMessages = 0, activeTab = null, isAdmin = false, onMenuOpen, menuOpen = false }) {
   const navItems = [
     { name: 'home', label: 'Home', icon: Home, page: 'Home', tab: null },
     { name: 'strumenti', label: 'Strumenti', icon: Wrench, page: 'Esplora?tab=strumenti', tab: 'strumenti' },
-    { name: 'qrcode', label: '', icon: null, customImage: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/7b2173d04_istockphoto-1358621997-612x612.jpg', page: 'QRCodeHub', tab: null },
+    { name: 'qrcode', label: 'Scansiona', icon: ScanLine, page: 'QRCodeHub', tab: null },
     { name: 'menu', label: 'Menu', icon: Menu, isMenu: true },
   ];
 
