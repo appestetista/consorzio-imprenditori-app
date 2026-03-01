@@ -122,30 +122,86 @@ export default function Home() {
   const runAnalysis = async ({ msg, category, sottocategoria, newMessages, convId }) => {
     const userContext = buildUserContext();
 
-    // Recupera dati normativi dalla KnowledgeBase per la categoria
-    console.log('>>> STEP 4: Carico KB per', category);
-    let kbContext = '';
-    let kbRecords = [];
+    // KB hint (solo titoli, wrappato in try/catch)
+    let kbHint = '';
     try {
-      kbRecords = await base44.entities.KnowledgeBase.filter({ categoria: category, attivo: true });
-    } catch (kbErr) {
-      console.warn('KB non disponibile:', kbErr?.message);
-      kbRecords = [];
+      const kbRecords = await base44.entities.KnowledgeBase.filter({ categoria: category, attivo: true });
+      if (kbRecords.length > 0) {
+        kbHint = 'Temi da verificare online: ' + kbRecords.map(r => r.titolo).join(', ') + '.\n';
+      }
+    } catch (e) { kbHint = ''; }
+
+    // Strumento correlato
+    const strumentiMap = {
+      'Fiscale': { nome: 'Simulatore Fiscale', pagina: 'SimulatoreFiscale', descrizione: 'calcolo preciso imposte e confronto regimi' },
+      'Personale/HR': { nome: 'Costo del Personale', pagina: 'SimulatoreCostoPersonale', descrizione: 'calcolo esatto costo dipendente con CCNL e contributi' },
+      'Legale': { nome: 'Analisi Contratti', pagina: 'AnalisiContratti', descrizione: 'analisi clausole e rischi di contratti' },
+      'Investimenti': { nome: 'Bandi e Finanziamenti', pagina: 'FinanziamentiAgevolati', descrizione: 'bandi attivi e finanziamenti agevolati' },
+    };
+    const msgLower = msg.toLowerCase();
+    let strumentoSuggerito = strumentiMap[category] || null;
+    if (msgLower.includes('import') || msgLower.includes('export') || msgLower.includes('dazio') || msgLower.includes('dogana')) {
+      strumentoSuggerito = { nome: 'Import/Export', pagina: 'ImportExport', descrizione: 'analisi mercati, dazi doganali, codici HS con dati ufficiali' };
     }
-    console.log('>>> STEP 5: KB trovati:', kbRecords?.length || 0);
-    if (kbRecords.length > 0) {
-      const kbList = kbRecords.map(r => `- ${r.titolo}: ${r.contenuto}`).join('\n');
-      kbContext = `DATI NORMATIVI DI RIFERIMENTO:\n${kbList}\nUsa questi dati per dare risposte con numeri e aliquote reali quando pertinenti.\n\n`;
+    if (msgLower.includes('compliance') || msgLower.includes('sanzione') || msgLower.includes('gdpr') || msgLower.includes('sicurezza lavoro')) {
+      strumentoSuggerito = { nome: 'Evita Sanzioni', pagina: 'ComplianceAziendale', descrizione: 'verifica compliance normativa e rischio sanzioni' };
+    }
+    if (msgLower.includes('welfare') || msgLower.includes('benefit') || msgLower.includes('buoni pasto') || msgLower.includes('fringe')) {
+      strumentoSuggerito = { nome: 'Benefit Dipendenti', pagina: 'WelfareAziendale', descrizione: 'gestione welfare aziendale e normativa' };
+    }
+    if (msgLower.includes('fornitore') || msgLower.includes('fornitura') || msgLower.includes('preventivo')) {
+      strumentoSuggerito = { nome: 'Ricerca Fornitori', pagina: 'Fornitori', descrizione: 'ricerca e valutazione fornitori verificati' };
+    }
+    if (msgLower.includes('consulente') || msgLower.includes('consulenza') || msgLower.includes('commercialista') || msgLower.includes('avvocato')) {
+      strumentoSuggerito = { nome: 'Consulenze', pagina: 'Consulenze', descrizione: 'prenota una consulenza con un professionista' };
     }
 
-    console.log('>>> STEP 6: Invio prompt');
+    // Chiamata LLM con internet
     const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `Consulente PMI italiane. JSON obbligatorio.
-Chiavi: categoria, sintesi_decisionale, impatto_economico, rischi_criticita, tempo_attuazione, raccomandazione_finale, followup_questions (3 domande).
-Numeri reali. Mai inventare. Mai disclaimer.
-Categoria: ${category}. Domanda: ${msg}`
+      prompt: `Sei un consulente strategico senior per PMI italiane. HAI ACCESSO A INTERNET e DEVI usarlo.
+
+3 REGOLE ASSOLUTE:
+- MAI inventare dati, numeri, aliquote, leggi o statistiche
+- Se NON trovi un dato: scrivi "dato non disponibile" o dai un range segnato come STIMA
+- MAI restituire una risposta vuota o incompleta
+
+PROCEDURA:
+1. CERCA SU INTERNET dati aggiornati sulla domanda
+2. Ogni dato trovato online: segna [VERIFICATO — nome fonte]
+3. Ogni stima: segna [STIMA — su cosa si basa]
+4. Ogni dato da verificare: segna [DA CONFERMARE — con chi]
+
+DOVE CERCARE: Agenzia Entrate, INPS, INAIL, Gazzetta Ufficiale, MISE, MIMIT, Camere di Commercio, portali regionali, Fiscoetasse, Altalex, CNDCEC, Consulenti del Lavoro
+
+REGOLE RISPOSTA:
+- Numeri REALI trovati online, mai inventati
+- Linguaggio diretto, operativo, concreto da consulente esperto
+- La RACCOMANDAZIONE deve essere un'azione da fare DOMANI MATTINA
+- Mai dire "come modello AI" o "non posso dare consulenza"
+- Mai disclaimer legali automatici
+
+${kbHint}${userContext}
+
+Categoria: ${category} — ${sottocategoria}.
+Domanda: ${msg}
+
+FORMATO — JSON valido:
+{
+  "categoria": "stringa",
+  "sintesi_decisionale": "max 5 righe con dati reali e tag [VERIFICATO — fonte] o [STIMA]",
+  "impatto_economico": "cifre EUR con fonte o range stimato",
+  "rischi_criticita": "rischi specifici con norme di riferimento",
+  "tempo_attuazione": "timeline realistica",
+  "raccomandazione_finale": "cosa fare DOMANI MATTINA alle 9 come primo passo",
+  "fonti": [{"nome": "Nome Ente", "url": "link o vuoto", "tipo": "istituzionale|specializzata|media"}],
+  "affidabilita": {"verificati": 4, "stimati": 1, "da_confermare": 1, "punteggio": 8},
+  "followup_questions": ["domanda 1", "domanda 2", "domanda 3"],
+  "strumento_correlato": ${strumentoSuggerito ? JSON.stringify(strumentoSuggerito) : 'null'}
+}`,
+      add_context_from_internet: true
     });
 
+    // Parsing sicuro
     let parsed = result;
     if (typeof result === 'string') {
       try {
@@ -155,11 +211,13 @@ Categoria: ${category}. Domanda: ${msg}`
       } catch (e) { parsed = null; }
     }
 
-    console.log('>>> STEP 7: Risposta OK');
+    // Inietta strumento correlato se presente
+    if (parsed && strumentoSuggerito) parsed.strumento_correlato = strumentoSuggerito;
+
     const assistantMsg = { role: 'assistant', content: parsed || result };
     const updatedMessages = [...newMessages, assistantMsg];
     setMessages(updatedMessages);
-    const rispostaStr = typeof result === 'string' ? result : JSON.stringify(result);
+    const rispostaStr = typeof (parsed || result) === 'string' ? (parsed || result) : JSON.stringify(parsed || result);
     await base44.entities.ChatConversation.update(convId, {
       messages: updatedMessages,
       categoria: category,
