@@ -194,6 +194,8 @@ ${kbContext}${userContext}Richiesta dell'imprenditore: ${msg}`,
         convId: disambiguation.convId,
       });
     } catch (e) {
+      console.error('>>> ERRORE:', e?.message || e);
+      console.error('>>> DETTAGLIO:', JSON.stringify(e));
       const errMsg = { role: 'assistant', content: 'Mi dispiace, si è verificato un errore. Riprova tra un momento.' };
       const updated = [...msgsWithoutDisambig, errMsg];
       setMessages(updated);
