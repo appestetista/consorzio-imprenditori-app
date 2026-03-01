@@ -92,6 +92,7 @@ export default function AdminPanel() {
   const [showVideoRecensioniPanel, setShowVideoRecensioniPanel] = useState(false);
   const [showImportExportPanel, setShowImportExportPanel] = useState(false);
   const [showCostoPersonalePanel, setShowCostoPersonalePanel] = useState(false);
+  const [showAbbonamentiPanel, setShowAbbonamentiPanel] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
