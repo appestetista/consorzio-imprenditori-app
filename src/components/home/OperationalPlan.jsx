@@ -1,5 +1,5 @@
-import React from 'react';
-import { ListChecks, User, Euro, Clock, Rocket, CheckSquare } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ListChecks, User, Euro, Clock, Rocket, CheckSquare, Globe, Landmark, BookOpen, Newspaper } from 'lucide-react';
 
 export default function OperationalPlan({ plan }) {
   if (!plan) return null;
