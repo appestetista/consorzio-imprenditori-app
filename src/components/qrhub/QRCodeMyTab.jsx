@@ -10,7 +10,7 @@ function generateQRCodeSVG(data, size = 200) {
   return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(data)}&bgcolor=1e293b&color=a3e635`;
 }
 
-export default function QRCodeMyTab({ user }) {
+export default function QRCodeMyTab({ user, compact = false }) {
   const [copied, setCopied] = useState(false);
 
   const { data: qrData, isLoading } = useQuery({
@@ -34,11 +34,45 @@ export default function QRCodeMyTab({ user }) {
   };
 
   if (isLoading) {
-    return <div className="flex justify-center py-12"><div className="animate-spin w-8 h-8 border-2 border-[#d4af37] border-t-transparent rounded-full"></div></div>;
+    return <div className="flex justify-center py-4"><div className="animate-spin w-6 h-6 border-2 border-[#d4af37] border-t-transparent rounded-full"></div></div>;
   }
 
-  const qrUrl = qrData ? generateQRCodeSVG(qrData.qr_token, 250) : null;
+  const qrUrl = qrData ? generateQRCodeSVG(qrData.qr_token, compact ? 150 : 250) : null;
 
+  // Versione compatta: QR + nome in una riga
+  if (compact) {
+    return (
+      <Card className="bg-slate-800/60 border-[#d4af37]/20 overflow-hidden">
+        <CardContent className="p-3">
+          <div className="flex items-center gap-3">
+            <div className="bg-slate-700/50 rounded-lg p-2 flex-shrink-0">
+              {qrUrl && <img src={qrUrl} alt="QR Code" className="w-24 h-24 rounded" />}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[#d4af37] text-xs font-semibold uppercase tracking-wider mb-1">Il Mio QR Code</p>
+              <div className="flex items-center gap-2 mb-1">
+                {user?.logo_url ? (
+                  <img src={user.logo_url} alt="" className="w-7 h-7 rounded-full object-cover" />
+                ) : (
+                  <div className="w-7 h-7 bg-[#d4af37] rounded-full flex items-center justify-center">
+                    <User className="w-3.5 h-3.5 text-slate-900" />
+                  </div>
+                )}
+                <p className="text-white font-bold text-sm truncate">{user?.company_name || user?.full_name}</p>
+              </div>
+              <p className="text-[#d4af37] font-mono text-[10px] break-all mb-2">{qrData?.qr_token}</p>
+              <button onClick={handleCopy} className="flex items-center gap-1 text-[#d4af37] text-xs hover:text-[#f0d060] transition-colors">
+                {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                {copied ? 'Copiato!' : 'Copia codice'}
+              </button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Versione completa
   return (
     <div>
       <Card className="bg-slate-800/60 border-[#d4af37]/20 overflow-hidden">
