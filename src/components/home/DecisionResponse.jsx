@@ -363,7 +363,14 @@ export default function DecisionResponse({ message, category, classification, on
     } catch { /* ignora */ }
 
     const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `Sei un project manager operativo per PMI italiane.\nBasandoti su questa analisi: ${rispostaJson}\n${userContext ? `Profilo aziendale: ${userContext}` : ''}\nGenera un piano operativo in JSON con: titolo_piano, durata_totale, budget_stimato, fasi (lista con: numero, nome, durata, azioni come lista di stringhe, responsabile, costo_stimato), primo_passo_domani. SOLO JSON valido.`,
+      prompt: `Sei un project manager operativo per PMI italiane. HAI ACCESSO A INTERNET e DEVI usarlo.
+Basandoti su questa analisi: ${rispostaJson}
+${userContext ? `Profilo aziendale: ${userContext}` : ''}
+
+CERCA SU INTERNET costi reali di professionisti e servizi in Italia. Per ogni costo: [VERIFICATO — fonte] o [STIMA]. MAI inventare prezzi.
+
+Genera un piano operativo in JSON con: titolo_piano, durata_totale, budget_stimato, fasi (lista con: numero, nome, durata, azioni come lista di stringhe, responsabile, costo_stimato), primo_passo_domani, fonti (lista con: nome, url, tipo tra istituzionale/specializzata/media), affidabilita (oggetto con: verificati, stimati, da_confermare, punteggio da 1 a 10). SOLO JSON valido.`,
+      add_context_from_internet: true,
       response_json_schema: {
         type: "object",
         properties: {
@@ -371,7 +378,9 @@ export default function DecisionResponse({ message, category, classification, on
           durata_totale: { type: "string" },
           budget_stimato: { type: "string" },
           fasi: { type: "array", items: { type: "object", properties: { numero: { type: "number" }, nome: { type: "string" }, durata: { type: "string" }, azioni: { type: "array", items: { type: "string" } }, responsabile: { type: "string" }, costo_stimato: { type: "string" } } } },
-          primo_passo_domani: { type: "string" }
+          primo_passo_domani: { type: "string" },
+          fonti: { type: "array", items: { type: "object", properties: { nome: { type: "string" }, url: { type: "string" }, tipo: { type: "string" } } } },
+          affidabilita: { type: "object", properties: { verificati: { type: "number" }, stimati: { type: "number" }, da_confermare: { type: "number" }, punteggio: { type: "number" } } }
         },
         required: ["titolo_piano", "fasi", "primo_passo_domani"]
       }
