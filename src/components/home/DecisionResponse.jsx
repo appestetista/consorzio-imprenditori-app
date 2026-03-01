@@ -418,7 +418,7 @@ Genera un piano operativo in JSON con: titolo_piano, durata_totale, budget_stima
     );
   }
 
-  // Helper per passare dati al pdf (mappa alle chiavi che il pdf si aspetta)
+  // Helper per passare dati al pdf
   const parsedForPdf = {
     sintesi: parsed.sintesi_decisionale,
     impatto: parsed.impatto_economico,
@@ -426,6 +426,8 @@ Genera un piano operativo in JSON con: titolo_piano, durata_totale, budget_stima
     tempo: parsed.tempo_attuazione,
     raccomandazione: parsed.raccomandazione_finale,
     followup_questions: parsed.followup_questions || [],
+    affidabilita: parsed.affidabilita || null,
+    fonti: parsed.fonti || [],
   };
 
   const catKey = classification?.categoria || category || '';
