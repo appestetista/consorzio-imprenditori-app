@@ -519,7 +519,13 @@ export default function Esplora() {
               {activeTab === 'personale' && <span>👤</span>}
               {activeTab === 'personale' ? 'Area Personale' : activeTab}
             </h3>
-            <div className="grid grid-cols-2 gap-4 mb-4">{filteredFeatures.map(renderFeatureCard)}</div>
+            {activeTab === 'personale' ? (
+              <div className="rounded-xl border border-[#d4af37]/30 bg-slate-800/40 p-8 text-center">
+                <p className="text-[#d4af37] font-semibold text-base">🚧 Questa sezione è in lavorazione</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-4 mb-4">{filteredFeatures.map(renderFeatureCard)}</div>
+            )}
           </>
         ) : (
           <>
