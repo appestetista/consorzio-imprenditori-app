@@ -83,6 +83,7 @@ import Pricing from './pages/Pricing';
 import ProfiloBandi from './pages/ProfiloBandi';
 import ProfiloUtente from './pages/ProfiloUtente';
 import PromemoriaAste from './pages/PromemoriaAste';
+import QRCodeHub from './pages/QRCodeHub';
 import RichiestaWelfare from './pages/RichiestaWelfare';
 import RisparmioDettaglio from './pages/RisparmioDettaglio';
 import RisparmioEnergetico from './pages/RisparmioEnergetico';
@@ -97,7 +98,6 @@ import WelfareNormativa from './pages/WelfareNormativa';
 import WelfareOrdina from './pages/WelfareOrdina';
 import WelfareStorico from './pages/WelfareStorico';
 import WelfareTipologie from './pages/WelfareTipologie';
-import QRCodeHub from './pages/QRCodeHub';
 import __Layout from './Layout.jsx';
 
 
@@ -138,6 +138,7 @@ export const PAGES = {
     "ProfiloBandi": ProfiloBandi,
     "ProfiloUtente": ProfiloUtente,
     "PromemoriaAste": PromemoriaAste,
+    "QRCodeHub": QRCodeHub,
     "RichiestaWelfare": RichiestaWelfare,
     "RisparmioDettaglio": RisparmioDettaglio,
     "RisparmioEnergetico": RisparmioEnergetico,
@@ -152,7 +153,6 @@ export const PAGES = {
     "WelfareOrdina": WelfareOrdina,
     "WelfareStorico": WelfareStorico,
     "WelfareTipologie": WelfareTipologie,
-    "QRCodeHub": QRCodeHub,
 }
 
 export const pagesConfig = {

@@ -15,7 +15,7 @@ export default function QRCodeScannerTab({ user }) {
   const [searchResult, setSearchResult] = useState(null);
   const [searching, setSearching] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState({ open: false, prenotazione: null, vantaggio: null });
-  const [scannerActive, setScannerActive] = useState(false);
+  const [scannerActive, setScannerActive] = useState(true);
   const scannerRef = useRef(null);
 
   const { data: mieVantaggi = [] } = useQuery({
@@ -107,22 +107,23 @@ export default function QRCodeScannerTab({ user }) {
         <p className="text-slate-300 text-sm">Scansiona il QR code dell'utente con la fotocamera oppure inserisci il codice manualmente.</p>
       </div>
 
-      {scannerActive ? (
-        <Card className="bg-slate-800/60 border-[#d4af37]/40 mb-5 overflow-hidden">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2 text-[#d4af37]"><ScanLine className="w-5 h-5 animate-pulse" /><span className="font-medium text-sm">Scansiona QR Code</span></div>
+      <Card className="bg-slate-800/60 border-[#d4af37]/40 mb-5 overflow-hidden">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2 text-[#d4af37]"><ScanLine className="w-5 h-5 animate-pulse" /><span className="font-medium text-sm">Scansiona QR Code</span></div>
+            {scannerActive && (
               <Button variant="ghost" size="sm" onClick={closeScanner} className="text-slate-400 hover:text-white"><X className="w-5 h-5" /></Button>
-            </div>
-            <div id="qr-reader-hub" className="rounded-lg overflow-hidden" />
-            <p className="text-slate-400 text-xs text-center mt-3">Inquadra il QR code dell'utente</p>
-          </CardContent>
-        </Card>
-      ) : (
-        <Button onClick={() => setScannerActive(true)} className="w-full bg-[#d4af37] hover:bg-[#b8960b] text-slate-900 font-bold h-14 mb-4">
-          <Camera className="w-6 h-6 mr-2" />Apri Fotocamera per Scansionare
-        </Button>
-      )}
+            )}
+          </div>
+          <div id="qr-reader-hub" className="rounded-lg overflow-hidden" />
+          {!scannerActive && (
+            <Button onClick={() => setScannerActive(true)} className="w-full bg-[#d4af37] hover:bg-[#b8960b] text-slate-900 font-bold h-12 mt-3">
+              <Camera className="w-5 h-5 mr-2" />Riattiva Fotocamera
+            </Button>
+          )}
+          <p className="text-slate-400 text-xs text-center mt-3">Inquadra il QR code dell'utente</p>
+        </CardContent>
+      </Card>
 
       <div className="flex items-center gap-3 mb-4"><div className="flex-1 h-px bg-slate-700"></div><span className="text-slate-500 text-sm">oppure</span><div className="flex-1 h-px bg-slate-700"></div></div>
 

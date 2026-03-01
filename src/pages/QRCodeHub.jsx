@@ -91,7 +91,7 @@ export default function QRCodeHub() {
           </button>
         </div>
 
-        {/* Pulsanti quadrati: Il Mio QR e Scanner */}
+        {/* Pulsanti quadrati: Il Mio QR Code e Scansiona */}
         <div className="grid grid-cols-2 gap-3 mb-6">
           <button
             onClick={() => setActiveTab('mio-qr')}
@@ -102,12 +102,8 @@ export default function QRCodeHub() {
                 : "bg-slate-800/60 border-slate-700/50 text-slate-300 hover:border-slate-600"
             )}
           >
-            <img
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/26d542c6d_istockphoto-1358621997-612x612.jpg"
-              alt="QR"
-              className={cn("w-14 h-14 object-contain", activeTab === 'mio-qr' ? "brightness-100 sepia hue-rotate-[15deg] saturate-[3]" : "invert opacity-60")}
-            />
-            Il Mio QR
+            <QrCode className={cn("w-12 h-12", activeTab === 'mio-qr' ? "text-[#d4af37]" : "text-white/60")} />
+            Il Mio QR Code
           </button>
           <button
             onClick={() => setActiveTab('scanner')}
@@ -118,12 +114,8 @@ export default function QRCodeHub() {
                 : "bg-slate-800/60 border-slate-700/50 text-slate-300 hover:border-slate-600"
             )}
           >
-            <img
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/26d542c6d_istockphoto-1358621997-612x612.jpg"
-              alt="Scanner"
-              className={cn("w-14 h-14 object-contain", activeTab === 'scanner' ? "brightness-100 sepia hue-rotate-[15deg] saturate-[3]" : "invert opacity-60")}
-            />
-            Scanner
+            <ScanLine className={cn("w-12 h-12", activeTab === 'scanner' ? "text-[#d4af37]" : "text-white/60")} />
+            Scansiona
           </button>
         </div>
 
