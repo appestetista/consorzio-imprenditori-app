@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Check, ChevronDown, ChevronUp, ArrowLeft, Sparkles, Crown, Shield, Zap } from 'lucide-react';
+import { Check, ChevronDown, ChevronUp, ArrowLeft, Sparkles, Crown, Shield, Zap, X, Loader2, MessageCircle } from 'lucide-react';
 
 const FEATURES = [
   "50 consulenze AI al mese con dati verificati",
