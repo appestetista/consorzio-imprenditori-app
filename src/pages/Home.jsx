@@ -242,6 +242,7 @@ Richiesta: "${msg}"`,
           required: ["categoria", "confidenza", "sottocategoria"]
         }
       });
+      console.log('>>> STEP 2: Classificazione OK', classificazione);
       const category = classificazione?.categoria || 'Strategica';
       const confidenza = classificazione?.confidenza ?? 100;
       const sottocategoria = classificazione?.sottocategoria || '';
