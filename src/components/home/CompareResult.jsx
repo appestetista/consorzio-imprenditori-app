@@ -1,5 +1,5 @@
-import React from 'react';
-import { Scale, Trophy, Star } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Scale, Trophy, Star, Globe, Landmark, BookOpen, Newspaper } from 'lucide-react';
 
 const ROW_LABELS = {
   costo: { label: 'Costo stimato', icon: '💰' },
