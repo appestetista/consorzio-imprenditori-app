@@ -55,12 +55,39 @@ function FAQItem({ faq }) {
 export default function Pricing() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
 
   useEffect(() => {
     base44.auth.me().then(u => { setUser(u); setLoading(false); }).catch(() => setLoading(false));
   }, []);
 
   const isSubscribed = user?.piano_abbonamento && user.piano_abbonamento !== 'free';
+
+  const handleRichiestaAbbonamento = async () => {
+    if (!user?.email) return;
+    setSending(true);
+    await base44.entities.RichiestaAbbonamento.create({
+      user_id: user.id,
+      email: user.email,
+      stato: 'in_attesa',
+      piano: 'impresa_39',
+    });
+    // Notifica admin via email
+    try {
+      const admins = await base44.entities.User.filter({ role: 'admin' });
+      if (admins.length > 0) {
+        await base44.integrations.Core.SendEmail({
+          to: admins[0].email,
+          subject: `Nuova richiesta abbonamento — ${user.email}`,
+          body: `L'utente ${user.full_name || user.email} ha richiesto l'attivazione del Piano Impresa (39€/mese).\n\nEmail: ${user.email}\n\nVai nel Pannello Admin → Abbonamenti per attivarlo.`,
+        });
+      }
+    } catch (e) { /* non bloccare se l'email fallisce */ }
+    setSending(false);
+    setSent(true);
+  };
 
   if (loading) {
     return (
