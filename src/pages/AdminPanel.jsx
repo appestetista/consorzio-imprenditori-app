@@ -30,6 +30,7 @@ import SimulatoreFiscaleAdmin from '../components/admin/SimulatoreFiscaleAdmin';
 import VideoRecensioniAdmin from '../components/admin/VideoRecensioniAdmin';
 import ImportExportAdmin from '../components/admin/ImportExportAdmin';
 import CostoPersonaleAdmin from '../components/admin/CostoPersonaleAdmin';
+import KnowledgeBaseGenerator from '../components/admin/KnowledgeBaseGenerator';
 
 import AdminSectionGrid from '../components/admin/AdminSectionGrid';
 import AdminRisparmioGrid from '../components/admin/AdminRisparmioGrid';
@@ -260,6 +261,11 @@ export default function AdminPanel() {
         <AdminSectionGrid stats={stats} pendingApprovalEventsCount={pendingApprovalEventsCount} pendingVideoRequests={pendingVideoRequests} pendingConsultationBookings={pendingConsultationBookings} onOpenConsulenze={() => setShowConsulenzePanel(true)} onOpenVantaggi={() => setShowVantaggiPanel(true)} />
         <AdminRisparmioGrid onSelectCategory={(cat) => { setSelectedRisparmioCategory(cat); setShowRisparmioPanel(true); }} />
         <AdminAltreSezGrid allAdminMessages={allAdminMessages} unreadAdminMessages={unreadAdminMessages} onOpenImportExport={() => setShowImportExportPanel(true)} onOpenSimulatore={() => setShowSimulatorePanel(true)} onOpenVideoRecensioni={() => setShowVideoRecensioniPanel(true)} onOpenCostoPersonale={() => setShowCostoPersonalePanel(true)} onOpenImportAste={() => setShowImportAste(true)} onOpenAdminMessages={() => setShowAdminMessages(true)} />
+
+        {/* Knowledge Base Generator */}
+        <div className="mb-4">
+          <KnowledgeBaseGenerator />
+        </div>
 
         {/* Event Response Notifications */}
         {eventResponseNotifications.length > 0 && (
