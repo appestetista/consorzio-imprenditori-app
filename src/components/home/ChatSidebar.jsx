@@ -102,11 +102,14 @@ export default function ChatSidebar({ open, onClose, userEmail, activeConversati
     setExpandedFolders(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
+  // Ordina tutte le conversazioni dalla più recente
+  const sortedConversations = [...conversations].sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+
   // Conversazioni senza cartella
-  const looseConversations = conversations.filter(c => !c.folder_id);
+  const looseConversations = sortedConversations.filter(c => !c.folder_id);
   // Conversazioni per cartella
   const convsByFolder = {};
-  conversations.forEach(c => {
+  sortedConversations.forEach(c => {
     if (c.folder_id) {
       if (!convsByFolder[c.folder_id]) convsByFolder[c.folder_id] = [];
       convsByFolder[c.folder_id].push(c);
@@ -332,39 +335,54 @@ export default function ChatSidebar({ open, onClose, userEmail, activeConversati
   );
 }
 
+function formatConvDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const yesterday = new Date(today); yesterday.setDate(today.getDate() - 1);
+  const convDay = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  if (convDay.getTime() === today.getTime()) return 'Oggi';
+  if (convDay.getTime() === yesterday.getTime()) return 'Ieri';
+  return d.toLocaleDateString('it-IT', { day: '2-digit', month: 'short' });
+}
+
 function ConversationItem({ conv, isActive, onSelect, onDelete, indent }) {
   const catStyle = conv.categoria ? CATEGORY_COLORS[conv.categoria] : null;
 
   return (
     <div
       className={cn(
-        "flex items-center group rounded-lg mx-1 transition-colors cursor-pointer",
+        "flex items-start group rounded-lg mx-1 transition-colors cursor-pointer",
         isActive ? "bg-slate-800" : "hover:bg-slate-800/50",
         indent && "ml-6"
       )}
     >
       <button
         onClick={onSelect}
-        className="flex-1 flex items-center gap-2 px-3 py-2 min-w-0"
+        className="flex-1 flex items-start gap-2 px-3 py-2 min-w-0"
       >
-        <MessageSquare className="w-4 h-4 text-slate-600 flex-shrink-0" />
-        <span className="text-sm text-slate-400 truncate flex-1">{conv.titolo || 'Chat senza titolo'}</span>
-        <div className="flex items-center gap-1 flex-shrink-0">
-          {conv.ha_piano && (
-            <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/30 flex items-center gap-0.5">
-              <ListChecks className="w-2.5 h-2.5" />Piano
-            </span>
-          )}
-          {catStyle && (
-            <span className={cn("text-[9px] font-semibold px-1.5 py-0.5 rounded-full border", catStyle.bg, catStyle.text, catStyle.border)}>
-              {conv.categoria}
-            </span>
-          )}
+        <MessageSquare className="w-4 h-4 text-slate-600 flex-shrink-0 mt-0.5" />
+        <div className="flex-1 min-w-0">
+          <span className="text-sm text-slate-400 truncate block">{conv.titolo || 'Chat senza titolo'}</span>
+          <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+            {catStyle && (
+              <span className={cn("text-[9px] font-semibold px-1.5 py-0.5 rounded-full border", catStyle.bg, catStyle.text, catStyle.border)}>
+                {conv.categoria}
+              </span>
+            )}
+            {conv.ha_piano && (
+              <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/30 flex items-center gap-0.5">
+                <ListChecks className="w-2.5 h-2.5" />Piano
+              </span>
+            )}
+            <span className="text-[10px] text-slate-600 ml-auto">{formatConvDate(conv.created_date)}</span>
+          </div>
         </div>
       </button>
       <button
         onClick={(e) => { e.stopPropagation(); onDelete(); }}
-        className="mr-2 w-6 h-6 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-slate-700 transition-all"
+        className="mr-2 mt-2 w-6 h-6 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-slate-700 transition-all flex-shrink-0"
       >
         <Trash2 className="w-3 h-3 text-slate-500" />
       </button>
