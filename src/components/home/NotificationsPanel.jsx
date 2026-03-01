@@ -8,8 +8,9 @@ import { cn } from '@/lib/utils';
 
 function getUpcomingScadenze(scadenze, userRegime) {
   const now = new Date();
-  const currentMonth = now.getMonth() + 1; // 1-based
-  const currentYear = now.getFullYear();
+  now.setHours(0, 0, 0, 0);
+  const limit = new Date(now);
+  limit.setDate(limit.getDate() + 90);
 
   const results = [];
 
@@ -18,30 +19,19 @@ function getUpcomingScadenze(scadenze, userRegime) {
     if (s.regime !== 'tutti' && userRegime && s.regime !== userRegime) continue;
     if (!userRegime && s.regime !== 'tutti') continue;
 
-    // Parsing mesi
-    const mesiArr = s.mesi.split(',').map(m => parseInt(m.trim())).filter(m => !isNaN(m));
+    if (!s.data_scadenza) continue;
+    const scadDate = new Date(s.data_scadenza);
+    scadDate.setHours(0, 0, 0, 0);
 
-    // Cerchiamo la prossima data nei prossimi 30 giorni
-    // Controlla mese corrente e successivo
-    for (const mese of [currentMonth, currentMonth === 12 ? 1 : currentMonth + 1]) {
-      if (!mesiArr.includes(mese)) continue;
+    if (scadDate < now || scadDate > limit) continue;
 
-      const year = mese < currentMonth ? currentYear + 1 : currentYear;
-      const giorno = Math.min(s.giorno_mese, new Date(year, mese, 0).getDate());
-      const scadDate = new Date(year, mese - 1, giorno);
+    const diffDays = Math.round((scadDate - now) / (1000 * 60 * 60 * 24));
 
-      const diffMs = scadDate.getTime() - now.getTime();
-      const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-
-      if (diffDays >= 0 && diffDays <= 30) {
-        results.push({
-          ...s,
-          nextDate: scadDate,
-          daysLeft: diffDays,
-        });
-        break; // una sola data per scadenza
-      }
-    }
+    results.push({
+      ...s,
+      nextDate: scadDate,
+      daysLeft: diffDays,
+    });
   }
 
   return results.sort((a, b) => a.daysLeft - b.daysLeft);
@@ -70,7 +60,13 @@ function NotificationItem({ notif, onMarkRead }) {
 }
 
 function ScadenzaItem({ scadenza }) {
-  const dateStr = scadenza.nextDate.toLocaleDateString('it-IT', { day: 'numeric', month: 'long' });
+  const dateStr = scadenza.nextDate.toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' });
+
+  const badgeConfig = scadenza.daysLeft < 7
+    ? { label: 'Urgente', bg: 'bg-red-500/20', text: 'text-red-400', border: 'border-red-500/30' }
+    : scadenza.daysLeft < 15
+    ? { label: 'In arrivo', bg: 'bg-orange-500/20', text: 'text-orange-400', border: 'border-orange-500/30' }
+    : { label: 'In programma', bg: 'bg-emerald-500/20', text: 'text-emerald-400', border: 'border-emerald-500/30' };
 
   return (
     <div className="px-4 py-3 border-b border-slate-700/30 last:border-b-0">
@@ -78,17 +74,17 @@ function ScadenzaItem({ scadenza }) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <p className="text-xs font-medium text-white truncate">{scadenza.titolo}</p>
-            {scadenza.daysLeft < 7 ? (
-              <span className="flex-shrink-0 px-1.5 py-0.5 rounded text-[9px] font-bold bg-red-500/20 text-red-400 border border-red-500/30">Urgente</span>
-            ) : scadenza.daysLeft < 15 ? (
-              <span className="flex-shrink-0 px-1.5 py-0.5 rounded text-[9px] font-bold bg-orange-500/20 text-orange-400 border border-orange-500/30">In arrivo</span>
-            ) : null}
+            <span className={cn("flex-shrink-0 px-1.5 py-0.5 rounded text-[9px] font-bold border", badgeConfig.bg, badgeConfig.text, badgeConfig.border)}>
+              {badgeConfig.label}
+            </span>
           </div>
-          {scadenza.descrizione && <p className="text-[11px] text-slate-400 mt-0.5">{scadenza.descrizione}</p>}
           <div className="flex items-center gap-1.5 mt-1">
             <Calendar className="w-3 h-3 text-slate-500" />
-            <span className="text-[10px] text-slate-500">{dateStr} — tra {scadenza.daysLeft === 0 ? 'oggi' : scadenza.daysLeft === 1 ? 'domani' : `${scadenza.daysLeft} giorni`}</span>
+            <span className="text-[10px] text-slate-500">{dateStr} — {scadenza.daysLeft === 0 ? 'oggi' : scadenza.daysLeft === 1 ? 'domani' : `tra ${scadenza.daysLeft} giorni`}</span>
           </div>
+          {scadenza.sanzione_ritardo && (
+            <p className="text-[10px] text-red-400/70 mt-1 leading-snug">⚠ {scadenza.sanzione_ritardo}</p>
+          )}
         </div>
       </div>
     </div>
@@ -109,7 +105,7 @@ export default function NotificationsPanel({ open, onClose, userEmail, userRegim
   // Scadenze
   const { data: scadenzeRaw = [] } = useQuery({
     queryKey: ['scadenze-fiscali'],
-    queryFn: () => base44.entities.ScadenzeFiscali.list(),
+    queryFn: () => base44.entities.ScadenzaFiscale.list('-data_scadenza', 200),
     enabled: open,
   });
 
@@ -217,7 +213,7 @@ export default function NotificationsPanel({ open, onClose, userEmail, userRegim
               {upcomingScadenze.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16">
                   <CheckCircle2 className="w-8 h-8 text-emerald-500/40 mb-3" />
-                  <p className="text-slate-400 text-xs">Nessuna scadenza nei prossimi 30 giorni</p>
+                  <p className="text-slate-400 text-xs">Nessuna scadenza nei prossimi 90 giorni</p>
                 </div>
               ) : (
                 <div className="mt-1">
@@ -245,7 +241,7 @@ export function useNotificationsBadge(userEmail, userRegime) {
 
   const { data: scadenzeRaw = [] } = useQuery({
     queryKey: ['scadenze-fiscali-badge'],
-    queryFn: () => base44.entities.ScadenzeFiscali.list(),
+    queryFn: () => base44.entities.ScadenzaFiscale.list('-data_scadenza', 200),
     enabled: !!userEmail,
     refetchInterval: 60000,
   });
