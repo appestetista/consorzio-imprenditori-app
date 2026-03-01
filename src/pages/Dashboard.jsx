@@ -83,15 +83,20 @@ export default function Dashboard() {
   analyses.forEach(c => { catCount[c.categoria] = (catCount[c.categoria] || 0) + 1; });
   const topCategory = Object.entries(catCount).sort((a, b) => b[1] - a[1])[0]?.[0] || '—';
 
-  // Dati grafico
-  const chartData = Object.entries(catCount)
+  // Dati grafico — ultimi 3 mesi
+  const threeMonthsAgo = new Date();
+  threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+  const recentAnalyses = analyses.filter(c => new Date(c.created_date) >= threeMonthsAgo);
+  const recentCatCount = {};
+  recentAnalyses.forEach(c => { recentCatCount[c.categoria] = (recentCatCount[c.categoria] || 0) + 1; });
+  const chartData = Object.entries(recentCatCount)
     .map(([name, count]) => ({ name, count }))
     .sort((a, b) => b.count - a.count);
 
   // Ultime 5
   const latest5 = analyses.slice(0, 5);
 
-  const notEnough = analyses.length < 3;
+  const notEnough = analyses.length === 0;
 
   return (
     <div className="min-h-screen pb-8" style={{ backgroundColor: '#0a0f1a' }}>
@@ -116,16 +121,16 @@ export default function Dashboard() {
             <BarChart3 className="w-8 h-8 text-slate-600" />
           </div>
           <p className="text-white font-semibold text-center mb-2">Dashboard non disponibile</p>
+          <p className="text-white font-semibold text-center mb-2">Fai la tua prima analisi!</p>
           <p className="text-slate-400 text-sm text-center mb-6 max-w-xs">
-            Analizza almeno 3 decisioni per la dashboard completa. Hai {analyses.length} analis{analyses.length === 1 ? 'i' : 'i'}.
+            Inizia a usare il consulente AI per vedere le tue statistiche qui.
           </p>
           <Link
             to={createPageUrl('Home')}
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold"
             style={{ backgroundColor: '#d4af37', color: '#1a1a2e' }}
           >
-            <Plus className="w-4 h-4" />
-            Nuova analisi
+            Vai al consulente AI →
           </Link>
         </div>
       ) : (
@@ -149,7 +154,7 @@ export default function Dashboard() {
           <div className="bg-slate-800/60 border border-slate-700/50 rounded-xl p-4">
             <div className="flex items-center gap-2 mb-4">
               <TrendingUp className="w-4 h-4 text-[#d4af37]" />
-              <span className="text-xs font-semibold text-white">Distribuzione per categoria</span>
+              <span className="text-xs font-semibold text-white">Analisi per categoria (ultimi 3 mesi)</span>
             </div>
             <div className="h-48">
               <ResponsiveContainer width="100%" height="100%">
