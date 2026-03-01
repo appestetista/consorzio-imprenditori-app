@@ -126,11 +126,13 @@ export default function Home() {
     console.log('>>> STEP 4: Carico KB per', category);
     let kbContext = '';
     const kbRecords = await base44.entities.KnowledgeBase.filter({ categoria: category, attivo: true });
+    console.log('>>> STEP 5: KB trovati:', kbRecords?.length || 0);
     if (kbRecords.length > 0) {
       const kbList = kbRecords.map(r => `- ${r.titolo}: ${r.contenuto}`).join('\n');
       kbContext = `DATI NORMATIVI DI RIFERIMENTO:\n${kbList}\nUsa questi dati per dare risposte con numeri e aliquote reali quando pertinenti.\n\n`;
     }
 
+    console.log('>>> STEP 6: Invio prompt');
     const result = await base44.integrations.Core.InvokeLLM({
       prompt: `Sei un consulente strategico senior specializzato in PMI italiane con 20 anni di esperienza in fiscalita, finanza d'impresa e strategia operativa.
 
