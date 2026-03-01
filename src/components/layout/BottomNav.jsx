@@ -13,8 +13,8 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50">
-        <div className="py-3 px-4" style={{ backgroundColor: '#061018' }}>
+    <nav className="fixed bottom-0 left-0 z-50" style={{ right: '48px' }}>
+        <div className="py-2 px-3" style={{ backgroundColor: '#061018' }}>
         <div className="max-w-md mx-auto">
           <div className="flex justify-between items-center gap-0">
             {navItems.map((item) => {
@@ -40,7 +40,7 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
                   {/* Pulsante 3D Premium con cornice oro */}
                   <div 
                     className={cn(
-                      "relative w-[76px] h-[76px] transition-transform duration-100 ease-out",
+                      "relative w-[68px] h-[68px] transition-transform duration-100 ease-out",
                       !item.disabled && "active:scale-[0.96]",
                     item.disabled && "opacity-40"
                     )}

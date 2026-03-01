@@ -226,11 +226,11 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           isOpen ? "opacity-0 pointer-events-none" : "opacity-100"
         )}
         style={{
-          width: '34px',
+          width: '42px',
           height: '140px',
           writingMode: 'vertical-rl',
           textOrientation: 'mixed',
-          bottom: '96px',
+          bottom: '0px',
           top: 'auto',
           transform: 'none'
         }}

@@ -769,7 +769,7 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
       </div>
 
       {/* Campo di input */}
-      <div className="fixed bottom-[88px] left-0 right-0 z-40 px-3 pb-2 pt-1" style={{ background: 'linear-gradient(to top, #0a0f1a 70%, transparent)' }}>
+      <div className="fixed bottom-[80px] left-0 z-40 px-3 pb-2 pt-1" style={{ right: '48px', background: 'linear-gradient(to top, #0a0f1a 70%, transparent)' }}>
         <div className="max-w-2xl mx-auto space-y-1">
           {!compareMode ? (
             <>
