@@ -14,6 +14,7 @@ import CompareResult from '../components/home/CompareResult';
 import ChatSidebar from '../components/home/ChatSidebar';
 import ProfileOnboardingModal from '../components/home/ProfileOnboardingModal';
 import NotificationsPanel, { useNotificationsBadge } from '../components/home/NotificationsPanel';
+import AIUsageBar, { AIUsageBadge } from '../components/home/AIUsageBar';
 import { useQueryClient, useQuery as useRQQuery } from '@tanstack/react-query';
 
 export default function Home() {
@@ -39,6 +40,8 @@ export default function Home() {
   const [scenarioA, setScenarioA] = useState('');
   const [scenarioB, setScenarioB] = useState('');
   const [notifPanelOpen, setNotifPanelOpen] = useState(false);
+  const [consulenzeUsate, setConsulenzeUsate] = useState(0);
+  const [pianoAbbonamento, setPianoAbbonamento] = useState(null);
   const recognitionRef = useRef(null);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
@@ -70,6 +73,31 @@ export default function Home() {
       navigate(createPageUrl('AdminPanel'));
     }
   }, [loading, effectiveUser?.role, impersonation.active, navigate]);
+
+  // Reset mensile consulenze + sync stato abbonamento
+  useEffect(() => {
+    if (!effectiveUser || effectiveUser.role === 'admin') return;
+    const piano = effectiveUser.piano_abbonamento || 'free';
+    setPianoAbbonamento(piano);
+    setConsulenzeUsate(effectiveUser.consulenze_usate_mese || 0);
+
+    // Controlla se il mese è cambiato → reset
+    const now = new Date();
+    const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    if (effectiveUser.mese_reset_consulenze && effectiveUser.mese_reset_consulenze !== currentMonth) {
+      // Reset asincrono
+      (async () => {
+        await base44.auth.updateMe({ consulenze_usate_mese: 0, mese_reset_consulenze: currentMonth });
+        setConsulenzeUsate(0);
+      })();
+    } else if (!effectiveUser.mese_reset_consulenze) {
+      // Prima volta: inizializza
+      (async () => {
+        await base44.auth.updateMe({ consulenze_usate_mese: 0, mese_reset_consulenze: currentMonth });
+        setConsulenzeUsate(0);
+      })();
+    }
+  }, [effectiveUser]);
 
   // Profilo onboarding check
   useEffect(() => {
@@ -214,7 +242,8 @@ FORMATO — JSON valido:
     // Inietta strumento correlato se presente
     if (parsed && strumentoSuggerito) parsed.strumento_correlato = strumentoSuggerito;
 
-    const assistantMsg = { role: 'assistant', content: parsed || result };
+    const newCount = (consulenzeUsate || 0) + 1;
+    const assistantMsg = { role: 'assistant', content: parsed || result, isAI: true, usageCount: newCount };
     const updatedMessages = [...newMessages, assistantMsg];
     setMessages(updatedMessages);
     const rispostaStr = typeof (parsed || result) === 'string' ? (parsed || result) : JSON.stringify(parsed || result);
@@ -224,6 +253,10 @@ FORMATO — JSON valido:
       sottocategoria,
       risposta_json: rispostaStr,
     });
+
+    // Incrementa contatore consulenze
+    setConsulenzeUsate(newCount);
+    await base44.auth.updateMe({ consulenze_usate_mese: newCount });
   };
 
   const handleDisambiguationSelect = async (disambiguation, selectedCategory) => {
@@ -253,9 +286,13 @@ FORMATO — JSON valido:
     }
   };
 
+  const isFreeUser = !pianoAbbonamento || pianoAbbonamento === 'free';
+  const isExhausted = pianoAbbonamento === 'impresa_39' && consulenzeUsate >= 50;
+  const chatBlocked = isFreeUser || isExhausted;
+
   const handleSend = async (text) => {
     const msg = text || inputText.trim();
-    if (!msg || !effectiveUser?.email) return;
+    if (!msg || !effectiveUser?.email || chatBlocked) return;
 
     const userMsg = { role: 'user', content: msg };
     const newMessages = [...messages, userMsg];
@@ -655,7 +692,7 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
 
             {/* Chip esempio */}
             <div className="w-full max-w-md flex flex-wrap gap-2 justify-center">
-              {[
+              {!isFreeUser && [
                 "Quanto mi costa un dipendente?",
                 "Bandi aperti nella mia regione",
                 "Come ridurre le tasse legalmente?",
@@ -664,7 +701,8 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
                 <button
                   key={chip}
                   onClick={() => handleSend(chip)}
-                  className="px-3.5 py-2 rounded-xl border border-slate-700/50 bg-slate-800/30 text-xs text-slate-300 hover:border-[#d4af37]/50 hover:text-white transition-colors"
+                  disabled={chatBlocked}
+                  className="px-3.5 py-2 rounded-xl border border-slate-700/50 bg-slate-800/30 text-xs text-slate-300 hover:border-[#d4af37]/50 hover:text-white transition-colors disabled:opacity-40"
                 >
                   {chip}
                 </button>
@@ -702,7 +740,10 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
                 ) : msg.role === 'assistant' && msg.isCompare ? (
                   <CompareResult key={i} data={typeof msg.content === 'string' ? (() => { try { return JSON.parse(msg.content); } catch { return null; } })() : msg.content} />
                 ) : msg.role === 'assistant' ? (
-                  <DecisionResponse key={i} message={msg} category={lastCategory} classification={lastClassification} onFollowup={(text) => handleSend(text)} conversationId={activeConversationId} existingPlan={activeConvData?.ha_piano ? activeConvData.piano_json : null} userQuestion={messages.slice(0, i).reverse().find(m => m.role === 'user')?.content} />
+                  <div key={i} className="space-y-1.5">
+                    <DecisionResponse message={msg} category={lastCategory} classification={lastClassification} onFollowup={(text) => handleSend(text)} conversationId={activeConversationId} existingPlan={activeConvData?.ha_piano ? activeConvData.piano_json : null} userQuestion={messages.slice(0, i).reverse().find(m => m.role === 'user')?.content} />
+                    <AIUsageBadge isAIResponse={msg.isAI} usate={msg.usageCount || consulenzeUsate} />
+                  </div>
                 ) : (
                   <ChatMessage key={i} message={msg} />
                 )
@@ -729,9 +770,15 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
 
       {/* Campo di input */}
       <div className="fixed bottom-[88px] left-0 right-0 z-40 px-4 pb-3 pt-2" style={{ background: 'linear-gradient(to top, #0a0f1a 70%, transparent)' }}>
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-2xl mx-auto space-y-2">
+          {/* Barra consulenze / blocco free */}
+          {effectiveUser?.role !== 'admin' && (
+            <AIUsageBar piano={pianoAbbonamento} usate={consulenzeUsate} />
+          )}
+
           {!compareMode ? (
             <>
+              {!chatBlocked && (
               <div className="relative flex items-end rounded-2xl border border-slate-700/60 bg-slate-800/80 backdrop-blur-lg overflow-hidden" style={isRecording ? { borderColor: '#ef4444' } : {}}>
                 {/* Microfono */}
                 <button
@@ -770,7 +817,9 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
                   )}
                 </button>
               </div>
-              <div className="flex items-center justify-between mt-2">
+              )}
+              {!chatBlocked && (
+              <div className="flex items-center justify-between">
                 <p className="text-[11px] text-slate-500">
                   Dati verificati da fonti ufficiali. Mai inventati, mai stimati senza dirtelo.
                 </p>
@@ -782,6 +831,7 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
                   <span className="text-[11px] text-slate-400">Confronta scenari</span>
                 </button>
               </div>
+              )}
             </>
           ) : (
             <div className="rounded-2xl border border-[#d4af37]/30 bg-slate-800/80 backdrop-blur-lg p-4 space-y-3">
