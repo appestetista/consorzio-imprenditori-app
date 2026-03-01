@@ -13,7 +13,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import Header from '../components/layout/Header';
-import BottomNav from '../components/layout/BottomNav';
+import BottomNavWithMenu from '../components/layout/BottomNavWithMenu';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import SectionConsultantPanel from '../components/consulenze/SectionConsultantPanel';
@@ -1827,7 +1827,7 @@ VERIFICA:
           </DialogContent>
         </Dialog>
 
-      <BottomNav currentPage="ComplianceAziendale" unreadMessages={messages.length} />
+      <BottomNavWithMenu currentPage="ComplianceAziendale" unreadMessages={messages.length} />
     </div>
   );
 }

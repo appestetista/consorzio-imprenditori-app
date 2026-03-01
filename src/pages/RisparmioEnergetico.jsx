@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Header from '../components/layout/Header';
-import BottomNav from '../components/layout/BottomNav';
+import BottomNavWithMenu from '../components/layout/BottomNavWithMenu';
 import SectionConsultantPanel from '../components/consulenze/SectionConsultantPanel';
 
 export default function RisparmioEnergetico() {
@@ -201,7 +201,7 @@ export default function RisparmioEnergetico() {
         </Card>
       </main>
 
-      <BottomNav currentPage="RisparmioEnergetico" unreadMessages={messages.length} />
+      <BottomNavWithMenu currentPage="RisparmioEnergetico" unreadMessages={messages.length} />
     </div>
   );
 }

@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Header from '../components/layout/Header';
-import BottomNav from '../components/layout/BottomNav';
+import BottomNavWithMenu from '../components/layout/BottomNavWithMenu';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import ContractMessagesSection from '@/components/analisi-contratti/ContractMessagesSection';
 import SectionConsultantPanel from '../components/consulenze/SectionConsultantPanel';
@@ -1377,7 +1377,7 @@ Accedi all'app per visualizzare gli allegati e rispondere direttamente al client
         )}
       </main>
 
-      <BottomNav currentPage="AnalisiContratti" unreadMessages={messages.length} />
+      <BottomNavWithMenu currentPage="AnalisiContratti" unreadMessages={messages.length} />
     </div>
   );
 }

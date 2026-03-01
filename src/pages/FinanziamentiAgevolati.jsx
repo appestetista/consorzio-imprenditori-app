@@ -16,7 +16,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import Header from '../components/layout/Header';
-import BottomNav from '../components/layout/BottomNav';
+import BottomNavWithMenu from '../components/layout/BottomNavWithMenu';
 import GrantCard from '../components/grants/GrantCard';
 import GrantFilters from '../components/grants/GrantFilters';
 import GrantDecisionHero from '../components/grants/GrantDecisionHero';
@@ -1698,7 +1698,7 @@ export default function FinanziamentiAgevolati() {
         </DialogContent>
       </Dialog>
 
-      <BottomNav currentPage="FinanziamentiAgevolati" unreadMessages={messages.length} />
+      <BottomNavWithMenu currentPage="FinanziamentiAgevolati" unreadMessages={messages.length} />
     </div>
   );
 }

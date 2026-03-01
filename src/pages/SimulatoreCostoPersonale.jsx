@@ -6,7 +6,7 @@ import { createPageUrl } from '@/utils';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Header from '@/components/layout/Header';
-import BottomNav from '@/components/layout/BottomNav';
+import BottomNavWithMenu from '@/components/layout/BottomNavWithMenu';
 import SimulatoreDipendente from '@/components/costo-personale/SimulatoreDipendente';
 import SimulatoreAmministratore from '@/components/costo-personale/SimulatoreAmministratore';
 import SimulatoreSocioLavoratore from '@/components/costo-personale/SimulatoreSocioLavoratore';
@@ -89,7 +89,7 @@ export default function SimulatoreCostoPersonale() {
         </Tabs>
       </main>
 
-      <BottomNav currentPage="SimulatoreCostoPersonale" />
+      <BottomNavWithMenu currentPage="SimulatoreCostoPersonale" />
     </div>
   );
 }

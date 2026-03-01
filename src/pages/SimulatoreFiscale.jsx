@@ -4,7 +4,7 @@ import { ArrowLeft, Calculator, History } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import Header from '../components/layout/Header';
-import BottomNav from '../components/layout/BottomNav';
+import BottomNavWithMenu from '../components/layout/BottomNavWithMenu';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import { normalizeUser } from '../components/utils/normalizeUser';
 import SimulazioneForm from '../components/fiscale/SimulazioneForm';
@@ -162,7 +162,7 @@ export default function SimulatoreFiscale() {
         )}
       </main>
 
-      <BottomNav currentPage="SimulatoreFiscale" />
+      <BottomNavWithMenu currentPage="SimulatoreFiscale" />
     </div>
   );
 }
