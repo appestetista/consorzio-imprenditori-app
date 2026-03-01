@@ -442,12 +442,8 @@ export default function Esplora() {
 
   return (
     <div className="min-h-screen pb-24" style={{ backgroundColor: '#001d3b' }}>
-      {/* Header con Home */}
-      <div className="sticky top-0 z-30 px-4 py-3 flex items-center" style={{ backgroundColor: '#001d3b' }}>
-        <button onClick={() => navigate(createPageUrl('Home'))} className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center touch-manipulation active:scale-95 transition-transform">
-          <Home className="w-6 h-6 text-[#d4af37]" />
-        </button>
-      </div>
+      {/* Spacer top */}
+      <div className="pt-3" />
 
       {/* Menu Drawer */}
       <div className={cn("fixed inset-0 z-50 transition-all duration-300", menuOpen ? "visible" : "invisible")}>
@@ -518,10 +514,6 @@ export default function Esplora() {
           </div>
         ) : (
           <div className="mb-6">
-            <div className="flex items-center justify-end gap-2">
-              <Link to={createPageUrl('ScannerQRVantaggi')} className="p-2 rounded-lg bg-[#d4af37]/10 hover:bg-[#d4af37]/20 transition-colors" title="Scansiona QR"><ScanLine className="w-6 h-6 text-[#d4af37]" /></Link>
-              <Link to={createPageUrl('MioQRCode')} className="p-2 rounded-lg bg-[#d4af37]/10 hover:bg-[#d4af37]/20 transition-colors" title="Il mio QR"><QrCode className="w-6 h-6 text-[#d4af37]" /></Link>
-            </div>
             {nextEvent && <p className="text-[#b8a070] text-sm">Prossimo incontro: {new Date(nextEvent.date).toLocaleDateString('it-IT', { day: 'numeric', month: 'long' })} ore {nextEvent.time} - {nextEvent.location}</p>}
           </div>
         )}
