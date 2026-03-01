@@ -125,7 +125,13 @@ export default function Home() {
     // Recupera dati normativi dalla KnowledgeBase per la categoria
     console.log('>>> STEP 4: Carico KB per', category);
     let kbContext = '';
-    const kbRecords = await base44.entities.KnowledgeBase.filter({ categoria: category, attivo: true });
+    let kbRecords = [];
+    try {
+      kbRecords = await base44.entities.KnowledgeBase.filter({ categoria: category, attivo: true });
+    } catch (kbErr) {
+      console.warn('KB non disponibile:', kbErr?.message);
+      kbRecords = [];
+    }
     console.log('>>> STEP 5: KB trovati:', kbRecords?.length || 0);
     if (kbRecords.length > 0) {
       const kbList = kbRecords.map(r => `- ${r.titolo}: ${r.contenuto}`).join('\n');
