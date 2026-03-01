@@ -379,6 +379,8 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
       setScenarioB('');
       setCompareMode(false);
     } catch (e) {
+      console.error('>>> ERRORE:', e?.message || e);
+      console.error('>>> DETTAGLIO:', JSON.stringify(e));
       const errMsg = { role: 'assistant', content: 'Mi dispiace, si è verificato un errore nel confronto. Riprova tra un momento.' };
       const updated = [...newMessages, errMsg];
       setMessages(updated);
