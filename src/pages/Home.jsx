@@ -378,7 +378,7 @@ Richiesta: "${msg}"`,
   const handleCompare = async () => {
     const a = scenarioA.trim();
     const b = scenarioB.trim();
-    if (!a || !b || !effectiveUser?.email) return;
+    if (!a || !b || !effectiveUser?.email || chatBlocked) return;
 
     const userMsg = { role: 'user', content: `⚖️ Confronto:\nA: ${a}\nB: ${b}` };
     const newMessages = [...messages, userMsg];
@@ -449,8 +449,9 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
         } catch (e) { parsedCompare = null; }
       }
 
+      const newCount = (consulenzeUsate || 0) + 1;
       const result = parsedCompare || compareResult;
-      const assistantMsg = { role: 'assistant', content: result, isCompare: !!parsedCompare };
+      const assistantMsg = { role: 'assistant', content: result, isCompare: !!parsedCompare, isAI: true, usageCount: newCount };
       const updatedMessages = [...newMessages, assistantMsg];
       setMessages(updatedMessages);
 
@@ -461,6 +462,10 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
         sottocategoria: `${category} — ${sottocategoria}`,
         risposta_json: rispostaStr,
       });
+
+      // Incrementa contatore consulenze
+      setConsulenzeUsate(newCount);
+      await base44.auth.updateMe({ consulenze_usate_mese: newCount });
 
       // Reset campi confronto
       setScenarioA('');
