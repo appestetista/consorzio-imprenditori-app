@@ -952,17 +952,6 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
             )}
 
             <Link
-              to={createPageUrl('Dashboard')}
-              onClick={() => setMenuOpen(false)}
-              className="flex items-center gap-3 text-white py-3 px-4 rounded-lg hover:bg-slate-800 transition-colors"
-            >
-              <BarChart3 className="w-5 h-5 text-[#d4af37]" />
-              <span>Dashboard Analisi</span>
-            </Link>
-
-
-
-            <Link
               to={createPageUrl('Pricing')}
               onClick={() => setMenuOpen(false)}
               className="flex items-center gap-3 text-white py-3 px-4 rounded-lg hover:bg-slate-800 transition-colors"
