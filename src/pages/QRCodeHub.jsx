@@ -63,43 +63,75 @@ export default function QRCodeHub() {
           <h1 className="text-white text-xl font-bold">Vantaggi & QR Code</h1>
         </div>
 
-        {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="w-full bg-slate-800/80 border border-slate-700/50 mb-5 h-auto flex-wrap">
-            <TabsTrigger value="vantaggi" className="flex-1 data-[state=active]:bg-[#d4af37]/20 data-[state=active]:text-[#d4af37] text-xs py-2.5">
-              <Gift className="w-3.5 h-3.5 mr-1" />
-              Vantaggi
-            </TabsTrigger>
-            <TabsTrigger value="mio-qr" className="flex-1 data-[state=active]:bg-[#d4af37]/20 data-[state=active]:text-[#d4af37] text-xs py-2.5">
-              <QrCode className="w-3.5 h-3.5 mr-1" />
-              Il Mio QR
-            </TabsTrigger>
-            <TabsTrigger value="scanner" className="flex-1 data-[state=active]:bg-[#d4af37]/20 data-[state=active]:text-[#d4af37] text-xs py-2.5">
-              <ScanLine className="w-3.5 h-3.5 mr-1" />
-              Scanner
-            </TabsTrigger>
-            <TabsTrigger value="prenotazioni" className="flex-1 data-[state=active]:bg-[#d4af37]/20 data-[state=active]:text-[#d4af37] text-xs py-2.5">
-              <Bookmark className="w-3.5 h-3.5 mr-1" />
-              Prenotazioni
-            </TabsTrigger>
-          </TabsList>
+        {/* Pulsanti grandi: Vantaggi e Prenotazioni */}
+        <div className="grid grid-cols-2 gap-3 mb-5">
+          <button
+            onClick={() => setActiveTab('vantaggi')}
+            className={cn(
+              "rounded-2xl py-5 px-4 flex flex-col items-center gap-2 border-2 transition-all font-bold text-base",
+              activeTab === 'vantaggi'
+                ? "bg-[#d4af37]/20 border-[#d4af37] text-[#d4af37]"
+                : "bg-slate-800/60 border-slate-700/50 text-slate-300 hover:border-slate-600"
+            )}
+          >
+            <Gift className="w-8 h-8" />
+            Vantaggi
+          </button>
+          <button
+            onClick={() => setActiveTab('prenotazioni')}
+            className={cn(
+              "rounded-2xl py-5 px-4 flex flex-col items-center gap-2 border-2 transition-all font-bold text-base",
+              activeTab === 'prenotazioni'
+                ? "bg-[#d4af37]/20 border-[#d4af37] text-[#d4af37]"
+                : "bg-slate-800/60 border-slate-700/50 text-slate-300 hover:border-slate-600"
+            )}
+          >
+            <Bookmark className="w-8 h-8" />
+            Prenotazioni
+          </button>
+        </div>
 
-          <TabsContent value="vantaggi">
-            <QRCodeVantaggiTab user={user} />
-          </TabsContent>
+        {/* Pulsanti quadrati: Il Mio QR e Scanner */}
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          <button
+            onClick={() => setActiveTab('mio-qr')}
+            className={cn(
+              "rounded-2xl aspect-square flex flex-col items-center justify-center gap-2 border-2 transition-all font-semibold text-sm",
+              activeTab === 'mio-qr'
+                ? "bg-[#d4af37]/20 border-[#d4af37] text-[#d4af37]"
+                : "bg-slate-800/60 border-slate-700/50 text-slate-300 hover:border-slate-600"
+            )}
+          >
+            <img
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/26d542c6d_istockphoto-1358621997-612x612.jpg"
+              alt="QR"
+              className={cn("w-14 h-14 object-contain", activeTab === 'mio-qr' ? "brightness-100 sepia hue-rotate-[15deg] saturate-[3]" : "invert opacity-60")}
+            />
+            Il Mio QR
+          </button>
+          <button
+            onClick={() => setActiveTab('scanner')}
+            className={cn(
+              "rounded-2xl aspect-square flex flex-col items-center justify-center gap-2 border-2 transition-all font-semibold text-sm",
+              activeTab === 'scanner'
+                ? "bg-[#d4af37]/20 border-[#d4af37] text-[#d4af37]"
+                : "bg-slate-800/60 border-slate-700/50 text-slate-300 hover:border-slate-600"
+            )}
+          >
+            <img
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/26d542c6d_istockphoto-1358621997-612x612.jpg"
+              alt="Scanner"
+              className={cn("w-14 h-14 object-contain", activeTab === 'scanner' ? "brightness-100 sepia hue-rotate-[15deg] saturate-[3]" : "invert opacity-60")}
+            />
+            Scanner
+          </button>
+        </div>
 
-          <TabsContent value="mio-qr">
-            <QRCodeMyTab user={user} />
-          </TabsContent>
-
-          <TabsContent value="scanner">
-            <QRCodeScannerTab user={user} />
-          </TabsContent>
-
-          <TabsContent value="prenotazioni">
-            <QRCodePrenotazioniTab user={user} />
-          </TabsContent>
-        </Tabs>
+        {/* Contenuto tab attivo */}
+        {activeTab === 'vantaggi' && <QRCodeVantaggiTab user={user} />}
+        {activeTab === 'mio-qr' && <QRCodeMyTab user={user} />}
+        {activeTab === 'scanner' && <QRCodeScannerTab user={user} />}
+        {activeTab === 'prenotazioni' && <QRCodePrenotazioniTab user={user} />}
       </main>
 
       {/* Menu Drawer */}
