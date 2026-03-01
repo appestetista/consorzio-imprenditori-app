@@ -769,20 +769,20 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
       </div>
 
       {/* Campo di input */}
-      <div className="fixed bottom-[88px] left-0 right-0 z-40 px-4 pb-3 pt-2" style={{ background: 'linear-gradient(to top, #0a0f1a 70%, transparent)' }}>
-        <div className="max-w-2xl mx-auto space-y-2">
+      <div className="fixed bottom-[88px] left-0 right-0 z-40 px-3 pb-2 pt-1" style={{ background: 'linear-gradient(to top, #0a0f1a 70%, transparent)' }}>
+        <div className="max-w-2xl mx-auto space-y-1">
           {!compareMode ? (
             <>
-              <div className="relative flex items-end rounded-2xl border border-slate-700/60 bg-slate-800/80 backdrop-blur-lg overflow-hidden" style={isRecording ? { borderColor: '#ef4444' } : {}}>
+              <div className="relative flex items-end rounded-xl border border-slate-700/60 bg-slate-800/80 backdrop-blur-lg overflow-hidden" style={isRecording ? { borderColor: '#ef4444' } : {}}>
                 <button
                   onClick={toggleRecording}
-                  className="flex-shrink-0 ml-2 mb-2.5 w-8 h-8 rounded-full flex items-center justify-center transition-all"
+                  className="flex-shrink-0 ml-2 mb-2 w-7 h-7 rounded-full flex items-center justify-center transition-all"
                   style={{ backgroundColor: isRecording ? '#ef4444' : 'transparent' }}
                 >
                   {isRecording ? (
-                    <MicOff className="w-4 h-4 text-white" />
+                    <MicOff className="w-3.5 h-3.5 text-white" />
                   ) : (
-                    <Mic className="w-4 h-4 text-slate-400" />
+                    <Mic className="w-3.5 h-3.5 text-slate-400" />
                   )}
                 </button>
                 <textarea
@@ -792,13 +792,13 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
                   onKeyDown={handleKeyDown}
                   placeholder={isRecording ? "Sto ascoltando..." : "Chiedi qualsiasi cosa..."}
                   rows={1}
-                  className="flex-1 bg-transparent text-white text-sm px-3 py-3.5 resize-none outline-none placeholder:text-slate-500 max-h-32"
+                  className="flex-1 bg-transparent text-white text-sm px-2 py-2.5 resize-none outline-none placeholder:text-slate-500 max-h-28"
                   style={{ scrollbarWidth: 'none' }}
                 />
                 <button
                   onClick={() => handleSend()}
                   disabled={!inputText.trim() || isTyping}
-                  className="flex-shrink-0 m-1.5 w-9 h-9 rounded-xl flex items-center justify-center transition-all disabled:opacity-30"
+                  className="flex-shrink-0 m-1 w-8 h-8 rounded-lg flex items-center justify-center transition-all disabled:opacity-30"
                   style={{
                     backgroundColor: inputText.trim() && !isTyping ? '#d4af37' : '#334155',
                   }}
@@ -813,10 +813,10 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
               <div className="flex items-center justify-end">
                 <button
                   onClick={() => setCompareMode(true)}
-                  className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-slate-700/50 bg-slate-800/60 hover:border-[#d4af37]/40 transition-colors flex-shrink-0"
+                  className="flex items-center gap-1 px-2.5 py-0.5 rounded-full border border-slate-700/50 bg-slate-800/60 hover:border-[#d4af37]/40 transition-colors flex-shrink-0"
                 >
                   <Scale className="w-3 h-3 text-[#d4af37]" />
-                  <span className="text-[11px] text-slate-400">Confronta scenari</span>
+                  <span className="text-[10px] text-slate-400">Confronta scenari</span>
                 </button>
               </div>
             </>

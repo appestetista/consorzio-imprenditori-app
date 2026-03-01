@@ -230,8 +230,9 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           height: '140px',
           writingMode: 'vertical-rl',
           textOrientation: 'mixed',
-          top: '52%',
-          transform: 'translateY(-50%)'
+          bottom: '96px',
+          top: 'auto',
+          transform: 'none'
         }}
       >
         <span className="text-[13px] font-bold tracking-wider leading-none whitespace-nowrap">CALENDARIO</span>
