@@ -264,6 +264,16 @@ export default function AdminPanel() {
         <AdminRisparmioGrid onSelectCategory={(cat) => { setSelectedRisparmioCategory(cat); setShowRisparmioPanel(true); }} />
         <AdminAltreSezGrid allAdminMessages={allAdminMessages} unreadAdminMessages={unreadAdminMessages} onOpenImportExport={() => setShowImportExportPanel(true)} onOpenSimulatore={() => setShowSimulatorePanel(true)} onOpenVideoRecensioni={() => setShowVideoRecensioniPanel(true)} onOpenCostoPersonale={() => setShowCostoPersonalePanel(true)} onOpenImportAste={() => setShowImportAste(true)} onOpenAdminMessages={() => setShowAdminMessages(true)} />
 
+        {/* Abbonamenti */}
+        <div className="mb-4">
+          <Card className="bg-slate-800 border-slate-700 cursor-pointer hover:bg-slate-700" onClick={() => setShowAbbonamentiPanel(true)}>
+            <CardContent className="p-3 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-[#d4af37]/20 flex items-center justify-center"><DollarSign className="w-5 h-5 text-[#d4af37]" /></div>
+              <div><p className="text-white font-medium text-sm">Abbonamenti</p><p className="text-slate-400 text-[10px]">Gestisci richieste e attivazioni</p></div>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Knowledge Base Generator */}
         <div className="mb-4">
           <KnowledgeBaseGenerator />
