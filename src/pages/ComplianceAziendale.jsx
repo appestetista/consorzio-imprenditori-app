@@ -17,6 +17,7 @@ import BottomNav from '../components/layout/BottomNav';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import SectionConsultantPanel from '../components/consulenze/SectionConsultantPanel';
+import PremiumAIGate from '@/components/common/PremiumAIGate';
 
 const CATEGORIE = [
   "Sicurezza sul lavoro",
@@ -707,6 +708,13 @@ VERIFICA:
             )}
           </CardContent>
         </Card>
+
+        {/* Gate Premium AI */}
+        {effectiveUser?.piano_abbonamento !== 'impresa_39' && (
+          <div className="mb-6">
+            <PremiumAIGate user={effectiveUser} featureLabel="Genera automaticamente gli adempimenti obbligatori per la tua attività e verifica i documenti con l'AI" />
+          </div>
+        )}
 
         {/* Banner Aggiungi primo ramo */}
         {branches.length === 0 && (
@@ -1795,7 +1803,7 @@ VERIFICA:
                                                             ) : (
                       <Button
                         onClick={handleCreateBranch}
-                        disabled={!newBranch.nome.trim() || !newBranch.tipo_attivita.trim() || !newBranch.codice_ateco.trim() || !newBranch.data_attivazione || branches.length >= 5}
+                        disabled={!newBranch.nome.trim() || !newBranch.tipo_attivita.trim() || !newBranch.codice_ateco.trim() || !newBranch.data_attivazione || branches.length >= 5 || effectiveUser?.piano_abbonamento !== 'impresa_39'}
                         className="w-full bg-lime-400 text-slate-900 hover:bg-lime-500"
                       >
                         <Plus className="w-4 h-4 mr-2" />

@@ -12,6 +12,7 @@ import WorldMapExplorer from '@/components/import-export/WorldMapExplorer';
 import ExportSection from '@/components/import-export/ExportSection';
 import ImportSection from '@/components/import-export/ImportSection';
 import ContactExportManagerPopup from '@/components/import-export/ContactExportManagerPopup';
+import PremiumAIGate from '@/components/common/PremiumAIGate';
 
 export default function ImportExport() {
   const [user, setUser] = useState(null);
@@ -95,8 +96,15 @@ export default function ImportExport() {
           )}
         </div>
 
+        {/* Gate Premium AI */}
+        {user && user.piano_abbonamento !== 'impresa_39' && (
+          <div className="mb-6">
+            <PremiumAIGate user={user} featureLabel="Analizza mercati internazionali, dazi doganali, codici HS e logistica con dati ufficiali" />
+          </div>
+        )}
+
         {/* Contenuto per tab */}
-        {activeTab === 'messages' ? (
+        {user?.piano_abbonamento !== 'impresa_39' ? null : activeTab === 'messages' ? (
           <ImportMessagesSection user={user} />
         ) : activeTab === 'history' ? (
           <SearchHistory userEmail={user?.email} onOpenAnalysis={(log) => {

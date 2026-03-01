@@ -18,6 +18,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import ContractMessagesSection from '@/components/analisi-contratti/ContractMessagesSection';
 import SectionConsultantPanel from '../components/consulenze/SectionConsultantPanel';
 import ContractHistorySection from '@/components/profile/ContractHistorySection';
+import PremiumAIGate from '@/components/common/PremiumAIGate';
 
 export default function AnalisiContratti() {
   const [user, setUser] = useState(null);
@@ -549,6 +550,13 @@ Accedi all'app per visualizzare gli allegati e rispondere direttamente al client
               </CardContent>
             </Card>
 
+            {/* Gate Premium AI */}
+            {user?.piano_abbonamento !== 'impresa_39' && (
+              <div className="mb-6">
+                <PremiumAIGate user={user} featureLabel="Analizza i tuoi contratti con l'AI, individua clausole vessatorie e ricevi consigli legali" />
+              </div>
+            )}
+
         {/* Storico inline rimosso - ora è un tab separato */}
 
         {/* Vista dettaglio storico */}
@@ -850,7 +858,7 @@ Accedi all'app per visualizzare gli allegati e rispondere direttamente al client
 
             <Button
                                 onClick={handleAnalyze}
-                                disabled={files.length === 0 || uploading || analyzing || isLimitReached}
+                                disabled={files.length === 0 || uploading || analyzing || isLimitReached || user?.piano_abbonamento !== 'impresa_39'}
                                 className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 font-semibold h-12 animate-pulse disabled:opacity-50 disabled:animate-none"
                               >
               {uploading ? (

@@ -14,6 +14,7 @@ import MyRequestsList from '../components/fornitori/MyRequestsList';
 import OpenRequestsList from '../components/fornitori/OpenRequestsList';
 import SupplierProfileSetup from '../components/fornitori/SupplierProfileSetup';
 import SectionConsultantPanel from '../components/consulenze/SectionConsultantPanel';
+import PremiumAIGate from '@/components/common/PremiumAIGate';
 
 export default function Fornitori() {
   const [user, setUser] = useState(null);
@@ -146,6 +147,13 @@ export default function Fornitori() {
           </div>
         )}
 
+        {/* Gate Premium AI */}
+        {effectiveUser?.piano_abbonamento !== 'impresa_39' && (
+          <div className="mb-4">
+            <PremiumAIGate user={effectiveUser} featureLabel="Ricerca fornitori verificati con analisi AI, confronto candidature e preventivi automatizzati" />
+          </div>
+        )}
+
         {/* Contenuto */}
         {activeTab === 'my-requests' && (
           <>
@@ -153,6 +161,7 @@ export default function Fornitori() {
               <>
                 <Button 
                   onClick={() => setShowNewRequest(true)}
+                  disabled={effectiveUser?.piano_abbonamento !== 'impresa_39'}
                   className="w-full bg-lime-400 text-slate-900 hover:bg-lime-500 mb-4"
                 >
                   <Plus className="w-4 h-4 mr-2" /> Cerca nuovo fornitore
