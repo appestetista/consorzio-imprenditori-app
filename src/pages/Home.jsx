@@ -123,6 +123,7 @@ export default function Home() {
     const userContext = buildUserContext();
 
     // Recupera dati normativi dalla KnowledgeBase per la categoria
+    console.log('>>> STEP 4: Carico KB per', category);
     let kbContext = '';
     const kbRecords = await base44.entities.KnowledgeBase.filter({ categoria: category, attivo: true });
     if (kbRecords.length > 0) {
