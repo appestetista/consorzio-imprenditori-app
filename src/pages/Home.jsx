@@ -1039,9 +1039,13 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
       {/* Bottom Nav */}
       <BottomNav currentPage="Home" onMenuOpen={() => setMenuOpen(true)} menuOpen={menuOpen} />
 
-      {/* Onboarding Modal */}
-      {showOnboarding && (
-        <ProfileOnboardingModal onClose={() => setShowOnboarding(false)} />
+      {/* Missing Profile Data Modal */}
+      {missingFieldsPopup && (
+        <MissingProfileDataModal
+          fields={missingFieldsPopup.fields}
+          onComplete={handleMissingFieldsComplete}
+          onSkip={handleMissingFieldsSkip}
+        />
       )}
     </div>
   );
