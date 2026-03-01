@@ -9,10 +9,10 @@ import BottomNav from '../components/layout/BottomNav';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import { toast } from 'sonner';
 
-import QRCodeMyTab from '../components/qrhub/QRCodeMyTab';
-import QRCodeScannerTab from '../components/qrhub/QRCodeScannerTab';
-import QRCodeVantaggiTab from '../components/qrhub/QRCodeVantaggiTab';
-import QRCodePrenotazioniTab from '../components/qrhub/QRCodePrenotazioniTab';
+import QRCodeMyTab from '../components/qrhub/QRCodeMyTab.jsx';
+import QRCodeScannerTab from '../components/qrhub/QRCodeScannerTab.jsx';
+import QRCodeVantaggiTab from '../components/qrhub/QRCodeVantaggiTab.jsx';
+import QRCodePrenotazioniTab from '../components/qrhub/QRCodePrenotazioniTab.jsx';
 
 export default function QRCodeHub() {
   const [user, setUser] = useState(null);
