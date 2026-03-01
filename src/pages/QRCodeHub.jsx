@@ -198,7 +198,7 @@ export default function QRCodeHub() {
         </div>
       </div>
 
-      <BottomNav currentPage="QRCodeHub" onMenuOpen={() => setMenuOpen(true)} menuOpen={menuOpen} />
+      <BottomNav currentPage="QRCodeHub" onMenuOpen={() => setMenuOpen(prev => !prev)} menuOpen={menuOpen} />
     </div>
   );
 }
