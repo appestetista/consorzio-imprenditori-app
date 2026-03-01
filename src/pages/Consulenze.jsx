@@ -5,7 +5,7 @@ import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import Header from '../components/layout/Header';
-import BottomNav from '../components/layout/BottomNav';
+import BottomNavWithMenu from '../components/layout/BottomNavWithMenu';
 import MemberView from '../components/consulenze/MemberView';
 import ConsultantView from '../components/consulenze/ConsultantView';
 import AdminView from '../components/consulenze/AdminView';
@@ -226,7 +226,7 @@ export default function Consulenze() {
         {isMember && <MemberView user={effectiveUser} consultants={consultants} isLoading={isLoading} />}
       </main>
 
-      <BottomNav currentPage="Consulenze" unreadMessages={messages.length} />
+      <BottomNavWithMenu currentPage="Consulenze" unreadMessages={messages.length} />
     </div>
   );
 }

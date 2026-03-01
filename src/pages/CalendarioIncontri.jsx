@@ -14,7 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import Header from '../components/layout/Header';
-import BottomNav from '../components/layout/BottomNav';
+import BottomNavWithMenu from '../components/layout/BottomNavWithMenu';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import InviteEventDialog from '../components/calendario/InviteEventDialog';
 import EventZoneManager from '../components/calendario/EventZoneManager';
@@ -1168,7 +1168,7 @@ export default function CalendarioIncontri() {
       </Dialog>
       )}
 
-      <BottomNav currentPage="CalendarioIncontri" unreadMessages={messages.length} />
+      <BottomNavWithMenu currentPage="CalendarioIncontri" unreadMessages={messages.length} />
 
       {/* Dialog per creare evento utente */}
       <Dialog open={showUserEventForm} onOpenChange={setShowUserEventForm}>

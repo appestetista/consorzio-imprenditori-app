@@ -5,7 +5,7 @@ import { ArrowLeft, TrendingUp, Ship, Mail, Clock, UserRound } from 'lucide-reac
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import Header from '@/components/layout/Header';
-import BottomNav from '@/components/layout/BottomNav';
+import BottomNavWithMenu from '@/components/layout/BottomNavWithMenu';
 import ImportMessagesSection from '@/components/import-export/ImportMessagesSection';
 import SearchHistory from '@/components/import-export/SearchHistory';
 import WorldMapExplorer from '@/components/import-export/WorldMapExplorer';
@@ -132,7 +132,7 @@ export default function ImportExport() {
       </main>
 
       <ContactExportManagerPopup open={showContactPopup} onClose={() => setShowContactPopup(false)} exportManagers={exportManagers} user={user} />
-      <BottomNav currentPage="ImportExport" unreadMessages={messages.length} />
+      <BottomNavWithMenu currentPage="ImportExport" unreadMessages={messages.length} />
     </div>
   );
 }

@@ -16,7 +16,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import Header from '../components/layout/Header';
-import BottomNav from '../components/layout/BottomNav';
+import BottomNavWithMenu from '../components/layout/BottomNavWithMenu';
 import MembersDirectory from '../components/members/MembersDirectory';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import InviteUserForm from '../components/admin/InviteUserForm';
@@ -330,7 +330,7 @@ export default function GestioneMembri() {
           <MembersDirectory currentUserEmail={impersonation.active ? impersonation.targetEmail : user?.email} />
         </main>
 
-        <BottomNav currentPage="GestioneMembri" unreadMessages={messages.length} />
+        <BottomNavWithMenu currentPage="GestioneMembri" unreadMessages={messages.length} />
       </div>
     );
   }
@@ -1103,7 +1103,7 @@ export default function GestioneMembri() {
         </DialogContent>
       </Dialog>
 
-      <BottomNav currentPage="GestioneMembri" unreadMessages={messages.length} />
+      <BottomNavWithMenu currentPage="GestioneMembri" unreadMessages={messages.length} />
     </div>
   );
 }

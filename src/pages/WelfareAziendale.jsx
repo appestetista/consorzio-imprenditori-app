@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Card, CardContent } from '@/components/ui/card';
 import Header from '../components/layout/Header';
-import BottomNav from '../components/layout/BottomNav';
+import BottomNavWithMenu from '../components/layout/BottomNavWithMenu';
 import SectionConsultantPanel from '../components/consulenze/SectionConsultantPanel';
 
 export default function WelfareAziendale() {
@@ -122,7 +122,7 @@ export default function WelfareAziendale() {
         </div>
       </main>
 
-      <BottomNav currentPage="WelfareAziendale" unreadMessages={messages.length} />
+      <BottomNavWithMenu currentPage="WelfareAziendale" unreadMessages={messages.length} />
     </div>
   );
 }

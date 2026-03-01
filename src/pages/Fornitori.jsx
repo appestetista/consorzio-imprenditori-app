@@ -7,7 +7,7 @@ import { createPageUrl } from '@/utils';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Header from '../components/layout/Header';
-import BottomNav from '../components/layout/BottomNav';
+import BottomNavWithMenu from '../components/layout/BottomNavWithMenu';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import SupplierRequestWizard from '../components/fornitori/SupplierRequestWizard';
 import MyRequestsList from '../components/fornitori/MyRequestsList';
@@ -190,7 +190,7 @@ export default function Fornitori() {
         )}
       </main>
 
-      <BottomNav currentPage="Fornitori" unreadMessages={messages.length} />
+      <BottomNavWithMenu currentPage="Fornitori" unreadMessages={messages.length} />
     </div>
   );
 }
