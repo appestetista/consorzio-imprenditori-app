@@ -155,24 +155,20 @@ REGOLE:
 FORMATO: Rispondi ESCLUSIVAMENTE con JSON valido. Nessun testo fuori dal JSON. Chiavi obbligatorie: categoria, sintesi_decisionale, impatto_economico, rischi_criticita, tempo_attuazione, raccomandazione_finale, followup_questions (lista di 3 domande specifiche e utili per approfondire)
 
 Categoria identificata: ${category} — ${sottocategoria}.
-${kbContext}${userContext}Richiesta dell'imprenditore: ${msg}`,
-      response_json_schema: {
-        type: "object",
-        properties: {
-          categoria: { type: "string" },
-          sintesi_decisionale: { type: "string" },
-          impatto_economico: { type: "string" },
-          rischi_criticita: { type: "string" },
-          tempo_attuazione: { type: "string" },
-          raccomandazione_finale: { type: "string" },
-          followup_questions: { type: "array", items: { type: "string" } }
-        },
-        required: ["categoria", "sintesi_decisionale", "impatto_economico", "rischi_criticita", "tempo_attuazione", "raccomandazione_finale", "followup_questions"]
-      }
+${kbContext}${userContext}Richiesta dell'imprenditore: ${msg}`
     });
 
+    let parsed = result;
+    if (typeof result === 'string') {
+      try {
+        let cleaned = result.trim();
+        if (cleaned.startsWith('```')) cleaned = cleaned.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
+        parsed = JSON.parse(cleaned);
+      } catch (e) { parsed = null; }
+    }
+
     console.log('>>> STEP 7: Risposta OK');
-    const assistantMsg = { role: 'assistant', content: result };
+    const assistantMsg = { role: 'assistant', content: parsed || result };
     const updatedMessages = [...newMessages, assistantMsg];
     setMessages(updatedMessages);
     const rispostaStr = typeof result === 'string' ? result : JSON.stringify(result);
