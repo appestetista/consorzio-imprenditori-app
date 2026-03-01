@@ -108,6 +108,87 @@ export default function CompareResult({ data }) {
             <p className="text-sm text-slate-200 leading-relaxed">{data.verdetto}</p>
           </div>
         )}
+
+        {/* Barra affidabilità */}
+        {data.affidabilita && <AffidabilitaBar affidabilita={data.affidabilita} />}
+
+        {/* Fonti */}
+        {data.fonti?.length > 0 && <FontiSection fonti={data.fonti} />}
+      </div>
+    </div>
+  );
+}
+
+function AffidabilitaBar({ affidabilita }) {
+  const punteggio = affidabilita.punteggio ?? 0;
+  const [width, setWidth] = useState(0);
+
+  useEffect(() => {
+    const t = setTimeout(() => setWidth(punteggio * 10), 50);
+    return () => clearTimeout(t);
+  }, [punteggio]);
+
+  let barColor, label;
+  if (punteggio >= 8) { barColor = '#22c55e'; label = 'Alta affidabilità — Dati verificati'; }
+  else if (punteggio >= 5) { barColor = '#f59e0b'; label = 'Media affidabilità — Alcuni dati stimati'; }
+  else { barColor = '#ef4444'; label = 'Bassa affidabilità — Verifica necessaria'; }
+
+  return (
+    <div className="rounded-xl bg-slate-800/50 border border-slate-700/40 px-4 py-3">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-xs font-semibold text-slate-300">{label}</span>
+        <span className="text-xs font-bold" style={{ color: barColor }}>{punteggio}/10</span>
+      </div>
+      <div className="w-full h-2 bg-slate-700/60 rounded-full overflow-hidden">
+        <div className="h-full rounded-full transition-all duration-1000 ease-out" style={{ width: `${width}%`, backgroundColor: barColor }} />
+      </div>
+      <div className="flex items-center gap-4 mt-2">
+        {affidabilita.verificati != null && (
+          <span className="flex items-center gap-1.5 text-[11px] text-slate-400">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block" /> {affidabilita.verificati} verificati
+          </span>
+        )}
+        {affidabilita.stimati != null && (
+          <span className="flex items-center gap-1.5 text-[11px] text-slate-400">
+            <span className="w-2 h-2 rounded-full bg-yellow-400 inline-block" /> {affidabilita.stimati} stimati
+          </span>
+        )}
+        {affidabilita.da_confermare != null && (
+          <span className="flex items-center gap-1.5 text-[11px] text-slate-400">
+            <span className="w-2 h-2 rounded-full bg-red-400 inline-block" /> {affidabilita.da_confermare} da confermare
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function FontiSection({ fonti }) {
+  const tipoIcon = (tipo) => {
+    if (tipo === 'istituzionale') return <Landmark className="w-3.5 h-3.5 text-slate-400" />;
+    if (tipo === 'specializzata') return <BookOpen className="w-3.5 h-3.5 text-slate-400" />;
+    if (tipo === 'media') return <Newspaper className="w-3.5 h-3.5 text-slate-400" />;
+    return <Globe className="w-3.5 h-3.5 text-slate-400" />;
+  };
+
+  return (
+    <div className="rounded-xl bg-slate-800/40 border border-slate-700/40 px-4 py-3">
+      <div className="flex items-center gap-2 mb-2">
+        <Globe className="w-4 h-4 text-slate-400" />
+        <span className="text-xs font-semibold text-slate-300 uppercase tracking-wider">Fonti consultate</span>
+      </div>
+      <div className="space-y-1.5">
+        {fonti.map((f, i) => (
+          <div key={i} className="flex items-center gap-2">
+            {tipoIcon(f.tipo)}
+            <span className="text-xs text-slate-300">{f.nome}</span>
+            {f.url && (
+              <a href={f.url} target="_blank" rel="noopener noreferrer" className="text-[11px] text-[#d4af37] hover:underline truncate max-w-[180px]">
+                {f.url}
+              </a>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );
