@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { ArrowLeft, QrCode, Gift, ScanLine, Bookmark } from 'lucide-react';
+import { ArrowLeft, QrCode, Gift, ScanLine, Bookmark, X, User, Phone, LogOut, Settings, Crown, XCircle } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import BottomNav from '../components/layout/BottomNav';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
+import { normalizeUser, isUserConsultant } from '../components/utils/normalizeUser';
+import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
 import QRCodeMyTab from '../components/qrhub/QRCodeMyTab.jsx';
