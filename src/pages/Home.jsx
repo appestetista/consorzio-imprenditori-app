@@ -99,12 +99,7 @@ export default function Home() {
     }
   }, [effectiveUser]);
 
-  // Profilo onboarding check
-  useEffect(() => {
-    if (!loading && effectiveUser && effectiveUser.role !== 'admin' && !effectiveUser.profilo_completato) {
-      setShowOnboarding(true);
-    }
-  }, [loading, effectiveUser]);
+  // (onboarding rimosso — ora i dati vengono chiesti contestualmente nella chat)
 
   // Assegnazione tipo utente
   useEffect(() => {
