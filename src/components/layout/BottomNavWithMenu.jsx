@@ -116,7 +116,7 @@ export default function BottomNavWithMenu({ currentPage, activeTab = null, unrea
         currentPage={currentPage} 
         activeTab={activeTab}
         unreadMessages={unreadMessages} 
-        onMenuOpen={() => setMenuOpen(!menuOpen)} 
+        onMenuOpen={() => setMenuOpen(prev => !prev)} 
         menuOpen={menuOpen} 
       />
     </>
