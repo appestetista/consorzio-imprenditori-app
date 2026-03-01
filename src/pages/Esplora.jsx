@@ -579,7 +579,7 @@ export default function Esplora() {
       {showChangeResponse && nextEvent && <ChangeResponsePopup event={nextEvent} user={effectiveUser} onClose={() => setShowChangeResponse(false)} />}
       <ProfileCompletionModal user={effectiveUser} onProfileComplete={() => window.location.reload()} />
       <SoundPermissionPopup />
-      <BottomNav currentPage="Esplora" activeTab={activeTab} onMenuOpen={() => setMenuOpen(true)} />
+      <BottomNav currentPage="Esplora" activeTab={activeTab} onMenuOpen={() => setMenuOpen(true)} menuOpen={menuOpen} />
     </div>
   );
 }
