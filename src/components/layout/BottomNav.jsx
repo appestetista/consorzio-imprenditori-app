@@ -13,7 +13,7 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 z-50" style={{ right: '48px' }}>
+    <nav className="fixed bottom-0 left-0 z-30" style={{ right: '48px' }}>
         <div className="py-2 px-3" style={{ backgroundColor: '#061018' }}>
         <div className="max-w-md mx-auto">
           <div className="flex justify-between items-center gap-0">
