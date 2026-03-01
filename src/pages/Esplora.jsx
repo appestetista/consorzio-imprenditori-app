@@ -556,7 +556,19 @@ export default function Esplora() {
         ) : (
           <>
             <div className="flex items-center gap-2 mb-3 mt-2"><span className="text-lg">🔧</span><h3 className="text-[#d4af37] font-bold text-base tracking-wide">STRUMENTI</h3><div className="flex-1 h-px bg-gradient-to-r from-[#d4af37]/40 to-transparent ml-2"></div></div>
-            <div className="grid grid-cols-2 gap-4 mb-6">{features.filter(f => f.category === 'strumenti').map(renderFeatureCard)}</div>
+            <div className="space-y-5 mb-6">
+              {strumentiGroups.map((group) => (
+                <div key={group.label}>
+                  <div className="flex items-center gap-2 mb-3">
+                    <h4 className="text-[#d4af37]/80 font-semibold text-xs uppercase tracking-widest whitespace-nowrap">{group.label}</h4>
+                    <div className="flex-1 h-px bg-gradient-to-r from-[#d4af37]/30 to-transparent"></div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    {group.items.map(f => renderFeatureCard({ ...f, category: 'strumenti' }))}
+                  </div>
+                </div>
+              ))}
+            </div>
             <div className="flex items-center gap-2 mb-3 mt-4"><span className="text-lg">👤</span><h3 className="text-[#d4af37] font-bold text-base tracking-wide">PERSONALE</h3><div className="flex-1 h-px bg-gradient-to-r from-[#d4af37]/40 to-transparent ml-2"></div></div>
             <div className="grid grid-cols-2 gap-4 mb-6">{features.filter(f => f.category === 'personale').map(renderFeatureCard)}</div>
           </>
