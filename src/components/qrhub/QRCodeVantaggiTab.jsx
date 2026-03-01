@@ -20,7 +20,7 @@ const TIPI_VANTAGGIO = [
   "Promozione speciale", "Prova gratuita", "Vantaggio progressivo", "Altro"
 ];
 
-export default function QRCodeVantaggiTab({ user }) {
+export default function QRCodeVantaggiTab({ user, createOnly = false }) {
   const [showCreatePanel, setShowCreatePanel] = useState(false);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);

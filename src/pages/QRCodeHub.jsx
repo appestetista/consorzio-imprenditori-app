@@ -59,14 +59,19 @@ export default function QRCodeHub() {
           <h1 className="text-white text-xl font-bold">Vantaggi & QR Code</h1>
         </div>
 
-        {/* QR Code personale compatto + Scanner */}
+        {/* Scanner sempre visibile */}
+        <div className="mb-4">
+          <QRCodeScannerTab user={user} />
+        </div>
+
+        {/* QR Code personale compatto */}
         <div className="mb-4">
           <QRCodeMyTab user={user} compact />
         </div>
 
-        {/* Scanner sempre visibile */}
+        {/* Crea vantaggio per altri imprenditori */}
         <div className="mb-5">
-          <QRCodeScannerTab user={user} />
+          <QRCodeVantaggiTab user={user} createOnly />
         </div>
 
         {/* Etichette laterali verticali Vantaggi / Prenotazioni */}
