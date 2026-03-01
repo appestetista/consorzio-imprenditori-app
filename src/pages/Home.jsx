@@ -1000,7 +1000,7 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
       />
 
       {/* Bottom Nav */}
-      <BottomNav currentPage="Home" onMenuOpen={() => setMenuOpen(true)} />
+      <BottomNav currentPage="Home" onMenuOpen={() => setMenuOpen(true)} menuOpen={menuOpen} />
 
       {/* Onboarding Modal */}
       {showOnboarding && (
