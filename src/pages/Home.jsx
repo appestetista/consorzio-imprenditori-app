@@ -490,6 +490,47 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
     }
   };
 
+  // Callback quando l'utente completa i dati mancanti nel popup
+  const handleMissingFieldsComplete = async (newData) => {
+    // Aggiorna effectiveUser locale con i nuovi dati
+    setEffectiveUser(prev => ({ ...prev, ...newData }));
+    const pending = missingFieldsPopup?.pendingAnalysis;
+    setMissingFieldsPopup(null);
+    if (pending) {
+      setIsTyping(true);
+      try {
+        await runAnalysis(pending);
+      } catch (e) {
+        console.error('>>> ERRORE:', e?.message || e);
+        const errMsg = { role: 'assistant', content: 'Mi dispiace, si è verificato un errore. Riprova tra un momento.' };
+        const updated = [...pending.newMessages, errMsg];
+        setMessages(updated);
+        await base44.entities.ChatConversation.update(pending.convId, { messages: updated });
+      } finally {
+        setIsTyping(false);
+      }
+    }
+  };
+
+  const handleMissingFieldsSkip = async () => {
+    const pending = missingFieldsPopup?.pendingAnalysis;
+    setMissingFieldsPopup(null);
+    if (pending) {
+      setIsTyping(true);
+      try {
+        await runAnalysis(pending);
+      } catch (e) {
+        console.error('>>> ERRORE:', e?.message || e);
+        const errMsg = { role: 'assistant', content: 'Mi dispiace, si è verificato un errore. Riprova tra un momento.' };
+        const updated = [...pending.newMessages, errMsg];
+        setMessages(updated);
+        await base44.entities.ChatConversation.update(pending.convId, { messages: updated });
+      } finally {
+        setIsTyping(false);
+      }
+    }
+  };
+
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
