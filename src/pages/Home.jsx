@@ -355,6 +355,18 @@ Richiesta: "${msg}"`,
         return;
       }
 
+      // FASE 1.5 – Controlla campi profilo mancanti
+      const missing = getMissingFields(effectiveUser, category, msg);
+      if (missing.length > 0) {
+        // Pausa: mostra popup per raccogliere i dati, poi continua
+        setIsTyping(false);
+        setMissingFieldsPopup({
+          fields: missing,
+          pendingAnalysis: { msg, category, sottocategoria, newMessages, convId },
+        });
+        return;
+      }
+
       // FASE 2 + 3 – Analisi con system prompt strutturato
       console.log('>>> STEP 3: Inizio analisi');
       await runAnalysis({ msg, category, sottocategoria, newMessages, convId });
