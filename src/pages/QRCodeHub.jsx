@@ -20,7 +20,9 @@ export default function QRCodeHub() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('vantaggi');
+  const [menuOpen, setMenuOpen] = useState(false);
   const { impersonation } = useImpersonation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     window.scrollTo(0, 0);
