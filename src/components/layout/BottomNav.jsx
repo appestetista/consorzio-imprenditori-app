@@ -22,7 +22,9 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
                   ? menuOpen
                   : item.name === 'home'
                     ? currentPage === 'Home'
-                    : activeTab === item.tab;
+                    : item.name === 'qrcode'
+                      ? currentPage === 'QRCodeHub'
+                      : activeTab === item.tab;
               
               const Wrapper = item.isMenu ? 'button' : item.disabled ? 'div' : Link;
               const wrapperProps = item.isMenu 
