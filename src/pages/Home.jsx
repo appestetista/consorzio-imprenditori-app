@@ -34,8 +34,8 @@ export default function Home() {
   const [isRecording, setIsRecording] = useState(false);
   const [lastCategory, setLastCategory] = useState(null);
   const [lastClassification, setLastClassification] = useState(null);
-  const [showOnboarding, setShowOnboarding] = useState(false);
   const [activeConvData, setActiveConvData] = useState(null);
+  const [missingFieldsPopup, setMissingFieldsPopup] = useState(null); // { fields: [], pendingMsg: string }
   const [compareMode, setCompareMode] = useState(false);
   const [scenarioA, setScenarioA] = useState('');
   const [scenarioB, setScenarioB] = useState('');
