@@ -165,6 +165,7 @@ ${kbContext}${userContext}Richiesta dell'imprenditore: ${msg}`,
       }
     });
 
+    console.log('>>> STEP 7: Risposta OK');
     const assistantMsg = { role: 'assistant', content: result };
     const updatedMessages = [...newMessages, assistantMsg];
     setMessages(updatedMessages);
