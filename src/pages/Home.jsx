@@ -619,7 +619,7 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
               Centro Decisionale Imprenditore
             </h1>
             <p className="text-slate-400 text-sm text-center mb-6 max-w-xs leading-relaxed">
-              Analizza rischi, costi e opportunità prima di decidere.
+              Cerca dati reali su internet e ti dice cosa fare. Con le fonti.
             </p>
           </div>
         ) : (
@@ -701,7 +701,7 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder={isRecording ? "Sto ascoltando..." : "Descrivi una decisione aziendale o un problema operativo…"}
+                  placeholder={isRecording ? "Sto ascoltando..." : "Chiedi qualsiasi cosa... cerco dati reali e ti cito le fonti"}
                   rows={1}
                   className="flex-1 bg-transparent text-white text-sm px-3 py-3.5 resize-none outline-none placeholder:text-slate-500 max-h-32"
                   style={{ scrollbarWidth: 'none' }}
@@ -723,7 +723,7 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
               </div>
               <div className="flex items-center justify-between mt-2">
                 <p className="text-[11px] text-slate-500">
-                  Ogni analisi valuta ROI, rischio e impatto sul flusso di cassa.
+                  Dati verificati da fonti ufficiali. Mai inventati, mai stimati senza dirtelo.
                 </p>
                 <button
                   onClick={() => setCompareMode(true)}
