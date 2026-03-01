@@ -31,6 +31,7 @@ import VideoRecensioniAdmin from '../components/admin/VideoRecensioniAdmin';
 import ImportExportAdmin from '../components/admin/ImportExportAdmin';
 import CostoPersonaleAdmin from '../components/admin/CostoPersonaleAdmin';
 import KnowledgeBaseGenerator from '../components/admin/KnowledgeBaseGenerator';
+import AbbonamentiAdmin from '../components/admin/AbbonamentiAdmin';
 
 import AdminSectionGrid from '../components/admin/AdminSectionGrid';
 import AdminRisparmioGrid from '../components/admin/AdminRisparmioGrid';
