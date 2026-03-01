@@ -140,22 +140,10 @@ export default function Home() {
 
     console.log('>>> STEP 6: Invio prompt');
     const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `Sei un consulente strategico senior specializzato in PMI italiane con 20 anni di esperienza in fiscalita, finanza d'impresa e strategia operativa.
-
-REGOLE:
-1. Analizza dal punto di vista di un imprenditore italiano che deve prendere una decisione concreta
-2. Usa i dati normativi forniti per dare numeri reali e aliquote corrette
-3. Adatta al profilo aziendale dell'utente se il contesto e disponibile
-4. Se non hai cifre precise dai un range realistico (es. tra 5.000 e 12.000 euro)
-5. Mai risposte generiche. Mai 'dipende da molti fattori' senza specificare quali
-6. Mai dire 'come modello AI' o 'non posso fornire consulenza'
-7. Mai disclaimer legali automatici
-8. Linguaggio diretto, operativo, concreto
-
-FORMATO: Rispondi ESCLUSIVAMENTE con JSON valido. Nessun testo fuori dal JSON. Chiavi obbligatorie: categoria, sintesi_decisionale, impatto_economico, rischi_criticita, tempo_attuazione, raccomandazione_finale, followup_questions (lista di 3 domande specifiche e utili per approfondire)
-
-Categoria identificata: ${category} — ${sottocategoria}.
-${kbContext}${userContext}Richiesta dell'imprenditore: ${msg}`
+      prompt: `Consulente PMI italiane. JSON obbligatorio.
+Chiavi: categoria, sintesi_decisionale, impatto_economico, rischi_criticita, tempo_attuazione, raccomandazione_finale, followup_questions (3 domande).
+Numeri reali. Mai inventare. Mai disclaimer.
+Categoria: ${category}. Domanda: ${msg}`
     });
 
     let parsed = result;
