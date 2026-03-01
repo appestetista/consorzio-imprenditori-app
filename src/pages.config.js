@@ -61,6 +61,7 @@ import ContattaConsorzio from './pages/ContattaConsorzio';
 import ContattaMembri from './pages/ContattaMembri';
 import ContattaMembriAdmin from './pages/ContattaMembriAdmin';
 import CulturaAziendale from './pages/CulturaAziendale';
+import Dashboard from './pages/Dashboard';
 import DirectoryUtenti from './pages/DirectoryUtenti';
 import Esplora from './pages/Esplora';
 import FinanziamentiAgevolati from './pages/FinanziamentiAgevolati';
@@ -95,7 +96,6 @@ import WelfareNormativa from './pages/WelfareNormativa';
 import WelfareOrdina from './pages/WelfareOrdina';
 import WelfareStorico from './pages/WelfareStorico';
 import WelfareTipologie from './pages/WelfareTipologie';
-import Dashboard from './pages/Dashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -114,6 +114,7 @@ export const PAGES = {
     "ContattaMembri": ContattaMembri,
     "ContattaMembriAdmin": ContattaMembriAdmin,
     "CulturaAziendale": CulturaAziendale,
+    "Dashboard": Dashboard,
     "DirectoryUtenti": DirectoryUtenti,
     "Esplora": Esplora,
     "FinanziamentiAgevolati": FinanziamentiAgevolati,
@@ -148,7 +149,6 @@ export const PAGES = {
     "WelfareOrdina": WelfareOrdina,
     "WelfareStorico": WelfareStorico,
     "WelfareTipologie": WelfareTipologie,
-    "Dashboard": Dashboard,
 }
 
 export const pagesConfig = {

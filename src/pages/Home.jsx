@@ -227,6 +227,7 @@ ${kbContext}${userContext}Richiesta dell'imprenditore: ${msg}`,
 
     try {
       // FASE 1 – Classificazione intento
+      console.log('>>> STEP 1: Inizio classificazione');
       const classificazione = await base44.integrations.Core.InvokeLLM({
         prompt: `Classifica questa richiesta in UNA sola categoria tra: Fiscale, Legale, Marketing, Personale/HR, Investimenti, Operativa, Strategica. Rispondi SOLO con un JSON: {"categoria": "nome", "confidenza": 85, "sottocategoria": "specifica"}
 
