@@ -103,25 +103,15 @@ export default function QRCodeScannerTab({ user }) {
 
   return (
     <div>
-      <div className="bg-slate-800/30 border border-slate-700/40 rounded-xl p-4 mb-5">
-        <p className="text-slate-300 text-sm">Scansiona il QR code dell'utente con la fotocamera oppure inserisci il codice manualmente.</p>
-      </div>
-
       <Card className="bg-slate-800/60 border-[#d4af37]/40 mb-5 overflow-hidden">
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2 text-[#d4af37]"><ScanLine className="w-5 h-5 animate-pulse" /><span className="font-medium text-sm">Scansiona QR Code</span></div>
-            {scannerActive && (
-              <Button variant="ghost" size="sm" onClick={closeScanner} className="text-slate-400 hover:text-white"><X className="w-5 h-5" /></Button>
-            )}
-          </div>
+        <CardContent className="p-3">
           <div id="qr-reader-hub" className="rounded-lg overflow-hidden" />
           {!scannerActive && (
             <Button onClick={() => setScannerActive(true)} className="w-full bg-[#d4af37] hover:bg-[#b8960b] text-slate-900 font-bold h-12 mt-3">
               <Camera className="w-5 h-5 mr-2" />Riattiva Fotocamera
             </Button>
           )}
-          <p className="text-slate-400 text-xs text-center mt-3">Inquadra il QR code dell'utente</p>
+          {scannerActive && <p className="text-slate-400 text-xs text-center mt-2">Inquadra il QR code dell'utente</p>}
         </CardContent>
       </Card>
 
