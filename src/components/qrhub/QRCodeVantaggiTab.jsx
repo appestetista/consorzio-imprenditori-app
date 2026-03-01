@@ -120,17 +120,107 @@ export default function QRCodeVantaggiTab({ user, createOnly = false }) {
 
   const filtered = vantaggi.filter(v => !selectedCategory || v.categoria_vantaggio === selectedCategory);
 
+  // Modalità solo creazione: mostra solo il pulsante + video esempio
+  if (createOnly) {
+    return (
+      <div>
+        <Button onClick={() => setShowCreatePanel(true)} className="w-full bg-[#d4af37] hover:bg-[#b8960b] text-slate-900 font-bold h-11 text-sm rounded-xl">
+          <Plus className="w-5 h-5 mr-2" />Crea vantaggio per imprenditori
+        </Button>
+        <VantaggiExamplesCollapsible />
+
+        <Sheet open={showCreatePanel} onOpenChange={(open) => { if (!open && formData.tipo_vantaggio) setFormData({ ...formData, tipo_vantaggio: '' }); else setShowCreatePanel(open); }}>
+          <SheetContent side="right" className="w-full sm:max-w-md bg-slate-800 border-slate-700 overflow-y-auto">
+            <SheetHeader><SheetTitle className="text-white flex items-center gap-2"><Gift className="w-5 h-5 text-[#d4af37]" />Crea Vantaggio per Imprenditori</SheetTitle></SheetHeader>
+            <div className="space-y-4 mt-6">
+              {!formData.tipo_vantaggio ? (
+                <div className="space-y-3">
+                  <p className="text-slate-400 text-sm text-center mb-4">Che tipo di vantaggio vuoi offrire?</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {TIPI_VANTAGGIO.map(tipo => (
+                      <button key={tipo} onClick={() => setFormData({ ...formData, tipo_vantaggio: tipo })} className="bg-slate-700 hover:bg-slate-600 border-2 border-slate-600 hover:border-[#d4af37] rounded-xl p-4 text-left transition-all">
+                        <div className="flex items-center gap-2 mb-1">
+                          {tipo === 'Sconto percentuale' && <span className="text-2xl">%</span>}
+                          {tipo === 'Sconto fisso' && <span className="text-2xl">€</span>}
+                          {tipo === 'Consulenza gratuita' && <span className="text-2xl">💬</span>}
+                          {tipo === 'Omaggio' && <span className="text-2xl">🎁</span>}
+                          {tipo === 'Promozione speciale' && <span className="text-2xl">⭐</span>}
+                          {tipo === 'Prova gratuita' && <span className="text-2xl">🆓</span>}
+                          {tipo === 'Vantaggio progressivo' && <TrendingUp className="w-6 h-6 text-purple-400" />}
+                          {tipo === 'Altro' && <span className="text-2xl">📋</span>}
+                        </div>
+                        <p className="text-white font-medium text-sm">{tipo}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center justify-between bg-slate-700/50 rounded-lg p-3">
+                    <span className="text-[#d4af37] font-bold">{formData.tipo_vantaggio}</span>
+                    <Button variant="ghost" size="sm" onClick={() => setFormData({ ...formData, tipo_vantaggio: '' })} className="text-slate-400 hover:text-white h-8 px-2">Cambia</Button>
+                  </div>
+                  <div><Label className="text-[#d4af37]">Categoria *</Label>
+                    <Select value={formData.categoria_vantaggio} onValueChange={(val) => setFormData({ ...formData, categoria_vantaggio: val })}>
+                      <SelectTrigger className="bg-slate-900 border-slate-600 text-white"><SelectValue placeholder="Seleziona categoria..." /></SelectTrigger>
+                      <SelectContent className="bg-slate-800 border-slate-700">{CATEGORIES.map(cat => <SelectItem key={cat.id} value={cat.id} className="text-white hover:bg-slate-700">{cat.label}</SelectItem>)}</SelectContent>
+                    </Select>
+                  </div>
+                  <div><Label className="text-[#d4af37]">Titolo *</Label><Input value={formData.titolo} onChange={(e) => setFormData({ ...formData, titolo: e.target.value })} placeholder="Titolo del vantaggio" className="bg-slate-900 border-slate-600 text-white" /></div>
+                  <div><Label className="text-slate-400">Descrizione</Label><Textarea value={formData.descrizione} onChange={(e) => setFormData({ ...formData, descrizione: e.target.value })} placeholder="Descrizione dettagliata..." className="bg-slate-900 border-slate-600 text-white" rows={2} /></div>
+                  <div><Label className="text-slate-400">Foto (opzionale)</Label>
+                    {formData.foto_url ? (
+                      <div className="flex items-center gap-3 bg-slate-900 rounded-lg p-3"><img src={formData.foto_url} alt="" className="w-16 h-16 object-cover rounded" /><Button variant="outline" size="sm" onClick={() => setFormData({ ...formData, foto_url: '' })} className="border-red-600 text-red-400"><X className="w-4 h-4 mr-1" />Rimuovi</Button></div>
+                    ) : (
+                      <label className="flex items-center justify-center gap-2 bg-slate-900 border-2 border-dashed border-slate-700 rounded-lg p-3 cursor-pointer hover:border-[#d4af37]">
+                        <input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" disabled={uploadingPhoto} />
+                        {uploadingPhoto ? <div className="animate-spin w-5 h-5 border-2 border-[#d4af37] border-t-transparent rounded-full" /> : <><Upload className="w-5 h-5 text-[#d4af37]" /><span className="text-slate-300 text-sm">Carica foto</span></>}
+                      </label>
+                    )}
+                  </div>
+                  {formData.tipo_vantaggio !== 'Vantaggio progressivo' && (
+                    <div><Label className="text-[#d4af37]">Valore *</Label><Input value={formData.valore} onChange={(e) => setFormData({ ...formData, valore: e.target.value })} placeholder="Es: 20%, €50, 1 consulenza..." className="bg-slate-900 border-slate-600 text-white" /></div>
+                  )}
+                  {formData.tipo_vantaggio === 'Vantaggio progressivo' && (
+                    <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4 space-y-4">
+                      <div className="flex items-center gap-2"><TrendingUp className="w-5 h-5 text-purple-400" /><Label className="text-purple-400 text-base">Step Progressivi</Label></div>
+                      {formData.step_progressivi.map((step, index) => (
+                        <div key={index} className="bg-slate-800 rounded-lg p-3 space-y-2">
+                          <div className="flex items-center justify-between"><span className="text-purple-400 font-bold text-sm">Step {step.step}</span>{formData.step_progressivi.length > 1 && <Button type="button" variant="ghost" size="sm" className="h-6 w-6 p-0 text-red-400" onClick={() => { const ns = formData.step_progressivi.filter((_, i) => i !== index); setFormData({ ...formData, step_progressivi: ns.map((s, i) => ({ ...s, step: i + 1 })) }); }}><Minus className="w-4 h-4" /></Button>}</div>
+                          <Input value={step.valore} onChange={(e) => { const ns = [...formData.step_progressivi]; ns[index].valore = e.target.value; setFormData({ ...formData, step_progressivi: ns }); }} placeholder="Es: 5%, 10%..." className="bg-slate-900 border-slate-600 text-white text-sm" />
+                          <Input value={step.descrizione} onChange={(e) => { const ns = [...formData.step_progressivi]; ns[index].descrizione = e.target.value; setFormData({ ...formData, step_progressivi: ns }); }} placeholder="Descrizione (opzionale)" className="bg-slate-900 border-slate-600 text-white text-sm" />
+                        </div>
+                      ))}
+                      <Button type="button" variant="outline" size="sm" className="w-full border-purple-400 text-purple-400" onClick={() => setFormData({ ...formData, step_progressivi: [...formData.step_progressivi, { step: formData.step_progressivi.length + 1, valore: '', descrizione: '', giorni_validita: 30 }] })}><Plus className="w-4 h-4 mr-1" />Aggiungi Step</Button>
+                    </div>
+                  )}
+                  <div className="border-t border-slate-700 pt-4 space-y-4">
+                    <p className="text-slate-500 text-xs font-medium">IMPOSTAZIONI</p>
+                    {formData.tipo_vantaggio !== 'Vantaggio progressivo' && <div><Label className="text-slate-400">Utilizzi massimi</Label><Input type="number" value={formData.utilizzi_massimi} onChange={(e) => setFormData({ ...formData, utilizzi_massimi: e.target.value })} placeholder="Vuoto = illimitato" className="bg-slate-900 border-slate-600 text-white" /></div>}
+                    <div><Label className="text-slate-400">Giorni per utilizzare dopo prenotazione</Label><Input type="number" value={formData.giorni_validita_utilizzo} onChange={(e) => setFormData({ ...formData, giorni_validita_utilizzo: e.target.value })} placeholder="Vuoto = nessun limite" className="bg-slate-900 border-slate-600 text-white" /></div>
+                    <div><Label className="text-slate-400">Data scadenza offerta</Label><Input type="date" value={formData.data_scadenza} onChange={(e) => setFormData({ ...formData, data_scadenza: e.target.value })} className="bg-slate-900 border-slate-600 text-white" /></div>
+                    <div className="flex items-center justify-between bg-slate-900 rounded-lg p-3">
+                      <div><p className="text-white text-sm font-medium">Richiede prenotazione</p><p className="text-slate-400 text-xs">L'utente deve prenotare prima</p></div>
+                      <Switch checked={formData.richiede_prenotazione} onCheckedChange={(c) => setFormData({ ...formData, richiede_prenotazione: c })} />
+                    </div>
+                  </div>
+                  <div className="flex gap-3 pt-4">
+                    <Button variant="outline" onClick={() => { resetForm(); setShowCreatePanel(false); }} className="flex-1 border-slate-600 text-slate-400">Annulla</Button>
+                    <Button onClick={() => { if (!formData.tipo_vantaggio || !formData.titolo || !formData.categoria_vantaggio) { toast.error('Compila tipo, categoria e titolo'); return; } createVantaggioMutation.mutate(formData); }} disabled={createVantaggioMutation.isPending} className="flex-1 bg-[#d4af37] hover:bg-[#b8960b] text-slate-900">
+                      {createVantaggioMutation.isPending ? <div className="animate-spin w-4 h-4 border-2 border-slate-900 border-t-transparent rounded-full" /> : <><Check className="w-4 h-4 mr-1" />Crea</>}
+                    </Button>
+                  </div>
+                </>
+              )}
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
+    );
+  }
+
   return (
     <div>
-      <Button onClick={() => setShowCreatePanel(true)} className="w-full bg-[#d4af37] hover:bg-[#b8960b] text-slate-900 font-bold h-11 text-sm rounded-b-none">
-        <Plus className="w-5 h-5 mr-2" />Crea nuovo vantaggio
-      </Button>
-      <VantaggiExamplesCollapsible />
-
-      <div className="bg-gradient-to-r from-emerald-500/15 to-cyan-500/15 border border-emerald-400/40 rounded-xl p-3 mb-4">
-        <p className="text-emerald-300 text-xs font-medium">💡 Prenota un vantaggio e mostra il tuo QR code in negozio per utilizzarlo!</p>
-      </div>
-
       <VantaggiCategoryFilter selected={selectedCategory} onSelect={setSelectedCategory} vantaggi={vantaggi} />
 
       {loadingVantaggi ? (
