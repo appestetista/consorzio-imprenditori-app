@@ -769,7 +769,7 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
       </div>
 
       {/* Campo di input */}
-      <div className="fixed bottom-[80px] left-0 z-40 px-3 pb-2 pt-1" style={{ right: '48px', background: 'linear-gradient(to top, #0a0f1a 70%, transparent)' }}>
+      <div className="fixed bottom-[80px] left-0 z-40 px-3 pb-3 pt-2" style={{ right: '48px', background: 'linear-gradient(to top, #0a0f1a 70%, transparent)' }}>
         <div className="max-w-2xl mx-auto space-y-1">
           {!compareMode ? (
             <>
@@ -797,16 +797,16 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
                 />
                 <button
                   onClick={() => handleSend()}
-                  disabled={!inputText.trim() || isTyping}
+                  disabled={!inputText.trim() || isTyping || chatBlocked}
                   className="flex-shrink-0 m-1 w-8 h-8 rounded-lg flex items-center justify-center transition-all disabled:opacity-30"
                   style={{
-                    backgroundColor: inputText.trim() && !isTyping ? '#d4af37' : '#334155',
+                    backgroundColor: inputText.trim() && !isTyping && !chatBlocked ? '#d4af37' : '#334155',
                   }}
                 >
                   {isTyping ? (
                     <Loader2 className="w-4 h-4 text-slate-400 animate-spin" />
                   ) : (
-                    <ArrowUp className="w-4 h-4 text-white" />
+                    <Send className="w-4 h-4 text-white" />
                   )}
                 </button>
               </div>
@@ -821,7 +821,14 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
               </div>
             </>
           ) : (
-            <div className="rounded-2xl border border-[#d4af37]/30 bg-slate-800/80 backdrop-blur-lg p-4 space-y-3">
+            <div className="rounded-2xl border border-[#d4af37]/30 bg-slate-800/80 backdrop-blur-lg p-4 space-y-3 relative">
+              {/* X per chiudere */}
+              <button
+                onClick={() => { setCompareMode(false); setScenarioA(''); setScenarioB(''); }}
+                className="absolute top-2 right-2 w-7 h-7 rounded-full bg-slate-700/80 hover:bg-slate-600 flex items-center justify-center transition-colors"
+              >
+                <X className="w-4 h-4 text-slate-300" />
+              </button>
               <div className="flex items-center gap-2 mb-1">
                 <Scale className="w-4 h-4 text-[#d4af37]" />
                 <span className="text-xs font-semibold text-[#d4af37] uppercase tracking-wider">Confronta Scenari</span>
@@ -844,22 +851,17 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
                   style={{ scrollbarWidth: 'none' }}
                 />
               </div>
-              <div className="flex items-center justify-between">
-                <button
-                  onClick={() => { setCompareMode(false); setScenarioA(''); setScenarioB(''); }}
-                  className="text-[11px] text-slate-500 hover:text-slate-300 transition-colors"
-                >
-                  ← Torna a modalità singola
-                </button>
+              <div className="flex items-center justify-end">
                 <button
                   onClick={handleCompare}
-                  disabled={!scenarioA.trim() || !scenarioB.trim() || isTyping}
-                  className="px-5 py-2 rounded-xl text-sm font-semibold transition-all disabled:opacity-30"
+                  disabled={!scenarioA.trim() || !scenarioB.trim() || isTyping || chatBlocked}
+                  className="flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-semibold transition-all disabled:opacity-30"
                   style={{
-                    backgroundColor: scenarioA.trim() && scenarioB.trim() && !isTyping ? '#d4af37' : '#334155',
-                    color: scenarioA.trim() && scenarioB.trim() && !isTyping ? '#1a1a2e' : '#94a3b8',
+                    backgroundColor: scenarioA.trim() && scenarioB.trim() && !isTyping && !chatBlocked ? '#d4af37' : '#334155',
+                    color: scenarioA.trim() && scenarioB.trim() && !isTyping && !chatBlocked ? '#1a1a2e' : '#94a3b8',
                   }}
                 >
+                  <Send className="w-4 h-4" />
                   {isTyping ? 'Analisi...' : 'Confronta'}
                 </button>
               </div>
