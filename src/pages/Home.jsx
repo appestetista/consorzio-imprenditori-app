@@ -347,26 +347,26 @@ Richiesta: "${msg}"`
       }
 
       // Confronto LLM
-      const result = await base44.integrations.Core.InvokeLLM({
+      const compareResult = await base44.integrations.Core.InvokeLLM({
         prompt: `Confronta questi scenari per un imprenditore italiano di PMI.
 ${userContext}${kbContext}
 Scenario A: ${a}
 Scenario B: ${b}
 
-Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti con: nome, costo, roi, tempo, rischio, vantaggio, punteggio numerico da 1 a 10), verdetto (quale è meglio e perché), scenario_consigliato ("A" o "B").`,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            tema: { type: "string" },
-            scenari: { type: "array", items: { type: "object", properties: { nome: { type: "string" }, costo: { type: "string" }, roi: { type: "string" }, tempo: { type: "string" }, rischio: { type: "string" }, vantaggio: { type: "string" }, punteggio: { type: "number" } }, required: ["nome", "costo", "roi", "tempo", "rischio", "vantaggio", "punteggio"] } },
-            verdetto: { type: "string" },
-            scenario_consigliato: { type: "string" }
-          },
-          required: ["tema", "scenari", "verdetto", "scenario_consigliato"]
-        }
+Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti con: nome, costo, roi, tempo, rischio, vantaggio, punteggio numerico da 1 a 10), verdetto (quale è meglio e perché), scenario_consigliato ("A" o "B").`
       });
 
-      const assistantMsg = { role: 'assistant', content: result, isCompare: true };
+      let parsedCompare = compareResult;
+      if (typeof compareResult === 'string') {
+        try {
+          let cleaned = compareResult.trim();
+          if (cleaned.startsWith('```')) cleaned = cleaned.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
+          parsedCompare = JSON.parse(cleaned);
+        } catch (e) { parsedCompare = null; }
+      }
+
+      const result = parsedCompare || compareResult;
+      const assistantMsg = { role: 'assistant', content: result, isCompare: !!parsedCompare };
       const updatedMessages = [...newMessages, assistantMsg];
       setMessages(updatedMessages);
 
