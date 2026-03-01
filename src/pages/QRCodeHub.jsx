@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { ArrowLeft, QrCode, Gift, ScanLine, Bookmark, X, User, Phone, LogOut, Settings, Crown, XCircle } from 'lucide-react';
+import { ArrowLeft, QrCode, Gift, Bookmark, X, User, Phone, LogOut, Settings, Crown, XCircle } from 'lucide-react';
 import BottomNav from '../components/layout/BottomNav';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
-import { normalizeUser, isUserConsultant } from '../components/utils/normalizeUser';
 import { cn } from '@/lib/utils';
-import { toast } from 'sonner';
 
 import QRCodeMyTab from '../components/qrhub/QRCodeMyTab';
 import QRCodeScannerTab from '../components/qrhub/QRCodeScannerTab';
@@ -18,10 +15,9 @@ import QRCodePrenotazioniTab from '../components/qrhub/QRCodePrenotazioniTab';
 export default function QRCodeHub() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('vantaggi');
+  const [activeTab, setActiveTab] = useState('vantaggi'); // 'vantaggi' | 'prenotazioni'
   const [menuOpen, setMenuOpen] = useState(false);
   const { impersonation } = useImpersonation();
-  const navigate = useNavigate();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -55,75 +51,60 @@ export default function QRCodeHub() {
     <div className="min-h-screen pb-28" style={{ backgroundColor: '#0a0f1a' }}>
       <main className="px-4 py-6 max-w-4xl mx-auto">
         {/* Header */}
-        <div className="flex items-center gap-3 mb-5">
-          <Link to={createPageUrl('Home')} className="text-[#d4af37] back-arrow-tap">
+        <div className="flex items-center gap-3 mb-4">
+          <Link to={createPageUrl('Esplora?tab=strumenti')} className="text-[#d4af37] back-arrow-tap">
             <ArrowLeft className="w-6 h-6" />
           </Link>
           <QrCode className="w-6 h-6 text-[#d4af37]" />
           <h1 className="text-white text-xl font-bold">Vantaggi & QR Code</h1>
         </div>
 
-        {/* Pulsanti grandi: Vantaggi e Prenotazioni */}
-        <div className="grid grid-cols-2 gap-3 mb-5">
+        {/* QR Code personale compatto + Scanner */}
+        <div className="mb-4">
+          <QRCodeMyTab user={user} compact />
+        </div>
+
+        {/* Scanner sempre visibile */}
+        <div className="mb-5">
+          <QRCodeScannerTab user={user} />
+        </div>
+
+        {/* Etichette laterali verticali Vantaggi / Prenotazioni */}
+        <div className="flex gap-0 mb-5">
           <button
             onClick={() => setActiveTab('vantaggi')}
             className={cn(
-              "rounded-2xl py-5 px-4 flex flex-col items-center gap-2 border-2 transition-all font-bold text-base",
+              "flex items-center justify-center py-3 px-1 rounded-l-xl border-2 border-r-0 transition-all font-bold text-xs",
+              "writing-mode-vertical",
               activeTab === 'vantaggi'
                 ? "bg-[#d4af37]/20 border-[#d4af37] text-[#d4af37]"
-                : "bg-slate-800/60 border-slate-700/50 text-slate-300 hover:border-slate-600"
+                : "bg-slate-800/60 border-slate-700/50 text-slate-400 hover:border-slate-600"
             )}
+            style={{ writingMode: 'vertical-rl', textOrientation: 'mixed', minHeight: '120px' }}
           >
-            <Gift className="w-8 h-8" />
-            Vantaggi
+            <Gift className="w-4 h-4 mb-2" />
+            VANTAGGI
           </button>
           <button
             onClick={() => setActiveTab('prenotazioni')}
             className={cn(
-              "rounded-2xl py-5 px-4 flex flex-col items-center gap-2 border-2 transition-all font-bold text-base",
+              "flex items-center justify-center py-3 px-1 rounded-r-xl border-2 border-l-0 transition-all font-bold text-xs",
               activeTab === 'prenotazioni'
                 ? "bg-[#d4af37]/20 border-[#d4af37] text-[#d4af37]"
-                : "bg-slate-800/60 border-slate-700/50 text-slate-300 hover:border-slate-600"
+                : "bg-slate-800/60 border-slate-700/50 text-slate-400 hover:border-slate-600"
             )}
+            style={{ writingMode: 'vertical-rl', textOrientation: 'mixed', minHeight: '120px' }}
           >
-            <Bookmark className="w-8 h-8" />
-            Prenotazioni
+            <Bookmark className="w-4 h-4 mb-2" />
+            PRENOTAZIONI
           </button>
-        </div>
 
-        {/* Pulsanti quadrati: Il Mio QR Code e Scansiona */}
-        <div className="grid grid-cols-2 gap-3 mb-6">
-          <button
-            onClick={() => setActiveTab('mio-qr')}
-            className={cn(
-              "rounded-2xl aspect-square flex flex-col items-center justify-center gap-2 border-2 transition-all font-semibold text-sm",
-              activeTab === 'mio-qr'
-                ? "bg-[#d4af37]/20 border-[#d4af37] text-[#d4af37]"
-                : "bg-slate-800/60 border-slate-700/50 text-slate-300 hover:border-slate-600"
-            )}
-          >
-            <QrCode className={cn("w-12 h-12", activeTab === 'mio-qr' ? "text-[#d4af37]" : "text-white/60")} />
-            Il Mio QR Code
-          </button>
-          <button
-            onClick={() => setActiveTab('scanner')}
-            className={cn(
-              "rounded-2xl aspect-square flex flex-col items-center justify-center gap-2 border-2 transition-all font-semibold text-sm",
-              activeTab === 'scanner'
-                ? "bg-[#d4af37]/20 border-[#d4af37] text-[#d4af37]"
-                : "bg-slate-800/60 border-slate-700/50 text-slate-300 hover:border-slate-600"
-            )}
-          >
-            <ScanLine className={cn("w-12 h-12", activeTab === 'scanner' ? "text-[#d4af37]" : "text-white/60")} />
-            Scansiona
-          </button>
+          {/* Contenuto tab */}
+          <div className="flex-1 min-w-0 ml-2">
+            {activeTab === 'vantaggi' && <QRCodeVantaggiTab user={user} />}
+            {activeTab === 'prenotazioni' && <QRCodePrenotazioniTab user={user} />}
+          </div>
         </div>
-
-        {/* Contenuto tab attivo */}
-        {activeTab === 'vantaggi' && <QRCodeVantaggiTab user={user} />}
-        {activeTab === 'mio-qr' && <QRCodeMyTab user={user} />}
-        {activeTab === 'scanner' && <QRCodeScannerTab user={user} />}
-        {activeTab === 'prenotazioni' && <QRCodePrenotazioniTab user={user} />}
       </main>
 
       {/* Menu Drawer */}
