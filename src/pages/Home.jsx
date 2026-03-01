@@ -285,7 +285,8 @@ FORMATO — JSON valido:
       const classResult = await base44.integrations.Core.InvokeLLM({
         prompt: `Classifica questa richiesta in UNA sola categoria tra: Fiscale, Legale, Marketing, Personale/HR, Investimenti, Operativa, Strategica. Rispondi SOLO con un JSON: {"categoria": "nome", "confidenza": 85, "sottocategoria": "specifica"}
 
-Richiesta: "${msg}"`
+Richiesta: "${msg}"`,
+        add_context_from_internet: true
       });
       let classificazione = classResult;
       if (typeof classResult === 'string') {
