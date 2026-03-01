@@ -187,6 +187,7 @@ export default function Pricing() {
               {/* CTA */}
               <div className="px-6 pb-6">
                 <button
+                  onClick={() => setShowModal(true)}
                   className="w-full py-3.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:shadow-[#d4af37]/25"
                   style={{
                     background: 'linear-gradient(135deg, #d4af37 0%, #b8860b 100%)',
