@@ -279,6 +279,8 @@ Richiesta: "${msg}"`,
       console.log('>>> STEP 3: Inizio analisi');
       await runAnalysis({ msg, category, sottocategoria, newMessages, convId });
     } catch (e) {
+      console.error('>>> ERRORE:', e?.message || e);
+      console.error('>>> DETTAGLIO:', JSON.stringify(e));
       const errMsg = { role: 'assistant', content: 'Mi dispiace, si è verificato un errore. Riprova tra un momento.' };
       const updatedMessages = [...newMessages, errMsg];
       setMessages(updatedMessages);
