@@ -270,6 +270,7 @@ Richiesta: "${msg}"`,
       }
 
       // FASE 2 + 3 – Analisi con system prompt strutturato
+      console.log('>>> STEP 3: Inizio analisi');
       await runAnalysis({ msg, category, sottocategoria, newMessages, convId });
     } catch (e) {
       const errMsg = { role: 'assistant', content: 'Mi dispiace, si è verificato un errore. Riprova tra un momento.' };
