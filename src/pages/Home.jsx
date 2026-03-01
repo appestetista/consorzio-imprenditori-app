@@ -774,16 +774,9 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
       {/* Campo di input */}
       <div className="fixed bottom-[88px] left-0 right-0 z-40 px-4 pb-3 pt-2" style={{ background: 'linear-gradient(to top, #0a0f1a 70%, transparent)' }}>
         <div className="max-w-2xl mx-auto space-y-2">
-          {/* Barra consulenze / blocco free */}
-          {effectiveUser?.role !== 'admin' && (
-            <AIUsageBar piano={pianoAbbonamento} usate={consulenzeUsate} />
-          )}
-
           {!compareMode ? (
             <>
-              {!chatBlocked && (
               <div className="relative flex items-end rounded-2xl border border-slate-700/60 bg-slate-800/80 backdrop-blur-lg overflow-hidden" style={isRecording ? { borderColor: '#ef4444' } : {}}>
-                {/* Microfono */}
                 <button
                   onClick={toggleRecording}
                   className="flex-shrink-0 ml-2 mb-2.5 w-8 h-8 rounded-full flex items-center justify-center transition-all"
@@ -800,7 +793,7 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
                   value={inputText}
                   onChange={(e) => setInputText(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder={isRecording ? "Sto ascoltando..." : "Chiedi qualsiasi cosa... cerco dati reali e ti cito le fonti"}
+                  placeholder={isRecording ? "Sto ascoltando..." : "Chiedi qualsiasi cosa..."}
                   rows={1}
                   className="flex-1 bg-transparent text-white text-sm px-3 py-3.5 resize-none outline-none placeholder:text-slate-500 max-h-32"
                   style={{ scrollbarWidth: 'none' }}
@@ -820,12 +813,7 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
                   )}
                 </button>
               </div>
-              )}
-              {!chatBlocked && (
-              <div className="flex items-center justify-between">
-                <p className="text-[11px] text-slate-500">
-                  Dati verificati da fonti ufficiali. Mai inventati, mai stimati senza dirtelo.
-                </p>
+              <div className="flex items-center justify-end">
                 <button
                   onClick={() => setCompareMode(true)}
                   className="flex items-center gap-1.5 px-3 py-1 rounded-full border border-slate-700/50 bg-slate-800/60 hover:border-[#d4af37]/40 transition-colors flex-shrink-0"
@@ -834,7 +822,6 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
                   <span className="text-[11px] text-slate-400">Confronta scenari</span>
                 </button>
               </div>
-              )}
             </>
           ) : (
             <div className="rounded-2xl border border-[#d4af37]/30 bg-slate-800/80 backdrop-blur-lg p-4 space-y-3">
