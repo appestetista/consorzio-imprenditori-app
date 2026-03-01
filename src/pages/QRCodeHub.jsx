@@ -11,10 +11,10 @@ import { normalizeUser, isUserConsultant } from '../components/utils/normalizeUs
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
-import QRCodeMyTab from '../components/qrhub/QRCodeMyTab.jsx';
-import QRCodeScannerTab from '../components/qrhub/QRCodeScannerTab.jsx';
-import QRCodeVantaggiTab from '../components/qrhub/QRCodeVantaggiTab.jsx';
-import QRCodePrenotazioniTab from '../components/qrhub/QRCodePrenotazioniTab.jsx';
+import QRCodeMyTab from '../components/qrhub/QRCodeMyTab';
+import QRCodeScannerTab from '../components/qrhub/QRCodeScannerTab';
+import QRCodeVantaggiTab from '../components/qrhub/QRCodeVantaggiTab';
+import QRCodePrenotazioniTab from '../components/qrhub/QRCodePrenotazioniTab';
 
 export default function QRCodeHub() {
   const [user, setUser] = useState(null);
