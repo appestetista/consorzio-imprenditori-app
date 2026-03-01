@@ -122,7 +122,6 @@ export default function QRCodeVantaggiTab({ user }) {
 
   return (
     <div>
-      {/* Crea vantaggio */}
       <Button onClick={() => setShowCreatePanel(true)} className="w-full bg-[#d4af37] hover:bg-[#b8960b] text-slate-900 font-bold h-11 text-sm rounded-b-none">
         <Plus className="w-5 h-5 mr-2" />Crea nuovo vantaggio
       </Button>
@@ -194,7 +193,6 @@ export default function QRCodeVantaggiTab({ user }) {
         </div>
       )}
 
-      {/* Sheet Crea Vantaggio */}
       <Sheet open={showCreatePanel} onOpenChange={(open) => { if (!open && formData.tipo_vantaggio) setFormData({ ...formData, tipo_vantaggio: '' }); else setShowCreatePanel(open); }}>
         <SheetContent side="right" className="w-full sm:max-w-md bg-slate-800 border-slate-700 overflow-y-auto">
           <SheetHeader><SheetTitle className="text-white flex items-center gap-2"><Gift className="w-5 h-5 text-[#d4af37]" />Crea Nuovo Vantaggio</SheetTitle></SheetHeader>
@@ -248,7 +246,6 @@ export default function QRCodeVantaggiTab({ user }) {
                   )}
                 </div>
 
-                {/* Valore campo per tipo */}
                 {formData.tipo_vantaggio !== 'Vantaggio progressivo' && (
                   <div><Label className="text-[#d4af37]">Valore *</Label><Input value={formData.valore} onChange={(e) => setFormData({ ...formData, valore: e.target.value })} placeholder="Es: 20%, €50, 1 consulenza..." className="bg-slate-900 border-slate-600 text-white" /></div>
                 )}
