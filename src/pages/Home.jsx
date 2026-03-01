@@ -611,16 +611,65 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
 
         {!hasMessages ? (
           // Stato iniziale
-          <div className="flex-1 flex flex-col items-center justify-center px-6 pb-32">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#d4af37] to-[#b8860b] flex items-center justify-center mb-5 shadow-lg shadow-[#d4af37]/20">
-              <Target className="w-8 h-8 text-white" />
+          <div className="flex-1 flex flex-col items-center justify-start px-5 pt-4 pb-32 overflow-y-auto">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#d4af37] to-[#b8860b] flex items-center justify-center mb-4 shadow-lg shadow-[#d4af37]/20">
+              <Target className="w-7 h-7 text-white" />
             </div>
-            <h1 className="text-white text-xl font-bold text-center mb-2 leading-tight">
+            <h1 className="text-white text-xl font-bold text-center mb-1.5 leading-tight">
               Centro Decisionale Imprenditore
             </h1>
-            <p className="text-slate-400 text-sm text-center mb-6 max-w-xs leading-relaxed">
+            <p className="text-slate-400 text-sm text-center mb-5 max-w-xs leading-relaxed">
               Cerca dati reali su internet e ti dice cosa fare. Con le fonti.
             </p>
+
+            {/* Card features */}
+            <div className="w-full max-w-md space-y-2.5 mb-5">
+              <div className="flex items-start gap-3 rounded-xl bg-slate-800/40 border border-slate-700/40 px-4 py-3 hover:border-[#d4af37]/40 transition-colors">
+                <div className="w-9 h-9 rounded-lg bg-[#d4af37]/15 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <Globe className="w-4.5 h-4.5 text-[#d4af37]" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white">Cerca dati reali</p>
+                  <p className="text-xs text-slate-400 leading-relaxed">Normative, aliquote, bandi, costi cercati su internet in tempo reale</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 rounded-xl bg-slate-800/40 border border-slate-700/40 px-4 py-3 hover:border-[#d4af37]/40 transition-colors">
+                <div className="w-9 h-9 rounded-lg bg-[#d4af37]/15 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <ShieldCheck className="w-4.5 h-4.5 text-[#d4af37]" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white">Mai dati inventati</p>
+                  <p className="text-xs text-slate-400 leading-relaxed">Ogni numero ha la fonte. Le stime sono dichiarate. Zero allucinazioni.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 rounded-xl bg-slate-800/40 border border-slate-700/40 px-4 py-3 hover:border-[#d4af37]/40 transition-colors">
+                <div className="w-9 h-9 rounded-lg bg-[#d4af37]/15 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <Target className="w-4.5 h-4.5 text-[#d4af37]" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white">Ti dice cosa fare</p>
+                  <p className="text-xs text-slate-400 leading-relaxed">Un piano d'azione concreto con il primo passo da fare domani mattina</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Chip esempio */}
+            <div className="w-full max-w-md flex flex-wrap gap-2 justify-center">
+              {[
+                "Quanto mi costa un dipendente?",
+                "Bandi aperti nella mia regione",
+                "Come ridurre le tasse legalmente?",
+                "Analizza il mio contratto di fornitura"
+              ].map((chip) => (
+                <button
+                  key={chip}
+                  onClick={() => handleSend(chip)}
+                  className="px-3.5 py-2 rounded-xl border border-slate-700/50 bg-slate-800/30 text-xs text-slate-300 hover:border-[#d4af37]/50 hover:text-white transition-colors"
+                >
+                  {chip}
+                </button>
+              ))}
+            </div>
           </div>
         ) : (
           // Conversazione attiva
