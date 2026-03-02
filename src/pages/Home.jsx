@@ -767,10 +767,19 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
       </div>
 
       {/* Campo di input */}
-      <div className="fixed bottom-[80px] left-0 z-40 px-3 pb-3 pt-2" style={{ right: '48px', background: 'linear-gradient(to top, #0a0f1a 70%, transparent)' }}>
+      <div className="fixed z-40 px-3 pb-2 pt-2" style={{ left: '42px', right: '42px', bottom: '90px', background: 'linear-gradient(to top, #0a0f1a 70%, transparent)' }}>
         <div className="max-w-2xl mx-auto space-y-1">
           {!compareMode ? (
             <>
+              <div className="flex items-center justify-center mb-1">
+                <button
+                  onClick={() => setCompareMode(true)}
+                  className="flex items-center gap-1 px-2.5 py-0.5 rounded-full border border-slate-700/50 bg-slate-800/60 hover:border-[#d4af37]/40 transition-colors flex-shrink-0"
+                >
+                  <Scale className="w-3 h-3 text-[#d4af37]" />
+                  <span className="text-[10px] text-slate-400">Confronta scenari</span>
+                </button>
+              </div>
               <div className="relative flex items-end rounded-xl border border-slate-700/60 bg-slate-800/80 backdrop-blur-lg overflow-hidden" style={isRecording ? { borderColor: '#ef4444' } : {}}>
                 <button
                   onClick={toggleRecording}
@@ -806,15 +815,6 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
                   ) : (
                     <Send className="w-4 h-4 text-white" />
                   )}
-                </button>
-              </div>
-              <div className="flex items-center justify-end">
-                <button
-                  onClick={() => setCompareMode(true)}
-                  className="flex items-center gap-1 px-2.5 py-0.5 rounded-full border border-slate-700/50 bg-slate-800/60 hover:border-[#d4af37]/40 transition-colors flex-shrink-0"
-                >
-                  <Scale className="w-3 h-3 text-[#d4af37]" />
-                  <span className="text-[10px] text-slate-400">Confronta scenari</span>
                 </button>
               </div>
             </>

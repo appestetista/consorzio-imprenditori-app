@@ -12,10 +12,10 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 z-30" style={{ right: '48px' }}>
-        <div className="py-2 px-3" style={{ backgroundColor: '#061018' }}>
+    <nav className="fixed bottom-0 z-30" style={{ left: '42px', right: '42px' }}>
+        <div className="py-2 px-2" style={{ backgroundColor: '#061018' }}>
         <div className="max-w-md mx-auto">
-          <div className="flex justify-between items-center gap-0">
+          <div className="flex justify-around items-center">
             {navItems.map((item) => {
               const isActive = item.isMenu
                   ? menuOpen
@@ -39,7 +39,7 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
                   {/* Pulsante 3D Premium con cornice oro */}
                   <div 
                     className={cn(
-                      "relative w-[68px] h-[68px] transition-transform duration-100 ease-out",
+                      "relative w-[78px] h-[78px] transition-transform duration-100 ease-out",
                       !item.disabled && "active:scale-[0.96]",
                     item.disabled && "opacity-40"
                     )}
@@ -63,7 +63,7 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
                     >
                       {/* Superficie interna nero → blu scuro */}
                       <div 
-                        className="relative w-full h-full rounded-[13px] flex flex-col items-center justify-center overflow-hidden"
+                        className="relative w-full h-full rounded-[14px] flex flex-col items-center justify-center overflow-hidden"
                         style={{
                           background: isActive 
                             ? 'linear-gradient(160deg, #2a2a2a 0%, #152040 50%, #1a2850 100%)' 
@@ -89,7 +89,7 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
                         ) : item.icon ? (
                           <item.icon 
                             className={cn(
-                              "w-6 h-6 mb-1 relative z-10 transition-all duration-150",
+                              "w-7 h-7 mb-1 relative z-10 transition-all duration-150",
                               isActive 
                                 ? "text-[#d4af37] stroke-[2px]" 
                                 : "text-[#a0a0a0]"
@@ -104,7 +104,7 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
                         {item.label && (
                           <span 
                             className={cn(
-                              "text-[10px] font-semibold relative z-10 tracking-wide",
+                              "text-[11px] font-semibold relative z-10 tracking-wide",
                               isActive ? "text-[#d4af37]" : "text-[#909090]"
                             )}
                           >

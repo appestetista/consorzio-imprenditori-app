@@ -11,7 +11,7 @@ export default function VantaggiSideTab() {
       onClick={() => navigate(createPageUrl('VantaggiIscritti'))}
       className={cn(
         "fixed left-0 z-40",
-        "bg-gradient-to-r from-[#d4af37] to-[#b8860b] text-slate-900",
+        "bg-gradient-to-r from-[#b8860b] to-[#d4af37] text-slate-900",
         "rounded-r-xl shadow-lg shadow-[#d4af37]/20",
         "flex items-center justify-center",
         "hover:pl-2 active:scale-95",
@@ -20,14 +20,13 @@ export default function VantaggiSideTab() {
       style={{
         width: '42px',
         height: '140px',
-        writingMode: 'vertical-lr',
+        writingMode: 'vertical-rl',
         textOrientation: 'mixed',
         bottom: '0px',
         top: 'auto',
-        transform: 'rotate(180deg)'
       }}
     >
-      <span className="text-[13px] font-bold tracking-wider leading-none whitespace-nowrap">VANTAGGI</span>
+      <span className="text-[13px] font-bold tracking-wider leading-none whitespace-nowrap" style={{ transform: 'rotate(180deg)' }}>VANTAGGI</span>
     </button>
   );
 }
