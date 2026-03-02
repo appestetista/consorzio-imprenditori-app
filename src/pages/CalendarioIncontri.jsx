@@ -652,17 +652,20 @@ export default function CalendarioIncontri() {
                 </div>
               </DialogContent>
             </Dialog>
-          ) : (
-            <Button 
-              className="bg-slate-700 hover:bg-slate-600 text-white"
-              onClick={() => setShowUserEventForm(true)}
-            >
-              <Plus className="w-5 h-5 mr-1" />
-              Proponi evento
-            </Button>
           )}
           </div>
         </div>
+
+        {/* Pulsante Proponi - full width sotto il titolo, solo per non-admin */}
+        {!isAdmin && (
+          <Button 
+            className="w-full mb-6 bg-slate-700 hover:bg-slate-600 text-white h-12 text-base font-semibold"
+            onClick={() => setShowUserEventForm(true)}
+          >
+            <Plus className="w-5 h-5 mr-2" />
+            Proponi ad altri un tuo evento
+          </Button>
+        )}
 
         {isLoading ? (
           <div className="text-center py-12">
