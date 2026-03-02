@@ -251,7 +251,7 @@ export default function MiePrenotazioniVantaggi() {
               Ricevute ({prenotazioniRicevute.length})
             </TabsTrigger>
             <TabsTrigger value="attive" className="flex-1 data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900 text-xs">
-              Attive ({prenotazioniAttive.length})
+              Prenotate ({prenotazioniAttive.length})
             </TabsTrigger>
             <TabsTrigger value="utilizzate" className="flex-1 data-[state=active]:bg-green-500 data-[state=active]:text-white text-xs">
               Utilizzate ({prenotazioniUtilizzate.length})
