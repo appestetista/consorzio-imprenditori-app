@@ -4,7 +4,7 @@ import { createPageUrl } from '@/utils';
 import { Wrench, Home, Menu } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export default function BottomNav({ currentPage, unreadMessages = 0, activeTab = null, isAdmin = false, onMenuOpen, menuOpen = false }) {
+export default function BottomNav({ currentPage, unreadMessages = 0, activeTab = null, isAdmin = false, onMenuOpen, menuOpen = false, hideBackground = false }) {
   const navItems = [
     { name: 'home', label: 'Home', icon: Home, page: 'Home', tab: null },
     { name: 'strumenti', label: 'Strumenti', icon: Wrench, page: 'Esplora?tab=strumenti', tab: 'strumenti' },
@@ -14,16 +14,18 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
   return (
     <nav className="fixed bottom-0 z-30" style={{ left: '42px', right: '42px', height: '140px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: '24px' }}>
         {/* Sfondo scuro netto che copre dietro pulsanti e linguette */}
-        <div 
-          className="absolute bottom-0"
-          style={{ 
-            left: '-50px',
-            right: '-50px',
-            top: '-10px',
-            background: '#001d3b',
-            pointerEvents: 'none'
-          }} 
-        />
+        {!hideBackground && (
+          <div 
+            className="absolute bottom-0"
+            style={{ 
+              left: '-50px',
+              right: '-50px',
+              top: '-10px',
+              background: '#001d3b',
+              pointerEvents: 'none'
+            }} 
+          />
+        )}
         <div className="py-2 px-2 relative z-10" style={{ backgroundColor: 'transparent' }}>
         <div>
           <div className="flex justify-center items-center gap-1">
