@@ -147,7 +147,7 @@ export default function VantaggiPanelContent({ onClose }) {
   if (loading) return <div className="flex-1 flex items-center justify-center"><div className="animate-spin w-8 h-8 border-2 border-[#d4af37] border-t-transparent rounded-full" /></div>;
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden">
+    <div className="flex-1 flex flex-col overflow-hidden relative">
       {/* Header pannello */}
       <div className="flex items-center gap-3 px-4 pt-4 pb-3 border-b border-[#d4af37]/20">
         <Gift className="w-5 h-5 text-[#d4af37]" />
