@@ -386,21 +386,11 @@ Domanda: ${msg}`,
     }
 
     try {
-      // Classificazione sul testo combinato
+      // Classificazione locale sul testo combinato (zero costo AI)
       const combinedText = `${a}. ${b}`;
-      const classResult2 = await base44.integrations.Core.InvokeLLM({
-        prompt: `Classifica questa richiesta in UNA sola categoria tra: Fiscale, Legale, Marketing, Personale/HR, Investimenti, Operativa, Strategica. Rispondi SOLO con un JSON: {"categoria": "nome", "confidenza": 85, "sottocategoria": "specifica"}\n\nRichiesta: "${combinedText}"`
-      });
-      let classificazione2 = classResult2;
-      if (typeof classResult2 === 'string') {
-        try {
-          let cleaned = classResult2.trim();
-          if (cleaned.startsWith('```')) cleaned = cleaned.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
-          classificazione2 = JSON.parse(cleaned);
-        } catch (e) { classificazione2 = null; }
-      }
-      const category = classificazione2?.categoria || 'Strategica';
-      const sottocategoria = classificazione2?.sottocategoria || '';
+      const classificazione2 = classifyIntent(combinedText);
+      const category = classificazione2.categoria;
+      const sottocategoria = classificazione2.sottocategoria;
       setLastCategory('Confronto');
       setLastClassification({ categoria: 'Confronto', sottocategoria: `${category} — ${sottocategoria}` });
 
