@@ -293,7 +293,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           "fixed right-0 z-[56] transition-all duration-300",
           "bg-gradient-to-l from-lime-400 to-lime-500 text-slate-900",
           "rounded-l-xl shadow-lg shadow-lime-400/20",
-          "flex flex-col items-center",
+          "flex flex-col items-center justify-center",
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         )}
         style={{
@@ -304,23 +304,19 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           transform: 'none'
         }}
       >
-        {/* Campanella in alto */}
-        <div className="flex-shrink-0 pt-2 pb-1">
-          <Bell className="w-5 h-5 text-slate-900" strokeWidth={2.5} />
-        </div>
-        {/* Pulsante CHIUDI sotto */}
+        {/* Pulsante CHIUDI - occupa tutto lo spazio */}
         <button
           onClick={() => {
             setIsOpen(false);
             setShowTimePicker(false);
           }}
-          className="flex-1 flex items-center justify-center hover:opacity-70 active:scale-95"
+          className="w-full h-full flex items-center justify-center hover:opacity-70 active:scale-95"
           style={{
             writingMode: 'vertical-rl',
             textOrientation: 'mixed'
           }}
         >
-          <span className="text-[13px] font-bold tracking-wider leading-none whitespace-nowrap">CHIUDI</span>
+          <span className="text-[15px] font-extrabold tracking-widest leading-none whitespace-nowrap">CHIUDI</span>
         </button>
       </div>
 
