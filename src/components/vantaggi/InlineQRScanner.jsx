@@ -140,18 +140,7 @@ export default function InlineQRScanner({ user }) {
         )}
       </div>
 
-      {/* Divider */}
-      <div className="flex items-center gap-2 mb-3">
-        <div className="flex-1 h-px bg-slate-700" /><span className="text-slate-500 text-[10px]">oppure</span><div className="flex-1 h-px bg-slate-700" />
-      </div>
-
-      {/* Input manuale */}
-      <div className="flex gap-2 mb-3">
-        <Input placeholder="Codice QR..." value={manualCode} onChange={(e) => setManualCode(e.target.value.toUpperCase())} className="bg-slate-900 border-slate-600 text-white font-mono text-xs h-9" onKeyPress={(e) => e.key === 'Enter' && handleSearch()} />
-        <Button id="inline-search-btn" onClick={handleSearch} disabled={searching || !manualCode.trim()} className="bg-[#d4af37] hover:bg-[#b8860b] text-slate-900 h-9 px-3">
-          {searching ? <div className="animate-spin w-4 h-4 border-2 border-slate-900 border-t-transparent rounded-full" /> : <Search className="w-4 h-4" />}
-        </Button>
-      </div>
+      <button id="inline-search-btn" className="hidden" onClick={handleSearch} />
 
       {/* Risultato */}
       {searchResult && (
