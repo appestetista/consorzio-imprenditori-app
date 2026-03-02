@@ -429,69 +429,7 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
           <div className="flex items-center gap-1 flex-shrink-0">
             <SectionHeaderIcons userEmail={effectiveUser?.email} unreadCount={messages.length} />
           {isAdmin && (
-            <Dialog open={showAddVideo} onOpenChange={setShowAddVideo}>
-              <DialogTrigger asChild>
-                <Button className="bg-[#d4af37] hover:bg-[#b8960c] text-slate-900">
-                  <Plus className="w-5 h-5 mr-1" />
-                  Nuovo
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="bg-slate-800 border-slate-700">
-                <DialogHeader>
-                  <DialogTitle className="text-white">Nuovo Video</DialogTitle>
-                </DialogHeader>
-                <button
-                  onClick={() => setShowAddVideo(false)}
-                  className="absolute right-4 top-4 rounded-sm opacity-70 hover:opacity-100 transition-opacity"
-                >
-                  <X className="h-4 w-4 text-slate-400" />
-                </button>
-                <div className="space-y-4 mt-4">
-                  <Input
-                    placeholder="Titolo Video *"
-                    value={newVideo.title}
-                    onChange={(e) => setNewVideo({...newVideo, title: e.target.value})}
-                    className="bg-slate-900 border-slate-700 text-white"
-                    required
-                  />
-                  
-                  <div className="space-y-2">
-                    <label className="text-slate-400 text-sm">Seleziona Azienda *</label>
-                    <Select value={newVideo.selected_user_id} onValueChange={handleSelectCompany}>
-                      <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
-                        <SelectValue placeholder="Scegli un'azienda..." />
-                      </SelectTrigger>
-                      <SelectContent className="bg-slate-800 border-slate-700">
-                        {companyUsers.map(u => (
-                          <SelectItem key={u.id} value={u.id} className="text-white hover:bg-slate-700">
-                            {u.company_name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {newVideo.company_email && (
-                      <p className="text-slate-500 text-xs">Email: {newVideo.company_email}</p>
-                    )}
-                  </div>
-                  
-                  <Input
-                    placeholder="Link YouTube *"
-                    value={newVideo.youtube_url}
-                    onChange={(e) => setNewVideo({...newVideo, youtube_url: e.target.value})}
-                    className="bg-slate-900 border-slate-700 text-white"
-                    required
-                  />
-                  
-                  <Button 
-                    onClick={() => createVideoMutation.mutate(newVideo)}
-                    disabled={createVideoMutation.isPending || !newVideo.title || !newVideo.company_name || !newVideo.youtube_url}
-                    className="w-full bg-[#d4af37] hover:bg-[#b8960c] text-slate-900"
-                  >
-                    {createVideoMutation.isPending ? 'Caricamento...' : 'Aggiungi Video'}
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
+            <AdminVideoUploadPanel companyUsers={companyUsers} allUsers={allUsers} />
           )}
           </div>
         </div>
