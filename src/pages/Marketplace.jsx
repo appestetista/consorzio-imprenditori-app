@@ -14,7 +14,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import Header from '../components/layout/Header';
-import BottomNav from '../components/layout/BottomNav';
+import BottomNavWithMenu from '../components/layout/BottomNavWithMenu';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import JobApplicationForm from '../components/marketplace/JobApplicationForm';
 import ApplicationReadStatus from '../components/marketplace/ApplicationReadStatus';
@@ -1039,7 +1039,7 @@ export default function Marketplace() {
         </AlertDialog>
       </main>
 
-      <BottomNav currentPage="Marketplace" unreadMessages={messages.length} />
+      <BottomNavWithMenu currentPage="Marketplace" unreadMessages={messages.length} />
     </div>
   );
 }
