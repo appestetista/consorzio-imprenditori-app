@@ -279,6 +279,33 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
         <span className="text-[13px] font-bold tracking-wider leading-none whitespace-nowrap">CALENDARIO</span>
       </button>
 
+      {/* Linguetta CHIUDI - visibile solo quando il pannello è aperto, stessa posizione/dimensione della linguetta CALENDARIO */}
+      <button
+        onClick={() => {
+          setIsOpen(false);
+          setShowTimePicker(false);
+        }}
+        className={cn(
+          "fixed right-0 z-[56] transition-all duration-300",
+          "bg-gradient-to-l from-lime-400 to-lime-500 text-slate-900",
+          "rounded-l-xl shadow-lg shadow-lime-400/20",
+          "flex items-center justify-center",
+          "hover:pr-2 active:scale-95",
+          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        )}
+        style={{
+          width: '42px',
+          height: '140px',
+          writingMode: 'vertical-rl',
+          textOrientation: 'mixed',
+          bottom: '0px',
+          top: 'auto',
+          transform: 'none'
+        }}
+      >
+        <span className="text-[13px] font-bold tracking-wider leading-none whitespace-nowrap">CHIUDI</span>
+      </button>
+
       {/* Pannello calendario - scorre da destra a sinistra orizzontalmente */}
       <div
         className={cn(
@@ -287,7 +314,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           isOpen ? "translate-x-0" : "translate-x-full",
           "z-[55]"
         )}
-        style={{ display: 'flex', flexDirection: 'column' }}
+        style={{ display: 'flex', flexDirection: 'column', marginRight: '42px' }}
       >
         {/* VerticalTimePicker - occupa lo spazio sopra il calendario */}
         {showTimePicker && selectedDate && (
