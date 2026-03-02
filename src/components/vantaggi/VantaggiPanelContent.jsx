@@ -6,6 +6,8 @@ import { createPageUrl } from '@/utils';
 import { Gift, Tag, Calendar, MapPin, Check, Clock, Building2, User, Plus, X, Upload, TrendingUp, Minus, QrCode, ChevronLeft } from 'lucide-react';
 import VantaggiCategoryFilter, { CATEGORIES } from './VantaggiCategoryFilter';
 import VantaggiExamplesCollapsible from './VantaggiExamplesCollapsible';
+import InlineMyQRCode from './InlineMyQRCode';
+import InlineQRScanner from './InlineQRScanner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
