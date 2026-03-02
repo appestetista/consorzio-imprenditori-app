@@ -150,7 +150,7 @@ export default function MissingProfileDataModal({ fields, onComplete, onSkip, ex
                 <label className="block text-xs font-medium text-slate-400 mb-1.5">{config.label}</label>
                 <select
                   value={form[fieldName] || ''}
-                  onChange={(e) => setForm(prev => ({ ...prev, [fieldName]: e.target.value }))}
+                  onChange={(e) => handleFieldChange(fieldName, e.target.value)}
                   className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-sm text-white outline-none focus:border-[#d4af37]/60 transition-colors appearance-none"
                 >
                   <option value="">Seleziona...</option>
