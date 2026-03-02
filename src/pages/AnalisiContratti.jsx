@@ -476,14 +476,14 @@ Accedi all'app per visualizzare gli allegati e rispondere direttamente al client
         <div className="flex gap-2 mb-6">
           <Button
             onClick={() => setActiveTab('analisi')}
-            className={`flex-1 ${activeTab === 'analisi' ? 'bg-lime-400 text-slate-900' : 'bg-slate-800 text-white'}`}
+            className={`flex-1 ${activeTab === 'analisi' ? 'bg-lime-400 text-slate-900 font-bold' : 'bg-lime-400/20 text-lime-400 border border-lime-400/40'}`}
           >
             <FileSearch className="w-4 h-4 mr-2" />
             Analisi
           </Button>
           <Button
             onClick={() => setActiveTab('storico')}
-            className={`flex-1 ${activeTab === 'storico' ? 'bg-lime-400 text-slate-900' : 'bg-slate-800 text-white'}`}
+            className={`flex-1 ${activeTab === 'storico' ? 'bg-lime-400 text-slate-900 font-bold' : 'bg-lime-400/20 text-lime-400 border border-lime-400/40'}`}
           >
             <History className="w-4 h-4 mr-2" />
             Storico
