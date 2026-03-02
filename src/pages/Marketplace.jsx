@@ -226,8 +226,8 @@ export default function Marketplace() {
   return (
     <div className="min-h-screen bg-slate-900 pb-64">
       <main className="px-4 py-6 max-w-md mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
+        <div className="mb-6">
+          <div className="flex items-center gap-3 mb-3">
             <Link to={createPageUrl('Esplora?tab=strumenti')} className="text-lime-400 p-3 -m-3 rounded-full back-arrow-tap">
               <ArrowLeft className="w-7 h-7" />
             </Link>
@@ -236,9 +236,9 @@ export default function Marketplace() {
           
           <Dialog open={showAddAd} onOpenChange={setShowAddAd}>
             <DialogTrigger asChild>
-              <Button className="bg-lime-400 hover:bg-lime-500 text-slate-900">
-                <Plus className="w-5 h-5 mr-1" />
-                Inserisci
+              <Button className="w-full bg-lime-400 hover:bg-lime-500 text-slate-900 h-11 text-sm font-semibold">
+                <Plus className="w-4 h-4 mr-1" />
+                Inserisci cosa offri o cosa cerchi
               </Button>
             </DialogTrigger>
             <DialogContent className="bg-slate-800 border-slate-700 max-h-[85vh] overflow-y-auto">
