@@ -61,8 +61,6 @@ export default function SimulatoreFiscale() {
 
   return (
     <div className="min-h-screen pb-64" style={{ backgroundColor: '#001d3b' }}>
-      <Header user={effectiveUser} />
-
       <main className="px-4 py-6 max-w-md mx-auto">
         {/* Header pagina */}
         <div className="flex items-center justify-between mb-6">

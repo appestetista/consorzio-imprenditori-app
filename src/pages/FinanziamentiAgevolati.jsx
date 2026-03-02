@@ -15,7 +15,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
-import Header from '../components/layout/Header';
+// Header rimosso
 import BottomNavWithMenu from '../components/layout/BottomNavWithMenu';
 import GrantCard from '../components/grants/GrantCard';
 import GrantFilters from '../components/grants/GrantFilters';

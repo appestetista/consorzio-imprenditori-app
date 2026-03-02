@@ -281,8 +281,6 @@ export default function GestioneVantaggi() {
 
   return (
     <div className="min-h-screen bg-slate-900 pb-64">
-      <Header user={user} />
-
       <main className="px-4 py-6 max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">

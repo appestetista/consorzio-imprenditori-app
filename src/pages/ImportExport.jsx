@@ -56,8 +56,6 @@ export default function ImportExport() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 pb-64">
-      <Header user={user} />
-
       <main className="px-4 py-6 max-w-md mx-auto">
         {/* Header con tab switch */}
         <div className="flex items-center gap-3 mb-5">

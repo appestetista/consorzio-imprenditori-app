@@ -96,8 +96,6 @@ export default function DirectoryUtenti() {
 
   return (
     <div className="min-h-screen bg-slate-900 pb-64">
-      <Header user={currentUser} />
-
       <main className="px-4 py-6 max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">

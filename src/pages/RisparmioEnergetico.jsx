@@ -78,8 +78,6 @@ export default function RisparmioEnergetico() {
 
   return (
     <div className="min-h-screen bg-slate-900 pb-64">
-      <Header user={user} />
-      
       <main className="px-4 py-6 max-w-md mx-auto">
         <div className="flex items-center gap-3 mb-6">
           <Link to={createPageUrl('Esplora?tab=strumenti')} className="text-lime-400 p-3 -m-3 rounded-full back-arrow-tap">
