@@ -696,7 +696,7 @@ export default function Messaggi() {
         <Link to={createPageUrl('Home')} className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center">
           <ArrowLeft className="w-7 h-7 text-[#d4af37]" />
         </Link>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 mr-2">
           <div className="relative p-1">
             <img 
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/cd5e7b92b_Immagine_2026-02-03_182832-removebg-preview.png" 
@@ -709,9 +709,9 @@ export default function Messaggi() {
               </span>
             )}
           </div>
-          <Link to={createPageUrl('Home')} className="relative p-1" onClick={(e) => { e.preventDefault(); window.history.back(); }}>
-            <Bell className="w-7 h-7 text-slate-400" />
-          </Link>
+          <button onClick={() => setNotifPanelOpen(true)} className="relative p-1.5 rounded-xl hover:bg-slate-800 transition-colors">
+            <Bell className="w-6 h-6 text-slate-400" />
+          </button>
         </div>
       </div>
       
@@ -899,6 +899,12 @@ export default function Messaggi() {
         </div>
       </main>
 
+      <NotificationsPanel
+        open={notifPanelOpen}
+        onClose={() => setNotifPanelOpen(false)}
+        userEmail={effectiveEmail}
+        userRegime={null}
+      />
       <BottomNav currentPage="Messaggi" unreadMessages={totalUnreadCount} />
 
       {/* Delete Conversation Confirmation Dialog */}
