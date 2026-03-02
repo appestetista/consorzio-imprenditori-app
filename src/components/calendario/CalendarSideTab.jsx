@@ -364,7 +364,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
             monthLabelButton={
               <div className="flex flex-col items-end gap-0">
                 {/* Pulsante Incontri 3D oro - sopra, staccato */}
-                <div className="mb-2">
+                <div className="mb-2 flex flex-col items-center">
                   <Link 
                     to={createPageUrl('CalendarioIncontri')}
                     className="relative flex-shrink-0 flex flex-col items-center"
