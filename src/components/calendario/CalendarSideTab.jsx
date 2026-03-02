@@ -361,66 +361,63 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                 {new Date(visibleMonthLabel.year, visibleMonthLabel.month).toLocaleDateString('it-IT', { month: 'long' })} {visibleMonthLabel.year}
               </span>
             }
-            monthLabelButton={
-              <div className="flex flex-col items-end gap-0">
-                {/* Pulsante Incontri 3D oro - sopra, staccato */}
-                <div className="mb-2 flex flex-col items-center">
-                  <Link 
-                    to={createPageUrl('CalendarioIncontri')}
-                    className="relative flex-shrink-0 flex flex-col items-center"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setIsOpen(false);
-                      setShowTimePicker(false);
-                      setHasNewEvent(false);
+            incontriButton={
+              <div className="flex flex-col items-center">
+                <Link 
+                  to={createPageUrl('CalendarioIncontri')}
+                  className="relative flex-shrink-0 flex flex-col items-center"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsOpen(false);
+                    setShowTimePicker(false);
+                    setHasNewEvent(false);
+                  }}
+                >
+                  <div 
+                    className="relative w-11 h-11 rounded-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-200"
+                    style={{
+                      background: 'linear-gradient(145deg, #f5d060, #c9a029)',
+                      boxShadow: '0 4px 12px rgba(212,175,55,0.45), 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -2px 4px rgba(0,0,0,0.15)',
+                      border: '1px solid rgba(255,235,150,0.3)'
                     }}
                   >
-                    <div 
-                      className="relative w-11 h-11 rounded-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-200"
-                      style={{
-                        background: 'linear-gradient(145deg, #f5d060, #c9a029)',
-                        boxShadow: '0 4px 12px rgba(212,175,55,0.45), 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -2px 4px rgba(0,0,0,0.15)',
-                        border: '1px solid rgba(255,235,150,0.3)'
-                      }}
-                    >
-                      <Calendar className="w-5 h-5 text-slate-900" strokeWidth={2.5} />
-                      {/* Campanella sovrapposta */}
-                      <div className={cn(
-                        "absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center transition-all",
-                        hasNewEvent ? "animate-bounce" : ""
-                      )} style={{
-                        background: 'linear-gradient(145deg, #475569, #334155)',
-                        boxShadow: '0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)',
-                        border: '1px solid rgba(255,255,255,0.1)'
-                      }}>
-                        <Bell className="w-3 h-3 text-white" />
-                      </div>
-                      {futureEventsCount > 0 && (
-                        <span className="absolute -top-2.5 -right-2.5 bg-red-500 text-white text-[7px] rounded-full min-w-[15px] h-[15px] px-0.5 flex items-center justify-center font-bold z-10" style={{ boxShadow: '0 2px 4px rgba(239,68,68,0.5)' }}>
-                          {futureEventsCount}
-                        </span>
-                      )}
+                    <Calendar className="w-5 h-5 text-slate-900" strokeWidth={2.5} />
+                    <div className={cn(
+                      "absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center transition-all",
+                      hasNewEvent ? "animate-bounce" : ""
+                    )} style={{
+                      background: 'linear-gradient(145deg, #475569, #334155)',
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)',
+                      border: '1px solid rgba(255,255,255,0.1)'
+                    }}>
+                      <Bell className="w-3 h-3 text-white" />
                     </div>
-                  </Link>
-                  <span className="text-[9px] font-semibold text-slate-400 mt-0.5">Incontri</span>
-                </div>
-                {/* Etichetta giorno selezionato - in linea con il nome mese */}
-                {selectedDate ? (
-                  <span 
-                    className="px-2 py-0.5 rounded text-[10px] font-semibold"
-                    style={{ 
-                      backgroundColor: currentMonthColor,
-                      color: '#0f172a'
-                    }}
-                  >
-                    {new Date(selectedDate).toLocaleDateString('it-IT', { weekday: 'long' })} {new Date(selectedDate).getDate()}
-                  </span>
-                ) : (
-                  <span className="text-[9px] text-slate-500 italic text-right">
-                    scegli un giorno
-                  </span>
-                )}
+                    {futureEventsCount > 0 && (
+                      <span className="absolute -top-2.5 -right-2.5 bg-red-500 text-white text-[7px] rounded-full min-w-[15px] h-[15px] px-0.5 flex items-center justify-center font-bold z-10" style={{ boxShadow: '0 2px 4px rgba(239,68,68,0.5)' }}>
+                        {futureEventsCount}
+                      </span>
+                    )}
+                  </div>
+                </Link>
+                <span className="text-[9px] font-semibold text-slate-400 mt-0.5">Incontri</span>
               </div>
+            }
+            monthLabelButton={
+              selectedDate ? (
+                <span 
+                  className="px-2 py-0.5 rounded text-[10px] font-semibold"
+                  style={{ 
+                    backgroundColor: currentMonthColor,
+                    color: '#0f172a'
+                  }}
+                >
+                  {new Date(selectedDate).toLocaleDateString('it-IT', { weekday: 'long' })} {new Date(selectedDate).getDate()}
+                </span>
+              ) : (
+                <span className="text-[9px] text-slate-500 italic text-right">
+                  scegli un giorno
+                </span>
+              )
             } 
             selectedDate={selectedDate}
             onDateSelect={handleDateSelect}
