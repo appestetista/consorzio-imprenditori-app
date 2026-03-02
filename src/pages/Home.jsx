@@ -742,7 +742,7 @@ Scenario B: ${b}`,
       </div>
 
       {/* Campo di input */}
-      <div className="fixed z-40 px-2 pb-1 pt-1 left-0 right-0" style={{ bottom: '141px' }}>
+      <div className="fixed z-40 px-2 pb-1 pt-1 left-0 right-0" style={{ bottom: '141px', backgroundColor: '#0a0f1a' }}>
         <div className="max-w-2xl mx-auto space-y-1">
           {!compareMode ? (
             <>
