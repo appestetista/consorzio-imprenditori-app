@@ -3,6 +3,7 @@ import { ImpersonationProvider } from './components/admin/ImpersonationContext';
 import { VideoVisitProvider } from './components/context/VideoVisitContext';
 import { Toaster } from 'sonner';
 import CalendarSideTab from './components/calendario/CalendarSideTab';
+import VantaggiSideTab from './components/vantaggi/VantaggiSideTab';
 
 export default function Layout({ children, currentPageName }) {
   const [selectedDate, setSelectedDate] = useState(null);
@@ -36,6 +37,7 @@ export default function Layout({ children, currentPageName }) {
           }
         `}</style>
         {children}
+        <VantaggiSideTab />
         <CalendarSideTab 
           selectedDate={selectedDate}
           onDateSelect={setSelectedDate}
