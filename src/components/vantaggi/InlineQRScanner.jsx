@@ -34,11 +34,10 @@ export default function InlineQRScanner({ user }) {
         { facingMode: "environment" },
         { fps: 10, qrbox: { width: 220, height: 220 }, aspectRatio: 1.0 },
         (decodedText) => {
-          setManualCode(decodedText.toUpperCase());
           html5Qrcode.stop().then(() => {
             scannerRef.current = null;
             setScannerActive(false);
-            setTimeout(() => document.getElementById('inline-search-btn')?.click(), 100);
+            handleQRScanned(decodedText.toUpperCase());
           }).catch(() => {});
         },
         () => {}
@@ -60,6 +59,44 @@ export default function InlineQRScanner({ user }) {
   const closeScanner = () => {
     if (scannerRef.current) { scannerRef.current.stop().catch(() => {}); scannerRef.current = null; }
     setScannerActive(false);
+  };
+
+  const restartScanner = () => {
+    setSearchResult(null);
+    setManualCode('');
+    setScannerActive(true);
+  };
+
+  const handleQRScanned = async (code) => {
+    setSearching(true);
+    setSearchResult(null);
+    try {
+      const qrCodes = await base44.entities.UserQRCode.filter({ qr_token: code });
+      if (qrCodes.length === 0) {
+        setSearchResult({ error: 'Codice QR non valido' });
+        setTimeout(restartScanner, 2000);
+        return;
+      }
+      const qrCode = qrCodes[0];
+      const users = await base44.entities.User.filter({ email: qrCode.user_email });
+      const foundUser = users[0];
+      const prenotazioni = await base44.entities.PrenotazioneVantaggio.filter({ user_email: qrCode.user_email, status: 'attiva' });
+      const miePrenotazioni = prenotazioni.filter(p => mieVantaggi.some(v => v.id === p.vantaggio_id));
+
+      if (miePrenotazioni.length === 0) {
+        setSearchResult({ error: 'Nessuna prenotazione attiva per i tuoi vantaggi' });
+        setTimeout(restartScanner, 2000);
+        return;
+      }
+
+      // Mostra risultato con prenotazioni da validare
+      setSearchResult({ user: foundUser, qrCode, prenotazioni: miePrenotazioni, vantaggi: mieVantaggi });
+    } catch (e) {
+      setSearchResult({ error: 'Errore durante la ricerca' });
+      setTimeout(restartScanner, 2000);
+    } finally {
+      setSearching(false);
+    }
   };
 
   const validateMutation = useMutation({
@@ -89,10 +126,10 @@ export default function InlineQRScanner({ user }) {
       }
     },
     onSuccess: () => {
-      toast.success('Vantaggio validato!');
-      setSearchResult(null);
-      setManualCode('');
+      toast.success('Vantaggio validato con successo!');
       setConfirmDialog({ open: false, prenotazione: null, vantaggio: null });
+      queryClient.invalidateQueries({ queryKey: ['miei-vantaggi-scanner'] });
+      setTimeout(restartScanner, 2000);
     },
     onError: () => toast.error('Errore durante la validazione')
   });
@@ -140,7 +177,12 @@ export default function InlineQRScanner({ user }) {
         )}
       </div>
 
-      <button id="inline-search-btn" className="hidden" onClick={handleSearch} />
+      {searching && (
+        <div className="flex items-center justify-center py-3">
+          <div className="animate-spin w-5 h-5 border-2 border-[#d4af37] border-t-transparent rounded-full mr-2" />
+          <span className="text-slate-400 text-xs">Verifica in corso...</span>
+        </div>
+      )}
 
       {/* Risultato */}
       {searchResult && (
