@@ -391,7 +391,7 @@ export default function Esplora() {
   ];
 
   const features = [
-    ...strumentiGroups.flatMap(g => g.items.map(f => ({ ...f, category: 'strumenti' }))),
+    ...strumentiItems.map(f => ({ ...f, category: 'strumenti' })),
     { title: 'Il Mio\nProfilo', icon: User, page: 'MyProfile', notifications: 0, category: 'personale' },
     { title: 'Calendario\nPersonale', icon: Calendar, page: 'CalendarioIncontri', notifications: 0, category: 'personale' },
     { title: 'Contatta\nil Consorzio', icon: Phone, page: 'ContattaConsorzio', notifications: 0, category: 'personale' },
