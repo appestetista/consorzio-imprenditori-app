@@ -6,9 +6,19 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import NotificationsPanel, { useNotificationsBadge } from '../home/NotificationsPanel';
 
-export default function SectionHeaderIcons({ userEmail, userRegime = null, unreadCount = 0 }) {
+export default function SectionHeaderIcons({ userEmail, userRegime = null, unreadCount }) {
   const [notifPanelOpen, setNotifPanelOpen] = useState(false);
   const totalBadge = useNotificationsBadge(userEmail, userRegime);
+
+  // Se unreadCount non è passato, lo fetcha autonomamente
+  const { data: fetchedMessages = [] } = useQuery({
+    queryKey: ['section-header-unread', userEmail],
+    queryFn: () => base44.entities.Message.filter({ to_email: userEmail, is_read: false }),
+    enabled: !!userEmail && unreadCount === undefined,
+    refetchInterval: 10000,
+  });
+
+  const effectiveUnreadCount = unreadCount !== undefined ? unreadCount : fetchedMessages.length;
 
   return (
     <>
@@ -20,9 +30,9 @@ export default function SectionHeaderIcons({ userEmail, userRegime = null, unrea
             alt="Messaggi" 
             className="w-9 h-9 object-contain"
           />
-          {unreadCount > 0 && (
+          {effectiveUnreadCount > 0 && (
             <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] rounded-full min-w-4 h-4 px-1 flex items-center justify-center font-bold">
-              {unreadCount > 99 ? '99+' : unreadCount}
+              {effectiveUnreadCount > 99 ? '99+' : effectiveUnreadCount}
             </span>
           )}
         </Link>
