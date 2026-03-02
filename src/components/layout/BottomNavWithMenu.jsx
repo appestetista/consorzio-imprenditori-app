@@ -24,9 +24,9 @@ export default function BottomNavWithMenu({ currentPage, activeTab = null, unrea
     <>
       {/* Menu Drawer */}
       <div className={cn(
-        "fixed inset-0 z-50 transition-all duration-300",
+        "fixed inset-x-0 top-0 z-50 transition-all duration-300",
         menuOpen ? "visible" : "invisible"
-      )}>
+      )} style={{ bottom: '200px' }}>
         <div 
           className={cn(
             "absolute inset-0 bg-black/50 transition-opacity",
@@ -35,7 +35,7 @@ export default function BottomNavWithMenu({ currentPage, activeTab = null, unrea
           onClick={() => setMenuOpen(false)}
         />
         <div className={cn(
-          "absolute right-0 top-0 h-full w-72 bg-slate-900 border-l border-[#d4af37]/30 p-6 transition-transform duration-300",
+          "absolute right-0 top-0 h-full w-72 bg-slate-900 border-l border-[#d4af37]/30 rounded-bl-2xl p-6 transition-transform duration-300",
           menuOpen ? "translate-x-0" : "translate-x-full"
         )}>
           <div className="flex items-center justify-between mb-6">
