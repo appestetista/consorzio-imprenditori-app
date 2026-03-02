@@ -179,52 +179,43 @@ export default function Home() {
       strumentoSuggerito = { nome: 'Consulenze', pagina: 'Consulenze', descrizione: 'prenota una consulenza con un professionista' };
     }
 
-    // Chiamata LLM con internet
+    // Chiamata LLM con internet + schema JSON forzato
     const result = await base44.integrations.Core.InvokeLLM({
       prompt: `Sei un consulente strategico senior per PMI italiane. HAI ACCESSO A INTERNET e DEVI usarlo.
 
-3 REGOLE ASSOLUTE:
+REGOLE:
 - MAI inventare dati, numeri, aliquote, leggi o statistiche
 - Se NON trovi un dato: scrivi "dato non disponibile" o dai un range segnato come STIMA
 - MAI restituire una risposta vuota o incompleta
-
-PROCEDURA:
-1. CERCA SU INTERNET dati aggiornati sulla domanda
-2. Ogni dato trovato online: segna [VERIFICATO — nome fonte]
-3. Ogni stima: segna [STIMA — su cosa si basa]
-4. Ogni dato da verificare: segna [DA CONFERMARE — con chi]
-
-DOVE CERCARE: Agenzia Entrate, INPS, INAIL, Gazzetta Ufficiale, MISE, MIMIT, Camere di Commercio, portali regionali, Fiscoetasse, Altalex, CNDCEC, Consulenti del Lavoro
-
-REGOLE RISPOSTA:
-- Numeri REALI trovati online, mai inventati
+- Cerca dati su: Agenzia Entrate, INPS, INAIL, Gazzetta Ufficiale, MISE, MIMIT, Fiscoetasse, Altalex
+- Ogni dato trovato online: segna [VERIFICATO — nome fonte]
+- Ogni stima: segna [STIMA — su cosa si basa]
 - Linguaggio diretto, operativo, concreto da consulente esperto
 - La RACCOMANDAZIONE deve essere un'azione da fare DOMANI MATTINA
 - Mai dire "come modello AI" o "non posso dare consulenza"
-- Mai disclaimer legali automatici
 
 ${kbHint}${userContext}
 
 Categoria: ${category} — ${sottocategoria}.
-Domanda: ${msg}
-
-FORMATO — JSON valido:
-{
-  "categoria": "stringa",
-  "sintesi_decisionale": "max 5 righe con dati reali e tag [VERIFICATO — fonte] o [STIMA]",
-  "impatto_economico": "cifre EUR con fonte o range stimato",
-  "rischi_criticita": "rischi specifici con norme di riferimento",
-  "tempo_attuazione": "timeline realistica",
-  "raccomandazione_finale": "cosa fare DOMANI MATTINA alle 9 come primo passo",
-  "fonti": [{"nome": "Nome Ente", "url": "link o vuoto", "tipo": "istituzionale|specializzata|media"}],
-  "affidabilita": {"verificati": 4, "stimati": 1, "da_confermare": 1, "punteggio": 8},
-  "followup_questions": ["domanda 1", "domanda 2", "domanda 3"],
-  "strumento_correlato": ${strumentoSuggerito ? JSON.stringify(strumentoSuggerito) : 'null'}
-}`,
-      add_context_from_internet: true
+Domanda: ${msg}`,
+      add_context_from_internet: true,
+      response_json_schema: {
+        type: "object",
+        properties: {
+          categoria: { type: "string" },
+          sintesi_decisionale: { type: "string", description: "max 5 righe con dati reali e tag [VERIFICATO — fonte] o [STIMA]" },
+          impatto_economico: { type: "string", description: "cifre EUR con fonte o range stimato" },
+          rischi_criticita: { type: "string", description: "rischi specifici con norme di riferimento" },
+          tempo_attuazione: { type: "string", description: "timeline realistica" },
+          raccomandazione_finale: { type: "string", description: "cosa fare DOMANI MATTINA alle 9 come primo passo" },
+          fonti: { type: "array", items: { type: "object", properties: { nome: { type: "string" }, url: { type: "string" }, tipo: { type: "string" } } } },
+          affidabilita: { type: "object", properties: { verificati: { type: "number" }, stimati: { type: "number" }, da_confermare: { type: "number" }, punteggio: { type: "number" } } },
+          followup_questions: { type: "array", items: { type: "string" } }
+        }
+      }
     });
 
-    // Parsing sicuro
+    // Parsing sicuro — con response_json_schema il risultato è già un oggetto
     let parsed = result;
     if (typeof result === 'string') {
       try {
