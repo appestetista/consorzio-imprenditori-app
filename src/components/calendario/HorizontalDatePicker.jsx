@@ -775,27 +775,15 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
 
       {/* Pulsanti oggi + nome mese grande + data breve */}
           {(goToTodayButton || monthNameLabel || monthLabelButton) && (
-            <div className="flex flex-col px-2 pb-1">
-              {/* Riga superiore: pulsante incontri allineato a destra */}
-              <div className="flex justify-end">
-                {monthLabelButton && (
-                  <div>{React.Children.toArray(monthLabelButton.props?.children || []).find(c => c?.props?.className?.includes('mb-2'))}</div>
-                )}
+            <div className="flex items-center justify-between px-2 pb-1">
+              <div>
+                {goToTodayButton}
               </div>
-              {/* Riga inferiore: oggi + mese + etichetta giorno, tutto allineato */}
-              <div className="flex items-center justify-between">
-                <div>
-                  {goToTodayButton}
-                </div>
-                <div>
-                  {monthNameLabel}
-                </div>
-                <div>
-                  {monthLabelButton && (() => {
-                    const children = React.Children.toArray(monthLabelButton.props?.children || []);
-                    return children.find(c => !c?.props?.className?.includes('mb-2')) || null;
-                  })()}
-                </div>
+              <div>
+                {monthNameLabel}
+              </div>
+              <div>
+                {monthLabelButton}
               </div>
             </div>
           )}
