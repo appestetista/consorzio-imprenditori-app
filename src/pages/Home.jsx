@@ -419,6 +419,7 @@ Scenario B: ${b}`,
         }
       });
 
+      // Con response_json_schema il risultato è già un oggetto
       let parsedCompare = compareResult;
       if (typeof compareResult === 'string') {
         try {
