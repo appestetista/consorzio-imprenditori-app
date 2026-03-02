@@ -47,22 +47,7 @@ export default function InlineMyQRCode({ user }) {
       {/* Header */}
       <div className="flex items-center gap-2 mb-3">
         <QrCode className="w-5 h-5 text-[#d4af37]" />
-        <h3 className="text-white font-bold text-sm">Il Mio QR Code</h3>
-      </div>
-
-      {/* Info utente compatta */}
-      <div className="flex items-center gap-2 mb-3">
-        {user?.logo_url ? (
-          <img src={user.logo_url} alt="" className="w-8 h-8 rounded-full object-cover" />
-        ) : (
-          <div className="w-8 h-8 bg-[#d4af37] rounded-full flex items-center justify-center">
-            <User className="w-4 h-4 text-slate-900" />
-          </div>
-        )}
-        <div className="min-w-0">
-          <p className="text-white font-semibold text-sm truncate">{user?.company_name || user?.full_name}</p>
-          <p className="text-slate-400 text-[10px] truncate">{user?.email}</p>
-        </div>
+        <h3 className="text-white font-bold text-sm">Se hai prenotato un vantaggio, all'arrivo fallo scansionare dall'attività.</h3>
       </div>
 
       {/* QR Code */}
