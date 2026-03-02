@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 import BottomNav from '../components/layout/BottomNav';
+import TopRightIcons from '../components/layout/TopRightIcons';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import ProfiloBandiForm from '../components/profile/ProfiloBandiForm';
 import NotificationPreferences from '../components/profile/NotificationPreferences';
