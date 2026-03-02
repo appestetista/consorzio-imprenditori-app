@@ -59,64 +59,90 @@ export default function ImportExport() {
   const isExport = activeTab === 'export';
   const isImport = activeTab === 'import';
 
+  const actionType = isExport ? 'export_analysis' : 'import_analysis';
+  const { usageCount, limit, isLimitReached } = useAILimits(user?.email, actionType);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 pb-64">
       <main className="px-4 py-6 max-w-md mx-auto">
-        {/* Header con tab switch */}
-        <div className="flex items-center gap-3 mb-5">
-          <Link to={createPageUrl('Esplora?tab=strumenti')} className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center back-arrow-tap">
-            <ArrowLeft className="w-5 h-5 text-white" />
-          </Link>
-          <div className="flex-1">
-            <h1 className="text-white text-lg font-bold tracking-tight">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <Link to={createPageUrl('Esplora?tab=strumenti')} className="text-slate-400 p-3 -m-3 rounded-full back-arrow-tap hover:text-white transition-colors">
+              <ArrowLeft className="w-6 h-6" />
+            </Link>
+            <h1 className="text-white text-xl font-bold">
               {isExport || activeTab === 'history' ? 'Export' : 'Import'}
             </h1>
-            <p className="text-slate-500 text-xs">
-              {isExport || activeTab === 'history' ? 'Analisi mercati internazionali' : 'Analisi import'}
-            </p>
           </div>
           <SectionHeaderIcons userEmail={user?.email} unreadCount={messages.length} />
-          {(isExport || activeTab === 'history') && (
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setShowContactPopup(true)}
-                className="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-lime-400 hover:border-lime-400/30 transition-all"
-                title="Contatta Export Manager"
-              >
-                <UserRound className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setActiveTab(activeTab === 'history' ? 'export' : 'history')}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border transition-all ${
-                  activeTab === 'history'
-                    ? 'bg-amber-500/20 border-amber-500/40 text-amber-400'
-                    : 'bg-white/5 border-white/10 text-slate-400 hover:text-white'
-                }`}
-              >
-                <Clock className="w-4 h-4" />
-                <span className="text-xs font-medium">Storico</span>
-              </button>
-            </div>
-          )}
         </div>
 
-        {/* Gate Premium AI */}
-        {user && user.piano_abbonamento !== 'impresa_39' && (
+        {/* Tab Switch - Export / Import */}
+        <div className="flex gap-2 mb-6">
+          <Button
+            onClick={() => setActiveTab('export')}
+            className={`flex-1 ${activeTab === 'export' || activeTab === 'history' ? 'bg-lime-400 text-slate-900 font-bold' : 'bg-lime-400/20 text-lime-400 border border-lime-400/40'}`}
+          >
+            <TrendingUp className="w-4 h-4 mr-2" />
+            Export
+          </Button>
+          <Button
+            onClick={() => setActiveTab('import')}
+            className={`flex-1 ${activeTab === 'import' ? 'bg-lime-400 text-slate-900 font-bold' : 'bg-lime-400/20 text-lime-400 border border-lime-400/40'}`}
+          >
+            <Ship className="w-4 h-4 mr-2" />
+            Import
+          </Button>
+        </div>
+
+        {/* Usage Counter */}
+        {user && !isLimitReached && activeTab !== 'history' && (
+          <div className="mb-4">
+            <UsageCounter usageCount={usageCount} limit={limit} label={`Analisi ${isExport ? 'export' : 'import'} disponibili questo mese`} />
+          </div>
+        )}
+        {user && isLimitReached && activeTab !== 'history' && (
+          <div className="mb-4">
+            <LimitReachedBanner actionType={actionType} usageCount={usageCount} limit={limit} />
+          </div>
+        )}
+
+        {/* Storico inline */}
+        {activeTab !== 'history' && user && (
           <div className="mb-6">
-            <PremiumAIGate user={user} featureLabel="Analizza mercati internazionali, dazi doganali, codici HS e logistica con dati ufficiali" />
+            <button
+              onClick={() => setActiveTab('history')}
+              className="w-full flex items-center justify-between rounded-xl bg-slate-800/60 border border-slate-700/50 px-4 py-3 text-sm hover:border-slate-600 transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <History className="w-4 h-4 text-slate-400" />
+                <span className="text-slate-300">Storico ricerche</span>
+              </div>
+              <span className="text-slate-500 text-xs">Vedi tutto →</span>
+            </button>
           </div>
         )}
 
         {/* Contenuto per tab */}
-        {user?.piano_abbonamento !== 'impresa_39' ? null : activeTab === 'messages' ? (
+        {activeTab === 'messages' ? (
           <ImportMessagesSection user={user} />
         ) : activeTab === 'history' ? (
-          <SearchHistory userEmail={user?.email} onOpenAnalysis={(log) => {
-            if (log.analysis_snapshot) {
-              setHistorySnapshot(log.analysis_snapshot);
-              setActiveTab(log.action_type === 'export_analysis' ? 'export' : 'import');
-            }
-          }} />
+          <>
+            <button
+              onClick={() => setActiveTab('export')}
+              className="flex items-center gap-2 text-slate-400 hover:text-white mb-4 text-sm transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Torna all'analisi
+            </button>
+            <SearchHistory userEmail={user?.email} onOpenAnalysis={(log) => {
+              if (log.analysis_snapshot) {
+                setHistorySnapshot(log.analysis_snapshot);
+                setActiveTab(log.action_type === 'export_analysis' ? 'export' : 'import');
+              }
+            }} />
+          </>
         ) : isExport ? (
           <ExportSection
             key={historySnapshot ? 'snapshot-' + JSON.stringify(historySnapshot.confirmedHS?.hs_code) : 'new'}
