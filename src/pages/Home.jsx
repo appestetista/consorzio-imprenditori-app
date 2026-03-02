@@ -281,9 +281,7 @@ FORMATO — JSON valido:
     }
   };
 
-  const isFreeUser = !pianoAbbonamento || pianoAbbonamento === 'free';
-  const isExhausted = pianoAbbonamento === 'impresa_39' && consulenzeUsate >= 50;
-  const chatBlocked = isFreeUser || isExhausted;
+  const chatBlocked = false;
 
   const handleSend = async (text) => {
     const msg = text || inputText.trim();
