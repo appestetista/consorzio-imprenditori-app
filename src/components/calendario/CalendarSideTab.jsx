@@ -262,21 +262,29 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           "fixed right-0 z-40 transition-all duration-300",
           "bg-gradient-to-l from-lime-400 to-lime-500 text-slate-900",
           "rounded-l-xl shadow-lg shadow-lime-400/20",
-          "flex items-center justify-center",
+          "flex flex-col items-center",
           "hover:pr-2 active:scale-95",
           isOpen ? "opacity-0 pointer-events-none" : "opacity-100"
         )}
         style={{
           width: '42px',
           height: '140px',
-          writingMode: 'vertical-rl',
-          textOrientation: 'mixed',
           bottom: '0px',
           top: 'auto',
           transform: 'none'
         }}
       >
-        <span className="text-[13px] font-bold tracking-wider leading-none whitespace-nowrap">CALENDARIO</span>
+        {/* Campanella in alto */}
+        <div className="flex-shrink-0 pt-2 pb-1">
+          <Bell className="w-5 h-5 text-slate-900" strokeWidth={2.5} />
+        </div>
+        {/* Testo CALENDARIO sotto */}
+        <span 
+          className="text-[13px] font-bold tracking-wider leading-none whitespace-nowrap flex-1 flex items-center"
+          style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}
+        >
+          CALENDARIO
+        </span>
       </button>
 
       {/* Linguetta CHIUDI - visibile solo quando il pannello è aperto, stessa posizione/dimensione della linguetta CALENDARIO */}
