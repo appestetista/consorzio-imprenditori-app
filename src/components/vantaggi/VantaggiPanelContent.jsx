@@ -254,8 +254,12 @@ export default function VantaggiPanelContent({ onClose }) {
 
       {/* Sheet Crea Vantaggio - rimane identico */}
       <Sheet open={showCreatePanel} onOpenChange={(open) => {
-        if (!open && formData.tipo_vantaggio) { setFormData({ ...formData, tipo_vantaggio: '' }); }
-        else { setShowCreatePanel(open); }
+        if (!open) {
+          resetForm();
+          setShowCreatePanel(false);
+        } else {
+          setShowCreatePanel(true);
+        }
       }}>
         <SheetContent side="right" className="w-full sm:max-w-md bg-slate-800 border-slate-700 overflow-y-auto">
           <SheetHeader>
