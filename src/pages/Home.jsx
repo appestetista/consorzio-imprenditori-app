@@ -399,14 +399,24 @@ Domanda: ${msg}`,
         kbContext = `Dati normativi di riferimento:\n${kbRecords.map(r => `- ${r.titolo}: ${r.contenuto}`).join('\n')}\n\n`;
       }
 
-      // Confronto LLM
+      // Confronto LLM con schema forzato
       const compareResult = await base44.integrations.Core.InvokeLLM({
-        prompt: `Confronta questi scenari per un imprenditore italiano di PMI.
+        prompt: `Confronta questi scenari per un imprenditore italiano di PMI. Usa internet per verificare dati reali. Dato trovato → [VERIFICATO — fonte]. Dato non trovato → [STIMA — base]. MAI inventare.
 ${userContext}${kbContext}
 Scenario A: ${a}
-Scenario B: ${b}
-
-Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti con: nome, costo, roi, tempo, rischio, vantaggio, punteggio numerico da 1 a 10), verdetto (quale è meglio e perché), scenario_consigliato ("A" o "B").`
+Scenario B: ${b}`,
+        add_context_from_internet: true,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            tema: { type: "string" },
+            scenari: { type: "array", items: { type: "object", properties: { nome: { type: "string" }, costo: { type: "string" }, roi: { type: "string" }, tempo: { type: "string" }, rischio: { type: "string" }, vantaggio: { type: "string" }, punteggio: { type: "number" } } } },
+            verdetto: { type: "string" },
+            scenario_consigliato: { type: "string" },
+            fonti: { type: "array", items: { type: "object", properties: { nome: { type: "string" }, url: { type: "string" }, tipo: { type: "string" } } } },
+            affidabilita: { type: "object", properties: { verificati: { type: "number" }, stimati: { type: "number" }, da_confermare: { type: "number" }, punteggio: { type: "number" } } }
+          }
+        }
       });
 
       let parsedCompare = compareResult;
