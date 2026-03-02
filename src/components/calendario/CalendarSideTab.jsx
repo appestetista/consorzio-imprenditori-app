@@ -520,18 +520,18 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                 className="fixed z-[66] flex flex-col"
                 style={{
                   width: '100vh',
-                  height: '62px',
+                  height: '52px',
                   top: '50%',
                   left: '50%',
-                  transform: 'translate(-50%, -50%) rotate(90deg) translateY(calc(-50vw + 31px))',
+                  transform: 'translate(-50%, -50%) rotate(90deg) translateY(calc(-50vw + 26px))',
                   transformOrigin: 'center center',
                   backgroundColor: `color-mix(in srgb, ${weekViewColor || currentMonthColor} 15%, #0f172a)`,
                   borderBottom: '1px solid rgba(51,65,85,0.5)',
                   pointerEvents: 'auto'
                 }}
               >
-                {/* Riga 1: spazio vuoto (pulsante giornaliera rimosso, ora è nella WeekView) */}
-                <div style={{ height: '2px' }} />
+                {/* Riga 1: spazio vuoto */}
+                <div style={{ height: '1px' }} />
                 {/* Riga 2: Barra mesi */}
                 <div className="overflow-hidden flex items-center">
                   <MonthBar 
@@ -568,8 +568,8 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                   transformOrigin: 'center center'
                 }}
               >
-                {/* Spacer per la barra mesi + conteggio note (62px) */}
-                <div className="flex-shrink-0" style={{ height: '62px' }} />
+                {/* Spacer per la barra mesi + conteggio note (52px) */}
+                <div className="flex-shrink-0" style={{ height: '52px' }} />
                 {/* WeekView occupa tutto il resto */}
                 <div className="flex-1 min-h-0">
                   <WeekView
