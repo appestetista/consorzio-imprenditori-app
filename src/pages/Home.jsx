@@ -767,7 +767,7 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
       </div>
 
       {/* Campo di input */}
-      <div className="fixed z-40 px-3 pb-1 pt-1" style={{ left: '42px', right: '42px', bottom: '140px' }}>
+      <div className="fixed z-40 px-2 pb-1 pt-1" style={{ left: '48px', right: '48px', bottom: '140px' }}>
         <div className="max-w-2xl mx-auto space-y-1">
           {!compareMode ? (
             <>
