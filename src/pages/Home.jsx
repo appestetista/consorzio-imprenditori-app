@@ -868,11 +868,11 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
         </div>
       </div>
 
-      {/* Menu Drawer */}
+      {/* Menu Drawer - si apre dall'alto senza coprire bottom nav e calendario */}
       <div className={cn(
-        "fixed inset-0 z-50 transition-all duration-300",
+        "fixed inset-x-0 top-0 z-50 transition-all duration-300",
         menuOpen ? "visible" : "invisible"
-      )}>
+      )} style={{ bottom: '88px' }}>
         <div 
           className={cn(
             "absolute inset-0 bg-black/50 transition-opacity",
