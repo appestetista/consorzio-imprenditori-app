@@ -834,99 +834,7 @@ Scenario B: ${b}`,
         </div>
       </div>
 
-      {/* Menu Drawer - si apre dall'alto senza coprire bottom nav, barra input e calendario */}
-      <div className={cn(
-        "fixed inset-x-0 top-0 z-50 transition-all duration-300",
-        menuOpen ? "visible" : "invisible"
-      )} style={{ bottom: '200px' }}>
-        <div 
-          className={cn(
-            "absolute inset-0 bg-black/50 transition-opacity",
-            menuOpen ? "opacity-100" : "opacity-0"
-          )}
-          onClick={() => setMenuOpen(false)}
-        />
-        <div className={cn(
-          "absolute right-0 top-0 h-full w-72 bg-slate-900 border-l border-lime-400/30 rounded-bl-2xl p-6 transition-transform duration-300",
-          menuOpen ? "translate-x-0" : "translate-x-full"
-        )}>
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <img src={userLogo} alt="Profilo" className="w-10 h-10 rounded-full object-cover border-2 border-[#d4af37]/50" />
-              <p className="text-lime-400 font-semibold text-sm">
-                {effectiveUser?.company_name || effectiveUser?.full_name || 'Utente'}
-              </p>
-            </div>
-            <button onClick={() => setMenuOpen(false)}>
-              <X className="w-6 h-6 text-lime-400" />
-            </button>
-          </div>
-          
-          <div className="space-y-2">
-            
-            {impersonation.active && (
-              <Link
-                to={createPageUrl('Home')}
-                onClick={() => { setMenuOpen(false); }}
-                className="flex items-center gap-3 text-white py-3 px-4 rounded-lg bg-orange-600 hover:bg-orange-700 transition-colors w-full mb-3"
-              >
-                <XCircle className="w-5 h-5" />
-                <span>Torna ad Admin</span>
-              </Link>
-            )}
-            
-            {effectiveUser?.role === 'admin' && !impersonation.active && (
-              <>
-                <Link
-                  to={createPageUrl('AdminPanel')}
-                  onClick={() => setMenuOpen(false)}
-                  className="flex items-center gap-3 text-white py-3 px-4 rounded-lg hover:bg-slate-800 transition-colors"
-                >
-                  <Settings className="w-5 h-5 text-lime-400" />
-                  <span>Pannello Admin</span>
-                </Link>
-              </>
-            )}
-
-            {(effectiveUser?.role === 'user' || isUserConsultant(effectiveUser) || impersonation.active) && (
-              <Link
-                to={createPageUrl('MyProfile')}
-                onClick={() => setMenuOpen(false)}
-                className="flex items-center gap-3 text-white py-3 px-4 rounded-lg hover:bg-slate-800 transition-colors"
-              >
-                <User className="w-5 h-5 text-lime-400" />
-                <span>Il Mio Profilo</span>
-              </Link>
-            )}
-
-            <Link
-              to={createPageUrl('Pricing')}
-              onClick={() => setMenuOpen(false)}
-              className="flex items-center gap-3 text-white py-3 px-4 rounded-lg hover:bg-slate-800 transition-colors"
-            >
-              <Crown className="w-5 h-5 text-[#d4af37]" />
-              <span>Prezzi</span>
-            </Link>
-
-            <Link
-              to={createPageUrl('ContattaConsorzio')}
-              onClick={() => setMenuOpen(false)}
-              className="flex items-center gap-3 text-white py-3 px-4 rounded-lg hover:bg-slate-800 transition-colors"
-            >
-              <Phone className="w-5 h-5 text-lime-400" />
-              <span>Contatta Consorzio</span>
-            </Link>
-
-            <button
-              onClick={() => { setMenuOpen(false); base44.auth.logout(); }}
-              className="flex items-center gap-3 text-white py-3 px-4 rounded-lg hover:bg-slate-800 transition-colors w-full text-left"
-            >
-              <LogOut className="w-5 h-5 text-red-400" />
-              <span>Esci</span>
-            </button>
-          </div>
-        </div>
-      </div>
+      {/* Menu Drawer rimosso - il pulsante Menu naviga direttamente a MyProfile */}
 
       {/* Notifications Panel */}
       <NotificationsPanel
@@ -937,7 +845,7 @@ Scenario B: ${b}`,
       />
 
       {/* Bottom Nav */}
-      <BottomNav currentPage="Home" onMenuOpen={() => setMenuOpen(prev => !prev)} menuOpen={menuOpen} />
+      <BottomNav currentPage="Home" onMenuOpen={() => window.location.href = createPageUrl('MyProfile')} menuOpen={false} />
 
       {/* Missing Profile Data Modal */}
       {missingFieldsPopup && (
