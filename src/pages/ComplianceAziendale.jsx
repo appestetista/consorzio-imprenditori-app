@@ -812,7 +812,7 @@ VERIFICA:
             )}
 
             {/* Grafico a torta */}
-            <Card className="bg-slate-800 border-slate-700 mb-6">
+            <Card className="bg-slate-900 border-slate-900 mb-6">
               <CardContent className="p-4">
                 <h3 className="text-white font-semibold mb-4 text-center">Stato Conformità</h3>
                 
