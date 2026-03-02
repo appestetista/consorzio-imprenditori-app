@@ -252,62 +252,61 @@ export default function VantaggiPanelContent({ onClose }) {
         })()}
       </div>
 
-      {/* Sheet Crea Vantaggio - rimane identico */}
-      <Sheet open={showCreatePanel} onOpenChange={(open) => {
-        if (!open) {
-          resetForm();
-          setShowCreatePanel(false);
-        } else {
-          setShowCreatePanel(true);
-        }
-      }}>
-        <SheetContent side="right" className="w-full sm:max-w-md bg-slate-800 border-slate-700 overflow-y-auto">
-          <SheetHeader>
-            <SheetTitle className="text-white flex items-center gap-2"><Gift className="w-5 h-5 text-[#d4af37]" />Crea Nuovo Vantaggio</SheetTitle>
-          </SheetHeader>
-          <div className="space-y-4 mt-6">
-            {!formData.tipo_vantaggio ? (
-              <div className="space-y-3">
-                <p className="text-slate-400 text-sm text-center mb-4">Che tipo di vantaggio vuoi offrire?</p>
-                <div className="grid grid-cols-2 gap-3">
-                  {TIPI_VANTAGGIO.map(tipo => (
-                    <button key={tipo} onClick={() => setFormData({ ...formData, tipo_vantaggio: tipo })} className="bg-slate-700 hover:bg-slate-600 border-2 border-slate-600 hover:border-[#d4af37] rounded-xl p-4 text-left transition-all">
-                      <p className="text-white font-medium text-sm">{tipo}</p>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <>
-                <div className="flex items-center justify-between bg-slate-700/50 rounded-lg p-3">
-                  <span className="text-[#d4af37] font-bold">{formData.tipo_vantaggio}</span>
-                  <Button variant="ghost" size="sm" onClick={() => setFormData({ ...formData, tipo_vantaggio: '' })} className="text-slate-400 hover:text-white h-8 px-2">Cambia</Button>
-                </div>
-                <div><Label className="text-[#d4af37]">Categoria *</Label><Select value={formData.categoria_vantaggio} onValueChange={(val) => setFormData({ ...formData, categoria_vantaggio: val })}><SelectTrigger className="bg-slate-900 border-slate-600 text-white"><SelectValue placeholder="Seleziona..." /></SelectTrigger><SelectContent className="bg-slate-800 border-slate-700">{CATEGORIES.map(cat => <SelectItem key={cat.id} value={cat.id} className="text-white">{cat.label}</SelectItem>)}</SelectContent></Select></div>
-                <div><Label className="text-[#d4af37]">Titolo *</Label><Input value={formData.titolo} onChange={(e) => setFormData({ ...formData, titolo: e.target.value })} placeholder="Titolo del vantaggio" className="bg-slate-900 border-slate-600 text-white" /></div>
-                <div><Label className="text-slate-400">Descrizione</Label><Textarea value={formData.descrizione} onChange={(e) => setFormData({ ...formData, descrizione: e.target.value })} placeholder="Descrizione..." className="bg-slate-900 border-slate-600 text-white" rows={2} /></div>
-                <div><Label className="text-slate-400">Valore</Label><Input value={formData.valore} onChange={(e) => setFormData({ ...formData, valore: e.target.value })} placeholder="Es: 20%, €50..." className="bg-slate-900 border-slate-600 text-white" /></div>
-                <div><Label className="text-slate-400">Foto</Label>
-                  {formData.foto_url ? (
-                    <div className="flex items-center gap-3 bg-slate-900 rounded-lg p-3"><img src={formData.foto_url} alt="" className="w-16 h-16 object-cover rounded" /><Button variant="outline" size="sm" onClick={() => setFormData({ ...formData, foto_url: '' })} className="border-red-600 text-red-400"><X className="w-4 h-4 mr-1" />Rimuovi</Button></div>
-                  ) : (
-                    <label className="flex items-center justify-center gap-2 bg-slate-900 border-2 border-dashed border-slate-700 rounded-lg p-3 cursor-pointer hover:border-[#d4af37]"><input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" disabled={uploadingPhoto} />{uploadingPhoto ? <div className="animate-spin w-5 h-5 border-2 border-[#d4af37] border-t-transparent rounded-full" /> : <><Upload className="w-5 h-5 text-[#d4af37]" /><span className="text-slate-300 text-sm">Carica foto</span></>}</label>
-                  )}
-                </div>
-                <div className="border-t border-slate-700 pt-4 space-y-4">
-                  <div><Label className="text-slate-400">Utilizzi massimi</Label><Input type="number" value={formData.utilizzi_massimi} onChange={(e) => setFormData({ ...formData, utilizzi_massimi: e.target.value })} placeholder="Illimitato" className="bg-slate-900 border-slate-600 text-white" /></div>
-                  <div><Label className="text-slate-400">Data scadenza</Label><Input type="date" value={formData.data_scadenza} onChange={(e) => setFormData({ ...formData, data_scadenza: e.target.value })} className="bg-slate-900 border-slate-600 text-white" /></div>
-                  <div className="flex items-center justify-between bg-slate-900 rounded-lg p-3"><div><p className="text-white text-sm font-medium">Richiede prenotazione</p></div><Switch checked={formData.richiede_prenotazione} onCheckedChange={(c) => setFormData({ ...formData, richiede_prenotazione: c })} /></div>
-                </div>
-                <div className="flex gap-3 pt-4">
-                  <Button variant="outline" onClick={() => { resetForm(); setShowCreatePanel(false); }} className="flex-1 border-slate-600 text-slate-400">Annulla</Button>
-                  <Button onClick={handleSubmitVantaggio} disabled={createVantaggioMutation.isPending} className="flex-1 bg-[#d4af37] hover:bg-[#b8860b] text-slate-900">{createVantaggioMutation.isPending ? <div className="animate-spin w-4 h-4 border-2 border-slate-900 border-t-transparent rounded-full" /> : <><Check className="w-4 h-4 mr-1" />Crea</>}</Button>
-                </div>
-              </>
-            )}
+      {/* Pannello Crea Vantaggio - slide-in interno */}
+      {showCreatePanel && (
+        <div className="absolute inset-0 z-10 bg-slate-900 flex flex-col overflow-hidden">
+          <div className="flex items-center gap-3 px-4 pt-4 pb-3 border-b border-[#d4af37]/20">
+            <button onClick={() => { resetForm(); setShowCreatePanel(false); }} className="text-[#d4af37] p-1">
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+            <Gift className="w-5 h-5 text-[#d4af37]" />
+            <h1 className="text-white text-lg font-bold flex-1">Crea Nuovo Vantaggio</h1>
           </div>
-        </SheetContent>
-      </Sheet>
+          <div className="flex-1 overflow-y-auto px-4 py-4">
+            <div className="space-y-4">
+              {!formData.tipo_vantaggio ? (
+                <div className="space-y-3">
+                  <p className="text-slate-400 text-sm text-center mb-4">Che tipo di vantaggio vuoi offrire?</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    {TIPI_VANTAGGIO.map(tipo => (
+                      <button key={tipo} onClick={() => setFormData({ ...formData, tipo_vantaggio: tipo })} className="bg-slate-700 hover:bg-slate-600 border-2 border-slate-600 hover:border-[#d4af37] rounded-xl p-4 text-left transition-all">
+                        <p className="text-white font-medium text-sm">{tipo}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center justify-between bg-slate-700/50 rounded-lg p-3">
+                    <span className="text-[#d4af37] font-bold">{formData.tipo_vantaggio}</span>
+                    <Button variant="ghost" size="sm" onClick={() => setFormData({ ...formData, tipo_vantaggio: '' })} className="text-slate-400 hover:text-white h-8 px-2">Cambia</Button>
+                  </div>
+                  <div><Label className="text-[#d4af37]">Categoria *</Label><Select value={formData.categoria_vantaggio} onValueChange={(val) => setFormData({ ...formData, categoria_vantaggio: val })}><SelectTrigger className="bg-slate-900 border-slate-600 text-white"><SelectValue placeholder="Seleziona..." /></SelectTrigger><SelectContent className="bg-slate-800 border-slate-700 z-[70]">{CATEGORIES.map(cat => <SelectItem key={cat.id} value={cat.id} className="text-white">{cat.label}</SelectItem>)}</SelectContent></Select></div>
+                  <div><Label className="text-[#d4af37]">Titolo *</Label><Input value={formData.titolo} onChange={(e) => setFormData({ ...formData, titolo: e.target.value })} placeholder="Titolo del vantaggio" className="bg-slate-900 border-slate-600 text-white" /></div>
+                  <div><Label className="text-slate-400">Descrizione</Label><Textarea value={formData.descrizione} onChange={(e) => setFormData({ ...formData, descrizione: e.target.value })} placeholder="Descrizione..." className="bg-slate-900 border-slate-600 text-white" rows={2} /></div>
+                  <div><Label className="text-slate-400">Valore</Label><Input value={formData.valore} onChange={(e) => setFormData({ ...formData, valore: e.target.value })} placeholder="Es: 20%, €50..." className="bg-slate-900 border-slate-600 text-white" /></div>
+                  <div><Label className="text-slate-400">Foto</Label>
+                    {formData.foto_url ? (
+                      <div className="flex items-center gap-3 bg-slate-900 rounded-lg p-3"><img src={formData.foto_url} alt="" className="w-16 h-16 object-cover rounded" /><Button variant="outline" size="sm" onClick={() => setFormData({ ...formData, foto_url: '' })} className="border-red-600 text-red-400"><X className="w-4 h-4 mr-1" />Rimuovi</Button></div>
+                    ) : (
+                      <label className="flex items-center justify-center gap-2 bg-slate-900 border-2 border-dashed border-slate-700 rounded-lg p-3 cursor-pointer hover:border-[#d4af37]"><input type="file" accept="image/*" onChange={handlePhotoUpload} className="hidden" disabled={uploadingPhoto} />{uploadingPhoto ? <div className="animate-spin w-5 h-5 border-2 border-[#d4af37] border-t-transparent rounded-full" /> : <><Upload className="w-5 h-5 text-[#d4af37]" /><span className="text-slate-300 text-sm">Carica foto</span></>}</label>
+                    )}
+                  </div>
+                  <div className="border-t border-slate-700 pt-4 space-y-4">
+                    <div><Label className="text-slate-400">Utilizzi massimi</Label><Input type="number" value={formData.utilizzi_massimi} onChange={(e) => setFormData({ ...formData, utilizzi_massimi: e.target.value })} placeholder="Illimitato" className="bg-slate-900 border-slate-600 text-white" /></div>
+                    <div><Label className="text-slate-400">Data scadenza</Label><Input type="date" value={formData.data_scadenza} onChange={(e) => setFormData({ ...formData, data_scadenza: e.target.value })} className="bg-slate-900 border-slate-600 text-white" /></div>
+                    <div className="flex items-center justify-between bg-slate-900 rounded-lg p-3"><div><p className="text-white text-sm font-medium">Richiede prenotazione</p></div><Switch checked={formData.richiede_prenotazione} onCheckedChange={(c) => setFormData({ ...formData, richiede_prenotazione: c })} /></div>
+                  </div>
+                  <div className="flex gap-3 pt-4 pb-8">
+                    <Button variant="outline" onClick={() => { resetForm(); setShowCreatePanel(false); }} className="flex-1 border-slate-600 text-slate-400">Annulla</Button>
+                    <Button onClick={handleSubmitVantaggio} disabled={createVantaggioMutation.isPending} className="flex-1 bg-[#d4af37] hover:bg-[#b8860b] text-slate-900">{createVantaggioMutation.isPending ? <div className="animate-spin w-4 h-4 border-2 border-slate-900 border-t-transparent rounded-full" /> : <><Check className="w-4 h-4 mr-1" />Crea</>}</Button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
