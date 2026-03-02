@@ -63,6 +63,9 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
   const [visibleMonthLabel, setVisibleMonthLabel] = useState({ month: new Date().getMonth(), year: new Date().getFullYear() });
   const [visibleDay, setVisibleDay] = useState(new Date().getDate());
   const [userEmail, setUserEmail] = useState(null);
+  const [futureEventsCount, setFutureEventsCount] = useState(0);
+  const [hasNewEvent, setHasNewEvent] = useState(false);
+  const lastEventCountRef = useRef(0);
   
   // Refs per sincronizzazione scroll
   const calendarScrollRef = useRef(null);
