@@ -441,7 +441,7 @@ export default function Esplora() {
   };
 
   return (
-    <div className="min-h-screen pb-48" style={{ backgroundColor: '#001d3b' }}>
+    <div className="min-h-screen pb-72" style={{ backgroundColor: '#001d3b' }}>
       {/* Spacer top */}
       <div className="pt-3" />
 
