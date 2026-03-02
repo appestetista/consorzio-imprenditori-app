@@ -23,7 +23,7 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
         />
         <div className="py-2 px-2 relative z-10" style={{ backgroundColor: 'transparent' }}>
         <div>
-          <div className="flex justify-center items-center gap-3">
+          <div className="flex justify-center items-center gap-1">
             {navItems.map((item) => {
               const isActive = item.isMenu
                   ? menuOpen
