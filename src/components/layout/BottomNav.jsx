@@ -12,10 +12,19 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
   ];
 
   return (
-    <nav className="fixed bottom-0 z-30" style={{ left: '42px', right: '42px', height: '140px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: '18px' }}>
-        <div className="py-2 px-4" style={{ backgroundColor: 'transparent' }}>
+    <nav className="fixed bottom-0 z-30" style={{ left: '42px', right: '42px', height: '140px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: '16px' }}>
+        {/* Sfondo scuro che copre tutta l'area sotto input+pulsanti fino alle alette */}
+        <div 
+          className="absolute bottom-0 left-0 right-0 rounded-t-2xl"
+          style={{ 
+            top: '-60px',
+            background: 'linear-gradient(to bottom, transparent 0%, #0a0f1a 25%, #0a0f1a 100%)',
+            pointerEvents: 'none'
+          }} 
+        />
+        <div className="py-2 px-2 relative z-10" style={{ backgroundColor: 'transparent' }}>
         <div>
-          <div className="flex justify-center items-center gap-6">
+          <div className="flex justify-center items-center gap-3">
             {navItems.map((item) => {
               const isActive = item.isMenu
                   ? menuOpen
@@ -39,7 +48,7 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
                   {/* Pulsante 3D Premium con cornice oro */}
                   <div 
                     className={cn(
-                      "relative w-[90px] h-[90px] transition-transform duration-100 ease-out",
+                      "relative w-[80px] h-[80px] transition-transform duration-100 ease-out",
                       !item.disabled && "active:scale-[0.96]",
                     item.disabled && "opacity-40"
                     )}
