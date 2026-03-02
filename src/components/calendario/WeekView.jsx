@@ -783,13 +783,16 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
         </div>
       </div>
 
-      {/* Pulsante CHIUDI VISIONE MENSILE — posizionato in basso in corrispondenza di Dicembre */}
+      {/* Pulsante CHIUDI VISIONE MENSILE — posizionato verticalmente accanto alla colonna ore */}
       {onBackToDaily && (
         <div 
-          className="absolute z-30 flex items-center justify-end"
+          className="absolute z-30 flex items-center justify-center"
           style={{ 
-            bottom: '8px', 
-            right: '0px',
+            left: '0px',
+            top: '0px',
+            bottom: '0px',
+            width: '70px',
+            pointerEvents: 'none',
           }}
         >
           <button
@@ -803,7 +806,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
               }
             }}
             className="py-2 px-4 rounded-xl bg-white text-slate-900 font-bold text-xs tracking-wide touch-manipulation active:scale-95 transition-all shadow-lg whitespace-nowrap"
-            style={{ transform: 'rotate(-90deg)', transformOrigin: 'center center' }}
+            style={{ transform: 'rotate(-90deg)', transformOrigin: 'center center', pointerEvents: 'auto' }}
           >
             Chiudi Visione Mensile
           </button>
