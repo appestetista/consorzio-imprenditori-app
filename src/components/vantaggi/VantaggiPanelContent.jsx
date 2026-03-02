@@ -170,11 +170,17 @@ export default function VantaggiPanelContent({ onClose }) {
           </Link>
         </div>
 
-        {/* Il mio QR Code inline */}
-        {user && <InlineMyQRCode user={user} />}
-
-        {/* Scanner QR inline */}
-        {user && <InlineQRScanner user={user} />}
+        {/* QR Code + Scanner affiancati */}
+        {user && (
+          <div className="flex gap-2">
+            <div className="flex-1 min-w-0">
+              <InlineMyQRCode user={user} compact />
+            </div>
+            <div className="flex-1 min-w-0">
+              <InlineQRScanner user={user} compact />
+            </div>
+          </div>
+        )}
 
         <VantaggiExamplesCollapsible />
 

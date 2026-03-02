@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
-export default function InlineQRScanner({ user }) {
+export default function InlineQRScanner({ user, compact = false }) {
   const [manualCode, setManualCode] = useState('');
   const [searchResult, setSearchResult] = useState(null);
   const [searching, setSearching] = useState(false);
@@ -155,24 +155,24 @@ export default function InlineQRScanner({ user }) {
   };
 
   return (
-    <div className="bg-slate-800 border border-[#d4af37]/30 rounded-xl p-4">
-      <div className="flex items-center gap-2 mb-3">
-        <ScanLine className="w-5 h-5 text-[#d4af37]" />
-        <h3 className="text-white font-bold text-sm">Scansiona il QR code di chi ti sta venendo a prenotare un vantaggio</h3>
+    <div className={`bg-slate-800 border border-[#d4af37]/30 rounded-xl ${compact ? 'p-2 h-full flex flex-col' : 'p-4'}`}>
+      <div className={`flex items-center gap-${compact ? '1' : '2'} mb-${compact ? '1' : '3'}`}>
+        <ScanLine className={`${compact ? 'w-4 h-4' : 'w-5 h-5'} text-[#d4af37] flex-shrink-0`} />
+        <h3 className={`text-white font-bold ${compact ? 'text-[10px] leading-tight' : 'text-sm'}`}>{compact ? 'Scanner' : 'Scansiona il QR code di chi ti sta venendo a prenotare un vantaggio'}</h3>
       </div>
 
       {/* Scanner fotocamera - sempre aperto */}
-      <div className="mb-3">
+      <div className={compact ? 'flex-1 min-h-0' : 'mb-3'}>
         {scannerActive && (
           <>
-            <div id="qr-reader-inline" className="rounded-lg overflow-hidden" />
-            <p className="text-slate-500 text-[10px] text-center mt-2">Inquadra il QR code</p>
+            <div id="qr-reader-inline" className="rounded-lg overflow-hidden" style={compact ? { maxHeight: '140px' } : {}} />
+            {!compact && <p className="text-slate-500 text-[10px] text-center mt-2">Inquadra il QR code</p>}
           </>
         )}
         {!scannerActive && (
-          <div className="bg-slate-700 rounded-lg p-6 flex flex-col items-center justify-center">
-            <Camera className="w-8 h-8 text-slate-500 mb-2" />
-            <p className="text-slate-400 text-xs">Caricamento fotocamera...</p>
+          <div className={`bg-slate-700 rounded-lg ${compact ? 'p-3' : 'p-6'} flex flex-col items-center justify-center`}>
+            <Camera className={`${compact ? 'w-5 h-5' : 'w-8 h-8'} text-slate-500 mb-1`} />
+            <p className="text-slate-400 text-[10px]">Caricamento...</p>
           </div>
         )}
       </div>

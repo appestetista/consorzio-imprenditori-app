@@ -9,7 +9,7 @@ function generateQRCodeSVG(data, size = 200) {
   return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(data)}&bgcolor=1e293b&color=d4af37`;
 }
 
-export default function InlineMyQRCode({ user }) {
+export default function InlineMyQRCode({ user, compact = false }) {
   const [copied, setCopied] = useState(false);
 
   const { data: qrData, isLoading } = useQuery({
@@ -42,15 +42,26 @@ export default function InlineMyQRCode({ user }) {
 
   const qrUrl = qrData ? generateQRCodeSVG(qrData.qr_token, 200) : null;
 
+  if (compact) {
+    return (
+      <div className="bg-slate-800 border border-[#d4af37]/30 rounded-xl p-2 h-full flex flex-col">
+        <div className="flex items-center gap-1 mb-1">
+          <QrCode className="w-4 h-4 text-[#d4af37] flex-shrink-0" />
+          <h3 className="text-white font-bold text-[10px] leading-tight">Il tuo QR</h3>
+        </div>
+        <div className="flex-1 flex items-center justify-center">
+          {qrUrl && <img src={qrUrl} alt="QR Code" className="rounded-md w-full max-w-[140px] aspect-square" />}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-slate-800 border border-[#d4af37]/30 rounded-xl p-4">
-      {/* Header */}
       <div className="flex items-center gap-2 mb-3">
         <QrCode className="w-5 h-5 text-[#d4af37]" />
         <h3 className="text-white font-bold text-sm">Se hai prenotato un vantaggio, all'arrivo fallo scansionare dall'attività.</h3>
       </div>
-
-      {/* QR Code */}
       <div className="flex items-center justify-center">
         {qrUrl && <img src={qrUrl} alt="QR Code" className="rounded-md" style={{ width: '180px', height: '180px' }} />}
       </div>
