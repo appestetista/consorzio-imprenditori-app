@@ -124,29 +124,28 @@ export default function SimulazioneForm({ onSubmit, loading }) {
       <div className="bg-[#0a2540] border border-[#1a3a5c] rounded-xl p-4 space-y-3">
         <p className="text-[#d4af37] text-xs font-bold uppercase tracking-wider">② Quanto fatturi e spendi?</p>
         <div>
-        <label className="text-slate-400 text-xs font-medium mb-1 block">Fatturato annuo (€) *</label>
-        <Input
-          type="number"
-          placeholder="es. 100000"
-          value={form.fatturato}
-          onChange={(e) => update('fatturato', e.target.value)}
-          className="bg-slate-800 border-slate-700 text-white"
-        />
-      </div>
-
-      {/* Costi deducibili - solo SRL e DittaOrdinaria */}
-      {(form.regime === 'SRL' || form.regime === 'DittaOrdinaria') && (
-        <div>
-          <label className="text-slate-400 text-xs font-medium mb-1 block">Costi deducibili (€)</label>
+          <label className="text-slate-400 text-xs font-medium mb-1 block">Fatturato annuo (€) *</label>
           <Input
             type="number"
-            placeholder="es. 30000"
-            value={form.costi_deducibili}
-            onChange={(e) => update('costi_deducibili', e.target.value)}
+            placeholder="es. 100000"
+            value={form.fatturato}
+            onChange={(e) => update('fatturato', e.target.value)}
             className="bg-slate-800 border-slate-700 text-white"
           />
         </div>
-      )}
+        {/* Costi deducibili - solo SRL e DittaOrdinaria */}
+        {(form.regime === 'SRL' || form.regime === 'DittaOrdinaria') && (
+          <div>
+            <label className="text-slate-400 text-xs font-medium mb-1 block">Costi deducibili (€)</label>
+            <Input
+              type="number"
+              placeholder="es. 30000"
+              value={form.costi_deducibili}
+              onChange={(e) => update('costi_deducibili', e.target.value)}
+              className="bg-slate-800 border-slate-700 text-white"
+            />
+          </div>
+        )}
       </div>
 
       {/* Campi specifici Forfettario */}
