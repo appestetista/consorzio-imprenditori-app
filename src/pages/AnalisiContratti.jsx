@@ -467,7 +467,7 @@ Accedi all'app per visualizzare gli allegati e rispondere direttamente al client
             <Link to={createPageUrl('Esplora?tab=strumenti')} className="text-lime-400 p-3 -m-3 rounded-full back-arrow-tap">
               <ArrowLeft className="w-7 h-7" />
             </Link>
-            <h1 className="text-white text-xl font-bold">Analisi Contratti</h1>
+            <h1 className="text-white text-xl font-bold">Analisi Contratti AI</h1>
           </div>
           <SectionHeaderIcons userEmail={user?.email} unreadCount={messages.length} />
         </div>
@@ -488,23 +488,9 @@ Accedi all'app per visualizzare gli allegati e rispondere direttamente al client
             <History className="w-4 h-4 mr-2" />
             Storico
           </Button>
-          <Button
-            onClick={() => setActiveTab('messaggi')}
-            className={`flex-1 relative ${activeTab === 'messaggi' ? 'bg-lime-400 text-slate-900' : 'bg-slate-800 text-white'}`}
-          >
-            <MessageSquare className="w-4 h-4 mr-2" />
-            Messaggi
-            {unreadContractMessages > 0 && (
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                {unreadContractMessages}
-              </span>
-            )}
-          </Button>
         </div>
 
-        {activeTab === 'messaggi' ? (
-                        <ContractMessagesSection user={user} avvocati={avvocati} />
-                      ) : activeTab === 'storico' ? (
+        {activeTab === 'storico' ? (
                         <ContractHistorySection user={user} />
                       ) : (
                         <>
@@ -537,27 +523,7 @@ Accedi all'app per visualizzare gli allegati e rispondere direttamente al client
                             />
                           )}
 
-            {/* Hero Card */}
-            <Card className="bg-gradient-to-br from-blue-500 to-indigo-600 border-0 mb-6">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
-                    <FileSearch className="w-8 h-8 text-white" />
-                  </div>
-                  <div>
-                    <h2 className="text-white text-xl font-bold">Analisi AI</h2>
-                    <p className="text-white/80 text-sm">Carica un contratto PDF per analizzarlo</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Gate Premium AI */}
-            {user?.piano_abbonamento !== 'impresa_39' && (
-              <div className="mb-6">
-                <PremiumAIGate user={user} featureLabel="Analizza i tuoi contratti con l'AI, individua clausole vessatorie e ricevi consigli legali" />
-              </div>
-            )}
+            
 
         {/* Storico inline rimosso - ora è un tab separato */}
 
