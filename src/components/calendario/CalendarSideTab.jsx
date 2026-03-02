@@ -401,7 +401,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
             incontriButton={
               <div className="flex flex-col items-center">
                 <Link 
-                  to={createPageUrl('CalendarioIncontri') + `&monthColor=${encodeURIComponent(currentMonthColor)}`}
+                  to={createPageUrl('CalendarioIncontri?monthColor=' + encodeURIComponent(currentMonthColor))}
                   className="relative flex-shrink-0 flex flex-col items-center"
                   onClick={(e) => {
                     e.stopPropagation();
@@ -437,7 +437,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                     )}
                   </div>
                 </Link>
-                <span className="text-[9px] font-semibold text-slate-400 mt-0.5">Incontri</span>
+                <span className="text-[12px] font-bold text-slate-300 mt-0.5">Incontri</span>
               </div>
             }
             monthLabelButton={
