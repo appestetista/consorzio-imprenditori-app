@@ -15,6 +15,7 @@ import OpenRequestsList from '../components/fornitori/OpenRequestsList';
 import SupplierProfileSetup from '../components/fornitori/SupplierProfileSetup';
 import SectionConsultantPanel from '../components/consulenze/SectionConsultantPanel';
 import PremiumAIGate from '@/components/common/PremiumAIGate';
+import SectionHeaderIcons from '../components/layout/SectionHeaderIcons';
 
 export default function Fornitori() {
   const [user, setUser] = useState(null);
@@ -91,6 +92,7 @@ export default function Fornitori() {
             </button>
             <h1 className="text-lime-400 text-xl font-bold">Fornitori</h1>
           </div>
+          <SectionHeaderIcons userEmail={effectiveUser?.email} />
         </div>
 
         {/* Info banner */}
