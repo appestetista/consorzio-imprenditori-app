@@ -159,22 +159,23 @@ export default function VantaggiPanelContent({ onClose }) {
 
       {/* Contenuto scrollabile */}
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+        {/* Pulsanti Crea e Storico */}
+        <div className="grid grid-cols-2 gap-3">
+          <Button onClick={() => setShowCreatePanel(true)} className="bg-[#d4af37] hover:bg-[#b8860b] text-black font-bold h-11 text-sm">
+            <Plus className="w-5 h-5 mr-2" /> Crea Vantaggio
+          </Button>
+          <Link to={createPageUrl('MiePrenotazioniVantaggi')} onClick={onClose} className="flex items-center justify-center gap-2 h-11 rounded-md border-2 border-[#d4af37]/50 bg-[#d4af37]/10 hover:bg-[#d4af37]/20 transition-all active:scale-95">
+            <Clock className="w-4 h-4 text-[#d4af37]" />
+            <span className="text-[#d4af37] text-sm font-bold">Storico Vantaggi</span>
+          </Link>
+        </div>
+
         {/* Il mio QR Code inline */}
         {user && <InlineMyQRCode user={user} />}
 
         {/* Scanner QR inline */}
         {user && <InlineQRScanner user={user} />}
 
-        {/* Prenotazioni link */}
-        <Link to={createPageUrl('MiePrenotazioniVantaggi')} onClick={onClose} className="flex items-center justify-center gap-2 p-3 rounded-xl border-2 border-amber-400/40 bg-amber-400/5 hover:bg-amber-400/15 transition-all active:scale-95">
-          <Gift className="w-5 h-5 text-amber-400" />
-          <span className="text-amber-400 text-sm font-bold">Le Mie Prenotazioni</span>
-        </Link>
-
-        {/* Crea vantaggio */}
-        <Button onClick={() => setShowCreatePanel(true)} className="w-full bg-[#d4af37] hover:bg-[#b8860b] text-black font-bold h-11 text-sm rounded-b-none">
-          <Plus className="w-5 h-5 mr-2" /> Crea nuovo vantaggio
-        </Button>
         <VantaggiExamplesCollapsible />
 
         {/* Info box */}
