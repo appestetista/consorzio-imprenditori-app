@@ -237,7 +237,7 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
           <div className="space-y-4">
             <Card className="bg-slate-800/60 border-white/5 backdrop-blur-sm">
               <CardContent className="p-5 text-center">
-                <p className="text-slate-400 text-sm">Le analisi si ricaricheranno la prossima settimana. Puoi comunque contattare i nostri consulenti export per assistenza personalizzata.</p>
+                <p className="text-slate-400 text-sm">Le analisi si ricaricheranno il prossimo mese. Puoi comunque contattare i nostri consulenti export per assistenza personalizzata.</p>
               </CardContent>
             </Card>
           </div>
