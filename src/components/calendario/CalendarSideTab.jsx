@@ -362,23 +362,8 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
               </span>
             }
             monthLabelButton={
-              <div className="flex items-center gap-2" style={{ justifyContent: 'flex-end' }}>
-                {selectedDate ? (
-                  <span 
-                    className="px-2 py-0.5 rounded text-[10px] font-semibold"
-                    style={{ 
-                      backgroundColor: currentMonthColor,
-                      color: '#0f172a'
-                    }}
-                  >
-                    {new Date(selectedDate).toLocaleDateString('it-IT', { weekday: 'long' })} {new Date(selectedDate).getDate()}
-                  </span>
-                ) : (
-                  <span className="text-[9px] text-slate-500 italic text-right">
-                    scegli un giorno
-                  </span>
-                )}
-                {/* Pulsante Incontri 3D */}
+              <div className="flex flex-col items-end gap-1">
+                {/* Pulsante Incontri 3D oro - sopra l'etichetta giorno */}
                 <Link 
                   to={createPageUrl('CalendarioIncontri')}
                   className="relative flex-shrink-0 flex flex-col items-center"
@@ -392,9 +377,9 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                   <div 
                     className="relative w-11 h-11 rounded-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-200"
                     style={{
-                      background: 'linear-gradient(145deg, #a3e635, #65a30d)',
-                      boxShadow: '0 4px 12px rgba(163,230,53,0.4), 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.35), inset 0 -2px 4px rgba(0,0,0,0.15)',
-                      border: '1px solid rgba(255,255,255,0.15)'
+                      background: 'linear-gradient(145deg, #f5d060, #c9a029)',
+                      boxShadow: '0 4px 12px rgba(212,175,55,0.45), 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -2px 4px rgba(0,0,0,0.15)',
+                      border: '1px solid rgba(255,235,150,0.3)'
                     }}
                   >
                     <Calendar className="w-5 h-5 text-slate-900" strokeWidth={2.5} />
@@ -416,6 +401,22 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                     )}
                   </div>
                 </Link>
+                {/* Etichetta giorno selezionato - sotto il pulsante */}
+                {selectedDate ? (
+                  <span 
+                    className="px-2 py-0.5 rounded text-[10px] font-semibold"
+                    style={{ 
+                      backgroundColor: currentMonthColor,
+                      color: '#0f172a'
+                    }}
+                  >
+                    {new Date(selectedDate).toLocaleDateString('it-IT', { weekday: 'long' })} {new Date(selectedDate).getDate()}
+                  </span>
+                ) : (
+                  <span className="text-[9px] text-slate-500 italic text-right">
+                    scegli un giorno
+                  </span>
+                )}
               </div>
             } 
             selectedDate={selectedDate}
