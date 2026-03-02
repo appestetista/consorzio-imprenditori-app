@@ -12,7 +12,7 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
   ];
 
   return (
-    <nav className="fixed bottom-0 z-30" style={{ left: '42px', right: '42px', height: '140px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: '16px' }}>
+    <nav className="fixed bottom-0 z-30" style={{ left: '42px', right: '42px', height: '140px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: '24px' }}>
         {/* Sfondo scuro netto che copre dietro pulsanti e linguette */}
         <div 
           className="absolute bottom-0"
