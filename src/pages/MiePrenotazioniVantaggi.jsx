@@ -238,9 +238,9 @@ export default function MiePrenotazioniVantaggi() {
     <div className="min-h-screen bg-slate-900 pb-64">
       <main className="px-4 py-6 max-w-4xl mx-auto">
         <div className="flex items-center gap-3 mb-6">
-          <Link to={createPageUrl('VantaggiIscritti')} className="text-lime-400">
+          <button onClick={() => navigate(-1)} className="text-lime-400">
             <ArrowLeft className="w-6 h-6" />
-          </Link>
+          </button>
           <Gift className="w-6 h-6 text-amber-400" />
           <h1 className="text-white text-xl font-bold">Le Mie Prenotazioni</h1>
         </div>
