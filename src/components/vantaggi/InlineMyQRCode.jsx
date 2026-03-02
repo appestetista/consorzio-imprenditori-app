@@ -51,25 +51,9 @@ export default function InlineMyQRCode({ user }) {
       </div>
 
       {/* QR Code */}
-      <div className="bg-slate-700 rounded-lg p-3 mb-3 flex items-center justify-center">
+      <div className="flex items-center justify-center">
         {qrUrl && <img src={qrUrl} alt="QR Code" className="rounded-md" style={{ width: '180px', height: '180px' }} />}
       </div>
-
-      {/* Token + Copia */}
-      <div className="bg-slate-900 rounded-lg p-2 mb-2">
-        <p className="text-[#d4af37] font-mono font-bold text-[11px] break-all text-center">
-          {qrData?.qr_token}
-        </p>
-      </div>
-
-      <Button onClick={handleCopy} variant="outline" size="sm" className="w-full border-[#d4af37]/50 text-[#d4af37] hover:bg-[#d4af37]/10 h-8 text-xs">
-        {copied ? <Check className="w-3 h-3 mr-1" /> : <Copy className="w-3 h-3 mr-1" />}
-        {copied ? 'Copiato!' : 'Copia codice'}
-      </Button>
-
-      <p className="text-slate-500 text-[10px] text-center mt-2">
-        Mostra questo QR code in negozio per usare i vantaggi
-      </p>
     </div>
   );
 }
