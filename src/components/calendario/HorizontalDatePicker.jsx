@@ -773,12 +773,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
         document.body
       )}
 
-      {/* Pulsante Incontri - riga separata sopra */}
-          {incontriButton && (
-            <div className="flex justify-end px-2 pb-1">
-              {incontriButton}
-            </div>
-          )}
+      {/* Pulsante Incontri rimosso da qui - ora è in basso */}
       {/* Pulsanti oggi + nome mese grande + etichetta giorno - stessa riga */}
           {(goToTodayButton || monthNameLabel || monthLabelButton) && (
             <div className="flex items-center justify-between px-2 pb-1">
@@ -921,20 +916,13 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
           })}
         </div>
         
-        {/* Tre pulsanti: Chiudi | Globale | Giornaliera */}
+        {/* Pulsanti: Incontri | Visione Mensile */}
         <div className="flex items-center gap-2 mt-1">
-          {/* CHIUDI - a sinistra */}
-          {onClose && (
-            <button
-              onClick={onClose}
-              className="flex-1 h-10 rounded-md transition-all touch-manipulation active:scale-90 flex items-center justify-center gap-1.5"
-              style={{ backgroundColor: '#a3e635', color: '#0f172a' }}
-            >
-              <span className="w-5 h-5 rounded-full bg-slate-900 flex items-center justify-center flex-shrink-0">
-                <X className="w-3.5 h-3.5 text-white" strokeWidth={3} />
-              </span>
-              <span className="text-[12px] font-bold uppercase">Chiudi</span>
-            </button>
+          {/* INCONTRI - a sinistra */}
+          {incontriButton && (
+            <div className="flex-1 flex justify-center">
+              {incontriButton}
+            </div>
           )}
           
           {/* VISIONE MENSILE - occupa tutto lo spazio restante */}
