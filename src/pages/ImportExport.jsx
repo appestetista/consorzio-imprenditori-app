@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, TrendingUp, Ship, Mail, Clock, UserRound } from 'lucide-react';
+import { ArrowLeft, TrendingUp, Ship, Mail, Clock, UserRound, History } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import Header from '@/components/layout/Header';
@@ -12,8 +12,12 @@ import WorldMapExplorer from '@/components/import-export/WorldMapExplorer';
 import ExportSection from '@/components/import-export/ExportSection';
 import ImportSection from '@/components/import-export/ImportSection';
 import ContactExportManagerPopup from '@/components/import-export/ContactExportManagerPopup';
-import PremiumAIGate from '@/components/common/PremiumAIGate';
 import SectionHeaderIcons from '../components/layout/SectionHeaderIcons';
+import { useAILimits } from '@/components/hooks/useAILimits';
+import UsageCounter from '@/components/common/UsageCounter';
+import LimitReachedBanner from '@/components/common/LimitReachedBanner';
+import { Button } from '@/components/ui/button';
+import { FileSearch } from 'lucide-react';
 
 export default function ImportExport() {
   const [user, setUser] = useState(null);
