@@ -881,7 +881,7 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
           onClick={() => setMenuOpen(false)}
         />
         <div className={cn(
-          "absolute right-0 top-0 h-full w-72 bg-slate-900 border-l border-lime-400/30 p-6 transition-transform duration-300",
+          "absolute right-0 top-0 h-full w-72 bg-slate-900 border-l border-lime-400/30 rounded-bl-2xl p-6 transition-transform duration-300",
           menuOpen ? "translate-x-0" : "translate-x-full"
         )}>
           <div className="flex items-center justify-between mb-6">
