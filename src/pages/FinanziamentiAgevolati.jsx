@@ -1120,6 +1120,28 @@ export default function FinanziamentiAgevolati() {
         {/* ===== UTENTE: Design decision-first ===== */}
         {!isRealAdmin && (
           <>
+            {/* 0. BANNER BANDI DISPONIBILI + PROFILO */}
+            <div className="mb-6">
+              <Card className="bg-slate-900 border-slate-900">
+                <CardContent className="p-4 flex items-center justify-between">
+                  <div>
+                    <p className="text-white text-2xl font-bold">
+                      {loadingMatch ? '...' : matchedGrants.length > 0 ? matchedGrants.length : filteredGrants.length}
+                    </p>
+                    <p className="text-slate-400 text-sm">
+                      {matchedGrants.length > 0 ? 'bandi compatibili con il tuo profilo' : 'bandi disponibili'}
+                    </p>
+                  </div>
+                  <Link to={createPageUrl('MyProfile?tab=profilo&scrollTo=bandi')}>
+                    <Button variant="outline" size="sm" className="border-lime-400/50 text-lime-400 hover:bg-lime-400/10">
+                      <Briefcase className="w-4 h-4 mr-2" />
+                      Vedi il tuo profilo
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            </div>
+
             {/* 1. HERO DECISIONALE */}
             <div className="mb-6">
               <GrantDecisionHero
