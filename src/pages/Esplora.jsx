@@ -506,18 +506,8 @@ export default function Esplora() {
                 <p className="text-[#d4af37] font-semibold text-base">🚧 Questa sezione è in lavorazione</p>
               </div>
             ) : (
-              <div className="space-y-5">
-                {strumentiGroups.map((group) => (
-                  <div key={group.label}>
-                    <div className="flex items-center gap-2 mb-3">
-                      <h4 className="text-[#d4af37]/80 font-semibold text-xs uppercase tracking-widest whitespace-nowrap">{group.label}</h4>
-                      <div className="flex-1 h-px bg-gradient-to-r from-[#d4af37]/30 to-transparent"></div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      {group.items.map(f => renderFeatureCard({ ...f, category: 'strumenti' }))}
-                    </div>
-                  </div>
-                ))}
+              <div className="grid grid-cols-2 gap-4">
+                {strumentiItems.map((f, i) => renderFeatureCard({ ...f, category: 'strumenti' }, i))}
               </div>
             )}
           </>
