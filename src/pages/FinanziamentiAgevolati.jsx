@@ -26,6 +26,7 @@ import BandoStats from '../components/admin/BandoStats';
 import BandoForm from '../components/admin/BandoForm';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import SectionConsultantPanel from '../components/consulenze/SectionConsultantPanel';
+import SectionHeaderIcons from '../components/layout/SectionHeaderIcons';
 
 export default function FinanziamentiAgevolati() {
   const [user, setUser] = useState(() => {
@@ -823,13 +824,14 @@ export default function FinanziamentiAgevolati() {
   return (
     <div className="min-h-screen bg-slate-900 pb-64">
       <main className="px-4 py-6 max-w-md mx-auto">
-        <div className="flex items-center gap-3 mb-6">
-          <Link to={createPageUrl('Esplora?tab=strumenti')} className="text-slate-400 p-3 -m-3 rounded-full back-arrow-tap hover:text-white transition-colors">
-            <ArrowLeft className="w-6 h-6" />
-          </Link>
-          <div className="flex-1">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <Link to={createPageUrl('Esplora?tab=strumenti')} className="text-slate-400 p-3 -m-3 rounded-full back-arrow-tap hover:text-white transition-colors">
+              <ArrowLeft className="w-6 h-6" />
+            </Link>
             <h1 className="text-white text-lg font-bold">Bandi e Agevolazioni</h1>
           </div>
+          <SectionHeaderIcons userEmail={user?.email} unreadCount={messages.length} />
         </div>
 
         {/* SEZIONE ADMIN: Gestione Bandi */}

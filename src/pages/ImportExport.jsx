@@ -13,6 +13,7 @@ import ExportSection from '@/components/import-export/ExportSection';
 import ImportSection from '@/components/import-export/ImportSection';
 import ContactExportManagerPopup from '@/components/import-export/ContactExportManagerPopup';
 import PremiumAIGate from '@/components/common/PremiumAIGate';
+import SectionHeaderIcons from '../components/layout/SectionHeaderIcons';
 
 export default function ImportExport() {
   const [user, setUser] = useState(null);
@@ -70,6 +71,7 @@ export default function ImportExport() {
               {isExport || activeTab === 'history' ? 'Analisi mercati internazionali' : 'Analisi import'}
             </p>
           </div>
+          <SectionHeaderIcons userEmail={user?.email} unreadCount={messages.length} />
           {(isExport || activeTab === 'history') && (
             <div className="flex items-center gap-2">
               <button

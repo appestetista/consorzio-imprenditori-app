@@ -14,6 +14,7 @@ import ConfrontoPrelievoSRL from '../components/fiscale/ConfrontoPrelievoSRL';
 import MultiScenarioCompenso from '../components/fiscale/MultiScenarioCompenso';
 import GestioneAliquoteIRAP from '../components/fiscale/GestioneAliquoteIRAP';
 import AnalisiBilancio from '../components/fiscale/AnalisiBilancio';
+import SectionHeaderIcons from '../components/layout/SectionHeaderIcons';
 
 export default function SimulatoreFiscale() {
   const [effectiveUser, setEffectiveUser] = useState(null);
@@ -73,12 +74,15 @@ export default function SimulatoreFiscale() {
               <h1 className="text-white text-xl font-bold">Simulatore Fiscale</h1>
             </div>
           </div>
-          <button
-            onClick={() => setView(view === 'storico' ? 'form' : 'storico')}
-            className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 transition-colors"
-          >
-            <History className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-1">
+            <SectionHeaderIcons userEmail={effectiveUser?.email} />
+            <button
+              onClick={() => setView(view === 'storico' ? 'form' : 'storico')}
+              className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 transition-colors"
+            >
+              <History className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Tabs */}

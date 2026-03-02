@@ -18,6 +18,7 @@ import { useImpersonation } from '../components/admin/ImpersonationContext';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import SectionConsultantPanel from '../components/consulenze/SectionConsultantPanel';
 import PremiumAIGate from '@/components/common/PremiumAIGate';
+import SectionHeaderIcons from '../components/layout/SectionHeaderIcons';
 
 const CATEGORIE = [
   "Sicurezza sul lavoro",
@@ -672,14 +673,17 @@ VERIFICA:
             </Link>
             <h1 className="text-lime-400 text-xl font-bold">Evita Sanzioni</h1>
           </div>
-          <Button 
-            onClick={() => setShowBranchManager(true)}
-            className="bg-lime-400 text-slate-900 hover:bg-lime-500"
-            size="sm"
-            disabled={branches.length >= 5}
-          >
-            <Building2 className="w-4 h-4 mr-1" /> Rami Azienda ({branches.length}/5)
-          </Button>
+          <div className="flex items-center gap-1">
+            <SectionHeaderIcons userEmail={effectiveUser?.email} unreadCount={messages.length} />
+            <Button 
+              onClick={() => setShowBranchManager(true)}
+              className="bg-lime-400 text-slate-900 hover:bg-lime-500"
+              size="sm"
+              disabled={branches.length >= 5}
+            >
+              <Building2 className="w-4 h-4 mr-1" /> Rami ({branches.length}/5)
+            </Button>
+          </div>
         </div>
 
         {/* Barra riempimento rami aziendali */}

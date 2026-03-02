@@ -11,6 +11,7 @@ import ConsultantView from '../components/consulenze/ConsultantView';
 import AdminView from '../components/consulenze/AdminView';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import useNotificationSound from '../components/hooks/useNotificationSound';
+import SectionHeaderIcons from '../components/layout/SectionHeaderIcons';
 
 export default function Consulenze() {
   const [user, setUser] = useState(null);
@@ -210,13 +211,16 @@ export default function Consulenze() {
   return (
     <div className="min-h-screen bg-slate-900 pb-64">
       <main className="px-4 py-6 max-w-4xl mx-auto">
-        <div className="flex items-center gap-3 mb-6">
-          <Link to={createPageUrl('Esplora?tab=strumenti')} className="text-lime-400 p-3 -m-3 rounded-full back-arrow-tap">
-            <ArrowLeft className="w-7 h-7" />
-          </Link>
-          <h1 className="text-white text-xl font-bold">
-            {isAdmin ? 'GESTIONE CONSULENZE' : isConsultant ? 'RICHIESTE DI CONSULENZA' : 'CONSULENZE'}
-          </h1>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <Link to={createPageUrl('Esplora?tab=strumenti')} className="text-lime-400 p-3 -m-3 rounded-full back-arrow-tap">
+              <ArrowLeft className="w-7 h-7" />
+            </Link>
+            <h1 className="text-white text-xl font-bold">
+              {isAdmin ? 'GESTIONE CONSULENZE' : isConsultant ? 'RICHIESTE DI CONSULENZA' : 'CONSULENZE'}
+            </h1>
+          </div>
+          <SectionHeaderIcons userEmail={effectiveUser?.email} unreadCount={messages.length} />
         </div>
 
         {isAdmin && <AdminView consultants={consultants} adminEmail={user?.email} />}

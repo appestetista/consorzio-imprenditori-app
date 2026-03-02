@@ -19,6 +19,7 @@ import { useImpersonation } from '../components/admin/ImpersonationContext';
 import InviteEventDialog from '../components/calendario/InviteEventDialog';
 import EventZoneManager from '../components/calendario/EventZoneManager';
 import useNotificationSound from '../components/hooks/useNotificationSound';
+import SectionHeaderIcons from '../components/layout/SectionHeaderIcons';
 
 export default function CalendarioIncontri() {
   const [user, setUser] = useState(null);
@@ -512,13 +513,14 @@ export default function CalendarioIncontri() {
             <Link to={createPageUrl('Esplora?tab=strumenti')} className="text-lime-400 p-3 -m-3 rounded-full back-arrow-tap">
               <ArrowLeft className="w-7 h-7" />
             </Link>
-            {/* Cerchio con conteggio eventi a sinistra */}
             <div className="w-10 h-10 rounded-full bg-lime-400 flex items-center justify-center">
               <span className="text-slate-900 font-bold text-lg">{futureEventsCount}</span>
             </div>
             <h1 className="text-white text-xl font-bold">Calendario Incontri</h1>
           </div>
           
+          <div className="flex items-center gap-1">
+            <SectionHeaderIcons userEmail={user?.email} unreadCount={messages.length} />
           {isAdmin ? (
             <Dialog open={showAddEvent} onOpenChange={setShowAddEvent}>
               <DialogTrigger asChild>
@@ -659,6 +661,7 @@ export default function CalendarioIncontri() {
               Proponi evento
             </Button>
           )}
+          </div>
         </div>
 
         {isLoading ? (
