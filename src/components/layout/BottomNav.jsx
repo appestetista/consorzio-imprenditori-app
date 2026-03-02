@@ -12,12 +12,14 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
 
   return (
     <nav className="fixed bottom-0 z-30" style={{ left: '42px', right: '42px', height: '140px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: '16px' }}>
-        {/* Sfondo scuro che copre tutta l'area sotto input+pulsanti fino alle alette */}
+        {/* Sfondo scuro netto che copre dietro pulsanti e linguette */}
         <div 
-          className="absolute bottom-0 left-0 right-0 rounded-t-2xl"
+          className="absolute bottom-0"
           style={{ 
-            top: '-60px',
-            background: 'linear-gradient(to bottom, transparent 0%, #0a0f1a 25%, #0a0f1a 100%)',
+            left: '-50px',
+            right: '-50px',
+            top: '-10px',
+            background: '#001d3b',
             pointerEvents: 'none'
           }} 
         />
