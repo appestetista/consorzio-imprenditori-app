@@ -788,8 +788,8 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
         <div 
           className="absolute z-30 flex items-center justify-center"
           style={{ 
-            right: '20px',
-            top: '0px',
+            right: '-10px',
+            top: '20px',
             bottom: '0px',
             width: '70px',
             pointerEvents: 'none',
