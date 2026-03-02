@@ -773,7 +773,13 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
         document.body
       )}
 
-      {/* Pulsanti oggi + nome mese grande + data breve */}
+      {/* Pulsante Incontri - riga separata sopra */}
+          {incontriButton && (
+            <div className="flex justify-end px-2 pb-1">
+              {incontriButton}
+            </div>
+          )}
+      {/* Pulsanti oggi + nome mese grande + etichetta giorno - stessa riga */}
           {(goToTodayButton || monthNameLabel || monthLabelButton) && (
             <div className="flex items-center justify-between px-2 pb-1">
               <div>
