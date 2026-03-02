@@ -362,20 +362,45 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
               </span>
             }
             monthLabelButton={
-              <div className="flex items-start gap-1" style={{ width: '140px', justifyContent: 'flex-end' }}>
-                <Link 
-                  to={createPageUrl('CalendarioIncontri')}
-                  className="flex flex-col items-center gap-0.5 mr-2"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <div 
-                    className="w-7 h-7 rounded-full flex items-center justify-center"
-                    style={{ backgroundColor: currentMonthColor }}
+              <div className="flex flex-col items-end gap-1.5" style={{ width: '140px' }}>
+                {/* Riga pulsanti: Campanella + Incontri */}
+                <div className="flex items-center gap-2">
+                  {/* Campanella notifiche eventi */}
+                  <Link 
+                    to={createPageUrl('CalendarioIncontri')}
+                    className="relative"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setHasNewEvent(false);
+                    }}
                   >
-                    <Calendar className="w-4 h-4 text-slate-900" />
-                  </div>
-                  <span className="text-[8px] font-semibold" style={{ color: currentMonthColor }}>Incontri</span>
-                </Link>
+                    <div className={cn(
+                      "w-9 h-9 rounded-full bg-slate-700 flex items-center justify-center transition-all",
+                      hasNewEvent && "animate-pulse ring-2 ring-yellow-400 ring-offset-1 ring-offset-slate-900"
+                    )}>
+                      <Bell className="w-5 h-5 text-white" />
+                    </div>
+                    {futureEventsCount > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] rounded-full min-w-[18px] h-[18px] px-1 flex items-center justify-center font-bold">
+                        {futureEventsCount}
+                      </span>
+                    )}
+                  </Link>
+
+                  {/* Pulsante Incontri */}
+                  <Link 
+                    to={createPageUrl('CalendarioIncontri')}
+                    className="flex flex-col items-center gap-0.5"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div className="w-12 h-12 rounded-full bg-slate-700 border-2 border-white/30 flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-transform">
+                      <Calendar className="w-6 h-6 text-white" />
+                    </div>
+                    <span className="text-[9px] font-bold text-white">Incontri</span>
+                  </Link>
+                </div>
+
+                {/* Etichetta giorno selezionato */}
                 {selectedDate ? (
                   <span 
                     className="px-2 py-0.5 rounded text-[10px] font-semibold"
