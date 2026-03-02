@@ -327,40 +327,26 @@ export default function VantaggiIscritti() {
   return (
     <div className="min-h-screen bg-slate-900 pb-64">
       <main className="px-4 py-6 max-w-4xl mx-auto">
-        <div className="flex items-center gap-3 mb-6">
-          <Link to={createPageUrl('Esplora?tab=strumenti')} className="text-lime-400 p-3 -m-3 rounded-full back-arrow-tap">
-            <ArrowLeft className="w-7 h-7" />
-          </Link>
-          <Gift className="w-6 h-6 text-lime-400" />
-          <h1 className="text-white text-xl font-bold">Vantaggi per gli Iscritti</h1>
-        </div>
-
-        {/* Pulsanti fissi in alto */}
-        <div className="grid grid-cols-2 gap-3 mb-3">
-          <Link 
-            to={createPageUrl('MioQRCode')} 
-            className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl border-2 border-lime-400/40 bg-lime-400/5 hover:bg-lime-400/15 transition-all active:scale-95"
-          >
-            <QrCode className="w-12 h-12 text-lime-400" />
-            <span className="text-lime-400 text-xs font-bold">Il Mio QR Code</span>
-          </Link>
-          <Link 
-            to={createPageUrl('MiePrenotazioniVantaggi')} 
-            className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl border-2 border-amber-400/40 bg-amber-400/5 hover:bg-amber-400/15 transition-all active:scale-95"
-          >
-            <Gift className="w-12 h-12 text-amber-400" />
-            <span className="text-amber-400 text-xs font-bold">Prenotazioni</span>
-          </Link>
-        </div>
-
-        {/* Crea nuovo vantaggio + esempi appendice */}
+        {/* Pulsante Crea Vantaggio */}
         <Button
           onClick={() => setShowCreatePanel(true)}
-          className="w-full bg-lime-400 hover:bg-lime-500 text-black font-bold h-11 text-sm rounded-b-none"
+          className="w-full bg-lime-400 hover:bg-lime-500 text-black font-bold h-12 text-sm mb-3"
         >
           <Plus className="w-5 h-5 mr-2" />
-          Crea nuovo vantaggio
+          Crea un vantaggio per gli altri
         </Button>
+
+        {/* Pulsante Storico Vantaggi */}
+        <Link to={createPageUrl('MiePrenotazioniVantaggi')} className="block mb-4">
+          <Button
+            variant="outline"
+            className="w-full border-amber-400/60 text-amber-400 hover:bg-amber-400/10 font-bold h-12 text-sm"
+          >
+            <Gift className="w-5 h-5 mr-2" />
+            Storico Vantaggi
+          </Button>
+        </Link>
+
         <VantaggiExamplesCollapsible />
 
         {/* Info box */}
