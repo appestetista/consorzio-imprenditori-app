@@ -920,7 +920,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
         <div className="flex items-center gap-2 mt-1">
           {/* INCONTRI - a sinistra */}
           {incontriButton && (
-            <div className="flex-1 flex justify-center">
+            <div className="flex-shrink-0 flex justify-center pl-1 pr-2">
               {incontriButton}
             </div>
           )}
