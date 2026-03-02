@@ -1180,18 +1180,7 @@ export default function FinanziamentiAgevolati() {
               </div>
             )}
 
-            {/* 4. LINK PROFILO BANDI (sottile) */}
-            {userLoaded && !hasIncompleteProfile && (
-              <Link to={createPageUrl('ProfiloBandi')} className="block mb-6">
-                <div className="flex items-center justify-between rounded-xl bg-slate-800/60 border border-slate-700/50 px-4 py-3">
-                  <div className="flex items-center gap-2.5">
-                    <Briefcase className="w-4 h-4 text-slate-400" />
-                    <span className="text-slate-300 text-sm">Il tuo profilo bandi</span>
-                  </div>
-                  <Edit className="w-3.5 h-3.5 text-slate-500" />
-                </div>
-              </Link>
-            )}
+            {/* LINK PROFILO BANDI rimosso */}
 
             {/* 5. TUTTI I BANDI COMPATIBILI — uno sotto l'altro */}
             {!loadingMatch && matchedGrants.length > 0 && otherMatchedGrants.length > 0 && (
