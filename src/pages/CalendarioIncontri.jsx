@@ -27,7 +27,10 @@ const MONTH_COLORS = [
 ];
 
 export default function CalendarioIncontri() {
-  const currentMonthColor = MONTH_COLORS[new Date().getMonth()];
+  // Leggi il colore del mese dall'URL (passato dal calendario), fallback al mese corrente
+  const urlParams = new URLSearchParams(window.location.search);
+  const paramColor = urlParams.get('monthColor');
+  const currentMonthColor = paramColor && paramColor.startsWith('#') ? paramColor : MONTH_COLORS[new Date().getMonth()];
   const [user, setUser] = useState(null);
   const [showAddEvent, setShowAddEvent] = useState(false);
   const [showUserEventForm, setShowUserEventForm] = useState(false);

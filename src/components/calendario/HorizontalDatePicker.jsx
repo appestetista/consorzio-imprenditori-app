@@ -925,11 +925,11 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
             </div>
           )}
           
-          {/* VISIONE MENSILE - occupa tutto lo spazio restante */}
+          {/* VISIONE MENSILE - occupa tutto lo spazio restante, con margine destro per staccarsi da CHIUDI */}
           {onToggleFatturato && (
             <button
               onClick={onToggleFatturato}
-              className="flex-1 h-8 rounded-md transition-all touch-manipulation active:scale-90 flex items-center justify-center bg-white"
+              className="flex-1 h-8 rounded-md transition-all touch-manipulation active:scale-90 flex items-center justify-center bg-white mr-2"
             >
               <span className="text-[12px] font-bold uppercase text-black">Visione Mensile</span>
             </button>
