@@ -402,6 +402,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                       )}
                     </div>
                   </Link>
+                  <span className="text-[9px] font-semibold text-slate-400 mt-0.5">Incontri</span>
                 </div>
                 {/* Etichetta giorno selezionato - in linea con il nome mese */}
                 {selectedDate ? (
