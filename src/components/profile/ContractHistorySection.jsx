@@ -192,32 +192,14 @@ export default function ContractHistorySection({ user }) {
 
   return (
     <div className="space-y-4">
-      {/* Header con link a nuova analisi */}
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-white font-bold text-lg flex items-center gap-2">
-          <History className="w-5 h-5 text-lime-400" />
-          Storico Analisi Contratti
-        </h2>
-        <Link to={createPageUrl('AnalisiContratti')}>
-          <Button className="bg-lime-400 hover:bg-lime-500 text-slate-900" size="sm">
-            + Nuova Analisi
-          </Button>
-        </Link>
-      </div>
-
       {historyAnalyses.length === 0 ? (
         <Card className="bg-slate-800 border-slate-700">
           <CardContent className="p-8 text-center">
             <FileText className="w-12 h-12 text-slate-600 mx-auto mb-4" />
             <h3 className="text-white font-medium mb-2">Nessuna analisi salvata</h3>
-            <p className="text-slate-400 text-sm mb-4">
-              Non hai ancora analizzato nessun contratto. Vai nella sezione "Analisi Contratti" per iniziare!
+            <p className="text-slate-400 text-sm">
+              Non hai ancora analizzato nessun contratto. Usa il tab "Analisi" per iniziare.
             </p>
-            <Link to={createPageUrl('AnalisiContratti')}>
-              <Button className="bg-lime-400 hover:bg-lime-500 text-slate-900">
-                Analizza un contratto
-              </Button>
-            </Link>
           </CardContent>
         </Card>
       ) : (
