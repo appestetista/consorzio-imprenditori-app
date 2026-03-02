@@ -8,9 +8,22 @@ import GlobalSearchBar from './components/layout/GlobalSearchBar';
 
 export default function Layout({ children, currentPageName }) {
   const [selectedDate, setSelectedDate] = useState(null);
+  const [forceOpenCalendar, setForceOpenCalendar] = useState(false);
 
   useEffect(() => {
     console.log('[LAYOUT] Current page:', currentPageName);
+  }, [currentPageName]);
+
+  // Controlla se c'è il parametro openCalendar=1 nell'URL
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('openCalendar') === '1') {
+      setForceOpenCalendar(true);
+      // Rimuovi il parametro dall'URL senza reload
+      const url = new URL(window.location);
+      url.searchParams.delete('openCalendar');
+      window.history.replaceState({}, '', url.toString());
+    }
   }, [currentPageName]);
 
   return (
