@@ -4,6 +4,7 @@ import { VideoVisitProvider } from './components/context/VideoVisitContext';
 import { Toaster } from 'sonner';
 import CalendarSideTab from './components/calendario/CalendarSideTab';
 import VantaggiSideTab from './components/vantaggi/VantaggiSideTab';
+import GlobalSearchBar from './components/layout/GlobalSearchBar';
 
 export default function Layout({ children, currentPageName }) {
   const [selectedDate, setSelectedDate] = useState(null);
@@ -37,6 +38,7 @@ export default function Layout({ children, currentPageName }) {
           }
         `}</style>
         {children}
+        <GlobalSearchBar currentPageName={currentPageName} />
         <VantaggiSideTab />
         <CalendarSideTab 
           selectedDate={selectedDate}
