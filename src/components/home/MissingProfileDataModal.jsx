@@ -186,6 +186,42 @@ export default function MissingProfileDataModal({ fields, onComplete, onSkip, ex
           </div>
         </div>
       </div>
+
+      {/* Conferma cambio dato esistente */}
+      {confirmField && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center px-6" style={{ backgroundColor: 'rgba(0,0,0,0.7)' }}>
+          <div className="bg-[#1a2035] border border-amber-500/40 rounded-2xl p-5 max-w-sm w-full shadow-xl">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center">
+                <X className="w-4 h-4 text-amber-400" />
+              </div>
+              <h3 className="text-white font-bold text-sm">Sei sicuro?</h3>
+            </div>
+            <p className="text-slate-300 text-sm mb-1">
+              Stai per modificare <strong className="text-amber-400">{FIELD_CONFIG[confirmField]?.label || confirmField}</strong>
+            </p>
+            <p className="text-slate-400 text-xs mb-4">
+              Valore attuale: <span className="text-white">{existingUserData?.[confirmField] || existingUserData?._originalData?.[confirmField]}</span>
+              <br />
+              Nuovo valore: <span className="text-amber-400">{pendingValue}</span>
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={cancelChange}
+                className="flex-1 py-2 rounded-xl border border-slate-600 text-slate-400 text-sm hover:border-slate-500 transition-colors"
+              >
+                Annulla
+              </button>
+              <button
+                onClick={confirmChange}
+                className="flex-1 py-2 rounded-xl bg-amber-500 text-slate-900 text-sm font-bold hover:bg-amber-400 transition-colors"
+              >
+                Conferma modifica
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
