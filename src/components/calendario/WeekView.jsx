@@ -743,7 +743,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                   <span className={cn("font-mono text-[10px]", slot.isFullHour && "font-bold", isNow && "text-white font-bold animate-pulse")} style={{ color: isSlotRow ? '#f59e0b' : (isNow ? '#fff' : (slot.isFullHour ? ac : '#94a3b8')) }}>{slot.label}</span>
                 </div>
                 {/* 7 colonne giorni */}
-                <div className="flex flex-1">
+                <div className="flex flex-1" style={{ marginRight: '60px' }}>
                   {weekDays.map((day, di) => {
                     const dk = fk(day);
                     const isT = day.getTime() === today.getTime();
