@@ -8,6 +8,7 @@ import BottomNav from '../components/layout/BottomNav';
 import { Card, CardContent } from '@/components/ui/card';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import { createPageUrl } from '@/utils';
+import SectionHeaderIcons from '../components/layout/SectionHeaderIcons';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -218,30 +219,33 @@ export default function CulturaAziendale() {
     <div className="min-h-screen bg-slate-900 pb-64">
       <main className="px-4 py-6 max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <Link to={createPageUrl('Esplora?tab=strumenti')} className="text-[#d4af37] p-3 -m-3 rounded-full back-arrow-tap">
+          <div className="flex items-center gap-3 min-w-0 flex-shrink">
+            <Link to={createPageUrl('Esplora?tab=strumenti')} className="text-[#d4af37] p-3 -m-3 rounded-full back-arrow-tap flex-shrink-0">
               <ArrowLeft className="w-7 h-7" />
             </Link>
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-[#d4af37] rounded-full flex items-center justify-center">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-12 h-12 bg-[#d4af37] rounded-full flex items-center justify-center flex-shrink-0">
                 <BookOpen className="w-6 h-6 text-slate-900" />
               </div>
-              <div>
-                <h1 className="text-white text-2xl font-bold">Academy</h1>
-                <p className="text-slate-400 text-sm">Contenuti formativi per il tuo team</p>
+              <div className="min-w-0">
+                <h1 className="text-white text-2xl font-bold truncate">Academy</h1>
+                <p className="text-slate-400 text-sm truncate">Contenuti formativi per il tuo team</p>
               </div>
             </div>
           </div>
-          {isAdmin && (
-            <Button
-              onClick={() => setShowAddVideo(true)}
-              className="bg-[#d4af37] hover:bg-[#b8960b] text-slate-900"
-              size="sm"
-            >
-              <Plus className="w-4 h-4 mr-1" />
-              Carica Video
-            </Button>
-          )}
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <SectionHeaderIcons userEmail={effectiveUser?.email} unreadCount={messages.length} />
+            {isAdmin && (
+              <Button
+                onClick={() => setShowAddVideo(true)}
+                className="bg-[#d4af37] hover:bg-[#b8960b] text-slate-900"
+                size="sm"
+              >
+                <Plus className="w-4 h-4 mr-1" />
+                Carica Video
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Filtri */}

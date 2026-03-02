@@ -14,6 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
+import SectionHeaderIcons from '../components/layout/SectionHeaderIcons';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import useNotificationSound from '../components/hooks/useNotificationSound';
 
@@ -417,22 +418,15 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
     <div className="min-h-screen bg-slate-900 pb-64">
       <main className="px-4 py-6 max-w-md mx-auto">
         <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <Link to={createPageUrl('Esplora?tab=strumenti')} className="text-[#d4af37] p-3 -m-3 rounded-full back-arrow-tap">
+          <div className="flex items-center gap-3 min-w-0 flex-shrink">
+            <Link to={createPageUrl('Esplora?tab=strumenti')} className="text-[#d4af37] p-3 -m-3 rounded-full back-arrow-tap flex-shrink-0">
               <ArrowLeft className="w-7 h-7" />
             </Link>
-            <h1 className="text-white text-xl font-bold">Video Interviste</h1>
-            {/* Badge messaggi video non letti */}
-            {unreadVideoMessages.length > 0 && (
-              <Link 
-                to={createPageUrl('Messaggi') + '?filter=video'} 
-                className="relative bg-red-500 text-white text-xs font-bold rounded-full min-w-[22px] h-[22px] flex items-center justify-center px-1.5 animate-pulse"
-              >
-                {unreadVideoMessages.length > 99 ? '99+' : unreadVideoMessages.length}
-              </Link>
-            )}
+            <h1 className="text-white text-xl font-bold truncate">Video Interviste</h1>
           </div>
           
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <SectionHeaderIcons userEmail={effectiveUser?.email} unreadCount={messages.length} />
           {isAdmin && (
             <Dialog open={showAddVideo} onOpenChange={setShowAddVideo}>
               <DialogTrigger asChild>
@@ -498,6 +492,7 @@ Questa è una richiesta automatica dalla piattaforma del Consorzio Imprenditori.
               </DialogContent>
             </Dialog>
           )}
+          </div>
         </div>
 
         {/* Banner richiesta video - solo per utenti non admin */}
