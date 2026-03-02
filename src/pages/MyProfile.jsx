@@ -1322,7 +1322,9 @@ export default function MyProfile() {
         <ExportProfileSection formData={formData} setFormData={setFormData} />
 
         {/* Profilo Bandi per matching */}
-        <ProfiloBandiForm user={user} onSaved={() => toast.success('Profilo bandi aggiornato!')} />
+        <div id="profilo-bandi-section">
+          <ProfiloBandiForm user={user} onSaved={() => toast.success('Profilo bandi aggiornato!')} />
+        </div>
 
         {/* Profilo Aziendale (ex ProfiloUtente) */}
         <Card className="bg-slate-800 border-slate-700 mb-4">
