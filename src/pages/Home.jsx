@@ -961,6 +961,7 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
           fields={missingFieldsPopup.fields}
           onComplete={handleMissingFieldsComplete}
           onSkip={handleMissingFieldsSkip}
+          existingUserData={effectiveUser}
         />
       )}
     </div>
