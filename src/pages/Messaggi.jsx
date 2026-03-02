@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
+import NotificationsPanel, { useNotificationsBadge } from '../components/home/NotificationsPanel';
 
 export default function Messaggi() {
   const [user, setUser] = useState(null);
@@ -30,6 +31,7 @@ export default function Messaggi() {
   const [attachments, setAttachments] = useState([]);
   const [activeFilter, setActiveFilter] = useState('all');
   const [filtersCollapsed, setFiltersCollapsed] = useState(false);
+  const [notifPanelOpen, setNotifPanelOpen] = useState(false);
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
