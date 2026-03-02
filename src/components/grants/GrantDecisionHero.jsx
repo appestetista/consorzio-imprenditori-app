@@ -70,6 +70,9 @@ export default function GrantDecisionHero({
     );
   }
 
+  // Calcola la somma totale dei max_amount dei bandi compatibili
+  const totalMaxAmount = matchedGrants.reduce((sum, g) => sum + (g.max_amount || 0), 0);
+
   return (
     <div className={`rounded-2xl border p-6 ${
       hasMatch
@@ -82,32 +85,26 @@ export default function GrantDecisionHero({
 
       {hasMatch ? (
         <>
-          <div className="flex items-center gap-3 mb-3">
+          {/* Cifra totale */}
+          <div className="mb-3">
+            <p className="text-slate-300 text-sm mb-1">Ci sono fino a</p>
+            <p className="text-emerald-400 text-3xl font-bold tracking-tight">
+              {totalMaxAmount > 0 ? `${totalMaxAmount.toLocaleString('it-IT')} €` : 'fondi disponibili'}
+            </p>
+            <p className="text-slate-500 text-xs mt-1">
+              in {matchedGrants.length} bandi compatibili con il tuo profilo
+            </p>
+          </div>
+
+          {/* Ti conviene agire */}
+          <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
               <CheckCircle2 className="w-5 h-5 text-emerald-400" />
             </div>
-            <h2 className="text-white text-xl font-bold leading-tight">
-              Sì, ti conviene agire.
+            <h2 className="text-white text-lg font-bold leading-tight">
+              Ti conviene agire
             </h2>
           </div>
-
-          {bestGrant && (bestGrant.max_amount || bestGrant.coverage_percentage) && (
-            <div className="bg-black/20 rounded-xl px-4 py-3 mb-4">
-              <p className="text-slate-400 text-xs mb-0.5">Miglior bando per te</p>
-              {bestGrant.max_amount ? (
-                <p className="text-emerald-400 text-2xl font-bold tracking-tight">
-                  Fino a {bestGrant.max_amount.toLocaleString('it-IT')} €
-                </p>
-              ) : bestGrant.coverage_percentage ? (
-                <p className="text-emerald-400 text-2xl font-bold tracking-tight">
-                  Copertura {bestGrant.coverage_percentage}%
-                </p>
-              ) : null}
-              <p className="text-slate-500 text-[10px] mt-0.5">
-                {matchedGrants.length} bandi compatibili con il tuo profilo
-              </p>
-            </div>
-          )}
 
           <Button
             onClick={() => onShowBestGrant(bestGrant)}
