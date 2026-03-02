@@ -15,6 +15,7 @@ import ChatSidebar from '../components/home/ChatSidebar';
 import NotificationsPanel, { useNotificationsBadge } from '../components/home/NotificationsPanel';
 import AIUsageBar, { AIUsageBadge } from '../components/home/AIUsageBar';
 import MissingProfileDataModal, { getMissingFields } from '../components/home/MissingProfileDataModal';
+import { classifyIntent } from '../components/home/classifyIntent';
 import { useQueryClient, useQuery as useRQQuery } from '@tanstack/react-query';
 
 export default function Home() {
