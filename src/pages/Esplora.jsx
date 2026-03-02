@@ -18,6 +18,7 @@ import ProfileCompletionModal from '@/components/profile/ProfileCompletionModal'
 import { normalizeUser, isUserConsultant, getUserPermissions } from '../components/utils/normalizeUser';
 import SoundPermissionPopup from '../components/notifications/SoundPermissionPopup';
 import ImpersonationDialog from '../components/admin/ImpersonationDialog';
+import TopRightIcons from '../components/layout/TopRightIcons';
 import { cn } from '@/lib/utils';
 
 export default function Esplora() {
@@ -442,8 +443,10 @@ export default function Esplora() {
 
   return (
     <div className="min-h-screen pb-72" style={{ backgroundColor: '#001d3b' }}>
-      {/* Spacer top */}
-      <div className="pt-3" />
+      {/* Top bar con icone */}
+      <div className="flex items-center justify-end px-4 pt-3 pb-1">
+        <TopRightIcons userEmail={effectiveUser?.email} userRegime={effectiveUser?.regime_fiscale} />
+      </div>
 
       {/* Menu Drawer */}
       <div className={cn("fixed inset-x-0 top-0 z-50 transition-all duration-300", menuOpen ? "visible" : "invisible")} style={{ bottom: '200px' }}>
