@@ -70,34 +70,35 @@ export default function SimulazioneForm({ onSubmit, loading }) {
 
   return (
     <div className="space-y-4">
+      {/* Spiegazione chiara */}
+      <div className="bg-gradient-to-br from-[#0a2540] to-[#0d2f4f] border border-[#1a3a5c] rounded-2xl p-5">
+        <h2 className="text-white font-bold text-base mb-2">📊 Simula le tue imposte annuali</h2>
+        <p className="text-slate-300 text-sm leading-relaxed mb-3">
+          Inserisci il tuo <strong className="text-white">fatturato</strong>, il <strong className="text-white">regime fiscale</strong> e i <strong className="text-white">costi</strong>: 
+          ti calcoleremo <strong className="text-[#d4af37]">IRPEF, IRES, IRAP, INPS e contributi</strong> che dovrai pagare quest'anno.
+        </p>
+        <div className="grid grid-cols-3 gap-2 text-center">
+          <div className="bg-slate-800/60 rounded-lg py-2 px-1">
+            <p className="text-[10px] text-slate-500 uppercase">Cosa inserisci</p>
+            <p className="text-white text-xs font-semibold mt-0.5">Fatturato e costi</p>
+          </div>
+          <div className="bg-slate-800/60 rounded-lg py-2 px-1">
+            <p className="text-[10px] text-slate-500 uppercase">Cosa calcola</p>
+            <p className="text-white text-xs font-semibold mt-0.5">Tutte le imposte</p>
+          </div>
+          <div className="bg-slate-800/60 rounded-lg py-2 px-1">
+            <p className="text-[10px] text-slate-500 uppercase">Cosa ottieni</p>
+            <p className="text-[#d4af37] text-xs font-semibold mt-0.5">Netto finale</p>
+          </div>
+        </div>
+      </div>
+
       {/* Indicatore Impatto Fiscale - live */}
       <IndicatoreImpattoFiscale form={form} />
 
-      {/* Disclaimer */}
-      <Card className="bg-[#0a2540] border-[#1a3a5c]">
-        <CardContent className="p-4">
-          <div className="flex items-start gap-3">
-            <Info className="w-5 h-5 text-[#d4af37] mt-0.5 flex-shrink-0" />
-            <p className="text-slate-400 text-xs">
-              ⚠️ Simulazione a scopo informativo, non sostituisce consulenza fiscale. Le imposte sono calcolate con formule deterministiche basate sulle aliquote vigenti.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Nome scenario */}
-      <div>
-        <label className="text-slate-400 text-xs font-medium mb-1 block">Nome scenario (opzionale)</label>
-        <Input
-          placeholder="es. Scenario ottimistico"
-          value={form.nome_scenario}
-          onChange={(e) => update('nome_scenario', e.target.value)}
-          className="bg-slate-800 border-slate-700 text-white"
-        />
-      </div>
-
-      {/* Regime */}
-      <div>
+      {/* Step 1: Regime */}
+      <div className="bg-[#0a2540] border border-[#1a3a5c] rounded-xl p-4 space-y-3">
+        <p className="text-[#d4af37] text-xs font-bold uppercase tracking-wider">① Che tipo di azienda hai?</p>
         <label className="text-slate-400 text-xs font-medium mb-1 block">Regime fiscale *</label>
         <Select value={form.regime} onValueChange={(v) => update('regime', v)}>
           <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
