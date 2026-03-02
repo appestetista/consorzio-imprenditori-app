@@ -803,6 +803,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
               }
             }}
             className="py-2 px-4 rounded-xl bg-white text-slate-900 font-bold text-xs tracking-wide touch-manipulation active:scale-95 transition-all shadow-lg whitespace-nowrap"
+            style={{ transform: 'rotate(-90deg)', transformOrigin: 'center center' }}
           >
             Chiudi Visione Mensile
           </button>
