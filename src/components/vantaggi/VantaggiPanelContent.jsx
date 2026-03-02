@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Gift, Tag, Calendar, MapPin, Check, Clock, Building2, User, Plus, X, Upload, TrendingUp, Minus, QrCode, ChevronLeft } from 'lucide-react';
+import { Gift, Tag, Calendar, MapPin, Check, Clock, Building2, User, Plus, X, Upload, TrendingUp, Minus, QrCode, ChevronLeft, ArrowLeft } from 'lucide-react';
 import VantaggiCategoryFilter, { CATEGORIES } from './VantaggiCategoryFilter';
 import VantaggiExamplesCollapsible from './VantaggiExamplesCollapsible';
 import InlineMyQRCode from './InlineMyQRCode';
