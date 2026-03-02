@@ -35,32 +35,22 @@ export default function VantaggiSideTab() {
       </button>
 
       {/* Linguetta CHIUDI - visibile solo quando il pannello è aperto, stessa posizione/dimensione della linguetta VANTAGGI */}
-      <div
-        className={cn(
-          "fixed left-0 z-[56] transition-all duration-300",
-          "bg-gradient-to-r from-[#b8860b] to-[#d4af37] text-slate-900",
-          "rounded-r-xl shadow-lg shadow-[#d4af37]/20",
-          "flex flex-col items-center",
-          isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-        )}
-        style={{
-          width: '42px',
-          height: '140px',
-          bottom: '0px',
-          top: 'auto',
-        }}
-      >
+      {isOpen && (
         <button
           onClick={() => setIsOpen(false)}
-          className="flex-1 flex items-center justify-center hover:opacity-70 active:scale-95"
+          className="fixed left-0 z-[56] bg-gradient-to-r from-[#b8860b] to-[#d4af37] text-slate-900 rounded-r-xl shadow-lg shadow-[#d4af37]/20 flex items-center justify-center hover:opacity-70 active:scale-95"
           style={{
+            width: '42px',
+            height: '140px',
+            bottom: '0px',
+            top: 'auto',
             writingMode: 'vertical-rl',
             textOrientation: 'mixed',
           }}
         >
           <span className="text-[13px] font-bold tracking-wider leading-none whitespace-nowrap" style={{ transform: 'rotate(180deg)' }}>CHIUDI</span>
         </button>
-      </div>
+      )}
 
       {/* Pannello Vantaggi - scorre da sinistra a destra (speculare al calendario) */}
       <div
