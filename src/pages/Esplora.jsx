@@ -400,7 +400,32 @@ export default function Esplora() {
 
   const filteredFeatures = activeTab ? features.filter(f => f.category === activeTab) : features;
 
-  const renderFeatureCard = (feature) => {
+  const renderFeatureCard = (feature, index) => {
+    // Card "coming soon" senza pagina
+    if (feature.comingSoon || !feature.page) {
+      const Icon = feature.icon;
+      return (
+        <div key={feature.title + (index || '')} className="relative">
+          <div 
+            className="relative min-h-[120px] opacity-60"
+            style={{
+              borderRadius: '20px',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.3), 0 4px 8px rgba(0,0,0,0.2)',
+            }}
+          >
+            <div className="absolute inset-0 rounded-[20px] p-[1px]" style={{ background: 'linear-gradient(145deg, rgba(255,255,255,0.35) 0%, rgba(180,210,255,0.2) 30%, rgba(255,255,255,0.08) 70%, rgba(150,180,220,0.15) 100%)' }}>
+              <div className="relative w-full h-full rounded-[19px] flex flex-col overflow-hidden backdrop-blur-sm" style={{ background: 'rgba(20, 40, 80, 0.28)', boxShadow: 'inset 0 1px 1px rgba(255,255,255,0.15), inset 0 -1px 2px rgba(0,0,0,0.1)' }}>
+                <div className="flex flex-col items-center justify-center flex-1 relative z-10 p-6">
+                  {Icon && <Icon className="w-8 h-8 mb-2 text-white/50" />}
+                  <span className="text-sm font-medium text-center leading-tight text-white/60 whitespace-pre-line">{feature.title}</span>
+                  <span className="text-[10px] text-[#d4af37] font-semibold mt-1.5">PROSSIMAMENTE</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
     // Import/Export usa la split card dedicata
     if (feature.page === 'ImportExport') {
       return <ImportExportSplitCard key={feature.page} disabled={permissions[feature.permission] === false} />;
