@@ -8,7 +8,7 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
   const navItems = [
     { name: 'home', label: 'Home', icon: Home, page: 'Home', tab: null },
     { name: 'strumenti', label: 'Strumenti', icon: Wrench, page: 'Esplora?tab=strumenti', tab: 'strumenti' },
-    { name: 'menu', label: 'My Profilo', icon: UserRound, isMenu: true },
+    { name: 'menu', label: 'My Profilo', icon: UserRound, page: 'MyProfile', tab: null },
   ];
 
   return (
