@@ -447,47 +447,55 @@ export default function Esplora() {
         <TopRightIcons userEmail={effectiveUser?.email} userRegime={effectiveUser?.regime_fiscale} />
       </div>
 
-      {/* Menu Drawer */}
-      <div className={cn("fixed inset-x-0 top-0 z-50 transition-all duration-300", menuOpen ? "visible" : "invisible")} style={{ bottom: '200px' }}>
-        <div className={cn("absolute inset-0 bg-black/50 transition-opacity", menuOpen ? "opacity-100" : "opacity-0")} onClick={() => setMenuOpen(false)} />
-        <div className={cn("absolute right-0 top-0 h-full w-72 bg-slate-900 border-l border-[#d4af37]/30 rounded-bl-2xl p-6 transition-transform duration-300", menuOpen ? "translate-x-0" : "translate-x-full")}>
-          <div className="flex justify-end mb-6">
-            <button onClick={() => setMenuOpen(false)}><X className="w-6 h-6 text-[#d4af37]" /></button>
-          </div>
-          <div className="space-y-2">
-            <p className="text-[#d4af37] font-semibold mb-4">{effectiveUser?.company_name || effectiveUser?.full_name || 'Utente'}</p>
-            
-            {impersonation.active && (
-              <button onClick={() => { stopImpersonation(); setMenuOpen(false); window.location.href = createPageUrl('Home'); }} className="flex items-center gap-3 text-white py-3 px-4 rounded-lg bg-orange-600 hover:bg-orange-700 transition-colors w-full mb-3">
-                <XCircle className="w-5 h-5" /><span>Torna ad Admin</span>
-              </button>
-            )}
-            
-            {effectiveUser?.role === 'admin' && !impersonation.active && (
-              <>
-                <Link to={createPageUrl('AdminPanel')} onClick={() => setMenuOpen(false)} className="flex items-center gap-3 text-white py-3 px-4 rounded-lg hover:bg-slate-800 transition-colors">
-                  <Settings className="w-5 h-5 text-[#d4af37]" /><span>Pannello Admin</span>
-                </Link>
-                <button onClick={() => { setImpersonationDialogOpen(true); setMenuOpen(false); }} className="flex items-center gap-3 text-white py-3 px-4 rounded-lg hover:bg-slate-800 transition-colors w-full">
-                  <Eye className="w-5 h-5 text-[#d4af37]" /><span>Visualizza come...</span>
-                </button>
-              </>
-            )}
-            
-            {(effectiveUser?.role === 'user' || isUserConsultant(effectiveUser) || impersonation.active) && (
-              <Link to={createPageUrl('MyProfile')} onClick={() => setMenuOpen(false)} className="flex items-center gap-3 text-white py-3 px-4 rounded-lg hover:bg-slate-800 transition-colors">
-                <User className="w-5 h-5 text-[#d4af37]" /><span>Il Mio Profilo</span>
-              </Link>
-            )}
-            
-            <Link to={createPageUrl('ContattaConsorzio')} onClick={() => setMenuOpen(false)} className="flex items-center gap-3 text-white py-3 px-4 rounded-lg hover:bg-slate-800 transition-colors">
-              <Phone className="w-5 h-5 text-[#d4af37]" /><span>Contatta Consorzio</span>
-            </Link>
-            
-            <button onClick={() => base44.auth.logout()} className="flex items-center gap-3 text-white py-3 px-4 rounded-lg hover:bg-slate-800 transition-colors w-full text-left">
-              <LogOut className="w-5 h-5 text-red-400" /><span>Esci</span>
+      {/* Menu Panel - fullscreen come le altre sezioni */}
+      <div
+        className={cn(
+          "fixed inset-0 transition-transform duration-[800ms] ease-[cubic-bezier(0.25,0.1,0.25,1)]",
+          "bg-slate-900 shadow-2xl overflow-y-auto",
+          menuOpen ? "translate-y-0" : "translate-y-full",
+          "z-[55]"
+        )}
+      >
+        <div className="px-4 py-6 max-w-2xl mx-auto pb-48">
+          {/* Header con chiudi */}
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-white text-xl font-bold">Il Mio Profilo</h1>
+            <button onClick={() => setMenuOpen(false)} className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-slate-700 transition-colors">
+              <X className="w-5 h-5 text-[#d4af37]" />
             </button>
           </div>
+
+          {/* Admin buttons */}
+          {impersonation.active && (
+            <button onClick={() => { stopImpersonation(); setMenuOpen(false); window.location.href = createPageUrl('Home'); }} className="flex items-center gap-3 text-white py-3 px-4 rounded-lg bg-orange-600 hover:bg-orange-700 transition-colors w-full mb-3">
+              <XCircle className="w-5 h-5" /><span>Torna ad Admin</span>
+            </button>
+          )}
+          {effectiveUser?.role === 'admin' && !impersonation.active && (
+            <div className="space-y-2 mb-4">
+              <Link to={createPageUrl('AdminPanel')} onClick={() => setMenuOpen(false)} className="flex items-center gap-3 text-white py-3 px-4 rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors">
+                <Settings className="w-5 h-5 text-[#d4af37]" /><span>Pannello Admin</span>
+              </Link>
+              <button onClick={() => { setImpersonationDialogOpen(true); setMenuOpen(false); }} className="flex items-center gap-3 text-white py-3 px-4 rounded-lg bg-slate-800 hover:bg-slate-700 transition-colors w-full">
+                <Eye className="w-5 h-5 text-[#d4af37]" /><span>Visualizza come...</span>
+              </button>
+            </div>
+          )}
+
+          {/* Chiama Consorzio */}
+          <a href="tel:3292005433" className="flex items-center justify-center gap-3 w-full py-4 rounded-xl bg-[#d4af37] hover:bg-[#b8960b] text-slate-900 font-bold text-lg mb-6 transition-colors">
+            <Phone className="w-6 h-6" />
+            Chiama Consorzio
+          </a>
+
+          {/* Link a pagina profilo completa */}
+          <Link 
+            to={createPageUrl('MyProfile')} 
+            onClick={() => setMenuOpen(false)}
+            className="block text-center text-[#d4af37] underline text-sm mb-6"
+          >
+            Apri pagina profilo completa →
+          </Link>
         </div>
       </div>
 
