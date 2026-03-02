@@ -789,7 +789,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
           className="absolute z-30 flex items-center justify-end"
           style={{ 
             bottom: '8px', 
-            right: '8px',
+            right: '0px',
           }}
         >
           <button
