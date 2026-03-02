@@ -675,14 +675,6 @@ VERIFICA:
           </div>
           <div className="flex items-center gap-1">
             <SectionHeaderIcons userEmail={effectiveUser?.email} unreadCount={messages.length} />
-            <Button 
-              onClick={() => setShowBranchManager(true)}
-              className="bg-lime-400 text-slate-900 hover:bg-lime-500"
-              size="sm"
-              disabled={branches.length >= 5}
-            >
-              <Building2 className="w-4 h-4 mr-1" /> Rami ({branches.length}/5)
-            </Button>
           </div>
         </div>
 
@@ -711,32 +703,17 @@ VERIFICA:
           </CardContent>
         </Card>
 
-        {/* Gate Premium AI */}
-        {effectiveUser?.piano_abbonamento !== 'impresa_39' && (
-          <div className="mb-6">
-            <PremiumAIGate user={effectiveUser} featureLabel="Genera automaticamente gli adempimenti obbligatori per la tua attività e verifica i documenti con l'AI" />
-          </div>
-        )}
-
-        {/* Banner Aggiungi primo ramo */}
+        {/* Pulsante Aggiungi primo ramo */}
         {branches.length === 0 && (
-          <Card 
-            className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 border-blue-500/30 mb-6 cursor-pointer hover:border-blue-400/50 transition-colors"
+          <button
             onClick={() => setShowBranchManager(true)}
+            className="w-full mb-6 py-4 rounded-xl bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30 hover:border-blue-400/50 active:scale-[0.98] transition-all flex items-center justify-center gap-3"
           >
-            <CardContent className="p-4">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-blue-500/30 rounded-xl flex items-center justify-center">
-                  <Building2 className="w-6 h-6 text-blue-400" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-white font-semibold">Aggiungi il primo Ramo Aziendale</h3>
-                  <p className="text-slate-400 text-sm">Inserisci i rami della tua azienda per generare gli adempimenti obbligatori</p>
-                </div>
-                <ChevronDown className="w-5 h-5 text-blue-400" />
-              </div>
-            </CardContent>
-          </Card>
+            <div className="w-10 h-10 bg-blue-500/30 rounded-full flex items-center justify-center">
+              <Plus className="w-6 h-6 text-blue-400" />
+            </div>
+            <span className="text-white font-semibold text-base">Aggiungi il primo Ramo Aziendale</span>
+          </button>
         )}
 
         {/* Selezione Ramo con bottoni */}
