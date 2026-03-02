@@ -5,13 +5,13 @@ import { base44 } from '@/api/base44Client';
 export const AI_LIMITS = {
   contract_analysis: 5,
   contract_comparison: 2,
-  export_analysis: 20,
-  import_analysis: 20,
+  export_analysis: 5,
+  import_analysis: 5,
   grant_match: 5
 };
 
 // Tipi con limite settimanale invece che mensile
-export const WEEKLY_LIMITS = ['export_analysis', 'import_analysis'];
+export const WEEKLY_LIMITS = [];
 
 export const AI_LIMIT_LABELS = {
   contract_analysis: 'Analisi Contratti',
