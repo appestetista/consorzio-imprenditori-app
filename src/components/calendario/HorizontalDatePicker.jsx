@@ -929,7 +929,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
           {onToggleFatturato && (
             <button
               onClick={onToggleFatturato}
-              className="flex-1 h-9 rounded-md transition-all touch-manipulation active:scale-90 flex items-center justify-center bg-white"
+              className="h-8 px-4 rounded-md transition-all touch-manipulation active:scale-90 flex items-center justify-center bg-white"
             >
               <span className="text-[12px] font-bold uppercase text-black">Visione Mensile</span>
             </button>
