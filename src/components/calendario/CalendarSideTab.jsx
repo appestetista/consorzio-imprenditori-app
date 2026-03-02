@@ -405,7 +405,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
             incontriButton={
               <div className="flex flex-col items-center">
                 <Link 
-                  to={createPageUrl('CalendarioIncontri?monthColor=' + encodeURIComponent(currentMonthColor))}
+                  to={createPageUrl('CalendarioIncontri?monthColor=' + encodeURIComponent(currentMonthColor) + '&fromCalendar=1')}
                   className="relative flex-shrink-0 flex flex-col items-center"
                   onClick={(e) => {
                     e.stopPropagation();
