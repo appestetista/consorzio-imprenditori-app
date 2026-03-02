@@ -155,19 +155,18 @@ export default function InlineQRScanner({ user, compact = false }) {
   };
 
   return (
-    <div className={`bg-slate-800 border border-[#d4af37]/30 rounded-xl ${compact ? 'p-2 h-full flex flex-col' : 'p-4'}`}>
-      <div className={`flex items-center gap-${compact ? '1' : '2'} mb-${compact ? '1' : '3'}`}>
-        <ScanLine className={`${compact ? 'w-4 h-4' : 'w-5 h-5'} text-[#d4af37] flex-shrink-0`} />
-        <h3 className={`text-white font-bold ${compact ? 'text-[10px] leading-tight' : 'text-sm'}`}>{compact ? 'Scanner' : 'Scansiona il QR code di chi ti sta venendo a prenotare un vantaggio'}</h3>
-      </div>
+    <div className={compact ? 'h-full flex flex-col' : 'bg-slate-800 border border-[#d4af37]/30 rounded-xl p-4'}>
+      {!compact && (
+        <div className="flex items-center gap-2 mb-3">
+          <ScanLine className="w-5 h-5 text-[#d4af37] flex-shrink-0" />
+          <h3 className="text-white font-bold text-sm">Scansiona il QR code di chi ti sta venendo a prenotare un vantaggio</h3>
+        </div>
+      )}
 
       {/* Scanner fotocamera - sempre aperto */}
       <div className={compact ? 'flex-1 min-h-0' : 'mb-3'}>
         {scannerActive && (
-          <>
-            <div id="qr-reader-inline" className="rounded-lg overflow-hidden" style={compact ? { maxHeight: '140px' } : {}} />
-            {!compact && <p className="text-slate-500 text-[10px] text-center mt-2">Inquadra il QR code</p>}
-          </>
+          <div id="qr-reader-inline" className="rounded-lg overflow-hidden" style={compact ? { maxHeight: '140px' } : {}} />
         )}
         {!scannerActive && (
           <div className={`bg-slate-700 rounded-lg ${compact ? 'p-3' : 'p-6'} flex flex-col items-center justify-center`}>
@@ -176,6 +175,7 @@ export default function InlineQRScanner({ user, compact = false }) {
           </div>
         )}
       </div>
+      {compact && <p className="text-slate-500 text-[10px] text-center mt-2 leading-tight">Scansiona il QR di chi vuole usare un tuo vantaggio</p>}
 
       {searching && (
         <div className="flex items-center justify-center py-3">

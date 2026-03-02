@@ -44,14 +44,11 @@ export default function InlineMyQRCode({ user, compact = false }) {
 
   if (compact) {
     return (
-      <div className="bg-slate-800 border border-[#d4af37]/30 rounded-xl p-2 h-full flex flex-col">
-        <div className="flex items-center gap-1 mb-1">
-          <QrCode className="w-4 h-4 text-[#d4af37] flex-shrink-0" />
-          <h3 className="text-white font-bold text-[10px] leading-tight">Il tuo QR</h3>
-        </div>
+      <div className="h-full flex flex-col">
         <div className="flex-1 flex items-center justify-center">
           {qrUrl && <img src={qrUrl} alt="QR Code" className="rounded-md w-full max-w-[140px] aspect-square" />}
         </div>
+        <p className="text-slate-500 text-[10px] text-center mt-2 leading-tight">Fai scansionare il tuo QR dall'attività per utilizzare un vantaggio</p>
       </div>
     );
   }

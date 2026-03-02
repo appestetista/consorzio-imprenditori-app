@@ -184,11 +184,6 @@ export default function VantaggiPanelContent({ onClose }) {
 
         <VantaggiExamplesCollapsible />
 
-        {/* Info box */}
-        <div className="bg-gradient-to-r from-[#d4af37]/15 to-amber-500/15 border border-[#d4af37]/40 rounded-xl p-3">
-          <p className="text-[#d4af37] text-xs font-medium">💡 Prenota un vantaggio e mostra il tuo QR code in negozio!</p>
-        </div>
-
         {/* Filtro */}
         <VantaggiCategoryFilter selected={selectedCategory} onSelect={setSelectedCategory} vantaggi={vantaggi} />
 
