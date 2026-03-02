@@ -302,26 +302,13 @@ Domanda: ${msg}`,
     }
 
     try {
-      // FASE 1 – Classificazione intento
-      console.log('>>> STEP 1: Inizio classificazione');
-      const classResult = await base44.integrations.Core.InvokeLLM({
-        prompt: `Classifica questa richiesta in UNA sola categoria tra: Fiscale, Legale, Marketing, Personale/HR, Investimenti, Operativa, Strategica. Rispondi SOLO con un JSON: {"categoria": "nome", "confidenza": 85, "sottocategoria": "specifica"}
-
-Richiesta: "${msg}"`,
-        add_context_from_internet: true
-      });
-      let classificazione = classResult;
-      if (typeof classResult === 'string') {
-        try {
-          let cleaned = classResult.trim();
-          if (cleaned.startsWith('```')) cleaned = cleaned.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
-          classificazione = JSON.parse(cleaned);
-        } catch (e) { classificazione = null; }
-      }
+      // FASE 1 – Classificazione intento (lato client, zero costo AI)
+      console.log('>>> STEP 1: Classificazione locale');
+      const classificazione = classifyIntent(msg);
       console.log('>>> STEP 2: Classificazione OK', classificazione);
-      const category = classificazione?.categoria || 'Strategica';
-      const confidenza = classificazione?.confidenza ?? 100;
-      const sottocategoria = classificazione?.sottocategoria || '';
+      const category = classificazione.categoria;
+      const confidenza = classificazione.confidenza;
+      const sottocategoria = classificazione.sottocategoria;
       setLastCategory(category);
       setLastClassification({ categoria: category, sottocategoria, confidenza });
 
