@@ -90,6 +90,42 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
     enabled: !!userEmail && showWeekView
   });
 
+  // Query eventi per campanella
+  const { data: allEvents = [] } = useQuery({
+    queryKey: ['events-calendar-tab'],
+    queryFn: () => base44.entities.Event.list('date'),
+    enabled: isOpen,
+    refetchInterval: 30000,
+  });
+
+  // Calcola eventi futuri
+  useEffect(() => {
+    if (!allEvents.length) return;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const count = allEvents.filter(e => {
+      if (!e.date) return false;
+      const d = new Date(e.date);
+      if (isNaN(d.getTime())) return false;
+      d.setHours(0, 0, 0, 0);
+      return d >= today && e.approval_status === 'approved' && !e.is_cancelled;
+    }).length;
+    if (count > lastEventCountRef.current && lastEventCountRef.current > 0) {
+      setHasNewEvent(true);
+    }
+    lastEventCountRef.current = count;
+    setFutureEventsCount(count);
+  }, [allEvents]);
+
+  // Subscribe real-time agli eventi
+  useEffect(() => {
+    const unsubscribe = base44.entities.Event.subscribe((event) => {
+      if (event.type === 'create') setHasNewEvent(true);
+      queryClient.invalidateQueries({ queryKey: ['events-calendar-tab'] });
+    });
+    return unsubscribe;
+  }, [queryClient]);
+
   // Query cartelle per il popup
   const { data: cartelleForPopup = [] } = useQuery({
     queryKey: ['cartelle', userEmail],
