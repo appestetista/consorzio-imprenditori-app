@@ -361,37 +361,8 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                 {new Date(visibleMonthLabel.year, visibleMonthLabel.month).toLocaleDateString('it-IT', { month: 'long' })} {visibleMonthLabel.year}
               </span>
             }
-            incontriButton={
-              <Link 
-                to={createPageUrl('CalendarioIncontri')}
-                className="relative flex-shrink-0 flex flex-col items-center gap-0.5"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsOpen(false);
-                  setShowTimePicker(false);
-                  setHasNewEvent(false);
-                }}
-              >
-                <div className="w-12 h-12 rounded-full bg-slate-700 border-2 border-white/30 flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-transform relative">
-                  <Calendar className="w-6 h-6 text-white" />
-                  {/* Campanella sovrapposta in alto a destra */}
-                  <div className={cn(
-                    "absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-slate-600 border border-slate-500 flex items-center justify-center transition-all",
-                    hasNewEvent && "animate-pulse ring-2 ring-yellow-400 ring-offset-1 ring-offset-slate-900"
-                  )}>
-                    <Bell className="w-3.5 h-3.5 text-white" />
-                  </div>
-                  {futureEventsCount > 0 && (
-                    <span className="absolute -top-3 -right-3 bg-red-500 text-white text-[8px] rounded-full min-w-[16px] h-[16px] px-0.5 flex items-center justify-center font-bold z-10">
-                      {futureEventsCount}
-                    </span>
-                  )}
-                </div>
-                <span className="text-[9px] font-bold text-white">Incontri</span>
-              </Link>
-            }
             monthLabelButton={
-              <div className="flex items-end" style={{ width: '140px', justifyContent: 'flex-end' }}>
+              <div className="flex items-center gap-2" style={{ justifyContent: 'flex-end' }}>
                 {selectedDate ? (
                   <span 
                     className="px-2 py-0.5 rounded text-[10px] font-semibold"
@@ -407,6 +378,44 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                     scegli un giorno
                   </span>
                 )}
+                {/* Pulsante Incontri 3D */}
+                <Link 
+                  to={createPageUrl('CalendarioIncontri')}
+                  className="relative flex-shrink-0 flex flex-col items-center"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsOpen(false);
+                    setShowTimePicker(false);
+                    setHasNewEvent(false);
+                  }}
+                >
+                  <div 
+                    className="relative w-11 h-11 rounded-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-200"
+                    style={{
+                      background: 'linear-gradient(145deg, #a3e635, #65a30d)',
+                      boxShadow: '0 4px 12px rgba(163,230,53,0.4), 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.35), inset 0 -2px 4px rgba(0,0,0,0.15)',
+                      border: '1px solid rgba(255,255,255,0.15)'
+                    }}
+                  >
+                    <Calendar className="w-5 h-5 text-slate-900" strokeWidth={2.5} />
+                    {/* Campanella sovrapposta */}
+                    <div className={cn(
+                      "absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center transition-all",
+                      hasNewEvent ? "animate-bounce" : ""
+                    )} style={{
+                      background: 'linear-gradient(145deg, #475569, #334155)',
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)',
+                      border: '1px solid rgba(255,255,255,0.1)'
+                    }}>
+                      <Bell className="w-3 h-3 text-white" />
+                    </div>
+                    {futureEventsCount > 0 && (
+                      <span className="absolute -top-2.5 -right-2.5 bg-red-500 text-white text-[7px] rounded-full min-w-[15px] h-[15px] px-0.5 flex items-center justify-center font-bold z-10" style={{ boxShadow: '0 2px 4px rgba(239,68,68,0.5)' }}>
+                        {futureEventsCount}
+                      </span>
+                    )}
+                  </div>
+                </Link>
               </div>
             } 
             selectedDate={selectedDate}
