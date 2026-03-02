@@ -38,7 +38,7 @@ export default function Layout({ children, currentPageName }) {
           }
         `}</style>
         {children}
-        <GlobalSearchBar currentPageName={currentPageName} />
+        {currentPageName === 'Home' && <GlobalSearchBar currentPageName={currentPageName} />}
         <VantaggiSideTab />
         <CalendarSideTab 
           selectedDate={selectedDate}
