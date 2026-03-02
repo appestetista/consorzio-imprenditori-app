@@ -143,8 +143,8 @@ export default function NotificationsPanel({ open, onClose, userEmail, userRegim
         {/* Header */}
         <div className="flex items-center justify-between px-4 pt-4 pb-2">
           <h2 className="text-white font-bold text-sm">Notifiche & Scadenze</h2>
-          <button onClick={onClose} className="p-2.5 -mr-1 rounded-xl hover:bg-slate-800 transition-colors">
-            <X className="w-7 h-7 text-slate-300" />
+          <button onClick={onClose} className="p-3 -mr-3 rounded-xl hover:bg-slate-800 transition-colors">
+            <X className="w-10 h-10 text-slate-300" />
           </button>
         </div>
 
