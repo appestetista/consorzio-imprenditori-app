@@ -634,7 +634,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
         <div className="flex flex-shrink-0 border-b border-slate-700/50">
           <div className="flex-shrink-0 flex items-center justify-center" style={{ width: '70px', paddingLeft: '4px', paddingRight: '4px', borderRight: '2px solid rgba(100,116,139,0.6)' }}>
           </div>
-          <div className="flex flex-1">
+          <div className="flex flex-1" style={{ marginRight: '60px' }}>
             {weekDays.map((day, i) => {
               const isT = day.getTime() === today.getTime();
               const isWe = i >= 5;
