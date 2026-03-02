@@ -30,18 +30,14 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
         <div>
           <div className="flex justify-center items-center gap-1">
             {navItems.map((item) => {
-              const isActive = item.isMenu
+              const isActive = item.name === 'home'
+                ? currentPage === 'Home'
+                : item.name === 'menu'
                   ? currentPage === 'MyProfile'
-                  : item.name === 'home'
-                    ? currentPage === 'Home'
-                    : item.name === 'qrcode'
-                      ? currentPage === 'QRCodeHub'
-                      : activeTab === item.tab;
+                  : activeTab === item.tab;
               
-              const Wrapper = item.isMenu ? 'button' : item.disabled ? 'div' : Link;
-              const wrapperProps = item.isMenu 
-                ? { onClick: onMenuOpen } 
-                : item.disabled ? {} : { to: createPageUrl(item.page) };
+              const Wrapper = item.disabled ? 'div' : Link;
+              const wrapperProps = item.disabled ? {} : { to: createPageUrl(item.page) };
               
               return (
                 <Wrapper
