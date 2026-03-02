@@ -117,7 +117,8 @@ export default function BottomNavWithMenu({ currentPage, activeTab = null, unrea
         activeTab={activeTab}
         unreadMessages={unreadMessages} 
         onMenuOpen={() => setMenuOpen(prev => !prev)} 
-        menuOpen={menuOpen} 
+        menuOpen={menuOpen}
+        hideBackground={currentPage === 'Home'}
       />
     </>
   );
