@@ -34,11 +34,11 @@ export default function VantaggiSideTab() {
         <span className="text-[13px] font-bold tracking-wider leading-none whitespace-nowrap" style={{ transform: 'rotate(180deg)' }}>VANTAGGI</span>
       </button>
 
-      {/* Linguetta CHIUDI - visibile solo quando il pannello è aperto, stessa posizione/dimensione della linguetta VANTAGGI */}
+      {/* Linguetta CHIUDI - visibile solo quando il pannello è aperto */}
       {isOpen && (
         <button
           onClick={() => setIsOpen(false)}
-          className="fixed left-0 z-[56] bg-gradient-to-r from-[#b8860b] to-[#d4af37] text-slate-900 rounded-r-xl shadow-lg shadow-[#d4af37]/20 flex items-center justify-center hover:opacity-70 active:scale-95"
+          className="fixed left-0 z-[60] bg-gradient-to-r from-[#b8860b] to-[#d4af37] text-slate-900 rounded-r-xl shadow-lg shadow-[#d4af37]/20 flex items-center justify-center hover:opacity-70 active:scale-95"
           style={{
             width: '42px',
             height: '140px',
