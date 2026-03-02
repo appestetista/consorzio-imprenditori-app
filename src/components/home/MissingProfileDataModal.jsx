@@ -56,8 +56,9 @@ export function getMissingFields(user, category, message) {
   const allNeeded = [...new Set([...categoryFields, ...keywordFields])];
   
   // Filtra solo quelli che l'utente non ha compilato
+  // Controlla sia root level che nested _originalData (normalizeUser)
   return allNeeded.filter(field => {
-    const val = user[field];
+    const val = user[field] || user?._originalData?.[field];
     return !val || (typeof val === 'string' && val.trim() === '');
   });
 }
