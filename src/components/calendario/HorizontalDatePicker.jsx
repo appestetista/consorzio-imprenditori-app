@@ -881,7 +881,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
       </div>
 
       {/* Barra mesi dell'anno - in basso */}
-      <div className="px-2 py-1 pb-2">
+      <div className="pl-2 pr-0 py-1 pb-2" style={{ marginRight: '42px' }}>
         {/* Etichette mesi */}
         <div className="flex items-center mb-1">
           {MONTHS_SHORT.map((m, idx) => {
@@ -929,7 +929,7 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
           {onToggleFatturato && (
             <button
               onClick={onToggleFatturato}
-              className="h-8 px-4 rounded-md transition-all touch-manipulation active:scale-90 flex items-center justify-center bg-white"
+              className="flex-1 h-8 rounded-md transition-all touch-manipulation active:scale-90 flex items-center justify-center bg-white"
             >
               <span className="text-[12px] font-bold uppercase text-black">Visione Mensile</span>
             </button>
