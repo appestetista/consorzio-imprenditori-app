@@ -391,7 +391,11 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                   <Link 
                     to={createPageUrl('CalendarioIncontri')}
                     className="flex flex-col items-center gap-0.5"
-                    onClick={(e) => e.stopPropagation()}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsOpen(false);
+                      setShowTimePicker(false);
+                    }}
                   >
                     <div className="w-12 h-12 rounded-full bg-slate-700 border-2 border-white/30 flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-transform">
                       <Calendar className="w-6 h-6 text-white" />
