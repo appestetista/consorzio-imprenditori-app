@@ -30,25 +30,10 @@ export default function SimulatoreCostoPersonale() {
             <Link to={createPageUrl('Esplora?tab=strumenti')} className="text-lime-400 p-3 -m-3 rounded-full back-arrow-tap">
               <ArrowLeft className="w-7 h-7" />
             </Link>
-            <h1 className="text-white text-xl font-bold">Costo del Personale</h1>
+            <h1 className="text-white text-xl font-bold">Simulatore di Costo</h1>
           </div>
           <SectionHeaderIcons userEmail={user?.email} />
         </div>
-
-        {/* Hero */}
-        <Card className="bg-gradient-to-br from-violet-500 to-indigo-600 border-0 mb-6">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
-                <Users className="w-8 h-8 text-white" />
-              </div>
-              <div>
-                <h2 className="text-white text-xl font-bold">Simulatore Costo</h2>
-                <p className="text-white/80 text-sm">Calcola il costo reale del personale</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
         <Tabs defaultValue="dipendente" className="w-full">
           <TabsList className="w-full bg-slate-800 border border-slate-700 mb-4 grid grid-cols-3 gap-1 h-auto p-1">
