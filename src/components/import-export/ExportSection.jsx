@@ -185,14 +185,6 @@ export default function ExportSection({ user, exportManagers, selectedMapCountry
     <>
       {/* Progress bar inline analisi in corso — non blocca la pagina */}
 
-      {/* Usage Counter */}
-      {!analysisResult && !analyzing && !exportLimitReached && user && (
-        <div className="mb-3"><UsageCounter usageCount={exportUsage} limit={exportLimit} label="Analisi export disponibili questa settimana" /></div>
-      )}
-      {!analysisResult && !analyzing && exportLimitReached && (
-        <div className="mb-3"><LimitReachedBanner actionType="export_analysis" usageCount={exportUsage} limit={exportLimit} isWeekly={true} /></div>
-      )}
-
       {/* Ricerca rapida export */}
       {!analysisResult && !analyzing && (
         <div className="mb-5 space-y-3">
