@@ -8,6 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import Header from '../components/layout/Header';
 import BottomNavWithMenu from '../components/layout/BottomNavWithMenu';
 import SectionConsultantPanel from '../components/consulenze/SectionConsultantPanel';
+import SectionHeaderIcons from '../components/layout/SectionHeaderIcons';
 
 export default function WelfareAziendale() {
   const [user, setUser] = useState(null);
@@ -61,11 +62,14 @@ export default function WelfareAziendale() {
   return (
     <div className="min-h-screen bg-slate-900 pb-64">
       <main className="px-4 py-6 max-w-md mx-auto">
-        <div className="flex items-center gap-3 mb-6">
-          <Link to={createPageUrl('Esplora?tab=strumenti')} className="text-pink-400 p-3 -m-3 rounded-full back-arrow-tap">
-            <ArrowLeft className="w-7 h-7" />
-          </Link>
-          <h1 className="text-white text-xl font-bold">Welfare Aziendale</h1>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <Link to={createPageUrl('Esplora?tab=strumenti')} className="text-pink-400 p-3 -m-3 rounded-full back-arrow-tap">
+              <ArrowLeft className="w-7 h-7" />
+            </Link>
+            <h1 className="text-white text-xl font-bold">Welfare Aziendale</h1>
+          </div>
+          <SectionHeaderIcons userEmail={user?.email} />
         </div>
 
         {/* Hero Card */}

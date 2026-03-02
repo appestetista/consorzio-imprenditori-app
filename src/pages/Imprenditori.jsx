@@ -15,6 +15,7 @@ import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import useNotificationSound from '../components/hooks/useNotificationSound';
+import SectionHeaderIcons from '../components/layout/SectionHeaderIcons';
 
 export default function Imprenditori() {
   const [user, setUser] = useState(null);
@@ -567,11 +568,14 @@ export default function Imprenditori() {
     <div className="min-h-screen bg-slate-900 pb-64">
       <main className="px-4 py-6 max-w-md mx-auto">
         <div className="mb-4">
-          <div className="flex items-center gap-3 mb-3">
-            <button onClick={() => navigate(createPageUrl('Esplora?tab=strumenti'))} className="text-lime-400 p-3 -m-3 rounded-full back-arrow-tap">
-              <ArrowLeft className="w-7 h-7" />
-            </button>
-            <h1 className="text-lime-400 text-xl font-bold">Decisioni Condivise</h1>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-3">
+              <button onClick={() => navigate(createPageUrl('Esplora?tab=strumenti'))} className="text-lime-400 p-3 -m-3 rounded-full back-arrow-tap">
+                <ArrowLeft className="w-7 h-7" />
+              </button>
+              <h1 className="text-lime-400 text-xl font-bold">Decisioni Condivise</h1>
+            </div>
+            <SectionHeaderIcons userEmail={effectiveUser?.email} />
           </div>
           <Button 
             onClick={() => setShowAddDialog(true)}

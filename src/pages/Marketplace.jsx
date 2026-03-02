@@ -19,6 +19,7 @@ import { useImpersonation } from '../components/admin/ImpersonationContext';
 import JobApplicationForm from '../components/marketplace/JobApplicationForm';
 import ApplicationReadStatus from '../components/marketplace/ApplicationReadStatus';
 import SectionConsultantPanel from '../components/consulenze/SectionConsultantPanel';
+import SectionHeaderIcons from '../components/layout/SectionHeaderIcons';
 
 const CATEGORIES = [
   "Ricerca Personale",
@@ -227,11 +228,14 @@ export default function Marketplace() {
     <div className="min-h-screen bg-slate-900 pb-64">
       <main className="px-4 py-6 max-w-md mx-auto">
         <div className="mb-6">
-          <div className="flex items-center gap-3 mb-3">
-            <Link to={createPageUrl('Esplora?tab=strumenti')} className="text-lime-400 p-3 -m-3 rounded-full back-arrow-tap">
-              <ArrowLeft className="w-7 h-7" />
-            </Link>
-            <h1 className="text-white text-xl font-bold">Marketplace</h1>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-3">
+              <Link to={createPageUrl('Esplora?tab=strumenti')} className="text-lime-400 p-3 -m-3 rounded-full back-arrow-tap">
+                <ArrowLeft className="w-7 h-7" />
+              </Link>
+              <h1 className="text-white text-xl font-bold">Marketplace</h1>
+            </div>
+            <SectionHeaderIcons userEmail={user?.email} />
           </div>
           
           <Dialog open={showAddAd} onOpenChange={setShowAddAd}>
