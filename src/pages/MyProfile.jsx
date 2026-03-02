@@ -988,7 +988,7 @@ export default function MyProfile() {
          </div>
        )}
 
-        <Tabs defaultValue="profilo" className="w-full">
+        <Tabs defaultValue={(() => { const p = new URLSearchParams(window.location.search); return p.get('tab') || 'profilo'; })()} className="w-full">
           <TabsList className="w-full bg-slate-800 border border-slate-700 mb-4 grid grid-cols-2">
             <TabsTrigger value="profilo" className="data-[state=active]:bg-lime-400 data-[state=active]:text-slate-900">
               <User className="w-4 h-4 mr-1" />
