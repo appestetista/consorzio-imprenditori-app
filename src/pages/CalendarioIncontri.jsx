@@ -506,26 +506,26 @@ export default function CalendarioIncontri() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 pb-64">
-      <main className="px-4 py-6 max-w-md mx-auto" id="calendario-incontri">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <Link to={createPageUrl('Esplora?tab=strumenti')} className="text-lime-400 p-3 -m-3 rounded-full back-arrow-tap">
-              <ArrowLeft className="w-7 h-7" />
+    <div className="min-h-screen bg-slate-900 pb-64 overflow-x-hidden">
+      <main className="px-4 py-6 max-w-md mx-auto w-full" id="calendario-incontri">
+        <div className="flex items-center justify-between mb-6 gap-2">
+          <div className="flex items-center gap-2 min-w-0 flex-shrink">
+            <Link to={createPageUrl('Esplora?tab=strumenti')} className="text-lime-400 flex-shrink-0 p-2 -m-2 rounded-full back-arrow-tap">
+              <ArrowLeft className="w-6 h-6" />
             </Link>
-            <div className="w-10 h-10 rounded-full bg-lime-400 flex items-center justify-center">
-              <span className="text-slate-900 font-bold text-lg">{futureEventsCount}</span>
+            <div className="w-9 h-9 rounded-full bg-lime-400 flex items-center justify-center flex-shrink-0">
+              <span className="text-slate-900 font-bold text-base">{futureEventsCount}</span>
             </div>
-            <h1 className="text-white text-xl font-bold">Calendario Incontri</h1>
+            <h1 className="text-white text-lg font-bold truncate">Calendario Incontri</h1>
           </div>
           
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 flex-shrink-0">
             <SectionHeaderIcons userEmail={user?.email} unreadCount={messages.length} />
           {isAdmin && (
             <Dialog open={showAddEvent} onOpenChange={setShowAddEvent}>
               <DialogTrigger asChild>
-                <Button className="bg-lime-400 hover:bg-lime-500 text-slate-900">
-                  <Plus className="w-5 h-5 mr-1" />
+                <Button size="sm" className="bg-lime-400 hover:bg-lime-500 text-slate-900">
+                  <Plus className="w-4 h-4 mr-1" />
                   Nuovo
                 </Button>
               </DialogTrigger>
