@@ -479,7 +479,7 @@ Accedi all'app per visualizzare gli allegati e rispondere direttamente al client
             className={`flex-1 ${activeTab === 'analisi' ? 'bg-lime-400 text-slate-900 font-bold' : 'bg-lime-400/20 text-lime-400 border border-lime-400/40'}`}
           >
             <FileSearch className="w-4 h-4 mr-2" />
-            Analisi
+            Nuova Analisi
           </Button>
           <Button
             onClick={() => setActiveTab('storico')}
