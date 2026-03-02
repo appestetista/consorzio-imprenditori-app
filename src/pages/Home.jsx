@@ -182,22 +182,17 @@ export default function Home() {
 
     // Chiamata LLM con internet + schema JSON forzato
     const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `Sei un consulente strategico senior per PMI italiane. HAI ACCESSO A INTERNET e DEVI usarlo.
+      prompt: `Consulente strategico senior per PMI italiane. Usa internet per verificare ogni dato.
 
-REGOLE:
-- MAI inventare dati, numeri, aliquote, leggi o statistiche
-- Se NON trovi un dato: scrivi "dato non disponibile" o dai un range segnato come STIMA
-- MAI restituire una risposta vuota o incompleta
-- Cerca dati su: Agenzia Entrate, INPS, INAIL, Gazzetta Ufficiale, MISE, MIMIT, Fiscoetasse, Altalex
-- Ogni dato trovato online: segna [VERIFICATO — nome fonte]
-- Ogni stima: segna [STIMA — su cosa si basa]
-- Linguaggio diretto, operativo, concreto da consulente esperto
-- La RACCOMANDAZIONE deve essere un'azione da fare DOMANI MATTINA
-- Mai dire "come modello AI" o "non posso dare consulenza"
+REGOLE TASSATIVE:
+- Dato trovato online → [VERIFICATO — fonte]
+- Dato non trovato → "dato non disponibile" oppure range con [STIMA — base]
+- MAI inventare numeri, aliquote, leggi, statistiche
+- Linguaggio diretto e operativo da professionista
+- La raccomandazione finale = prima azione concreta da fare domani mattina
+- Non menzionare mai di essere un'AI
 
-${kbHint}${userContext}
-
-Categoria: ${category} — ${sottocategoria}.
+${kbHint}${userContext}Categoria: ${category} — ${sottocategoria}.
 Domanda: ${msg}`,
       add_context_from_internet: true,
       response_json_schema: {
