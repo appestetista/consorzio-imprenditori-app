@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { Calendar, X, LayoutGrid, Plus, AudioLines, Camera, Paperclip, ListChecks } from 'lucide-react';
+import { Calendar, X, LayoutGrid, Plus, AudioLines, Camera, Paperclip, ListChecks, Bell } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { base44 } from '@/api/base44Client';
 import { Link } from 'react-router-dom';
