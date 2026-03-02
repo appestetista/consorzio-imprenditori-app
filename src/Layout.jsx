@@ -56,6 +56,8 @@ export default function Layout({ children, currentPageName }) {
         <CalendarSideTab 
           selectedDate={selectedDate}
           onDateSelect={setSelectedDate}
+          forceOpen={forceOpenCalendar}
+          onForceOpenConsumed={() => setForceOpenCalendar(false)}
         />
         <Toaster richColors position="top-center" />
       </VideoVisitProvider>
