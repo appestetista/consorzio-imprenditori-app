@@ -21,7 +21,13 @@ import EventZoneManager from '../components/calendario/EventZoneManager';
 import useNotificationSound from '../components/hooks/useNotificationSound';
 import SectionHeaderIcons from '../components/layout/SectionHeaderIcons';
 
+const MONTH_COLORS = [
+  '#3b82f6', '#8b5cf6', '#ec4899', '#14b8a6', '#22c55e', '#eab308',
+  '#f97316', '#ef4444', '#06b6d4', '#a855f7', '#6366f1', '#0ea5e9',
+];
+
 export default function CalendarioIncontri() {
+  const currentMonthColor = MONTH_COLORS[new Date().getMonth()];
   const [user, setUser] = useState(null);
   const [showAddEvent, setShowAddEvent] = useState(false);
   const [showUserEventForm, setShowUserEventForm] = useState(false);
@@ -506,7 +512,7 @@ export default function CalendarioIncontri() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 pb-64 overflow-x-hidden">
+    <div className="min-h-screen pb-64 overflow-x-hidden" style={{ backgroundColor: `color-mix(in srgb, ${currentMonthColor} 10%, #0f172a)` }}>
       <main className="px-4 py-6 max-w-md mx-auto w-full" id="calendario-incontri">
         <div className="flex items-center justify-between mb-6 gap-2">
           <div className="flex items-center gap-2 min-w-0 flex-shrink">
@@ -1172,7 +1178,9 @@ export default function CalendarioIncontri() {
       </Dialog>
       )}
 
-      <BottomNavWithMenu currentPage="CalendarioIncontri" unreadMessages={messages.length} />
+      <div style={{ backgroundColor: `color-mix(in srgb, ${currentMonthColor} 10%, #0f172a)` }}>
+        <BottomNavWithMenu currentPage="CalendarioIncontri" unreadMessages={messages.length} />
+      </div>
 
       {/* Dialog per creare evento utente */}
       <Dialog open={showUserEventForm} onOpenChange={setShowUserEventForm}>

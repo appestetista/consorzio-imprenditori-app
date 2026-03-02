@@ -403,9 +403,10 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
                   <div 
                     className="relative w-11 h-11 rounded-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-200"
                     style={{
-                      background: 'linear-gradient(145deg, #f5d060, #c9a029)',
-                      boxShadow: '0 4px 12px rgba(212,175,55,0.45), 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -2px 4px rgba(0,0,0,0.15)',
-                      border: '1px solid rgba(255,235,150,0.3)'
+                      background: `linear-gradient(145deg, ${currentMonthColor}, color-mix(in srgb, ${currentMonthColor} 70%, #000))`,
+                      boxShadow: `0 4px 12px ${currentMonthColor}55, 0 2px 4px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -2px 4px rgba(0,0,0,0.15)`,
+                      border: '1px solid rgba(255,255,255,0.2)',
+                      transition: 'background 1.2s ease, box-shadow 1.2s ease'
                     }}
                   >
                     <Calendar className="w-5 h-5 text-slate-900" strokeWidth={2.5} />
