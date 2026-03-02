@@ -783,12 +783,12 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
         </div>
       </div>
 
-      {/* Pulsante CHIUDI VISIONE MENSILE — posizionato verticalmente accanto alla colonna ore */}
+      {/* Pulsante CHIUDI VISIONE MENSILE — posizionato verticalmente sul lato destro (Dicembre) */}
       {onBackToDaily && (
         <div 
           className="absolute z-30 flex items-center justify-center"
           style={{ 
-            left: '0px',
+            right: '0px',
             top: '0px',
             bottom: '0px',
             width: '70px',
