@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { TrendingUp, Loader2, CheckCircle, AlertTriangle, Package, MapPin, X } from 'lucide-react';
 import { useAILimits } from '@/components/hooks/useAILimits';
-import LimitReachedBanner from '@/components/common/LimitReachedBanner';
-import UsageCounter from '@/components/common/UsageCounter';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Card, CardContent } from '@/components/ui/card';
