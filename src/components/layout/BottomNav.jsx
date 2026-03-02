@@ -31,7 +31,7 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
           <div className="flex justify-center items-center gap-1">
             {navItems.map((item) => {
               const isActive = item.isMenu
-                  ? menuOpen
+                  ? currentPage === 'MyProfile'
                   : item.name === 'home'
                     ? currentPage === 'Home'
                     : item.name === 'qrcode'
