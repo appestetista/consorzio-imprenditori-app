@@ -99,10 +99,9 @@ export default function SimulazioneForm({ onSubmit, loading }) {
       {/* Step 1: Regime */}
       <div className="bg-[#0a2540] border border-[#1a3a5c] rounded-xl p-4 space-y-3">
         <p className="text-[#d4af37] text-xs font-bold uppercase tracking-wider">① Che tipo di azienda hai?</p>
-        <label className="text-slate-400 text-xs font-medium mb-1 block">Regime fiscale *</label>
         <Select value={form.regime} onValueChange={(v) => update('regime', v)}>
           <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
-            <SelectValue placeholder="Seleziona regime" />
+            <SelectValue placeholder="Seleziona regime fiscale" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="SRL">S.R.L.</SelectItem>
@@ -110,6 +109,15 @@ export default function SimulazioneForm({ onSubmit, loading }) {
             <SelectItem value="DittaOrdinaria">Ditta Individuale Ordinaria</SelectItem>
           </SelectContent>
         </Select>
+        <div>
+          <label className="text-slate-400 text-xs font-medium mb-1 block">Nome scenario (opzionale)</label>
+          <Input
+            placeholder="es. Scenario ottimistico 2026"
+            value={form.nome_scenario}
+            onChange={(e) => update('nome_scenario', e.target.value)}
+            className="bg-slate-800 border-slate-700 text-white"
+          />
+        </div>
       </div>
 
       {/* Step 2: Numeri */}
