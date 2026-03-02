@@ -150,9 +150,6 @@ export default function VantaggiPanelContent({ onClose }) {
     <div className="flex-1 flex flex-col overflow-hidden">
       {/* Header pannello */}
       <div className="flex items-center gap-3 px-4 pt-4 pb-3 border-b border-[#d4af37]/20">
-        <button onClick={onClose} className="text-[#d4af37] p-1">
-          <ChevronLeft className="w-6 h-6" />
-        </button>
         <Gift className="w-5 h-5 text-[#d4af37]" />
         <h1 className="text-white text-lg font-bold flex-1">Vantaggi Iscritti</h1>
       </div>
