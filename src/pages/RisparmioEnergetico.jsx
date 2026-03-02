@@ -85,25 +85,10 @@ export default function RisparmioEnergetico() {
             <Link to={createPageUrl('Esplora?tab=strumenti')} className="text-lime-400 p-3 -m-3 rounded-full back-arrow-tap">
               <ArrowLeft className="w-7 h-7" />
             </Link>
-            <h1 className="text-white text-xl font-bold">Risparmio</h1>
+            <h1 className="text-white text-xl font-bold">Risparmia con il Consorzio</h1>
           </div>
           <SectionHeaderIcons userEmail={user?.email} unreadCount={messages.length} />
         </div>
-
-        {/* Hero Card */}
-        <Card className="bg-gradient-to-br from-lime-400 to-green-500 border-0 mb-6">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
-                <Zap className="w-8 h-8 text-white" />
-              </div>
-              <div>
-                <h2 className="text-slate-900 text-xl font-bold">Risparmia con il Consorzio</h2>
-                <p className="text-slate-800">Servizi esclusivi per i membri del Consorzio</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Services - 3D Buttons */}
         <div className="grid grid-cols-2 gap-5 pt-4">
