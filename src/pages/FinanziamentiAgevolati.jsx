@@ -1193,81 +1193,59 @@ export default function FinanziamentiAgevolati() {
               </Link>
             )}
 
-            {/* 5. ESPLORA ALTRI BANDI — collassato di default */}
-            {!loadingMatch && matchedGrants.length > 0 && (
-              <div className="mb-6">
-                {/* Toggle */}
-                <button
-                  onClick={() => setShowAllGrants(!showAllGrants)}
-                  className="w-full flex items-center justify-between rounded-xl bg-slate-800/60 border border-slate-700/50 px-4 py-3 text-sm"
-                >
-                  <span className="text-slate-300">
-                    {showAllGrants ? 'Nascondi elenco' : `Esplora altri ${otherMatchedGrants.length} bandi compatibili`}
-                  </span>
-                  <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${showAllGrants ? 'rotate-180' : ''}`} />
-                </button>
-
-                {showAllGrants && (
-                  <div className="mt-3 space-y-3">
-                    {/* Filtri compatti */}
-                    <button
-                      onClick={() => setShowFiltersPanel(!showFiltersPanel)}
-                      className="flex items-center gap-2 text-xs text-slate-400 hover:text-slate-200 transition-colors"
-                    >
-                      <SlidersHorizontal className="w-3.5 h-3.5" />
-                      <span>Ordina e filtra</span>
-                    </button>
-                    {showFiltersPanel && (
-                      <GrantFilters filters={filters} onFilterChange={handleFilterChange} />
-                    )}
-
-                    {otherMatchedGrants.map((grant) => (
-                      <GrantCardCompact
-                        key={grant.id}
-                        grant={grant}
-                        onDetails={handleShowDetails}
-                      />
-                    ))}
-                  </div>
+            {/* 5. TUTTI I BANDI COMPATIBILI — uno sotto l'altro */}
+            {!loadingMatch && matchedGrants.length > 0 && otherMatchedGrants.length > 0 && (
+              <div className="mb-6 space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-slate-300 text-sm font-medium">
+                    Altri {otherMatchedGrants.length} bandi compatibili
+                  </p>
+                  <button
+                    onClick={() => setShowFiltersPanel(!showFiltersPanel)}
+                    className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 transition-colors"
+                  >
+                    <SlidersHorizontal className="w-3.5 h-3.5" />
+                    <span>Filtra</span>
+                  </button>
+                </div>
+                {showFiltersPanel && (
+                  <GrantFilters filters={filters} onFilterChange={handleFilterChange} />
                 )}
+                {otherMatchedGrants.map((grant) => (
+                  <GrantCardCompact
+                    key={grant.id}
+                    grant={grant}
+                    onDetails={handleShowDetails}
+                  />
+                ))}
               </div>
             )}
 
-            {/* 6. Se nessun match ma ci sono bandi → mostra elenco completo compatto */}
+            {/* 6. Se nessun match ma ci sono bandi → mostra elenco completo */}
             {!loadingMatch && matchedGrants.length === 0 && !hasIncompleteProfile && filteredGrants.length > 0 && (
-              <div className="mb-6">
-                <button
-                  onClick={() => setShowAllGrants(!showAllGrants)}
-                  className="w-full flex items-center justify-between rounded-xl bg-slate-800/60 border border-slate-700/50 px-4 py-3 text-sm mb-3"
-                >
-                  <span className="text-slate-300">
-                    {showAllGrants ? 'Nascondi elenco' : `Esplora tutti i ${filteredGrants.length} bandi disponibili`}
-                  </span>
-                  <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${showAllGrants ? 'rotate-180' : ''}`} />
-                </button>
-
-                {showAllGrants && (
-                  <div className="space-y-3">
-                    <button
-                      onClick={() => setShowFiltersPanel(!showFiltersPanel)}
-                      className="flex items-center gap-2 text-xs text-slate-400 hover:text-slate-200 transition-colors"
-                    >
-                      <SlidersHorizontal className="w-3.5 h-3.5" />
-                      <span>Ordina e filtra</span>
-                    </button>
-                    {showFiltersPanel && (
-                      <GrantFilters filters={filters} onFilterChange={handleFilterChange} />
-                    )}
-
-                    {sortedGrants.map((grant) => (
-                      <GrantCardCompact
-                        key={grant.id}
-                        grant={grant}
-                        onDetails={handleShowDetails}
-                      />
-                    ))}
-                  </div>
+              <div className="mb-6 space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-slate-300 text-sm font-medium">
+                    Tutti i {filteredGrants.length} bandi disponibili
+                  </p>
+                  <button
+                    onClick={() => setShowFiltersPanel(!showFiltersPanel)}
+                    className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 transition-colors"
+                  >
+                    <SlidersHorizontal className="w-3.5 h-3.5" />
+                    <span>Filtra</span>
+                  </button>
+                </div>
+                {showFiltersPanel && (
+                  <GrantFilters filters={filters} onFilterChange={handleFilterChange} />
                 )}
+                {sortedGrants.map((grant) => (
+                  <GrantCardCompact
+                    key={grant.id}
+                    grant={grant}
+                    onDetails={handleShowDetails}
+                  />
+                ))}
               </div>
             )}
 
