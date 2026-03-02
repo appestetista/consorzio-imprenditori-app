@@ -280,31 +280,41 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
       </button>
 
       {/* Linguetta CHIUDI - visibile solo quando il pannello è aperto, stessa posizione/dimensione della linguetta CALENDARIO */}
-      <button
-        onClick={() => {
-          setIsOpen(false);
-          setShowTimePicker(false);
-        }}
+      <div
         className={cn(
           "fixed right-0 z-[56] transition-all duration-300",
           "bg-gradient-to-l from-lime-400 to-lime-500 text-slate-900",
           "rounded-l-xl shadow-lg shadow-lime-400/20",
-          "flex items-center justify-center",
-          "hover:pr-2 active:scale-95",
+          "flex flex-col items-center",
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         )}
         style={{
           width: '42px',
           height: '140px',
-          writingMode: 'vertical-rl',
-          textOrientation: 'mixed',
           bottom: '0px',
           top: 'auto',
           transform: 'none'
         }}
       >
-        <span className="text-[13px] font-bold tracking-wider leading-none whitespace-nowrap">CHIUDI</span>
-      </button>
+        {/* Campanella in alto */}
+        <div className="flex-shrink-0 pt-2 pb-1">
+          <Bell className="w-5 h-5 text-slate-900" strokeWidth={2.5} />
+        </div>
+        {/* Pulsante CHIUDI sotto */}
+        <button
+          onClick={() => {
+            setIsOpen(false);
+            setShowTimePicker(false);
+          }}
+          className="flex-1 flex items-center justify-center hover:opacity-70 active:scale-95"
+          style={{
+            writingMode: 'vertical-rl',
+            textOrientation: 'mixed'
+          }}
+        >
+          <span className="text-[13px] font-bold tracking-wider leading-none whitespace-nowrap">CHIUDI</span>
+        </button>
+      </div>
 
       {/* Pannello calendario - scorre da destra a sinistra orizzontalmente */}
       <div
