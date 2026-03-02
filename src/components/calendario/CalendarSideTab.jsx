@@ -82,6 +82,18 @@ export default function CalendarSideTab({ selectedDate, onDateSelect, forceOpen,
     loadUser();
   }, []);
 
+  // Apri automaticamente il calendario quando forceOpen è true (ritorno da Incontri)
+  useEffect(() => {
+    if (forceOpen) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (onDateSelect) onDateSelect(today);
+      setIsOpen(true);
+      setShowTimePicker(true);
+      if (onForceOpenConsumed) onForceOpenConsumed();
+    }
+  }, [forceOpen]);
+
   // Query tutte le note dell'utente per conteggio mensile nella week view
   const weekViewYear = new Date().getFullYear(); // anno corrente come riferimento
   const { data: allUserNotes = [] } = useQuery({
