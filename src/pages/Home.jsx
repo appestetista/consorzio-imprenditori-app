@@ -845,7 +845,7 @@ Scenario B: ${b}`,
       />
 
       {/* Bottom Nav */}
-      <BottomNav currentPage="Home" onMenuOpen={() => window.location.href = createPageUrl('MyProfile')} menuOpen={false} />
+      <BottomNav currentPage="Home" onMenuOpen={() => window.location.href = createPageUrl('MyProfile')} menuOpen={false} bgColor="#0a0f1a" />
 
       {/* Missing Profile Data Modal */}
       {missingFieldsPopup && (
