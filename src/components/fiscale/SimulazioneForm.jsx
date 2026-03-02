@@ -140,7 +140,6 @@ export default function SimulazioneForm({ onSubmit, loading }) {
         </div>
       )}
       </div>
-      </div>
 
       {/* Campi specifici Forfettario */}
       {form.regime === 'Forfettario' && (
