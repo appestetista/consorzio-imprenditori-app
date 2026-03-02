@@ -63,9 +63,11 @@ export function getMissingFields(user, category, message) {
   });
 }
 
-export default function MissingProfileDataModal({ fields, onComplete, onSkip }) {
+export default function MissingProfileDataModal({ fields, onComplete, onSkip, existingUserData }) {
   const [form, setForm] = useState({});
   const [saving, setSaving] = useState(false);
+  const [confirmField, setConfirmField] = useState(null); // campo in attesa di conferma
+  const [pendingValue, setPendingValue] = useState('');
 
   useEffect(() => {
     // Inizializza form vuoto per i campi richiesti
@@ -76,11 +78,44 @@ export default function MissingProfileDataModal({ fields, onComplete, onSkip }) 
 
   const allFilled = fields.every(f => form[f] && form[f].trim() !== '');
 
+  const handleFieldChange = (fieldName, newValue) => {
+    // Se il campo ha già un valore nel profilo e l'utente lo sta cambiando, chiedi conferma
+    const existingVal = existingUserData?.[fieldName] || existingUserData?._originalData?.[fieldName];
+    if (existingVal && existingVal.trim() !== '' && newValue !== existingVal) {
+      setConfirmField(fieldName);
+      setPendingValue(newValue);
+      return;
+    }
+    setForm(prev => ({ ...prev, [fieldName]: newValue }));
+  };
+
+  const confirmChange = () => {
+    if (confirmField) {
+      setForm(prev => ({ ...prev, [confirmField]: pendingValue }));
+    }
+    setConfirmField(null);
+    setPendingValue('');
+  };
+
+  const cancelChange = () => {
+    setConfirmField(null);
+    setPendingValue('');
+  };
+
   const handleSave = async () => {
     setSaving(true);
-    await base44.auth.updateMe(form);
+    // Salva solo i campi effettivamente compilati (non sovrascrive con stringa vuota)
+    const dataToSave = {};
+    for (const [key, val] of Object.entries(form)) {
+      if (val && val.trim() !== '') {
+        dataToSave[key] = val;
+      }
+    }
+    if (Object.keys(dataToSave).length > 0) {
+      await base44.auth.updateMe(dataToSave);
+    }
     setSaving(false);
-    onComplete(form);
+    onComplete(dataToSave);
   };
 
   return (
