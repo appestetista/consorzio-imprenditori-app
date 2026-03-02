@@ -314,7 +314,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
           isOpen ? "translate-x-0" : "translate-x-full",
           "z-[55]"
         )}
-        style={{ display: 'flex', flexDirection: 'column', marginRight: '42px' }}
+        style={{ display: 'flex', flexDirection: 'column' }}
       >
         {/* VerticalTimePicker - occupa lo spazio sopra il calendario */}
         {showTimePicker && selectedDate && (
