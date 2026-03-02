@@ -4,7 +4,7 @@ import { createPageUrl } from '@/utils';
 import { Wrench, Home, UserRound } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export default function BottomNav({ currentPage, unreadMessages = 0, activeTab = null, isAdmin = false, onMenuOpen, menuOpen = false, hideBackground = false }) {
+export default function BottomNav({ currentPage, unreadMessages = 0, activeTab = null, isAdmin = false, onMenuOpen, menuOpen = false, hideBackground = false, bgColor = null }) {
   const navItems = [
     { name: 'home', label: 'Home', icon: Home, page: 'Home', tab: null },
     { name: 'strumenti', label: 'Strumenti', icon: Wrench, page: 'Esplora?tab=strumenti', tab: 'strumenti' },
