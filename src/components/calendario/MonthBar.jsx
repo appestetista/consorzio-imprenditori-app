@@ -9,7 +9,7 @@ const MONTH_COLORS = [
 export default function MonthBar({ currentMonth, onSelectMonth, focusedMonth }) {
   const hasFocus = focusedMonth !== null && focusedMonth !== undefined;
   return (
-    <div className="flex items-center gap-0 pl-3 pr-0 py-1 w-full">
+    <div className="flex items-center gap-0 pl-2 pr-0 py-0.5 w-full">
       {MONTHS_SHORT.map((mName, mIdx) => {
         const isCurrent = mIdx === Number(currentMonth);
         const isFocusedMonth = hasFocus && mIdx === focusedMonth;
@@ -19,10 +19,10 @@ export default function MonthBar({ currentMonth, onSelectMonth, focusedMonth }) 
           <button
             key={mIdx}
             onClick={() => onSelectMonth(mIdx)}
-            className="flex-1 flex items-center justify-center py-1 rounded transition-all touch-manipulation active:scale-90 select-none"
+            className="flex-1 flex items-center justify-center py-0.5 rounded transition-all touch-manipulation active:scale-90 select-none"
             style={{
               backgroundColor: isFocusedMonth ? mColor : (isCurrent && !hasFocus ? mColor : 'transparent'),
-              minHeight: '28px',
+              minHeight: '24px',
               opacity: isDimmedMonth ? 0.15 : 1,
               transition: 'all 0.4s ease',
             }}

@@ -633,24 +633,6 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
         {/* HEADER GIORNI SETTIMANA */}
         <div className="flex flex-shrink-0 border-b border-slate-700/50">
           <div className="flex-shrink-0 flex items-center justify-center" style={{ width: '70px', paddingLeft: '4px', paddingRight: '4px', borderRight: '2px solid rgba(100,116,139,0.6)' }}>
-            {onBackToDaily && (
-              <button
-                onClick={() => {
-                  // Passa la data del giorno evidenziato se presente
-                  if (highlightedDay) {
-                    const hlDate = new Date(highlightedDay.year, highlightedDay.month, highlightedDay.day);
-                    hlDate.setHours(0,0,0,0);
-                    onBackToDaily(hlDate);
-                  } else {
-                    onBackToDaily(null);
-                  }
-                }}
-                className="w-7 h-7 rounded-lg flex items-center justify-center touch-manipulation active:scale-90 transition-all"
-                style={{ backgroundColor: '#a3e635', boxShadow: '0 0 10px rgba(163,230,53,0.5)' }}
-              >
-                <X className="w-3.5 h-3.5 text-slate-900" strokeWidth={3} />
-              </button>
-            )}
           </div>
           <div className="flex flex-1">
             {weekDays.map((day, i) => {
@@ -800,6 +782,32 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
           })}
         </div>
       </div>
+
+      {/* Pulsante CHIUDI VISIONE MENSILE in basso, orientamento orizzontale (non ruotato) */}
+      {onBackToDaily && (
+        <div className="flex-shrink-0 flex items-center justify-center py-2 px-4">
+          <button
+            onClick={() => {
+              if (highlightedDay) {
+                const hlDate = new Date(highlightedDay.year, highlightedDay.month, highlightedDay.day);
+                hlDate.setHours(0,0,0,0);
+                onBackToDaily(hlDate);
+              } else {
+                onBackToDaily(null);
+              }
+            }}
+            className="w-full py-2.5 rounded-xl bg-white text-slate-900 font-bold text-sm tracking-wide touch-manipulation active:scale-95 transition-all shadow-lg"
+            style={{
+              writingMode: 'horizontal-tb',
+              transform: 'rotate(-90deg)',
+              transformOrigin: 'center center',
+              maxWidth: '280px'
+            }}
+          >
+            Chiudi Visione Mensile
+          </button>
+        </div>
+      )}
 
       {/* Menu opzioni slot */}
       {slotMenuPos && (
