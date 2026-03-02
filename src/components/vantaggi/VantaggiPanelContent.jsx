@@ -159,17 +159,17 @@ export default function VantaggiPanelContent({ onClose }) {
 
       {/* Contenuto scrollabile */}
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
-        {/* QR + Prenotazioni */}
-        <div className="grid grid-cols-2 gap-3">
-          <Link to={createPageUrl('MioQRCode')} onClick={onClose} className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl border-2 border-[#d4af37]/40 bg-[#d4af37]/5 hover:bg-[#d4af37]/15 transition-all active:scale-95">
-            <QrCode className="w-10 h-10 text-[#d4af37]" />
-            <span className="text-[#d4af37] text-xs font-bold">Il Mio QR Code</span>
-          </Link>
-          <Link to={createPageUrl('MiePrenotazioniVantaggi')} onClick={onClose} className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl border-2 border-amber-400/40 bg-amber-400/5 hover:bg-amber-400/15 transition-all active:scale-95">
-            <Gift className="w-10 h-10 text-amber-400" />
-            <span className="text-amber-400 text-xs font-bold">Prenotazioni</span>
-          </Link>
-        </div>
+        {/* Il mio QR Code inline */}
+        {user && <InlineMyQRCode user={user} />}
+
+        {/* Scanner QR inline */}
+        {user && <InlineQRScanner user={user} />}
+
+        {/* Prenotazioni link */}
+        <Link to={createPageUrl('MiePrenotazioniVantaggi')} onClick={onClose} className="flex items-center justify-center gap-2 p-3 rounded-xl border-2 border-amber-400/40 bg-amber-400/5 hover:bg-amber-400/15 transition-all active:scale-95">
+          <Gift className="w-5 h-5 text-amber-400" />
+          <span className="text-amber-400 text-sm font-bold">Le Mie Prenotazioni</span>
+        </Link>
 
         {/* Crea vantaggio */}
         <Button onClick={() => setShowCreatePanel(true)} className="w-full bg-[#d4af37] hover:bg-[#b8860b] text-black font-bold h-11 text-sm rounded-b-none">
