@@ -872,7 +872,7 @@ Rispondi SOLO con JSON valido con le chiavi: tema, scenari (array di 2 oggetti c
       <div className={cn(
         "fixed inset-x-0 top-0 z-50 transition-all duration-300",
         menuOpen ? "visible" : "invisible"
-      )} style={{ bottom: '160px' }}>
+      )} style={{ bottom: '200px' }}>
         <div 
           className={cn(
             "absolute inset-0 bg-black/50 transition-opacity",
