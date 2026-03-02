@@ -1,22 +1,12 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { createPageUrl } from '@/utils';
+import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
+import VantaggiPanelContent from './VantaggiPanelContent';
 
 export default function VantaggiSideTab() {
   const [isOpen, setIsOpen] = useState(false);
-  const navigate = useNavigate();
 
   const togglePanel = () => {
-    if (!isOpen) {
-      setIsOpen(true);
-      // Naviga alla pagina VantaggiIscritti dentro l'iframe/pannello
-      navigate(createPageUrl('VantaggiIscritti'));
-    } else {
-      setIsOpen(false);
-      // Torna alla pagina precedente (Home)
-      navigate(-1);
-    }
+    setIsOpen(prev => !prev);
   };
 
   return (
@@ -30,6 +20,7 @@ export default function VantaggiSideTab() {
           "rounded-r-xl shadow-lg shadow-[#d4af37]/20",
           "flex items-center justify-center",
           "hover:pl-2 active:scale-95",
+          isOpen ? "opacity-0 pointer-events-none" : "opacity-100"
         )}
         style={{
           width: '42px',
@@ -42,6 +33,19 @@ export default function VantaggiSideTab() {
       >
         <span className="text-[13px] font-bold tracking-wider leading-none whitespace-nowrap" style={{ transform: 'rotate(180deg)' }}>VANTAGGI</span>
       </button>
+
+      {/* Pannello Vantaggi - scorre da sinistra a destra (speculare al calendario) */}
+      <div
+        className={cn(
+          "fixed inset-0 transition-transform duration-[800ms] ease-[cubic-bezier(0.25,0.1,0.25,1)]",
+          "bg-slate-900 shadow-2xl",
+          isOpen ? "translate-x-0" : "-translate-x-full",
+          "z-[55]"
+        )}
+        style={{ display: 'flex', flexDirection: 'column' }}
+      >
+        <VantaggiPanelContent onClose={() => setIsOpen(false)} />
+      </div>
     </>
   );
 }
