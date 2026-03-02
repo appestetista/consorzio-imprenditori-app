@@ -1327,6 +1327,9 @@ export default function MyProfile() {
 
         <ExportProfileSection formData={formData} setFormData={setFormData} />
 
+        {/* Profilo Bandi per matching */}
+        <ProfiloBandiForm user={user} onSaved={() => toast.success('Profilo bandi aggiornato!')} />
+
         {/* Profilo Aziendale (ex ProfiloUtente) */}
         <Card className="bg-slate-800 border-slate-700 mb-4">
           <CardHeader>
