@@ -566,8 +566,8 @@ export default function Imprenditori() {
   return (
     <div className="min-h-screen bg-slate-900 pb-64">
       <main className="px-4 py-6 max-w-md mx-auto">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
+        <div className="mb-4">
+          <div className="flex items-center gap-3 mb-3">
             <button onClick={() => navigate(createPageUrl('Esplora?tab=strumenti'))} className="text-lime-400 p-3 -m-3 rounded-full back-arrow-tap">
               <ArrowLeft className="w-7 h-7" />
             </button>
@@ -575,10 +575,9 @@ export default function Imprenditori() {
           </div>
           <Button 
             onClick={() => setShowAddDialog(true)}
-            className="bg-lime-400 text-slate-900 hover:bg-lime-500 animate-pulse"
-            size="sm"
+            className="w-full bg-lime-400 text-slate-900 hover:bg-lime-500 animate-pulse h-11 text-sm font-semibold"
           >
-            <Plus className="w-4 h-4 mr-1" /> Nuovo
+            <Plus className="w-4 h-4 mr-1" /> Nuova decisione da prendere
           </Button>
         </div>
 
