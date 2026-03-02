@@ -521,7 +521,7 @@ export default function CalendarioIncontri() {
           
           <div className="flex items-center gap-1">
             <SectionHeaderIcons userEmail={user?.email} unreadCount={messages.length} />
-          {isAdmin ? (
+          {isAdmin && (
             <Dialog open={showAddEvent} onOpenChange={setShowAddEvent}>
               <DialogTrigger asChild>
                 <Button className="bg-lime-400 hover:bg-lime-500 text-slate-900">
