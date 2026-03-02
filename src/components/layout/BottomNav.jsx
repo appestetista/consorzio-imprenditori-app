@@ -21,7 +21,7 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
               left: '-50px',
               right: '-50px',
               top: '-10px',
-              background: '#001d3b',
+              background: bgColor || '#001d3b',
               pointerEvents: 'none'
             }} 
           />
