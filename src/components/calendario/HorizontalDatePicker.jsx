@@ -480,8 +480,11 @@ export default function HorizontalDatePicker({ selectedDate, onDateSelect, onGoT
         }}
       />
 
-      {/* Fascia cartelle scrollabile */}
+      {/* Fascia cartelle scrollabile + pulsante Incontri */}
       <div className="flex items-center gap-2 px-2 pt-1 pb-2 overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        {/* Pulsante Incontri - allineato con le cartelle */}
+        {incontriButton}
+        
         {/* Pulsante nuova cartella */}
         <button 
           onClick={() => setShowNewFolderPopup(true)}
