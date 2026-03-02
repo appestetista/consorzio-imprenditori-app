@@ -323,7 +323,20 @@ export default function CalendarSideTab({ selectedDate, onDateSelect }) {
               </span>
             }
             monthLabelButton={
-              <div className="flex items-start gap-1" style={{ width: '100px', justifyContent: 'flex-end' }}>
+              <div className="flex items-start gap-1" style={{ width: '140px', justifyContent: 'flex-end' }}>
+                <Link 
+                  to={createPageUrl('CalendarioIncontri')}
+                  className="flex flex-col items-center gap-0.5 mr-2"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div 
+                    className="w-7 h-7 rounded-full flex items-center justify-center"
+                    style={{ backgroundColor: currentMonthColor }}
+                  >
+                    <Calendar className="w-4 h-4 text-slate-900" />
+                  </div>
+                  <span className="text-[8px] font-semibold" style={{ color: currentMonthColor }}>Incontri</span>
+                </Link>
                 {selectedDate ? (
                   <span 
                     className="px-2 py-0.5 rounded text-[10px] font-semibold"
