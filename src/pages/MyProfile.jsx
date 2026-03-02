@@ -793,6 +793,17 @@ export default function MyProfile() {
   const { impersonation, setCurrentUserRole, appMode, stopImpersonation } = useImpersonation();
 
   useEffect(() => {
+    // Auto-scroll alla sezione bandi se richiesto via URL
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('scrollTo') === 'bandi') {
+      setTimeout(() => {
+        const el = document.getElementById('profilo-bandi-section');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 500);
+    }
+  }, []);
+
+  useEffect(() => {
     const loadUser = async () => {
       try {
         const currentUser = await base44.auth.me();
