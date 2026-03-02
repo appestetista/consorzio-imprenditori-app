@@ -966,8 +966,13 @@ export default function MyProfile() {
   }
 
   return (
-   <div className="min-h-screen bg-slate-900 pb-64">
-     <main className="px-4 py-6 max-w-2xl mx-auto">
+   <div className="min-h-screen bg-slate-900 pb-64" style={{ backgroundColor: '#001d3b' }}>
+     {/* Top bar con icone notifiche/messaggi */}
+     <div className="flex items-center justify-end px-4 pt-3 pb-1">
+       <TopRightIcons userEmail={user?.email} userRegime={user?.regime_fiscale} />
+     </div>
+
+     <main className="px-4 py-2 max-w-2xl mx-auto">
        {impersonation.active && (
          <div className="flex items-center gap-3 mb-4 pt-2">
            <button
