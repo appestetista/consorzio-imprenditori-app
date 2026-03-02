@@ -182,8 +182,6 @@ export default function VantaggiPanelContent({ onClose }) {
           </div>
         )}
 
-        <VantaggiExamplesCollapsible />
-
         {/* Filtro */}
         <VantaggiCategoryFilter selected={selectedCategory} onSelect={setSelectedCategory} vantaggi={vantaggi} />
 
@@ -193,13 +191,7 @@ export default function VantaggiPanelContent({ onClose }) {
         ) : (() => {
           const filtered = vantaggi.filter(v => !selectedCategory || v.categoria_vantaggio === selectedCategory);
           return filtered.length === 0 ? (
-            <Card className="bg-slate-800 border-slate-700">
-              <CardContent className="p-8 text-center">
-                <Gift className="w-16 h-16 text-slate-600 mx-auto mb-4" />
-                <p className="text-slate-400">{selectedCategory ? `Nessun vantaggio in "${selectedCategory}"` : 'Nessun vantaggio disponibile'}</p>
-                {selectedCategory && <Button variant="ghost" size="sm" className="text-[#d4af37] mt-2" onClick={() => setSelectedCategory(null)}>Mostra tutti</Button>}
-              </CardContent>
-            </Card>
+            <div className="py-4" />
           ) : (
             <div className="grid gap-4 pb-4">
               {filtered.map((vantaggio) => {
