@@ -35,7 +35,7 @@ const MONTH_COLORS = [
   '#0ea5e9', // Dicembre - sky
 ];
 
-export default function CalendarSideTab({ selectedDate, onDateSelect }) {
+export default function CalendarSideTab({ selectedDate, onDateSelect, forceOpen, onForceOpenConsumed }) {
     const [isOpen, setIsOpen] = useState(false);
     const [showTimePicker, setShowTimePicker] = useState(false);
     const [showFatturato, setShowFatturato] = useState(false);
