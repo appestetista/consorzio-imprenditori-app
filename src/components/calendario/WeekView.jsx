@@ -805,7 +805,7 @@ export default function WeekView({ selectedDate, monthColor, onMonthColorChange,
                 onBackToDaily(null);
               }
             }}
-            className="py-2 px-4 rounded-xl bg-white text-slate-900 font-bold text-xs tracking-wide touch-manipulation active:scale-95 transition-all shadow-lg whitespace-nowrap"
+            className="h-8 px-4 rounded-md bg-white text-black font-bold text-[12px] uppercase tracking-wide touch-manipulation active:scale-95 transition-all shadow-lg whitespace-nowrap flex items-center justify-center"
             style={{ transform: 'rotate(-90deg)', transformOrigin: 'center center', pointerEvents: 'auto' }}
           >
             Chiudi Visione Mensile
