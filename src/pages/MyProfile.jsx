@@ -967,8 +967,8 @@ export default function MyProfile() {
   return (
    <div className="min-h-screen bg-slate-900 pb-64">
      <main className="px-4 py-6 max-w-2xl mx-auto">
-       <div className="flex items-center gap-3 mb-6 pt-2">
-         {impersonation.active ? (
+       {impersonation.active && (
+         <div className="flex items-center gap-3 mb-4 pt-2">
            <button
              onClick={() => {
                stopImpersonation();
@@ -978,21 +978,9 @@ export default function MyProfile() {
            >
              <ArrowLeft className="w-6 h-6" />
            </button>
-         ) : (
-           <Link to={createPageUrl('Home')} className="text-slate-400 hover:text-white transition-colors back-arrow-tap">
-             <ArrowLeft className="w-6 h-6" />
-           </Link>
-         )}
-         {/* Logo del consulente se presente */}
-         {consultantData?.logo_url && (
-           <img 
-             src={consultantData.logo_url} 
-             alt="Logo" 
-             className="w-10 h-10 object-contain rounded-lg bg-slate-800 border border-slate-700"
-           />
-         )}
-         <h1 className="text-white text-xl font-bold">Il Mio Profilo</h1>
-       </div>
+           <span className="text-slate-400 text-sm">Torna all'Admin</span>
+         </div>
+       )}
 
         <Tabs defaultValue="profilo" className="w-full">
           <TabsList className="w-full bg-slate-800 border border-slate-700 mb-4 grid grid-cols-2">
