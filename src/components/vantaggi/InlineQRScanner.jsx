@@ -14,7 +14,7 @@ export default function InlineQRScanner({ user }) {
   const [searchResult, setSearchResult] = useState(null);
   const [searching, setSearching] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState({ open: false, prenotazione: null, vantaggio: null });
-  const [scannerActive, setScannerActive] = useState(false);
+  const [scannerActive, setScannerActive] = useState(true);
   const scannerRef = useRef(null);
   const queryClient = useQueryClient();
 
@@ -121,26 +121,24 @@ export default function InlineQRScanner({ user }) {
     <div className="bg-slate-800 border border-[#d4af37]/30 rounded-xl p-4">
       <div className="flex items-center gap-2 mb-3">
         <ScanLine className="w-5 h-5 text-[#d4af37]" />
-        <h3 className="text-white font-bold text-sm">Scanner QR Vantaggi</h3>
+        <h3 className="text-white font-bold text-sm">Scansiona il QR code di chi ti sta venendo a prenotare un vantaggio</h3>
       </div>
 
-      <p className="text-slate-400 text-xs mb-3">Scansiona il QR code di un utente per validare un vantaggio.</p>
-
-      {/* Scanner fotocamera */}
-      {scannerActive ? (
-        <div className="mb-3">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[#d4af37] text-xs font-medium flex items-center gap-1"><ScanLine className="w-3 h-3 animate-pulse" />Scansione...</span>
-            <button onClick={closeScanner} className="text-slate-400 hover:text-white"><X className="w-4 h-4" /></button>
+      {/* Scanner fotocamera - sempre aperto */}
+      <div className="mb-3">
+        {scannerActive && (
+          <>
+            <div id="qr-reader-inline" className="rounded-lg overflow-hidden" />
+            <p className="text-slate-500 text-[10px] text-center mt-2">Inquadra il QR code</p>
+          </>
+        )}
+        {!scannerActive && (
+          <div className="bg-slate-700 rounded-lg p-6 flex flex-col items-center justify-center">
+            <Camera className="w-8 h-8 text-slate-500 mb-2" />
+            <p className="text-slate-400 text-xs">Caricamento fotocamera...</p>
           </div>
-          <div id="qr-reader-inline" className="rounded-lg overflow-hidden" />
-          <p className="text-slate-500 text-[10px] text-center mt-2">Inquadra il QR code</p>
-        </div>
-      ) : (
-        <Button onClick={() => setScannerActive(true)} className="w-full bg-[#d4af37] hover:bg-[#b8860b] text-slate-900 font-bold h-10 mb-3 text-sm">
-          <Camera className="w-5 h-5 mr-2" />Apri Fotocamera
-        </Button>
-      )}
+        )}
+      </div>
 
       {/* Divider */}
       <div className="flex items-center gap-2 mb-3">
