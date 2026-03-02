@@ -20,8 +20,8 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
             style={{ 
               left: '-50px',
               right: '-50px',
-              top: '-10px',
-              background: bgColor || '#001d3b',
+              top: '-40px',
+              background: `linear-gradient(to bottom, transparent 0%, ${bgColor || '#001d3b'} 35%)`,
               pointerEvents: 'none'
             }} 
           />
