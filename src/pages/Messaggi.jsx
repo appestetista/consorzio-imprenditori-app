@@ -688,7 +688,7 @@ export default function Messaggi() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 pb-24">
+    <div className="min-h-screen bg-slate-900 pb-64">
       {/* Header semplificato con Home a sinistra e icona messaggi a destra */}
       <div className="sticky top-0 z-30 px-4 py-3 flex items-center justify-between bg-slate-900 border-b border-slate-800">
         <Link to={createPageUrl('Home')} className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center">

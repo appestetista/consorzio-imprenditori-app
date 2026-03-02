@@ -55,7 +55,7 @@ export default function ImportExport() {
   const isImport = activeTab === 'import';
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 pb-24">
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 pb-64">
       <Header user={user} />
 
       <main className="px-4 py-6 max-w-md mx-auto">

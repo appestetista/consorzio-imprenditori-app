@@ -66,7 +66,7 @@ export default function ContattaMembri() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 pb-24">
+    <div className="min-h-screen bg-slate-900 pb-64">
       <Header user={user} />
       
       <main className="px-4 py-6 max-w-md mx-auto">

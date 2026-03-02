@@ -98,7 +98,7 @@ export default function Pricing() {
   }
 
   return (
-    <div className="min-h-screen pb-12" style={{ backgroundColor: '#0a0f1a' }}>
+    <div className="min-h-screen pb-64" style={{ backgroundColor: '#0a0f1a' }}>
       {/* Top nav */}
       <div className="px-4 pt-4 pb-2">
         <Link to={createPageUrl('Home')} className="inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-white transition-colors">
