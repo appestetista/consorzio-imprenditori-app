@@ -26,7 +26,7 @@ import BandoStats from '../components/admin/BandoStats';
 import BandoForm from '../components/admin/BandoForm';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import SectionConsultantPanel from '../components/consulenze/SectionConsultantPanel';
-import SectionHeaderIcons from '../components/layout/SectionHeaderIcons';
+import GlobalTopIcons from '../components/layout/GlobalTopIcons';
 
 export default function FinanziamentiAgevolati() {
   const [user, setUser] = useState(() => {
@@ -831,7 +831,7 @@ export default function FinanziamentiAgevolati() {
             </Link>
             <h1 className="text-white text-lg font-bold">Bandi e Agevolazioni</h1>
           </div>
-          <SectionHeaderIcons userEmail={user?.email} unreadCount={messages.length} />
+          <GlobalTopIcons userEmail={user?.email} />
         </div>
 
         {/* SEZIONE ADMIN: Gestione Bandi */}

@@ -14,7 +14,7 @@ import ConfrontoPrelievoSRL from '../components/fiscale/ConfrontoPrelievoSRL';
 import MultiScenarioCompenso from '../components/fiscale/MultiScenarioCompenso';
 import GestioneAliquoteIRAP from '../components/fiscale/GestioneAliquoteIRAP';
 import AnalisiBilancio from '../components/fiscale/AnalisiBilancio';
-import SectionHeaderIcons from '../components/layout/SectionHeaderIcons';
+import GlobalTopIcons from '../components/layout/GlobalTopIcons';
 
 export default function SimulatoreFiscale() {
   const [effectiveUser, setEffectiveUser] = useState(null);
@@ -74,7 +74,7 @@ export default function SimulatoreFiscale() {
               <h1 className="text-white text-xl font-bold">Simulatore Fiscale</h1>
             </div>
           </div>
-          <SectionHeaderIcons userEmail={effectiveUser?.email} />
+          <GlobalTopIcons userEmail={effectiveUser?.email} />
         </div>
 
         {/* Tabs */}

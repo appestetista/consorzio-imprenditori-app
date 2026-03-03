@@ -12,7 +12,7 @@ import WorldMapExplorer from '@/components/import-export/WorldMapExplorer';
 import ExportSection from '@/components/import-export/ExportSection';
 import ImportSection from '@/components/import-export/ImportSection';
 import ContactExportManagerPopup from '@/components/import-export/ContactExportManagerPopup';
-import SectionHeaderIcons from '../components/layout/SectionHeaderIcons';
+import GlobalTopIcons from '../components/layout/GlobalTopIcons';
 import { useAILimits } from '@/components/hooks/useAILimits';
 import UsageCounter from '@/components/common/UsageCounter';
 import LimitReachedBanner from '@/components/common/LimitReachedBanner';
@@ -75,7 +75,7 @@ export default function ImportExport() {
               {isExport || activeTab === 'history' ? 'Export' : 'Import'}
             </h1>
           </div>
-          <SectionHeaderIcons userEmail={user?.email} unreadCount={messages.length} />
+          <GlobalTopIcons userEmail={user?.email} />
         </div>
 
         {/* Tab Switch - Export / Import */}

@@ -19,7 +19,7 @@ import ContractMessagesSection from '@/components/analisi-contratti/ContractMess
 import SectionConsultantPanel from '../components/consulenze/SectionConsultantPanel';
 import ContractHistorySection from '@/components/profile/ContractHistorySection';
 import PremiumAIGate from '@/components/common/PremiumAIGate';
-import SectionHeaderIcons from '../components/layout/SectionHeaderIcons';
+import GlobalTopIcons from '../components/layout/GlobalTopIcons';
 
 export default function AnalisiContratti() {
   const [user, setUser] = useState(null);
@@ -469,7 +469,7 @@ Accedi all'app per visualizzare gli allegati e rispondere direttamente al client
             </Link>
             <h1 className="text-white text-xl font-bold">Analisi Contratti AI</h1>
           </div>
-          <SectionHeaderIcons userEmail={user?.email} unreadCount={messages.length} />
+          <GlobalTopIcons userEmail={user?.email} />
         </div>
 
         {/* Tab Switch */}

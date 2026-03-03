@@ -12,7 +12,7 @@ import SimulatoreAmministratore from '@/components/costo-personale/SimulatoreAmm
 import SimulatoreSocioLavoratore from '@/components/costo-personale/SimulatoreSocioLavoratore';
 import SimulatoreGestioneSeparata from '@/components/costo-personale/SimulatoreGestioneSeparata';
 import StoricoCalcoli from '@/components/costo-personale/StoricoCalcoli';
-import SectionHeaderIcons from '../components/layout/SectionHeaderIcons';
+import GlobalTopIcons from '../components/layout/GlobalTopIcons';
 
 export default function SimulatoreCostoPersonale() {
   const [user, setUser] = useState(null);
@@ -32,7 +32,7 @@ export default function SimulatoreCostoPersonale() {
             </Link>
             <h1 className="text-white text-xl font-bold">Simulatore di Costo</h1>
           </div>
-          <SectionHeaderIcons userEmail={user?.email} />
+          <GlobalTopIcons userEmail={user?.email} />
         </div>
 
         <Tabs defaultValue="dipendente" className="w-full">

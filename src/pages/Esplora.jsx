@@ -18,7 +18,7 @@ import ProfileCompletionModal from '@/components/profile/ProfileCompletionModal'
 import { normalizeUser, isUserConsultant, getUserPermissions } from '../components/utils/normalizeUser';
 import SoundPermissionPopup from '../components/notifications/SoundPermissionPopup';
 import ImpersonationDialog from '../components/admin/ImpersonationDialog';
-import TopRightIcons from '../components/layout/TopRightIcons';
+import GlobalTopIcons from '../components/layout/GlobalTopIcons';
 import { cn } from '@/lib/utils';
 
 export default function Esplora() {
@@ -460,7 +460,7 @@ export default function Esplora() {
     <div className="min-h-screen pb-72" style={{ backgroundColor: '#001d3b' }}>
       {/* Top bar con icone */}
       <div className="flex items-center justify-end px-4 pt-3 pb-1">
-        <TopRightIcons userEmail={effectiveUser?.email} userRegime={effectiveUser?.regime_fiscale} />
+        <GlobalTopIcons userEmail={effectiveUser?.email} userRegime={effectiveUser?.regime_fiscale} />
       </div>
 
       {/* Menu Panel rimosso - il pulsante Menu naviga direttamente a MyProfile */}
