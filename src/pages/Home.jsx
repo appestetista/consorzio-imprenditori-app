@@ -568,9 +568,7 @@ Scenario B: ${b}`,
     setInputText('');
   };
 
-  // Badge notifiche + scadenze urgenti
   const userRegime = effectiveUser?.regime_fiscale || null;
-  const { totalBadge, unreadMessageCount: unreadCount } = useNotificationsBadge(effectiveUser?.email, userRegime);
 
   // Logo utente
   const DEFAULT_LOGO = "https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=100&h=100&fit=crop";
