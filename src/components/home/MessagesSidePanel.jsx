@@ -50,7 +50,7 @@ export default function MessagesSidePanel({ open, onClose, userEmail }) {
       {/* Backdrop scuro — NON chiude al click, si chiude solo con la busta */}
       {open && <div className="fixed inset-0 z-[60] bg-black/40" />}
 
-      {/* Pannello slide-up dal basso — arriva quasi in cima */}
+      {/* Pannello slide-up dal basso — arriva fino al bordo inferiore dell'header */}
       <div
         className="fixed left-0 right-0 bottom-0 z-[61] flex justify-center pointer-events-none"
         style={{ top: 0 }}
@@ -62,7 +62,8 @@ export default function MessagesSidePanel({ open, onClose, userEmail }) {
             bottom: 0,
             left: '50%',
             transform: open ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(100%)',
-            height: '95vh',
+            top: '56px',
+            height: 'auto',
           }}
         >
           {/* Header — senza freccia indietro, solo titolo e link alla pagina completa */}
