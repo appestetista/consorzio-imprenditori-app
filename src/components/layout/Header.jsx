@@ -154,14 +154,6 @@ export default function Header({ user }) {
         </div>
       </header>
 
-      {/* Notifications Panel */}
-      <NotificationsPanel
-        open={notifPanelOpen}
-        onClose={() => setNotifPanelOpen(false)}
-        userEmail={effectiveEmail}
-        userRegime={userRegime}
-      />
-
       {/* Dialog Impersonation */}
       <ImpersonationDialog
         open={impersonationDialogOpen}
