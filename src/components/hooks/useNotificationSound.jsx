@@ -1,50 +1,28 @@
-import { useCallback, useRef, useEffect } from 'react';
+import { useCallback, useRef } from 'react';
 
 // Suono di notifica tipo campanello usando Web Audio API
 export default function useNotificationSound() {
   const audioContextRef = useRef(null);
-  const isUnlockedRef = useRef(false);
 
   // Controlla se l'utente ha abilitato i suoni
   const isSoundEnabled = () => {
     return localStorage.getItem('soundNotificationsEnabled') === 'true';
   };
 
-  // Controlla se una specifica sezione ha le notifiche abilitate
-  // Le preferenze sono salvate nell'utente, ma per semplicità qui controlliamo solo il suono globale
-  // Il filtro per sezione viene fatto a livello di componente che chiama playSound
+  // Nessun listener globale — l'AudioContext viene creato/sbloccato
+  // direttamente dentro playSound, che è già chiamato in risposta
+  // a un evento utente (notifica real-time), quindi non servono
+  // listener globali che possono interferire con tap su mobile.
 
-  // Sblocca AudioContext al primo click/touch dell'utente (solo se suoni abilitati)
-  // Usa { once: true, passive: true } per non interferire con altri click handler
-  useEffect(() => {
-    const unlockAudio = () => {
-      if (isUnlockedRef.current) return;
-      if (!isSoundEnabled()) return;
-      
-      try {
-        if (!audioContextRef.current || audioContextRef.current.state === 'closed') {
-          audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        
-        if (audioContextRef.current.state === 'suspended') {
-          audioContextRef.current.resume().then(() => {
-            isUnlockedRef.current = true;
-          }).catch(() => {});
-        } else {
-          isUnlockedRef.current = true;
-        }
-      } catch (e) {}
-    };
-
-    // once: true — sblocca solo al primo tocco, poi si rimuove automaticamente
-    document.addEventListener('click', unlockAudio, { once: true, passive: true });
-    document.addEventListener('touchstart', unlockAudio, { once: true, passive: true });
-    
-    return () => {
-      document.removeEventListener('click', unlockAudio);
-      document.removeEventListener('touchstart', unlockAudio);
-    };
-  }, []);
+  const getOrCreateContext = () => {
+    if (!audioContextRef.current || audioContextRef.current.state === 'closed') {
+      audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (audioContextRef.current.state === 'suspended') {
+      audioContextRef.current.resume().catch(() => {});
+    }
+    return audioContextRef.current;
+  };
 
   const playSound = useCallback(() => {
     // Non suonare se l'utente ha disabilitato i suoni
