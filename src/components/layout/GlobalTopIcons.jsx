@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { Bell } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import { useNotificationsBadge } from '../home/NotificationsPanel';
 
 // Context globale per aprire/chiudere pannelli messaggi e notifiche
@@ -41,13 +43,14 @@ export function usePanels() {
  * Icone busta + campanella — dimensioni fisse, identiche ovunque.
  */
 export default function GlobalTopIcons({ userEmail, userRegime }) {
-  const { toggleMsg, toggleNotif } = usePanels();
+  const { toggleNotif } = usePanels();
+  const navigate = useNavigate();
   const { totalBadge, unreadMessageCount } = useNotificationsBadge(userEmail, userRegime);
 
   return (
     <div className="flex items-center gap-1">
-      {/* Busta messaggi — box fisso 40x40 */}
-      <button onClick={toggleMsg} className="relative w-10 h-10 flex items-center justify-center flex-shrink-0">
+      {/* Busta messaggi — box fisso 40x40, naviga alla pagina Messaggi */}
+      <button onClick={() => navigate(createPageUrl('Messaggi'))} className="relative w-10 h-10 flex items-center justify-center flex-shrink-0">
         <img 
           src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/cd5e7b92b_Immagine_2026-02-03_182832-removebg-preview.png" 
           alt="Messaggi" 
