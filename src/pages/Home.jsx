@@ -40,8 +40,7 @@ export default function Home() {
   const [compareMode, setCompareMode] = useState(false);
   const [scenarioA, setScenarioA] = useState('');
   const [scenarioB, setScenarioB] = useState('');
-  const [notifPanelOpen, setNotifPanelOpen] = useState(false);
-  const [msgPanelOpen, setMsgPanelOpen] = useState(false);
+  // pannelli messaggi/notifiche gestiti globalmente via PanelProvider
   const [consulenzeUsate, setConsulenzeUsate] = useState(0);
   const [pianoAbbonamento, setPianoAbbonamento] = useState(null);
   const recognitionRef = useRef(null);
