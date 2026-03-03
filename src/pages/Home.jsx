@@ -42,6 +42,7 @@ export default function Home() {
   const [scenarioA, setScenarioA] = useState('');
   const [scenarioB, setScenarioB] = useState('');
   const [notifPanelOpen, setNotifPanelOpen] = useState(false);
+  const [msgPanelOpen, setMsgPanelOpen] = useState(false);
   const [consulenzeUsate, setConsulenzeUsate] = useState(0);
   const [pianoAbbonamento, setPianoAbbonamento] = useState(null);
   const recognitionRef = useRef(null);
