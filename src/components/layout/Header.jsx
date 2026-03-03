@@ -13,7 +13,6 @@ import GlobalTopIcons from './GlobalTopIcons';
 
 export default function Header({ user }) {
   const [impersonationDialogOpen, setImpersonationDialogOpen] = useState(false);
-  const [notifPanelOpen, setNotifPanelOpen] = useState(false);
   const { impersonation, startImpersonation, stopImpersonation } = useImpersonation();
   const queryClient = useQueryClient();
   const { playSound } = useNotificationSound();
@@ -24,7 +23,7 @@ export default function Header({ user }) {
   const isAdmin = normalizedUser?.role === 'admin';
   const effectiveEmail = impersonation.active ? impersonation.targetEmail : normalizedUser?.email;
 
-  // Fetch notifiche non lette
+  // Fetch notifiche non lette (per suono)
   const { data: notifications = [] } = useQuery({
     queryKey: ['header-notifications', effectiveEmail],
     queryFn: () => base44.entities.Notification.filter({ 
@@ -32,12 +31,11 @@ export default function Header({ user }) {
       is_read: false 
     }),
     enabled: !!effectiveEmail,
-    refetchInterval: 10000, // Ogni 10 secondi
+    refetchInterval: 10000,
   });
 
   const unreadCount = notifications.length;
   const userRegime = normalizedUser?.regime_fiscale || null;
-  const totalBadge = useNotificationsBadge(effectiveEmail, userRegime);
 
   // Suona quando arriva una nuova notifica + aggiorna badge PWA
   useEffect(() => {
