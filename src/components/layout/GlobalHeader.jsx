@@ -12,14 +12,8 @@ export default function GlobalHeader({ userEmail, userRegime, onMenuClick, onHam
   const { totalBadge, unreadMessageCount } = useNotificationsBadge(userEmail, userRegime);
 
   const handleHamburger = () => {
-    if (currentPageName === 'Home') {
-      // Su Home: emetti evento per aprire la sidebar chat
-      openChatSidebar();
-    } else if (onHamburgerClick) {
-      onHamburgerClick();
-    } else if (onMenuClick) {
-      onMenuClick();
-    }
+    // Su tutte le pagine: apri la sidebar chat con lo storico conversazioni
+    openChatSidebar();
   };
 
   // Nascondi completamente l'header quando headerHidden è true
