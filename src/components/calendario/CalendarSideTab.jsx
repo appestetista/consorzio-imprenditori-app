@@ -335,6 +335,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect, forceOpen,
           onClick={() => {
             setIsOpen(false);
             setShowTimePicker(false);
+            showHeader();
           }}
           className="w-full h-full flex items-center justify-center hover:opacity-70 active:scale-95"
           style={{
@@ -506,6 +507,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect, forceOpen,
               onClose={() => {
                 setIsOpen(false);
                 setShowTimePicker(false);
+                showHeader();
               }}
               hasSelectedTime={hasSelectedTime}
               onOpenTools={() => setShowToolsPopup(true)}
