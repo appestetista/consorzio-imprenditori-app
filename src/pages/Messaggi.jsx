@@ -51,8 +51,7 @@ export default function Messaggi() {
   const effectiveUser = isImpersonating ? impersonatedUser : user;
   const effectiveEmail = isImpersonating ? impersonation?.targetEmail : user?.email;
 
-  // Badge notifiche per la campanella
-  const { totalBadge: notifBadgeCount } = useNotificationsBadge(effectiveEmail, null);
+
 
   useEffect(() => {
     const loadUser = async () => {
