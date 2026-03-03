@@ -712,6 +712,11 @@ import NotificationsPanel, { useNotificationsBadge } from '../components/home/No
           </Link>
           <button onClick={() => setNotifPanelOpen(true)} className="relative p-1.5 rounded-xl hover:bg-slate-800 transition-colors">
             <Bell className="w-6 h-6 text-slate-400" />
+            {notifBadgeCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] rounded-full min-w-4 h-4 px-1 flex items-center justify-center font-bold">
+                {notifBadgeCount > 99 ? '99+' : notifBadgeCount}
+              </span>
+            )}
           </button>
         </div>
       </div>
