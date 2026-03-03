@@ -573,13 +573,12 @@ Scenario B: ${b}`,
   const totalBadge = useNotificationsBadge(effectiveUser?.email, userRegime);
 
   // Notifiche non lette per badge messaggi (solo messaggi)
-  const { data: notifications = [] } = useRQQuery({
+  const { data: cachedNotifications = [] } = useRQQuery({
     queryKey: ['home-notifications', effectiveUser?.email],
-    queryFn: () => base44.entities.Notification.filter({ user_email: effectiveUser?.email, is_read: false }),
     enabled: !!effectiveUser?.email,
-    refetchInterval: 10000,
+    staleTime: Infinity,
   });
-  const unreadCount = notifications.filter(n => n.type === 'message').length;
+  const unreadCount = cachedNotifications.filter(n => n.type === 'message').length;
 
   // Logo utente
   const DEFAULT_LOGO = "https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=100&h=100&fit=crop";
