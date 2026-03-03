@@ -14,7 +14,7 @@ export default function BottomNav({ currentPage, unreadMessages = 0, activeTab =
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-30" style={{ height: '140px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: '24px' }}>
         {/* Sfondo scuro sfumato verso l'alto */}
-        <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to top, #0a0f1a 40%, transparent 100%)' }} />
+        <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to top, #0a0f1a 55%, transparent 100%)' }} />
         <div className="py-2 px-2 relative z-10">
         <div>
           <div className="flex justify-center items-center gap-1">
