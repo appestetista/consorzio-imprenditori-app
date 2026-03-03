@@ -7,13 +7,23 @@ export default function VantaggiSideTab() {
   const [isOpen, setIsOpen] = useState(false);
   const { hideHeader, showHeader } = usePanels();
 
+  // Quando il pannello si chiude (anche per navigazione), ripristina l'header
+  useEffect(() => {
+    if (!isOpen) {
+      showHeader();
+    }
+  }, [isOpen]);
+
+  // Safety: se il componente viene smontato con pannello aperto, ripristina l'header
+  useEffect(() => {
+    return () => showHeader();
+  }, []);
+
   const togglePanel = () => {
     const newOpen = !isOpen;
     setIsOpen(newOpen);
     if (newOpen) {
       hideHeader();
-    } else {
-      showHeader();
     }
   };
 
