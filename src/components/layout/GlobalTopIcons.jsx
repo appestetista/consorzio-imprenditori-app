@@ -49,17 +49,18 @@ export default function GlobalTopIcons({ userEmail, userRegime }) {
     <div className="flex items-center gap-2">
       {/* Busta messaggi — toggle pannello */}
       <button
-        onClick={toggleMsg}
+        onPointerUp={(e) => { e.stopPropagation(); toggleMsg(); }}
         className="relative w-12 h-12 flex items-center justify-center flex-shrink-0 rounded-xl active:bg-white/10 transition-colors"
-        style={{ touchAction: 'manipulation' }}
+        style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
       >
         <img 
           src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/cd5e7b92b_Immagine_2026-02-03_182832-removebg-preview.png" 
           alt="Messaggi" 
-          className="w-8 h-8 object-contain pointer-events-none"
+          className="w-8 h-8 object-contain pointer-events-none select-none"
+          draggable={false}
         />
         {unreadMessageCount > 0 && (
-          <span className="absolute top-0.5 right-0.5 bg-red-500 text-white text-[9px] rounded-full min-w-4 h-4 px-1 flex items-center justify-center font-bold">
+          <span className="absolute top-0.5 right-0.5 bg-red-500 text-white text-[9px] rounded-full min-w-4 h-4 px-1 flex items-center justify-center font-bold pointer-events-none">
             {unreadMessageCount > 99 ? '99+' : unreadMessageCount}
           </span>
         )}
@@ -67,13 +68,13 @@ export default function GlobalTopIcons({ userEmail, userRegime }) {
 
       {/* Campanella notifiche — toggle pannello */}
       <button
-        onClick={toggleNotif}
+        onPointerUp={(e) => { e.stopPropagation(); toggleNotif(); }}
         className="relative w-12 h-12 flex items-center justify-center flex-shrink-0 rounded-xl active:bg-white/10 transition-colors"
-        style={{ touchAction: 'manipulation' }}
+        style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
       >
-        <Bell className="w-7 h-7 text-slate-400" />
+        <Bell className="w-7 h-7 text-slate-400 pointer-events-none" />
         {totalBadge > 0 && (
-          <span className="absolute top-0.5 right-0.5 bg-red-500 text-white text-[9px] rounded-full min-w-4 h-4 px-1 flex items-center justify-center font-bold">
+          <span className="absolute top-0.5 right-0.5 bg-red-500 text-white text-[9px] rounded-full min-w-4 h-4 px-1 flex items-center justify-center font-bold pointer-events-none">
             {totalBadge > 99 ? '99+' : totalBadge}
           </span>
         )}
