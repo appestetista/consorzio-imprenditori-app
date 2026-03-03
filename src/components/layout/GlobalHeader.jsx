@@ -1,15 +1,18 @@
 import React from 'react';
 import { Menu, Bell } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import { usePanels } from './GlobalTopIcons';
 import { useNotificationsBadge } from '../home/NotificationsPanel';
 
 /**
  * Header globale trasparente — hamburger a sinistra, busta + campanella a destra.
- * Busta = toggle pannello messaggi (slide-up). Campanella = toggle pannello notifiche.
+ * Busta = naviga a pagina Messaggi. Campanella = toggle pannello notifiche.
  */
 export default function GlobalHeader({ userEmail, userRegime, onMenuClick }) {
-  const { toggleMsg, toggleNotif } = usePanels();
+  const { toggleNotif } = usePanels();
   const { totalBadge, unreadMessageCount } = useNotificationsBadge(userEmail, userRegime);
+  const navigate = useNavigate();
 
   return (
     <div className="fixed top-0 left-0 right-0 z-[70]">
@@ -25,9 +28,9 @@ export default function GlobalHeader({ userEmail, userRegime, onMenuClick }) {
 
         {/* Destra: busta + campanella */}
         <div className="flex items-center gap-2 mr-2">
-          {/* Busta messaggi — toggle pannello slide-up */}
+          {/* Busta messaggi — naviga a pagina Messaggi completa */}
           <button
-            onPointerUp={(e) => { e.stopPropagation(); toggleMsg(); }}
+            onPointerUp={(e) => { e.stopPropagation(); navigate(createPageUrl('Messaggi')); }}
             className="relative w-12 h-12 flex items-center justify-center flex-shrink-0 rounded-xl active:bg-white/10 transition-colors"
             style={{ touchAction: 'manipulation', WebkitTapHighlightColor: 'transparent' }}
           >
