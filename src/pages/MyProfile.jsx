@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 import BottomNav from '../components/layout/BottomNav';
-import TopRightIcons from '../components/layout/TopRightIcons';
+import GlobalTopIcons from '../components/layout/GlobalTopIcons';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import ProfiloBandiForm from '../components/profile/ProfiloBandiForm';
 import NotificationPreferences from '../components/profile/NotificationPreferences';
@@ -980,7 +980,7 @@ export default function MyProfile() {
    <div className="min-h-screen bg-slate-900 pb-64" style={{ backgroundColor: '#001d3b' }}>
      {/* Top bar con icone notifiche/messaggi */}
      <div className="flex items-center justify-end px-4 pt-3 pb-1">
-       <TopRightIcons userEmail={user?.email} userRegime={user?.regime_fiscale} />
+       <GlobalTopIcons userEmail={user?.email} userRegime={user?.regime_fiscale} />
      </div>
 
      <main className="px-4 py-2 max-w-2xl mx-auto">
