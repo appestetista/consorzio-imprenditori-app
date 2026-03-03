@@ -36,9 +36,6 @@ import NotificationsPanel, { useNotificationsBadge } from '../components/home/No
   const queryClient = useQueryClient();
   
   const { impersonation, appMode } = useImpersonation();
-
-  // Badge notifiche per la campanella nell'header
-  // (viene calcolato qui per avere il conteggio aggiornato)
   
   // L'utente effettivo è quello impersonato se attivo, altrimenti l'utente loggato
   // Supporta sia impersonificazione utente (user-preview) che consulente
