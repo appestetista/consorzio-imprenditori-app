@@ -1,15 +1,30 @@
 import React from 'react';
 import { Menu, Bell } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import { usePanels } from './GlobalTopIcons';
 import { useNotificationsBadge } from '../home/NotificationsPanel';
 
 /**
  * Header globale trasparente — hamburger a sinistra, busta + campanella a destra.
- * Busta = toggle pannello messaggi. Campanella = toggle pannello notifiche.
+ * Busta = naviga a pagina Messaggi (o torna indietro se già lì). Campanella = toggle pannello notifiche.
  */
 export default function GlobalHeader({ userEmail, userRegime, onMenuClick }) {
-  const { toggleMsg, toggleNotif } = usePanels();
+  const { toggleNotif } = usePanels();
   const { totalBadge, unreadMessageCount } = useNotificationsBadge(userEmail, userRegime);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const isOnMessaggi = location.pathname.includes('/Messaggi');
+
+  const handleMailClick = () => {
+    if (isOnMessaggi) {
+      // Se siamo già su Messaggi, torna alla Home
+      navigate(createPageUrl('Home'));
+    } else {
+      navigate(createPageUrl('Messaggi'));
+    }
+  };
 
   return (
     <div className="fixed top-0 left-0 right-0 z-[70]">
@@ -23,11 +38,11 @@ export default function GlobalHeader({ userEmail, userRegime, onMenuClick }) {
           <Menu className="w-6 h-6 text-slate-400" />
         </button>
 
-        {/* Destra: busta + campanella — spostate a sinistra con mr-2 */}
+        {/* Destra: busta + campanella */}
         <div className="flex items-center gap-2 mr-2">
-          {/* Busta messaggi — toggle pannello */}
+          {/* Busta messaggi — naviga a pagina Messaggi */}
           <button
-            onClick={toggleMsg}
+            onClick={handleMailClick}
             className="relative w-12 h-12 flex items-center justify-center flex-shrink-0 rounded-xl active:bg-white/10 transition-colors"
             style={{ touchAction: 'manipulation' }}
           >

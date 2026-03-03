@@ -693,15 +693,7 @@ export default function Messaggi() {
 
   return (
     <div className="min-h-screen bg-slate-900 pb-64">
-      {/* Header semplificato con Home a sinistra e icona messaggi a destra */}
-      <div className="sticky top-0 z-30 px-4 py-3 flex items-center justify-between bg-slate-900 border-b border-slate-800">
-        <Link to={createPageUrl('Home')} className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center">
-          <ArrowLeft className="w-7 h-7 text-[#d4af37]" />
-        </Link>
-        {/* Icone gestite dal GlobalHeader nel Layout (Messaggi escluso) */}
-      </div>
-      
-      <main className="px-2 flex flex-col" style={{ height: 'calc(100vh - 160px)' }}>
+      <main className="px-2 flex flex-col" style={{ height: 'calc(100vh - 120px)' }}>
         {/* Header fisso con sezione attiva - SEMPRE VISIBILE */}
         <div className="flex items-center gap-2 px-2 py-3 bg-slate-900 flex-shrink-0">
           <h1 className="text-white text-xl font-bold">Messaggi</h1>
