@@ -263,6 +263,7 @@ export function useNotificationsBadge(userEmail, userRegime) {
   });
 
   const urgentCount = getUpcomingScadenze(scadenzeRaw, userRegime).filter(s => s.daysLeft < 7).length;
+  const unreadMessageCount = unreadNotifs.filter(n => n.type === 'message').length;
 
-  return unreadNotifs.length + urgentCount;
+  return { totalBadge: unreadNotifs.length + urgentCount, unreadMessageCount };
 }
