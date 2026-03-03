@@ -168,11 +168,12 @@ export default function NotificationsPanel({ open, onClose, userEmail, userRegim
 
   return (
     <>
-      {/* Backdrop */}
-      <div className="fixed inset-0 z-[60] bg-black/40" onClick={onClose} />
+      {/* Backdrop scuro — click chiude */}
+      <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm" onClick={onClose} />
 
-      {/* Panel */}
-      <div className="fixed top-0 right-0 z-[61] w-full max-w-sm h-full bg-slate-900 border-l border-slate-700/50 flex flex-col shadow-2xl">
+      {/* Pannello overlay full-width centrato */}
+      <div className="fixed inset-0 z-[61] flex items-stretch justify-center pointer-events-none">
+      <div className="w-full max-w-md bg-slate-900 flex flex-col pointer-events-auto shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between px-4 pt-4 pb-2">
           <div className="flex items-center gap-2">
