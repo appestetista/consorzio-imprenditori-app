@@ -3,11 +3,13 @@ import { ImpersonationProvider } from './components/admin/ImpersonationContext';
 import { VideoVisitProvider } from './components/context/VideoVisitContext';
 import { PanelProvider } from './components/layout/GlobalTopIcons';
 import GlobalPanels from './components/layout/GlobalPanels';
+import GlobalHeader from './components/layout/GlobalHeader';
 import { base44 } from '@/api/base44Client';
 import { Toaster } from 'sonner';
 import CalendarSideTab from './components/calendario/CalendarSideTab';
 import VantaggiSideTab from './components/vantaggi/VantaggiSideTab';
 import GlobalSearchBar from './components/layout/GlobalSearchBar';
+import { createPageUrl } from '@/utils';
 
 export default function Layout({ children, currentPageName }) {
   const [selectedDate, setSelectedDate] = useState(null);
@@ -60,6 +62,18 @@ export default function Layout({ children, currentPageName }) {
             transition: opacity 0s;
           }
         `}</style>
+        {/* Header globale trasparente — hamburger + busta + campanella */}
+        {currentPageName !== 'AdminPanel' && currentPageName !== 'Messaggi' && (
+          <GlobalHeader
+            userEmail={layoutUser?.email}
+            userRegime={layoutUser?.regime_fiscale}
+            onMenuClick={() => { window.location.href = createPageUrl('MyProfile'); }}
+          />
+        )}
+        {/* Spacer per evitare che il contenuto vada sotto l'header */}
+        {currentPageName !== 'AdminPanel' && currentPageName !== 'Messaggi' && (
+          <div className="h-14" />
+        )}
         {children}
         {currentPageName === 'Home' && <GlobalSearchBar currentPageName={currentPageName} />}
         <VantaggiSideTab />
