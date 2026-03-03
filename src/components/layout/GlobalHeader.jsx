@@ -10,7 +10,7 @@ import { useNotificationsBadge } from '../home/NotificationsPanel';
  * Renderizzato dal Layout, NON dalle singole pagine.
  */
 export default function GlobalHeader({ userEmail, userRegime, onMenuClick }) {
-  const { toggleMsg, toggleNotif } = usePanels();
+  const { toggleNotif } = usePanels();
   const navigate = useNavigate();
   const { totalBadge, unreadMessageCount } = useNotificationsBadge(userEmail, userRegime);
 
@@ -27,9 +27,9 @@ export default function GlobalHeader({ userEmail, userRegime, onMenuClick }) {
 
         {/* Destra: busta + campanella */}
         <div className="flex items-center gap-1">
-          {/* Busta messaggi */}
+          {/* Busta messaggi — naviga alla pagina Messaggi */}
           <button
-            onClick={toggleMsg}
+            onClick={() => navigate(createPageUrl('Messaggi'))}
             className="relative w-10 h-10 flex items-center justify-center flex-shrink-0"
           >
             <img
