@@ -175,26 +175,18 @@ export default function NotificationsPanel({ open, onClose, userEmail, userRegim
       <div className="fixed top-0 right-0 z-[61] w-full max-w-sm h-full bg-slate-900 border-l border-slate-700/50 flex flex-col shadow-2xl">
         {/* Header */}
         <div className="flex items-center justify-between px-4 pt-4 pb-2">
-          <button onClick={onClose} className="p-2 -ml-2 rounded-xl hover:bg-slate-800 transition-colors">
-            <X className="w-7 h-7 text-slate-300" />
-          </button>
           <div className="flex items-center gap-2">
-            <Link to={createPageUrl('Messaggi')} onClick={onClose} className="relative p-1.5 rounded-xl hover:bg-slate-800 transition-colors">
-              <img 
-                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/cd5e7b92b_Immagine_2026-02-03_182832-removebg-preview.png" 
-                alt="Messaggi" 
-                className="w-7 h-7 object-contain"
-              />
-            </Link>
-            <button onClick={() => setTab('notifiche')} className="relative p-1.5 rounded-xl hover:bg-slate-800 transition-colors">
-              <Bell className="w-6 h-6 text-slate-300" />
-              {unreadNotifs > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] rounded-full min-w-4 h-4 px-1 flex items-center justify-center font-bold">
-                  {unreadNotifs > 99 ? '99+' : unreadNotifs}
-                </span>
-              )}
-            </button>
+            <Bell className="w-5 h-5 text-[#d4af37]" />
+            <h2 className="text-white font-semibold text-sm">Notifiche</h2>
+            {unreadNotifs > 0 && (
+              <span className="bg-red-500 text-white text-[9px] rounded-full min-w-4 h-4 px-1 flex items-center justify-center font-bold">
+                {unreadNotifs}
+              </span>
+            )}
           </div>
+          <button onClick={onClose} className="p-2 rounded-xl hover:bg-slate-800 transition-colors">
+            <X className="w-5 h-5 text-slate-300" />
+          </button>
         </div>
 
         {/* Tabs */}
