@@ -9,7 +9,7 @@ import ImpersonationDialog from '../admin/ImpersonationDialog';
 import { normalizeUser, isUserConsultant } from '../utils/normalizeUser';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import useNotificationSound from '../hooks/useNotificationSound';
-import NotificationsPanel, { useNotificationsBadge } from '../home/NotificationsPanel';
+import GlobalTopIcons from './GlobalTopIcons';
 
 export default function Header({ user }) {
   const [impersonationDialogOpen, setImpersonationDialogOpen] = useState(false);
