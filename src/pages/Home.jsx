@@ -126,29 +126,30 @@ export default function Home() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
 
-  // Ascolta evento globale per aprire la sidebar chat (dal GlobalHeader)
-  useEffect(() => {
-    const handleOpenChatSidebar = () => setSidebarOpen(true);
-    window.addEventListener('open-chat-sidebar', handleOpenChatSidebar);
-    return () => window.removeEventListener('open-chat-sidebar', handleOpenChatSidebar);
-  }, []);
-
-  // Carica conversazione da URL param ?conv=ID
+  // Gestisce parametri URL: loadConv (carica conversazione) e newChat (nuova chat)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    const convId = params.get('conv');
-    if (convId && effectiveUser?.email) {
+    const loadConvId = params.get('loadConv');
+    const newChat = params.get('newChat');
+    
+    if (loadConvId && effectiveUser?.email) {
+      // Carica la conversazione specificata
       (async () => {
         const convs = await base44.entities.ChatConversation.filter({ user_email: effectiveUser.email });
-        const conv = convs.find(c => c.id === convId);
+        const conv = convs.find(c => c.id === loadConvId);
         if (conv) {
           handleSelectConversation(conv);
         }
-        // Rimuovi il parametro dall'URL
-        const url = new URL(window.location);
-        url.searchParams.delete('conv');
-        window.history.replaceState({}, '', url.toString());
       })();
+      // Pulisci URL
+      const url = new URL(window.location);
+      url.searchParams.delete('loadConv');
+      window.history.replaceState({}, '', url.toString());
+    } else if (newChat === '1') {
+      handleNewChat();
+      const url = new URL(window.location);
+      url.searchParams.delete('newChat');
+      window.history.replaceState({}, '', url.toString());
     }
   }, [effectiveUser?.email]);
 
