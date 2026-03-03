@@ -63,7 +63,7 @@ export default function Layout({ children, currentPageName }) {
           }
         `}</style>
         {/* Header globale trasparente — hamburger + busta + campanella */}
-        {currentPageName !== 'AdminPanel' && currentPageName !== 'Messaggi' && (
+        {currentPageName !== 'AdminPanel' && (
           <GlobalHeader
             userEmail={layoutUser?.email}
             userRegime={layoutUser?.regime_fiscale}
@@ -71,7 +71,7 @@ export default function Layout({ children, currentPageName }) {
           />
         )}
         {/* Spacer per evitare che il contenuto vada sotto l'header */}
-        {currentPageName !== 'AdminPanel' && currentPageName !== 'Messaggi' && (
+        {currentPageName !== 'AdminPanel' && (
           <div className="h-14" />
         )}
         {children}
