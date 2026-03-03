@@ -47,10 +47,10 @@ export default function MessagesSidePanel({ open, onClose, userEmail }) {
 
   return (
     <>
-      {/* Backdrop scuro — click chiude */}
-      {open && <div className="fixed inset-0 z-[60] bg-black/40" onClick={onClose} />}
+      {/* Backdrop scuro — NON chiude al click, si chiude solo con la busta */}
+      {open && <div className="fixed inset-0 z-[60] bg-black/40" />}
 
-      {/* Pannello slide-up dal basso */}
+      {/* Pannello slide-up dal basso — arriva quasi in cima */}
       <div
         className="fixed left-0 right-0 bottom-0 z-[61] flex justify-center pointer-events-none"
         style={{ top: 0 }}
@@ -62,10 +62,10 @@ export default function MessagesSidePanel({ open, onClose, userEmail }) {
             bottom: 0,
             left: '50%',
             transform: open ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(100%)',
-            height: '85vh',
+            height: '95vh',
           }}
         >
-          {/* Header */}
+          {/* Header — senza freccia indietro, solo titolo e link alla pagina completa */}
           <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-slate-700/50">
             <div className="flex items-center gap-2">
               <MessageCircle className="w-5 h-5 text-[#d4af37]" />
@@ -76,19 +76,14 @@ export default function MessagesSidePanel({ open, onClose, userEmail }) {
                 </span>
               )}
             </div>
-            <div className="flex items-center gap-1">
-              <Link
-                to={createPageUrl('Messaggi')}
-                onClick={onClose}
-                className="p-2 rounded-xl hover:bg-slate-800 transition-colors"
-                title="Apri pagina completa"
-              >
-                <ExternalLink className="w-4 h-4 text-[#d4af37]" />
-              </Link>
-              <button onClick={onClose} className="p-2 rounded-xl hover:bg-slate-800 transition-colors">
-                <X className="w-5 h-5 text-slate-300" />
-              </button>
-            </div>
+            <Link
+              to={createPageUrl('Messaggi')}
+              onClick={onClose}
+              className="p-2 rounded-xl hover:bg-slate-800 transition-colors"
+              title="Apri pagina completa"
+            >
+              <ExternalLink className="w-4 h-4 text-[#d4af37]" />
+            </Link>
           </div>
 
           {/* Lista conversazioni */}
