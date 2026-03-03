@@ -27,9 +27,9 @@ export default function Layout({ children, currentPageName }) {
 
   // Ascolta evento globale per aprire la sidebar chat
   useEffect(() => {
-    const handleOpenChatSidebar = () => setChatSidebarOpen(true);
-    window.addEventListener('open-chat-sidebar', handleOpenChatSidebar);
-    return () => window.removeEventListener('open-chat-sidebar', handleOpenChatSidebar);
+    const handleToggleChatSidebar = () => setChatSidebarOpen(prev => !prev);
+    window.addEventListener('toggle-chat-sidebar', handleToggleChatSidebar);
+    return () => window.removeEventListener('toggle-chat-sidebar', handleToggleChatSidebar);
   }, []);
 
   const handleSelectConversation = (conv) => {
