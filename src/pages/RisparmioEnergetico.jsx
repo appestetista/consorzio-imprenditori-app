@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Header from '../components/layout/Header';
 import BottomNavWithMenu from '../components/layout/BottomNavWithMenu';
 import SectionConsultantPanel from '../components/consulenze/SectionConsultantPanel';
-import SectionHeaderIcons from '../components/layout/SectionHeaderIcons';
+import GlobalTopIcons from '../components/layout/GlobalTopIcons';
 
 export default function RisparmioEnergetico() {
   const [user, setUser] = useState(null);
@@ -87,7 +87,7 @@ export default function RisparmioEnergetico() {
             </Link>
             <h1 className="text-white text-xl font-bold">Risparmia con il Consorzio</h1>
           </div>
-          <SectionHeaderIcons userEmail={user?.email} unreadCount={messages.length} />
+          <GlobalTopIcons userEmail={user?.email} />
         </div>
 
         {/* Services - 3D Buttons */}

@@ -11,7 +11,7 @@ import ConsultantView from '../components/consulenze/ConsultantView';
 import AdminView from '../components/consulenze/AdminView';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
 import useNotificationSound from '../components/hooks/useNotificationSound';
-import SectionHeaderIcons from '../components/layout/SectionHeaderIcons';
+import GlobalTopIcons from '../components/layout/GlobalTopIcons';
 
 export default function Consulenze() {
   const [user, setUser] = useState(null);
@@ -220,7 +220,7 @@ export default function Consulenze() {
               {isAdmin ? 'GESTIONE CONSULENZE' : isConsultant ? 'RICHIESTE DI CONSULENZA' : 'CONSULENZE'}
             </h1>
           </div>
-          <SectionHeaderIcons userEmail={effectiveUser?.email} unreadCount={messages.length} />
+          <GlobalTopIcons userEmail={effectiveUser?.email} />
         </div>
 
         {isAdmin && <AdminView consultants={consultants} adminEmail={user?.email} />}

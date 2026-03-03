@@ -18,7 +18,7 @@ import { useImpersonation } from '../components/admin/ImpersonationContext';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import SectionConsultantPanel from '../components/consulenze/SectionConsultantPanel';
 import PremiumAIGate from '@/components/common/PremiumAIGate';
-import SectionHeaderIcons from '../components/layout/SectionHeaderIcons';
+import GlobalTopIcons from '../components/layout/GlobalTopIcons';
 
 const CATEGORIE = [
   "Sicurezza sul lavoro",
@@ -674,7 +674,7 @@ VERIFICA:
             <h1 className="text-lime-400 text-xl font-bold">Evita Sanzioni</h1>
           </div>
           <div className="flex items-center gap-1">
-            <SectionHeaderIcons userEmail={effectiveUser?.email} unreadCount={messages.length} />
+            <GlobalTopIcons userEmail={effectiveUser?.email} />
           </div>
         </div>
 

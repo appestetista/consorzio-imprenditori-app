@@ -8,7 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import Header from '../components/layout/Header';
 import BottomNavWithMenu from '../components/layout/BottomNavWithMenu';
 import SectionConsultantPanel from '../components/consulenze/SectionConsultantPanel';
-import SectionHeaderIcons from '../components/layout/SectionHeaderIcons';
+import GlobalTopIcons from '../components/layout/GlobalTopIcons';
 
 export default function WelfareAziendale() {
   const [user, setUser] = useState(null);
@@ -69,7 +69,7 @@ export default function WelfareAziendale() {
             </Link>
             <h1 className="text-white text-xl font-bold">Welfare Aziendale</h1>
           </div>
-          <SectionHeaderIcons userEmail={user?.email} />
+          <GlobalTopIcons userEmail={user?.email} />
         </div>
 
         {/* Hero Card */}

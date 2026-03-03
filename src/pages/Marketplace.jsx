@@ -19,7 +19,7 @@ import { useImpersonation } from '../components/admin/ImpersonationContext';
 import JobApplicationForm from '../components/marketplace/JobApplicationForm';
 import ApplicationReadStatus from '../components/marketplace/ApplicationReadStatus';
 import SectionConsultantPanel from '../components/consulenze/SectionConsultantPanel';
-import SectionHeaderIcons from '../components/layout/SectionHeaderIcons';
+import GlobalTopIcons from '../components/layout/GlobalTopIcons';
 
 const CATEGORIES = [
   "Ricerca Personale",
@@ -235,7 +235,7 @@ export default function Marketplace() {
               </Link>
               <h1 className="text-white text-xl font-bold">Marketplace</h1>
             </div>
-            <SectionHeaderIcons userEmail={user?.email} />
+            <GlobalTopIcons userEmail={user?.email} />
           </div>
           
           <Dialog open={showAddAd} onOpenChange={setShowAddAd}>
