@@ -275,6 +275,7 @@ export default function NotificationsPanel({ open, onClose, userEmail, userRegim
           )}
         </div>
       </div>
+      </div>
     </>
   );
 }
