@@ -639,7 +639,7 @@ Scenario B: ${b}`,
 
           {/* Destra: messaggi + notifiche */}
           <div className="flex items-center gap-2">
-            <Link to={createPageUrl('Messaggi')} className="relative p-1">
+            <button onClick={() => setMsgPanelOpen(prev => !prev)} className="relative p-1">
               <img 
                 src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/695e2f74bb7d2636b5606a98/cd5e7b92b_Immagine_2026-02-03_182832-removebg-preview.png" 
                 alt="Messaggi" 
@@ -650,8 +650,8 @@ Scenario B: ${b}`,
                   {unreadCount > 99 ? '99+' : unreadCount}
                 </span>
               )}
-            </Link>
-            <button onClick={() => setNotifPanelOpen(true)} className="relative p-1.5 rounded-xl hover:bg-slate-800 transition-colors">
+            </button>
+            <button onClick={() => setNotifPanelOpen(prev => !prev)} className="relative p-1.5 rounded-xl hover:bg-slate-800 transition-colors">
               <Bell className="w-6 h-6 text-slate-400" />
               {totalBadge > 0 && (
                 <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] rounded-full min-w-4 h-4 px-1 flex items-center justify-center font-bold">
