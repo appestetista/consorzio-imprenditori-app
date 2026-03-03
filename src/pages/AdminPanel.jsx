@@ -248,7 +248,10 @@ export default function AdminPanel() {
             <h2 className="text-green-400 text-sm font-semibold">Consorzio Imprenditori</h2>
             <h1 className="text-red-500 text-2xl font-bold">Pannello Admin</h1>
           </div>
-          <p className="text-slate-400 text-xs">{new Date().toLocaleDateString('it-IT', { day: 'numeric', month: 'short' })}</p>
+          <div className="flex items-center gap-3">
+            <GlobalTopIcons userEmail={user?.email} userRegime={null} />
+            <p className="text-slate-400 text-xs">{new Date().toLocaleDateString('it-IT', { day: 'numeric', month: 'short' })}</p>
+          </div>
         </div>
 
         {/* Stats Grid */}
