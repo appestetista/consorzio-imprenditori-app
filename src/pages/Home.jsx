@@ -829,6 +829,13 @@ Scenario B: ${b}`,
 
       {/* Menu Drawer rimosso - il pulsante Menu naviga direttamente a MyProfile */}
 
+      {/* Messages Panel */}
+      <MessagesSidePanel
+        open={msgPanelOpen}
+        onClose={() => setMsgPanelOpen(false)}
+        userEmail={effectiveUser?.email}
+      />
+
       {/* Notifications Panel */}
       <NotificationsPanel
         open={notifPanelOpen}
