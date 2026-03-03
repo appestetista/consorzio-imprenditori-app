@@ -26,7 +26,7 @@ export default function GlobalHeader({ userEmail, userRegime, onMenuClick, onHam
   if (headerHidden) return null;
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-[70]">
+    <div className="relative w-full z-[70]">
       <div className="max-w-md mx-auto flex items-center justify-between px-3 pt-4 pb-2">
         {/* Sinistra: hamburger */}
         <button

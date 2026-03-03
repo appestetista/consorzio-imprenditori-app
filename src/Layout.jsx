@@ -71,10 +71,7 @@ export default function Layout({ children, currentPageName }) {
             currentPageName={currentPageName}
           />
         )}
-        {/* Spacer per evitare che il contenuto vada sotto l'header */}
-        {currentPageName !== 'AdminPanel' && (
-          <div className="h-14" />
-        )}
+        {/* Spacer rimosso - header ora scorre con la pagina */}
         {children}
         {currentPageName === 'Home' && <GlobalSearchBar currentPageName={currentPageName} />}
         <VantaggiSideTab />
