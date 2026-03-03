@@ -13,6 +13,7 @@ import DecisionResponse from '../components/home/DecisionResponse';
 import CompareResult from '../components/home/CompareResult';
 import ChatSidebar from '../components/home/ChatSidebar';
 import NotificationsPanel, { useNotificationsBadge } from '../components/home/NotificationsPanel';
+import MessagesSidePanel from '../components/home/MessagesSidePanel';
 import AIUsageBar, { AIUsageBadge } from '../components/home/AIUsageBar';
 import MissingProfileDataModal, { getMissingFields } from '../components/home/MissingProfileDataModal';
 import { classifyIntent } from '../components/home/classifyIntent';
