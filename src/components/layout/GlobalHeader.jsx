@@ -8,7 +8,7 @@ import { useNotificationsBadge } from '../home/NotificationsPanel';
  * Su Home: hamburger apre la sidebar chat. Su altre pagine: va a MyProfile.
  */
 export default function GlobalHeader({ userEmail, userRegime, onMenuClick, onHamburgerClick, currentPageName }) {
-  const { toggleMsg, toggleNotif, openChatSidebar, headerHidden } = usePanels();
+  const { toggleMsg, toggleNotif, openChatSidebar, headerHidden, msgPanelOpen, notifPanelOpen } = usePanels();
   const { totalBadge, unreadMessageCount } = useNotificationsBadge(userEmail, userRegime);
 
   const handleHamburger = () => {
