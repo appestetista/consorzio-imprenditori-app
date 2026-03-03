@@ -25,26 +25,10 @@ export default function useNotificationSound() {
   };
 
   const playSound = useCallback(() => {
-    // Non suonare se l'utente ha disabilitato i suoni
-    const enabled = isSoundEnabled();
-    console.log('[AUDIO] playSound chiamato, suoni abilitati:', enabled);
-    if (!enabled) {
-      console.log('[AUDIO] Suoni disabilitati dall\'utente');
-      return;
-    }
+    if (!isSoundEnabled()) return;
 
     try {
-      // Crea o riusa AudioContext
-      if (!audioContextRef.current || audioContextRef.current.state === 'closed') {
-        audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      
-      const audioContext = audioContextRef.current;
-      
-      // Resume se sospeso
-      if (audioContext.state === 'suspended') {
-        audioContext.resume();
-      }
+      const audioContext = getOrCreateContext();
 
       const now = audioContext.currentTime;
       
