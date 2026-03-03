@@ -47,8 +47,8 @@ export default function MessagesSidePanel({ open, onClose, userEmail }) {
 
   return (
     <>
-      {/* Backdrop scuro — NON chiude al click, si chiude solo con la busta */}
-      {open && <div className="fixed inset-0 z-[60] bg-black/40" />}
+      {/* Backdrop scuro — click chiude il pannello */}
+      {open && <div className="fixed inset-0 z-[60] bg-black/40" onClick={onClose} />}
 
       {/* Pannello slide-up dal basso — arriva fino al bordo inferiore dell'header */}
       <div
