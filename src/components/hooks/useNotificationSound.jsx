@@ -15,9 +15,11 @@ export default function useNotificationSound() {
   // Il filtro per sezione viene fatto a livello di componente che chiama playSound
 
   // Sblocca AudioContext al primo click/touch dell'utente (solo se suoni abilitati)
+  // Usa { once: true, passive: true } per non interferire con altri click handler
   useEffect(() => {
     const unlockAudio = () => {
-      if (isUnlockedRef.current || !isSoundEnabled()) return;
+      if (isUnlockedRef.current) return;
+      if (!isSoundEnabled()) return;
       
       try {
         if (!audioContextRef.current || audioContextRef.current.state === 'closed') {
@@ -27,19 +29,16 @@ export default function useNotificationSound() {
         if (audioContextRef.current.state === 'suspended') {
           audioContextRef.current.resume().then(() => {
             isUnlockedRef.current = true;
-            console.log('[AUDIO] AudioContext sbloccato');
-          });
+          }).catch(() => {});
         } else {
           isUnlockedRef.current = true;
         }
-      } catch (e) {
-        console.log('[AUDIO] Errore sblocco:', e);
-      }
+      } catch (e) {}
     };
 
-    // Sblocca audio al primo click/touch
-    document.addEventListener('click', unlockAudio, { once: false });
-    document.addEventListener('touchstart', unlockAudio, { once: false });
+    // once: true — sblocca solo al primo tocco, poi si rimuove automaticamente
+    document.addEventListener('click', unlockAudio, { once: true, passive: true });
+    document.addEventListener('touchstart', unlockAudio, { once: true, passive: true });
     
     return () => {
       document.removeEventListener('click', unlockAudio);
