@@ -38,6 +38,7 @@ export default function Layout({ children, currentPageName }) {
   return (
     <ImpersonationProvider>
       <VideoVisitProvider>
+        <PanelProvider>
         <style>{`
           .back-arrow-tap {
             -webkit-tap-highlight-color: transparent;
