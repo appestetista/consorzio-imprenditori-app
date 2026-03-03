@@ -126,6 +126,13 @@ export default function Home() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
 
+  // Ascolta evento globale per aprire la sidebar chat (dal GlobalHeader)
+  useEffect(() => {
+    const handleOpenChatSidebar = () => setSidebarOpen(true);
+    window.addEventListener('open-chat-sidebar', handleOpenChatSidebar);
+    return () => window.removeEventListener('open-chat-sidebar', handleOpenChatSidebar);
+  }, []);
+
   const buildUserContext = () => {
     if (!effectiveUser) return '';
     const fields = [
