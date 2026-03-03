@@ -575,8 +575,9 @@ Scenario B: ${b}`,
   // Notifiche non lette per badge messaggi (solo messaggi)
   const { data: cachedNotifications = [] } = useRQQuery({
     queryKey: ['home-notifications', effectiveUser?.email],
+    queryFn: () => base44.entities.Notification.filter({ user_email: effectiveUser?.email, is_read: false }),
     enabled: !!effectiveUser?.email,
-    staleTime: Infinity,
+    staleTime: 10000,
   });
   const unreadCount = cachedNotifications.filter(n => n.type === 'message').length;
 
