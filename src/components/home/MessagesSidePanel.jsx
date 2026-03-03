@@ -45,16 +45,26 @@ export default function MessagesSidePanel({ open, onClose, userEmail }) {
 
   const totalUnread = allMessages.filter(m => m.to_email === userEmail && !m.is_read).length;
 
-  if (!open) return null;
-
   return (
     <>
       {/* Backdrop scuro — click chiude */}
-      <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      {open && <div className="fixed inset-0 z-[60] bg-black/40" onClick={onClose} />}
 
-      {/* Pannello overlay full-width centrato */}
-      <div className="fixed inset-0 z-[61] flex items-stretch justify-center pointer-events-none">
-        <div className="w-full max-w-md bg-slate-900 flex flex-col pointer-events-auto shadow-2xl">
+      {/* Pannello slide-up dal basso */}
+      <div
+        className="fixed left-0 right-0 bottom-0 z-[61] flex justify-center pointer-events-none"
+        style={{ top: 0 }}
+      >
+        <div
+          className="w-full max-w-md bg-slate-900 flex flex-col pointer-events-auto shadow-2xl rounded-t-2xl transition-transform duration-300 ease-out"
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            left: '50%',
+            transform: open ? 'translateX(-50%) translateY(0)' : 'translateX(-50%) translateY(100%)',
+            height: '85vh',
+          }}
+        >
           {/* Header */}
           <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-slate-700/50">
             <div className="flex items-center gap-2">
