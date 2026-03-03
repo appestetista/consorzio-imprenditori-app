@@ -7,7 +7,7 @@ import { useNotificationsBadge } from '../home/NotificationsPanel';
  * Header globale trasparente — hamburger a sinistra, busta + campanella a destra.
  * Busta = toggle pannello messaggi (slide-up). Campanella = toggle pannello notifiche.
  */
-export default function GlobalHeader({ userEmail, userRegime, onMenuClick, onHamburgerClick }) {
+export default function GlobalHeader({ userEmail, userRegime, onMenuClick, onHamburgerClick, currentPageName }) {
   const { toggleMsg, toggleNotif } = usePanels();
   const { totalBadge, unreadMessageCount } = useNotificationsBadge(userEmail, userRegime);
 

@@ -68,6 +68,7 @@ export default function Layout({ children, currentPageName }) {
             userEmail={layoutUser?.email}
             userRegime={layoutUser?.regime_fiscale}
             onMenuClick={() => { window.location.href = createPageUrl('MyProfile'); }}
+            currentPageName={currentPageName}
           />
         )}
         {/* Spacer per evitare che il contenuto vada sotto l'header */}

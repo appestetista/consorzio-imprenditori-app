@@ -625,13 +625,6 @@ Scenario B: ${b}`,
 
       {/* Area messaggi / stato iniziale */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        
-        {/* Top bar — solo hamburger per sidebar chat (busta+campanella nel GlobalHeader del Layout) */}
-        <div className="flex items-center px-6 pt-1 pb-2">
-          <button onClick={() => setSidebarOpen(true)} className="p-1.5 rounded-xl hover:bg-slate-800 transition-colors">
-            <Menu className="w-6 h-6 text-slate-400" />
-          </button>
-        </div>
 
         {!hasMessages ? (
           // Stato iniziale - schermata pulita stile ChatGPT
