@@ -887,12 +887,7 @@ export default function Messaggi() {
         </div>
       </main>
 
-      <NotificationsPanel
-        open={notifPanelOpen}
-        onClose={() => setNotifPanelOpen(false)}
-        userEmail={effectiveEmail}
-        userRegime={null}
-      />
+
       <BottomNav currentPage="Messaggi" unreadMessages={totalUnreadCount} />
 
       {/* Delete Conversation Confirmation Dialog */}
