@@ -980,7 +980,7 @@ export default function MyProfile() {
    <div className="min-h-screen bg-slate-900 pb-64" style={{ backgroundColor: '#001d3b' }}>
      {/* Top bar gestita dal GlobalHeader nel Layout */}
 
-     <main className="px-4 py-2 max-w-2xl mx-auto">
+     <main className="px-4 pt-16 pb-2 max-w-2xl mx-auto">
        {impersonation.active && (
          <div className="flex items-center gap-3 mb-4 pt-2">
            <button
