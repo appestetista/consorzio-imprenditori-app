@@ -133,6 +133,25 @@ export default function Home() {
     return () => window.removeEventListener('open-chat-sidebar', handleOpenChatSidebar);
   }, []);
 
+  // Carica conversazione da URL param ?conv=ID
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const convId = params.get('conv');
+    if (convId && effectiveUser?.email) {
+      (async () => {
+        const convs = await base44.entities.ChatConversation.filter({ user_email: effectiveUser.email });
+        const conv = convs.find(c => c.id === convId);
+        if (conv) {
+          handleSelectConversation(conv);
+        }
+        // Rimuovi il parametro dall'URL
+        const url = new URL(window.location);
+        url.searchParams.delete('conv');
+        window.history.replaceState({}, '', url.toString());
+      })();
+    }
+  }, [effectiveUser?.email]);
+
   const buildUserContext = () => {
     if (!effectiveUser) return '';
     const fields = [
