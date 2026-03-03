@@ -5,18 +5,29 @@ import { useNotificationsBadge } from '../home/NotificationsPanel';
 
 /**
  * Header globale trasparente — hamburger a sinistra, busta + campanella a destra.
- * Busta = toggle pannello messaggi (slide-up). Campanella = toggle pannello notifiche.
+ * Su Home: hamburger apre la sidebar chat. Su altre pagine: va a MyProfile.
  */
 export default function GlobalHeader({ userEmail, userRegime, onMenuClick, onHamburgerClick, currentPageName }) {
-  const { toggleMsg, toggleNotif } = usePanels();
+  const { toggleMsg, toggleNotif, openChatSidebar } = usePanels();
   const { totalBadge, unreadMessageCount } = useNotificationsBadge(userEmail, userRegime);
+
+  const handleHamburger = () => {
+    if (currentPageName === 'Home') {
+      // Su Home: emetti evento per aprire la sidebar chat
+      openChatSidebar();
+    } else if (onHamburgerClick) {
+      onHamburgerClick();
+    } else if (onMenuClick) {
+      onMenuClick();
+    }
+  };
 
   return (
     <div className="fixed top-0 left-0 right-0 z-[70]">
       <div className="max-w-md mx-auto flex items-center justify-between px-3 pt-4 pb-2">
-        {/* Sinistra: hamburger — apre sidebar chat */}
+        {/* Sinistra: hamburger */}
         <button
-          onPointerUp={onHamburgerClick || onMenuClick}
+          onPointerUp={handleHamburger}
           className="w-12 h-12 flex items-center justify-center rounded-xl active:bg-white/10 transition-colors"
           style={{ touchAction: 'manipulation' }}
         >
