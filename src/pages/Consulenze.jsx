@@ -220,7 +220,7 @@ export default function Consulenze() {
               {isAdmin ? 'GESTIONE CONSULENZE' : isConsultant ? 'RICHIESTE DI CONSULENZA' : 'CONSULENZE'}
             </h1>
           </div>
-          <GlobalTopIcons userEmail={effectiveUser?.email} />
+          {/* Icone gestite dal GlobalHeader */}
         </div>
 
         {isAdmin && <AdminView consultants={consultants} adminEmail={user?.email} />}

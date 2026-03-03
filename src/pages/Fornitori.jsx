@@ -92,7 +92,7 @@ export default function Fornitori() {
             </button>
             <h1 className="text-lime-400 text-xl font-bold">Fornitori</h1>
           </div>
-          <GlobalTopIcons userEmail={effectiveUser?.email} />
+          {/* Icone gestite dal GlobalHeader */}
         </div>
 
         {/* Info banner */}

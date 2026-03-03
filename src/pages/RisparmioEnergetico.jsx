@@ -87,7 +87,7 @@ export default function RisparmioEnergetico() {
             </Link>
             <h1 className="text-white text-xl font-bold">Risparmia con il Consorzio</h1>
           </div>
-          <GlobalTopIcons userEmail={user?.email} />
+          {/* Icone gestite dal GlobalHeader */}
         </div>
 
         {/* Services - 3D Buttons */}

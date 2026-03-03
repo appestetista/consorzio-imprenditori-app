@@ -75,7 +75,7 @@ export default function ImportExport() {
               {isExport || activeTab === 'history' ? 'Export' : 'Import'}
             </h1>
           </div>
-          <GlobalTopIcons userEmail={user?.email} />
+          {/* Icone gestite dal GlobalHeader */}
         </div>
 
         {/* Tab Switch - Export / Import */}

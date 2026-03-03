@@ -74,7 +74,7 @@ export default function SimulatoreFiscale() {
               <h1 className="text-white text-xl font-bold">Simulatore Fiscale</h1>
             </div>
           </div>
-          <GlobalTopIcons userEmail={effectiveUser?.email} />
+          {/* Icone gestite dal GlobalHeader */}
         </div>
 
         {/* Tabs */}

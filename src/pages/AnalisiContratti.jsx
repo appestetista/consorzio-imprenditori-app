@@ -469,7 +469,7 @@ Accedi all'app per visualizzare gli allegati e rispondere direttamente al client
             </Link>
             <h1 className="text-white text-xl font-bold">Analisi Contratti AI</h1>
           </div>
-          <GlobalTopIcons userEmail={user?.email} />
+          {/* Icone gestite dal GlobalHeader */}
         </div>
 
         {/* Tab Switch */}

@@ -831,7 +831,7 @@ export default function FinanziamentiAgevolati() {
             </Link>
             <h1 className="text-white text-lg font-bold">Bandi e Agevolazioni</h1>
           </div>
-          <GlobalTopIcons userEmail={user?.email} />
+          {/* Icone gestite dal GlobalHeader */}
         </div>
 
         {/* SEZIONE ADMIN: Gestione Bandi */}

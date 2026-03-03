@@ -698,9 +698,7 @@ export default function Messaggi() {
         <Link to={createPageUrl('Home')} className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center">
           <ArrowLeft className="w-7 h-7 text-[#d4af37]" />
         </Link>
-        <div className="flex items-center gap-2 mr-4 mt-1">
-          <GlobalTopIcons userEmail={effectiveEmail} userRegime={null} />
-        </div>
+        {/* Icone gestite dal GlobalHeader nel Layout (Messaggi escluso) */}
       </div>
       
       <main className="px-2 flex flex-col" style={{ height: 'calc(100vh - 160px)' }}>

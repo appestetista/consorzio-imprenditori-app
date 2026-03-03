@@ -674,7 +674,7 @@ VERIFICA:
             <h1 className="text-lime-400 text-xl font-bold">Evita Sanzioni</h1>
           </div>
           <div className="flex items-center gap-1">
-            <GlobalTopIcons userEmail={effectiveUser?.email} />
+            {/* Icone gestite dal GlobalHeader */}
           </div>
         </div>
 

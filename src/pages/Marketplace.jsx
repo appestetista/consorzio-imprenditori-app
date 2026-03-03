@@ -235,7 +235,7 @@ export default function Marketplace() {
               </Link>
               <h1 className="text-white text-xl font-bold">Marketplace</h1>
             </div>
-            <GlobalTopIcons userEmail={user?.email} />
+            {/* Icone gestite dal GlobalHeader */}
           </div>
           
           <Dialog open={showAddAd} onOpenChange={setShowAddAd}>

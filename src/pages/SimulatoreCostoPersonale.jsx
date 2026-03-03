@@ -32,7 +32,7 @@ export default function SimulatoreCostoPersonale() {
             </Link>
             <h1 className="text-white text-xl font-bold">Simulatore di Costo</h1>
           </div>
-          <GlobalTopIcons userEmail={user?.email} />
+          {/* Icone gestite dal GlobalHeader */}
         </div>
 
         <Tabs defaultValue="dipendente" className="w-full">
