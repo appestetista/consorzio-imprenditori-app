@@ -71,7 +71,7 @@ export default function Layout({ children, currentPageName }) {
             currentPageName={currentPageName}
           />
         )}
-        {/* Spacer rimosso - header ora scorre con la pagina */}
+        {/* Nessuno spacer necessario: l'header scorre con la pagina */}
         {children}
         {currentPageName === 'Home' && <GlobalSearchBar currentPageName={currentPageName} />}
         <VantaggiSideTab />
