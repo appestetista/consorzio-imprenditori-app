@@ -93,6 +93,15 @@ export default function Layout({ children, currentPageName }) {
             currentPageName={currentPageName}
           />
         )}
+        {/* ChatSidebar globale — storico conversazioni da tutte le pagine */}
+        <ChatSidebar
+          open={chatSidebarOpen}
+          onClose={() => setChatSidebarOpen(false)}
+          userEmail={layoutUser?.email}
+          activeConversationId={null}
+          onSelectConversation={handleSelectConversation}
+          onNewChat={handleNewChat}
+        />
         {/* Nessuno spacer necessario: l'header scorre con la pagina */}
         {children}
         {currentPageName === 'Home' && <GlobalSearchBar currentPageName={currentPageName} />}
