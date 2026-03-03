@@ -84,6 +84,12 @@ export default function Layout({ children, currentPageName }) {
             transition: opacity 0s;
           }
         `}</style>
+        {/* Imposta --page-bg in base alla pagina corrente per il gradient dell'header */}
+        <style>{`:root { --page-bg: ${
+          currentPageName === 'Home' ? '#0a0f1a' :
+          currentPageName === 'Esplora' || currentPageName === 'MyProfile' ? '#001d3b' :
+          '#0f172a'
+        }; }`}</style>
         {/* Header globale trasparente — hamburger + busta + campanella */}
         {currentPageName !== 'AdminPanel' && (
           <GlobalHeader
