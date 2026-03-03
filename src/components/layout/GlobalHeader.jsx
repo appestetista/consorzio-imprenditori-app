@@ -20,7 +20,7 @@ export default function GlobalHeader({ userEmail, userRegime, onMenuClick, onHam
   if (headerHidden) return null;
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-[70] pointer-events-none" style={{ background: 'linear-gradient(to bottom, rgba(0,10,25,0.95) 50%, rgba(0,10,25,0) 100%)' }}>
+    <div className="fixed top-0 left-0 right-0 z-[70] pointer-events-none" style={{ background: 'linear-gradient(to bottom, var(--page-bg, #0f172a) 60%, transparent 100%)' }}>
       <div className="max-w-md mx-auto flex items-center justify-between px-3 pt-4 pb-3 pointer-events-auto">
         {/* Sinistra: hamburger */}
         <button
