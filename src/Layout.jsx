@@ -82,6 +82,24 @@ export default function Layout({ children, currentPageName }) {
             currentPageName={currentPageName}
           />
         )}
+
+        {/* Sidebar Chat globale — accessibile da hamburger su tutte le pagine */}
+        <ChatSidebar
+          open={chatSidebarOpen}
+          onClose={() => setChatSidebarOpen(false)}
+          userEmail={layoutUser?.email}
+          activeConversationId={null}
+          onSelectConversation={(conv) => {
+            setChatSidebarOpen(false);
+            // Naviga a Home con l'id della conversazione per caricarla
+            navigate(createPageUrl('Home') + '?conv=' + conv.id);
+          }}
+          onNewChat={() => {
+            setChatSidebarOpen(false);
+            navigate(createPageUrl('Home'));
+          }}
+        />
+
         {/* Nessuno spacer necessario: l'header scorre con la pagina */}
         {children}
         {currentPageName === 'Home' && <GlobalSearchBar currentPageName={currentPageName} />}
