@@ -25,9 +25,9 @@ export function PanelProvider({ children }) {
     setNotifPanelOpen(false);
   }, []);
 
-  // Funzione per emettere evento globale di apertura sidebar chat
+  // Funzione per emettere evento globale di toggle sidebar chat
   const openChatSidebar = useCallback(() => {
-    window.dispatchEvent(new CustomEvent('open-chat-sidebar'));
+    window.dispatchEvent(new CustomEvent('toggle-chat-sidebar'));
   }, []);
 
   // Funzioni per nascondere/mostrare header
