@@ -117,6 +117,7 @@ function ScadenzaItem({ scadenza }) {
 
 export default function NotificationsPanel({ open, onClose, userEmail, userRegime }) {
   const [tab, setTab] = useState('notifiche');
+  const [expandedId, setExpandedId] = useState(null);
   const queryClient = useQueryClient();
 
   // Notifiche
