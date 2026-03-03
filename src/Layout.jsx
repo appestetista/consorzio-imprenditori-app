@@ -17,10 +17,19 @@ export default function Layout({ children, currentPageName }) {
   const [selectedDate, setSelectedDate] = useState(null);
   const [forceOpenCalendar, setForceOpenCalendar] = useState(false);
   const [layoutUser, setLayoutUser] = useState(null);
+  const [chatSidebarOpen, setChatSidebarOpen] = useState(false);
+  const navigate = useNavigate();
 
   // Carica utente una sola volta per i pannelli globali
   useEffect(() => {
     base44.auth.me().then(u => setLayoutUser(u)).catch(() => {});
+  }, []);
+
+  // Ascolta evento globale per aprire la sidebar chat (dal GlobalHeader hamburger)
+  useEffect(() => {
+    const handleOpenChatSidebar = () => setChatSidebarOpen(true);
+    window.addEventListener('open-chat-sidebar', handleOpenChatSidebar);
+    return () => window.removeEventListener('open-chat-sidebar', handleOpenChatSidebar);
   }, []);
 
   useEffect(() => {
