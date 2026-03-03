@@ -570,16 +570,7 @@ Scenario B: ${b}`,
 
   // Badge notifiche + scadenze urgenti
   const userRegime = effectiveUser?.regime_fiscale || null;
-  const totalBadge = useNotificationsBadge(effectiveUser?.email, userRegime);
-
-  // Notifiche non lette per badge messaggi (solo messaggi)
-  const { data: cachedNotifications = [] } = useRQQuery({
-    queryKey: ['home-notifications', effectiveUser?.email],
-    queryFn: () => base44.entities.Notification.filter({ user_email: effectiveUser?.email, is_read: false }),
-    enabled: !!effectiveUser?.email,
-    staleTime: 10000,
-  });
-  const unreadCount = cachedNotifications.filter(n => n.type === 'message').length;
+  const { totalBadge, unreadMessageCount: unreadCount } = useNotificationsBadge(effectiveUser?.email, userRegime);
 
   // Logo utente
   const DEFAULT_LOGO = "https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=100&h=100&fit=crop";
