@@ -12,7 +12,7 @@ export default function GlobalHeader({ userEmail, userRegime, onMenuClick, onHam
   const { totalBadge, unreadMessageCount } = useNotificationsBadge(userEmail, userRegime);
 
   const handleHamburger = () => {
-    // Su tutte le pagine: apri la sidebar chat con lo storico conversazioni
+    // Sempre: apri la sidebar chat con lo storico conversazioni
     openChatSidebar();
   };
 
