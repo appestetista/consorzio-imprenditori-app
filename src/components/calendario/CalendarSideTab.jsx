@@ -18,6 +18,7 @@ import MonthBar from './MonthBar';
 import MonthNotesCountBar from './MonthNotesCountBar';
 import MonthNotesSummaryPopup from './MonthNotesSummaryPopup';
 import DayNotesSummaryPopup from './DayNotesSummaryPopup';
+import { usePanels } from '../layout/GlobalTopIcons';
 
 
 const MONTH_COLORS = [
@@ -40,6 +41,7 @@ export default function CalendarSideTab({ selectedDate, onDateSelect, forceOpen,
     const [showTimePicker, setShowTimePicker] = useState(false);
     const [showFatturato, setShowFatturato] = useState(false);
     const [showWeekView, setShowWeekView] = useState(false);
+    const { hideHeader, showHeader } = usePanels();
     const [weekViewColor, setWeekViewColor] = useState(null);
     const [weekViewMonth, setWeekViewMonth] = useState(new Date().getMonth());
     const weekViewMonthSelectRef = useRef(null);
@@ -225,9 +227,21 @@ export default function CalendarSideTab({ selectedDate, onDateSelect, forceOpen,
         onDateSelect(today);
       }
       setShowTimePicker(true);
+      hideHeader(); // Nascondi header quando apro calendario giornaliero
+    } else {
+      showHeader(); // Mostra header quando chiudo
     }
     setIsOpen(!isOpen);
   };
+
+  // Nascondi/mostra header quando si apre/chiude la week view (mensile)
+  useEffect(() => {
+    if (showWeekView) {
+      hideHeader();
+    } else if (!isOpen) {
+      showHeader();
+    }
+  }, [showWeekView]);
 
   const handleDateSelect = (date) => {
     if (onDateSelect) {

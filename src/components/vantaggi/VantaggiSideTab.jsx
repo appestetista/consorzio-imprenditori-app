@@ -1,12 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import VantaggiPanelContent from './VantaggiPanelContent.jsx';
+import { usePanels } from '../layout/GlobalTopIcons';
 
 export default function VantaggiSideTab() {
   const [isOpen, setIsOpen] = useState(false);
+  const { hideHeader, showHeader } = usePanels();
 
   const togglePanel = () => {
-    setIsOpen(prev => !prev);
+    const newOpen = !isOpen;
+    setIsOpen(newOpen);
+    if (newOpen) {
+      hideHeader();
+    } else {
+      showHeader();
+    }
   };
 
   return (
@@ -37,7 +45,7 @@ export default function VantaggiSideTab() {
       {/* Linguetta CHIUDI - visibile solo quando il pannello è aperto */}
       {isOpen && (
         <button
-          onClick={() => setIsOpen(false)}
+          onClick={() => { setIsOpen(false); showHeader(); }}
           className="fixed left-0 z-[60] bg-gradient-to-r from-[#b8860b] to-[#d4af37] text-slate-900 rounded-r-xl shadow-lg shadow-[#d4af37]/20 flex items-center justify-center hover:opacity-70 active:scale-95"
           style={{
             width: '42px',

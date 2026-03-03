@@ -8,6 +8,7 @@ const PanelContext = createContext(null);
 export function PanelProvider({ children }) {
   const [msgPanelOpen, setMsgPanelOpen] = useState(false);
   const [notifPanelOpen, setNotifPanelOpen] = useState(false);
+  const [headerHidden, setHeaderHidden] = useState(false);
 
   const toggleMsg = useCallback(() => {
     setNotifPanelOpen(false);
@@ -29,8 +30,12 @@ export function PanelProvider({ children }) {
     window.dispatchEvent(new CustomEvent('open-chat-sidebar'));
   }, []);
 
+  // Funzioni per nascondere/mostrare header
+  const hideHeader = useCallback(() => setHeaderHidden(true), []);
+  const showHeader = useCallback(() => setHeaderHidden(false), []);
+
   return (
-    <PanelContext.Provider value={{ msgPanelOpen, notifPanelOpen, toggleMsg, toggleNotif, closeAll, openChatSidebar }}>
+    <PanelContext.Provider value={{ msgPanelOpen, notifPanelOpen, toggleMsg, toggleNotif, closeAll, openChatSidebar, headerHidden, hideHeader, showHeader }}>
       {children}
     </PanelContext.Provider>
   );
