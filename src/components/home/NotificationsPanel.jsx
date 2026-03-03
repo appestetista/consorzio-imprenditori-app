@@ -37,23 +37,47 @@ function getUpcomingScadenze(scadenze, userRegime) {
   return results.sort((a, b) => a.daysLeft - b.daysLeft);
 }
 
-function NotificationItem({ notif, onMarkRead }) {
+function NotificationItem({ notif, onMarkRead, onDelete, expanded, onToggleExpand }) {
+  const handleClick = () => {
+    // Al click: espandi/comprimi e segna come letta
+    if (!notif.is_read) {
+      onMarkRead(notif.id);
+    }
+    onToggleExpand(notif.id);
+  };
+
   return (
-    <div className={cn(
-      "px-4 py-3 border-b border-slate-700/30 last:border-b-0 transition-colors",
-      !notif.is_read ? "bg-slate-800/40" : ""
-    )}>
+    <div 
+      className={cn(
+        "px-4 py-3 border-b border-slate-700/30 last:border-b-0 transition-colors cursor-pointer hover:bg-slate-800/60",
+        !notif.is_read ? "bg-slate-800/40" : ""
+      )}
+      onClick={handleClick}
+    >
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
-          <p className="text-xs font-medium text-white truncate">{notif.title}</p>
-          {notif.content && <p className="text-[11px] text-slate-400 mt-0.5 line-clamp-2">{notif.content}</p>}
+          <div className="flex items-center gap-1.5">
+            {!notif.is_read && <span className="w-2 h-2 rounded-full bg-[#d4af37] flex-shrink-0" />}
+            <p className="text-xs font-medium text-white truncate">{notif.title}</p>
+          </div>
+          {notif.content && (
+            <p className={cn("text-[11px] text-slate-400 mt-0.5", expanded ? "whitespace-pre-wrap" : "line-clamp-2")}>
+              {notif.content}
+            </p>
+          )}
           <p className="text-[10px] text-slate-500 mt-1">
             {notif.created_date ? new Date(notif.created_date).toLocaleDateString('it-IT', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : ''}
           </p>
         </div>
-        {!notif.is_read && (
-          <button onClick={() => onMarkRead(notif.id)} className="w-2 h-2 rounded-full bg-[#d4af37] flex-shrink-0 mt-1.5" title="Segna come letta" />
-        )}
+        <div className="flex items-center gap-1 flex-shrink-0">
+          <button 
+            onClick={(e) => { e.stopPropagation(); onDelete(notif.id); }} 
+            className="p-1 rounded-full hover:bg-red-500/20 transition-colors"
+            title="Elimina notifica"
+          >
+            <Trash2 className="w-3.5 h-3.5 text-red-400" />
+          </button>
+        </div>
       </div>
     </div>
   );
