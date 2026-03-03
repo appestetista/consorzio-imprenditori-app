@@ -804,20 +804,7 @@ Scenario B: ${b}`,
 
       {/* Menu Drawer rimosso - il pulsante Menu naviga direttamente a MyProfile */}
 
-      {/* Messages Panel */}
-      <MessagesSidePanel
-        open={msgPanelOpen}
-        onClose={() => setMsgPanelOpen(false)}
-        userEmail={effectiveUser?.email}
-      />
-
-      {/* Notifications Panel */}
-      <NotificationsPanel
-        open={notifPanelOpen}
-        onClose={() => setNotifPanelOpen(false)}
-        userEmail={effectiveUser?.email}
-        userRegime={userRegime}
-      />
+      {/* Pannelli messaggi/notifiche gestiti globalmente nel Layout */}
 
       {/* Bottom Nav */}
       <BottomNav currentPage="Home" onMenuOpen={() => window.location.href = createPageUrl('MyProfile')} menuOpen={false} bgColor="#0a0f1a" />
