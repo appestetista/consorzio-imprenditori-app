@@ -9,7 +9,9 @@ import { Toaster } from 'sonner';
 import CalendarSideTab from './components/calendario/CalendarSideTab';
 import VantaggiSideTab from './components/vantaggi/VantaggiSideTab';
 import GlobalSearchBar from './components/layout/GlobalSearchBar';
+import ChatSidebar from './components/home/ChatSidebar';
 import { createPageUrl } from '@/utils';
+import { useNavigate } from 'react-router-dom';
 
 export default function Layout({ children, currentPageName }) {
   const [selectedDate, setSelectedDate] = useState(null);
