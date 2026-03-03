@@ -69,7 +69,9 @@ export default function Layout({ children, currentPageName }) {
           forceOpen={forceOpenCalendar}
           onForceOpenConsumed={() => setForceOpenCalendar(false)}
         />
+        <GlobalPanels userEmail={layoutUser?.email} userRegime={layoutUser?.regime_fiscale} />
         <Toaster richColors position="top-center" />
+        </PanelProvider>
       </VideoVisitProvider>
     </ImpersonationProvider>
   );
