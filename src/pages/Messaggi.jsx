@@ -49,6 +49,9 @@ import NotificationsPanel, { useNotificationsBadge } from '../components/home/No
   const effectiveUser = isImpersonating ? impersonatedUser : user;
   const effectiveEmail = isImpersonating ? impersonation?.targetEmail : user?.email;
 
+  // Badge notifiche per la campanella
+  const { totalBadge: notifBadgeCount } = useNotificationsBadge(effectiveEmail, null);
+
   useEffect(() => {
     const loadUser = async () => {
       try {
