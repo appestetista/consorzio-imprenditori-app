@@ -15,7 +15,7 @@ import { toast } from 'sonner';
 import Header from '../components/layout/Header';
 import BottomNav from '../components/layout/BottomNav';
 import { useImpersonation } from '../components/admin/ImpersonationContext';
-import NotificationsPanel, { useNotificationsBadge } from '../components/home/NotificationsPanel';
+import GlobalTopIcons from '../components/layout/GlobalTopIcons';
 
 export default function Messaggi() {
   const [user, setUser] = useState(null);
