@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Bell, X, Calendar, AlertTriangle, Clock, CheckCircle2, User as UserIcon } from 'lucide-react';
+import { Bell, X, Calendar, AlertTriangle, Clock, CheckCircle2, User as UserIcon, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { cn } from '@/lib/utils';
