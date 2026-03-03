@@ -7,16 +7,16 @@ import { useNotificationsBadge } from '../home/NotificationsPanel';
  * Header globale trasparente — hamburger a sinistra, busta + campanella a destra.
  * Busta = toggle pannello messaggi (slide-up). Campanella = toggle pannello notifiche.
  */
-export default function GlobalHeader({ userEmail, userRegime, onMenuClick }) {
+export default function GlobalHeader({ userEmail, userRegime, onMenuClick, onHamburgerClick }) {
   const { toggleMsg, toggleNotif } = usePanels();
   const { totalBadge, unreadMessageCount } = useNotificationsBadge(userEmail, userRegime);
 
   return (
     <div className="fixed top-0 left-0 right-0 z-[70]">
       <div className="max-w-md mx-auto flex items-center justify-between px-3 pt-4 pb-2">
-        {/* Sinistra: hamburger */}
+        {/* Sinistra: hamburger — apre sidebar chat */}
         <button
-          onPointerUp={onMenuClick}
+          onPointerUp={onHamburgerClick || onMenuClick}
           className="w-12 h-12 flex items-center justify-center rounded-xl active:bg-white/10 transition-colors"
           style={{ touchAction: 'manipulation' }}
         >
