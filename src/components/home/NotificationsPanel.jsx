@@ -235,7 +235,14 @@ export default function NotificationsPanel({ open, onClose, userEmail, userRegim
                 </div>
               ) : (
                 allNotifications.map(n => (
-                  <NotificationItem key={n.id} notif={n} onMarkRead={(id) => markReadMutation.mutate(id)} />
+                  <NotificationItem 
+                    key={n.id} 
+                    notif={n} 
+                    onMarkRead={(id) => markReadMutation.mutate(id)} 
+                    onDelete={(id) => deleteNotifMutation.mutate(id)}
+                    expanded={expandedId === n.id}
+                    onToggleExpand={(id) => setExpandedId(prev => prev === id ? null : id)}
+                  />
                 ))
               )}
             </>
