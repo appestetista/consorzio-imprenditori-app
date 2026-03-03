@@ -16,7 +16,7 @@ import NotificationsPanel, { useNotificationsBadge } from '../components/home/No
 import AIUsageBar, { AIUsageBadge } from '../components/home/AIUsageBar';
 import MissingProfileDataModal, { getMissingFields } from '../components/home/MissingProfileDataModal';
 import { classifyIntent } from '../components/home/classifyIntent';
-import { useQueryClient, useQuery as useRQQuery } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function Home() {
   const [user, setUser] = useState(null);
