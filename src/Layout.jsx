@@ -12,6 +12,12 @@ import GlobalSearchBar from './components/layout/GlobalSearchBar';
 export default function Layout({ children, currentPageName }) {
   const [selectedDate, setSelectedDate] = useState(null);
   const [forceOpenCalendar, setForceOpenCalendar] = useState(false);
+  const [layoutUser, setLayoutUser] = useState(null);
+
+  // Carica utente una sola volta per i pannelli globali
+  useEffect(() => {
+    base44.auth.me().then(u => setLayoutUser(u)).catch(() => {});
+  }, []);
 
   useEffect(() => {
     console.log('[LAYOUT] Current page:', currentPageName);
