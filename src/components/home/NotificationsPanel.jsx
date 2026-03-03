@@ -154,6 +154,14 @@ export default function NotificationsPanel({ open, onClose, userEmail, userRegim
     queryClient.invalidateQueries({ queryKey: ['home-notifications'] });
   };
 
+  const deleteNotifMutation = useMutation({
+    mutationFn: (id) => base44.entities.Notification.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['panel-notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['home-notifications'] });
+    },
+  });
+
   if (!open) return null;
 
   const unreadNotifs = allNotifications.filter(n => !n.is_read).length;
