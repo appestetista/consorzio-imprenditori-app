@@ -978,10 +978,7 @@ export default function MyProfile() {
 
   return (
    <div className="min-h-screen bg-slate-900 pb-64" style={{ backgroundColor: '#001d3b' }}>
-     {/* Top bar con icone notifiche/messaggi */}
-     <div className="flex items-center justify-end px-4 pt-3 pb-1">
-       <GlobalTopIcons userEmail={user?.email} userRegime={user?.regime_fiscale} />
-     </div>
+     {/* Top bar gestita dal GlobalHeader nel Layout */}
 
      <main className="px-4 py-2 max-w-2xl mx-auto">
        {impersonation.active && (

@@ -458,10 +458,7 @@ export default function Esplora() {
 
   return (
     <div className="min-h-screen pb-72" style={{ backgroundColor: '#001d3b' }}>
-      {/* Top bar con icone */}
-      <div className="flex items-center justify-end px-4 pt-3 pb-1">
-        <GlobalTopIcons userEmail={effectiveUser?.email} userRegime={effectiveUser?.regime_fiscale} />
-      </div>
+      {/* Top bar gestita dal GlobalHeader nel Layout */}
 
       {/* Menu Panel rimosso - il pulsante Menu naviga direttamente a MyProfile */}
 

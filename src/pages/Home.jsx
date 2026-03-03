@@ -626,15 +626,11 @@ Scenario B: ${b}`,
       {/* Area messaggi / stato iniziale */}
       <div className="flex-1 flex flex-col overflow-hidden">
         
-        {/* Top bar */}
-        <div className="flex items-center justify-between px-6 pt-4 pb-2">
-          {/* Sinistra: menu hamburger (apre sidebar chat) */}
+        {/* Top bar — solo hamburger per sidebar chat (busta+campanella nel GlobalHeader del Layout) */}
+        <div className="flex items-center px-6 pt-1 pb-2">
           <button onClick={() => setSidebarOpen(true)} className="p-1.5 rounded-xl hover:bg-slate-800 transition-colors">
             <Menu className="w-6 h-6 text-slate-400" />
           </button>
-
-          {/* Destra: messaggi + notifiche (componente globale) */}
-          <GlobalTopIcons userEmail={effectiveUser?.email} userRegime={userRegime} />
         </div>
 
         {!hasMessages ? (
