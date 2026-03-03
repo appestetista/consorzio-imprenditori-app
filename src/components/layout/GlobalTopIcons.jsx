@@ -24,8 +24,13 @@ export function PanelProvider({ children }) {
     setNotifPanelOpen(false);
   }, []);
 
+  // Funzione per emettere evento globale di apertura sidebar chat
+  const openChatSidebar = useCallback(() => {
+    window.dispatchEvent(new CustomEvent('open-chat-sidebar'));
+  }, []);
+
   return (
-    <PanelContext.Provider value={{ msgPanelOpen, notifPanelOpen, toggleMsg, toggleNotif, closeAll }}>
+    <PanelContext.Provider value={{ msgPanelOpen, notifPanelOpen, toggleMsg, toggleNotif, closeAll, openChatSidebar }}>
       {children}
     </PanelContext.Provider>
   );
