@@ -928,8 +928,12 @@ export default function Home() {
           // Conversazione attiva
           <div ref={messagesContainerRef} className="flex-1 overflow-y-auto px-4 pt-2 pb-32" style={{ overscrollBehavior: 'contain' }}>
             <div className="max-w-2xl mx-auto space-y-4">
-              {messages.map((msg, i) => (
-                msg.smartQuestions ? (
+              {messages.map((msg, i) => {
+                // Calcola se è l'ultimo messaggio utente o l'ultimo assistente
+                const isLastUser = msg.role === 'user' && !messages.slice(i + 1).some(m => m.role === 'user');
+                const isLastAssistant = msg.role === 'assistant' && !messages.slice(i + 1).some(m => m.role === 'assistant');
+
+                if (msg.smartQuestions) return (
                   <SmartQuestionsCard 
                     key={i} 
                     data={msg.smartQuestions} 
@@ -937,7 +941,8 @@ export default function Home() {
                     onSkip={handleSmartQuestionSkip}
                     isTyping={isTyping}
                   />
-                ) : msg.disambiguation ? (
+                );
+                if (msg.disambiguation) return (
                   <div key={i} className="flex items-start gap-3">
                     <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#d4af37] to-[#b8860b] flex items-center justify-center flex-shrink-0 mt-0.5">
                       <Sparkles className="w-4 h-4 text-white" />
@@ -960,17 +965,24 @@ export default function Home() {
                       </div>
                     </div>
                   </div>
-                ) : msg.role === 'assistant' && msg.isCompare ? (
-                  <CompareResult key={i} data={typeof msg.content === 'string' ? (() => { try { return JSON.parse(msg.content); } catch { return null; } })() : msg.content} />
-                ) : msg.role === 'assistant' ? (
-                  <div key={i} className="space-y-1.5">
+                );
+                if (msg.role === 'assistant' && msg.isCompare) return (
+                  <div key={i} ref={isLastAssistant ? lastAssistantMsgRef : null}>
+                    <CompareResult data={typeof msg.content === 'string' ? (() => { try { return JSON.parse(msg.content); } catch { return null; } })() : msg.content} />
+                  </div>
+                );
+                if (msg.role === 'assistant') return (
+                  <div key={i} ref={isLastAssistant ? lastAssistantMsgRef : null} className="space-y-1.5">
                     <DecisionResponse message={msg} category={lastCategory} classification={lastClassification} onFollowup={(text) => handleSend(text)} conversationId={activeConversationId} existingPlan={activeConvData?.ha_piano ? activeConvData.piano_json : null} userQuestion={messages.slice(0, i).reverse().find(m => m.role === 'user')?.content} isNew={!!msg.isNew} />
                     <AIUsageBadge isAIResponse={msg.isAI} usate={msg.usageCount || consulenzeUsate} />
                   </div>
-                ) : (
-                  <ChatMessage key={i} message={msg} />
-                )
-              ))}
+                );
+                return (
+                  <div key={i} ref={isLastUser ? lastUserMsgRef : null}>
+                    <ChatMessage message={msg} />
+                  </div>
+                );
+              })}
               {isTyping && (
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#d4af37] to-[#b8860b] flex items-center justify-center flex-shrink-0">
