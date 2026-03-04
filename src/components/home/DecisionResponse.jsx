@@ -498,6 +498,22 @@ Genera un piano operativo in JSON con: titolo_piano, durata_totale, budget_stima
         {/* FONTI */}
         <FontiSection fonti={parsed.fonti} />
 
+        {/* WARNING QUALITÀ DATI */}
+        {parsed._quality_warnings && parsed._quality_warnings.length > 0 && (
+          <div className="rounded-xl border border-orange-500/30 bg-orange-500/5 px-4 py-3">
+            <div className="flex items-center gap-2 mb-1.5">
+              <AlertTriangle className="w-4 h-4 text-orange-400" />
+              <span className="text-xs font-bold text-orange-400 uppercase tracking-wider">Nota sulla qualità dei dati</span>
+            </div>
+            <ul className="space-y-1">
+              {parsed._quality_warnings.map((w, idx) => (
+                <li key={idx} className="text-xs text-orange-300/80">• {w}</li>
+              ))}
+            </ul>
+            <p className="text-[10px] text-slate-500 mt-2">Per decisioni importanti, consigliamo una verifica con il tuo commercialista o avvocato.</p>
+          </div>
+        )}
+
         {/* FOLLOWUP */}
         {parsed.followup_questions?.length > 0 && (
           <div className="flex flex-col gap-2">

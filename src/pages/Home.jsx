@@ -367,6 +367,24 @@ Domanda: ${msg}`,
       } catch (e) { parsed = null; }
     }
 
+    // Post-validazione qualità risposta
+    if (parsed && typeof parsed === 'object') {
+      const warnings = [];
+      if (!parsed.fonti || parsed.fonti.length === 0) {
+        warnings.push('Nessuna fonte citata nella risposta');
+      } else {
+        const senzaUrl = parsed.fonti.filter(f => !f.url || f.url === '');
+        if (senzaUrl.length > 0) warnings.push(senzaUrl.length + ' fonte/i senza link verificabile');
+      }
+      if (parsed.affidabilita && parsed.affidabilita.punteggio < 50) {
+        warnings.push('Punteggio affidabilità basso (' + parsed.affidabilita.punteggio + '/100)');
+      }
+      if (parsed.affidabilita && parsed.affidabilita.stimati > parsed.affidabilita.verificati) {
+        warnings.push('Più dati stimati che verificati — consigliata verifica con un professionista');
+      }
+      if (warnings.length > 0) parsed._quality_warnings = warnings;
+    }
+
     // Inietta strumento correlato se presente
     if (parsed && strumentoSuggerito) parsed.strumento_correlato = strumentoSuggerito;
 
