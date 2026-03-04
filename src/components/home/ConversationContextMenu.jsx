@@ -16,7 +16,7 @@ export default function ConversationContextMenu({
   onClose,
   anchorRef,
 }) {
-  const [mode, setMode] = useState('menu'); // 'menu' | 'rename' | 'folders'
+  const [mode, setMode] = useState('menu'); // 'menu' | 'rename' | 'folders' | 'confirmDelete'
   const [renameValue, setRenameValue] = useState(conv.titolo || '');
   const menuRef = useRef(null);
   const renameRef = useRef(null);
@@ -127,6 +127,28 @@ export default function ConversationContextMenu({
     );
   }
 
+  if (mode === 'confirmDelete') {
+    return (
+      <div ref={menuRef} className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 px-6">
+        <div className="w-full max-w-xs bg-[#1e293b] rounded-2xl border border-slate-700/60 p-4 space-y-3 shadow-xl">
+          <p className="text-sm font-semibold text-white">Eliminare questa chat?</p>
+          <p className="text-xs text-slate-400 leading-relaxed">Non potrai più ripristinarla.</p>
+          <div className="flex gap-2 justify-end pt-1">
+            <button onClick={onClose} className="px-4 py-2 text-xs text-slate-400 rounded-lg hover:bg-slate-700 transition-colors">
+              Annulla
+            </button>
+            <button
+              onClick={() => { onDelete(conv.id); onClose(); }}
+              className="px-4 py-2 text-xs font-semibold rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors"
+            >
+              Elimina
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Menu principale
   return (
     <div ref={menuRef} className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 px-6">
@@ -168,7 +190,7 @@ export default function ConversationContextMenu({
 
         {/* Elimina */}
         <button
-          onClick={() => { onDelete(conv.id); onClose(); }}
+          onClick={() => setMode('confirmDelete')}
           className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-800 transition-colors text-left"
         >
           <Trash2 className="w-4.5 h-4.5 text-red-400" />
