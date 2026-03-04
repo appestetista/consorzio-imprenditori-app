@@ -14,8 +14,8 @@ import CompareResult from '../components/home/CompareResult';
 import ChatSidebar from '../components/home/ChatSidebar';
 import GlobalTopIcons from '../components/layout/GlobalTopIcons';
 import AIUsageBar, { AIUsageBadge } from '../components/home/AIUsageBar';
-import MissingProfileDataModal, { getMissingFields } from '../components/home/MissingProfileDataModal';
 import { classifyIntent, detectVagueness } from '../components/home/classifyIntent';
+import { extractProfileDataFromChat } from '../components/home/extractProfileFromChat';
 import { useQueryClient } from '@tanstack/react-query';
 
 function SmartQuestionsCard({ data, onSubmit, onSkip, isTyping }) {
