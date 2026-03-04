@@ -572,34 +572,14 @@ export default function Home() {
       setLastCategory(category);
       setLastClassification({ categoria: category, sottocategoria, confidenza });
 
-      // Se confidenza bassa, chiedi disambiguazione
-      if (confidenza < 70) {
-        const disambigMsg = {
-          role: 'assistant',
-          content: null,
-          disambiguation: {
-            text: "Per un'analisi più precisa, in quale area rientra la tua domanda?",
-            categories: [classificazione.categoria, ...['Fiscale', 'Legale', 'Personale/HR', 'Investimenti', 'Operativa', 'Marketing', 'Strategica'].filter(c => c !== classificazione.categoria)].slice(0, 5),
-            originalMsg: msg,
-            sottocategoria,
-            convId,
-          }
-        };
-        const updatedMessages = [...newMessages, disambigMsg];
-        setMessages(updatedMessages);
-        await base44.entities.ChatConversation.update(convId, { messages: updatedMessages });
-        setIsTyping(false);
-        return;
-      }
-
-      // FASE 1.5 – Estrazione silente dati profilo (se l'utente parla della propria azienda)
+      // Estrazione silente dati profilo (se l'utente parla della propria azienda)
       extractProfileDataFromChat(msg, effectiveUser, setEffectiveUser);
 
-      // FASE 1.6 – Cerca in cache risposte simili (zero costo AI)
+      // Cerca in cache risposte simili (zero costo AI)
       const cachedResult = await findCachedResponse(msg);
       if (cachedResult) {
         console.log('[CACHE] Risposta trovata in cache, skip chiamata AI');
-        const newCount = consulenzeUsate; // Non incrementa il contatore per risposte cached
+        const newCount = consulenzeUsate;
         const assistantMsg = { role: 'assistant', content: cachedResult.data, isAI: true, usageCount: newCount, isNew: true };
         const updatedMessages = [...newMessages, assistantMsg];
         setMessages(updatedMessages);
@@ -625,30 +605,7 @@ export default function Home() {
         return;
       }
 
-      // FASE 1.7 – Smart Questioning: la domanda è troppo vaga?
-      const vagueness = detectVagueness(msg, category, effectiveUser);
-      if (vagueness && vagueness.domande.length > 0) {
-        const smartMsg = {
-          role: 'assistant',
-          content: null,
-          smartQuestions: {
-            text: "Per darti una risposta davvero utile, ho bisogno di qualche dettaglio:",
-            domande: vagueness.domande,
-            messaggioOriginale: msg,
-            categoria: category,
-            sottocategoria,
-            convId,
-            risposte: {},
-          }
-        };
-        const updatedMessages = [...newMessages, smartMsg];
-        setMessages(updatedMessages);
-        await base44.entities.ChatConversation.update(convId, { messages: updatedMessages });
-        setIsTyping(false);
-        return;
-      }
-
-      // FASE 2 + 3 – Analisi con system prompt strutturato
+      // Analisi diretta con system prompt strutturato
       console.log('>>> STEP 3: Inizio analisi');
       await runAnalysis({ msg, category, sottocategoria, newMessages, convId });
     } catch (e) {
