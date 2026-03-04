@@ -24,15 +24,6 @@ const CATEGORY_COLORS = {
 };
 const DEFAULT_CAT_COLOR = { bg: 'bg-slate-500/15', border: 'border-slate-500/30', text: 'text-slate-400', dot: 'bg-slate-400' };
 
-// Card sezioni
-const SECTIONS = [
-  { key: 'sintesi_decisionale', label: 'Sintesi Decisionale', icon: Target, borderColor: 'border-l-[#d4af37]', large: false },
-  { key: 'impatto_economico', label: 'Impatto Economico', icon: TrendingUp, borderColor: 'border-l-emerald-400', large: false },
-  { key: 'rischi_criticita', label: 'Rischi e Criticità', icon: AlertTriangle, borderColor: 'border-l-red-400', large: false },
-  { key: 'tempo_attuazione', label: 'Tempo di Attuazione', icon: Clock, borderColor: 'border-l-violet-400', large: false },
-  { key: 'raccomandazione_finale', label: 'Raccomandazione Finale', icon: CheckCircle2, borderColor: 'border-l-[#d4af37]', large: true },
-];
-
 // Trasforma tag inline in badge
 function renderTaggedText(text) {
   if (!text || typeof text !== 'string') return text;
@@ -334,8 +325,6 @@ export default function DecisionResponse({ message, category, classification, on
     if (typeof existingPlan === 'object') return existingPlan;
     try { return JSON.parse(existingPlan); } catch { return null; }
   });
-  const [visibleCards, setVisibleCards] = useState([]);
-
   // Parse JSON
   let parsed = null;
   const content = message.content;
@@ -349,15 +338,6 @@ export default function DecisionResponse({ message, category, classification, on
       if (obj.sintesi_decisionale) parsed = obj;
     } catch { /* fallback markdown */ }
   }
-
-  // Stagger card animation
-  useEffect(() => {
-    if (!parsed) return;
-    const keys = SECTIONS.filter(s => parsed[s.key]).map(s => s.key);
-    keys.forEach((key, i) => {
-      setTimeout(() => setVisibleCards(prev => [...prev, key]), (i + 1) * 100);
-    });
-  }, [!!parsed]);
 
   const handleGeneratePlan = async () => {
     if (!conversationId || !parsed) return;
@@ -465,54 +445,68 @@ Genera un piano operativo in JSON con: titolo_piano, durata_totale, budget_stima
           </div>
         )}
 
-        {/* STRUMENTO CORRELATO — in alto */}
+        {/* STRUMENTO CORRELATO in alto */}
         <StrumentoCorrelato strumento={parsed.strumento_correlato} />
 
-        {/* BARRA AFFIDABILITA */}
-        <AffidabilitaBar affidabilita={parsed.affidabilita} />
+        {/* RISPOSTA FLUIDA — un unico blocco discorsivo */}
+        <div className="rounded-2xl bg-slate-800/50 border border-slate-700/40 px-5 py-4 space-y-4">
+          
+          {/* Sintesi principale */}
+          {parsed.sintesi_decisionale && (
+            <div>
+              <TaggedContent text={parsed.sintesi_decisionale} />
+            </div>
+          )}
 
-        {/* 5 CARD */}
-        {SECTIONS.map((section) => {
-          const text = parsed[section.key];
-          if (!text) return null;
-          const Icon = section.icon;
-          const isVisible = visibleCards.includes(section.key);
-
-          return (
-            <div
-              key={section.key}
-              className={`rounded-xl bg-slate-800/50 border border-slate-700/40 border-l-4 ${section.borderColor} px-4 py-3 transition-all duration-300 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}
-              style={section.large ? { borderLeftWidth: '6px' } : {}}
-            >
-              <div className="flex items-center gap-2 mb-2">
-                <Icon className={`w-4 h-4 ${section.large ? 'text-[#d4af37]' : 'text-slate-400'}`} />
-                <span className={`text-xs font-bold uppercase tracking-wider ${section.large ? 'text-[#d4af37]' : 'text-slate-400'}`}>{section.label}</span>
+          {/* Impatto economico inline */}
+          {parsed.impatto_economico && (
+            <div className="border-l-2 border-emerald-400/50 pl-4">
+              <div className="flex items-center gap-1.5 mb-1">
+                <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-emerald-400">Impatto economico</span>
               </div>
-              <div className={section.large ? 'text-base text-white leading-relaxed' : ''}>
-                <TaggedContent text={text} />
+              <TaggedContent text={parsed.impatto_economico} />
+            </div>
+          )}
+
+          {/* Rischi inline */}
+          {parsed.rischi_criticita && (
+            <div className="border-l-2 border-red-400/50 pl-4">
+              <div className="flex items-center gap-1.5 mb-1">
+                <AlertTriangle className="w-3.5 h-3.5 text-red-400" />
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-red-400">Rischi</span>
+              </div>
+              <TaggedContent text={parsed.rischi_criticita} />
+            </div>
+          )}
+
+          {/* Tempi inline */}
+          {parsed.tempo_attuazione && (
+            <div className="border-l-2 border-violet-400/50 pl-4">
+              <div className="flex items-center gap-1.5 mb-1">
+                <Clock className="w-3.5 h-3.5 text-violet-400" />
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-violet-400">Tempi</span>
+              </div>
+              <TaggedContent text={parsed.tempo_attuazione} />
+            </div>
+          )}
+
+          {/* Raccomandazione finale evidenziata */}
+          {parsed.raccomandazione_finale && (
+            <div className="mt-2 rounded-xl bg-[#d4af37]/10 border border-[#d4af37]/30 px-4 py-3">
+              <div className="flex items-center gap-1.5 mb-1">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#d4af37]" />
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-[#d4af37]">Da fare subito</span>
+              </div>
+              <div className="text-sm text-white leading-relaxed">
+                <TaggedContent text={parsed.raccomandazione_finale} />
               </div>
             </div>
-          );
-        })}
+          )}
+        </div>
 
-        {/* FONTI */}
+        {/* FONTI compatte */}
         <FontiSection fonti={parsed.fonti} />
-
-        {/* WARNING QUALITÀ DATI */}
-        {parsed._quality_warnings && parsed._quality_warnings.length > 0 && (
-          <div className="rounded-xl border border-orange-500/30 bg-orange-500/5 px-4 py-3">
-            <div className="flex items-center gap-2 mb-1.5">
-              <AlertTriangle className="w-4 h-4 text-orange-400" />
-              <span className="text-xs font-bold text-orange-400 uppercase tracking-wider">Nota sulla qualità dei dati</span>
-            </div>
-            <ul className="space-y-1">
-              {parsed._quality_warnings.map((w, idx) => (
-                <li key={idx} className="text-xs text-orange-300/80">• {w}</li>
-              ))}
-            </ul>
-            <p className="text-[10px] text-slate-500 mt-2">Per decisioni importanti, consigliamo una verifica con il tuo commercialista o avvocato.</p>
-          </div>
-        )}
 
         {/* FOLLOWUP */}
         {parsed.followup_questions?.length > 0 && (
@@ -529,37 +523,16 @@ Genera un piano operativo in JSON con: titolo_piano, durata_totale, budget_stima
           </div>
         )}
 
-        {/* AZIONI: Piano Operativo + Scarica PDF */}
+        {/* Solo PDF, no piano operativo */}
         <div className="flex items-center gap-2">
-          {showPlanCTA && !plan && !existingPlan && (
-            <button
-              onClick={handleGeneratePlan}
-              disabled={planLoading}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-[#d4af37]/40 bg-transparent hover:bg-[#d4af37]/10 transition-colors text-sm text-[#d4af37] font-medium"
-            >
-              <ListChecks className="w-4 h-4" />
-              Piano Operativo
-            </button>
-          )}
           <button
-            onClick={() => generateAnalysisPdf({ parsed: parsedForPdf, classification, category, userQuestion, plan })}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-700/50 bg-transparent hover:border-slate-600 transition-colors text-sm text-slate-400"
+            onClick={() => generateAnalysisPdf({ parsed: parsedForPdf, classification, category, userQuestion, plan: null })}
+            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-slate-700/50 bg-transparent hover:border-slate-600 transition-colors text-sm text-slate-400"
           >
             <Download className="w-4 h-4" />
             Scarica PDF
           </button>
         </div>
-
-        {/* Loading piano */}
-        {planLoading && (
-          <div className="rounded-xl border border-[#d4af37]/30 bg-[#d4af37]/5 px-4 py-3 flex items-center gap-3">
-            <Loader2 className="w-4 h-4 text-[#d4af37] animate-spin" />
-            <span className="text-xs text-[#d4af37]">Sto generando il piano operativo...</span>
-          </div>
-        )}
-
-        {/* Piano operativo */}
-        {plan && <OperationalPlan plan={plan} />}
 
         {/* RATING */}
         <RatingSection conversationId={conversationId} />
