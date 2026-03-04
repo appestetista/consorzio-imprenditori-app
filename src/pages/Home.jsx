@@ -737,7 +737,6 @@ Scenario B: ${b}`,
       });
     } catch (e) {
       console.error('>>> ERRORE:', e?.message || e);
-      alert('ERRORE DEBUG: ' + (e?.message || JSON.stringify(e)));
       const errMsg = { role: 'assistant', content: 'Mi dispiace, si è verificato un errore. Riprova tra un momento.' };
       setMessages([...updatedMsgs, errMsg]);
       await base44.entities.ChatConversation.update(smartData.convId, { messages: [...updatedMsgs, errMsg] });
