@@ -653,7 +653,7 @@ export default function Home() {
 
       const newCount = (consulenzeUsate || 0) + 1;
       const result = parsedCompare || compareResult;
-      const assistantMsg = { role: 'assistant', content: result, isCompare: true, isAI: true, usageCount: newCount };
+      const assistantMsg = { role: 'assistant', content: result, isCompare: true, isAI: true, usageCount: newCount, isNew: true };
       const updatedMessages = [...newMessages, assistantMsg];
       setMessages(updatedMessages);
 
