@@ -419,12 +419,16 @@ Domanda: ${msg}`,
       // Contesto utente
       const userContext = buildUserContext();
 
-      // Dati normativi KB
+      // Dati normativi KB — limitati per non sovraccaricare il prompt
       let kbContext = '';
-      const kbRecords = await base44.entities.KnowledgeBase.filter({ categoria: category, attivo: true });
-      if (kbRecords.length > 0) {
-        kbContext = `Dati normativi di riferimento:\n${kbRecords.map(r => `- ${r.titolo}: ${r.contenuto}`).join('\n')}\n\n`;
-      }
+      try {
+        const kbRecords = await base44.entities.KnowledgeBase.filter({ categoria: category, attivo: true });
+        if (kbRecords.length > 0) {
+          kbContext = 'Dati normativi verificati:\n' 
+            + kbRecords.slice(0, 2).map(r => '- ' + r.titolo + ': ' + (r.contenuto || '').substring(0, 500)).join('\n') 
+            + '\n\n';
+        }
+      } catch (e) { kbContext = ''; }
 
       // Confronto LLM con schema forzato
       const compareResult = await base44.integrations.Core.InvokeLLM({
