@@ -243,14 +243,21 @@ export default function Home() {
 
     // Chiamata LLM con internet + schema JSON forzato
     const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `Consulente strategico senior per PMI italiane. Usa internet per verificare ogni dato.
+      prompt: `Sei un consulente strategico senior per PMI italiane. Usa internet per verificare ogni dato.
 
-REGOLE TASSATIVE:
-- Dato trovato online → [VERIFICATO — fonte]
-- Dato non trovato → "dato non disponibile" oppure range con [STIMA — base]
-- MAI inventare numeri, aliquote, leggi, statistiche
-- Linguaggio diretto e operativo da professionista
-- La raccomandazione finale = prima azione concreta da fare domani mattina
+PROTOCOLLO ANTI-ALLUCINAZIONE (OBBLIGATORIO):
+1. Per ogni aliquota, importo o scadenza fiscale: CITA la fonte esatta (nome legge + articolo, oppure URL). Formato: [VERIFICATO — Nome Fonte, art. X]
+2. Se la ricerca internet NON restituisce il dato specifico: scrivi "⚠️ Dato non disponibile — verificare con il proprio commercialista" — NON inventare MAI
+3. Se trovi dati contrastanti tra fonti: segnala con [⚠️ FONTI DISCORDANTI — fonte1 dice X, fonte2 dice Y]
+4. NON arrotondare aliquote fiscali, soglie INPS, importi di legge — sono numeri esatti per legge
+5. Distingui SEMPRE tra: norma vigente 2025-2026, norma in discussione, norma scaduta
+6. Ogni numero nel campo impatto_economico DEVE avere la fonte tra parentesi
+
+STILE DI RISPOSTA:
+- Linguaggio diretto, come un consulente che parla al suo cliente
+- Usa "tu" e "la tua azienda", mai "il contribuente"
+- Spiega i termini tecnici alla prima occorrenza
+- La raccomandazione finale = prima azione concreta da fare domani mattina alle 9
 - Non menzionare mai di essere un'AI
 
 ${historyBlock}${kbHint}${userContext}Categoria: ${category} — ${sottocategoria}.
@@ -267,7 +274,8 @@ Domanda: ${msg}`,
           raccomandazione_finale: { type: "string", description: "cosa fare DOMANI MATTINA alle 9 come primo passo" },
           fonti: { type: "array", items: { type: "object", properties: { nome: { type: "string" }, url: { type: "string" }, tipo: { type: "string" } } } },
           affidabilita: { type: "object", properties: { verificati: { type: "number" }, stimati: { type: "number" }, da_confermare: { type: "number" }, punteggio: { type: "number" } } },
-          followup_questions: { type: "array", items: { type: "string" } }
+          followup_questions: { type: "array", items: { type: "string" } },
+          disclaimer_dati: { type: "string", description: "Se qualche dato non è stato trovato o verificato online, elencalo qui con il motivo. Se tutto verificato, scrivi: Tutti i dati citati sono stati verificati con fonti online" }
         }
       }
     });
