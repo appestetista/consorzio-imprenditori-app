@@ -492,11 +492,13 @@ export default function Home() {
     }));
     
     const rispostaStr = typeof finalContent === 'string' ? finalContent : JSON.stringify(finalContent);
+    const queryHash = normalizeQuery(msg);
     await base44.entities.ChatConversation.update(convId, {
       messages: messagesForDB,
       categoria: category,
       sottocategoria,
       risposta_json: rispostaStr,
+      query_hash: queryHash,
     });
 
     // Incrementa contatore consulenze
