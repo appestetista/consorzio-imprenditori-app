@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { X, Plus, Folder, FolderPlus, MessageSquare, Search, Pencil, Trash2, Check, MoreVertical, ChevronRight, Filter, ListChecks } from 'lucide-react';
+import { X, Plus, Folder, FolderPlus, MessageSquare, Search, Pencil, Trash2, Check, MoreVertical, ChevronRight, Filter, ListChecks, Pin } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import ConversationContextMenu from './ConversationContextMenu.jsx';
 
 const CATEGORY_COLORS = {
   'Fiscale': { bg: 'bg-emerald-500/20', text: 'text-emerald-400', border: 'border-emerald-500/30' },
@@ -23,7 +24,7 @@ export default function ChatSidebar({ open, onClose, userEmail, activeConversati
   const [editingFolderId, setEditingFolderId] = useState(null);
   const [editingFolderName, setEditingFolderName] = useState('');
   const [expandedFolders, setExpandedFolders] = useState({});
-  const [menuOpen, setMenuOpen] = useState(null); // folder id or conv id
+  const [contextMenuConv, setContextMenuConv] = useState(null);
   const newFolderRef = useRef(null);
   const editFolderRef = useRef(null);
 
@@ -35,7 +36,7 @@ export default function ChatSidebar({ open, onClose, userEmail, activeConversati
 
   const { data: conversations = [] } = useQuery({
     queryKey: ['chatConversations', userEmail],
-    queryFn: () => base44.entities.ChatConversation.filter({ user_email: userEmail }),
+    queryFn: () => base44.entities.ChatConversation.filter({ user_email: userEmail, is_archived: false }),
     enabled: !!userEmail
   });
 
@@ -58,7 +59,6 @@ export default function ChatSidebar({ open, onClose, userEmail, activeConversati
 
   const deleteFolder = useMutation({
     mutationFn: async (id) => {
-      // Scollega conversazioni dalla cartella
       const convs = conversations.filter(c => c.folder_id === id);
       for (const c of convs) {
         await base44.entities.ChatConversation.update(c.id, { folder_id: null });
@@ -68,16 +68,17 @@ export default function ChatSidebar({ open, onClose, userEmail, activeConversati
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['chatFolders'] });
       queryClient.invalidateQueries({ queryKey: ['chatConversations'] });
-      setMenuOpen(null);
     }
+  });
+
+  const updateConversation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.ChatConversation.update(id, data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['chatConversations'] })
   });
 
   const deleteConversation = useMutation({
     mutationFn: (id) => base44.entities.ChatConversation.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['chatConversations'] });
-      setMenuOpen(null);
-    }
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['chatConversations'] })
   });
 
   useEffect(() => {
@@ -102,12 +103,31 @@ export default function ChatSidebar({ open, onClose, userEmail, activeConversati
     setExpandedFolders(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
-  // Ordina tutte le conversazioni dalla più recente
-  const sortedConversations = [...conversations].sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+  // Context menu actions
+  const handleRename = (convId, newTitle) => {
+    updateConversation.mutate({ id: convId, data: { titolo: newTitle } });
+  };
 
-  // Conversazioni senza cartella
+  const handleMoveToFolder = (convId, folderId) => {
+    updateConversation.mutate({ id: convId, data: { folder_id: folderId || null } });
+  };
+
+  const handleTogglePin = (convId, pinned) => {
+    updateConversation.mutate({ id: convId, data: { is_pinned: pinned } });
+  };
+
+  const handleDelete = (convId) => {
+    deleteConversation.mutate(convId);
+  };
+
+  // Sort: pinned first, then by date
+  const sortedConversations = [...conversations].sort((a, b) => {
+    if (a.is_pinned && !b.is_pinned) return -1;
+    if (!a.is_pinned && b.is_pinned) return 1;
+    return new Date(b.created_date) - new Date(a.created_date);
+  });
+
   const looseConversations = sortedConversations.filter(c => !c.folder_id);
-  // Conversazioni per cartella
   const convsByFolder = {};
   sortedConversations.forEach(c => {
     if (c.folder_id) {
@@ -116,7 +136,6 @@ export default function ChatSidebar({ open, onClose, userEmail, activeConversati
     }
   });
 
-  // Filtro ricerca + categoria
   const matchSearch = (text) => !search || text?.toLowerCase().includes(search.toLowerCase());
   const matchCategory = (conv) => categoryFilter === 'all' || conv.categoria === categoryFilter;
   const matchConv = (conv) => matchSearch(conv.titolo) && matchCategory(conv);
@@ -125,18 +144,13 @@ export default function ChatSidebar({ open, onClose, userEmail, activeConversati
     return (convsByFolder[f.id] || []).some(matchConv) || (matchSearch(f.nome) && categoryFilter === 'all');
   });
 
-  // Categorie presenti nelle conversazioni
   const availableCategories = [...new Set(conversations.map(c => c.categoria).filter(Boolean))].sort();
   const totalFiltered = filteredLoose.length + filteredFolders.reduce((acc, f) => acc + (convsByFolder[f.id] || []).filter(matchConv).length, 0);
 
   return (
     <>
-      {/* Overlay */}
-      {open && (
-        <div className="fixed inset-0 bg-black/50 z-50" onClick={onClose} />
-      )}
+      {open && <div className="fixed inset-0 bg-black/50 z-50" onClick={onClose} />}
 
-      {/* Sidebar */}
       <div
         className={cn(
           "fixed top-0 left-0 bottom-0 z-50 w-[300px] flex flex-col transition-transform duration-300 ease-out",
@@ -148,24 +162,17 @@ export default function ChatSidebar({ open, onClose, userEmail, activeConversati
         <div className="flex items-center justify-between px-4 pt-4 pb-2">
           <span className="text-white font-semibold text-base">Chat</span>
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => { onNewChat(); onClose(); }}
-              className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-slate-700 transition-colors"
-            >
+            <button onClick={() => { onNewChat(); onClose(); }} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-slate-700 transition-colors">
               <Pencil className="w-4 h-4 text-slate-400" />
             </button>
-            <button
-              onClick={onClose}
-              className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-slate-700 transition-colors"
-            >
+            <button onClick={onClose} className="w-8 h-8 rounded-lg flex items-center justify-center hover:bg-slate-700 transition-colors">
               <X className="w-4 h-4 text-slate-400" />
             </button>
           </div>
         </div>
 
-        {/* Contatore */}
         <div className="px-4 pb-1">
-          <span className="text-[11px] text-slate-500 font-medium">{totalFiltered} analis{totalFiltered === 1 ? 'i' : 'i'}</span>
+          <span className="text-[11px] text-slate-500 font-medium">{totalFiltered} analisi</span>
         </div>
 
         {/* Ricerca */}
@@ -244,7 +251,6 @@ export default function ChatSidebar({ open, onClose, userEmail, activeConversati
           </div>
         )}
 
-        {/* Separatore */}
         <div className="mx-3 border-t border-slate-700/50 mb-1" />
 
         {/* Lista scrollabile */}
@@ -252,7 +258,7 @@ export default function ChatSidebar({ open, onClose, userEmail, activeConversati
           
           {/* Cartelle */}
           {filteredFolders.map(folder => {
-            const folderConvs = (convsByFolder[folder.id] || []).filter(c => matchSearch(c.titolo));
+            const folderConvs = (convsByFolder[folder.id] || []).filter(matchConv);
             const isExpanded = expandedFolders[folder.id];
             const isEditing = editingFolderId === folder.id;
 
@@ -298,14 +304,13 @@ export default function ChatSidebar({ open, onClose, userEmail, activeConversati
                   )}
                 </div>
 
-                {/* Conversazioni nella cartella */}
-                {isExpanded && folderConvs.filter(matchConv).map(conv => (
+                {isExpanded && folderConvs.map(conv => (
                   <ConversationItem
                     key={conv.id}
                     conv={conv}
                     isActive={conv.id === activeConversationId}
                     onSelect={() => { onSelectConversation(conv); onClose(); }}
-                    onDelete={() => deleteConversation.mutate(conv.id)}
+                    onOpenMenu={() => setContextMenuConv(conv)}
                     indent
                   />
                 ))}
@@ -320,7 +325,7 @@ export default function ChatSidebar({ open, onClose, userEmail, activeConversati
               conv={conv}
               isActive={conv.id === activeConversationId}
               onSelect={() => { onSelectConversation(conv); onClose(); }}
-              onDelete={() => deleteConversation.mutate(conv.id)}
+              onOpenMenu={() => setContextMenuConv(conv)}
             />
           ))}
 
@@ -331,6 +336,19 @@ export default function ChatSidebar({ open, onClose, userEmail, activeConversati
           )}
         </div>
       </div>
+
+      {/* Context Menu */}
+      {contextMenuConv && (
+        <ConversationContextMenu
+          conv={contextMenuConv}
+          folders={folders}
+          onRename={handleRename}
+          onMoveToFolder={handleMoveToFolder}
+          onTogglePin={handleTogglePin}
+          onDelete={handleDelete}
+          onClose={() => setContextMenuConv(null)}
+        />
+      )}
     </>
   );
 }
@@ -347,8 +365,19 @@ function formatConvDate(dateStr) {
   return d.toLocaleDateString('it-IT', { day: '2-digit', month: 'short' });
 }
 
-function ConversationItem({ conv, isActive, onSelect, onDelete, indent }) {
+function ConversationItem({ conv, isActive, onSelect, onOpenMenu, indent }) {
   const catStyle = conv.categoria ? CATEGORY_COLORS[conv.categoria] : null;
+  const longPressRef = useRef(null);
+
+  const handleTouchStart = () => {
+    longPressRef.current = setTimeout(() => {
+      onOpenMenu();
+    }, 500);
+  };
+
+  const handleTouchEnd = () => {
+    clearTimeout(longPressRef.current);
+  };
 
   return (
     <div
@@ -357,6 +386,9 @@ function ConversationItem({ conv, isActive, onSelect, onDelete, indent }) {
         isActive ? "bg-slate-800" : "hover:bg-slate-800/50",
         indent && "ml-6"
       )}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      onTouchMove={handleTouchEnd}
     >
       <button
         onClick={onSelect}
@@ -364,7 +396,10 @@ function ConversationItem({ conv, isActive, onSelect, onDelete, indent }) {
       >
         <MessageSquare className="w-4 h-4 text-slate-600 flex-shrink-0 mt-0.5" />
         <div className="flex-1 min-w-0">
-          <span className="text-sm text-slate-400 truncate block">{conv.titolo || 'Chat senza titolo'}</span>
+          <div className="flex items-center gap-1.5">
+            {conv.is_pinned && <Pin className="w-3 h-3 text-[#d4af37] flex-shrink-0" />}
+            <span className="text-sm text-slate-400 truncate block">{conv.titolo || 'Chat senza titolo'}</span>
+          </div>
           <div className="flex items-center gap-1.5 mt-1 flex-wrap">
             {catStyle && (
               <span className={cn("text-[9px] font-semibold px-1.5 py-0.5 rounded-full border", catStyle.bg, catStyle.text, catStyle.border)}>
@@ -381,10 +416,10 @@ function ConversationItem({ conv, isActive, onSelect, onDelete, indent }) {
         </div>
       </button>
       <button
-        onClick={(e) => { e.stopPropagation(); onDelete(); }}
+        onClick={(e) => { e.stopPropagation(); onOpenMenu(); }}
         className="mr-2 mt-2 w-6 h-6 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 hover:bg-slate-700 transition-all flex-shrink-0"
       >
-        <Trash2 className="w-3 h-3 text-slate-500" />
+        <MoreVertical className="w-3.5 h-3.5 text-slate-500" />
       </button>
     </div>
   );
