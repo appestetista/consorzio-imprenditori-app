@@ -956,7 +956,7 @@ export default function Home() {
           </div>
         ) : (
           // Conversazione attiva
-          <div className="flex-1 overflow-y-auto px-4 pt-2 pb-32">
+          <div ref={messagesContainerRef} className="flex-1 overflow-y-auto px-4 pt-2 pb-32" style={{ overscrollBehavior: 'contain' }}>
             <div className="max-w-2xl mx-auto space-y-4">
               {messages.map((msg, i) => (
                 msg.smartQuestions ? (
