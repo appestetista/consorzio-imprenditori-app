@@ -207,7 +207,7 @@ export default function Home() {
     };
     container.addEventListener('scroll', handleScroll, { passive: true });
     return () => container.removeEventListener('scroll', handleScroll);
-  }, [hasMessages]);
+  }, [messages.length]);
 
   // Gestisce parametri URL: loadConv (carica conversazione) e newChat (nuova chat)
   // Al caricamento senza parametri → sempre nuova chat pulita
