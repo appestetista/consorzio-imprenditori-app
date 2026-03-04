@@ -188,7 +188,26 @@ export default function Home() {
   // Scroll automatico ai nuovi messaggi
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    setShowScrollDown(false);
   }, [messages, isTyping]);
+
+  // Rileva scroll per mostrare freccia "scroll to bottom"
+  useEffect(() => {
+    const container = messagesContainerRef.current;
+    if (!container) return;
+    let timeout;
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = container;
+      const isNearBottom = scrollHeight - scrollTop - clientHeight < 100;
+      if (isNearBottom) {
+        setShowScrollDown(false);
+      } else {
+        setShowScrollDown(true);
+      }
+    };
+    container.addEventListener('scroll', handleScroll, { passive: true });
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, [hasMessages]);
 
   // Gestisce parametri URL: loadConv (carica conversazione) e newChat (nuova chat)
   // Al caricamento senza parametri → sempre nuova chat pulita
