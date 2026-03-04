@@ -593,6 +593,36 @@ export default function Home() {
       // FASE 1.5 – Estrazione silente dati profilo (se l'utente parla della propria azienda)
       extractProfileDataFromChat(msg, effectiveUser, setEffectiveUser);
 
+      // FASE 1.6 – Cerca in cache risposte simili (zero costo AI)
+      const cachedResult = await findCachedResponse(msg);
+      if (cachedResult) {
+        console.log('[CACHE] Risposta trovata in cache, skip chiamata AI');
+        const newCount = consulenzeUsate; // Non incrementa il contatore per risposte cached
+        const assistantMsg = { role: 'assistant', content: cachedResult.data, isAI: true, usageCount: newCount, isNew: true };
+        const updatedMessages = [...newMessages, assistantMsg];
+        setMessages(updatedMessages);
+        
+        const messagesForDB = updatedMessages.map(m => ({
+          role: m.role,
+          content: typeof m.content === 'object' && m.content !== null ? JSON.stringify(m.content) : (m.content || ''),
+          ...(m.isAI ? { isAI: true } : {}),
+          ...(m.isCompare ? { isCompare: true } : {}),
+          ...(m.usageCount ? { usageCount: m.usageCount } : {}),
+          ...(m.isDetail ? { isDetail: true } : {}),
+        }));
+        
+        const hash = normalizeQuery(msg);
+        await base44.entities.ChatConversation.update(convId, {
+          messages: messagesForDB,
+          categoria: cachedResult.categoria || category,
+          sottocategoria: cachedResult.sottocategoria || sottocategoria,
+          risposta_json: JSON.stringify(cachedResult.data),
+          query_hash: hash,
+        });
+        setIsTyping(false);
+        return;
+      }
+
       // FASE 1.7 – Smart Questioning: la domanda è troppo vaga?
       const vagueness = detectVagueness(msg, category, effectiveUser);
       if (vagueness && vagueness.domande.length > 0) {
