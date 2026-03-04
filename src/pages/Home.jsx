@@ -829,6 +829,11 @@ export default function Home() {
           if (obj && obj.sintesi_decisionale) restored.content = obj;
         } catch { /* resta stringa */ }
       }
+      // Preserva flag booleani per il rendering corretto
+      if (m.isAI) restored.isAI = true;
+      if (m.isCompare) restored.isCompare = true;
+      if (m.isDetail) restored.isDetail = true;
+      if (m.usageCount) restored.usageCount = m.usageCount;
       return restored;
     });
   };
