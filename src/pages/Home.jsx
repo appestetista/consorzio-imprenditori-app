@@ -318,63 +318,43 @@ export default function Home() {
       strumentoSuggerito.parametri_utente = parametriDaPassare;
     }
 
-    // Chiamata LLM con internet + schema JSON forzato
-    const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `Sei un consulente strategico senior per PMI italiane. Usa internet per verificare ogni dato.
-
-PROTOCOLLO ANTI-ALLUCINAZIONE (OBBLIGATORIO):
-1. Per ogni aliquota, importo o scadenza fiscale: CITA la fonte esatta (nome legge + articolo, oppure URL). Formato: [VERIFICATO — Nome Fonte, art. X]
-2. Se la ricerca internet NON restituisce il dato specifico: scrivi "⚠️ Dato non disponibile — verificare con il proprio commercialista" — NON inventare MAI
-3. Se trovi dati contrastanti tra fonti: segnala con [⚠️ FONTI DISCORDANTI — fonte1 dice X, fonte2 dice Y]
-4. NON arrotondare aliquote fiscali, soglie INPS, importi di legge — sono numeri esatti per legge
-5. Distingui SEMPRE tra: norma vigente 2025-2026, norma in discussione, norma scaduta
-6. Ogni numero nel campo impatto_economico DEVE avere la fonte tra parentesi
-
-OBBLIGO DI SPECIFICITÀ (FONDAMENTALE):
-- NON dare mai consigli generici tipo "consulta un commercialista" o "dipende dalla situazione" senza PRIMA aver dato numeri concreti
-- Per domande su costi: CALCOLA il range con cifre reali (es. "Un dipendente full-time CCNL Commercio livello 4 ti costa tra 28.000€ e 32.000€ lordi annui comprensivi di contributi INPS e INAIL")
-- Per domande fiscali: USA le aliquote e soglie ESATTE vigenti, non "dipende dal reddito"
-- Per domande su contratti: CITA gli articoli del Codice Civile o la legge specifica
-- Per domande su bandi: CERCA e NOMINA bandi reali attualmente aperti con importi e scadenze
-- Se il profilo utente ha settore, fatturato, dipendenti: USA quei dati per personalizzare i calcoli, non dare risposte generiche
-- Ogni sezione della risposta deve contenere ALMENO un dato numerico concreto o un riferimento normativo specifico
-- La sintesi_decisionale deve iniziare con il NUMERO PIÙ IMPORTANTE per l'utente (costo, risparmio, scadenza)
-
-STILE DI RISPOSTA:
-- Linguaggio diretto, come un consulente che parla al suo cliente
-- Usa "tu" e "la tua azienda", mai "il contribuente"
-- Spiega i termini tecnici alla prima occorrenza
-- La raccomandazione finale = prima azione concreta da fare domani mattina alle 9
-- Non menzionare mai di essere un'AI
-
-${historyBlock}${kbHint}${userContext}Categoria: ${category} — ${sottocategoria}.
-Domanda: ${msg}`,
-      add_context_from_internet: true,
-      response_json_schema: {
-        type: "object",
-        properties: {
-          categoria: { type: "string" },
-          sintesi_decisionale: { type: "string", description: "max 5 righe con dati reali e tag [VERIFICATO — fonte] o [STIMA]" },
-          impatto_economico: { type: "string", description: "cifre EUR con fonte o range stimato" },
-          rischi_criticita: { type: "string", description: "rischi specifici con norme di riferimento" },
-          tempo_attuazione: { type: "string", description: "timeline realistica" },
-          raccomandazione_finale: { type: "string", description: "cosa fare DOMANI MATTINA alle 9 come primo passo" },
-          fonti: { type: "array", items: { type: "object", properties: { nome: { type: "string" }, url: { type: "string" }, tipo: { type: "string" } } } },
-          affidabilita: { type: "object", properties: { verificati: { type: "number" }, stimati: { type: "number" }, da_confermare: { type: "number" }, punteggio: { type: "number" } } },
-          followup_questions: { type: "array", items: { type: "string" } },
-          disclaimer_dati: { type: "string", description: "Se qualche dato non è stato trovato o verificato online, elencalo qui con il motivo. Se tutto verificato, scrivi: Tutti i dati citati sono stati verificati con fonti online" }
-        }
+    // Chiamata backend function consultaAI (OpenAI + Gemini combinato)
+    let parsed = null;
+    try {
+      const aiResponse = await base44.functions.invoke('consultaAI', {
+        message: msg,
+        category: category,
+        sottocategoria: sottocategoria,
+        userContext: userContext,
+        kbContent: kbHint,
+        conversationHistory: historyBlock,
+      });
+      if (aiResponse.data?.success && aiResponse.data?.data) {
+        parsed = aiResponse.data.data;
+        console.log('[AI] Modello:', aiResponse.data.model_used, '| Provider:', aiResponse.data.provider, '| Costo: $' + aiResponse.data.cost_usd?.toFixed(5));
       }
-    });
-
-    // Parsing sicuro — con response_json_schema il risultato è già un oggetto
-    let parsed = result;
-    if (typeof result === 'string') {
+    } catch (e) {
+      console.error('[AI] Errore consultaAI:', e?.message);
+    }
+    if (!parsed) {
       try {
-        let cleaned = result.trim();
-        if (cleaned.startsWith('```')) cleaned = cleaned.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
-        parsed = JSON.parse(cleaned);
-      } catch (e) { parsed = null; }
+        console.log('[AI] Fallback a InvokeLLM...');
+        const fallbackResult = await base44.integrations.Core.InvokeLLM({
+          prompt: `Consulente strategico per PMI italiane. Dati concreti, mai generici.\n${kbHint}${userContext}Categoria: ${category} — ${sottocategoria}.\nDomanda: ${msg}`,
+          add_context_from_internet: true,
+          response_json_schema: {
+            type: "object",
+            properties: {
+              categoria: { type: "string" }, sintesi_decisionale: { type: "string" }, impatto_economico: { type: "string" },
+              rischi_criticita: { type: "string" }, tempo_attuazione: { type: "string" }, raccomandazione_finale: { type: "string" },
+              fonti: { type: "array", items: { type: "object", properties: { nome: { type: "string" }, url: { type: "string" }, tipo: { type: "string" } } } },
+              affidabilita: { type: "object", properties: { verificati: { type: "number" }, stimati: { type: "number" }, da_confermare: { type: "number" }, punteggio: { type: "number" } } },
+              followup_questions: { type: "array", items: { type: "string" } }
+            }
+          }
+        });
+        parsed = typeof fallbackResult === 'string' ? JSON.parse(fallbackResult) : fallbackResult;
+      } catch (e2) { parsed = null; }
     }
 
     // Post-validazione qualità risposta
