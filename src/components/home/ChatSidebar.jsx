@@ -36,7 +36,7 @@ export default function ChatSidebar({ open, onClose, userEmail, activeConversati
 
   const { data: conversations = [] } = useQuery({
     queryKey: ['chatConversations', userEmail],
-    queryFn: () => base44.entities.ChatConversation.filter({ user_email: userEmail, is_archived: false }),
+    queryFn: () => base44.entities.ChatConversation.filter({ user_email: userEmail }),
     enabled: !!userEmail
   });
 
