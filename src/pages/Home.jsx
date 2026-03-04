@@ -98,7 +98,7 @@ export default function Home() {
   const [lastCategory, setLastCategory] = useState(null);
   const [lastClassification, setLastClassification] = useState(null);
   const [activeConvData, setActiveConvData] = useState(null);
-  const [missingFieldsPopup, setMissingFieldsPopup] = useState(null); // { fields: [], pendingMsg: string }
+  // missingFieldsPopup rimosso — ora i dati vengono estratti in background dalla chat
   const [compareMode, setCompareMode] = useState(false);
   const [scenarioA, setScenarioA] = useState('');
   const [scenarioB, setScenarioB] = useState('');
