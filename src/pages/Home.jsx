@@ -299,7 +299,7 @@ Domanda: ${msg}`,
 
   const handleSend = async (text) => {
     const msg = text || inputText.trim();
-    if (!msg || !effectiveUser?.email || chatBlocked) return;
+    if (!msg || !effectiveUser?.email || chatBlocked || isTyping) return;
 
     const userMsg = { role: 'user', content: msg };
     const newMessages = [...messages, userMsg];
@@ -384,7 +384,7 @@ Domanda: ${msg}`,
   const handleCompare = async () => {
     const a = scenarioA.trim();
     const b = scenarioB.trim();
-    if (!a || !b || !effectiveUser?.email || chatBlocked) return;
+    if (!a || !b || !effectiveUser?.email || chatBlocked || isTyping) return;
 
     const userMsg = { role: 'user', content: `⚖️ Confronto:\nA: ${a}\nB: ${b}` };
     const newMessages = [...messages, userMsg];
