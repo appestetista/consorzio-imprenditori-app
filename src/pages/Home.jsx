@@ -262,6 +262,53 @@ export default function Home() {
     }
   }, [effectiveUser?.email]);
 
+  // Genera hash normalizzato da una domanda per ricerca cache
+  const normalizeQuery = (text) => {
+    return text
+      .toLowerCase()
+      .replace(/[^a-zà-ü0-9\s]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .split(' ')
+      .sort()
+      .join(' ');
+  };
+
+  // Cerca in cache se esiste già una risposta simile
+  const findCachedResponse = async (msg) => {
+    const hash = normalizeQuery(msg);
+    if (!hash || hash.length < 10) return null;
+    
+    // Cerca conversazioni con lo stesso hash
+    const cached = await base44.entities.ChatConversation.filter({ 
+      user_email: effectiveUser.email, 
+      query_hash: hash 
+    });
+    
+    if (cached.length > 0) {
+      // Prendi la più recente con risposta valida
+      const withResponse = cached
+        .filter(c => c.risposta_json)
+        .sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+      
+      if (withResponse.length > 0) {
+        const cachedConv = withResponse[0];
+        try {
+          const parsed = JSON.parse(cachedConv.risposta_json);
+          if (parsed && parsed.sintesi_decisionale) {
+            console.log('[CACHE] Hit! Riuso risposta da conv', cachedConv.id);
+            return {
+              data: parsed,
+              categoria: cachedConv.categoria,
+              sottocategoria: cachedConv.sottocategoria,
+            };
+          }
+        } catch { /* ignora */ }
+      }
+    }
+    return null;
+  };
+
   const buildUserContext = () => {
     if (!effectiveUser) return '';
     const fields = [
