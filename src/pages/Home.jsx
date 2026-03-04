@@ -832,7 +832,19 @@ Scenario B: ${b}`,
 
   const handleSelectConversation = (conv) => {
     setActiveConversationId(conv.id);
-    setMessages(conv.messages || []);
+    // Ri-parsa i content che nel DB sono stringhe JSON → oggetti per il rendering
+    const restoredMessages = (conv.messages || []).map(m => {
+      if (m.role === 'assistant' && typeof m.content === 'string') {
+        try {
+          const obj = JSON.parse(m.content);
+          if (obj && obj.sintesi_decisionale) {
+            return { ...m, content: obj };
+          }
+        } catch { /* non è JSON, lascia come stringa */ }
+      }
+      return m;
+    });
+    setMessages(restoredMessages);
     setActiveConvData(conv);
     setLastCategory(conv.categoria || null);
     setLastClassification(conv.categoria ? { categoria: conv.categoria, sottocategoria: conv.sottocategoria || '' } : null);
