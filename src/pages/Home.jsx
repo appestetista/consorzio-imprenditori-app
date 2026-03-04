@@ -541,7 +541,6 @@ Domanda: ${msg}`,
     } catch (e) {
       console.error('>>> ERRORE:', e?.message || e);
       console.error('>>> DETTAGLIO:', JSON.stringify(e));
-      alert('ERRORE DEBUG: ' + (e?.message || JSON.stringify(e)));
       const errMsg = { role: 'assistant', content: 'Mi dispiace, si è verificato un errore. Riprova tra un momento.' };
       const updatedMessages = [...newMessages, errMsg];
       setMessages(updatedMessages);
