@@ -48,7 +48,7 @@ const RESPONSE_SCHEMA = {
     raccomandazione_finale: { type: "string", description: "Azione concreta domani alle 9, almeno 100 parole" },
     fonti: { type: "array", items: { type: "object", properties: { nome: { type: "string" }, url: { type: "string" }, tipo: { type: "string", enum: ["legge", "circolare", "sito_istituzionale", "articolo", "stima"] } }, required: ["nome", "tipo"] } },
     affidabilita: { type: "object", properties: { verificati: { type: "number" }, stimati: { type: "number" }, da_confermare: { type: "number" }, punteggio: { type: "number" } }, required: ["verificati", "stimati", "da_confermare", "punteggio"] },
-    followup_questions: { type: "array", items: { type: "string" }, description: "3 domande di approfondimento" },
+    followup_questions: { type: "array", items: { type: "string" }, description: "3 proposte operative con azione concreta. NON domande generiche. Formato: 'Vuoi che ti [azione]? Ad esempio [dettaglio]'. Es: 'Vuoi che ti calcoli il costo esatto di un dipendente part-time nel tuo settore?', 'Posso cercarti i bandi attivi per la tua regione con scadenza nei prossimi 90 giorni?', 'Ti analizzo le differenze fiscali tra SRL e ditta individuale per il tuo fatturato?'" },
     disclaimer_dati: { type: "string" }
   },
   required: ["categoria", "sintesi_decisionale", "impatto_economico", "rischi_criticita", "tempo_attuazione", "raccomandazione_finale", "fonti", "affidabilita", "followup_questions", "disclaimer_dati"]
