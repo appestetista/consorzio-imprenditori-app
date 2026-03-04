@@ -589,35 +589,32 @@ export default function Home() {
         }
       } catch (e) { kbContext = ''; }
 
-      // Confronto LLM con schema forzato
-      const compareResult = await base44.integrations.Core.InvokeLLM({
-        prompt: `Confronta questi scenari per un imprenditore italiano di PMI. Usa internet per verificare dati reali. Dato trovato → [VERIFICATO — fonte]. Dato non trovato → [STIMA — base]. MAI inventare.
-${userContext}${kbContext}
-Scenario A: ${a}
-Scenario B: ${b}`,
-        add_context_from_internet: true,
-        response_json_schema: {
-          type: "object",
-          properties: {
-            tema: { type: "string" },
-            scenari: { type: "array", items: { type: "object", properties: { nome: { type: "string" }, costo: { type: "string" }, roi: { type: "string" }, tempo: { type: "string" }, rischio: { type: "string" }, vantaggio: { type: "string" }, punteggio: { type: "number" } } } },
-            verdetto: { type: "string" },
-            scenario_consigliato: { type: "string" },
-            fonti: { type: "array", items: { type: "object", properties: { nome: { type: "string" }, url: { type: "string" }, tipo: { type: "string" } } } },
-            affidabilita: { type: "object", properties: { verificati: { type: "number" }, stimati: { type: "number" }, da_confermare: { type: "number" }, punteggio: { type: "number" } } }
-          }
+      // Confronto via consultaAI (OpenAI + Gemini) con fallback InvokeLLM
+      let compareResult;
+      try {
+        const aiResp = await base44.functions.invoke('consultaAI', {
+          message: `Confronta questi due scenari per una PMI italiana:\nScenario A: ${a}\nScenario B: ${b}\nPer ciascuno calcola impatto economico, rischi, tempi. Indica quale conviene e perché con numeri concreti.`,
+          category: 'Confronto',
+          sottocategoria: category + ' — ' + sottocategoria,
+          userContext: userContext,
+          kbContent: kbContext,
+          conversationHistory: '',
+        });
+        if (aiResp.data?.success && aiResp.data?.data) {
+          compareResult = aiResp.data.data;
         }
-      });
-
-      // Con response_json_schema il risultato è già un oggetto
-      let parsedCompare = compareResult;
-      if (typeof compareResult === 'string') {
-        try {
-          let cleaned = compareResult.trim();
-          if (cleaned.startsWith('```')) cleaned = cleaned.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
-          parsedCompare = JSON.parse(cleaned);
-        } catch (e) { parsedCompare = null; }
+      } catch (e) {
+        console.error('[AI] Errore confronto:', e?.message);
       }
+      if (!compareResult) {
+        compareResult = await base44.integrations.Core.InvokeLLM({
+          prompt: `Confronta per PMI italiana:\nA: ${a}\nB: ${b}\n${kbContext}${userContext}`,
+          add_context_from_internet: true,
+          response_json_schema: { type: "object", properties: { categoria: { type: "string" }, sintesi_decisionale: { type: "string" }, impatto_economico: { type: "string" }, rischi_criticita: { type: "string" }, tempo_attuazione: { type: "string" }, raccomandazione_finale: { type: "string" }, fonti: { type: "array", items: { type: "object", properties: { nome: { type: "string" }, url: { type: "string" }, tipo: { type: "string" } } } }, affidabilita: { type: "object", properties: { verificati: { type: "number" }, stimati: { type: "number" }, da_confermare: { type: "number" }, punteggio: { type: "number" } } }, followup_questions: { type: "array", items: { type: "string" } } } }
+        });
+      }
+
+      let parsedCompare = compareResult;
 
       const newCount = (consulenzeUsate || 0) + 1;
       const result = parsedCompare || compareResult;
