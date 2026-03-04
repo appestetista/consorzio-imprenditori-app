@@ -197,29 +197,41 @@ function FontiSection({ fonti }) {
 // Strumento correlato
 function StrumentoCorrelato({ strumento }) {
   const navigate = useNavigate();
-  if (!strumento) return null;
+  if (!strumento || !strumento.nome) return null;
+
+  const handleNavigate = () => {
+    let url = createPageUrl(strumento.pagina);
+    const paramsObj = strumento.parametri_utente || {};
+    if (Object.keys(paramsObj).length > 0) {
+      const searchParams = new URLSearchParams();
+      Object.entries(paramsObj).forEach(([key, val]) => {
+        if (val) searchParams.set(key, String(val));
+      });
+      searchParams.set('from_chat', '1');
+      url += (url.includes('?') ? '&' : '?') + searchParams.toString();
+    }
+    navigate(url);
+  };
+
+  const hasParams = strumento.parametri_utente && Object.keys(strumento.parametri_utente).length > 0;
 
   return (
-    <div className="rounded-xl border border-[#d4af37]/40 bg-slate-800/60 px-4 py-4"
-      style={{ borderImage: 'linear-gradient(135deg, #d4af37, #b8860b, #d4af37) 1' }}>
-      <div className="flex items-start gap-3">
-        <div className="w-9 h-9 rounded-lg bg-[#d4af37]/15 flex items-center justify-center flex-shrink-0">
-          <Wrench className="w-4.5 h-4.5 text-[#d4af37]" />
+    <div onClick={handleNavigate} className="rounded-xl border border-[#d4af37]/50 bg-gradient-to-r from-[#d4af37]/10 to-transparent px-4 py-3 cursor-pointer hover:border-[#d4af37] transition-all group">
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-[#d4af37]/20 flex items-center justify-center flex-shrink-0 group-hover:bg-[#d4af37]/30 transition-colors">
+          <Wrench className="w-5 h-5 text-[#d4af37]" />
         </div>
-        <div className="flex-1">
-          <p className="text-sm font-semibold text-white mb-0.5">Vuoi andare più in profondità?</p>
-          <p className="text-xs text-slate-400 mb-3">
-            Usa lo strumento <span className="text-[#d4af37] font-medium">{strumento.nome}</span> per {strumento.descrizione}
-          </p>
-          <button
-            onClick={() => navigate(createPageUrl(strumento.pagina))}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
-            style={{ backgroundColor: '#d4af37', color: '#0a0f1a' }}
-          >
-            Apri {strumento.nome}
-            <ArrowRight className="w-4 h-4" />
-          </button>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <p className="text-sm font-bold text-[#d4af37]">{strumento.nome}</p>
+            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[#d4af37]/20 text-[#d4af37] font-semibold uppercase">Sezione Dedicata</span>
+          </div>
+          <p className="text-xs text-slate-400 mt-0.5">{strumento.descrizione}</p>
+          {hasParams && (
+            <p className="text-[10px] text-emerald-400 mt-1">✓ I tuoi dati verranno inseriti automaticamente</p>
+          )}
         </div>
+        <ArrowRight className="w-5 h-5 text-[#d4af37] flex-shrink-0 group-hover:translate-x-1 transition-transform" />
       </div>
     </div>
   );
@@ -453,6 +465,9 @@ Genera un piano operativo in JSON con: titolo_piano, durata_totale, budget_stima
           </div>
         )}
 
+        {/* STRUMENTO CORRELATO — in alto */}
+        <StrumentoCorrelato strumento={parsed.strumento_correlato} />
+
         {/* BARRA AFFIDABILITA */}
         <AffidabilitaBar affidabilita={parsed.affidabilita} />
 
@@ -482,9 +497,6 @@ Genera un piano operativo in JSON con: titolo_piano, durata_totale, budget_stima
 
         {/* FONTI */}
         <FontiSection fonti={parsed.fonti} />
-
-        {/* STRUMENTO CORRELATO */}
-        <StrumentoCorrelato strumento={parsed.strumento_correlato} />
 
         {/* FOLLOWUP */}
         {parsed.followup_questions?.length > 0 && (

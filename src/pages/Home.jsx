@@ -278,29 +278,44 @@ export default function Home() {
       }
     } catch (e) { kbHint = ''; }
 
-    // Strumento correlato
-    const strumentiMap = {
-      'Fiscale': { nome: 'Simulatore Fiscale', pagina: 'SimulatoreFiscale', descrizione: 'calcolo preciso imposte e confronto regimi' },
-      'Personale/HR': { nome: 'Costo del Personale', pagina: 'SimulatoreCostoPersonale', descrizione: 'calcolo esatto costo dipendente con CCNL e contributi' },
-      'Legale': { nome: 'Analisi Contratti', pagina: 'AnalisiContratti', descrizione: 'analisi clausole e rischi di contratti' },
-      'Investimenti': { nome: 'Bandi e Finanziamenti', pagina: 'FinanziamentiAgevolati', descrizione: 'bandi attivi e finanziamenti agevolati' },
-    };
+    // === MAPPA COMPLETA SEZIONI DEDICATE ===
+    const SEZIONI_DEDICATE = [
+      { keywords: ['tasse', 'imposte', 'iva', 'irpef', 'ires', 'irap', 'regime', 'forfettario', 'ordinario', 'aliquota', 'fisco', 'dichiarazione', 'f24', 'fattura'], nome: 'Simulatore Fiscale', pagina: 'SimulatoreFiscale', descrizione: 'Calcola le tue imposte e confronta i regimi fiscali', parametri: ['regime_fiscale', 'fatturato_annuo', 'forma_giuridica'] },
+      { keywords: ['dipendente', 'assunzione', 'stipendio', 'busta paga', 'ccnl', 'costo personale', 'tfr', 'contributi previdenziali', 'part-time', 'apprendista'], nome: 'Costo del Personale', pagina: 'SimulatoreCostoPersonale', descrizione: 'Calcola il costo esatto di un dipendente con CCNL reali', parametri: ['numero_dipendenti', 'settore'] },
+      { keywords: ['contratto', 'clausola', 'recesso', 'analisi contratto', 'penale contrattuale', 'inadempimento'], nome: 'Analisi Contratti', pagina: 'AnalisiContratti', descrizione: 'Analizza clausole e rischi dei tuoi contratti', parametri: [] },
+      { keywords: ['bando', 'bandi', 'finanziamento', 'agevolazione', 'fondo perduto', 'contributo', 'pnrr', 'transizione 5.0', 'invitalia', 'simest', 'credito imposta'], nome: 'Bandi e Finanziamenti', pagina: 'FinanziamentiAgevolati', descrizione: 'Cerca bandi attivi e finanziamenti per la tua azienda', parametri: ['settore', 'fatturato_annuo', 'numero_dipendenti', 'forma_giuridica'] },
+      { keywords: ['import', 'export', 'dazio', 'dogana', 'codice hs', 'internazional', 'estero', 'incoterms', 'commercio estero'], nome: 'Import / Export', pagina: 'ImportExport', descrizione: 'Analisi mercati, dazi doganali e codici HS ufficiali', parametri: ['settore'] },
+      { keywords: ['compliance', 'sanzione', 'gdpr', 'privacy', 'sicurezza lavoro', '81/08', 'haccp', 'normativa', 'obbligo'], nome: 'Evita Sanzioni', pagina: 'ComplianceAziendale', descrizione: 'Verifica la tua compliance e previeni sanzioni', parametri: ['settore', 'numero_dipendenti'] },
+      { keywords: ['welfare', 'benefit', 'buoni pasto', 'fringe benefit', 'premio produzione', 'flexible benefit'], nome: 'Benefit Dipendenti', pagina: 'WelfareAziendale', descrizione: 'Gestisci il welfare aziendale con vantaggi fiscali', parametri: ['numero_dipendenti', 'forma_giuridica'] },
+      { keywords: ['fornitore', 'fornitura', 'preventivo', 'acquisto', 'appalto'], nome: 'Ricerca Fornitori', pagina: 'Fornitori', descrizione: 'Trova fornitori verificati nella tua zona', parametri: ['settore', 'zona'] },
+      { keywords: ['consulente', 'consulenza', 'commercialista', 'avvocato', 'professionista'], nome: 'Consulenze', pagina: 'Consulenze', descrizione: 'Prenota una consulenza con un professionista', parametri: [] },
+      { keywords: ['energia', 'bolletta', 'fotovoltaico', 'risparmio energetico', 'luce', 'gas'], nome: 'Risparmio Energetico', pagina: 'RisparmioEnergetico', descrizione: 'Confronta offerte e risparmia su luce e gas', parametri: [] },
+      { keywords: ['asta', 'aste', 'immobiliare', 'tribunale', 'perizia', 'offerta minima'], nome: 'Aste Immobiliari', pagina: 'AsteImmobiliari', descrizione: 'Cerca aste immobiliari attive nella tua zona', parametri: ['zona'] },
+      { keywords: ['marketplace', 'vendere', 'comprare', 'annuncio', 'offerta commerciale'], nome: 'Market Place', pagina: 'Marketplace', descrizione: 'Compra e vendi tra imprenditori del Consorzio', parametri: [] },
+    ];
+
     const msgLower = msg.toLowerCase();
-    let strumentoSuggerito = strumentiMap[category] || null;
-    if (msgLower.includes('import') || msgLower.includes('export') || msgLower.includes('dazio') || msgLower.includes('dogana')) {
-      strumentoSuggerito = { nome: 'Import/Export', pagina: 'ImportExport', descrizione: 'analisi mercati, dazi doganali, codici HS con dati ufficiali' };
+    let strumentoSuggerito = null;
+    let bestKeywordCount = 0;
+    
+    for (const sez of SEZIONI_DEDICATE) {
+      const matchCount = sez.keywords.filter(kw => msgLower.includes(kw)).length;
+      if (matchCount > bestKeywordCount) {
+        bestKeywordCount = matchCount;
+        strumentoSuggerito = { nome: sez.nome, pagina: sez.pagina, descrizione: sez.descrizione, parametri: sez.parametri };
+      }
     }
-    if (msgLower.includes('compliance') || msgLower.includes('sanzione') || msgLower.includes('gdpr') || msgLower.includes('sicurezza lavoro')) {
-      strumentoSuggerito = { nome: 'Evita Sanzioni', pagina: 'ComplianceAziendale', descrizione: 'verifica compliance normativa e rischio sanzioni' };
-    }
-    if (msgLower.includes('welfare') || msgLower.includes('benefit') || msgLower.includes('buoni pasto') || msgLower.includes('fringe')) {
-      strumentoSuggerito = { nome: 'Benefit Dipendenti', pagina: 'WelfareAziendale', descrizione: 'gestione welfare aziendale e normativa' };
-    }
-    if (msgLower.includes('fornitore') || msgLower.includes('fornitura') || msgLower.includes('preventivo')) {
-      strumentoSuggerito = { nome: 'Ricerca Fornitori', pagina: 'Fornitori', descrizione: 'ricerca e valutazione fornitori verificati' };
-    }
-    if (msgLower.includes('consulente') || msgLower.includes('consulenza') || msgLower.includes('commercialista') || msgLower.includes('avvocato')) {
-      strumentoSuggerito = { nome: 'Consulenze', pagina: 'Consulenze', descrizione: 'prenota una consulenza con un professionista' };
+
+    if (strumentoSuggerito && strumentoSuggerito.parametri.length > 0) {
+      const parametriDaPassare = {};
+      for (const param of strumentoSuggerito.parametri) {
+        if (effectiveUser?.[param]) parametriDaPassare[param] = effectiveUser[param];
+      }
+      const importoMatch = msg.match(/(\d[\d.,]*)\s*(?:€|euro)/i);
+      if (importoMatch) parametriDaPassare._importo = importoMatch[1];
+      const dipMatch = msg.match(/(\d+)\s*(?:dipendenti|dipendente|persone|collaboratori)/i);
+      if (dipMatch) parametriDaPassare._num_dipendenti = dipMatch[1];
+      strumentoSuggerito.parametri_utente = parametriDaPassare;
     }
 
     // Chiamata LLM con internet + schema JSON forzato
