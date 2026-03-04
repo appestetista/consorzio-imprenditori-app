@@ -173,6 +173,29 @@ export default function Home() {
   const runAnalysis = async ({ msg, category, sottocategoria, newMessages, convId }) => {
     const userContext = buildUserContext();
 
+    // Storicità conversazione — ultime 3 coppie per dare contesto all'LLM
+    let historyBlock = '';
+    const previousMsgs = newMessages.slice(0, -1); // escludi il messaggio corrente
+    if (previousMsgs.length > 0) {
+      const recent = previousMsgs.slice(-6); // max 3 coppie domanda-risposta
+      const historyParts = recent.map(m => {
+        if (m.role === 'user') return 'UTENTE: ' + (m.content || '').substring(0, 150);
+        if (m.role === 'assistant' && m.content) {
+          const c = m.content;
+          if (typeof c === 'object' && c.sintesi_decisionale) {
+            return 'ASSISTENTE (sintesi): ' + c.sintesi_decisionale.substring(0, 200);
+          }
+          if (typeof c === 'string') return 'ASSISTENTE: ' + c.substring(0, 200);
+        }
+        return null;
+      }).filter(Boolean);
+      
+      if (historyParts.length > 0) {
+        historyBlock = 'CONVERSAZIONE PRECEDENTE (per contesto, rispondi SOLO alla domanda corrente):\n' 
+          + historyParts.join('\n') + '\n\n';
+      }
+    }
+
     // KB contenuto verificato — passa dati reali all'LLM, non solo titoli
     let kbHint = '';
     try {
@@ -230,7 +253,7 @@ REGOLE TASSATIVE:
 - La raccomandazione finale = prima azione concreta da fare domani mattina
 - Non menzionare mai di essere un'AI
 
-${kbHint}${userContext}Categoria: ${category} — ${sottocategoria}.
+${historyBlock}${kbHint}${userContext}Categoria: ${category} — ${sottocategoria}.
 Domanda: ${msg}`,
       add_context_from_internet: true,
       response_json_schema: {
