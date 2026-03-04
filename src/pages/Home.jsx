@@ -381,14 +381,19 @@ export default function Home() {
     const newCount = (consulenzeUsate || 0) + 1;
     
     // Per il rendering in memoria: teniamo l'oggetto parsed
-    const assistantMsg = { role: 'assistant', content: parsed || result, isAI: true, usageCount: newCount };
+    const assistantMsg = { role: 'assistant', content: parsed, isAI: true, usageCount: newCount };
     const updatedMessages = [...newMessages, assistantMsg];
     setMessages(updatedMessages);
     
     // Per il database: TUTTI i content devono essere stringhe (Base44 rifiuta oggetti)
+    // Salva anche isAI, isCompare, usageCount per il restore dalla sidebar
     const messagesForDB = updatedMessages.map(m => ({
-      ...m,
-      content: typeof m.content === 'object' && m.content !== null ? JSON.stringify(m.content) : (m.content || '')
+      role: m.role,
+      content: typeof m.content === 'object' && m.content !== null ? JSON.stringify(m.content) : (m.content || ''),
+      ...(m.isAI ? { isAI: true } : {}),
+      ...(m.isCompare ? { isCompare: true } : {}),
+      ...(m.usageCount ? { usageCount: m.usageCount } : {}),
+      ...(m.isDetail ? { isDetail: true } : {}),
     }));
     
     const rispostaStr = typeof (parsed || result) === 'string' ? (parsed || result) : JSON.stringify(parsed || result);
@@ -618,14 +623,18 @@ export default function Home() {
 
       const newCount = (consulenzeUsate || 0) + 1;
       const result = parsedCompare || compareResult;
-      const assistantMsg = { role: 'assistant', content: result, isCompare: !!parsedCompare, isAI: true, usageCount: newCount };
+      const assistantMsg = { role: 'assistant', content: result, isCompare: true, isAI: true, usageCount: newCount };
       const updatedMessages = [...newMessages, assistantMsg];
       setMessages(updatedMessages);
 
       // Per il database: TUTTI i content devono essere stringhe
       const messagesForDB = updatedMessages.map(m => ({
-        ...m,
-        content: typeof m.content === 'object' && m.content !== null ? JSON.stringify(m.content) : (m.content || '')
+        role: m.role,
+        content: typeof m.content === 'object' && m.content !== null ? JSON.stringify(m.content) : (m.content || ''),
+        ...(m.isAI ? { isAI: true } : {}),
+        ...(m.isCompare ? { isCompare: true } : {}),
+        ...(m.usageCount ? { usageCount: m.usageCount } : {}),
+        ...(m.isDetail ? { isDetail: true } : {}),
       }));
       const rispostaStr = typeof result === 'string' ? result : JSON.stringify(result);
       await base44.entities.ChatConversation.update(convId, {
@@ -810,6 +819,20 @@ export default function Home() {
     setInputText('');
   };
 
+  const restoreMessages = (rawMessages) => {
+    return rawMessages.map(m => {
+      const restored = { ...m };
+      // Ri-parsa i content JSON stringificati in oggetti per il rendering
+      if (m.role === 'assistant' && typeof m.content === 'string') {
+        try {
+          const obj = JSON.parse(m.content);
+          if (obj && obj.sintesi_decisionale) restored.content = obj;
+        } catch { /* resta stringa */ }
+      }
+      return restored;
+    });
+  };
+
   const handleSelectConversation = async (conv) => {
     setActiveConversationId(conv.id);
     setActiveConvData(conv);
@@ -822,32 +845,11 @@ export default function Home() {
       const fullConvList = await base44.entities.ChatConversation.filter({ id: conv.id });
       const fullConv = fullConvList.length > 0 ? fullConvList[0] : conv;
       const rawMessages = fullConv.messages || conv.messages || [];
-      
-      // Ri-parsa i content che nel DB sono stringhe JSON in oggetti per il rendering
-      const restoredMessages = rawMessages.map(m => {
-        if (m.role === 'assistant' && typeof m.content === 'string') {
-          try {
-            const obj = JSON.parse(m.content);
-            if (obj && obj.sintesi_decisionale) return { ...m, content: obj };
-          } catch { }
-        }
-        return m;
-      });
-      setMessages(restoredMessages);
+      setMessages(restoreMessages(rawMessages));
       setActiveConvData(fullConv);
     } catch (e) {
       console.error('Errore caricamento conversazione:', e);
-      const rawMessages = conv.messages || [];
-      const restoredMessages = rawMessages.map(m => {
-        if (m.role === 'assistant' && typeof m.content === 'string') {
-          try {
-            const obj = JSON.parse(m.content);
-            if (obj && obj.sintesi_decisionale) return { ...m, content: obj };
-          } catch { }
-        }
-        return m;
-      });
-      setMessages(restoredMessages);
+      setMessages(restoreMessages(conv.messages || []));
     }
   };
 
