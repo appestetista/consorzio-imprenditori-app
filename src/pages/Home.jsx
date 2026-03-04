@@ -1021,6 +1021,20 @@ export default function Home() {
         )}
       </div>
 
+      {/* Freccia scroll to bottom */}
+      {hasMessages && showScrollDown && (
+        <button
+          onClick={() => {
+            messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+            setShowScrollDown(false);
+          }}
+          className="fixed z-50 left-1/2 -translate-x-1/2 w-9 h-9 rounded-full bg-slate-700/90 border border-slate-600/50 flex items-center justify-center shadow-lg backdrop-blur-sm transition-all hover:bg-slate-600/90"
+          style={{ bottom: '200px' }}
+        >
+          <ArrowUp className="w-4 h-4 text-slate-200 rotate-180" />
+        </button>
+      )}
+
       {/* Campo di input */}
       <div className="fixed z-40 px-2 pb-1 pt-1 left-0 right-0" style={{ bottom: '141px', backgroundColor: '#0a0f1a' }}>
         <div className="max-w-2xl mx-auto space-y-1">
