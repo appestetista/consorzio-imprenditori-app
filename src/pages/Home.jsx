@@ -185,11 +185,29 @@ export default function Home() {
     assignType();
   }, [impersonation.active, navigate]);
 
-  // Scroll automatico ai nuovi messaggi
+  // Scroll: quando l'utente invia un messaggio, scrolla per mostrare la domanda + i puntini di typing in alto.
+  // Quando arriva la risposta AI, scrolla fino alla RISPOSTA (non al fondo) e lascia che l'utente scorra con il dito.
+  const lastUserMsgRef = useRef(null);
+  const lastAssistantMsgRef = useRef(null);
+
+  // Scroll alla domanda utente quando sta digitando (typing)
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    setShowScrollDown(false);
-  }, [messages, isTyping]);
+    if (isTyping && lastUserMsgRef.current) {
+      lastUserMsgRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [isTyping]);
+
+  // Quando arriva una nuova risposta (isTyping passa da true a false), scrolla all'inizio della risposta
+  const prevIsTyping = useRef(false);
+  useEffect(() => {
+    if (prevIsTyping.current && !isTyping && lastAssistantMsgRef.current) {
+      // Piccolo delay per permettere il render del StreamingReveal
+      setTimeout(() => {
+        lastAssistantMsgRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+    prevIsTyping.current = isTyping;
+  }, [isTyping]);
 
   // Rileva scroll per mostrare freccia "scroll to bottom"
   useEffect(() => {
