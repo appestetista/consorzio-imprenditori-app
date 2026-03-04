@@ -381,7 +381,8 @@ export default function Home() {
     const newCount = (consulenzeUsate || 0) + 1;
     
     // Per il rendering in memoria: teniamo l'oggetto parsed
-    const assistantMsg = { role: 'assistant', content: parsed, isAI: true, usageCount: newCount };
+    const finalContent = parsed || 'Risposta non disponibile. Riprova.';
+    const assistantMsg = { role: 'assistant', content: finalContent, isAI: true, usageCount: newCount };
     const updatedMessages = [...newMessages, assistantMsg];
     setMessages(updatedMessages);
     
@@ -396,7 +397,7 @@ export default function Home() {
       ...(m.isDetail ? { isDetail: true } : {}),
     }));
     
-    const rispostaStr = typeof (parsed || result) === 'string' ? (parsed || result) : JSON.stringify(parsed || result);
+    const rispostaStr = typeof finalContent === 'string' ? finalContent : JSON.stringify(finalContent);
     await base44.entities.ChatConversation.update(convId, {
       messages: messagesForDB,
       categoria: category,
