@@ -189,12 +189,13 @@ export default function Home() {
   }, [messages, isTyping]);
 
   // Gestisce parametri URL: loadConv (carica conversazione) e newChat (nuova chat)
+  // Al caricamento senza parametri → sempre nuova chat pulita
   useEffect(() => {
+    if (!effectiveUser?.email) return;
     const params = new URLSearchParams(window.location.search);
     const loadConvId = params.get('loadConv');
-    const newChat = params.get('newChat');
     
-    if (loadConvId && effectiveUser?.email) {
+    if (loadConvId) {
       // Carica la conversazione specificata
       (async () => {
         const convs = await base44.entities.ChatConversation.filter({ user_email: effectiveUser.email });
@@ -207,11 +208,18 @@ export default function Home() {
       const url = new URL(window.location);
       url.searchParams.delete('loadConv');
       window.history.replaceState({}, '', url.toString());
-    } else if (newChat === '1') {
-      handleNewChat();
+    } else {
+      // Nessun parametro o newChat=1 → sempre nuova chat pulita
+      setMessages([]);
+      setActiveConversationId(null);
+      setActiveConvData(null);
+      setInputText('');
+      // Pulisci eventuali parametri rimasti
       const url = new URL(window.location);
-      url.searchParams.delete('newChat');
-      window.history.replaceState({}, '', url.toString());
+      if (url.searchParams.has('newChat')) {
+        url.searchParams.delete('newChat');
+        window.history.replaceState({}, '', url.toString());
+      }
     }
   }, [effectiveUser?.email]);
 
