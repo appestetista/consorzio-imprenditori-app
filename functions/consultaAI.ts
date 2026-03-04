@@ -8,10 +8,10 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 // ===== CONFIGURAZIONE MODELLI =====
 const MODELS = {
-  'gpt-4o': { provider: 'openai', model: 'gpt-4o', maxTokens: 4000, temperature: 0.3 },
-  'gpt-4o-mini': { provider: 'openai', model: 'gpt-4o-mini', maxTokens: 3000, temperature: 0.3 },
-  'gemini-flash': { provider: 'gemini', model: 'gemini-2.5-flash-preview-05-20', maxTokens: 4000, temperature: 0.3 },
-  'gemini-pro': { provider: 'gemini', model: 'gemini-2.5-pro-preview-05-06', maxTokens: 4000, temperature: 0.3 },
+  'gpt-4o': { provider: 'openai', model: 'gpt-4o', maxTokens: 8000, temperature: 0.5 },
+  'gpt-4o-mini': { provider: 'openai', model: 'gpt-4o-mini', maxTokens: 6000, temperature: 0.5 },
+  'gemini-flash': { provider: 'gemini', model: 'gemini-2.5-flash-preview-05-20', maxTokens: 8000, temperature: 0.5 },
+  'gemini-pro': { provider: 'gemini', model: 'gemini-2.5-pro-preview-05-06', maxTokens: 8000, temperature: 0.5 },
 };
 
 // ===== ROUTING: quale modello per quale categoria =====
@@ -71,7 +71,8 @@ OBBLIGO DI SPECIFICITÀ:
 - Per domande su bandi: CERCA e NOMINA bandi reali attualmente aperti con importi e scadenze
 - Se il profilo utente contiene settore, fatturato, n. dipendenti: USA quei dati per PERSONALIZZARE i calcoli
 - Ogni sezione della risposta deve contenere ALMENO un dato numerico concreto o riferimento normativo
-- La sintesi deve essere LUNGA e DETTAGLIATA (almeno 200 parole), non riassunti di 2 righe
+- La sintesi deve essere MOLTO LUNGA e ULTRA-DETTAGLIATA (almeno 500 parole). Copri OGNI aspetto della domanda con numeri, calcoli, confronti, esempi pratici, scadenze e riferimenti normativi. Non riassumere mai in 2-3 righe, sviluppa OGNI punto in profondità come farebbe un consulente che scrive un parere professionale completo
+- Anche impatto_economico, rischi_criticita e raccomandazione_finale devono essere LUNGHI (almeno 100 parole ciascuno) con calcoli dettagliati e passaggi intermedi
 
 PERSONALIZZAZIONE OBBLIGATORIA:
 - Se conosci il regime fiscale dell'utente, calcola con quello specifico
