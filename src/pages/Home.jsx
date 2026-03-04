@@ -460,7 +460,7 @@ Domanda: ${msg}`,
           content: null,
           disambiguation: {
             text: "Per un'analisi più precisa, in quale area rientra la tua domanda?",
-            categories: ['Fiscale', 'Legale', 'Operativa', 'Strategica'],
+            categories: [classificazione.categoria, ...['Fiscale', 'Legale', 'Personale/HR', 'Investimenti', 'Operativa', 'Marketing', 'Strategica'].filter(c => c !== classificazione.categoria)].slice(0, 5),
             originalMsg: msg,
             sottocategoria,
             convId,
