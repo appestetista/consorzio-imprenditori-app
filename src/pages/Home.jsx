@@ -411,7 +411,7 @@ export default function Home() {
     
     // Per il rendering in memoria: teniamo l'oggetto parsed
     const finalContent = parsed || 'Risposta non disponibile. Riprova.';
-    const assistantMsg = { role: 'assistant', content: finalContent, isAI: true, usageCount: newCount };
+    const assistantMsg = { role: 'assistant', content: finalContent, isAI: true, usageCount: newCount, isNew: true };
     const updatedMessages = [...newMessages, assistantMsg];
     setMessages(updatedMessages);
     
