@@ -152,7 +152,13 @@ export default function ConversationContextMenu({
   // Menu principale
   return (
     <div ref={menuRef} className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 px-6">
-      <div className="w-full max-w-xs bg-[#1e293b] rounded-2xl border border-slate-700/60 shadow-xl overflow-hidden py-2">
+      <div className="w-full max-w-xs bg-[#1e293b] rounded-2xl border border-slate-700/60 shadow-xl overflow-hidden pt-1 pb-2">
+        {/* X chiudi */}
+        <div className="flex justify-end px-3 pt-1 pb-0.5">
+          <button onClick={onClose} className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-slate-700 transition-colors">
+            <X className="w-4 h-4 text-slate-400" />
+          </button>
+        </div>
         {/* Rinomina */}
         <button
           onClick={() => setMode('rename')}
