@@ -389,12 +389,21 @@ Domanda: ${msg}`,
     if (parsed && strumentoSuggerito) parsed.strumento_correlato = strumentoSuggerito;
 
     const newCount = (consulenzeUsate || 0) + 1;
+    
+    // Per il rendering in memoria: teniamo l'oggetto parsed
     const assistantMsg = { role: 'assistant', content: parsed || result, isAI: true, usageCount: newCount };
     const updatedMessages = [...newMessages, assistantMsg];
     setMessages(updatedMessages);
+    
+    // Per il database: TUTTI i content devono essere stringhe (Base44 rifiuta oggetti)
+    const messagesForDB = updatedMessages.map(m => ({
+      ...m,
+      content: typeof m.content === 'object' && m.content !== null ? JSON.stringify(m.content) : (m.content || '')
+    }));
+    
     const rispostaStr = typeof (parsed || result) === 'string' ? (parsed || result) : JSON.stringify(parsed || result);
     await base44.entities.ChatConversation.update(convId, {
-      messages: updatedMessages,
+      messages: messagesForDB,
       categoria: category,
       sottocategoria,
       risposta_json: rispostaStr,
