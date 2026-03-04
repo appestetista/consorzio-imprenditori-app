@@ -1,36 +1,59 @@
-// ============================================
-// BACKEND FUNCTION: consultaAI
-// Sistema combinato OpenAI + Gemini
-// Routing intelligente per tipo di domanda
-// ============================================
-
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
-// ===== CONFIGURAZIONE MODELLI =====
-const MODELS = {
-  'gpt-4o': { provider: 'openai', model: 'gpt-4o', maxTokens: 8000, temperature: 0.5 },
-  'gpt-4o-mini': { provider: 'openai', model: 'gpt-4o-mini', maxTokens: 6000, temperature: 0.5 },
-  'gemini-flash': { provider: 'gemini', model: 'gemini-2.5-flash-preview-05-20', maxTokens: 8000, temperature: 0.5 },
-  'gemini-pro': { provider: 'gemini', model: 'gemini-2.5-pro-preview-05-06', maxTokens: 8000, temperature: 0.5 },
+const SYSTEM_PROMPT = `Sei un consulente strategico senior specializzato in PMI italiane con 20 anni di esperienza. Rispondi SEMPRE con dati concreti e specifici.
+
+REGOLE FONDAMENTALI:
+1. INIZIA SEMPRE la sintesi_decisionale con il NUMERO più importante per l'utente
+2. Per ogni dato numerico: INDICA la fonte [VERIFICATO — Nome Fonte, art. X]
+3. Se NON trovi un dato: scrivi "⚠️ Dato non disponibile — verificare con commercialista" — NON INVENTARE MAI
+4. Se fonti contrastanti: [⚠️ FONTI DISCORDANTI — fonte1 dice X, fonte2 dice Y]
+5. NON arrotondare MAI aliquote fiscali, soglie INPS, importi di legge
+6. Distingui tra: norma vigente 2025-2026, proposta, scaduta
+7. Ogni numero in impatto_economico DEVE avere la fonte
+8. NON dare consigli generici SENZA numeri concreti prima
+
+OBBLIGO DI SPECIFICITÀ:
+- Costi: CALCOLA range con cifre reali e mostra TUTTI i passaggi del calcolo
+- Fiscale: USA aliquote e soglie ESATTE vigenti con scaglioni corretti
+- Contratti: CITA articoli esatti del Codice Civile o legge specifica
+- Bandi: NOMINA bandi reali con importi e scadenze
+- Se conosci settore/fatturato/dipendenti: PERSONALIZZA i calcoli
+- Ogni sezione: ALMENO un dato numerico o riferimento normativo
+- La sintesi deve essere MOLTO LUNGA e ULTRA-DETTAGLIATA (almeno 500 parole). Copri OGNI aspetto con numeri, calcoli, confronti, esempi pratici, scadenze e riferimenti normativi
+- Anche impatto_economico, rischi_criticita e raccomandazione_finale devono essere LUNGHI (almeno 100 parole ciascuno) con calcoli dettagliati
+
+DATI WEB FORNITI:
+Ti verranno forniti dati trovati su internet da un altro sistema. USA quei dati come base per la tua analisi, verificali e integra con le tue conoscenze. Se i dati web contrastano con le tue conoscenze, segnalalo.
+
+PERSONALIZZAZIONE:
+- Regime fiscale noto: calcola con quello specifico
+- Settore noto: usa CCNL di settore con livelli e importi reali
+- Fatturato noto: applica scaglioni corretti
+
+STILE:
+- Linguaggio diretto, usa "tu" e "la tua azienda"
+- Spiega termini tecnici la prima volta
+- Raccomandazione finale = azione concreta domani mattina alle 9
+- Non menzionare mai di essere un'AI
+- Scrivi come un parere professionale completo, non un riassunto`;
+
+const RESPONSE_SCHEMA = {
+  type: "object",
+  properties: {
+    categoria: { type: "string" },
+    sintesi_decisionale: { type: "string", description: "INIZIA con numero più importante. Almeno 500 parole con [VERIFICATO] o [STIMA]" },
+    impatto_economico: { type: "string", description: "Cifre EUR con fonte e calcoli dettagliati, almeno 100 parole" },
+    rischi_criticita: { type: "string", description: "Rischi con norme esatte, almeno 100 parole" },
+    tempo_attuazione: { type: "string", description: "Timeline con date concrete" },
+    raccomandazione_finale: { type: "string", description: "Azione concreta domani alle 9, almeno 100 parole" },
+    fonti: { type: "array", items: { type: "object", properties: { nome: { type: "string" }, url: { type: "string" }, tipo: { type: "string", enum: ["legge", "circolare", "sito_istituzionale", "articolo", "stima"] } }, required: ["nome", "tipo"] } },
+    affidabilita: { type: "object", properties: { verificati: { type: "number" }, stimati: { type: "number" }, da_confermare: { type: "number" }, punteggio: { type: "number" } }, required: ["verificati", "stimati", "da_confermare", "punteggio"] },
+    followup_questions: { type: "array", items: { type: "string" }, description: "3 domande di approfondimento" },
+    disclaimer_dati: { type: "string" }
+  },
+  required: ["categoria", "sintesi_decisionale", "impatto_economico", "rischi_criticita", "tempo_attuazione", "raccomandazione_finale", "fonti", "affidabilita", "followup_questions", "disclaimer_dati"]
 };
 
-// ===== ROUTING: quale modello per quale categoria =====
-const CATEGORY_MODEL_MAP = {
-  'Fiscale': 'gpt-4o',
-  'Legale': 'gpt-4o',
-  'Personale/HR': 'gpt-4o',
-  'Investimenti': 'gpt-4o',
-  'Contratti': 'gpt-4o',
-  'Confronto': 'gpt-4o',
-  'Operativa': 'gpt-4o-mini',
-  'Marketing': 'gpt-4o-mini',
-  'Strategica': 'gpt-4o',
-  'Bandi': 'gemini-flash',
-  'Import/Export': 'gemini-pro',
-  'default': 'gpt-4o-mini',
-};
-
-// ===== REGEX per forzare modello potente =====
 const FORCE_GPT4O_PATTERNS = [
   /quant[oi]\s+(cost|pag|risparmi|vers)/i,
   /aliquot[ae]/i, /irpef|ires|irap|inps|inail/i,
@@ -43,309 +66,152 @@ const FORCE_GPT4O_PATTERNS = [
   /bilancio|fatturato|utile|perdita/i,
 ];
 
-function selectModel(category, message) {
-  if (FORCE_GPT4O_PATTERNS.some(p => p.test(message))) {
-    return { ...MODELS['gpt-4o'], key: 'gpt-4o' };
-  }
-  const modelKey = CATEGORY_MODEL_MAP[category] || CATEGORY_MODEL_MAP['default'];
-  return { ...MODELS[modelKey], key: modelKey };
+function needsGpt4o(category, message) {
+  const forcedCategories = ['Fiscale','Legale','Personale/HR','Investimenti','Contratti','Confronto','Strategica'];
+  if (forcedCategories.includes(category)) return true;
+  if (FORCE_GPT4O_PATTERNS.some(p => p.test(message))) return true;
+  return false;
 }
 
-// ===== SYSTEM PROMPT OTTIMIZZATO =====
-const SYSTEM_PROMPT = `Sei un consulente strategico senior specializzato in PMI italiane con 20 anni di esperienza. Rispondi SEMPRE con dati concreti e specifici.
+async function callGeminiSearch(apiKey, question, userContext) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+  const searchPrompt = `Cerca su internet dati aggiornati per rispondere a questa domanda di un imprenditore italiano.
+${userContext}
+Domanda: ${question}
 
-REGOLE FONDAMENTALI — VIOLARNE UNA È INACCETTABILE:
-1. INIZIA SEMPRE la sintesi_decisionale con il NUMERO più importante per l'utente (costo, risparmio, scadenza, aliquota esatta)
-2. Per ogni dato numerico citato: INDICA la fonte tra parentesi. Formato: [VERIFICATO — Nome Fonte, art. X] oppure [VERIFICATO — URL]
-3. Se NON trovi un dato specifico: scrivi "⚠️ Dato non disponibile — verificare con il proprio commercialista" — NON INVENTARE MAI
-4. Se trovi fonti contrastanti: segnala con [⚠️ FONTI DISCORDANTI — fonte1 dice X, fonte2 dice Y]
-5. NON arrotondare MAI aliquote fiscali, soglie INPS, importi di legge — sono numeri ESATTI per legge
-6. Distingui SEMPRE tra: norma vigente 2025-2026, norma in discussione/proposta, norma scaduta/abrogata
-7. Ogni numero nel campo impatto_economico DEVE avere la fonte tra parentesi
-8. NON dare MAI consigli generici tipo "consulta un professionista" SENZA aver PRIMA fornito numeri concreti e calcoli specifici
-
-OBBLIGO DI SPECIFICITÀ:
-- Per domande su costi: CALCOLA il range con cifre reali (es. "Un dipendente CCNL Commercio livello 4 costa tra 28.000€ e 32.000€ lordi annui")
-- Per domande fiscali: USA le aliquote e soglie ESATTE vigenti con gli scaglioni corretti
-- Per domande su contratti: CITA gli articoli esatti del Codice Civile o la legge specifica
-- Per domande su bandi: CERCA e NOMINA bandi reali attualmente aperti con importi e scadenze
-- Se il profilo utente contiene settore, fatturato, n. dipendenti: USA quei dati per PERSONALIZZARE i calcoli
-- Ogni sezione della risposta deve contenere ALMENO un dato numerico concreto o riferimento normativo
-- La sintesi deve essere MOLTO LUNGA e ULTRA-DETTAGLIATA (almeno 500 parole). Copri OGNI aspetto della domanda con numeri, calcoli, confronti, esempi pratici, scadenze e riferimenti normativi. Non riassumere mai in 2-3 righe, sviluppa OGNI punto in profondità come farebbe un consulente che scrive un parere professionale completo
-- Anche impatto_economico, rischi_criticita e raccomandazione_finale devono essere LUNGHI (almeno 100 parole ciascuno) con calcoli dettagliati e passaggi intermedi
-
-PERSONALIZZAZIONE OBBLIGATORIA:
-- Se conosci il regime fiscale dell'utente, calcola con quello specifico
-- Se conosci il settore, usa il CCNL di settore con livelli e importi reali
-- Se conosci il fatturato, applica gli scaglioni corretti a quell'importo
-
-STILE DI RISPOSTA:
-- Linguaggio diretto, come un consulente che parla al suo cliente imprenditore
-- Usa "tu" e "la tua azienda", mai "il contribuente" o "l'impresa"
-- Spiega i termini tecnici la PRIMA volta che li usi (es. "IRPEF (l'imposta sul reddito delle persone fisiche)")
-- La raccomandazione finale deve essere un'AZIONE CONCRETA da fare domani mattina alle 9
-- Non menzionare mai di essere un'intelligenza artificiale o un chatbot
-- Scrivi come se stessi parlando faccia a faccia con il tuo cliente`;
-
-// ===== SCHEMA RISPOSTA JSON =====
-const RESPONSE_SCHEMA = {
-  type: "object",
-  properties: {
-    categoria: { type: "string" },
-    sintesi_decisionale: { type: "string", description: "INIZIA con il numero più importante. Almeno 200 parole con dati reali e tag [VERIFICATO — fonte] o [STIMA]" },
-    impatto_economico: { type: "string", description: "Cifre EUR concrete con fonte. Range minimo-massimo se necessario." },
-    rischi_criticita: { type: "string", description: "Rischi specifici con norme di riferimento esatte (legge + articolo)" },
-    tempo_attuazione: { type: "string", description: "Timeline realistica con date concrete" },
-    raccomandazione_finale: { type: "string", description: "Azione CONCRETA da fare domani mattina alle 9 come primo passo" },
-    fonti: {
-      type: "array",
-      items: {
-        type: "object",
-        properties: {
-          nome: { type: "string" },
-          url: { type: "string" },
-          tipo: { type: "string", enum: ["legge", "circolare", "sito_istituzionale", "articolo", "stima"] }
-        },
-        required: ["nome", "tipo"]
-      }
-    },
-    affidabilita: {
-      type: "object",
-      properties: {
-        verificati: { type: "number", description: "Numero dati verificati con fonte" },
-        stimati: { type: "number", description: "Numero dati stimati senza fonte certa" },
-        da_confermare: { type: "number", description: "Numero dati da confermare con professionista" },
-        punteggio: { type: "number", description: "Punteggio 0-100 di affidabilità complessiva" }
-      },
-      required: ["verificati", "stimati", "da_confermare", "punteggio"]
-    },
-    followup_questions: { type: "array", items: { type: "string" }, description: "3 domande di approfondimento pertinenti" },
-    disclaimer_dati: { type: "string", description: "Se qualche dato non è stato verificato, elencalo. Se tutto OK: 'Tutti i dati citati sono stati verificati con fonti ufficiali'" }
-  },
-  required: ["categoria", "sintesi_decisionale", "impatto_economico", "rischi_criticita", "tempo_attuazione", "raccomandazione_finale", "fonti", "affidabilita", "followup_questions", "disclaimer_dati"]
-};
-
-// ===== CHIAMATA OPENAI =====
-async function callOpenAI(apiKey, model, systemPrompt, userPrompt, maxTokens, temperature) {
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${apiKey}`
-    },
-    body: JSON.stringify({
-      model: model,
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt }
-      ],
-      temperature: temperature,
-      max_tokens: maxTokens,
-      response_format: {
-        type: "json_schema",
-        json_schema: {
-          name: "consulenza_response",
-          strict: false,
-          schema: RESPONSE_SCHEMA
-        }
-      }
-    }),
-    signal: AbortSignal.timeout(90000)
-  });
-
-  if (!response.ok) {
-    const errText = await response.text();
-    console.error('[consultaAI] OpenAI error:', response.status, errText);
-    throw new Error('OpenAI API error: ' + response.status + ' - ' + errText.substring(0, 200));
-  }
-
-  const data = await response.json();
-  return {
-    content: data.choices?.[0]?.message?.content || '',
-    inputTokens: data.usage?.prompt_tokens || 0,
-    outputTokens: data.usage?.completion_tokens || 0,
-  };
+Restituisci SOLO i dati trovati in formato JSON:
+{
+  "dati_trovati": [
+    { "dato": "descrizione del dato", "valore": "il valore trovato", "fonte": "nome fonte", "url": "link", "data_aggiornamento": "quando" }
+  ],
+  "normative_rilevanti": [
+    { "nome": "nome legge/norma", "riferimento": "art. X legge Y", "contenuto_chiave": "cosa dice" }
+  ],
+  "bandi_aperti": [
+    { "nome": "nome bando", "importo": "cifra", "scadenza": "data", "url": "link" }
+  ]
 }
+Se non trovi dati per una sezione, lascia l'array vuoto. NON inventare dati.`;
 
-// ===== CHIAMATA GEMINI =====
-async function callGemini(apiKey, model, systemPrompt, userPrompt, maxTokens, temperature) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-  
   const response = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      systemInstruction: { parts: [{ text: systemPrompt }] },
-      contents: [{ parts: [{ text: userPrompt }] }],
-      generationConfig: {
-        temperature: temperature,
-        maxOutputTokens: maxTokens,
-        responseMimeType: "application/json",
-        responseSchema: RESPONSE_SCHEMA
-      }
+      contents: [{ parts: [{ text: searchPrompt }] }],
+      generationConfig: { temperature: 0.2, maxOutputTokens: 3000, responseMimeType: "application/json" },
+      tools: [{ googleSearch: {} }]
     }),
-    signal: AbortSignal.timeout(90000)
+    signal: AbortSignal.timeout(30000)
   });
 
   if (!response.ok) {
-    const errText = await response.text();
-    console.error('[consultaAI] Gemini error:', response.status, errText);
-    throw new Error('Gemini API error: ' + response.status + ' - ' + errText.substring(0, 200));
+    console.error('[consultaAI] Gemini search error:', response.status);
+    return null;
   }
 
   const data = await response.json();
   const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
   const usage = data.usageMetadata || {};
-  return {
-    content: text,
-    inputTokens: usage.promptTokenCount || 0,
-    outputTokens: usage.candidatesTokenCount || 0,
-  };
+  return { content: text, inputTokens: usage.promptTokenCount || 0, outputTokens: usage.candidatesTokenCount || 0 };
 }
 
-// ===== HANDLER PRINCIPALE =====
+async function callOpenAI(apiKey, model, systemPrompt, userPrompt, maxTokens, temperature) {
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
+    body: JSON.stringify({
+      model: model,
+      messages: [{ role: "system", content: systemPrompt }, { role: "user", content: userPrompt }],
+      temperature: temperature,
+      max_tokens: maxTokens,
+      response_format: { type: "json_schema", json_schema: { name: "consulenza_response", strict: false, schema: RESPONSE_SCHEMA } }
+    }),
+    signal: AbortSignal.timeout(90000)
+  });
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error('OpenAI error: ' + response.status + ' - ' + errText.substring(0, 200));
+  }
+  const data = await response.json();
+  return { content: data.choices?.[0]?.message?.content || '', inputTokens: data.usage?.prompt_tokens || 0, outputTokens: data.usage?.completion_tokens || 0 };
+}
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
-    if (!user) {
-      return Response.json({ error: 'Non autorizzato' }, { status: 401 });
-    }
+    if (!user) return Response.json({ error: 'Non autorizzato' }, { status: 401 });
 
     const body = await req.json();
-    const {
-      message,
-      category,
-      sottocategoria,
-      userContext,
-      kbContent,
-      conversationHistory,
-    } = body;
+    const { message, category, sottocategoria, userContext, kbContent, conversationHistory } = body;
+    if (!message) return Response.json({ error: 'Messaggio mancante' }, { status: 400 });
 
-    if (!message) {
-      return Response.json({ error: 'Messaggio mancante' }, { status: 400 });
-    }
-
-    // 1. Seleziona modello
-    const selectedModel = selectModel(category || 'default', message);
-    
-    // 2. Recupera API keys
     const openaiKey = Deno.env.get("OPENAI_API_KEY");
     const geminiKey = Deno.env.get("GEMINI_API_KEY");
+    if (!openaiKey) return Response.json({ error: 'OPENAI_API_KEY non configurata' }, { status: 500 });
 
-    if (selectedModel.provider === 'openai' && !openaiKey) {
-      return Response.json({ error: 'OPENAI_API_KEY non configurata' }, { status: 500 });
-    }
-    if (selectedModel.provider === 'gemini' && !geminiKey) {
-      if (openaiKey) {
-        selectedModel.provider = 'openai';
-        selectedModel.model = 'gpt-4o-mini';
-      } else {
-        return Response.json({ error: 'Nessuna API key configurata' }, { status: 500 });
+    const startTime = Date.now();
+    const useGpt4o = needsGpt4o(category || 'default', message);
+    let geminiData = null;
+    let geminiTokens = { input: 0, output: 0 };
+
+    // STEP 1: Gemini cerca dati web (se la key esiste)
+    if (geminiKey) {
+      try {
+        console.log('[consultaAI] Step 1: Gemini web search...');
+        const geminiResult = await callGeminiSearch(geminiKey, message, userContext || '');
+        if (geminiResult && geminiResult.content) {
+          geminiData = geminiResult.content;
+          geminiTokens = { input: geminiResult.inputTokens, output: geminiResult.outputTokens };
+          console.log('[consultaAI] Gemini trovato dati:', geminiData.substring(0, 200));
+        }
+      } catch (e) {
+        console.log('[consultaAI] Gemini search fallito (non bloccante):', e.message);
       }
     }
 
-    // 3. Costruisci prompt utente completo
-    const userPrompt = `${conversationHistory || ''}${kbContent || ''}${userContext || ''}Categoria: ${category || 'Generale'} — ${sottocategoria || ''}.
-Domanda: ${message}`;
+    // STEP 2: GPT-4o elabora risposta finale con dati Gemini
+    const webDataBlock = geminiData ? `\n\nDATI TROVATI SU INTERNET (verificati da Google):\n${geminiData}\n\nUsa questi dati come base per la tua analisi. Verifica che siano coerenti con le tue conoscenze e integra dove necessario.\n` : '';
+    const model = useGpt4o ? 'gpt-4o' : 'gpt-4o-mini';
+    const maxTokens = useGpt4o ? 8000 : 6000;
+    const temperature = 0.5;
 
-    // 4. Chiama il modello selezionato
-    let result;
-    const startTime = Date.now();
+    const userPrompt = `${conversationHistory || ''}${kbContent || ''}${userContext || ''}${webDataBlock}Categoria: ${category || 'Generale'} — ${sottocategoria || ''}.\nDomanda: ${message}`;
 
-    if (selectedModel.provider === 'openai') {
-      result = await callOpenAI(
-        openaiKey, selectedModel.model, SYSTEM_PROMPT, userPrompt,
-        selectedModel.maxTokens, selectedModel.temperature
-      );
-    } else {
-      result = await callGemini(
-        geminiKey, selectedModel.model, SYSTEM_PROMPT, userPrompt,
-        selectedModel.maxTokens, selectedModel.temperature
-      );
-    }
-
+    console.log('[consultaAI] Step 2: ' + model + ' analisi finale...');
+    const gptResult = await callOpenAI(openaiKey, model, SYSTEM_PROMPT, userPrompt, maxTokens, temperature);
     const elapsed = Date.now() - startTime;
 
-    // 5. Parse risposta
+    // Parse risposta
     let parsed;
     try {
-      let content = result.content.trim();
+      let content = gptResult.content.trim();
       if (content.startsWith('```')) content = content.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
       parsed = JSON.parse(content);
-    } catch (e) {
-      console.error('[consultaAI] JSON parse error:', e.message);
-      parsed = null;
-    }
+    } catch (e) { parsed = null; }
 
-    // 6. Post-validazione qualità
-    if (parsed) {
-      const warnings = [];
-      if (!parsed.fonti || parsed.fonti.length === 0) {
-        warnings.push('Nessuna fonte citata nella risposta');
-      } else {
-        const senzaUrl = parsed.fonti.filter(f => !f.url || f.url === '');
-        if (senzaUrl.length > 0) warnings.push(senzaUrl.length + ' fonte/i senza link verificabile');
-      }
-      if (parsed.affidabilita?.punteggio < 50) {
-        warnings.push('Punteggio affidabilità basso (' + parsed.affidabilita.punteggio + '/100)');
-      }
-      if (parsed.affidabilita?.stimati > parsed.affidabilita?.verificati) {
-        warnings.push('Più dati stimati che verificati — consigliata verifica con un professionista');
-      }
-      if (warnings.length > 0) parsed._quality_warnings = warnings;
-    }
+    // Calcola costo totale (Gemini + GPT)
+    const geminiCost = (geminiTokens.input * 0.00000015) + (geminiTokens.output * 0.0000006);
+    const gptCost = model === 'gpt-4o' ? (gptResult.inputTokens * 0.0000025) + (gptResult.outputTokens * 0.00001) : (gptResult.inputTokens * 0.00000015) + (gptResult.outputTokens * 0.0000006);
+    const totalCost = geminiCost + gptCost;
 
-    // 7. Calcola costo reale
-    let costUsd = 0;
-    if (selectedModel.provider === 'openai') {
-      if (selectedModel.model === 'gpt-4o') {
-        costUsd = (result.inputTokens * 0.0000025) + (result.outputTokens * 0.00001);
-      } else {
-        costUsd = (result.inputTokens * 0.00000015) + (result.outputTokens * 0.0000006);
-      }
-    } else {
-      if (selectedModel.model.includes('pro')) {
-        costUsd = (result.inputTokens * 0.00000125) + (result.outputTokens * 0.00001);
-      } else {
-        costUsd = (result.inputTokens * 0.00000015) + (result.outputTokens * 0.0000006);
-      }
-    }
-
-    // 8. Logga utilizzo (non bloccante)
+    // Log utilizzo
     try {
       await base44.asServiceRole.entities.UsageLog.create({
-        user_email: user.email,
-        action_type: 'chat_ai',
-        model_used: selectedModel.model,
-        provider: selectedModel.provider,
-        input_tokens: result.inputTokens,
-        output_tokens: result.outputTokens,
-        cost_usd: Math.round(costUsd * 100000) / 100000,
-        category: category || 'Generale',
-        response_time_ms: elapsed,
-        timestamp: new Date().toISOString(),
+        user_email: user.email, action_type: 'chat_ai', model_used: model, provider: geminiData ? 'gemini+openai' : 'openai',
+        input_tokens: geminiTokens.input + gptResult.inputTokens, output_tokens: geminiTokens.output + gptResult.outputTokens,
+        cost_usd: Math.round(totalCost * 100000) / 100000, category: category || 'Generale', response_time_ms: elapsed, timestamp: new Date().toISOString(),
       });
-    } catch (e) {
-      console.log('[consultaAI] UsageLog error (non bloccante):', e.message);
-    }
+    } catch (e) { console.log('[consultaAI] UsageLog skip:', e.message); }
 
-    // 9. Restituisci risposta
     return Response.json({
-      success: true,
-      data: parsed || result.content,
-      model_used: selectedModel.model,
-      provider: selectedModel.provider,
-      tokens: { input: result.inputTokens, output: result.outputTokens },
-      cost_usd: costUsd,
-      response_time_ms: elapsed,
+      success: true, data: parsed || gptResult.content, model_used: model, provider: geminiData ? 'gemini+openai' : 'openai',
+      tokens: { input: geminiTokens.input + gptResult.inputTokens, output: geminiTokens.output + gptResult.outputTokens },
+      cost_usd: totalCost, response_time_ms: elapsed, web_search_used: !!geminiData,
     });
 
   } catch (e) {
     console.error('[consultaAI] Error:', e.message);
-    return Response.json({ 
-      error: e.message,
-      fallback: true 
-    }, { status: 500 });
+    return Response.json({ error: e.message, fallback: true }, { status: 500 });
   }
 });
