@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import OperationalPlan from './OperationalPlan';
 import generateAnalysisPdf from './generateAnalysisPdf';
+import StreamingReveal from './StreamingReveal';
 
 // Colori badge categoria
 const CATEGORY_COLORS = {
