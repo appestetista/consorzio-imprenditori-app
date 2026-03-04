@@ -318,7 +318,7 @@ function RatingSection({ conversationId }) {
 }
 
 // --- MAIN ---
-export default function DecisionResponse({ message, category, classification, onFollowup, conversationId, existingPlan, userQuestion }) {
+export default function DecisionResponse({ message, category, classification, onFollowup, conversationId, existingPlan, userQuestion, isNew = false }) {
   const [planLoading, setPlanLoading] = useState(false);
   const [showPlanCTA, setShowPlanCTA] = useState(true);
   const [plan, setPlan] = useState(() => {
