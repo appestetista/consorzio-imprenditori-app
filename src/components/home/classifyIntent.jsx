@@ -84,3 +84,94 @@ export function classifyIntent(message) {
     confidenza,
   };
 }
+
+// Mappa: per ogni categoria, domande di approfondimento
+const SMART_QUESTIONS = {
+  'Fiscale': {
+    indicatori_specifici: ['forfettario', 'ordinario', 'semplificato', 'srl', 'srls', 'spa', 'sas', 'snc', 'ditta individuale', 'partita iva', 'regime', 'aliquota', 'scaglion', 'dichiarazione', 'f24', 'fattura', 'iva', 'irpef', 'ires', 'irap'],
+    domande: [
+      { id: 'regime', testo: 'Che regime fiscale hai?', opzioni: ['Forfettario', 'Ordinario/Semplificato', 'Non so ancora'] },
+      { id: 'tipo_operazione', testo: 'Cosa devi fare nello specifico?', opzioni: ['Calcolare le tasse che pago', 'Capire quale regime conviene', 'Una scadenza/adempimento specifico', 'Altro'] },
+    ],
+    soglia_parole: 6,
+  },
+  'Personale/HR': {
+    indicatori_specifici: ['tempo determinato', 'tempo indeterminato', 'indeterminato', 'determinato', 'apprendistato', 'apprendista', 'part-time', 'full-time', 'ccnl', 'livello', 'busta paga', 'tfr', 'licenziamento', 'dimissioni', 'malattia', 'maternità', 'inps', 'inail', 'stage', 'tirocinio', 'cococo', 'collaboratore'],
+    domande: [
+      { id: 'tipo_contratto', testo: 'Che tipo di contratto ti interessa?', opzioni: ['Tempo indeterminato', 'Tempo determinato', 'Apprendistato', 'Collaborazione/P.IVA', 'Non so ancora'] },
+      { id: 'obiettivo_hr', testo: 'Cosa vuoi sapere esattamente?', opzioni: ['Quanto mi costa', 'Quale contratto conviene', 'Obblighi e adempimenti', 'Agevolazioni per assunzione'] },
+    ],
+    soglia_parole: 5,
+  },
+  'Legale': {
+    indicatori_specifici: ['contratto', 'clausola', 'recesso', 'disdetta', 'inadempimento', 'gdpr', 'privacy', 'sicurezza lavoro', '81/08', 'responsabilità', 'causa', 'tribunale', 'brevetto', 'marchio', 'statuto'],
+    domande: [
+      { id: 'ambito_legale', testo: 'In quale ambito legale?', opzioni: ['Contratti e clausole', 'Privacy e GDPR', 'Sicurezza sul lavoro', 'Proprietà intellettuale', 'Altro'] },
+    ],
+    soglia_parole: 5,
+  },
+  'Investimenti': {
+    indicatori_specifici: ['bando', 'bandi', 'pnrr', 'transizione 5.0', 'transizione 4.0', 'credito imposta', 'fondo perduto', 'simest', 'invitalia', 'mcc', 'garanzia', 'business plan', 'crowdfunding'],
+    domande: [
+      { id: 'tipo_investimento', testo: 'Che tipo di finanziamento cerchi?', opzioni: ['Bandi a fondo perduto', 'Credito d\'imposta', 'Prestiti agevolati', 'Voglio capire le opzioni'] },
+      { id: 'importo', testo: 'Ordine di grandezza dell\'investimento?', opzioni: ['Sotto 50.000€', '50K - 200K€', 'Oltre 200K€', 'Non ho ancora un budget'] },
+    ],
+    soglia_parole: 5,
+  },
+  'Operativa': {
+    indicatori_specifici: ['fornitore', 'fornitura', 'preventivo', 'magazzino', 'logistica', 'import', 'export', 'dogana', 'dazio', 'certificazione', 'iso', 'haccp', 'energia', 'bolletta', 'fotovoltaico', 'software', 'gestionale', 'erp'],
+    domande: [
+      { id: 'ambito_operativo', testo: 'In quale area operativa?', opzioni: ['Fornitori e acquisti', 'Import/Export', 'Certificazioni e qualità', 'Energia e risparmio', 'Software e digitalizzazione'] },
+    ],
+    soglia_parole: 5,
+  },
+  'Marketing': {
+    indicatori_specifici: ['seo', 'google ads', 'facebook', 'instagram', 'linkedin', 'tiktok', 'social', 'campagna', 'lead', 'funnel', 'e-commerce', 'ecommerce', 'sito web', 'newsletter', 'crm', 'brand'],
+    domande: [
+      { id: 'canale', testo: 'Su quale canale vuoi lavorare?', opzioni: ['Social media', 'Google / SEO / Ads', 'Sito web / E-commerce', 'Strategia generale'] },
+      { id: 'budget_mkt', testo: 'Hai un budget mensile in mente?', opzioni: ['Sotto 500€/mese', '500€ - 2.000€/mese', 'Oltre 2.000€/mese', 'Non ancora'] },
+    ],
+    soglia_parole: 5,
+  },
+  'Strategica': {
+    indicatori_specifici: ['crescita', 'espansione', 'fusione', 'acquisizione', 'cessione', 'passaggio generazionale', 'franchising', 'internazionalizzazione', 'crisi', 'ristrutturazione', 'soci', 'governance'],
+    domande: [
+      { id: 'obiettivo_strategico', testo: 'Qual è il tuo obiettivo principale?', opzioni: ['Crescere / espandermi', 'Risolvere un problema urgente', 'Valutare un\'opportunità', 'Pianificare il futuro dell\'azienda'] },
+    ],
+    soglia_parole: 6,
+  },
+};
+
+export function detectVagueness(message, categoria, userProfile) {
+  if (!message || !categoria) return null;
+  
+  const config = SMART_QUESTIONS[categoria];
+  if (!config) return null;
+  
+  const msgLower = message.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const parole = msgLower.split(/\s+/).filter(w => w.length > 2);
+  
+  // Se contiene indicatori specifici del dominio → non è vago
+  const haSpecifici = config.indicatori_specifici.some(ind => msgLower.includes(ind));
+  if (haSpecifici) return null;
+  
+  // Se è lungo (più del doppio della soglia) → probabilmente ha abbastanza dettagli
+  if (parole.length > config.soglia_parole * 2) return null;
+  
+  // Filtra domande: rimuovi quelle a cui il profilo utente già risponde
+  let domandeFiltrate = config.domande;
+  if (userProfile) {
+    domandeFiltrate = config.domande.filter(d => {
+      if (d.id === 'regime' && userProfile.regime_fiscale && userProfile.regime_fiscale !== 'Non so') return false;
+      return true;
+    });
+  }
+  
+  if (domandeFiltrate.length === 0) return null;
+  
+  return {
+    domande: domandeFiltrate,
+    messaggioOriginale: message,
+    categoria: categoria,
+  };
+}

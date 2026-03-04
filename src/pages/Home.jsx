@@ -15,8 +15,70 @@ import ChatSidebar from '../components/home/ChatSidebar';
 import GlobalTopIcons from '../components/layout/GlobalTopIcons';
 import AIUsageBar, { AIUsageBadge } from '../components/home/AIUsageBar';
 import MissingProfileDataModal, { getMissingFields } from '../components/home/MissingProfileDataModal';
-import { classifyIntent } from '../components/home/classifyIntent';
+import { classifyIntent, detectVagueness } from '../components/home/classifyIntent';
 import { useQueryClient } from '@tanstack/react-query';
+
+function SmartQuestionsCard({ data, onSubmit, onSkip, isTyping }) {
+  const [risposte, setRisposte] = React.useState({});
+  
+  const tutteRisposte = data.domande.every(d => risposte[d.id] && risposte[d.id].trim() !== '');
+  
+  return (
+    <div className="flex items-start gap-3">
+      <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#d4af37] to-[#b8860b] flex items-center justify-center flex-shrink-0 mt-0.5">
+        <Sparkles className="w-4 h-4 text-white" />
+      </div>
+      <div className="flex-1 max-w-[92%] space-y-3">
+        <div className="bg-slate-800/60 rounded-2xl rounded-tl-sm px-4 py-3">
+          <p className="text-sm text-slate-200 mb-3">{data.text}</p>
+          
+          {data.domande.map((domanda) => (
+            <div key={domanda.id} className="mb-3 last:mb-0">
+              <p className="text-xs font-semibold text-slate-400 mb-2">{domanda.testo}</p>
+              <div className="flex flex-wrap gap-1.5">
+                {domanda.opzioni.map((opzione) => (
+                  <button
+                    key={opzione}
+                    onClick={() => setRisposte(prev => ({ ...prev, [domanda.id]: opzione }))}
+                    disabled={isTyping}
+                    className={`text-xs px-3 py-1.5 rounded-lg border transition-all ${
+                      risposte[domanda.id] === opzione
+                        ? 'border-[#d4af37] bg-[#d4af37]/20 text-[#d4af37] font-semibold'
+                        : 'border-slate-600/50 bg-transparent text-slate-300 hover:border-slate-500'
+                    }`}
+                  >
+                    {opzione}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+        
+        <div className="flex gap-2">
+          <button
+            onClick={() => onSkip(data)}
+            disabled={isTyping}
+            className="px-4 py-2 rounded-xl border border-slate-700 text-slate-400 text-xs hover:border-slate-600 transition-colors disabled:opacity-30"
+          >
+            Rispondi senza dettagli
+          </button>
+          <button
+            onClick={() => onSubmit(data, risposte)}
+            disabled={!tutteRisposte || isTyping}
+            className="px-4 py-2 rounded-xl text-xs font-semibold transition-all disabled:opacity-30"
+            style={{
+              backgroundColor: tutteRisposte ? '#d4af37' : '#334155',
+              color: tutteRisposte ? '#0a0f1a' : '#94a3b8',
+            }}
+          >
+            {isTyping ? 'Analisi in corso...' : 'Analizza con questi dettagli'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function Home() {
   const [user, setUser] = useState(null);
@@ -408,6 +470,29 @@ Domanda: ${msg}`,
         return;
       }
 
+      // FASE 1.7 – Smart Questioning: la domanda è troppo vaga?
+      const vagueness = detectVagueness(msg, category, effectiveUser);
+      if (vagueness && vagueness.domande.length > 0) {
+        const smartMsg = {
+          role: 'assistant',
+          content: null,
+          smartQuestions: {
+            text: "Per darti una risposta davvero utile, ho bisogno di qualche dettaglio:",
+            domande: vagueness.domande,
+            messaggioOriginale: msg,
+            categoria: category,
+            sottocategoria,
+            convId,
+            risposte: {},
+          }
+        };
+        const updatedMessages = [...newMessages, smartMsg];
+        setMessages(updatedMessages);
+        await base44.entities.ChatConversation.update(convId, { messages: updatedMessages });
+        setIsTyping(false);
+        return;
+      }
+
       // FASE 2 + 3 – Analisi con system prompt strutturato
       console.log('>>> STEP 3: Inizio analisi');
       await runAnalysis({ msg, category, sottocategoria, newMessages, convId });
@@ -577,6 +662,65 @@ Scenario B: ${b}`,
     }
   };
 
+  const handleSmartQuestionAnswer = async (smartData, risposte) => {
+    setIsTyping(true);
+    const msgsWithoutSmart = messages.filter(m => !m.smartQuestions);
+    
+    const dettagli = Object.entries(risposte)
+      .filter(([, val]) => val && val.trim() !== '')
+      .map(([id, val]) => {
+        const domanda = smartData.domande.find(d => d.id === id);
+        return domanda ? domanda.testo + ' → ' + val : id + ': ' + val;
+      })
+      .join('. ');
+    
+    const messaggioArricchito = smartData.messaggioOriginale + '\n\nDETTAGLI FORNITI DALL\'UTENTE: ' + dettagli;
+    
+    const detailMsg = { role: 'user', content: '📋 ' + dettagli, isDetail: true };
+    const updatedMsgs = [...msgsWithoutSmart, detailMsg];
+    setMessages(updatedMsgs);
+    
+    try {
+      await runAnalysis({
+        msg: messaggioArricchito,
+        category: smartData.categoria,
+        sottocategoria: smartData.sottocategoria,
+        newMessages: updatedMsgs,
+        convId: smartData.convId,
+      });
+    } catch (e) {
+      console.error('>>> ERRORE:', e?.message || e);
+      const errMsg = { role: 'assistant', content: 'Mi dispiace, si è verificato un errore. Riprova tra un momento.' };
+      setMessages([...updatedMsgs, errMsg]);
+      await base44.entities.ChatConversation.update(smartData.convId, { messages: [...updatedMsgs, errMsg] });
+    } finally {
+      setIsTyping(false);
+    }
+  };
+  
+  const handleSmartQuestionSkip = async (smartData) => {
+    setIsTyping(true);
+    const msgsWithoutSmart = messages.filter(m => !m.smartQuestions);
+    setMessages(msgsWithoutSmart);
+    
+    try {
+      await runAnalysis({
+        msg: smartData.messaggioOriginale,
+        category: smartData.categoria,
+        sottocategoria: smartData.sottocategoria,
+        newMessages: msgsWithoutSmart,
+        convId: smartData.convId,
+      });
+    } catch (e) {
+      console.error('>>> ERRORE:', e?.message || e);
+      const errMsg = { role: 'assistant', content: 'Mi dispiace, si è verificato un errore. Riprova tra un momento.' };
+      setMessages([...msgsWithoutSmart, errMsg]);
+      await base44.entities.ChatConversation.update(smartData.convId, { messages: [...msgsWithoutSmart, errMsg] });
+    } finally {
+      setIsTyping(false);
+    }
+  };
+
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -717,7 +861,15 @@ Scenario B: ${b}`,
           <div className="flex-1 overflow-y-auto px-4 pt-2 pb-32">
             <div className="max-w-2xl mx-auto space-y-4">
               {messages.map((msg, i) => (
-                msg.disambiguation ? (
+                msg.smartQuestions ? (
+                  <SmartQuestionsCard 
+                    key={i} 
+                    data={msg.smartQuestions} 
+                    onSubmit={handleSmartQuestionAnswer}
+                    onSkip={handleSmartQuestionSkip}
+                    isTyping={isTyping}
+                  />
+                ) : msg.disambiguation ? (
                   <div key={i} className="flex items-start gap-3">
                     <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#d4af37] to-[#b8860b] flex items-center justify-center flex-shrink-0 mt-0.5">
                       <Sparkles className="w-4 h-4 text-white" />
