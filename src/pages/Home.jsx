@@ -173,12 +173,23 @@ export default function Home() {
   const runAnalysis = async ({ msg, category, sottocategoria, newMessages, convId }) => {
     const userContext = buildUserContext();
 
-    // KB hint (solo titoli, wrappato in try/catch)
+    // KB contenuto verificato — passa dati reali all'LLM, non solo titoli
     let kbHint = '';
     try {
       const kbRecords = await base44.entities.KnowledgeBase.filter({ categoria: category, attivo: true });
       if (kbRecords.length > 0) {
-        kbHint = 'Temi da verificare online: ' + kbRecords.map(r => r.titolo).join(', ') + '.\n';
+        // Ricerca rilevanza: filtra schede che contengono parole della domanda
+        const parole = msg.toLowerCase().split(' ').filter(w => w.length > 3);
+        const rilevanti = kbRecords.filter(r => 
+          parole.some(p => (r.titolo || '').toLowerCase().includes(p) || (r.contenuto || '').toLowerCase().includes(p))
+        );
+        const schedeDaUsare = rilevanti.length > 0 ? rilevanti.slice(0, 3) : kbRecords.slice(0, 2);
+        
+        kbHint = 'DATI NORMATIVI GIÀ VERIFICATI — usa questi come base affidabile, cerca online SOLO per aggiornamenti o dati non presenti qui:\n\n' 
+          + schedeDaUsare.map(r => 
+              '### ' + r.titolo + ' [affidabilità: ' + (r.livello_affidabilita || 'verificato') + ']\n' + (r.contenuto || '').substring(0, 800)
+            ).join('\n\n') 
+          + '\n\n';
       }
     } catch (e) { kbHint = ''; }
 
