@@ -107,7 +107,9 @@ export default function Home() {
   const [pianoAbbonamento, setPianoAbbonamento] = useState(null);
   const recognitionRef = useRef(null);
   const messagesEndRef = useRef(null);
+  const messagesContainerRef = useRef(null);
   const inputRef = useRef(null);
+  const [showScrollDown, setShowScrollDown] = useState(false);
 
   // Caricamento utente
   useEffect(() => {
