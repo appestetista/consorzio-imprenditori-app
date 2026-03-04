@@ -823,25 +823,45 @@ Scenario B: ${b}`,
     setInputText('');
   };
 
-  const handleSelectConversation = (conv) => {
+  const handleSelectConversation = async (conv) => {
     setActiveConversationId(conv.id);
-    // Ri-parsa i content che nel DB sono stringhe JSON → oggetti per il rendering
-    const restoredMessages = (conv.messages || []).map(m => {
-      if (m.role === 'assistant' && typeof m.content === 'string') {
-        try {
-          const obj = JSON.parse(m.content);
-          if (obj && obj.sintesi_decisionale) {
-            return { ...m, content: obj };
-          }
-        } catch { /* non è JSON, lascia come stringa */ }
-      }
-      return m;
-    });
-    setMessages(restoredMessages);
     setActiveConvData(conv);
     setLastCategory(conv.categoria || null);
     setLastClassification(conv.categoria ? { categoria: conv.categoria, sottocategoria: conv.sottocategoria || '' } : null);
     setInputText('');
+    
+    // Ricarica la conversazione completa dal database per avere tutti i messages
+    try {
+      const fullConvList = await base44.entities.ChatConversation.filter({ id: conv.id });
+      const fullConv = fullConvList.length > 0 ? fullConvList[0] : conv;
+      const rawMessages = fullConv.messages || conv.messages || [];
+      
+      // Ri-parsa i content che nel DB sono stringhe JSON in oggetti per il rendering
+      const restoredMessages = rawMessages.map(m => {
+        if (m.role === 'assistant' && typeof m.content === 'string') {
+          try {
+            const obj = JSON.parse(m.content);
+            if (obj && obj.sintesi_decisionale) return { ...m, content: obj };
+          } catch { }
+        }
+        return m;
+      });
+      setMessages(restoredMessages);
+      setActiveConvData(fullConv);
+    } catch (e) {
+      console.error('Errore caricamento conversazione:', e);
+      const rawMessages = conv.messages || [];
+      const restoredMessages = rawMessages.map(m => {
+        if (m.role === 'assistant' && typeof m.content === 'string') {
+          try {
+            const obj = JSON.parse(m.content);
+            if (obj && obj.sintesi_decisionale) return { ...m, content: obj };
+          } catch { }
+        }
+        return m;
+      });
+      setMessages(restoredMessages);
+    }
   };
 
   const userRegime = effectiveUser?.regime_fiscale || null;
