@@ -432,6 +432,7 @@ Genera un piano operativo in JSON con: titolo_piano, durata_totale, budget_stima
         <Sparkles className="w-4 h-4 text-white" />
       </div>
       <div className="flex-1 max-w-[92%] space-y-3">
+        <StreamingReveal delay={180} enabled={isNew}>
 
         {/* BADGE CATEGORIA */}
         {catKey && (
@@ -447,7 +448,7 @@ Genera un piano operativo in JSON con: titolo_piano, durata_totale, budget_stima
         )}
 
         {/* STRUMENTO CORRELATO in alto */}
-        <StrumentoCorrelato strumento={parsed.strumento_correlato} />
+        {parsed.strumento_correlato && <StrumentoCorrelato strumento={parsed.strumento_correlato} />}
 
         {/* RISPOSTA FLUIDA — un unico blocco discorsivo */}
         <div className="rounded-2xl bg-slate-800/50 border border-slate-700/40 px-5 py-4 space-y-4">
@@ -507,7 +508,7 @@ Genera un piano operativo in JSON con: titolo_piano, durata_totale, budget_stima
         </div>
 
         {/* FONTI compatte */}
-        <FontiSection fonti={parsed.fonti} />
+        {parsed.fonti?.length > 0 && <FontiSection fonti={parsed.fonti} />}
 
         {/* FOLLOWUP */}
         {parsed.followup_questions?.length > 0 && (
@@ -537,6 +538,8 @@ Genera un piano operativo in JSON con: titolo_piano, durata_totale, budget_stima
 
         {/* RATING */}
         <RatingSection conversationId={conversationId} />
+
+        </StreamingReveal>
       </div>
     </div>
   );
