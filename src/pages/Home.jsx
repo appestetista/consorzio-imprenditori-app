@@ -965,7 +965,7 @@ export default function Home() {
                   <CompareResult key={i} data={typeof msg.content === 'string' ? (() => { try { return JSON.parse(msg.content); } catch { return null; } })() : msg.content} />
                 ) : msg.role === 'assistant' ? (
                   <div key={i} className="space-y-1.5">
-                    <DecisionResponse message={msg} category={lastCategory} classification={lastClassification} onFollowup={(text) => handleSend(text)} conversationId={activeConversationId} existingPlan={activeConvData?.ha_piano ? activeConvData.piano_json : null} userQuestion={messages.slice(0, i).reverse().find(m => m.role === 'user')?.content} />
+                    <DecisionResponse message={msg} category={lastCategory} classification={lastClassification} onFollowup={(text) => { setInputText(text); setTimeout(() => inputRef.current?.focus(), 100); }} conversationId={activeConversationId} existingPlan={activeConvData?.ha_piano ? activeConvData.piano_json : null} userQuestion={messages.slice(0, i).reverse().find(m => m.role === 'user')?.content} />
                     <AIUsageBadge isAIResponse={msg.isAI} usate={msg.usageCount || consulenzeUsate} />
                   </div>
                 ) : (
