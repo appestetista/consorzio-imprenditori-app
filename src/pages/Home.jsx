@@ -525,17 +525,8 @@ export default function Home() {
         return;
       }
 
-      // FASE 1.5 – Controlla campi profilo mancanti
-      const missing = getMissingFields(effectiveUser, category, msg);
-      if (missing.length > 0) {
-        // Pausa: mostra popup per raccogliere i dati, poi continua
-        setIsTyping(false);
-        setMissingFieldsPopup({
-          fields: missing,
-          pendingAnalysis: { msg, category, sottocategoria, newMessages, convId },
-        });
-        return;
-      }
+      // FASE 1.5 – Estrazione silente dati profilo (se l'utente parla della propria azienda)
+      extractProfileDataFromChat(msg, effectiveUser, setEffectiveUser);
 
       // FASE 1.7 – Smart Questioning: la domanda è troppo vaga?
       const vagueness = detectVagueness(msg, category, effectiveUser);
