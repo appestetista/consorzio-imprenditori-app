@@ -926,7 +926,7 @@ export default function Home() {
   const hasMessages = messages.length > 0;
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#0a0f1a' }}>
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: '#0a0f1a', overscrollBehavior: 'contain' }}>
       
       {/* Sidebar */}
       <ChatSidebar
