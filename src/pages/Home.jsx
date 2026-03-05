@@ -16,6 +16,7 @@ import ChatSidebar from '../components/home/ChatSidebar';
 import GlobalTopIcons from '../components/layout/GlobalTopIcons';
 import AIUsageBar, { AIUsageBadge } from '../components/home/AIUsageBar';
 import useStreamingAI from '../components/home/useStreamingAI';
+import ContextFollowup from '../components/home/ContextFollowup';
 
 import { useQueryClient } from '@tanstack/react-query';
 
