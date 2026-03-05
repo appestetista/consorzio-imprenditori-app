@@ -130,15 +130,14 @@ export default function Home() {
   const lastUserMsgRef = useRef(null);
   const lastAssistantMsgRef = useRef(null);
 
-  // Scroll alla domanda utente quando sta digitando (typing)
+  // Scroll alla domanda utente quando inizia il typing/streaming
   useEffect(() => {
-    if (isTyping && lastUserMsgRef.current) {
-      // Scrolla portando la domanda utente visibile in alto
+    if ((isTyping || isStreaming) && lastUserMsgRef.current) {
       setTimeout(() => {
         lastUserMsgRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 50);
     }
-  }, [isTyping]);
+  }, [isTyping, isStreaming]);
 
   // Quando arriva una nuova risposta (isTyping passa da true a false), scrolla alla DOMANDA utente (non alla risposta)
   // Così l'utente vede: domanda in alto → risposta sotto, e può scrollare col dito
