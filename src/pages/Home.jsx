@@ -202,35 +202,34 @@ export default function Home() {
   }, [effectiveUser?.email]);
 
   const runAnalysis = async ({ msg, newMessages, convId }) => {
-    // Storicità conversazione — ultime 6 coppie (12 msg), 800 char/msg, cap 10.000 char totali
+    // Storicità conversazione — contesto completo, cap 80.000 char (ampio per GPT-4o 128k context)
     let historyBlock = '';
     const previousMsgs = newMessages.slice(0, -1);
     if (previousMsgs.length > 0) {
-      const recent = previousMsgs.slice(-12);
       const historyParts = [];
       let totalChars = 0;
-      const MAX_TOTAL = 10000;
-      const MAX_PER_MSG = 800;
+      const MAX_TOTAL = 80000;
       
-      for (const m of recent) {
+      // Parti dal più recente al più vecchio, includi tutto finché c'è spazio
+      for (let i = previousMsgs.length - 1; i >= 0; i--) {
+        const m = previousMsgs[i];
         let part = null;
         if (m.role === 'user') {
-          part = 'UTENTE: ' + (m.content || '').substring(0, MAX_PER_MSG);
+          part = 'UTENTE: ' + (m.content || '');
         } else if (m.role === 'assistant' && m.content) {
           const c = m.content;
-          if (typeof c === 'object' && c.risposta) part = 'ASSISTENTE: ' + c.risposta.substring(0, MAX_PER_MSG);
-          else if (typeof c === 'string') part = 'ASSISTENTE: ' + c.substring(0, MAX_PER_MSG);
+          if (typeof c === 'object' && c.risposta) part = 'ASSISTENTE: ' + c.risposta;
+          else if (typeof c === 'string') part = 'ASSISTENTE: ' + c;
         }
         if (part) {
           if (totalChars + part.length > MAX_TOTAL) break;
-          historyParts.push(part);
+          historyParts.unshift(part);
           totalChars += part.length;
         }
       }
       
       if (historyParts.length > 0) {
-        historyBlock = 'CONVERSAZIONE PRECEDENTE (per contesto, rispondi SOLO alla domanda corrente):\n' 
-          + historyParts.join('\n') + '\n\n';
+        historyBlock = historyParts.join('\n\n');
       }
     }
 
