@@ -506,9 +506,3 @@ Rispondi SOLO con la domanda.` },
     return Response.json({ error: e.message, fallback: true }, { status: 500 });
   }
 });
-
-  } catch (e) {
-    console.error('[consultaAI] Fatal:', e.message);
-    return Response.json({ error: e.message, fallback: true }, { status: 500 });
-  }
-});
