@@ -230,13 +230,42 @@ FORMATTAZIONE
       // Istruzioni GPT-4o: salta il Quadro Generale se DeepSeek lo fornisce
       const gptMessages = [...chatMessages];
 
-      // Lancia DeepSeek per il primo paragrafo + GPT-4o in parallelo
+      // Lancia TUTTO in parallelo: DeepSeek intro + GPT-4o streaming + Context question
       const deepseekPromise = deepseekKey ? callDeepSeekQuickIntro(deepseekKey, message, webContext).catch(e => {
         console.log('[consultaAI] DeepSeek fallito:', e.message);
         return null;
       }) : Promise.resolve(null);
 
-      // Avvia GPT-4o streaming subito (non aspetta DeepSeek)
+      // Context question DeepSeek — parte in parallelo, arriverà durante lo streaming
+      const contextPromise = deepseekKey ? (async () => {
+        try {
+          const cqResp = await fetch("https://api.deepseek.com/chat/completions", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${deepseekKey}` },
+            body: JSON.stringify({
+              model: "deepseek-chat",
+              messages: [
+                { role: "system", content: `Genera UNA SOLA domanda di approfondimento che l'utente probabilmente vorrà fare DOPO aver ricevuto la risposta alla sua domanda.
+REGOLE: collegata al tema, aspetto CONCRETO (costi, tempistiche, normativa, procedure, calcoli), 10-20 parole in italiano con "?", NON generica, NON riformulare la domanda.
+Rispondi SOLO con la domanda.` },
+                { role: "user", content: `Domanda: "${message}"${conversationHistory ? `\nContesto: ${conversationHistory.substring(0, 300)}` : ''}` }
+              ],
+              temperature: 0.7,
+              max_tokens: 80,
+            }),
+            signal: AbortSignal.timeout(8000),
+          });
+          if (cqResp.ok) {
+            const cqData = await cqResp.json();
+            return (cqData.choices?.[0]?.message?.content || '').trim().replace(/^["']|["']$/g, '');
+          }
+        } catch (e) {
+          console.log('[consultaAI] Context question skip:', e.message);
+        }
+        return '';
+      })() : Promise.resolve('');
+
+      // GPT-4o streaming — parte subito senza aspettare nessuno
       const openaiResponsePromise = fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${openaiKey}` },
@@ -253,7 +282,7 @@ FORMATTAZIONE
         signal: AbortSignal.timeout(120000),
       });
 
-      // Aspetta DeepSeek (veloce) per il primo paragrafo
+      // Aspetta DeepSeek intro (veloce, ~2-3s)
       const deepseekResult = await deepseekPromise;
       let deepseekSent = false;
 
