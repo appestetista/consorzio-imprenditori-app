@@ -94,7 +94,7 @@ Deno.serve(async (req) => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             contents: [{ parts: [{ text: `L'utente ha chiesto: "${message}"\n\nGenera UNA SOLA domanda di follow-up che l'utente potrebbe voler approfondire dopo aver ricevuto la risposta. La domanda deve:\n- Essere una frase completa di 8-20 parole\n- Essere specifica e collegata alla domanda originale\n- Offrire un angolo di approfondimento concreto (es. aspetto fiscale, pratico, temporale, normativo)\n- NON essere generica tipo "Vuoi saperne di più?"\n\nEsempi buoni:\n- "Come si calcola concretamente il credito d'imposta per una SRL?"\n- "Quali sono le scadenze per presentare domanda nel 2025?"\n- "Conviene di più il regime forfettario o ordinario per questo caso?"\n\nRispondi SOLO con la domanda, senza virgolette, prefissi o spiegazioni.` }] }],
-            generationConfig: { temperature: 0.7, maxOutputTokens: 100 },
+            generationConfig: { temperature: 0.8, maxOutputTokens: 300 },
           }),
           signal: AbortSignal.timeout(8000),
         });
