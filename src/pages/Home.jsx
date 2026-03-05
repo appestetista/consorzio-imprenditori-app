@@ -510,8 +510,6 @@ export default function Home() {
   const handleSelectConversation = async (conv) => {
     setActiveConversationId(conv.id);
     setActiveConvData(conv);
-    setLastCategory(conv.categoria || null);
-    setLastClassification(conv.categoria ? { categoria: conv.categoria, sottocategoria: conv.sottocategoria || '' } : null);
     setInputText('');
     
     // Ricarica la conversazione completa dal database per avere tutti i messages
