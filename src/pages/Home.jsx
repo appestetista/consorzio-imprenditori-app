@@ -356,33 +356,6 @@ export default function Home() {
     await base44.auth.updateMe({ consulenze_usate_mese: newCount });
   };
 
-  const handleDisambiguationSelect = async (disambiguation, selectedCategory) => {
-    setIsTyping(true);
-    setLastCategory(selectedCategory);
-    setLastClassification({ categoria: selectedCategory, sottocategoria: disambiguation.sottocategoria, confidenza: 100 });
-    // Rimuovi il messaggio di disambiguazione e sostituiscilo dopo l'analisi
-    const msgsWithoutDisambig = messages.filter(m => !m.disambiguation);
-    setMessages(msgsWithoutDisambig);
-    try {
-      await runAnalysis({
-        msg: disambiguation.originalMsg,
-        category: selectedCategory,
-        sottocategoria: disambiguation.sottocategoria,
-        newMessages: msgsWithoutDisambig,
-        convId: disambiguation.convId,
-      });
-    } catch (e) {
-      console.error('>>> ERRORE:', e?.message || e);
-      console.error('>>> DETTAGLIO:', JSON.stringify(e));
-      const errMsg = { role: 'assistant', content: 'Mi dispiace, si è verificato un errore. Riprova tra un momento.' };
-      const updated = [...msgsWithoutDisambig, errMsg];
-      setMessages(updated);
-      await base44.entities.ChatConversation.update(disambiguation.convId, { messages: updated });
-    } finally {
-      setIsTyping(false);
-    }
-  };
-
   const chatBlocked = false;
 
   const handleSend = async (text) => {
