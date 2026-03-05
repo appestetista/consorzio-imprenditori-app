@@ -1,59 +1,61 @@
 import { useRef, useCallback } from 'react';
+import { base44 } from '@/api/base44Client';
 
 /**
  * Hook per chiamare consultaAI in modalità streaming SSE.
- * Restituisce una funzione `streamAI` che invoca il backend e chiama `onChunk` 
- * per ogni pezzo di testo ricevuto, e `onDone` al termine.
- *
- * NOTA: base44.functions.invoke usa axios che non supporta streaming,
- * quindi usiamo fetch diretto verso l'endpoint della funzione.
+ * Usa fetch diretto per leggere lo stream chunk-by-chunk.
+ * Il token viene preso dal base44 SDK interno.
  */
 export default function useStreamingAI() {
   const abortRef = useRef(null);
 
   const streamAI = useCallback(async ({ message, conversationHistory, onChunk, onDone, onError }) => {
-    // Prendi il token di autenticazione dal localStorage (base44 lo salva lì)
-    let authToken = null;
-    try {
-      // Base44 SDK stores auth info - try common storage keys
-      const keys = Object.keys(localStorage);
-      for (const key of keys) {
-        if (key.includes('token') || key.includes('auth') || key.includes('session')) {
-          const val = localStorage.getItem(key);
-          if (val && val.startsWith('ey')) { // JWT tokens start with "ey"
-            authToken = val;
-            break;
-          }
-        }
-      }
-      // Fallback: try to get from cookie
-      if (!authToken) {
-        const cookies = document.cookie.split(';');
-        for (const c of cookies) {
-          const [name, val] = c.trim().split('=');
-          if (val && val.startsWith('ey')) {
-            authToken = val;
-            break;
-          }
-        }
-      }
-    } catch (e) {
-      console.warn('[streaming] Could not find auth token');
-    }
-
-    // Costruisci URL della funzione — l'app URL è relativo
-    const functionUrl = '/api/functions/consultaAI';
-
     const controller = new AbortController();
     abortRef.current = controller;
 
     try {
-      const headers = { 'Content-Type': 'application/json' };
-      if (authToken) {
-        headers['Authorization'] = `Bearer ${authToken}`;
+      // Primo tentativo: usa base44.functions.invoke in modalità non-streaming come fallback test
+      // Ma per lo streaming vero, dobbiamo fare fetch diretto.
+      
+      // Ottieni URL base dalla configurazione base44 SDK
+      // L'SDK usa internamente axios con un baseURL — lo estraiamo
+      let baseURL = '';
+      let authHeader = '';
+      
+      // Il modo più affidabile: chiama una funzione dummy per intercettare headers
+      // Ma più semplice: il base44 client espone internamente i dati
+      try {
+        // base44 internamente ha un httpClient con defaults
+        const client = base44._httpClient || base44.httpClient;
+        if (client?.defaults) {
+          baseURL = client.defaults.baseURL || '';
+          const authH = client.defaults.headers?.common?.['Authorization'] || 
+                        client.defaults.headers?.['Authorization'] || '';
+          authHeader = authH;
+        }
+      } catch {}
+      
+      // Fallback: prova localStorage
+      if (!authHeader) {
+        const keys = Object.keys(localStorage);
+        for (const key of keys) {
+          const val = localStorage.getItem(key);
+          if (val && typeof val === 'string' && val.startsWith('ey') && val.length > 100) {
+            authHeader = `Bearer ${val}`;
+            break;
+          }
+        }
       }
 
-      const response = await fetch(functionUrl, {
+      // Costruisci URL — il backend function endpoint
+      // Su base44, le funzioni sono accessibili via /api/functions/<name>
+      const functionPath = '/api/functions/consultaAI';
+      const url = baseURL ? `${baseURL}${functionPath}` : functionPath;
+
+      const headers = { 'Content-Type': 'application/json' };
+      if (authHeader) headers['Authorization'] = authHeader;
+
+      const response = await fetch(url, {
         method: 'POST',
         headers,
         body: JSON.stringify({
@@ -66,9 +68,23 @@ export default function useStreamingAI() {
 
       if (!response.ok) {
         const errText = await response.text();
-        throw new Error(`Errore ${response.status}: ${errText.substring(0, 200)}`);
+        throw new Error(`HTTP ${response.status}: ${errText.substring(0, 200)}`);
       }
 
+      // Controlla se effettivamente è uno stream SSE
+      const contentType = response.headers.get('content-type') || '';
+      if (!contentType.includes('text/event-stream')) {
+        // Fallback: il backend ha risposto in modalità JSON classica
+        const json = await response.json();
+        if (json.success && json.data) {
+          onDone(json.data, { web_search_used: json.web_search_used, response_time_ms: json.response_time_ms });
+        } else {
+          throw new Error(json.error || 'Risposta non valida');
+        }
+        return;
+      }
+
+      // Leggi lo stream SSE
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let buffer = '';
@@ -80,10 +96,8 @@ export default function useStreamingAI() {
         if (done) break;
 
         buffer += decoder.decode(value, { stream: true });
-
-        // Processa linee SSE complete
         const lines = buffer.split('\n');
-        buffer = lines.pop() || ''; // l'ultima riga potrebbe essere incompleta
+        buffer = lines.pop() || '';
 
         for (const line of lines) {
           if (!line.startsWith('data: ')) continue;
@@ -98,9 +112,7 @@ export default function useStreamingAI() {
               fullText += parsed.text;
               onChunk(fullText, parsed.text);
             }
-          } catch {
-            // chunk non-JSON, ignora
-          }
+          } catch {}
         }
       }
 
