@@ -427,7 +427,7 @@ Genera un piano operativo in JSON con: titolo_piano, durata_totale, budget_stima
   const catColor = CATEGORY_COLORS[catKey] || DEFAULT_CAT_COLOR;
 
   return (
-    <div className="flex items-start gap-3">
+    <div className="flex items-start gap-3" style={{ touchAction: 'pan-y' }}>
       <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#d4af37] to-[#b8860b] flex items-center justify-center flex-shrink-0 mt-0.5">
         <Sparkles className="w-4 h-4 text-white" />
       </div>
