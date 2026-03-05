@@ -27,7 +27,7 @@ export default function AIThinkingAnimation({ onFinished }) {
     const timer = setTimeout(() => {
       setVisible(false);
       setTimeout(() => onFinished?.(), 500);
-    }, 7000);
+    }, 10000);
     return () => clearTimeout(timer);
   }, [onFinished]);
 
