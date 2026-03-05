@@ -58,7 +58,7 @@ async function callOpenAI(apiKey, model, systemPrompt, userPrompt, maxTokens, te
 }
 
 async function callGeminiSearch(apiKey, userPrompt) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
   const response = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
