@@ -1,30 +1,15 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 // ═══════════════════════════════════════════════════════════════
-// SYSTEM PROMPTS
+// PIPELINE PULITA: GPT-4o diretto + Gemini per dati web → merge
+// Obiettivo: risposte identiche a ChatGPT
 // ═══════════════════════════════════════════════════════════════
-const SYSTEM_PROMPT = `Sei un assistente esperto e affidabile. Rispondi in modo completo, dettagliato e accurato. Regole: 1. Ogni numero che citi deve essere reale e verificabile. Se non sei sicuro, scrivi un range o "dato da verificare" — mai inventare. 2. Non arrotondare cifre ufficiali. 3. Non citare articoli di legge o fonti se non sei certo che esistano. 4. Rispondi nella lingua della domanda. 5. Non menzionare mai di essere un'intelligenza artificiale.`;
 
-const SYSTEM_GEMINI = `Cerca su internet dati aggiornati e verificati per rispondere alla domanda. Trova numeri concreti, aliquote, soglie, importi, scadenze. Trova fonti ufficiali: siti .gov.it, Agenzia Entrate, INPS, Gazzetta Ufficiale. Per ogni dato indica la fonte e il link. Se trovi dati contrastanti riporta entrambi. Non riassumere, dai tutti i dettagli.`;
-
-const SYSTEM_MERGE = `Hai due testi: un'analisi di consulenza e dei dati trovati su internet. Fondili in un'unica risposta completa e naturale. Se i dati internet sono più aggiornati, usa quelli. Se ci sono contraddizioni, segnalale. Non rivelare mai che hai usato due fonti separate. Mantieni il tono di un consulente che parla al suo cliente. Includi i link alle fonti dove rilevante.`;
-
-// ═══════════════════════════════════════════════════════════════
-// API CALLS
-// ═══════════════════════════════════════════════════════════════
-async function callOpenAI(apiKey, model, systemPrompt, userPrompt, maxTokens, temperature) {
+async function callOpenAI(apiKey, model, messages, maxTokens, temperature) {
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
-    body: JSON.stringify({
-      model,
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt }
-      ],
-      temperature,
-      max_tokens: maxTokens,
-    }),
+    body: JSON.stringify({ model, messages, temperature, max_tokens: maxTokens }),
     signal: AbortSignal.timeout(90000),
   });
   if (!response.ok) {
@@ -46,7 +31,7 @@ async function callGeminiSearch(apiKey, userPrompt) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       contents: [{ parts: [{ text: userPrompt }] }],
-      systemInstruction: { parts: [{ text: SYSTEM_GEMINI }] },
+      systemInstruction: { parts: [{ text: `Cerca su internet i dati più aggiornati e verificati per rispondere alla domanda. Trova numeri concreti, fonti ufficiali, link. Non riassumere, dai tutti i dettagli trovati.` }] },
       generationConfig: { temperature: 0.2, maxOutputTokens: 4000 },
       tools: [{ googleSearch: {} }],
     }),
@@ -66,9 +51,6 @@ async function callGeminiSearch(apiKey, userPrompt) {
   };
 }
 
-// ═══════════════════════════════════════════════════════════════
-// COSTI
-// ═══════════════════════════════════════════════════════════════
 function calcCost(model, inputTokens, outputTokens) {
   const rates = {
     'gpt-4o':      { input: 2.50 / 1_000_000, output: 10.00 / 1_000_000 },
@@ -80,7 +62,7 @@ function calcCost(model, inputTokens, outputTokens) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// HANDLER — SEMPRE GPT-4o + Gemini Search → Merge
+// HANDLER
 // ═══════════════════════════════════════════════════════════════
 Deno.serve(async (req) => {
   const startTime = Date.now();
@@ -98,68 +80,60 @@ Deno.serve(async (req) => {
     const geminiKey = Deno.env.get("GEMINI_API_KEY");
     if (!openaiKey) return Response.json({ error: 'OPENAI_API_KEY non configurata' }, { status: 500 });
 
-    const fullUserPrompt = `${conversationHistory || ''}Domanda: ${message}`;
-
-    let response_data = '';
-    let model_used = '';
-    let provider = '';
     let totalInput = 0;
     let totalOutput = 0;
     let totalCost = 0;
     let web_search_used = false;
 
-    // SEMPRE: GPT-4o + Gemini in parallelo → Merge
-    console.log('[consultaAI] GPT-4o + Gemini → Merge');
-
-    const [gptResult, geminiResult] = await Promise.allSettled([
-      callOpenAI(openaiKey, 'gpt-4o', SYSTEM_PROMPT, fullUserPrompt, 12000, 0.7),
-      geminiKey ? callGeminiSearch(geminiKey, fullUserPrompt) : Promise.reject(new Error('No Gemini key')),
-    ]);
-
-    const gptOk = gptResult.status === 'fulfilled';
-    const geminiOk = geminiResult.status === 'fulfilled';
-
-    if (!gptOk) console.error('[consultaAI] GPT-4o fallito:', gptResult.reason?.message);
-    if (!geminiOk) console.error('[consultaAI] Gemini fallito:', geminiResult.reason?.message);
-
-    if (!gptOk && !geminiOk) {
-      throw new Error('Sia GPT-4o che Gemini sono falliti');
+    // Step 1: Gemini cerca dati web aggiornati (in parallelo, non blocca)
+    let webData = '';
+    if (geminiKey) {
+      try {
+        const geminiResult = await callGeminiSearch(geminiKey, message);
+        if (geminiResult.content && geminiResult.content.length > 50) {
+          webData = geminiResult.content;
+          totalInput += geminiResult.inputTokens;
+          totalOutput += geminiResult.outputTokens;
+          totalCost += calcCost('gemini', geminiResult.inputTokens, geminiResult.outputTokens);
+          web_search_used = true;
+        }
+      } catch (e) {
+        console.log('[consultaAI] Gemini search skipped:', e.message);
+      }
     }
 
-    const gptData = gptOk ? gptResult.value : null;
-    const geminiData = geminiOk ? geminiResult.value : null;
+    // Step 2: GPT-4o — stessa chiamata che farebbe ChatGPT
+    // Costruisco i messages esattamente come ChatGPT: nessun system prompt artificioso,
+    // solo lo storico conversazione + la domanda, con eventuale contesto web iniettato
+    const chatMessages = [];
 
-    if (gptData) {
-      totalInput += gptData.inputTokens;
-      totalOutput += gptData.outputTokens;
-      totalCost += calcCost('gpt-4o', gptData.inputTokens, gptData.outputTokens);
-    }
-    if (geminiData) {
-      totalInput += geminiData.inputTokens;
-      totalOutput += geminiData.outputTokens;
-      totalCost += calcCost('gemini', geminiData.inputTokens, geminiData.outputTokens);
-      web_search_used = true;
+    // Se Gemini ha trovato dati web, li inietto come contesto di sistema
+    if (webData) {
+      chatMessages.push({
+        role: "system",
+        content: `Di seguito trovi dati aggiornati trovati su internet relativi alla domanda dell'utente. Usali per arricchire e verificare la tua risposta, includi i link alle fonti dove rilevante. Non menzionare che ti sono stati forniti separatamente.\n\n${webData}`
+      });
     }
 
-    if (gptOk && geminiOk) {
-      // Merge
-      const mergePrompt = `ANALISI CONSULENTE:\n${gptData.content}\n\n---\n\nDATI INTERNET:\n${geminiData.content}\n\n---\n\nDomanda originale: ${message}`;
-      const mergeResult = await callOpenAI(openaiKey, 'gpt-4o-mini', SYSTEM_MERGE, mergePrompt, 12000, 0.5);
-      response_data = mergeResult.content;
-      model_used = 'gpt-4o+gemini+merge';
-      provider = 'openai+gemini';
-      totalInput += mergeResult.inputTokens;
-      totalOutput += mergeResult.outputTokens;
-      totalCost += calcCost('gpt-4o-mini', mergeResult.inputTokens, mergeResult.outputTokens);
-    } else if (gptOk) {
-      response_data = gptData.content;
-      model_used = 'gpt-4o';
-      provider = 'openai';
-    } else {
-      response_data = geminiData.content;
-      model_used = 'gemini-2.5-flash';
-      provider = 'gemini';
+    // Storico conversazione (se presente)
+    if (conversationHistory && conversationHistory.trim()) {
+      chatMessages.push({
+        role: "system",
+        content: `Storico conversazione precedente (per contesto):\n${conversationHistory}`
+      });
     }
+
+    // Messaggio utente
+    chatMessages.push({ role: "user", content: message });
+
+    const gptResult = await callOpenAI(openaiKey, 'gpt-4o', chatMessages, 16000, 0.7);
+    totalInput += gptResult.inputTokens;
+    totalOutput += gptResult.outputTokens;
+    totalCost += calcCost('gpt-4o', gptResult.inputTokens, gptResult.outputTokens);
+
+    const response_data = gptResult.content;
+    const model_used = web_search_used ? 'gpt-4o+web' : 'gpt-4o';
+    const provider = web_search_used ? 'openai+gemini' : 'openai';
 
     const elapsed = Date.now() - startTime;
     console.log(`[consultaAI] Done in ${elapsed}ms | model=${model_used} | cost=$${totalCost.toFixed(5)} | web=${web_search_used}`);
