@@ -33,6 +33,7 @@ export default function StreamingReveal({ children, delay = 120, enabled = true 
             initial={enabled ? { opacity: 0, y: 12 } : false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, ease: 'easeOut' }}
+            style={{ touchAction: 'pan-y' }}
           >
             {child}
           </motion.div>
