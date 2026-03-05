@@ -134,6 +134,8 @@ async function tryStreaming({ message, conversationHistory, token, controller, o
               const parsed = JSON.parse(payload);
               if (parsed.done) {
                 metadata = parsed;
+              } else if (parsed.context_question) {
+                onContextQuestion?.(parsed.context_question);
               } else if (parsed.text) {
                 fullText += parsed.text;
                 onChunk(fullText, parsed.text);
