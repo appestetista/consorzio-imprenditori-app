@@ -110,35 +110,35 @@ Deno.serve(async (req) => {
       });
       
       const contextPromise = (async () => {
+        const dsKey = Deno.env.get("DEEPSEEK_API_KEY");
+        if (!dsKey) return '';
         try {
-          const cqUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${geminiKey}`;
-          const cqResp = await fetch(cqUrl, {
+          const cqResp = await fetch("https://api.deepseek.com/chat/completions", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${dsKey}` },
             body: JSON.stringify({
-              contents: [{ parts: [{ text: `Domanda dell'utente: "${message}"${conversationHistory ? `\n\nContesto conversazione precedente:\n${conversationHistory.substring(0, 500)}` : ''}
-
-Genera UNA SOLA domanda di approfondimento che l'utente probabilmente vorrà fare DOPO aver ricevuto la risposta alla domanda sopra.
+              model: "deepseek-chat",
+              messages: [
+                { role: "system", content: `Genera UNA SOLA domanda di approfondimento che l'utente probabilmente vorrà fare DOPO aver ricevuto la risposta alla sua domanda.
 
 REGOLE RIGIDE:
 - La domanda DEVE essere direttamente collegata al tema specifico della domanda dell'utente
 - Deve approfondire un aspetto CONCRETO (costi, tempistiche, normativa specifica, procedure, calcoli, confronti)
-- Deve essere una frase completa di 10-20 parole che finisce con "?"
+- Deve essere una frase completa di 10-20 parole in italiano che finisce con "?"
 - NON deve essere generica o riformulare la domanda originale
 - NON usare "Vuoi saperne di più" o simili
 
-Se l'utente chiede di assunzioni → chiedi di costi specifici, contratti, agevolazioni, alternative
-Se l'utente chiede di fiscalità → chiedi di regimi specifici, scadenze, simulazioni, confronti
-Se l'utente chiede di bandi → chiedi di requisiti, documenti, tempistiche, importi
-
-Rispondi SOLO con la domanda, nient'altro.` }] }],
-              generationConfig: { temperature: 0.7, maxOutputTokens: 150 },
+Rispondi SOLO con la domanda, nient'altro.` },
+                { role: "user", content: `Domanda dell'utente: "${message}"${conversationHistory ? `\n\nContesto conversazione precedente:\n${conversationHistory.substring(0, 500)}` : ''}` }
+              ],
+              temperature: 0.7,
+              max_tokens: 100,
             }),
-            signal: AbortSignal.timeout(6000),
+            signal: AbortSignal.timeout(8000),
           });
           if (cqResp.ok) {
             const cqData = await cqResp.json();
-            return (cqData.candidates?.[0]?.content?.parts?.[0]?.text || '').trim().replace(/^["']|["']$/g, '');
+            return (cqData.choices?.[0]?.message?.content || '').trim().replace(/^["']|["']$/g, '');
           }
         } catch (e) {
           console.log('[consultaAI] Context question skip:', e.message);
