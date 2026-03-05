@@ -179,19 +179,24 @@ export default function SimpleAIResponse({ content, onFollowup, conversationId, 
     }
   }, [isStreaming]);
 
-  // ── Fase 1: Animazione pensiero — mostra puntini nella bolla ──
+  // ── Fase 1: Animazione pensiero — frasi rotanti + puntini nella bolla ──
   if (isStreaming && !thinkingDone) {
     return (
-      <div className="flex items-start gap-3" style={{ touchAction: 'pan-y' }}>
-        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#d4af37] to-[#b8860b] flex items-center justify-center flex-shrink-0 mt-0.5">
-          <Sparkles className="w-4 h-4 text-white" />
-        </div>
-        <div className="flex-1 max-w-[92%]">
-          <div className="rounded-2xl bg-slate-800/50 border border-slate-700/40 px-5 py-4">
-            <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 bg-[#d4af37] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-              <div className="w-2.5 h-2.5 bg-[#d4af37] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-              <div className="w-2.5 h-2.5 bg-[#d4af37] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+      <div className="space-y-4">
+        {/* Animazione centrale con frasi */}
+        <AIThinkingAnimation onFinished={handleThinkingFinished} />
+        {/* Bolla con puntini che ballano */}
+        <div className="flex items-start gap-3" style={{ touchAction: 'pan-y' }}>
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#d4af37] to-[#b8860b] flex items-center justify-center flex-shrink-0 mt-0.5">
+            <Sparkles className="w-4 h-4 text-white" />
+          </div>
+          <div className="flex-1 max-w-[92%]">
+            <div className="rounded-2xl bg-slate-800/50 border border-slate-700/40 px-5 py-4">
+              <div className="flex items-center gap-1.5">
+                <div className="w-2.5 h-2.5 bg-[#d4af37] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                <div className="w-2.5 h-2.5 bg-[#d4af37] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                <div className="w-2.5 h-2.5 bg-[#d4af37] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+              </div>
             </div>
           </div>
         </div>
