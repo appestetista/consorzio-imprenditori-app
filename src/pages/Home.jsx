@@ -429,37 +429,14 @@ export default function Home() {
     }
 
     try {
-      // Classificazione locale sul testo combinato (zero costo AI)
-      const combinedText = `${a}. ${b}`;
-      const classificazione2 = classifyIntent(combinedText);
-      const category = classificazione2.categoria;
-      const sottocategoria = classificazione2.sottocategoria;
-      setLastCategory('Confronto');
-      setLastClassification({ categoria: 'Confronto', sottocategoria: `${category} — ${sottocategoria}` });
-
-      // Contesto utente
       const userContext = buildUserContext();
 
-      // Dati normativi KB — limitati per non sovraccaricare il prompt
-      let kbContext = '';
-      try {
-        const kbRecords = await base44.entities.KnowledgeBase.filter({ categoria: category, attivo: true });
-        if (kbRecords.length > 0) {
-          kbContext = 'Dati normativi verificati:\n' 
-            + kbRecords.slice(0, 2).map(r => '- ' + r.titolo + ': ' + (r.contenuto || '').substring(0, 500)).join('\n') 
-            + '\n\n';
-        }
-      } catch (e) { kbContext = ''; }
-
-      // Confronto via consultaAI (OpenAI + Gemini) con fallback InvokeLLM
+      // Confronto via consultaAI
       let compareResult;
       try {
         const aiResp = await base44.functions.invoke('consultaAI', {
           message: `Confronta questi due scenari per una PMI italiana:\nScenario A: ${a}\nScenario B: ${b}\nPer ciascuno calcola impatto economico, rischi, tempi. Indica quale conviene e perché con numeri concreti.`,
-          category: 'Confronto',
-          sottocategoria: category + ' — ' + sottocategoria,
           userContext: userContext,
-          kbContent: kbContext,
           conversationHistory: '',
         });
         if (aiResp.data?.success && aiResp.data?.data) {
