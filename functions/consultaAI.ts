@@ -82,9 +82,47 @@ Deno.serve(async (req) => {
     let totalInput = 0;
     let totalOutput = 0;
     let totalCost = 0;
+    let web_search_used = false;
 
-    // GPT-4o diretto — nessun intermediario
+    // Step 1: Gemini cerca dati web aggiornati
+    let webData = '';
+    if (geminiKey) {
+      try {
+        const geminiResult = await callGeminiSearch(geminiKey, message);
+        if (geminiResult.content && geminiResult.content.length > 50) {
+          webData = geminiResult.content;
+          totalInput += geminiResult.inputTokens;
+          totalOutput += geminiResult.outputTokens;
+          totalCost += calcCost('gemini', geminiResult.inputTokens, geminiResult.outputTokens);
+          web_search_used = true;
+        }
+      } catch (e) {
+        console.log('[consultaAI] Gemini search skipped:', e.message);
+      }
+    }
+
+    // Step 2: GPT-4o con system prompt per qualità massima
     const chatMessages = [];
+
+    // System prompt — istruisce GPT-4o a dare risposte complete e dettagliate
+    let systemPrompt = `Sei un assistente esperto e professionale. Rispondi sempre in italiano.
+
+Regole fondamentali:
+- Fornisci risposte COMPLETE, ESAUSTIVE e DETTAGLIATE. Non abbreviare, non riassumere, non tagliare.
+- Quando fai elenchi o liste, includi TUTTI gli elementi rilevanti, non solo i principali.
+- Usa formattazione markdown chiara: titoli, elenchi puntati, grassetto per concetti chiave.
+- Se l'argomento lo richiede, organizza la risposta in sezioni logiche.
+- Quando possibile, fornisci esempi concreti, dati numerici e riferimenti.
+- Se hai dati da fonti web, integra i link alle fonti nella risposta.
+- Non dire "ecco alcuni esempi" e poi darne solo 3-4. Dai una lista completa.
+- La qualità e completezza della risposta è la priorità assoluta.`;
+
+    // Se Gemini ha trovato dati web, li inietto nel system prompt
+    if (webData) {
+      systemPrompt += `\n\nDi seguito trovi dati aggiornati trovati su internet relativi alla domanda dell'utente. Usali per arricchire e verificare la tua risposta, includi i link alle fonti dove rilevante. Non menzionare che ti sono stati forniti separatamente.\n\n${webData}`;
+    }
+
+    chatMessages.push({ role: "system", content: systemPrompt });
 
     // Storico conversazione (se presente)
     if (conversationHistory && conversationHistory.trim()) {
@@ -103,8 +141,8 @@ Deno.serve(async (req) => {
     totalCost += calcCost('gpt-4o', gptResult.inputTokens, gptResult.outputTokens);
 
     const response_data = gptResult.content;
-    const model_used = 'gpt-4o';
-    const provider = 'openai';
+    const model_used = web_search_used ? 'gpt-4o+web' : 'gpt-4o';
+    const provider = web_search_used ? 'openai+gemini' : 'openai';
 
     const elapsed = Date.now() - startTime;
     console.log(`[consultaAI] Done in ${elapsed}ms | model=${model_used} | cost=$${totalCost.toFixed(5)}`);
