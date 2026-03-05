@@ -341,8 +341,11 @@ export default function Home() {
         if (m.role === 'user') return 'UTENTE: ' + (m.content || '').substring(0, 150);
         if (m.role === 'assistant' && m.content) {
           const c = m.content;
+          if (typeof c === 'object' && c.risposta) {
+            return 'ASSISTENTE: ' + c.risposta.substring(0, 200);
+          }
           if (typeof c === 'object' && c.sintesi_decisionale) {
-            return 'ASSISTENTE (sintesi): ' + c.sintesi_decisionale.substring(0, 200);
+            return 'ASSISTENTE: ' + c.sintesi_decisionale.substring(0, 200);
           }
           if (typeof c === 'string') return 'ASSISTENTE: ' + c.substring(0, 200);
         }
