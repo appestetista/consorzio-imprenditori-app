@@ -84,6 +84,30 @@ Deno.serve(async (req) => {
       }
     }
 
+    // ── STEP 1.5: Genera domanda di contesto (veloce, parallela) ──
+    let contextQuestion = '';
+    if (geminiKey) {
+      try {
+        const cqUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`;
+        const cqResp = await fetch(cqUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: `L'utente ha chiesto: "${message}"\n\nGenera UNA SOLA domanda di approfondimento breve (max 15 parole) che potrebbe aiutare a dare una risposta più mirata. La domanda deve essere specifica e utile, non generica. Rispondi SOLO con la domanda, senza virgolette né prefissi.` }] }],
+            generationConfig: { temperature: 0.7, maxOutputTokens: 100 },
+          }),
+          signal: AbortSignal.timeout(8000),
+        });
+        if (cqResp.ok) {
+          const cqData = await cqResp.json();
+          contextQuestion = (cqData.candidates?.[0]?.content?.parts?.[0]?.text || '').trim();
+          console.log(`[consultaAI] Context question: "${contextQuestion}"`);
+        }
+      } catch (e) {
+        console.log('[consultaAI] Context question skip:', e.message);
+      }
+    }
+
     // ── STEP 2: Build messages ──
     const chatMessages = [];
     chatMessages.push({
