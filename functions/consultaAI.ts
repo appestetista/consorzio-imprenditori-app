@@ -16,7 +16,7 @@ async function callGeminiSearch(apiKey, userPrompt) {
       generationConfig: { temperature: 0.2, maxOutputTokens: 4000 },
       tools: [{ googleSearch: {} }],
     }),
-    signal: AbortSignal.timeout(30000),
+    signal: AbortSignal.timeout(15000),
   });
   if (!response.ok) {
     const err = await response.text();
