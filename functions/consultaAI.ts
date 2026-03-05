@@ -66,46 +66,66 @@ Deno.serve(async (req) => {
     let webSearchUsed = false;
     let webContext = '';
 
-    // ── STEP 1: Gemini Search ──
-    if (geminiKey) {
-      try {
-        console.log('[consultaAI] Gemini Search in corso...');
-        const geminiResult = await callGeminiSearch(geminiKey, message);
-        if (geminiResult.content && geminiResult.content.length > 50) {
-          webContext = geminiResult.content;
-          webSearchUsed = true;
-          totalInput += geminiResult.inputTokens;
-          totalOutput += geminiResult.outputTokens;
-          totalCost += calcCost('gemini', geminiResult.inputTokens, geminiResult.outputTokens);
-          console.log(`[consultaAI] Gemini Search OK: ${geminiResult.content.length} chars`);
-        }
-      } catch (e) {
-        console.log('[consultaAI] Gemini Search fallito:', e.message);
-      }
-    }
-
-    // ── STEP 1.5: Genera domanda di contesto (veloce, parallela) ──
+    // ── STEP 1: Gemini Search + Context Question (PARALLELI) ──
     let contextQuestion = '';
+    
     if (geminiKey) {
-      try {
-        const cqUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`;
-        const cqResp = await fetch(cqUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: `L'utente ha chiesto: "${message}"\n\nGenera UNA SOLA domanda di follow-up che l'utente potrebbe voler approfondire dopo aver ricevuto la risposta. La domanda deve:\n- Essere una frase completa di 8-20 parole\n- Essere specifica e collegata alla domanda originale\n- Offrire un angolo di approfondimento concreto (es. aspetto fiscale, pratico, temporale, normativo)\n- NON essere generica tipo "Vuoi saperne di più?"\n\nEsempi buoni:\n- "Come si calcola concretamente il credito d'imposta per una SRL?"\n- "Quali sono le scadenze per presentare domanda nel 2025?"\n- "Conviene di più il regime forfettario o ordinario per questo caso?"\n\nRispondi SOLO con la domanda, senza virgolette, prefissi o spiegazioni.` }] }],
-            generationConfig: { temperature: 0.8, maxOutputTokens: 300 },
-          }),
-          signal: AbortSignal.timeout(8000),
-        });
-        if (cqResp.ok) {
-          const cqData = await cqResp.json();
-          contextQuestion = (cqData.candidates?.[0]?.content?.parts?.[0]?.text || '').trim();
-          console.log(`[consultaAI] Context question: "${contextQuestion}"`);
+      // Lancia entrambe le chiamate in parallelo per velocità
+      const searchPromise = callGeminiSearch(geminiKey, message).catch(e => {
+        console.log('[consultaAI] Gemini Search fallito:', e.message);
+        return null;
+      });
+      
+      const contextPromise = (async () => {
+        try {
+          const cqUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${geminiKey}`;
+          const cqResp = await fetch(cqUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: `Domanda dell'utente: "${message}"${conversationHistory ? `\n\nContesto conversazione precedente:\n${conversationHistory.substring(0, 500)}` : ''}
+
+Genera UNA SOLA domanda di approfondimento che l'utente probabilmente vorrà fare DOPO aver ricevuto la risposta alla domanda sopra.
+
+REGOLE RIGIDE:
+- La domanda DEVE essere direttamente collegata al tema specifico della domanda dell'utente
+- Deve approfondire un aspetto CONCRETO (costi, tempistiche, normativa specifica, procedure, calcoli, confronti)
+- Deve essere una frase completa di 10-20 parole che finisce con "?"
+- NON deve essere generica o riformulare la domanda originale
+- NON usare "Vuoi saperne di più" o simili
+
+Se l'utente chiede di assunzioni → chiedi di costi specifici, contratti, agevolazioni, alternative
+Se l'utente chiede di fiscalità → chiedi di regimi specifici, scadenze, simulazioni, confronti
+Se l'utente chiede di bandi → chiedi di requisiti, documenti, tempistiche, importi
+
+Rispondi SOLO con la domanda, nient'altro.` }] }],
+              generationConfig: { temperature: 0.7, maxOutputTokens: 150 },
+            }),
+            signal: AbortSignal.timeout(6000),
+          });
+          if (cqResp.ok) {
+            const cqData = await cqResp.json();
+            return (cqData.candidates?.[0]?.content?.parts?.[0]?.text || '').trim().replace(/^["']|["']$/g, '');
+          }
+        } catch (e) {
+          console.log('[consultaAI] Context question skip:', e.message);
         }
-      } catch (e) {
-        console.log('[consultaAI] Context question skip:', e.message);
+        return '';
+      })();
+
+      console.log('[consultaAI] Gemini Search + Context question in corso (paralleli)...');
+      const [geminiResult, cq] = await Promise.all([searchPromise, contextPromise]);
+      
+      if (geminiResult && geminiResult.content && geminiResult.content.length > 50) {
+        webContext = geminiResult.content;
+        webSearchUsed = true;
+        totalInput += geminiResult.inputTokens;
+        totalOutput += geminiResult.outputTokens;
+        totalCost += calcCost('gemini', geminiResult.inputTokens, geminiResult.outputTokens);
+        console.log(`[consultaAI] Gemini Search OK: ${geminiResult.content.length} chars`);
       }
+      contextQuestion = cq || '';
+      if (contextQuestion) console.log(`[consultaAI] Context question: "${contextQuestion}"`);
     }
 
     // ── STEP 2: Build messages ──
