@@ -321,9 +321,9 @@ Rispondi SOLO con la domanda, nient'altro.` }] },
 
           const decoder = new TextDecoder();
           const reader = openaiResponse.body.getReader();
-          let skipQuadroGenerale = deepseekSent;
+          let skipQuadroGenerale = flashSent;
           let skipping = false;
-          let fullContent = deepseekSent ? deepseekResult.content + '\n\n' : '';
+          let fullContent = flashSent ? flashResult.content + '\n\n' : '';
           let gptBuffer = '';
 
           while (true) {
