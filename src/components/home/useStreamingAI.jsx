@@ -102,6 +102,7 @@ async function tryStreaming({ message, conversationHistory, token, controller, o
       if (contentType.includes('application/json')) {
         const json = await response.json();
         if (json.success && json.data) {
+          if (json.context_question) onContextQuestion?.(json.context_question);
           await typewriterReveal(json.data, onChunk);
           onDone(json.data, { web_search_used: json.web_search_used, response_time_ms: json.response_time_ms });
           return true;
