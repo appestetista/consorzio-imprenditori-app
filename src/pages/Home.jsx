@@ -294,6 +294,23 @@ export default function Home() {
           await saveConversation(updatedMessages, convId);
           setConsulenzeUsate(newCount);
           await base44.auth.updateMe({ consulenze_usate_mese: newCount });
+          
+          // Se c'è una risposta di contesto in attesa, inviala automaticamente
+          // (letto dal ref per avere il valore aggiornato)
+          const pending = pendingContextRef.current;
+          if (pending) {
+            console.log('[AI] Auto-sending pending context answer:', pending);
+            setPendingContextAnswer('');
+            setContextQuestion('');
+            pendingContextRef.current = '';
+            // Piccolo delay per far vedere la risposta prima di inviare la nuova
+            setTimeout(() => {
+              handleSend(pending);
+            }, 800);
+          } else {
+            // Nascondi la domanda di contesto dopo 15 secondi se non usata
+            setTimeout(() => setContextQuestion(''), 15000);
+          }
           resolve();
         },
         onError: async (error) => {
