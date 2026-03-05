@@ -297,10 +297,14 @@ Rispondi SOLO con la domanda.` },
       // Processa tutto in background
       (async () => {
         try {
-          // 1. Invia context question subito
-          if (contextQuestion) {
-            await sendSSE({ context_question: contextQuestion });
-          }
+          // 1. Context question arriva async — la invia appena pronta
+          contextPromise.then(async (cq) => {
+            if (cq) {
+              contextQuestion = cq;
+              console.log(`[consultaAI] Context question: "${cq}"`);
+              try { await sendSSE({ context_question: cq }); } catch {}
+            }
+          });
 
           // 2. Invia il Quadro Generale da DeepSeek immediatamente
           if (deepseekResult && deepseekResult.content && deepseekResult.content.length > 50) {
