@@ -126,7 +126,7 @@ Regole fondamentali:
     totalCost += calcCost('chatgpt-4o-latest', gptResult.inputTokens, gptResult.outputTokens);
 
     const response_data = gptResult.content;
-    const model_used = 'gpt-4o';
+    const model_used = 'chatgpt-4o-latest';
     const provider = 'openai';
 
     const elapsed = Date.now() - startTime;
