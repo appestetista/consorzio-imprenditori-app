@@ -1,24 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 // ═══════════════════════════════════════════════════════════════
-// ROUTING
-// ═══════════════════════════════════════════════════════════════
-const FORCE_GPT4O_PATTERNS = [
-  /aliquot[ae]/i, /irpef|ires|irap/i, /ccnl/i, /contribut[io]/i,
-  /busta\s*paga/i, /bilancio/i, /fatturato/i, /sanzi/i,
-  /bando/i, /contratto/i, /dipendent[ei]/i,
-  /inps|inail/i, /tfr/i, /scaglion/i, /detrazi|deduz/i,
-  /(\d[\d,.]*)\s*(?:€|eur(?:o|i)?)/i,
-];
-
-function needsGpt4o(category, message) {
-  const forced = ['Fiscale','Legale','Personale/HR','Investimenti','Contratti','Confronto','Strategica','Bandi'];
-  if (forced.includes(category)) return true;
-  if (FORCE_GPT4O_PATTERNS.some(p => p.test(message))) return true;
-  return false;
-}
-
-// ═══════════════════════════════════════════════════════════════
 // SYSTEM PROMPTS
 // ═══════════════════════════════════════════════════════════════
 const SYSTEM_PROMPT = `Sei un consulente d'impresa italiano con 20 anni di esperienza con PMI. Parla direttamente al tuo cliente imprenditore. Rispondi come faresti in una consulenza vera: analizza il problema in profondità, fai calcoli con numeri reali, cita le norme esatte, spiega i pro e i contro, dai la tua opinione professionale. 5 regole: 1. Ogni numero che citi deve essere reale. Se non sei sicuro, scrivi un range o "dato da verificare con il commercialista" — mai inventare. 2. Non arrotondare aliquote, soglie INPS, importi di legge. 3. Non citare articoli di legge se non sei certo che esistano. 4. Se il cliente ti ha dato dati sulla sua azienda (settore, fatturato, dipendenti, regime fiscale), usa quelli per personalizzare i calcoli. 5. Non menzionare mai di essere un'intelligenza artificiale.`;
@@ -98,7 +80,7 @@ function calcCost(model, inputTokens, outputTokens) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// HANDLER
+// HANDLER — SEMPRE GPT-4o + Gemini Search → Merge
 // ═══════════════════════════════════════════════════════════════
 Deno.serve(async (req) => {
   const startTime = Date.now();
@@ -116,8 +98,7 @@ Deno.serve(async (req) => {
     const geminiKey = Deno.env.get("GEMINI_API_KEY");
     if (!openaiKey) return Response.json({ error: 'OPENAI_API_KEY non configurata' }, { status: 500 });
 
-    const useGpt4o = needsGpt4o(category || '', message);
-    const fullUserPrompt = `${conversationHistory || ''}${kbContent || ''}${userContext || ''}Categoria: ${category || 'Generale'} — ${sottocategoria || ''}.\nDomanda: ${message}`;
+    const fullUserPrompt = `${conversationHistory || ''}${kbContent || ''}${userContext || ''}Domanda: ${message}`;
 
     let response_data = '';
     let model_used = '';
@@ -127,84 +108,57 @@ Deno.serve(async (req) => {
     let totalCost = 0;
     let web_search_used = false;
 
-    // ─── CASO 1: Domanda semplice → GPT-4o-mini ───
-    if (!useGpt4o) {
-      console.log('[consultaAI] Caso 1: GPT-4o-mini');
-      const result = await callOpenAI(openaiKey, 'gpt-4o-mini', SYSTEM_PROMPT, fullUserPrompt, 8000, 0.7);
-      response_data = result.content;
-      model_used = 'gpt-4o-mini';
-      provider = 'openai';
-      totalInput = result.inputTokens;
-      totalOutput = result.outputTokens;
-      totalCost = calcCost('gpt-4o-mini', result.inputTokens, result.outputTokens);
+    // SEMPRE: GPT-4o + Gemini in parallelo → Merge
+    console.log('[consultaAI] GPT-4o + Gemini → Merge');
+
+    const [gptResult, geminiResult] = await Promise.allSettled([
+      callOpenAI(openaiKey, 'gpt-4o', SYSTEM_PROMPT, fullUserPrompt, 12000, 0.7),
+      geminiKey ? callGeminiSearch(geminiKey, fullUserPrompt) : Promise.reject(new Error('No Gemini key')),
+    ]);
+
+    const gptOk = gptResult.status === 'fulfilled';
+    const geminiOk = geminiResult.status === 'fulfilled';
+
+    if (!gptOk) console.error('[consultaAI] GPT-4o fallito:', gptResult.reason?.message);
+    if (!geminiOk) console.error('[consultaAI] Gemini fallito:', geminiResult.reason?.message);
+
+    if (!gptOk && !geminiOk) {
+      throw new Error('Sia GPT-4o che Gemini sono falliti');
     }
 
-    // ─── CASO 2: Complessa + Gemini → PARALLELO + MERGE ───
-    else if (geminiKey) {
-      console.log('[consultaAI] Caso 2: Parallelo GPT-4o + Gemini → Merge');
+    const gptData = gptOk ? gptResult.value : null;
+    const geminiData = geminiOk ? geminiResult.value : null;
 
-      const [gptResult, geminiResult] = await Promise.allSettled([
-        callOpenAI(openaiKey, 'gpt-4o', SYSTEM_PROMPT, fullUserPrompt, 12000, 0.7),
-        callGeminiSearch(geminiKey, fullUserPrompt),
-      ]);
-
-      const gptOk = gptResult.status === 'fulfilled';
-      const geminiOk = geminiResult.status === 'fulfilled';
-
-      if (!gptOk) console.error('[consultaAI] GPT-4o fallito:', gptResult.reason?.message);
-      if (!geminiOk) console.error('[consultaAI] Gemini fallito:', geminiResult.reason?.message);
-
-      if (!gptOk && !geminiOk) {
-        throw new Error('Sia GPT-4o che Gemini sono falliti');
-      }
-
-      const gptData = gptOk ? gptResult.value : null;
-      const geminiData = geminiOk ? geminiResult.value : null;
-
-      if (gptData) {
-        totalInput += gptData.inputTokens;
-        totalOutput += gptData.outputTokens;
-        totalCost += calcCost('gpt-4o', gptData.inputTokens, gptData.outputTokens);
-      }
-      if (geminiData) {
-        totalInput += geminiData.inputTokens;
-        totalOutput += geminiData.outputTokens;
-        totalCost += calcCost('gemini', geminiData.inputTokens, geminiData.outputTokens);
-        web_search_used = true;
-      }
-
-      if (gptOk && geminiOk) {
-        // Merge con GPT-4o-mini
-        console.log('[consultaAI] Merge con GPT-4o-mini');
-        const mergePrompt = `ANALISI CONSULENTE:\n${gptData.content}\n\n---\n\nDATI INTERNET:\n${geminiData.content}\n\n---\n\nDomanda originale: ${message}`;
-        const mergeResult = await callOpenAI(openaiKey, 'gpt-4o-mini', SYSTEM_MERGE, mergePrompt, 12000, 0.5);
-        response_data = mergeResult.content;
-        model_used = 'gpt-4o+gemini+merge';
-        provider = 'openai+gemini';
-        totalInput += mergeResult.inputTokens;
-        totalOutput += mergeResult.outputTokens;
-        totalCost += calcCost('gpt-4o-mini', mergeResult.inputTokens, mergeResult.outputTokens);
-      } else if (gptOk) {
-        response_data = gptData.content;
-        model_used = 'gpt-4o';
-        provider = 'openai';
-      } else {
-        response_data = geminiData.content;
-        model_used = 'gemini-2.5-flash';
-        provider = 'gemini';
-      }
+    if (gptData) {
+      totalInput += gptData.inputTokens;
+      totalOutput += gptData.outputTokens;
+      totalCost += calcCost('gpt-4o', gptData.inputTokens, gptData.outputTokens);
+    }
+    if (geminiData) {
+      totalInput += geminiData.inputTokens;
+      totalOutput += geminiData.outputTokens;
+      totalCost += calcCost('gemini', geminiData.inputTokens, geminiData.outputTokens);
+      web_search_used = true;
     }
 
-    // ─── CASO 3: Complessa senza Gemini → solo GPT-4o ───
-    else {
-      console.log('[consultaAI] Caso 3: Solo GPT-4o');
-      const result = await callOpenAI(openaiKey, 'gpt-4o', SYSTEM_PROMPT, fullUserPrompt, 12000, 0.7);
-      response_data = result.content;
+    if (gptOk && geminiOk) {
+      // Merge
+      const mergePrompt = `ANALISI CONSULENTE:\n${gptData.content}\n\n---\n\nDATI INTERNET:\n${geminiData.content}\n\n---\n\nDomanda originale: ${message}`;
+      const mergeResult = await callOpenAI(openaiKey, 'gpt-4o-mini', SYSTEM_MERGE, mergePrompt, 12000, 0.5);
+      response_data = mergeResult.content;
+      model_used = 'gpt-4o+gemini+merge';
+      provider = 'openai+gemini';
+      totalInput += mergeResult.inputTokens;
+      totalOutput += mergeResult.outputTokens;
+      totalCost += calcCost('gpt-4o-mini', mergeResult.inputTokens, mergeResult.outputTokens);
+    } else if (gptOk) {
+      response_data = gptData.content;
       model_used = 'gpt-4o';
       provider = 'openai';
-      totalInput = result.inputTokens;
-      totalOutput = result.outputTokens;
-      totalCost = calcCost('gpt-4o', result.inputTokens, result.outputTokens);
+    } else {
+      response_data = geminiData.content;
+      model_used = 'gemini-2.5-flash';
+      provider = 'gemini';
     }
 
     const elapsed = Date.now() - startTime;
