@@ -82,37 +82,9 @@ Deno.serve(async (req) => {
     let totalInput = 0;
     let totalOutput = 0;
     let totalCost = 0;
-    let web_search_used = false;
 
-    // Step 1: Gemini cerca dati web aggiornati (in parallelo, non blocca)
-    let webData = '';
-    if (geminiKey) {
-      try {
-        const geminiResult = await callGeminiSearch(geminiKey, message);
-        if (geminiResult.content && geminiResult.content.length > 50) {
-          webData = geminiResult.content;
-          totalInput += geminiResult.inputTokens;
-          totalOutput += geminiResult.outputTokens;
-          totalCost += calcCost('gemini', geminiResult.inputTokens, geminiResult.outputTokens);
-          web_search_used = true;
-        }
-      } catch (e) {
-        console.log('[consultaAI] Gemini search skipped:', e.message);
-      }
-    }
-
-    // Step 2: GPT-4o — stessa chiamata che farebbe ChatGPT
-    // Costruisco i messages esattamente come ChatGPT: nessun system prompt artificioso,
-    // solo lo storico conversazione + la domanda, con eventuale contesto web iniettato
+    // GPT-4o diretto — nessun intermediario
     const chatMessages = [];
-
-    // Se Gemini ha trovato dati web, li inietto come contesto di sistema
-    if (webData) {
-      chatMessages.push({
-        role: "system",
-        content: `Di seguito trovi dati aggiornati trovati su internet relativi alla domanda dell'utente. Usali per arricchire e verificare la tua risposta, includi i link alle fonti dove rilevante. Non menzionare che ti sono stati forniti separatamente.\n\n${webData}`
-      });
-    }
 
     // Storico conversazione (se presente)
     if (conversationHistory && conversationHistory.trim()) {
@@ -131,8 +103,8 @@ Deno.serve(async (req) => {
     totalCost += calcCost('gpt-4o', gptResult.inputTokens, gptResult.outputTokens);
 
     const response_data = gptResult.content;
-    const model_used = web_search_used ? 'gpt-4o+web' : 'gpt-4o';
-    const provider = web_search_used ? 'openai+gemini' : 'openai';
+    const model_used = 'gpt-4o';
+    const provider = 'openai';
 
     const elapsed = Date.now() - startTime;
     console.log(`[consultaAI] Done in ${elapsed}ms | model=${model_used} | cost=$${totalCost.toFixed(5)} | web=${web_search_used}`);
