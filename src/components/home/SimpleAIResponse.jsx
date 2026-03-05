@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { Sparkles, Star, Send, Loader2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import StreamingReveal from './StreamingReveal';
+import AIThinkingAnimation from './AIThinkingAnimation';
 
 function RatingInline({ conversationId }) {
   const [rating, setRating] = useState(0);
