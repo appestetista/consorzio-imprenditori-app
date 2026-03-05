@@ -420,7 +420,7 @@ export default function Home() {
       strumentoSuggerito.parametri_utente = parametriDaPassare;
     }
 
-    // Chiamata consultaAI — GPT-4o + Gemini parallelo
+    // Chiamata consultaAI
     let parsed = null;
     try {
       const aiResponse = await base44.functions.invoke('consultaAI', {
@@ -433,19 +433,19 @@ export default function Home() {
       });
       if (aiResponse.data?.success && aiResponse.data?.data) {
         parsed = aiResponse.data.data;
-        console.log('[AI] Modello:', aiResponse.data.model_used, '| Provider:', aiResponse.data.provider, '| Tempo:', aiResponse.data.response_time_ms + 'ms', '| Costo: $' + aiResponse.data.cost_usd?.toFixed(5), '| Web:', aiResponse.data.web_search_used);
+        console.log('[AI]', aiResponse.data.model_used, aiResponse.data.provider, aiResponse.data.response_time_ms + 'ms', '$' + aiResponse.data.cost_usd?.toFixed(5), 'web:' + aiResponse.data.web_search_used);
       }
     } catch (e) {
-      console.error('[AI] Errore consultaAI:', e?.message);
+      console.error('[AI] Errore:', e?.message);
     }
     if (!parsed) {
       try {
         const fallbackResult = await base44.integrations.Core.InvokeLLM({
-          prompt: `Sei un consulente strategico per PMI italiane. Rispondi in modo completo e dettagliato.\n${kbHint}${userContext}Categoria: ${category} — ${sottocategoria}.\nDomanda: ${msg}`,
+          prompt: `Sei un consulente d'impresa italiano. Rispondi in modo completo e dettagliato.\n${kbHint}${userContext}Categoria: ${category} — ${sottocategoria}.\nDomanda: ${msg}`,
           add_context_from_internet: true,
         });
         parsed = fallbackResult || 'Risposta non disponibile.';
-      } catch (e2) { parsed = 'Si è verificato un errore. Riprova.'; }
+      } catch (e2) { parsed = 'Errore. Riprova.'; }
     }
 
     const newCount = (consulenzeUsate || 0) + 1;
