@@ -472,8 +472,6 @@ export default function Home() {
       const rispostaStr = typeof result === 'string' ? result : JSON.stringify(result);
       await base44.entities.ChatConversation.update(convId, {
         messages: messagesForDB,
-        categoria: 'Confronto',
-        sottocategoria: `${category} — ${sottocategoria}`,
         risposta_json: rispostaStr,
       });
 
