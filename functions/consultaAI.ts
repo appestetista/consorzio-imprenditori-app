@@ -1,8 +1,8 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 // ═══════════════════════════════════════════════════════════════
-// PIPELINE: DeepSeek (intro veloce) + Gemini Search → GPT-4o STREAMING
-// Last deploy: 2026-03-05T18:00
+// PIPELINE: Gemini Flash (intro veloce) + Gemini Search → GPT-4o STREAMING
+// Last deploy: 2026-03-05T20:00
 // ═══════════════════════════════════════════════════════════════
 
 async function callGeminiSearch(apiKey, userPrompt) {
