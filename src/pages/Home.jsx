@@ -49,6 +49,7 @@ export default function Home() {
   const [pendingContextAnswer, setPendingContextAnswer] = useState('');
   const { streamAI } = useStreamingAI();
   const recognitionRef = useRef(null);
+  const pendingContextRef = useRef('');
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
   const inputRef = useRef(null);
