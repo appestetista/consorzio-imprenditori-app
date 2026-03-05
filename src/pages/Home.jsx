@@ -253,6 +253,10 @@ export default function Home() {
     setIsStreaming(true);
     setStreamingText('');
 
+    // Reset context question per nuova richiesta
+    setContextQuestion('');
+    setPendingContextAnswer('');
+
     // Aggiungi un messaggio assistente placeholder che si aggiorna in tempo reale
     const streamingMsg = { role: 'assistant', content: '', isAI: true, usageCount: newCount, isNew: true, isStreaming: true };
     setMessages([...newMessages, streamingMsg]);
@@ -261,6 +265,10 @@ export default function Home() {
       streamAI({
         message: msg,
         conversationHistory: historyBlock,
+        onContextQuestion: (question) => {
+          console.log('[AI] Context question received:', question);
+          setContextQuestion(question);
+        },
         onChunk: (fullText) => {
           setStreamingText(fullText);
           // Aggiorna il messaggio in tempo reale
