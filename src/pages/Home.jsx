@@ -299,7 +299,8 @@ export default function Home() {
         const cachedConv = withResponse[0];
         try {
           const parsed = JSON.parse(cachedConv.risposta_json);
-          if (parsed && parsed.sintesi_decisionale) {
+          // Accetta solo cache nel nuovo formato (risposta), ignora vecchio formato (sintesi_decisionale)
+          if (parsed && parsed.risposta) {
             console.log('[CACHE] Hit! Riuso risposta da conv', cachedConv.id);
             return {
               data: parsed,
