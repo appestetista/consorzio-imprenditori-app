@@ -344,7 +344,7 @@ Rispondi SOLO con la domanda, nient'altro.` }] },
                   await base44.asServiceRole.entities.UsageLog.create({
                     user_email: user.email,
                     action_type: 'chat_ai',
-                    model_used: deepseekSent ? 'deepseek+gpt-4o' : 'gpt-4o',
+                    model_used: flashSent ? 'gemini-flash+gpt-4o' : 'gpt-4o',
                     provider: 'openai',
                     input_tokens: totalInput,
                     output_tokens: totalOutput,
