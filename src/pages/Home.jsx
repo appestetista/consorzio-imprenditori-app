@@ -869,7 +869,7 @@ export default function Home() {
       if (m.role === 'assistant' && typeof m.content === 'string') {
         try {
           const obj = JSON.parse(m.content);
-          if (obj && obj.sintesi_decisionale) restored.content = obj;
+          if (obj && (obj.risposta || obj.sintesi_decisionale)) restored.content = obj;
         } catch { /* resta stringa */ }
       }
       // Preserva flag booleani per il rendering corretto
