@@ -447,9 +447,8 @@ export default function Home() {
       }
       if (!compareResult) {
         compareResult = await base44.integrations.Core.InvokeLLM({
-          prompt: `Confronta per PMI italiana:\nA: ${a}\nB: ${b}\n${kbContext}${userContext}`,
+          prompt: `Confronta per PMI italiana:\nA: ${a}\nB: ${b}\n${userContext}`,
           add_context_from_internet: true,
-          response_json_schema: { type: "object", properties: { categoria: { type: "string" }, sintesi_decisionale: { type: "string" }, impatto_economico: { type: "string" }, rischi_criticita: { type: "string" }, tempo_attuazione: { type: "string" }, raccomandazione_finale: { type: "string" }, fonti: { type: "array", items: { type: "object", properties: { nome: { type: "string" }, url: { type: "string" }, tipo: { type: "string" } } } }, affidabilita: { type: "object", properties: { verificati: { type: "number" }, stimati: { type: "number" }, da_confermare: { type: "number" }, punteggio: { type: "number" } } }, followup_questions: { type: "array", items: { type: "string" } } } }
         });
       }
 
