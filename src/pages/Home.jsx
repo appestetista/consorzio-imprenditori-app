@@ -989,38 +989,20 @@ export default function Home() {
                   </div>
                 );
                 if (msg.role === 'assistant') {
-                  // Nuovo formato semplice (risposta markdown) o vecchio formato (sintesi_decisionale)
-                  const content = msg.content;
-                  const isNewFormat = typeof content === 'object' && content?.risposta;
-                  const isOldFormat = typeof content === 'object' && content?.sintesi_decisionale;
+                  // Risposta AI: sempre testo markdown diretto (nessun filtro/parsing)
+                  const textContent = typeof msg.content === 'object' && msg.content !== null
+                    ? (msg.content.risposta || msg.content.sintesi_decisionale || JSON.stringify(msg.content))
+                    : (msg.content || '');
                   
-                  if (isNewFormat) {
-                    return (
-                      <div key={i} ref={isLastAssistant ? lastAssistantMsgRef : null} className="space-y-3">
-                        <SimpleAIResponse 
-                          content={content} 
-                          onFollowup={(text) => handleSend(text)} 
-                          conversationId={activeConversationId}
-                          isNew={!!msg.isNew}
-                        />
-                        <AIUsageBadge isAIResponse={msg.isAI} usate={msg.usageCount || consulenzeUsate} />
-                      </div>
-                    );
-                  }
-                  
-                  if (isOldFormat) {
-                    return (
-                      <div key={i} ref={isLastAssistant ? lastAssistantMsgRef : null} className="space-y-1.5">
-                        <DecisionResponse message={msg} category={lastCategory} classification={lastClassification} onFollowup={(text) => handleSend(text)} conversationId={activeConversationId} existingPlan={activeConvData?.ha_piano ? activeConvData.piano_json : null} userQuestion={messages.slice(0, i).reverse().find(m => m.role === 'user')?.content} isNew={!!msg.isNew} />
-                        <AIUsageBadge isAIResponse={msg.isAI} usate={msg.usageCount || consulenzeUsate} />
-                      </div>
-                    );
-                  }
-                  
-                  // Fallback: testo semplice
                   return (
-                    <div key={i} ref={isLastAssistant ? lastAssistantMsgRef : null}>
-                      <ChatMessage message={msg} />
+                    <div key={i} ref={isLastAssistant ? lastAssistantMsgRef : null} className="space-y-3">
+                      <SimpleAIResponse 
+                        content={{ risposta: textContent }} 
+                        onFollowup={(text) => handleSend(text)} 
+                        conversationId={activeConversationId}
+                        isNew={!!msg.isNew}
+                      />
+                      <AIUsageBadge isAIResponse={msg.isAI} usate={msg.usageCount || consulenzeUsate} />
                     </div>
                   );
                 }
