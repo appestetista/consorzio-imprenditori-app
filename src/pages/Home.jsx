@@ -385,24 +385,11 @@ export default function Home() {
     }
 
     try {
-      // FASE 1 – Classificazione intento (lato client, zero costo AI)
-      console.log('>>> STEP 1: Classificazione locale');
-      const classificazione = classifyIntent(msg);
-      console.log('>>> STEP 2: Classificazione OK', classificazione);
-      const category = classificazione.categoria;
-      const confidenza = classificazione.confidenza;
-      const sottocategoria = classificazione.sottocategoria;
-      setLastCategory(category);
-      setLastClassification({ categoria: category, sottocategoria, confidenza });
-
       // Estrazione silente dati profilo (se l'utente parla della propria azienda)
       extractProfileDataFromChat(msg, effectiveUser, setEffectiveUser);
 
-      // Cache disabilitata — sempre risposta fresca dal backend
-
-      // Analisi diretta con system prompt strutturato
-      console.log('>>> STEP 3: Inizio analisi');
-      await runAnalysis({ msg, category, sottocategoria, newMessages, convId });
+      // Chiamata diretta all'AI — nessuna classificazione
+      await runAnalysis({ msg, newMessages, convId });
     } catch (e) {
       console.error('>>> ERRORE:', e?.message || e);
       console.error('>>> DETTAGLIO:', JSON.stringify(e));
