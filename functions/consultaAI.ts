@@ -249,7 +249,7 @@ FORMATTAZIONE
       tokens: { input: totalInput, output: totalOutput },
       cost_usd: totalCost,
       response_time_ms: elapsed,
-      web_search_used: false,
+      web_search_used: webSearchUsed,
     });
 
   } catch (e) {
