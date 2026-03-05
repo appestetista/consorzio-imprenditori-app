@@ -135,7 +135,7 @@ Deno.serve(async (req) => {
       tokens: { input: totalInput, output: totalOutput },
       cost_usd: totalCost,
       response_time_ms: elapsed,
-      web_search_used,
+      web_search_used: false,
     });
 
   } catch (e) {
