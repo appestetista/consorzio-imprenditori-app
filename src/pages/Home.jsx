@@ -15,7 +15,7 @@ import CompareResult from '../components/home/CompareResult';
 import ChatSidebar from '../components/home/ChatSidebar';
 import GlobalTopIcons from '../components/layout/GlobalTopIcons';
 import AIUsageBar, { AIUsageBadge } from '../components/home/AIUsageBar';
-import { extractProfileDataFromChat } from '../components/home/extractProfileFromChat.jsx';
+
 import { useQueryClient } from '@tanstack/react-query';
 
 export default function Home() {
@@ -201,26 +201,7 @@ export default function Home() {
     }
   }, [effectiveUser?.email]);
 
-  const buildUserContext = () => {
-    if (!effectiveUser) return '';
-    const fields = [
-      ['azienda', effectiveUser.company_name],
-      ['settore', effectiveUser.settore],
-      ['forma giuridica', effectiveUser.forma_giuridica],
-      ['fatturato annuo', effectiveUser.fatturato_annuo],
-      ['dipendenti', effectiveUser.numero_dipendenti],
-      ['zona', effectiveUser.zona],
-      ['città', effectiveUser.city],
-      ['regime fiscale', effectiveUser.regime_fiscale],
-      ['obiettivo', effectiveUser.obiettivo_principale],
-    ];
-    const parts = fields.filter(([, v]) => v).map(([k, v]) => `${k}: ${v}`);
-    return parts.length > 0 ? `CONTESTO AZIENDALE: ${parts.join(', ')}. Personalizza la risposta in base a questo contesto.\n\n` : '';
-  };
-
   const runAnalysis = async ({ msg, newMessages, convId }) => {
-    const userContext = buildUserContext();
-
     // Storicità conversazione — ultime 3 coppie per dare contesto all'LLM
     let historyBlock = '';
     const previousMsgs = newMessages.slice(0, -1);
@@ -242,12 +223,11 @@ export default function Home() {
       }
     }
 
-    // Chiamata consultaAI — nessuna classificazione, nessuna KB, tutto pulito
+    // Chiamata consultaAI — nessun contesto profilo, nessuna classificazione
     let parsed = null;
     try {
       const aiResponse = await base44.functions.invoke('consultaAI', {
         message: msg,
-        userContext: userContext,
         conversationHistory: historyBlock,
       });
       if (aiResponse.data?.success && aiResponse.data?.data) {
@@ -260,7 +240,7 @@ export default function Home() {
     if (!parsed) {
       try {
         const fallbackResult = await base44.integrations.Core.InvokeLLM({
-          prompt: `Sei un consulente d'impresa italiano. Rispondi in modo completo e dettagliato.\n${userContext}Domanda: ${msg}`,
+          prompt: `Rispondi in modo completo e dettagliato.\nDomanda: ${msg}`,
           add_context_from_internet: true,
         });
         parsed = fallbackResult || 'Risposta non disponibile.';
@@ -321,10 +301,7 @@ export default function Home() {
     }
 
     try {
-      // Estrazione silente dati profilo (se l'utente parla della propria azienda)
-      extractProfileDataFromChat(msg, effectiveUser, setEffectiveUser);
-
-      // Chiamata diretta all'AI — nessuna classificazione
+      // Chiamata diretta all'AI — nessun condizionamento
       await runAnalysis({ msg, newMessages, convId });
     } catch (e) {
       console.error('>>> ERRORE:', e?.message || e);
@@ -365,14 +342,11 @@ export default function Home() {
     }
 
     try {
-      const userContext = buildUserContext();
-
-      // Confronto via consultaAI
+      // Confronto via consultaAI — nessun contesto profilo
       let compareResult;
       try {
         const aiResp = await base44.functions.invoke('consultaAI', {
-          message: `Confronta questi due scenari per una PMI italiana:\nScenario A: ${a}\nScenario B: ${b}\nPer ciascuno calcola impatto economico, rischi, tempi. Indica quale conviene e perché con numeri concreti.`,
-          userContext: userContext,
+          message: `Confronta questi due scenari:\nScenario A: ${a}\nScenario B: ${b}\nPer ciascuno calcola impatto economico, rischi, tempi. Indica quale conviene e perché con numeri concreti.`,
           conversationHistory: '',
         });
         if (aiResp.data?.success && aiResp.data?.data) {
@@ -383,7 +357,7 @@ export default function Home() {
       }
       if (!compareResult) {
         compareResult = await base44.integrations.Core.InvokeLLM({
-          prompt: `Confronta per PMI italiana:\nA: ${a}\nB: ${b}\n${userContext}`,
+          prompt: `Confronta:\nA: ${a}\nB: ${b}`,
           add_context_from_internet: true,
         });
       }
@@ -525,11 +499,7 @@ export default function Home() {
     }
   };
 
-  const userRegime = effectiveUser?.regime_fiscale || null;
 
-  // Logo utente
-  const DEFAULT_LOGO = "https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=100&h=100&fit=crop";
-  const userLogo = effectiveUser?.company_logo || DEFAULT_LOGO;
 
   if (loading) {
     return (

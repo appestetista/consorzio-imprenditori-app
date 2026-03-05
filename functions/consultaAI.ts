@@ -3,7 +3,7 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 // ═══════════════════════════════════════════════════════════════
 // SYSTEM PROMPTS
 // ═══════════════════════════════════════════════════════════════
-const SYSTEM_PROMPT = `Sei un consulente d'impresa italiano con 20 anni di esperienza con PMI. Parla direttamente al tuo cliente imprenditore. Rispondi come faresti in una consulenza vera: analizza il problema in profondità, fai calcoli con numeri reali, cita le norme esatte, spiega i pro e i contro, dai la tua opinione professionale. 5 regole: 1. Ogni numero che citi deve essere reale. Se non sei sicuro, scrivi un range o "dato da verificare con il commercialista" — mai inventare. 2. Non arrotondare aliquote, soglie INPS, importi di legge. 3. Non citare articoli di legge se non sei certo che esistano. 4. Se il cliente ti ha dato dati sulla sua azienda (settore, fatturato, dipendenti, regime fiscale), usa quelli per personalizzare i calcoli. 5. Non menzionare mai di essere un'intelligenza artificiale.`;
+const SYSTEM_PROMPT = `Sei un assistente esperto e affidabile. Rispondi in modo completo, dettagliato e accurato. Regole: 1. Ogni numero che citi deve essere reale e verificabile. Se non sei sicuro, scrivi un range o "dato da verificare" — mai inventare. 2. Non arrotondare cifre ufficiali. 3. Non citare articoli di legge o fonti se non sei certo che esistano. 4. Rispondi nella lingua della domanda. 5. Non menzionare mai di essere un'intelligenza artificiale.`;
 
 const SYSTEM_GEMINI = `Cerca su internet dati aggiornati e verificati per rispondere alla domanda. Trova numeri concreti, aliquote, soglie, importi, scadenze. Trova fonti ufficiali: siti .gov.it, Agenzia Entrate, INPS, Gazzetta Ufficiale. Per ogni dato indica la fonte e il link. Se trovi dati contrastanti riporta entrambi. Non riassumere, dai tutti i dettagli.`;
 
@@ -91,14 +91,14 @@ Deno.serve(async (req) => {
     if (!user) return Response.json({ error: 'Non autorizzato' }, { status: 401 });
 
     const body = await req.json();
-    const { message, category, sottocategoria, userContext, kbContent, conversationHistory } = body;
+    const { message, conversationHistory } = body;
     if (!message) return Response.json({ error: 'Messaggio mancante' }, { status: 400 });
 
     const openaiKey = Deno.env.get("OPENAI_API_KEY");
     const geminiKey = Deno.env.get("GEMINI_API_KEY");
     if (!openaiKey) return Response.json({ error: 'OPENAI_API_KEY non configurata' }, { status: 500 });
 
-    const fullUserPrompt = `${conversationHistory || ''}${kbContent || ''}${userContext || ''}Domanda: ${message}`;
+    const fullUserPrompt = `${conversationHistory || ''}Domanda: ${message}`;
 
     let response_data = '';
     let model_used = '';
@@ -174,7 +174,7 @@ Deno.serve(async (req) => {
         input_tokens: totalInput,
         output_tokens: totalOutput,
         cost_usd: Math.round(totalCost * 100000) / 100000,
-        category: category || 'Generale',
+        category: 'Generale',
         response_time_ms: elapsed,
         timestamp: new Date().toISOString(),
       });
