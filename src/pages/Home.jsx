@@ -193,18 +193,21 @@ export default function Home() {
   // Scroll alla domanda utente quando sta digitando (typing)
   useEffect(() => {
     if (isTyping && lastUserMsgRef.current) {
-      lastUserMsgRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Scrolla portando la domanda utente visibile in alto
+      setTimeout(() => {
+        lastUserMsgRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 50);
     }
   }, [isTyping]);
 
-  // Quando arriva una nuova risposta (isTyping passa da true a false), scrolla all'inizio della risposta
+  // Quando arriva una nuova risposta (isTyping passa da true a false), scrolla alla DOMANDA utente (non alla risposta)
+  // Così l'utente vede: domanda in alto → risposta sotto, e può scrollare col dito
   const prevIsTyping = useRef(false);
   useEffect(() => {
-    if (prevIsTyping.current && !isTyping && lastAssistantMsgRef.current) {
-      // Piccolo delay per permettere il render del StreamingReveal
+    if (prevIsTyping.current && !isTyping && lastUserMsgRef.current) {
       setTimeout(() => {
-        lastAssistantMsgRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
+        lastUserMsgRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 150);
     }
     prevIsTyping.current = isTyping;
   }, [isTyping]);
