@@ -64,6 +64,38 @@ export default function Layout({ children, currentPageName }) {
       <VideoVisitProvider>
         <PanelProvider>
         <style>{`
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+          
+          *, *::before, *::after {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+          }
+          
+          body {
+            font-size: 16px;
+            line-height: 1.6;
+            letter-spacing: 0.01em;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+          }
+
+          p, span, li, td, th, label, input, textarea, select, button {
+            font-size: inherit;
+            line-height: 1.6;
+          }
+
+          h1 { font-size: 32px; font-weight: 700; line-height: 1.3; letter-spacing: -0.01em; }
+          h2 { font-size: 26px; font-weight: 600; line-height: 1.35; letter-spacing: -0.005em; }
+          h3 { font-size: 22px; font-weight: 600; line-height: 1.4; }
+          h4 { font-size: 18px; font-weight: 500; line-height: 1.45; }
+          
+          .text-xs  { font-size: 12px; line-height: 1.5; }
+          .text-sm  { font-size: 14px; line-height: 1.55; }
+          .text-base { font-size: 16px; line-height: 1.6; }
+          .text-lg  { font-size: 18px; line-height: 1.5; }
+          .text-xl  { font-size: 20px; line-height: 1.4; }
+          .text-2xl { font-size: 24px; line-height: 1.35; }
+          .text-3xl { font-size: 30px; line-height: 1.3; }
+
           .back-arrow-tap {
             -webkit-tap-highlight-color: transparent;
             position: relative;
