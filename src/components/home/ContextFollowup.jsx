@@ -22,7 +22,7 @@ export default function ContextFollowup({ question, onSelect, visible }) {
         >
           <button
             onClick={() => onSelect(question)}
-            className="w-full text-left flex items-start gap-2.5 px-3.5 py-2.5 rounded-xl border border-[#d4af37]/30 bg-[#d4af37]/5 hover:bg-[#d4af37]/10 hover:border-[#d4af37]/50 transition-all group"
+            className="w-full text-left flex items-start gap-2.5 px-3.5 py-2.5 rounded-xl border border-[#d4af37]/40 bg-[#151c2e] hover:bg-[#1a2338] hover:border-[#d4af37]/60 transition-all group shadow-lg"
           >
             <Lightbulb className="w-4 h-4 text-[#d4af37] mt-0.5 flex-shrink-0 group-hover:scale-110 transition-transform" />
             <div className="flex-1 min-w-0">
