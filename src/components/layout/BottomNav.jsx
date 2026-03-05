@@ -4,18 +4,32 @@ import { createPageUrl } from '@/utils';
 import { Wrench, Home, UserRound } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export default function BottomNav({ currentPage, unreadMessages = 0, activeTab = null, isAdmin = false, onMenuOpen, menuOpen = false, hideBackground = false, bgColor = null }) {
+export default function BottomNav({ currentPage, unreadMessages = 0, activeTab = null, isAdmin = false, onMenuOpen, menuOpen = false, hideBackground = false, bgColor = null, consulenzeUsate = 0, maxConsulenze = 50 }) {
   const navItems = [
     { name: 'home', label: 'Home', icon: Home, page: 'Home', tab: null },
     { name: 'strumenti', label: 'Strumenti', icon: Wrench, page: 'Esplora?tab=strumenti', tab: 'strumenti' },
     { name: 'menu', label: 'My Profilo', icon: UserRound, page: 'MyProfile', tab: null },
   ];
 
+  const usagePct = Math.min((consulenzeUsate / maxConsulenze) * 100, 100);
+  const barColor = usagePct >= 90 ? '#ef4444' : usagePct >= 70 ? '#f97316' : '#d4af37';
+
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-30" style={{ height: '140px', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', paddingBottom: '24px' }}>
-        {/* Sfondo scuro sfumato verso l'alto */}
-        <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to top, #0a0f1a 65%, transparent 100%)' }} />
-        <div className="py-2 px-2 relative z-10">
+    <nav className="fixed bottom-0 left-0 right-0 z-30" style={{ height: '185px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', paddingBottom: '20px' }}>
+        {/* Sfondo solido che arriva fino alla barra di ricerca */}
+        <div className="absolute inset-0 pointer-events-none" style={{ background: `linear-gradient(to top, ${bgColor || '#0a0f1a'} 75%, transparent 100%)` }} />
+        
+        {/* Barra consumo AI */}
+        <div className="relative z-10 w-full max-w-2xl px-6 mb-3">
+          <div className="w-full h-[3px] bg-slate-700/40 rounded-full overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all duration-700 ease-out"
+              style={{ width: `${usagePct}%`, backgroundColor: barColor }}
+            />
+          </div>
+        </div>
+
+        <div className="px-2 relative z-10">
         <div>
           <div className="flex justify-center items-center gap-1">
             {navItems.map((item) => {
