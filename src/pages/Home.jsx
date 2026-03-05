@@ -646,7 +646,7 @@ export default function Home() {
                         isNew={!!msg.isNew && !msg.isStreaming}
                         isStreaming={!!msg.isStreaming}
                       />
-                      {!msg.isStreaming && <AIUsageBadge isAIResponse={msg.isAI} usate={msg.usageCount || consulenzeUsate} />}
+
                     </div>
                   );
                 }
