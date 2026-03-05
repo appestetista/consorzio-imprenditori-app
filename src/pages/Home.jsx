@@ -433,65 +433,6 @@ export default function Home() {
 
 
 
-  const handleSmartQuestionAnswer = async (smartData, risposte) => {
-    setIsTyping(true);
-    const msgsWithoutSmart = messages.filter(m => !m.smartQuestions);
-    
-    const dettagli = Object.entries(risposte)
-      .filter(([, val]) => val && val.trim() !== '')
-      .map(([id, val]) => {
-        const domanda = smartData.domande.find(d => d.id === id);
-        return domanda ? domanda.testo + ' → ' + val : id + ': ' + val;
-      })
-      .join('. ');
-    
-    const messaggioArricchito = smartData.messaggioOriginale + '\n\nDETTAGLI FORNITI DALL\'UTENTE: ' + dettagli;
-    
-    const detailMsg = { role: 'user', content: '📋 ' + dettagli, isDetail: true };
-    const updatedMsgs = [...msgsWithoutSmart, detailMsg];
-    setMessages(updatedMsgs);
-    
-    try {
-      await runAnalysis({
-        msg: messaggioArricchito,
-        category: smartData.categoria,
-        sottocategoria: smartData.sottocategoria,
-        newMessages: updatedMsgs,
-        convId: smartData.convId,
-      });
-    } catch (e) {
-      console.error('>>> ERRORE:', e?.message || e);
-      const errMsg = { role: 'assistant', content: 'Mi dispiace, si è verificato un errore. Riprova tra un momento.' };
-      setMessages([...updatedMsgs, errMsg]);
-      await base44.entities.ChatConversation.update(smartData.convId, { messages: [...updatedMsgs, errMsg] });
-    } finally {
-      setIsTyping(false);
-    }
-  };
-  
-  const handleSmartQuestionSkip = async (smartData) => {
-    setIsTyping(true);
-    const msgsWithoutSmart = messages.filter(m => !m.smartQuestions);
-    setMessages(msgsWithoutSmart);
-    
-    try {
-      await runAnalysis({
-        msg: smartData.messaggioOriginale,
-        category: smartData.categoria,
-        sottocategoria: smartData.sottocategoria,
-        newMessages: msgsWithoutSmart,
-        convId: smartData.convId,
-      });
-    } catch (e) {
-      console.error('>>> ERRORE:', e?.message || e);
-      const errMsg = { role: 'assistant', content: 'Mi dispiace, si è verificato un errore. Riprova tra un momento.' };
-      setMessages([...msgsWithoutSmart, errMsg]);
-      await base44.entities.ChatConversation.update(smartData.convId, { messages: [...msgsWithoutSmart, errMsg] });
-    } finally {
-      setIsTyping(false);
-    }
-  };
-
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
