@@ -236,6 +236,11 @@ FORMATTAZIONE
 
       const transformStream = new TransformStream({
         async transform(chunk, controller) {
+          // Al primo chunk, invia la context question
+          if (!sentContextQuestion && contextQuestion) {
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ context_question: contextQuestion })}\n\n`));
+            sentContextQuestion = true;
+          }
           const text = decoder.decode(chunk, { stream: true });
           const lines = text.split('\n');
           for (const line of lines) {
