@@ -205,69 +205,32 @@ export default function Home() {
     }
   }, [effectiveUser?.email]);
 
-  const runAnalysis = async ({ msg, newMessages, convId }) => {
-    // Storicità conversazione — contesto completo, cap 80.000 char (ampio per GPT-4o 128k context)
-    let historyBlock = '';
-    const previousMsgs = newMessages.slice(0, -1);
-    if (previousMsgs.length > 0) {
-      const historyParts = [];
-      let totalChars = 0;
-      const MAX_TOTAL = 80000;
-      
-      // Parti dal più recente al più vecchio, includi tutto finché c'è spazio
-      for (let i = previousMsgs.length - 1; i >= 0; i--) {
-        const m = previousMsgs[i];
-        let part = null;
-        if (m.role === 'user') {
-          part = 'UTENTE: ' + (m.content || '');
-        } else if (m.role === 'assistant' && m.content) {
-          const c = m.content;
-          if (typeof c === 'object' && c.risposta) part = 'ASSISTENTE: ' + c.risposta;
-          else if (typeof c === 'string') part = 'ASSISTENTE: ' + c;
-        }
-        if (part) {
-          if (totalChars + part.length > MAX_TOTAL) break;
-          historyParts.unshift(part);
-          totalChars += part.length;
-        }
+  const buildHistoryBlock = (msgs) => {
+    const previousMsgs = msgs.slice(0, -1);
+    if (previousMsgs.length === 0) return '';
+    const historyParts = [];
+    let totalChars = 0;
+    const MAX_TOTAL = 80000;
+    for (let i = previousMsgs.length - 1; i >= 0; i--) {
+      const m = previousMsgs[i];
+      let part = null;
+      if (m.role === 'user') part = 'UTENTE: ' + (m.content || '');
+      else if (m.role === 'assistant' && m.content) {
+        const c = m.content;
+        if (typeof c === 'object' && c.risposta) part = 'ASSISTENTE: ' + c.risposta;
+        else if (typeof c === 'string') part = 'ASSISTENTE: ' + c;
       }
-      
-      if (historyParts.length > 0) {
-        historyBlock = historyParts.join('\n\n');
+      if (part) {
+        if (totalChars + part.length > MAX_TOTAL) break;
+        historyParts.unshift(part);
+        totalChars += part.length;
       }
     }
+    return historyParts.join('\n\n');
+  };
 
-    // Chiamata consultaAI — nessun contesto profilo, nessuna classificazione
-    let parsed = null;
-    try {
-      const aiResponse = await base44.functions.invoke('consultaAI', {
-        message: msg,
-        conversationHistory: historyBlock,
-      });
-      if (aiResponse.data?.success && aiResponse.data?.data) {
-        parsed = aiResponse.data.data;
-        console.log('[AI]', aiResponse.data.model_used, aiResponse.data.provider, aiResponse.data.response_time_ms + 'ms', '$' + aiResponse.data.cost_usd?.toFixed(5), 'web:' + aiResponse.data.web_search_used);
-      }
-    } catch (e) {
-      console.error('[AI] Errore:', e?.message);
-    }
-    if (!parsed) {
-      try {
-        const fallbackResult = await base44.integrations.Core.InvokeLLM({
-          prompt: `Rispondi in modo completo e dettagliato.\nDomanda: ${msg}`,
-          add_context_from_internet: true,
-        });
-        parsed = fallbackResult || 'Risposta non disponibile.';
-      } catch (e2) { parsed = 'Errore. Riprova.'; }
-    }
-
-    const newCount = (consulenzeUsate || 0) + 1;
-    const finalContent = parsed || 'Risposta non disponibile. Riprova.';
-    const assistantMsg = { role: 'assistant', content: finalContent, isAI: true, usageCount: newCount, isNew: true };
-    const updatedMessages = [...newMessages, assistantMsg];
-    setMessages(updatedMessages);
-    
-    const messagesForDB = updatedMessages.map(m => ({
+  const saveConversation = async (allMessages, convId) => {
+    const messagesForDB = allMessages.map(m => ({
       role: m.role,
       content: typeof m.content === 'object' && m.content !== null ? JSON.stringify(m.content) : (m.content || ''),
       ...(m.isAI ? { isAI: true } : {}),
@@ -275,15 +238,91 @@ export default function Home() {
       ...(m.usageCount ? { usageCount: m.usageCount } : {}),
       ...(m.isDetail ? { isDetail: true } : {}),
     }));
-    
-    const rispostaStr = typeof finalContent === 'string' ? finalContent : JSON.stringify(finalContent);
-    await base44.entities.ChatConversation.update(convId, {
-      messages: messagesForDB,
-      risposta_json: rispostaStr,
-    });
+    const lastAssistant = allMessages.filter(m => m.role === 'assistant').pop();
+    const rispostaStr = lastAssistant ? (typeof lastAssistant.content === 'string' ? lastAssistant.content : JSON.stringify(lastAssistant.content)) : '';
+    await base44.entities.ChatConversation.update(convId, { messages: messagesForDB, risposta_json: rispostaStr });
+  };
 
-    setConsulenzeUsate(newCount);
-    await base44.auth.updateMe({ consulenze_usate_mese: newCount });
+  const runAnalysis = async ({ msg, newMessages, convId }) => {
+    const historyBlock = buildHistoryBlock(newMessages);
+
+    // Mostra subito il messaggio assistente vuoto per lo streaming
+    const newCount = (consulenzeUsate || 0) + 1;
+    setIsStreaming(true);
+    setStreamingText('');
+
+    // Aggiungi un messaggio assistente placeholder che si aggiorna in tempo reale
+    const streamingMsg = { role: 'assistant', content: '', isAI: true, usageCount: newCount, isNew: true, isStreaming: true };
+    setMessages([...newMessages, streamingMsg]);
+
+    return new Promise((resolve, reject) => {
+      streamAI({
+        message: msg,
+        conversationHistory: historyBlock,
+        onChunk: (fullText) => {
+          setStreamingText(fullText);
+          // Aggiorna il messaggio in tempo reale
+          setMessages(prev => {
+            const updated = [...prev];
+            const lastIdx = updated.length - 1;
+            if (lastIdx >= 0 && updated[lastIdx].isStreaming) {
+              updated[lastIdx] = { ...updated[lastIdx], content: fullText };
+            }
+            return updated;
+          });
+        },
+        onDone: async (fullText, metadata) => {
+          console.log('[AI] Streaming done', metadata?.response_time_ms + 'ms', 'web:' + metadata?.web_search_used);
+          
+          const finalContent = fullText || 'Risposta non disponibile. Riprova.';
+          const assistantMsg = { role: 'assistant', content: finalContent, isAI: true, usageCount: newCount, isNew: true };
+          const updatedMessages = [...newMessages, assistantMsg];
+          setMessages(updatedMessages);
+          setIsStreaming(false);
+          setStreamingText('');
+
+          await saveConversation(updatedMessages, convId);
+          setConsulenzeUsate(newCount);
+          await base44.auth.updateMe({ consulenze_usate_mese: newCount });
+          resolve();
+        },
+        onError: async (error) => {
+          console.error('[AI] Streaming error:', error?.message);
+          setIsStreaming(false);
+          setStreamingText('');
+          
+          // Fallback: prova la chiamata classica non-streaming
+          let parsed = null;
+          try {
+            const aiResponse = await base44.functions.invoke('consultaAI', {
+              message: msg,
+              conversationHistory: historyBlock,
+            });
+            if (aiResponse.data?.success && aiResponse.data?.data) {
+              parsed = aiResponse.data.data;
+            }
+          } catch {}
+          if (!parsed) {
+            try {
+              parsed = await base44.integrations.Core.InvokeLLM({
+                prompt: `Rispondi in modo completo e dettagliato.\nDomanda: ${msg}`,
+                add_context_from_internet: true,
+              });
+            } catch { parsed = 'Errore. Riprova.'; }
+          }
+
+          const finalContent = parsed || 'Risposta non disponibile. Riprova.';
+          const assistantMsg = { role: 'assistant', content: finalContent, isAI: true, usageCount: newCount, isNew: true };
+          const updatedMessages = [...newMessages, assistantMsg];
+          setMessages(updatedMessages);
+
+          await saveConversation(updatedMessages, convId);
+          setConsulenzeUsate(newCount);
+          await base44.auth.updateMe({ consulenze_usate_mese: newCount });
+          resolve();
+        },
+      });
+    });
   };
 
   const chatBlocked = false;
