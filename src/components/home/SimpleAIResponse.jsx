@@ -104,11 +104,83 @@ const markdownComponents = {
 };
 
 export default function SimpleAIResponse({ content, onFollowup, conversationId, isNew = false, isStreaming = false }) {
-  const risposta = content?.risposta || '';
+  const fullRisposta = content?.risposta || '';
   const followups = content?.followup_questions || [];
 
-  // Durante lo streaming: mostra il markdown che arriva in tempo reale con cursore lampeggiante
-  if (isStreaming) {
+  // ── Stato per animazione "pensiero" + typewriter ──
+  const [thinkingDone, setThinkingDone] = useState(!isStreaming && !isNew);
+  const [displayedText, setDisplayedText] = useState(!isStreaming && !isNew ? fullRisposta : '');
+  const [typewriterDone, setTypewriterDone] = useState(!isStreaming && !isNew);
+  const prevLengthRef = useRef(0);
+  const typewriterRef = useRef(null);
+
+  // Quando il thinking finisce, inizia il typewriter
+  const handleThinkingFinished = useCallback(() => {
+    setThinkingDone(true);
+  }, []);
+
+  // Typewriter: rivela il testo carattere per carattere man mano che arriva
+  useEffect(() => {
+    if (!thinkingDone) return;
+    if (!fullRisposta) return;
+
+    // Se non è streaming e non è nuovo, mostra tutto subito
+    if (!isStreaming && !isNew) {
+      setDisplayedText(fullRisposta);
+      setTypewriterDone(true);
+      return;
+    }
+
+    // Typewriter incrementale: aggiungi i nuovi caratteri uno alla volta
+    const targetLength = fullRisposta.length;
+    if (targetLength <= prevLengthRef.current && displayedText.length >= targetLength) return;
+
+    // Pulisci timer precedente
+    if (typewriterRef.current) clearInterval(typewriterRef.current);
+
+    let currentIdx = displayedText.length;
+    typewriterRef.current = setInterval(() => {
+      const currentTarget = fullRisposta.length; // può crescere nel frattempo
+      if (currentIdx >= currentTarget) {
+        // Se lo streaming è finito e abbiamo raggiunto la fine
+        if (!isStreaming) {
+          clearInterval(typewriterRef.current);
+          typewriterRef.current = null;
+          setTypewriterDone(true);
+        }
+        return;
+      }
+      // Avanza di 2-4 caratteri alla volta per velocità fluida
+      const step = Math.min(3, currentTarget - currentIdx);
+      currentIdx += step;
+      const slice = fullRisposta.substring(0, currentIdx);
+      setDisplayedText(slice);
+      prevLengthRef.current = currentIdx;
+    }, 12);
+
+    return () => {
+      if (typewriterRef.current) {
+        clearInterval(typewriterRef.current);
+        typewriterRef.current = null;
+      }
+    };
+  }, [thinkingDone, fullRisposta, isStreaming, isNew]);
+
+  // Cleanup quando lo streaming finisce: rivela il testo rimanente
+  useEffect(() => {
+    if (!isStreaming && thinkingDone && fullRisposta && displayedText.length < fullRisposta.length) {
+      // Lo streaming è finito, lascia il typewriter finire il rimanente
+      // Non fare nulla, il typewriter lo gestisce
+    }
+  }, [isStreaming]);
+
+  // ── Fase 1: Animazione pensiero ──
+  if (isStreaming && !thinkingDone) {
+    return <AIThinkingAnimation onFinished={handleThinkingFinished} />;
+  }
+
+  // ── Fase 2: Typewriter in corso ──
+  if (isStreaming || (isNew && !typewriterDone)) {
     return (
       <div className="flex items-start gap-3" style={{ touchAction: 'pan-y' }}>
         <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#d4af37] to-[#b8860b] flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -116,22 +188,22 @@ export default function SimpleAIResponse({ content, onFollowup, conversationId, 
         </div>
         <div className="flex-1 max-w-[92%]">
           <div className="rounded-2xl bg-slate-800/50 border border-slate-700/40 px-5 py-4">
-            {risposta ? (
-              <ReactMarkdown
-                className="text-sm text-slate-200 leading-relaxed prose prose-sm prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
-                components={markdownComponents}
-              >
-                {risposta}
-              </ReactMarkdown>
+            {displayedText ? (
+              <div className="relative">
+                <ReactMarkdown
+                  className="text-sm text-slate-200 leading-relaxed prose prose-sm prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
+                  components={markdownComponents}
+                >
+                  {displayedText}
+                </ReactMarkdown>
+                <span className="inline-block w-0.5 h-4 bg-[#d4af37] animate-pulse ml-0.5 -mb-0.5" />
+              </div>
             ) : (
               <div className="flex items-center gap-1.5">
-                <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                <div className="w-2 h-2 bg-[#d4af37] rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                <div className="w-2 h-2 bg-[#d4af37] rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                <div className="w-2 h-2 bg-[#d4af37] rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
               </div>
-            )}
-            {risposta && (
-              <span className="inline-block w-0.5 h-4 bg-[#d4af37] animate-pulse ml-0.5 -mb-0.5" />
             )}
           </div>
         </div>
@@ -139,38 +211,37 @@ export default function SimpleAIResponse({ content, onFollowup, conversationId, 
     );
   }
 
+  // ── Fase 3: Risposta completa ──
   return (
     <div className="flex items-start gap-3" style={{ touchAction: 'pan-y' }}>
       <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#d4af37] to-[#b8860b] flex items-center justify-center flex-shrink-0 mt-0.5">
         <Sparkles className="w-4 h-4 text-white" />
       </div>
       <div className="flex-1 max-w-[92%] space-y-3">
-        <StreamingReveal delay={180} enabled={isNew}>
-          <div className="rounded-2xl bg-slate-800/50 border border-slate-700/40 px-5 py-4">
-            <ReactMarkdown
-              className="text-sm text-slate-200 leading-relaxed prose prose-sm prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
-              components={markdownComponents}
-            >
-              {risposta}
-            </ReactMarkdown>
+        <div className="rounded-2xl bg-slate-800/50 border border-slate-700/40 px-5 py-4">
+          <ReactMarkdown
+            className="text-sm text-slate-200 leading-relaxed prose prose-sm prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
+            components={markdownComponents}
+          >
+            {fullRisposta}
+          </ReactMarkdown>
+        </div>
+
+        {followups.length > 0 && (
+          <div className="flex flex-col gap-2">
+            {followups.map((q, idx) => (
+              <button
+                key={idx}
+                onClick={() => onFollowup?.(q)}
+                className="text-left text-sm text-white px-4 py-2.5 rounded-xl border border-slate-600/50 bg-transparent hover:border-[#d4af37]/60 transition-colors"
+              >
+                {q}
+              </button>
+            ))}
           </div>
+        )}
 
-          {followups.length > 0 && (
-            <div className="flex flex-col gap-2">
-              {followups.map((q, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => onFollowup?.(q)}
-                  className="text-left text-sm text-white px-4 py-2.5 rounded-xl border border-slate-600/50 bg-transparent hover:border-[#d4af37]/60 transition-colors"
-                >
-                  {q}
-                </button>
-              ))}
-            </div>
-          )}
-
-          <RatingInline conversationId={conversationId} />
-        </StreamingReveal>
+        <RatingInline conversationId={conversationId} />
       </div>
     </div>
   );
