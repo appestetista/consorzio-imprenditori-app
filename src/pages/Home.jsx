@@ -42,6 +42,9 @@ export default function Home() {
   // pannelli messaggi/notifiche gestiti globalmente via PanelProvider
   const [consulenzeUsate, setConsulenzeUsate] = useState(0);
   const [pianoAbbonamento, setPianoAbbonamento] = useState(null);
+  const [streamingText, setStreamingText] = useState('');
+  const [isStreaming, setIsStreaming] = useState(false);
+  const { streamAI } = useStreamingAI();
   const recognitionRef = useRef(null);
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
