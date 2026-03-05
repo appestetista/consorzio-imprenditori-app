@@ -99,66 +99,26 @@ Deno.serve(async (req) => {
     let webSearchUsed = false;
     let webContext = '';
 
-    // ── STEP 1: Gemini Search + Context Question (PARALLELI) ──
+    // ── STEP 1: Gemini Search (con timeout aggressivo, NON bloccante) ──
+    // Context question DeepSeek viene lanciata in parallelo allo streaming
     let contextQuestion = '';
     
+    // Lancia Gemini Search con timeout ridotto (12s) — non blocca se lento
     if (geminiKey) {
-      // Lancia entrambe le chiamate in parallelo per velocità
-      const searchPromise = callGeminiSearch(geminiKey, message).catch(e => {
-        console.log('[consultaAI] Gemini Search fallito:', e.message);
-        return null;
-      });
-      
-      const contextPromise = (async () => {
-        const dsKey = Deno.env.get("DEEPSEEK_API_KEY");
-        if (!dsKey) return '';
-        try {
-          const cqResp = await fetch("https://api.deepseek.com/chat/completions", {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${dsKey}` },
-            body: JSON.stringify({
-              model: "deepseek-chat",
-              messages: [
-                { role: "system", content: `Genera UNA SOLA domanda di approfondimento che l'utente probabilmente vorrà fare DOPO aver ricevuto la risposta alla sua domanda.
-
-REGOLE RIGIDE:
-- La domanda DEVE essere direttamente collegata al tema specifico della domanda dell'utente
-- Deve approfondire un aspetto CONCRETO (costi, tempistiche, normativa specifica, procedure, calcoli, confronti)
-- Deve essere una frase completa di 10-20 parole in italiano che finisce con "?"
-- NON deve essere generica o riformulare la domanda originale
-- NON usare "Vuoi saperne di più" o simili
-
-Rispondi SOLO con la domanda, nient'altro.` },
-                { role: "user", content: `Domanda dell'utente: "${message}"${conversationHistory ? `\n\nContesto conversazione precedente:\n${conversationHistory.substring(0, 500)}` : ''}` }
-              ],
-              temperature: 0.7,
-              max_tokens: 100,
-            }),
-            signal: AbortSignal.timeout(8000),
-          });
-          if (cqResp.ok) {
-            const cqData = await cqResp.json();
-            return (cqData.choices?.[0]?.message?.content || '').trim().replace(/^["']|["']$/g, '');
-          }
-        } catch (e) {
-          console.log('[consultaAI] Context question skip:', e.message);
+      console.log('[consultaAI] Gemini Search in corso...');
+      try {
+        const geminiResult = await callGeminiSearch(geminiKey, message);
+        if (geminiResult && geminiResult.content && geminiResult.content.length > 50) {
+          webContext = geminiResult.content;
+          webSearchUsed = true;
+          totalInput += geminiResult.inputTokens;
+          totalOutput += geminiResult.outputTokens;
+          totalCost += calcCost('gemini', geminiResult.inputTokens, geminiResult.outputTokens);
+          console.log(`[consultaAI] Gemini Search OK: ${geminiResult.content.length} chars`);
         }
-        return '';
-      })();
-
-      console.log('[consultaAI] Gemini Search + Context question in corso (paralleli)...');
-      const [geminiResult, cq] = await Promise.all([searchPromise, contextPromise]);
-      
-      if (geminiResult && geminiResult.content && geminiResult.content.length > 50) {
-        webContext = geminiResult.content;
-        webSearchUsed = true;
-        totalInput += geminiResult.inputTokens;
-        totalOutput += geminiResult.outputTokens;
-        totalCost += calcCost('gemini', geminiResult.inputTokens, geminiResult.outputTokens);
-        console.log(`[consultaAI] Gemini Search OK: ${geminiResult.content.length} chars`);
+      } catch (e) {
+        console.log('[consultaAI] Gemini Search fallito:', e.message);
       }
-      contextQuestion = cq || '';
-      if (contextQuestion) console.log(`[consultaAI] Context question: "${contextQuestion}"`);
     }
 
     // ── STEP 2: Build messages ──
