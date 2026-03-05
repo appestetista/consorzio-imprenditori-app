@@ -211,13 +211,13 @@ FORMATTAZIONE
     // Messaggio utente
     chatMessages.push({ role: "user", content: message });
 
-    const gptResult = await callOpenAI(openaiKey, 'chatgpt-4o-latest', chatMessages, 16384, 0.45);
+    const gptResult = await callOpenAI(openaiKey, 'gpt-4o', chatMessages, 16384, 0.45);
     totalInput += gptResult.inputTokens;
     totalOutput += gptResult.outputTokens;
-    totalCost += calcCost('chatgpt-4o-latest', gptResult.inputTokens, gptResult.outputTokens);
+    totalCost += calcCost('gpt-4o', gptResult.inputTokens, gptResult.outputTokens);
 
     const response_data = gptResult.content;
-    const model_used = 'chatgpt-4o-latest';
+    const model_used = 'gpt-4o';
     const provider = 'openai';
 
     const elapsed = Date.now() - startTime;
