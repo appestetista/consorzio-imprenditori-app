@@ -274,9 +274,9 @@ Rispondi SOLO con la domanda, nient'altro.` }] },
         signal: AbortSignal.timeout(120000),
       });
 
-      // Aspetta DeepSeek intro (veloce, ~2-3s)
-      const deepseekResult = await deepseekPromise;
-      let deepseekSent = false;
+      // Aspetta Gemini Flash intro (veloce, ~1-3s)
+      const flashResult = await flashIntroPromise;
+      let flashSent = false;
 
       const { readable, writable } = new TransformStream();
       const writer = writable.getWriter();
