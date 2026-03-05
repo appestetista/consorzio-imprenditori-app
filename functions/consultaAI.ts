@@ -13,9 +13,9 @@ async function callOpenAI(apiKey, model, messages, maxTokens, temperature) {
       messages, 
       temperature, 
       max_tokens: maxTokens,
-      top_p: 1,
-      frequency_penalty: 0,
-      presence_penalty: 0,
+      top_p: 0.95,
+      frequency_penalty: 0.3,
+      presence_penalty: 0.2,
     }),
     signal: AbortSignal.timeout(120000),
   });
