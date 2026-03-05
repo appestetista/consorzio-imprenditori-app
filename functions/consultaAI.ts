@@ -298,16 +298,16 @@ Rispondi SOLO con la domanda, nient'altro.` }] },
             }
           });
 
-          // 2. Invia il Quadro Generale da DeepSeek immediatamente
-          if (deepseekResult && deepseekResult.content && deepseekResult.content.length > 50) {
-            deepseekSent = true;
-            totalInput += deepseekResult.inputTokens;
-            totalOutput += deepseekResult.outputTokens;
-            totalCost += calcCost('deepseek', deepseekResult.inputTokens, deepseekResult.outputTokens);
-            console.log(`[consultaAI] DeepSeek intro OK: ${deepseekResult.content.length} chars`);
+          // 2. Invia il Quadro Generale da Gemini Flash immediatamente
+          if (flashResult && flashResult.content && flashResult.content.length > 50) {
+            flashSent = true;
+            totalInput += flashResult.inputTokens;
+            totalOutput += flashResult.outputTokens;
+            totalCost += calcCost('gemini', flashResult.inputTokens, flashResult.outputTokens);
+            console.log(`[consultaAI] Gemini Flash intro OK: ${flashResult.content.length} chars`);
             
-            // Invia il testo DeepSeek come chunk di testo
-            await sendSSE({ text: deepseekResult.content + '\n\n' });
+            // Invia il testo Gemini Flash come chunk di testo
+            await sendSSE({ text: flashResult.content + '\n\n' });
           }
 
           // 3. Ora processa lo stream GPT-4o
