@@ -91,8 +91,28 @@ Deno.serve(async (req) => {
     let totalInput = 0;
     let totalOutput = 0;
     let totalCost = 0;
+    let webSearchUsed = false;
+    let webContext = '';
 
-    // GPT-4o diretto con system prompt per qualità massima
+    // ── STEP 1: Gemini Search per contesto web aggiornato ──
+    if (geminiKey) {
+      try {
+        console.log('[consultaAI] Gemini Search in corso...');
+        const geminiResult = await callGeminiSearch(geminiKey, message);
+        if (geminiResult.content && geminiResult.content.length > 50) {
+          webContext = geminiResult.content;
+          webSearchUsed = true;
+          totalInput += geminiResult.inputTokens;
+          totalOutput += geminiResult.outputTokens;
+          totalCost += calcCost('gemini', geminiResult.inputTokens, geminiResult.outputTokens);
+          console.log(`[consultaAI] Gemini Search OK: ${geminiResult.content.length} chars`);
+        }
+      } catch (e) {
+        console.log('[consultaAI] Gemini Search fallito (continuo senza):', e.message);
+      }
+    }
+
+    // ── STEP 2: GPT-4o con system prompt + contesto web + storico completo ──
     const chatMessages = [];
 
     chatMessages.push({
