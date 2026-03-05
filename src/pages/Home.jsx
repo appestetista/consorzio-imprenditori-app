@@ -719,6 +719,28 @@ export default function Home() {
         </button>
       )}
 
+      {/* Domanda di contesto (sopra input, solo durante/dopo streaming) */}
+      {contextQuestion && !compareMode && (
+        <div className="fixed z-40 px-2 left-0 right-0" style={{ bottom: '200px' }}>
+          <ContextFollowup
+            question={contextQuestion}
+            visible={!!contextQuestion}
+            onSelect={(q) => {
+              if (isStreaming || isTyping) {
+                // Streaming ancora in corso: accoda la risposta
+                setPendingContextAnswer(q);
+                pendingContextRef.current = q;
+                setContextQuestion(''); // Nascondi il riquadro
+              } else {
+                // Risposta completa: invia subito
+                setContextQuestion('');
+                handleSend(q);
+              }
+            }}
+          />
+        </div>
+      )}
+
       {/* Campo di input */}
       <div className="fixed z-40 px-2 pb-1 pt-1 left-0 right-0" style={{ bottom: '141px', backgroundColor: '#0a0f1a' }}>
         <div className="max-w-2xl mx-auto space-y-1">
