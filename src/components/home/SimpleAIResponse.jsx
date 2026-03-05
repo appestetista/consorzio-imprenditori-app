@@ -114,10 +114,17 @@ export default function SimpleAIResponse({ content, onFollowup, conversationId, 
   const prevLengthRef = useRef(0);
   const typewriterRef = useRef(null);
 
-  // Quando il thinking finisce, inizia il typewriter
+  // Quando il thinking finisce (timer o testo arrivato), inizia il typewriter
   const handleThinkingFinished = useCallback(() => {
     setThinkingDone(true);
   }, []);
+
+  // CRITICO: se arriva testo dal backend mentre thinking è attivo, termina thinking subito
+  useEffect(() => {
+    if (!thinkingDone && isStreaming && fullRisposta && fullRisposta.length > 0) {
+      setThinkingDone(true);
+    }
+  }, [thinkingDone, isStreaming, fullRisposta]);
 
   // Typewriter: rivela il testo carattere per carattere man mano che arriva
   useEffect(() => {
