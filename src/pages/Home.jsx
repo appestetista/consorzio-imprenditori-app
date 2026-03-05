@@ -18,68 +18,6 @@ import AIUsageBar, { AIUsageBadge } from '../components/home/AIUsageBar';
 import { extractProfileDataFromChat } from '../components/home/extractProfileFromChat.jsx';
 import { useQueryClient } from '@tanstack/react-query';
 
-function SmartQuestionsCard({ data, onSubmit, onSkip, isTyping }) {
-  const [risposte, setRisposte] = React.useState({});
-  
-  const tutteRisposte = data.domande.every(d => risposte[d.id] && risposte[d.id].trim() !== '');
-  
-  return (
-    <div className="flex items-start gap-3">
-      <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#d4af37] to-[#b8860b] flex items-center justify-center flex-shrink-0 mt-0.5">
-        <Sparkles className="w-4 h-4 text-white" />
-      </div>
-      <div className="flex-1 max-w-[92%] space-y-3">
-        <div className="bg-slate-800/60 rounded-2xl rounded-tl-sm px-4 py-3">
-          <p className="text-sm text-slate-200 mb-3">{data.text}</p>
-          
-          {data.domande.map((domanda) => (
-            <div key={domanda.id} className="mb-3 last:mb-0">
-              <p className="text-xs font-semibold text-slate-400 mb-2">{domanda.testo}</p>
-              <div className="flex flex-wrap gap-1.5">
-                {domanda.opzioni.map((opzione) => (
-                  <button
-                    key={opzione}
-                    onClick={() => setRisposte(prev => ({ ...prev, [domanda.id]: opzione }))}
-                    disabled={isTyping}
-                    className={`text-xs px-3 py-1.5 rounded-lg border transition-all ${
-                      risposte[domanda.id] === opzione
-                        ? 'border-[#d4af37] bg-[#d4af37]/20 text-[#d4af37] font-semibold'
-                        : 'border-slate-600/50 bg-transparent text-slate-300 hover:border-slate-500'
-                    }`}
-                  >
-                    {opzione}
-                  </button>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-        
-        <div className="flex gap-2">
-          <button
-            onClick={() => onSkip(data)}
-            disabled={isTyping}
-            className="px-4 py-2 rounded-xl border border-slate-700 text-slate-400 text-xs hover:border-slate-600 transition-colors disabled:opacity-30"
-          >
-            Rispondi senza dettagli
-          </button>
-          <button
-            onClick={() => onSubmit(data, risposte)}
-            disabled={!tutteRisposte || isTyping}
-            className="px-4 py-2 rounded-xl text-xs font-semibold transition-all disabled:opacity-30"
-            style={{
-              backgroundColor: tutteRisposte ? '#d4af37' : '#334155',
-              color: tutteRisposte ? '#0a0f1a' : '#94a3b8',
-            }}
-          >
-            {isTyping ? 'Analisi in corso...' : 'Analizza con questi dettagli'}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function Home() {
   const [user, setUser] = useState(null);
   const [effectiveUser, setEffectiveUser] = useState(null);
