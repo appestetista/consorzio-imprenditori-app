@@ -32,6 +32,16 @@ export default function ChatMessage({ message }) {
             a: ({ children, ...props }) => (
               <a {...props} className="text-[#d4af37] underline" target="_blank" rel="noopener noreferrer">{children}</a>
             ),
+            table: ({ children }) => (
+              <div className="overflow-x-auto my-2 rounded-lg border border-slate-700/60">
+                <table className="w-full text-xs text-left">{children}</table>
+              </div>
+            ),
+            thead: ({ children }) => <thead className="bg-slate-700/50 text-[#d4af37]">{children}</thead>,
+            tbody: ({ children }) => <tbody className="divide-y divide-slate-700/40">{children}</tbody>,
+            tr: ({ children }) => <tr className="hover:bg-slate-700/20 transition-colors">{children}</tr>,
+            th: ({ children }) => <th className="px-3 py-2 font-semibold text-xs whitespace-nowrap">{children}</th>,
+            td: ({ children }) => <td className="px-3 py-2 text-slate-300">{children}</td>,
           }}
         >
           {message.content}

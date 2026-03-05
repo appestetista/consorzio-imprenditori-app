@@ -101,6 +101,16 @@ const markdownComponents = {
       <code className="text-xs text-slate-200">{children}</code>
     </pre>
   ),
+  table: ({ children }) => (
+    <div className="overflow-x-auto my-3 rounded-lg border border-slate-700/60">
+      <table className="w-full text-xs text-left">{children}</table>
+    </div>
+  ),
+  thead: ({ children }) => <thead className="bg-slate-700/50 text-[#d4af37]">{children}</thead>,
+  tbody: ({ children }) => <tbody className="divide-y divide-slate-700/40">{children}</tbody>,
+  tr: ({ children }) => <tr className="hover:bg-slate-700/20 transition-colors">{children}</tr>,
+  th: ({ children }) => <th className="px-3 py-2 font-semibold text-xs whitespace-nowrap">{children}</th>,
+  td: ({ children }) => <td className="px-3 py-2 text-slate-300">{children}</td>,
 };
 
 export default function SimpleAIResponse({ content, onFollowup, conversationId, isNew = false, isStreaming = false }) {
