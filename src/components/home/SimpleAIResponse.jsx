@@ -76,9 +76,67 @@ function RatingInline({ conversationId }) {
   );
 }
 
-export default function SimpleAIResponse({ content, onFollowup, conversationId, isNew = false }) {
+const markdownComponents = {
+  p: ({ children }) => <p className="my-2 leading-relaxed">{children}</p>,
+  ul: ({ children }) => <ul className="my-2 ml-4 list-disc space-y-1">{children}</ul>,
+  ol: ({ children }) => <ol className="my-2 ml-4 list-decimal space-y-1">{children}</ol>,
+  li: ({ children }) => <li className="my-0.5 leading-relaxed">{children}</li>,
+  strong: ({ children }) => <strong className="text-white font-semibold">{children}</strong>,
+  h1: ({ children }) => <h1 className="text-lg font-bold text-white mt-4 mb-2">{children}</h1>,
+  h2: ({ children }) => <h2 className="text-base font-bold text-[#d4af37] mt-4 mb-2">{children}</h2>,
+  h3: ({ children }) => <h3 className="text-sm font-semibold text-white mt-3 mb-1.5">{children}</h3>,
+  a: ({ children, ...props }) => (
+    <a {...props} className="text-[#d4af37] underline" target="_blank" rel="noopener noreferrer">{children}</a>
+  ),
+  blockquote: ({ children }) => (
+    <blockquote className="border-l-2 border-[#d4af37]/50 pl-3 my-2 text-slate-300 italic">
+      {children}
+    </blockquote>
+  ),
+  code: ({ inline, children }) => inline ? (
+    <code className="px-1 py-0.5 rounded bg-slate-700 text-slate-200 text-xs">{children}</code>
+  ) : (
+    <pre className="bg-slate-900 rounded-lg p-3 overflow-x-auto my-2">
+      <code className="text-xs text-slate-200">{children}</code>
+    </pre>
+  ),
+};
+
+export default function SimpleAIResponse({ content, onFollowup, conversationId, isNew = false, isStreaming = false }) {
   const risposta = content?.risposta || '';
   const followups = content?.followup_questions || [];
+
+  // Durante lo streaming: mostra il markdown che arriva in tempo reale con cursore lampeggiante
+  if (isStreaming) {
+    return (
+      <div className="flex items-start gap-3" style={{ touchAction: 'pan-y' }}>
+        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#d4af37] to-[#b8860b] flex items-center justify-center flex-shrink-0 mt-0.5">
+          <Sparkles className="w-4 h-4 text-white" />
+        </div>
+        <div className="flex-1 max-w-[92%]">
+          <div className="rounded-2xl bg-slate-800/50 border border-slate-700/40 px-5 py-4">
+            {risposta ? (
+              <ReactMarkdown
+                className="text-sm text-slate-200 leading-relaxed prose prose-sm prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
+                components={markdownComponents}
+              >
+                {risposta}
+              </ReactMarkdown>
+            ) : (
+              <div className="flex items-center gap-1.5">
+                <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+              </div>
+            )}
+            {risposta && (
+              <span className="inline-block w-0.5 h-4 bg-[#d4af37] animate-pulse ml-0.5 -mb-0.5" />
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-start gap-3" style={{ touchAction: 'pan-y' }}>
@@ -87,41 +145,15 @@ export default function SimpleAIResponse({ content, onFollowup, conversationId, 
       </div>
       <div className="flex-1 max-w-[92%] space-y-3">
         <StreamingReveal delay={180} enabled={isNew}>
-          {/* Risposta markdown */}
           <div className="rounded-2xl bg-slate-800/50 border border-slate-700/40 px-5 py-4">
             <ReactMarkdown
               className="text-sm text-slate-200 leading-relaxed prose prose-sm prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
-              components={{
-                p: ({ children }) => <p className="my-2 leading-relaxed">{children}</p>,
-                ul: ({ children }) => <ul className="my-2 ml-4 list-disc space-y-1">{children}</ul>,
-                ol: ({ children }) => <ol className="my-2 ml-4 list-decimal space-y-1">{children}</ol>,
-                li: ({ children }) => <li className="my-0.5 leading-relaxed">{children}</li>,
-                strong: ({ children }) => <strong className="text-white font-semibold">{children}</strong>,
-                h1: ({ children }) => <h1 className="text-lg font-bold text-white mt-4 mb-2">{children}</h1>,
-                h2: ({ children }) => <h2 className="text-base font-bold text-[#d4af37] mt-4 mb-2">{children}</h2>,
-                h3: ({ children }) => <h3 className="text-sm font-semibold text-white mt-3 mb-1.5">{children}</h3>,
-                a: ({ children, ...props }) => (
-                  <a {...props} className="text-[#d4af37] underline" target="_blank" rel="noopener noreferrer">{children}</a>
-                ),
-                blockquote: ({ children }) => (
-                  <blockquote className="border-l-2 border-[#d4af37]/50 pl-3 my-2 text-slate-300 italic">
-                    {children}
-                  </blockquote>
-                ),
-                code: ({ inline, children }) => inline ? (
-                  <code className="px-1 py-0.5 rounded bg-slate-700 text-slate-200 text-xs">{children}</code>
-                ) : (
-                  <pre className="bg-slate-900 rounded-lg p-3 overflow-x-auto my-2">
-                    <code className="text-xs text-slate-200">{children}</code>
-                  </pre>
-                ),
-              }}
+              components={markdownComponents}
             >
               {risposta}
             </ReactMarkdown>
           </div>
 
-          {/* Followup questions */}
           {followups.length > 0 && (
             <div className="flex flex-col gap-2">
               {followups.map((q, idx) => (
@@ -136,7 +168,6 @@ export default function SimpleAIResponse({ content, onFollowup, conversationId, 
             </div>
           )}
 
-          {/* Rating */}
           <RatingInline conversationId={conversationId} />
         </StreamingReveal>
       </div>
