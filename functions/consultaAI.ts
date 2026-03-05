@@ -179,7 +179,7 @@ FORMATTAZIONE
     // Messaggio utente
     chatMessages.push({ role: "user", content: message });
 
-    const gptResult = await callOpenAI(openaiKey, 'chatgpt-4o-latest', chatMessages, 32000, 0.7);
+    const gptResult = await callOpenAI(openaiKey, 'chatgpt-4o-latest', chatMessages, 4096, 0.7);
     totalInput += gptResult.inputTokens;
     totalOutput += gptResult.outputTokens;
     totalCost += calcCost('chatgpt-4o-latest', gptResult.inputTokens, gptResult.outputTokens);
