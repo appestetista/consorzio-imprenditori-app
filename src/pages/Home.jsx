@@ -95,8 +95,6 @@ export default function Home() {
   const [activeConversationId, setActiveConversationId] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
-  const [lastCategory, setLastCategory] = useState(null);
-  const [lastClassification, setLastClassification] = useState(null);
   const [activeConvData, setActiveConvData] = useState(null);
   // missingFieldsPopup rimosso — ora i dati vengono estratti in background dalla chat
   const [compareMode, setCompareMode] = useState(false);
