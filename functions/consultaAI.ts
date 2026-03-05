@@ -122,7 +122,7 @@ Regole fondamentali:
     const gptResult = await callOpenAI(openaiKey, 'chatgpt-4o-latest', chatMessages, 32000, 0.7);
     totalInput += gptResult.inputTokens;
     totalOutput += gptResult.outputTokens;
-    totalCost += calcCost('gpt-4o', gptResult.inputTokens, gptResult.outputTokens);
+    totalCost += calcCost('chatgpt-4o-latest', gptResult.inputTokens, gptResult.outputTokens);
 
     const response_data = gptResult.content;
     const model_used = 'gpt-4o';
