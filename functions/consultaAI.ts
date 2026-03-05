@@ -107,7 +107,7 @@ Deno.serve(async (req) => {
     const provider = 'openai';
 
     const elapsed = Date.now() - startTime;
-    console.log(`[consultaAI] Done in ${elapsed}ms | model=${model_used} | cost=$${totalCost.toFixed(5)} | web=${web_search_used}`);
+    console.log(`[consultaAI] Done in ${elapsed}ms | model=${model_used} | cost=$${totalCost.toFixed(5)}`);
 
     // Log utilizzo
     try {
