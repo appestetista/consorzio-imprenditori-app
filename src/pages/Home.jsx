@@ -634,7 +634,6 @@ export default function Home() {
                   </div>
                 );
                 if (msg.role === 'assistant') {
-                  // Risposta AI: sempre testo markdown diretto (nessun filtro/parsing)
                   const textContent = typeof msg.content === 'object' && msg.content !== null
                     ? (msg.content.risposta || msg.content.sintesi_decisionale || JSON.stringify(msg.content))
                     : (msg.content || '');
@@ -645,9 +644,10 @@ export default function Home() {
                         content={{ risposta: textContent }} 
                         onFollowup={(text) => handleSend(text)} 
                         conversationId={activeConversationId}
-                        isNew={!!msg.isNew}
+                        isNew={!!msg.isNew && !msg.isStreaming}
+                        isStreaming={!!msg.isStreaming}
                       />
-                      <AIUsageBadge isAIResponse={msg.isAI} usate={msg.usageCount || consulenzeUsate} />
+                      {!msg.isStreaming && <AIUsageBadge isAIResponse={msg.isAI} usate={msg.usageCount || consulenzeUsate} />}
                     </div>
                   );
                 }
