@@ -362,6 +362,7 @@ FORMATTAZIONE
       cost_usd: totalCost,
       response_time_ms: elapsed,
       web_search_used: webSearchUsed,
+      context_question: contextQuestion || null,
     });
 
   } catch (e) {
