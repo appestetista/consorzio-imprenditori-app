@@ -259,12 +259,29 @@ FORMATTAZIONE
     // STREAMING MODE
     // ══════════════════════════════════════
     if (stream) {
-      const openaiResponse = await fetch("https://api.openai.com/v1/chat/completions", {
+      const deepseekKey = Deno.env.get("DEEPSEEK_API_KEY");
+      const encoder = new TextEncoder();
+
+      // Strategia: DeepSeek genera il Quadro Generale veloce,
+      // poi GPT-4o completa con l'analisi approfondita.
+      // Entrambi partono in parallelo.
+
+      // Istruzioni GPT-4o: salta il Quadro Generale se DeepSeek lo fornisce
+      const gptMessages = [...chatMessages];
+
+      // Lancia DeepSeek per il primo paragrafo + GPT-4o in parallelo
+      const deepseekPromise = deepseekKey ? callDeepSeekQuickIntro(deepseekKey, message, webContext).catch(e => {
+        console.log('[consultaAI] DeepSeek fallito:', e.message);
+        return null;
+      }) : Promise.resolve(null);
+
+      // Avvia GPT-4o streaming subito (non aspetta DeepSeek)
+      const openaiResponsePromise = fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${openaiKey}` },
         body: JSON.stringify({
           model: 'gpt-4o',
-          messages: chatMessages,
+          messages: gptMessages,
           temperature: 0.45,
           max_tokens: 16384,
           top_p: 0.95,
@@ -275,79 +292,152 @@ FORMATTAZIONE
         signal: AbortSignal.timeout(120000),
       });
 
-      if (!openaiResponse.ok) {
-        const err = await openaiResponse.text();
-        return Response.json({ error: `OpenAI error ${openaiResponse.status}: ${err.substring(0, 300)}` }, { status: 500 });
-      }
+      // Aspetta DeepSeek (veloce) per il primo paragrafo
+      const deepseekResult = await deepseekPromise;
+      let deepseekSent = false;
 
-      // Invia subito la context question come primo evento
-      const encoder = new TextEncoder();
-      const decoder = new TextDecoder();
-      let fullContent = '';
-      let sentContextQuestion = false;
+      const { readable, writable } = new TransformStream();
+      const writer = writable.getWriter();
 
-      const transformStream = new TransformStream({
-        async transform(chunk, controller) {
-          // Al primo chunk, invia la context question
-          if (!sentContextQuestion && contextQuestion) {
-            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ context_question: contextQuestion })}\n\n`));
-            sentContextQuestion = true;
+      // Funzione helper per scrivere SSE
+      const sendSSE = async (data) => {
+        await writer.write(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
+      };
+
+      // Processa tutto in background
+      (async () => {
+        try {
+          // 1. Invia context question subito
+          if (contextQuestion) {
+            await sendSSE({ context_question: contextQuestion });
           }
-          const text = decoder.decode(chunk, { stream: true });
-          const lines = text.split('\n');
-          for (const line of lines) {
-            if (!line.startsWith('data: ')) continue;
-            const data = line.slice(6).trim();
-            if (data === '[DONE]') {
-              // Invia messaggio finale con metadata
-              const elapsed = Date.now() - startTime;
-              const meta = JSON.stringify({
-                done: true,
-                web_search_used: webSearchUsed,
-                response_time_ms: elapsed,
-              });
-              controller.enqueue(encoder.encode(`data: ${meta}\n\n`));
 
-              // Log utilizzo in background (non blocca lo stream)
+          // 2. Invia il Quadro Generale da DeepSeek immediatamente
+          if (deepseekResult && deepseekResult.content && deepseekResult.content.length > 50) {
+            deepseekSent = true;
+            totalInput += deepseekResult.inputTokens;
+            totalOutput += deepseekResult.outputTokens;
+            totalCost += calcCost('deepseek', deepseekResult.inputTokens, deepseekResult.outputTokens);
+            console.log(`[consultaAI] DeepSeek intro OK: ${deepseekResult.content.length} chars`);
+            
+            // Invia il testo DeepSeek come chunk di testo
+            await sendSSE({ text: deepseekResult.content + '\n\n' });
+          }
+
+          // 3. Ora processa lo stream GPT-4o
+          const openaiResponse = await openaiResponsePromise;
+          if (!openaiResponse.ok) {
+            const err = await openaiResponse.text();
+            await sendSSE({ error: `OpenAI error ${openaiResponse.status}` });
+            await writer.close();
+            return;
+          }
+
+          const decoder = new TextDecoder();
+          const reader = openaiResponse.body.getReader();
+          let skipQuadroGenerale = deepseekSent;
+          let skipping = false;
+          let fullContent = deepseekSent ? deepseekResult.content + '\n\n' : '';
+          let gptBuffer = '';
+
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            const text = decoder.decode(value, { stream: true });
+            const lines = text.split('\n');
+            
+            for (const line of lines) {
+              if (!line.startsWith('data: ')) continue;
+              const data = line.slice(6).trim();
+              if (data === '[DONE]') {
+                const elapsed = Date.now() - startTime;
+                await sendSSE({ done: true, web_search_used: webSearchUsed, response_time_ms: elapsed });
+
+                try {
+                  await base44.asServiceRole.entities.UsageLog.create({
+                    user_email: user.email,
+                    action_type: 'chat_ai',
+                    model_used: deepseekSent ? 'deepseek+gpt-4o' : 'gpt-4o',
+                    provider: 'openai',
+                    input_tokens: totalInput,
+                    output_tokens: totalOutput,
+                    cost_usd: Math.round(totalCost * 100000) / 100000,
+                    category: 'Generale',
+                    response_time_ms: elapsed,
+                    timestamp: new Date().toISOString(),
+                  });
+                } catch (e) {
+                  console.log('[consultaAI] UsageLog error:', e.message);
+                }
+                continue;
+              }
               try {
-                await base44.asServiceRole.entities.UsageLog.create({
-                  user_email: user.email,
-                  action_type: 'chat_ai',
-                  model_used: 'gpt-4o',
-                  provider: 'openai',
-                  input_tokens: totalInput,
-                  output_tokens: totalOutput,
-                  cost_usd: Math.round(totalCost * 100000) / 100000,
-                  category: 'Generale',
-                  response_time_ms: elapsed,
-                  timestamp: new Date().toISOString(),
-                });
-              } catch (e) {
-                console.log('[consultaAI] UsageLog error:', e.message);
-              }
-              return;
+                const parsed = JSON.parse(data);
+                const delta = parsed.choices?.[0]?.delta?.content;
+                if (delta) {
+                  // Se DeepSeek ha già inviato il Quadro Generale,
+                  // saltiamo quella sezione dal stream GPT-4o
+                  if (skipQuadroGenerale) {
+                    gptBuffer += delta;
+                    // Aspetta di avere abbastanza testo per trovare la fine del Quadro Generale
+                    if (!skipping && gptBuffer.includes('## Quadro Generale')) {
+                      skipping = true;
+                    }
+                    if (skipping) {
+                      // Cerca la prossima sezione ## dopo Quadro Generale
+                      const afterQuadro = gptBuffer.indexOf('## Quadro Generale');
+                      const restAfterQuadro = gptBuffer.substring(afterQuadro + 20);
+                      const nextSection = restAfterQuadro.search(/\n## /);
+                      if (nextSection !== -1) {
+                        // Trovata la prossima sezione, inizia a inviare da lì
+                        const toSend = restAfterQuadro.substring(nextSection);
+                        fullContent += toSend;
+                        await sendSSE({ text: toSend });
+                        skipQuadroGenerale = false;
+                        skipping = false;
+                        gptBuffer = '';
+                      }
+                      // Altrimenti continua ad accumulare
+                    } else {
+                      // Non ancora trovato "## Quadro Generale", controlla se è passata abbastanza roba
+                      if (gptBuffer.length > 2000) {
+                        // Probabilmente GPT-4o non ha usato "## Quadro Generale", invia tutto
+                        fullContent += gptBuffer;
+                        await sendSSE({ text: gptBuffer });
+                        skipQuadroGenerale = false;
+                        gptBuffer = '';
+                      }
+                    }
+                  } else {
+                    fullContent += delta;
+                    await sendSSE({ text: delta });
+                  }
+                }
+                if (parsed.usage) {
+                  totalInput += parsed.usage.prompt_tokens || 0;
+                  totalOutput += parsed.usage.completion_tokens || 0;
+                  totalCost += calcCost('gpt-4o', parsed.usage.prompt_tokens || 0, parsed.usage.completion_tokens || 0);
+                }
+              } catch {}
             }
-            try {
-              const parsed = JSON.parse(data);
-              const delta = parsed.choices?.[0]?.delta?.content;
-              if (delta) {
-                fullContent += delta;
-                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: delta })}\n\n`));
-              }
-              // Cattura usage dal chunk finale
-              if (parsed.usage) {
-                totalInput += parsed.usage.prompt_tokens || 0;
-                totalOutput += parsed.usage.completion_tokens || 0;
-                totalCost += calcCost('gpt-4o', parsed.usage.prompt_tokens || 0, parsed.usage.completion_tokens || 0);
-              }
-            } catch {}
           }
-        },
-      });
 
-      openaiResponse.body.pipeTo(transformStream.writable);
+          // Se c'è buffer residuo non inviato, invialo
+          if (gptBuffer) {
+            fullContent += gptBuffer;
+            await sendSSE({ text: gptBuffer });
+          }
 
-      return new Response(transformStream.readable, {
+        } catch (e) {
+          console.error('[consultaAI] Stream error:', e.message);
+          try { await sendSSE({ error: e.message }); } catch {}
+        } finally {
+          try { await writer.close(); } catch {}
+        }
+      })();
+
+      return new Response(readable, {
         headers: {
           'Content-Type': 'text/event-stream',
           'Cache-Control': 'no-cache',
