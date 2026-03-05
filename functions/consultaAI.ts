@@ -117,8 +117,8 @@ Regole fondamentali:
     totalCost += calcCost('gpt-4o', gptResult.inputTokens, gptResult.outputTokens);
 
     const response_data = gptResult.content;
-    const model_used = web_search_used ? 'gpt-4o+web' : 'gpt-4o';
-    const provider = web_search_used ? 'openai+gemini' : 'openai';
+    const model_used = 'gpt-4o';
+    const provider = 'openai';
 
     const elapsed = Date.now() - startTime;
     console.log(`[consultaAI] Done in ${elapsed}ms | model=${model_used} | cost=$${totalCost.toFixed(5)}`);
