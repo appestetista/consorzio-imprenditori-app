@@ -551,35 +551,7 @@ export default function Home() {
       // Estrazione silente dati profilo (se l'utente parla della propria azienda)
       extractProfileDataFromChat(msg, effectiveUser, setEffectiveUser);
 
-      // Cerca in cache risposte simili (zero costo AI)
-      const cachedResult = await findCachedResponse(msg);
-      if (cachedResult) {
-        console.log('[CACHE] Risposta trovata in cache, skip chiamata AI');
-        const newCount = consulenzeUsate;
-        const assistantMsg = { role: 'assistant', content: cachedResult.data, isAI: true, usageCount: newCount, isNew: true };
-        const updatedMessages = [...newMessages, assistantMsg];
-        setMessages(updatedMessages);
-        
-        const messagesForDB = updatedMessages.map(m => ({
-          role: m.role,
-          content: typeof m.content === 'object' && m.content !== null ? JSON.stringify(m.content) : (m.content || ''),
-          ...(m.isAI ? { isAI: true } : {}),
-          ...(m.isCompare ? { isCompare: true } : {}),
-          ...(m.usageCount ? { usageCount: m.usageCount } : {}),
-          ...(m.isDetail ? { isDetail: true } : {}),
-        }));
-        
-        const hash = normalizeQuery(msg);
-        await base44.entities.ChatConversation.update(convId, {
-          messages: messagesForDB,
-          categoria: cachedResult.categoria || category,
-          sottocategoria: cachedResult.sottocategoria || sottocategoria,
-          risposta_json: JSON.stringify(cachedResult.data),
-          query_hash: hash,
-        });
-        setIsTyping(false);
-        return;
-      }
+      // Cache disabilitata — sempre risposta fresca dal backend
 
       // Analisi diretta con system prompt strutturato
       console.log('>>> STEP 3: Inizio analisi');
