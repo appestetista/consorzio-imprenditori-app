@@ -45,6 +45,8 @@ export default function Home() {
   const [pianoAbbonamento, setPianoAbbonamento] = useState(null);
   const [streamingText, setStreamingText] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
+  const [contextQuestion, setContextQuestion] = useState('');
+  const [pendingContextAnswer, setPendingContextAnswer] = useState('');
   const { streamAI } = useStreamingAI();
   const recognitionRef = useRef(null);
   const messagesEndRef = useRef(null);
