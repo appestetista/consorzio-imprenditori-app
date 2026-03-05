@@ -150,13 +150,18 @@ export default function SimpleAIResponse({ content, onFollowup, conversationId, 
         }
         return;
       }
-      // Avanza di 2-4 caratteri alla volta per velocità fluida
-      const step = Math.min(3, currentTarget - currentIdx);
+      // Velocità variabile per effetto scrittura naturale
+      const nextChar = fullRisposta[currentIdx] || '';
+      // Pausa più lunga dopo punteggiatura, più breve su lettere normali
+      let step = 1;
+      if (nextChar === ' ') step = 2;
+      if (nextChar === '\n') step = 1;
+      step = Math.min(step, currentTarget - currentIdx);
       currentIdx += step;
       const slice = fullRisposta.substring(0, currentIdx);
       setDisplayedText(slice);
       prevLengthRef.current = currentIdx;
-    }, 12);
+    }, 18);
 
     return () => {
       if (typewriterRef.current) {

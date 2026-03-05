@@ -4,28 +4,30 @@ import { Sparkles } from 'lucide-react';
 
 const thinkingPhrases = [
   "Analizzo la tua richiesta…",
-  "Cerco le informazioni migliori…",
-  "Elaboro la risposta…",
+  "Cerco fonti aggiornate…",
+  "Verifico i dati…",
+  "Organizzo le informazioni…",
+  "Preparo la risposta…",
 ];
 
 export default function AIThinkingAnimation({ onFinished }) {
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [visible, setVisible] = useState(true);
 
-  // Cicla le frasi ogni 1.2 secondi
+  // Cicla le frasi ogni 1.5 secondi
   useEffect(() => {
     const interval = setInterval(() => {
       setPhraseIndex(prev => (prev + 1) % thinkingPhrases.length);
-    }, 1200);
+    }, 1500);
     return () => clearInterval(interval);
   }, []);
 
-  // Dopo 3.5 secondi scompare e chiama onFinished
+  // Dopo 7 secondi scompare e chiama onFinished
   useEffect(() => {
     const timer = setTimeout(() => {
       setVisible(false);
-      setTimeout(() => onFinished?.(), 400);
-    }, 3500);
+      setTimeout(() => onFinished?.(), 500);
+    }, 7000);
     return () => clearTimeout(timer);
   }, [onFinished]);
 
