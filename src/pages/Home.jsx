@@ -657,7 +657,7 @@ export default function Home() {
                   </div>
                 );
               })}
-              {isTyping && (
+              {isTyping && !isStreaming && (
                 <div ref={lastAssistantMsgRef} className="flex items-start gap-3">
                   <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#d4af37] to-[#b8860b] flex items-center justify-center flex-shrink-0">
                     <Sparkles className="w-4 h-4 text-white" />
