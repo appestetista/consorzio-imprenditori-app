@@ -1,0 +1,145 @@
+import React, { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import { Sparkles, Star, Send, Loader2 } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
+import StreamingReveal from './StreamingReveal';
+
+function RatingInline({ conversationId }) {
+  const [rating, setRating] = useState(0);
+  const [hovered, setHovered] = useState(0);
+  const [saved, setSaved] = useState(false);
+  const [comment, setComment] = useState('');
+  const [sendingComment, setSendingComment] = useState(false);
+  const [commentSent, setCommentSent] = useState(false);
+
+  const handleRate = async (value) => {
+    setRating(value);
+    setSaved(true);
+    if (conversationId) {
+      await base44.entities.ChatConversation.update(conversationId, { rating: value });
+    }
+  };
+
+  const handleSendComment = async () => {
+    if (!comment.trim() || !conversationId) return;
+    setSendingComment(true);
+    await base44.entities.ChatConversation.update(conversationId, { commento_feedback: comment.trim() });
+    setSendingComment(false);
+    setCommentSent(true);
+  };
+
+  if (!conversationId) return null;
+
+  return (
+    <div className="flex items-center gap-3 mt-2">
+      <span className="text-xs text-slate-500">Utile?</span>
+      <div className="flex items-center gap-0.5">
+        {[1, 2, 3, 4, 5].map((v) => (
+          <button
+            key={v}
+            onClick={() => handleRate(v)}
+            onMouseEnter={() => setHovered(v)}
+            onMouseLeave={() => setHovered(0)}
+            disabled={saved}
+            className="p-0.5 transition-transform hover:scale-110 disabled:hover:scale-100"
+          >
+            <Star
+              className="w-4 h-4 transition-colors"
+              fill={(hovered || rating) >= v ? '#d4af37' : 'transparent'}
+              stroke={(hovered || rating) >= v ? '#d4af37' : '#475569'}
+              strokeWidth={1.5}
+            />
+          </button>
+        ))}
+      </div>
+      {saved && rating <= 2 && !commentSent && (
+        <div className="flex items-center gap-2 flex-1">
+          <input
+            type="text"
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            placeholder="Cosa migliorare?"
+            className="flex-1 bg-slate-800/60 border border-slate-700/50 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-slate-500 outline-none focus:border-[#d4af37]/50"
+          />
+          <button
+            onClick={handleSendComment}
+            disabled={!comment.trim() || sendingComment}
+            className="p-1.5 rounded-lg bg-[#d4af37]/20 text-[#d4af37] hover:bg-[#d4af37]/30 transition-colors disabled:opacity-40"
+          >
+            {sendingComment ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+          </button>
+        </div>
+      )}
+      {saved && rating <= 2 && commentSent && <span className="text-[11px] text-slate-500">Grazie!</span>}
+      {saved && rating >= 3 && <span className="text-[11px] text-slate-500">Grazie!</span>}
+    </div>
+  );
+}
+
+export default function SimpleAIResponse({ content, onFollowup, conversationId, isNew = false }) {
+  const risposta = content?.risposta || '';
+  const followups = content?.followup_questions || [];
+
+  return (
+    <div className="flex items-start gap-3" style={{ touchAction: 'pan-y' }}>
+      <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#d4af37] to-[#b8860b] flex items-center justify-center flex-shrink-0 mt-0.5">
+        <Sparkles className="w-4 h-4 text-white" />
+      </div>
+      <div className="flex-1 max-w-[92%] space-y-3">
+        <StreamingReveal delay={180} enabled={isNew}>
+          {/* Risposta markdown */}
+          <div className="rounded-2xl bg-slate-800/50 border border-slate-700/40 px-5 py-4">
+            <ReactMarkdown
+              className="text-sm text-slate-200 leading-relaxed prose prose-sm prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
+              components={{
+                p: ({ children }) => <p className="my-2 leading-relaxed">{children}</p>,
+                ul: ({ children }) => <ul className="my-2 ml-4 list-disc space-y-1">{children}</ul>,
+                ol: ({ children }) => <ol className="my-2 ml-4 list-decimal space-y-1">{children}</ol>,
+                li: ({ children }) => <li className="my-0.5 leading-relaxed">{children}</li>,
+                strong: ({ children }) => <strong className="text-white font-semibold">{children}</strong>,
+                h1: ({ children }) => <h1 className="text-lg font-bold text-white mt-4 mb-2">{children}</h1>,
+                h2: ({ children }) => <h2 className="text-base font-bold text-[#d4af37] mt-4 mb-2">{children}</h2>,
+                h3: ({ children }) => <h3 className="text-sm font-semibold text-white mt-3 mb-1.5">{children}</h3>,
+                a: ({ children, ...props }) => (
+                  <a {...props} className="text-[#d4af37] underline" target="_blank" rel="noopener noreferrer">{children}</a>
+                ),
+                blockquote: ({ children }) => (
+                  <blockquote className="border-l-2 border-[#d4af37]/50 pl-3 my-2 text-slate-300 italic">
+                    {children}
+                  </blockquote>
+                ),
+                code: ({ inline, children }) => inline ? (
+                  <code className="px-1 py-0.5 rounded bg-slate-700 text-slate-200 text-xs">{children}</code>
+                ) : (
+                  <pre className="bg-slate-900 rounded-lg p-3 overflow-x-auto my-2">
+                    <code className="text-xs text-slate-200">{children}</code>
+                  </pre>
+                ),
+              }}
+            >
+              {risposta}
+            </ReactMarkdown>
+          </div>
+
+          {/* Followup questions */}
+          {followups.length > 0 && (
+            <div className="flex flex-col gap-2">
+              {followups.map((q, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => onFollowup?.(q)}
+                  className="text-left text-sm text-white px-4 py-2.5 rounded-xl border border-slate-600/50 bg-transparent hover:border-[#d4af37]/60 transition-colors"
+                >
+                  {q}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Rating */}
+          <RatingInline conversationId={conversationId} />
+        </StreamingReveal>
+      </div>
+    </div>
+  );
+}
