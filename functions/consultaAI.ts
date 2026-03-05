@@ -8,8 +8,16 @@ async function callOpenAI(apiKey, model, messages, maxTokens, temperature) {
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
-    body: JSON.stringify({ model, messages, temperature, max_tokens: maxTokens }),
-    signal: AbortSignal.timeout(90000),
+    body: JSON.stringify({ 
+      model, 
+      messages, 
+      temperature, 
+      max_tokens: maxTokens,
+      top_p: 1,
+      frequency_penalty: 0,
+      presence_penalty: 0,
+    }),
+    signal: AbortSignal.timeout(120000),
   });
   if (!response.ok) {
     const err = await response.text();
