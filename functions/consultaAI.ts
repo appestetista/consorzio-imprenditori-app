@@ -36,9 +36,41 @@ function calcCost(model, inputTokens, outputTokens) {
     'gpt-4o':      { input: 2.50 / 1_000_000, output: 10.00 / 1_000_000 },
     'gpt-4o-mini': { input: 0.15 / 1_000_000, output: 0.60  / 1_000_000 },
     'gemini':      { input: 0.15 / 1_000_000, output: 0.60  / 1_000_000 },
+    'deepseek':    { input: 0.14 / 1_000_000, output: 0.28  / 1_000_000 },
   };
   const r = rates[model] || rates['gpt-4o-mini'];
   return (inputTokens * r.input) + (outputTokens * r.output);
+}
+
+async function callDeepSeekQuickIntro(apiKey, userMessage, webContext) {
+  const systemPrompt = `Sei ARIA, consulente strategico italiano. Genera SOLO la sezione "## Quadro Generale" (150-250 parole) per la domanda dell'utente. Scrivi in italiano professionale, con dati concreti e contesto attuale. Non aggiungere altre sezioni. Vai dritto al punto, niente frasi vuote.${webContext ? `\n\nDATI WEB AGGIORNATI:\n${webContext.substring(0, 2000)}` : ''}`;
+  
+  const response = await fetch("https://api.deepseek.com/chat/completions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
+    body: JSON.stringify({
+      model: "deepseek-chat",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userMessage }
+      ],
+      temperature: 0.4,
+      max_tokens: 800,
+    }),
+    signal: AbortSignal.timeout(15000),
+  });
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(`DeepSeek error ${response.status}: ${err.substring(0, 200)}`);
+  }
+  const data = await response.json();
+  const text = data.choices?.[0]?.message?.content || '';
+  const usage = data.usage || {};
+  return {
+    content: text,
+    inputTokens: usage.prompt_tokens || 0,
+    outputTokens: usage.completion_tokens || 0,
+  };
 }
 
 // ═══════════════════════════════════════════════════════════════
